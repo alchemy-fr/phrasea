@@ -89,7 +89,7 @@ export const databoxDiscussionNewComment = workflow(
                 .describe("The object ID"),
             object: z
                 .string()
-                .describe("The object title"),
+                .describe("The object Name"),
             authorId: z
                 .string()
                 .describe("The author ID of the message"),

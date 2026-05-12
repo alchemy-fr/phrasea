@@ -141,7 +141,7 @@ export default function WorkspaceMenuItem({
                                                             UploadDialog,
                                                             {
                                                                 files: [],
-                                                                workspaceTitle:
+                                                                workspaceName:
                                                                     data.displayName,
                                                                 workspaceId:
                                                                     data.id,

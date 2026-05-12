@@ -28,6 +28,7 @@ class AssetDataTemplateProvider implements OutputTransformerInterface
         $output->privacy = $data->getPrivacy();
         $output->tags = $data->getTags()->getValues();
         $output->public = $data->isPublic();
+        $output->assetName = $data->getAssetName();
         $output->ownerId = $data->getOwnerId();
         $output->collection = $data->getCollection();
         $output->includeCollectionChildren = $data->isIncludeCollectionChildren();

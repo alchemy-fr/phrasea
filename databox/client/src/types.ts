@@ -363,9 +363,9 @@ export interface Collection
         }>,
         Entity,
         ApiHydraObjectResponse {
-    name: string;
     parentId?: string;
-    displayName: string;
+    name?: string;
+    displayName?: string;
     nameHighlight?: string;
     storyAsset?: Asset;
     absoluteName?: string;

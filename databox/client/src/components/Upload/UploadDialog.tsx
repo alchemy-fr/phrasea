@@ -55,13 +55,13 @@ type Props = {
     workspaceId?: string;
     collectionId?: string;
     namePath?: string[];
-    workspaceTitle?: string;
+    workspaceName?: string;
 } & StackedModalProps;
 
 export default function UploadDialog({
     files: initFiles,
     workspaceId: initWsId,
-    workspaceTitle,
+    workspaceName,
     collectionId: initCollectionId,
     namePath,
     ...modalProps
@@ -216,7 +216,7 @@ export default function UploadDialog({
                         importFile: importFiles,
                         asset: {
                             ...assetBase,
-                            title: extractNameFromUrl(u),
+                            name: extractNameFromUrl(u),
                         },
                     })),
                     destinationIri,
@@ -239,7 +239,7 @@ export default function UploadDialog({
                         file: f.file,
                         asset: {
                             ...assetBase,
-                            title: getAssetNameFromFile(f.file, t),
+                            name: getAssetNameFromFile(f.file, t),
                         },
                     })),
                     destinationIri,
@@ -290,7 +290,7 @@ export default function UploadDialog({
 
     const formId = 'upload';
 
-    const title = workspaceTitle ? (
+    const title = workspaceName ? (
         namePath ? (
             <>
                 <div>
@@ -298,7 +298,7 @@ export default function UploadDialog({
                         'form.asset_create.title_with_parent',
                         'Create Asset under'
                     )}{' '}
-                    <WorkspaceChip label={workspaceTitle} />
+                    <WorkspaceChip label={workspaceName} />
                     {namePath.map((t: string, i: number) => (
                         <React.Fragment key={i}>
                             {' / '}
@@ -310,7 +310,7 @@ export default function UploadDialog({
         ) : (
             <div>
                 {t('form.asset_create.title', 'Create asset in')}{' '}
-                <WorkspaceChip label={workspaceTitle} />
+                <WorkspaceChip label={workspaceName} />
             </div>
         )
     ) : undefined;

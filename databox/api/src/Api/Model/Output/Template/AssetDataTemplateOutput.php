@@ -33,6 +33,9 @@ class AssetDataTemplateOutput extends AbstractUuidOutput
     #[Groups([AssetDataTemplate::GROUP_LIST])]
     public ?string $name = null;
 
+    #[Groups([AssetDataTemplate::GROUP_LIST])]
+    public ?string $assetName = null;
+
     #[Groups([AssetDataTemplate::GROUP_READ])]
     public bool $public = false;
 

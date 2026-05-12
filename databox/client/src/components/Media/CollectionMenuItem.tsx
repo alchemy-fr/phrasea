@@ -178,7 +178,7 @@ export default function CollectionMenuItem({
                                         onClick={closeWrapper(() =>
                                             openModal(UploadDialog, {
                                                 files: [],
-                                                workspaceTitle:
+                                                workspaceName:
                                                     workspace.displayName,
                                                 workspaceId: workspace.id,
                                                 collectionId: id,
