@@ -15,7 +15,8 @@
         "back": "Zurück",
         "your_file_will_be_downloaded": "Ihre Datei wird heruntergeladen!",
         "done": {
-            "your_file_will_be_downloaded": "Ihre Datei wird heruntergeladen!"
+            "your_file_will_be_downloaded": "Ihre Datei wird heruntergeladen!",
+            "restart": "Laden Sie ein anderes herunter"
         },
         "download_asset": "Asset herunterladen",
         "file_url": "Datei-URL",
