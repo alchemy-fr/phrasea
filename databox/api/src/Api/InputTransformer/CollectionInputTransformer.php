@@ -27,7 +27,7 @@ class CollectionInputTransformer extends AbstractInputTransformer
     {
         $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new Collection();
-        $object->setTitle($data->title);
+        $object->setName($data->name);
 
         $workspace = null;
         if ($data->workspace) {

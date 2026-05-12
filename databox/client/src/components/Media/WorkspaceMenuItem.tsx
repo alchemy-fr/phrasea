@@ -42,7 +42,7 @@ export default function WorkspaceMenuItem({
     data,
     isAuthenticated,
 }: WorkspaceMenuItemProps) {
-    const {id, nameTranslated, capabilities} = data;
+    const {id, displayName, capabilities} = data;
 
     const {t} = useTranslation();
     const searchContext = useContext(SearchContext)!;
@@ -78,7 +78,7 @@ export default function WorkspaceMenuItem({
     };
 
     const onClick = () => {
-        searchContext.selectWorkspace(id, nameTranslated, selected);
+        searchContext.selectWorkspace(id, displayName, selected);
         expand(true);
     };
 
@@ -108,8 +108,8 @@ export default function WorkspaceMenuItem({
                                                             CreateCollection,
                                                             {
                                                                 workspaceId: id,
-                                                                workspaceTitle:
-                                                                    nameTranslated,
+                                                                workspaceName:
+                                                                    displayName,
                                                                 onCreate:
                                                                     coll =>
                                                                         addCollection(
@@ -141,8 +141,8 @@ export default function WorkspaceMenuItem({
                                                             UploadDialog,
                                                             {
                                                                 files: [],
-                                                                workspaceTitle:
-                                                                    data.nameTranslated,
+                                                                workspaceName:
+                                                                    data.displayName,
                                                                 workspaceId:
                                                                     data.id,
                                                             }
@@ -219,7 +219,7 @@ export default function WorkspaceMenuItem({
                         <ListItemIcon>
                             <BusinessIcon />
                         </ListItemIcon>
-                        <ListItemText primary={nameTranslated} />
+                        <ListItemText primary={displayName} />
                     </ListItemButton>
                 </ListItem>
             </ListSubheader>

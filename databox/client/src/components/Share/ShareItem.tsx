@@ -38,12 +38,12 @@ export default function ShareItem({share, revoking, onRevoke}: Props) {
                     }}
                     primary={
                         <>
-                            {share.title ? (
+                            {share.name ? (
                                 <Typography
                                     component={'span'}
                                     variant={'body1'}
                                 >
-                                    {share.title}
+                                    {share.name}
                                     {' - '}
                                 </Typography>
                             ) : (

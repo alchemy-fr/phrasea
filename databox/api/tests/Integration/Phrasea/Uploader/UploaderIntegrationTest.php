@@ -7,6 +7,7 @@ use Alchemy\TestBundle\Helper\TestServicesTrait;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Border\UploaderClient;
 use App\Border\UploaderClientMock;
+use App\Entity\Core\Asset;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Phrasea\Uploader\UploaderIntegration;
@@ -38,7 +39,7 @@ class UploaderIntegrationTest extends ApiTestCase
         $integration = new WorkspaceIntegration();
         $integration->setPublic(true);
         $integration->setWorkspace($workspace);
-        $integration->setTitle('Uploader');
+        $integration->setName('Uploader');
         $integration->setIntegration(UploaderIntegration::getName());
         $token = 'test-token';
         $integration->setConfig([
@@ -71,11 +72,12 @@ class UploaderIntegrationTest extends ApiTestCase
 
         $em->clear();
         $assetRepo = $this->getService(AssetRepository::class);
+        /** @var Asset $asset */
         $asset = $assetRepo->findOneBy([
-            'title' => 'test_file.txt',
+            'name' => 'test_file.txt',
         ]);
         $this->assertNotNull($asset);
-        $this->assertEquals('test_file.txt', $asset->getTitle());
+        $this->assertEquals('test_file.txt', $asset->getName());
 
         /** @var UploaderClientMock $uploadClient */
         $uploadClient = $this->getService(UploaderClient::class);

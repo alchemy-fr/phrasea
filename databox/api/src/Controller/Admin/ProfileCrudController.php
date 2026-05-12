@@ -37,15 +37,15 @@ class ProfileCrudController extends AbstractAclAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Profile')
             ->setEntityLabelInPlural('Profiles')
-            ->setSearchFields(['id', 'title'])
+            ->setSearchFields(['id', 'name'])
             ->setPaginatorPageSize(100)
-            ->setDefaultSort(['title' => 'ASC']);
+            ->setDefaultSort(['name' => 'ASC']);
     }
 
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(TextFilter::new('title'))
+            ->add(TextFilter::new('name'))
             ->add(BooleanFilter::new('public'))
             ->add(DateTimeFilter::new('createdAt'))
             ->add(DateTimeFilter::new('updatedAt'))
@@ -58,7 +58,7 @@ class ProfileCrudController extends AbstractAclAdminCrudController
         yield IdField::new()
             ->hideOnForm();
         yield $this->userChoiceField->create('ownerId', 'Owner');
-        yield TextField::new('title');
+        yield TextField::new('name');
         yield TextareaField::new('description')
             ->hideOnIndex();
         yield BooleanField::new('public')

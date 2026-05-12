@@ -38,7 +38,7 @@ class SavedSearchOutputTransformer implements OutputTransformerInterface
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
 
-        $output->title = $data->getTitle();
+        $output->name = $data->getName();
         $output->public = $data->isPublic();
         $output->data = $data->getData();
 

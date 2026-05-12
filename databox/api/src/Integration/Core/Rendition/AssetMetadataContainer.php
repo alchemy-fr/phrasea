@@ -4,7 +4,7 @@ namespace App\Integration\Core\Rendition;
 
 use Alchemy\RenditionFactory\DTO\Metadata\MetadataContainerInterface;
 use App\Entity\Core\Asset;
-use App\Service\Asset\Attribute\AssetTitleResolver;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Asset\Attribute\Index\AttributeIndex;
 
@@ -16,7 +16,7 @@ final class AssetMetadataContainer implements MetadataContainerInterface
     public function __construct(
         private readonly Asset $asset,
         private readonly AttributesResolver $attributesResolver,
-        private readonly AssetTitleResolver $assetTitleResolver,
+        private readonly AssetNameResolver $assetNameResolver,
     ) {
     }
 
@@ -28,10 +28,10 @@ final class AssetMetadataContainer implements MetadataContainerInterface
         }
 
         switch ($name) {
-            case 'title':
+            case 'name':
                 $this->fetchAttributes();
 
-                return $this->assetTitleResolver->resolveTitle($this->asset, $this->attributeIndex, ['en']);
+                return $this->assetNameResolver->resolveName($this->asset, $this->attributeIndex, ['en']);
             default:
                 return null;
         }

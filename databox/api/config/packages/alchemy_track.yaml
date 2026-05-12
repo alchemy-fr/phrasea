@@ -12,7 +12,7 @@ alchemy_track:
         !php/const:App\Entity\Integration\WorkspaceIntegration::OBJECT_INDEX: App\Entity\Integration\WorkspaceIntegration
         !php/const:App\Entity\Integration\WorkspaceSecret::OBJECT_INDEX: App\Entity\Integration\WorkspaceSecret
         !php/const:App\Entity\Template\WorkspaceTemplate::OBJECT_INDEX: App\Entity\Template\WorkspaceTemplate
-        !php/const:App\Entity\Core\AssetTitleAttribute::OBJECT_INDEX: App\Entity\Core\AssetTitleAttribute
+        !php/const:App\Entity\Core\AssetNameAttribute::OBJECT_INDEX: App\Entity\Core\AssetNameAttribute
         !php/const:App\Entity\Core\AttributeDefinition::OBJECT_INDEX: App\Entity\Core\AttributeDefinition
         !php/const:App\Entity\Core\EntityList::OBJECT_INDEX: App\Entity\Core\EntityList
         !php/const:App\Entity\Core\RenditionDefinition::OBJECT_INDEX: App\Entity\Core\RenditionDefinition

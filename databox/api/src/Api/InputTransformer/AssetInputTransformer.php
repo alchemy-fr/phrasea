@@ -73,8 +73,8 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             }
         }
 
-        if ($data->title) {
-            $object->setTitle($data->title);
+        if ($data->name) {
+            $object->setName($data->name);
         }
 
         if ($data->trackingId) {

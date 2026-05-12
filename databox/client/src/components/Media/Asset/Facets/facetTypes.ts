@@ -23,7 +23,7 @@ export type Bucket = {
 };
 export type Facet = {
     meta: {
-        title: string;
+        displayName: string;
         locale?: string;
         widget?: FacetType;
         type?: AttributeType;

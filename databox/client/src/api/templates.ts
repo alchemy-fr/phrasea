@@ -12,7 +12,7 @@ export type AssetDataTemplate = {
     privacy?: number | undefined | null;
     public: boolean;
     tags?: Tag[] | undefined;
-    title?: string | undefined;
+    assetName?: string | undefined;
 } & Entity;
 
 const assetDataTemplateNS = 'asset-data-templates';

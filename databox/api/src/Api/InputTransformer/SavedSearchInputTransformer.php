@@ -30,8 +30,8 @@ class SavedSearchInputTransformer extends AbstractFileInputTransformer
             $object->setPublic($data->public);
         }
 
-        if (null !== $data->title) {
-            $object->setTitle($data->title);
+        if (null !== $data->name) {
+            $object->setName($data->name);
         }
 
         if (null !== $data->data) {

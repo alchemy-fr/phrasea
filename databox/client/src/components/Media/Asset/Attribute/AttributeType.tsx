@@ -59,7 +59,7 @@ export default function AttributeType({
                 <MultiAttributeRow
                     isRtl={false}
                     type={definition.fieldType}
-                    label={definition.nameTranslated ?? definition.name}
+                    label={definition.displayName ?? definition.name}
                     values={
                         (extractNoLocaleOrDefinedLocaleValue(attributes) ||
                             []) as AttrValue<string | number>[]
@@ -78,7 +78,7 @@ export default function AttributeType({
                             | undefined
                     }
                     required={false}
-                    label={definition.nameTranslated ?? definition.name}
+                    label={definition.displayName ?? definition.name}
                     type={definition.fieldType}
                     onChange={v => changeHandler(NO_LOCALE, v)}
                     id={definition.id}

@@ -11,7 +11,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Integration\Core\Rendition\AssetMetadataContainer;
-use App\Service\Asset\Attribute\AssetTitleResolver;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Asset\RenditionBuild\Exception\RenditionBuildException;
 use App\Service\Storage\FileManager;
@@ -26,7 +26,7 @@ final readonly class RenditionBuilder
         private RenditionManager $renditionManager,
         private EntityManagerInterface $em,
         private AttributesResolver $attributesResolver,
-        private AssetTitleResolver $assetTitleResolver,
+        private AssetNameResolver $assetNameResolver,
         private FileManager $fileManager,
         private RenditionCreator $renditionCreator,
         private FileFetcher $fileFetcher,
@@ -95,7 +95,7 @@ final readonly class RenditionBuilder
             throw new RenditionBuildException(true, 'Rendition definition is empty');
         }
 
-        $metadataContainer = new AssetMetadataContainer($asset, $this->attributesResolver, $this->assetTitleResolver);
+        $metadataContainer = new AssetMetadataContainer($asset, $this->attributesResolver, $this->assetNameResolver);
 
         try {
             try {

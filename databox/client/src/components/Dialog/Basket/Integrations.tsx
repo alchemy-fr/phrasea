@@ -40,7 +40,7 @@ export default function Integrations({data, onClose, minHeight}: Props) {
             {integrations ? (
                 integrations.map(i => (
                     <div key={i.id}>
-                        {i.title}
+                        {i.name}
 
                         {components[i.integration]
                             ? React.createElement(components[i.integration]!, {

@@ -30,7 +30,7 @@ class SavedSearchOutput extends AbstractUuidOutput
     protected array $capabilities = [];
 
     #[Groups([SavedSearch::GROUP_LIST, SavedSearch::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
-    public ?string $title = null;
+    public ?string $name = null;
 
     #[Groups([SavedSearch::GROUP_LIST, WebhookSerializationInterface::DEFAULT_GROUP])]
     public ?bool $public = null;

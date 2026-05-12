@@ -26,24 +26,24 @@ privacy:
 
 facet:
     collections:
-        title: Collections
+        name: Collections
     created_at:
-        title: Created at
+        name: Created at
     edited_at:
-        title: Edited at
+        name: Edited at
     owner:
-        title: Owner
+        name: Owner
     privacy:
-        title: Privacy
+        name: Privacy
     renditions:
-        title: Renditions
+        name: Renditions
     relevance:
-        title: Relevance
+        name: Relevance
     tags:
-        title: Tags
+        name: Tags
     workspace:
-        title: Workspace
+        name: Workspace
     is_story:
-        title: Is Story
+        name: Is Story
     stories:
-        title: Stories
+        name: Stories

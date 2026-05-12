@@ -43,7 +43,7 @@ type ActionKey = keyof Props['actions'];
 const SearchGridWidget: WidgetInterface<Props> = {
     name: 'search_grid',
 
-    getTitle(t: TFunction): string {
+    getDisplayName(t: TFunction): string {
         return t('editor.widgets.search_grid.title', 'Search Grid');
     },
 

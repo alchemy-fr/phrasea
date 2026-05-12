@@ -99,7 +99,7 @@ export function getItemLabel(
     ) {
         const def = definitionsIndex[item.definition!];
         if (def) {
-            return def.nameTranslated ?? def.name ?? 'Unknown';
+            return def.displayName ?? def.name ?? 'Unknown';
         } else if (item.key) {
             return item.key;
         }

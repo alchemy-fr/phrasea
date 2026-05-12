@@ -23,7 +23,7 @@ export default function CollectionDeleteConfirmDialog({
     return (
         <ConfirmDialog
             {...modalProps}
-            textToType={collection.title}
+            textToType={collection.name}
             title={
                 <Trans
                     i18nKey={'collection.delete.confirm_message'}

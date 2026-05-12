@@ -193,7 +193,7 @@ export default function AssetView({modalIndex, open}: Props) {
         if (asset && isImpressionTrackedRef.current !== asset.id) {
             trackContentImpression(
                 asset.resolvedTrackingId,
-                asset.resolvedTitle
+                asset.resolvedName
             );
             isImpressionTrackedRef.current = asset.id;
         }
@@ -299,7 +299,9 @@ export default function AssetView({modalIndex, open}: Props) {
                                                     file={
                                                         displayedRenditionFile!
                                                     }
-                                                    title={displayedAsset.title}
+                                                    title={
+                                                        displayedAsset.resolvedName
+                                                    }
                                                     trackingId={
                                                         displayedAsset.resolvedTrackingId
                                                     }

@@ -28,7 +28,7 @@ export default function SaveSearchDialog({
 
     const usedFormSubmit = useFormSubmit<SavedSearch>({
         defaultValues: {
-            title: search.query || '',
+            name: search.query || '',
             public: false,
         },
         onSubmit: async data => {

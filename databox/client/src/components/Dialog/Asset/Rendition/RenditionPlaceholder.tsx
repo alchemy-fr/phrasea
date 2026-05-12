@@ -19,7 +19,7 @@ export function RenditionPlaceholder({
     onUpload,
 }: Props) {
     const {t} = useTranslation();
-    const {nameTranslated} = definition;
+    const {displayName} = definition;
 
     const uploadRendition = onUpload
         ? () => {
@@ -29,7 +29,7 @@ export function RenditionPlaceholder({
 
     return (
         <RenditionStructure
-            title={nameTranslated}
+            name={displayName}
             dimensions={dimensions}
             media={
                 <div>

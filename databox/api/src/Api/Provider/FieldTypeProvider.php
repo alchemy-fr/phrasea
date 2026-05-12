@@ -26,13 +26,13 @@ class FieldTypeProvider extends AbstractCollectionProvider
         $results = array_map(function (AttributeTypeInterface $type): FieldType {
             $t = new FieldType();
             $name = $type::getName();
-            $t->setTitle($this->translator->trans(sprintf('field_type.types.%s', $name)));
+            $t->setDisplayName($this->translator->trans(sprintf('field_type.types.%s', $name)));
             $t->setName($name);
 
             return $t;
         }, array_filter($this->attributeTypeRegistry->getTypes(), fn (AttributeTypeInterface $type): bool => $type->isListed()));
 
-        usort($results, fn (FieldType $a, FieldType $b): int => $a->getTitle() <=> $b->getTitle());
+        usort($results, fn (FieldType $a, FieldType $b): int => $a->getDisplayName() <=> $b->getDisplayName());
 
         return $results;
     }

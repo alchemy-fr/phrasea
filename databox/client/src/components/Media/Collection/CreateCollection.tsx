@@ -14,17 +14,17 @@ import {CollectionChip} from '../../Ui/CollectionChip.tsx';
 
 type Props = {
     parent?: string;
-    titlePath?: string[];
+    namePath?: string[];
     workspaceId?: string;
-    workspaceTitle: string;
+    workspaceName: string;
     onCreate?: OnCollectionEdit;
 } & StackedModalProps;
 
 export default function CreateCollection({
     parent,
-    titlePath,
+    namePath,
     workspaceId,
-    workspaceTitle,
+    workspaceName,
     onCreate,
     ...modalProps
 }: Props) {
@@ -33,7 +33,7 @@ export default function CreateCollection({
 
     const usedFormSubmit = useFormSubmit<Collection>({
         defaultValues: {
-            title: '',
+            name: '',
             privacy: 0,
         },
         onSubmit: async (data: Collection) => {
@@ -62,14 +62,14 @@ export default function CreateCollection({
     useDirtyFormPrompt(forbidNavigation, modalProps.modalIndex);
     const formId = 'create-collection';
 
-    const title = titlePath ? (
+    const title = namePath ? (
         <>
             {t(
                 'form.collection_create.title_with_parent',
                 'Create Collection under'
             )}{' '}
-            <WorkspaceChip label={workspaceTitle} />
-            {titlePath.map((t, i) => (
+            <WorkspaceChip label={workspaceName} />
+            {namePath.map((t, i) => (
                 <React.Fragment key={i}>
                     {' / '}
                     <CollectionChip label={t} />
@@ -79,7 +79,7 @@ export default function CreateCollection({
     ) : (
         <>
             {t('form.collection_create.title', 'Create Collection in')}{' '}
-            <WorkspaceChip label={workspaceTitle} />
+            <WorkspaceChip label={workspaceName} />
         </>
     );
 

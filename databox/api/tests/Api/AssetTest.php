@@ -92,7 +92,7 @@ class AssetTest extends AbstractSearchTestCase
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
-                'title' => 'Dummy asset',
+                'name' => 'Dummy asset',
                 'workspace' => $this->findIriBy(Workspace::class, [
                     'slug' => 'test-workspace',
                 ]),
@@ -107,7 +107,7 @@ class AssetTest extends AbstractSearchTestCase
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
         $this->assertJsonContains([
             '@type' => 'asset',
-            'title' => 'Dummy asset',
+            'name' => 'Dummy asset',
             'extraMetadata' => [
                 'foo' => 'bar',
             ],
@@ -123,7 +123,7 @@ class AssetTest extends AbstractSearchTestCase
             'json' => [
                 'ids' => [$data['id']],
                 'destination' => $this->findIriBy(Collection::class, [
-                    'title' => 'Collection #1',
+                    'name' => 'Collection #1',
                 ]),
                 'byReference' => true,
                 'extraMetadata' => [
@@ -142,13 +142,13 @@ class AssetTest extends AbstractSearchTestCase
 
         $this->assertJsonContains([
             '@type' => 'asset',
-            'title' => 'Dummy asset',
+            'name' => 'Dummy asset',
             'extraMetadata' => [
                 'foo' => 'bar',
             ],
             'collections' => [
                 [
-                    'title' => 'Collection #1',
+                    'name' => 'Collection #1',
                     'relationExtraMetadata' => [
                         'foo' => 'baz',
                     ],
@@ -170,7 +170,7 @@ class AssetTest extends AbstractSearchTestCase
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
-                'title' => 'Dummy asset',
+                'name' => 'Dummy asset',
                 'workspace' => $this->findIriBy(Workspace::class, [
                     'slug' => 'test-workspace',
                 ]),
@@ -205,7 +205,7 @@ class AssetTest extends AbstractSearchTestCase
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
         $this->assertJsonContains([
             '@type' => 'asset',
-            'title' => 'Dummy asset',
+            'name' => 'Dummy asset',
             'source' => [
                 'url' => $url,
                 'type' => 'application/pdf',
@@ -230,7 +230,7 @@ class AssetTest extends AbstractSearchTestCase
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
-                'title' => 'Invalid payload',
+                'name' => 'Invalid payload',
             ],
         ]);
 
@@ -251,14 +251,14 @@ class AssetTest extends AbstractSearchTestCase
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             ],
             'json' => [
-                'title' => 'updated title',
+                'name' => 'updated name',
             ],
         ]);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
             '@id' => $iri,
-            'title' => 'updated title',
+            'name' => 'updated name',
         ]);
     }
 

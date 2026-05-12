@@ -20,12 +20,12 @@ export type DisplayPreferences = {
     displayPreview: boolean;
     previewOptions: PreviewOptions;
     displayTags: boolean;
-    displayTitle: boolean;
+    displayName: boolean;
     playVideos: boolean;
     previewLocked: boolean;
     tagsLimit: number;
     thumbSize: number;
-    titleRows: number;
+    nameRows: number;
     layout: Layout;
 };
 

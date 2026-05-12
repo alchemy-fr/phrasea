@@ -31,7 +31,7 @@ export default function InsertMenu({editor, onClose}: Props) {
     const elements = useMemo<Element[]>(() => {
         return widgets.map(w => ({
             name: w.name,
-            title: w.getTitle(t),
+            title: w.getDisplayName(t),
             defaultOptions: w.defaultOptions,
             defaultContent: w.defaultContent,
         }));

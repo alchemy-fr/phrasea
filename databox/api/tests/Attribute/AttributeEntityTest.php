@@ -58,7 +58,7 @@ class AttributeEntityTest extends AbstractSearchTest
         ]);
 
         $asset = $this->createAsset([
-            'title' => 'Asset1',
+            'name' => 'Asset1',
             'attributes' => [
                 [
                     'definition' => $definitionSingle,

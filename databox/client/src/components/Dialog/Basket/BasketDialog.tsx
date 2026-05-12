@@ -39,7 +39,7 @@ export default function BasketDialog({}: Props) {
             routeParams={{id}}
             maxWidth={'md'}
             title={t('basket.manage.title', 'Manage basket {{name}}', {
-                name: data.title,
+                name: data.name,
             })}
             tabs={[
                 {

@@ -75,7 +75,7 @@ class AssetSearchTest extends AbstractSearchTest
 
         $this->createAsset([
             'workspace' => $workspace,
-            'title' => 'FR',
+            'name' => 'FR',
             'public' => true,
             'attributes' => [
                 [
@@ -103,7 +103,7 @@ class AssetSearchTest extends AbstractSearchTest
 
         $this->createAsset([
             'workspace' => $workspace,
-            'title' => 'EN',
+            'name' => 'EN',
             'public' => true,
             'attributes' => [
                 [
@@ -131,7 +131,7 @@ class AssetSearchTest extends AbstractSearchTest
 
         $this->createAsset([
             'workspace' => $workspace,
-            'title' => 'AR',
+            'name' => 'AR',
             'public' => true,
             'attributes' => [
                 [
@@ -207,7 +207,7 @@ class AssetSearchTest extends AbstractSearchTest
         $this->assertSameSize($expectedResults, $data, $getMessage('Invalid result count'));
         foreach ($expectedResults as $expectedResult) {
             $r = array_shift($data);
-            $this->assertEquals($expectedResult, $r['title'], $getMessage('Invalid result order'));
+            $this->assertEquals($expectedResult, $r['name'], $getMessage('Invalid result order'));
         }
     }
 }

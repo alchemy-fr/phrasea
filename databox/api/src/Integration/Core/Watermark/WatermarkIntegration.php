@@ -64,7 +64,7 @@ class WatermarkIntegration extends AbstractIntegration implements WorkflowIntegr
         return 'core.watermark';
     }
 
-    public static function getTitle(): string
+    public static function getDisplayName(): string
     {
         return 'Watermark';
     }

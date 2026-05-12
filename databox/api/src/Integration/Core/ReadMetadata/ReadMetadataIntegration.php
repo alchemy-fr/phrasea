@@ -40,7 +40,7 @@ class ReadMetadataIntegration extends AbstractIntegration implements WorkflowInt
         yield $initializeAttributesJob;
     }
 
-    public static function getTitle(): string
+    public static function getDisplayName(): string
     {
         return 'Read Metadata';
     }

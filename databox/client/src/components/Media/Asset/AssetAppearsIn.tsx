@@ -70,8 +70,8 @@ function AssetAppearsIn({asset}: Props) {
                                     </ListItemIcon>
                                     <ListItemText
                                         primary={
-                                            storyAsset.resolvedTitle ??
-                                            storyAsset.title
+                                            storyAsset.resolvedName ??
+                                            storyAsset.name
                                         }
                                     />
                                 </ListItemButton>
@@ -85,8 +85,7 @@ function AssetAppearsIn({asset}: Props) {
                                 </ListItemIcon>
                                 <ListItemText
                                     primary={
-                                        c.absoluteTitleTranslated ??
-                                        c.absoluteTitle
+                                        c.absoluteDisplayName ?? c.absoluteName
                                     }
                                 />
                             </ListItem>

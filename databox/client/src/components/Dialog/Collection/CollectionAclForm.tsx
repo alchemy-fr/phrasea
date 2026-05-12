@@ -234,11 +234,11 @@ export default function CollectionAclForm({
                             i18nKey={'collection.acl.parent.collection'}
                             defaults={`Permissions on <strong>{{name}}</strong>`}
                             values={{
-                                name: parentCollection.titleTranslated,
+                                name: parentCollection.displayName,
                             }}
                         />
                     }
-                    name={data.titleTranslated}
+                    name={data.displayName}
                     parentDisplay={parentDisplay}
                 >
                     <CollectionAclForm
@@ -255,11 +255,11 @@ export default function CollectionAclForm({
                             i18nKey={'collection.acl.parent.workspace'}
                             defaults={`Permissions on Workspace <strong>{{name}}</strong>`}
                             values={{
-                                name: data.workspace.nameTranslated,
+                                name: data.workspace.displayName,
                             }}
                         />
                     }
-                    name={data.workspace.nameTranslated}
+                    name={data.workspace.displayName}
                     parentDisplay={parentDisplay}
                 >
                     <WorkspaceAclForm

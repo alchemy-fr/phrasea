@@ -26,7 +26,7 @@ use App\Entity\Core\Share;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
-use App\Service\Asset\Attribute\AssetTitleResolver;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Discussion\DiscussionManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -43,7 +43,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly AttributesResolver $attributesResolver,
-        private readonly AssetTitleResolver $assetTitleResolver,
+        private readonly AssetNameResolver $assetNameResolver,
         private readonly FieldNameResolver $fieldNameResolver,
         private readonly BuiltInFieldRegistry $builtInFieldRegistry,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
@@ -80,6 +80,10 @@ class AssetOutputTransformer implements OutputTransformerInterface
         $output->trackingId = $data->getTrackingId();
         $output->externalId = $data->getExternalId();
         $output->resolvedTrackingId = $data->getResolvedTrackingId();
+        $output->setCreatedAt($data->getCreatedAt());
+        $output->setUpdatedAt($data->getUpdatedAt());
+        $output->editedAt = $data->getEditedAt();
+        $output->attributesEditedAt = $data->getAttributesEditedAt();
 
         $output->setSource($data->getSource());
 
@@ -100,15 +104,15 @@ class AssetOutputTransformer implements OutputTransformerInterface
             }
             $output->setAttributes($attributes);
 
-            $output->setTitle($data->getTitle());
-            $titleAttribute = $this->assetTitleResolver->resolveTitle($data, $attributesIndex, $preferredLocales);
-            if ($titleAttribute instanceof Attribute) {
-                $output->setResolvedTitle($titleAttribute->getValue());
-                $output->setTitleHighlight($titleAttribute->getHighlight());
+            $output->setName($data->getName());
+            $nameAttribute = $this->assetNameResolver->resolveName($data, $attributesIndex, $preferredLocales);
+            if ($nameAttribute instanceof Attribute) {
+                $output->setResolvedName($nameAttribute->getValue());
+                $output->setNameHighlight($nameAttribute->getHighlight());
             } else {
-                $output->setResolvedTitle($titleAttribute ?? $data->getTitle());
-                if (isset($highlights['title'])) {
-                    $output->setTitleHighlight(reset($highlights['title']));
+                $output->setResolvedName($nameAttribute ?? $data->getName());
+                if (isset($highlights['name'])) {
+                    $output->setNameHighlight(reset($highlights['name']));
                 }
             }
 

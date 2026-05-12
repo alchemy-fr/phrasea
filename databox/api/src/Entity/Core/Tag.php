@@ -87,6 +87,8 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringab
     final public const string GROUP_READ = 'tag:r';
     final public const string GROUP_LIST = 'tag:i';
 
+    final public const string TR_FIELD_NAME = 'name';
+
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     #[Length(max: 100)]
     private string $name;

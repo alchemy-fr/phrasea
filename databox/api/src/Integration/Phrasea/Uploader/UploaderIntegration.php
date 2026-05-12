@@ -72,7 +72,7 @@ class UploaderIntegration extends AbstractIntegration
         ];
     }
 
-    public static function getTitle(): string
+    public static function getDisplayName(): string
     {
         return 'Uploader';
     }

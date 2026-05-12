@@ -24,7 +24,7 @@ export default function CollectionStoryChip({
             }
             color={'warning'}
             icon={<LayersIcon />}
-            label={storyAsset?.resolvedTitle ?? storyAsset.title}
+            label={storyAsset?.resolvedName ?? storyAsset.name}
             {...chipProps}
         />
     );

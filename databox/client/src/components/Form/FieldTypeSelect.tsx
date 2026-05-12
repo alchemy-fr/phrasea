@@ -23,12 +23,12 @@ export default function FieldTypeSelect<TFieldValues extends FieldValues>({
 
             return data.result
                 .filter(i =>
-                    i.title
+                    i.displayName
                         .toLowerCase()
                         .includes((inputValue || '').toLowerCase())
                 )
                 .map(d => ({
-                    label: d.title,
+                    label: d.displayName,
                     value: d.name,
                     image:
                         fieldTypesIcons[d.name as AttributeType] ??

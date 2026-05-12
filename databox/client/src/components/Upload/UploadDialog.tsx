@@ -29,8 +29,8 @@ import FileToUploadCard from './FileToUploadCard.tsx';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {createCollection} from '../../api/collection.ts';
 import {
-    extractTitleFromUrl,
-    getAssetTitleFromFile,
+    extractNameFromUrl,
+    getAssetNameFromFile,
     importAssets,
     NewAssetInput,
     parseUrls,
@@ -54,16 +54,16 @@ type Props = {
     files: File[];
     workspaceId?: string;
     collectionId?: string;
-    titlePath?: string[];
-    workspaceTitle?: string;
+    namePath?: string[];
+    workspaceName?: string;
 } & StackedModalProps;
 
 export default function UploadDialog({
     files: initFiles,
     workspaceId: initWsId,
-    workspaceTitle,
+    workspaceName,
     collectionId: initCollectionId,
-    titlePath,
+    namePath,
     ...modalProps
 }: Props) {
     const [urlMode, setUrlMode] = React.useState(false);
@@ -216,7 +216,7 @@ export default function UploadDialog({
                         importFile: importFiles,
                         asset: {
                             ...assetBase,
-                            title: extractTitleFromUrl(u),
+                            name: extractNameFromUrl(u),
                         },
                     })),
                     destinationIri,
@@ -239,7 +239,7 @@ export default function UploadDialog({
                         file: f.file,
                         asset: {
                             ...assetBase,
-                            title: getAssetTitleFromFile(f.file, t),
+                            name: getAssetNameFromFile(f.file, t),
                         },
                     })),
                     destinationIri,
@@ -290,16 +290,16 @@ export default function UploadDialog({
 
     const formId = 'upload';
 
-    const title = workspaceTitle ? (
-        titlePath ? (
+    const title = workspaceName ? (
+        namePath ? (
             <>
                 <div>
                     {t(
                         'form.asset_create.title_with_parent',
                         'Create Asset under'
                     )}{' '}
-                    <WorkspaceChip label={workspaceTitle} />
-                    {titlePath.map((t: string, i: number) => (
+                    <WorkspaceChip label={workspaceName} />
+                    {namePath.map((t: string, i: number) => (
                         <React.Fragment key={i}>
                             {' / '}
                             <CollectionChip label={t} />
@@ -310,7 +310,7 @@ export default function UploadDialog({
         ) : (
             <div>
                 {t('form.asset_create.title', 'Create asset in')}{' '}
-                <WorkspaceChip label={workspaceTitle} />
+                <WorkspaceChip label={workspaceName} />
             </div>
         )
     ) : undefined;

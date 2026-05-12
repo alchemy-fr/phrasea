@@ -81,7 +81,7 @@ EOL;
         $integration = new WorkspaceIntegration();
         $integration->setPublic(true);
         $integration->setWorkspace($workspace);
-        $integration->setTitle('AWS Transcribe');
+        $integration->setName('AWS Transcribe');
         $integration->setIntegration(AwsTranscribeIntegration::getName());
         $integration->setConfig([
             'accessKeyId' => '42',

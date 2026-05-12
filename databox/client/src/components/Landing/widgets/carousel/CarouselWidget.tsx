@@ -28,7 +28,7 @@ type Props = {
 const CarouselWidget: WidgetInterface<Props> = {
     name: 'carousel',
 
-    getTitle(t: TFunction): string {
+    getDisplayName(t: TFunction): string {
         return t('editor.widgets.carousel.title', 'Carousel');
     },
 
@@ -125,7 +125,7 @@ function Component({options}: RenderWidgetProps<Props>) {
                         <FilePlayer
                             cover={cover}
                             file={asset.preview!.file as AssetFile}
-                            title={asset.resolvedTitle}
+                            title={asset.resolvedName}
                             dimensions={{
                                 width: 300,
                                 height,

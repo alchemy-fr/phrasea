@@ -16,7 +16,7 @@ class CollectionAssetTest extends AbstractSearchTestCase
         self::enableFixtures();
 
         $assetIri = $this->findIriBy(Asset::class, ['key' => 'foo']);
-        $collectionIri = $this->findIriBy(Collection::class, ['title' => 'Collection #1']);
+        $collectionIri = $this->findIriBy(Collection::class, ['name' => 'Collection #1']);
 
         static::createClient()->request('POST', '/collection-assets', [
             'headers' => [

@@ -38,7 +38,7 @@ final readonly class IntegrationTypeProvider implements ProviderInterface
     {
         $object = new IntegrationType();
         $object->id = IntegrationType::normalizeId($integration::getName());
-        $object->title = $integration::getTitle();
+        $object->displayName = $integration::getDisplayName();
         $object->name = $integration::getName();
 
         $object->reference = $this->integrationManager->getIntegrationReference($integration);

@@ -33,7 +33,7 @@ trait DataboxTestTrait
         $em = self::getEntityManager();
 
         $asset = new Asset();
-        $asset->setTitle($options['title'] ?? null);
+        $asset->setName($options['name'] ?? null);
         $workspace = $options['workspace'] ?? $this->getOrCreateDefaultWorkspace();
         $asset->setWorkspace($workspace);
         $asset->setOwnerId($options['ownerId'] ?? 'custom_owner');
@@ -102,7 +102,7 @@ trait DataboxTestTrait
 
         $collection = new Collection();
         $collection->setWorkspace($options['workspace'] ?? $this->getOrCreateDefaultWorkspace());
-        $collection->setTitle($options['title'] ?? null);
+        $collection->setName($options['name'] ?? null);
         $collection->setOwnerId($options['ownerId'] ?? 'custom_owner');
 
         if ($options['public'] ?? false) {

@@ -34,7 +34,7 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public ?string $name = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST, Share::GROUP_PUBLIC_READ, EntityList::GROUP_READ, EntityList::GROUP_LIST])]
-    public ?string $nameTranslated = null;
+    public ?string $displayName = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, AttributeDefinition::GROUP_LIST, Attribute::GROUP_LIST])]
     public ?string $slug = null;

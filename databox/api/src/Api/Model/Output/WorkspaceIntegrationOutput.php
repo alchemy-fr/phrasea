@@ -22,7 +22,7 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     protected array $capabilities = [];
 
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
-    private ?string $title = null;
+    private ?string $name = null;
 
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     public ?bool $public = null;
@@ -35,7 +35,7 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     private ?string $integration = null;
 
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
-    public ?string $integrationTitle = null;
+    public ?string $integrationName = null;
 
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     public ?string $configYaml = null;
@@ -70,14 +70,14 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private array $config = [];
 
-    public function getTitle(): ?string
+    public function getName(): ?string
     {
-        return $this->title;
+        return $this->name;
     }
 
-    public function setTitle(?string $title): void
+    public function setName(?string $name): void
     {
-        $this->title = $title;
+        $this->name = $name;
     }
 
     public function getIntegration(): ?string

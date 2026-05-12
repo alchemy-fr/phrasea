@@ -26,8 +26,8 @@ class BasketInputTransformer extends AbstractInputTransformer
         /** @var Basket $object */
         $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new Basket();
 
-        if (null !== $data->title) {
-            $object->setTitle($data->title);
+        if (null !== $data->name) {
+            $object->setName($data->name);
         }
 
         if (null !== $data->description) {

@@ -9,7 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class SavedSearchInput extends AbstractOwnerIdInput
 {
     #[Assert\NotBlank]
-    public ?string $title = null;
+    public ?string $name = null;
     public ?bool $public = null;
 
     #[Assert\NotNull]

@@ -4,7 +4,7 @@ import {Box, Card, CardContent, CardMedia, Typography} from '@mui/material';
 import {getMediaBackgroundColor} from '../../../uiVars.ts';
 
 type Props = {
-    title: ReactNode;
+    name: ReactNode;
     info: ReactNode;
     media: ReactNode | undefined;
     actions: ReactNode;
@@ -12,7 +12,7 @@ type Props = {
 };
 
 export function RenditionStructure({
-    title,
+    name,
     info,
     media,
     actions,
@@ -48,7 +48,7 @@ export function RenditionStructure({
                         variant="h5"
                         style={{flexGrow: 1}}
                     >
-                        {title}
+                        {name}
                     </Typography>
                     <div>{actions}</div>
                 </Box>

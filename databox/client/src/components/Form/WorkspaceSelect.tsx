@@ -29,7 +29,7 @@ export default function WorkspaceSelect<TFieldValues extends FieldValues>({
 
                     return {
                         value: t.id,
-                        label: t.nameTranslated ?? t.name,
+                        label: t.displayName ?? t.name,
                     };
                 })
                 .filter(i =>

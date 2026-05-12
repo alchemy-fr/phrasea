@@ -101,7 +101,7 @@ abstract class AbstractIntegrationAction implements IfActionInterface
             $workspaceIntegration = $this->getIntegrationConfig($context)->getWorkspaceIntegration();
             $exception = new EntityDisableNotifyableException(
                 $workspaceIntegration,
-                sprintf('Integration "%s" error', $workspaceIntegration->getTitle() ?? $workspaceIntegration->getIntegration()),
+                sprintf('Integration "%s" error', $workspaceIntegration->getName() ?? $workspaceIntegration->getIntegration()),
                 $e->getMessage(),
                 previous: $e
             );

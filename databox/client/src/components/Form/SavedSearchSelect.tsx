@@ -30,7 +30,7 @@ export default function SavedSearchSelect<TFieldValues extends FieldValues>({
                         value: useIRI
                             ? createIriFromId(EntityName.SavedSearch, t.id)
                             : t.id,
-                        label: t.title,
+                        label: t.name,
                     };
                 })
                 .filter(i =>

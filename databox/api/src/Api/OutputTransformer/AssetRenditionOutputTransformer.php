@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\AssetRenditionOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\RenditionDefinition;
 use App\Service\Asset\RenditionBuildHashManager;
 
 final class AssetRenditionOutputTransformer implements OutputTransformerInterface
@@ -41,7 +42,7 @@ final class AssetRenditionOutputTransformer implements OutputTransformerInterfac
         $output->definition = $definition;
         $output->file = $data->getFile();
         $output->name = $data->getName();
-        $output->nameTranslated = $definition->getTranslatedField('name', $this->getPreferredLocales($definition->getWorkspace()), $definition->getName());
+        $output->displayName = $definition->getTranslatedField(RenditionDefinition::TR_FIELD_NAME, $this->getPreferredLocales($definition->getWorkspace()), $definition->getName());
         $output->projection = $data->getProjection();
         $output->locked = $data->isLocked();
         $output->substituted = $data->isSubstituted();

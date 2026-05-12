@@ -7,9 +7,9 @@ export const databoxCollectionAssetRemove = workflow(
         await step.inApp("In-App Step", async () => {
             return {
                 // @ts-expect-error unknown issue
-                subject: `Asset removed from **${payload.collectionTitle}**`,
+                subject: `Asset removed from **${payload.collectionName}**`,
                 // @ts-expect-error unknown issue
-                body: `**${payload.author}** removed Asset **${payload.assetTitle}** from Collection **${payload.collectionTitle}**.`,
+                body: `**${payload.author}** removed Asset **${payload.assetName}** from Collection **${payload.collectionName}**.`,
                 redirect: {
                 // @ts-expect-error unknown issue
                     url: payload.url,
@@ -23,12 +23,12 @@ export const databoxCollectionAssetRemove = workflow(
                 .string()
                 .default('/null')
                 .describe("The resource URL"),
-            assetTitle: z
+            assetName: z
                 .string()
-                .describe("The Asset title"),
-            collectionTitle: z
+                .describe("The Asset Name"),
+            collectionName: z
                 .string()
-                .describe("The Collection title"),
+                .describe("The Collection Name"),
             author: z
                 .string()
                 .describe("The author of the message"),
