@@ -15,7 +15,8 @@
         "back": "Retour",
         "your_file_will_be_downloaded": "Votre fichier va être téléchargé!",
         "done": {
-            "your_file_will_be_downloaded": "Votre fichier va être téléchargé !"
+            "your_file_will_be_downloaded": "Votre fichier va être téléchargé !",
+            "restart": "Télécharger un autre"
         },
         "download_asset": "Télécharger l'Asset",
         "file_url": "URL du fichier",
