@@ -8,7 +8,9 @@ use Alchemy\WebhookBundle\Normalizer\WebhookSerializationInterface;
 use ApiPlatform\Metadata\ApiProperty;
 use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
+use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\ExtraMetadataDTOTrait;
+use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetAttachment;
 use App\Entity\Core\AssetRendition;
@@ -21,6 +23,8 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
 
 class AssetOutput extends AbstractUuidOutput
 {
+    use CreatedAtDTOTrait;
+    use UpdatedAtDTOTrait;
     use CapabilitiesDTOTrait;
     use ExtraMetadataDTOTrait;
 
@@ -136,6 +140,12 @@ class AssetOutput extends AbstractUuidOutput
      */
     #[Groups([Asset::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $animatedThumbnail = null;
+
+    #[Groups(['dates'])]
+    public \DateTimeImmutable $editedAt;
+
+    #[Groups(['dates'])]
+    public \DateTimeImmutable $attributesEditedAt;
 
     #[Groups([Asset::GROUP_READ])]
     public ?array $topicSubscriptions = null;

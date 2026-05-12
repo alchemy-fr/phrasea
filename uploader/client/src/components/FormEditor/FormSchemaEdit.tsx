@@ -58,7 +58,7 @@ export default function FormSchemaEdit({formId}: Props) {
                                 required: [],
                                 properties: {
                                     my_field: {
-                                        name: 'My Field',
+                                        title: 'My Field',
                                         type: 'string',
                                     },
                                 },

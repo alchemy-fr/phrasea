@@ -80,6 +80,10 @@ class AssetOutputTransformer implements OutputTransformerInterface
         $output->trackingId = $data->getTrackingId();
         $output->externalId = $data->getExternalId();
         $output->resolvedTrackingId = $data->getResolvedTrackingId();
+        $output->setCreatedAt($data->getCreatedAt());
+        $output->setUpdatedAt($data->getUpdatedAt());
+        $output->editedAt = $data->getEditedAt();
+        $output->attributesEditedAt = $data->getAttributesEditedAt();
 
         $output->setSource($data->getSource());
 
