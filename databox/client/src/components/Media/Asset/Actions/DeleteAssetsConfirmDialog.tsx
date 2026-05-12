@@ -171,7 +171,7 @@ export default function DeleteAssetsConfirmDialog({
                                             <Trans
                                                 i18nKey="asset.delete.remove_from_collection"
                                                 values={{
-                                                    name: collection.absoluteLocalizedName,
+                                                    name: collection.absoluteDisplayName,
                                                 }}
                                                 defaults={`Remove from collection <strong>{{name}}</strong>`}
                                                 components={{

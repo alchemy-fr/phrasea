@@ -369,7 +369,7 @@ export interface Collection
     nameHighlight?: string;
     storyAsset?: Asset;
     absoluteName?: string;
-    absoluteLocalizedName?: string;
+    absoluteDisplayName?: string;
     children?: CollectionOptionalWorkspace[];
     workspace: Workspace;
     public: boolean;

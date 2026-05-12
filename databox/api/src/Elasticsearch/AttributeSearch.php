@@ -344,10 +344,10 @@ class AttributeSearch
             }
             $facets[$field] = true;
 
-            $displayName = $definition->getTranslatedField('name', $this->getPreferredLocales($definition->getWorkspace()), $definition->getName());
+            $displayName = $definition->getTranslatedField(AttributeDefinition::TR_FIELD_NAME, $this->getPreferredLocales($definition->getWorkspace()), $definition->getName());
 
             $meta = [
-                'name' => $displayName,
+                'displayName' => $displayName,
                 'sortable' => $definition->isSortable(),
             ];
             if (AttributeInterface::NO_LOCALE !== $l) {

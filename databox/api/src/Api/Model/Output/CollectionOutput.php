@@ -53,7 +53,7 @@ class CollectionOutput extends AbstractUuidOutput
         Workspace::GROUP_LIST,
         ResolveEntitiesOutput::GROUP_READ,
     ])]
-    public ?string $localizedName = null;
+    public ?string $displayName = null;
 
     #[Groups([Collection::GROUP_LIST, Workspace::GROUP_LIST])]
     private ?string $ownerId = null;
@@ -77,7 +77,7 @@ class CollectionOutput extends AbstractUuidOutput
     public ?string $absoluteName = null;
 
     #[Groups([Collection::GROUP_ABSOLUTE_NAME])]
-    public ?string $localizedAbsoluteName = null;
+    public ?string $absoluteDisplayName = null;
 
     #[Groups([
         Collection::GROUP_READ,

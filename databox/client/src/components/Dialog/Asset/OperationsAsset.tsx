@@ -82,7 +82,7 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                             values={{
                                 collection:
                                     data.referenceCollection
-                                        .absoluteLocalizedName,
+                                        .absoluteDisplayName,
                                 workspace: data.workspace.displayName,
                             }}
                             components={{
@@ -137,7 +137,7 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                                         </ListItemIcon>
                                         <CollectionChip
                                             collection={c}
-                                            label={c.absoluteLocalizedName}
+                                            label={c.absoluteDisplayName}
                                         />
 
                                         <ListItemSecondaryAction>

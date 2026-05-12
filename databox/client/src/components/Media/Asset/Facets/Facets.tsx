@@ -38,7 +38,7 @@ const Facets = React.memo(function ({facets}: {facets: TFacets}) {
 
     if (searchQuery) {
         list = list.filter(([_k, v]) =>
-            v.meta.title.toLowerCase().includes(searchQuery.toLowerCase())
+            v.meta.displayName.toLowerCase().includes(searchQuery.toLowerCase())
         );
     } else {
         list = list.filter(
@@ -65,7 +65,7 @@ const Facets = React.memo(function ({facets}: {facets: TFacets}) {
         hideFacet(updatePreference, name);
         const toastId = `facet-hidden-${name}`;
 
-        const facetName = facets[name]?.meta.title || name;
+        const facetName = facets[name]?.meta.displayName || name;
 
         toast.success(
             <span>

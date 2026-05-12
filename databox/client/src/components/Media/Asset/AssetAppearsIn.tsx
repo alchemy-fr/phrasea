@@ -85,8 +85,7 @@ function AssetAppearsIn({asset}: Props) {
                                 </ListItemIcon>
                                 <ListItemText
                                     primary={
-                                        c.absoluteLocalizedName ??
-                                        c.absoluteName
+                                        c.absoluteDisplayName ?? c.absoluteName
                                     }
                                 />
                             </ListItem>

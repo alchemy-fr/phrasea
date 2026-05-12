@@ -60,7 +60,7 @@ final class CollectionBuiltInField extends AbstractBuiltInField
                     break;
                 }
 
-                $levels[] = $pColl->getTranslatedField('name', $preferredLocales, $pColl->getName()) ?? $pColl->getId();
+                $levels[] = $pColl->getTranslatedField(Collection::TR_FIELD_NAME, $preferredLocales, $pColl->getName()) ?? $pColl->getId();
                 $pColl = $pColl->getParent();
             }
 

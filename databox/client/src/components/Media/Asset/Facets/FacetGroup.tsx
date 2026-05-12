@@ -44,7 +44,7 @@ export function FacetGroup({
             <ListItem className={Classes.facetGroup} disablePadding>
                 <ListItemButton onClick={() => toggleOpen(name)}>
                     <ListItemText
-                        primary={`${facet.meta.title}${facet.meta.locale ? ` (${facet.meta.locale})` : ''}`}
+                        primary={`${facet.meta.displayName}${facet.meta.locale ? ` (${facet.meta.locale})` : ''}`}
                         slotProps={
                             hidden
                                 ? {

@@ -32,7 +32,7 @@ class RenditionDefinitionOutputTransformer implements OutputTransformerInterface
         $output->workspace = $data->getWorkspace();
         $output->policy = $data->getPolicy();
         $output->name = $data->getName();
-        $output->displayName = $data->getTranslatedField('name', $this->getPreferredLocales($data->getWorkspace()), $data->getName());
+        $output->displayName = $data->getTranslatedField(RenditionDefinition::TR_FIELD_NAME, $this->getPreferredLocales($data->getWorkspace()), $data->getName());
         $output->parent = $data->getParent();
         $output->download = $data->isDownload();
         $output->substitutable = $data->isSubstitutable();

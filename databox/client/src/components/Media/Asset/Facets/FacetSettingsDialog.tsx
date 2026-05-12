@@ -267,7 +267,9 @@ export default function FacetSettingsDialog({modalIndex, open, facets}: Props) {
                                         </>
                                     }
                                 >
-                                    <ListItemText primary={facet.meta.title} />
+                                    <ListItemText
+                                        primary={facet.meta.displayName}
+                                    />
                                 </SortableListItem>
                             );
                         })}
@@ -292,7 +294,7 @@ export default function FacetSettingsDialog({modalIndex, open, facets}: Props) {
                                 }
                             >
                                 <ListItemText
-                                    primary={facet.meta.title}
+                                    primary={facet.meta.displayName}
                                     slotProps={{
                                         primary: {
                                             sx: {color: 'error.main'},

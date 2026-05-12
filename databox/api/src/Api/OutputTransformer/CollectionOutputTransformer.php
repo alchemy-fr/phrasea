@@ -67,7 +67,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
             $output->setStoryAsset($storyAsset);
         } else {
             $output->setName($data->getName());
-            $output->localizedName = $data->getTranslatedField(Collection::TR_FIELD_NAME, $preferredLocales, $data->getName());
+            $output->displayName = $data->getTranslatedField(Collection::TR_FIELD_NAME, $preferredLocales, $data->getName());
         }
 
         $highlights = $data->getElasticHighlights();
@@ -93,7 +93,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
 
         if ($this->hasGroup([Collection::GROUP_ABSOLUTE_NAME], $context)) {
             $output->absoluteName = $data->getAbsoluteName();
-            $output->localizedAbsoluteName = $this->getLocalizedAbsoluteName($data, $preferredLocales);
+            $output->absoluteDisplayName = $this->getAbsoluteDisplayName($data, $preferredLocales);
         }
 
         if ($this->hasGroup(Collection::GROUP_CHILDREN, $context)) {
@@ -188,7 +188,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         return $output;
     }
 
-    public function getLocalizedAbsoluteName(Collection $collection, array $preferredLocales): ?string
+    public function getAbsoluteDisplayName(Collection $collection, array $preferredLocales): ?string
     {
         $ptr = $collection;
         $path = $ptr->getTranslatedField(Collection::TR_FIELD_NAME, $preferredLocales, $ptr->getName());

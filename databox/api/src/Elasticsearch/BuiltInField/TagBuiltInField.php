@@ -36,7 +36,7 @@ final class TagBuiltInField extends AbstractEntityBuiltInField
     {
         $preferredLocales = $this->getPreferredLocales($value->getWorkspace());
 
-        return $value->getTranslatedField('name', $preferredLocales, $value->getName());
+        return $value->getTranslatedField(Tag::TR_FIELD_NAME, $preferredLocales, $value->getName());
     }
 
     protected function getEntityClass(): string
