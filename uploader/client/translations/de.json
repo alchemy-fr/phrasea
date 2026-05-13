@@ -4,18 +4,35 @@
     },
     "menu": {
         "account": "Mein Konto",
-        "logout": "Abmelden"
+        "logout": "Abmelden",
+        "form_editor": "Formular-Editor",
+        "target_data_editor": "Zieldaten-Editor"
     },
     "targets": {
         "none_available": "Sie haben keinen Zugriff auf ein Upload-Ziel."
     },
     "download": {
         "back": "Zurück",
-        "your_file_will_be_downloaded": "Ihre Datei wird heruntergeladen!"
+        "your_file_will_be_downloaded": "Ihre Datei wird heruntergeladen!",
+        "done": {
+            "your_file_will_be_downloaded": "Ihre Datei wird heruntergeladen!",
+            "restart": "Laden Sie ein anderes herunter"
+        },
+        "download_asset": "Asset herunterladen",
+        "file_url": "Datei-URL",
+        "fill_the_form_to_download_your_asset": "Füllen Sie das Formular aus, um Ihr Asset herunterzuladen."
     },
     "file_picker": {
         "drag_n_drop_some_files_here_or_click_to_select_files": "Ziehen Sie Dateien per Drag and Dop hierher oder klicken Sie, um Dateien auszuwählen",
-        "next": "Weiter"
+        "next": "Weiter",
+        "alternative_upload_methods": "oder <l> laden Sie einfach</l> URLs herunter.",
+        "file_count_one": "Sie haben {{count}} Datei ausgewählt",
+        "file_count_other": "Sie haben {{count}} Dateien ausgewählt",
+        "max_file_size": "Max. Dateigröße: {{size}}",
+        "total_max_file_count_exceeded": "Die maximale Gesamtzahl der Dateien wurde überschritten ({{fileCount}} > {{maxFileCount}})",
+        "total_max_file_size_exceeded": "Die maximale Gesamtdateigröße wurde überschritten ({{actualSize}} > {{maxSize}})",
+        "total_size": "Gesamtgröße: {{size}}/{{maxCommitSize}}",
+        "total_size_no_limit": "Gesamtgröße: {{size}}"
     },
     "upload_done": {
         "all_files_have_been_uploaded": "Alle Dateien wurden hochgeladen.",
@@ -25,5 +42,70 @@
     "upload_form": {
         "selected_files_one": "{{count}} ausgewählte Datei",
         "selected_files_other": "{{count}} ausgewählte Dateien"
+    },
+    "common": {
+        "cancel": "Abbrechen",
+        "next": "Weiter",
+        "uploader": "Uploader"
+    },
+    "form": {
+        "addItem": "Hinzufügen",
+        "selectPlaceholder": "Wählen Sie eine Option"
+    },
+    "form_editor": {
+        "create": {
+            "title": "Neues Formularschema erstellen"
+        },
+        "edit": {
+            "title": "Formularschema bearbeiten: {{name}}"
+        },
+        "form_saved": "Formular wurde erfolgreich gespeichert",
+        "form_submitted": "Formular mit Daten eingereicht: <pre> {{json}}} </pre>",
+        "form_submitted_title": "Formular eingereicht",
+        "invalid_json": "Ungültiges JSON: {{message}}",
+        "locale": {
+            "helper": "Optionale Locale für dieses Formular-Schema (z. B. en, fr usw.). Leer lassen für alle Locales.",
+            "label": "Lokale"
+        },
+        "save_form": "Formular speichern",
+        "target": {
+            "label": "Ziel"
+        }
+    },
+    "form_schema": {
+        "list": {
+            "create_button": "Neues Formularschema erstellen",
+            "delete": "Löschen",
+            "delete_confirm_message": "Möchten Sie das Formularschema für {{name}} wirklich löschen?",
+            "delete_confirm_title": "Formularschema löschen",
+            "edit": "Bearbeiten",
+            "empty": "Keine Formularschemas gefunden. Klicken Sie auf die Schaltfläche unten, um eine neue zu erstellen.",
+            "title": "Formularschemas"
+        }
+    },
+    "target_param": {
+        "create": {
+            "title": "Neue Zielparameter erstellen"
+        },
+        "edit": {
+            "title": "Zielparameter bearbeiten: {{name}}"
+        },
+        "form_saved": "Formular wurde erfolgreich gespeichert",
+        "list": {
+            "create_button": "Neue Zielparameter erstellen",
+            "delete": "Löschen",
+            "delete_confirm_message": "Sind Sie sicher, dass Sie die Parameter von Ziel {{name}} löschen möchten?",
+            "delete_confirm_title": "Formularschema löschen",
+            "edit": "Bearbeiten",
+            "empty": "Keine",
+            "title": "Zielparameter"
+        },
+        "save_form": "Formular speichern",
+        "target": {
+            "label": "Ziel"
+        }
+    },
+    "upload": {
+        "cancelConfirmation": "Möchten Sie den aktuellen Upload wirklich abbrechen?"
     }
 }
