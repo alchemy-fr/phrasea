@@ -312,7 +312,7 @@ jobs:
             fi
           done
           
-          export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,novu"
+          export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,novu,indexer"
           REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=${{ github.ref_name }} docker compose push
           
           # If latest, also push latest tag
@@ -361,5 +361,5 @@ jobs:
             ecr_repo="${ECR_REGISTRY}/ps-${image_name}"
             docker tag "$repo:${{ env.DOCKER_TAG }}" "$ecr_repo:${{ github.ref_name }}"
           done
-          export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,novu"
+          export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,novu,indexer"
           REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ github.ref_name }} docker compose push
