@@ -22,9 +22,7 @@ function TagFacetItem({
     return (
         <ListItemButton onClick={onClick}>
             <TagColor color={(item as Tag).color} />
-            <ListItemText
-                primary={`${(item as Tag).nameTranslated} (${count})`}
-            />
+            <ListItemText primary={`${(item as Tag).displayName} (${count})`} />
             <ListItemSecondaryAction>
                 <Checkbox
                     edge="end"

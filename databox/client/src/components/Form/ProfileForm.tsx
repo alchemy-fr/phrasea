@@ -23,13 +23,13 @@ export const ProfileForm: FC<FormProps<Profile>> = function ({
                 <TextField
                     autoFocus
                     required={true}
-                    label={t('form.profile.title.label', 'Title')}
+                    label={t('form.profile.name.label', 'Name')}
                     disabled={submitting}
-                    {...register('title', {
+                    {...register('name', {
                         required: true,
                     })}
                 />
-                <FormFieldErrors field={'title'} errors={errors} />
+                <FormFieldErrors field={'name'} errors={errors} />
             </FormRow>
             <FormRow>
                 <TextField

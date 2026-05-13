@@ -23,7 +23,7 @@ export default function AssetTagList({tags}: Props) {
         <TagNode
             size={'small'}
             key={c.id}
-            name={c.nameTranslated}
+            name={c.displayName}
             color={c.color}
         />
     );

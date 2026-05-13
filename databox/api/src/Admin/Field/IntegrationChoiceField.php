@@ -18,7 +18,7 @@ final readonly class IntegrationChoiceField
     {
         $choices = [];
         foreach ($this->integrationRegistry->getIntegrations() as $type) {
-            $choices[$type::getTitle()] = $type::getName();
+            $choices[$type::getDisplayName()] = $type::getName();
         }
 
         return $choices ?: ['' => ''];

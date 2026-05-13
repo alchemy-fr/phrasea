@@ -65,7 +65,7 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
         return 'core.rendition';
     }
 
-    public static function getTitle(): string
+    public static function getDisplayName(): string
     {
         return 'Rendition';
     }

@@ -42,7 +42,7 @@ export default function CollectionDialog({}: Props) {
             routeParams={{id}}
             maxWidth={'md'}
             title={t('collection.manage.title', 'Manage collection {{name}}', {
-                name: data.titleTranslated,
+                name: data.displayName,
             })}
             tabs={[
                 {

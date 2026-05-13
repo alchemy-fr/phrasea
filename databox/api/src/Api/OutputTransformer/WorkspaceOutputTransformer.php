@@ -43,7 +43,7 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
         $output = new WorkspaceOutput();
         $output->setId($data->getId());
         $output->setName($data->getName());
-        $output->nameTranslated = $data->getTranslatedField('name', $this->getPreferredLocales($data), $data->getName());
+        $output->displayName = $data->getTranslatedField(Workspace::TR_FIELD_NAME, $this->getPreferredLocales($data), $data->getName());
         $output->setSlug($data->getSlug());
         $output->setEnabledLocales($data->getEnabledLocales());
         $output->setPublic($data->isPublic());

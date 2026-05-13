@@ -38,7 +38,7 @@ class TestAssetOperationIntegration extends AbstractIntegration implements Workf
         return 'test.asset_operation';
     }
 
-    public static function getTitle(): string
+    public static function getDisplayName(): string
     {
         return 'Test asset operation';
     }

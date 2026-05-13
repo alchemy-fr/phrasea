@@ -35,7 +35,7 @@ class RenditionDefinitionOutput extends AbstractUuidOutput
         RenditionDefinition::GROUP_READ,
         ResolveEntitiesOutput::GROUP_READ,
     ])]
-    public ?string $nameTranslated = null;
+    public ?string $displayName = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     public ?RenditionPolicy $policy = null;

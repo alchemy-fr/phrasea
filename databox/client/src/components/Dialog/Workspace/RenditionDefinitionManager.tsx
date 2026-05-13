@@ -239,7 +239,7 @@ function Item({
 }
 
 function ListItem({data}: DefinitionItemProps<RenditionDefinition>) {
-    return <ListItemText primary={data.nameTranslated} />;
+    return <ListItemText primary={data.displayName} />;
 }
 
 function createNewItem(): Partial<RenditionDefinition> {
@@ -285,7 +285,7 @@ export default function RenditionDefinitionManager({
             searchFilter={({items}, value) =>
                 search<RenditionDefinition>(
                     items,
-                    ['nameTranslated', 'name'],
+                    ['displayName', 'name'],
                     value
                 )
             }

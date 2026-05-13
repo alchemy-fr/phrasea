@@ -29,7 +29,7 @@ class AssetRenditionOutput extends AbstractUuidOutput
     public ?string $name = null;
 
     #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ, Share::GROUP_PUBLIC_READ])]
-    public ?string $nameTranslated = null;
+    public ?string $displayName = null;
 
     #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ])]
     public ?bool $projection = null;

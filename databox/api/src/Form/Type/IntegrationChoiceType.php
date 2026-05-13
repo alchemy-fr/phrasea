@@ -19,7 +19,7 @@ class IntegrationChoiceType extends AbstractType
     {
         $choices = [];
         foreach ($this->integrationRegistry->getIntegrations() as $type) {
-            $choices[$type::getTitle()] = $type::getName();
+            $choices[$type::getDisplayName()] = $type::getName();
         }
 
         $resolver->setDefaults([

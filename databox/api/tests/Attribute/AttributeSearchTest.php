@@ -87,9 +87,9 @@ class AttributeSearchTest extends TestCase
             ];
         };
 
-        $defaultTitleCluster = [
+        $defaultNameCluster = [
             'fields' => [
-                'title' => [
+                'name' => [
                     'type' => TextAttributeType::NAME,
                     'b' => 1,
                 ],
@@ -103,22 +103,22 @@ class AttributeSearchTest extends TestCase
             [
                 [],
                 [
-                    $defaultTitleCluster,
+                    $defaultNameCluster,
                 ],
             ],
 
             [
                 [
-                    $createField(true, 'w1', 'title'),
+                    $createField(true, 'w1', 'name'),
                 ],
                 [
                     [
                         'fields' => [
-                            AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
+                            AttributeInterface::ATTRIBUTES_FIELD.'._.name_text_s' => [
                                 'type' => TextAttributeType::NAME,
                                 'b' => 1,
                             ],
-                            'title' => [
+                            'name' => [
                                 'type' => TextAttributeType::NAME,
                                 'b' => 1,
                             ],
@@ -132,12 +132,12 @@ class AttributeSearchTest extends TestCase
 
             [
                 [
-                    $createField(true, 'w1', 'title', 42),
+                    $createField(true, 'w1', 'name', 42),
                 ],
                 [
                     [
                         'fields' => [
-                            AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
+                            AttributeInterface::ATTRIBUTES_FIELD.'._.name_text_s' => [
                                 'type' => TextAttributeType::NAME,
                                 'b' => 42,
                             ],
@@ -148,7 +148,7 @@ class AttributeSearchTest extends TestCase
                     ],
                     [
                         'fields' => [
-                            'title' => [
+                            'name' => [
                                 'type' => TextAttributeType::NAME,
                                 'b' => 1,
                             ],
@@ -162,33 +162,33 @@ class AttributeSearchTest extends TestCase
 
             [
                 [
-                    $createField(false, 'w1', 'title', 42),
+                    $createField(false, 'w1', 'name', 42),
                 ],
                 [
-                    $defaultTitleCluster,
-                ],
-            ],
-
-            [
-                [
-                    $createField(false, 'w1', 'title'),
-                ],
-                [
-                    $defaultTitleCluster,
+                    $defaultNameCluster,
                 ],
             ],
 
             [
                 [
-                    $createField(true, 'w1', 'title'),
+                    $createField(false, 'w1', 'name'),
+                ],
+                [
+                    $defaultNameCluster,
+                ],
+            ],
+
+            [
+                [
+                    $createField(true, 'w1', 'name'),
                     $createField(true, 'w1', 'desc'),
-                    $createField(true, 'w2', 'title'),
+                    $createField(true, 'w2', 'name'),
                     $createField(true, 'w2', 'desc'),
                 ],
                 [
                     [
                         'fields' => [
-                            AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
+                            AttributeInterface::ATTRIBUTES_FIELD.'._.name_text_s' => [
                                 'type' => TextAttributeType::NAME,
                                 'b' => 1,
                             ],
@@ -196,7 +196,7 @@ class AttributeSearchTest extends TestCase
                                 'type' => TextAttributeType::NAME,
                                 'b' => 1,
                             ],
-                            'title' => [
+                            'name' => [
                                 'type' => TextAttributeType::NAME,
                                 'b' => 1,
                             ],
@@ -210,19 +210,19 @@ class AttributeSearchTest extends TestCase
 
             [
                 [
-                    $createField(true, 'w1', 'title', 1),
+                    $createField(true, 'w1', 'name', 1),
                     $createField(true, 'w1', 'desc', 1),
-                    $createField(true, 'w2', 'title', 1),
+                    $createField(true, 'w2', 'name', 1),
                     $createField(true, 'w2', 'desc', 2),
                 ],
                 [
                     [
                         'fields' => [
-                            AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
+                            AttributeInterface::ATTRIBUTES_FIELD.'._.name_text_s' => [
                                 'type' => TextAttributeType::NAME,
                                 'b' => 1,
                             ],
-                            'title' => [
+                            'name' => [
                                 'type' => TextAttributeType::NAME,
                                 'b' => 1,
                             ],
@@ -258,19 +258,19 @@ class AttributeSearchTest extends TestCase
 
             [
                 [
-                    $createField(true, 'w1', 'title'),
+                    $createField(true, 'w1', 'name'),
                     $createField(false, 'w1', 'desc'),
-                    $createField(true, 'w2', 'title'),
+                    $createField(true, 'w2', 'name'),
                     $createField(true, 'w2', 'desc'),
                 ],
                 [
                     [
                         'fields' => [
-                            AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
+                            AttributeInterface::ATTRIBUTES_FIELD.'._.name_text_s' => [
                                 'type' => TextAttributeType::NAME,
                                 'b' => 1,
                             ],
-                            'title' => [
+                            'name' => [
                                 'type' => TextAttributeType::NAME,
                                 'b' => 1,
                             ],
@@ -295,19 +295,19 @@ class AttributeSearchTest extends TestCase
 
             [
                 [
-                    $createField(true, 'w1', 'title'),
+                    $createField(true, 'w1', 'name'),
                     $createField(true, 'w1', 'desc'),
-                    $createField(true, 'w2', 'title'),
+                    $createField(true, 'w2', 'name'),
                     $createField(false, 'w2', 'desc'),
                 ],
                 [
                     [
                         'fields' => [
-                            AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
+                            AttributeInterface::ATTRIBUTES_FIELD.'._.name_text_s' => [
                                 'type' => TextAttributeType::NAME,
                                 'b' => 1,
                             ],
-                            'title' => [
+                            'name' => [
                                 'type' => TextAttributeType::NAME,
                                 'b' => 1,
                             ],
@@ -332,15 +332,15 @@ class AttributeSearchTest extends TestCase
 
             [
                 [
-                    $createField(true, 'w1', 'title'),
+                    $createField(true, 'w1', 'name'),
                     $createField(true, 'w1', 'desc'),
-                    $createField(false, 'w2', 'title'),
+                    $createField(false, 'w2', 'name'),
                     $createField(false, 'w2', 'desc', 2),
                 ],
                 [
                     [
                         'fields' => [
-                            AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
+                            AttributeInterface::ATTRIBUTES_FIELD.'._.name_text_s' => [
                                 'type' => TextAttributeType::NAME,
                                 'b' => 1,
                             ],
@@ -353,23 +353,23 @@ class AttributeSearchTest extends TestCase
                         'b' => 1,
                         'locales' => [],
                     ],
-                    $defaultTitleCluster,
+                    $defaultNameCluster,
                 ],
             ],
 
             [
                 [
-                    $createField(true, 'w1', 'title'),
+                    $createField(true, 'w1', 'name'),
                     $createField(true, 'w1', 'desc'),
-                    $createField(true, 'w2', 'title'),
+                    $createField(true, 'w2', 'name'),
                     $createField(true, 'w2', 'desc', 2),
                     $createField(true, 'w3', 'desc', 2),
-                    $createField(true, 'w4', 'title', 3),
+                    $createField(true, 'w4', 'name', 3),
                 ],
                 [
                     [
                         'fields' => [
-                            AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
+                            AttributeInterface::ATTRIBUTES_FIELD.'._.name_text_s' => [
                                 'type' => TextAttributeType::NAME,
                                 'b' => 1,
                             ],
@@ -380,7 +380,7 @@ class AttributeSearchTest extends TestCase
                     ],
                     [
                         'fields' => [
-                            AttributeInterface::ATTRIBUTES_FIELD.'._.title_text_s' => [
+                            AttributeInterface::ATTRIBUTES_FIELD.'._.name_text_s' => [
                                 'type' => TextAttributeType::NAME,
                                 'b' => 3,
                             ],
@@ -411,7 +411,7 @@ class AttributeSearchTest extends TestCase
                         'b' => 2,
                         'locales' => [],
                     ],
-                    $defaultTitleCluster,
+                    $defaultNameCluster,
                 ],
             ],
         ];

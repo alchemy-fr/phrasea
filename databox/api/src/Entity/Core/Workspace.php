@@ -99,6 +99,8 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     private const string CONFIG_ANALYZERS = 'analyzers';
     private const string TRASH_RETENTION_DELAY = 'trashRetentionDelay';
 
+    final public const string TR_FIELD_NAME = 'name';
+
     #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     #[Assert\NotBlank]
     private ?string $name = null;

@@ -166,7 +166,7 @@ class AssetSearch extends AbstractSearch
             'pre_tags' => ['[hl]'],
             'post_tags' => ['[/hl]'],
             'fields' => [
-                'title' => [
+                'name' => [
                     'fragment_size' => 255,
                     'number_of_fragments' => 1,
                 ],

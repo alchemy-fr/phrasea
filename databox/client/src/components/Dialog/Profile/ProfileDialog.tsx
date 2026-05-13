@@ -37,7 +37,7 @@ export default function ProfileDialog({}: Props) {
             routeParams={{id}}
             maxWidth={'md'}
             title={t('profile.manage.title', 'Manage Profile {{name}}', {
-                name: data.title,
+                name: data.name,
             })}
             tabs={[
                 {

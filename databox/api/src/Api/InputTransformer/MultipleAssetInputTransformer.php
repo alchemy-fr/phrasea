@@ -30,7 +30,7 @@ class MultipleAssetInputTransformer extends AbstractFileInputTransformer
         if ($data->isStory && !empty($data->assets)) {
             $ref = $data->assets[0];
             $storyAssetInput = new AssetInput();
-            $storyAssetInput->title = $data->story?->title ?? $data->assets[0]->title ?? 'Story';
+            $storyAssetInput->name = $data->story?->name ?? $data->assets[0]->name ?? 'Story';
             $storyAssetInput->isStory = true;
             $storyAssetInput->tags = $data->story?->tags;
             $storyAssetInput->attributes = $data->story?->attributes;

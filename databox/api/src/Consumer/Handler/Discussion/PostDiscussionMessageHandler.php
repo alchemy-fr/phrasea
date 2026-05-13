@@ -8,7 +8,7 @@ use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Discussion\Message;
-use App\Entity\ObjectTitleInterface;
+use App\Entity\ObjectDisplayableNameInterface;
 use App\Repository\Discussion\MessageRepository;
 use App\Service\Asset\ObjectNotifier;
 use App\Service\Discussion\DiscussionManager;
@@ -46,7 +46,7 @@ readonly class PostDiscussionMessageHandler
 
         $notificationId = 'databox-discussion-new-comment';
         $params = [
-            'object' => $object instanceof ObjectTitleInterface ? $object->getObjectTitle() : 'Undefined Object',
+            'object' => $object instanceof ObjectDisplayableNameInterface ? $object->getObjectDisplayName() : 'Undefined Object',
             'objectId' => $object->getId(),
             'authorId' => $authorId,
             'author' => $this->notifier->getUsername($authorId),
@@ -66,7 +66,7 @@ readonly class PostDiscussionMessageHandler
 
             foreach ($object->getCollections() as $assetCollection) {
                 $collection = $assetCollection->getCollection();
-                $params['collection'] = $collection->getAbsoluteTitle();
+                $params['collection'] = $collection->getAbsoluteName();
 
                 $this->objectNotifier->notifyObject(
                     $collection,

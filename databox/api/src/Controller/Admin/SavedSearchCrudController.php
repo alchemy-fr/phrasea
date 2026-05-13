@@ -35,15 +35,15 @@ class SavedSearchCrudController extends AbstractAclAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Saved Search')
             ->setEntityLabelInPlural('Saved Searches')
-            ->setSearchFields(['id', 'title'])
+            ->setSearchFields(['id', 'name'])
             ->setPaginatorPageSize(100)
-            ->setDefaultSort(['title' => 'ASC']);
+            ->setDefaultSort(['name' => 'ASC']);
     }
 
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(TextFilter::new('title'))
+            ->add(TextFilter::new('name'))
             ->add(BooleanFilter::new('public'))
             ->add(DateTimeFilter::new('createdAt'))
             ->add(DateTimeFilter::new('updatedAt'))
@@ -56,7 +56,7 @@ class SavedSearchCrudController extends AbstractAclAdminCrudController
         yield IdField::new()
             ->hideOnForm();
         yield $this->userChoiceField->create('ownerId', 'Owner');
-        yield TextField::new('title');
+        yield TextField::new('name');
         yield BooleanField::new('public')
             ->renderAsSwitch(false)
         ;

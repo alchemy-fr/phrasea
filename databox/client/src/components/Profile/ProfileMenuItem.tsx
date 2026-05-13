@@ -52,7 +52,7 @@ export default function ProfileMenuItem({
                     <ListItemText
                         className={Classes.ellipsisText}
                         primary={
-                            data.title ||
+                            data.name ||
                             t('profile.default.title', 'Default Profile')
                         }
                         secondary={data.description}

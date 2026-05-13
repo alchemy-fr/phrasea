@@ -1108,7 +1108,7 @@
         "user_must_be_authenticated": "L'utilisateur doit être authentifié"
     },
     "remove_bgasset_editor_actions": {
-        "bg_removed": "{{title}} - Arrière-plan retiré",
+        "bg_removed": "{{name}} - Arrière-plan retiré",
         "remove_bg": "Retirer l'arrière-plan",
         "use_slider_to_compare": "Utiliser le curseur pour comparer"
     },

@@ -53,7 +53,7 @@ export type CreateAssetsOptions = {
     isStory?: boolean;
     story?:
         | {
-              title?: string;
+              name?: string;
               tags?: string[];
               attributes?: AttributeBatchAction[] | undefined;
           }

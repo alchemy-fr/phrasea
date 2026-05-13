@@ -25,8 +25,8 @@ App\Entity\Core\AttributeDefinition:
         workspace: '@w_newspaper'
         fieldType: text
 
-    ad_story_title (extends attribute_definition_n):
-        name: Story Title
+    ad_story_name (extends attribute_definition_n):
+        name: Story Name
         policy: '@n_ap_public'
         position: 0
         target: '<(App\Model\AssetTypeEnum::Story)>'
@@ -245,41 +245,41 @@ App\Entity\Core\Collection:
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
 
     storyc_n{1..10} (extends collection_n):
-        title: null
+        name: null
 
     c_n_special_chars (extends collection_n):
-        title: 'D&D \@][ \<ap>++"='
+        name: 'D&D \@][ \<ap>++"='
 
     c_n_{sport, entertainment} (extends collection_n):
-        title: '<ucwords($current)>'
+        name: '<ucwords($current)>'
 
     c_n_sport_{football, rugby, tennis} (extends collection_n):
         parent: '@c_n_sport'
-        title: '<ucwords($current)>'
+        name: '<ucwords($current)>'
 
     c_n_sport_football_{league, worldcup} (extends collection_n):
         parent: '@c_n_sport_football'
-        title: '<ucwords($current)>'
+        name: '<ucwords($current)>'
 
     c_n_entertainment_{archives} (extends collection_n):
         parent: '@c_n_entertainment'
-        title: '<ucwords($current)>'
+        name: '<ucwords($current)>'
 
     c_n_entertainment_{public_videos} (extends collection_n):
         ownerId: <keycloakUser("alice")>
         privacy: 3
         parent: '@c_n_entertainment'
-        title: '<ucwords($current)>'
+        name: '<ucwords($current)>'
 
     c_n_entertainment_public_videos_{movies, series, shows} (extends collection_n):
         ownerId: <keycloakUser("alice")>
         parent: '@c_n_entertainment_public_videos'
-        title: '<ucwords($current)>'
+        name: '<ucwords($current)>'
 
     c_n_entertainment_archives_{movies, series, shows} (extends collection_n):
         ownerId: <keycloakUser("alice")>
         parent: '@c_n_entertainment_archives'
-        title: '<ucwords($current)>'
+        name: '<ucwords($current)>'
 
 App\Entity\Core\Asset:
     asset_n (template):
@@ -294,30 +294,30 @@ App\Entity\Core\Asset:
             - addToCollection (80%?): ['@c_n_entertainment_archives_series', true, true]
 
     a_img{1..50} (extends asset_n):
-        title: 'Image #<ucwords($current)>'
+        name: 'Image #<ucwords($current)>'
         ownerId: <keycloakUser("bob")>
         source: '@f_img_m<current()>'
     a_audio{1..10} (extends asset_n):
-        title: 'Audio #<ucwords($current)>'
+        name: 'Audio #<ucwords($current)>'
         ownerId: <keycloakUser("bob")>
         source: '@f_audio_o<current()>'
     a_video{1..10} (extends asset_n):
-        title: 'Video #<ucwords($current)>'
+        name: 'Video #<ucwords($current)>'
         ownerId: <keycloakUser("alice")>
         source: '@f_video_o<current()>'
     a_pdf{1..10} (extends asset_n):
-        title: 'PDF #<ucwords($current)>'
+        name: 'PDF #<ucwords($current)>'
         ownerId: <keycloakUser("carol")>
         source: '@f_pdf_o<current()>'
     astory{1..10} (extends asset_n):
-        title: 'Story #<ucwords($current)>'
+        name: 'Story #<ucwords($current)>'
         ownerId: <keycloakUser("alice")>
         storyCollection: '@storyc_n<current()>'
         __calls:
             - addToCollection (80%?): ['@c_n_entertainment_archives_movies', true, true]
             - addToCollection (80%?): ['@c_n_entertainment_archives_series', true, true]
     storya_img{1..20} (extends asset_n):
-        title: 'Image in stories #<ucwords($current)>'
+        name: 'Image in stories #<ucwords($current)>'
         ownerId: <keycloakUser("bob")>
         source: '@f_story_img_m<current()>'
         __calls:
@@ -549,7 +549,7 @@ App\Entity\Core\Tag:
 
 App\Entity\Integration\WorkspaceIntegration:
     wi_toast_ui:
-        title: ToastUI
+        name: ToastUI
         public: true
         integration: tui.photo-editor
         workspace: '@w_newspaper'
@@ -581,7 +581,7 @@ App\Entity\Integration\WorkspaceIntegration:
             - '@wi_renditions'
     wi_expose:
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
-        title: Expose Basket
+        name: Expose Basket
         public: true
         integration: phrasea.expose
         config:

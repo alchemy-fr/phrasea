@@ -27,7 +27,7 @@ import {AssetWidgetProps, Position} from './types.ts';
 const AssetWidget: WidgetInterface<AssetWidgetProps> = {
     name: 'asset',
 
-    getTitle(t: TFunction): string {
+    getDisplayName(t: TFunction): string {
         return t('editor.widgets.asset.title', 'Asset');
     },
 
@@ -101,7 +101,7 @@ function Component({options}: RenderWidgetProps<AssetWidgetProps>) {
             >
                 <MemoizedFilePlayer
                     file={data.preview!.file as AssetFile}
-                    title={data.resolvedTitle}
+                    title={data.resolvedName}
                     dimensions={{
                         width: maxWidth,
                         height: maxHeight,

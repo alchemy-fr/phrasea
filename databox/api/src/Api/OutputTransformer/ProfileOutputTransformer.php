@@ -40,7 +40,7 @@ class ProfileOutputTransformer implements OutputTransformerInterface
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
 
-        $output->title = $data->getTitle();
+        $output->name = $data->getName();
         $output->description = $data->getDescription();
         $output->public = $data->isPublic();
 

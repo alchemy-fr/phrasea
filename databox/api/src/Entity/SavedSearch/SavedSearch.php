@@ -64,7 +64,7 @@ class SavedSearch extends AbstractUuidEntity implements WithOwnerIdInterface, Ac
     #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    private ?string $title = null;
+    private ?string $name = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $public = false;
@@ -77,14 +77,14 @@ class SavedSearch extends AbstractUuidEntity implements WithOwnerIdInterface, Ac
         parent::__construct($id);
     }
 
-    public function getTitle(): ?string
+    public function getName(): ?string
     {
-        return $this->title;
+        return $this->name;
     }
 
-    public function setTitle(?string $title): void
+    public function setName(?string $name): void
     {
-        $this->title = $title;
+        $this->name = $name;
     }
 
     public function getData(): array
@@ -104,7 +104,7 @@ class SavedSearch extends AbstractUuidEntity implements WithOwnerIdInterface, Ac
 
     public function __toString(): string
     {
-        return $this->getTitle() ?? 'SavedSearch - '.$this->getId();
+        return $this->getName() ?? 'SavedSearch - '.$this->getId();
     }
 
     public function isPublic(): bool

@@ -19,12 +19,7 @@ export const CollectionChip = ({children, collection, ...props}: Props) => {
                       style: {textDecoration: 'line-through'},
                   }
                 : {})}
-            label={
-                children ||
-                props.label ||
-                collection?.titleTranslated ||
-                collection?.title
-            }
+            label={children || props.label || collection?.displayName}
         />
     );
 };

@@ -127,7 +127,7 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
         return self::getName().':'.$integrationId.':'.PhraseanetReceiveAction::JOB_ID.':'.$renditionName;
     }
 
-    public static function getTitle(): string
+    public static function getDisplayName(): string
     {
         return 'Phraseanet Renditions';
     }

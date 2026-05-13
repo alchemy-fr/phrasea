@@ -21,7 +21,7 @@ class ProfileTest extends AbstractDataboxTestCase
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
-                'title' => 'Foo',
+                'name' => 'Foo',
             ],
         ]);
 
@@ -30,7 +30,7 @@ class ProfileTest extends AbstractDataboxTestCase
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
         $this->assertJsonContains([
             '@type' => 'profile',
-            'title' => 'Foo',
+            'name' => 'Foo',
             'public' => false,
         ]);
         $this->assertMatchesResourceItemJsonSchema(Profile::class);
@@ -40,14 +40,14 @@ class ProfileTest extends AbstractDataboxTestCase
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
-                'title' => 'Foo renamed',
+                'name' => 'Foo renamed',
                 'description' => 'Foo description',
                 'public' => true,
             ],
         ]);
         $this->assertJsonContains([
             '@type' => 'profile',
-            'title' => 'Foo renamed',
+            'name' => 'Foo renamed',
             'description' => 'Foo description',
             'public' => true,
         ]);
@@ -67,7 +67,7 @@ class ProfileTest extends AbstractDataboxTestCase
         $this->assertJsonContains([
             'id' => $id,
             '@type' => 'profile',
-            'title' => 'Foo renamed',
+            'name' => 'Foo renamed',
             'description' => 'Foo description',
             'public' => true,
             'items' => [],
@@ -101,7 +101,7 @@ class ProfileTest extends AbstractDataboxTestCase
         $this->assertJsonContains([
             'id' => $id,
             '@type' => 'profile',
-            'title' => 'Foo renamed',
+            'name' => 'Foo renamed',
             'description' => 'Foo description',
             'public' => true,
             'items' => [
@@ -131,7 +131,7 @@ class ProfileTest extends AbstractDataboxTestCase
         $this->assertJsonContains([
             'id' => $id,
             '@type' => 'profile',
-            'title' => 'Foo renamed',
+            'name' => 'Foo renamed',
             'description' => 'Foo description',
             'public' => true,
             'items' => [
@@ -165,7 +165,7 @@ class ProfileTest extends AbstractDataboxTestCase
         $this->assertJsonContains([
             'id' => $id,
             '@type' => 'profile',
-            'title' => 'Foo renamed',
+            'name' => 'Foo renamed',
             'description' => 'Foo description',
             'public' => true,
             'items' => [
@@ -194,7 +194,7 @@ class ProfileTest extends AbstractDataboxTestCase
         $this->assertJsonContains([
             'id' => $id,
             '@type' => 'profile',
-            'title' => 'Foo renamed',
+            'name' => 'Foo renamed',
             'description' => 'Foo description',
             'public' => true,
             'items' => [

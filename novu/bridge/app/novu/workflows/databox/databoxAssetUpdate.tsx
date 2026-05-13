@@ -6,9 +6,9 @@ const payloadSchema = z.object({
         .string()
         .default('/null')
         .describe("The resource URL"),
-    title: z
+    name: z
         .string()
-        .describe("The Asset title"),
+        .describe("The Asset Name"),
     author: z
         .string()
         .describe("The author of the message"),
@@ -22,7 +22,7 @@ export const databoxAssetUpdate = workflow(
                 // @ts-expect-error unknown issue
                 subject: `Asset **${payload.title}** updated`,
                 // @ts-expect-error unknown issue
-                body: `**${payload.author}** has updated asset **${payload.title}**.`,
+                body: `**${payload.author}** has updated asset **${payload.name}**.`,
                 redirect: {
                     // @ts-expect-error unknown issue
                     url: payload.url,

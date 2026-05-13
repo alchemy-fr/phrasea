@@ -82,7 +82,7 @@ export async function moveCollection(
 
 type CollectionPostType = {
     parent?: string;
-    title: string;
+    name: string;
     children?: CollectionOptionalWorkspace[];
     workspace?: string | undefined;
     privacy?: number;
@@ -194,7 +194,7 @@ export async function createCollection(
 
         return (
             await postCollection({
-                title: node.data.label,
+                name: node.data.label,
                 parent,
                 workspace: createIriFromId(
                     EntityName.Workspace,

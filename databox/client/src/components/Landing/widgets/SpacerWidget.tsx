@@ -17,7 +17,7 @@ type Props = {
 const SpacerWidget: WidgetInterface<Props> = {
     name: 'spacer',
 
-    getTitle(t: TFunction): string {
+    getDisplayName(t: TFunction): string {
         return t('editor.widgets.spacer.title', 'Spacer');
     },
 

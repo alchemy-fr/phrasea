@@ -82,7 +82,7 @@ final readonly class WorkspaceDelete
 
             $collections = $this->em->getRepository(Collection::class)
                 ->createQueryBuilder('t')
-                ->select('t.id, t.title')
+                ->select('t.id, t.name')
                 ->andWhere('t.parent IS NULL')
                 ->andWhere('t.workspace = :ws')
                 ->setParameter('ws', $workspaceId)
@@ -90,7 +90,7 @@ final readonly class WorkspaceDelete
                 ->toIterable();
 
             foreach ($collections as $c) {
-                $this->logger->debug(sprintf('Deleting collection "%s" (%s).', $c['title'] ?: '', $c['id']));
+                $this->logger->debug(sprintf('Deleting collection "%s" (%s).', $c['name'] ?: '', $c['id']));
                 $this->collectionDelete->deleteCollection((string) $c['id'], true);
             }
 

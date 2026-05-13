@@ -48,7 +48,7 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
         $output->setCreatedAt($data->getCreatedAt());
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
-        $output->setTitle($data->getTitle());
+        $output->setName($data->getName());
         $output->setEnabled($data->isEnabled());
         $output->setIntegration($data->getIntegration());
         $output->public = $data->getPublic();
@@ -95,7 +95,7 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
         try {
             $config = $this->integrationManager->getIntegrationConfiguration($data);
             $integration = $config->getIntegration();
-            $output->integrationTitle = $integration->getTitle();
+            $output->integrationName = $integration->getDisplayName();
             $output->setConfig($integration->resolveClientConfiguration($data, $config));
             $output->configInfo = $integration->getConfigurationInfo($config);
         } catch (\Throwable $e) {

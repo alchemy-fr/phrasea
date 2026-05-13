@@ -111,13 +111,13 @@ class SuggestionSearch extends AbstractSearch
 
         $searchTime = microtime(true) - $start;
 
-        $indexTitles = [
+        $indexNames = [
             'asset_'.$this->kernelEnv => 'Asset',
             'collection_'.$this->kernelEnv => 'Collection',
         ];
 
         $result = new Pagerfanta(new ArrayAdapter(array_map(function (Result $result) use (
-            $indexTitles,
+            $indexNames,
             $definitionNames,
         ): array {
             $hl = $result->getHighlights()[self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD];
@@ -126,7 +126,7 @@ class SuggestionSearch extends AbstractSearch
             if ('attribute_'.$this->kernelEnv === $indexName) {
                 $type = $definitionNames[$result->getSource()['definitionId']];
             } else {
-                $type = $indexTitles[$indexName];
+                $type = $indexNames[$indexName];
             }
 
             return [

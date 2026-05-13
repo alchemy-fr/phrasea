@@ -4,7 +4,7 @@ const assetClasses = {
     checkBtb: 'ac',
     settingBtn: 'as',
     cartBtn: 'acart',
-    title: 't',
+    name: 'n',
     legend: 'l',
     attributes: 'aa',
     animatedThumb: 'tha',

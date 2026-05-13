@@ -15,7 +15,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'definition.workspace']
 )]
-class AssetTitleAttribute extends AbstractUuidEntity implements LoggableChangeSetInterface
+class AssetNameAttribute extends AbstractUuidEntity implements LoggableChangeSetInterface
 {
     use AssetTypeTargetTrait;
     final public const int OBJECT_INDEX = 13;
@@ -32,7 +32,7 @@ class AssetTitleAttribute extends AbstractUuidEntity implements LoggableChangeSe
     private int $priority = 0;
 
     /**
-     * Whether to override "title" attribute set on asset.
+     * Whether to override "name" attribute set on asset.
      */
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $overrides = false;

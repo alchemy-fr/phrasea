@@ -66,7 +66,7 @@ export default function SortByRow({sortBy, definition, onChange}: Props) {
                 }}
                 onClick={() => onChange(sortBy, !sortBy.enabled)}
             >
-                {definition.nameTranslated ?? definition.name}
+                {definition.displayName ?? definition.name}
             </td>
             <td>
                 <ToggleWay

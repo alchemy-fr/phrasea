@@ -24,7 +24,7 @@ class FieldType
     #[ApiProperty(identifier: true)]
     private string $name;
 
-    private string $title;
+    private string $displayName;
 
     public function getName(): string
     {
@@ -36,13 +36,13 @@ class FieldType
         $this->name = $name;
     }
 
-    public function getTitle(): string
+    public function getDisplayName(): string
     {
-        return $this->title;
+        return $this->displayName;
     }
 
-    public function setTitle(string $title): void
+    public function setDisplayName(string $displayName): void
     {
-        $this->title = $title;
+        $this->displayName = $displayName;
     }
 }

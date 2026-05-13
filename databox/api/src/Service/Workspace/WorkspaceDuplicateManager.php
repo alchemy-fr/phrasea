@@ -112,7 +112,7 @@ readonly class WorkspaceDuplicateManager
         ]);
         foreach ($items as $item) {
             $i = new WorkspaceIntegration();
-            $i->setTitle($item->getTitle());
+            $i->setName($item->getName());
             $i->setIntegration($item->getIntegration());
             $i->setEnabled($item->isEnabled());
             $i->setConfig($item->getConfig());

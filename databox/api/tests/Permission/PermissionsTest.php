@@ -46,74 +46,74 @@ class PermissionsTest extends AbstractDataboxTestCase
 
         $collectionA = new Collection();
         $collectionA->setOwnerId(self::ALICE);
-        $collectionA->setTitle('A');
+        $collectionA->setName('A');
         $collectionA->setWorkspace($workspace);
         $em->persist($collectionA);
 
         $collectionB = new Collection();
         $collectionB->setOwnerId(self::BOB);
-        $collectionB->setTitle('B');
+        $collectionB->setName('B');
         $collectionB->setWorkspace($workspace);
         $collectionB->setParent($collectionA);
         $em->persist($collectionB);
 
         $lostRoot = new Asset();
         $lostRoot->setWorkspace($workspace);
-        $lostRoot->setTitle('Lost-root');
+        $lostRoot->setName('Lost-root');
         $lostRoot->setOwnerId(self::ROOT);
         $em->persist($lostRoot);
 
         $lostAlice = new Asset();
         $lostAlice->setWorkspace($workspace);
-        $lostAlice->setTitle('Lost-alice');
+        $lostAlice->setName('Lost-alice');
         $lostAlice->setOwnerId(self::ALICE);
         $em->persist($lostAlice);
 
         $lostBob = new Asset();
         $lostBob->setWorkspace($workspace);
-        $lostBob->setTitle('Lost-bob');
+        $lostBob->setName('Lost-bob');
         $lostBob->setOwnerId(self::BOB);
         $em->persist($lostBob);
 
         $inARoot = new Asset();
         $inARoot->setReferenceCollection($collectionA);
         $inARoot->setWorkspace($workspace);
-        $inARoot->setTitle('InA-root');
+        $inARoot->setName('InA-root');
         $inARoot->setOwnerId(self::ROOT);
         $em->persist($inARoot);
 
         $inAAlice = new Asset();
         $inAAlice->setReferenceCollection($collectionA);
         $inAAlice->setWorkspace($workspace);
-        $inAAlice->setTitle('InA-alice');
+        $inAAlice->setName('InA-alice');
         $inAAlice->setOwnerId(self::ALICE);
         $em->persist($inAAlice);
 
         $inABob = new Asset();
         $inABob->setReferenceCollection($collectionA);
         $inABob->setWorkspace($workspace);
-        $inABob->setTitle('InA-bob');
+        $inABob->setName('InA-bob');
         $inABob->setOwnerId(self::BOB);
         $em->persist($inABob);
 
         $inBRoot = new Asset();
         $inBRoot->setReferenceCollection($collectionB);
         $inBRoot->setWorkspace($workspace);
-        $inBRoot->setTitle('InB-root');
+        $inBRoot->setName('InB-root');
         $inBRoot->setOwnerId(self::ROOT);
         $em->persist($inBRoot);
 
         $inBAlice = new Asset();
         $inBAlice->setReferenceCollection($collectionB);
         $inBAlice->setWorkspace($workspace);
-        $inBAlice->setTitle('InB-alice');
+        $inBAlice->setName('InB-alice');
         $inBAlice->setOwnerId(self::ALICE);
         $em->persist($inBAlice);
 
         $inBBob = new Asset();
         $inBBob->setReferenceCollection($collectionB);
         $inBBob->setWorkspace($workspace);
-        $inBBob->setTitle('InB-bob');
+        $inBBob->setName('InB-bob');
         $inBBob->setOwnerId(self::BOB);
         $em->persist($inBBob);
 
@@ -243,11 +243,11 @@ class PermissionsTest extends AbstractDataboxTestCase
 
     private function assertAssetPermissions(AssetPermissions $expected, Asset $asset, Security $security, callable $userMessage): void
     {
-        $this->assertEquals($expected->view, $security->isGranted(AssetVoter::READ, $asset), $userMessage(sprintf('view asset "%s"', $asset->getTitle())));
-        $this->assertEquals($expected->edit, $security->isGranted(AssetVoter::EDIT, $asset), $userMessage(sprintf('edit asset "%s"', $asset->getTitle())));
-        $this->assertEquals($expected->editAttributes, $security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $asset), $userMessage(sprintf('edit attributes of asset "%s"', $asset->getTitle())));
-        $this->assertEquals($expected->editPermissions, $security->isGranted(AssetVoter::EDIT_PERMISSIONS, $asset), $userMessage(sprintf('edit permissions of asset "%s"', $asset->getTitle())));
-        $this->assertEquals($expected->delete, $security->isGranted(AssetVoter::DELETE, $asset), $userMessage(sprintf('delete asset "%s"', $asset->getTitle())));
+        $this->assertEquals($expected->view, $security->isGranted(AssetVoter::READ, $asset), $userMessage(sprintf('view asset "%s"', $asset->getName())));
+        $this->assertEquals($expected->edit, $security->isGranted(AssetVoter::EDIT, $asset), $userMessage(sprintf('edit asset "%s"', $asset->getName())));
+        $this->assertEquals($expected->editAttributes, $security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $asset), $userMessage(sprintf('edit attributes of asset "%s"', $asset->getName())));
+        $this->assertEquals($expected->editPermissions, $security->isGranted(AssetVoter::EDIT_PERMISSIONS, $asset), $userMessage(sprintf('edit permissions of asset "%s"', $asset->getName())));
+        $this->assertEquals($expected->delete, $security->isGranted(AssetVoter::DELETE, $asset), $userMessage(sprintf('delete asset "%s"', $asset->getName())));
     }
 
     /**

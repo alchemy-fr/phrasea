@@ -25,6 +25,7 @@ export default function WidgetOptionsDialogWrapper({
     const onDelete = useCallback(() => {
         openModal(ConfirmDialog, {
             title: t('editor.widgets.remove_widget', 'Remove widget'),
+
             onConfirm: async () => {
                 onRemove();
             },

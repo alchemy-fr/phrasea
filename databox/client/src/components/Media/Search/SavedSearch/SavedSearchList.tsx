@@ -138,9 +138,9 @@ export default function SavedSearchList({}: Props) {
                             </ListItemIcon>
                             <ListItemText
                                 primary={
-                                    search.title
-                                        ? replaceHighlight(search.title)
-                                        : search.title
+                                    search.name
+                                        ? replaceHighlight(search.name)
+                                        : search.name
                                 }
                             />
                         </ListItemButton>

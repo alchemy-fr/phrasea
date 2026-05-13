@@ -91,7 +91,7 @@ export default function FileItem({
                     Component={MenuItem}
                     asset={asset}
                     file={data.value}
-                    suggestedTitle={asset.resolvedTitle + ' - ' + data.keyId}
+                    suggestedName={asset.resolvedName + ' - ' + data.keyId}
                 />
             </Menu>
         </ListItemButton>

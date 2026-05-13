@@ -72,7 +72,7 @@ function IntegrationProxy({
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                 >
-                    <Typography component="div">{integration.title}</Typography>
+                    <Typography component="div">{integration.name}</Typography>
                 </AccordionSummary>
                 <AccordionDetails
                     sx={{

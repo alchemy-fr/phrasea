@@ -1940,7 +1940,7 @@
         "user_must_be_authenticated": "User must be authenticated"
     },
     "remove_bg": {
-        "bg_removed": "{{title}} - BG removed",
+        "bg_removed": "{{name}} - BG removed",
         "cannot_interact": "You don't have sufficient permissions to remove BG",
         "remove_bg": "Remove BG",
         "use_slider_to_compare": "Use slider to compare"

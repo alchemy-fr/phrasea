@@ -90,7 +90,7 @@ class StoryTest extends AbstractSearchTestCase
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
-                'title' => 'Dummy story-asset',
+                'name' => 'Dummy story-asset',
                 'workspace' => $this->findIriBy(Workspace::class, [
                     'slug' => 'test-workspace',
                 ]),
@@ -122,9 +122,9 @@ class StoryTest extends AbstractSearchTestCase
                 'id' => $assetId,
             ],
         ]);
-        // a storyCollection has (null) title
+        // a storyCollection has (null) name
         // because apiPlatform is set to skip null values, we check it's not there
-        $this->assertArrayNotHasKey('title', $response->toArray());
+        $this->assertArrayNotHasKey('name', $response->toArray());
 
         $response = $client->request('GET', '/assets/'.urlencode($assetId), [
             'headers' => [
@@ -134,12 +134,12 @@ class StoryTest extends AbstractSearchTestCase
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonContains([
             '@type' => 'asset',
-            'title' => 'Dummy story-asset',
+            'name' => 'Dummy story-asset',
             'storyCollection' => [
                 '@type' => 'collection',
                 'id' => $collectionId,
             ],
         ]);
-        $this->assertArrayNotHasKey('title', $response->toArray()['storyCollection']);
+        $this->assertArrayNotHasKey('name', $response->toArray()['storyCollection']);
     }
 }

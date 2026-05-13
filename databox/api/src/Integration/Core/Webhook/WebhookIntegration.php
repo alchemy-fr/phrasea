@@ -50,7 +50,7 @@ class WebhookIntegration extends AbstractIntegration implements WorkflowIntegrat
         return 'core.webhook';
     }
 
-    public static function getTitle(): string
+    public static function getDisplayName(): string
     {
         return 'Webhook';
     }
