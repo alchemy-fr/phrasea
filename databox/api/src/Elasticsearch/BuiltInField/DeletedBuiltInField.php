@@ -15,7 +15,7 @@ final class DeletedBuiltInField extends AbstractBuiltInField
         return 'deleted';
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return 'deleted';
     }

@@ -24,7 +24,7 @@ export default function OrganizeProfile({data, onClose, minHeight}: Props) {
     const load = useAttributeDefinitionStore(state => state.load);
 
     React.useEffect(() => {
-        load(t);
+        load();
     }, [load]);
 
     const {definitions, loaded} = useAttributeDefinitionStore(state => ({

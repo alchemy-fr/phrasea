@@ -25,7 +25,7 @@ export default function SortByChip({definition, sortBy}: Props) {
             key={sortBy.a}
             label={
                 <>
-                    {definition.displayName ?? definition.name}{' '}
+                    {definition.displayName}{' '}
                     {sortBy.w ? (
                         <ArrowDownwardIcon
                             fontSize={'small'}

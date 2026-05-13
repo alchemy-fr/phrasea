@@ -12,6 +12,7 @@ import {AclExtraPermission} from './components/Permissions/permissionsTypes.ts';
 import {Privacy} from './api/privacy.ts';
 import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/managerTypes.ts';
 import {UserPreferences} from './store/userPreferencesStore.ts';
+import {BuiltInFieldEnum} from './components/Media/Search/search.ts';
 
 export type AlternateUrl = {
     type: string;
@@ -162,6 +163,16 @@ export interface AssetFileVersion extends Entity {
     createdAt: string;
 }
 
+export type BuiltInField = {
+    name: string;
+    displayName: string;
+    key: string;
+    type: AttributeType;
+    searchable: boolean;
+    sortable: boolean;
+    facetEnabled: boolean;
+};
+
 export interface AttributeDefinition extends IPermissions, Entity {
     name: string;
     displayName: string;
@@ -192,7 +203,6 @@ export interface AttributeDefinition extends IPermissions, Entity {
     lastErrors?: LastErrors;
     entityIri?: string | undefined;
     resolveLabel?: (entity: object) => string;
-    getValueFromAsset?: (asset: Asset) => any;
     target: AssetType;
 }
 
@@ -418,7 +428,7 @@ export type ProfileItem = {
     id: string;
     section: ProfileItemSection;
     type: ProfileItemType;
-    key?: string;
+    key?: BuiltInFieldEnum | string;
     definition?: string;
     displayEmpty?: boolean;
     format?: string;

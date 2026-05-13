@@ -14,7 +14,7 @@ final class IsStoryBuiltInField extends AbstractBuiltInField
         return 'is_story';
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return 'isStory';
     }

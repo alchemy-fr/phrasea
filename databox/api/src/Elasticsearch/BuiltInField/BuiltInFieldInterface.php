@@ -19,11 +19,13 @@ interface BuiltInFieldInterface
 
     public function resolveGroupValue(string $name, $value): GroupValue;
 
-    public function getFieldName(): string;
+    public static function getName(): string;
 
     public static function getKey(): string;
 
     public function isSortable(): bool;
+
+    public function isSearchable(): bool;
 
     public function isFacet(): bool;
 
@@ -33,9 +35,13 @@ interface BuiltInFieldInterface
 
     public function getType(): string;
 
+    public function isMultiple(): bool;
+
     public function includesMissing(): bool;
 
     public function normalizeValueForSearch(mixed $value): mixed;
 
     public function createFilterQuery(mixed $value, array $options): ?Query\AbstractQuery;
+
+    public function isListed(): bool;
 }

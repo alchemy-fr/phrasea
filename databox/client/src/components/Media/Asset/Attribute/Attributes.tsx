@@ -18,13 +18,14 @@ import {
 } from '../../../../store/profileStore.ts';
 import {useTranslation} from 'react-i18next';
 import {
-    getBuiltInFilters,
+    getBuiltInFieldValueResolver,
     useIndexById,
 } from '../../../../store/attributeDefinitionStore.ts';
 import Separator from '../../../Ui/Separator.tsx';
 import {Spacer} from '../../../Ui/VerticalSpacer.tsx';
 import {AttributeFormat} from './types/types';
 import {NO_LOCALE} from './constants.ts';
+import {BuiltInFieldEnum} from '../../Search/search.ts';
 
 type AttributeItem = {
     id: string;
@@ -70,8 +71,6 @@ function Attributes({
 
         const attributeItems: AttributeItem[] = [];
 
-        const builtInDef = getBuiltInFilters(t);
-
         pinnedAttributes.forEach(item => {
             const props = {
                 id: item.id,
@@ -98,18 +97,23 @@ function Attributes({
                     });
                 }
             } else if (item.type === ProfileItemType.BuiltIn) {
-                const definition = builtInDef.find(g => g.id === item.key!);
+                const getValueFromAsset = getBuiltInFieldValueResolver(
+                    item.key as BuiltInFieldEnum
+                );
 
-                if (definition && definition.getValueFromAsset) {
-                    const v = definition.getValueFromAsset(asset);
-                    if (
-                        (definition.multiple ? v && v.length > 0 : !!v) ||
-                        item.displayEmpty
-                    ) {
-                        attributeItems.push({
-                            ...props,
-                            definition,
-                        });
+                if (getValueFromAsset) {
+                    const v = getValueFromAsset(asset);
+                    const def = definitionsIndex[item.definition!];
+                    if (def) {
+                        if (
+                            (def.multiple ? v && v.length > 0 : !!v) ||
+                            item.displayEmpty
+                        ) {
+                            attributeItems.push({
+                                ...props,
+                                definition: def,
+                            });
+                        }
                     }
                 }
             } else {
@@ -177,9 +181,13 @@ function Attributes({
                     );
                 } else if (ai.type === ProfileItemType.BuiltIn) {
                     const definition = ai.definition!;
-                    if (definition.getValueFromAsset) {
-                        const valueFromAsset =
-                            definition.getValueFromAsset(asset);
+
+                    const getValueFromAsset = getBuiltInFieldValueResolver(
+                        ai.definition!.id as BuiltInFieldEnum
+                    );
+
+                    if (getValueFromAsset) {
+                        const valueFromAsset = getValueFromAsset(asset);
 
                         return (
                             <AttributeRowUI

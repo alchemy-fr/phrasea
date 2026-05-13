@@ -15,7 +15,7 @@ final class IdBuiltInField extends AbstractBuiltInField
         return 'id';
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return '_id';
     }

@@ -18,7 +18,7 @@ class EditedAtBuiltInField extends AbstractDateTimeBuiltInField
         return '@editedAt';
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return 'editedAt';
     }

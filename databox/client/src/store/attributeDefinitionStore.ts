@@ -4,26 +4,17 @@ import {
     AssetTypeFilter,
     AttributeDefinition,
     AttributeEntity,
-    Collection,
-    RenditionDefinition,
-    Tag,
-    User,
+    BuiltInField,
     Workspace,
 } from '../types';
 import {
     getAttributeDefinitions,
+    getBuiltInFields,
     getWorkspaceAttributeDefinitions,
 } from '../api/attributes.ts';
-import {TFunction} from '@alchemy/i18n';
-import {BuiltInField} from '../components/Media/Search/search.ts';
-import WorkspaceSelect from '../components/Form/WorkspaceSelect.tsx';
-import PrivacyWidget from '../components/Form/PrivacyWidget.tsx';
-import TagSelect from '../components/Form/TagSelect.tsx';
+import {BuiltInFieldEnum} from '../components/Media/Search/search.ts';
 import AttributeEntitySelect from '../components/Form/AttributeEntitySelect.tsx';
-import UserSelect from '../components/Form/UserSelect.tsx';
-import RenditionDefinitionSelect from '../components/Form/RenditionDefinitionSelect.tsx';
 import {AttributeType} from '../api/types.ts';
-import NullableBooleanWidget from '../components/Form/NullableBooleanWidget.tsx';
 import React from 'react';
 
 export type AttributeDefinitionsIndex = Record<string, AttributeDefinition>;
@@ -33,7 +24,7 @@ type State = {
     loaded: boolean;
     loading: boolean;
     locks: Record<string, boolean>;
-    load: (t: TFunction, force?: boolean) => Promise<void>;
+    load: (force?: boolean) => Promise<void>;
     loadWorkspace: (workspaceId: string) => Promise<void>;
     updateDefinition: (definition: AttributeDefinition) => void;
     addDefinition: (definition: AttributeDefinition) => void;
@@ -62,7 +53,7 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
         });
     },
 
-    load: async (t, force) => {
+    load: async force => {
         const state = getState();
         if (state.loaded && !force) {
             return;
@@ -77,11 +68,14 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
         });
 
         try {
-            const data = getBuiltInFilters(t).concat(
-                (await getAttributeDefinitions()).result.map(
-                    normalizeDefinition
-                )
-            );
+            const [attributeDefinitions, builtInFields] = await Promise.all([
+                getAttributeDefinitions(),
+                getBuiltInFields(),
+            ]);
+
+            const data = builtInFields.result
+                .map(normalizeBuiltInFields)
+                .concat(attributeDefinitions.result.map(normalizeDefinition));
 
             set({
                 definitions: data,
@@ -137,214 +131,261 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
     },
 }));
 
-export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
-    return (
-        [
-            {
-                slug: BuiltInField.Score,
-                fieldType: AttributeType.Number,
-                sortable: true,
-                searchable: false,
-                name: t('built_in_attr.score', 'Score'),
-            },
-            {
-                slug: BuiltInField.Id,
-                fieldType: AttributeType.Id,
-                sortable: true,
-                searchable: true,
-                name: t('built_in_attr.id', 'ID'),
-                getValueFromAsset: asset => asset.id,
-            },
-            {
-                slug: BuiltInField.Collection,
-                entityIri: 'collections',
-                resolveLabel: (entity: Collection) =>
-                    entity.displayName ?? entity.name ?? '',
-                searchable: true,
-                fieldType: AttributeType.CollectionPath,
-                name: t('built_in_attr.collections', 'Collections'),
-                getValueFromAsset: asset =>
-                    asset.collections?.filter(c => !c.storyAsset) ?? [],
-                multiple: true,
-            },
-            {
-                slug: BuiltInField.Workspace,
-                fieldType: AttributeType.Workspace,
-                resolveLabel: (entity: Workspace) =>
-                    entity.displayName ?? entity.name ?? '',
-                entityIri: 'workspaces',
-                searchable: true,
-                name: t('built_in_attr.workspace', 'Workspace'),
-                widget: {
-                    component: WorkspaceSelect,
-                },
-                getValueFromAsset: asset => asset.workspace,
-            },
-            {
-                slug: BuiltInField.Owner,
-                fieldType: AttributeType.User,
-                resolveLabel: (entity: User) =>
-                    entity.username ?? entity.id ?? '',
-                entityIri: 'users',
-                searchable: true,
-                name: t('built_in_attr.owner', 'Owner'),
-                widget: {
-                    component: UserSelect,
-                },
-                getValueFromAsset: asset => asset.owner,
-            },
-            {
-                slug: BuiltInField.Privacy,
-                fieldType: AttributeType.Privacy,
-                searchable: true,
-                sortable: true,
-                name: t('built_in_attr.privacy', 'Privacy'),
-                widget: {
-                    component: PrivacyWidget,
-                },
-                getValueFromAsset: asset => asset.privacy,
-            },
-            {
-                slug: BuiltInField.IsStory,
-                fieldType: AttributeType.Boolean,
-                searchable: true,
-                sortable: true,
-                name: t('built_in_attr.isStory', 'Is Story'),
-                widget: {
-                    component: NullableBooleanWidget,
-                },
-                getValueFromAsset: asset => !!asset.storyCollection,
-            },
-            {
-                slug: BuiltInField.Story,
-                entityIri: 'assets',
-                resolveLabel: (entity: Asset) =>
-                    entity.resolvedName ?? entity.name ?? '',
-                searchable: true,
-                fieldType: AttributeType.Story,
-                name: t('built_in_attr.stories', 'Stories'),
-                multiple: true,
-                getValueFromAsset: (asset: Asset) =>
-                    asset.collections?.filter(c => !!c.storyAsset) ?? [],
-            },
-            {
-                slug: BuiltInField.Tag,
-                fieldType: AttributeType.Tag,
-                entityIri: 'tags',
-                resolveLabel: (entity: Tag) =>
-                    entity.displayName ?? entity.name ?? '',
-                searchable: true,
-                sortable: true,
-                multiple: true,
-                name: t('built_in_attr.tag', 'Tag'),
-                widget: {
-                    component: TagSelect,
-                    props: {
-                        useIRI: false,
-                    },
-                },
-                getValueFromAsset: asset => asset.tags,
-            },
-            {
-                slug: BuiltInField.Rendition,
-                fieldType: AttributeType.Rendition,
-                entityIri: 'rendition-definitions',
-                resolveLabel: (entity: RenditionDefinition) =>
-                    entity.displayName ?? entity.name ?? '',
-                searchable: true,
-                sortable: true,
-                multiple: true,
-                name: t('built_in_attr.rendition', 'Rendition'),
-                widget: {
-                    component: RenditionDefinitionSelect,
-                    props: {
-                        useIRI: false,
-                    },
-                },
-            },
-            {
-                slug: BuiltInField.EditedAt,
-                fieldType: AttributeType.DateTime,
-                searchable: true,
-                sortable: true,
-                name: t('built_in_attr.editedAt', 'Edited At'),
-                getValueFromAsset: asset => asset.editedAt,
-            },
-            {
-                slug: BuiltInField.CreatedAt,
-                fieldType: AttributeType.DateTime,
-                searchable: true,
-                sortable: true,
-                name: t('built_in_attr.createdAt', 'Created At'),
-                getValueFromAsset: asset => asset.createdAt,
-            },
-            {
-                slug: BuiltInField.FileType,
-                fieldType: AttributeType.Keyword,
-                searchable: true,
-                name: t('built_in_attr.fileType', 'File Type'),
-                getValueFromAsset: asset => asset.source?.type,
-            },
-            {
-                slug: BuiltInField.FileMimeType,
-                fieldType: AttributeType.Keyword,
-                searchable: true,
-                name: t('built_in_attr.fileMimeType', 'File MIME Type'),
-                getValueFromAsset: asset => asset.source?.type,
-            },
-            {
-                slug: BuiltInField.FileExtension,
-                fieldType: AttributeType.Keyword,
-                searchable: true,
-                name: t('built_in_attr.fileExtension', 'File Extension'),
-                getValueFromAsset: asset => asset.source?.extension,
-            },
-            {
-                slug: BuiltInField.FileSize,
-                fieldType: AttributeType.Number,
-                searchable: true,
-                name: t('built_in_attr.fileSize', 'File Size'),
-                getValueFromAsset: asset => asset.source?.size,
-            },
-            {
-                slug: BuiltInField.FileName,
-                fieldType: AttributeType.Text,
-                searchable: true,
-                name: t('built_in_attr.filename', 'File Name'),
-            },
-            {
-                slug: BuiltInField.HasSource,
-                fieldType: AttributeType.Boolean,
-                searchable: true,
-                name: t('built_in_attr.has_source', 'Has Source File'),
-                widget: {
-                    component: NullableBooleanWidget,
-                },
-                getValueFromAsset: asset => !!asset.source,
-            },
-            {
-                slug: BuiltInField.Deleted,
-                fieldType: AttributeType.Boolean,
-                searchable: true,
-                name: t('built_in_attr.deleted', 'Deleted'),
-                widget: {
-                    component: NullableBooleanWidget,
-                },
-                getValueFromAsset: asset =>
-                    asset.deleted || asset.referenceCollection?.deleted,
-            },
-        ] as Partial<AttributeDefinition>[]
-    ).map(
-        d =>
-            ({
-                ...d,
-                id: d.slug,
-                searchSlug: d.slug,
-                enabled: true,
-                builtIn: true,
-            }) as AttributeDefinition
-    );
+function normalizeBuiltInFields(field: BuiltInField): AttributeDefinition {
+    return {
+        id: field.key,
+        searchSlug: field.key,
+        enabled: true,
+        builtIn: true,
+        slug: field.key,
+        fieldType: field.type,
+        sortable: field.sortable,
+        searchable: field.searchable,
+        facetEnabled: field.facetEnabled,
+        name: field.name,
+        entityList: null,
+        editable: false,
+        displayName: field.displayName,
+    } as AttributeDefinition;
 }
+
+type GetValueFromAsset = (asset: Asset) => any;
+
+export function getBuiltInFieldValueResolver(
+    field: BuiltInFieldEnum
+): GetValueFromAsset | undefined {
+    const index: Partial<Record<BuiltInFieldEnum, GetValueFromAsset>> = {
+        [BuiltInFieldEnum.Id]: asset => asset.id,
+        [BuiltInFieldEnum.Collection]: asset =>
+            asset.collections?.filter(c => !c.storyAsset) ?? [],
+        [BuiltInFieldEnum.Workspace]: asset => asset.workspace,
+        [BuiltInFieldEnum.Owner]: asset => asset.owner,
+        [BuiltInFieldEnum.Privacy]: asset => asset.privacy,
+        [BuiltInFieldEnum.IsStory]: asset => !!asset.storyCollection,
+        [BuiltInFieldEnum.Story]: asset =>
+            asset.collections?.filter(c => !!c.storyAsset) ?? [],
+        [BuiltInFieldEnum.Tag]: asset => asset.tags,
+        [BuiltInFieldEnum.EditedAt]: asset => asset.editedAt,
+        [BuiltInFieldEnum.CreatedAt]: asset => asset.createdAt,
+        [BuiltInFieldEnum.FileType]: asset => asset.source?.type,
+        [BuiltInFieldEnum.FileMimeType]: asset => asset.source?.type,
+        [BuiltInFieldEnum.FileExtension]: asset => asset.source?.extension,
+        [BuiltInFieldEnum.FileSize]: asset => asset.source?.size,
+        [BuiltInFieldEnum.FileName]: asset => asset.createdAt,
+        [BuiltInFieldEnum.HasSource]: asset => !!asset.source,
+        [BuiltInFieldEnum.Deleted]: asset =>
+            asset.deleted || asset.referenceCollection?.deleted,
+    };
+
+    return index[field];
+}
+
+// return (
+//     [
+//         {
+//             slug: BuiltInField.Score,
+//             fieldType: AttributeType.Number,
+//             sortable: true,
+//             searchable: false,
+//             name: t('built_in_attr.score', 'Score'),
+//         },
+//         {
+//             slug: BuiltInField.Id,
+//             fieldType: AttributeType.Id,
+//             sortable: true,
+//             searchable: true,
+//             name: t('built_in_attr.id', 'ID'),
+//             getValueFromAsset: asset => asset.id,
+//         },
+//         {
+//             slug: BuiltInFieldEnum.Collection,
+//             entityIri: 'collections',
+//             resolveLabel: (entity: Collection) =>
+//                 entity.displayName ?? entity.name ?? '',
+//             searchable: true,
+//             fieldType: AttributeType.CollectionPath,
+//             name: t('built_in_attr.collections', 'Collections'),
+//             getValueFromAsset: asset =>
+//                 asset.collections?.filter(c => !c.storyAsset) ?? [],
+//             multiple: true,
+//         },
+//         {
+//             slug: BuiltInFieldEnum.Workspace,
+//             fieldType: AttributeType.Workspace,
+//             resolveLabel: (entity: Workspace) =>
+//                 entity.displayName ?? entity.name ?? '',
+//             entityIri: 'workspaces',
+//             searchable: true,
+//             name: t('built_in_attr.workspace', 'Workspace'),
+//             widget: {
+//                 component: WorkspaceSelect,
+//             },
+//             getValueFromAsset: asset => asset.workspace,
+//         },
+//         {
+//             slug: BuiltInFieldEnum.Owner,
+//             fieldType: AttributeType.User,
+//             resolveLabel: (entity: User) =>
+//                 entity.username ?? entity.id ?? '',
+//             entityIri: 'users',
+//             searchable: true,
+//             name: t('built_in_attr.owner', 'Owner'),
+//             widget: {
+//                 component: UserSelect,
+//             },
+//             getValueFromAsset: asset => asset.owner,
+//         },
+//         {
+//             slug: BuiltInFieldEnum.Privacy,
+//             fieldType: AttributeType.Privacy,
+//             searchable: true,
+//             sortable: true,
+//             name: t('built_in_attr.privacy', 'Privacy'),
+//             widget: {
+//                 component: PrivacyWidget,
+//             },
+//             getValueFromAsset: asset => asset.privacy,
+//         },
+//         {
+//             slug: BuiltInFieldEnum.IsStory,
+//             fieldType: AttributeType.Boolean,
+//             searchable: true,
+//             sortable: true,
+//             name: t('built_in_attr.isStory', 'Is Story'),
+//             widget: {
+//                 component: NullableBooleanWidget,
+//             },
+//             getValueFromAsset: asset => !!asset.storyCollection,
+//         },
+//         {
+//             slug: BuiltInFieldEnum.Story,
+//             entityIri: 'assets',
+//             resolveLabel: (entity: Asset) =>
+//                 entity.resolvedName ?? entity.name ?? '',
+//             searchable: true,
+//             fieldType: AttributeType.Story,
+//             name: t('built_in_attr.stories', 'Stories'),
+//             multiple: true,
+//             getValueFromAsset: (asset: Asset) =>
+//                 asset.collections?.filter(c => !!c.storyAsset) ?? [],
+//         },
+//         {
+//             slug: BuiltInFieldEnum.Tag,
+//             fieldType: AttributeType.Tag,
+//             entityIri: 'tags',
+//             resolveLabel: (entity: Tag) =>
+//                 entity.displayName ?? entity.name ?? '',
+//             searchable: true,
+//             sortable: true,
+//             multiple: true,
+//             name: t('built_in_attr.tag', 'Tag'),
+//             widget: {
+//                 component: TagSelect,
+//                 props: {
+//                     useIRI: false,
+//                 },
+//             },
+//             getValueFromAsset: asset => asset.tags,
+//         },
+//         {
+//             slug: BuiltInFieldEnum.Rendition,
+//             fieldType: AttributeType.Rendition,
+//             entityIri: 'rendition-definitions',
+//             resolveLabel: (entity: RenditionDefinition) =>
+//                 entity.displayName ?? entity.name ?? '',
+//             searchable: true,
+//             sortable: true,
+//             multiple: true,
+//             name: t('built_in_attr.rendition', 'Rendition'),
+//             widget: {
+//                 component: RenditionDefinitionSelect,
+//                 props: {
+//                     useIRI: false,
+//                 },
+//             },
+//         },
+//         {
+//             slug: BuiltInFieldEnum.EditedAt,
+//             fieldType: AttributeType.DateTime,
+//             searchable: true,
+//             sortable: true,
+//             name: t('built_in_attr.editedAt', 'Edited At'),
+//             getValueFromAsset: asset => asset.editedAt,
+//         },
+//         {
+//             slug: BuiltInFieldEnum.CreatedAt,
+//             fieldType: AttributeType.DateTime,
+//             searchable: true,
+//             sortable: true,
+//             name: t('built_in_attr.createdAt', 'Created At'),
+//             getValueFromAsset: asset => asset.createdAt,
+//         },
+//         {
+//             slug: BuiltInFieldEnum.FileType,
+//             fieldType: AttributeType.Keyword,
+//             searchable: true,
+//             name: t('built_in_attr.fileType', 'File Type'),
+//             getValueFromAsset: asset => asset.source?.type,
+//         },
+//         {
+//             slug: BuiltInFieldEnum.FileMimeType,
+//             fieldType: AttributeType.Keyword,
+//             searchable: true,
+//             name: t('built_in_attr.fileMimeType', 'File MIME Type'),
+//             getValueFromAsset: asset => asset.source?.type,
+//         },
+//         {
+//             slug: BuiltInFieldEnum.FileExtension,
+//             fieldType: AttributeType.Keyword,
+//             searchable: true,
+//             name: t('built_in_attr.fileExtension', 'File Extension'),
+//             getValueFromAsset: asset => asset.source?.extension,
+//         },
+//         {
+//             slug: BuiltInFieldEnum.FileSize,
+//             fieldType: AttributeType.Number,
+//             searchable: true,
+//             name: t('built_in_attr.fileSize', 'File Size'),
+//             getValueFromAsset: asset => asset.source?.size,
+//         },
+//         {
+//             slug: BuiltInFieldEnum.FileName,
+//             fieldType: AttributeType.Text,
+//             searchable: true,
+//             name: t('built_in_attr.filename', 'File Name'),
+//         },
+//         {
+//             slug: BuiltInFieldEnum.HasSource,
+//             fieldType: AttributeType.Boolean,
+//             searchable: true,
+//             name: t('built_in_attr.has_source', 'Has Source File'),
+//             widget: {
+//                 component: NullableBooleanWidget,
+//             },
+//             getValueFromAsset: asset => !!asset.source,
+//         },
+//         {
+//             slug: BuiltInFieldEnum.Deleted,
+//             fieldType: AttributeType.Boolean,
+//             searchable: true,
+//             name: t('built_in_attr.deleted', 'Deleted'),
+//             widget: {
+//                 component: NullableBooleanWidget,
+//             },
+//             getValueFromAsset: asset =>
+//                 asset.deleted || asset.referenceCollection?.deleted,
+//         },
+//     ] as Partial<AttributeDefinition>[]
+// ).map(
+//     d =>
+//         ({
+//             ...d,
+//             id: d.slug,
+//             searchSlug: d.slug,
+//             enabled: true,
+//             builtIn: true,
+//         }) as AttributeDefinition
+// );
 
 type Filters = {
     workspaceId?: string;

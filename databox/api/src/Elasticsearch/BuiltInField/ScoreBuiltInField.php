@@ -19,7 +19,7 @@ final class ScoreBuiltInField extends AbstractBuiltInField
         return NumberAttributeType::NAME;
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return '_score';
     }

@@ -55,7 +55,7 @@ final readonly class FieldNameResolver
         $builtInField = $this->builtInFieldRegistry->getBuiltInField($name);
         if (null !== $builtInField) {
             $type = $this->attributeTypeRegistry->getStrictType($builtInField->getType());
-            $f = $builtInField->getFieldName();
+            $f = $builtInField::getName();
         } else {
             $info = $this->extractField($name);
             $type = $info['type'];

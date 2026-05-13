@@ -25,7 +25,7 @@ import {useCollectionStore} from '../../store/collectionStore.ts';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {useTranslation} from 'react-i18next';
 import {SearchContext} from './Search/SearchContext.tsx';
-import {BuiltInField} from './Search/search.ts';
+import {BuiltInFieldEnum} from './Search/search.ts';
 import SavedSearchList from './Search/SavedSearch/SavedSearchList.tsx';
 import {useAuth} from '@alchemy/react-auth';
 
@@ -169,12 +169,12 @@ function CollectionsPanel({}: Props) {
                                             0 &&
                                         searchContext.conditions.length === 1 &&
                                         searchContext.conditions[0].id ===
-                                            BuiltInField.Deleted
+                                            BuiltInFieldEnum.Deleted
                                     }
                                     onClick={() => {
                                         searchContext.resetWithCondition({
-                                            id: BuiltInField.Deleted,
-                                            query: `${BuiltInField.Deleted} = true`,
+                                            id: BuiltInFieldEnum.Deleted,
+                                            query: `${BuiltInFieldEnum.Deleted} = true`,
                                         });
                                     }}
                                 >
