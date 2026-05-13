@@ -465,7 +465,6 @@
             }
         },
         "type": {
-            "duration": {},
             "size": {
                 "unit": {
                     "bytes": "{{value}} Bytes",
@@ -490,17 +489,21 @@
         }
     },
     "profile": {
-        "choose_modal": {
-            "title": "Select current Profile"
+        "manage": {
+            "acl": {
+                "title": "Permissions"
+            },
+            "edit": {
+                "title": "Edit"
+            },
+            "organize": {
+                "title": "Organize"
+            },
+            "title": "Manage Profile {{name}}"
         },
-        "create_button": {
-            "label": "Create new Profile"
-        },
-        "default": {
-            "title": "My Profile"
-        },
-        "delete": {
-            "confirm": "Are you sure you want to delete this profile?"
+        "organize": {
+            "add_divider": "Add Divider",
+            "add_spacer": "Add Spacer"
         }
     },
     "attribute_definitions": {
@@ -564,24 +567,6 @@
         },
         "new": {
             "label": "New Entity"
-        }
-    },
-    "profile": {
-        "manage": {
-            "acl": {
-                "title": "Permissions"
-            },
-            "edit": {
-                "title": "Edit"
-            },
-            "organize": {
-                "title": "Organize"
-            },
-            "title": "Manage Profile {{name}}"
-        },
-        "organize": {
-            "add_divider": "Add Divider",
-            "add_spacer": "Add Spacer"
         }
     },
     "attribute_policy": {
