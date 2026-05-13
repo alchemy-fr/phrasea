@@ -179,31 +179,13 @@ export function getBuiltInFieldValueResolver(
 
     return index[field];
 }
-
-// return (
-//     [
-//         {
-//             slug: BuiltInField.Score,
-//             fieldType: AttributeType.Number,
-//             sortable: true,
-//             searchable: false,
-//             name: t('built_in_attr.score', 'Score'),
-//         },
-//         {
-//             slug: BuiltInField.Id,
-//             fieldType: AttributeType.Id,
-//             sortable: true,
-//             searchable: true,
-//             name: t('built_in_attr.id', 'ID'),
-//             getValueFromAsset: asset => asset.id,
-//         },
 //         {
 //             slug: BuiltInFieldEnum.Collection,
 //             entityIri: 'collections',
 //             resolveLabel: (entity: Collection) =>
 //                 entity.displayName ?? entity.name ?? '',
 //             searchable: true,
-//             fieldType: AttributeType.CollectionPath,
+//             fieldType: AttributeType.CollectionPath, TODO
 //             name: t('built_in_attr.collections', 'Collections'),
 //             getValueFromAsset: asset =>
 //                 asset.collections?.filter(c => !c.storyAsset) ?? [],
@@ -218,7 +200,7 @@ export function getBuiltInFieldValueResolver(
 //             searchable: true,
 //             name: t('built_in_attr.workspace', 'Workspace'),
 //             widget: {
-//                 component: WorkspaceSelect,
+//                 component: WorkspaceSelect, TODO
 //             },
 //             getValueFromAsset: asset => asset.workspace,
 //         },
@@ -231,7 +213,7 @@ export function getBuiltInFieldValueResolver(
 //             searchable: true,
 //             name: t('built_in_attr.owner', 'Owner'),
 //             widget: {
-//                 component: UserSelect,
+//                 component: UserSelect, TODO
 //             },
 //             getValueFromAsset: asset => asset.owner,
 //         },
@@ -253,7 +235,7 @@ export function getBuiltInFieldValueResolver(
 //             sortable: true,
 //             name: t('built_in_attr.isStory', 'Is Story'),
 //             widget: {
-//                 component: NullableBooleanWidget,
+//                 component: NullableBooleanWidget
 //             },
 //             getValueFromAsset: asset => !!asset.storyCollection,
 //         },
