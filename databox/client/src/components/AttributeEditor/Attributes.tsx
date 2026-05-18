@@ -51,7 +51,7 @@ export default function Attributes({
         >
             {attributeDefinitions.map(def => {
                 const l = def.translatable ? locale : NO_LOCALE;
-                const type = def.fieldType;
+                const type = def.type;
                 const formatter = getAttributeType(type);
                 const defValue = definitionValues[def.id];
                 const valueFormatterProps: AttributeFormatterProps = {

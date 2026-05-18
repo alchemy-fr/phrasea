@@ -56,15 +56,15 @@ export function useAttributeValues<T>({
     const saved = useRef(false);
 
     const createToKey = React.useCallback<CreateToKeyFunc<any>>(
-        (fieldType: AttributeType) => {
-            const type = getAttributeType(fieldType);
+        (type: AttributeType) => {
+            const attributeType = getAttributeType(type);
 
             return (v: any) => {
                 if (!v) {
                     return '';
                 }
 
-                return type.normalize(v)?.toString();
+                return attributeType.normalize(v)?.toString();
             };
         },
         []
@@ -74,7 +74,7 @@ export function useAttributeValues<T>({
         () =>
             ({
                 id: ExtraAttributeDefinition.Tags,
-                fieldType: AttributeType.Tag,
+                type: AttributeType.Tag,
                 name: t('tags.label', 'Tags'),
                 multiple: true,
                 canEdit: true,
@@ -276,7 +276,7 @@ export function useAttributeValues<T>({
                 ad => ad.id === defId
             )!;
 
-            const toKey = createToKey(attributeDefinition.fieldType);
+            const toKey = createToKey(attributeDefinition.type);
             const key = value ? toKey(value) : '';
 
             setIndex(p => {
@@ -331,7 +331,7 @@ export function useAttributeValues<T>({
             )!;
             locale = attributeDefinition.translatable ? locale : NO_LOCALE;
 
-            const toKey = createToKey(attributeDefinition.fieldType);
+            const toKey = createToKey(attributeDefinition.type);
             const key = value ? toKey(value) : '';
 
             setIndex(p => {
@@ -367,7 +367,7 @@ export function useAttributeValues<T>({
             if (definition && definition.multiple) {
                 locale = definition.translatable ? locale : NO_LOCALE;
                 const v = index[definition.id]?.[asset.id]?.[locale];
-                const toKey = createToKey(definition.fieldType);
+                const toKey = createToKey(definition.type);
                 if (v) {
                     return (v as T[]).some(iv => toKey(iv) === key);
                 }

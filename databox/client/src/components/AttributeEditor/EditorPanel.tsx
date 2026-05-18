@@ -162,7 +162,7 @@ export default function EditorPanel<T>({
                     key={definition.id}
                     id={definition.id}
                     label={definition.displayName ?? definition.name}
-                    type={definition.fieldType}
+                    type={definition.type}
                     indeterminate={valueContainer.indeterminate.g}
                     readOnly={readOnly}
                     isRtl={false}

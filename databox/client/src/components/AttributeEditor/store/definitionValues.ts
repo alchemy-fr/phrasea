@@ -30,7 +30,7 @@ export function computeAllDefinitionsValues<T>(
 
         const allLocales: Record<string, true> = {};
 
-        const toKey = createToKey(values.definition.fieldType);
+        const toKey = createToKey(values.definition.type);
 
         subSelection
             .filter(a => {

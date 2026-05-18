@@ -345,7 +345,7 @@ final readonly class WorkspaceTemplater
                 'labels' => $item->getLabels(),
                 'entityList' => $item->getEntityList() ? $entityClassMap[$item->getEntityList()->getId()] ?? null : null,
                 'fallback' => $item->getFallback(),
-                'fieldType' => $item->getFieldType(),
+                'type' => $item->getType(),
                 'fileType' => $item->getFileType(),
                 'initialValues' => $item->getInitialValues(),
                 'position' => $item->getPosition(),
@@ -388,7 +388,8 @@ final readonly class WorkspaceTemplater
             }
             $o->setFallback($item['fallback']);
             $o->setTarget(AssetTypeEnum::tryFrom((int) $item['target']) ?? AssetTypeEnum::Asset);
-            $o->setFieldType($item['fieldType']);
+            // Support previous fieldType key for backward compatibility with older templates
+            $o->setType($item['fieldType'] ?? $item['type']);
             $o->setFileType($item['fileType']);
             $o->setInitialValues($item['initialValues']);
             $o->setPosition($item['position']);

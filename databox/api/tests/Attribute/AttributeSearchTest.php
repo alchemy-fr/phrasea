@@ -71,14 +71,14 @@ class AttributeSearchTest extends TestCase
             string $wsId,
             string $slug,
             ?int $boost = null,
-            $fieldType = 'text',
+            $type = TextAttributeType::NAME,
             bool $multiple = false,
             bool $translatable = false,
         ): array {
             return [
                 'allowed' => $allowed,
                 'slug' => $slug,
-                'fieldType' => $fieldType,
+                'type' => $type,
                 'multiple' => $multiple,
                 'workspaceId' => $wsId,
                 'searchBoost' => $boost,

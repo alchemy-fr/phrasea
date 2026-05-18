@@ -114,7 +114,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     {
         $queryBuilder = $this
             ->createQueryBuilderAcl($userId, $groupIds, withConditions: false)
-            ->select('t.fieldType')
+            ->select('t.type')
             ->addSelect('t.slug')
             ->addSelect('t.multiple')
             ->addSelect('t.searchBoost')
@@ -161,7 +161,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
 
         if ($options[self::OPT_TYPES] ?? null) {
             $queryBuilder
-                ->andWhere('t.fieldType IN (:types)')
+                ->andWhere('t.type IN (:types)')
                 ->setParameter('types', $options[self::OPT_TYPES]);
         }
 
@@ -246,7 +246,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
         return $this
             ->createQueryBuilder('d')
             ->andWhere('d.workspace = :workspace')
-            ->andWhere('d.fieldType = :t')
+            ->andWhere('d.type = :t')
             ->andWhere('d.entityList = :etype')
             ->setParameter('workspace', $workspaceId)
             ->setParameter('t', EntityAttributeType::getName())

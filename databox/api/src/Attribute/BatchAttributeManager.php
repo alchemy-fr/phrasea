@@ -105,7 +105,7 @@ class BatchAttributeManager
                     $definition = $this->getAttributeDefinition($workspaceId, $action->definitionId);
 
                     if ($action->value) {
-                        $type = $this->typeRegistry->getStrictType($definition->getFieldType());
+                        $type = $this->typeRegistry->getStrictType($definition->getType());
                         $validationContext->setNode($action->value, $action, null, sprintf('actions[%d].value', $i));
                         $type->validate($action->value, $validationContext);
                     }

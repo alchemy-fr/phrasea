@@ -206,7 +206,7 @@ final readonly class AQLToESQuery
         };
     }
 
-    private function validateOperator(ConditionOperatorEnum $operator, string $fieldType): void
+    private function validateOperator(ConditionOperatorEnum $operator, string $type): void
     {
         $gt = [
             NumberAttributeType::NAME,
@@ -247,8 +247,8 @@ final readonly class AQLToESQuery
         ];
 
         $supportedTypes = $operatorSupportedTypes[$operator->value] ?? null;
-        if (null !== $supportedTypes && !in_array($fieldType, $supportedTypes, true)) {
-            throw new BadRequestHttpException(sprintf('Operator "%s" not supported for field type "%s"', $operator->value, $fieldType));
+        if (null !== $supportedTypes && !in_array($type, $supportedTypes, true)) {
+            throw new BadRequestHttpException(sprintf('Operator "%s" not supported for field type "%s"', $operator->value, $type));
         }
     }
 

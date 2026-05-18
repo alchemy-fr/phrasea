@@ -14,7 +14,7 @@ import {
 } from '../api/attributes.ts';
 import {BuiltInFieldEnum} from '../components/Media/Search/search.ts';
 import AttributeEntitySelect from '../components/Form/AttributeEntitySelect.tsx';
-import {AttributeType} from '../api/types.ts';
+import {AttributeType, EntityName} from '../api/types.ts';
 import React from 'react';
 
 export type AttributeDefinitionsIndex = Record<string, AttributeDefinition>;
@@ -133,19 +133,19 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
 
 function normalizeBuiltInFields(field: BuiltInField): AttributeDefinition {
     return {
-        id: field.key,
-        searchSlug: field.key,
+        ...field,
+        searchSlug: field.id,
         enabled: true,
         builtIn: true,
-        slug: field.key,
-        fieldType: field.type,
-        sortable: field.sortable,
-        searchable: field.searchable,
-        facetEnabled: field.facetEnabled,
-        name: field.name,
+        slug: field.id,
         entityList: null,
         editable: false,
-        displayName: field.displayName,
+        editableInGui: false,
+        suggest: false,
+        allowInvalid: false,
+        canEdit: false,
+        translatable: false,
+        searchBoost: 1,
     } as AttributeDefinition;
 }
 
@@ -415,10 +415,10 @@ function useIndexByKey(
     }, [definitions, ...Object.values(filters)]);
 }
 const normalizeDefinition = (d: AttributeDefinition): AttributeDefinition =>
-    d.fieldType === AttributeType.Entity
+    d.type === AttributeType.Entity
         ? {
               ...d,
-              entityIri: 'attribute-entities',
+              entityIri: EntityName.Entity,
               resolveLabel: (entity: object) =>
                   (entity as AttributeEntity).value,
               widget: {

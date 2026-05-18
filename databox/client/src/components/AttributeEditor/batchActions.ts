@@ -33,7 +33,7 @@ export function getBatchActions<T>(
             return;
         }
 
-        const toKey: ToKeyFuncTypeScoped<T> = createToKey(definition.fieldType);
+        const toKey: ToKeyFuncTypeScoped<T> = createToKey(definition.type);
         const av = attributes[defId];
         Object.keys(av).forEach((assetId): void => {
             const asset = assets.find(a => a.id === assetId)!;
@@ -112,7 +112,7 @@ export function getBatchActions<T>(
             return;
         }
 
-        const toKeyForType = createToKey(definition.fieldType);
+        const toKeyForType = createToKey(definition.type);
         const av = initialAttributes[defId];
         Object.keys(av).forEach((assetId): void => {
             const asset = assets.find(a => a.id === assetId)!;

@@ -112,7 +112,7 @@ class AttributeRepository extends ServiceEntityRepository
             ->addOrderBy('t.id', 'ASC')
             ->innerJoin('t.definition', 'd')
             ->andWhere('d.enabled = true')
-            ->andWhere('d.fieldType IN (:types)')
+            ->andWhere('d.type IN (:types)')
             ->andWhere('t.value != \'\'')
             ->setParameter('types', $types);
 
@@ -139,7 +139,7 @@ class AttributeRepository extends ServiceEntityRepository
                     ->select('a.id')
                     ->innerJoin('a.definition', 'd')
                     ->andWhere('d.workspace = :workspace')
-                    ->andWhere('d.fieldType = :t')
+                    ->andWhere('d.type = :t')
                     ->andWhere('d.entityList = :etype')
                     ->andWhere('a.value = :id')
                     ->getDQL()

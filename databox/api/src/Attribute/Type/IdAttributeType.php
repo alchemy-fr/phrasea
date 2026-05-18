@@ -24,7 +24,12 @@ class IdAttributeType extends KeywordAttributeType
     {
         parent::validate($value, $context);
 
-        if ($value && str_contains($value, ' ')) {
+        if ($context->getViolations()->count() > 0) {
+            return;
+        }
+
+        $v = (string) $value;
+        if ($v && str_contains($v, ' ')) {
             $context->addViolation('ID cannot contain spaces');
         }
     }

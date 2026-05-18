@@ -59,4 +59,5 @@ export enum EntityName {
     RenditionPolicy = 'rendition-policies',
     Rendition = 'renditions',
     BuiltInField = 'built-in-fields',
+    Entity = 'attribute-entities',
 }

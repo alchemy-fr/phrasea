@@ -67,7 +67,7 @@ export default function ItemForm({item, listId, onChange}: Props) {
     if (item.type === ProfileItemType.BuiltIn) {
         def = definitionIndexBySlug[item.key!];
     }
-    const attributeType = def ? getAttributeType(def!.fieldType) : undefined;
+    const attributeType = def ? getAttributeType(def!.type) : undefined;
     const formats = attributeType
         ? attributeType.getAvailableFormats({
               uiLocale: i18n.language,

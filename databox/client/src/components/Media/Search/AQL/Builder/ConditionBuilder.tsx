@@ -54,7 +54,7 @@ export default function ConditionBuilder({
 
     const field = getFieldDefinition(expression.leftOperand, definitionsIndex);
     const rawType: RawType | undefined = field
-        ? typeMap[field.fieldType]
+        ? typeMap[field.type]
         : undefined;
 
     return (

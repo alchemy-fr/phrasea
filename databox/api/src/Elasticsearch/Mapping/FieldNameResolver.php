@@ -21,16 +21,16 @@ final readonly class FieldNameResolver
 
     public function getFieldNameFromDefinition(AttributeDefinition $definition): string
     {
-        return $this->getFieldName($definition->getSlug(), $definition->getFieldType(), $definition->isMultiple());
+        return $this->getFieldName($definition->getSlug(), $definition->getType(), $definition->isMultiple());
     }
 
-    public function getFieldName(string $slug, string $fieldType, bool $isMultiple): string
+    public function getFieldName(string $slug, string $type, bool $isMultiple): string
     {
-        $type = $this->attributeTypeRegistry->getStrictType($fieldType);
+        $attributeType = $this->attributeTypeRegistry->getStrictType($type);
 
         return sprintf('%s_%s_%s',
             $slug,
-            $this->normalizeTypeNameForField($type::getName()),
+            $this->normalizeTypeNameForField($attributeType::getName()),
             $isMultiple ? 'm' : 's'
         );
     }

@@ -58,7 +58,7 @@ export default function AttributeType({
             {definition.multiple ? (
                 <MultiAttributeRow
                     isRtl={false}
-                    type={definition.fieldType}
+                    type={definition.type}
                     label={definition.displayName ?? definition.name}
                     values={
                         (extractNoLocaleOrDefinedLocaleValue(attributes) ||
@@ -79,7 +79,7 @@ export default function AttributeType({
                     }
                     required={false}
                     label={definition.displayName ?? definition.name}
-                    type={definition.fieldType}
+                    type={definition.type}
                     onChange={v => changeHandler(NO_LOCALE, v)}
                     id={definition.id}
                     options={createWidgetOptionsFromDefinition(definition)}

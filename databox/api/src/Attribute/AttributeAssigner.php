@@ -50,7 +50,7 @@ final readonly class AttributeAssigner
             $attribute->setLocale(LocaleUtil::normalizeLocale($data->locale));
         }
 
-        $type = $this->attributeTypeRegistry->getStrictType($attribute->getDefinition()->getFieldType());
+        $type = $this->attributeTypeRegistry->getStrictType($attribute->getDefinition()->getType());
         $value = $type->normalizeValue($data->value);
 
         if (null === $value) {

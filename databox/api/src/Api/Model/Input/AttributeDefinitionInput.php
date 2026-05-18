@@ -33,7 +33,7 @@ class AttributeDefinitionInput
     /**
      * @var string
      */
-    public $fieldType;
+    public $type;
 
     /**
      * @var EntityList|null
@@ -135,7 +135,7 @@ class AttributeDefinitionInput
     #[Assert\Callback()]
     public function validate(ExecutionContextInterface $context)
     {
-        if (EntityAttributeType::NAME === $this->fieldType && !$this->entityList) {
+        if (EntityAttributeType::NAME === $this->type && !$this->entityList) {
             $context
                 ->buildViolation('Missing entity list')
                 ->atPath('entityList')

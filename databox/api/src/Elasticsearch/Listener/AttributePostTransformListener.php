@@ -55,7 +55,7 @@ final class AttributePostTransformListener implements EventSubscriberInterface
         }
 
         $definition = $attribute->getDefinition();
-        if (EntityAttributeType::NAME === $definition->getFieldType()) {
+        if (EntityAttributeType::NAME === $definition->getType()) {
             $this->resolveEntity($attribute, $document);
         }
     }

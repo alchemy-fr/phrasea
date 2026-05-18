@@ -130,7 +130,7 @@ trait DataboxTestTrait
             'workspace' => $options['workspace'] ?? null,
         ]));
         $definition->setWorkspace($options['workspace'] ?? $this->getOrCreateDefaultWorkspace());
-        $definition->setFieldType($options['type'] ?? TextAttributeType::NAME);
+        $definition->setType($options['type'] ?? TextAttributeType::NAME);
         $definition->setTranslatable($options['translatable'] ?? false);
         $definition->setMultiple($options['multiple'] ?? false);
         $definition->setSearchable($options['searchable'] ?? true);

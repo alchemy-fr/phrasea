@@ -23,7 +23,7 @@ App\Entity\Core\AttributePolicy:
 App\Entity\Core\AttributeDefinition:
     attribute_definition_n (template):
         workspace: '@w_newspaper'
-        fieldType: text
+        type: text
 
     ad_story_name (extends attribute_definition_n):
         name: Story Name
@@ -47,7 +47,7 @@ App\Entity\Core\AttributeDefinition:
         name: Location
         facetEnabled: true
         suggest: true
-        fieldType: geo_point
+        type: geo_point
         policy: '@n_ap_public'
         position: 1
     ad_author (extends attribute_definition_n):
@@ -60,14 +60,14 @@ App\Entity\Core\AttributeDefinition:
     ad_file_size (extends attribute_definition_n):
         name: File Size
         multiple: false
-        fieldType: filesize
+        type: filesize
         policy: '@n_ap_public'
         initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('Composite:FileSize').value }}\"}"
         position: 2
     ad_duration (extends attribute_definition_n):
         name: Duration
         multiple: false
-        fieldType: duration
+        type: duration
         policy: '@n_ap_public'
         initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('Composite:Duration').value }}\"}"
         position: 2
@@ -88,7 +88,7 @@ App\Entity\Core\AttributeDefinition:
     ad_creation_date (extends attribute_definition_n):
         name: CreationDate
         multiple: false
-        fieldType: date
+        type: date
         facetEnabled: false
         policy: '@n_ap_public'
         initialValuesAll: "{\"type\": \"template\", \"value\": \"{{ file.metadata('ExifIFD:CreateDate').value ?? file.metadata('IPTC:DateCreated').value ?? file.metadata('IPTC:DigitalCreationDate').value }}\"}"
@@ -99,20 +99,20 @@ App\Entity\Core\AttributeDefinition:
         position: 5
     ad_vtt (extends attribute_definition_n):
         name: WebVTT
-        fieldType: code
+        type: code
         policy: '@n_ap_business'
         translatable: true
         position: 6
     ad_date (extends attribute_definition_n):
         name: Date
-        fieldType: date
+        type: date
         facetEnabled: true
         sortable: true
         policy: '@n_ap_public'
         position: 7
     ad_datetime (extends attribute_definition_n):
         name: 'Date & Time'
-        fieldType: date_time
+        type: date_time
         facetEnabled: true
         sortable: true
         policy: '@n_ap_public'
@@ -139,7 +139,7 @@ App\Entity\Core\AttributeDefinition:
         position: 11
     ad_number (extends attribute_definition_n):
         name: 'Number'
-        fieldType: number
+        type: number
         facetEnabled: true
         sortable: true
         suggest: true
@@ -147,7 +147,7 @@ App\Entity\Core\AttributeDefinition:
         position: 12
     ad_transport_type (extends attribute_definition_n):
         name: 'Transport Type'
-        fieldType: entity
+        type: entity
         entityList: '@et_transport_type'
         facetEnabled: true
         sortable: true
@@ -156,7 +156,7 @@ App\Entity\Core\AttributeDefinition:
         position: 13
     ad_seasons (extends attribute_definition_n):
         name: 'Seasons'
-        fieldType: entity
+        type: entity
         entityList: '@et_season'
         facetEnabled: true
         multiple: true

@@ -90,8 +90,8 @@ final readonly class ExposeClient
             $attributesIndex = $this->attributesResolver->resolveAssetAttributes($asset, true);
             $resolvedNameAttr = $this->assetNameResolver->resolveName($asset, $attributesIndex, []);
             if ($resolvedNameAttr instanceof Attribute) {
-                $type = $this->attributeTypeRegistry->getStrictType($resolvedNameAttr->getDefinition()->getFieldType());
-                $resolvedName = $type->getStringValue($resolvedNameAttr->getValue(), null);
+                $attributeType = $this->attributeTypeRegistry->getStrictType($resolvedNameAttr->getDefinition()->getType());
+                $resolvedName = $attributeType->getStringValue($resolvedNameAttr->getValue(), null);
             } else {
                 $resolvedName = $resolvedNameAttr;
             }
@@ -102,16 +102,16 @@ final readonly class ExposeClient
 
                 foreach ($definitionIndex->getLocales() as $locale => $attribute) {
                     $definition = $definitionIndex->getDefinition();
-                    $fieldType = $definition->getFieldType();
-                    $type = $this->attributeTypeRegistry->getStrictType($fieldType);
+                    $type = $definition->getType();
+                    $attributeType = $this->attributeTypeRegistry->getStrictType($type);
 
-                    if ($type instanceof EntityAttributeType) {
+                    if ($attributeType instanceof EntityAttributeType) {
                         $entityTranslations = [];
                         if ($definition->isMultiple()) {
                             foreach ($wsLocales as $wsLocale) {
                                 $entityTranslations[$wsLocale] ??= [];
                                 foreach ($attribute as $a) {
-                                    $v = $type->getEntityBestTranslation($a->getValue(), $wsLocale);
+                                    $v = $attributeType->getEntityBestTranslation($a->getValue(), $wsLocale);
                                     if (null !== $v) {
                                         $entityTranslations[$wsLocale][] = $v;
                                     }
@@ -119,7 +119,7 @@ final readonly class ExposeClient
                             }
                         } else {
                             foreach ($wsLocales as $wsLocale) {
-                                $v = $type->getEntityBestTranslation($attribute->getValue(), $wsLocale);
+                                $v = $attributeType->getEntityBestTranslation($attribute->getValue(), $wsLocale);
                                 if (null !== $v) {
                                     $entityTranslations[$wsLocale] = $v;
                                 }
@@ -141,7 +141,7 @@ final readonly class ExposeClient
                         $attributeHtml = $this->getAttributeHtml(
                             $definition,
                             $definition->isMultiple() ? array_map(fn (Attribute $a,
-                            ): ?string => $type->getStringValue($a->getValue(), $locale), $attribute) : $type->getStringValue($attribute->getValue(), $locale),
+                            ): ?string => $attributeType->getStringValue($a->getValue(), $locale), $attribute) : $attributeType->getStringValue($attribute->getValue(), $locale),
                             $locale
                         );
                         if (!empty($attributeHtml)) {
@@ -222,7 +222,7 @@ final readonly class ExposeClient
     <div class="attribute-value attribute-value-type-%1$s attribute-name-%2$s"%5$s>%4$s</div>
   </div>
 ',
-            $definition->getFieldType(),
+            $definition->getType(),
             $definition->getSlug(),
             $attributeName,
             $definition->isMultiple() ? implode(', ', $value) : $value,

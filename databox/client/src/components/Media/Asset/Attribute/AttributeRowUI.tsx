@@ -38,8 +38,8 @@ export default function AttributeRowUI({
     assetAnnotationsRef,
 }: Props) {
     const {t, i18n} = useTranslation();
-    const {displayName, name, fieldType, multiple} = definition;
-    const formatter = getAttributeType(fieldType);
+    const {displayName, name, type, multiple} = definition;
+    const formatter = getAttributeType(type);
     const [overControls, setOverControls] = React.useState(false);
 
     const toggleFormat = React.useCallback<
@@ -47,7 +47,7 @@ export default function AttributeRowUI({
     >(
         e => {
             e.stopPropagation();
-            formatContext.toggleFormat(fieldType, definition.id);
+            formatContext.toggleFormat(type, definition.id);
         },
         [formatContext]
     );
@@ -67,7 +67,7 @@ export default function AttributeRowUI({
             : (attribute as Attribute)?.value,
         highlight: multiple ? undefined : (attribute as Attribute)?.highlight,
         locale,
-        format: format ?? formatContext.getFormat(fieldType, definition.id),
+        format: format ?? formatContext.getFormat(type, definition.id),
     };
 
     return (
@@ -88,18 +88,17 @@ export default function AttributeRowUI({
                     <div className={attributesClasses.controls}>
                         {overControls ? (
                             <>
-                                {!format &&
-                                    formatContext.hasFormats(fieldType) && (
-                                        <IconButton
-                                            onClick={toggleFormat}
-                                            title={formatContext.getFormatTitle(
-                                                fieldType,
-                                                definition.id
-                                            )}
-                                        >
-                                            <VisibilityIcon />
-                                        </IconButton>
-                                    )}
+                                {!format && formatContext.hasFormats(type) && (
+                                    <IconButton
+                                        onClick={toggleFormat}
+                                        title={formatContext.getFormatTitle(
+                                            type,
+                                            definition.id
+                                        )}
+                                    >
+                                        <VisibilityIcon />
+                                    </IconButton>
+                                )}
 
                                 <CopyAttribute
                                     value={formatter.formatValueAsString(
@@ -140,7 +139,7 @@ export default function AttributeRowUI({
                                       highlight: a.highlight,
                                       locale: a.locale,
                                       format: formatContext.getFormat(
-                                          fieldType,
+                                          type,
                                           a.definition.id
                                       ),
                                   };

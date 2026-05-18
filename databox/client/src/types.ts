@@ -163,36 +163,35 @@ export interface AssetFileVersion extends Entity {
     createdAt: string;
 }
 
-export type BuiltInField = {
+interface BaseAttribute extends Entity {
     name: string;
     displayName: string;
-    key: string;
     type: AttributeType;
     searchable: boolean;
     sortable: boolean;
+    multiple: boolean;
     facetEnabled: boolean;
-};
-
-export interface AttributeDefinition extends IPermissions, Entity {
-    name: string;
-    displayName: string;
+    entityIri?: string;
     slug: string;
     searchSlug: string;
+}
+
+export interface BuiltInField extends BaseAttribute {
+    builtIn: true;
+}
+
+export interface AttributeDefinition extends BaseAttribute, IPermissions {
+    builtIn?: never;
     enabled: boolean;
-    fieldType: AttributeType;
     entityList?: EntityList | string | null | undefined;
-    multiple: boolean;
-    searchable: boolean;
     editable: boolean;
     editableInGui: boolean;
-    sortable: boolean;
     suggest: boolean;
     translatable: boolean;
     locales?: string[];
     allowInvalid: boolean;
     facetEnabled: boolean;
     canEdit: boolean;
-    builtIn?: boolean;
     widget?: FieldWidget;
     widgetProps?: Record<string, any>;
     searchBoost: number;

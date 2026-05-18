@@ -25,7 +25,7 @@ describe('getBatchActions', () => {
             slug: 'text',
             searchSlug: 'text',
             multiple: false,
-            fieldType: AttributeType.Text,
+            type: AttributeType.Text,
         } as unknown as AttributeDefinition;
 
         const attrDefTextMulti: AttributeDefinition = {
@@ -44,7 +44,7 @@ describe('getBatchActions', () => {
             slug: 'geopoint',
             searchSlug: 'geopoint',
             multiple: false,
-            fieldType: AttributeType.GeoPoint,
+            type: AttributeType.GeoPoint,
         } as unknown as AttributeDefinition;
 
         const capabilities = {
@@ -113,8 +113,8 @@ describe('getBatchActions', () => {
             [attrDefGeoPoint.id]: attrDefGeoPoint,
         } as unknown as AttributeDefinitionIndex;
 
-        const createToKey = (fieldType: AttributeType) => {
-            if (fieldType === AttributeType.GeoPoint) {
+        const createToKey = (type: AttributeType) => {
+            if (type === AttributeType.GeoPoint) {
                 return (v: any) => {
                     if (!v) {
                         return '';

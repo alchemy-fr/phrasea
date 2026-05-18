@@ -47,7 +47,7 @@ export default function MultiAttributeRow<T>({
     selectedValue,
     setSelectedValue,
 }: Props<T>) {
-    const {id, displayName, name, fieldType: type} = attributeDefinition;
+    const {id, displayName, name, type: type} = attributeDefinition;
     const inputRef = React.useRef<HTMLInputElement | null>(null);
     const {t, i18n} = useTranslation();
     const formatContext = useContext(AttributeFormatContext);
@@ -102,7 +102,7 @@ export default function MultiAttributeRow<T>({
     const computed = React.useMemo<MultiValueValue<T>[]>(() => {
         const index: MultiValueIndex<T> = {};
         const length = valueContainer.values.length;
-        const toKey = createToKey(attributeDefinition.fieldType);
+        const toKey = createToKey(attributeDefinition.type);
 
         valueContainer.values.forEach(translations => {
             const values = translations[locale];

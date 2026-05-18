@@ -85,7 +85,7 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
         foreach ($attributeIndex->getDefinitions() as $definitionIndex) {
             $definition = $definitionIndex->getDefinition();
             $isMultiple = $definition->isMultiple();
-            $type = $this->attributeTypeRegistry->getStrictType($definition->getFieldType());
+            $type = $this->attributeTypeRegistry->getStrictType($definition->getType());
             $fieldName = null;
 
             foreach ($definitionIndex->getLocales() as $l => $a) {

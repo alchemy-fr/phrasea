@@ -71,7 +71,7 @@ export type MultiValueIndex<T> = {
 };
 
 export type CreateToKeyFunc<T = string> = (
-    fieldType: AttributeType
+    type: AttributeType
 ) => ToKeyFuncTypeScoped<T>;
 
 export type ToKeyFuncTypeScoped<T> = (v: T) => string;
