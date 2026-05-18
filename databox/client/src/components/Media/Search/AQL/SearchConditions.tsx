@@ -27,9 +27,9 @@ export default function SearchConditions({search}: Props) {
 
     React.useEffect(() => {
         if (!loaded) {
-            load(t);
+            load();
         }
-    }, [loaded, t, load]);
+    }, [loaded, load]);
 
     const asts = useResolveASTs({
         conditions: search.conditions,

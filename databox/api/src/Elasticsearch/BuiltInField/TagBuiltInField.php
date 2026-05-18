@@ -44,7 +44,7 @@ final class TagBuiltInField extends AbstractEntityBuiltInField
         return Tag::class;
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return 'tags';
     }
@@ -62,5 +62,10 @@ final class TagBuiltInField extends AbstractEntityBuiltInField
     protected function getAggregationTranslationKey(): string
     {
         return 'tags';
+    }
+
+    public function isMultiple(): bool
+    {
+        return true;
     }
 }

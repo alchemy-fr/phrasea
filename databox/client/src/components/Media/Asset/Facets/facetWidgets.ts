@@ -5,7 +5,7 @@ import BooleanFacet from './types/BooleanFacet.tsx';
 import DateHistogramFacet from './types/DateHistogramFacet.tsx';
 import GeoDistanceFacet from './types/GeoDistanceFacet.tsx';
 import EntitiesFacet from './types/EntitiesFacet.tsx';
-import {BuiltInField} from '../../Search/search.ts';
+import {BuiltInFieldEnum} from '../../Search/search.ts';
 import TagsFacet from './types/TagsFacet.tsx';
 
 export const facetWidgets: Record<FacetType, React.FC<FacetGroupProps>> = {
@@ -16,6 +16,6 @@ export const facetWidgets: Record<FacetType, React.FC<FacetGroupProps>> = {
     [FacetType.Entity]: EntitiesFacet,
 };
 export const facetWidgetsByKey: Record<string, React.FC<FacetGroupProps>> = {
-    [BuiltInField.Tag]: TagsFacet,
-    [BuiltInField.IsStory]: BooleanFacet,
+    [BuiltInFieldEnum.Tag]: TagsFacet,
+    [BuiltInFieldEnum.IsStory]: BooleanFacet,
 };

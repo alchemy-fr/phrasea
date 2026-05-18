@@ -74,6 +74,11 @@ abstract class AbstractBuiltInField implements BuiltInFieldInterface
         return true;
     }
 
+    public function isSearchable(): bool
+    {
+        return true;
+    }
+
     public function isFacet(): bool
     {
         return true;
@@ -82,7 +87,7 @@ abstract class AbstractBuiltInField implements BuiltInFieldInterface
     public function buildFacet(Query $query, TranslatorInterface $translator): void
     {
         $agg = new Aggregation\Terms(static::getKey());
-        $agg->setField($this->getFieldName());
+        $agg->setField(static::getName());
         $agg->setSize($this->getAggregationSize());
         $agg->setMeta($this->getAggregationMeta($translator));
         $query->addAggregation($agg);
@@ -103,6 +108,11 @@ abstract class AbstractBuiltInField implements BuiltInFieldInterface
         }
 
         return $meta;
+    }
+
+    public function isMultiple(): bool
+    {
+        return false;
     }
 
     protected function getAggregationSize(): int
@@ -130,5 +140,10 @@ abstract class AbstractBuiltInField implements BuiltInFieldInterface
     public function createFilterQuery(mixed $value, array $options): ?Query\AbstractQuery
     {
         return null;
+    }
+
+    public function isListed(): bool
+    {
+        return true;
     }
 }

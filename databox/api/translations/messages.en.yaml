@@ -47,3 +47,43 @@ facet:
         name: Is Story
     stories:
         name: Stories
+
+built_in_field:
+    _score:
+        name: Score
+    _id:
+        name: ID
+    collectionPaths:
+        name: Collections
+    workspaceId:
+        name: Workspace
+    ownerId:
+        name: Owner
+    privacy:
+        name: Privacy
+    isStory:
+        name: Is Story
+    stories:
+        name: Stories
+    tags:
+        name: Tag
+    renditions:
+        name: Rendition
+    editedAt:
+        name: Edited At
+    createdAt:
+        name: Created At
+    fileType:
+        name: File Type
+    fileMimeType:
+        name: File MIME Type
+    fileExtension:
+        name: File Extension
+    fileSize:
+        name: File Size
+    filename:
+        name: File Name
+    hasSource:
+        name: Has Source File
+    deleted:
+        name: Deleted

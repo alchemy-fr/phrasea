@@ -56,7 +56,7 @@ final class OwnerBuiltInField extends AbstractBuiltInField
         return (string) $value;
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return 'ownerId';
     }

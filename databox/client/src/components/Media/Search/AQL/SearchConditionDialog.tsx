@@ -93,8 +93,8 @@ export default function SearchConditionDialog({
     const definitionsIndex = useIndexBySlug();
 
     useEffectOnce(() => {
-        load(t);
-    }, [load, t]);
+        load();
+    }, [load]);
 
     const wrapValidate = (handler: () => void) => {
         try {

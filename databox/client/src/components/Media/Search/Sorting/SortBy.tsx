@@ -21,8 +21,8 @@ export default function SortBy({}: Props) {
     const menuOpen = Boolean(anchorEl);
 
     React.useEffect(() => {
-        load(t);
-    }, [load, t]);
+        load();
+    }, [load]);
 
     const handleClose = () => {
         setAnchorEl(null);

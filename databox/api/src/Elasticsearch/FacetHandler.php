@@ -31,7 +31,7 @@ final readonly class FacetHandler
 
             $item->buildFacet($query, $this->translator);
             if ($item->includesMissing()) {
-                $missingAgg = new Missing($item::getKey().self::MISSING_SUFFIX, $item->getFieldName());
+                $missingAgg = new Missing($item::getKey().self::MISSING_SUFFIX, $item::getName());
                 $query->addAggregation($missingAgg);
             }
         }

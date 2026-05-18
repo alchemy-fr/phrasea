@@ -30,7 +30,7 @@ abstract class AbstractDateTimeBuiltInField extends AbstractBuiltInField
     {
         $agg = new Aggregation\AutoDateHistogram(
             static::getKey(),
-            $this->getFieldName()
+            static::getName()
         );
         $agg->setBuckets($this->getAggregationSize());
         $agg->setMinimumInterval($this->getAggregationMinimumInterval());

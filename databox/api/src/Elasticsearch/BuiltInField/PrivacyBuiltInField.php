@@ -33,7 +33,7 @@ final class PrivacyBuiltInField extends AbstractLabelledBuiltInField
         return (string) $value;
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return 'privacy';
     }

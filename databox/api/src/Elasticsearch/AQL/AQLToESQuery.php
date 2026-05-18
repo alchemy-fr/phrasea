@@ -551,7 +551,7 @@ final readonly class AQLToESQuery
             if (null !== $builtInField) {
                 return [
                     new ClusterGroup([
-                        'field' => $builtInField->getFieldName(),
+                        'field' => $builtInField::getName(),
                         'builtInField' => $builtInField,
                         'type' => $this->attributeTypeRegistry->getStrictType($builtInField->getType()),
                         'locales' => [],

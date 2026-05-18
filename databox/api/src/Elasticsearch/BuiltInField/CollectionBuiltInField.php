@@ -101,7 +101,7 @@ final class CollectionBuiltInField extends AbstractBuiltInField
         return $value->getId();
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return 'collectionPaths';
     }
@@ -114,6 +114,11 @@ final class CollectionBuiltInField extends AbstractBuiltInField
     public function getValueFromAsset(Asset $asset): mixed
     {
         return $asset->getCollections();
+    }
+
+    public function isMultiple(): bool
+    {
+        return true;
     }
 
     protected function resolveItem($value)
