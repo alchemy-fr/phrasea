@@ -107,7 +107,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             }
 
             if (!empty($data->attributes)) {
-                $this->assignAttributes($this->attributeInputProcessor, $object, $data->attributes, $context);
+                $this->assignAttributes($object->getWorkspaceId(), $this->attributeInputProcessor, $object, $data->attributes, $context);
             }
 
             if ($data->relationship) {

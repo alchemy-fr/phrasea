@@ -32,10 +32,6 @@ final class EntityAttributeType extends TextAttributeType
 
     public function validate($value, ExecutionContextInterface $context): void
     {
-        if (null === $value) {
-            return;
-        }
-
         if (!Uuid::isValid($value)) {
             $context->addViolation('Invalid entity ID');
         }

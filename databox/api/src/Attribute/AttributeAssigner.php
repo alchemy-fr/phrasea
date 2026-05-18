@@ -54,7 +54,7 @@ final readonly class AttributeAssigner
         $value = $type->normalizeValue($data->value);
 
         if (null === $value) {
-            throw new InvalidAttributeValueException(sprintf('Normalized "%s" value is NULL (from: "%s")', $type::getName(), get_debug_type($data->value)));
+            throw new InvalidAttributeValueException(sprintf('Normalized "%s" value is NULL (from: "%s"): %s', $type::getName(), get_debug_type($data->value), var_export($data->value, true)));
         }
 
         $attribute->setValue($value);

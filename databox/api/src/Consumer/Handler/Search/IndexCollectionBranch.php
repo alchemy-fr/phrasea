@@ -9,11 +9,17 @@ final readonly class IndexCollectionBranch
 {
     public function __construct(
         private string $collectionId,
+        private bool $indexAssets = false,
     ) {
     }
 
     public function getCollectionId(): string
     {
         return $this->collectionId;
+    }
+
+    public function isIndexAssets(): bool
+    {
+        return $this->indexAssets;
     }
 }

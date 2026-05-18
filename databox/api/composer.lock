@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bdd2fe998828a77d85e3051317832b15",
+    "content-hash": "a88d89913a1bbecde785dd6d602712ac",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
-            "version": "1.1.0",
+            "version": "dev-event-previous",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/acl-bundle.git",
-                "reference": "ef31d7c60d79f7563ef8416e5bf36150121b18a0"
+                "reference": "e079478e7435bd8ea90de26bc81a47c34a0c3a61"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/ef31d7c60d79f7563ef8416e5bf36150121b18a0",
-                "reference": "ef31d7c60d79f7563ef8416e5bf36150121b18a0",
+                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/e079478e7435bd8ea90de26bc81a47c34a0c3a61",
+                "reference": "e079478e7435bd8ea90de26bc81a47c34a0c3a61",
                 "shasum": ""
             },
             "require": {
@@ -54,13 +54,13 @@
             "homepage": "https://www.alchemy.fr/",
             "support": {
                 "issues": "https://github.com/alchemy-fr/acl-bundle/issues",
-                "source": "https://github.com/alchemy-fr/acl-bundle/tree/1.1.0"
+                "source": "https://github.com/alchemy-fr/acl-bundle/tree/event-previous"
             },
-            "time": "2026-05-04T18:30:34+00:00"
+            "time": "2026-05-07T13:28:01+00:00"
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-1048-permissions-metadata",
+            "version": "dev-PS-672-acl-optim",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -120,7 +120,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-1048-permissions-metadata",
+            "version": "dev-PS-672-acl-optim",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -179,7 +179,7 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-PS-1048-permissions-metadata",
+            "version": "dev-PS-672-acl-optim",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -234,7 +234,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-1048-permissions-metadata",
+            "version": "dev-PS-672-acl-optim",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -297,7 +297,7 @@
         },
         {
             "name": "alchemy/es-bundle",
-            "version": "dev-PS-1048-permissions-metadata",
+            "version": "dev-PS-672-acl-optim",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -355,7 +355,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-PS-1048-permissions-metadata",
+            "version": "dev-PS-672-acl-optim",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -409,7 +409,7 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-PS-1048-permissions-metadata",
+            "version": "dev-PS-672-acl-optim",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
@@ -466,7 +466,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-PS-1048-permissions-metadata",
+            "version": "dev-PS-672-acl-optim",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
@@ -591,7 +591,7 @@
         },
         {
             "name": "alchemy/rendition-factory",
-            "version": "dev-PS-1048-permissions-metadata",
+            "version": "dev-PS-672-acl-optim",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory",
@@ -655,7 +655,7 @@
         },
         {
             "name": "alchemy/rendition-factory-bundle",
-            "version": "dev-PS-1048-permissions-metadata",
+            "version": "dev-PS-672-acl-optim",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory-bundle",
@@ -710,7 +710,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-1048-permissions-metadata",
+            "version": "dev-PS-672-acl-optim",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -766,7 +766,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-PS-1048-permissions-metadata",
+            "version": "dev-PS-672-acl-optim",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -819,7 +819,7 @@
         },
         {
             "name": "alchemy/track-bundle",
-            "version": "dev-PS-1048-permissions-metadata",
+            "version": "dev-PS-672-acl-optim",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/track-bundle",
@@ -882,7 +882,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-PS-1048-permissions-metadata",
+            "version": "dev-PS-672-acl-optim",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
@@ -940,7 +940,7 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-PS-1048-permissions-metadata",
+            "version": "dev-PS-672-acl-optim",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
@@ -1007,7 +1007,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-PS-1048-permissions-metadata",
+            "version": "dev-PS-672-acl-optim",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -15112,7 +15112,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-1048-permissions-metadata",
+            "version": "dev-PS-672-acl-optim",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
@@ -18059,6 +18059,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "alchemy/acl-bundle": 20,
         "alchemy/admin-bundle": 20,
         "alchemy/api-test": 20,
         "alchemy/configurator-bundle": 20,

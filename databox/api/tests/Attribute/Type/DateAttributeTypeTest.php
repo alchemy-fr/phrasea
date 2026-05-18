@@ -30,6 +30,7 @@ class DateAttributeTypeTest extends AbstractAttributeTypeTest
             ['2008-01-12', '2008-01-12T00:00:00+00:00'],
             [new \DateTimeImmutable('2008-01-12T00:00:00'), '2008-01-12T00:00:00+00:00'],
             [new \DateTime('2008-01-12T00:00:00'), '2008-01-12T00:00:00+00:00'],
+            ['1997/1997_01/', null],
         ];
     }
 

@@ -4,6 +4,7 @@ namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Api\Model\Output\ESDocumentStateOutput;
+use App\Util\ArrayUtil;
 use Elastica\Request;
 use FOS\ElasticaBundle\Persister\ObjectPersister;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
@@ -29,9 +30,20 @@ final readonly class ESDocumentStateManager
         $response = $this->elasticSearchClient->request($indexName.'/_doc/'.$object->getId(), [], Request::GET);
 
         $data = $response->getData();
-        $synced = $document->getData() == $data['_source'];
+        $synced = $this->documentAreSame($document->getData(), $data['_source'] ?? []);
 
         return new ESDocumentStateOutput($data, $synced);
+    }
+
+    private function documentAreSame(array $a, array $b): bool
+    {
+        $norm = function (array $data): array {
+            unset($data['_version'], $data['_seq_no']);
+
+            return $data;
+        };
+
+        return ArrayUtil::arrayAreSame($norm($a), $norm($b));
     }
 
     private function getObjectPersister(object $object): ObjectPersister

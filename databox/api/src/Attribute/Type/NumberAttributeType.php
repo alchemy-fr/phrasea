@@ -54,10 +54,6 @@ class NumberAttributeType extends AbstractAttributeType
 
     public function validate($value, ExecutionContextInterface $context): void
     {
-        if (null === $value) {
-            return;
-        }
-
         if (!is_numeric($value)) {
             $context->addViolation('Invalid number');
         }

@@ -26,20 +26,18 @@ readonly class IndexCollectionBranchHandler
     {
         $collection = DoctrineUtil::findStrict($this->em, Collection::class, $message->getCollectionId());
 
-        $this->handleChildren($collection);
+        $this->handleChildren($collection, $message->isIndexAssets());
     }
 
-    private function handleChildren(Collection $collection): void
-    {
-        $this->indexCollection($collection);
-        foreach ($collection->getChildren() as $child) {
-            $this->handleChildren($child);
-        }
-    }
-
-    private function indexCollection(Collection $collection): void
+    private function handleChildren(Collection $collection, bool $indexAssets): void
     {
         $this->searchIndexer->scheduleObjectsIndex(Collection::class, [$collection->getId()], Operation::Upsert);
-        $this->bus->dispatch(new IndexCollectionAssets($collection->getId()));
+        if ($indexAssets) {
+            $this->bus->dispatch(new IndexCollectionAssets($collection->getId()));
+        }
+
+        foreach ($collection->getChildren() as $child) {
+            $this->handleChildren($child, $indexAssets);
+        }
     }
 }
