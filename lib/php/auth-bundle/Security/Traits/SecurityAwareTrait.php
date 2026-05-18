@@ -6,6 +6,7 @@ namespace Alchemy\AuthBundle\Security\Traits;
 
 use Alchemy\AuthBundle\Security\JwtInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\RoleMapper;
 use Alchemy\AuthBundle\Security\Token\JwtToken;
 use Alchemy\AuthBundle\Security\Voter\SuperAdminVoter;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -16,11 +17,18 @@ use Symfony\Contracts\Service\Attribute\Required;
 trait SecurityAwareTrait
 {
     protected Security $security;
+    protected RoleMapper $roleMapper;
 
     #[Required]
     public function setSecurity(Security $security): void
     {
         $this->security = $security;
+    }
+
+    #[Required]
+    public function setRoleMapper(RoleMapper $roleMapper): void
+    {
+        $this->roleMapper = $roleMapper;
     }
 
     protected function isSuperAdmin(): bool
@@ -109,5 +117,26 @@ trait SecurityAwareTrait
         }
 
         return $token->hasScope($scope);
+    }
+
+    public function hasRole(string $role): bool
+    {
+        $token = $this->security->getToken();
+        if (!$token instanceof JwtToken) {
+            return false;
+        }
+
+        if (!$token->hasAttribute('roles')) {
+            return false;
+        }
+
+        $roles = $this->roleMapper->getRoles([$role]) ?? [$role];
+        foreach ($roles as $r) {
+            if (in_array($r, $token->getAttribute('roles'), true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

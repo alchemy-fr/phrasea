@@ -12,7 +12,7 @@ use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Attribute\AttributeTypeRegistry;
-use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
+use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
@@ -30,6 +30,7 @@ use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Discussion\DiscussionManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class AssetOutputTransformer implements OutputTransformerInterface
 {
@@ -45,10 +46,12 @@ class AssetOutputTransformer implements OutputTransformerInterface
         private readonly AttributesResolver $attributesResolver,
         private readonly AssetNameResolver $assetNameResolver,
         private readonly FieldNameResolver $fieldNameResolver,
-        private readonly BuiltInFieldRegistry $builtInFieldRegistry,
+        private readonly BuiltInAttributeRegistry $builtInFieldRegistry,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
         private readonly DiscussionManager $discussionManager,
         private readonly NotifierInterface $notifier,
+        #[Autowire(env: 'API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE')]
+        private readonly string $ownerPropertyRequiredRole,
     ) {
     }
 
@@ -193,11 +196,15 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
             $output->setCapabilities($capabilities);
 
-            $output->owner = $this->transformUser($data->getOwnerId());
+            if (empty($this->ownerPropertyRequiredRole) || $this->hasRole($this->ownerPropertyRequiredRole)) {
+                $output->owner = $this->transformUser($data->getOwnerId());
+            }
+
             $output->threadKey = $this->discussionManager->getObjectKey($data);
         }
 
         if ($this->hasGroup([Asset::GROUP_READ], $context)) {
+
             if ($user instanceof JwtUser) {
                 $output->topicSubscriptions = $this->notifier->getTopicSubscriptions(
                     $data->getTopicKeys(),

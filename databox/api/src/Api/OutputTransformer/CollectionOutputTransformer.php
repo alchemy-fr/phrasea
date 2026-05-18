@@ -18,6 +18,7 @@ use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetContainerVoterInterface;
 use App\Security\Voter\CollectionVoter;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
@@ -36,6 +37,8 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         private readonly TagAwareCacheInterface $collectionCache,
         private readonly PermissionManager $permissionManager,
         private readonly NotifierInterface $notifier,
+        #[Autowire(env: 'API_COLLECTION_OWNER_PROPERTY_REQUIRED_ROLE')]
+        private readonly string $ownerPropertyRequiredRole,
     ) {
     }
 
@@ -84,12 +87,6 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         $output->setExtraMetadata($data->getExtraMetadata());
         $output->relationExtraMetadata = $data->getRelationExtraMetadata();
         $output->translations = $data->getTranslations();
-
-        if ($this->hasGroup([
-            Collection::GROUP_READ,
-        ], $context)) {
-            $output->owner = $this->transformUser($data->getOwnerId());
-        }
 
         if ($this->hasGroup([Collection::GROUP_ABSOLUTE_NAME], $context)) {
             $output->absoluteName = $data->getAbsoluteName();
@@ -175,7 +172,10 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         if ($this->hasGroup([
             Collection::GROUP_READ,
         ], $context)) {
-            $output->owner = $this->transformUser($data->getOwnerId());
+            if (empty($this->ownerPropertyRequiredRole) || $this->hasRole($this->ownerPropertyRequiredRole)) {
+                $output->owner = $this->transformUser($data->getOwnerId());
+            }
+
             $user = $this->getUser();
             if ($user instanceof JwtUser) {
                 $output->topicSubscriptions = $this->notifier->getTopicSubscriptions(

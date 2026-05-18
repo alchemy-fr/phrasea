@@ -8,7 +8,7 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
-use App\Api\Provider\BuiltInFieldProvider;
+use App\Api\Provider\BuiltInAttributeProvider;
 
 #[ApiResource(
     shortName: 'built-in-field',
@@ -16,9 +16,9 @@ use App\Api\Provider\BuiltInFieldProvider;
         new Get(),
         new GetCollection(),
     ],
-    provider: BuiltInFieldProvider::class,
+    provider: BuiltInAttributeProvider::class,
 )]
-class BuiltInField
+class BuiltInAttribute
 {
     public function __construct(
         #[ApiProperty(identifier: true)]

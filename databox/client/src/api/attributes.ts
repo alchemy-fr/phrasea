@@ -3,7 +3,7 @@ import {
     AttributeDefinition,
     FieldType,
     AssetTypeFilter,
-    BuiltInField,
+    BuiltInAttribute,
 } from '../types';
 import {apiClient} from '../init.ts';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
@@ -102,11 +102,11 @@ export async function getWorkspaceAttributeDefinitions({
 }
 
 export async function getBuiltInFields(): Promise<
-    NormalizedCollectionResponse<BuiltInField>
+    NormalizedCollectionResponse<BuiltInAttribute>
 > {
     const res = await apiClient.get(EntityName.BuiltInField, {});
 
-    return getHydraCollection<BuiltInField>(res.data);
+    return getHydraCollection<BuiltInAttribute>(res.data);
 }
 
 export async function getAttributeDefinitions(): Promise<

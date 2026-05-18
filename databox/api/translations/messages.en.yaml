@@ -48,7 +48,7 @@ facet:
     stories:
         name: Stories
 
-built_in_field:
+built_in_attribute:
     _score:
         name: Score
     _id:

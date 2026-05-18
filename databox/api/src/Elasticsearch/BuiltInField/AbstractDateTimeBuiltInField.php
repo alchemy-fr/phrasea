@@ -10,7 +10,7 @@ use Elastica\Aggregation;
 use Elastica\Query;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-abstract class AbstractDateTimeBuiltInField extends AbstractBuiltInField
+abstract class AbstractDateTimeBuiltInField extends AbstractBuiltInAttribute
 {
     protected function resolveLabel($value): string
     {

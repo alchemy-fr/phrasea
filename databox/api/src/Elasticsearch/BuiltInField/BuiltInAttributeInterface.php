@@ -11,9 +11,9 @@ use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[AutoconfigureTag(self::TAG)]
-interface BuiltInFieldInterface
+interface BuiltInAttributeInterface
 {
-    final public const string TAG = 'app.built_in_field';
+    final public const string TAG = 'app.built_in_attribute';
 
     public function normalizeBuckets(array $buckets): array;
 

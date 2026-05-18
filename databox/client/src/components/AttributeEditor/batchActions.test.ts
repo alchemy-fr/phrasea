@@ -111,7 +111,7 @@ describe('getBatchActions', () => {
             [attrDefText.id]: attrDefText,
             [attrDefTextMulti.id]: attrDefTextMulti,
             [attrDefGeoPoint.id]: attrDefGeoPoint,
-        } as unknown as AttributeDefinitionIndex;
+        } as unknown as AttributeDefinitionIndex<AttributeDefinition>;
 
         const createToKey = (type: AttributeType) => {
             if (type === AttributeType.GeoPoint) {

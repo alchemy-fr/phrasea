@@ -11,7 +11,7 @@ use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\AQL\DateNormalizer;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
-use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
+use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use App\Elasticsearch\BuiltInField\CreatedAtBuiltInField;
 use App\Elasticsearch\BuiltInField\WorkspaceBuiltInField;
 use App\Tests\Attribute\Type\AttributeTypeRegistyTestFactory;
@@ -39,7 +39,7 @@ class AQLToESQueryTest extends TestCase
         $container = new class([WorkspaceBuiltInField::getKey() => fn () => new WorkspaceBuiltInField($em), CreatedAtBuiltInField::getKey() => fn () => new CreatedAtBuiltInField()]) implements ServiceProviderInterface {
             use ServiceLocatorTrait;
         };
-        $builtInFieldRegistry = new BuiltInFieldRegistry($container);
+        $builtInFieldRegistry = new BuiltInAttributeRegistry($container);
 
         $esQueryConverter = new AQLToESQuery(
             $builtInFieldRegistry, $functionRegistry, $attributeTypeRegistry, new DateNormalizer());

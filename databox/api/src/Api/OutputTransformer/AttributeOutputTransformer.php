@@ -30,7 +30,7 @@ class AttributeOutputTransformer implements OutputTransformerInterface
      */
     public function transform(object $data, string $outputClass, array &$context = []): object
     {
-        $type = $this->attributeTypeRegistry->getStrictType($data->getDefinition()->getFieldType());
+        $type = $this->attributeTypeRegistry->getStrictType($data->getDefinition()->getType());
 
         $output = new AttributeOutput();
         $output->setCreatedAt($data->getCreatedAt());

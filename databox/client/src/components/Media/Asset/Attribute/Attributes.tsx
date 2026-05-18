@@ -1,4 +1,9 @@
-import {Asset, AttributeDefinition, ProfileItemType} from '../../../../types';
+import {
+    Asset,
+    AttributeDefinitionOrBuiltIn,
+    BaseAttribute,
+    ProfileItemType,
+} from '../../../../types';
 import React, {useContext, useMemo} from 'react';
 import AttributeRowUI, {BaseAttributeRowUIProps} from './AttributeRowUI';
 import {SxProps} from '@mui/material';
@@ -30,7 +35,7 @@ import {BuiltInFieldEnum} from '../../Search/search.ts';
 type AttributeItem = {
     id: string;
     type: ProfileItemType;
-    definition?: AttributeDefinition;
+    definition?: AttributeDefinitionOrBuiltIn;
     attribute?: AttributeGroup['attribute'];
     format?: AttributeFormat;
     key?: string;
@@ -50,7 +55,7 @@ function Attributes({
 }: Props) {
     const {t} = useTranslation();
     const formatContext = useContext(AttributeFormatContext);
-    const definitionsIndex = useIndexById();
+    const definitionsIndex = useIndexById(true);
     const toggleDefinition = useProfileStore(s => s.toggleDefinition);
     const current = useProfileStore(s => s.current);
     const pinnedAttributes = useMemo(() => current?.items ?? [], [current]);
@@ -147,7 +152,7 @@ function Attributes({
         return null;
     }
 
-    const createAttrProps = (definition: AttributeDefinition) => ({
+    const createAttrProps = (definition: BaseAttribute) => ({
         origin: 'machine',
         locale: NO_LOCALE,
         capabilities: {},

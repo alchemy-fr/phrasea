@@ -1,5 +1,6 @@
 import {
     AttributeDefinition,
+    BuiltInAttribute,
     ProfileItem,
     ProfileItemType,
 } from '../../../../types.ts';
@@ -30,7 +31,7 @@ export default function Item({
     itemProps: {removeItem, definitionsIndex, onClick, selectedItem},
 }: Props) {
     const labelId = `d-${data.id}-label`;
-    let def: AttributeDefinition | undefined;
+    let def: AttributeDefinition | BuiltInAttribute | undefined;
     if (data.type === ProfileItemType.Definition) {
         def = definitionsIndex[data.definition!];
     } else if (data.type === ProfileItemType.BuiltIn) {

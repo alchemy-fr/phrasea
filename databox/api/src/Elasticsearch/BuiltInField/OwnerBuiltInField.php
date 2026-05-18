@@ -8,7 +8,7 @@ use Alchemy\AuthBundle\Repository\UserRepositoryInterface;
 use App\Attribute\Type\KeywordAttributeType;
 use App\Entity\Core\Asset;
 
-final class OwnerBuiltInField extends AbstractBuiltInField
+final class OwnerBuiltInField extends AbstractBuiltInAttribute
 {
     public function __construct(
         private readonly UserRepositoryInterface $userRepository,

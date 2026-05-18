@@ -90,7 +90,7 @@ export default function SearchConditionDialog({
     const isNew = !condition.query;
 
     const {load, loaded} = useAttributeDefinitionStore();
-    const definitionsIndex = useIndexBySlug();
+    const definitionsIndex = useIndexBySlug(true);
 
     useEffectOnce(() => {
         load();

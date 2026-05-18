@@ -26,7 +26,7 @@ class ValidAttributeConstraintValidator extends ConstraintValidator
             return;
         }
 
-        $type = $this->typeRegistry->getStrictType($definition->getFieldType());
+        $type = $this->typeRegistry->getStrictType($definition->getType());
 
         $this->context->setNode($value->getValue(), $value, null, 'value');
         $type->validate($value->getValue(), $this->context);

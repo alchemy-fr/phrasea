@@ -3,8 +3,11 @@ import {
     Asset,
     AssetTypeFilter,
     AttributeDefinition,
+    AttributeDefinitionOrBuiltIn,
     AttributeEntity,
-    BuiltInField,
+    BaseAttribute,
+    BuiltInAttribute,
+    Collection,
     Workspace,
 } from '../types';
 import {
@@ -16,11 +19,15 @@ import {BuiltInFieldEnum} from '../components/Media/Search/search.ts';
 import AttributeEntitySelect from '../components/Form/AttributeEntitySelect.tsx';
 import {AttributeType, EntityName} from '../api/types.ts';
 import React from 'react';
+import WorkspaceSelect from '../components/Form/WorkspaceSelect.tsx';
 
-export type AttributeDefinitionsIndex = Record<string, AttributeDefinition>;
+export type AttributeDefinitionsIndex<
+    T extends BaseAttribute = AttributeDefinitionOrBuiltIn,
+> = Record<string, T>;
 
 type State = {
     definitions: AttributeDefinition[];
+    builtIn: BuiltInAttribute[];
     loaded: boolean;
     loading: boolean;
     locks: Record<string, boolean>;
@@ -35,6 +42,7 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
     loading: false,
     locks: {},
     definitions: [],
+    builtIn: [],
 
     updateDefinition: definition => {
         const state = getState();
@@ -73,12 +81,10 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
                 getBuiltInFields(),
             ]);
 
-            const data = builtInFields.result
-                .map(normalizeBuiltInFields)
-                .concat(attributeDefinitions.result.map(normalizeDefinition));
-
             set({
-                definitions: data,
+                definitions:
+                    attributeDefinitions.result.map(normalizeDefinition),
+                builtIn: builtInFields.result.map(normalizeDefinition),
                 loading: false,
                 loaded: true,
             });
@@ -131,66 +137,8 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
     },
 }));
 
-function normalizeBuiltInFields(field: BuiltInField): AttributeDefinition {
-    return {
-        ...field,
-        searchSlug: field.id,
-        enabled: true,
-        builtIn: true,
-        slug: field.id,
-        entityList: null,
-        editable: false,
-        editableInGui: false,
-        suggest: false,
-        allowInvalid: false,
-        canEdit: false,
-        translatable: false,
-        searchBoost: 1,
-    } as AttributeDefinition;
-}
-
 type GetValueFromAsset = (asset: Asset) => any;
 
-export function getBuiltInFieldValueResolver(
-    field: BuiltInFieldEnum
-): GetValueFromAsset | undefined {
-    const index: Partial<Record<BuiltInFieldEnum, GetValueFromAsset>> = {
-        [BuiltInFieldEnum.Id]: asset => asset.id,
-        [BuiltInFieldEnum.Collection]: asset =>
-            asset.collections?.filter(c => !c.storyAsset) ?? [],
-        [BuiltInFieldEnum.Workspace]: asset => asset.workspace,
-        [BuiltInFieldEnum.Owner]: asset => asset.owner,
-        [BuiltInFieldEnum.Privacy]: asset => asset.privacy,
-        [BuiltInFieldEnum.IsStory]: asset => !!asset.storyCollection,
-        [BuiltInFieldEnum.Story]: asset =>
-            asset.collections?.filter(c => !!c.storyAsset) ?? [],
-        [BuiltInFieldEnum.Tag]: asset => asset.tags,
-        [BuiltInFieldEnum.EditedAt]: asset => asset.editedAt,
-        [BuiltInFieldEnum.CreatedAt]: asset => asset.createdAt,
-        [BuiltInFieldEnum.FileType]: asset => asset.source?.type,
-        [BuiltInFieldEnum.FileMimeType]: asset => asset.source?.type,
-        [BuiltInFieldEnum.FileExtension]: asset => asset.source?.extension,
-        [BuiltInFieldEnum.FileSize]: asset => asset.source?.size,
-        [BuiltInFieldEnum.FileName]: asset => asset.createdAt,
-        [BuiltInFieldEnum.HasSource]: asset => !!asset.source,
-        [BuiltInFieldEnum.Deleted]: asset =>
-            asset.deleted || asset.referenceCollection?.deleted,
-    };
-
-    return index[field];
-}
-//         {
-//             slug: BuiltInFieldEnum.Collection,
-//             entityIri: 'collections',
-//             resolveLabel: (entity: Collection) =>
-//                 entity.displayName ?? entity.name ?? '',
-//             searchable: true,
-//             fieldType: AttributeType.CollectionPath, TODO
-//             name: t('built_in_attr.collections', 'Collections'),
-//             getValueFromAsset: asset =>
-//                 asset.collections?.filter(c => !c.storyAsset) ?? [],
-//             multiple: true,
-//         },
 //         {
 //             slug: BuiltInFieldEnum.Workspace,
 //             fieldType: AttributeType.Workspace,
@@ -374,28 +322,53 @@ type Filters = {
     target?: AssetTypeFilter;
 };
 
-export function useIndexBySlug(filters?: Filters): AttributeDefinitionsIndex {
-    return useIndexByKey('slug', filters);
-}
-
-export function useIndexBySearchSlug(
+export function useIndexBySlug<BI extends boolean>(
+    withBuiltInAttributes: BI,
     filters?: Filters
-): AttributeDefinitionsIndex {
-    return useIndexByKey('searchSlug', filters);
+) {
+    return useIndexByKey<BI>('slug', withBuiltInAttributes, filters);
 }
 
-export function useIndexById(filters?: Filters): AttributeDefinitionsIndex {
-    return useIndexByKey('id', filters);
+export function useIndexBySearchSlug<BI extends boolean>(
+    withBuiltInAttributes: BI,
+    filters?: Filters
+) {
+    return useIndexByKey<BI>('searchSlug', withBuiltInAttributes, filters);
 }
 
-function useIndexByKey(
-    key: keyof AttributeDefinition,
+export function useIndexById<BI extends boolean>(
+    withBuiltInAttributes: BI,
+    filters?: Filters
+) {
+    return useIndexByKey<BI>('id', withBuiltInAttributes, filters);
+}
+
+function useIndexByKey<BI extends boolean>(
+    key: keyof BaseAttribute,
+    withBuiltInAttributes?: BI,
     filters: Filters = {}
-): AttributeDefinitionsIndex {
+): AttributeDefinitionsIndex<
+    BI extends true
+        ? AttributeDefinition | BuiltInAttribute
+        : AttributeDefinition
+> {
     const definitions = useAttributeDefinitionStore(s => s.definitions);
+    const builtIn = useAttributeDefinitionStore(s => s.builtIn);
 
     return React.useMemo(() => {
-        const index: AttributeDefinitionsIndex = {};
+        const index: AttributeDefinitionsIndex<
+            BI extends true
+                ? AttributeDefinition | BuiltInAttribute
+                : AttributeDefinition
+        > = {};
+
+        if (withBuiltInAttributes) {
+            for (const bf of builtIn) {
+                // @ts-expect-error unknown key type
+                index[bf[key] as string] = bf;
+            }
+        }
+
         for (const def of definitions) {
             if (
                 filters.workspaceId &&
@@ -407,6 +380,7 @@ function useIndexByKey(
             if (filters.target && (def.target & filters.target) === 0) {
                 continue;
             }
+            // @ts-expect-error unknown key type
             index[def[key] as string] = def;
         }
 
@@ -414,18 +388,69 @@ function useIndexByKey(
         // eslint-disable-next-line react-hooks/use-memo
     }, [definitions, ...Object.values(filters)]);
 }
-const normalizeDefinition = (d: AttributeDefinition): AttributeDefinition =>
-    d.type === AttributeType.Entity
-        ? {
-              ...d,
-              entityIri: EntityName.Entity,
-              resolveLabel: (entity: object) =>
-                  (entity as AttributeEntity).value,
-              widget: {
-                  component: AttributeEntitySelect,
-                  props: {
-                      type: d.entityList,
-                  },
-              },
-          }
-        : d;
+
+export function getBuiltInFieldValueResolver(
+    field: BuiltInFieldEnum
+): GetValueFromAsset | undefined {
+    const index: Partial<Record<BuiltInFieldEnum, GetValueFromAsset>> = {
+        [BuiltInFieldEnum.Id]: asset => asset.id,
+        [BuiltInFieldEnum.Collection]: asset =>
+            asset.collections?.filter(c => !c.storyAsset) ?? [],
+        [BuiltInFieldEnum.Workspace]: asset => asset.workspace,
+        [BuiltInFieldEnum.Owner]: asset => asset.owner,
+        [BuiltInFieldEnum.Privacy]: asset => asset.privacy,
+        [BuiltInFieldEnum.IsStory]: asset => !!asset.storyCollection,
+        [BuiltInFieldEnum.Story]: asset =>
+            asset.collections?.filter(c => !!c.storyAsset) ?? [],
+        [BuiltInFieldEnum.Tag]: asset => asset.tags,
+        [BuiltInFieldEnum.EditedAt]: asset => asset.editedAt,
+        [BuiltInFieldEnum.CreatedAt]: asset => asset.createdAt,
+        [BuiltInFieldEnum.FileType]: asset => asset.source?.type,
+        [BuiltInFieldEnum.FileMimeType]: asset => asset.source?.type,
+        [BuiltInFieldEnum.FileExtension]: asset => asset.source?.extension,
+        [BuiltInFieldEnum.FileSize]: asset => asset.source?.size,
+        [BuiltInFieldEnum.FileName]: asset => asset.createdAt,
+        [BuiltInFieldEnum.HasSource]: asset => !!asset.source,
+        [BuiltInFieldEnum.Deleted]: asset =>
+            asset.deleted || asset.referenceCollection?.deleted,
+    };
+
+    return index[field];
+}
+
+function normalizeDefinition<T extends BaseAttribute>(d: T): T {
+    switch (d.type) {
+        case AttributeType.Entity:
+            return {
+                ...d,
+                entityIri: EntityName.Entity,
+                resolveLabel: (entity: object) =>
+                    (entity as AttributeEntity).value,
+                widget: {
+                    component: AttributeEntitySelect,
+                    props: {
+                        type: d.entityList,
+                    },
+                },
+            };
+        case AttributeType.CollectionPath:
+            return {
+                ...d,
+                entityIri: EntityName.Collection,
+                resolveLabel: (entity: object) =>
+                    (entity as Collection).displayName,
+            };
+        case AttributeType.Workspace:
+            return {
+                ...d,
+                entityIri: EntityName.Workspace,
+                resolveLabel: (entity: object) =>
+                    (entity as Workspace).displayName,
+                widget: {
+                    component: WorkspaceSelect,
+                },
+            };
+    }
+
+    return d;
+}

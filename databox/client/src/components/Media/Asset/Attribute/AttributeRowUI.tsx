@@ -8,7 +8,7 @@ import {useTranslation} from 'react-i18next';
 import React from 'react';
 import {attributesClasses} from './Attributes';
 import {isRtlLocale} from '../../../../lib/lang';
-import {Attribute, AttributeDefinition} from '../../../../types.ts';
+import {Attribute, AttributeDefinitionOrBuiltIn} from '../../../../types.ts';
 import GestureIcon from '@mui/icons-material/Gesture';
 import {AssetAnnotationRef} from '../Annotations/annotationTypes.ts';
 import {AttributeFormat, AttributeFormatterOptions} from './types/types';
@@ -18,10 +18,10 @@ export type BaseAttributeRowUIProps = {
 };
 
 type Props = {
-    definition: AttributeDefinition;
+    definition: AttributeDefinitionOrBuiltIn;
     attribute: Attribute | Attribute[] | undefined;
     displayControls: boolean;
-    togglePin: undefined | ((definition: AttributeDefinition) => void);
+    togglePin: undefined | ((definition: AttributeDefinitionOrBuiltIn) => void);
     pinned: boolean;
     formatContext: TAttributeFormatContext;
     format?: AttributeFormat;

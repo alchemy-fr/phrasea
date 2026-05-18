@@ -8,14 +8,14 @@ use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\TextAttributeType;
-use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
+use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use App\Entity\Core\AttributeDefinition;
 
 final readonly class FieldNameResolver
 {
     public function __construct(
         private AttributeTypeRegistry $attributeTypeRegistry,
-        private BuiltInFieldRegistry $builtInFieldRegistry,
+        private BuiltInAttributeRegistry $builtInFieldRegistry,
     ) {
     }
 

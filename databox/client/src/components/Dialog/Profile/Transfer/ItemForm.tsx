@@ -33,8 +33,8 @@ type Props = {
 export default function ItemForm({item, listId, onChange}: Props) {
     const {t, i18n} = useTranslation();
     const updateProfileItem = useProfileStore(state => state.updateProfileItem);
-    const definitionIndexBySlug = useIndexBySlug();
-    const definitionIndexById = useIndexById();
+    const definitionIndexBySlug = useIndexBySlug(true);
+    const definitionIndexById = useIndexById(true);
 
     const {
         submitting,

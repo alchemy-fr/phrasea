@@ -15,15 +15,15 @@ use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\AQL\Function\AQLFunctionInterface;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\AQL\Function\Argument;
-use App\Elasticsearch\BuiltInField\BuiltInFieldInterface;
-use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
+use App\Elasticsearch\BuiltInField\BuiltInAttributeInterface;
+use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use Elastica\Query;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final readonly class AQLToESQuery
 {
     public function __construct(
-        private BuiltInFieldRegistry $builtInFieldRegistry,
+        private BuiltInAttributeRegistry $builtInFieldRegistry,
         private AQLFunctionRegistry $functionRegistry,
         private AttributeTypeRegistry $attributeTypeRegistry,
         private DateNormalizer $dateNormalizer,
@@ -510,7 +510,7 @@ final readonly class AQLToESQuery
         return $scripts;
     }
 
-    private function resolveValue(mixed $data, ?BuiltInFieldInterface $builtInField = null): mixed
+    private function resolveValue(mixed $data, ?BuiltInAttributeInterface $builtInField = null): mixed
     {
         if (is_array($data)) {
             $type = $data['type'] ?? null;

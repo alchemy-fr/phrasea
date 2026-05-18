@@ -8,7 +8,7 @@ import {
     ToKeyFuncTypeScoped,
 } from './types.ts';
 import {pushUnique} from '../../utils/array.ts';
-import {Asset, Attribute} from '../../types.ts';
+import {Asset, Attribute, AttributeDefinition} from '../../types.ts';
 import {NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
 import {
     AttributeBatchAction,
@@ -20,7 +20,7 @@ export function getBatchActions<T>(
     assets: Asset[],
     initialAttributes: BatchAttributeIndex<T>,
     attributes: BatchAttributeIndex<T>,
-    definitions: AttributeDefinitionIndex,
+    definitions: AttributeDefinitionIndex<AttributeDefinition>,
     createToKey: CreateToKeyFunc<T>
 ): AttributeBatchAction[] {
     const setGroups: DiffGroupIndex<T> = {};

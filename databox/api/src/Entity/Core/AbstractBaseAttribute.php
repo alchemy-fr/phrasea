@@ -77,4 +77,6 @@ abstract class AbstractBaseAttribute extends AbstractUuidEntity
     {
         $this->updatedAt = $updatedAt;
     }
+
+    abstract public function getDefinition(): ?AttributeDefinition;
 }

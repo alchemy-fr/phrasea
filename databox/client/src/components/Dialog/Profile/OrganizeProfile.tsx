@@ -31,7 +31,7 @@ export default function OrganizeProfile({data, onClose, minHeight}: Props) {
         definitions: state.definitions,
         loaded: state.loaded,
     }));
-    const definitionsIndex = useIndexById();
+    const definitionsIndex = useIndexById(true);
 
     const {sortList, removeFromList, addToList} = useProfileStore(state => ({
         sortList: state.sortList,

@@ -6,7 +6,7 @@ namespace App\Elasticsearch;
 
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\TextAttributeType;
-use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
+use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use Elastica\Aggregation\Missing;
 use Elastica\Query;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -16,7 +16,7 @@ final readonly class FacetHandler
     public const string MISSING_SUFFIX = '::missing';
 
     public function __construct(
-        private BuiltInFieldRegistry $builtInFieldRegistry,
+        private BuiltInAttributeRegistry $builtInFieldRegistry,
         private AttributeTypeRegistry $attributeTypeRegistry,
         private TranslatorInterface $translator,
     ) {

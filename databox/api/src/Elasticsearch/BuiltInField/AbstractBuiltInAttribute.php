@@ -12,7 +12,7 @@ use Elastica\Aggregation;
 use Elastica\Query;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-abstract class AbstractBuiltInField implements BuiltInFieldInterface
+abstract class AbstractBuiltInAttribute implements BuiltInAttributeInterface
 {
     public function getType(): string
     {

@@ -7,7 +7,7 @@ namespace App\Elasticsearch\BuiltInField;
 use App\Attribute\Type\BooleanAttributeType;
 use App\Entity\Core\Asset;
 
-final class IsStoryBuiltInField extends AbstractBuiltInField
+final class IsStoryBuiltInField extends AbstractBuiltInAttribute
 {
     protected function getAggregationTranslationKey(): string
     {

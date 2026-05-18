@@ -163,47 +163,49 @@ export interface AssetFileVersion extends Entity {
     createdAt: string;
 }
 
-interface BaseAttribute extends Entity {
+export interface BaseAttribute extends Entity {
     name: string;
     displayName: string;
     type: AttributeType;
     searchable: boolean;
     sortable: boolean;
+    entityList?: EntityList | string | null | undefined;
     multiple: boolean;
     facetEnabled: boolean;
     entityIri?: string;
     slug: string;
     searchSlug: string;
+    resolveLabel?: (entity: object) => string;
+    widget?: FieldWidget;
+    builtIn?: true;
 }
 
-export interface BuiltInField extends BaseAttribute {
+export interface BuiltInAttribute extends BaseAttribute {
     builtIn: true;
 }
 
 export interface AttributeDefinition extends BaseAttribute, IPermissions {
     builtIn?: never;
     enabled: boolean;
-    entityList?: EntityList | string | null | undefined;
     editable: boolean;
     editableInGui: boolean;
     suggest: boolean;
     translatable: boolean;
     locales?: string[];
     allowInvalid: boolean;
-    facetEnabled: boolean;
     canEdit: boolean;
-    widget?: FieldWidget;
-    widgetProps?: Record<string, any>;
     searchBoost: number;
     fallback: Record<string, string>;
     initialValues: Record<string, string>;
     workspace: Workspace | string;
     policy: AttributePolicy | string | null;
     lastErrors?: LastErrors;
-    entityIri?: string | undefined;
-    resolveLabel?: (entity: object) => string;
     target: AssetType;
 }
+
+export type AttributeDefinitionOrBuiltIn =
+    | AttributeDefinition
+    | BuiltInAttribute;
 
 export type FieldWidget<P extends {} = any> = {
     component: React.FC<P>;

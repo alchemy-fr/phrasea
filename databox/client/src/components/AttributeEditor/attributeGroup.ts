@@ -51,8 +51,9 @@ export function useAttributeValues<T>({
     const {t} = useTranslation();
     const {openModal} = useModals();
     const [inc, setInc] = React.useState(0);
-    const [definitionIndex, setDefinitionIndex] =
-        React.useState<AttributeDefinitionIndex>({});
+    const [definitionIndex, setDefinitionIndex] = React.useState<
+        AttributeDefinitionIndex<AttributeDefinition>
+    >({});
     const saved = useRef(false);
 
     const createToKey = React.useCallback<CreateToKeyFunc<any>>(
@@ -85,7 +86,8 @@ export function useAttributeValues<T>({
 
     const {initialIndex, finalAttributeDefinitions} = React.useMemo(() => {
         const index: BatchAttributeIndex<T> = {};
-        const definitionIndex: AttributeDefinitionIndex = {};
+        const definitionIndex: AttributeDefinitionIndex<AttributeDefinition> =
+            {};
 
         const finalAttributeDefinitions = [
             tagDefinition,

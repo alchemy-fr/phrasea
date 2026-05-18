@@ -16,7 +16,7 @@ export default function SortBy({}: Props) {
     const {t} = useTranslation();
     const search = useContext(SearchContext)!;
     const {load, definitions, loaded} = useAttributeDefinitionStore();
-    const definitionsIndex = useIndexBySearchSlug();
+    const definitionsIndex = useIndexBySearchSlug(true);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const menuOpen = Boolean(anchorEl);
 

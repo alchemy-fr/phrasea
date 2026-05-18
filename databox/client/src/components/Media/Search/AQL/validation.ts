@@ -7,7 +7,7 @@ import {
     RawType,
 } from './aqlTypes.ts';
 import {hasProp} from '../../../../lib/utils.ts';
-import {AttributeDefinition} from '../../../../types.ts';
+import {AttributeDefinitionOrBuiltIn} from '../../../../types.ts';
 import {isAQLCondition, isAQLField, valueToString} from './query.ts';
 
 import {AttributeType} from '../../../../api/types.ts';
@@ -195,7 +195,7 @@ function validateOfType(
 function validateField(
     node: any,
     definitionsIndex: AttributeDefinitionIndex
-): AttributeDefinition | undefined {
+): AttributeDefinitionOrBuiltIn | undefined {
     if (isAQLField(node)) {
         const field = node.field;
 

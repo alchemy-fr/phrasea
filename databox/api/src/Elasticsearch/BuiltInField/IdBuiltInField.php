@@ -8,7 +8,7 @@ use App\Attribute\Type\IdAttributeType;
 use App\Entity\Core\Asset;
 use Elastica\Query;
 
-final class IdBuiltInField extends AbstractBuiltInField
+final class IdBuiltInField extends AbstractBuiltInAttribute
 {
     protected function getAggregationTranslationKey(): string
     {

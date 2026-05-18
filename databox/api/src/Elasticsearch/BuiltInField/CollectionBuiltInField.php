@@ -14,7 +14,7 @@ use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 
-final class CollectionBuiltInField extends AbstractBuiltInField
+final class CollectionBuiltInField extends AbstractBuiltInAttribute
 {
     use UserLocaleTrait;
 

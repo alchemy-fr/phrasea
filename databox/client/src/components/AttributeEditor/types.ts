@@ -1,4 +1,10 @@
-import {Asset, AttributeDefinition, StateSetter} from '../../types.ts';
+import {
+    Asset,
+    AttributeDefinition,
+    AttributeDefinitionOrBuiltIn,
+    BaseAttribute,
+    StateSetter,
+} from '../../types.ts';
 
 import {AttributeType} from '../../api/types.ts';
 
@@ -7,13 +13,15 @@ export type IndeterminateGroup = {
 } & LocalizedAttributeIndex<boolean>;
 
 export type Values<T = any> = {
-    definition: AttributeDefinition;
+    definition: AttributeDefinitionOrBuiltIn;
     indeterminate: IndeterminateGroup;
     values: LocalizedAttributeIndex<T>[];
     originalValues: LocalizedAttributeIndex<T>[];
 };
 
-export type AttributeDefinitionIndex = Record<string, AttributeDefinition>;
+export type AttributeDefinitionIndex<
+    T extends BaseAttribute = AttributeDefinitionOrBuiltIn,
+> = Record<string, T>;
 
 export type LocalizedAttributeIndex<T = string> = {
     [locale: string]: T | undefined;
