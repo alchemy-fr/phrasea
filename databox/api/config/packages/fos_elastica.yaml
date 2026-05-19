@@ -123,9 +123,6 @@ fos_elastica:
                 fileType:
                     type: keyword
                     property_path: getSourceFileType
-                fileMimeType:
-                    type: keyword
-                    property_path: getSourceFileMimeType
                 fileExtension:
                     type: keyword
                     property_path: getSourceFileExtension

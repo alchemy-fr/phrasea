@@ -738,14 +738,6 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     /**
      * Used by ES.
      */
-    public function getSourceFileMimeType(): ?string
-    {
-        return $this->source?->getType();
-    }
-
-    /**
-     * Used by ES.
-     */
     public function getSourceFileExtension(): ?string
     {
         return $this->source?->getExtension();

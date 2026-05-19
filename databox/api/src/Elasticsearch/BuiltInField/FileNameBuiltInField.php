@@ -4,33 +4,38 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\BuiltInField;
 
-use App\Attribute\Type\BooleanAttributeType;
+use App\Attribute\Type\KeywordAttributeType;
 use App\Entity\Core\Asset;
 
-final class IsStoryBuiltInField extends AbstractBuiltInAttribute
+final class FileNameBuiltInField extends AbstractBuiltInAttribute
 {
     protected function getAggregationTranslationKey(): string
     {
-        return 'is_story';
+        return 'file_name';
     }
 
     public static function getName(): string
     {
-        return 'isStory';
+        return 'fileName';
     }
 
     public static function getKey(): string
     {
-        return '@isStory';
+        return '@filename';
     }
 
     public function getValueFromAsset(Asset $asset): mixed
     {
-        return $asset->isStory();
+        return $asset->getSourceFilename();
     }
 
     public function getType(): string
     {
-        return BooleanAttributeType::NAME;
+        return KeywordAttributeType::getName();
+    }
+
+    public function isFacet(): bool
+    {
+        return false;
     }
 }

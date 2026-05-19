@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\BuiltInField;
 
-use App\Attribute\Type\KeywordAttributeType;
+use App\Attribute\Type\PrivacyAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -25,7 +25,7 @@ final class PrivacyBuiltInField extends AbstractLabelledBuiltInField
 
     public function getType(): string
     {
-        return KeywordAttributeType::NAME;
+        return PrivacyAttributeType::NAME;
     }
 
     protected function resolveKey($value): string

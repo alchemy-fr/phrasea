@@ -11,7 +11,7 @@ use ApiPlatform\Metadata\GetCollection;
 use App\Api\Provider\BuiltInAttributeProvider;
 
 #[ApiResource(
-    shortName: 'built-in-field',
+    shortName: 'built-in-attribute',
     operations: [
         new Get(),
         new GetCollection(),
@@ -22,14 +22,15 @@ class BuiltInAttribute
 {
     public function __construct(
         #[ApiProperty(identifier: true)]
+        public string $id,
         public string $name,
-        public string $key,
         public string $displayName,
         public string $type,
         public bool $multiple,
         public bool $facetEnabled,
         public bool $sortable,
         public bool $searchable,
+        public bool $enabled,
     ) {
     }
 }

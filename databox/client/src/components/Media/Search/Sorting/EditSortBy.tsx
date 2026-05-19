@@ -34,7 +34,7 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import {BuiltInFieldEnum, getResolvedSortBy} from '../search';
-import {AttributeDefinition} from '../../../../types.ts';
+import {AttributeDefinitionOrBuiltIn} from '../../../../types.ts';
 import {AttributeDefinitionsIndex} from '../../../../store/attributeDefinitionStore.ts';
 
 export type TogglableSortBy = {
@@ -43,7 +43,7 @@ export type TogglableSortBy = {
 } & SortBy;
 
 type Props = {
-    definitions: AttributeDefinition[];
+    definitions: AttributeDefinitionOrBuiltIn[];
     definitionsIndex: AttributeDefinitionsIndex;
     onClose: () => void;
 };

@@ -25,16 +25,17 @@ class BuiltInAttributeProvider extends AbstractCollectionProvider
     ): array|object {
         $results = array_map(function (BuiltInAttributeInterface $field): BuiltInAttribute {
             return new BuiltInAttribute(
-                $field::getName(),
                 $field::getKey(),
+                $field::getName(),
                 $this->translator->trans(sprintf('built_in_attribute.%s.name', $field::getName())),
                 $field->getType(),
                 $field->isMultiple(),
                 $field->isFacet(),
                 $field->isSortable(),
                 $field->isSearchable(),
+                $field->isEnabled(),
             );
-        }, array_filter(iterator_to_array($this->builtInAttributeRegistry->getAll()), fn (BuiltInAttributeInterface $field): bool => $field->isListed()));
+        }, iterator_to_array($this->builtInAttributeRegistry->getAll()));
 
         usort($results, fn (BuiltInAttribute $a, BuiltInAttribute $b): int => $a->displayName <=> $b->displayName);
 

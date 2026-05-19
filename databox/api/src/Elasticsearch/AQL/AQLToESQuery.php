@@ -558,25 +558,8 @@ final readonly class AQLToESQuery
                     ], true),
                 ];
             }
-            $key = substr($fieldSlug, 1);
 
-            return [
-                new ClusterGroup([
-                    'field' => match ($key) {
-                        'id' => '_id',
-                        'size' => 'fileSize',
-                        'type' => 'fileType',
-                        'mimetype' => 'fileMimeType',
-                        'extension' => 'fileExtension',
-                        'filename' => 'fileName',
-                        'hasSource' => 'hasSourceFile',
-                        default => throw new BadRequestHttpException(sprintf('Built-in field "%s" not found', $fieldSlug)),
-                    },
-                    'type' => $this->attributeTypeRegistry->getStrictType(KeywordAttributeType::NAME),
-                    'locales' => [],
-                ], true),
-            ];
-
+            throw new BadRequestHttpException(sprintf('Built-in field "%s" not found', $fieldSlug));
         }
 
         $nameCandidates = [

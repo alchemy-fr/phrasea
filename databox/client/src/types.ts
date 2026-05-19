@@ -165,6 +165,7 @@ export interface AssetFileVersion extends Entity {
 
 export interface BaseAttribute extends Entity {
     name: string;
+    enabled: boolean;
     displayName: string;
     type: AttributeType;
     searchable: boolean;
@@ -186,7 +187,6 @@ export interface BuiltInAttribute extends BaseAttribute {
 
 export interface AttributeDefinition extends BaseAttribute, IPermissions {
     builtIn?: never;
-    enabled: boolean;
     editable: boolean;
     editableInGui: boolean;
     suggest: boolean;

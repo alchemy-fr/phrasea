@@ -47,6 +47,12 @@ facet:
         name: Is Story
     stories:
         name: Stories
+    file_type:
+        name: File Type
+    file_extension:
+        name: File Extension
+    has_source_file:
+        name: Has Source File
 
 built_in_attribute:
     _score:
@@ -81,9 +87,9 @@ built_in_attribute:
         name: File Extension
     fileSize:
         name: File Size
-    filename:
+    fileName:
         name: File Name
-    hasSource:
+    hasSourceFile:
         name: Has Source File
     deleted:
         name: Deleted

@@ -8,11 +8,14 @@ import {
     BaseAttribute,
     BuiltInAttribute,
     Collection,
+    RenditionDefinition,
+    Tag,
+    User,
     Workspace,
 } from '../types';
 import {
     getAttributeDefinitions,
-    getBuiltInFields,
+    getBuiltInAttributes,
     getWorkspaceAttributeDefinitions,
 } from '../api/attributes.ts';
 import {BuiltInFieldEnum} from '../components/Media/Search/search.ts';
@@ -20,6 +23,11 @@ import AttributeEntitySelect from '../components/Form/AttributeEntitySelect.tsx'
 import {AttributeType, EntityName} from '../api/types.ts';
 import React from 'react';
 import WorkspaceSelect from '../components/Form/WorkspaceSelect.tsx';
+import UserSelect from '../components/Form/UserSelect.tsx';
+import NullableBooleanWidget from '../components/Form/NullableBooleanWidget.tsx';
+import TagSelect from '../components/Form/TagSelect.tsx';
+import PrivacyWidget from '../components/Form/PrivacyWidget.tsx';
+import RenditionDefinitionSelect from '../components/Form/RenditionDefinitionSelect.tsx';
 
 export type AttributeDefinitionsIndex<
     T extends BaseAttribute = AttributeDefinitionOrBuiltIn,
@@ -76,15 +84,16 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
         });
 
         try {
-            const [attributeDefinitions, builtInFields] = await Promise.all([
-                getAttributeDefinitions(),
-                getBuiltInFields(),
-            ]);
+            const [attributeDefinitions, builtInAttributes] = await Promise.all(
+                [getAttributeDefinitions(), getBuiltInAttributes()]
+            );
 
             set({
                 definitions:
                     attributeDefinitions.result.map(normalizeDefinition),
-                builtIn: builtInFields.result.map(normalizeDefinition),
+                builtIn: builtInAttributes.result.map(
+                    normalizeBuiltInAttribute
+                ),
                 loading: false,
                 loaded: true,
             });
@@ -138,184 +147,6 @@ export const useAttributeDefinitionStore = create<State>((set, getState) => ({
 }));
 
 type GetValueFromAsset = (asset: Asset) => any;
-
-//         {
-//             slug: BuiltInFieldEnum.Workspace,
-//             fieldType: AttributeType.Workspace,
-//             resolveLabel: (entity: Workspace) =>
-//                 entity.displayName ?? entity.name ?? '',
-//             entityIri: 'workspaces',
-//             searchable: true,
-//             name: t('built_in_attr.workspace', 'Workspace'),
-//             widget: {
-//                 component: WorkspaceSelect, TODO
-//             },
-//             getValueFromAsset: asset => asset.workspace,
-//         },
-//         {
-//             slug: BuiltInFieldEnum.Owner,
-//             fieldType: AttributeType.User,
-//             resolveLabel: (entity: User) =>
-//                 entity.username ?? entity.id ?? '',
-//             entityIri: 'users',
-//             searchable: true,
-//             name: t('built_in_attr.owner', 'Owner'),
-//             widget: {
-//                 component: UserSelect, TODO
-//             },
-//             getValueFromAsset: asset => asset.owner,
-//         },
-//         {
-//             slug: BuiltInFieldEnum.Privacy,
-//             fieldType: AttributeType.Privacy,
-//             searchable: true,
-//             sortable: true,
-//             name: t('built_in_attr.privacy', 'Privacy'),
-//             widget: {
-//                 component: PrivacyWidget,
-//             },
-//             getValueFromAsset: asset => asset.privacy,
-//         },
-//         {
-//             slug: BuiltInFieldEnum.IsStory,
-//             fieldType: AttributeType.Boolean,
-//             searchable: true,
-//             sortable: true,
-//             name: t('built_in_attr.isStory', 'Is Story'),
-//             widget: {
-//                 component: NullableBooleanWidget
-//             },
-//             getValueFromAsset: asset => !!asset.storyCollection,
-//         },
-//         {
-//             slug: BuiltInFieldEnum.Story,
-//             entityIri: 'assets',
-//             resolveLabel: (entity: Asset) =>
-//                 entity.resolvedName ?? entity.name ?? '',
-//             searchable: true,
-//             fieldType: AttributeType.Story,
-//             name: t('built_in_attr.stories', 'Stories'),
-//             multiple: true,
-//             getValueFromAsset: (asset: Asset) =>
-//                 asset.collections?.filter(c => !!c.storyAsset) ?? [],
-//         },
-//         {
-//             slug: BuiltInFieldEnum.Tag,
-//             fieldType: AttributeType.Tag,
-//             entityIri: 'tags',
-//             resolveLabel: (entity: Tag) =>
-//                 entity.displayName ?? entity.name ?? '',
-//             searchable: true,
-//             sortable: true,
-//             multiple: true,
-//             name: t('built_in_attr.tag', 'Tag'),
-//             widget: {
-//                 component: TagSelect,
-//                 props: {
-//                     useIRI: false,
-//                 },
-//             },
-//             getValueFromAsset: asset => asset.tags,
-//         },
-//         {
-//             slug: BuiltInFieldEnum.Rendition,
-//             fieldType: AttributeType.Rendition,
-//             entityIri: 'rendition-definitions',
-//             resolveLabel: (entity: RenditionDefinition) =>
-//                 entity.displayName ?? entity.name ?? '',
-//             searchable: true,
-//             sortable: true,
-//             multiple: true,
-//             name: t('built_in_attr.rendition', 'Rendition'),
-//             widget: {
-//                 component: RenditionDefinitionSelect,
-//                 props: {
-//                     useIRI: false,
-//                 },
-//             },
-//         },
-//         {
-//             slug: BuiltInFieldEnum.EditedAt,
-//             fieldType: AttributeType.DateTime,
-//             searchable: true,
-//             sortable: true,
-//             name: t('built_in_attr.editedAt', 'Edited At'),
-//             getValueFromAsset: asset => asset.editedAt,
-//         },
-//         {
-//             slug: BuiltInFieldEnum.CreatedAt,
-//             fieldType: AttributeType.DateTime,
-//             searchable: true,
-//             sortable: true,
-//             name: t('built_in_attr.createdAt', 'Created At'),
-//             getValueFromAsset: asset => asset.createdAt,
-//         },
-//         {
-//             slug: BuiltInFieldEnum.FileType,
-//             fieldType: AttributeType.Keyword,
-//             searchable: true,
-//             name: t('built_in_attr.fileType', 'File Type'),
-//             getValueFromAsset: asset => asset.source?.type,
-//         },
-//         {
-//             slug: BuiltInFieldEnum.FileMimeType,
-//             fieldType: AttributeType.Keyword,
-//             searchable: true,
-//             name: t('built_in_attr.fileMimeType', 'File MIME Type'),
-//             getValueFromAsset: asset => asset.source?.type,
-//         },
-//         {
-//             slug: BuiltInFieldEnum.FileExtension,
-//             fieldType: AttributeType.Keyword,
-//             searchable: true,
-//             name: t('built_in_attr.fileExtension', 'File Extension'),
-//             getValueFromAsset: asset => asset.source?.extension,
-//         },
-//         {
-//             slug: BuiltInFieldEnum.FileSize,
-//             fieldType: AttributeType.Number,
-//             searchable: true,
-//             name: t('built_in_attr.fileSize', 'File Size'),
-//             getValueFromAsset: asset => asset.source?.size,
-//         },
-//         {
-//             slug: BuiltInFieldEnum.FileName,
-//             fieldType: AttributeType.Text,
-//             searchable: true,
-//             name: t('built_in_attr.filename', 'File Name'),
-//         },
-//         {
-//             slug: BuiltInFieldEnum.HasSource,
-//             fieldType: AttributeType.Boolean,
-//             searchable: true,
-//             name: t('built_in_attr.has_source', 'Has Source File'),
-//             widget: {
-//                 component: NullableBooleanWidget,
-//             },
-//             getValueFromAsset: asset => !!asset.source,
-//         },
-//         {
-//             slug: BuiltInFieldEnum.Deleted,
-//             fieldType: AttributeType.Boolean,
-//             searchable: true,
-//             name: t('built_in_attr.deleted', 'Deleted'),
-//             widget: {
-//                 component: NullableBooleanWidget,
-//             },
-//             getValueFromAsset: asset =>
-//                 asset.deleted || asset.referenceCollection?.deleted,
-//         },
-//     ] as Partial<AttributeDefinition>[]
-// ).map(
-//     d =>
-//         ({
-//             ...d,
-//             id: d.slug,
-//             searchSlug: d.slug,
-//             enabled: true,
-//             builtIn: true,
-//         }) as AttributeDefinition
-// );
 
 type Filters = {
     workspaceId?: string;
@@ -386,7 +217,7 @@ function useIndexByKey<BI extends boolean>(
 
         return index;
         // eslint-disable-next-line react-hooks/use-memo
-    }, [definitions, ...Object.values(filters)]);
+    }, [definitions, builtIn, ...Object.values(filters)]);
 }
 
 export function getBuiltInFieldValueResolver(
@@ -406,7 +237,6 @@ export function getBuiltInFieldValueResolver(
         [BuiltInFieldEnum.EditedAt]: asset => asset.editedAt,
         [BuiltInFieldEnum.CreatedAt]: asset => asset.createdAt,
         [BuiltInFieldEnum.FileType]: asset => asset.source?.type,
-        [BuiltInFieldEnum.FileMimeType]: asset => asset.source?.type,
         [BuiltInFieldEnum.FileExtension]: asset => asset.source?.extension,
         [BuiltInFieldEnum.FileSize]: asset => asset.source?.size,
         [BuiltInFieldEnum.FileName]: asset => asset.createdAt,
@@ -418,8 +248,28 @@ export function getBuiltInFieldValueResolver(
     return index[field];
 }
 
-function normalizeDefinition<T extends BaseAttribute>(d: T): T {
+function normalizeBuiltInAttribute(d: BuiltInAttribute): BuiltInAttribute {
+    return normalizeDefinition({
+        ...d,
+        slug: d.id,
+        builtIn: true,
+    });
+}
+
+function normalizeDefinition<T extends BaseAttribute>(definition: T): T {
+    const d = normalizeDefinitionFromId({
+        ...definition,
+        searchSlug: definition.searchSlug ?? definition.slug,
+    });
+
     switch (d.type) {
+        case AttributeType.Boolean:
+            return {
+                ...d,
+                widget: {
+                    component: NullableBooleanWidget,
+                },
+            };
         case AttributeType.Entity:
             return {
                 ...d,
@@ -450,7 +300,95 @@ function normalizeDefinition<T extends BaseAttribute>(d: T): T {
                     component: WorkspaceSelect,
                 },
             };
+        case AttributeType.User:
+            return {
+                ...d,
+                entityIri: EntityName.User,
+                resolveLabel: (entity: User) =>
+                    entity.username ?? entity.id ?? '',
+                widget: {
+                    component: UserSelect,
+                },
+            };
+        case AttributeType.Tag:
+            return {
+                ...d,
+                entityIri: EntityName.Tag,
+                resolveLabel: (entity: Tag) =>
+                    entity.displayName ?? entity.name ?? '',
+                widget: {
+                    component: TagSelect,
+                    props: {
+                        useIRI: false,
+                    },
+                },
+            };
+        case AttributeType.Privacy:
+            return {
+                ...d,
+                widget: {
+                    component: PrivacyWidget,
+                },
+            };
+        case AttributeType.Story:
+            return {
+                ...d,
+                entityIri: EntityName.Asset,
+                resolveLabel: (entity: Asset) =>
+                    entity.resolvedName ?? entity.name ?? '',
+                widget: {
+                    component: TagSelect,
+                    props: {
+                        useIRI: false,
+                    },
+                },
+            };
+        case AttributeType.Rendition:
+            return {
+                ...d,
+                entityIri: EntityName.RenditionDefinition,
+                resolveLabel: (entity: RenditionDefinition) =>
+                    entity.displayName ?? entity.name ?? '',
+                widget: {
+                    component: RenditionDefinitionSelect,
+                    props: {
+                        useIRI: false,
+                    },
+                },
+            };
+        default:
+            return d;
     }
+}
 
-    return d;
+function normalizeDefinitionFromId<T extends BaseAttribute>(d: T): T {
+    switch (d.id) {
+        case BuiltInFieldEnum.Privacy:
+            return {
+                ...d,
+                type: AttributeType.Privacy,
+            };
+        case BuiltInFieldEnum.Tag:
+            return {
+                ...d,
+                type: AttributeType.Tag,
+            };
+        case BuiltInFieldEnum.Story:
+            return {
+                ...d,
+                type: AttributeType.Story,
+            };
+        case BuiltInFieldEnum.Rendition:
+            return {
+                ...d,
+                type: AttributeType.Rendition,
+            };
+        case BuiltInFieldEnum.Owner:
+            return {
+                ...d,
+                type: AttributeType.User,
+            };
+        default:
+            return d;
+    }
 }

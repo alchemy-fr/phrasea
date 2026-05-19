@@ -101,10 +101,10 @@ export async function getWorkspaceAttributeDefinitions({
     return getHydraCollection<AttributeDefinition>(res.data);
 }
 
-export async function getBuiltInFields(): Promise<
+export async function getBuiltInAttributes(): Promise<
     NormalizedCollectionResponse<BuiltInAttribute>
 > {
-    const res = await apiClient.get(EntityName.BuiltInField, {});
+    const res = await apiClient.get(EntityName.BuiltInAttribute, {});
 
     return getHydraCollection<BuiltInAttribute>(res.data);
 }

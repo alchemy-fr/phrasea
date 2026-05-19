@@ -5,13 +5,20 @@ declare(strict_types=1);
 namespace App\Elasticsearch\BuiltInField;
 
 use Alchemy\AuthBundle\Repository\UserRepositoryInterface;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Attribute\Type\KeywordAttributeType;
 use App\Entity\Core\Asset;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final class OwnerBuiltInField extends AbstractBuiltInAttribute
 {
+    use SecurityAwareTrait;
+
     public function __construct(
         private readonly UserRepositoryInterface $userRepository,
+        #[Autowire(env: 'API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE')]
+        private readonly string $ownerPropertyRequiredRole,
+
     ) {
     }
 
@@ -79,5 +86,10 @@ final class OwnerBuiltInField extends AbstractBuiltInAttribute
     public function isFacet(): bool
     {
         return true;
+    }
+
+    public function isEnabled(): bool
+    {
+        return empty($this->ownerPropertyRequiredRole) || $this->hasRole($this->ownerPropertyRequiredRole);
     }
 }

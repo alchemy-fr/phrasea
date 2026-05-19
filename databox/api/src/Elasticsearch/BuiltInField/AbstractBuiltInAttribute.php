@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch\BuiltInField;
 
 use App\Api\Filter\Group\GroupValue;
+use App\Attribute\Type\BooleanAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\ESFacetInterface;
 use Doctrine\Common\Collections\Collection;
@@ -61,12 +62,20 @@ abstract class AbstractBuiltInAttribute implements BuiltInAttributeInterface
 
     protected function resolveLabel($value): string
     {
-        return $value;
+        if (BooleanAttributeType::NAME === $this->getType()) {
+            return $value ? 'True' : 'False';
+        }
+
+        return $value ?? '';
     }
 
     protected function resolveKey($value): string
     {
-        return $value;
+        if (BooleanAttributeType::NAME === $this->getType()) {
+            return $value ? 'true' : 'false';
+        }
+
+        return $value ?? '';
     }
 
     public function isSortable(): bool
@@ -142,7 +151,7 @@ abstract class AbstractBuiltInAttribute implements BuiltInAttributeInterface
         return null;
     }
 
-    public function isListed(): bool
+    public function isEnabled(): bool
     {
         return true;
     }

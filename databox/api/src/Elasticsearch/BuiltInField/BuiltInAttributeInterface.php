@@ -43,5 +43,5 @@ interface BuiltInAttributeInterface
 
     public function createFilterQuery(mixed $value, array $options): ?Query\AbstractQuery;
 
-    public function isListed(): bool;
+    public function isEnabled(): bool;
 }
