@@ -196,7 +196,6 @@ export default function EditSortBy({
                                     <SortByRow
                                         sortBy={s}
                                         definition={definitionsIndex[s.a]}
-                                        enabled={s.enabled}
                                         key={s.a}
                                         onChange={onChange}
                                     />

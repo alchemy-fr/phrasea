@@ -75,6 +75,7 @@ export default function ConditionBuilder({
                     value={(expression.leftOperand as AQLField).field as any}
                     options={Object.entries(definitionsIndex)
                         .map(([_slug, def]) => def)
+                        .filter(def => def.enabled)
                         .filter(def => def.searchable)
                         .map(def => ({
                             value: def.slug,

@@ -45,10 +45,12 @@ final readonly class FieldNameResolver
      */
     public function getFieldFromName(string $name): array
     {
+        $enabled = true;
         if ('name' === $name) {
             return [
                 'field' => $name,
                 'type' => $this->attributeTypeRegistry->getStrictType(TextAttributeType::NAME),
+                'enabled' => $enabled,
             ];
         }
 
@@ -56,6 +58,7 @@ final readonly class FieldNameResolver
         if (null !== $builtInField) {
             $type = $this->attributeTypeRegistry->getStrictType($builtInField->getType());
             $f = $builtInField::getName();
+            $enabled = $builtInField->isEnabled();
         } else {
             $info = $this->extractField($name);
             $type = $info['type'];
@@ -68,6 +71,7 @@ final readonly class FieldNameResolver
         return [
             'field' => $f,
             'type' => $type,
+            'enabled' => $enabled,
         ];
     }
 

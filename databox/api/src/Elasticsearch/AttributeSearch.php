@@ -279,11 +279,12 @@ class AttributeSearch
      */
     public function getESFieldInfo(string $attr): array
     {
-        ['field' => $field, 'type' => $type] = $this->fieldNameResolver->getFieldFromName($attr);
+        ['field' => $field, 'type' => $type, 'enabled' => $enabled] = $this->fieldNameResolver->getFieldFromName($attr);
 
         return [
             'name' => $field,
             'type' => $type,
+            'enabled' => $enabled,
         ];
     }
 

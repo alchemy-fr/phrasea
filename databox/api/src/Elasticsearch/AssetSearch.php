@@ -237,6 +237,9 @@ class AssetSearch extends AbstractSearch
         if (isset($options['order'])) {
             foreach ($options['order'] as $field => $way) {
                 $esFieldInfo = $this->attributeSearch->getESFieldInfo($field);
+                if (!$esFieldInfo['enabled']) {
+                    continue;
+                }
 
                 $w = strtoupper((string) $way);
                 if (!in_array($w, ['ASC', 'DESC'], true)) {

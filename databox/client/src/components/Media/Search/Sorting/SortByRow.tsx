@@ -16,7 +16,6 @@ export type OnChangeHandler = (
 ) => void;
 
 type Props = {
-    enabled: boolean;
     definition: AttributeDefinitionOrBuiltIn;
     onChange: OnChangeHandler;
     sortBy: TogglableSortBy;
