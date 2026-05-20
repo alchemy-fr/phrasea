@@ -104,6 +104,7 @@
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",
         "ramsey/uuid-doctrine": "^1.5",
+        "stof/doctrine-extensions-bundle": "^1.15",
         "symfony/amqp-messenger": "^7.4",
         "symfony/asset": "^7.4",
         "symfony/console": "^7.4",
