@@ -11,7 +11,7 @@ use Alchemy\AuthBundle\Security\JwtOauthClient;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
-use ApiPlatform\Validator\Exception\ValidationException;
+use App\Api\Model\Input\Attribute\AbstractBaseAttributeInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeActionInput;
 use App\Consumer\Handler\Asset\AttributeChanged;
@@ -31,9 +31,6 @@ use Doctrine\ORM\QueryBuilder;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Validator\Context\ExecutionContext;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BatchAttributeManager
 {
@@ -41,7 +38,6 @@ class BatchAttributeManager
     final public const string ACTION_DELETE = 'delete';
     final public const string ACTION_REPLACE = 'replace';
     final public const string ACTION_ADD = 'add';
-    public const string TAGS = 'tags';
 
     public function __construct(
         private readonly EntityManagerInterface $em,
@@ -49,9 +45,6 @@ class BatchAttributeManager
         private readonly Security $security,
         private readonly PostFlushStack $postFlushStack,
         private readonly DeferredIndexListener $deferredIndexListener,
-        private readonly AttributeTypeRegistry $typeRegistry,
-        private readonly ValidatorInterface $validator,
-        private readonly TranslatorInterface $translator,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly AttributeValidator $attributeValidator,
     ) {
@@ -59,12 +52,6 @@ class BatchAttributeManager
 
     public function validate(string $workspaceId, ?array $assetsId, AssetAttributeBatchUpdateInput $input): void
     {
-        $validationContext = new ExecutionContext(
-            $this->validator,
-            'actions',
-            $this->translator,
-        );
-
         $allAssetIndex = [];
         foreach (($assetsId ?? []) as $id) {
             $allAssetIndex[$id] = true;
@@ -99,48 +86,9 @@ class BatchAttributeManager
             }
         }
 
-        foreach ($input->actions as $i => $action) {
-            if ($action->definitionId) {
-                if (self::TAGS !== $action->definitionId) {
-                    $definition = $this->getAttributeDefinition($workspaceId, $action->definitionId);
-
-                    if ($action->value) {
-                        $type = $this->typeRegistry->getStrictType($definition->getType());
-                        $validationContext->setNode($action->value, $action, null, sprintf('actions[%d].value', $i));
-                        $type->validate($action->value, $validationContext);
-                    }
-
-                    $this->denyUnlessGranted($definition);
-                }
-            } elseif ($action->name) {
-                $definition = $this->getAttributeDefinitionBySlug($workspaceId, $action->name);
-                $this->denyUnlessGranted($definition);
-            }
-
-            if ($action->id) {
-                try {
-                    $attribute = $this->em->find(Attribute::class, $action->id);
-                    if (!$attribute instanceof Attribute) {
-                        throw new BadRequestHttpException(sprintf('Attribute "%s" not found in action #%d', $action->id, $i));
-                    }
-                    $this->denyUnlessGranted($attribute->getDefinition());
-                } catch (ConversionException $e) {
-                    throw new BadRequestHttpException(sprintf('Invalid attribute ID "%s" in action #%d', $action->id, $i), $e);
-                }
-            }
-        }
-
-        if ($validationContext->getViolations()->count() > 0) {
-            throw new ValidationException($validationContext->getViolations());
-        }
-    }
-
-    private function denyUnlessGranted(AttributeDefinition $definition): void
-    {
-        if (!$definition->getPolicy()->isEditable()
-            && !$this->security->isGranted(PermissionInterface::EDIT, $definition->getPolicy())) {
-            throw new AccessDeniedHttpException(sprintf('Unauthorized to edit attribute definition %s', $definition->getId()));
-        }
+        $this->attributeValidator->validateAttributeInputs($workspaceId, array_filter($input->actions, function (AbstractBaseAttributeInput $input): bool {
+            return in_array($input->action, [self::ACTION_ADD, self::ACTION_SET], true);
+        }), 'actions');
     }
 
     public function handleBatch(
@@ -171,7 +119,7 @@ class BatchAttributeManager
                     }
 
                     if ($action->definitionId) {
-                        if (self::TAGS === $action->definitionId) {
+                        if (AttributeValidator::TAGS === $action->definitionId) {
                             $this->handleTagAction($action, $ids);
 
                             continue;
@@ -201,8 +149,6 @@ class BatchAttributeManager
                                 throw new BadRequestHttpException(sprintf('Attribute "%s" is not multi-valued in action #%d', $definition->getName(), $i));
                             }
 
-                            $this->attributeValidator->validateAttributeInput($action, $definition);
-
                             $this->upsertAttribute(null, $ids, $definition, $action);
                             break;
                         case self::ACTION_DELETE:
@@ -226,8 +172,6 @@ class BatchAttributeManager
                                     }
                                     $def = $attribute->getDefinition();
 
-                                    $this->attributeValidator->validateAttributeInput($action, $def);
-
                                     $this->upsertAttribute($attribute, $ids, $def, $action);
                                 } catch (ConversionException $e) {
                                     throw new BadRequestHttpException(sprintf('Invalid attribute ID "%s" in action #%d', $action->id, $i), $e);
@@ -236,8 +180,6 @@ class BatchAttributeManager
                                 if (!$definition) {
                                     throw new BadRequestHttpException(sprintf('Missing definitionId in action #%d', $i));
                                 }
-
-                                $this->attributeValidator->validateAttributeInput($action, $definition);
 
                                 if ($definition->isMultiple()) {
                                     if (!is_array($action->value)) {

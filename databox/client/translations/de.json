@@ -6,10 +6,10 @@
             "change_data_locale": {
                 "modal": {
                     "confirm": "Weiter",
-                    "title": "Die Seite wird neu geladen"
+                    "title": "Seite wird neu geladen"
                 }
             },
-            "data_languages": "Datensprache",
+            "data_languages": "Sprache der Daten",
             "data_locale": {
                 "default": "Standard",
                 "default_description": "UI-Sprache verwenden"
@@ -34,17 +34,196 @@
             }
         },
         "permission": {
-            "create": "ERSTELLEN",
-            "delete": "LÖSCHEN",
-            "edit": "BEARBEITEN",
+            "create": "Erstellen",
+            "delete": "Löschen",
+            "edit": "Bearbeiten",
             "manage_collection": "Verwalten",
-            "master": "MASTER",
-            "operator": "BETREIBER",
-            "owner": "BESITZER",
-            "share": "TEILEN",
-            "undelete": "WIEDERHERSTELLEN",
-            "all": "ALLE",
-            "view": "ANSEHEN"
+            "master": "Master",
+            "operator": "Operator",
+            "owner": "Besitzer",
+            "share": "Teilen",
+            "undelete": "Wiederherstellen",
+            "all": "Alle",
+            "view": "Ansehen",
+            "asset": {
+                "delete": {
+                    "desc": "Ermöglicht das Löschen dieses Assets.",
+                    "label": "Löschen"
+                },
+                "edit": {
+                    "desc": "Ermöglicht das Bearbeiten der Attribute des Assets.",
+                    "label": "Attribute bearbeiten"
+                },
+                "edit_permissions": {
+                    "desc": "Ermöglicht das Ändern von Berechtigungen und Datenschutzeinstellungen für Assets, die Sie besitzen.",
+                    "label": "Genehmigungen bearbeiten/Datenschutz"
+                },
+                "operator": {
+                    "desc": "Ermöglicht Verwaltungsaktionen für das Asset ({{manage_asset_desc}}).",
+                    "label": "Verwalten"
+                },
+                "owner": {
+                    "desc": "Volle Kontrolle über dieses Asset, mit Ausnahme der Berechtigungen und Datenschutzeinstellungen.",
+                    "label": "Besitzer"
+                },
+                "view": {
+                    "desc": "Ermöglicht das Anzeigen dieses Assets, aber nicht unbedingt der Kollektion, zu der es gehört.",
+                    "label": "Ansehen"
+                }
+            },
+            "collection": {
+                "assets_operator": {
+                    "desc": "Ermöglicht Verwaltungsaktionen für Assets ({{manage_asset_desc}}) in der Kollektion und in untergeordneten Kollektionen.",
+                    "label": "Assets verwalten"
+                },
+                "assets_owner": {
+                    "desc": "Volle Kontrolle über Assets innerhalb der Kollektion und untergeordneter Kollektionen, mit Ausnahme von Berechtigungen und Datenschutzeinstellungen.",
+                    "label": "Besitzer von Assets"
+                },
+                "create": {
+                    "desc": "Ermöglicht das Erstellen untergeordneter Kollektionen innerhalb dieser Kollektion. Neue Kinder erben dieselben Berechtigungen wie die übergeordnete Kollektion.",
+                    "label": "Kollektionen erstellen"
+                },
+                "create_assets": {
+                    "desc": "Ermöglicht das Erstellen von Assets in der Kollektion und in untergeordneten Kollektionen.",
+                    "label": "Assets erstellen"
+                },
+                "delete": {
+                    "desc": "Ermöglicht das Löschen dieser Kollektion, untergeordneter Kollektionen und ihrer Assets.",
+                    "label": "Löschen"
+                },
+                "delete_assets": {
+                    "desc": "Ermöglicht das Löschen von Assets innerhalb der Kollektion und untergeordneter Kollektionen.",
+                    "label": "Assets Löschen"
+                },
+                "edit": {
+                    "desc": "Ermöglicht die Verwaltung dieser Kollektion, aber nicht die Bearbeitung von Assets innerhalb der Kollektion.",
+                    "label": "Kollektion verwalten"
+                },
+                "edit_assets": {
+                    "desc": "Ermöglicht das Bearbeiten von Asset-Attributen in der Kollektion und in untergeordneten Kollektionen.",
+                    "label": "Asset-Attribute bearbeiten"
+                },
+                "edit_permissions": {
+                    "desc": "Ermöglicht Bearbeitungsberechtigungen und den Datenschutz von Kollektionen und Assets, die Sie besitzen.",
+                    "label": "Berechtigungen für eigene Inhalte verwalten"
+                },
+                "owner": {
+                    "desc": "Volle Kontrolle über Assets innerhalb der Kollektion und untergeordneter Kollektionen, mit Ausnahme von Berechtigungen und Datenschutzeinstellungen.",
+                    "label": "Besitzer"
+                },
+                "share_assets": {
+                    "desc": "Ermöglicht das Teilen von Inhalten der Kollektion und untergeordneter Kollektionen.",
+                    "label": "Assets teilen"
+                },
+                "view": {
+                    "desc": "Ermöglicht das Anzeigen dieser Kollektion, untergeordneter Kollektionen und ihrer Assets.",
+                    "label": "Ansehen"
+                },
+                "view_assets": {
+                    "desc": "Ermöglicht das Anzeigen von Assets dieser Kollektion und untergeordneter Kollektionen, aber nicht der Kollektionen, zu denen sie gehören.",
+                    "label": "Assets ansehen"
+                }
+            },
+            "common": {
+                "operator": {
+                    "desc": "Titel oder Tags bearbeiten, zu einer anderen Kollektion verschieben, Renditions bearbeiten, Dateiversionen anzeigen"
+                }
+            },
+            "integration": {
+                "child_edit": {
+                    "desc": "Ermöglicht die Interaktion mit der Integration, z. B. das Ausführen oder Verwenden in einem Workflow, ohne die Konfiguration zu bearbeiten oder zu löschen.",
+                    "label": "Interagieren"
+                },
+                "child_view": {
+                    "desc": "Ermöglicht das Anzeigen der Integration und das Lesen ihrer Daten, aber keine Interaktion mit ihr. Nützlich für Benutzer, die die Ergebnisse einer Integration sehen müssen, aber nicht in der Lage sein sollten, sie auszuführen oder ihre Konfiguration zu bearbeiten.",
+                    "label": "Benutzen"
+                },
+                "edit": {
+                    "desc": "Ermöglicht die Bearbeitung der Integrationskonfiguration.",
+                    "label": "Bearbeiten"
+                },
+                "view": {
+                    "desc": "Ermöglicht es zu sehen, dass die Integration existiert, aber nicht mit ihr zu interagieren oder ihre Daten anzuzeigen. Nützlich für Benutzer, die wissen möchten, dass eine Integration vorhanden ist, sie aber nicht ausführen oder ihre Ergebnisse sehen können sollten.",
+                    "label": "Ansehen"
+                }
+            },
+            "rendition_policy": {
+                "child_edit": {
+                    "desc": "Bearbeiten Sie die Rendition dieser Richtlinie.",
+                    "label": "Bearbeiten"
+                },
+                "child_view": {
+                    "desc": "Sehen Sie sich die Rendition dieser Richtlinie an.",
+                    "label": "Ansehen"
+                }
+            },
+            "workspace": {
+                "assets_operator": {
+                    "desc": "Ermöglicht Verwaltungsaktionen für Assets ({{manage_asset_desc}}) im Workspace-Root.",
+                    "label": "Assets verwalten"
+                },
+                "assets_owner": {
+                    "desc": "Volle Kontrolle über alle Assets dieses Workspaces, mit Ausnahme der Berechtigungen und Datenschutzeinstellungen.",
+                    "label": "Besitzer von Assets"
+                },
+                "create": {
+                    "desc": "Ermöglicht das Erstellen von Kollektionen in diesem Workspace, aber nicht das Bearbeiten oder Löschen von Kollektionen, die von anderen erstellt wurden.",
+                    "label": "Kollektionen erstellen"
+                },
+                "create_assets": {
+                    "desc": "Ermöglicht das Erstellen von Assets im Workspace-Root.",
+                    "label": "Assets erstellen"
+                },
+                "delete": {
+                    "desc": "Ermöglicht das Löschen dieses Workspaces (nicht in der GUI implementiert).",
+                    "label": "Löschen"
+                },
+                "delete_assets": {
+                    "desc": "Ermöglicht das Löschen von Assets im Workspace-Root.",
+                    "label": "Assets Löschen"
+                },
+                "edit": {
+                    "desc": "Ermöglicht die Verwaltung dieses Workspaces (Titel ändern, Locale, Tags, Entitäten, Renditions, Attribute hinzufügen), aber keine Bearbeitung von Assets innerhalb des Workspaces.",
+                    "label": "Verwalten"
+                },
+                "edit_assets": {
+                    "desc": "Ermöglicht das Bearbeiten von Assets Attribute im Workspace-Root.",
+                    "label": "Asset Attribute bearbeiten"
+                },
+                "edit_permissions": {
+                    "desc": "Ermöglicht Bearbeitungsberechtigungen und den Datenschutz von Kollektionen und Assets, die Sie besitzen.",
+                    "label": "Berechtigungen bearbeiten"
+                },
+                "owner": {
+                    "desc": "Volle Kontrolle über den Workspace, seine Kollektionen und Assets.",
+                    "label": "Besitzer"
+                },
+                "share_assets": {
+                    "desc": "Ermöglicht das Teilen von Assets im Workspace-Root.",
+                    "label": "Assets teilen"
+                },
+                "view": {
+                    "desc": "Für den Zugriff auf diesen Workspace ist eine Mindestberechtigung erforderlich. Alternativ kann der Workspace als öffentlich markiert werden.",
+                    "label": "Zugriff"
+                },
+                "view_assets": {
+                    "desc": "Ermöglicht die Anzeige aller Assets im Workspace, aber nicht unbedingt der Kollektionen, zu denen sie gehören.",
+                    "label": "Assets ansehen"
+                }
+            },
+            "child_create": "Unterelemente erstellen",
+            "child_delete": "Unterelemente löschen",
+            "child_edit": "Unterelemente bearbeiten",
+            "child_master": "Unter-Master",
+            "child_operator": "Unter-Operator",
+            "child_owner": "Unter-Besitzer",
+            "child_share": "Unterelemente teilen",
+            "child_undelete": "Unterelemente wiederherstellen",
+            "child_view": "Unterelemente ansehen"
+        },
+        "parent": {
+            "show": "Elternberechtigungen anzeigen <strong> {{name}} </strong>"
         }
     },
     "asset": {
@@ -61,14 +240,14 @@
             "confirm_message_one": "Möchten Sie {{count}} Asset wirklich löschen?",
             "confirm_message_other": "Möchten Sie {{count}} Assets wirklich löschen?",
             "hard_delete_one": "Asset dauerhaft löschen",
-            "hard_delete_other": "Assets dauerhaft löschen",
+            "hard_delete_other": "<strong>{{count}} Assets </strong> dauerhaft löschen",
             "remove_from_collection": "Aus Kollektion <strong>{{name}}</strong> entfernen",
             "shared_warning_one": "Dieser Asset ist zurzeit freigegeben. Beim Löschen wird allen Benutzern der Zugriff entzogen.",
             "shared_warning_other": "<strong>{{count}}</strong> dieser Assets sind zurzeit freigegeben. Beim Löschen wird allen Benutzern der Zugriff entzogen.",
-            "confirm_hard_delete_message_one": "Sind Sie sicher, dass Sie diesen Asset <strong>dauerhaft</strong> löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
-            "confirm_hard_delete_message_other": "Sind Sie sicher, dass Sie diese Assets <strong>dauerhaft</strong> löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
-            "confirm_move_to_trash_message_one": "Sind Sie sicher, dass Sie diesen Asset in den Papierkorb verschieben möchten?",
-            "confirm_move_to_trash_message_other": "Sind Sie sicher, dass Sie <strong>{{count}} Assets</strong> in den Papierkorb verschieben möchten?",
+            "confirm_hard_delete_message_one": "Möchten Sie wirklich diesen Asset <strong>dauerhaft</strong> löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+            "confirm_hard_delete_message_other": "Möchten Sie wirklich diese Assets <strong>dauerhaft</strong> löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+            "confirm_move_to_trash_message_one": "Möchten Sie wirklich diesen Asset in den Papierkorb verschieben?",
+            "confirm_move_to_trash_message_other": "Möchten Sie wirklich <strong>{{count}} Assets</strong> in den Papierkorb verschieben?",
             "move_to_trash_one": "Asset in den Papierkorb verschieben",
             "move_to_trash_other": "<strong>{{count}} Assets</strong> in den Papierkorb verschieben",
             "remove_from_story": "Aus der Story <strong>{{name}}</strong> entfernen"
@@ -108,7 +287,7 @@
             "workspace": "Workspace",
             "source_file": {
                 "label": "Quelldatei",
-                "none": "Kein"
+                "none": "Keine"
             }
         },
         "manage": {
@@ -163,22 +342,35 @@
             "attributes": "Asset Attribute",
             "discussion": "Diskussion",
             "info": "Information",
-            "appears_in": "Wird angezeigt in",
+            "appears_in": "Erscheint in",
             "add_attachment": "Anhang hinzufügen",
             "attachments": "Anhänge",
             "delete_attachment": {
                 "confirm_button": "Löschen",
-                "confirm_message": "Sind Sie sicher, dass Sie diesen Anhang löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
-                "confirm_title": "Anhang löschen"
+                "confirm_message": "Möchten Sie diesen Anhang wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+                "confirm_title": "Anhang löschen",
+                "button": "Anhang löschen",
+                "success_toast": "Anhang wurde erfolgreich gelöscht"
             },
-            "rename_attachment": "Anhang umbenennen"
+            "rename_attachment": "Anhang umbenennen",
+            "detach_attachment": {
+                "button": "Von Asset trennen",
+                "confirm_button": "Trennen",
+                "confirm_message": "Möchten Sie das wirklich vom Asset trennen?",
+                "confirm_title": "Von Asset trennen",
+                "success_toast": "Anhang wurde erfolgreich getrennt"
+            },
+            "metrics": {
+                "not_configured": "Matomo Analytics ist nicht konfiguriert.",
+                "title": "Metriken"
+            }
         },
         "es_document": {
             "sync_now": "Jetzt synchronisieren"
         },
         "not_found": "Asset nicht gefunden",
         "chip": {
-            "deleted": "Löschen"
+            "deleted": "Gelöscht"
         },
         "restore": {
             "confirm": {
@@ -187,8 +379,8 @@
             "confirm_message_one": "Sind Sie sicher, dass Sie diesen Asset wiederherstellen möchten?",
             "confirm_message_other": "Sind Sie sicher, dass Sie {{count}} Assets wiederherstellen möchten?",
             "deleted_collection": "Wiederherstellen",
-            "deleted_collection_or_story_warning": "Hinweis: Einige Assets können nicht wiederhergestellt werden, da ihre Referenzsammlungen oder Stories gelöscht wurden:",
-            "no_restorable_assets": "Kein einziger der ausgewählten Assets kann wiederhergestellt werden, da ihre Referenzsammlungen gelöscht wurden."
+            "deleted_collection_or_story_warning": "Hinweis: Einige Assets können nicht wiederhergestellt werden, da ihre Referenzkollektionen oder Stories gelöscht wurden:",
+            "no_restorable_assets": "Kein einziger der ausgewählten Assets kann wiederhergestellt werden, da ihre Referenzkollektionen gelöscht wurden."
         }
     },
     "asset_actions": {
@@ -230,6 +422,13 @@
                 },
                 "values": {
                     "title": "Werte"
+                }
+            }
+        },
+        "type": {
+            "size": {
+                "unit": {
+                    "bytes": "{{value}} Bytes"
                 }
             }
         }
@@ -362,7 +561,9 @@
         },
         "disabled": {
             "label": "Sie sind nicht berechtigt, diesen Korb zu ändern."
-        }
+        },
+        "added_to_basket_one": "{{count}} Artikel zum Korb hinzugefügt",
+        "added_to_basket_other": "{{count}} Artikel zum Korb hinzugefügt"
     },
     "basket_delete": {
         "title": "Korb löschen",
@@ -374,7 +575,10 @@
         "x_item_one": "<strong>{{count}}</strong> Element",
         "x_item_other": "<strong>{{count}}</strong> Elemente",
         "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> Element",
-        "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> Elemente"
+        "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> Elemente",
+        "info": "Informationen",
+        "integrations": "Integrationen",
+        "title": "Korb <strong> {{name}} </strong>"
     },
     "change_theme": {
         "save": "Speichern",
@@ -434,7 +638,17 @@
             "confirm": {
                 "title": "Kollektionswiederherstellung bestätigen"
             },
-            "confirm_message": "Sind Sie sicher, dass Sie die Kollektion <coll/> wiederherstellen möchten?"
+            "confirm_message": "Möchten Sie die Kollektion <coll/> wirklich wiederherstellen?"
+        },
+        "acl": {
+            "parent": {
+                "collection": "Berechtigungen für <strong> {{name}} </strong>",
+                "story": "Berechtigungen für Story <strong> {{name}} </strong>",
+                "workspace": "Berechtigungen für Workspace <strong> {{name}} </strong>"
+            }
+        },
+        "tree_view": {
+            "new_collection": "Neue Kollektion"
         }
     },
     "collection_delete": {
@@ -469,7 +683,8 @@
         "close": "Schliessen",
         "edit": "Bearbeiten",
         "revoke": "Widerrufen",
-        "id": "ID"
+        "id": "ID",
+        "confirm": "Bestätigen"
     },
     "copy_assets": {
         "dialog": {
@@ -534,9 +749,20 @@
             "select_format": "Wählen Sie ein Format aus",
             "select_locale": "Locale auswählen",
             "title": "Attribut-Entitäten exportieren",
-            "all_locales": "Alle Locales"
+            "all_locales": "Alle Locales",
+            "values": {
+                "helper_text": "Geben Sie einen Attributentitätswert pro Zeile ein.",
+                "label": "Werte"
+            }
         },
-        "ok": "OK"
+        "ok": "OK",
+        "import_attribute_entities": {
+            "import_button": "Importieren",
+            "title": "Attribut-Entitäten nach {{list}} importieren",
+            "toast": {
+                "success": "Attributentitäten wurden erfolgreich importiert."
+            }
+        }
     },
     "edit_sort_by": {
         "group_by_sections": "Nach Abschnitten gruppieren",
@@ -560,7 +786,8 @@
         "force_sync": "Synchronisierung erzwingen",
         "ok": "OK",
         "stop_synchronization": "Synchronisierung beenden?",
-        "sync_with_a_publication": "Mit einer Veröffentlichung synchronisieren"
+        "sync_with_a_publication": "Mit einer Veröffentlichung synchronisieren",
+        "edit_publication": "Veröffentlichung bearbeiten"
     },
     "face_detail_tooltip": {
         "age_range": "Altersspanne",
@@ -626,7 +853,7 @@
                 "label": "Ungültige Werte zulassen"
             },
             "field_type": {
-                "label": "Attributtyp"
+                "label": "Typ des Feldes"
             },
             "multiple": {
                 "label": "Mehrere Werte"
@@ -677,7 +904,7 @@
                 "label": "Sortierbar"
             },
             "asset_type": {
-                "label": "Typ des Ziel-Assets"
+                "label": "Asset-Typ Ziel"
             }
         },
         "attribute_entity": {
@@ -715,6 +942,9 @@
                 "translate": {
                     "title": "Titel übersetzen"
                 }
+            },
+            "privacy": {
+                "inherited": "Diese Kollektion kann nicht stärker eingeschränkt werden als die übergeordnete Kollektion."
             }
         },
         "collection_create": {
@@ -756,13 +986,23 @@
                 "public": "Öffentlich",
                 "secret": "Secret"
             },
-            "inherited": "Diese Kollektion kann nicht stärker eingeschränkt sein als ihre übergeordnete Kollektion"
+            "inherited": "Diese Kollektion kann nicht stärker eingeschränkt sein als ihre übergeordnete Kollektion",
+            "inherited_from_parent": "Datenschutz wird vom Elternteil übernommen: <strong> {{privacy}} </strong>"
         },
         "profile": {
             "firstName": {
                 "translate": {
                     "title": "Tag übersetzen"
                 }
+            },
+            "description": {
+                "label": "Beschreibung"
+            },
+            "public": {
+                "label": "Öffentlich"
+            },
+            "title": {
+                "label": "Titel"
             }
         },
         "rendition_definition": {
@@ -812,7 +1052,7 @@
                 "label": "Ersetzbar"
             },
             "target": {
-                "label": "Typ des Ziel-Assets"
+                "label": "Asset-Typ Ziel"
             }
         },
         "save_as": {
@@ -854,7 +1094,7 @@
             "fallback_locales": {
                 "add": "Eine Primärsprache hinzufügen",
                 "label": "Sprache",
-                "title": "Reihenfolge der Locales",
+                "title": "Primärsprachen",
                 "remove": "<1>Diese Sprache</1> entfernen"
             },
             "locales": {
@@ -877,7 +1117,7 @@
                 "label": "Datei-Analyseprogramme"
             },
             "trashRetentionDelay": {
-                "label": "Aufbewahrungsdauer für den Papierkorb (in Tagen)"
+                "label": "Verzögerung bei der Aufbewahrung von Papierkorb (in Tagen)"
             }
         },
         "workspace_edit": {
@@ -900,6 +1140,9 @@
             },
             "public": {
                 "label": "Öffentlich"
+            },
+            "editable": {
+                "label": "Bearbeitbar"
             }
         },
         "attribute_list_item": {
@@ -947,6 +1190,9 @@
             },
             "title": {
                 "label": "Titel"
+            },
+            "public": {
+                "label": "Öffentlich"
             }
         },
         "thread_message": {
@@ -985,6 +1231,38 @@
             "name": {
                 "label": "Typ"
             }
+        },
+        "profile_edit": {
+            "success": "Profil bearbeitet!"
+        },
+        "profile_item": {
+            "display_empty": {
+                "label": "Auch bei leerem Zustand anzeigen"
+            },
+            "format": {
+                "label": "Standardformat",
+                "none": "Keine"
+            },
+            "key": {
+                "label": "Wert"
+            },
+            "save": "Speichern",
+            "success": "Element gespeichert!"
+        },
+        "profile_create": {
+            "success": "Profil erstellt!",
+            "title": "Profil erstellen"
+        },
+        "saved_search": {
+            "public": {
+                "label": "Öffentlich"
+            },
+            "title": {
+                "label": "Titel"
+            }
+        },
+        "saved_search_edit": {
+            "success": "Gespeicherte Suche bearbeitet!"
         }
     },
     "get_resolved_sort_by": {
@@ -1019,7 +1297,8 @@
                     "sync_progress": "Synchronisierung läuft…"
                 }
             }
-        }
+        },
+        "not_allowed_for_use": "Sie dürfen diese Integration nicht verwenden"
     },
     "layout": {
         "options": {
@@ -1075,12 +1354,16 @@
             "grid": "Grid-Ansicht",
             "masonry": "Mauerwerk Ansicht",
             "list": "List Ansicht"
+        },
+        "display_settings": {
+            "tooltip": "Einstellungen anzeigen"
         }
     },
     "left_panel": {
         "baskets": "Körbe",
         "facets": "Facetten",
-        "tree": "Workspace"
+        "tree": "Workspace",
+        "navigation": "Navigation"
     },
     "load_more": {
         "button": {
@@ -1126,7 +1409,8 @@
         "filename": "Bild eingefügt- {{date}}"
     },
     "permission_table": {
-        "actions": "Aktionen"
+        "actions": "Aktionen",
+        "no_permissions": "Keine Berechtigungen definiert"
     },
     "privacy": {
         "no_access": "Kein Zugriff",
@@ -1151,7 +1435,7 @@
             "label": "Neue Rendition"
         },
         "filter": {
-            "asset_type": "Typ des Ziel-Assets"
+            "asset_type": "Nach Asset-Typ filtern"
         }
     },
     "renditions": {
@@ -1201,7 +1485,20 @@
         "search_button": "Suchen",
         "sort_by": {
             "title": "Sortiere nach"
-        }
+        },
+        "error": "Hoppla, ein Fehler ist aufgetreten:",
+        "more_options": {
+            "clear_search": "Suche löschen"
+        },
+        "no_results_message": "Es tut uns leid, aber Ihre Suche ergab keine <strong> Assets</strong>!",
+        "save_search": "Suche speichern",
+        "suggestion": {
+            "check_spelling": "<strong> Rechtschreibprüfung </strong>: Stellen Sie sicher, dass alle Suchbegriffe richtig geschrieben sind.",
+            "consider_using_facets": "<strong> Erwägen Sie die Verwendung von Facetten</strong>: Klicken Sie auf die verschiedenen Facettenwerte, um die Ergebnisse einzugrenzen oder zu erweitern (Workspace, Kollektion, Schlagworte, Daten usw.).",
+            "modify_filters": "<strong> Filter ändern </strong>: Wenn Sie Filter angewendet haben, entfernen oder ändern Sie sie, um den Suchbereich zu erweitern."
+        },
+        "update_search": "Suche aktualisieren",
+        "update_success": "Die Suche wurde erfolgreich aktualisiert!"
     },
     "search_auto_complete": {
         "search": "Suchen…"
@@ -1265,7 +1562,8 @@
         },
         "item": {
             "create_collection": "Kollektion in diesem Workspace hinzufügen",
-            "edit": "Diesen Workspace bearbeiten"
+            "edit": "Diesen Workspace bearbeiten",
+            "create_asset": "Asset zum Workspace hinzufügen"
         },
         "manage": {
             "acl": {
@@ -1373,7 +1671,9 @@
         "collections": "Kollektionen",
         "isStory": "Story",
         "stories": "Stories",
-        "deleted": "Gelöscht"
+        "deleted": "Gelöscht",
+        "fileExtension": "Dateierweiterung",
+        "has_source": "Hat Quelldatei"
     },
     "create_share_link": {
         "form": {
@@ -1413,7 +1713,8 @@
             "label": "Neue Entitätenliste"
         },
         "list": {
-            "export": "Exportieren"
+            "export": "Exportieren",
+            "import": "Importieren"
         }
     },
     "file": {
@@ -1459,11 +1760,11 @@
                 },
                 "delete": {
                     "desc": "Benachrichtigung erhalten, wenn das Asset gelöscht wird",
-                    "label": "Löschung"
+                    "label": "Löschen"
                 },
                 "update": {
                     "desc": "Benachrichtigung erhalten, wenn das Asset aktualisiert wird",
-                    "label": "Aktualisierung"
+                    "label": "Aktualisieren"
                 }
             },
             "collection": {
@@ -1694,7 +1995,7 @@
     },
     "replace_asset": {
         "dialog": {
-            "success": "Die neue Asset-Quelldatei wurde hochgeladen und wird in Kürze ersetzt.",
+            "success": "Die neue Asset-Quelldatei wurde hochgeladen.",
             "title": "Asset-Quelldatei ersetzen",
             "submit": "Austauschen"
         }
@@ -1715,7 +2016,8 @@
         "from_urls": {
             "placeholder": "Datei-URL(s) eingeben, eine pro Zeile"
         },
-        "import_file": "Datei importieren"
+        "import_file": "Datei importieren",
+        "import_files": "Datei (en) importieren"
     },
     "upload": {
         "pending": {
@@ -1739,7 +2041,7 @@
     "aql": {
         "constant": {
             "no": "Nein",
-            "null": "ungültig",
+            "null": "Null",
             "yes": "Ja"
         }
     },
@@ -1768,7 +2070,7 @@
         }
     },
     "asset_restore": {
-        "confirm": "Sind Sie sicher, dass Sie diesen Asset wiederherstellen möchten?",
+        "confirm": "Möchten Sie dieses Asset wirklich wiederherstellen?",
         "title": "Asset wiederherstellen"
     },
     "attachment": {
@@ -1794,6 +2096,404 @@
         },
         "form": {
             "label": "Anhangsname"
+        }
+    },
+    "appbar": {
+        "assets": "Assets",
+        "pages": "Seiten"
+    },
+    "profile": {
+        "manage": {
+            "acl": {
+                "title": "Berechtigungen"
+            },
+            "edit": {
+                "title": "Bearbeiten"
+            },
+            "organize": {
+                "title": "Organisieren"
+            },
+            "title": "Profil verwalten {{name}}"
+        },
+        "organize": {
+            "add_divider": "Teiler hinzufügen",
+            "add_spacer": "Abstandshalter hinzufügen"
+        }
+    },
+    "editor": {
+        "format": {
+            "alignCenter": "Zentriert",
+            "alignJustify": "Blocksatz",
+            "alignLeft": "Linksbündig",
+            "alignRight": "Rechtsbündig",
+            "blockQuote": "Blockzitat",
+            "block_type": {
+                "heading": {
+                    "label": "Überschrift {{number}}"
+                },
+                "paragraph": {
+                    "label": "Normal"
+                }
+            },
+            "bold": "Fett",
+            "bulletList": "Aufzählung",
+            "clear": "Format löschen",
+            "code": "Code",
+            "codeBlock": "Code-Block",
+            "fontFamily": {
+                "label": "Schriftart"
+            },
+            "italic": "Kursiv",
+            "link": "Link",
+            "orderedList": "Nummerierte Liste",
+            "redo": "Wiederholen",
+            "save": "Speichern",
+            "strikethrough": "Durchschlagen",
+            "underline": "Unterstreichen",
+            "undo": "Rückgängig",
+            "view": "Ansehen"
+        },
+        "link": {
+            "dialog": {
+                "dialog_title": "Link einfügen",
+                "remove": {
+                    "label": "Link entfernen"
+                },
+                "target": {
+                    "blank": {
+                        "label": "Neuer Tab"
+                    },
+                    "label": "Link öffnen in",
+                    "self": {
+                        "label": "Gleicher Tab"
+                    }
+                },
+                "title": {
+                    "label": "Titel (optional)"
+                },
+                "url": {
+                    "label": "URL"
+                }
+            }
+        },
+        "menu": {
+            "colors": {
+                "backgroundColor": "Hintergrundfarbe",
+                "textColor": "Textfarbe"
+            }
+        },
+        "widgets": {
+            "asset": {
+                "options": {
+                    "assetId": {
+                        "label": "Asset-ID"
+                    },
+                    "borderRadius": {
+                        "label": "Randradius (px)"
+                    },
+                    "gap": {
+                        "label": "Lücke"
+                    },
+                    "imagePosition": {
+                        "bottom": "Unten",
+                        "label": "Bildposition",
+                        "left": "Links",
+                        "right": "Rechts",
+                        "top": "Oben"
+                    },
+                    "maxHeight": {
+                        "label": "Max. Höhe (px)"
+                    },
+                    "maxWidth": {
+                        "label": "Maximale Breite (px)"
+                    },
+                    "position": {
+                        "fixed": "Fixiert",
+                        "label": "Bildposition",
+                        "static": "Statisch"
+                    },
+                    "title": {
+                        "label": "Titel"
+                    }
+                },
+                "title": "Asset"
+            },
+            "carousel": {
+                "options": {
+                    "backgroundColor": {
+                        "label": "Hintergrundfarbe"
+                    },
+                    "cover": {
+                        "label": "Covermodus"
+                    },
+                    "height": {
+                        "label": "Höhe (px)"
+                    },
+                    "maxItems": {
+                        "label": "Max. Anzahl Elemente"
+                    },
+                    "openAsset": {
+                        "label": "Asset per Klick öffnen"
+                    },
+                    "searchId": {
+                        "label": "Gespeicherte Suche"
+                    }
+                },
+                "title": "Bild-Slider"
+            },
+            "footer": {
+                "options": {
+                    "add_link": "Link hinzufügen",
+                    "backgroundColor": {
+                        "label": "Hintergrundfarbe"
+                    },
+                    "link_label": {
+                        "label": "Titel"
+                    },
+                    "link_url": {
+                        "label": "URL"
+                    },
+                    "links": {
+                        "label": "Links"
+                    },
+                    "textColor": {
+                        "label": "Textfarbe"
+                    }
+                },
+                "title": "Fußzeile"
+            },
+            "grid": {
+                "options": {
+                    "backgroundColor": {
+                        "label": "Hintergrundfarbe"
+                    },
+                    "gap": {
+                        "label": "Lücke"
+                    },
+                    "maxItems": {
+                        "label": "Max. Anzahl Elemente"
+                    },
+                    "openAsset": {
+                        "label": "Asset per Klick öffnen"
+                    },
+                    "searchId": {
+                        "label": "Gespeicherte Suche"
+                    },
+                    "size": {
+                        "label": "Größe (px)"
+                    }
+                },
+                "title": "Gitter"
+            },
+            "header_bar": {
+                "options": {
+                    "add_link": "Link hinzufügen",
+                    "link_label": {
+                        "label": "Titel"
+                    },
+                    "link_url": {
+                        "label": "URL"
+                    },
+                    "links": {
+                        "label": "Links"
+                    }
+                },
+                "title": "Kopfleiste"
+            },
+            "remove_widget": "Widget entfernen",
+            "search_grid": {
+                "options": {
+                    "actions": {
+                        "basket": {
+                            "label": "Zum Korb hinzufügen"
+                        },
+                        "copy": {
+                            "label": "Kopieren"
+                        },
+                        "delete": {
+                            "label": "Löschen"
+                        },
+                        "edit": {
+                            "label": "Bearbeiten"
+                        },
+                        "export": {
+                            "label": "Exportieren"
+                        },
+                        "info": {
+                            "label": "Informationen"
+                        },
+                        "label": "Aktionen",
+                        "move": {
+                            "label": "Verschieben"
+                        },
+                        "open": {
+                            "label": "Öffnen"
+                        },
+                        "replace": {
+                            "label": "Ersetzen"
+                        },
+                        "restore": {
+                            "label": "Wiederherstellen"
+                        },
+                        "share": {
+                            "label": "Teilen"
+                        }
+                    },
+                    "containerHeight": {
+                        "label": "Behälterhöhe (px)"
+                    },
+                    "displayFacets": {
+                        "label": "Facetten anzeigen"
+                    },
+                    "maxItems": {
+                        "label": "Max. Anzahl Elemente"
+                    },
+                    "openAsset": {
+                        "label": "Asset per Klick öffnen"
+                    },
+                    "searchId": {
+                        "label": "Gespeicherte Suche"
+                    },
+                    "size": {
+                        "label": "Größe (px)"
+                    }
+                },
+                "title": "Rasteransicht"
+            },
+            "spacer": {
+                "options": {
+                    "spacing": {
+                        "label": "Abstand"
+                    }
+                },
+                "title": "Abstandshalter"
+            },
+            "unknown": "Unbekannter Widget-Typ"
+        }
+    },
+    "landing": {
+        "editor": {
+            "insert_menu": {
+                "search_placeholder": "Widgets suchen..."
+            }
+        },
+        "page_editor": {
+            "save_success": "Seite wurde erfolgreich gespeichert"
+        }
+    },
+    "matomo": {
+        "assetView": {
+            "avg_completion_rate": "Durchschnittliche Abschlussrate",
+            "avg_media_length": "Durchschnittliche Medienlänge",
+            "avg_time_watched": "Durchschnittliche Zuschauerzeit",
+            "finish_rate": "Abschlussrate",
+            "fullscreen_rate": "Vollbildrate",
+            "interaction_rate": "Interaktionsrate",
+            "nb_finishes": "Abschlüsse",
+            "nb_impressions": "Anzahl der Impressionen",
+            "nb_interactions": "Interaktionsanzahl",
+            "nb_plays": "Wiedergabeanzahl",
+            "nb_plays_with_ml": "Spielt mit ml",
+            "nb_unique_visitors_impressions": "Anzahl der Unique-Impressions",
+            "nb_unique_visitors_plays": "Anzahl eindeutiger Wiedergaben",
+            "nb_visits": "Anzahl der Besuche",
+            "noStats": "Für dieses Asset sind keine Statistiken verfügbar",
+            "play_rate": "Wiedergaberate",
+            "sum_daily_nb_uniq_visitors": "Summe eindeutige Besucher (täglich)",
+            "sum_fullscreen_plays": "Gesamt Vollbild-Plays",
+            "sum_time_progress": "Summe Wiedergabezeit",
+            "nb_plays_with_tip": "Wiedergaben mit Tips"
+        }
+    },
+    "page": {
+        "delete_confirm": "Seite löschen",
+        "delete_title": "Seite \"{{title}}\" löschen",
+        "list": {
+            "create_button": "Seite erstellen",
+            "no_result": "Keine Seite",
+            "title": "Seiten"
+        }
+    },
+    "pages": {
+        "create": {
+            "submit": "Erstellen",
+            "success": "Seite wurde erfolgreich erstellt",
+            "title": "Seite erstellen"
+        },
+        "edit": {
+            "submit": "Speichern",
+            "success": "Seite wurde erfolgreich gespeichert",
+            "title": "Seite bearbeiten"
+        },
+        "form": {
+            "enabled": {
+                "label": "Aktiviert"
+            },
+            "public": {
+                "label": "Öffentlich"
+            },
+            "slug": {
+                "helper": "Der Slug wird in der Seiten-URL verwendet und muss eindeutig sein.",
+                "label": "Slug"
+            },
+            "title": {
+                "label": "Titel"
+            }
+        }
+    },
+    "permissions": {
+        "helper_desc": "Berechtigungsstufen:"
+    },
+    "remove_bg": {
+        "cannot_interact": "Sie verfügen nicht über ausreichende Berechtigungen, um Bildhintergrund zu entfernen",
+        "remove_bg": "Bildhintergrund entfernen",
+        "bg_removed": "{{title}} - Bildhintergrund entfernt",
+        "use_slider_to_compare": "Verwenden Sie den Slider zum Vergleichen"
+    },
+    "save_search": {
+        "dialog": {
+            "title": "Suche speichern"
+        }
+    },
+    "saved_search": {
+        "automations": {
+            "coming_soon": "Automatisierungen kommen bald!"
+        },
+        "form": {
+            "created": "Die Suche wurde gespeichert!"
+        },
+        "info": {
+            "creation_date": "Erstellungsdatum",
+            "id": "ID",
+            "modification_date": "Datum der Änderung",
+            "owner": "Besitzer"
+        },
+        "item": {
+            "delete": "Löschen",
+            "edit": "Bearbeiten"
+        },
+        "list": {
+            "title": "Gespeicherte Suchen"
+        },
+        "manage": {
+            "acl": {
+                "title": "Berechtigungen"
+            },
+            "automations": {
+                "title": "Automatisierungen"
+            },
+            "edit": {
+                "title": "Bearbeiten"
+            },
+            "info": {
+                "title": "Informationen"
+            },
+            "title": "Gespeicherte Suche verwalten: {{name}}"
+        }
+    },
+    "workspaces": {
+        "list": {
+            "title": "Workspaces"
         }
     }
 }

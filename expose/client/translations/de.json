@@ -21,7 +21,13 @@
     "download_original": "Originaldatei herunterladen",
     "download_via_email": {
         "cta": "Per E-Mail herunterladen",
-        "sent": "Der Download-Link wird Ihnen per E-Mail zugesendet."
+        "sent": "Der Download-Link wird Ihnen per E-Mail zugesendet.",
+        "cancel": "Abbrechen",
+        "email": {
+            "helper": "Geben Sie die E-Mail-Adresse ein, an die Sie den Download-Link erhalten möchten.",
+            "label": "Email Adresse"
+        },
+        "submit_request": "Download anfordern"
     },
     "email": {
         "label": "E-Mail"
@@ -31,10 +37,119 @@
         "not_found": "Nicht gefunden"
     },
     "error": {
-        "invalid_password": "Ungültiges Passwort"
+        "invalid_password": "Ungültiges Passwort",
+        "authentication_required": "Authentifizierung erforderlich",
+        "forbidden": "Verboten",
+        "not_found": "Nicht gefunden",
+        "unexpected": "Unerwarteter Fehler"
     },
     "form": {
-        "continue": "Weiter"
+        "continue": "Weiter",
+        "profile": {
+            "config": {
+                "label": "Konfiguration"
+            },
+            "create": {
+                "success": "Profil erstellt!",
+                "title": "Profil erstellen"
+            },
+            "edit": {
+                "submit": "Profil speichern",
+                "success": "Profil gespeichert!",
+                "title": "Profil bearbeiten"
+            },
+            "name": {
+                "label": "Name"
+            }
+        },
+        "publication": {
+            "config": {
+                "beginsAt": {
+                    "label": "Beginnt um"
+                },
+                "downloadEnabled": {
+                    "label": "Download aktiviert"
+                },
+                "downloadTerms": {
+                    "enabledLabel": "Allgemeine Geschäftsbedingungen aktivieren"
+                },
+                "downloadViaEmail": {
+                    "label": "Per E-Mail herunterladen"
+                },
+                "enabled": {
+                    "label": "Aktiviert"
+                },
+                "expiresAt": {
+                    "label": "Läuft ab am"
+                },
+                "includeDownloadTermsInZippy": {
+                    "label": "Download-Bedingungen in das Archiv aufnehmen"
+                },
+                "label": "Konfiguration",
+                "layout": {
+                    "label": "Layout",
+                    "options": {
+                        "download": "Download",
+                        "gallery": "Gallerie",
+                        "grid": "Gitter",
+                        "mapbox": "Mapbox"
+                    }
+                },
+                "overridden": {
+                    "label": "Einstellungen überschreiben"
+                },
+                "publiclyListed": {
+                    "label": "Öffentlich gelistet"
+                },
+                "securityMethod": {
+                    "label": "Sicherheitsmethode",
+                    "options": {
+                        "authentication": "Authentifizierung",
+                        "password": "Passwort",
+                        "public": "Öffentlich"
+                    }
+                },
+                "securityOptions": {
+                    "password": {
+                        "label": "Passwort"
+                    }
+                },
+                "terms": {
+                    "enabledLabel": "Allgemeine Geschäftsbedingungen aktivieren"
+                }
+            },
+            "date": {
+                "label": "Datum"
+            },
+            "edit": {
+                "submit": "Veröffentlichung speichern",
+                "success": "Veröffentlichung gespeichert!",
+                "title": "Veröffentlichung bearbeiten"
+            },
+            "parent": {
+                "label": "Übergeordnete Veröffentlichung"
+            },
+            "profile": {
+                "edit": "Profil bearbeiten",
+                "label": "Profil"
+            },
+            "slug": {
+                "helper": "Der Slug wird in der Veröffentlichungs-URL verwendet.",
+                "label": "Slug"
+            },
+            "terms": {
+                "text": {
+                    "label": "Inhalt der Nutzungsbedingungen"
+                },
+                "url": {
+                    "helper": "Geben Sie alternativ eine URL zu den Allgemeinen Geschäftsbedingungen an.",
+                    "label": "URL der Allgemeinen Geschäftsbedingungen"
+                }
+            },
+            "title": {
+                "label": "Titel"
+            }
+        }
     },
     "modal": {
         "close": "Schliessen",
@@ -50,7 +165,34 @@
         "password_required": {
             "enter_password": "Geben Sie Ihr Passwort ein",
             "submit": "OK"
-        }
+        },
+        "asset": {
+            "download": "Download"
+        },
+        "delete_confirm": "Veröffentlichung löschen",
+        "delete_title": "Veröffentlichung \"{{title}}\" löschen",
+        "disabled": "Diese Veröffentlichung ist derzeit deaktiviert. Nur Administratoren können es sehen.",
+        "layout": {
+            "download": {
+                "download_original": "Original herunterladen",
+                "download_subdef": "{{name}} herunterladen"
+            }
+        },
+        "noAssetAvailable": "Kein Asset verfügbar",
+        "security": {
+            "password": {
+                "form": {
+                    "password": {
+                        "label": "Passwort"
+                    },
+                    "submit": {
+                        "label": "Eingeben"
+                    }
+                },
+                "intro": "Diese Veröffentlichung ist passwortgeschützt. Bitte geben Sie das Passwort ein, um darauf zuzugreifen."
+            }
+        },
+        "sort_by": "Sortiere nach {{order}}"
     },
     "publication_security_proxy": {
         "sorry_you_cannot_access_this_publication": "Sie haben keinen Zugriff auf diese Publikation"
@@ -58,6 +200,56 @@
     "terms": {
         "accept": "Akzeptieren",
         "please_read_accept": "Bitte lesen und akzeptieren Sie die <link>Nutzungsbedingungen</link>.",
-        "terms": "Nutzungsbedingungen"
+        "terms": "Nutzungsbedingungen",
+        "dialog": {
+            "accept": "Akzeptieren",
+            "please_read_accept": "Bitte lesen und akzeptieren Sie die <link> Bedingungen </link>",
+            "terms_cta": "Bedingungen",
+            "title": "Allgemeine Geschäftsbedingungen"
+        }
+    },
+    "appbar": {
+        "profiles": "Profile",
+        "publications": "Veröffentlichungen"
+    },
+    "common": {
+        "close": "Schliessen",
+        "expose": "Expose",
+        "soon": "Bald verfügbar"
+    },
+    "download_terms": {
+        "dialog": {
+            "accept": "Akzeptieren und herunterladen",
+            "cancel": "Abbrechen",
+            "please_read_accept": "Bitte lesen und akzeptieren Sie die <link> Download-Bedingungen </link>",
+            "terms_cta": "Download-Bedingungen anzeigen",
+            "title": "Allgemeine Geschäftsbedingungen herunterladen"
+        }
+    },
+    "embeded_asset": {
+        "publication_disabled": "Die Veröffentlichung dieses Assets ist deaktiviert. Nur Administratoren können es sehen."
+    },
+    "profile": {
+        "delete_confirm": "Profil löschen",
+        "delete_title": "Profil \"{{title}}\" löschen",
+        "list": {
+            "create_button": "Profil erstellen",
+            "title": "Profile",
+            "using_publications_one": "{{count}} Veröffentlichung, die dieses Profil verwenden",
+            "using_publications_other": "{{count}} Veröffentlichungen, die dieses Profil verwenden"
+        }
+    },
+    "publicationHeader": {
+        "editButton": "Bearbeiten",
+        "homeLink": "Hauptseite"
+    },
+    "publication_card": {
+        "delete": "Löschen",
+        "disabled_tooltip": "Diese Veröffentlichung ist deaktiviert, nur Operatoren können darauf zugreifen.",
+        "edit": "Bearbeiten",
+        "unlisted": "Diese Veröffentlichung ist nicht aufgeführt, Sie können sie sehen, weil Sie über solche Berechtigungen verfügen"
+    },
+    "downloadArchiveButton": {
+        "downloadArchive": "Archiv herunterladen"
     }
 }

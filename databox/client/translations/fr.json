@@ -34,17 +34,196 @@
             }
         },
         "permission": {
-            "all": "TOUS",
-            "create": "CRÉER",
-            "delete": "SUPPRIMER",
-            "edit": "MODIFIER",
+            "all": "Toutes",
+            "create": "Créer",
+            "delete": "Supprimer",
+            "edit": "Modifier",
             "manage_collection": "Gérez",
-            "master": "MASTER",
-            "operator": "OPERATEUR",
-            "owner": "PROPRIETAIRE",
-            "share": "PARTAGER",
-            "undelete": "RETABLIR",
-            "view": "VISUALISER"
+            "master": "Master",
+            "operator": "Opérateur",
+            "owner": "Propriétaire",
+            "share": "Partager",
+            "undelete": "Rétablir",
+            "view": "Visualiser",
+            "asset": {
+                "delete": {
+                    "desc": "Permet de supprimer cet Asset",
+                    "label": "Supprimer"
+                },
+                "edit": {
+                    "desc": "Permet de modifier les attributs de l'Asset",
+                    "label": "Modifier les attributs"
+                },
+                "edit_permissions": {
+                    "desc": "Permet de modifier les autorisations et les paramètres de confidentialité pour les Assets que vous possédez.",
+                    "label": "Editer les permissions / confidentialité"
+                },
+                "operator": {
+                    "desc": "Autorise les actions de gestion sur l'Asset ({{manage_asset_desc}}).",
+                    "label": "Gérer"
+                },
+                "owner": {
+                    "desc": "Contrôle total de cet Asset, à l'exception des autorisations et des paramètres de confidentialité.",
+                    "label": "Propriétaire"
+                },
+                "view": {
+                    "desc": "Permet de visualiser cet Asset, mais pas nécessairement la collection à laquelle elle appartient.",
+                    "label": "Visualiser"
+                }
+            },
+            "collection": {
+                "assets_operator": {
+                    "desc": "Autorise les actions de gestion sur les Assets ({{manage_asset_desc}}) de la collection et de ses sous-collections.",
+                    "label": "Gérer les Assets"
+                },
+                "assets_owner": {
+                    "desc": "Contrôle total des Assets de la collection et sous-collections, à l'exception des permissions et des paramètres de confidentialité.",
+                    "label": "Propriétaire des Assets"
+                },
+                "create": {
+                    "desc": "Permet de créer des sous-collections au sein de cette collection. Celles-ci hériteront des mêmes autorisations que la collection parente.",
+                    "label": "Création de collections"
+                },
+                "create_assets": {
+                    "desc": "Permet de créer des Assets dans la collection et les sous-collections.",
+                    "label": "Créer des Assets"
+                },
+                "delete": {
+                    "desc": "Permet de supprimer cette collection, les sous-collections et leurs Assets.",
+                    "label": "Supprimer"
+                },
+                "delete_assets": {
+                    "desc": "Permet de supprimer des Assets dans la collection et les sous-collections.",
+                    "label": "Supprimer les Assets"
+                },
+                "edit": {
+                    "desc": "Permet de gérer cette collection, mais pas d'éditer les Assets présents au sein de la collection.",
+                    "label": "Gérer la Collection"
+                },
+                "edit_assets": {
+                    "desc": "Permet d'éditer les attributs des Assets dans la collection et les sous-collections.",
+                    "label": "Modifier les attributs des Assets"
+                },
+                "edit_permissions": {
+                    "desc": "Autorise la modification des permissions et la confidentialité des collections et des Assets que vous possédez.",
+                    "label": "Gérer les permissions du contenu détenu"
+                },
+                "owner": {
+                    "desc": "Contrôle total des Assets de la collection et de ses sous-collections, à l'exception des permissions et des paramètres de confidentialité.",
+                    "label": "Propriétaire"
+                },
+                "share_assets": {
+                    "desc": "Permet de partager les Assets de la collection et des sous-collections.",
+                    "label": "Partager les Assets"
+                },
+                "view": {
+                    "desc": "Permet de visualiser cette collection, ses sous-collections et leurs Assets.",
+                    "label": "Visualiser"
+                },
+                "view_assets": {
+                    "desc": "Permet de visualiser les Assets de cette collection et des sous-collections, mais pas les collections auxquelles ils appartiennent.",
+                    "label": "Voir les Assets"
+                }
+            },
+            "common": {
+                "operator": {
+                    "desc": "modifier le titre ou les tags, déplacer vers une autre collection, modifier les renditions, afficher les versions des fichiers"
+                }
+            },
+            "integration": {
+                "child_edit": {
+                    "desc": "Permet d'interagir avec l'intégration, par exemple en l'exécutant ou en l'utilisant dans un flux de travail, mais sans modifier sa configuration ni la supprimer.",
+                    "label": "Interagir"
+                },
+                "child_view": {
+                    "desc": "Permet de visualiser l'intégration et de lire ses données, mais pas d'interagir avec elle. Utile pour les utilisateurs qui ont besoin de voir les résultats d'une intégration, mais qui ne devraient pas être en mesure de l'exécuter ou de modifier sa configuration.",
+                    "label": "Utiliser"
+                },
+                "edit": {
+                    "desc": "Permet de modifier la configuration de l'intégration.",
+                    "label": "Modifier"
+                },
+                "view": {
+                    "desc": "Permet de voir que l'intégration existe, mais pas d'interagir avec elle ni d'afficher ses données. Utile pour les utilisateurs qui ont besoin de savoir qu'une intégration est présente, mais qui ne devraient pas être en mesure de l'exécuter ou de voir ses résultats.",
+                    "label": "Visualiser"
+                }
+            },
+            "rendition_policy": {
+                "child_edit": {
+                    "label": "Modifier",
+                    "desc": "Modifier la politique de renditions"
+                },
+                "child_view": {
+                    "label": "Visualiser",
+                    "desc": "Visualiser la politique de rendition"
+                }
+            },
+            "workspace": {
+                "assets_operator": {
+                    "desc": "Autorise les actions de gestion sur les Assets ({{manage_asset_desc}}) au niveau racine de ce Workspace.",
+                    "label": "Gérer les Assets"
+                },
+                "assets_owner": {
+                    "desc": "Contrôle total de tous les Assets de ce Workspace, à l'exception des permissions et des paramètres de confidentialité.",
+                    "label": "Propriétaire des Assets"
+                },
+                "create": {
+                    "desc": "Permet de créer des collections au sein de ce Workspace, mais pas de modifier ou de supprimer des collections créées par d'autres.",
+                    "label": "Créer des collections"
+                },
+                "create_assets": {
+                    "desc": "Permet de créer des Assets au niveau racine de ce Workspace.",
+                    "label": "Créer des Assets"
+                },
+                "delete": {
+                    "desc": "Permet de supprimer ce Workspace (non implémenté dans l'interface graphique).",
+                    "label": "Supprimer"
+                },
+                "delete_assets": {
+                    "desc": "Permet de supprimer des Assets au niveau racine de ce Workspace.",
+                    "label": "Supprimer les Assets"
+                },
+                "edit": {
+                    "desc": "Permet de gérer ce Workspace (modifier le titre, ajouter des locales, des tags, des entités, des renditions, des attributs), mais pas d'éditer les Assets au sein du Workspace.",
+                    "label": "Gérer"
+                },
+                "edit_assets": {
+                    "desc": "Permet de modifier les attributs des Assets au niveau racine de ce Workspace.",
+                    "label": "Modifier les attributs des Assets"
+                },
+                "edit_permissions": {
+                    "desc": "Autorise la modification des permissions et la confidentialité des collections et des Assets que vous possédez.",
+                    "label": "Modifier les permissions"
+                },
+                "owner": {
+                    "desc": "Contrôle total du Workspace, de ses collections et de ses Assets.",
+                    "label": "Propriétaire"
+                },
+                "share_assets": {
+                    "desc": "Permet de partager des Assets au niveau racine de ce Workspace.",
+                    "label": "Partager les Assets"
+                },
+                "view": {
+                    "desc": "Autorisation minimale requise pour accéder à ce Workspace. Celui-ci peut également être marqué comme public.",
+                    "label": "Accès"
+                },
+                "view_assets": {
+                    "desc": "Permet de visualiser tous les Assets du Workspace, mais pas nécessairement les collections auxquelles ils appartiennent.",
+                    "label": "Voir les Assets"
+                }
+            },
+            "child_create": "Création de sous-éléments",
+            "child_delete": "Suppression de sous-éléments",
+            "child_edit": "Edition de sous-éléments",
+            "child_master": "Master des sous-éléments",
+            "child_operator": "Opérateur des sous-éléments",
+            "child_owner": "Propriétaire des sous-éléments",
+            "child_share": "Partage des sous-éléments",
+            "child_undelete": "Restauration des sous-éléments",
+            "child_view": "Visualisation des sous-éléments"
+        },
+        "parent": {
+            "show": "Afficher les autorisations des parents <strong> {{name}} </strong>"
         }
     },
     "Asset": {
@@ -162,6 +341,14 @@
                 },
                 "values": {
                     "title": "Valeurs"
+                }
+            }
+        },
+        "type": {
+            "size": {
+                "unit": {
+                    "bytes": "{{value}} Octets",
+                    "gb": "{{value}} Go"
                 }
             }
         }
@@ -300,7 +487,10 @@
         },
         "disabled": {
             "label": "Vous n'êtes pas autorisé à modifier ce panier"
-        }
+        },
+        "added_to_basket_one": "Elément ajouté au panier",
+        "added_to_basket_many": "{{count}} éléments ajoutés au panier",
+        "added_to_basket_other": "{{count}} éléments ajoutés au panier"
     },
     "basket_delete": {
         "confirm": "Êtes-vous sûr de vouloir supprimer ce panier ?",
@@ -314,7 +504,10 @@
         "x_item_other": "<strong>{{count}}</strong> éléments",
         "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> élément",
         "x_item_with_selection_many": "",
-        "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> éléments"
+        "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> éléments",
+        "info": "Informations",
+        "integrations": "Intégrations",
+        "title": "Panier <strong> {{name}} </strong>"
     },
     "change_theme": {
         "save": "Enregistrer",
@@ -375,6 +568,16 @@
                 "title": "Confirmer la restauration de la collection"
             },
             "confirm_message": "Êtes-vous sûr de vouloir restaurer la collection <coll/> ?"
+        },
+        "acl": {
+            "parent": {
+                "collection": "Autorisations sur <strong> {{name}} </strong>",
+                "story": "Autorisations pour la Story <strong> {{name}} </strong>",
+                "workspace": "Autorisations sur le Workspace <strong> {{name}} </strong>"
+            }
+        },
+        "tree_view": {
+            "new_collection": "Nouvelle collection"
         }
     },
     "collection_delete": {
@@ -409,7 +612,8 @@
         "close": "Fermer",
         "edit": "Editer",
         "revoke": "Révoquer",
-        "id": "ID"
+        "id": "ID",
+        "confirm": "Confirmer"
     },
     "copy_assets": {
         "dialog": {
@@ -477,9 +681,20 @@
             "title": "Exporter les entités de l'attribut",
             "locale": "Locale",
             "select_locale": "Sélectionner la locale",
-            "all_locales": "Toutes les locales"
+            "all_locales": "Toutes les locales",
+            "values": {
+                "helper_text": "Entrez une valeur d'attribut d'entité par ligne.",
+                "label": "Valeurs"
+            }
         },
-        "ok": "OK"
+        "ok": "OK",
+        "import_attribute_entities": {
+            "import_button": "Importer",
+            "title": "Importer des attributs d'entités à la liste {{list}}",
+            "toast": {
+                "success": "Attributs d'entités importés avec succès."
+            }
+        }
     },
     "edit_sort_by": {
         "add_group_separators_between_results": "Ajouter des séparateurs de groupes entre les résultats",
@@ -503,7 +718,8 @@
         "force_sync": "Forcer la synchronisation",
         "ok": "OK",
         "stop_synchronization": "Arrêter la synchronisation ?",
-        "sync_with_a_publication": "Synchroniser avec une publication"
+        "sync_with_a_publication": "Synchroniser avec une publication",
+        "edit_publication": "Modifier la publication"
     },
     "face_detail_tooltip": {
         "age_range": "Tranche d'âge",
@@ -530,7 +746,7 @@
         },
         "group": "Groupe",
         "include": {
-            "helper": "Les assets dans ce {{type}} seront seulement visibles s'ils contiennent ces tags.",
+            "helper": "Les Assets dans ce {{type}} seront seulement visibles s'ils contiennent ces tags.",
             "label": "Tags à <strong>inclure</strong>"
         },
         "or": "ou",
@@ -669,6 +885,9 @@
                 "translate": {
                     "title": "Traduire le titre"
                 }
+            },
+            "privacy": {
+                "inherited": "Une collection ne peut pas être plus restreinte que sa collection parente."
             }
         },
         "collection_create": {
@@ -710,13 +929,23 @@
                 "public": "Public",
                 "secret": "Secret"
             },
-            "inherited": "Une collection ne peut pas être plus restreinte que sa collection parente."
+            "inherited": "Une collection ne peut pas être plus restreinte que sa collection parente.",
+            "inherited_from_parent": "La confidentialité est héritée du parent : <strong> {{privacy}} </strong>"
         },
         "profile": {
             "firstName": {
                 "translate": {
                     "title": "Traduire l'étiquette"
                 }
+            },
+            "description": {
+                "label": "Description"
+            },
+            "public": {
+                "label": "Public"
+            },
+            "title": {
+                "label": "Titre"
             }
         },
         "rendition_policy": {
@@ -725,6 +954,9 @@
             },
             "public": {
                 "label": "Public"
+            },
+            "editable": {
+                "label": "Modifiable"
             }
         },
         "rendition_definition": {
@@ -876,7 +1108,7 @@
             "help": {
                 "config_refenrece": "Configuration de Référence:",
                 "copy_reference": "Copier la référence",
-                "config_reference": "Configuration de référence :"
+                "config_reference": "Référence de configuration :"
             },
             "if": {
                 "placeholder": "Condition pour exécuter l'intégration",
@@ -900,6 +1132,9 @@
             },
             "title": {
                 "label": "Titre"
+            },
+            "public": {
+                "label": "Public"
             }
         },
         "annotation": {
@@ -948,6 +1183,38 @@
             "submit": {
                 "label": "Envoyer"
             }
+        },
+        "profile_edit": {
+            "success": "Profil modifié !"
+        },
+        "profile_item": {
+            "display_empty": {
+                "label": "Afficher même si la valeur est vide"
+            },
+            "format": {
+                "label": "Format par défaut",
+                "none": "Aucun"
+            },
+            "key": {
+                "label": "Valeur"
+            },
+            "save": "Enregistrer",
+            "success": "Elément enregistré !"
+        },
+        "profile_create": {
+            "success": "Profil créé !",
+            "title": "Créer un Profil"
+        },
+        "saved_search": {
+            "public": {
+                "label": "Public"
+            },
+            "title": {
+                "label": "Titre"
+            }
+        },
+        "saved_search_edit": {
+            "success": "Recherche sauvegardée modifiée !"
         }
     },
     "get_resolved_sort_by": {
@@ -985,7 +1252,8 @@
                     "sync_progress": "Synchronisation en cours…"
                 }
             }
-        }
+        },
+        "not_allowed_for_use": "Vous n'êtes pas autorisé à utiliser cette intégration"
     },
     "layout": {
         "options": {
@@ -1041,12 +1309,16 @@
             "grid": "Vue en grille",
             "list": "Vue en liste",
             "masonry": "Vue en mosaïque"
+        },
+        "display_settings": {
+            "tooltip": "Paramètres d'affichage"
         }
     },
     "left_panel": {
         "baskets": "Paniers",
         "facets": "Facettes",
-        "tree": "Workspaces"
+        "tree": "Workspaces",
+        "navigation": "Navigation"
     },
     "load_more": {
         "button": {
@@ -1092,7 +1364,8 @@
         "filename": "Image-collée-{{date}}"
     },
     "permission_table": {
-        "actions": "Actions"
+        "actions": "Actions",
+        "no_permissions": "Aucune permission définie"
     },
     "privacy": {
         "no_access": "Pas d'accès",
@@ -1169,7 +1442,20 @@
         "search_button": "Rechercher",
         "sort_by": {
             "title": "Trier par"
-        }
+        },
+        "error": "Oups, une erreur s'est produite :",
+        "more_options": {
+            "clear_search": "Effacer la recherche"
+        },
+        "no_results_message": "Nous sommes désolés, mais votre recherche n'a renvoyé <strong> aucun Asset </strong> !",
+        "save_search": "Recherche sauvegardée",
+        "suggestion": {
+            "check_spelling": "<strong> Vérifiez l'orthographe </strong> : Assurez-vous que tous les termes de recherche sont correctement orthographiés.",
+            "consider_using_facets": "<strong>Envisagez d'utiliser des facettes</strong> : Cliquez sur les différentes valeurs de facettes pour affiner ou élargir les résultats (Workspace, collection, tags, dates, etc.).",
+            "modify_filters": "<strong>Modifier les filtres</strong> : Si vous avez appliqué des filtres, supprimez-les ou modifiez-les pour élargir le champ de recherche."
+        },
+        "update_search": "Mettre à jour la recherche",
+        "update_success": "La recherche a été mise à jour avec succès !"
     },
     "search_auto_complete": {
         "search": "Rechercher…"
@@ -1342,23 +1628,23 @@
             "confirm_message_one": "Êtes-vous sûr de vouloir supprimer l'asset ?",
             "confirm_message_many": "",
             "confirm_message_other": "Êtes-vous sûr de vouloir supprimer les {{count}}  assets ?",
-            "hard_delete_one": "Supprimer définitivement l'asset?",
-            "hard_delete_many": "",
-            "hard_delete_other": "Supprimer définitivement les <strong> {{count}} Assets</strong>",
+            "hard_delete_one": "Supprimer définitivement <strong> {{count}} Asset</strong>",
+            "hard_delete_many": "Supprimer définitivement <strong> {{count}} Assets</strong>",
+            "hard_delete_other": "Supprimer définitivement <strong> {{count}} Assets</strong>",
             "remove_from_collection": "Supprimer de la collection <strong> {{name}} </strong>",
             "shared_warning_one": "Cet asset est actuellement partagé. Le supprimer supprimera l'accès de tous les utilisateurs.",
             "shared_warning_many": "",
             "shared_warning_other": "<strong> {{count}} </strong> de ces Assets sont actuellement partagés. Les supprimer supprimera l'accès de tous les utilisateurs.",
-            "confirm_hard_delete_message_one": "Êtes-vous sûr de vouloir supprimer <strong> définitivement {{count}} Assets </strong> ? Cette action ne peut pas être annulée.",
-            "confirm_hard_delete_message_many": "",
+            "confirm_hard_delete_message_one": "Êtes-vous sûr de vouloir supprimer <strong> définitivement {{count}} Asset </strong> ? Cette action ne peut pas être annulée.",
+            "confirm_hard_delete_message_many": "Êtes-vous sûr de vouloir supprimer <strong> définitivement {{count}} Assets </strong> ? Cette action ne peut pas être annulée.",
             "confirm_hard_delete_message_other": "Êtes-vous sûr de vouloir supprimer <strong> définitivement {{count}} Assets </strong> ? Cette action ne peut pas être annulée.",
             "confirm_move_to_trash_message_one": "Êtes-vous sûr de vouloir déplacer <strong>{{count}} Asset</strong> vers la corbeille ?",
-            "confirm_move_to_trash_message_many": "",
-            "confirm_move_to_trash_message_other": "Êtes-vous sûr de vouloir déplacer les assets <strong> {{count}} </strong> vers la corbeille ?",
+            "confirm_move_to_trash_message_many": "Êtes-vous sûr de vouloir déplacer <strong>{{count}} Assets</strong> vers la corbeille ?",
+            "confirm_move_to_trash_message_other": "Êtes-vous sûr de vouloir déplacer <strong>{{count}} Assets</strong> vers la corbeille ?",
             "move_to_trash_one": "Déplacer <strong> {{count}} </strong>Asset vers la corbeille",
             "move_to_trash_many": "",
             "move_to_trash_other": "Déplacer les <strong> {{count}} Assets</strong> vers la corbeille",
-            "remove_from_story": "Supprimer la Story <strong> {{name}} </strong>"
+            "remove_from_story": "Retirer de la Story <strong> {{name}} </strong>"
         },
         "info": {
             "id": "ID",
@@ -1399,13 +1685,26 @@
             "info": "Information",
             "appears_in": "Apparaît dans",
             "add_attachment": "Ajouter un fichier lié",
-            "attachments": "Fichier lié",
+            "attachments": "Fichiers liés",
             "delete_attachment": {
                 "confirm_button": "Supprimer",
                 "confirm_message": "Êtes-vous sûr de vouloir supprimer ce fichier lié? Cette action ne peut pas être annulée.",
-                "confirm_title": "Supprimer le fichier lié"
+                "confirm_title": "Supprimer le fichier lié",
+                "button": "Supprimer le fichier lié",
+                "success_toast": "Le fichier lié a été supprimé avec succès"
             },
-            "rename_attachment": "Renommer le fichier lié"
+            "rename_attachment": "Renommer le fichier lié",
+            "detach_attachment": {
+                "button": "Détacher de l'Asset",
+                "confirm_button": "Détacher",
+                "confirm_message": "Êtes-vous sûr de vouloir le détacher de l'Asset ?",
+                "confirm_title": "Détacher de l'Asset",
+                "success_toast": "Le fichier lié a été détaché avec succès"
+            },
+            "metrics": {
+                "not_configured": "Les analyses de Matomo ne sont pas configurées.",
+                "title": "Métriques"
+            }
         },
         "es_document": {
             "sync_now": "Synchroniser maintenant"
@@ -1419,10 +1718,10 @@
                 "title": "Confirmer la restauration"
             },
             "confirm_message_one": "Êtes-vous sûr de vouloir restaurer {{count}} Asset ?",
-            "confirm_message_many": "",
-            "confirm_message_other": "Êtes-vous sûr de vouloir restaurer les {{count}} Assets ?",
+            "confirm_message_many": "Êtes-vous sûr de vouloir restaurer {{count}} Assets ?",
+            "confirm_message_other": "Êtes-vous sûr de vouloir restaurer {{count}} Assets ?",
             "deleted_collection": "Restaurer",
-            "deleted_collection_or_story_warning": "Remarque: Certains Assets ne peuvent pas être restaurés car leurs collections de référence ou leur Stories ont été supprimées:",
+            "deleted_collection_or_story_warning": "Remarque : Certains Assets ne peuvent pas être restaurés car leurs collections de référence ou leur Stories ont été supprimées :",
             "no_restorable_assets": "Aucun des Assets sélectionnés ne peut être restauré car leurs collections de référence ont été supprimées."
         }
     },
@@ -1441,7 +1740,8 @@
         },
         "item": {
             "edit": "Modifier le Workspace",
-            "create_collection": "Ajouter la collection dans ce Workspace"
+            "create_collection": "Ajouter la collection dans ce Workspace",
+            "create_asset": "Ajouter un Asset au Workspace"
         },
         "manage": {
             "acl": {
@@ -1532,7 +1832,8 @@
             "none": "Pas d'utilisation de définitions d'attributs"
         },
         "list": {
-            "export": "Exporter"
+            "export": "Exporter",
+            "import": "Importer"
         }
     },
     "es_document": {
@@ -1768,7 +2069,9 @@
         "collections": "Collections",
         "isStory": "Story",
         "stories": "Stories",
-        "deleted": "Supprimé"
+        "deleted": "Supprimé",
+        "fileExtension": "Extension de fichier",
+        "has_source": "Dispose d'un fichier source"
     },
     "file": {
         "dialog": {
@@ -1879,20 +2182,21 @@
         },
         "upload_from_url": "Importer à partir d'une l'URL",
         "asset_created_one": "{{count}} Asset créé avec succès.",
-        "asset_created_many": "",
+        "asset_created_many": "{{count}} Assets créés avec succès.",
         "asset_created_other": "{{count}} Assets créés avec succès.",
-        "back_to_file_upload": "Télécharger un fichier",
+        "back_to_file_upload": "Charger un fichier",
         "back_to_files_upload": "Charger des fichiers",
         "from_urls": {
             "placeholder": "Entrez les URL de fichier, une par ligne"
         },
-        "import_file": "Importer un fichier"
+        "import_file": "Importer un fichier",
+        "import_files": "Importer un ou plusieurs fichiers"
     },
     "upload": {
         "pending": {
             "cancel_upload": "Annuler",
             "empty": "Aucun envoi de fichier en attente",
-            "title": "Envois de fichier en attente",
+            "title": "Envois de fichiers en attente",
             "toast": {
                 "message_one": "<strong>{{uploaded}} / {{count}}</strong> importé",
                 "message_many": "",
@@ -1966,6 +2270,404 @@
         },
         "form": {
             "label": "Nom du fichier lié"
+        }
+    },
+    "appbar": {
+        "assets": "Assets",
+        "pages": "Pages"
+    },
+    "profile": {
+        "manage": {
+            "acl": {
+                "title": "Permissions"
+            },
+            "edit": {
+                "title": "Modifier"
+            },
+            "organize": {
+                "title": "Organiser"
+            },
+            "title": "Gérer le profil {{name}}"
+        },
+        "organize": {
+            "add_divider": "Ajouter un séparateur",
+            "add_spacer": "Ajouter un espacement"
+        }
+    },
+    "editor": {
+        "format": {
+            "alignCenter": "Aligner au centre",
+            "alignJustify": "Justifier",
+            "alignLeft": "Aligner à gauche",
+            "alignRight": "Aligner à droite",
+            "blockQuote": "Bloc de citation",
+            "block_type": {
+                "heading": {
+                    "label": "Titre {{number}}"
+                },
+                "paragraph": {
+                    "label": "Normal"
+                }
+            },
+            "bold": "Gras",
+            "bulletList": "Liste à puces",
+            "clear": "Effacer la mise en forme",
+            "code": "Code",
+            "codeBlock": "Bloc de code",
+            "fontFamily": {
+                "label": "Police"
+            },
+            "italic": "Italique",
+            "link": "Lien",
+            "orderedList": "Liste numérotée",
+            "redo": "Rétablir",
+            "save": "Enregistrer",
+            "strikethrough": "Barrer",
+            "underline": "Souligner",
+            "undo": "Annuler",
+            "view": "Visualiser"
+        },
+        "link": {
+            "dialog": {
+                "dialog_title": "Insérer un lien",
+                "remove": {
+                    "label": "Supprimer le lien"
+                },
+                "target": {
+                    "blank": {
+                        "label": "Nouvel onglet"
+                    },
+                    "label": "Ouvrir le lien dans",
+                    "self": {
+                        "label": "Même onglet"
+                    }
+                },
+                "title": {
+                    "label": "Titre (facultatif)"
+                },
+                "url": {
+                    "label": "URL"
+                }
+            }
+        },
+        "menu": {
+            "colors": {
+                "backgroundColor": "Couleur de fond",
+                "textColor": "Couleur de texte"
+            }
+        },
+        "widgets": {
+            "asset": {
+                "options": {
+                    "assetId": {
+                        "label": "ID d'Asset"
+                    },
+                    "borderRadius": {
+                        "label": "Rayon de la bordure (px)"
+                    },
+                    "gap": {
+                        "label": "Ecart"
+                    },
+                    "imagePosition": {
+                        "bottom": "En bas",
+                        "label": "Position de l'image",
+                        "left": "Gauche",
+                        "right": "Droite",
+                        "top": "Haut"
+                    },
+                    "maxHeight": {
+                        "label": "Hauteur maximale (px)"
+                    },
+                    "maxWidth": {
+                        "label": "Largeur maximale (px)"
+                    },
+                    "position": {
+                        "fixed": "Fixe",
+                        "label": "Position de l'image",
+                        "static": "Statique"
+                    },
+                    "title": {
+                        "label": "Titre"
+                    }
+                },
+                "title": "Asset"
+            },
+            "carousel": {
+                "options": {
+                    "backgroundColor": {
+                        "label": "Couleur de fond"
+                    },
+                    "cover": {
+                        "label": "Mode couverture"
+                    },
+                    "height": {
+                        "label": "Hauteur (px)"
+                    },
+                    "maxItems": {
+                        "label": "Nombre maximum d'éléments"
+                    },
+                    "openAsset": {
+                        "label": "Ouvrir l'Asset par un clic"
+                    },
+                    "searchId": {
+                        "label": "Recherche sauvegardée"
+                    }
+                },
+                "title": "Carrousel"
+            },
+            "footer": {
+                "options": {
+                    "add_link": "Ajouter un lien",
+                    "backgroundColor": {
+                        "label": "Couleur de fond"
+                    },
+                    "link_label": {
+                        "label": "Intitulé"
+                    },
+                    "link_url": {
+                        "label": "URL"
+                    },
+                    "links": {
+                        "label": "Liens"
+                    },
+                    "textColor": {
+                        "label": "Couleur de texte"
+                    }
+                },
+                "title": "Footer"
+            },
+            "grid": {
+                "options": {
+                    "backgroundColor": {
+                        "label": "Couleur de fond"
+                    },
+                    "gap": {
+                        "label": "Espacement"
+                    },
+                    "maxItems": {
+                        "label": "Nombre maximum d'éléments"
+                    },
+                    "openAsset": {
+                        "label": "Ouvrir l'Asset par un clic"
+                    },
+                    "searchId": {
+                        "label": "Recherche sauvegardée"
+                    },
+                    "size": {
+                        "label": "Taille (px)"
+                    }
+                },
+                "title": "Grille"
+            },
+            "header_bar": {
+                "options": {
+                    "add_link": "Ajouter un lien",
+                    "link_label": {
+                        "label": "Intitulé"
+                    },
+                    "link_url": {
+                        "label": "URL"
+                    },
+                    "links": {
+                        "label": "Liens"
+                    }
+                },
+                "title": "Header"
+            },
+            "remove_widget": "Supprimer le widget",
+            "search_grid": {
+                "options": {
+                    "actions": {
+                        "basket": {
+                            "label": "Ajouter au panier"
+                        },
+                        "copy": {
+                            "label": "Copier"
+                        },
+                        "delete": {
+                            "label": "Supprimer"
+                        },
+                        "edit": {
+                            "label": "Modifier"
+                        },
+                        "export": {
+                            "label": "Exporter"
+                        },
+                        "info": {
+                            "label": "Informations"
+                        },
+                        "label": "Actions",
+                        "move": {
+                            "label": "Déplacer"
+                        },
+                        "open": {
+                            "label": "Ouvrir"
+                        },
+                        "replace": {
+                            "label": "Remplacer"
+                        },
+                        "restore": {
+                            "label": "Restaurer"
+                        },
+                        "share": {
+                            "label": "Partager"
+                        }
+                    },
+                    "containerHeight": {
+                        "label": "Hauteur du conteneur (px)"
+                    },
+                    "displayFacets": {
+                        "label": "Afficher les facettes"
+                    },
+                    "maxItems": {
+                        "label": "Nombre maximum d'éléments"
+                    },
+                    "openAsset": {
+                        "label": "Ouvrir l'Asset par un clic"
+                    },
+                    "searchId": {
+                        "label": "Recherche sauvegardée"
+                    },
+                    "size": {
+                        "label": "Taille (px)"
+                    }
+                },
+                "title": "Grille de recherche"
+            },
+            "spacer": {
+                "options": {
+                    "spacing": {
+                        "label": "Espacement"
+                    }
+                },
+                "title": "Espace"
+            },
+            "unknown": "Type de widget inconnu"
+        }
+    },
+    "landing": {
+        "editor": {
+            "insert_menu": {
+                "search_placeholder": "Recherche de widgets..."
+            }
+        },
+        "page_editor": {
+            "save_success": "Page enregistrée avec succès"
+        }
+    },
+    "matomo": {
+        "assetView": {
+            "avg_completion_rate": "Taux d'achèvement moyen",
+            "avg_media_length": "Durée moyenne du média",
+            "avg_time_watched": "Durée moyenne de visionnage",
+            "finish_rate": "Taux de complétion",
+            "fullscreen_rate": "Taux de plein écran",
+            "interaction_rate": "Taux d'interaction",
+            "nb_finishes": "Nombre de lectures terminées",
+            "nb_impressions": "Nombre d'impressions",
+            "nb_interactions": "Nombre d'interactions",
+            "nb_plays": "Nombre de lectures",
+            "nb_plays_with_ml": "Lectures avec ml",
+            "nb_unique_visitors_impressions": "Nombre d'impressions de visiteurs uniques",
+            "nb_unique_visitors_plays": "Nombre de lectures par visiteur unique",
+            "nb_visits": "Nombre de visites",
+            "noStats": "Aucune statistique n'est disponible pour cet Asset",
+            "play_rate": "Taux de lecture",
+            "sum_daily_nb_uniq_visitors": "Somme quotidienne de visiteurs uniques",
+            "sum_fullscreen_plays": "Somme des lectures en plein écran",
+            "sum_time_progress": "Somme du temps de progression",
+            "nb_plays_with_tip": "Lectures avec pourboire"
+        }
+    },
+    "page": {
+        "delete_confirm": "Supprimer la page",
+        "delete_title": "Supprimer la page « {{title}} »",
+        "list": {
+            "create_button": "Créer une page",
+            "no_result": "Aucune page",
+            "title": "Pages"
+        }
+    },
+    "pages": {
+        "create": {
+            "submit": "Créer",
+            "success": "Page créée avec succès",
+            "title": "Créer une page"
+        },
+        "edit": {
+            "submit": "Enregistrer",
+            "success": "Page enregistrée avec succès",
+            "title": "Modifier la page"
+        },
+        "form": {
+            "enabled": {
+                "label": "Activé"
+            },
+            "public": {
+                "label": "Public"
+            },
+            "slug": {
+                "helper": "Le slug est utilisé dans l'URL de la page et doit être unique.",
+                "label": "Slug"
+            },
+            "title": {
+                "label": "Titre"
+            }
+        }
+    },
+    "permissions": {
+        "helper_desc": "Niveaux de permissions :"
+    },
+    "remove_bg": {
+        "bg_removed": "{{title}} - Arrière-plan retiré",
+        "cannot_interact": "Vous ne disposez pas des autorisations suffisantes pour supprimer l'arrière-plan",
+        "remove_bg": "Retirer l'arrière-plan",
+        "use_slider_to_compare": "Utiliser le curseur pour comparer"
+    },
+    "save_search": {
+        "dialog": {
+            "title": "Recherche sauvegardée"
+        }
+    },
+    "saved_search": {
+        "automations": {
+            "coming_soon": "Les automatisations seront bientôt disponibles !"
+        },
+        "form": {
+            "created": "La recherche a été sauvegardée !"
+        },
+        "info": {
+            "creation_date": "Date de création",
+            "id": "ID",
+            "modification_date": "Date de modification",
+            "owner": "Propriétaire"
+        },
+        "item": {
+            "delete": "Supprimer",
+            "edit": "Modifier"
+        },
+        "list": {
+            "title": "Recherches sauvegardées"
+        },
+        "manage": {
+            "acl": {
+                "title": "Permissions"
+            },
+            "automations": {
+                "title": "Automatisations"
+            },
+            "edit": {
+                "title": "Modifier"
+            },
+            "info": {
+                "title": "Informations"
+            },
+            "title": "Gérer la recherche sauvegardée : {{name}}"
+        }
+    },
+    "workspaces": {
+        "list": {
+            "title": "Workspaces"
         }
     }
 }

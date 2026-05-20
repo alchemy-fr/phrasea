@@ -49,17 +49,19 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
         // Wrap in an array to force replacing the whole field
         $document->set(AttributeInterface::ATTRIBUTES_FIELD, !empty($attrs) ? [$attrs] : null);
 
-        $storyAttrs = [];
-        foreach ($asset->getCollections() as $collectionAsset) {
-            if (null !== $storyAsset = $collectionAsset->getCollection()->getStoryAsset()) {
-                if (!isset($storyAttrs[$storyAsset->getId()])) {
-                    $storyAttrs[$storyAsset->getId()] = $this->compileAttributes($storyAsset);
-                }
-            }
-        }
-        if (!empty($storyAttrs)) {
-            $document->set(AttributeInterface::STORY_ATTRIBUTES_FIELD, $storyAttrs);
-        }
+        // Not ready yet
+        //        $storyAttrs = [];
+        //        foreach ($asset->getCollections() as $collectionAsset) {
+        //            if (null !== $storyAsset = $collectionAsset->getCollection()->getStoryAsset()) {
+        //                if (!isset($storyAttrs[$storyAsset->getId()])) {
+        //                    $subAttrs = $this->compileAttributes($storyAsset);
+        //                    if (!empty($subAttrs)) {
+        //                        $storyAttrs[] = $subAttrs;
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        $document->set(AttributeInterface::STORY_ATTRIBUTES_FIELD, !empty($storyAttrs) ? $storyAttrs : null);
     }
 
     private function compileRenditions(Asset $asset): array

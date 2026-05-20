@@ -87,7 +87,7 @@ final class AssetPermissionComputer
 
         $aces = $this->permissionManager->getObjectAces($asset);
         foreach ($aces as $access) {
-            $userId = $access->getUserId();
+            $userId = $access->getUserId() ?? AccessControlEntryInterface::USER_WILDCARD;
             $isUser = AccessControlEntryInterface::TYPE_USER_VALUE === $access->getUserType();
             if ($access->hasPermission(PermissionInterface::VIEW)) {
                 if ($isUser) {
@@ -192,7 +192,7 @@ final class AssetPermissionComputer
 
         $aces = $this->permissionManager->getObjectAces($workspace);
         foreach ($aces as $access) {
-            $userId = $access->getUserId();
+            $userId = $access->getUserId() ?? AccessControlEntryInterface::USER_WILDCARD;
             $isUser = AccessControlEntryInterface::TYPE_USER_VALUE === $access->getUserType();
             if (
                 $access->hasPermission(PermissionInterface::CHILD_VIEW)
@@ -248,7 +248,7 @@ final class AssetPermissionComputer
 
             $aces = $this->permissionManager->getObjectAces($collection);
             foreach ($aces as $access) {
-                $userId = $access->getUserId();
+                $userId = $access->getUserId() ?? AccessControlEntryInterface::USER_WILDCARD;
                 $isUser = AccessControlEntryInterface::TYPE_USER_VALUE === $access->getUserType();
                 if ($access->hasPermission(PermissionInterface::VIEW)
                     || $access->hasPermission(PermissionInterface::CHILD_VIEW)) {

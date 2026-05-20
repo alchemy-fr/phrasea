@@ -24,6 +24,7 @@ use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Share;
 use App\Repository\Core\AssetRenditionRepository;
+use App\Security\ClientUrlHelper;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
 use App\Service\Asset\Attribute\AssetNameResolver;
@@ -52,6 +53,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         private readonly NotifierInterface $notifier,
         #[Autowire(env: 'API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE')]
         private readonly string $ownerPropertyRequiredRole,
+        private readonly ClientUrlHelper $clientUrlHelper,
     ) {
     }
 
@@ -163,6 +165,8 @@ class AssetOutputTransformer implements OutputTransformerInterface
                     $output->{'set'.ucfirst($type)}($file);
                 }
             }
+
+            $output->webUrl = $this->clientUrlHelper->generateAssetUrl($data);
 
             $referenceCollection = $data->getReferenceCollection();
             if (null !== $referenceCollection && $this->isGranted(AbstractVoter::READ, $referenceCollection)) {

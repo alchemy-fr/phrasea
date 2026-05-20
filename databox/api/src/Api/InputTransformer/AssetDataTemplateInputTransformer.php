@@ -48,7 +48,7 @@ class AssetDataTemplateInputTransformer extends AbstractInputTransformer
 
         if (!empty($data->attributes)) {
             $object->getAttributes()->clear();
-            $this->assignAttributes($this->templateAttributeInputProcessor, $object, $data->attributes, $context);
+            $this->assignAttributes($object->getWorkspaceId(), $this->templateAttributeInputProcessor, $object, $data->attributes, $context);
         }
 
         if (null !== $data->name) {

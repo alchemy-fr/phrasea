@@ -135,6 +135,9 @@ class AssetOutput extends AbstractUuidOutput
     #[Groups([Asset::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $thumbnail = null;
 
+    #[Groups([Asset::GROUP_LIST])]
+    public ?string $webUrl = null;
+
     /**
      * @var AssetRenditionOutput|null
      */

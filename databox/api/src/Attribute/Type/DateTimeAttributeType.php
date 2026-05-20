@@ -111,10 +111,6 @@ class DateTimeAttributeType extends AbstractAttributeType
 
     public function validate($value, ExecutionContextInterface $context): void
     {
-        if (empty($value)) {
-            return;
-        }
-
         if (null === DateUtil::normalizeDate($value)) {
             $context->addViolation('Invalid date');
         }
