@@ -30,12 +30,12 @@ final class WebhookAction extends AbstractIntegrationAction
         if ($config['includeInputs']) {
             $options['json']['asset'] = [
                 'id' => $asset->getId(),
-                'title' => $asset->getTitle(),
+                'name' => $asset->getName(),
             ];
             $workspace = $asset->getWorkspace();
             $options['json']['workspace'] = [
                 'id' => $workspace->getId(),
-                'title' => $workspace->getName(),
+                'name' => $workspace->getName(),
             ];
         }
 

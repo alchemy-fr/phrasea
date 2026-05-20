@@ -46,6 +46,7 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
     const removeFromBasket = useBasketStore(state => state.removeFromBasket);
 
     const loadItems = React.useCallback(
+        // eslint-disable-next-line react-hooks/use-memo
         createPaginatedLoader(
             next => getBasketAssets(id!, next),
             setPagination
@@ -85,7 +86,7 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
                     },
                     reload: true,
                     resetSelection: true,
-                    disabled: !data?.capabilities.canEdit,
+                    disabled: !data?.capabilities.edit,
                     apply: async items => {
                         await removeFromBasket(
                             id!,
@@ -133,7 +134,7 @@ export default function BasketViewDialog({modalIndex, open}: Props) {
                             <Trans
                                 i18nKey={'basket_view_dialog.title'}
                                 values={{
-                                    name: data?.title,
+                                    name: data?.name,
                                 }}
                                 defaults={'Basket <strong>{{name}}</strong>'}
                             />

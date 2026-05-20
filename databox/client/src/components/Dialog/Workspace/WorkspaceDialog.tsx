@@ -22,6 +22,10 @@ import {useWorkspaceStore} from '../../../store/workspaceStore.ts';
 
 type Props = {};
 
+export enum WorkspaceDialogTabs {
+    Entities = 'entities',
+}
+
 export default function WorkspaceDialog({}: Props) {
     const {t} = useTranslation();
     const {id} = useParams();
@@ -55,7 +59,7 @@ export default function WorkspaceDialog({}: Props) {
             routeParams={{id}}
             maxWidth={'lg'}
             title={t('workspace.manage.title', 'Manage Workspace {{name}}', {
-                name: data.nameTranslated,
+                name: data.displayName,
             })}
             tabs={[
                 {
@@ -65,7 +69,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t('workspace.manage.edit.title', 'Edit'),
@@ -75,7 +79,7 @@ export default function WorkspaceDialog({}: Props) {
                         data,
                         setData,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t('workspace.manage.acl.title', 'Permissions'),
@@ -84,7 +88,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEditPermissions,
+                    enabled: data.capabilities.editPermissions,
                 },
                 {
                     title: t('workspace.manage.tags.title', 'Tags'),
@@ -93,7 +97,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t(
@@ -101,11 +105,11 @@ export default function WorkspaceDialog({}: Props) {
                         'Entities'
                     ),
                     component: EntityListManager,
-                    id: 'entities',
+                    id: WorkspaceDialogTabs.Entities,
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t(
@@ -117,7 +121,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t(
@@ -129,7 +133,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t(
@@ -141,7 +145,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t(
@@ -153,7 +157,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t(
@@ -165,7 +169,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
                 {
                     title: t('workspace.manage.tag_rules.title', 'Tag rules'),
@@ -174,7 +178,7 @@ export default function WorkspaceDialog({}: Props) {
                     props: {
                         data,
                     },
-                    enabled: data.capabilities.canEdit,
+                    enabled: data.capabilities.edit,
                 },
             ]}
         />

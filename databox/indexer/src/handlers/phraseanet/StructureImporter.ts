@@ -429,7 +429,17 @@ export async function importStatusBitsStructure(
     for (const sb of await phraseanetClient.getStatusBitsStruct(
         phraseanetDataboxId
     )) {
-        logger.info(`  Creating "${sb.label_on}" tag`);
+        // Use label_on if available, fallback to label_off, skip if both empty
+        const tagName = sb.label_on?.trim() || sb.label_off?.trim() || '';
+
+        if (!tagName) {
+            logger.info(
+                `  Skipping status bit ${sb.bit} with empty label_on and label_off`
+            );
+            continue;
+        }
+
+        logger.info(`  Creating "${tagName}" tag`);
         const key =
             phraseanetClient.getId() +
             '_' +
@@ -438,7 +448,7 @@ export async function importStatusBitsStructure(
             sb.bit;
         const tag: Tag = await databoxClient.createTag(key, {
             workspace: `/workspaces/${workspaceId}`,
-            name: sb.label_on,
+            name: tagName,
         });
         tagIndex[sb.bit] = '/tags/' + tag.id;
     }

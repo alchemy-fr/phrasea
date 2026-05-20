@@ -46,7 +46,7 @@ class WorkspaceOutput extends AbstractUuidOutput
         AttributeDefinition::GROUP_LIST,
         ResolveEntitiesOutput::GROUP_READ,
     ])]
-    public ?string $nameTranslated;
+    public ?string $displayName;
 
     #[Groups([Workspace::GROUP_LIST])]
     private string $slug;

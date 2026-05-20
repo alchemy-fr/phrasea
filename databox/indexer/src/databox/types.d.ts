@@ -32,7 +32,7 @@ type Source = {
 export type AssetInput = {
     sourceFile?: Source;
     key?: string;
-    title?: string;
+    name?: string;
     collection?: string;
     workspace?: string;
     workspaceId?: string;
@@ -54,7 +54,7 @@ export type AssetCopyInput = {
 export type CollectionInput = {
     workspace?: string;
     workspaceId?: string;
-    title?: string;
+    name?: string;
     parent?: string;
     key?: string;
     privacy?: Privacy;

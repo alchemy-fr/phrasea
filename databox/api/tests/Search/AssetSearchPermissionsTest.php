@@ -25,40 +25,33 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         ]);
         $asset = $this->createAsset([
             'workspace' => $workspace,
-            'title' => 'Foo',
+            'name' => 'Foo',
             'public' => true,
         ]);
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/assets'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets');
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(1, $data);
         $this->assertEquals($asset->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 
     public function testSearchNonPublicAssetsAsAnonymousUser(): void
     {
         $this->createAsset([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'public' => false,
             'ownerId' => 'OWNER',
         ]);
 
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/assets'
-        );
-
-        $data = $this->getDataFromResponse($response, 200);
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets');
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEmpty($data);
     }
 
@@ -71,40 +64,41 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         );
 
         $asset = $this->createAsset([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'ownerId' => KeycloakClientTestMock::USER_UID,
         ]);
 
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/assets'
-        );
-
-        $data = $this->getDataFromResponse($response, 200);
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 
     public function testSearchNonOwnedAssetsAsOwner(): void
     {
         $this->createAsset([
-            'title' => 'Bar',
+            'name' => 'Bar',
             'ownerId' => 'another_owner',
         ]);
 
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/assets'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEmpty($data);
     }
 
@@ -119,22 +113,23 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             'ownerId' => KeycloakClientTestMock::USER_UID,
         ]);
         $asset = $this->createAsset([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'collectionId' => $collection->getId(),
         ]);
 
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/assets'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 
     public function testSearchAssetsFromNonOwnedCollectionAsOwner(): void
@@ -143,19 +138,20 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             'ownerId' => 'another_owner',
         ]);
         $this->createAsset([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'collectionId' => $collection->getId(),
         ]);
 
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/assets'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEmpty($data);
     }
 
@@ -170,7 +166,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             'ownerId' => 'another_owner',
         ]);
         $asset = $this->createAsset([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'collectionId' => $collection->getId(),
         ]);
         self::releaseIndex();
@@ -182,16 +178,17 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         );
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/assets'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 
     public function testSearchAssetsWithACEOnAllAssets(): void
@@ -205,7 +202,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             'ownerId' => 'another_owner',
         ]);
         $asset = $this->createAsset([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'collectionId' => $collection->getId(),
         ]);
         self::releaseIndex();
@@ -219,16 +216,17 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         );
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/assets'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 
     public function testSearchAssetsWithACEOnCollection(): void
@@ -237,7 +235,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             'ownerId' => 'another_owner',
         ]);
         $asset = $this->createAsset([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'collectionId' => $collection->getId(),
         ]);
         self::releaseIndex();
@@ -256,16 +254,17 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
 
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/assets'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 
     public function testSearchAssetsWithACEOnAllCollections(): void
@@ -279,7 +278,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             'ownerId' => 'another_owner',
         ]);
         $asset = $this->createAsset([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'collectionId' => $collection->getId(),
         ]);
         self::releaseIndex();
@@ -293,22 +292,23 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         );
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/assets'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 
     /**
      * @dataProvider getAssetTagsDataSet
      */
-    public function testSearchAssetsWithTagFilterRuleOnCollection(
+    public function testSearchAssetsWithTagFilterRule(
         array $assets,
         array $include,
         array $exclude,
@@ -325,7 +325,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         foreach ($assets as $assetName => $tags) {
             $this->createAsset([
                 'workspace' => $workspace,
-                'title' => $assetName,
+                'name' => $assetName,
                 'public' => true,
                 'collectionId' => $collection->getId(),
                 'tags' => $tags,
@@ -342,26 +342,27 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         $exclude = array_map($resolveTag, $exclude);
 
         self::getTagFilterManager()->updateRule(
+            $workspace,
             TagFilterRule::TYPE_USER,
             KeycloakClientTestMock::USER_UID,
-            TagFilterRule::TYPE_COLLECTION,
-            $collection->getId(),
             $include,
             $exclude
         );
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/assets'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+
         $this->assertSameSize($expectedResults, $data);
         $hasNamedAsset = function (string $name) use ($data): bool {
             foreach ($data as $asset) {
-                if ($asset['title'] === $name) {
+                if ($asset['name'] === $name) {
                     return true;
                 }
             }

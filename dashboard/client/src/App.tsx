@@ -272,7 +272,7 @@ export default function App({}: Props) {
 function inIframe(): boolean {
     try {
         return window.self !== window.top;
-    } catch (e) {
+    } catch (_e) {
         return true;
     }
 }

@@ -78,14 +78,14 @@ class AssetCrudController extends AbstractAclAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Asset')
             ->setEntityLabelInPlural('Assets')
-            ->setSearchFields(['id', 'title', 'ownerId', 'key', 'locale', 'privacy']);
+            ->setSearchFields(['id', 'name', 'ownerId', 'key', 'locale', 'privacy']);
     }
 
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
             ->add(TextFilter::new('id'))
-            ->add(TextFilter::new('title'))
+            ->add(TextFilter::new('name'))
             ->add(EntityFilter::new('workspace'))
             ->add(AssociationIdentifierFilter::new('referenceCollection'))
             ->add(DateTimeFilter::new('createdAt'))
@@ -96,7 +96,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
     {
         yield IdField::new()
             ->hideOnForm();
-        yield TextField::new('title')
+        yield TextField::new('name')
             ->hideOnForm();
         yield AssociationField::new('workspace')
             ->autocomplete();
@@ -129,6 +129,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
         yield TextField::new('locale')
             ->onlyOnDetail();
         yield AssociationField::new('collections')
+            ->setCrudController(CollectionCrudController::class)
             ->autocomplete()
             ->onlyOnDetail();
         yield AssociationField::new('referenceCollection')
@@ -140,9 +141,6 @@ class AssetCrudController extends AbstractAclAdminCrudController
         yield Field::new('file')
             ->onlyOnDetail();
         yield AssociationField::new('renditions')
-            ->autocomplete()
-            ->onlyOnDetail();
-        yield AssociationField::new('fileVersions')
             ->autocomplete()
             ->onlyOnDetail();
         yield JsonField::new('notificationSettings')

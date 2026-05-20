@@ -3,6 +3,7 @@ import React, {DependencyList} from 'react';
 export default function useUniqueId(
     trackingValues: DependencyList = []
 ): string {
+    // eslint-disable-next-line react-hooks/use-memo
     return React.useMemo(() => makeId(5), trackingValues);
 }
 

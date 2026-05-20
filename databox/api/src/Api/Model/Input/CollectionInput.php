@@ -13,7 +13,7 @@ class CollectionInput extends AbstractOwnerIdInput
 {
     use ExtraMetadataDTOTrait;
 
-    public ?string $title = null;
+    public ?string $name = null;
 
     public ?int $privacy = null;
 

@@ -92,7 +92,7 @@ abstract class AbstractBuiltInField implements BuiltInFieldInterface
     {
         $translationKey = $this->getAggregationTranslationKey();
         $meta = [
-            'title' => $translator->trans(sprintf('facet.%s.title', $translationKey)),
+            'displayName' => $translator->trans(sprintf('facet.%s.name', $translationKey)),
             'sortable' => $this->isSortable(),
         ];
         if (TextAttributeType::NAME !== $this->getType()) {

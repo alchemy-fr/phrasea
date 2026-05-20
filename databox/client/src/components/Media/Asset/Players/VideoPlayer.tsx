@@ -158,7 +158,7 @@ export default function VideoPlayer({
                 playing={play}
                 loop={true}
                 onReady={player => {
-                    onLoad && onLoad();
+                    onLoad?.();
                     const internalPlayer = player.getInternalPlayer();
                     setRatio(
                         internalPlayer.videoHeight / internalPlayer.videoWidth

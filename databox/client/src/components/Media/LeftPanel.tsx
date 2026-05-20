@@ -5,7 +5,7 @@ import {TabPanelProps} from '@mui/lab';
 import BasketsPanel from '../Basket/BasketsPanel';
 import {useAuth} from '@alchemy/react-auth';
 import {useTranslation} from 'react-i18next';
-import Facets from './Asset/Facets';
+import Facets from './Asset/Facets/Facets.tsx';
 
 enum TabEnum {
     facets = 'facets',

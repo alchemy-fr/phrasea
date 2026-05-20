@@ -17,7 +17,10 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Model\Input\MergeAttributeEntitiesInput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
+use App\Api\Processor\AddAttributeEntityProcessor;
+use App\Api\Processor\MergeAttributeEntitiesProcessor;
 use App\Api\Provider\AttributeEntityCollectionProvider;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeEntityRepository;
@@ -44,7 +47,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
         ),
         new Post(
-            securityPostDenormalize: 'is_granted("CREATE", object)'
+            securityPostDenormalize: 'is_granted("CREATE", object)',
+            processor: AddAttributeEntityProcessor::class,
+        ),
+        new Put(
+            uriTemplate: '/attribute-entities/{id}/merge',
+            input: MergeAttributeEntitiesInput::class,
+            name: 'entities_merge',
+            processor: MergeAttributeEntitiesProcessor::class,
         ),
     ],
     normalizationContext: [
@@ -82,6 +92,19 @@ class AttributeEntity extends AbstractUuidEntity
     final public const string GROUP_READ = 'attr-ent:r';
     final public const string GROUP_LIST = 'attr-ent:i';
 
+    final public const int STATUS_APPROVED = 0;
+    final public const int STATUS_PENDING = 1;
+    final public const int STATUS_REJECTED = 2;
+
+    private const string DATA_EMOJI = 'e';
+    private const string DATA_COLOR = 'c';
+
+    public const array STATUS_CHOICES = [
+        'Approved' => self::STATUS_APPROVED,
+        'Pending' => self::STATUS_PENDING,
+        'Rejected' => self::STATUS_REJECTED,
+    ];
+
     #[ORM\ManyToOne(targetEntity: EntityList::class, inversedBy: 'entities')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
@@ -114,6 +137,15 @@ class AttributeEntity extends AbstractUuidEntity
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $position = 0;
 
+    #[ORM\Column(type: Types::SMALLINT, nullable: false)]
+    #[Groups([
+        self::GROUP_LIST,
+    ])]
+    private int $status = self::STATUS_APPROVED;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $data = null;
+
     #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups([
         self::GROUP_LIST,
@@ -121,6 +153,9 @@ class AttributeEntity extends AbstractUuidEntity
         Asset::GROUP_LIST,
     ])]
     private ?array $translations = null;
+
+    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
+    protected ?string $creatorId = null;
 
     public function getValue(): ?string
     {
@@ -211,6 +246,61 @@ class AttributeEntity extends AbstractUuidEntity
         }
 
         return $this->synonyms[$locale] ?? null;
+    }
+
+    public function getStatus(): int
+    {
+        return $this->status;
+    }
+
+    public function setStatus(int $status): void
+    {
+        $this->status = $status;
+    }
+
+    public function getCreatorId(): ?string
+    {
+        return $this->creatorId;
+    }
+
+    public function setCreatorId(?string $creatorId): void
+    {
+        $this->creatorId = $creatorId;
+    }
+
+    public function isApproved(): bool
+    {
+        return self::STATUS_APPROVED === $this->status;
+    }
+
+    #[Groups([self::GROUP_LIST])]
+    public function getEmoji(): ?string
+    {
+        return $this->data[self::DATA_EMOJI] ?? null;
+    }
+
+    public function setEmoji(?string $emoji): void
+    {
+        if (null !== $emoji) {
+            $this->data[self::DATA_EMOJI] = $emoji;
+        } else {
+            unset($this->data[self::DATA_EMOJI]);
+        }
+    }
+
+    #[Groups([self::GROUP_LIST])]
+    public function getColor(): ?string
+    {
+        return $this->data[self::DATA_COLOR] ?? null;
+    }
+
+    public function setColor(?string $color): void
+    {
+        if (null !== $color) {
+            $this->data[self::DATA_COLOR] = $color;
+        } else {
+            unset($this->data[self::DATA_COLOR]);
+        }
     }
 
     public function __toString(): string

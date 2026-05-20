@@ -22,10 +22,12 @@ import LocaleSelectWidget from './src/Locale/LocaleSelectWidget';
 import RemoteErrors from './src/RemoteErrors';
 import RadioWidget from './src/Widget/RadioWidget';
 import DateWidget from './src/Widget/DateWidget';
+import ColorWidget from './src/Widget/ColorWidget';
 
 export {
     CollectionWidget,
     ColorPicker,
+    ColorWidget,
     ColorBox,
     FormError,
     FormFieldErrors,

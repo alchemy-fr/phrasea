@@ -11,7 +11,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Integration\Core\Rendition\AssetMetadataContainer;
-use App\Service\Asset\Attribute\AssetTitleResolver;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Asset\RenditionBuild\Exception\RenditionBuildException;
 use App\Service\Storage\FileManager;
@@ -26,7 +26,7 @@ final readonly class RenditionBuilder
         private RenditionManager $renditionManager,
         private EntityManagerInterface $em,
         private AttributesResolver $attributesResolver,
-        private AssetTitleResolver $assetTitleResolver,
+        private AssetNameResolver $assetNameResolver,
         private FileManager $fileManager,
         private RenditionCreator $renditionCreator,
         private FileFetcher $fileFetcher,
@@ -65,6 +65,13 @@ final readonly class RenditionBuilder
             }
         }
 
+        $buildHash = $this->buildHashManager->getBuildHash($source, $renditionDefinition);
+
+        $existingRendition = $this->renditionManager->getAssetRenditionByDefinition($asset, $renditionDefinition);
+        if (!$force && $existingRendition?->getBuildHash() === $buildHash) {
+            return;
+        }
+
         if (!$source->isAnalyzed()) {
             throw new RenditionBuildException(false, 'Source file is not analyzed yet');
         }
@@ -88,14 +95,7 @@ final readonly class RenditionBuilder
             throw new RenditionBuildException(true, 'Rendition definition is empty');
         }
 
-        $buildHash = $this->buildHashManager->getBuildHash($source, $renditionDefinition);
-
-        $existingRendition = $this->renditionManager->getAssetRenditionByDefinition($asset, $renditionDefinition);
-        if (!$force && $existingRendition?->getBuildHash() === $buildHash) {
-            return;
-        }
-
-        $metadataContainer = new AssetMetadataContainer($asset, $this->attributesResolver, $this->assetTitleResolver);
+        $metadataContainer = new AssetMetadataContainer($asset, $this->attributesResolver, $this->assetNameResolver);
 
         try {
             try {

@@ -6,13 +6,20 @@ namespace App\Repository\Core;
 
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\RenditionDefinition;
-use Doctrine\ORM\EntityRepository;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Persistence\ManagerRegistry;
 
-class AssetRenditionRepository extends EntityRepository
+class AssetRenditionRepository extends ServiceEntityRepository
 {
     final public const string OPT_DEFINITION_IDS = 'definitionIds';
     final public const string OPT_USED_AS = 'usedAs';
     final public const string WITH_FILE = 'withFile';
+
+    public function __construct(
+        ManagerRegistry $registry,
+    ) {
+        parent::__construct($registry, AssetRendition::class);
+    }
 
     /**
      * @return AssetRendition[]

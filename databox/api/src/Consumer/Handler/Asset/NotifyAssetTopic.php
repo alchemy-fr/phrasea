@@ -8,7 +8,7 @@ final readonly class NotifyAssetTopic
         private string $event,
         private string $assetId,
         private string $authorId,
-        private ?string $assetTitle = null,
+        private ?string $assetName = null,
     ) {
     }
 
@@ -27,8 +27,8 @@ final readonly class NotifyAssetTopic
         return $this->authorId;
     }
 
-    public function getAssetTitle(): ?string
+    public function getAssetName(): ?string
     {
-        return $this->assetTitle;
+        return $this->assetName;
     }
 }

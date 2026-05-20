@@ -36,7 +36,7 @@ class IntegrationType
     public string $name = '';
 
     #[Groups(self::GROUP_READ)]
-    public string $title = '';
+    public string $displayName = '';
 
     #[Groups(self::GROUP_READ)]
     public string $reference = '';

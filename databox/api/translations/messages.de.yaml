@@ -1,26 +1,26 @@
 facet:
   workspace:
-    title: Workspace
+    name: Workspace
   collections:
-    title: Kollektionen
+    name: Kollektionen
   created_at:
-    title: Erstellt am
+    name: Erstellt am
   edited_at:
-    title: Geändert am
+    name: Geändert am
   owner:
-    title: Besitzer
+    name: Besitzer
   privacy:
-    title: Datenschutz
+    name: Datenschutz
   renditions:
-    title: Renditions
+    name: Renditions
   relevance:
-    title: Relevanz
+    name: Relevanz
   tags:
-    title: Tags
+    name: Tags
   is_story:
-    title: Story
+    name: Story
   stories:
-    title: Stories
+    name: Stories
 field_type:
   types:
     text: Text
@@ -37,6 +37,8 @@ field_type:
     date_time: Datum und Uhrzeit
     geo_point: Geopunkt
     entity: Entität
+    duration: Dauer
+    filesize: Größe der Datei
 privacy:
   secret: Secret
   private_in_workspace: Privat im Workspace

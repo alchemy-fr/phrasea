@@ -16,8 +16,8 @@ class ValidAttributeConstraintValidator extends ConstraintValidator
     }
 
     /**
-     * @param AbstractBaseAttribute   $value
-     * @param SameWorkspaceConstraint $constraint
+     * @param AbstractBaseAttribute    $value
+     * @param ValidAttributeConstraint $constraint
      */
     public function validate($value, Constraint $constraint): void
     {
@@ -28,7 +28,12 @@ class ValidAttributeConstraintValidator extends ConstraintValidator
 
         $type = $this->typeRegistry->getStrictType($definition->getFieldType());
 
-        $this->context->setNode($value->getValue(), $value, null, 'value');
-        $type->validate($value->getValue(), $this->context);
+        $v = $value->getValue();
+        if (null === $v) {
+            return;
+        }
+
+        $this->context->setNode($v, $value, null, 'value');
+        $type->validate($v, $this->context);
     }
 }

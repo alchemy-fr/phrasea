@@ -84,7 +84,6 @@ function AssetAttachments({asset}: Props) {
                                             </IconButton>
                                         ) : null}
                                         <DropdownActions
-                                            disablePortal={false}
                                             mainButton={({...props}) => (
                                                 <IconButton {...props}>
                                                     <MoreVertIcon />
@@ -260,7 +259,7 @@ function AssetAttachments({asset}: Props) {
                                 <ListItemText
                                     primary={
                                         attachment.name ||
-                                        attachment.attachment.resolvedTitle
+                                        attachment.attachment.resolvedName
                                     }
                                     secondary={
                                         !file.accepted ? (

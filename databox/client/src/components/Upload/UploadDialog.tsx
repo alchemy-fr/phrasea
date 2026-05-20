@@ -2,7 +2,12 @@ import React, {useState} from 'react';
 import {Box, Button, Checkbox, InputLabel, TextField} from '@mui/material';
 import {Trans, useTranslation} from 'react-i18next';
 import UploadIcon from '@mui/icons-material/Upload';
-import {useFormSubmit} from '@alchemy/api';
+import {
+    createIriFromId,
+    extractIdFromIri,
+    isEntityIri,
+    useFormSubmit,
+} from '@alchemy/api';
 import FormDialog from '../Dialog/FormDialog';
 import {FormUploadData, UploadData, UploadForm} from './UploadForm';
 import {v4 as uuidv4} from 'uuid';
@@ -24,8 +29,8 @@ import FileToUploadCard from './FileToUploadCard.tsx';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {createCollection} from '../../api/collection.ts';
 import {
-    extractTitleFromUrl,
-    getAssetTitleFromFile,
+    extractNameFromUrl,
+    getAssetNameFromFile,
     importAssets,
     NewAssetInput,
     parseUrls,
@@ -38,6 +43,7 @@ import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import {toast} from 'react-toastify';
 import {WorkspaceOrCollectionTreeItem} from '../Media/Collection/CollectionTree/types.ts';
 import {TreeNode} from '@alchemy/phrasea-framework';
+import {EntityName} from '../../api/types.ts';
 
 type FileWrapper = {
     id: string;
@@ -48,16 +54,16 @@ type Props = {
     files: File[];
     workspaceId?: string;
     collectionId?: string;
-    titlePath?: string[];
-    workspaceTitle?: string;
+    namePath?: string[];
+    workspaceName?: string;
 } & StackedModalProps;
 
 export default function UploadDialog({
     files: initFiles,
     workspaceId: initWsId,
-    workspaceTitle,
+    workspaceName,
     collectionId: initCollectionId,
-    titlePath,
+    namePath,
     ...modalProps
 }: Props) {
     const [urlMode, setUrlMode] = React.useState(false);
@@ -66,9 +72,6 @@ export default function UploadDialog({
     const {t} = useTranslation();
     const [workspaceId, setWorkspaceId] = React.useState<string | undefined>(
         initWsId
-    );
-    const [collectionId, setCollectionId] = React.useState<string | undefined>(
-        initCollectionId
     );
     const [files, setFiles] = useState<FileWrapper[]>(
         initFiles.map((f: File) => ({
@@ -92,7 +95,11 @@ export default function UploadDialog({
     const usedAssetDataTemplateOptions = useAssetDataTemplateOptions();
 
     const defaultValues: FormUploadData = {
-        destination: null,
+        destination: initCollectionId
+            ? createIriFromId(EntityName.Collection, initCollectionId)
+            : initWsId
+              ? createIriFromId(EntityName.Workspace, initWsId)
+              : null,
         privacy: Privacy.Secret,
         tags: [],
         quiet: false,
@@ -126,13 +133,14 @@ export default function UploadDialog({
                     )) || '';
             }
 
-            const dataCollectionIri =
-                (collectionId ? `/collections/${collectionId}` : null) ||
-                (data.destination?.startsWith('/collections/')
-                    ? (data.destination as string)
-                    : undefined);
+            const destinationIri = data.destination!;
 
-            const destinationIri = dataCollectionIri || data.destination!;
+            const collectionIri = isEntityIri(
+                EntityName.Collection,
+                destinationIri
+            )
+                ? destinationIri
+                : undefined;
 
             const attributes = usedAttributeEditor.attributes
                 ? getAttributeList(
@@ -157,8 +165,8 @@ export default function UploadDialog({
                     attributes,
                     privacy: options.rememberPrivacy ? data.privacy : undefined,
                     collection:
-                        options.rememberCollection && dataCollectionIri
-                            ? dataCollectionIri
+                        options.rememberCollection && collectionIri
+                            ? collectionIri
                             : undefined,
                     includeCollectionChildren:
                         options.includeCollectionChildren,
@@ -208,7 +216,7 @@ export default function UploadDialog({
                         importFile: importFiles,
                         asset: {
                             ...assetBase,
-                            title: extractTitleFromUrl(u),
+                            name: extractNameFromUrl(u),
                         },
                     })),
                     destinationIri,
@@ -231,7 +239,7 @@ export default function UploadDialog({
                         file: f.file,
                         asset: {
                             ...assetBase,
-                            title: getAssetTitleFromFile(f.file, t),
+                            name: getAssetNameFromFile(f.file, t),
                         },
                     })),
                     destinationIri,
@@ -244,7 +252,18 @@ export default function UploadDialog({
         },
     });
 
-    const {reset, getValues, remoteErrors, submitting} = usedFormSubmit;
+    const {reset, getValues, remoteErrors, submitting, watch} = usedFormSubmit;
+
+    const destinationWatched = watch('destination');
+    const destinationIri =
+        typeof destinationWatched === 'string'
+            ? destinationWatched
+            : destinationWatched?.id;
+
+    const collectionId =
+        destinationIri && isEntityIri(EntityName.Collection, destinationIri)
+            ? extractIdFromIri(destinationIri)
+            : undefined;
 
     const resetForms = React.useCallback(() => {
         reset({
@@ -271,16 +290,16 @@ export default function UploadDialog({
 
     const formId = 'upload';
 
-    const title = workspaceTitle ? (
-        titlePath ? (
+    const title = workspaceName ? (
+        namePath ? (
             <>
                 <div>
                     {t(
                         'form.asset_create.title_with_parent',
                         'Create Asset under'
                     )}{' '}
-                    <WorkspaceChip label={workspaceTitle} />
-                    {titlePath.map((t: string, i: number) => (
+                    <WorkspaceChip label={workspaceName} />
+                    {namePath.map((t: string, i: number) => (
                         <React.Fragment key={i}>
                             {' / '}
                             <CollectionChip label={t} />
@@ -289,10 +308,10 @@ export default function UploadDialog({
                 </div>
             </>
         ) : (
-            <>
+            <div>
                 {t('form.asset_create.title', 'Create asset in')}{' '}
-                <WorkspaceChip label={workspaceTitle} />
-            </>
+                <WorkspaceChip label={workspaceName} />
+            </div>
         )
     ) : undefined;
 
@@ -437,11 +456,11 @@ export default function UploadDialog({
                 resetForms={resetForms}
                 usedFormSubmit={usedFormSubmit}
                 formId={formId}
+                filterWorkspaceId={initWsId}
                 workspaceId={workspaceId}
                 collectionId={collectionId}
                 onChangeWorkspace={setWorkspaceId}
-                onChangeCollection={setCollectionId}
-                noDestination={Boolean(workspaceTitle)}
+                noDestination={Boolean(initCollectionId)}
                 usedAttributeEditor={usedAttributeEditor}
                 usedStoryAttributeEditor={usedStoryAttributeEditor}
                 usedAssetDataTemplateOptions={usedAssetDataTemplateOptions}

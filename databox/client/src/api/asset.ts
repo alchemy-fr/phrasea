@@ -11,7 +11,6 @@ import {
     Share,
 } from '../types';
 import {AxiosRequestConfig} from 'axios';
-import {TFacets} from '../components/Media/Asset/Facets';
 import {
     AttributeBatchAction,
     AttributeBatchActionEnum,
@@ -39,6 +38,7 @@ import {
 } from './file.ts';
 import moment from 'moment/moment';
 import {TFunction} from '@alchemy/i18n';
+import {TFacets} from '../components/Media/Asset/Facets/facetTypes.ts';
 
 export interface GetAssetOptions {
     limit?: number;
@@ -382,7 +382,7 @@ export async function putAsset(
 }
 
 export type AssetApiInput = {
-    title?: string;
+    name?: string;
     privacy?: number;
     tags?: string[];
     collection?: string;
@@ -517,7 +517,7 @@ function getStoryPropsFromOptions(options: CreateAssetsOptions) {
     const {story: storyOptions} = options;
 
     return {
-        title: storyOptions?.title,
+        name: storyOptions?.name,
         tags: storyOptions?.tags || [],
         attributes: storyOptions?.attributes,
     };
@@ -651,21 +651,21 @@ export function isAssetEligibleForAttributeDefinition(
 
     return !(definition.target && (definition.target & type) === 0);
 }
-export function extractTitleFromUrl(url: string): string {
+export function extractNameFromUrl(url: string): string {
     const s = url.split('/').filter(Boolean);
     return s[s.length - 1];
 }
 
-export function getAssetTitleFromFile(
+export function getAssetNameFromFile(
     file: File,
     t: TFunction<'translation', undefined>
 ) {
     return file.name === 'image.png'
-        ? createPastedImageTitle(t)
+        ? createPastedImageName(t)
         : file.name.replace(/\.[^/.]+$/, '');
 }
 
-function createPastedImageTitle(t: TFunction): string {
+function createPastedImageName(t: TFunction): string {
     return t('pasted_image.filename', {
         defaultValue: `Pasted-image-{{date}}`,
         date: moment().format('YYYY-MM-DD_HH-mm-ss'),

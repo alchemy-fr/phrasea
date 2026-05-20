@@ -4,12 +4,24 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Api\Model\Input\TagFilterRuleInput;
 use App\Entity\Core\TagFilterRule;
+use App\Entity\Core\Workspace;
+use App\Security\Voter\AbstractVoter;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class TagFilterRuleInputTransformer implements InputTransformerInterface
 {
+    use SecurityAwareTrait;
+
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+    ) {
+    }
+
     /**
      * @param TagFilterRuleInput $data
      */
@@ -18,14 +30,12 @@ class TagFilterRuleInputTransformer implements InputTransformerInterface
         $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         $tagFilterRule = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new TagFilterRule();
 
-        if ($data->collectionId) {
-            $tagFilterRule->setObjectType(TagFilterRule::TYPE_COLLECTION);
-            $tagFilterRule->setObjectId($data->collectionId);
-        } elseif ($data->workspaceId) {
-            $tagFilterRule->setObjectType(TagFilterRule::TYPE_WORKSPACE);
-            $tagFilterRule->setObjectId($data->workspaceId);
+        if ($data->workspaceId) {
+            $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $data->workspaceId);
+            $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $workspace);
+            $tagFilterRule->setWorkspace($workspace);
         } elseif ($isNew) {
-            throw new \InvalidArgumentException('Missing collectionId or workspaceId');
+            throw new \InvalidArgumentException('Missing workspaceId');
         }
 
         if ($data->groupId) {

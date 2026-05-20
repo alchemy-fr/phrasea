@@ -6,6 +6,7 @@ import {
     collectionSecondLimit,
     getCollections,
 } from '../api/collection';
+import {logError} from '@alchemy/core';
 
 export type CollectionPager = {
     items: CollectionExtended[];
@@ -183,6 +184,7 @@ export const useCollectionStore = create<State>((set, getState) => ({
                 };
             });
         } catch (e) {
+            logError(e);
             setLoading(false);
         }
     },

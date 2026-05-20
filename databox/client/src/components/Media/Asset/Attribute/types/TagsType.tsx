@@ -49,7 +49,7 @@ export default class TagsType
     formatValue({value}: AttributeFormatterProps): React.ReactNode {
         return (
             <TagNode
-                name={value.nameTranslated}
+                name={value.displayName}
                 color={value.color}
                 size={'small'}
             />
@@ -57,6 +57,6 @@ export default class TagsType
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {
-        return value?.nameTranslated;
+        return value?.displayName;
     }
 }

@@ -8,7 +8,7 @@ use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\CollectionAsset;
-use App\Service\Asset\Attribute\AssetTitleResolver;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class StoryBuiltInField extends AbstractEntityBuiltInField
@@ -16,7 +16,7 @@ final class StoryBuiltInField extends AbstractEntityBuiltInField
     use UserLocaleTrait;
 
     public function __construct(
-        private readonly AssetTitleResolver $assetTitleResolver,
+        private readonly AssetNameResolver $assetNameResolver,
         private readonly EntityManagerInterface $em,
     ) {
         parent::__construct($em);
@@ -28,7 +28,7 @@ final class StoryBuiltInField extends AbstractEntityBuiltInField
     public function resolveItem($value): array
     {
         return [
-            'title' => $this->resolveLabel($value),
+            'name' => $this->resolveLabel($value),
         ];
     }
 
@@ -37,7 +37,7 @@ final class StoryBuiltInField extends AbstractEntityBuiltInField
      */
     protected function resolveLabel($value): string
     {
-        $attribute = $this->assetTitleResolver->resolveTitleWithoutIndex($value, $this->getPreferredLocales($value->getWorkspace()));
+        $attribute = $this->assetNameResolver->resolveNameWithoutIndex($value, $this->getPreferredLocales($value->getWorkspace()));
         if ($attribute instanceof Attribute) {
             return (string) $attribute->getValue();
         }

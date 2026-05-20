@@ -9,7 +9,7 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Integration\Core\Rendition\AssetMetadataContainer;
-use App\Service\Asset\Attribute\AssetTitleResolver;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Storage\RenditionManager;
 
@@ -18,7 +18,7 @@ final readonly class RenditionBuildHashManager
     public function __construct(
         private RenditionCreator $renditionCreator,
         private AttributesResolver $attributesResolver,
-        private AssetTitleResolver $assetTitleResolver,
+        private AssetNameResolver $assetNameResolver,
         private RenditionManager $renditionManager,
         private YamlLoader $loader,
     ) {
@@ -62,7 +62,7 @@ final readonly class RenditionBuildHashManager
                 $moduleHashes,
                 $this->loader->parse($definition->getDefinition()),
                 new CreateRenditionOptions(
-                    metadataContainer: new AssetMetadataContainer($assetRendition->getAsset(), $this->attributesResolver, $this->assetTitleResolver),
+                    metadataContainer: new AssetMetadataContainer($assetRendition->getAsset(), $this->attributesResolver, $this->assetNameResolver),
                 ),
             );
         }

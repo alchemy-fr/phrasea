@@ -15,8 +15,6 @@ export const WorkspaceChip = ({
     <Chip
         {...props}
         color={'primary'}
-        label={
-            children || label || workspace?.nameTranslated || workspace?.name
-        }
+        label={children || label || workspace?.displayName}
     />
 );

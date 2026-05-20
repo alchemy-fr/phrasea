@@ -39,6 +39,7 @@ class AssetDataTemplateVoter extends AbstractVoter
         return match ($attribute) {
             self::READ => $subject->isPublic() || $isOwner() || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),
             self::EDIT => $isOwner() || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
+            self::EDIT_PERMISSIONS => $isOwner() || $this->hasAcl(PermissionInterface::OWNER, $subject, $token),
             self::DELETE => $isOwner() || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
             self::CREATE => (bool) $userId,
             default => false,

@@ -12,15 +12,13 @@ use Alchemy\WebhookBundle\Entity\WebhookLog;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
 use App\Entity\Admin\ESIndexState;
 use App\Entity\Admin\PopulatePass;
-use App\Entity\AttributeList\AttributeList;
-use App\Entity\AttributeList\AttributeListItem;
 use App\Entity\Basket\Basket;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetAttachment;
+use App\Entity\Core\AssetNameAttribute;
 use App\Entity\Core\AssetRendition;
-use App\Entity\Core\AssetTitleAttribute;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
@@ -30,7 +28,6 @@ use App\Entity\Core\EntityList;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
-use App\Entity\Core\RenditionRule;
 use App\Entity\Core\Share;
 use App\Entity\Core\Tag;
 use App\Entity\Core\TagFilterRule;
@@ -43,6 +40,8 @@ use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Integration\WorkspaceSecret;
 use App\Entity\Log\ActionLog;
 use App\Entity\Page\Page;
+use App\Entity\Profile\Profile;
+use App\Entity\Profile\ProfileItem;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
@@ -83,7 +82,7 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Attribute', '', Attribute::class),
             MenuItem::linkToCrud('Attribute Entity', '', AttributeEntity::class),
             MenuItem::linkToCrud('Entity List', '', EntityList::class),
-            MenuItem::linkToCrud('Asset Title Attribute', '', AssetTitleAttribute::class),
+            MenuItem::linkToCrud('Asset Name Attribute', '', AssetNameAttribute::class),
             MenuItem::linkToCrud('Attribute Definition', '', AttributeDefinition::class),
             MenuItem::linkToCrud('Attribute Policy', '', AttributePolicy::class),
             MenuItem::linkToCrud('Tag', '', Tag::class),
@@ -91,7 +90,6 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Asset Rendition', '', AssetRendition::class),
             MenuItem::linkToCrud('Rendition Definition', '', RenditionDefinition::class),
             MenuItem::linkToCrud('Rendition Policy', '', RenditionPolicy::class),
-            MenuItem::linkToCrud('Rendition Rule', '', RenditionRule::class),
             MenuItem::linkToCrud('Alternate URL', '', AlternateUrl::class),
             MenuItem::linkToCrud('Share', '', Share::class),
         ];
@@ -106,8 +104,8 @@ class DashboardController extends AbstractAdminDashboardController
         ];
 
         $lists = [
-            MenuItem::linkToCrud('Attribute Lists', '', AttributeList::class),
-            MenuItem::linkToCrud('Lists Items', '', AttributeListItem::class),
+            MenuItem::linkToCrud('Profiles', '', Profile::class),
+            MenuItem::linkToCrud('Lists Items', '', ProfileItem::class),
             MenuItem::linkToCrud('Saved Searches', '', SavedSearch::class),
         ];
 

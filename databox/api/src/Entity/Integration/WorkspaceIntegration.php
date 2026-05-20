@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Integration;
 
+use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
@@ -34,7 +35,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -59,11 +59,11 @@ use Symfony\Component\Yaml\Yaml;
     provider: WorkspaceIntegrationCollectionProvider::class,
 )]
 #[ORM\Table]
-#[ORM\UniqueConstraint(name: 'uniq_integration_key', columns: ['workspace_id', 'title', 'integration'])]
+#[ORM\UniqueConstraint(name: 'uniq_integration_key', columns: ['workspace_id', 'name', 'integration'])]
 #[ORM\Entity]
 #[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 #[ValidIntegrationOptionsConstraint]
-class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface, WithOwnerIdInterface, LoggableChangeSetInterface
+class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface, WithOwnerIdInterface, LoggableChangeSetInterface, AclObjectInterface
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -71,6 +71,7 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
     use NullableWorkspaceTrait;
     use ErrorDisableTrait;
     final public const int OBJECT_INDEX = 10;
+    final public const string OBJECT_TYPE = 'integration';
 
     final public const string GROUP_READ = 'wi:read';
     final public const string GROUP_LIST = 'wi:index';
@@ -80,10 +81,14 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
     protected ?Workspace $workspace = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    private ?string $title = null;
+    private ?string $name = null;
+
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    #[Assert\NotNull]
+    private ?bool $public = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
-    #[NotNull]
+    #[Assert\NotNull]
     private ?string $integration = null;
 
     #[ORM\ManyToMany(targetEntity: WorkspaceIntegration::class)]
@@ -111,14 +116,14 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
         $this->needs = new ArrayCollection();
     }
 
-    public function getTitle(): ?string
+    public function getName(): ?string
     {
-        return $this->title;
+        return $this->name;
     }
 
-    public function setTitle(?string $title): void
+    public function setName(?string $name): void
     {
-        $this->title = $title;
+        $this->name = $name;
     }
 
     public function getIntegration(): ?string
@@ -249,6 +254,16 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
         $this->enabled = false;
     }
 
+    public function getPublic(): ?bool
+    {
+        return $this->public;
+    }
+
+    public function setPublic(?bool $public): void
+    {
+        $this->public = $public;
+    }
+
     public function __toString(): string
     {
         if ($this->workspace) {
@@ -256,5 +271,10 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
         }
 
         return $this->getIntegration();
+    }
+
+    public function getAclOwnerId(): string
+    {
+        return $this->ownerId;
     }
 }

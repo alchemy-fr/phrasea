@@ -22,7 +22,7 @@ import {AttributeDefinition} from '../../../../types.ts';
 import {writeEntity} from './entities.tsx';
 import {GetOrRequestEntity} from '../../../../store/entitiesStore.ts';
 import {TFunction} from '@alchemy/i18n';
-import {getIri} from '@alchemy/api';
+import {createIriFromId} from '@alchemy/api';
 
 export type AQLQuery = {
     id: string;
@@ -263,7 +263,7 @@ function searchInEntities(
 ): string | undefined {
     for (const def of Object.values(definitionsIndex)) {
         if (def.slug === field && def.entityIri && def.resolveLabel) {
-            const iri = getIri(def.entityIri, id);
+            const iri = createIriFromId(def.entityIri, id);
             if (iri) {
                 const entity = getEntity(iri);
                 if (typeof entity === 'object') {
@@ -383,7 +383,7 @@ export function replaceFieldFromDefinitions(
         } else if (isAQLField(expression)) {
             const def = definitionsIndex[expression.field];
             if (def) {
-                expression.field = def.nameTranslated ?? def.name;
+                expression.field = def.displayName ?? def.name;
             }
         } else if (isAQLAndOrExpression(expression)) {
             expression.conditions.forEach(c => replace(c));

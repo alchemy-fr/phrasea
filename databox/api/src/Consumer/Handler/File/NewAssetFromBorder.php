@@ -11,7 +11,7 @@ final readonly class NewAssetFromBorder
         private string $userId,
         private string $fileId,
         private array $collectionIds,
-        private ?string $title = null,
+        private ?string $name = null,
         private ?string $filename = null,
         private ?array $formData = null,
         private ?string $locale = null,
@@ -33,9 +33,9 @@ final readonly class NewAssetFromBorder
         return $this->collectionIds;
     }
 
-    public function getTitle(): ?string
+    public function getName(): ?string
     {
-        return $this->title;
+        return $this->name;
     }
 
     public function getFilename(): ?string

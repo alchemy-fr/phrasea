@@ -159,7 +159,7 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 slug: BuiltInField.Collection,
                 entityIri: 'collections',
                 resolveLabel: (entity: Collection) =>
-                    entity.titleTranslated ?? entity.title ?? '',
+                    entity.displayName ?? entity.name ?? '',
                 searchable: true,
                 fieldType: AttributeType.CollectionPath,
                 name: t('built_in_attr.collections', 'Collections'),
@@ -171,7 +171,7 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 slug: BuiltInField.Workspace,
                 fieldType: AttributeType.Workspace,
                 resolveLabel: (entity: Workspace) =>
-                    entity.nameTranslated ?? entity.name ?? '',
+                    entity.displayName ?? entity.name ?? '',
                 entityIri: 'workspaces',
                 searchable: true,
                 name: t('built_in_attr.workspace', 'Workspace'),
@@ -219,7 +219,7 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 slug: BuiltInField.Story,
                 entityIri: 'assets',
                 resolveLabel: (entity: Asset) =>
-                    entity.resolvedTitle ?? entity.title ?? '',
+                    entity.resolvedName ?? entity.name ?? '',
                 searchable: true,
                 fieldType: AttributeType.Story,
                 name: t('built_in_attr.stories', 'Stories'),
@@ -232,7 +232,7 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 fieldType: AttributeType.Tag,
                 entityIri: 'tags',
                 resolveLabel: (entity: Tag) =>
-                    entity.nameTranslated ?? entity.name ?? '',
+                    entity.displayName ?? entity.name ?? '',
                 searchable: true,
                 sortable: true,
                 multiple: true,
@@ -250,7 +250,7 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 fieldType: AttributeType.Rendition,
                 entityIri: 'rendition-definitions',
                 resolveLabel: (entity: RenditionDefinition) =>
-                    entity.nameTranslated ?? entity.name ?? '',
+                    entity.displayName ?? entity.name ?? '',
                 searchable: true,
                 sortable: true,
                 multiple: true,
@@ -291,6 +291,13 @@ export function getBuiltInFilters(t: TFunction): AttributeDefinition[] {
                 searchable: true,
                 name: t('built_in_attr.fileMimeType', 'File MIME Type'),
                 getValueFromAsset: asset => asset.source?.type,
+            },
+            {
+                slug: BuiltInField.FileExtension,
+                fieldType: AttributeType.Keyword,
+                searchable: true,
+                name: t('built_in_attr.fileExtension', 'File Extension'),
+                getValueFromAsset: asset => asset.source?.extension,
             },
             {
                 slug: BuiltInField.FileSize,
@@ -381,6 +388,7 @@ function useIndexByKey(
         }
 
         return index;
+        // eslint-disable-next-line react-hooks/use-memo
     }, [definitions, ...Object.values(filters)]);
 }
 const normalizeDefinition = (d: AttributeDefinition): AttributeDefinition =>

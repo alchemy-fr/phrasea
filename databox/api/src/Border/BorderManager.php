@@ -30,6 +30,9 @@ final readonly class BorderManager
         $finalPath = $this->pathGenerator->generatePath($workspace->getId(), $inputFile->getExtension());
 
         $fd = fopen($content->getPath(), 'r');
+        if (false === $fd) {
+            throw new \RuntimeException(sprintf('Unable to open file %s', $content->getPath()));
+        }
         $this->storageManager->storeStream($finalPath, $fd);
         fclose($fd);
 

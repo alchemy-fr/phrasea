@@ -83,10 +83,10 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                 <AssetThumb onPreviewToggle={onPreviewToggle} asset={asset} />
             </div>
             <div className={assetClasses.attributes}>
-                <div className={assetClasses.title}>
-                    {asset.titleHighlight
-                        ? replaceHighlight(asset.titleHighlight)
-                        : (asset.resolvedTitle ?? asset.title)}
+                <div className={assetClasses.name}>
+                    {asset.nameHighlight
+                        ? replaceHighlight(asset.nameHighlight)
+                        : (asset.resolvedName ?? asset.name)}
                 </div>
 
                 {displayAttributes && (

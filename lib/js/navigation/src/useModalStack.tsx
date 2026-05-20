@@ -189,6 +189,7 @@ export default function ModalStack({
                 return;
             }
 
+            // eslint-disable-next-line react-hooks/immutability
             stack.modals[modalIndex].closeConstraint = constraint;
         }
 

@@ -78,19 +78,32 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
     let notifications = undefined;
     if (env.NOTIFICATIONS_ENABLED) {
         notifications = {
-            applicationIdentifier: env.NOVU_APPLICATION_IDENTIFIER,
+            appIdentifier: env.NOVU_APPLICATION_IDENTIFIER,
             socketUrl: env.NOVU_WS_URL,
             apiUrl: env.NOVU_API_URL,
         };
     }
 
+    const realmName = env.KEYCLOAK_REALM_NAME;
+    const redirectUri = `${env.DATABOX_CLIENT_URL}/auth`;
+    const autoConnectIdP = env.AUTO_CONNECT_IDP;
+    const authUrl = `${env.KEYCLOAK_URL}/realms/${realmName}/protocol/openid-connect/auth?response_type=code&client_id=${encodeURIComponent(env.CLIENT_ID)}&redirect_uri=${encodeURIComponent(redirectUri)}${autoConnectIdP ? `&kc_idp_hint=${encodeURIComponent(autoConnectIdP)}` : ''}`;
+
+    require('node:fs').writeFileSync(
+        'phrasea-manifest.json',
+        JSON.stringify({
+            authUrl,
+        }),
+        'utf8'
+    );
+
     return {
         customHTML,
         logo: stackConfig.logo,
-        autoConnectIdP: env.AUTO_CONNECT_IDP,
+        autoConnectIdP,
         baseUrl: env.DATABOX_API_URL,
         keycloakUrl: env.KEYCLOAK_URL,
-        realmName: env.KEYCLOAK_REALM_NAME,
+        realmName,
         clientId: env.CLIENT_ID,
         devMode: castBoolean(env.DEV_MODE),
         requestSignatureTtl: env.S3_REQUEST_SIGNATURE_TTL,

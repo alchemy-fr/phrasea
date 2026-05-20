@@ -59,7 +59,7 @@ class ModerationIntegration extends AbstractIntegration implements WorkflowInteg
         yield $job;
     }
 
-    public static function getTitle(): string
+    public static function getDisplayName(): string
     {
         return 'Moderation';
     }

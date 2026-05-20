@@ -5,20 +5,25 @@ declare(strict_types=1);
 namespace App\Repository\Core;
 
 use App\Entity\Core\TagFilterRule;
-use Doctrine\ORM\EntityRepository;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Persistence\ManagerRegistry;
 
-class TagFilterRuleRepository extends EntityRepository
+class TagFilterRuleRepository extends ServiceEntityRepository
 {
+    public function __construct(
+        ManagerRegistry $registry,
+    ) {
+        parent::__construct($registry, TagFilterRule::class);
+    }
+
     /**
      * @return TagFilterRule[]
      */
-    public function getRules(?string $userId, array $groupIds, int $objectType, ?string $objectId): array
+    public function getRules(?string $userId, array $groupIds, ?string $workspaceId): array
     {
         $queryBuilder = $this
-            ->createBaseQueryBuilder()
-            ->andWhere('a.objectType = :ot')
-            ->setParameter('ot', $objectType);
+            ->createBaseQueryBuilder();
 
         $userWhere = [
             $userId ? 'a.userType = :ut AND a.userId = :uid OR a.userId IS NULL' : 'a.userId IS NULL',
@@ -41,10 +46,10 @@ class TagFilterRuleRepository extends EntityRepository
             ;
         }
 
-        if (null !== $objectId) {
+        if (null !== $workspaceId) {
             $queryBuilder
-                ->andWhere('a.objectId = :oid')
-                ->setParameter('oid', $objectId);
+                ->andWhere('a.workspace = :wid')
+                ->setParameter('wid', $workspaceId);
         }
 
         return $queryBuilder
@@ -58,9 +63,8 @@ class TagFilterRuleRepository extends EntityRepository
 
         foreach ([
             'userType',
-            'objectType',
-            'objectId',
             'userId',
+            'workspace',
         ] as $key) {
             if (!array_key_exists($key, $params)) {
                 throw new \InvalidArgumentException(sprintf('Missing "%s" key', $key));
@@ -70,8 +74,7 @@ class TagFilterRuleRepository extends EntityRepository
         foreach ([
             'userType' => 'ut',
             'userId' => 'uid',
-            'objectType' => 'ot',
-            'objectId' => 'oid',
+            'workspace' => 'wid',
         ] as $col => $alias) {
             if (isset($params[$col])) {
                 $queryBuilder

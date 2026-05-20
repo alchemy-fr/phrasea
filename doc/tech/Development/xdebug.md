@@ -25,6 +25,9 @@ For the uploader application you would have:
 
 ## Debugging commands
 
+Ensure you have a server configured and named `docker-server-cli` in PhpStorm.
+Absolute path on the server should be set to /var/workspace/phrasea` for the project path.
+
 ```bash
 XDEBUG_ENABLED=1 dc run --rm dev
 cd databox/api

@@ -62,18 +62,17 @@ export default function SavedSearchList({}: Props) {
                         key={search.id}
                         secondaryAction={
                             Boolean(
-                                capabilities.canEdit || capabilities.canDelete
+                                capabilities.edit || capabilities.delete
                             ) && (
                                 <span className={cActionClassName}>
                                     <MoreActionsButton
-                                        disablePortal={false}
                                         anchorOrigin={{
                                             vertical: 'bottom',
                                             horizontal: 'left',
                                         }}
                                     >
                                         {closeWrapper => [
-                                            capabilities.canEdit ? (
+                                            capabilities.edit ? (
                                                 <MenuItem
                                                     key="edit"
                                                     onClick={closeWrapper()}
@@ -99,7 +98,7 @@ export default function SavedSearchList({}: Props) {
                                                     />
                                                 </MenuItem>
                                             ) : null,
-                                            capabilities.canDelete ? (
+                                            capabilities.delete ? (
                                                 <MenuItem
                                                     key="delete"
                                                     onClick={closeWrapper(() =>
@@ -139,9 +138,9 @@ export default function SavedSearchList({}: Props) {
                             </ListItemIcon>
                             <ListItemText
                                 primary={
-                                    search.title
-                                        ? replaceHighlight(search.title)
-                                        : search.title
+                                    search.name
+                                        ? replaceHighlight(search.name)
+                                        : search.name
                                 }
                             />
                         </ListItemButton>

@@ -57,7 +57,7 @@ use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Api\Provider\StoryThumbnailsProvider;
 use App\Controller\Core\DeleteAssetByKeysAction;
 use App\Entity\FollowableInterface;
-use App\Entity\ObjectTitleInterface;
+use App\Entity\ObjectDisplayableNameInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\ExtraMetadataTrait;
 use App\Entity\Traits\LocaleTrait;
@@ -95,7 +95,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'groups' => [
                     self::GROUP_LIST,
                     self::GROUP_READ,
-                    Collection::GROUP_ABSOLUTE_TITLE,
+                    Collection::GROUP_ABSOLUTE_NAME,
                 ],
             ],
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
@@ -200,7 +200,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: [
                 'groups' => [
                     self::GROUP_LIST,
-                    Collection::GROUP_ABSOLUTE_TITLE,
+                    Collection::GROUP_ABSOLUTE_NAME,
                 ],
             ],
             input: MultipleAssetInput::class,
@@ -214,7 +214,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: [
                 'groups' => [
                     self::GROUP_LIST,
-                    Collection::GROUP_ABSOLUTE_TITLE,
+                    Collection::GROUP_ABSOLUTE_NAME,
                 ],
             ],
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
@@ -285,7 +285,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         'groups' => [
             self::GROUP_LIST,
             self::GROUP_READ,
-            Collection::GROUP_ABSOLUTE_TITLE,
+            Collection::GROUP_ABSOLUTE_NAME,
         ],
     ],
     input: AssetInput::class,
@@ -295,7 +295,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Entity(repositoryClass: AssetRepository::class)]
-class Asset extends AbstractUuidEntity implements FollowableInterface, HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, ObjectTitleInterface, \Stringable
+class Asset extends AbstractUuidEntity implements FollowableInterface, HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, ObjectDisplayableNameInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -327,7 +327,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
-    private ?string $title = null;
+    private ?string $name = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     #[Assert\Length(max: 100)]
@@ -443,8 +443,8 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
             if (null !== $this->storyCollection && $storyCollection->getId() !== $this->storyCollection->getId()) {
                 throw new \LogicException('Can\'t change the story collection');
             }
-            if (null !== $storyCollection->getTitle()) {
-                throw new \LogicException('Story collection should not have a title');
+            if (null !== $storyCollection->getName()) {
+                throw new \LogicException('Story collection should not have a name');
             }
         }
         $this->storyCollection = $storyCollection;
@@ -467,14 +467,14 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         return $this->collections;
     }
 
-    public function getTitle(): ?string
+    public function getName(): ?string
     {
-        return $this->title;
+        return $this->name;
     }
 
-    public function setTitle(?string $title): void
+    public function setName(?string $name): void
     {
-        $this->title = $title;
+        $this->name = $name;
     }
 
     public function addToCollection(
@@ -569,7 +569,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
 
     public function __toString(): string
     {
-        return $this->getTitle() ?? $this->getId();
+        return $this->getName() ?? $this->getId();
     }
 
     public function getKey(): ?string
@@ -693,9 +693,9 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         return 'asset:'.$id.':'.$event;
     }
 
-    public function getObjectTitle(): string
+    public function getObjectDisplayName(): string
     {
-        return sprintf('Asset %s', $this->getTitle() ?? $this->getId());
+        return sprintf('Asset %s', $this->getName() ?? $this->getId());
     }
 
     /**
@@ -741,6 +741,14 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     public function getSourceFileMimeType(): ?string
     {
         return $this->source?->getType();
+    }
+
+    /**
+     * Used by ES.
+     */
+    public function getSourceFileExtension(): ?string
+    {
+        return $this->source?->getExtension();
     }
 
     public function isDeleted(): bool

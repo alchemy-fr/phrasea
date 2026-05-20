@@ -45,7 +45,7 @@ final readonly class FieldNameResolver
      */
     public function getFieldFromName(string $name): array
     {
-        if ('title' === $name) {
+        if ('name' === $name) {
             return [
                 'field' => $name,
                 'type' => $this->attributeTypeRegistry->getStrictType(TextAttributeType::NAME),

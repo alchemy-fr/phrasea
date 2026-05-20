@@ -12,6 +12,7 @@ use App\Integration\IntegrationDataManager;
 use App\Integration\IntegrationManager;
 use App\Repository\Integration\IntegrationTokenRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\WorkspaceIntegrationVoter;
 use Arthem\ObjectReferenceBundle\Mapper\ObjectMapper;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Query;
@@ -21,6 +22,7 @@ use Symfony\Component\Yaml\Yaml;
 class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterface
 {
     use SecurityAwareTrait;
+    use GroupsHelperTrait;
 
     public function __construct(
         private readonly EntityManagerInterface $em,
@@ -46,9 +48,10 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
         $output->setCreatedAt($data->getCreatedAt());
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
-        $output->setTitle($data->getTitle());
+        $output->setName($data->getName());
         $output->setEnabled($data->isEnabled());
         $output->setIntegration($data->getIntegration());
+        $output->public = $data->getPublic();
         $output->workspace = $data->getWorkspace();
         $output->needs = array_map(fn (WorkspaceIntegration $wi): string => $this->iriConverter->getIriFromResource($wi), $data->getNeeds()->getValues());
         $output->if = $data->getIf();
@@ -71,12 +74,20 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
             }
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $object);
 
+            $criteria = [
+                'integration' => $data->getId(),
+                'objectType' => $objectType,
+                'objectId' => $object->getId(),
+            ];
+
+            if (!$this->security->isGranted(AbstractVoter::EDIT, $object)) {
+                $criteria['userId'] = $this->getStrictUserOrOAuthClient()->getUserIdentifier();
+            }
+
             $subData = $this->integrationDataManager
-                ->findBy([
-                    'integration' => $data->getId(),
-                    'objectType' => $objectType,
-                    'objectId' => $object->getId(),
-                ]);
+                ->findBy($criteria, [
+                    'createdAt' => 'DESC',
+                ], 200);
 
             $output->setData($subData);
         }
@@ -84,7 +95,7 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
         try {
             $config = $this->integrationManager->getIntegrationConfiguration($data);
             $integration = $config->getIntegration();
-            $output->integrationTitle = $integration->getTitle();
+            $output->integrationName = $integration->getDisplayName();
             $output->setConfig($integration->resolveClientConfiguration($data, $config));
             $output->configInfo = $integration->getConfigurationInfo($config);
         } catch (\Throwable $e) {
@@ -100,6 +111,13 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
 
         $tokens = $this->integrationTokenRepository->getValidUserTokens($data->getId(), $this->getStrictUserOrOAuthClient()->getUserIdentifier());
         $output->setTokens($tokens);
+
+        if ($this->hasGroup([WorkspaceIntegration::GROUP_LIST], $context)) {
+            $output->setCapabilities([
+                'use' => $this->isGranted(WorkspaceIntegrationVoter::READ_DATA, $data),
+                'interact' => $this->isGranted(WorkspaceIntegrationVoter::INTERACT, $data),
+            ]);
+        }
 
         return $output;
     }

@@ -9,6 +9,7 @@ type A = {
     b: boolean;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type T = PropsWithChildren<Pick<A, 'b' | 'a'>>;
 
 export default function TestMorph({}: Props) {
@@ -46,12 +47,9 @@ export default function TestMorph({}: Props) {
         },
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const eventHandler = (_e: HTMLElementEventMap['scroll']) => {
         const data = {
-            foo: 'bar',
-        };
-
-        const otherData = {
             foo: 'bar',
         };
 

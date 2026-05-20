@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {FC, PropsWithChildren, ReactNode} from 'react';
 import Button, {ButtonProps} from '@mui/material/Button';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
@@ -14,7 +15,6 @@ import {useModals} from '@alchemy/navigation';
 import ReplaceAssetWithFileDialog from './ReplaceAssetWithFileDialog';
 import SaveFileAsRenditionDialog from './SaveFileAsRenditionDialog';
 import {stopPropagation} from '../../../../lib/stdFuncs';
-import {FC, MouseEventHandler, PropsWithChildren, ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import {ListItemIcon} from '@mui/material';
 
@@ -46,13 +46,13 @@ export default function SaveAsButton({
     const anchorRef = React.useRef<HTMLDivElement>(null);
     const {openModal} = useModals();
 
-    if (!closeWrapper) {
-        closeWrapper = handler => e => {
+    const closeWrapperFinal =
+        closeWrapper ??
+        ((handler => e => {
             handler?.(e);
 
             return () => {};
-        };
-    }
+        }) as CloseWrapper);
 
     const options = [
         {
@@ -60,22 +60,25 @@ export default function SaveAsButton({
             title: t('save_as_button.new_asset', `New asset`),
             component: SaveFileAsNewAssetDialog,
         },
-        {
-            id: 'rendition',
-            title: t('save_as_button.rendition', `Rendition`),
-            component: SaveFileAsRenditionDialog,
-        },
     ];
 
-    if (asset.source?.id !== file.id) {
+    if (asset.capabilities.edit) {
         options.push({
-            id: 'replace-asset-source',
-            title: t(
-                'save_as_button.replace_asset_source',
-                `Replace asset source`
-            ),
-            component: ReplaceAssetWithFileDialog,
+            id: 'rendition',
+            title: t('save_as_button.rendition', `Rendition`),
+
+            component: SaveFileAsRenditionDialog,
         });
+        if (asset.source?.id !== file.id) {
+            options.push({
+                id: 'replace-asset-source',
+                title: t(
+                    'save_as_button.replace_asset_source',
+                    `Replace asset source`
+                ),
+                component: ReplaceAssetWithFileDialog,
+            });
+        }
     }
 
     const handleMenuItemClick = (
@@ -169,7 +172,7 @@ export default function SaveAsButton({
                                     {options.map((option, index) => (
                                         <MenuItem
                                             key={option.id}
-                                            onClick={closeWrapper(event =>
+                                            onClick={closeWrapperFinal(event =>
                                                 handleMenuItemClick(
                                                     event,
                                                     index

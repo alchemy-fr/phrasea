@@ -1,7 +1,7 @@
 import {FieldValues, UseFormReturn} from 'react-hook-form';
-import React from 'react';
 import {AxiosError, AxiosInstance} from 'axios';
 import {type IAxiosRetryConfigExtended} from 'axios-retry';
+import type {BaseSyntheticEvent} from 'react';
 
 export type RequestMeta = {
     requestStartedAt?: number;
@@ -33,7 +33,7 @@ export type UseFormSubmitReturn<
     R = T,
     FormData extends FieldValues = T,
 > = {
-    handleSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
+    handleSubmit: (e?: BaseSyntheticEvent) => Promise<void>;
     setOnSubmit: SetOnSubmit<T, R>;
     remoteErrors: RemoteErrors;
     submitting: boolean;
@@ -42,10 +42,11 @@ export type UseFormSubmitReturn<
     forbidNavigation: boolean;
 } & Omit<UseFormReturn<FormData>, 'handleSubmit'>;
 
-export type SimpleAxiosError = {
+export type SimpleAxiosError<Data = any> = {
     code: number;
     message: string;
     error: AxiosError;
+    data: Data | undefined;
 };
 export type ErrorListener = (error: AxiosError) => void;
 
@@ -89,3 +90,9 @@ export type HydraCollectionResponse<T, E extends {} = {}> = {
     };
     'hydra:member': T[];
 } & E;
+
+export enum ApiConstant {
+    HydraTitle = 'hydra:title',
+    HydraDescription = 'hydra:description',
+    UnknownError = 'Unknown error',
+}

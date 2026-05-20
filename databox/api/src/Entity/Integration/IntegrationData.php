@@ -62,6 +62,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     'integration' => 'exact',
     'objectType' => 'exact',
     'objectId' => 'exact',
+    'userId' => 'exact',
 ])]
 class IntegrationData extends AbstractUuidEntity
 {

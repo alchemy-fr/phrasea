@@ -2,13 +2,16 @@ import type {WithTranslations} from '@alchemy/react-form';
 import {Integration} from './components/Integration/types.ts';
 import {AssetAnnotation} from './components/Media/Asset/Annotations/annotationTypes.ts';
 import {RenditionBuildMode} from './api/rendition.ts';
-import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/DefinitionManager.tsx';
 import React from 'react';
 import {AttributeType} from './api/types.ts';
 import {SortBy} from './components/Media/Search/Filter';
 import {AQLQueries} from './components/Media/Search/AQL/query.ts';
 import {ApiHydraObjectResponse} from '@alchemy/api';
 import {Editor} from '@tiptap/core';
+import {AclExtraPermission} from './components/Permissions/permissionsTypes.ts';
+import {Privacy} from './api/privacy.ts';
+import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/managerTypes.ts';
+import {UserPreferences} from './store/userPreferencesStore.ts';
 
 export type AlternateUrl = {
     type: string;
@@ -21,6 +24,7 @@ export type FileAnalysis = Record<string, any>;
 export interface ApiFile extends Entity {
     url?: string;
     type: string;
+    extension: string;
     alternateUrls: AlternateUrl[];
     size: number;
     metadata?: Record<string, any>;
@@ -48,7 +52,7 @@ export type ShareAlternateUrl = {
 };
 
 export type Share = {
-    title?: string | undefined;
+    name?: string | undefined;
     asset: Asset;
     token: string;
     startsAt?: string | undefined | null;
@@ -97,13 +101,15 @@ export type AssetAttachment = {
 export interface Asset
     extends
         IPermissions<{
-            canEditAttributes: boolean;
-            canShare: boolean;
+            edit: boolean;
+            editAttributes: boolean;
+            share: boolean;
+            delete: boolean;
         }>,
         Entity {
-    title?: string | undefined;
-    resolvedTitle?: string;
-    titleHighlight: string | null;
+    name?: string | undefined;
+    resolvedName?: string;
+    nameHighlight: string | null;
     description?: string;
     privacy: number;
     tags: Tag[] | undefined;
@@ -158,7 +164,7 @@ export interface AssetFileVersion extends Entity {
 
 export interface AttributeDefinition extends IPermissions, Entity {
     name: string;
-    nameTranslated?: string;
+    displayName: string;
     slug: string;
     searchSlug: string;
     enabled: boolean;
@@ -211,12 +217,12 @@ export interface RenditionPolicy extends ApiHydraObjectResponse, Entity {
 
 export interface FieldType extends ApiHydraObjectResponse {
     name: string;
-    title: string;
+    displayName: string;
 }
 
 export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
     name: string;
-    nameTranslated: string;
+    displayName: string;
     parent?: RenditionDefinition | string | undefined | null;
     policy: RenditionPolicy | string | null;
     workspace: Workspace | string;
@@ -233,7 +239,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
 
 export interface AssetRendition extends ApiHydraObjectResponse, Entity {
     name: string;
-    nameTranslated: string;
+    displayName: string;
     file: ApiFile | undefined;
     ready: boolean;
     dirty?: boolean;
@@ -261,9 +267,9 @@ export interface RenditionRule extends ApiHydraObjectResponse, Entity {
 }
 
 export type TPermission<E extends Record<string, boolean> = {}> = {
-    canEdit: boolean;
-    canDelete: boolean;
-    canEditPermissions: boolean;
+    edit: boolean;
+    delete: boolean;
+    editPermissions: boolean;
 } & E;
 
 export interface IPermissions<
@@ -291,20 +297,35 @@ type EntitySynonyms = {
     [locale: string]: string[];
 };
 
+export enum AttributeEntityStatus {
+    Approved = 0,
+    Pending = 1,
+    Rejected = 2,
+}
+
 export type AttributeEntity = {
     type: string;
     locale: string;
     value: string;
+    emoji?: string;
+    color?: string;
     translations: KeyTranslations;
     synonyms?: EntitySynonyms;
     createdAt: string;
     updatedAt: string;
+    status: AttributeEntityStatus;
 } & ApiHydraObjectResponse &
     Entity;
 
 export type EntityList = {
     name: string;
     definitions: AttributeDefinition[];
+    allowNewValues?: boolean;
+    approveNewValues?: boolean;
+    withTranslations?: boolean;
+    withSynonyms?: boolean;
+    withEmojis?: boolean;
+    withColors?: boolean;
     createdAt: string;
     updatedAt: string;
 } & ApiHydraObjectResponse &
@@ -312,7 +333,7 @@ export type EntityList = {
 
 export interface Tag extends ApiHydraObjectResponse, WithTranslations, Entity {
     name: string;
-    nameTranslated: string;
+    displayName: string;
     color: string | null;
     workspace: Workspace | string;
 }
@@ -326,14 +347,29 @@ export type CollectionOptionalWorkspace = {workspace?: Workspace} & Omit<
     'workspace'
 >;
 
+export type CollectionPrivacyInfo = {
+    privacy: Privacy;
+    computedPrivacy: Privacy;
+    canEditAssetPrivacy: boolean;
+};
+
 export interface Collection
-    extends IPermissions, Entity, ApiHydraObjectResponse {
-    title: string;
-    titleTranslated: string;
-    titleHighlight?: string;
+    extends
+        IPermissions<{
+            createAsset: boolean;
+            createCollection: boolean;
+            edit: boolean;
+            delete: boolean;
+        }>,
+        Entity,
+        ApiHydraObjectResponse {
+    parentId?: string;
+    name: string;
+    displayName: string;
+    nameHighlight?: string;
     storyAsset?: Asset;
-    absoluteTitle?: string;
-    absoluteTitleTranslated?: string;
+    absoluteName?: string;
+    absoluteDisplayName?: string;
     children?: CollectionOptionalWorkspace[];
     workspace: Workspace;
     public: boolean;
@@ -347,9 +383,17 @@ export interface Collection
     deleted?: boolean;
 }
 
-export interface Basket extends IPermissions, Entity {
-    title: string;
-    titleHighlight?: string | undefined;
+export interface Basket
+    extends
+        IPermissions<{
+            edit: boolean;
+            share: boolean;
+            delete: boolean;
+            editPermissions: boolean;
+        }>,
+        Entity {
+    name: string;
+    nameHighlight?: string | undefined;
     description?: string | undefined;
     descriptionHighlight?: string | undefined;
     assetCount?: number;
@@ -358,29 +402,43 @@ export interface Basket extends IPermissions, Entity {
     owner?: User;
 }
 
-export enum AttributeListItemType {
+export enum ProfileItemSection {
+    Attributes = 0,
+    Facets = 1,
+}
+
+export enum ProfileItemType {
     Definition = 0,
     BuiltIn = 1,
     Divider = 2,
     Spacer = 3,
 }
 
-export type AttributeListItem = {
+export type ProfileItem = {
     id: string;
-    type: AttributeListItemType;
+    section: ProfileItemSection;
+    type: ProfileItemType;
     key?: string;
     definition?: string;
     displayEmpty?: boolean;
     format?: string;
 };
 
-export interface AttributeList extends IPermissions, Entity {
-    title: string;
+export interface Profile
+    extends
+        IPermissions<{
+            edit: boolean;
+            delete: boolean;
+            editPermissions: boolean;
+        }>,
+        Entity {
+    name: string;
     description?: string;
-    items?: AttributeListItem[];
+    items?: ProfileItem[];
     exclusive?: boolean; // if true, only items in this list well be shown otherwise all attributes
     public?: boolean;
     createdAt: string;
+    data?: UserPreferences;
     updatedAt: string;
     owner?: User;
 }
@@ -391,8 +449,15 @@ export type SavedSearchData = {
     sortBy: SortBy[];
 };
 
-export interface SavedSearch extends IPermissions, Entity {
-    title: string;
+export interface SavedSearch
+    extends
+        IPermissions<{
+            edit: boolean;
+            delete: boolean;
+            editPermissions: boolean;
+        }>,
+        Entity {
+    name: string;
     public?: boolean;
     createdAt: string;
     updatedAt: string;
@@ -440,15 +505,15 @@ export interface ThreadMessage extends Entity {
     updatedAt: string;
     acknowledged?: boolean;
     capabilities: {
-        canDelete: boolean;
-        canEdit: boolean;
+        delete: boolean;
+        edit: boolean;
     };
 }
 
 export interface BasketAsset extends Entity {
     asset: Asset;
     context?: any;
-    titleHighlight: string;
+    nameHighlight: string;
     position: number;
     createdAt: string;
     owner?: User;
@@ -463,9 +528,16 @@ export type LastErrors = {
     line: number;
 }[];
 
-export interface Workspace extends IPermissions, Entity {
+export interface Workspace
+    extends
+        IPermissions<{
+            createCollection: boolean;
+            createAsset: boolean;
+            edit: boolean;
+        }>,
+        Entity {
     name: string;
-    nameTranslated: string;
+    displayName: string;
     fileAnalyzers?: string;
     trashRetentionDelay?: number;
     enabledLocales?: string[] | undefined;
@@ -488,11 +560,18 @@ export type IntegrationConfigKey = {
     value: string | undefined;
 };
 
-export interface WorkspaceIntegration extends DefinitionBase {
-    title: string;
+export interface WorkspaceIntegration
+    extends
+        DefinitionBase,
+        IPermissions<{
+            use: boolean;
+            interact: boolean;
+        }> {
+    name: string;
+    public: boolean;
     enabled: boolean;
     integration: Integration;
-    integrationTitle: string;
+    integrationName: string;
     data: IntegrationData[];
     config: object;
     configYaml: string;
@@ -507,7 +586,7 @@ export interface WorkspaceIntegration extends DefinitionBase {
 
 export interface IntegrationType {
     id: string;
-    title: string;
+    displayName: string;
     name: string;
     reference: string;
 }
@@ -555,6 +634,7 @@ export type Ace = (
     userId: string | null;
     userType: UserType;
     resolving?: boolean;
+    metadata?: AclExtraPermission[];
 } & Entity;
 
 export type StateSetter<T> = (handler: T | ((prev: T) => T)) => void;

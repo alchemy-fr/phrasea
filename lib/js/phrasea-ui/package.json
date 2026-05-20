@@ -20,7 +20,7 @@
         "styled-components": "^6.1.19"
     },
     "devDependencies": {
-        "@4rthem/i18next-scanner": "^0.0.1",
+        "@4rthem/i18next-scanner": "^0.0.3",
         "@mui/icons-material": "^6.5.0",
         "@mui/material": "^6.5.0",
         "@types/react": "^18.3.24",

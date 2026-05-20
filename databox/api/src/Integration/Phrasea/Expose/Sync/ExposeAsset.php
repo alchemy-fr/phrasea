@@ -8,7 +8,7 @@ final readonly class ExposeAsset
         public string $id,
         public string $basketAssetId,
         public string $fileId,
-        public ?string $title,
+        public ?string $name,
         public ?string $description,
         public array $translations,
         /**

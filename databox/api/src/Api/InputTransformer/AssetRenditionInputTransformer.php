@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Input\AssetRenditionInput;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\RenditionDefinition;
+use App\Security\Voter\AbstractVoter;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class AssetRenditionInputTransformer extends AbstractFileInputTransformer
 {
+    use SecurityAwareTrait;
+
     public function supports(string $resourceClass, object $data): bool
     {
         return AssetRendition::class === $resourceClass && $data instanceof AssetRenditionInput;
@@ -43,6 +47,8 @@ class AssetRenditionInputTransformer extends AbstractFileInputTransformer
             $object->setAsset($asset);
             $asset->getRenditions()->removeElement($object);
         }
+
+        $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $object);
 
         $workspace = $object->getAsset()->getWorkspace();
         $file = $this->handleSource($data->sourceFile, $workspace)

@@ -167,7 +167,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
         return 'aws.rekognition';
     }
 
-    public static function getTitle(): string
+    public static function getDisplayName(): string
     {
         return 'AWS Rekognition';
     }

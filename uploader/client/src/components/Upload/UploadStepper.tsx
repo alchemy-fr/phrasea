@@ -53,6 +53,7 @@ export default function UploadStepper({target}: Props) {
 
     const onSubmitForm = React.useCallback<OnSubmitForm>(
         (data: UploadFormData, schemaId?: string) => {
+            // eslint-disable-next-line react-hooks/immutability
             uploadBatch.formData = data;
             uploadBatch.schemaId = schemaId;
             setStep(Step.Progress);

@@ -153,6 +153,8 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
 
     private const string OPT_EDITABLE_IN_GUI = 'gui-edit';
 
+    final public const string TR_FIELD_NAME = 'name';
+
     /**
      * Override trait for annotation.
      */

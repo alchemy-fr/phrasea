@@ -1,3 +1,4 @@
+import {getExtensionFromMIMEType} from './mimeTypes';
 import {FileTypeEnum} from './types';
 
 export function getFileTypeFromMIMEType(
@@ -42,6 +43,12 @@ export function dataURLtoFile(dataurl: string, filename: string): File {
         u8arr[n - 1] = s.charCodeAt(n - 1);
         --n;
     }
+
+    const extension = getExtensionFromMIMEType(mime);
+    if (extension) {
+        filename += `.${extension}`;
+    }
+
     return new File([u8arr], filename, {type: mime});
 }
 

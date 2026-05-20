@@ -1,4 +1,4 @@
-import {AttributeEntity} from '../../types.ts';
+import {AttributeEntity, EntityList} from '../../types.ts';
 import {useTranslation} from 'react-i18next';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps, useFormPrompt, useModals} from '@alchemy/navigation';
@@ -13,7 +13,7 @@ import {useWorkspace} from '../../hooks/useWorkspace.ts';
 
 type Props = {
     value: string;
-    list: string;
+    list: EntityList;
     workspaceId: string;
     onCreate: (entity: AttributeEntity) => void;
 } & StackedModalProps;
@@ -41,7 +41,7 @@ export default function CreateAttributeEntityDialog({
                 translations: getNonEmptyTranslations(data.translations ?? {}),
             };
 
-            return await postAttributeEntity(list, d);
+            return await postAttributeEntity(list.id, d);
         },
         onSuccess: data => {
             onCreate(data);
@@ -85,6 +85,7 @@ export default function CreateAttributeEntityDialog({
                 <AttributeEntityFields
                     usedFormSubmit={usedFormSubmit}
                     workspace={workspace}
+                    list={list}
                 />
                 <RemoteErrors errors={remoteErrors} />
             </form>

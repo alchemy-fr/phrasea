@@ -38,7 +38,7 @@ export default function AttributeRowUI({
     assetAnnotationsRef,
 }: Props) {
     const {t, i18n} = useTranslation();
-    const {nameTranslated, name, fieldType, multiple} = definition;
+    const {displayName, name, fieldType, multiple} = definition;
     const formatter = getAttributeType(fieldType);
     const [overControls, setOverControls] = React.useState(false);
 
@@ -83,7 +83,7 @@ export default function AttributeRowUI({
             onMouseLeave={() => setOverControls(false)}
         >
             <div className={attributesClasses.name}>
-                {nameTranslated ?? name}
+                {displayName ?? name}
                 {displayControls ? (
                     <div className={attributesClasses.controls}>
                         {overControls ? (
@@ -147,6 +147,12 @@ export default function AttributeRowUI({
 
                                   const isRtl = isRtlLocale(a.locale);
 
+                                  const value =
+                                      formatter.formatValue(formatProps);
+                                  if (undefined === value || null === value) {
+                                      return null;
+                                  }
+
                                   return (
                                       <li
                                           key={i}
@@ -162,7 +168,7 @@ export default function AttributeRowUI({
                                               copyToClipBoardContainerClass
                                           }
                                       >
-                                          {formatter.formatValue(formatProps)}
+                                          {value}
                                           {displayControls &&
                                           assetAnnotationsRef?.current &&
                                           a.assetAnnotations ? (
@@ -196,7 +202,7 @@ export default function AttributeRowUI({
                             : null}
                     </ul>
                 ) : (
-                    <>{formatter.formatValue(valueFormatterProps)}</>
+                    formatter.formatValue(valueFormatterProps)
                 )}
             </div>
         </div>

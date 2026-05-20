@@ -31,14 +31,15 @@ class AttributePolicyVoter extends AbstractVoter
             return true;
         }
 
-        $workspaceEditor = fn (): bool => $this->security->isGranted(self::EDIT, $subject->getWorkspace(), $token);
-        $workspaceReader = fn (): bool => $this->security->isGranted(self::READ, $subject->getWorkspace(), $token);
+        $isWorkspaceEditor = fn (): bool => $this->security->isGranted(self::EDIT, $subject->getWorkspace());
+        $isWorkspaceReader = fn (): bool => $this->security->isGranted(self::READ, $subject->getWorkspace());
 
         return match ($attribute) {
-            self::CREATE, self::EDIT, self::DELETE => $workspaceEditor()
+            self::CREATE, self::EDIT, self::DELETE => $isWorkspaceEditor()
                 || $this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX),
-            self::READ_ADMIN => $workspaceEditor() || $this->tokenHasScope($token, self::READ, self::SCOPE_PREFIX),
-            self::READ => $workspaceReader() || $this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX),
+            self::EDIT_PERMISSIONS => $isWorkspaceEditor(),
+            self::READ_ADMIN => $isWorkspaceEditor() || $this->tokenHasScope($token, self::READ, self::SCOPE_PREFIX),
+            self::READ => $isWorkspaceReader() || $this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX),
             default => false,
         };
     }

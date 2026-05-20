@@ -31,8 +31,8 @@ class ThreadMessageOutput extends AbstractUuidOutput
     #[ApiProperty(jsonSchemaContext: [
         'type' => 'object',
         'properties' => [
-            'canEdit' => 'boolean',
-            'canDelete' => 'boolean',
+            'edit' => 'boolean',
+            'delete' => 'boolean',
         ],
     ])]
     #[Groups([Message::GROUP_LIST, Message::GROUP_READ])]

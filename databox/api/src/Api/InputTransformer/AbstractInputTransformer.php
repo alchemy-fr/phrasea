@@ -13,6 +13,7 @@ use App\Api\Model\Input\CollectionInput;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -27,15 +28,16 @@ abstract class AbstractInputTransformer implements InputTransformerInterface
 
     protected function transformPrivacy(AssetInput|CollectionInput $data, Asset|Collection $object): void
     {
-        if (null !== $data->privacy) {
-            $object->setPrivacy($data->privacy);
-        }
-        if (null !== $data->privacyLabel) {
-            $constantName = WorkspaceItemPrivacyInterface::class.'::'.strtoupper($data->privacyLabel);
-            if (!defined($constantName)) {
-                throw new BadRequestHttpException(sprintf('Invalid privacyLabel "%s"', $data->privacyLabel));
+        if ($this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $object)) {
+            if (null !== $data->privacy) {
+                $object->setPrivacy($data->privacy);
+            } elseif (null !== $data->privacyLabel) {
+                $constantName = WorkspaceItemPrivacyInterface::class.'::'.strtoupper($data->privacyLabel);
+                if (!defined($constantName)) {
+                    throw new BadRequestHttpException(sprintf('Invalid privacyLabel "%s"', $data->privacyLabel));
+                }
+                $object->setPrivacy(constant($constantName));
             }
-            $object->setPrivacy(constant($constantName));
         }
     }
 

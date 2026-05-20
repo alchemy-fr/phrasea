@@ -40,6 +40,23 @@ describe('Visit publication', () => {
         assertDimensionsEquals(1000, 1000 * ratio, 'img');
 
         cy.get('body').trigger('keydown', {key: 'ArrowRight'});
+        cy.contains('A classic image');
+        cy.contains('This is a classic image');
+        ratio = 683 / 1024;
+
+        cy.viewport(320, 480); // Mobile
+        cy.get('.lightbox').should('be.visible');
+        assertDimensionsEquals(320, 320 * ratio, 'img');
+
+        cy.viewport(768, 1024); // Tablet
+        cy.get('.lightbox').should('be.visible');
+        assertDimensionsEquals(768, 768 * ratio, 'img');
+
+        cy.viewport(1280, 800); // Desktop
+        cy.get('.lightbox').should('be.visible');
+        assertDimensionsEquals(1016, 1016 * ratio, 'img');
+
+        cy.get('body').trigger('keydown', {key: 'ArrowRight'});
         cy.contains('A tall image');
         cy.contains('This is a tall image');
         ratio = 1000 / 100;
@@ -57,8 +74,8 @@ describe('Visit publication', () => {
         assertDimensionsEquals(68.8555, 68.8555 * ratio, 'img');
 
         cy.get('body').trigger('keydown', {key: 'ArrowLeft'});
-        cy.contains('A wide image');
-        cy.contains('This is a wide image');
+        cy.contains('A classic image');
+        cy.contains('This is a classic image');
 
         cy.get('body').trigger('keydown', {key: 'ArrowRight'});
         cy.contains('A tall image');
@@ -93,7 +110,7 @@ describe('Visit publication', () => {
 
         cy.viewport(1280, 800); // Desktop
         cy.get('.lightbox').should('be.visible');
-        assertDimensionsEquals(1073.96555, 1073.96555 * ratio, 'video');
+        assertDimensionsEquals(1016, 1016 * ratio, 'video');
 
         cy.get('body').trigger('keydown', {key: 'ArrowRight'});
         cy.contains('A tall video');

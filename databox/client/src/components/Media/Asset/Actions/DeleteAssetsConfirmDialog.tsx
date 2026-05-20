@@ -52,7 +52,7 @@ export default function DeleteAssetsConfirmDialog({
             collections: !moveToTrash ? selection : [],
             hardDelete: (moveToTrash || selection.length === 0) && hardDelete,
         });
-        onDelete && onDelete();
+        onDelete?.();
     };
 
     if (collections.length === 0 && !data.canDelete) {
@@ -150,11 +150,8 @@ export default function DeleteAssetsConfirmDialog({
                                             <Trans
                                                 i18nKey="asset.delete.remove_from_story"
                                                 values={{
-                                                    name:
-                                                        collection.storyAsset
-                                                            .resolvedTitle ||
-                                                        collection.storyAsset
-                                                            .title,
+                                                    name: collection.storyAsset
+                                                        .resolvedName,
                                                 }}
                                                 defaults={`Remove from story <strong>{{name}}</strong>`}
                                                 components={{
@@ -171,7 +168,7 @@ export default function DeleteAssetsConfirmDialog({
                                             <Trans
                                                 i18nKey="asset.delete.remove_from_collection"
                                                 values={{
-                                                    name: collection.absoluteTitleTranslated,
+                                                    name: collection.absoluteDisplayName,
                                                 }}
                                                 defaults={`Remove from collection <strong>{{name}}</strong>`}
                                                 components={{

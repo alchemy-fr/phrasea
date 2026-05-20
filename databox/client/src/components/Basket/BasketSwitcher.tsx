@@ -81,7 +81,7 @@ export default function BasketSwitcher<Item extends AssetOrAssetContainer>({
                     )
                 }
             >
-                {current?.title || t('basket.default.title', 'My Basket')}
+                {current?.name || t('basket.default.name', 'My Basket')}
                 {current?.assetCount ? (
                     <>
                         {' '}

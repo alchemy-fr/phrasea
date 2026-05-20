@@ -28,11 +28,7 @@ import {
     SelectOption,
     TranslatedField,
 } from '@alchemy/react-form';
-import DefinitionManager, {
-    DefinitionItemFormProps,
-    DefinitionItemProps,
-    OnSort,
-} from './DefinitionManager/DefinitionManager.tsx';
+import DefinitionManager from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import AttributePolicySelect from '../../Form/AttributePolicySelect';
 import FieldTypeSelect from '../../Form/FieldTypeSelect';
@@ -54,6 +50,11 @@ import AssetTypeFilterSelect, {
     denormalizeAssetTypeFilterValue,
 } from '../../Form/AssetTypeFilterSelect.tsx';
 import {apiClient} from '../../../init.ts';
+import {
+    DefinitionItemFormProps,
+    DefinitionItemProps,
+    OnSort,
+} from './DefinitionManager/managerTypes.ts';
 
 function Item({
     usedFormSubmit,
@@ -378,7 +379,7 @@ function ListItem({data}: DefinitionItemProps<AttributeDefinition>) {
                 )}
             </ListItemIcon>
             <ListItemText
-                primary={data.nameTranslated ?? data.name}
+                primary={data.displayName ?? data.name}
                 primaryTypographyProps={{
                     color: data.enabled ? undefined : 'error',
                 }}
@@ -451,7 +452,7 @@ export default function AttributeDefinitionManager({
             searchFilter={({items}, value) =>
                 search<AttributeDefinition>(
                     items,
-                    ['nameTranslated', 'name'],
+                    ['displayName', 'name'],
                     value
                 )
             }

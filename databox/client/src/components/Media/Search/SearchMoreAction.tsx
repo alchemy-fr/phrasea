@@ -79,17 +79,19 @@ export default function SearchMoreAction({search}: Props) {
                                 lastSavedChecksum === search.searchChecksum)
                         }
                         onClick={closeWrapper(() => {
-                            search.searchId
-                                ? updateSearch()
-                                : openModal(SaveSearchDialog, {
-                                      search,
-                                      onCreate: savedSearch => {
-                                          search.setSearchId(savedSearch.id);
-                                          setLastSavedChecksum(
-                                              search.searchChecksum
-                                          );
-                                      },
-                                  });
+                            if (search.searchId) {
+                                updateSearch();
+                            } else {
+                                openModal(SaveSearchDialog, {
+                                    search,
+                                    onCreate: savedSearch => {
+                                        search.setSearchId(savedSearch.id);
+                                        setLastSavedChecksum(
+                                            search.searchChecksum
+                                        );
+                                    },
+                                });
+                            }
                         })}
                     >
                         <ListItemIcon>

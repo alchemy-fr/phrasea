@@ -4,6 +4,9 @@
             "menu": {
                 "account": "Mon compte",
                 "logout": "Déconnexion"
+            },
+            "load_more": {
+                "label": "Charger Plus"
             }
         }
     }

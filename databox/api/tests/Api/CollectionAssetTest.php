@@ -16,7 +16,7 @@ class CollectionAssetTest extends AbstractSearchTestCase
         self::enableFixtures();
 
         $assetIri = $this->findIriBy(Asset::class, ['key' => 'foo']);
-        $collectionIri = $this->findIriBy(Collection::class, ['title' => 'Collection #1']);
+        $collectionIri = $this->findIriBy(Collection::class, ['name' => 'Collection #1']);
 
         static::createClient()->request('POST', '/collection-assets', [
             'headers' => [
@@ -45,13 +45,13 @@ class CollectionAssetTest extends AbstractSearchTestCase
 
         static::createClient()->request('DELETE', '/collection-assets/'.$id, [
             'headers' => [
-                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::OTHER_USER_UID),
             ],
         ]);
         $this->assertResponseStatusCodeSame(403);
         static::createClient()->request('DELETE', '/collection-assets/'.$id, [
             'headers' => [
-                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             ],
         ]);
         $this->assertResponseIsSuccessful();

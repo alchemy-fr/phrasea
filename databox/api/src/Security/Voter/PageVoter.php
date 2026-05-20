@@ -37,7 +37,9 @@ class PageVoter extends AbstractVoter
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
         return match ($attribute) {
-            self::CREATE => $this->hasAcl(PermissionInterface::CREATE, $subject, $token),
+            self::CREATE => $this->hasAcl(PermissionInterface::CREATE, $subject, $token, ownershipGrants: false)
+                || $this->isAdmin()
+            ,
             self::READ => ($subject->isPublic() && $subject->isEnabled())
                 || ($this->hasAcl(PermissionInterface::VIEW, $subject, $token) && $subject->isEnabled())
                 || $isOwner(),

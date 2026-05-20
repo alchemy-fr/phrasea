@@ -31,7 +31,7 @@ import SaveIcon from '@mui/icons-material/Save';
 
 type Props = {
     asset: Asset;
-    title: string | undefined;
+    name: string | undefined;
     rendition: AssetRendition;
     dimensions: Dimensions;
     onDelete: () => Promise<void>;
@@ -39,7 +39,7 @@ type Props = {
 };
 
 export function Rendition({
-    title,
+    name,
     asset,
     dimensions,
     rendition,
@@ -49,7 +49,7 @@ export function Rendition({
     const {t} = useTranslation();
     const [deleting, setDeleting] = React.useState(false);
     const navigateToModal = useNavigateToModal();
-    const {nameTranslated, file, dirty, substituted, projection, locked} =
+    const {displayName, file, dirty, substituted, projection, locked} =
         rendition;
 
     const deleteRendition = async () => {
@@ -67,7 +67,7 @@ export function Rendition({
 
     return (
         <RenditionStructure
-            title={
+            name={
                 <Box
                     sx={{
                         'display': 'flex',
@@ -79,7 +79,7 @@ export function Rendition({
                         },
                     }}
                 >
-                    <div>{nameTranslated}</div>
+                    <div>{displayName}</div>
                     {locked && (
                         <Tooltip
                             title={t(
@@ -131,7 +131,7 @@ export function Rendition({
                     <FilePlayer
                         file={file}
                         trackingId={asset.resolvedTrackingId}
-                        title={title}
+                        title={name}
                         dimensions={dimensions}
                         autoPlayable={false}
                         controls={true}
@@ -180,7 +180,6 @@ export function Rendition({
             }
             actions={
                 <MoreActionsButton
-                    disablePortal={false}
                     anchorOrigin={{
                         vertical: 'bottom',
                         horizontal: 'left',
@@ -209,7 +208,11 @@ export function Rendition({
                                     />
                                 </MenuItem>
                             );
-                            if (rendition.definition.substitutable) {
+
+                            if (
+                                asset.capabilities.edit &&
+                                rendition.definition.substitutable
+                            ) {
                                 actions.push(
                                     <MenuItem
                                         key={'replace'}
@@ -238,7 +241,7 @@ export function Rendition({
                                     Component={MenuItem}
                                 />
                             );
-                        } else {
+                        } else if (asset.capabilities.edit) {
                             actions.push(
                                 <MenuItem
                                     key={'upload'}
@@ -257,22 +260,27 @@ export function Rendition({
                             );
                         }
 
-                        actions.push(<Divider key={'div1'} />);
-                        actions.push(
-                            <MenuItem
-                                key={'delete'}
-                                onClick={closeWrapper(deleteRendition)}
-                                disabled={deleting}
-                                color={'error'}
-                            >
-                                <ListItemIcon>
-                                    <DeleteIcon />
-                                </ListItemIcon>
-                                <ListItemText
-                                    primary={t('renditions.delete', 'Delete')}
-                                />
-                            </MenuItem>
-                        );
+                        if (asset.capabilities.edit) {
+                            actions.push(<Divider key={'div1'} />);
+                            actions.push(
+                                <MenuItem
+                                    key={'delete'}
+                                    onClick={closeWrapper(deleteRendition)}
+                                    disabled={deleting}
+                                    color={'error'}
+                                >
+                                    <ListItemIcon>
+                                        <DeleteIcon />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={t(
+                                            'renditions.delete',
+                                            'Delete'
+                                        )}
+                                    />
+                                </MenuItem>
+                            );
+                        }
 
                         return actions;
                     }}

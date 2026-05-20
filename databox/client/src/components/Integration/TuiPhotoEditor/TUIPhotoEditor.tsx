@@ -84,13 +84,15 @@ export default function TUIPhotoEditor({
     const [saving, setSaving] = useState<boolean>(false);
     const [selectedFile, setSelectedFile] = useState<ApiFile>(file);
     const [deleting, setDeleting] = useState<string | undefined>();
-    const canEdit = asset.capabilities.canEdit;
+    const canEdit = asset.capabilities.edit;
     const {data, load: loadData} = useIntegrationData({
         objectType: ObjectType.File,
         objectId: file.id,
         integrationId: integration.id,
         defaultData: integration.data,
     });
+
+    const allowed = !!integration.capabilities.interact;
 
     useChannelRegistration(
         `file-${file.id}`,
@@ -175,31 +177,36 @@ export default function TUIPhotoEditor({
 
     return (
         <>
-            <IntegrationPanelContent>
-                <Typography>
-                    {t('tuiphoto_editor.save_as', `Save as`)}
-                </Typography>
-                <TextField
-                    value={fileName}
-                    onChange={e => {
-                        setFileName(e.target.value);
-                    }}
-                    disabled={!canEdit || saving}
-                    placeholder={t('tuiphoto_editor.file_name', `File name`)}
-                />
-                <Button
-                    sx={{
-                        mt: 1,
-                    }}
-                    startIcon={<SaveIcon />}
-                    variant={'contained'}
-                    onClick={saveAs}
-                    disabled={!canEdit || !fileName}
-                    loading={saving}
-                >
-                    {t('tuiphoto_editor.save', `Save`)}
-                </Button>
-            </IntegrationPanelContent>
+            {allowed ? (
+                <IntegrationPanelContent>
+                    <Typography>
+                        {t('tuiphoto_editor.save_as', `Save as`)}
+                    </Typography>
+                    <TextField
+                        value={fileName}
+                        onChange={e => {
+                            setFileName(e.target.value);
+                        }}
+                        disabled={!canEdit || saving}
+                        placeholder={t(
+                            'tuiphoto_editor.file_name',
+                            `File name`
+                        )}
+                    />
+                    <Button
+                        sx={{
+                            mt: 1,
+                        }}
+                        startIcon={<SaveIcon />}
+                        variant={'contained'}
+                        onClick={saveAs}
+                        disabled={!canEdit || !fileName}
+                        loading={saving}
+                    >
+                        {t('tuiphoto_editor.save', `Save`)}
+                    </Button>
+                </IntegrationPanelContent>
+            ) : null}
 
             {data!.pages.length > 0 && (
                 <List>

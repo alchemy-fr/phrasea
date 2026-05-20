@@ -255,6 +255,7 @@ services:
     environment:
       - S3_REQUEST_SIGNATURE_TTL=${DATABOX_REQUEST_SIGNATURE_TTL}
       - DATABOX_API_URL
+      - DATABOX_CLIENT_URL
       - CLIENT_ID=${DATABOX_CLIENT_ID}
       - ALLOWED_FILE_TYPES=${DATABOX_ALLOWED_FILE_TYPES}
       - SOKETI_KEY
@@ -275,6 +276,7 @@ services:
       - expose
     environment:
       - EXPOSE_API_URL
+      - EXPOSE_CLIENT_URL
       - S3_REQUEST_SIGNATURE_TTL=${EXPOSE_REQUEST_SIGNATURE_TTL}
       - CLIENT_ID=${EXPOSE_CLIENT_ID}
       - DISABLE_INDEX_PAGE=${EXPOSE_DISABLE_INDEX_PAGE}
@@ -295,6 +297,7 @@ services:
       - uploader
     environment:
       - UPLOADER_API_URL
+      - UPLOADER_CLIENT_URL
       - CLIENT_ID=${UPLOADER_CLIENT_ID}
       - ALLOWED_FILE_TYPES=${UPLOADER_ALLOWED_FILE_TYPES}
     labels:
@@ -583,6 +586,7 @@ services:
     networks:
       - internal
     environment:
+      - DASHBOARD_CLIENT_URL
       - DATABOX_API_URL
       - DATABOX_CLIENT_URL
       - DEV_MODE

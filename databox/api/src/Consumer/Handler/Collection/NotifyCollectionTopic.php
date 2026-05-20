@@ -9,7 +9,7 @@ final readonly class NotifyCollectionTopic
         private string $collectionId,
         private string $authorId,
         private ?string $assetId,
-        private ?string $assetTitle = null,
+        private ?string $assetName = null,
     ) {
     }
 
@@ -33,8 +33,8 @@ final readonly class NotifyCollectionTopic
         return $this->assetId;
     }
 
-    public function getAssetTitle(): ?string
+    public function getAssetName(): ?string
     {
-        return $this->assetTitle;
+        return $this->assetName;
     }
 }

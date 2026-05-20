@@ -1,7 +1,7 @@
 import {initSentry, logError, setSentryUser} from './src/sentry';
 import {ErrorBoundary} from '@sentry/react';
 import {createPusher, registerPusherWs} from './src/pusher';
-import {deepEquals} from './src/objectUtils';
+import {deepEquals, forceObject} from './src/objectUtils';
 import {parseInlineStyle} from './src/style';
 import {isObject, mergeDeep} from './src/merge';
 import {resolveSx, sumSpacing} from './src/sxUtils';
@@ -15,7 +15,12 @@ import {
     getRatioDimensions,
     getSizeCase,
 } from './src/sizeUtils';
+
+import {getExtensionFromMIMEType, getMimeTypesMap} from './src/mimeTypes';
+
 export {
+    getMimeTypesMap,
+    getExtensionFromMIMEType,
     initSentry,
     logError,
     ErrorBoundary,
@@ -23,6 +28,7 @@ export {
     registerPusherWs,
     createPusher,
     deepEquals,
+    forceObject,
     parseInlineStyle,
     mergeDeep,
     isObject,

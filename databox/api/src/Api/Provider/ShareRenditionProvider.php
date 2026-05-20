@@ -7,12 +7,10 @@ namespace App\Api\Provider;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\MessengerBundle\Listener\TerminateStackListener;
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\State\ProviderInterface;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Share;
 use App\Repository\Core\ShareRepository;
-use App\Security\RenditionPermissionManager;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\FileUrlResolver;
 use App\Service\Storage\RenditionManager;
@@ -28,8 +26,6 @@ final class ShareRenditionProvider implements ProviderInterface
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly RenditionManager $renditionManager,
-        private readonly UrlGeneratorInterface $urlGenerator,
-        private readonly RenditionPermissionManager $renditionPermissionManager,
         private readonly FileUrlResolver $fileUrlResolver,
         private readonly ShareRepository $shareRepository,
         private readonly TerminateStackListener $terminateStackListener,
@@ -62,10 +58,10 @@ final class ShareRenditionProvider implements ProviderInterface
             $matomoTracker = new \MatomoTracker((int) $this->matomoSiteId, $this->matomoUrl);
             $asset = $item->getAsset();
             $trackingId = $asset->getResolvedTrackingId();
-            $title = $asset->getTitle();
+            $name = $asset->getName();
 
-            $this->terminateStackListener->addCallback(function () use ($matomoTracker, $title, $trackingId) {
-                $matomoTracker->doTrackContentImpression($title, $trackingId);
+            $this->terminateStackListener->addCallback(function () use ($matomoTracker, $name, $trackingId) {
+                $matomoTracker->doTrackContentImpression($name, $trackingId);
             });
 
             return new RedirectResponse($this->fileUrlResolver->resolveUrl($file));

@@ -1,8 +1,8 @@
 import React from 'react';
 import axios, {AxiosError} from 'axios';
 import {useTranslation} from 'react-i18next';
-import {hydraDescriptionKey} from './utils';
 import {ToastOptions} from 'react-toastify';
+import {ApiConstant} from './types';
 
 type OnError = (message: string, options: ToastOptions) => void;
 
@@ -14,7 +14,7 @@ type Options = {
 export default function useRequestErrorHandler({onError, logout}: Options) {
     const {t} = useTranslation();
 
-    return React.useCallback((error: AxiosError<any>) => {
+    return React.useCallback(async (error: AxiosError<any>) => {
         const config = error.config;
         if (config?.errorHandled || (axios.isCancel(error) as boolean)) {
             return;
@@ -22,8 +22,11 @@ export default function useRequestErrorHandler({onError, logout}: Options) {
 
         const axiosRetry = config?.['axios-retry'];
         if (axiosRetry && axiosRetry.retries) {
-            if ((axiosRetry.retryCount ?? 0) < axiosRetry.retries!) {
-                return;
+            const rc = axiosRetry.retryCondition;
+            if (!rc || (await rc(error))) {
+                if ((axiosRetry.retryCount ?? 0) < axiosRetry.retries!) {
+                    return;
+                }
             }
         }
 
@@ -56,10 +59,9 @@ export default function useRequestErrorHandler({onError, logout}: Options) {
                         toastId: 'session_expired',
                     }
                 );
-                logout &&
-                    logout(
-                        window.location.href.replace(window.location.origin, '')
-                    );
+                logout?.(
+                    window.location.href.replace(window.location.origin, '')
+                );
                 break;
             case 403:
                 onError(
@@ -72,14 +74,14 @@ export default function useRequestErrorHandler({onError, logout}: Options) {
                 break;
             case 400:
                 onError(
-                    error.response?.data[hydraDescriptionKey] ??
+                    error.response?.data[ApiConstant.HydraDescription] ??
                         t('lib.api.error.http_bad_request', 'Bad Request'),
                     defaultOptions
                 );
                 break;
             case 404:
                 onError(
-                    error.response?.data[hydraDescriptionKey] ??
+                    error.response?.data[ApiConstant.HydraDescription] ??
                         t('lib.api.error.http_not_found', 'Not Found'),
                     defaultOptions
                 );
@@ -89,7 +91,7 @@ export default function useRequestErrorHandler({onError, logout}: Options) {
                 break;
             case 429:
                 onError(
-                    data?.[hydraDescriptionKey] ||
+                    data?.[ApiConstant.HydraDescription] ||
                         data?.detail ||
                         t('lib.api.http_error.429', {
                             defaultValue:

@@ -66,7 +66,7 @@ class AwsTranslateIntegration extends AbstractAwsIntegration implements Workflow
         ];
     }
 
-    public static function getTitle(): string
+    public static function getDisplayName(): string
     {
         return 'AWS Translate';
     }

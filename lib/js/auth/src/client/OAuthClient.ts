@@ -551,7 +551,7 @@ function createAxiosInterceptor<UIR extends UserInfoResponse>(
                         if (err.response && 400 === err.response.status) {
                             oauthClient.logout();
 
-                            onTokenError && onTokenError(err);
+                            onTokenError?.(err);
 
                             throw e;
                         }
@@ -585,7 +585,7 @@ export function normalizeRedirectUri(uri: string): string {
 export function inIframe(): boolean {
     try {
         return window.self !== window.top;
-    } catch (e) {
+    } catch (_e) {
         return true;
     }
 }

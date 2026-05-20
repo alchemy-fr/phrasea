@@ -35,10 +35,10 @@ class ThreadVoter extends AbstractVoter
 
         switch ($attribute) {
             case self::READ:
-                return $this->security->isGranted(self::READ, $object, $token);
+                return $this->security->isGranted(self::READ, $object);
             case self::EDIT:
                 return $this->security->isGranted(JwtUser::IS_AUTHENTICATED_FULLY)
-                    && $this->security->isGranted(self::READ, $object, $token);
+                    && $this->security->isGranted(self::READ, $object);
         }
 
         return false;

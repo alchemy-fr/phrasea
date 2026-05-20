@@ -46,7 +46,7 @@ export default function LinkDialog({open, editor, currentLinkSpec}: Props) {
     return (
         <AppDialog
             open={open}
-            title={t('editor.link.dialog.title', 'Insert Link')}
+            title={t('editor.link.dialog.dialog_title', 'Insert Link')}
             onClose={() => closeModal()}
             actions={({onClose}) => {
                 return (

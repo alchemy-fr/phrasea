@@ -61,7 +61,11 @@ export default function TermsDialog({
                                     i18nKey={'terms.dialog.please_read_accept'}
                                     components={{
                                         link: (
-                                            <a href={url} target={'_blank'} />
+                                            <a
+                                                href={url}
+                                                target={'_blank'}
+                                                rel="noreferrer"
+                                            />
                                         ),
                                     }}
                                     defaults={`Please Read and Accept the <link>Terms</link>`}

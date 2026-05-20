@@ -137,13 +137,16 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
             );
 
             logger.info(`Importing status-bits structure`);
-            const tagIndex = await importStatusBitsStructure(
-                databoxClient,
-                workspaceId,
-                phraseanetDatabox.databox_id,
-                phraseanetClient,
-                logger
-            );
+            let tagIndex: TagIndex = {};
+            if (dm.importStatusBits !== false) {
+                tagIndex = await importStatusBitsStructure(
+                    databoxClient,
+                    workspaceId,
+                    phraseanetDatabox.databox_id,
+                    phraseanetClient,
+                    logger
+                );
+            }
 
             logger.info(`Importing subdefs structure`);
             const subdefToRendition = await importSubdefsStructure(
@@ -377,7 +380,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                     collectionKeyPrefix,
                                     branch.map(k => ({
                                         key: k,
-                                        title: k,
+                                        name: k,
                                     }))
                                 );
                             copyTo.push({
@@ -487,7 +490,7 @@ async function importStory(
     idempotencePrefixes: Record<string, string>,
     logger: Logger
 ) {
-    const storyTitle = escapeSlashes(
+    const storyName = escapeSlashes(
         (
             story.title ?? 'story_' + story.databox_id + '_' + story.story_id
         ).trim()
@@ -523,7 +526,7 @@ async function importStory(
                     collectionKeyPrefix,
                     storyCollectionBasePathParts.map(k => ({
                         key: k,
-                        title: k,
+                        name: k,
                     }))
                 ));
         }
@@ -537,12 +540,12 @@ async function importStory(
                     story.databox_id +
                     '_' +
                     story.story_id,
-                title: storiesAsCollections ? storyTitle : undefined,
+                name: storiesAsCollections ? storyName : undefined,
                 parent: storyCollectionBaseURI,
             }
         );
         storyCollectionFullPath =
-            (storyCollectionBasePath ?? '') + '/' + storyTitle;
+            (storyCollectionBasePath ?? '') + '/' + storyName;
     } else {
         // create phraseanet story as phrasea story (storyAsset + hidden collection)
         // eslint-disable-next-line no-useless-assignment
@@ -571,7 +574,7 @@ async function importStory(
                 collectionKeyPrefix ?? '',
                 branch.map(k => ({
                     key: k,
-                    title: k,
+                    name: k,
                 }))
             );
         } catch (e: any) {
@@ -615,7 +618,7 @@ async function importStory(
             collection: collId ? '/collections/' + collId : undefined,
             generateRenditions: storyAsset.generateRenditions,
             key: storyAsset.key,
-            title: storyAsset.title || p.basename(storyAssetBasePath),
+            name: storyAsset.name || p.basename(storyAssetBasePath),
             attributes: storyAsset.attributes,
             tags: storyAsset.tags,
             renditions: storyAsset.renditions,

@@ -31,6 +31,7 @@ export default function SuggestionPanel<T = string>(props: Props<T>) {
                 enabled: !!props.definition && !!props.valueContainer,
             },
         ];
+        // eslint-disable-next-line react-hooks/use-memo
     }, [!props.definition, !!props.valueContainer]);
 
     return (

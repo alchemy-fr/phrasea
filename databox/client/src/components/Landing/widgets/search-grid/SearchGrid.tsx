@@ -6,7 +6,7 @@ import AssetList from '../../../AssetList/AssetList.tsx';
 import NoSearchResult from '../../../AssetSearch/NoSearchResult.tsx';
 import {useModals} from '@alchemy/navigation';
 import {Box, Paper} from '@mui/material';
-import FacetsProxy from '../../../Media/Asset/Facets.tsx';
+import FacetsProxy from '../../../Media/Asset/Facets/Facets.tsx';
 import {ActionsContext} from '../../../AssetList/types.ts';
 import {Asset} from '../../../../types.ts';
 

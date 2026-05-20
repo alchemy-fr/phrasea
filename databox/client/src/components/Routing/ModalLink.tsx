@@ -18,7 +18,7 @@ export default React.forwardRef<HTMLAnchorElement, Props>(
         const navigateToModal = useNavigateToModal();
 
         const clickHandler: MouseEventHandler<HTMLAnchorElement> = e => {
-            onClick && onClick(e);
+            onClick?.(e);
 
             navigateToModal(route, params);
         };

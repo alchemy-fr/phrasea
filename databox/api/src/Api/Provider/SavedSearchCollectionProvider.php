@@ -27,7 +27,7 @@ class SavedSearchCollectionProvider extends AbstractCollectionProvider
         ;
 
         return $queryBuilder
-            ->addOrderBy('t.title', 'ASC')
+            ->addOrderBy('t.name', 'ASC')
             ->addOrderBy('t.createdAt', 'DESC')
             ->getQuery()
             ->getResult();

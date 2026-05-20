@@ -24,7 +24,7 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
             asset.collectionKeyPrefix ?? '',
             branch.map(k => ({
                 key: k,
-                title: k,
+                name: k,
             }))
         );
     } catch (e: any) {
@@ -50,7 +50,7 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
             collection: collId ? '/collections/' + collId : undefined,
             generateRenditions: asset.generateRenditions,
             key: asset.key,
-            title: asset.title || p.basename(path),
+            name: asset.name || p.basename(path),
             attributes: asset.attributes,
             tags: asset.tags,
             renditions: asset.renditions,

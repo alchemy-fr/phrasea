@@ -36,7 +36,7 @@ class BasketCrudController extends AbstractAclAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(TextFilter::new('title'))
+            ->add(TextFilter::new('name'))
             ->add(DateTimeFilter::new('createdAt'))
             ->add(DateTimeFilter::new('updatedAt'))
             ->add($this->userChoiceFilter->createFilter('ownerId'))
@@ -47,7 +47,7 @@ class BasketCrudController extends AbstractAclAdminCrudController
     {
         yield IdField::new();
         yield $this->userChoiceField->create('ownerId', 'Owner');
-        yield TextField::new('title');
+        yield TextField::new('name');
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')

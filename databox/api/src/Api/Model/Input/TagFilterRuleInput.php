@@ -19,9 +19,6 @@ class TagFilterRuleInput
     #[Groups([Asset::GROUP_WRITE])]
     public ?string $workspaceId = null;
 
-    #[Groups([Asset::GROUP_WRITE])]
-    public ?string $collectionId = null;
-
     /**
      * @var Tag[]
      */

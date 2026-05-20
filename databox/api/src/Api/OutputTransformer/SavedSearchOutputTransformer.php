@@ -38,7 +38,7 @@ class SavedSearchOutputTransformer implements OutputTransformerInterface
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
 
-        $output->title = $data->getTitle();
+        $output->name = $data->getName();
         $output->public = $data->isPublic();
         $output->data = $data->getData();
 
@@ -50,9 +50,9 @@ class SavedSearchOutputTransformer implements OutputTransformerInterface
 
         if ($this->hasGroup([SavedSearch::GROUP_LIST, SavedSearch::GROUP_READ], $context)) {
             $output->setCapabilities([
-                'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
-                'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
-                'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
+                'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
+                'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                'editPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
             ]);
         }
 

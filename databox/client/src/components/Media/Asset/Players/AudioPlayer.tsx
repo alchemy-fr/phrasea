@@ -73,7 +73,7 @@ export default function AudioPlayer({
     const isPlaying = wavesurfer?.isPlaying();
 
     const onPlayPause = useCallback(() => {
-        wavesurfer && wavesurfer.playPause();
+        wavesurfer?.playPause();
     }, [wavesurfer]);
 
     const visibilityListener = useCallback<IsVisibleCallback>(

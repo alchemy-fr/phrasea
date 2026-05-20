@@ -180,7 +180,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
         ];
     }
 
-    public static function getTitle(): string
+    public static function getDisplayName(): string
     {
         return 'Expose';
     }

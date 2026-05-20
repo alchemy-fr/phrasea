@@ -19,126 +19,110 @@ class CollectionSearchTest extends AbstractSearchTest
     public function testSearchRootWithCollectionsInNonPublicWorkspaceAsAnonymousUser(): void
     {
         $A = $this->createCollection([
-            'title' => 'A',
+            'name' => 'A',
         ]);
         $this->createCollection([
-            'title' => 'B',
+            'name' => 'B',
             'parent' => $A,
             'public' => true,
         ]);
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/collections',
-        );
-
-        $data = $this->getDataFromResponse($response, 200);
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections');
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(0, $data);
     }
 
     public function testSearchRootWithNonPublicCollectionsInPublicWorkspaceAsAnonymousUser(): void
     {
         $workspace = $this->createWorkspace([
-            'title' => 'Workspace',
+            'name' => 'Workspace',
             'public' => true,
         ]);
         $A = $this->createCollection([
-            'title' => 'A',
+            'name' => 'A',
             'workspace' => $workspace,
         ]);
         $this->createCollection([
-            'title' => 'B',
+            'name' => 'B',
             'parent' => $A,
             'workspace' => $workspace,
         ]);
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/collections',
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(0, $data);
     }
 
     public function testSearchRootWithOnePublicSubCollectionInPublicWorkspaceAsAnonymousUser(): void
     {
         $workspace = $this->createWorkspace([
-            'title' => 'Workspace',
+            'name' => 'Workspace',
             'public' => true,
         ]);
         $A = $this->createCollection([
-            'title' => 'A',
+            'name' => 'A',
             'workspace' => $workspace,
         ]);
         $this->createCollection([
-            'title' => 'B',
+            'name' => 'B',
             'parent' => $A,
             'public' => true,
             'workspace' => $workspace,
         ]);
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/collections',
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(1, $data);
-        $this->assertSame('B', $data[0]['title']);
+        $this->assertSame('B', $data[0]['name']);
     }
 
     public function testSearchRootWithTwoPublicSubCollectionsInPublicWorkspaceAsAnonymousUser(): void
     {
         $workspace = $this->createWorkspace([
-            'title' => 'Workspace',
+            'name' => 'Workspace',
             'public' => true,
         ]);
         $A = $this->createCollection([
-            'title' => 'A',
+            'name' => 'A',
             'public' => true,
             'workspace' => $workspace,
         ]);
         $this->createCollection([
-            'title' => 'B',
+            'name' => 'B',
             'parent' => $A,
             'public' => true,
             'workspace' => $workspace,
         ]);
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/collections',
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(1, $data);
-        $this->assertSame('A', $data[0]['title']);
+        $this->assertSame('A', $data[0]['name']);
     }
 
     public function testSearchPublicCollectionsInPrivateWorkspaceAsAnonymousUser(): void
     {
         $this->createCollection([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'public' => true,
         ]);
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/collections'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(0, $data);
     }
 
@@ -150,107 +134,104 @@ class CollectionSearchTest extends AbstractSearchTest
         ]);
         $collection = $this->createCollection([
             'workspace' => $workspace,
-            'title' => 'Foo',
+            'name' => 'Foo',
             'public' => true,
         ]);
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/collections'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(1, $data);
         $this->assertEquals($collection->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 
     public function testSearchNonPublicCollectionsAsAnonymousUser(): void
     {
         $this->createCollection([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'public' => false,
             'ownerId' => 'OWNER',
         ]);
 
         self::releaseIndex();
 
-        $response = $this->request(
-            null,
-            'GET',
-            '/collections'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEmpty($data);
     }
 
     public function testSearchOwnedCollectionsAsOwner(): void
     {
         $asset = $this->createCollection([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'ownerId' => KeycloakClientTestMock::USER_UID,
         ]);
         $this->addUserOnWorkspace(KeycloakClientTestMock::USER_UID, $this->defaultWorkspace->getId());
 
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/collections'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(1, $data);
         $this->assertEquals($asset->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 
     public function testSearchOwnedCollectionsAsOwnerButNotAllowedToWorkspace(): void
     {
         $asset = $this->createCollection([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'ownerId' => KeycloakClientTestMock::USER_UID,
         ]);
 
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/collections'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(0, $data);
     }
 
     public function testSearchNonOwnedCollectionsAsOwner(): void
     {
         $this->createAsset([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'ownerId' => 'another_owner',
         ]);
 
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/collections'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertEmpty($data);
     }
 
     public function testSearchCollectionsWithACEOnCollection(): void
     {
         $collection = $this->createCollection([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'ownerId' => 'another_owner',
         ]);
         $this->addUserOnWorkspace(KeycloakClientTestMock::USER_UID, $this->defaultWorkspace->getId());
@@ -265,22 +246,23 @@ class CollectionSearchTest extends AbstractSearchTest
 
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/collections'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(1, $data);
         $this->assertEquals($collection->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 
     public function testSearchCollectionsWithACEOnAllCollections(): void
     {
         $collection = $this->createCollection([
-            'title' => 'Foo',
+            'name' => 'Foo',
             'ownerId' => 'another_owner',
         ]);
         $this->addUserOnWorkspace(KeycloakClientTestMock::USER_UID, $this->defaultWorkspace->getId());
@@ -295,15 +277,16 @@ class CollectionSearchTest extends AbstractSearchTest
         );
         self::releaseIndex();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-            'GET',
-            '/collections'
-        );
+        $client = self::createClient();
+        $response = $client->request('GET', '/collections', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
 
-        $data = $this->getDataFromResponse($response, 200);
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(1, $data);
         $this->assertEquals($collection->getId(), $data[0]['id']);
-        $this->assertEquals('Foo', $data[0]['title']);
+        $this->assertEquals('Foo', $data[0]['name']);
     }
 }

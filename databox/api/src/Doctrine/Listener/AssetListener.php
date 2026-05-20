@@ -76,8 +76,8 @@ class AssetListener
                         ActionLogTypeEnum::AssetMoved,
                         $entityUpdate,
                         [
-                            'oldCollectionId' => $refCollection[0]->getId(),
-                            'newCollectionId' => $refCollection[1]->getId(),
+                            'oldCollectionId' => $refCollection[0]?->getId(),
+                            'newCollectionId' => $refCollection[1]?->getId(),
                         ],
                         inOnFlush: true,
                     );

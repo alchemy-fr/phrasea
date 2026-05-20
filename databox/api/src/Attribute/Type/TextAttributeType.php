@@ -73,10 +73,6 @@ class TextAttributeType extends AbstractAttributeType
 
     public function validate($value, ExecutionContextInterface $context): void
     {
-        if (null === $value) {
-            return;
-        }
-
         if (!is_string($value) && !(is_object($value) && method_exists($value, '__toString'))) {
             $context->addViolation('Invalid text value');
         }

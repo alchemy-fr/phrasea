@@ -1,4 +1,4 @@
-import {TextField} from '@mui/material';
+import {Alert, TextField} from '@mui/material';
 import React, {FC} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Collection} from '../../types';
@@ -40,33 +40,45 @@ export const CollectionForm: FC<FormProps<Collection>> = function ({
             <FormRow>
                 <TranslatedField<Collection>
                     locales={enabledLocales}
-                    field={'title'}
+                    field={'name'}
                     getData={getValues}
                     getLocales={getLocaleOptions}
                     title={t(
-                        'form.collection.title.translate.title',
-                        'Translate Title'
+                        'form.collection.title.translate.name',
+                        'Translate Name'
                     )}
-                    onUpdate={createSaveTranslations('title')}
+                    onUpdate={createSaveTranslations('name')}
                 >
                     <TextField
                         autoFocus
-                        label={t('form.collection.title.label', 'Title')}
+                        label={t('form.collection.name.label', 'Name')}
                         disabled={submitting}
-                        {...register('title', {
+                        {...register('name', {
                             required: true,
                         })}
                     />
                 </TranslatedField>
-                <FormFieldErrors field={'title'} errors={errors} />
+                <FormFieldErrors field={'name'} errors={errors} />
             </FormRow>
-            <FormRow>
-                <PrivacyField
-                    control={control}
-                    name={'privacy'}
-                    inheritedPrivacy={data?.inheritedPrivacy}
-                />
-            </FormRow>
+            {data?.capabilities.editPermissions ? (
+                <FormRow>
+                    {data?.inheritedPrivacy ? (
+                        <>
+                            <Alert severity={'warning'}>
+                                {t(
+                                    'form.collection.privacy.inherited',
+                                    'This collection cannot be more restricted than its parent collection.'
+                                )}
+                            </Alert>
+                        </>
+                    ) : null}
+                    <PrivacyField
+                        control={control}
+                        name={'privacy'}
+                        inheritedPrivacy={data?.inheritedPrivacy}
+                    />
+                </FormRow>
+            ) : null}
         </form>
     );
 };

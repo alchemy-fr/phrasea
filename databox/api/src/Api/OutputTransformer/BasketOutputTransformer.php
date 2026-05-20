@@ -41,10 +41,10 @@ class BasketOutputTransformer implements OutputTransformerInterface
         $output->setId($data->getId());
 
         $highlights = $data->getElasticHighlights();
-        $output->setTitle($data->getTitle());
+        $output->setName($data->getName());
         $output->description = $data->getDescription();
         $output->descriptionHighlight = $highlights['description'][0] ?? $data->getDescription();
-        $output->setTitleHighlight($highlights['title'][0] ?? $data->getTitle());
+        $output->setNameHighlight($highlights['name'][0] ?? $data->getName());
 
         if ($this->hasGroup([
             Basket::GROUP_READ,
@@ -62,10 +62,10 @@ class BasketOutputTransformer implements OutputTransformerInterface
 
         if ($this->hasGroup([Basket::GROUP_LIST, Basket::GROUP_READ], $context)) {
             $output->setCapabilities([
-                'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
-                'canShare' => $this->isGranted(BasketVoter::SHARE, $data),
-                'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
-                'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
+                'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
+                'share' => $this->isGranted(BasketVoter::SHARE, $data),
+                'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                'editPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
             ]);
         }
 

@@ -1,17 +1,21 @@
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import React from 'react';
-import {ClickAwayListener, IconButton, Popover} from '@mui/material';
+import {Button, ClickAwayListener, IconButton, Popover} from '@mui/material';
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import {stopPropagation} from '../../lib/stdFuncs.ts';
+import {useTranslation} from 'react-i18next';
+import CloseIcon from '@mui/icons-material/Close';
 
 type Props = {
-    onSelect?: (emoji: string) => void;
+    onSelect?: (emoji: string | null) => void;
+    value?: string;
     disabled?: boolean;
 };
 
-export default function EmojiPicker({onSelect, disabled}: Props) {
+export default function EmojiPicker({onSelect, value, disabled}: Props) {
     const [anchor, setAnchor] = React.useState<HTMLButtonElement | null>(null);
+    const {t} = useTranslation();
     const close = () => setAnchor(null);
 
     const open = Boolean(anchor);
@@ -19,6 +23,9 @@ export default function EmojiPicker({onSelect, disabled}: Props) {
     return (
         <>
             <IconButton
+                sx={{
+                    color: 'inherit',
+                }}
                 disabled={disabled}
                 onClick={e => {
                     e.stopPropagation();
@@ -27,7 +34,7 @@ export default function EmojiPicker({onSelect, disabled}: Props) {
                     );
                 }}
             >
-                <EmojiEmotionsIcon />
+                {value ?? <EmojiEmotionsIcon />}
             </IconButton>
 
             <ClickAwayListener onClickAway={close}>
@@ -49,6 +56,19 @@ export default function EmojiPicker({onSelect, disabled}: Props) {
                             }}
                             previewPosition={'none'}
                         />
+                        {onSelect && value ? (
+                            <Button
+                                variant={'outlined'}
+                                fullWidth={true}
+                                startIcon={<CloseIcon />}
+                                onClick={() => {
+                                    onSelect(null);
+                                    close();
+                                }}
+                            >
+                                {t('common.clear', 'Clear')}
+                            </Button>
+                        ) : null}
                     </div>
                 </Popover>
             </ClickAwayListener>

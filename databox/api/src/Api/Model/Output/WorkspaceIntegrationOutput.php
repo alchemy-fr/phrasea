@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Output;
 
+use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Integration\IntegrationData;
@@ -15,9 +16,16 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
 {
     use CreatedAtDTOTrait;
     use UpdatedAtDTOTrait;
+    use CapabilitiesDTOTrait;
 
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
-    private ?string $title = null;
+    protected array $capabilities = [];
+
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
+    private ?string $name = null;
+
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
+    public ?bool $public = null;
 
     #[MaxDepth(1)]
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
@@ -27,7 +35,7 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     private ?string $integration = null;
 
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
-    public ?string $integrationTitle = null;
+    public ?string $integrationName = null;
 
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     public ?string $configYaml = null;
@@ -62,14 +70,14 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     private array $config = [];
 
-    public function getTitle(): ?string
+    public function getName(): ?string
     {
-        return $this->title;
+        return $this->name;
     }
 
-    public function setTitle(?string $title): void
+    public function setName(?string $name): void
     {
-        $this->title = $title;
+        $this->name = $name;
     }
 
     public function getIntegration(): ?string

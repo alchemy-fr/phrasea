@@ -32,8 +32,8 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
         $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var WorkspaceIntegration $object */
         $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new WorkspaceIntegration();
-        if (null !== $data->title) {
-            $object->setTitle($data->title);
+        if (null !== $data->name) {
+            $object->setName($data->name);
         }
 
         $integrationTypeName = IntegrationType::denormalizeId($data->integration ?? '');
@@ -58,7 +58,13 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
             }
         }
 
-        $object->setEnabled($data->enabled);
+        if (null !== $data->enabled) {
+            $object->setEnabled($data->enabled);
+        }
+
+        if (null !== $data->public) {
+            $object->setPublic($data->public);
+        }
 
         if (null !== $data->needs) {
             $needs = $object->getNeeds();

@@ -75,7 +75,7 @@ export default function AssetCollectionList({
                           label={others}
                           title={collections
                               .slice(collectionsLimit - 1)
-                              .map(c => c.titleTranslated)
+                              .map(c => c.displayName)
                               .join('\n')}
                       />,
                   ],

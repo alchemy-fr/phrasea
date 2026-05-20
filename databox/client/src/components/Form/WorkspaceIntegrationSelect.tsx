@@ -23,7 +23,7 @@ export default function WorkspaceIntegrationSelect<
             return data.result
                 .map((t: WorkspaceIntegration) => ({
                     value: `/integrations/${t.id}`,
-                    label: t.title ?? t.integrationTitle,
+                    label: t.name ?? t.integrationName,
                 }))
                 .filter(i =>
                     i.label

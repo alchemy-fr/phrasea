@@ -33,3 +33,11 @@ export function deepEquals(a: any, b: any): boolean {
     // Fallback for other types (e.g., functions, symbols)
     return false;
 }
+
+export function forceObject(o: any): Record<string, any> {
+    if (typeof o !== 'object' || Array.isArray(o)) {
+        return {};
+    }
+
+    return o || {};
+}

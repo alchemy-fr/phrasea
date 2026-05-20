@@ -15,6 +15,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 class TagFilterRuleCrudController extends AbstractAdminCrudController
 {
@@ -41,10 +42,7 @@ class TagFilterRuleCrudController extends AbstractAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(ChoiceFilter::new('objectType')->setChoices([
-                'collection' => TagFilterRule::TYPE_COLLECTION,
-                'workspace' => TagFilterRule::TYPE_WORKSPACE,
-            ]))
+            ->add(EntityFilter::new('workspace'))
             ->add(ChoiceFilter::new('userType')->setChoices([
                 'user' => TagFilterRule::TYPE_USER,
                 'group' => TagFilterRule::TYPE_GROUP,
@@ -57,10 +55,10 @@ class TagFilterRuleCrudController extends AbstractAdminCrudController
     {
         yield IdField::new()
             ->hideOnForm();
+        yield AssociationField::new('workspace')
+            ->autocomplete();
         yield IntegerField::new('userType');
         yield TextField::new('userId');
-        yield IntegerField::new('objectType');
-        yield TextField::new('objectId');
         yield AssociationField::new('include')
             ->autocomplete();
         yield AssociationField::new('exclude')

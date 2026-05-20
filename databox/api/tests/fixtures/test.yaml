@@ -1,5 +1,6 @@
 parameters:
   user_id: '123'
+  other_user_id: '999'
   admin_user_id: '4242'
 
 App\Entity\Core\Workspace:
@@ -18,20 +19,20 @@ Alchemy\AclBundle\Entity\AccessControlEntry:
 
 App\Entity\Core\Asset:
   asset{1..60}:
-    title: 'Asset #<current()>'
+    name: 'Asset #<current()>'
     ownerId: <{user_id}>
     workspace: '@w_test'
     privacy: 4
 
   asset_foo:
-    title: 'Asset Foo'
+    name: 'Asset Foo'
     key: foo
     ownerId: <{user_id}>
     workspace: '@w_test'
     privacy: 4
 
   asset_bar:
-    title: 'Asset Bar'
+    name: 'Asset Bar'
     key: bar
     ownerId: <{user_id}>
     workspace: '@w_test'
@@ -39,7 +40,7 @@ App\Entity\Core\Asset:
 
 App\Entity\Core\Collection:
     collection{1..2}:
-        title: 'Collection #<current()>'
+        name: 'Collection #<current()>'
         ownerId: <{admin_user_id}>
         workspace: '@w_test'
         privacy: 4
@@ -71,6 +72,12 @@ App\Entity\Core\AttributeDefinition:
     name: Keywords
     fieldType: text
     multiple: true
+    workspace: '@w_test'
+    policy: '@ap_public'
+  ad_date:
+    name: Date
+    fieldType: date
+    multiple: false
     workspace: '@w_test'
     policy: '@ap_public'
   ad_business:
@@ -111,9 +118,11 @@ App\Entity\Core\RenditionPolicy:
   t_rc_public (extends rendition_policy):
     name: Public
     public: true
+    editable: true
   t_rc_restricted (extends rendition_policy):
     name: Restricted
     public: false
+    editable: false
 
 App\Entity\Core\RenditionDefinition:
   rendition_definition (template):

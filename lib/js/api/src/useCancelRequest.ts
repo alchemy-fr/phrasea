@@ -50,6 +50,7 @@ export function useCancelRequestCallback<
                 throw e;
             }
         }
+        // eslint-disable-next-line react-hooks/use-memo
     }, deps);
 
     return {

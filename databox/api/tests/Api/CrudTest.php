@@ -112,6 +112,7 @@ final class CrudTest extends AbstractDataboxTestCase
             'workspace' => '/workspaces/{workspaceId}',
             'name' => 'RendClass Test',
             'public' => true,
+            'editable' => true,
         ]];
 
         $createAttributeDefinition = ['POST', '/attribute-definitions', KeycloakClientTestMock::ADMIN_UID, [

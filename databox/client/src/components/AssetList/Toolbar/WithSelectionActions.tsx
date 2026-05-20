@@ -44,7 +44,6 @@ export default function WithSelectionActions<
         canDelete,
         canDeletePermanent,
         canRestore,
-        canDownload,
         canEdit,
         canEditAttributes,
         canMove,
@@ -61,7 +60,6 @@ export default function WithSelectionActions<
         let canDelete = false;
         let canDeletePermanent = false;
         let canRestore = false;
-        let canDownload = false;
         let canEdit = false;
         let canEditAttributes = false;
         let canMove = false;
@@ -69,7 +67,7 @@ export default function WithSelectionActions<
         let wsId: string | undefined = undefined;
 
         function filterEditableAttributes(asset: Asset): boolean {
-            return asset.capabilities.canEditAttributes;
+            return asset.capabilities.editAttributes;
         }
 
         const selectedAssets = itemToAsset
@@ -78,33 +76,27 @@ export default function WithSelectionActions<
 
         selectedAssets.forEach((a: Asset) => {
             wsId = a.workspace?.id;
-            if (a.source) {
-                canDownload = true;
-            }
             if (
                 !a.deleted &&
-                (a.capabilities.canDelete ||
+                (a.capabilities.delete ||
                     (a.collections && a.collections.length > 0))
             ) {
                 canDelete = true;
             }
-            if (a.capabilities.canDelete) {
+            if (a.capabilities.delete) {
                 canDeletePermanent = true;
             }
-            if (a.capabilities.canDelete && a.deleted) {
+            if (a.capabilities.delete && a.deleted) {
                 canRestore = true;
             }
-            if (a.capabilities.canEdit) {
+            if (a.capabilities.edit) {
                 canEdit = true;
                 canMove = true;
             }
-            if (a.capabilities.canEditAttributes) {
+            if (a.capabilities.editAttributes) {
                 canEditAttributes = true;
             }
-            if (a.capabilities.canShare) {
-                canShare = true;
-            }
-            if (a.capabilities.canShare) {
+            if (a.capabilities.share) {
                 canShare = true;
             }
         });
@@ -127,7 +119,7 @@ export default function WithSelectionActions<
         };
 
         const onShare = () => {
-            if (selectedAssets.length !== 1) {
+            if (selectedAssets.length > 1) {
                 toast.warn(
                     t(
                         'asset_actions.share_multiple',
@@ -163,19 +155,16 @@ export default function WithSelectionActions<
             }
         };
 
-        const download = canDownload
-            ? () => {
-                  openModal(ExportAssetsDialog, {
-                      assets: selectedAssets,
-                  });
-              }
-            : undefined;
+        const download = () => {
+            openModal(ExportAssetsDialog, {
+                assets: selectedAssets,
+            });
+        };
 
         return {
             canDelete,
             canDeletePermanent,
             canRestore,
-            canDownload,
             canEdit,
             canEditAttributes,
             canMove,
@@ -278,25 +267,29 @@ export default function WithSelectionActions<
                 ''
             )}
             {actionsContext.export ? (
-                <Button
-                    disabled={!canDownload}
+                <GroupButton
                     variant={'contained'}
                     onClick={download}
                     startIcon={<FileDownloadIcon />}
+                    id={'export'}
+                    actions={[
+                        {
+                            id: 'copy',
+                            label: t('asset_actions.copy', 'Copy'),
+                            onClick: onCopy,
+                            startIcon: <FileCopyIcon />,
+                        },
+                    ]}
                 >
                     {t('asset_actions.export', 'Export')}
-                </Button>
-            ) : (
-                ''
-            )}
+                </GroupButton>
+            ) : null}
             {actionsContext.edit ? (
                 <GroupButton
                     id={'edit'}
                     onClick={onEdit}
                     startIcon={<EditIcon />}
-                    disabled={
-                        !canEdit || (selection.length > 0 && !canEditAttributes)
-                    }
+                    disabled={!canEditAttributes && !canEdit}
                     actions={[
                         {
                             id: 'move',
@@ -304,13 +297,6 @@ export default function WithSelectionActions<
                             onClick: onMove,
                             disabled: !canMove,
                             startIcon: <DriveFileMoveIcon />,
-                        },
-                        {
-                            id: 'copy',
-                            label: t('asset_actions.copy', 'Copy'),
-                            onClick: onCopy,
-                            disabled: !canShare,
-                            startIcon: <FileCopyIcon />,
                         },
                     ]}
                 >
@@ -338,9 +324,7 @@ export default function WithSelectionActions<
                     color={'error'}
                     onClick={mainDeleteAction!.onClick}
                     startIcon={mainDeleteAction!.startIcon}
-                    disabled={
-                        selection.length === 0 || mainDeleteAction!.disabled
-                    }
+                    disabled={mainDeleteAction!.disabled}
                     actions={deleteExtraActions}
                 >
                     {mainDeleteAction!.label}
@@ -354,7 +338,7 @@ export default function WithSelectionActions<
                         startIcon={a.icon}
                         color={a.color}
                         {...(a.buttonProps ?? {})}
-                        disabled={selection.length === 0 || a.disabled}
+                        disabled={a.disabled}
                         onClick={async () => {
                             await a.apply(selection);
                             if (a.reload && reload) {

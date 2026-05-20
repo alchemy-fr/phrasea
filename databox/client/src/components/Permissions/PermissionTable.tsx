@@ -1,53 +1,36 @@
 import {
-    DisplayedPermissions,
     OnMaskChange,
     OnPermissionDelete,
-} from './permissions';
+    PermissionDefinition,
+} from './permissionsTypes.ts';
 import {Ace, UserType} from '../../types';
 import {useTranslation} from 'react-i18next';
-import {AclPermission, aclPermissions} from '../Acl/acl';
-import useAclPermissionLabels from '../Acl/AclPermissionLabel';
 import {Box} from '@mui/material';
 import PermissionRow from './PermissionRow';
 import type {TFunction} from '@alchemy/i18n';
 import PermissionRowSkeleton from './PermissionRowSkeleton';
 
-export type PermissionHelpers = {
-    [perm: string]: {
-        label?: string;
-        description?: string;
-    };
-};
-
 type Props = {
     permissions: Ace[] | undefined;
     onMaskChange: OnMaskChange;
     onDelete: OnPermissionDelete;
-    displayedPermissions?: DisplayedPermissions;
+    definitions: PermissionDefinition[];
+    hasAll: boolean;
 };
 
 export default function PermissionTable({
     permissions,
     onMaskChange,
     onDelete,
-    displayedPermissions,
+    definitions,
+    hasAll,
 }: Props) {
     const {t} = useTranslation();
-    const permissionLabels = useAclPermissionLabels();
-
-    const columns = displayedPermissions
-        ? Object.keys(aclPermissions).filter(c =>
-              displayedPermissions.includes(c)
-          )
-        : Object.keys(aclPermissions);
-    const hasAll = displayedPermissions
-        ? displayedPermissions.includes(AclPermission.ALL)
-        : true;
-
     const selectSize = 42;
     const actionsSize = 150;
 
-    const allColumns = hasAll ? columns.concat([AclPermission.ALL]) : columns;
+    const columnCount = definitions.length + (hasAll ? 1 : 0);
+
     return (
         <Box
             component={'table'}
@@ -77,6 +60,11 @@ export default function PermissionTable({
                     '.p': {
                         textAlign: 'center',
                     },
+                    '&.empty': {
+                        textAlign: 'center',
+                        fontStyle: 'italic',
+                        p: 2,
+                    },
                 },
                 '.a': {
                     width: actionsSize,
@@ -100,38 +88,53 @@ export default function PermissionTable({
                     <th className={'ug'}>
                         {t('acl.table.cols.user_group', `User/Group`)}
                     </th>
-                    {allColumns.map(k => {
+                    {definitions.map(def => {
                         return (
-                            <th key={k} className={'p'}>
-                                <span>{permissionLabels[k]}</span>
+                            <th key={def.key} className={'p'}>
+                                <span>{def.label}</span>
                             </th>
                         );
                     })}
+                    {hasAll ? (
+                        <th className={'p'}>
+                            <span>{t('acl.permission.all', 'All')}</span>
+                        </th>
+                    ) : null}
                     <th className={'a'}>
                         {t('permission_table.actions', `Actions`)}
                     </th>
                 </tr>
             </thead>
             <tbody>
-                {!permissions &&
+                {!permissions ? (
                     [0, 1, 2].map(k => (
                         <PermissionRowSkeleton
-                            permissions={allColumns}
+                            columnCount={columnCount}
                             key={k}
                         />
-                    ))}
-                {permissions &&
+                    ))
+                ) : permissions.length > 0 ? (
                     permissions.map(p => (
                         <PermissionRow
                             {...p}
-                            all={hasAll}
-                            permissions={columns}
+                            hasAll={hasAll}
+                            definitions={definitions}
                             onMaskChange={onMaskChange}
                             onDelete={onDelete}
                             userName={getUserName(p, t)}
                             key={p.id || `${p.userId}::${p.userType}`}
                         />
-                    ))}
+                    ))
+                ) : (
+                    <tr>
+                        <td colSpan={columnCount + 2} className={'empty'}>
+                            {t(
+                                'permission_table.no_permissions',
+                                `No permissions defined`
+                            )}
+                        </td>
+                    </tr>
+                )}
             </tbody>
         </Box>
     );

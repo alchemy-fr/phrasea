@@ -19,7 +19,7 @@ export default function Operations({data, onClose, minHeight}: Props) {
 
     const deleteConfirm = async () => {
         openModal(ConfirmDialog, {
-            textToType: data.title,
+            textToType: data.name,
             title: t(
                 'basket_delete.confirm',
                 'Are you sure you want to delete this basket?'

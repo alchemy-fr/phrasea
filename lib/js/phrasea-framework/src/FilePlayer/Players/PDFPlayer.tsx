@@ -36,7 +36,7 @@ export default function PDFPlayer({
                 setRatio(page.view[3] / page.view[2]);
             });
 
-            onLoad && onLoad();
+            onLoad?.();
         },
         [onLoad]
     );

@@ -51,11 +51,11 @@ fos_elastica:
                                 catenate_words: true
                                 preserve_original: true
             properties:
-                title:
+                name:
                     type: text
                     analyzer: text
                 suggestion:
-                    property_path: title
+                    property_path: name
                     type: text
                     analyzer: text
                     fields:
@@ -126,6 +126,9 @@ fos_elastica:
                 fileMimeType:
                     type: keyword
                     property_path: getSourceFileMimeType
+                fileExtension:
+                    type: keyword
+                    property_path: getSourceFileExtension
                 microseconds:
                     type: integer
                 sequence:
@@ -178,11 +181,11 @@ fos_elastica:
                         filter:
                             worddelimiter: *worddelimiter_filter
             properties:
-                title:
+                name:
                     type: text
                     analyzer: text
                 suggestion:
-                    property_path: title
+                    property_path: name
                     type: text
                     analyzer: text
                     fields:
@@ -336,7 +339,7 @@ fos_elastica:
             use_alias: '%elastica.use_alias%'
             index_name: "%es_index_prefix%basket_%kernel.environment%"
             properties:
-                title:
+                name:
                     type: text
                     analyzer: text
                 description:

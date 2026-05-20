@@ -25,6 +25,7 @@ export default function PageCreateDialog({modalIndex, open}: Props) {
     const usedFormSubmit = useFormSubmit<Page>({
         defaultValues: {
             title: '',
+
             description: '',
             slug: '',
             enabled: true,

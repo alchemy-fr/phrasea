@@ -16,13 +16,8 @@ class TagFilterRuleCollectionProvider extends AbstractCollectionProvider
     ): array|object {
         $criteria = [];
         $filters = $context['filters'] ?? [];
-        if (isset($filters['collectionId'])) {
-            $criteria['objectType'] = TagFilterRule::TYPE_COLLECTION;
-            $criteria['objectId'] = $filters['collectionId'];
-        }
         if (isset($filters['workspaceId'])) {
-            $criteria['objectType'] = TagFilterRule::TYPE_WORKSPACE;
-            $criteria['objectId'] = $filters['workspaceId'];
+            $criteria['workspace'] = $filters['workspaceId'];
         }
 
         return $this->em->getRepository(TagFilterRule::class)->findBy($criteria);

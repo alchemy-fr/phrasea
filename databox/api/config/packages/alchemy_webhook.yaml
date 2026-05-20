@@ -32,10 +32,6 @@ alchemy_webhook:
       groups:
         - !php/const App\Entity\Core\RenditionDefinition::GROUP_READ
       name: rendition_definition
-    App\Entity\Core\RenditionRule:
-      groups:
-        - !php/const App\Entity\Core\RenditionRule::GROUP_READ
-      name: rendition_rule
     App\Entity\Core\Tag:
       groups:
         - !php/const App\Entity\Core\Tag::GROUP_READ

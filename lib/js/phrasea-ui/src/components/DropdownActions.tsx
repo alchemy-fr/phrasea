@@ -38,7 +38,6 @@ export default function DropdownActions({
                 'className': open ? dropdownActionsOpenClassName : undefined,
             })}
             <Menu
-                disablePortal={true}
                 style={{
                     width: '100%',
                 }}

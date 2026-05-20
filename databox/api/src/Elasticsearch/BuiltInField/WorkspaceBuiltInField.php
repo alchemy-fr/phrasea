@@ -22,7 +22,7 @@ final class WorkspaceBuiltInField extends AbstractEntityBuiltInField
      */
     protected function resolveLabel($value): string
     {
-        return $value->getTranslatedField('name', $this->getPreferredLocales($value), $value->getName());
+        return $value->getTranslatedField(Workspace::TR_FIELD_NAME, $this->getPreferredLocales($value), $value->getName());
     }
 
     public function getFieldName(): string

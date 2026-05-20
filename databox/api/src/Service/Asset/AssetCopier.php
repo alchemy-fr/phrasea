@@ -12,7 +12,6 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
-use App\Security\RenditionPermissionManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AssetCopier
@@ -24,7 +23,6 @@ class AssetCopier
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly RenditionPermissionManager $renditionPermissionManager,
         private readonly FileCopier $fileCopier,
         private readonly PostFlushStack $postFlushStack,
     ) {
@@ -32,10 +30,10 @@ class AssetCopier
 
     public function copyAsset(
         string $userId,
-        array $groupsId,
         Asset $asset,
         Workspace $workspace,
         ?Collection $collection,
+        array $allowedRenditions,
         array $options = [],
     ): void {
         $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
@@ -43,10 +41,10 @@ class AssetCopier
             if (!$asset->getSource()) {
                 $this->doCopyAsset(
                     $userId,
-                    $groupsId,
                     $asset,
                     $workspace,
                     $collection,
+                    $allowedRenditions,
                     $options
                 );
             } else {
@@ -55,17 +53,17 @@ class AssetCopier
                     $userId,
                     $file->getId(),
                     $collection ? [$collection->getId()] : [],
-                    $asset->getTitle(),
+                    $asset->getName(),
                     $file->getFilename()
                 ));
             }
         } else {
             $this->doCopyAsset(
                 $userId,
-                $groupsId,
                 $asset,
                 $workspace,
                 $collection,
+                $allowedRenditions,
                 $options
             );
         }
@@ -76,16 +74,16 @@ class AssetCopier
 
     private function doCopyAsset(
         string $userId,
-        array $groupsId,
         Asset $asset,
         Workspace $workspace,
         ?Collection $collection,
+        array $allowedRenditions,
         array $options = [],
     ): void {
         $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
         $copy = new Asset();
         $copy->setOwnerId($userId);
-        $copy->setTitle($asset->getTitle());
+        $copy->setName($asset->getName());
         $copy->setPrivacy($asset->getPrivacy());
         $copy->setLocale($asset->getLocale());
         $copy->setWorkspace($workspace);
@@ -102,10 +100,7 @@ class AssetCopier
 
         if ($sameWorkspace) {
             foreach ($asset->getRenditions() as $rendition) {
-                if ($this->renditionPermissionManager->isGranted($asset, $rendition->getDefinition()->getPolicy(),
-                    $userId,
-                    $groupsId
-                )) {
+                if (in_array($rendition->getId(), $allowedRenditions, true)) {
                     $this->copyRendition($rendition, $copy);
                 }
             }

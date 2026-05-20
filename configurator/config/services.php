@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Alchemy\CoreBundle\Documentation\DocumentationGeneratorInterface;
+use App\Documentation\EnvVarDocumentationGenerator;
 use Aws\S3\S3Client;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
@@ -38,6 +39,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->instanceof(DocumentationGeneratorInterface::class)
+        ->tag(DocumentationGeneratorInterface::TAG);
+
+    // Explicit registration prevents this generator from being optimized away
+    // and guarantees it appears in alchemy:core:documentation:dump.
+    $services->set(EnvVarDocumentationGenerator::class)
         ->tag(DocumentationGeneratorInterface::TAG);
 
     $services->set(S3Client::class)

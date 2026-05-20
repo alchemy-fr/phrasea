@@ -28,6 +28,7 @@ class AssetDataTemplateProvider implements OutputTransformerInterface
         $output->privacy = $data->getPrivacy();
         $output->tags = $data->getTags()->getValues();
         $output->public = $data->isPublic();
+        $output->assetName = $data->getAssetName();
         $output->ownerId = $data->getOwnerId();
         $output->collection = $data->getCollection();
         $output->includeCollectionChildren = $data->isIncludeCollectionChildren();
@@ -38,9 +39,9 @@ class AssetDataTemplateProvider implements OutputTransformerInterface
 
         if ($this->hasGroup([AssetDataTemplate::GROUP_LIST, AssetDataTemplate::GROUP_READ], $context)) {
             $output->setCapabilities([
-                'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
-                'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
-                'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
+                'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
+                'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                'editPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
             ]);
         }
 

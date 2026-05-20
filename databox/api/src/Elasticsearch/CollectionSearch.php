@@ -51,7 +51,7 @@ class CollectionSearch extends AbstractSearch
                 'pre_tags' => ['[hl]'],
                 'post_tags' => ['[/hl]'],
                 'fields' => [
-                    'title' => [
+                    'name' => [
                         'fragment_size' => 255,
                         'number_of_fragments' => 1,
                     ],
@@ -80,11 +80,11 @@ class CollectionSearch extends AbstractSearch
 
         if (!empty($parsed['should'])) {
             $searchBool = new Query\BoolQuery();
-            $searchBool->addShould(new Query\MatchQuery('title', $parsed['should']));
+            $searchBool->addShould(new Query\MatchQuery('name', $parsed['should']));
             $boolQuery->addMust($searchBool);
         }
         foreach ($parsed['must'] as $must) {
-            $boolQuery->addMust(new Query\MatchQuery('title', $must));
+            $boolQuery->addMust(new Query\MatchQuery('name', $must));
         }
 
         $includeDeleted = false;

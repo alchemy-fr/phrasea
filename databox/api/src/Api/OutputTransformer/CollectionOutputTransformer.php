@@ -16,6 +16,8 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\AssetContainerVoterInterface;
+use App\Security\Voter\CollectionVoter;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
@@ -54,16 +56,22 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
         $output->deleted = $data->isDeleted();
+
+        $parent = $data->getParent();
+        if (null !== $parent && $this->isGranted(AbstractVoter::READ, $parent)) {
+            $output->parentId = $parent->getId();
+        }
+
         $storyAsset = $data->getStoryAsset();
         if (null !== $storyAsset) {
             $output->setStoryAsset($storyAsset);
         } else {
-            $output->setTitle($data->getTitle());
-            $output->titleTranslated = $data->getTranslatedField('title', $preferredLocales, $data->getTitle());
+            $output->setName($data->getName());
+            $output->displayName = $data->getTranslatedField(Collection::TR_FIELD_NAME, $preferredLocales, $data->getName());
         }
 
         $highlights = $data->getElasticHighlights();
-        $output->titleHighlight = $highlights['title'][0] ?? null;
+        $output->nameHighlight = $highlights['name'][0] ?? null;
 
         $output->setPrivacy($data->getPrivacy());
         if ($this->hasGroup([
@@ -83,9 +91,9 @@ class CollectionOutputTransformer implements OutputTransformerInterface
             $output->owner = $this->transformUser($data->getOwnerId());
         }
 
-        if ($this->hasGroup([Collection::GROUP_ABSOLUTE_TITLE], $context)) {
-            $output->absoluteTitle = $data->getAbsoluteTitle();
-            $output->absoluteTitleTranslated = $this->getAbsoluteTitleTranslated($data, $preferredLocales);
+        if ($this->hasGroup([Collection::GROUP_ABSOLUTE_NAME], $context)) {
+            $output->absoluteName = $data->getAbsoluteName();
+            $output->absoluteDisplayName = $this->getAbsoluteDisplayName($data, $preferredLocales);
         }
 
         if ($this->hasGroup(Collection::GROUP_CHILDREN, $context)) {
@@ -150,10 +158,17 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         });
 
         if ($this->hasGroup([Collection::GROUP_LIST, Collection::GROUP_READ], $context)) {
+            $virtualColl = new Collection();
+            $virtualColl->setWorkspace($output->getWorkspace());
+            $virtualColl->setParent($data);
+            $virtualColl->setOwnerId($data->getOwnerId());
+
             $output->setCapabilities([
-                'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
-                'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
-                'canEditPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
+                'createAsset' => $this->isGranted(AssetContainerVoterInterface::ASSET_CREATE, $data),
+                'createCollection' => $this->isGranted(CollectionVoter::CREATE, $virtualColl),
+                'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
+                'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                'editPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
             ]);
         }
 
@@ -173,13 +188,13 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         return $output;
     }
 
-    public function getAbsoluteTitleTranslated(Collection $collection, array $preferredLocales): ?string
+    public function getAbsoluteDisplayName(Collection $collection, array $preferredLocales): ?string
     {
         $ptr = $collection;
-        $path = $ptr->getTranslatedField('title', $preferredLocales, $ptr->getTitle());
+        $path = $ptr->getTranslatedField(Collection::TR_FIELD_NAME, $preferredLocales, $ptr->getName());
         $ptr = $ptr->getParent();
         while ($ptr) {
-            $path = $ptr->getTranslatedField('title', $preferredLocales, $ptr->getTitle()).' / '.$path;
+            $path = $ptr->getTranslatedField(Collection::TR_FIELD_NAME, $preferredLocales, $ptr->getName()).' / '.$path;
             $ptr = $ptr->getParent();
         }
 

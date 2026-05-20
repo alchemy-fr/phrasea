@@ -23,6 +23,12 @@ App\Entity\Asset:
     mimeType: image/jpeg
     path: '<image(1000, 100, "1", "test")>'
 
+  test_a_classic_image (extends test_asset):
+    title: 'A classic image'
+    description: 'This is a classic image'
+    mimeType: image/jpeg
+    path: '<image(1024, 683, "1", "test")>'
+
   test_a_image_tall (extends test_asset):
     title: 'A tall image'
     description: 'This is a tall image'

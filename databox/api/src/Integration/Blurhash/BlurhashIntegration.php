@@ -41,7 +41,7 @@ class BlurhashIntegration extends AbstractIntegration implements WorkflowIntegra
         );
     }
 
-    public static function getTitle(): string
+    public static function getDisplayName(): string
     {
         return 'Blurhash';
     }

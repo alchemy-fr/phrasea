@@ -1,7 +1,7 @@
 import {Asset, AssetTypeFilter, Tag} from '../../../types';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'react-toastify';
-import {useFormSubmit} from '@alchemy/api';
+import {getAxiosError, useFormSubmit} from '@alchemy/api';
 import FormTab from '../Tabbed/FormTab';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {
@@ -69,14 +69,10 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
         } catch (e: any) {
             // eslint-disable-next-line no-console
             console.error('e', e);
-            if (e.response && typeof e.response.data === 'object') {
-                const data = e.response.data;
-                setError(
-                    `${data['hydra:title']}: ${data['hydra:description']}`
-                );
-            } else {
-                setError(e.toString());
-            }
+            const error = getAxiosError(e);
+            setError(error?.message ?? e.toString());
+
+            throw e;
         }
     }, [getActions]);
 
@@ -91,13 +87,13 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
     } = useFormSubmit<Asset>({
         defaultValues: data
             ? {
-                  title: data.title,
+                  name: data.resolvedName,
                   privacy: data.privacy,
                   tags: (data?.tags?.map(t => t['@id']) ??
                       []) as unknown as Tag[],
               }
             : {
-                  title: '',
+                  name: '',
                   privacy: Privacy.Secret,
                   tags: [] as Tag[],
               },
@@ -127,6 +123,8 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
 
     useDirtyFormPrompt(!submitting && (attributesDirty || forbidNavigation));
 
+    const {capabilities} = data;
+
     return (
         <FormTab
             onClose={onClose}
@@ -136,40 +134,49 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
             minHeight={minHeight}
         >
             <form id={formId} onSubmit={handleSubmit}>
-                <FormRow>
-                    <TextField
-                        autoFocus
-                        required={true}
-                        label={t('form.asset.title.label', 'Title')}
-                        disabled={submitting}
-                        {...register('title', {
-                            required: true,
-                        })}
-                    />
-                    <FormFieldErrors field={'title'} errors={errors} />
-                </FormRow>
-                <FormRow>
-                    <FormGroup>
-                        <InputLabel>
-                            {t('form.asset.tags.label', 'Tags')}
-                        </InputLabel>
-                        <TagSelect
-                            multiple={true}
-                            workspaceId={data.workspace.id}
-                            control={control}
-                            name={'tags'}
-                        />
-                        <FormFieldErrors<Asset>
-                            field={'tags'}
-                            errors={errors}
-                        />
-                    </FormGroup>
-                </FormRow>
-                <FormRow>
-                    <PrivacyField control={control} name={'privacy'} />
-                </FormRow>
+                {capabilities.edit ? (
+                    <>
+                        <FormRow>
+                            <TextField
+                                autoFocus
+                                required={true}
+                                label={t('form.asset.name.label', 'Name')}
+                                disabled={submitting}
+                                {...register('name', {
+                                    required: true,
+                                })}
+                            />
+                            <FormFieldErrors field={'name'} errors={errors} />
+                        </FormRow>
+                        <FormRow>
+                            <FormGroup>
+                                <InputLabel>
+                                    {t('form.asset.tags.label', 'Tags')}
+                                </InputLabel>
+                                <TagSelect
+                                    multiple={true}
+                                    workspaceId={data.workspace.id}
+                                    control={control}
+                                    name={'tags'}
+                                />
+                                <FormFieldErrors<Asset>
+                                    field={'tags'}
+                                    errors={errors}
+                                />
+                            </FormGroup>
+                        </FormRow>
+                        {capabilities.editPermissions ? (
+                            <FormRow>
+                                <PrivacyField
+                                    control={control}
+                                    name={'privacy'}
+                                />
+                            </FormRow>
+                        ) : null}
+                    </>
+                ) : null}
             </form>
-            {data.capabilities.canEditAttributes ? (
+            {capabilities.editAttributes ? (
                 attributes && definitionIndex ? (
                     <AttributesEditor
                         attributes={attributes}

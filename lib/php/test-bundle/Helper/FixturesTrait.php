@@ -65,4 +65,9 @@ trait FixturesTrait
     {
         self::$withFixtures = true;
     }
+
+    public static function disableFixtures(): void
+    {
+        self::$withFixtures = false;
+    }
 }

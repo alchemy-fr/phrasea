@@ -95,12 +95,9 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
     #[Groups([AssetDataTemplate::GROUP_READ])]
     private bool $public = false;
 
-    /**
-     * Asset title.
-     */
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     #[Groups([AssetDataTemplate::GROUP_READ])]
-    private ?string $title = null;
+    private ?string $assetName = null;
 
     #[ORM\ManyToMany(targetEntity: Tag::class)]
     #[Groups([AssetDataTemplate::GROUP_READ])]
@@ -142,14 +139,14 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
         $this->public = $public;
     }
 
-    public function getTitle(): ?string
+    public function getAssetName(): ?string
     {
-        return $this->title;
+        return $this->assetName;
     }
 
-    public function setTitle(?string $title): void
+    public function setAssetName(?string $assetName): void
     {
-        $this->title = $title;
+        $this->assetName = $assetName;
     }
 
     public function getTags(): ?DoctrineCollection

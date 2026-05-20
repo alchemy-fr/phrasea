@@ -30,7 +30,7 @@ export function createPusher({
     pusher.connection.bind('error', function (err: any) {
         // eslint-disable-next-line no-console
         console.error(err);
-        onConnectionError && onConnectionError(err);
+        onConnectionError?.(err);
     });
 
     return pusher;

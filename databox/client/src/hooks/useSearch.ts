@@ -40,6 +40,7 @@ export function useSearch<T extends Entity, I extends Entity = T>({
     }, []);
 
     const searchHandler = useCallback(
+        // eslint-disable-next-line react-hooks/use-memo
         createPaginatedLoader<T>(async next => {
             const r = await search(searchQuery, next);
             setLoadedSearchQuery(searchQuery);

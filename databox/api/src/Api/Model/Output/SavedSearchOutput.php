@@ -21,16 +21,16 @@ class SavedSearchOutput extends AbstractUuidOutput
     #[ApiProperty(jsonSchemaContext: [
         'type' => 'object',
         'properties' => [
-            'canEdit' => 'boolean',
-            'canDelete' => 'boolean',
-            'canEditPermissions' => 'boolean',
+            'edit' => 'boolean',
+            'delete' => 'boolean',
+            'editPermissions' => 'boolean',
         ],
     ])]
     #[Groups([SavedSearch::GROUP_LIST, SavedSearch::GROUP_READ])]
     protected array $capabilities = [];
 
     #[Groups([SavedSearch::GROUP_LIST, SavedSearch::GROUP_READ, WebhookSerializationInterface::DEFAULT_GROUP])]
-    public ?string $title = null;
+    public ?string $name = null;
 
     #[Groups([SavedSearch::GROUP_LIST, WebhookSerializationInterface::DEFAULT_GROUP])]
     public ?bool $public = null;

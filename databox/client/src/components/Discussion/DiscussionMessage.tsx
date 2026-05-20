@@ -83,7 +83,7 @@ export default function DiscussionMessage({
 
                             <MoreActionsButton>
                                 {closeWrapper => [
-                                    message.capabilities?.canEdit ? (
+                                    message.capabilities?.edit ? (
                                         <MenuItem
                                             disableRipple={true}
                                             key={'edit'}
@@ -102,7 +102,7 @@ export default function DiscussionMessage({
                                             />
                                         </MenuItem>
                                     ) : null,
-                                    message.capabilities?.canDelete ? (
+                                    message.capabilities?.delete ? (
                                         <MenuItem
                                             disableRipple={true}
                                             color={'error'}

@@ -320,6 +320,7 @@ export const MenuBar = ({
                         >
                             {close => [
                                 <ColorPalette
+                                    key={'textColorPalette'}
                                     onTextColorChange={color => {
                                         editor
                                             .chain()

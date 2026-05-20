@@ -81,7 +81,7 @@ class RemoveBgIntegration extends AbstractIntegration implements IntegrationData
         return 'remove.bg';
     }
 
-    public static function getTitle(): string
+    public static function getDisplayName(): string
     {
         return 'Remove BG';
     }

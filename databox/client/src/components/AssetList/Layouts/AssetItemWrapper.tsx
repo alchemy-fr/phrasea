@@ -31,9 +31,12 @@ export default function AssetItemWrapper<Item extends AssetOrAssetContainer>({
     );
 
     return itemComponent
-        ? React.createElement(itemComponent, {
-              item,
-              children: node,
-          })
+        ? React.createElement(
+              itemComponent,
+              {
+                  item,
+              },
+              node
+          )
         : node;
 }

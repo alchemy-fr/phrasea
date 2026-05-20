@@ -1,18 +1,16 @@
 import {Button, Skeleton} from '@mui/material';
 
-export default function PermissionRowSkeleton({
-    permissions,
-}: {
-    permissions: string[];
-}) {
+type Props = {columnCount: number};
+
+export default function PermissionRowSkeleton({columnCount}: Props) {
     return (
         <tr>
             <td className={'ug'}>
                 <Skeleton />
             </td>
-            {permissions.map(k => {
+            {Array(columnCount).map((_, i) => {
                 return (
-                    <td key={k} className={'p'}>
+                    <td key={i} className={'p'}>
                         <Skeleton
                             variant="rectangular"
                             width={21}

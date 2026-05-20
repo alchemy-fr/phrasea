@@ -35,7 +35,7 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
 
     const deleteConfirmAsset = async () => {
         openModal(ConfirmDialog, {
-            textToType: data.title,
+            textToType: data.name,
             title: t(
                 'asset_delete.confirm',
                 'Are you sure you want to delete this asset?'
@@ -75,15 +75,15 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                     {t('asset_collections.title', 'Collections')}
                 </Typography>
 
-                <Typography variant={'body1'} sx={{mb: 1}}>
+                <Typography variant={'body1'} sx={{mb: 1}} component={'div'}>
                     {data.referenceCollection ? (
                         <Trans
                             i18nKey={'asset_collections.reference_collection'}
                             values={{
                                 collection:
                                     data.referenceCollection
-                                        .absoluteTitleTranslated,
-                                workspace: data.workspace.nameTranslated,
+                                        .absoluteDisplayName,
+                                workspace: data.workspace.displayName,
                             }}
                             components={{
                                 strong: (
@@ -101,7 +101,7 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                         <Trans
                             i18nKey={'asset_collections.reference_workspace'}
                             values={{
-                                workspace: data.workspace.nameTranslated,
+                                workspace: data.workspace.displayName,
                             }}
                             components={{
                                 strong: (
@@ -137,7 +137,7 @@ export default function OperationsAsset({data, onClose, minHeight}: Props) {
                                         </ListItemIcon>
                                         <CollectionChip
                                             collection={c}
-                                            label={c.absoluteTitleTranslated}
+                                            label={c.absoluteDisplayName}
                                         />
 
                                         <ListItemSecondaryAction>

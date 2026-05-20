@@ -18,6 +18,7 @@ export default function AssetLiForm({schema, onSubmit, onCancel}: Props) {
         Object.keys(properties).forEach(k => {
             if (properties[k].defaultValue) {
                 initialValues[k] = properties[k].defaultValue;
+                // eslint-disable-next-line react-hooks/immutability
                 delete properties[k].defaultValue;
             }
         });

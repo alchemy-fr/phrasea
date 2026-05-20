@@ -73,8 +73,8 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             }
         }
 
-        if ($data->title) {
-            $object->setTitle($data->title);
+        if ($data->name) {
+            $object->setName($data->name);
         }
 
         if ($data->trackingId) {
@@ -88,8 +88,6 @@ class AssetInputTransformer extends AbstractFileInputTransformer
         if (null !== $data->getExtraMetadata()) {
             $object->setExtraMetadata($data->getExtraMetadata());
         }
-
-        $this->transformPrivacy($data, $object);
 
         if ($isNew) {
             $object->setWorkspace($workspace);
@@ -109,7 +107,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             }
 
             if (!empty($data->attributes)) {
-                $this->assignAttributes($this->attributeInputProcessor, $object, $data->attributes, $context);
+                $this->assignAttributes($object->getWorkspaceId(), $this->attributeInputProcessor, $object, $data->attributes, $context);
             }
 
             if ($data->relationship) {
@@ -149,6 +147,8 @@ class AssetInputTransformer extends AbstractFileInputTransformer
         if ($isNew && $data->isStory) {
             $this->assetManager->turnIntoStory($object);
         }
+
+        $this->transformPrivacy($data, $object);
 
         return $object;
     }

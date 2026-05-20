@@ -17,16 +17,17 @@ final readonly class ElasticSearchClient
     ) {
     }
 
-    public function updateByQuery(string $indexName, array $query, string|array $script): void
+    public function updateByQuery(string $indexName, ?array $query, string|array $script): void
     {
         $index = $this->getIndexName($indexName);
 
-        $this->request($index.'/_refresh');
+        $data = ['script' => $script];
+        if (!empty($query)) {
+            $data['query'] = $query;
+        }
 
-        $this->request($index.'/_update_by_query?conflicts=proceed', [
-            'script' => $script,
-            'query' => $query,
-        ]);
+        $this->request($index.'/_refresh');
+        $this->request($index.'/_update_by_query?conflicts=proceed', $data);
     }
 
     public function deleteByQuery(string $indexName, array $query): void

@@ -14,7 +14,6 @@ import ToggleWithLimit from '../../Media/Search/ToggleWithLimit';
 import ThumbSizeWidget from './ThumbSizeWidget';
 import SizeRatioWidget from './SizeRatioWidget.tsx';
 import {StateSetter} from '../../../types.ts';
-import AttributeListSwitcher from '../../AttributeList/AttributeListSwitcher.tsx';
 import TooltipToggleButton from '../../Ui/TooltipToggleButton.tsx';
 import {Layout} from '../Layouts';
 import GridViewIcon from '@mui/icons-material/GridView';
@@ -28,9 +27,9 @@ export default function DisplayOptionsMenu({}: Props) {
     const {
         state: {
             thumbSize,
-            displayTitle,
+            displayName,
             displayCollections,
-            titleRows,
+            nameRows,
             collectionsLimit,
             playVideos,
             displayTags,
@@ -119,7 +118,6 @@ export default function DisplayOptionsMenu({}: Props) {
                     </TooltipToggleButton>
                 </ToggleButtonGroup>
             </div>
-            <AttributeListSwitcher />
             <div>
                 <Typography id={sliderId} gutterBottom>
                     {t('layout.options.thumb_size.label', 'Thumbnail size')}
@@ -132,24 +130,24 @@ export default function DisplayOptionsMenu({}: Props) {
 
                 <ToggleWithLimit
                     label={t(
-                        'layout.options.display_title.label',
-                        'Display title'
+                        'layout.options.display_name.label',
+                        'Display Name'
                     )}
-                    unit={t('layout.options.title_rows.label', 'rows')}
-                    value={displayTitle}
+                    unit={t('layout.options.name_rows.label', 'rows')}
+                    value={displayName}
                     toggle={() => {
                         setDisplayPreferences(p => ({
                             ...p,
-                            displayTitle: !p.displayTitle,
+                            displayName: !p.displayName,
                         }));
                     }}
                     setLimit={v => {
                         setDisplayPreferences(p => ({
                             ...p,
-                            titleRows: v,
+                            nameRows: v,
                         }));
                     }}
-                    limit={titleRows}
+                    limit={nameRows}
                 />
                 <ToggleWithLimit
                     label={t(

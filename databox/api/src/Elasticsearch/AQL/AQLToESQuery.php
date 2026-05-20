@@ -567,6 +567,7 @@ final readonly class AQLToESQuery
                         'size' => 'fileSize',
                         'type' => 'fileType',
                         'mimetype' => 'fileMimeType',
+                        'extension' => 'fileExtension',
                         'filename' => 'fileName',
                         'hasSource' => 'hasSourceFile',
                         default => throw new BadRequestHttpException(sprintf('Built-in field "%s" not found', $fieldSlug)),

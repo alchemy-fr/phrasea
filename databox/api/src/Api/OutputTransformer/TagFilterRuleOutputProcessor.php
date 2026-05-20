@@ -36,12 +36,7 @@ final readonly class TagFilterRuleOutputProcessor implements OutputTransformerIn
             $output->setGroupId($data->getUserId());
         }
 
-        if (TagFilterRule::TYPE_COLLECTION === $data->getObjectType()) {
-            $output->setCollectionId($data->getObjectId());
-        } elseif (TagFilterRule::TYPE_WORKSPACE === $data->getObjectType()) {
-            $output->setWorkspaceId($data->getObjectId());
-        }
-
+        $output->setWorkspaceId($data->getWorkspaceId());
         $output->setInclude($data->getInclude()->getValues());
         $output->setExclude($data->getExclude()->getValues());
 

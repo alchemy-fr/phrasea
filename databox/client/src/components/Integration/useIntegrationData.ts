@@ -4,7 +4,7 @@ import {
     Pagination,
 } from '../../api/pagination.ts';
 import {IntegrationData} from '../../types.ts';
-import React from 'react';
+import {useCallback, useState} from 'react';
 import {
     getWorkspaceIntegrationData,
     ObjectType,
@@ -23,11 +23,12 @@ export function useIntegrationData({
     objectId,
     defaultData,
 }: Props) {
-    const [data, setData] = React.useState<Pagination<IntegrationData>>(
+    const [data, setData] = useState<Pagination<IntegrationData>>(
         createDefaultPagination(defaultData)
     );
 
-    const load = React.useCallback(
+    const load = useCallback(
+        // eslint-disable-next-line react-hooks/use-memo
         createPaginatedLoader(
             next =>
                 getWorkspaceIntegrationData(integrationId, next, {
@@ -41,7 +42,7 @@ export function useIntegrationData({
         [setData]
     );
 
-    const addData = React.useCallback(
+    const addData = useCallback(
         (newData: IntegrationData) => {
             setData(p => ({
                 ...p,
@@ -52,7 +53,7 @@ export function useIntegrationData({
         [setData]
     );
 
-    const removeData = React.useCallback(
+    const removeData = useCallback(
         (id: string) => {
             setData(p => ({
                 ...p,

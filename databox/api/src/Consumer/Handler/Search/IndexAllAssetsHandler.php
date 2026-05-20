@@ -14,15 +14,22 @@ final readonly class IndexAllAssetsHandler extends AbstractBatchHandler
 {
     public function __invoke(IndexAllAssets $message): void
     {
-        parent::doHandle();
+        parent::doHandle($message);
     }
 
-    protected function getIterator(): iterable
+    protected function getIterator(object $message): iterable
     {
-        return $this->em
+        $queryBuilder = $this->em
             ->createQueryBuilder()
             ->select('a.id')
-            ->from(Asset::class, 'a')
+            ->from(Asset::class, 'a');
+
+        if ($message->workspaceId) {
+            $queryBuilder->andWhere('a.workspace = :wid')
+                ->setParameter('wid', $message->workspaceId);
+        }
+
+        return $queryBuilder
             ->getQuery()
             ->toIterable();
     }

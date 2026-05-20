@@ -32,10 +32,6 @@ final class EntityAttributeType extends TextAttributeType
 
     public function validate($value, ExecutionContextInterface $context): void
     {
-        if (null === $value) {
-            return;
-        }
-
         if (!Uuid::isValid($value)) {
             $context->addViolation('Invalid entity ID');
         }
@@ -44,43 +40,43 @@ final class EntityAttributeType extends TextAttributeType
     public function normalizeElasticsearchValue(?string $value): string|array|null
     {
         $entity = $this->getEntityFromValue($value);
-        if ($entity instanceof AttributeEntity) {
-            $locales = array_merge($entity->getTranslations() ?? [], [
-                AttributeInterface::NO_LOCALE => $entity->getValue(),
-            ]);
-            $entityId = $entity->getId();
+        if (!$entity instanceof AttributeEntity || !$entity->isApproved()) {
+            return null;
+        }
 
-            $output = [];
+        $locales = array_merge($entity->getTranslations() ?? [], [
+            AttributeInterface::NO_LOCALE => $entity->getValue(),
+        ]);
+        $entityId = $entity->getId();
 
-            foreach ($locales as $locale => $v) {
-                if (empty($v)) {
+        $output = [];
+
+        foreach ($locales as $locale => $v) {
+            if (empty($v)) {
+                continue;
+            }
+
+            $output[$locale] = [
+                'id' => $entityId,
+                'value' => $v,
+            ];
+        }
+
+        $synonyms = $entity->getSynonyms();
+        if (!empty($synonyms)) {
+            foreach ($synonyms as $locale => $synonym) {
+                if (empty($synonym)) {
                     continue;
                 }
 
-                $output[$locale] = [
+                $output[$locale] ??= [
                     'id' => $entityId,
-                    'value' => $v,
                 ];
+                $output[$locale]['synonyms'] = $synonym;
             }
-
-            $synonyms = $entity->getSynonyms();
-            if (!empty($synonyms)) {
-                foreach ($synonyms as $locale => $synonym) {
-                    if (empty($synonym)) {
-                        continue;
-                    }
-
-                    $output[$locale] ??= [
-                        'id' => $entityId,
-                    ];
-                    $output[$locale]['synonyms'] = $synonym;
-                }
-            }
-
-            return $output;
         }
 
-        return null;
+        return $output;
     }
 
     public function getElasticSearchTextSubField(): ?string
@@ -111,14 +107,23 @@ final class EntityAttributeType extends TextAttributeType
                 'value' => $bucket['key'],
                 'label' => $translatedValue,
                 'item' => [
-                    'id' => $entity->getId(),
-                    'value' => $entity->getValue(),
+                    ...$this->normalizeEntity($entity),
                     'translatedValue' => $translatedValue,
                 ],
             ];
 
             return $bucket;
         }, $buckets);
+    }
+
+    private function normalizeEntity(AttributeEntity $entity): array
+    {
+        return [
+            'id' => $entity->getId(),
+            'value' => $entity->isApproved() ? $this->getTranslatedValue($entity) : null,
+            'emoji' => $entity->getEmoji(),
+            'color' => $entity->getColor(),
+        ];
     }
 
     protected function getTranslatedValue(AttributeEntity $entity, ?string $locale = null): ?string
@@ -159,8 +164,8 @@ final class EntityAttributeType extends TextAttributeType
     public function getEntityBestTranslation(?string $value, ?string $locale): ?string
     {
         $entity = $this->getEntityFromValue($value);
-        if (!$entity instanceof AttributeEntity) {
-            return '';
+        if (!$entity instanceof AttributeEntity || !$entity->isApproved()) {
+            return null;
         }
 
         return $this->getTranslatedValue($entity, $locale);
@@ -174,15 +179,15 @@ final class EntityAttributeType extends TextAttributeType
         }
 
         return [
-            'id' => $entity->getId(),
-            'value' => $this->getTranslatedValue($entity),
+            ...$this->normalizeEntity($entity),
+            'status' => $entity->getStatus(),
             'createdAt' => $entity->getCreatedAt(),
         ];
     }
 
-    public function getStringValue(?string $value): string
+    public function getStringValue(?string $value, ?string $locale): string
     {
-        return $this->getEntityBestTranslation($value, null) ?? '';
+        return $this->getEntityBestTranslation($value, $locale) ?? '';
     }
 
     public function getElasticSearchMapping(string $locale): ?array

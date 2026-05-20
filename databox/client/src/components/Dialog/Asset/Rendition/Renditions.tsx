@@ -94,7 +94,7 @@ export default function Renditions({data, onClose, minHeight}: Props) {
     const onUpload = async (rendition: AssetRendition) => {
         openModal(UploadRenditionDialog, {
             asset: data,
-            renditionName: rendition.nameTranslated,
+            renditionName: rendition.displayName,
             definitionId: rendition.definition.id,
         });
     };
@@ -102,7 +102,7 @@ export default function Renditions({data, onClose, minHeight}: Props) {
     const onUploadFromDef = async (def: RenditionDefinition) => {
         openModal(UploadRenditionDialog, {
             asset: data,
-            renditionName: def.nameTranslated,
+            renditionName: def.displayName,
             definitionId: def.id,
         });
     };
@@ -126,7 +126,7 @@ export default function Renditions({data, onClose, minHeight}: Props) {
                             asset={data}
                             key={r.id}
                             rendition={r}
-                            title={data.resolvedTitle}
+                            name={data.resolvedName}
                             dimensions={maxDimensions}
                             onUpload={onUpload}
                         />
@@ -143,7 +143,11 @@ export default function Renditions({data, onClose, minHeight}: Props) {
                             definition={def}
                             key={def.id}
                             dimensions={maxDimensions}
-                            onUpload={onUploadFromDef}
+                            onUpload={
+                                data.capabilities.edit
+                                    ? onUploadFromDef
+                                    : undefined
+                            }
                         />
                     ))}
                 </>

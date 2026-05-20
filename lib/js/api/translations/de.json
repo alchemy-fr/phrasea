@@ -5,7 +5,7 @@
                 "http_error": "Serverfehler",
                 "http_unauthorized": "Unberechtigt",
                 "session_expired": "Ihre Sitzung ist abgelaufen",
-                "http_bad_request": "Fehlerhafte Anfrage",
+                "http_bad_request": "Schlechte Anfrage",
                 "http_not_found": "Nicht gefunden",
                 "network": "Netzwerkfehler"
             },

@@ -24,10 +24,10 @@ use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Share;
 use App\Repository\Core\AssetRenditionRepository;
-use App\Security\RenditionPermissionManager;
+use App\Security\ClientUrlHelper;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
-use App\Service\Asset\Attribute\AssetTitleResolver;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Discussion\DiscussionManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -43,14 +43,14 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly RenditionPermissionManager $renditionPermissionManager,
         private readonly AttributesResolver $attributesResolver,
-        private readonly AssetTitleResolver $assetTitleResolver,
+        private readonly AssetNameResolver $assetNameResolver,
         private readonly FieldNameResolver $fieldNameResolver,
         private readonly BuiltInFieldRegistry $builtInFieldRegistry,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
         private readonly DiscussionManager $discussionManager,
         private readonly NotifierInterface $notifier,
+        private readonly ClientUrlHelper $clientUrlHelper,
     ) {
     }
 
@@ -76,18 +76,16 @@ class AssetOutputTransformer implements OutputTransformerInterface
         $preferredLocales = $this->getPreferredLocales($data->getWorkspace());
 
         $user = $this->getUser();
-        $userId = $user instanceof JwtUser ? $user->getId() : null;
-        $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
 
-        $output->setCreatedAt($data->getCreatedAt());
-        $output->setUpdatedAt($data->getUpdatedAt());
-        $output->setEditedAt($data->getEditedAt());
-        $output->setAttributesEditedAt($data->getAttributesEditedAt());
         $output->setExtraMetadata($data->getExtraMetadata());
         $output->deleted = $data->isDeleted();
         $output->trackingId = $data->getTrackingId();
         $output->externalId = $data->getExternalId();
         $output->resolvedTrackingId = $data->getResolvedTrackingId();
+        $output->setCreatedAt($data->getCreatedAt());
+        $output->setUpdatedAt($data->getUpdatedAt());
+        $output->editedAt = $data->getEditedAt();
+        $output->attributesEditedAt = $data->getAttributesEditedAt();
 
         $output->setSource($data->getSource());
 
@@ -108,15 +106,15 @@ class AssetOutputTransformer implements OutputTransformerInterface
             }
             $output->setAttributes($attributes);
 
-            $output->setTitle($data->getTitle());
-            $titleAttribute = $this->assetTitleResolver->resolveTitle($data, $attributesIndex, $preferredLocales);
-            if ($titleAttribute instanceof Attribute) {
-                $output->setResolvedTitle($titleAttribute->getValue());
-                $output->setTitleHighlight($titleAttribute->getHighlight());
+            $output->setName($data->getName());
+            $nameAttribute = $this->assetNameResolver->resolveName($data, $attributesIndex, $preferredLocales);
+            if ($nameAttribute instanceof Attribute) {
+                $output->setResolvedName($nameAttribute->getValue());
+                $output->setNameHighlight($nameAttribute->getHighlight());
             } else {
-                $output->setResolvedTitle($titleAttribute ?? $data->getTitle());
-                if (isset($highlights['title'])) {
-                    $output->setTitleHighlight(reset($highlights['title']));
+                $output->setResolvedName($nameAttribute ?? $data->getName());
+                if (isset($highlights['name'])) {
+                    $output->setNameHighlight(reset($highlights['name']));
                 }
             }
 
@@ -160,12 +158,17 @@ class AssetOutputTransformer implements OutputTransformerInterface
                 ]);
 
             foreach (RenditionDefinition::BUILT_IN_RENDITIONS as $type) {
-                if (null !== $file = $this->getRenditionUsedAsType($renditions, $data, $type, $userId, $groupIds)) {
+                if (null !== $file = $this->getRenditionUsedAsType($renditions, $type)) {
                     $output->{'set'.ucfirst($type)}($file);
                 }
             }
 
-            $output->referenceCollection = $data->getReferenceCollection();
+            $output->webUrl = $this->clientUrlHelper->generateAssetUrl($data);
+
+            $referenceCollection = $data->getReferenceCollection();
+            if (null !== $referenceCollection && $this->isGranted(AbstractVoter::READ, $referenceCollection)) {
+                $output->referenceCollection = $referenceCollection;
+            }
 
             $output->setCollections($data->getCollections()->map(function (CollectionAsset $collectionAsset,
             ): Collection {
@@ -182,14 +185,14 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
         if ($this->hasGroup([Asset::GROUP_LIST], $context)) {
             $capabilities = [
-                'canEdit' => $this->isGranted(AbstractVoter::EDIT, $data),
-                'canEditAttributes' => $this->isGranted(AssetVoter::EDIT_ATTRIBUTES, $data),
-                'canShare' => $this->isGranted(AssetVoter::SHARE, $data),
-                'canDelete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
+                'editAttributes' => $this->isGranted(AssetVoter::EDIT_ATTRIBUTES, $data),
+                'share' => $this->isGranted(AssetVoter::SHARE, $data),
+                'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
             ];
 
             if ($this->hasGroup([Asset::GROUP_READ], $context)) {
-                $capabilities['canEditPermissions'] = $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data);
+                $capabilities['editPermissions'] = $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data);
             }
 
             $output->setCapabilities($capabilities);
@@ -218,15 +221,12 @@ class AssetOutputTransformer implements OutputTransformerInterface
      */
     private function getRenditionUsedAsType(
         array $assetRenditions,
-        Asset $asset,
         string $type,
-        ?string $userId,
-        array $groupIds,
     ): ?AssetRendition {
         foreach ($assetRenditions as $rendition) {
             if ($rendition->getDefinition()->{'isUseAs'.ucfirst($type)}()) {
                 // Return the first viewable sub def for user
-                if ($this->renditionPermissionManager->isGranted($asset, $rendition->getDefinition()->getPolicy(), $userId, $groupIds)) {
+                if ($this->isGranted(AbstractVoter::READ, $rendition)) {
                     return $rendition;
                 }
             }
