@@ -7,7 +7,7 @@ namespace App\Entity\Traits;
 use ApiPlatform\Metadata\ApiProperty;
 use App\Entity\Publication;
 use App\Entity\PublicationProfile;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 trait CapabilitiesTrait
 {

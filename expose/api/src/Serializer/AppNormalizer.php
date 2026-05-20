@@ -43,7 +43,7 @@ final class AppNormalizer implements NormalizerInterface, NormalizerAwareInterfa
     public function getSupportedTypes(?string $format): array
     {
         return [
-            '*' => true,
+            null => true,
         ];
     }
 

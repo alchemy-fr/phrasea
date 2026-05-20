@@ -5,20 +5,17 @@ declare(strict_types=1);
 namespace App\Serializer;
 
 use App\Serializer\Normalizer\EntityNormalizerInterface;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 class EntityNormalizer
 {
-    /**
-     * @var EntityNormalizerInterface[]
-     */
-    private iterable $normalizers;
-
     public function __construct(
-        #[TaggedIterator(EntityNormalizerInterface::TAG)]
-        iterable $normalizers,
+        /**
+         * @var EntityNormalizerInterface[]
+         */
+        #[AutowireIterator(EntityNormalizerInterface::TAG)]
+        private readonly iterable $normalizers,
     ) {
-        $this->normalizers = $normalizers;
     }
 
     public function normalize($object, array &$context = []): void

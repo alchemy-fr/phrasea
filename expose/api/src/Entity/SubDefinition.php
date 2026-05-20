@@ -18,7 +18,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_asset_type', columns: ['asset_id', 'name'])]

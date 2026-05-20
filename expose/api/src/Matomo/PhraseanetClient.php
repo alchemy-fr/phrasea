@@ -20,7 +20,7 @@ final readonly class PhraseanetClient
 
     public function patchField(array $stat): void
     {
-        if (0 === preg_match('#^(?:\./)?\w+_(\d+)_(\d+)$#', $stat['label'], $regs)) {
+        if (0 === preg_match('#^(?:\./)?\w+_(\d+)_(\d+)$#', (string) $stat['label'], $regs)) {
             return;
         }
 
@@ -46,7 +46,7 @@ final readonly class PhraseanetClient
         $currentAttr = [];
         foreach ($data['response']['record_metadatas'] as $meta) {
             if ('MatomoMediaMetrics' === $meta['name']) {
-                $currentAttr = json_decode($meta['value'], true);
+                $currentAttr = json_decode((string) $meta['value'], true);
                 break;
             }
         }

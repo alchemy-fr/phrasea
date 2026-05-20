@@ -17,16 +17,10 @@ final class SyncMatomoPhraseanetCommand extends Command
 {
     public static $defaultName = 'app:matomo:sync-phraseanet';
 
-    private MatomoClient $matomoClient;
-    private PhraseanetClient $phraseanetClient;
-
     public function __construct(
-        MatomoClient $matomoClient,
-        PhraseanetClient $phraseanetClient,
+        private readonly MatomoClient $matomoClient,
+        private readonly PhraseanetClient $phraseanetClient,
     ) {
-        $this->matomoClient = $matomoClient;
-        $this->phraseanetClient = $phraseanetClient;
-
         parent::__construct(self::$defaultName);
     }
 
