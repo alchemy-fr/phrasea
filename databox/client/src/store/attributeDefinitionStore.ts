@@ -28,6 +28,7 @@ import NullableBooleanWidget from '../components/Form/NullableBooleanWidget.tsx'
 import TagSelect from '../components/Form/TagSelect.tsx';
 import PrivacyWidget from '../components/Form/PrivacyWidget.tsx';
 import RenditionDefinitionSelect from '../components/Form/RenditionDefinitionSelect.tsx';
+import {getBestTranslatedValue} from '@alchemy/i18n/src/Locale/localeHelper.ts';
 
 export type AttributeDefinitionsIndex<
     T extends BaseAttribute = AttributeDefinitionOrBuiltIn,
@@ -274,12 +275,16 @@ function normalizeDefinition<T extends BaseAttribute>(definition: T): T {
             return {
                 ...d,
                 entityIri: EntityName.Entity,
-                resolveLabel: (entity: object) =>
-                    (entity as AttributeEntity).value,
+                resolveLabel: (entity: AttributeEntity) => {
+                    return getBestTranslatedValue(
+                        entity.translations,
+                        entity.value
+                    );
+                },
                 widget: {
                     component: AttributeEntitySelect,
                     props: {
-                        type: d.entityList,
+                        list: d.entityList,
                     },
                 },
             };
@@ -287,15 +292,13 @@ function normalizeDefinition<T extends BaseAttribute>(definition: T): T {
             return {
                 ...d,
                 entityIri: EntityName.Collection,
-                resolveLabel: (entity: object) =>
-                    (entity as Collection).displayName,
+                resolveLabel: (entity: Collection) => entity.displayName,
             };
         case AttributeType.Workspace:
             return {
                 ...d,
                 entityIri: EntityName.Workspace,
-                resolveLabel: (entity: object) =>
-                    (entity as Workspace).displayName,
+                resolveLabel: (entity: Workspace) => entity.displayName,
                 widget: {
                     component: WorkspaceSelect,
                 },

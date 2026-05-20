@@ -9,7 +9,7 @@ import {ListItemText} from '@mui/material';
 import {FlexRow} from '@alchemy/phrasea-ui';
 
 type Props = {
-    data: AttributeEntity;
+    data: AttributeEntity | undefined; // Entity may be out of sync, so undefined is possible
     inList?: boolean;
     suffix?: React.ReactNode;
     options?: FormatAttributeEntityLabelOptions;
@@ -21,7 +21,7 @@ export default function AttributeEntityListText({
     suffix,
     inList,
 }: Props) {
-    const text = formatAttributeEntityLabel(data, options);
+    const text = data ? formatAttributeEntityLabel(data, options) : '';
 
     const label = (
         <>
@@ -32,7 +32,7 @@ export default function AttributeEntityListText({
 
     const labelNode = inList ? <ListItemText primary={label} /> : label;
 
-    const node = data.color ? (
+    const node = data?.color ? (
         <>
             <TagColor color={data.color} />
             {labelNode}

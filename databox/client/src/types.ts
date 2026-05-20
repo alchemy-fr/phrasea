@@ -176,7 +176,7 @@ export interface BaseAttribute extends Entity {
     entityIri?: string;
     slug: string;
     searchSlug: string;
-    resolveLabel?: (entity: object) => string;
+    resolveLabel?: (entity: object, locale?: string) => string;
     widget?: FieldWidget;
     builtIn?: true;
 }

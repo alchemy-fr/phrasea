@@ -1,8 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {AttrValue} from './AttributesEditor';
 import {getAttributeType} from './types';
-import {AttributeWidgetOptions} from './types/types';
-import {AttributeDefinition, EntityList, Workspace} from '../../../../types.ts';
 import {AttributeWidgetProps} from './attributeTypes.ts';
 import {createNewValue} from './values.ts';
 
@@ -76,13 +74,4 @@ export default function AttributeWidget({
             })}
         </>
     );
-}
-
-export function createWidgetOptionsFromDefinition(
-    definition: AttributeDefinition
-): AttributeWidgetOptions {
-    return {
-        list: definition.entityList as EntityList | undefined,
-        workspaceId: (definition.workspace as Workspace).id,
-    };
 }
