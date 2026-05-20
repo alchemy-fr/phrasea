@@ -138,16 +138,44 @@ class AttributeRepository extends ServiceEntityRepository
                     ->createQueryBuilder('a')
                     ->select('a.id')
                     ->innerJoin('a.definition', 'd')
-                    ->andWhere('d.workspace = :workspace')
+                    ->andWhere('d.workspace = :w')
                     ->andWhere('d.type = :t')
                     ->andWhere('d.entityList = :etype')
                     ->andWhere('a.value = :id')
                     ->getDQL()
             ))
-            ->setParameter('workspace', $workspaceId)
+            ->setParameter('w', $workspaceId)
             ->setParameter('t', EntityAttributeType::getName())
             ->setParameter('etype', $entityListId)
             ->setParameter('id', $entityId)
+            ->getQuery()
+            ->execute();
+    }
+
+    public function replaceAttributeEntity(string $workspaceId, string $entityListId, $newId, array $previousIds): void
+    {
+        $expr = $this->_em->getExpressionBuilder();
+        $this
+            ->createQueryBuilder('t')
+            ->update()
+            ->set('t.value', ':newValue')
+            ->andWhere($expr->in(
+                't.id',
+                $this
+                    ->createQueryBuilder('a')
+                    ->select('a.id')
+                    ->innerJoin('a.definition', 'd')
+                    ->andWhere('d.workspace = :w')
+                    ->andWhere('d.type = :t')
+                    ->andWhere('d.entityList = :etype')
+                    ->andWhere('a.value IN (:prev)')
+                    ->getDQL()
+            ))
+            ->setParameter('w', $workspaceId)
+            ->setParameter('t', EntityAttributeType::getName())
+            ->setParameter('etype', $entityListId)
+            ->setParameter('prev', $previousIds)
+            ->setParameter('newValue', $newId)
             ->getQuery()
             ->execute();
     }

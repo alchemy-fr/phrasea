@@ -42,7 +42,15 @@ export default function AttributeEntityListText({
     );
 
     if (!inList) {
-        return <FlexRow>{node}</FlexRow>;
+        return (
+            <FlexRow
+                style={{
+                    display: 'inline-flex',
+                }}
+            >
+                {node}
+            </FlexRow>
+        );
     }
 
     return node;
