@@ -388,6 +388,11 @@ function normalizeDefinitionFromId<T extends BaseAttribute>(d: T): T {
                 ...d,
                 type: AttributeType.User,
             };
+        case BuiltInFieldEnum.Workspace:
+            return {
+                ...d,
+                type: AttributeType.Workspace,
+            };
         default:
             return d;
     }

@@ -38,4 +38,9 @@ final class ScoreBuiltInField extends AbstractBuiltInAttribute
     {
         return false;
     }
+
+    public function isSearchable(): bool
+    {
+        return false;
+    }
 }

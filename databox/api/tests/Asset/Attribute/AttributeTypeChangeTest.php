@@ -15,10 +15,12 @@ use App\Attribute\Type\EntityAttributeType;
 use App\Attribute\Type\FileSizeAttributeType;
 use App\Attribute\Type\GeoPointAttributeType;
 use App\Attribute\Type\HtmlAttributeType;
+use App\Attribute\Type\IdAttributeType;
 use App\Attribute\Type\IpAttributeType;
 use App\Attribute\Type\JsonAttributeType;
 use App\Attribute\Type\KeywordAttributeType;
 use App\Attribute\Type\NumberAttributeType;
+use App\Attribute\Type\PrivacyAttributeType;
 use App\Attribute\Type\TextareaAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Tests\AbstractDataboxTestCase;
@@ -34,15 +36,17 @@ class AttributeTypeChangeTest extends AbstractDataboxTestCase
 
         $strictFormats = [
             BooleanAttributeType::NAME,
-            IpAttributeType::NAME,
             CollectionPathAttributeType::NAME,
             ColorAttributeType::NAME,
-            DateTimeAttributeType::NAME,
             DateAttributeType::NAME,
-            GeoPointAttributeType::NAME,
-            NumberAttributeType::NAME,
+            DateTimeAttributeType::NAME,
             DurationAttributeType::NAME,
             FileSizeAttributeType::NAME,
+            GeoPointAttributeType::NAME,
+            IdAttributeType::NAME,
+            IpAttributeType::NAME,
+            NumberAttributeType::NAME,
+            PrivacyAttributeType::NAME,
         ];
 
         $disallowedTranslations = [
@@ -73,17 +77,7 @@ class AttributeTypeChangeTest extends AbstractDataboxTestCase
                 KeywordAttributeType::NAME,
                 TextAttributeType::NAME,
             ],
-            BooleanAttributeType::NAME => [
-                BooleanAttributeType::NAME,
-                IpAttributeType::NAME,
-                CollectionPathAttributeType::NAME,
-                ColorAttributeType::NAME,
-                DateTimeAttributeType::NAME,
-                DateAttributeType::NAME,
-                GeoPointAttributeType::NAME,
-                DurationAttributeType::NAME,
-                FileSizeAttributeType::NAME,
-            ],
+            BooleanAttributeType::NAME => array_filter($strictFormats, fn (string $t): bool => NumberAttributeType::NAME !== $t),
             CollectionPathAttributeType::NAME => [
                 ...$strictFormats,
             ],
@@ -115,6 +109,12 @@ class AttributeTypeChangeTest extends AbstractDataboxTestCase
                 ...$strictFormats,
             ],
             FileSizeAttributeType::NAME => [
+                ...$strictFormats,
+            ],
+            IdAttributeType::NAME => [
+                ...$strictFormats,
+            ],
+            PrivacyAttributeType::NAME => [
                 ...$strictFormats,
             ],
         ];
