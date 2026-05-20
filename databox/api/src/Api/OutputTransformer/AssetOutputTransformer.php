@@ -7,7 +7,6 @@ namespace App\Api\OutputTransformer;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
-use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Traits\UserLocaleTrait;
@@ -39,8 +38,6 @@ class AssetOutputTransformer implements OutputTransformerInterface
     use UserOutputTransformerTrait;
     use UserLocaleTrait;
     use GroupsHelperTrait;
-
-    private ?string $lastGroupKey = null;
 
     public function __construct(
         private readonly EntityManagerInterface $em,
@@ -101,7 +98,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
             Share::GROUP_PUBLIC_READ,
             ResolveEntitiesOutput::GROUP_READ,
         ], $context)) {
-            $attributesIndex = $this->attributesResolver->resolveAssetAttributes($data, true);
+            $attributesIndex = $data->attributesIndex ?? $this->attributesResolver->resolveAssetAttributes($data, true);
             $attributes = $attributesIndex->getFlattenAttributes();
 
             if (!empty($highlights)) {
@@ -121,35 +118,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
                 }
             }
 
-            $groupBy = $context['groupBy'][0] ?? null;
-            if (null !== $groupBy) {
-                $indexValue = null;
-                foreach ($attributesIndex->getDefinitions() as $definitionIndex) {
-                    if ($groupBy === $this->fieldNameResolver->getFieldNameFromDefinition($definitionIndex->getDefinition())) {
-                        foreach ($preferredLocales as $l) {
-                            if ($definitionIndex->getDefinition()->isMultiple()) {
-                                continue;
-                            }
-                            if (null !== $attr = $definitionIndex->getAttribute($l)) {
-                                $indexValue = $attr->getValue();
-                                break 2;
-                            }
-                        }
-
-                        break;
-                    }
-                }
-
-                $groupValue = $this->getGroupValue($groupBy, $data, $indexValue);
-                $groupKey = $groupValue->getKey();
-
-                if ($this->lastGroupKey !== $groupKey) {
-                    $output->setGroupValue($groupValue);
-
-                    $this->lastGroupKey = $groupKey;
-                }
-            }
-
+            $output->setGroupValue($data->groupValue);
             $output->setPrivacy($data->getPrivacy());
             $output->setTags($data->getTags()->getValues());
             $output->setWorkspace($data->getWorkspace());
@@ -208,7 +177,6 @@ class AssetOutputTransformer implements OutputTransformerInterface
         }
 
         if ($this->hasGroup([Asset::GROUP_READ], $context)) {
-
             if ($user instanceof JwtUser) {
                 $output->topicSubscriptions = $this->notifier->getTopicSubscriptions(
                     $data->getTopicKeys(),
@@ -240,26 +208,5 @@ class AssetOutputTransformer implements OutputTransformerInterface
         }
 
         return null;
-    }
-
-    private function getGroupValue($groupBy, Asset $object, $indexValue): GroupValue
-    {
-        $builtInField = $this->builtInFieldRegistry->getBuiltInField($groupBy);
-
-        if (null !== $builtInField) {
-            $value = $builtInField->getValueFromAsset($object);
-
-            return $builtInField->resolveGroupValue($groupBy, $value);
-        }
-
-        ['type' => $type] = $this->fieldNameResolver->getFieldFromName($groupBy);
-        $key = $value = $indexValue ?? null;
-        if (is_array($key)) {
-            $key = implode(',', $key);
-        }
-        $value = $type->getGroupValueLabel($type->denormalizeValue($value));
-
-        return new GroupValue($groupBy, $type::getName(), $key, null !== $value ? [$value] : []);
-
     }
 }

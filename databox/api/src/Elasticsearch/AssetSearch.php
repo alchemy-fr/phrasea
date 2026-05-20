@@ -16,6 +16,7 @@ use App\Repository\SavedSearch\SavedSearchRepository;
 use App\Security\TagFilterManager;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
+use App\Service\Asset\AssetSortGroupMapper;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
@@ -35,6 +36,7 @@ class AssetSearch extends AbstractSearch
         private readonly DeletedBuiltInField $deletedBuiltInField,
         private readonly CollectionRepository $collectionRepository,
         private readonly SavedSearchRepository $savedSearchRepository,
+        private readonly AssetSortGroupMapper $assetSortGroupMapper,
     ) {
     }
 
@@ -196,6 +198,11 @@ class AssetSearch extends AbstractSearch
         $facets = $this->facetHandler->normalizeBuckets($facets);
 
         $esQuery = $query->toArray();
+
+        $groupByKey = $options['group'][0] ?? null;
+        if (null !== $groupByKey) {
+            $this->assetSortGroupMapper->resolveSortGroups($result, $groupByKey);
+        }
 
         return [$result, $facets, $esQuery, $searchTime];
     }
