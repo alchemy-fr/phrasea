@@ -241,12 +241,18 @@ class AssetSearch extends AbstractSearch
                     continue;
                 }
 
+                $fieldName = $esFieldInfo['name'];
+                $type = $esFieldInfo['type'];
+                if ($type->getElasticSearchSortSubField()) {
+                    $fieldName .= '.'.$type->getElasticSearchSortSubField();
+                }
+
                 $w = strtoupper((string) $way);
                 if (!in_array($w, ['ASC', 'DESC'], true)) {
                     throw new BadRequestHttpException(sprintf('Invalid sort way "%s"', $way));
                 }
 
-                $sort[] = [$esFieldInfo['name'] => $w];
+                $sort[] = [$fieldName => $w];
             }
         } else {
             $sort[] = [

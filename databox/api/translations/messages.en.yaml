@@ -59,6 +59,8 @@ built_in_attribute:
         name: Score
     _id:
         name: ID
+    name:
+        name: Name
     collectionPaths:
         name: Collections
     workspaceId:

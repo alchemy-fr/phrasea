@@ -76,7 +76,7 @@ App\Entity\Core\AttributeDefinition:
     policy: '@ap_public'
   ad_date:
     name: Date
-    fieldType: date
+    type: date
     multiple: false
     workspace: '@w_test'
     policy: '@ap_public'

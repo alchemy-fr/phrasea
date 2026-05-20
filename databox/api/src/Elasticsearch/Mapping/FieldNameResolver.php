@@ -7,7 +7,6 @@ namespace App\Elasticsearch\Mapping;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
-use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use App\Entity\Core\AttributeDefinition;
 
@@ -46,14 +45,6 @@ final readonly class FieldNameResolver
     public function getFieldFromName(string $name): array
     {
         $enabled = true;
-        if ('name' === $name) {
-            return [
-                'field' => $name,
-                'type' => $this->attributeTypeRegistry->getStrictType(TextAttributeType::NAME),
-                'enabled' => $enabled,
-            ];
-        }
-
         $builtInField = $this->builtInFieldRegistry->getBuiltInField($name);
         if (null !== $builtInField) {
             $type = $this->attributeTypeRegistry->getStrictType($builtInField->getType());

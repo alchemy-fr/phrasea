@@ -54,6 +54,9 @@ fos_elastica:
                 name:
                     type: text
                     analyzer: text
+                    fields:
+                        raw:
+                            type: keyword
                 suggestion:
                     property_path: name
                     type: text

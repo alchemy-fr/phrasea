@@ -275,7 +275,7 @@ class AttributeSearch
     }
 
     /**
-     * @return array{name: string, type: AttributeTypeInterface}
+     * @return array{name: string, type: AttributeTypeInterface, enabled: bool}
      */
     public function getESFieldInfo(string $attr): array
     {
