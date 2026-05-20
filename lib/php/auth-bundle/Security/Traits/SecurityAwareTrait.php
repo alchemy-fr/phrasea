@@ -126,13 +126,14 @@ trait SecurityAwareTrait
             return false;
         }
 
-        if (!$token->hasAttribute('roles')) {
+        $roles = $this->roleMapper->getRoles([$role]) ?? [$role];
+        $tokenRoles = $token->getRoleNames();
+        if (empty($tokenRoles)) {
             return false;
         }
 
-        $roles = $this->roleMapper->getRoles([$role]) ?? [$role];
         foreach ($roles as $r) {
-            if (in_array($r, $token->getAttribute('roles'), true)) {
+            if (in_array($r, $tokenRoles, true)) {
                 return true;
             }
         }

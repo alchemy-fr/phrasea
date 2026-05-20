@@ -26,7 +26,7 @@ final class FileSizeBuiltInField extends AbstractBuiltInAttribute
 
     public function getValueFromAsset(Asset $asset): mixed
     {
-        return $asset->getSourceFileType();
+        return $asset->getSourceFileSize();
     }
 
     public function getType(): string

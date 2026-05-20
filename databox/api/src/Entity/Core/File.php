@@ -188,7 +188,7 @@ class File extends AbstractUuidEntity implements \Stringable
         $this->checksum = $checksum;
     }
 
-    public function getFilename(): string
+    public function getFileName(): string
     {
         return $this->originalName ?? sprintf('%s%s', $this->getId(), $this->getExtensionWithDot());
     }

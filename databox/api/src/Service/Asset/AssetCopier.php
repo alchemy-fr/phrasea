@@ -54,7 +54,7 @@ class AssetCopier
                     $file->getId(),
                     $collection ? [$collection->getId()] : [],
                     $asset->getName(),
-                    $file->getFilename()
+                    $file->getFileName()
                 ));
             }
         } else {

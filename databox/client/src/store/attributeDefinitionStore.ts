@@ -240,7 +240,7 @@ export function getBuiltInFieldValueResolver(
         [BuiltInFieldEnum.FileType]: asset => asset.source?.type,
         [BuiltInFieldEnum.FileExtension]: asset => asset.source?.extension,
         [BuiltInFieldEnum.FileSize]: asset => asset.source?.size,
-        [BuiltInFieldEnum.FileName]: asset => asset.createdAt,
+        [BuiltInFieldEnum.FileName]: asset => asset.source?.fileName,
         [BuiltInFieldEnum.HasSource]: asset => !!asset.source,
         [BuiltInFieldEnum.Deleted]: asset =>
             asset.deleted || asset.referenceCollection?.deleted,

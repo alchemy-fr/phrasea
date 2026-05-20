@@ -28,6 +28,7 @@ export interface ApiFile extends Entity {
     extension: string;
     alternateUrls: AlternateUrl[];
     size: number;
+    fileName: string;
     metadata?: Record<string, any>;
     accepted?: boolean;
     analysis?: FileAnalysis | null | undefined;

@@ -75,7 +75,7 @@ final class OwnerBuiltInField extends AbstractBuiltInAttribute
 
     public function getValueFromAsset(Asset $asset): mixed
     {
-        return $asset->getPrivacy();
+        return $asset->getOwnerId();
     }
 
     protected function getAggregationTranslationKey(): string

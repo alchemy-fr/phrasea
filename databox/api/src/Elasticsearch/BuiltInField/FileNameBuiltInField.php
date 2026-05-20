@@ -26,7 +26,7 @@ final class FileNameBuiltInField extends AbstractBuiltInAttribute
 
     public function getValueFromAsset(Asset $asset): mixed
     {
-        return $asset->getSourceFilename();
+        return $asset->getSourceFileName();
     }
 
     public function getType(): string

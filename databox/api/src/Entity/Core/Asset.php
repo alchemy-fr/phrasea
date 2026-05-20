@@ -722,9 +722,9 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     /**
      * Used by ES.
      */
-    public function getSourceFilename(): ?string
+    public function getSourceFileName(): ?string
     {
-        return $this->source?->getFilename();
+        return $this->source?->getFileName();
     }
 
     /**
