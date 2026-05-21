@@ -19,7 +19,7 @@
     "require": {
         "php": "^8.5",
         "alchemy/auth-bundle": "@dev",
-        "easycorp/easyadmin-bundle": "^4.0,<=4.20.2",
+        "easycorp/easyadmin-bundle": "^4.0",
         "php-amqplib/php-amqplib": "^3.7",
         "symfony/framework-bundle": "^7.1"
     },
