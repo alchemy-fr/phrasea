@@ -32,6 +32,7 @@ export type ConfigPhraseanetSubdef = {
     useAsAnimatedThumbnail?: boolean;
     buildMode?: number;
     policy?: string;
+    policyAssetEditable?: boolean;
     parent?: string | null;
     builders: Record<string, ConfigRenditionBuilder>;
 };

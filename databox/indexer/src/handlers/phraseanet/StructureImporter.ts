@@ -71,6 +71,7 @@ export async function addMissingRenditionsConf(
         if (!dm.renditions[sd.name]) {
             dm.renditions[sd.name] = {
                 policy: sd.class,
+                policyAssetEditable: false,
                 buildMode: RenditionBuildMode.BUILD_FROM_PARENT,
                 parent: 'main',
                 useAsPreview: sd.name === 'preview' ? true : undefined,
@@ -181,6 +182,7 @@ export async function importSubdefsStructure(
             useAsAnimatedThumbnail: boolean;
             types: Record<string, PhraseanetSubdefStruct>;
             policy: string | null;
+            policyAssetEditable: boolean | false;
             labels: Record<string, string>;
         }
     > = {};
@@ -213,6 +215,7 @@ export async function importSubdefsStructure(
                     rendition.useAsAnimatedThumbnail ?? false,
                 types: {} as Record<string, PhraseanetSubdefStruct>,
                 policy: rendition['policy'] ?? null,
+                policyAssetEditable: rendition['policyAssetEditable'] ?? false,
                 labels: {},
             };
         }
@@ -251,6 +254,7 @@ export async function importSubdefsStructure(
                 subdefToRendition[settings['from']].push(name);
                 sdByName[name].types[sd.type] = sd;
                 sdByName[name].labels = sd.labels; // todo: check conflicts
+                sdByName[name].policyAssetEditable = rendition.policyAssetEditable ?? false;
                 if (!rendition.policy) {
                     // use phrnet class
                     if (sdByName[name].policy === null) {
@@ -289,6 +293,7 @@ export async function importSubdefsStructure(
                 name: sd.policy,
                 workspace: `/workspaces/${workspaceId}`,
                 public: true,
+                editable:  sd.policyAssetEditable,
             });
         }
 
