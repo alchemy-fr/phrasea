@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a88d89913a1bbecde785dd6d602712ac",
+    "content-hash": "2ad958bec6a141bb5716f0558f66affa",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -60,7 +60,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-672-acl-optim",
+            "version": "dev-PS-1160-acl-root",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -120,7 +120,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-672-acl-optim",
+            "version": "dev-PS-1160-acl-root",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -179,7 +179,7 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-PS-672-acl-optim",
+            "version": "dev-PS-1160-acl-root",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -234,7 +234,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-672-acl-optim",
+            "version": "dev-PS-1160-acl-root",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -297,7 +297,7 @@
         },
         {
             "name": "alchemy/es-bundle",
-            "version": "dev-PS-672-acl-optim",
+            "version": "dev-PS-1160-acl-root",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -355,7 +355,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-PS-672-acl-optim",
+            "version": "dev-PS-1160-acl-root",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -409,7 +409,7 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-PS-672-acl-optim",
+            "version": "dev-PS-1160-acl-root",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
@@ -466,7 +466,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-PS-672-acl-optim",
+            "version": "dev-PS-1160-acl-root",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
@@ -591,7 +591,7 @@
         },
         {
             "name": "alchemy/rendition-factory",
-            "version": "dev-PS-672-acl-optim",
+            "version": "dev-PS-1160-acl-root",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory",
@@ -655,7 +655,7 @@
         },
         {
             "name": "alchemy/rendition-factory-bundle",
-            "version": "dev-PS-672-acl-optim",
+            "version": "dev-PS-1160-acl-root",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory-bundle",
@@ -710,7 +710,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-672-acl-optim",
+            "version": "dev-PS-1160-acl-root",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -766,7 +766,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-PS-672-acl-optim",
+            "version": "dev-PS-1160-acl-root",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -819,7 +819,7 @@
         },
         {
             "name": "alchemy/track-bundle",
-            "version": "dev-PS-672-acl-optim",
+            "version": "dev-PS-1160-acl-root",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/track-bundle",
@@ -882,7 +882,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-PS-672-acl-optim",
+            "version": "dev-PS-1160-acl-root",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
@@ -940,7 +940,7 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-PS-672-acl-optim",
+            "version": "dev-PS-1160-acl-root",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
@@ -1007,7 +1007,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-PS-672-acl-optim",
+            "version": "dev-PS-1160-acl-root",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -5382,6 +5382,132 @@
                 "source": "https://github.com/liip/LiipImagineBundle/tree/2.17.1"
             },
             "time": "2026-01-06T09:34:48+00:00"
+        },
+        {
+            "name": "martin-georgiev/postgresql-for-doctrine",
+            "version": "v4.5.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/martin-georgiev/postgresql-for-doctrine.git",
+                "reference": "98154bfecbb0d4d84386eec0ec5c0818280efa94"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/martin-georgiev/postgresql-for-doctrine/zipball/98154bfecbb0d4d84386eec0ec5c0818280efa94",
+                "reference": "98154bfecbb0d4d84386eec0ec5c0818280efa94",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/dbal": "~2.10||~3.0||~4.0",
+                "ext-ctype": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "php": "^8.2 <8.6"
+            },
+            "require-dev": {
+                "brianium/paratest": "^7.0",
+                "deptrac/deptrac": "^4.0",
+                "doctrine/orm": "~2.14||~3.0",
+                "ekino/phpstan-banned-code": "^3.2.0",
+                "friendsofphp/php-cs-fixer": "^3.94.2",
+                "phpstan/phpstan": "^2.1.46",
+                "phpstan/phpstan-deprecation-rules": "^2.0.4",
+                "phpstan/phpstan-doctrine": "^2.0.20",
+                "phpstan/phpstan-phpunit": "^2.0.16",
+                "phpunit/phpunit": "^10.5.63||^11.5",
+                "rector/rector": "^2.4.1",
+                "symfony/cache": "^6.4||^7.0",
+                "symfony/var-exporter": "^6.4||^7.0"
+            },
+            "suggest": {
+                "doctrine/orm": "~2.14||~3.0",
+                "php": "^8.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "MartinGeorgiev\\": "src/MartinGeorgiev/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Martin Georgiev",
+                    "email": "martin.georgiev@gmail.com",
+                    "role": "author"
+                }
+            ],
+            "description": "Extends Doctrine with native PostgreSQL support for arrays, JSONB, ranges, PostGIS geometries, text search, ltree, uuid, and 100+ PostgreSQL-specific functions.",
+            "keywords": [
+                "array-data-types",
+                "arrays",
+                "cidr",
+                "date-interval",
+                "dbal",
+                "doctrine",
+                "doctrine-dbal",
+                "doctrine-dql",
+                "doctrine-orm",
+                "doctrine-types",
+                "dql",
+                "embeddings",
+                "full-text-search",
+                "fuzzystrmatch",
+                "geo",
+                "geography",
+                "geometry",
+                "geospatial",
+                "gis",
+                "inet",
+                "json",
+                "json-data",
+                "jsonb",
+                "jsonpath",
+                "levenshtein",
+                "ltree",
+                "macaddr",
+                "martin-georgiev",
+                "math-functions",
+                "money",
+                "multirange",
+                "network-types",
+                "pgsql",
+                "pgvector",
+                "postgis",
+                "postgis-geometry",
+                "postgres",
+                "postgres-extension",
+                "postgresql",
+                "range",
+                "soundex",
+                "spatial",
+                "text-search",
+                "trigonometry",
+                "tsquery",
+                "tsvector",
+                "uuid",
+                "vector",
+                "vector-search",
+                "xml"
+            ],
+            "support": {
+                "issues": "https://github.com/martin-georgiev/postgresql-for-doctrine/issues",
+                "source": "https://github.com/martin-georgiev/postgresql-for-doctrine/tree/v4.5.1"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/sponsors/martin-georgiev",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/martin-georgiev",
+                    "type": "github"
+                }
+            ],
+            "time": "2026-04-19T11:31:03+00:00"
         },
         {
             "name": "masterminds/html5",
@@ -15112,7 +15238,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-672-acl-optim",
+            "version": "dev-PS-1160-acl-root",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",

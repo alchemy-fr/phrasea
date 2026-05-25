@@ -8,6 +8,7 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
 use App\Entity\Core\Collection;
+use App\Service\Collection\CollectionAccessService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -19,12 +20,15 @@ readonly class IndexCollectionBranchHandler
         private SearchIndexer $searchIndexer,
         private EntityManagerInterface $em,
         private MessageBusInterface $bus,
+        private CollectionAccessService $collectionAccessService,
     ) {
     }
 
     public function __invoke(IndexCollectionBranch $message): void
     {
         $collection = DoctrineUtil::findStrict($this->em, Collection::class, $message->getCollectionId());
+
+        $this->collectionAccessService->computeCollection($collection);
 
         $this->handleChildren($collection, $message->isIndexAssets());
     }
