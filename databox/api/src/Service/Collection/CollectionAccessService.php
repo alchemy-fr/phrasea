@@ -5,7 +5,6 @@ namespace App\Service\Collection;
 use App\Entity\Core\Collection;
 use App\Repository\Core\CollectionRepository;
 use Doctrine\DBAL\Connection;
-use Doctrine\ORM\EntityManagerInterface;
 use MartinGeorgiev\Doctrine\DBAL\Types\ValueObject\Ltree;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -15,11 +14,10 @@ final readonly class CollectionAccessService
     public function __construct(
         private Connection $connection,
         private CollectionRepository $collectionRepository,
-        private EntityManagerInterface $em,
     ) {
     }
 
-    public function computeCollection(Collection $collection): void
+    public function computeCollection(Collection $collection, ?ProgressBar $progressBar = null): void
     {
         $absolutePath = str_replace('-', 'Z', $collection->getAbsolutePath());
         $params = [
@@ -62,26 +60,41 @@ WHERE collection_id = :id AND EXISTS (
     AND a.collection_id <> ca.collection_id
 )
 ', $params);
+
+        $children = $this->collectionRepository->createQueryBuilder('t')
+            ->select('t')
+            ->andWhere('t.storyAsset IS NULL')
+            ->andWhere('t.parent = :parent')
+            ->setParameter('parent', $collection->getId())
+            ->getQuery()
+            ->toIterable();
+
+        $progressBar?->advance();
+
+        foreach ($children as $child) {
+            $this->computeCollection($child, $progressBar);
+        }
     }
 
     public function recomputeAll(?OutputInterface $output = null): void
     {
-        $total = $this->collectionRepository->createQueryBuilder('t')
+        $baseQuery = $this->collectionRepository->createQueryBuilder('t')
+            ->andWhere('t.storyAsset IS NULL');
+
+        $total = (clone $baseQuery)
             ->select('COUNT(t.id)')
-            ->andWhere('t.storyAsset IS NULL')
             ->getQuery()
             ->getSingleScalarResult();
 
-        $iterator = $this->collectionRepository->createQueryBuilder('t')
+        $iterator = (clone $baseQuery)
             ->select('t')
-            ->andWhere('t.storyAsset IS NULL')
+            ->andWhere('t.parent IS NULL')
             ->getQuery()
             ->toIterable();
 
         $progressBar = new ProgressBar($output, $total);
         foreach ($iterator as $collection) {
-            $this->computeCollection($collection);
-            $progressBar->advance();
+            $this->computeCollection($collection, $progressBar);
         }
 
         $progressBar->finish();

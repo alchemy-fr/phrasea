@@ -23,6 +23,7 @@ use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AssetSearch extends AbstractSearch
 {
@@ -73,6 +74,10 @@ class AssetSearch extends AbstractSearch
         if (isset($options['parents'])) {
             $parentCollections = DoctrineUtil::getFromIds($this->collectionRepository, $options['parents']);
             $paths = array_map(fn (Collection $parentCollection): string => $parentCollection->getAbsolutePath(), $parentCollections);
+
+            if (empty($paths)) {
+                throw new NotFoundHttpException('Collections not found');
+            }
 
             $filterQueries[] = new Query\Terms('collectionPaths', $paths);
         }

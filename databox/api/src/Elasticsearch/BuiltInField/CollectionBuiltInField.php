@@ -13,6 +13,7 @@ use App\Entity\Core\CollectionAsset;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class CollectionBuiltInField extends AbstractBuiltInAttribute
 {
@@ -137,6 +138,11 @@ final class CollectionBuiltInField extends AbstractBuiltInAttribute
             return null;
         }
 
-        return $this->em->find(Collection::class, $value)?->getAbsolutePath();
+        $collection = $this->em->find(Collection::class, $value);
+        if (!$collection) {
+            throw new NotFoundHttpException('Collection not found');
+        }
+
+        return $collection?->getAbsolutePath();
     }
 }
