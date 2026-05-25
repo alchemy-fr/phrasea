@@ -216,14 +216,6 @@ fos_elastica:
                 groups:
                     property_path: false
                     type: keyword
-                nlUsers:
-                    property_path: false
-                    type: keyword
-                nlGroups:
-                    property_path: false
-                    type: keyword
-                privacyRoots:
-                    type: keyword
                 deleted:
                     type: boolean
                 createdAt:
@@ -276,14 +268,6 @@ fos_elastica:
                     type: keyword
                 groups:
                     property_path: false
-                    type: keyword
-                nlUsers:
-                    property_path: false
-                    type: keyword
-                nlGroups:
-                    property_path: false
-                    type: keyword
-                privacyRoots:
                     type: keyword
                 createdAt:
                     type: date

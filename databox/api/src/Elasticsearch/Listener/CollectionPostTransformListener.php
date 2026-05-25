@@ -33,10 +33,6 @@ final readonly class CollectionPostTransformListener implements EventSubscriberI
         $users[] = $collection->getOwnerId();
         $groups = $this->permissionManager->getAllowedGroups($collection, PermissionInterface::VIEW);
 
-        // "nl" stands for Next Level and means permissions for sets which have access to a sub folder only (not the root one)
-        $nlUsers = $users;
-        $nlGroups = $groups;
-
         $workspace = $collection->getWorkspace();
         $users[] = $workspace->getOwnerId();
         $aces = $this->permissionManager->getObjectAces($workspace);
@@ -56,26 +52,20 @@ final readonly class CollectionPostTransformListener implements EventSubscriberI
         while (null !== $parent) {
             $bestPrivacy = max($bestPrivacy, $parent->getPrivacy());
             if ($bestPrivacy >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS) {
-                $nlUsers = [];
-                $nlGroups = [];
                 break;
             }
 
             $parentUsers = $this->permissionManager->getAllowedUsers($parent, PermissionInterface::VIEW);
             $users = array_merge($users, $parentUsers);
             $users[] = $parent->getOwnerId();
-            $nlUsers = array_diff($nlUsers, $parentUsers);
 
             if (in_array(null, $users, true)) {
-                $nlUsers = [];
-                $nlGroups = [];
                 $bestPrivacy = max($bestPrivacy, WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS);
                 break;
             }
 
             $parentGroups = $this->permissionManager->getAllowedGroups($parent, PermissionInterface::VIEW);
             $groups = array_merge($groups, $parentGroups);
-            $nlGroups = array_diff($nlGroups, $parentGroups);
 
             $parent = $parent->getParent();
         }
@@ -90,8 +80,6 @@ final readonly class CollectionPostTransformListener implements EventSubscriberI
         $document->set('privacy', $bestPrivacy);
         $document->set('users', array_values(array_unique($users)));
         $document->set('groups', array_values(array_unique($groups)));
-        $document->set('nlUsers', array_values(array_unique($nlUsers)));
-        $document->set('nlGroups', array_values(array_unique($nlGroups)));
     }
 
     public static function getSubscribedEvents(): array
