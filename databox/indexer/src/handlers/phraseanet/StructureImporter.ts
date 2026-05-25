@@ -289,6 +289,7 @@ export async function importSubdefsStructure(
                 name: sd.policy,
                 workspace: `/workspaces/${workspaceId}`,
                 public: true,
+                editable: false,
             });
         }
 
