@@ -19,5 +19,5 @@ fi
 
 for service in databox expose uploader; do
   echo "## Resetting database for ${service}..."
-  docker compose run --rm ${service}-api-php /bin/ash -c 'bin/console doctrine:database:drop --force; bin/console doctrine:database:create'
+  docker compose run --rm ${service}-api-php /bin/ash -c 'bin/console doctrine:database:drop --force; bin/console doctrine:database:create; (!(bin/console | grep app:database:configure) || bin/console app:database:configure)'
 done

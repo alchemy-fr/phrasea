@@ -16,7 +16,7 @@ final class Version20260525163114 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('CREATE EXTENSION IF NOT EXISTS ltree');
         $this->addSql('CREATE TABLE collection_access (id SERIAL NOT NULL, collection_id UUID NOT NULL, workspace_id UUID NOT NULL, user_id UUID DEFAULT NULL, privacy SMALLINT DEFAULT NULL, path LTREE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_F44CD3A2514956FD ON collection_access (collection_id)');
         $this->addSql('CREATE INDEX IDX_F44CD3A282D40A1F ON collection_access (workspace_id)');

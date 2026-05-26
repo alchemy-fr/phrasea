@@ -15,11 +15,13 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\Collection;
+use App\Entity\Core\CollectionAccess;
 use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\TagFilterManager;
+use MartinGeorgiev\Doctrine\DBAL\Types\ValueObject\Ltree;
 use Ramsey\Uuid\Uuid;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -118,6 +120,28 @@ trait DataboxTestTrait
         }
 
         return $collection;
+    }
+
+    protected function createCollectionAccess(Collection $collection, ?string $userId, int $privacy, array $options = []): CollectionAccess
+    {
+        $em = self::getEntityManager();
+
+        $collectionAccess = new CollectionAccess();
+        $collectionAccess->setWorkspace($collection->getWorkspace());
+        $collectionAccess->setCollection($collection);
+        $collectionAccess->setUserId($userId);
+        $collectionAccess->setPrivacy($privacy);
+
+        $ltree = new Ltree(explode('/', substr($collection->getAbsolutePath(), 1)));
+        $collectionAccess->setPath($ltree);
+
+        $em->persist($collectionAccess);
+
+        if (!($options['no_flush'] ?? false)) {
+            $em->flush();
+        }
+
+        return $collectionAccess;
     }
 
     protected function createAttributeDefinition(array $options = []): AttributeDefinition

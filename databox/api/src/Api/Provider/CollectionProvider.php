@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Api\Provider;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\AuthBundle\Security\Voter\SuperAdminVoter;
 use ApiPlatform\Metadata\Operation;
 use App\Elasticsearch\CollectionSearch;
 use App\Repository\Core\CollectionRepository;
 use App\Repository\Core\WorkspaceRepository;
+use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\CollectionVoter;
 
 class CollectionProvider extends AbstractCollectionProvider
 {
@@ -32,6 +35,8 @@ class CollectionProvider extends AbstractCollectionProvider
             empty($filters['parent'])
             && empty($filters['parents'])
             && empty($filters['query'])
+            && !$this->security->isGranted(SuperAdminVoter::ROLE)
+            && !$this->hasScope(CollectionVoter::SCOPE_PREFIX.AbstractVoter::LIST)
         ) {
             if ($context['userId']) {
                 $allowedWorkspaces = $this->workspaceRepository->getAllowedWorkspaceIds($context['userId'], $context['groupIds']);
