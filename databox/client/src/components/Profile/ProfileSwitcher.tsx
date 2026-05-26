@@ -14,14 +14,9 @@ type Props = {
 
 export default function ProfileSwitcher({closeWrapper}: Props) {
     const {t} = useTranslation();
-    const load = useProfileStore(state => state.load);
     const current = useProfileStore(state => state.current);
-    const loaded = useProfileStore(state => state.loaded);
+    const currentLoaded = useProfileStore(state => state.currentLoaded);
     const {openModal} = useModals();
-
-    React.useEffect(() => {
-        load();
-    }, [load]);
 
     const openList = () => {
         openModal(SelectProfileDialog, {});
@@ -33,7 +28,7 @@ export default function ProfileSwitcher({closeWrapper}: Props) {
             aria-haspopup="menu"
             onClick={closeWrapper(openList)}
         >
-            <ListItemLoadingIcon loading={!loaded}>
+            <ListItemLoadingIcon loading={!currentLoaded}>
                 <AccountBoxIcon />
             </ListItemLoadingIcon>
             <ListItemText>

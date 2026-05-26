@@ -29,6 +29,7 @@ type State = {
     current: Profile | undefined;
     nextUrl?: string | undefined;
     loaded: boolean;
+    currentLoaded: boolean;
     loading: boolean;
     loadingCurrent: boolean;
     loadingMore: boolean;
@@ -49,7 +50,7 @@ type State = {
     toggleDefinition: (definition: BaseAttribute) => void;
     removeFromProfile: (profileId: string, ids: string[]) => void;
     setCurrent: (id: string | undefined) => Promise<void>;
-    loadCurrent: (id: string) => Promise<void>;
+    loadCurrent: (id: string) => Promise<Profile | undefined>;
     shouldSelectProfile: () => boolean;
 };
 
@@ -57,6 +58,7 @@ export const useProfileStore = create<State>((set, getState) => ({
     loadingMore: false,
     loaded: false,
     loading: false,
+    currentLoaded: false,
     loadingCurrent: false,
     current: undefined,
     profiles: [],
@@ -179,7 +181,10 @@ export const useProfileStore = create<State>((set, getState) => ({
             set({
                 current: profile,
                 loadingCurrent: false,
+                currentLoaded: true,
             });
+
+            return profile;
         } catch (e: any) {
             logError(e);
             set({

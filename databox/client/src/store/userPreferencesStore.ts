@@ -101,10 +101,6 @@ export const useUserPreferencesStore = create<UserPreferencesStore>(
                 newPrefs[name] = handler;
             }
 
-            if (deepEquals(newPrefs, prev)) {
-                return;
-            }
-
             if (options?.offlineUpdates) {
                 Object.entries(options.offlineUpdates).map(([k, v]) => {
                     // @ts-expect-error Unknown
@@ -112,8 +108,16 @@ export const useUserPreferencesStore = create<UserPreferencesStore>(
                 });
             }
 
+            if (deepEquals(newPrefs, prev)) {
+                return;
+            }
+
             set({preferences: newPrefs});
             putToStorage(newPrefs);
+
+            if (deepEquals(newPrefs[name], prev[name])) {
+                return;
+            }
 
             return new Promise(resolve => {
                 setTimeout(async () => {
