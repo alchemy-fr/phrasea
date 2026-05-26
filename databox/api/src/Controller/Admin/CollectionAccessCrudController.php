@@ -39,7 +39,10 @@ class CollectionAccessCrudController extends AbstractAdminCrudController
         return $filters
             ->add(EntityFilter::new('collection'))
             ->add(EntityFilter::new('workspace'))
-            ->add(TextFilter::new('userId'))
+            ->add(TextFilter::new('userId')
+                ->setFormTypeOption('comparison_type_options', [
+                    'type' => 'entity',
+                ]))
             ->add(TextFilter::new('privacy'));
     }
 

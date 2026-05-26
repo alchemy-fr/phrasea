@@ -37,6 +37,7 @@ class CollectionProvider extends AbstractCollectionProvider
             && empty($filters['query'])
             && !$this->security->isGranted(SuperAdminVoter::ROLE)
             && !$this->hasScope(CollectionVoter::SCOPE_PREFIX.AbstractVoter::LIST)
+            && !$this->isAdmin()
         ) {
             if ($context['userId']) {
                 $allowedWorkspaces = $this->workspaceRepository->getAllowedWorkspaceIds($context['userId'], $context['groupIds']);
