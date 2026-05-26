@@ -17,6 +17,7 @@ use App\Consumer\Handler\Search\AclAddUserToCollectionAssets;
 use App\Consumer\Handler\Search\AclAddUserToWorkspaceAssets;
 use App\Consumer\Handler\Search\AclAddUserToWorkspaceCollections;
 use App\Consumer\Handler\Search\ComputeCollectionBranch;
+use App\Consumer\Handler\Search\ComputeWorkspaceCollections;
 use App\Consumer\Handler\Search\IndexAllAssets;
 use App\Consumer\Handler\Search\IndexAllCollections;
 use App\Consumer\Handler\Search\IndexCollectionBranch;
@@ -201,6 +202,9 @@ readonly class AclListener
                 }
                 if (!$collectionsHandled) {
                     $this->bus->dispatch(new IndexAllCollections($objectId));
+                }
+                if ($computeCollectionBranch) {
+                    $this->bus->dispatch(new ComputeWorkspaceCollections($objectId));
                 }
                 break;
             case Asset::class:

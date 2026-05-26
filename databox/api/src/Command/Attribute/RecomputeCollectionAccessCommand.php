@@ -9,7 +9,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class CollectionIndexCommand extends Command
+class RecomputeCollectionAccessCommand extends Command
 {
     public function __construct(
         private readonly CollectionAccessService $collectionAccessService,
@@ -22,7 +22,7 @@ class CollectionIndexCommand extends Command
         parent::configure();
 
         $this
-            ->setName('app:es:index-collections')
+            ->setName('app:collection:recompute-access')
             ->setDescription('Collection indexer');
     }
 
