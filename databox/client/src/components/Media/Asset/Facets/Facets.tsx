@@ -2,7 +2,12 @@ import React, {useContext, useState} from 'react';
 import {ResultContext} from '../../Search/ResultContext.tsx';
 import {Box, Button, List, MenuItem} from '@mui/material';
 import {Classes} from '../types.ts';
-import {FacetPreference, orderInfinity, TFacets} from './facetTypes.ts';
+import {
+    FacetClasses,
+    FacetPreference,
+    orderInfinity,
+    TFacets,
+} from './facetTypes.ts';
 import {useUserPreferencesStore} from '../../../../store/userPreferencesStore.ts';
 import {FacetGroup} from './FacetGroup.tsx';
 import SearchBar from '../../../Ui/SearchBar.tsx';
@@ -165,6 +170,12 @@ const Facets = React.memo(function ({facets}: {facets: TFacets}) {
                     },
                     '.MuiListItemText-secondary': {
                         wordWrap: 'break-word',
+                    },
+                    [`.${FacetClasses.HoverAction}`]: {
+                        display: 'none',
+                    },
+                    [`.MuiListItem-root:hover .${FacetClasses.HoverAction}`]: {
+                        display: 'inline-flex',
                     },
                 })}
             >

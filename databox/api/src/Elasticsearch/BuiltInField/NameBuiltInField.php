@@ -6,9 +6,17 @@ namespace App\Elasticsearch\BuiltInField;
 
 use App\Attribute\Type\TextAttributeType;
 use App\Entity\Core\Asset;
+use App\Service\Asset\Attribute\AssetNameResolver;
+use App\Service\Asset\Attribute\AttributesResolver;
 
 final class NameBuiltInField extends AbstractBuiltInAttribute
 {
+    public function __construct(
+        private readonly AssetNameResolver $assetNameResolver,
+        private readonly AttributesResolver $attributesResolver,
+    ) {
+    }
+
     protected function getAggregationTranslationKey(): string
     {
         return 'name';
@@ -26,7 +34,9 @@ final class NameBuiltInField extends AbstractBuiltInAttribute
 
     public function getValueFromAsset(Asset $asset): mixed
     {
-        return $asset->getId();
+        $attributesIndex = $asset->attributesIndex ?? $this->attributesResolver->resolveAssetAttributes($asset, true);
+
+        return $this->assetNameResolver->resolveName($asset, $attributesIndex, []);
     }
 
     public function getType(): string

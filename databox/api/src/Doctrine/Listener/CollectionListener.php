@@ -42,11 +42,7 @@ class CollectionListener implements EventSubscriber
 
         $this->collectionCache->invalidateTags([CollectionOutputTransformer::COLLECTION_CACHE_NS]);
 
-        $this->postFlushStack->addBusMessage(new ComputeCollectionBranch(
-            $entity->getId(),
-            false,
-            false,
-        ));
+        $this->postFlushStack->addBusMessage(new ComputeCollectionBranch($entity->getId()));
     }
 
     public function postUpdate(PostUpdateEventArgs $args): void

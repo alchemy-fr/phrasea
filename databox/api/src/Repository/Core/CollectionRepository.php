@@ -53,9 +53,11 @@ class CollectionRepository extends ServiceEntityRepository
     /**
      * @param string[] $allowedWorkspaces
      */
-    public function getRootCollections(array $allowedWorkspaces, string $userId, array $groups): array
+    public function getRootCollections(array $allowedWorkspaces, ?string $userId, array $groups): array
     {
         $expr = $this->_em->getExpressionBuilder();
+
+        $createUserCondition = fn (string $alias) => null !== $userId ? $alias.'.userId IN (:users) OR '.$alias.'.privacy > 0' : $alias.'.privacy > 0';
 
         $sub = $this->_em->createQueryBuilder()
             ->select('1')
@@ -63,10 +65,10 @@ class CollectionRepository extends ServiceEntityRepository
             ->andWhere('a.workspace IN (:ws)')
             ->andWhere('IDENTITY(a.collection) <> IDENTITY(ca.collection)')
             ->andWhere('CONTAINS(a.path, ca.path) = TRUE')
-            ->andWhere('a.userId IN (:users) OR a.privacy > 0')
+            ->andWhere($createUserCondition('a'))
         ;
 
-        return $this
+        $queryBuilder = $this
             ->createQueryBuilder('t')
             ->where($expr->in(
                 't.id',
@@ -74,13 +76,18 @@ class CollectionRepository extends ServiceEntityRepository
                     ->select('DISTINCT IDENTITY(ca.collection)')
                     ->from(CollectionAccess::class, 'ca')
                     ->andWhere('ca.workspace IN (:ws)')
-                    ->andWhere('ca.userId IN (:users) OR ca.privacy > 0')
+                    ->andWhere($createUserCondition('ca'))
                     ->andWhere($expr->not($expr->exists($sub->getDQL())))
                     ->getDQL()
             ))
             ->addOrderBy('t.name', 'DESC')
-            ->addOrderBy('t.createdAt', 'ASC')
-            ->setParameter('users', array_merge([$userId], $groups))
+            ->addOrderBy('t.createdAt', 'ASC');
+
+        if (null !== $userId) {
+            $queryBuilder->setParameter('users', array_merge([$userId], $groups));
+        }
+
+        return $queryBuilder
             ->setParameter('ws', $allowedWorkspaces)
             ->getQuery()
             ->getResult();

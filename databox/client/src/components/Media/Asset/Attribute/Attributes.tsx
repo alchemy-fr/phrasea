@@ -108,7 +108,7 @@ function Attributes({
 
                 if (getValueFromAsset) {
                     const v = getValueFromAsset(asset);
-                    const def = definitionsIndex[item.definition!];
+                    const def = definitionsIndex[item.key!];
                     if (def) {
                         if (
                             (def.multiple ? v && v.length > 0 : !!v) ||

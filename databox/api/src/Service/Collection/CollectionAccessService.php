@@ -81,10 +81,14 @@ WHERE collection_id = :id AND EXISTS (
         $baseQuery = $this->collectionRepository->createQueryBuilder('t')
             ->andWhere('t.storyAsset IS NULL');
 
-        $total = (clone $baseQuery)
-            ->select('COUNT(t.id)')
-            ->getQuery()
-            ->getSingleScalarResult();
+        $progressBar = null;
+        if (null !== $output) {
+            $total = (clone $baseQuery)
+                ->select('COUNT(t.id)')
+                ->getQuery()
+                ->getSingleScalarResult();
+            $progressBar = new ProgressBar($output, $total);
+        }
 
         $iterator = (clone $baseQuery)
             ->select('t')
@@ -92,7 +96,6 @@ WHERE collection_id = :id AND EXISTS (
             ->getQuery()
             ->toIterable();
 
-        $progressBar = new ProgressBar($output, $total);
         foreach ($iterator as $collection) {
             $this->computeCollection($collection, $progressBar);
         }
