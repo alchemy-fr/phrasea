@@ -5,6 +5,7 @@ namespace App\Service\Collection;
 use App\Entity\Core\Collection;
 use App\Repository\Core\CollectionRepository;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use MartinGeorgiev\Doctrine\DBAL\Types\ValueObject\Ltree;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -19,6 +20,12 @@ final readonly class CollectionAccessService
 
     public function computeCollection(Collection $collection, ?ProgressBar $progressBar = null): void
     {
+        if (!$this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform) {
+            // Don't compute on SQLite database for testing
+            // Tests should fill this table
+            return;
+        }
+
         $absolutePath = str_replace('-', 'Z', $collection->getAbsolutePath());
         $params = [
             'id' => $collection->getId(),

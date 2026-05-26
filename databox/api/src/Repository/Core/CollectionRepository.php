@@ -7,6 +7,8 @@ namespace App\Repository\Core;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAccess;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
+use Doctrine\ORM\Query\Expr;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -55,6 +57,7 @@ class CollectionRepository extends ServiceEntityRepository
      */
     public function getRootCollections(array $allowedWorkspaces, ?string $userId, array $groups): array
     {
+        $supportsLTree = $this->_em->getConnection()->getDatabasePlatform() instanceof PostgreSQLPlatform;
         $expr = $this->_em->getExpressionBuilder();
 
         $createUserCondition = fn (string $alias) => null !== $userId ? $alias.'.userId IN (:users) OR '.$alias.'.privacy > 0' : $alias.'.privacy > 0';
@@ -64,9 +67,14 @@ class CollectionRepository extends ServiceEntityRepository
             ->from(CollectionAccess::class, 'a')
             ->andWhere('a.workspace IN (:ws)')
             ->andWhere('IDENTITY(a.collection) <> IDENTITY(ca.collection)')
-            ->andWhere('CONTAINS(a.path, ca.path) = TRUE')
-            ->andWhere($createUserCondition('a'))
-        ;
+            ->andWhere($createUserCondition('a'));
+
+        if ($supportsLTree) {
+            $sub->andWhere('CONTAINS(a.path, ca.path) = TRUE');
+        } else {
+            $sub->innerJoin(Collection::class, 'ac', Expr\Join::WITH, 'ac.id = a.collection');
+            $sub->andWhere('ac.parent = ca.id');
+        }
 
         $queryBuilder = $this
             ->createQueryBuilder('t')
