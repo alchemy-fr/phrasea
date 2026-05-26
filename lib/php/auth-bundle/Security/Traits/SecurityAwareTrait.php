@@ -126,7 +126,7 @@ trait SecurityAwareTrait
             return false;
         }
 
-        $roles = $this->roleMapper->getRoles([$role]) ?? [$role];
+        $roles = $this->roleMapper->getRoles([$role]);
         $tokenRoles = $token->getRoleNames();
         if (empty($tokenRoles)) {
             return false;

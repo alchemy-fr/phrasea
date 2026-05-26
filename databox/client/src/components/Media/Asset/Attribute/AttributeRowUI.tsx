@@ -38,7 +38,7 @@ export default function AttributeRowUI({
     assetAnnotationsRef,
 }: Props) {
     const {t, i18n} = useTranslation();
-    const {displayName, name, type, multiple} = definition;
+    const {displayName, name, type, multiple, id} = definition;
     const formatter = getAttributeType(type);
     const [overControls, setOverControls] = React.useState(false);
 
@@ -47,9 +47,9 @@ export default function AttributeRowUI({
     >(
         e => {
             e.stopPropagation();
-            formatContext.toggleFormat(type, definition.id);
+            formatContext.toggleFormat(type, id);
         },
-        [formatContext]
+        [formatContext, id]
     );
 
     const locale = multiple ? undefined : (attribute as Attribute)?.locale;
@@ -67,7 +67,7 @@ export default function AttributeRowUI({
             : (attribute as Attribute)?.value,
         highlight: multiple ? undefined : (attribute as Attribute)?.highlight,
         locale,
-        format: format ?? formatContext.getFormat(type, definition.id),
+        format: format ?? formatContext.getFormat(type, id),
     };
 
     return (
@@ -93,7 +93,7 @@ export default function AttributeRowUI({
                                         onClick={toggleFormat}
                                         title={formatContext.getFormatTitle(
                                             type,
-                                            definition.id
+                                            id
                                         )}
                                     >
                                         <VisibilityIcon />

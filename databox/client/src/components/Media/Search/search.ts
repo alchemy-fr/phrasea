@@ -8,7 +8,6 @@ export enum BuiltInFieldEnum {
     Collection = '@collection',
     CreatedAt = '@createdAt',
     EditedAt = '@editedAt',
-    FileMimeType = '@mimetype',
     FileExtension = '@extension',
     FileName = '@filename',
     HasSource = '@hasSource',

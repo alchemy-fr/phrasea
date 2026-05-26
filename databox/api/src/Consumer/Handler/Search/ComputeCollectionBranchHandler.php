@@ -31,6 +31,10 @@ readonly class ComputeCollectionBranchHandler
             return;
         }
 
+        if ($collection->isStory()) {
+            return;
+        }
+
         $this->collectionAccessService->computeCollection($collection);
     }
 }

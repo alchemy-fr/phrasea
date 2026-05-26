@@ -107,6 +107,6 @@ WHERE collection_id = :id AND EXISTS (
             $this->computeCollection($collection, $progressBar);
         }
 
-        $progressBar->finish();
+        $progressBar?->finish();
     }
 }
