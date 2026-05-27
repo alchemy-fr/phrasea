@@ -203,7 +203,7 @@ final class KeycloakManager
                     'realm' => $this->keycloakRealm,
                 ]), [
                     'json' => $data,
-                ]);
+                ])->getHeaders();
             $scope = $this->getScopeByName($name);
         } else {
             $this->getAuthenticatedClient()
@@ -212,7 +212,7 @@ final class KeycloakManager
                     'id' => $scope['id'],
                 ]), [
                     'json' => $data,
-                ]);
+                ])->getHeaders();
         }
 
         $isDefault = 'default' === $data['type'];
@@ -273,6 +273,9 @@ final class KeycloakManager
     public function addScopeToClient(string $scope, string $clientId, bool $isDefault): void
     {
         $scopeData = $this->getScopeByName($scope);
+        if (null === $scopeData) {
+            throw new \InvalidArgumentException(sprintf('Scope "%s" does not exist.', $scope));
+        }
 
         HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
             ->request('DELETE', UriTemplate::resolve('{realm}/clients/{clientId}/'.(!$isDefault ? 'default' : 'optional').'-client-scopes/{scopeId}', [
