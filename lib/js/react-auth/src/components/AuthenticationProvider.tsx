@@ -14,11 +14,11 @@ import {
     UserNormalizer,
 } from '@alchemy/auth';
 import AuthenticationContext, {
-    LogoutFunction,
     RefreshTokenFunction,
     SetTokens,
 } from '../context/AuthenticationContext';
 import {jwtDecode} from 'jwt-decode';
+import {LogoutFunction} from '../types';
 
 type Props<
     U extends AuthUser,
