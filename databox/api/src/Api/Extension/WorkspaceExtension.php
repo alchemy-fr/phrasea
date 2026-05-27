@@ -7,7 +7,7 @@ namespace App\Api\Extension;
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
-use Alchemy\AuthBundle\Security\ScopeAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
@@ -18,7 +18,7 @@ use Doctrine\ORM\QueryBuilder;
 
 final class WorkspaceExtension implements QueryCollectionExtensionInterface
 {
-    use ScopeAwareTrait;
+    use SecurityAwareTrait;
 
     public function applyToCollection(
         QueryBuilder $queryBuilder,
@@ -36,7 +36,9 @@ final class WorkspaceExtension implements QueryCollectionExtensionInterface
             return;
         }
 
-        if ($this->hasScope(AbstractVoter::LIST, WorkspaceVoter::SCOPE_PREFIX)) {
+        if (
+            $this->isAdmin()
+            || $this->hasScope(AbstractVoter::LIST, WorkspaceVoter::SCOPE_PREFIX)) {
             return;
         }
 

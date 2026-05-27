@@ -231,7 +231,6 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
     {
         return [
             'databox' => array_merge([
-                'super-admin',
             ], ...array_map(fn (string $ns): array => array_map(fn (string $p): string => $ns.':'.$p, [
                 'create',
                 'list',

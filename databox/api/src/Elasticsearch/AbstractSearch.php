@@ -18,12 +18,12 @@ abstract class AbstractSearch
 
     protected function createACLBoolQuery(?string $userId, array $groupIds): ?Query\BoolQuery
     {
-        if ($this->isSuperAdmin()) {
+        if ($this->isAdmin()) {
             return null;
         }
 
         if (null !== $adminScope = $this->getAdminScope()) {
-            if ($this->hasScope($adminScope)) {
+            if ($this->hasScope($adminScope, null, false)) {
                 return null;
             }
         }
@@ -42,7 +42,7 @@ abstract class AbstractSearch
                 $should[] = $publicWorkspaceBoolQuery;
             }
 
-            $allowedWorkspaceIds = $this->workspaceRepository->getAllowedWorkspaceIds($userId, $groupIds);
+            $allowedWorkspaceIds = $this->workspaceRepository->getAllowedWorkspaceIds($userId, $groupIds, $this->isAdmin());
             if (!empty($allowedWorkspaceIds)) {
                 $permittedWorkspaces = array_merge($permittedWorkspaces, $allowedWorkspaceIds);
                 $workspaceBoolQuery = new Query\BoolQuery();

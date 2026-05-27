@@ -6,7 +6,7 @@ namespace App\Api\Extension;
 
 use Alchemy\AclBundle\Mapping\ObjectMapping;
 use Alchemy\AuthBundle\Security\JwtUser;
-use Alchemy\AuthBundle\Security\ScopeAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
@@ -18,7 +18,7 @@ use Doctrine\ORM\QueryBuilder;
 
 class AttributeDefinitionExtension implements QueryCollectionExtensionInterface
 {
-    use ScopeAwareTrait;
+    use SecurityAwareTrait;
 
     public function __construct(
         private readonly ObjectMapping $objectMapping,

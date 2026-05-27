@@ -8,14 +8,14 @@ use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AclBundle\Model\AclUserInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use Alchemy\AuthBundle\Security\JwtUser;
-use Alchemy\AuthBundle\Security\ScopeAwareTrait;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractVoter extends Voter
 {
-    use ScopeAwareTrait;
+    use SecurityAwareTrait;
 
     final public const string CREATE = 'CREATE';
     final public const string LIST = 'LIST';
