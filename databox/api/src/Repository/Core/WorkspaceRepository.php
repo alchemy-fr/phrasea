@@ -46,7 +46,7 @@ class WorkspaceRepository extends ServiceEntityRepository
         );
     }
 
-    private function createAllowedWorkspacesQueryBuilder(?string $userId, ?array $groupIds = null, bool $isAdmin): QueryBuilder
+    private function createAllowedWorkspacesQueryBuilder(?string $userId, ?array $groupIds, bool $isAdmin): QueryBuilder
     {
         $queryBuilder = $this->createQueryBuilder('t');
 
