@@ -72,7 +72,7 @@ final class KeycloakManager
         ];
         HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()->request('POST', '', [
             'json' => $data,
-        ])->getContent(), 409, $data);
+        ])->getHeaders(), 409, $data);
     }
 
     private function getRealm(?string $realm = null): ?array
@@ -179,7 +179,7 @@ final class KeycloakManager
             ->request('DELETE', UriTemplate::resolve('{realm}/client-scopes/{id}', [
                 'realm' => $this->keycloakRealm,
                 'id' => $scope['id'],
-            ])), 404, []);
+            ]))->getHeaders(), 404, []);
     }
 
     public function createScope(string $name, array $data = []): void
@@ -221,14 +221,14 @@ final class KeycloakManager
             ->request('DELETE', UriTemplate::resolve('{realm}/default-default-client-scopes/{id}', [
                 'realm' => $this->keycloakRealm,
                 'id' => $scope['id'],
-            ])), 404, []);
+            ]))->getHeaders(), 404, []);
 
         if ($isDefault) {
             HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
                 ->request('PUT', UriTemplate::resolve('{realm}/default-default-client-scopes/{id}', [
                     'realm' => $this->keycloakRealm,
                     'id' => $scope['id'],
-                ])), 409, []);
+                ]))->getHeaders(), 409, []);
         }
     }
 
@@ -245,7 +245,7 @@ final class KeycloakManager
                 'json' => [[
                     'id' => $data['id'],
                 ]],
-            ]), 409, []);
+            ])->getHeaders(), 409, []);
     }
 
     protected function getScopes(): array
@@ -279,14 +279,15 @@ final class KeycloakManager
                 'realm' => $this->keycloakRealm,
                 'clientId' => $clientId,
                 'scopeId' => $scopeData['id'],
-            ])), 404, []);
+            ]))->getHeaders(), 404, [])
+        ;
 
         HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
             ->request('PUT', UriTemplate::resolve('{realm}/clients/{clientId}/'.($isDefault ? 'default' : 'optional').'-client-scopes/{scopeId}', [
                 'realm' => $this->keycloakRealm,
                 'clientId' => $clientId,
                 'scopeId' => $scopeData['id'],
-            ])), 409, []);
+            ]))->getHeaders(), 409, []);
     }
 
     public function addServiceAccountClientRole(
@@ -469,7 +470,7 @@ final class KeycloakManager
                 'realm' => $this->keycloakRealm,
             ]), [
                 'json' => $data,
-            ])->getContent(), 409, $data);
+            ])->getHeaders(), 409, $data);
 
         return $this->findUser($data['username']) ?? throw new \InvalidArgumentException(sprintf('No user matches username "%s"', $data['username']));
     }
@@ -622,7 +623,7 @@ final class KeycloakManager
                 'name' => $roleName,
             ]), [
                 'json' => $data,
-            ]), null, $data);
+            ])->getHeaders(), null, $data);
     }
 
     public function getRealmRoles(): array
@@ -683,7 +684,7 @@ final class KeycloakManager
                 'userId' => $userId,
             ]), [
                 'json' => $roles,
-            ]), 409, $roles);
+            ])->getHeaders(), 409, $roles);
     }
 
     public function addClientRolesToUser(string $userId, array $roleNames): void
@@ -714,7 +715,7 @@ final class KeycloakManager
                 'realmClientId' => $realmClient['id'],
             ]), [
                 'json' => $roles,
-            ]), 409, $roles);
+            ])->getHeaders(), 409, $roles);
     }
 
     public function addUserToGroup(string $userId, string $groupId): void
@@ -724,7 +725,7 @@ final class KeycloakManager
                 'realm' => $this->keycloakRealm,
                 'userId' => $userId,
                 'groupId' => $groupId,
-            ])), 409, []);
+            ]))->getHeaders(), 409, []);
     }
 
     public function putRealm(array $data): ResponseInterface
@@ -756,7 +757,7 @@ final class KeycloakManager
                     'realm' => $this->keycloakRealm,
                 ]), [
                     'json' => $data,
-                ]), null, $data);
+                ])->getHeaders(), null, $data);
         }
 
         $idp = $this->getIdentityProviderByAlias($idpAlias);
@@ -792,7 +793,7 @@ final class KeycloakManager
                 'alias' => $idpAlias,
             ]), [
                 'json' => $data,
-            ]), 400, $data);
+            ])->getHeaders(), 400, $data);
     }
 
     public function linkAccountToIdentityProvider(string $userId, string $idpAlias, array $data): void
@@ -804,6 +805,6 @@ final class KeycloakManager
                 'alias' => $idpAlias,
             ]), [
                 'json' => $data,
-            ]), 409, $data);
+            ])->getHeaders(), 409, $data);
     }
 }
