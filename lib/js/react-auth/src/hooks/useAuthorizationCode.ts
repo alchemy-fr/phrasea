@@ -1,6 +1,11 @@
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
 import React from 'react';
-import {OAuthClient} from '@alchemy/auth';
+import {
+    AuthConstant,
+    decodeState,
+    getPathFromRedirectUri,
+    OAuthClient,
+} from '@alchemy/auth';
 
 type NavigateOptions = {
     replace?: boolean;
@@ -9,7 +14,6 @@ type NavigateOptions = {
 type Props = {
     navigate: (path: string, options?: NavigateOptions) => void;
     oauthClient: OAuthClient<any>;
-    successUri?: string;
     successHandler?: () => void;
     errorHandler?: (e: any) => void;
 };
@@ -19,7 +23,6 @@ export type {Props as UseAuthorizationCodeProps};
 export function useAuthorizationCode({
     oauthClient,
     successHandler,
-    successUri,
     errorHandler,
     navigate,
     allowNoCode,
@@ -27,11 +30,12 @@ export function useAuthorizationCode({
     allowNoCode?: boolean;
 } & Props) {
     const [error, setError] = React.useState<any>();
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
 
     useEffectOnce(() => {
-        const code = urlParams.get('code');
+        const location = document.location;
+        const urlParams = new URLSearchParams(location.search);
+        const code = urlParams.get(AuthConstant.ResponseCodeParam);
+
         if (!code) {
             if (!allowNoCode) {
                 setError(new Error(`Missing authorization code.`));
@@ -40,59 +44,40 @@ export function useAuthorizationCode({
             return;
         }
 
-        const state = urlParams.get('state');
+        const state = urlParams.get(AuthConstant.StateParam);
 
         oauthClient
-            .getTokenFromAuthCode(code, window.location.href.split('?')[0])
+            .getTokenFromAuthCode(code, location.href.split('?')[0])
             .then(() => {
                 if (successHandler) {
                     successHandler();
 
                     return;
                 }
-
-                const doNavigate = (
-                    uri: string,
-                    options?: NavigateOptions
-                ): void => {
-                    if (window.opener) {
-                        try {
-                            if (window.opener.pendingAuth) {
-                                window.opener.document.location.href = uri;
-                                window.close();
-                            }
-
-                            return;
-                        } catch (err) {
-                            // eslint-disable-next-line no-console
-                            console.error(err);
-                        }
-                    }
-
-                    navigate(uri, options);
-                };
-
+                let redirectPath = '/';
                 if (state) {
-                    try {
-                        const dState = JSON.parse(atob(state)) as {
-                            r?: string;
-                        };
-
-                        if (
-                            typeof dState === 'object' &&
-                            Object.prototype.hasOwnProperty.call(dState, 'r') &&
-                            typeof dState.r === 'string'
-                        ) {
-                            doNavigate(dState.r, {replace: true});
-
-                            return;
-                        }
-                    } catch (_e: any) {
-                        // Ignore
+                    const stateParams = decodeState(state);
+                    const r = stateParams[AuthConstant.StateRedirectParam];
+                    if (r) {
+                        redirectPath = getPathFromRedirectUri(r);
                     }
                 }
 
-                doNavigate(successUri ?? '/', {replace: true});
+                if (window.opener) {
+                    try {
+                        if (window.opener.pendingAuth) {
+                            window.opener.document.location.href = redirectPath;
+                            window.close();
+                        }
+
+                        return;
+                    } catch (err) {
+                        // eslint-disable-next-line no-console
+                        console.error(err);
+                    }
+                }
+
+                navigate(redirectPath, {replace: true});
             })
             .catch(e => {
                 if (errorHandler) {
@@ -107,6 +92,5 @@ export function useAuthorizationCode({
 
     return {
         error,
-        hasCode: Boolean(code),
     };
 }

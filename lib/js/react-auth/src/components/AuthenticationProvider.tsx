@@ -13,7 +13,6 @@ import {
     UserInfoResponse,
     UserNormalizer,
 } from '@alchemy/auth';
-import {getSessionStorage} from '@alchemy/storage';
 import AuthenticationContext, {
     LogoutFunction,
     RefreshTokenFunction,
@@ -45,11 +44,6 @@ export default function AuthenticationProvider<
     // @ts-expect-error Invalid resolution
     normalizeUser = keycloakNormalizer,
 }: Props<U, UIR>) {
-    const redirectPathSessionStorageKey = 'redirpath';
-    const sessionStorage = getSessionStorage();
-    const redirectPath = React.useRef<string | undefined>(
-        sessionStorage.getItem(redirectPathSessionStorageKey) || undefined
-    );
     const [tokens, setTokens] = React.useState<AuthTokens | undefined>(
         oauthClient.getTokens()
     );
@@ -120,46 +114,9 @@ export default function AuthenticationProvider<
         return (await oauthClient.getTokenFromRefreshToken()).tokens;
     }, [oauthClient]);
 
-    const setRedirectPath = React.useCallback(
-        (path: string | undefined) => {
-            redirectPath.current = path;
-
-            if (path) {
-                sessionStorage.setItem(redirectPathSessionStorageKey, path);
-            } else {
-                sessionStorage.removeItem(redirectPathSessionStorageKey);
-            }
-        },
-        [redirectPath]
-    );
-
-    const clearRedirectPath = React.useCallback(() => {
-        setRedirectPath(undefined);
-    }, [setRedirectPath]);
-
-    const logout = useCallback<LogoutFunction>(
-        async ({redirectPathAfterLogin, ...options} = {}) => {
-            const handler = () => {
-                if (redirectPathAfterLogin) {
-                    setRedirectPath(redirectPathAfterLogin);
-                } else {
-                    setTimeout(() => {
-                        setRedirectPath(undefined);
-                    }, 500);
-                }
-            };
-
-            const event = await oauthClient.logout(options);
-            if (event?.preventDefault) {
-                handler();
-
-                return;
-            }
-
-            handler();
-        },
-        [setTokens, setRedirectPath]
-    );
+    const logout = useCallback<LogoutFunction>(async options => {
+        await oauthClient.logout(options);
+    }, []);
 
     return (
         <AuthenticationContext.Provider
@@ -168,9 +125,6 @@ export default function AuthenticationProvider<
                 tokens,
                 setTokens: updateTokens,
                 logout,
-                setRedirectPath,
-                redirectPath,
-                clearRedirectPath,
                 isAuthenticated: oauthClient.isAccessTokenValid(),
                 hasSession: oauthClient.hasSession(),
                 refreshToken: tokens ? refreshToken : undefined,

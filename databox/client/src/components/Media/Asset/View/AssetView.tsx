@@ -407,7 +407,10 @@ export default function AssetView({modalIndex, open}: Props) {
                             }}
                         >
                             <Typography variant={'h6'}>
-                                {t('asset.not_found', 'Asset not found')}
+                                {t(
+                                    'asset.not_found_or_no_access',
+                                    'Asset not found or you do not have access to view it.'
+                                )}
                             </Typography>
                         </Box>
                     )}

@@ -1,4 +1,4 @@
-import {createContext, MutableRefObject} from 'react';
+import {createContext} from 'react';
 import {AuthTokens, AuthUser, LogoutOptions} from '@alchemy/auth';
 
 export type SetTokens = (tokens: AuthTokens) => void;
@@ -16,16 +16,12 @@ export type TAuthContext<U extends AuthUser = AuthUser> = {
     logout: LogoutFunction;
     refreshToken?: RefreshTokenFunction;
     setTokens: SetTokens;
-    setRedirectPath?: ((url: string) => void) | undefined;
-    clearRedirectPath: () => void;
-    redirectPath?: MutableRefObject<string | undefined>; // Redirect after authentication
     isAuthenticated: boolean;
     hasSession: boolean;
 };
 
 export default createContext<TAuthContext>({
     logout: () => {},
-    clearRedirectPath: () => {},
     setTokens: () => {},
     isAuthenticated: false,
     hasSession: false,
