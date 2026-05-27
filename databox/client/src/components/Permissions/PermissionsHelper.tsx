@@ -32,15 +32,14 @@ export default function PermissionsHelper({definitions}: Props) {
             </Typography>
             <Box
                 component={'table'}
-                sx={theme => ({
+                sx={{
                     'th': {
                         textAlign: 'left',
-                        backgroundColor: theme.palette.grey[100],
                     },
                     'th, td': {
                         p: 1,
                     },
-                })}
+                }}
             >
                 <tbody>
                     {withDesc.map(def => {
