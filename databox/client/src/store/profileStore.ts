@@ -128,6 +128,7 @@ export const useProfileStore = create<State>((set, getState) => ({
             set({
                 current: undefined,
                 loadingCurrent: false,
+                currentLoaded: false,
             });
 
             await applyProfile(null);
@@ -144,6 +145,7 @@ export const useProfileStore = create<State>((set, getState) => ({
         set({
             current: data,
             loadingCurrent: true,
+            currentLoaded: false,
         });
 
         try {
@@ -151,6 +153,7 @@ export const useProfileStore = create<State>((set, getState) => ({
             set({
                 current: profile,
                 loadingCurrent: false,
+                currentLoaded: true,
             });
             await applyProfile(profile);
         } catch (e: any) {

@@ -28,7 +28,7 @@ export default function ProfileSwitcher({closeWrapper}: Props) {
             aria-haspopup="menu"
             onClick={closeWrapper(openList)}
         >
-            <ListItemLoadingIcon loading={!currentLoaded}>
+            <ListItemLoadingIcon loading={!!current && !currentLoaded}>
                 <AccountBoxIcon />
             </ListItemLoadingIcon>
             <ListItemText>
