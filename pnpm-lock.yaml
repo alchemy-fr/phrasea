@@ -65,6 +65,9 @@ importers:
       '@alchemy/i18n':
         specifier: workspace:*
         version: link:../../lib/js/i18n
+      '@alchemy/navigation':
+        specifier: workspace:*
+        version: link:../../lib/js/navigation
       '@alchemy/phrasea-framework':
         specifier: workspace:*
         version: link:../../lib/js/phrasea-framework

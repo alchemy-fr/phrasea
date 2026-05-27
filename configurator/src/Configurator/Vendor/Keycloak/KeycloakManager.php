@@ -289,33 +289,6 @@ final class KeycloakManager
             ])), 409, []);
     }
 
-    public function removeScopeFromClient(string $scope, string $clientId): void
-    {
-        $scopeData = $this->getScopeByName($scope);
-        if (null === $scopeData) {
-            return;
-        }
-
-        HttpClientUtil::debugError(function () use ($clientId, $scopeData) {
-            $uri = UriTemplate::resolve('{realm}/clients/{clientId}/default-client-scopes/{scopeId}', [
-                'realm' => $this->keycloakRealm,
-                'clientId' => $clientId,
-                'scopeId' => $scopeData['id'],
-            ]);
-
-            return $this->getAuthenticatedClient()
-                // /realms/phrasea/clients/b0dea21c-22d5-4a54-bc58-a95f6ef3002b/default-client-scopes/
-                ->request('DELETE', $uri);
-        }, 404, []);
-
-        HttpClientUtil::debugError(fn () => $this->getAuthenticatedClient()
-            ->request('DELETE', UriTemplate::resolve('{realm}/clients/{clientId}/optional-client-scopes/{scopeId}', [
-                'realm' => $this->keycloakRealm,
-                'clientId' => $clientId,
-                'scopeId' => $scopeData['id'],
-            ])), 404, []);
-    }
-
     public function addServiceAccountClientRole(
         array $client,
         string $role,
