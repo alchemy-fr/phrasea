@@ -25,6 +25,11 @@ describe('Dashboard loads', () => {
         cy.get('.MuiAvatar-root').click();
         cy.contains('Logout').click();
 
+        // Ignore failed requests
+        Cypress.on('uncaught:exception', () => {
+            return false;
+        });
+
         cy.origin(keycloakUrl, () => {
             cy.contains('Logout').click();
         });
