@@ -7,7 +7,7 @@ namespace App\Elasticsearch\BuiltInField;
 use App\Attribute\Type\NumberAttributeType;
 use App\Entity\Core\Asset;
 
-final class ScoreBuiltInField extends AbstractBuiltInField
+final class ScoreBuiltInField extends AbstractBuiltInAttribute
 {
     protected function getAggregationTranslationKey(): string
     {
@@ -19,7 +19,7 @@ final class ScoreBuiltInField extends AbstractBuiltInField
         return NumberAttributeType::NAME;
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return '_score';
     }
@@ -35,6 +35,11 @@ final class ScoreBuiltInField extends AbstractBuiltInField
     }
 
     public function isFacet(): bool
+    {
+        return false;
+    }
+
+    public function isSearchable(): bool
     {
         return false;
     }

@@ -7,30 +7,29 @@ namespace App\Elasticsearch\Mapping;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
-use App\Attribute\Type\TextAttributeType;
-use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
+use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use App\Entity\Core\AttributeDefinition;
 
 final readonly class FieldNameResolver
 {
     public function __construct(
         private AttributeTypeRegistry $attributeTypeRegistry,
-        private BuiltInFieldRegistry $builtInFieldRegistry,
+        private BuiltInAttributeRegistry $builtInFieldRegistry,
     ) {
     }
 
     public function getFieldNameFromDefinition(AttributeDefinition $definition): string
     {
-        return $this->getFieldName($definition->getSlug(), $definition->getFieldType(), $definition->isMultiple());
+        return $this->getFieldName($definition->getSlug(), $definition->getType(), $definition->isMultiple());
     }
 
-    public function getFieldName(string $slug, string $fieldType, bool $isMultiple): string
+    public function getFieldName(string $slug, string $type, bool $isMultiple): string
     {
-        $type = $this->attributeTypeRegistry->getStrictType($fieldType);
+        $attributeType = $this->attributeTypeRegistry->getStrictType($type);
 
         return sprintf('%s_%s_%s',
             $slug,
-            $this->normalizeTypeNameForField($type::getName()),
+            $this->normalizeTypeNameForField($attributeType::getName()),
             $isMultiple ? 'm' : 's'
         );
     }
@@ -45,17 +44,12 @@ final readonly class FieldNameResolver
      */
     public function getFieldFromName(string $name): array
     {
-        if ('name' === $name) {
-            return [
-                'field' => $name,
-                'type' => $this->attributeTypeRegistry->getStrictType(TextAttributeType::NAME),
-            ];
-        }
-
+        $enabled = true;
         $builtInField = $this->builtInFieldRegistry->getBuiltInField($name);
         if (null !== $builtInField) {
             $type = $this->attributeTypeRegistry->getStrictType($builtInField->getType());
-            $f = $builtInField->getFieldName();
+            $f = $builtInField::getName();
+            $enabled = $builtInField->isEnabled();
         } else {
             $info = $this->extractField($name);
             $type = $info['type'];
@@ -68,6 +62,7 @@ final readonly class FieldNameResolver
         return [
             'field' => $f,
             'type' => $type,
+            'enabled' => $enabled,
         ];
     }
 

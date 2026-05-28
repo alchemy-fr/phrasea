@@ -95,11 +95,9 @@ class File extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $alternateUrls = null;
 
-    /**
-     * Normalized metadata.
-     */
-    #[ORM\Column(type: Types::JSON, nullable: true)]
-    private ?array $metadata = null;
+    #[ORM\OneToOne(targetEntity: FileMetadata::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?FileMetadata $metadata = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $analysis = null;
@@ -188,7 +186,7 @@ class File extends AbstractUuidEntity implements \Stringable
         $this->checksum = $checksum;
     }
 
-    public function getFilename(): string
+    public function getFileName(): string
     {
         return $this->originalName ?? sprintf('%s%s', $this->getId(), $this->getExtensionWithDot());
     }
@@ -220,12 +218,21 @@ class File extends AbstractUuidEntity implements \Stringable
 
     public function getMetadata(): ?array
     {
-        return $this->metadata;
+        return $this->metadata?->getMetadata();
     }
 
     public function setMetadata(?array $metadata): void
     {
-        $this->metadata = $metadata;
+        if (null === $metadata) {
+            return;
+        }
+
+        if (empty($metadata)) {
+            $this->metadata = null;
+        } else {
+            $this->metadata ??= new FileMetadata();
+            $this->metadata->setMetadata($metadata);
+        }
     }
 
     public function getAnalysis(): ?array

@@ -1,7 +1,7 @@
 import {PropsWithChildren} from 'react';
 import AnalyticsProvider from './AnalyticsProvider';
 import {MatomoInstance} from '@jonkoops/matomo-tracker-react/src/types.ts';
-import {ToastContainer} from 'react-toastify';
+import {ToastContainer, ToastPosition} from 'react-toastify';
 import {AuthenticationProvider} from '@alchemy/react-auth';
 import {ModalStack} from '@alchemy/navigation';
 import {KeycloakClient, OAuthClient} from '@alchemy/auth';
@@ -15,6 +15,7 @@ type Props = PropsWithChildren<{
     oauthClient: OAuthClient<any>;
     apiClient: HttpClient;
     keycloakClient: KeycloakClient;
+    toastPosition?: ToastPosition;
 }>;
 
 export function AppProvider({
@@ -24,6 +25,7 @@ export function AppProvider({
     apiClient,
     matomo,
     children,
+    toastPosition,
 }: Props) {
     const css = config.globalCSS;
 
@@ -32,7 +34,7 @@ export function AppProvider({
             {css && <style>{css}</style>}
             <AppGlobalTheme>
                 <AnalyticsProvider matomo={matomo}>
-                    <ToastContainer position={'bottom-left'} />
+                    <ToastContainer position={toastPosition ?? 'bottom-left'} />
                     <AuthenticationProvider
                         oauthClient={oauthClient}
                         keycloakClient={keycloakClient}

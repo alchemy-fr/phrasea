@@ -22,13 +22,19 @@ type Props<Item extends AssetOrAssetContainer> = {
     pages: Item[][];
     itemToAsset: ItemToAssetFunc<Item> | undefined;
     cellMeasurer: CellMeasurerCache;
-    height: number;
+    containerHeight: number;
     hasGroups: boolean;
 };
 
 export default React.forwardRef<HTMLDivElement, Props<any>>(
     function VirtualizedGroups<Item extends AssetOrAssetContainer>(
-        {pages, height, itemToAsset, cellMeasurer, hasGroups}: Props<Item>,
+        {
+            pages,
+            containerHeight,
+            itemToAsset,
+            cellMeasurer,
+            hasGroups,
+        }: Props<Item>,
         ref: ForwardedRef<HTMLDivElement>
     ) {
         const [_inc, setInc] = React.useState(0);
@@ -77,47 +83,53 @@ export default React.forwardRef<HTMLDivElement, Props<any>>(
             };
         }, [ref]);
 
-        const positions: Position[] = [{}];
-        let groupCursor = 0;
-        let currentGroup: GroupSet | undefined = groups[groupCursor];
-        let currPos: Position = positions[0];
+        const computePositions = (): Position[] => {
+            const positions: Position[] = [{}];
+            let groupCursor = 0;
+            let currentGroup: GroupSet | undefined = groups[groupCursor];
+            let currPos: Position = positions[0];
 
-        const flush = () => {
-            currPos.height ??= 0;
-            currPos = {};
-            positions.push(currPos);
-        };
+            const flush = () => {
+                currPos.height ??= 0;
+                currPos = {};
+                positions.push(currPos);
+            };
 
-        let currentPage: number | undefined;
-        for (let i = 0; i < rowCount; i++) {
-            const {pageIndex, itemIndex} = getPage(pages, i);
+            let currentPage: number | undefined;
+            for (let i = 0; i < rowCount; i++) {
+                const {pageIndex, itemIndex} = getPage(pages, i);
 
-            const isNewGroup = currentGroup && i === currentGroup.index;
-            if (isNewGroup) {
-                flush();
-                currPos.group = currentGroup.value;
-                if (currentPage) {
+                const isNewGroup = currentGroup && i === currentGroup.index;
+                if (isNewGroup) {
+                    flush();
+                    currPos.group = currentGroup.value;
+                    if (currentPage) {
+                        currPos.page = currentPage;
+                    }
+                    ++groupCursor;
+                    currentGroup = groups[groupCursor];
+                }
+
+                if (pageIndex > 0 && itemIndex === 0) {
+                    if (!isNewGroup) {
+                        flush();
+                    }
+
+                    currentPage = pageIndex + 1;
                     currPos.page = currentPage;
                 }
-                ++groupCursor;
-                currentGroup = groups[groupCursor];
+
+                currPos.height =
+                    (currPos.height ?? 0) + cellMeasurer.rowHeight({index: i});
+            }
+            if (positions.length > 0) {
+                positions[positions.length - 1].height = undefined;
             }
 
-            if (pageIndex > 0 && itemIndex === 0) {
-                if (!isNewGroup) {
-                    flush();
-                }
+            return positions;
+        };
 
-                currentPage = pageIndex + 1;
-                currPos.page = currentPage;
-            }
-
-            currPos.height =
-                (currPos.height ?? 0) + cellMeasurer.rowHeight({index: i});
-        }
-        if (positions.length > 0) {
-            positions[positions.length - 1].height = undefined;
-        }
+        const positions = computePositions();
 
         return (
             <div
@@ -133,7 +145,7 @@ export default React.forwardRef<HTMLDivElement, Props<any>>(
                     style={{
                         position: 'relative',
                         overflow: 'hidden',
-                        height,
+                        height: containerHeight,
                     }}
                     ref={ref}
                 >

@@ -21,9 +21,9 @@ export function useAppInit({apiClient, userIdProp = 'id'}: UseAppInitProps) {
 
     const onError = useRequestErrorHandler({
         onError: toast,
-        logout: redirectPathAfterLogin => {
+        logout: options => {
             logout({
-                redirectPathAfterLogin,
+                ...(options ?? {}),
                 quiet: true,
             });
         },

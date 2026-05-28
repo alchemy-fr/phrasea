@@ -36,19 +36,23 @@ class WorkspaceRepository extends ServiceEntityRepository
     /**
      * @return string[]
      */
-    public function getAllowedWorkspaceIds(?string $userId, array $groupIds): array
+    public function getAllowedWorkspaceIds(?string $userId, array $groupIds, bool $isAdmin): array
     {
         return array_map(fn (array $row): string => (string) $row['id'], $this
-            ->createAllowedWorkspacesQueryBuilder($userId, $groupIds)
+            ->createAllowedWorkspacesQueryBuilder($userId, $groupIds, $isAdmin)
             ->select('DISTINCT t.id')
             ->getQuery()
             ->getResult()
         );
     }
 
-    private function createAllowedWorkspacesQueryBuilder(?string $userId, ?array $groupIds = null): QueryBuilder
+    private function createAllowedWorkspacesQueryBuilder(?string $userId, ?array $groupIds, bool $isAdmin): QueryBuilder
     {
         $queryBuilder = $this->createQueryBuilder('t');
+
+        if ($isAdmin) {
+            return $queryBuilder;
+        }
 
         if (null === $userId) {
             return $queryBuilder

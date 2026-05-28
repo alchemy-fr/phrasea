@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Documentation;
 
 use Alchemy\CoreBundle\Documentation\DocumentationGenerator;
+use App\Attribute\Type\TextAttributeType;
 use Symfony\Component\Yaml\Yaml;
 
 final class InitialValuesDocumentationGenerator extends DocumentationGenerator
@@ -42,7 +43,7 @@ final class InitialValuesDocumentationGenerator extends DocumentationGenerator
             foreach ($example['definitions'] as $name => $definition) {
                 $output .= sprintf("- __%s__:   `%s` ; [%s] `multi` ; [%s] `translatable`\n",
                     $name,
-                    $definition['fieldType'] ?? 'text',
+                    $definition['type'] ?? TextAttributeType::NAME,
                     $definition['isMultiple'] ?? false ? 'X' : ' ',
                     $definition['isTranslatable'] ?? false ? 'X' : ' '
                 );

@@ -50,7 +50,7 @@ final class StoryBuiltInField extends AbstractEntityBuiltInField
         return Asset::class;
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return 'stories';
     }
@@ -58,6 +58,11 @@ final class StoryBuiltInField extends AbstractEntityBuiltInField
     public static function getKey(): string
     {
         return '@story';
+    }
+
+    public function isMultiple(): bool
+    {
+        return true;
     }
 
     public function getValueFromAsset(Asset $asset): mixed

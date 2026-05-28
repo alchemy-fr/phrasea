@@ -18,7 +18,7 @@ class CreatedAtBuiltInField extends AbstractDateTimeBuiltInField
         return '@createdAt';
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return 'createdAt';
     }

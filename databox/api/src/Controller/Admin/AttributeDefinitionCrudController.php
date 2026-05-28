@@ -39,7 +39,7 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Attribute Definition')
             ->setEntityLabelInPlural('Attribute Definitions')
-            ->setSearchFields(['id', 'name', 'slug', 'fileType', 'fieldType', 'searchBoost', 'fallback', 'key', 'position'])
+            ->setSearchFields(['id', 'name', 'slug', 'fileType', 'type', 'searchBoost', 'fallback', 'key', 'position'])
             ->setPaginatorPageSize(100)
             ->setDefaultSort(['workspace.name' => 'ASC', 'slug' => 'ASC']);
     }
@@ -51,7 +51,7 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
             ->add(EntityFilter::new('policy'))
             ->add(BooleanFilter::new('searchable'))
             ->add(BooleanFilter::new('multiple'))
-            ->add(ChoiceFilter::new('fieldType')->setChoices($this->getFieldTypeChoice()))
+            ->add(ChoiceFilter::new('type')->setChoices($this->getTypeChoice()))
             ->add(TextFilter::new('fileType'))
         ;
     }
@@ -69,8 +69,8 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         yield AssociationField::new('policy')
             ->autocomplete();
         yield TextField::new('fileType');
-        yield ChoiceField::new('fieldType')
-            ->setChoices($this->getFieldTypeChoice());
+        yield ChoiceField::new('type')
+            ->setChoices($this->getTypeChoice());
         yield AssociationField::new('entityList')
             ->autocomplete();
         yield BooleanField::new('allowInvalid')
@@ -126,13 +126,13 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         yield ChoiceField::new('target');
     }
 
-    private function getFieldTypeChoice(): array
+    private function getTypeChoice(): array
     {
-        $fieldTypeChoices = [];
+        $typeChoices = [];
         foreach ($this->typeRegistry->getTypes() as $name => $type) {
-            $fieldTypeChoices[$name] = $name;
+            $typeChoices[$name] = $name;
         }
 
-        return $fieldTypeChoices;
+        return $typeChoices;
     }
 }

@@ -1,5 +1,6 @@
 import {normalizeRedirectUri, OAuthClient} from './OAuthClient';
 import {
+    AuthConstant,
     KeycloakClientOptions,
     KeycloakUserInfoResponse,
     LogoutEvent,
@@ -101,7 +102,12 @@ export class KeycloakClient {
         redirect ??= document.location.toString();
         const redirectUri = normalizeRedirectUri(redirect);
 
-        return `${this.getRealmUrl()}/account/?referrer=${this.client.clientId}&referrer_uri=${encodeURIComponent(redirectUri)}#/personal-info`;
+        const sp = new URLSearchParams({
+            referrer: this.client.clientId,
+            referrer_uri: redirectUri,
+        });
+
+        return `${this.getRealmUrl()}/account/?${sp.toString()}#/personal-info`;
     }
 
     public createLogoutUrl({
@@ -109,10 +115,13 @@ export class KeycloakClient {
     }: {
         redirectPath?: string;
     }): string {
-        const redirectUri = normalizeRedirectUri(redirectPath);
-        const queryString = `client_id=${encodeURIComponent(this.client.clientId)}&post_logout_redirect_uri=${encodeURIComponent(redirectUri)}`;
+        const sp = new URLSearchParams({
+            [AuthConstant.ClientIdParam]: this.client.clientId,
+            [AuthConstant.PostLogoutRedirectUri]:
+                normalizeRedirectUri(redirectPath),
+        });
 
-        return `${this.getOpenIdConnectBaseUrl()}/logout?${queryString}`;
+        return `${this.getOpenIdConnectBaseUrl()}/logout?${sp.toString()}`;
     }
 
     public async logout(
@@ -131,7 +140,7 @@ export class KeycloakClient {
             }
 
             const url = new URL(redirectPath, document.location.href);
-            url.searchParams.set('logout', '1');
+            url.searchParams.set(AuthConstant.LoggedOutParam, '1');
             document.location.href = this.createLogoutUrl({
                 redirectPath: url.toString(),
             });

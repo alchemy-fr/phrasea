@@ -4,14 +4,11 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Security;
 
-use Alchemy\AuthBundle\Security\Voter\SuperAdminVoter;
-
 final readonly class RoleMapper
 {
     public function __construct(
         private string $appName,
         private array $mapping = [
-            'super-admin' => SuperAdminVoter::ROLE,
             'admin' => JwtUser::ROLE_ADMIN,
             'tech' => JwtUser::ROLE_TECH,
         ],

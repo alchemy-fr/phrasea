@@ -33,8 +33,8 @@ import {
     SortableContext,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {BuiltInField, getResolvedSortBy} from '../search';
-import {AttributeDefinition} from '../../../../types.ts';
+import {BuiltInFieldEnum, getResolvedSortBy} from '../search';
+import {AttributeDefinitionOrBuiltIn} from '../../../../types.ts';
 import {AttributeDefinitionsIndex} from '../../../../store/attributeDefinitionStore.ts';
 
 export type TogglableSortBy = {
@@ -43,7 +43,7 @@ export type TogglableSortBy = {
 } & SortBy;
 
 type Props = {
-    definitions: AttributeDefinition[];
+    definitions: AttributeDefinitionOrBuiltIn[];
     definitionsIndex: AttributeDefinitionsIndex;
     onClose: () => void;
 };
@@ -94,7 +94,8 @@ export default function EditSortBy({
 
     const enabledOrders = orders.filter(s => s.enabled);
     const groupDisabled =
-        enabledOrders.length > 0 && enabledOrders[0].a === BuiltInField.Score;
+        enabledOrders.length > 0 &&
+        enabledOrders[0].a === BuiltInFieldEnum.Score;
 
     useEffect(() => {
         setOrders(list);
@@ -195,7 +196,6 @@ export default function EditSortBy({
                                     <SortByRow
                                         sortBy={s}
                                         definition={definitionsIndex[s.a]}
-                                        enabled={s.enabled}
                                         key={s.a}
                                         onChange={onChange}
                                     />

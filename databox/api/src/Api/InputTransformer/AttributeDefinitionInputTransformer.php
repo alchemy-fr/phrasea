@@ -80,16 +80,16 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->initialValues) {
             $object->setInitialValues($data->initialValues);
         }
-        if (null !== $newType = $data->fieldType) {
-            $previousType = $object->getFieldType();
-            $object->setFieldType($newType);
+        if (null !== $newType = $data->type) {
+            $previousType = $object->getType();
+            $object->setType($newType);
             if (null !== $previousType && $newType !== $previousType) {
                 try {
                     $this->attributeTypeChangeService->handleTypeChange($previousType, $newType, $object);
                 } catch (\InvalidArgumentException $e) {
                     throw new BadRequestHttpException($e->getMessage());
                 }
-                $object->setFieldType($newType);
+                $object->setType($newType);
 
                 if (EntityAttributeType::NAME === $newType) {
                     $this->postFlushStack->addBusMessage(new AttributeMigrateToEntityList($object->getId()));
@@ -106,7 +106,7 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
             }
         }
 
-        if (EntityAttributeType::NAME === $object->getFieldType()) {
+        if (EntityAttributeType::NAME === $object->getType()) {
             if (null !== $data->entityList) {
                 $object->setEntityList($data->entityList);
             }

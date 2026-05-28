@@ -1,12 +1,11 @@
-import AttributeWidget, {
-    createWidgetOptionsFromDefinition,
-} from './AttributeWidget';
+import AttributeWidget from './AttributeWidget';
 import {AttrValue, LocalizedAttributeIndex} from './AttributesEditor';
 import MultiAttributeRow from './MultiAttributeRow';
 import TranslatableAttributeTabs from './TranslatableAttributeTabs';
 import React from 'react';
 import {NO_LOCALE} from './constants.ts';
 import {AttributeTypeProps} from './attributeTypes.ts';
+import {createWidgetOptionsFromDefinition} from './attributeUtils';
 
 function extractNoLocaleOrDefinedLocaleValue<T>(
     attributes: LocalizedAttributeIndex<T>
@@ -58,7 +57,7 @@ export default function AttributeType({
             {definition.multiple ? (
                 <MultiAttributeRow
                     isRtl={false}
-                    type={definition.fieldType}
+                    type={definition.type}
                     label={definition.displayName ?? definition.name}
                     values={
                         (extractNoLocaleOrDefinedLocaleValue(attributes) ||
@@ -79,7 +78,7 @@ export default function AttributeType({
                     }
                     required={false}
                     label={definition.displayName ?? definition.name}
-                    type={definition.fieldType}
+                    type={definition.type}
                     onChange={v => changeHandler(NO_LOCALE, v)}
                     id={definition.id}
                     options={createWidgetOptionsFromDefinition(definition)}

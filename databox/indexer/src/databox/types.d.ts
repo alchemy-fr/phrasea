@@ -92,7 +92,7 @@ export type AttributeDefinition = {
     key?: string | undefined;
     name: string;
     editable: boolean;
-    fieldType: DataboxAttributeType;
+    type: DataboxAttributeType;
     workspace: string;
     policy: string;
     translatable: boolean;

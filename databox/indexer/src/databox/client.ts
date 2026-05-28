@@ -303,7 +303,7 @@ export function createDataboxClientFromConfig(logger: Logger): DataboxClient {
             clientSecret: getStrict('databox.clientSecret'),
             ownerId: getStrict('databox.ownerId'),
             verifySSL: getConfig('databox.verifySSL', true),
-            scope: 'super-admin',
+            scope: 'admin',
         },
         logger
     );

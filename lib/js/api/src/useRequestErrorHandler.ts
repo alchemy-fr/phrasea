@@ -8,7 +8,7 @@ type OnError = (message: string, options: ToastOptions) => void;
 
 type Options = {
     onError: OnError;
-    logout?: (redirectPathAfterLogin?: string) => void;
+    logout?: (options?: {redirectPath?: string}) => void;
 };
 
 export default function useRequestErrorHandler({onError, logout}: Options) {
@@ -49,19 +49,24 @@ export default function useRequestErrorHandler({onError, logout}: Options) {
 
         switch (status) {
             case 401:
-                onError(
-                    t(
-                        'lib.api.error.session_expired',
-                        'Your session has expired'
-                    ) as string,
-                    {
-                        ...defaultOptions,
-                        toastId: 'session_expired',
-                    }
-                );
-                logout?.(
-                    window.location.href.replace(window.location.origin, '')
-                );
+                {
+                    onError(
+                        t(
+                            'lib.api.error.session_expired',
+                            'Your session has expired'
+                        ) as string,
+                        {
+                            ...defaultOptions,
+                            toastId: 'session_expired',
+                        }
+                    );
+                    const location = document.location;
+                    logout?.({
+                        redirectPath: location.href.substring(
+                            location.origin.length
+                        ),
+                    });
+                }
                 break;
             case 403:
                 onError(

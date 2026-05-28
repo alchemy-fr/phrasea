@@ -1,5 +1,5 @@
-import {getCurrentPath} from '@alchemy/navigation';
-import {KeycloakClient} from '@alchemy/auth';
+import {getCurrentUrl} from '@alchemy/navigation';
+import {AuthConstant, KeycloakClient} from '@alchemy/auth';
 
 type Props = {
     keycloakClient: KeycloakClient;
@@ -9,11 +9,19 @@ type Props = {
 export type {Props as UseKeycloakUrlProps};
 
 export function useKeycloakUrls({autoConnectIdP, keycloakClient}: Props) {
-    const getLoginUrl = (redirectUri?: string) =>
-        keycloakClient.client.createAuthorizeUrl({
+    const getLoginUrl = (redirectUri?: string) => {
+        let redirectPath = redirectUri;
+        if (!redirectPath) {
+            const currentUrl = getCurrentUrl();
+            currentUrl.searchParams.delete(AuthConstant.LoggedOutParam);
+            redirectPath = currentUrl.toString();
+        }
+
+        return keycloakClient.client.createAuthorizeUrl({
             connectTo: autoConnectIdP || undefined,
-            state: btoa(JSON.stringify({r: redirectUri ?? getCurrentPath()})),
+            redirectPath,
         });
+    };
 
     return {
         getLoginUrl,

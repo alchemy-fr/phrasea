@@ -70,7 +70,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                     property: 'name',
                 ),
                 'type' => new QueryParameter(
-                    filter: SearchFilter::class, property: 'fieldType'),
+                    filter: SearchFilter::class, property: 'type'),
                 'workspaceId' => new QueryParameter(
                     filter: SearchFilter::class, property: 'workspace'),
                 'workspaceIds' => new QueryParameter(
@@ -121,7 +121,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 )]
 #[ORM\Table]
 #[ORM\Index(columns: ['searchable'], name: 'searchable_idx')]
-#[ORM\Index(columns: ['field_type'], name: 'type_idx')]
+#[ORM\Index(columns: ['type'], name: 'type_idx')]
 #[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_name', columns: ['workspace_id', 'name'])]
 #[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_slug', columns: ['workspace_id', 'slug'])]
@@ -194,7 +194,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
 
     #[ORM\Column(type: Types::STRING, length: 50, nullable: false)]
     #[Assert\NotNull]
-    private ?string $fieldType = null;
+    private ?string $type = null;
 
     #[ORM\ManyToOne(targetEntity: EntityList::class, inversedBy: 'definitions')]
     #[ORM\JoinColumn(nullable: true)]
@@ -277,14 +277,14 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         $this->fileType = $fileType;
     }
 
-    public function getFieldType(): ?string
+    public function getType(): ?string
     {
-        return $this->fieldType;
+        return $this->type;
     }
 
-    public function setFieldType(?string $fieldType): void
+    public function setType(?string $type): void
     {
-        $this->fieldType = $fieldType;
+        $this->type = $type;
     }
 
     public function getFallback(): ?array

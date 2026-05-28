@@ -1,7 +1,4 @@
-import AuthenticationContext, {
-    TAuthContext,
-    LogoutFunction,
-} from './src/context/AuthenticationContext';
+import AuthenticationContext from './src/context/AuthenticationContext';
 import AuthenticationProvider from './src/components/AuthenticationProvider';
 import {useAuth} from './src/hooks/useAuth';
 import {useKeycloakUrls} from './src/hooks/useKeycloakUrls';
@@ -11,6 +8,7 @@ import SessionAboutToExpireModal from './src/components/SessionAboutToExpireModa
 import SessionExpireContainer from './src/components/SessionExpireContainer';
 import {useAuthorizationCode} from './src/hooks/useAuthorizationCode';
 import {useOneTimeToken} from './src/hooks/useOneTimeToken';
+export * from './src/types';
 
 export {
     AuthenticationContext,
@@ -24,5 +22,3 @@ export {
     SessionExpireContainer,
     useAuthorizationCode,
 };
-
-export type {TAuthContext, LogoutFunction};

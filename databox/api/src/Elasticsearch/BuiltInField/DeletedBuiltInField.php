@@ -8,14 +8,14 @@ use App\Attribute\Type\BooleanAttributeType;
 use App\Entity\Core\Asset;
 use Elastica\Query;
 
-final class DeletedBuiltInField extends AbstractBuiltInField
+final class DeletedBuiltInField extends AbstractBuiltInAttribute
 {
     protected function getAggregationTranslationKey(): string
     {
         return 'deleted';
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return 'deleted';
     }

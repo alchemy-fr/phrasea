@@ -26,7 +26,7 @@ readonly class AttributeMigrateFromEntityListHandler
         /** @var AttributeDefinition $attributeDefinition */
         $attributeDefinition = DoctrineUtil::findStrictByRepo($this->attributeDefinitionRepository, $message->id);
 
-        if ($attributeDefinition->getFieldType() === EntityAttributeType::getName()) {
+        if ($attributeDefinition->getType() === EntityAttributeType::getName()) {
             throw new \LogicException(sprintf('Attribute definition "%s" is of type "%s"', $attributeDefinition->getId(), EntityAttributeType::getName()));
         }
         $entityList = DoctrineUtil::findStrict($this->em, EntityList::class, $message->listId);

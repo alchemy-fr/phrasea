@@ -7,6 +7,10 @@ doctrine:
         server_version: '11.2'
         charset: utf8
         url: '%env(resolve:DATABASE_URL)%'
+        types:
+            !php/const:MartinGeorgiev\Doctrine\DBAL\Type::LTREE: MartinGeorgiev\Doctrine\DBAL\Types\Ltree
+        mapping_types:
+            ltree: !php/const MartinGeorgiev\Doctrine\DBAL\Type::LTREE
     orm:
         connection: default
         auto_generate_proxy_classes: true
@@ -26,6 +30,9 @@ doctrine:
             string_functions:
                 replace: DoctrineExtensions\Query\Mysql\Replace
                 regexp_replace: \DoctrineExtensions\Query\Postgresql\RegexpReplace
+                CONTAINS: MartinGeorgiev\Doctrine\ORM\Query\AST\Functions\Contains # @>
+                IS_CONTAINED_BY: MartinGeorgiev\Doctrine\ORM\Query\AST\Functions\IsContainedBy # <@
+
 
 when@test:
     doctrine:

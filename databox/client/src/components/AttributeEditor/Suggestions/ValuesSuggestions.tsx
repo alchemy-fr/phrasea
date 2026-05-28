@@ -75,7 +75,7 @@ export default function ValuesSuggestions<T>({
             values.push(undefined);
         }
 
-        const norm = createToKey(definition.fieldType);
+        const norm = createToKey(definition.type);
         const sortFn = (a: Value<T>, b: Value<T>) => {
             if (a.part === b.part) {
                 return a.label
@@ -125,7 +125,7 @@ export default function ValuesSuggestions<T>({
 
     const selectAssetsWithValue = React.useCallback(
         (value: T) => {
-            const toKey = createToKey(definition.fieldType);
+            const toKey = createToKey(definition.type);
             const key = toKey(value);
 
             setSubSelection(
@@ -152,7 +152,7 @@ export default function ValuesSuggestions<T>({
     const labelWrapperClassName = 'label-wr';
     const labelClassName = 'label-val';
 
-    const widget = getAttributeType(definition.fieldType);
+    const widget = getAttributeType(definition.type);
 
     return (
         <Box

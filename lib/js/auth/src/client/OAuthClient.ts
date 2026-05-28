@@ -7,22 +7,26 @@ import axios, {
 import {jwtDecode} from 'jwt-decode';
 import {CookieStorage, IStorage} from '@alchemy/storage';
 import {createHttpClient, HttpClient} from '@alchemy/api';
-import type {
+import {
+    AuthConstant,
     AuthEvent,
     AuthEventHandler,
     AuthTokens,
+    GrantTypeRefreshMethod,
     LoginEvent,
     LogoutEvent,
     LogoutOptions,
     OAuthClientOptions,
+    OAuthEvent,
     RefreshTokenEvent,
     SessionExpiredEvent,
+    StateParams,
     TokenResponse,
     TokenResponseWithTokens,
     UserInfoResponse,
     ValidationError,
 } from '../types';
-import {GrantTypeRefreshMethod, OAuthEvent} from '../types';
+import {encodeState} from '../stateEncoder';
 
 type OrderedListener = {
     p: number;
@@ -34,6 +38,8 @@ export class OAuthClient<UIR extends UserInfoResponse> {
     public readonly clientId: string;
     public readonly clientSecret: string | undefined;
     public readonly baseUrl: string;
+    public readonly clientCheckCodePath: string;
+    public readonly defaultRedirectPath: string;
     private listeners: Record<string, OrderedListener[]> = {};
     private readonly storage: IStorage;
     private initialized: boolean = false;
@@ -55,6 +61,8 @@ export class OAuthClient<UIR extends UserInfoResponse> {
         baseUrl,
         storage,
         refreshTokenStorageKey = 'token',
+        clientCheckCodePath = AuthConstant.DefaultCheckCodePath,
+        defaultRedirectPath = '/',
         httpClient,
         scope,
         cookiesOptions,
@@ -63,6 +71,8 @@ export class OAuthClient<UIR extends UserInfoResponse> {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         this.baseUrl = baseUrl;
+        this.clientCheckCodePath = clientCheckCodePath;
+        this.defaultRedirectPath = defaultRedirectPath;
         this.storage =
             storage ??
             new CookieStorage({
@@ -193,7 +203,7 @@ export class OAuthClient<UIR extends UserInfoResponse> {
         const res = await this.getToken({
             code,
             grant_type: 'authorization_code',
-            redirect_uri: redirectUri,
+            [AuthConstant.RedirectUriParam]: redirectUri,
         });
 
         const {tokens} = res;
@@ -290,18 +300,37 @@ export class OAuthClient<UIR extends UserInfoResponse> {
     }
 
     public createAuthorizeUrl({
-        redirectPath = '/auth',
+        redirectPath,
+        clientCheckCodePath,
         connectTo,
-        state,
+        stateParams = {},
     }: {
+        clientCheckCodePath?: string;
         redirectPath?: string;
         connectTo?: string | undefined;
-        state?: string | undefined;
+        stateParams?: StateParams;
     }): string {
-        const redirectUri = normalizeRedirectUri(redirectPath)!;
-        const queryString = `response_type=code&client_id=${encodeURIComponent(this.clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}${connectTo ? `&kc_idp_hint=${encodeURIComponent(connectTo)}` : ''}${state ? `&state=${encodeURIComponent(state)}` : ''}`;
+        const checkCodeUri = normalizeRedirectUri(
+            clientCheckCodePath ?? this.clientCheckCodePath
+        )!;
 
-        return `${this.baseUrl}/auth?${queryString}`;
+        const searchParams = new URLSearchParams({
+            [AuthConstant.ResponseTypeParam]: 'code',
+            [AuthConstant.ClientIdParam]: this.clientId,
+            [AuthConstant.RedirectUriParam]: checkCodeUri.toString(),
+            [AuthConstant.StateParam]: encodeState({
+                ...stateParams,
+                [AuthConstant.StateRedirectParam]: normalizeRedirectUri(
+                    redirectPath ?? this.defaultRedirectPath
+                )!,
+            }),
+        });
+
+        if (connectTo) {
+            searchParams.set(AuthConstant.KcIdpHintParam, connectTo);
+        }
+
+        return `${this.baseUrl}/auth?${searchParams.toString()}`;
     }
 
     public getTokens(): AuthTokens | undefined {
@@ -577,6 +606,16 @@ export function normalizeRedirectUri(uri: string): string {
         );
 
         return `${url}${uri}`;
+    }
+
+    return uri;
+}
+
+export function getPathFromRedirectUri(uri: string): string {
+    const location = document.location;
+    const baseUrl = location.protocol + '//' + location.host;
+    if (uri.startsWith(baseUrl)) {
+        return uri.substring(baseUrl.length);
     }
 
     return uri;

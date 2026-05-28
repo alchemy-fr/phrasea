@@ -28,10 +28,12 @@ type Props = {
     attributeDefinitions: AttributeDefinition[];
     onClose: () => void;
     removeFromSelection: (ids: string[]) => void;
+    workspaceId: string;
 };
 
 export default function AttributeEditor({
     assets,
+    workspaceId,
     attributeDefinitions: remoteAttributeDefinitions,
     onClose,
     removeFromSelection,
@@ -73,6 +75,7 @@ export default function AttributeEditor({
         createToKey,
         disabledAssets,
     } = useAttributeValues({
+        workspaceId,
         attributeDefinitions: remoteAttributeDefinitions,
         assets,
         subSelection,

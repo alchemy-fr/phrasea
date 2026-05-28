@@ -184,6 +184,7 @@
         "kornrunner/blurhash": "^1.2",
         "lcobucci/clock": "^3.2",
         "lcobucci/jwt": "^5",
+        "martin-georgiev/postgresql-for-doctrine": "*",
         "matomo/matomo-php-tracker": "^3.4",
         "nelmio/cors-bundle": "^2.1",
         "phpdocumentor/reflection-docblock": "^5.2",

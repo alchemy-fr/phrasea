@@ -15,6 +15,7 @@ import {
     CellMeasurer,
     List,
     ListRowRenderer,
+    WindowScroller,
 } from 'react-virtualized';
 import AssetItem from './AssetItem.tsx';
 import GroupRow from '../GroupRow.tsx';
@@ -48,7 +49,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
     const listRef = React.useRef<List | null>(null);
     const d = React.useContext(DisplayContext)!.state;
     const {innerHeight} = useWindowSize();
-    const height = innerHeight - toolbarHeight;
+    const containerHeight = innerHeight - toolbarHeight;
     const firstItem: Item | undefined = pages[0]?.[0];
     const firstAsset = firstItem
         ? itemToAsset
@@ -209,37 +210,59 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
 
     return (
         <Box sx={layoutSx}>
-            <AutoSizer disableHeight>
-                {({width}) => (
-                    <>
-                        <List
-                            ref={listRef}
-                            className={assetClasses.scrollable}
-                            deferredMeasurementCache={cellMeasurer}
-                            height={height}
-                            overscanRowCount={5}
-                            rowCount={rowCount}
-                            rowHeight={cellMeasurer.rowHeight}
-                            rowRenderer={rowRenderer}
-                            width={width}
-                            onScroll={onScroll}
-                        />
+            <WindowScroller
+                scrollElement={
+                    document.querySelector('.asset-scrollable') || window
+                }
+            >
+                {({
+                    height,
+                    registerChild,
+                    onChildScroll,
+                    scrollTop,
+                    isScrolling,
+                }) => (
+                    <div>
+                        <AutoSizer disableHeight>
+                            {({width}) => (
+                                <div ref={registerChild}>
+                                    <List
+                                        autoHeight
+                                        ref={listRef}
+                                        className={assetClasses.scrollable}
+                                        deferredMeasurementCache={cellMeasurer}
+                                        height={height}
+                                        overscanRowCount={5}
+                                        isScrolling={isScrolling}
+                                        rowCount={rowCount}
+                                        scrollTop={scrollTop}
+                                        onScroll={(...args) => {
+                                            onChildScroll(...args);
+                                            onScroll(...args);
+                                        }}
+                                        rowHeight={cellMeasurer.rowHeight}
+                                        rowRenderer={rowRenderer}
+                                        width={width}
+                                    />
 
-                        {pages.length > 1 || hasGroups ? (
-                            <VirtualizedGroups
-                                hasGroups={hasGroups}
-                                ref={headersRef}
-                                height={height}
-                                cellMeasurer={cellMeasurer}
-                                itemToAsset={itemToAsset}
-                                pages={pages}
-                            />
-                        ) : (
-                            ''
-                        )}
-                    </>
+                                    {pages.length > 1 || hasGroups ? (
+                                        <VirtualizedGroups
+                                            hasGroups={hasGroups}
+                                            ref={headersRef}
+                                            containerHeight={containerHeight}
+                                            cellMeasurer={cellMeasurer}
+                                            itemToAsset={itemToAsset}
+                                            pages={pages}
+                                        />
+                                    ) : (
+                                        ''
+                                    )}
+                                </div>
+                            )}
+                        </AutoSizer>
+                    </div>
                 )}
-            </AutoSizer>
+            </WindowScroller>
 
             <PreviewPopover
                 onHide={onPreviewHide}

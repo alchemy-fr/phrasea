@@ -7,6 +7,7 @@ namespace App\Filter;
 use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\AuthBundle\Security\Voter\ScopeVoter;
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
@@ -14,19 +15,11 @@ use ApiPlatform\Exception\InvalidArgumentException;
 use ApiPlatform\Metadata\Operation;
 use App\Security\ScopeInterface;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Contracts\Service\Attribute\Required;
 
 class PublicationFilter extends AbstractFilter
 {
-    private Security $security;
-
-    #[Required]
-    public function setSecurity(Security $security): void
-    {
-        $this->security = $security;
-    }
+    use SecurityAwareTrait;
 
     protected function filterProperty(
         string $property,

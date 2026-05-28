@@ -54,6 +54,9 @@ fos_elastica:
                 name:
                     type: text
                     analyzer: text
+                    fields:
+                        raw:
+                            type: keyword
                 suggestion:
                     property_path: name
                     type: text
@@ -123,9 +126,6 @@ fos_elastica:
                 fileType:
                     type: keyword
                     property_path: getSourceFileType
-                fileMimeType:
-                    type: keyword
-                    property_path: getSourceFileMimeType
                 fileExtension:
                     type: keyword
                     property_path: getSourceFileExtension
@@ -216,14 +216,6 @@ fos_elastica:
                 groups:
                     property_path: false
                     type: keyword
-                nlUsers:
-                    property_path: false
-                    type: keyword
-                nlGroups:
-                    property_path: false
-                    type: keyword
-                privacyRoots:
-                    type: keyword
                 deleted:
                     type: boolean
                 createdAt:
@@ -276,14 +268,6 @@ fos_elastica:
                     type: keyword
                 groups:
                     property_path: false
-                    type: keyword
-                nlUsers:
-                    property_path: false
-                    type: keyword
-                nlGroups:
-                    property_path: false
-                    type: keyword
-                privacyRoots:
                     type: keyword
                 createdAt:
                     type: date

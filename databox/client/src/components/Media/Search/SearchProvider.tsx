@@ -1,7 +1,7 @@
 import React, {PropsWithChildren, useCallback, useState} from 'react';
 import {SearchContext, TSearchContext} from './SearchContext';
 import {
-    BuiltInField,
+    BuiltInFieldEnum,
     getResolvedSortBy,
     hashToQuery,
     queryToHash,
@@ -117,19 +117,19 @@ export default function SearchProvider({children}: Props) {
             if (
                 !setConditions(p => {
                     const newConditions = removeConditionsHelper(p, [
-                        BuiltInField.Collection,
-                        BuiltInField.Deleted,
+                        BuiltInFieldEnum.Collection,
+                        BuiltInFieldEnum.Deleted,
                     ]);
 
                     if (!workspaceId) {
                         return removeConditionsHelper(newConditions, [
-                            BuiltInField.Workspace,
+                            BuiltInFieldEnum.Workspace,
                         ]);
                     }
 
                     return replaceConditionHelper(newConditions, {
-                        id: BuiltInField.Workspace,
-                        query: `${BuiltInField.Workspace} = "${workspaceId}"`,
+                        id: BuiltInFieldEnum.Workspace,
+                        query: `${BuiltInFieldEnum.Workspace} = "${workspaceId}"`,
                     });
                 }) &&
                 forceReload
@@ -145,19 +145,19 @@ export default function SearchProvider({children}: Props) {
             if (
                 !setConditions(p => {
                     const newConditions = removeConditionsHelper(p, [
-                        BuiltInField.Workspace,
-                        BuiltInField.Deleted,
+                        BuiltInFieldEnum.Workspace,
+                        BuiltInFieldEnum.Deleted,
                     ]);
 
                     if (!collectionId) {
                         return removeConditionsHelper(newConditions, [
-                            BuiltInField.Collection,
+                            BuiltInFieldEnum.Collection,
                         ]);
                     }
 
                     return replaceConditionHelper(newConditions, {
-                        id: BuiltInField.Collection,
-                        query: `${BuiltInField.Collection} = "${collectionId}"`,
+                        id: BuiltInFieldEnum.Collection,
+                        query: `${BuiltInFieldEnum.Collection} = "${collectionId}"`,
                     });
                 }) &&
                 forceReload
@@ -239,7 +239,7 @@ export default function SearchProvider({children}: Props) {
             .filter(q => q && isAQLCondition(q.expression)) as AQLQueryAST[]
     ).map(q => q.expression) as AQLCondition[];
 
-    function filterOfType(type: BuiltInField): string[] {
+    function filterOfType(type: BuiltInFieldEnum): string[] {
         return conditionsAst
             .filter(
                 c =>
@@ -257,14 +257,14 @@ export default function SearchProvider({children}: Props) {
             .flat() as string[];
     }
 
-    const workspaces = filterOfType(BuiltInField.Workspace);
-    const collections = filterOfType(BuiltInField.Collection);
+    const workspaces = filterOfType(BuiltInFieldEnum.Workspace);
+    const collections = filterOfType(BuiltInFieldEnum.Collection);
     const hasSearch = Boolean(
         query ||
         conditions.length > 0 ||
         (sortBy.length > 0 &&
-            (sortBy[0].a !== BuiltInField.Score ||
-                sortBy[1]?.a !== BuiltInField.CreatedAt)) ||
+            (sortBy[0].a !== BuiltInFieldEnum.Score ||
+                sortBy[1]?.a !== BuiltInFieldEnum.CreatedAt)) ||
         geolocation
     );
 

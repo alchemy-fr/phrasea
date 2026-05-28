@@ -118,7 +118,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $phraseanetBodyData = json_decode($requestOptions['body'], true, 512, JSON_THROW_ON_ERROR);
         self::assertArraySubset([
             'assets' => [$assetId],
-            'publisher' => '4242',
+            'publisher' => KeycloakClientTestMock::ADMIN_UID,
             'commit_id' => $assetId,
         ], $phraseanetBodyData);
         $this->assertMatchesRegularExpression(sprintf(

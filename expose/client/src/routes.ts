@@ -9,6 +9,7 @@ import PublicationEditPage from './pages/PublicationEditPage.tsx';
 import ProfileEditPage from './pages/ProfileEditPage.tsx';
 import ProfileListPage from './pages/ProfileListPage.tsx';
 import ProfileCreatePage from './pages/ProfileCreatePage.tsx';
+import {AuthConstant} from '@alchemy/auth';
 
 const routes = {
     index: {
@@ -61,7 +62,7 @@ const routes = {
         component: EmbeddedAssetPage,
     },
     auth: {
-        path: 'auth',
+        path: AuthConstant.DefaultCheckCodePath,
         public: true,
         component: AppAuthorizationCodePage,
     },

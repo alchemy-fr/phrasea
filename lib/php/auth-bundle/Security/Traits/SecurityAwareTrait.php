@@ -6,16 +6,19 @@ namespace Alchemy\AuthBundle\Security\Traits;
 
 use Alchemy\AuthBundle\Security\JwtInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\RoleMapper;
 use Alchemy\AuthBundle\Security\Token\JwtToken;
-use Alchemy\AuthBundle\Security\Voter\SuperAdminVoter;
+use App\Security\Voter\AbstractVoter;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Contracts\Service\Attribute\Required;
 
 trait SecurityAwareTrait
 {
     protected Security $security;
+    protected RoleMapper $roleMapper;
 
     #[Required]
     public function setSecurity(Security $security): void
@@ -23,9 +26,10 @@ trait SecurityAwareTrait
         $this->security = $security;
     }
 
-    protected function isSuperAdmin(): bool
+    #[Required]
+    public function setRoleMapper(RoleMapper $roleMapper): void
     {
-        return $this->security->isGranted(SuperAdminVoter::ROLE);
+        $this->roleMapper = $roleMapper;
     }
 
     protected function isAdmin(): bool
@@ -101,13 +105,86 @@ trait SecurityAwareTrait
         }
     }
 
-    public function hasScope(string $scope): bool
+    public function hasScope(string $scope, ?string $scopePrefix = null, ?bool $applyHierarchy = null): bool
     {
         $token = $this->security->getToken();
         if (!$token instanceof JwtToken) {
             return false;
         }
 
-        return $token->hasScope($scope);
+        return $this->tokenHasScope($token, $scope, $scopePrefix, $applyHierarchy ?? null !== $scopePrefix);
+    }
+
+    protected function tokenHasScope(TokenInterface $token, string $scope, ?string $scopePrefix, bool $applyHierarchy = true): bool
+    {
+        if (empty($scope)) {
+            throw new \InvalidArgumentException('Scope cannot be empty');
+        }
+        if (!$token instanceof JwtToken) {
+            return false;
+        }
+
+        $tokenScopes = $token->getScopes();
+        $scopes = $applyHierarchy ? $this->getScopesFromHierarchy($scope) : [$scope];
+
+        $scopes = array_map(fn (string $scope): string => ($scopePrefix ?? '').strtolower($scope), $scopes);
+
+        return !empty(array_intersect($scopes, $tokenScopes));
+    }
+
+    private function getScopesFromHierarchy(string $attribute): array
+    {
+        $scopes = [$attribute];
+
+        $this->visitScopeHierarchy($attribute, $scopes);
+
+        return array_unique($scopes);
+    }
+
+    private function visitScopeHierarchy(string $attribute, array &$scopes): void
+    {
+        $subScopes = $this->getScopeHierarchy()[$attribute] ?? [];
+        foreach ($subScopes as $subScope) {
+            if (in_array($subScope, $scopes, true)) {
+                continue;
+            }
+            $scopes[] = $subScope;
+            $this->visitScopeHierarchy($subScope, $scopes);
+        }
+    }
+
+    protected function getScopeHierarchy(): array
+    {
+        return [
+            AbstractVoter::CREATE => [AbstractVoter::EDIT],
+            AbstractVoter::LIST => [],
+            AbstractVoter::READ => [AbstractVoter::EDIT],
+            AbstractVoter::EDIT => [AbstractVoter::OPERATOR],
+            AbstractVoter::DELETE => [AbstractVoter::OPERATOR],
+            AbstractVoter::EDIT_PERMISSIONS => [AbstractVoter::OWNER],
+            AbstractVoter::OPERATOR => [AbstractVoter::OWNER],
+        ];
+    }
+
+    public function hasRole(string $role): bool
+    {
+        $token = $this->security->getToken();
+        if (!$token instanceof JwtToken) {
+            return false;
+        }
+
+        $roles = $this->roleMapper->getRoles([$role]);
+        $tokenRoles = $token->getRoleNames();
+        if (empty($tokenRoles)) {
+            return false;
+        }
+
+        foreach ($roles as $r) {
+            if (in_array($r, $tokenRoles, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

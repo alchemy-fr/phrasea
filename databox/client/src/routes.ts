@@ -17,6 +17,7 @@ import HomePage from './pages/HomePage.tsx';
 import PageEditPage from './pages/PageEditPage.tsx';
 import PagePage from './pages/PagePage.tsx';
 import PageIndexPage from './pages/PageIndexPage.tsx';
+import {AuthConstant} from '@alchemy/auth';
 
 export enum Routing {
     UnknownRendition = '_',
@@ -121,12 +122,12 @@ const routes = {
         public: true,
     },
     pages: {
-        path: '/p/:slug',
+        path: 'p/:slug',
         component: PagePage,
         public: true,
     },
     pageAdmin: {
-        path: '/pages',
+        path: 'pages',
         routes: {
             index: {
                 path: '',
@@ -141,17 +142,17 @@ const routes = {
         },
     },
     assets: {
-        path: '/assets',
+        path: 'assets',
         component: App,
         public: true,
     },
     auth: {
-        path: '/auth',
+        path: AuthConstant.DefaultCheckCodePath,
         component: AppAuthorizationCodePage,
         public: true,
     },
     share: {
-        path: '/s/:id/:token',
+        path: 's/:id/:token',
         component: SharePage,
         public: true,
     },

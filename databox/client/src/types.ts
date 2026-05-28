@@ -12,6 +12,7 @@ import {AclExtraPermission} from './components/Permissions/permissionsTypes.ts';
 import {Privacy} from './api/privacy.ts';
 import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/managerTypes.ts';
 import {UserPreferences} from './store/userPreferencesStore.ts';
+import {BuiltInFieldEnum} from './components/Media/Search/search.ts';
 
 export type AlternateUrl = {
     type: string;
@@ -27,6 +28,7 @@ export interface ApiFile extends Entity {
     extension: string;
     alternateUrls: AlternateUrl[];
     size: number;
+    fileName: string;
     metadata?: Record<string, any>;
     accepted?: boolean;
     analysis?: FileAnalysis | null | undefined;
@@ -162,39 +164,49 @@ export interface AssetFileVersion extends Entity {
     createdAt: string;
 }
 
-export interface AttributeDefinition extends IPermissions, Entity {
+export interface BaseAttribute extends Entity {
     name: string;
-    displayName: string;
-    slug: string;
-    searchSlug: string;
     enabled: boolean;
-    fieldType: AttributeType;
+    displayName: string;
+    type: AttributeType;
+    searchable: boolean;
+    sortable: boolean;
     entityList?: EntityList | string | null | undefined;
     multiple: boolean;
-    searchable: boolean;
+    facetEnabled: boolean;
+    entityIri?: string;
+    slug: string;
+    searchSlug: string;
+    resolveLabel?: (entity: object, locale?: string) => string;
+    widget?: FieldWidget;
+    builtIn?: true;
+}
+
+export interface BuiltInAttribute extends BaseAttribute {
+    builtIn: true;
+}
+
+export interface AttributeDefinition extends BaseAttribute, IPermissions {
+    builtIn?: never;
     editable: boolean;
     editableInGui: boolean;
-    sortable: boolean;
     suggest: boolean;
     translatable: boolean;
     locales?: string[];
     allowInvalid: boolean;
-    facetEnabled: boolean;
     canEdit: boolean;
-    builtIn?: boolean;
-    widget?: FieldWidget;
-    widgetProps?: Record<string, any>;
     searchBoost: number;
     fallback: Record<string, string>;
     initialValues: Record<string, string>;
     workspace: Workspace | string;
     policy: AttributePolicy | string | null;
     lastErrors?: LastErrors;
-    entityIri?: string | undefined;
-    resolveLabel?: (entity: object) => string;
-    getValueFromAsset?: (asset: Asset) => any;
     target: AssetType;
 }
+
+export type AttributeDefinitionOrBuiltIn =
+    | AttributeDefinition
+    | BuiltInAttribute;
 
 export type FieldWidget<P extends {} = any> = {
     component: React.FC<P>;
@@ -418,7 +430,7 @@ export type ProfileItem = {
     id: string;
     section: ProfileItemSection;
     type: ProfileItemType;
-    key?: string;
+    key?: BuiltInFieldEnum | string;
     definition?: string;
     displayEmpty?: boolean;
     format?: string;

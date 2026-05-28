@@ -25,7 +25,7 @@ final class WorkspaceBuiltInField extends AbstractEntityBuiltInField
         return $value->getTranslatedField(Workspace::TR_FIELD_NAME, $this->getPreferredLocales($value), $value->getName());
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return 'workspaceId';
     }

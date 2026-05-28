@@ -54,7 +54,7 @@ export default function ConditionBuilder({
 
     const field = getFieldDefinition(expression.leftOperand, definitionsIndex);
     const rawType: RawType | undefined = field
-        ? typeMap[field.fieldType]
+        ? typeMap[field.type]
         : undefined;
 
     return (
@@ -75,6 +75,7 @@ export default function ConditionBuilder({
                     value={(expression.leftOperand as AQLField).field as any}
                     options={Object.entries(definitionsIndex)
                         .map(([_slug, def]) => def)
+                        .filter(def => def.enabled)
                         .filter(def => def.searchable)
                         .map(def => ({
                             value: def.slug,

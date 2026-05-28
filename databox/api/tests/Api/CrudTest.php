@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Api;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use App\Attribute\Type\TextAttributeType;
 use App\Tests\AbstractDataboxTestCase;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -118,7 +119,7 @@ final class CrudTest extends AbstractDataboxTestCase
         $createAttributeDefinition = ['POST', '/attribute-definitions', KeycloakClientTestMock::ADMIN_UID, [
             'workspace' => '/workspaces/{workspaceId}',
             'name' => 'AttrDef Test',
-            'fieldType' => 'text',
+            'type' => TextAttributeType::NAME,
             'policy' => '/attribute-policies/{attributePolicyId}',
         ]];
 
@@ -210,7 +211,7 @@ final class CrudTest extends AbstractDataboxTestCase
 
             ['POST', '/attribute-definitions', KeycloakClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
-                'fieldType' => 'text',
+                'type' => TextAttributeType::NAME,
             ], [
                 'code' => 403,
             ]],
@@ -232,7 +233,7 @@ final class CrudTest extends AbstractDataboxTestCase
             ['POST', '/attribute-definitions', KeycloakClientTestMock::USER_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
                 'name' => 'AttrClass Test',
-                'fieldType' => 'text',
+                'type' => TextAttributeType::NAME,
                 'policy' => '/attribute-policies/{attributePolicyId}',
             ], [
                 'code' => 403,
@@ -241,7 +242,7 @@ final class CrudTest extends AbstractDataboxTestCase
             ['POST', '/attribute-definitions', KeycloakClientTestMock::ADMIN_UID, [
                 'workspace' => '/workspaces/{workspaceId}',
                 'name' => 'AttrClass Test',
-                'fieldType' => 'text',
+                'type' => TextAttributeType::NAME,
                 'policy' => '/attribute-policies/{attributePolicyId}',
             ], [
                 'code' => 201,

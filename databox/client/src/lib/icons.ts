@@ -23,7 +23,7 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import SmartDisplayIcon from '@mui/icons-material/SmartDisplay';
 import SecurityIcon from '@mui/icons-material/Security';
 
-export const fieldTypesIcons: Record<AttributeType, SvgIconComponent> = {
+export const typesIcons: Record<AttributeType, SvgIconComponent> = {
     [AttributeType.Boolean]: CheckBoxIcon,
     [AttributeType.Code]: CodeIcon,
     [AttributeType.CollectionPath]: CollectionsIcon,

@@ -69,7 +69,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
             return;
         }
 
-        $fileName = $asset->getSource()->getFilename();
+        $fileName = $asset->getSource()->getFileName();
 
         $file = !empty($config['rendition']) ? $this->getRenditionFile($asset->getId(), $config['rendition']) : $asset->getSource();
 

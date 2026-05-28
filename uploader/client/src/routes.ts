@@ -7,6 +7,7 @@ import FormSchemaIndex from './pages/FormSchemaIndexPage.tsx';
 import FormSchemaEditPage from './pages/FormSchemaEditPage.tsx';
 import TargetParamIndexPage from './pages/TargetParamIndexPage.tsx';
 import TargetParamEditPage from './pages/TargetParamEditPage.tsx';
+import {AuthConstant} from '@alchemy/auth';
 
 const routes = {
     index: {
@@ -61,7 +62,7 @@ const routes = {
         },
     },
     auth: {
-        path: 'auth',
+        path: AuthConstant.DefaultCheckCodePath,
         component: AppAuthorizationCodePage,
         public: true,
     },

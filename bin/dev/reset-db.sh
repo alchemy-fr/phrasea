@@ -17,7 +17,7 @@ if [ "${INCLUDE_KEYCLOAK}" -eq "1" ]; then
   docker compose up -d keycloak
 fi
 
-for service in databox expose uploader; do
+for service in databox-api-php expose-api-php uploader-api-php configurator; do
   echo "## Resetting database for ${service}..."
-  docker compose run --rm ${service}-api-php /bin/ash -c 'bin/console doctrine:database:drop --force; bin/console doctrine:database:create'
+  docker compose run --rm ${service} /bin/ash -c 'bin/console doctrine:database:drop --force; bin/console doctrine:database:create; (!(bin/console | grep app:database:configure) || bin/console app:database:configure)'
 done

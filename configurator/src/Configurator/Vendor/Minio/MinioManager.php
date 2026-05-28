@@ -83,7 +83,7 @@ final readonly class MinioManager
                         ],
                     ],
                 ],
-            ]);
+            ])->getHeaders();
         });
     }
 

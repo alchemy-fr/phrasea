@@ -289,6 +289,7 @@ export async function importSubdefsStructure(
                 name: sd.policy,
                 workspace: `/workspaces/${workspaceId}`,
                 public: true,
+                editable: false,
             });
         }
 
@@ -401,7 +402,7 @@ export async function importMetadataStructure(
                 position: fm.position,
                 editable: !fm.readonly,
                 multiple: fm.multivalue,
-                fieldType: attributeTypesEquivalence[fm.type ?? ''] || fm.type,
+                type: attributeTypesEquivalence[fm.type ?? ''] || fm.type,
                 workspace: `/workspaces/${workspaceId}`,
                 policy: attrPolicy,
                 labels: fm.labels,

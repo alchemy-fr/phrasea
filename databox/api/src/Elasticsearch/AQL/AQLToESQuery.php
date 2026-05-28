@@ -15,15 +15,15 @@ use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\AQL\Function\AQLFunctionInterface;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\AQL\Function\Argument;
-use App\Elasticsearch\BuiltInField\BuiltInFieldInterface;
-use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
+use App\Elasticsearch\BuiltInField\BuiltInAttributeInterface;
+use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use Elastica\Query;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final readonly class AQLToESQuery
 {
     public function __construct(
-        private BuiltInFieldRegistry $builtInFieldRegistry,
+        private BuiltInAttributeRegistry $builtInFieldRegistry,
         private AQLFunctionRegistry $functionRegistry,
         private AttributeTypeRegistry $attributeTypeRegistry,
         private DateNormalizer $dateNormalizer,
@@ -206,7 +206,7 @@ final readonly class AQLToESQuery
         };
     }
 
-    private function validateOperator(ConditionOperatorEnum $operator, string $fieldType): void
+    private function validateOperator(ConditionOperatorEnum $operator, string $type): void
     {
         $gt = [
             NumberAttributeType::NAME,
@@ -247,8 +247,8 @@ final readonly class AQLToESQuery
         ];
 
         $supportedTypes = $operatorSupportedTypes[$operator->value] ?? null;
-        if (null !== $supportedTypes && !in_array($fieldType, $supportedTypes, true)) {
-            throw new BadRequestHttpException(sprintf('Operator "%s" not supported for field type "%s"', $operator->value, $fieldType));
+        if (null !== $supportedTypes && !in_array($type, $supportedTypes, true)) {
+            throw new BadRequestHttpException(sprintf('Operator "%s" not supported for field type "%s"', $operator->value, $type));
         }
     }
 
@@ -510,7 +510,7 @@ final readonly class AQLToESQuery
         return $scripts;
     }
 
-    private function resolveValue(mixed $data, ?BuiltInFieldInterface $builtInField = null): mixed
+    private function resolveValue(mixed $data, ?BuiltInAttributeInterface $builtInField = null): mixed
     {
         if (is_array($data)) {
             $type = $data['type'] ?? null;
@@ -551,32 +551,15 @@ final readonly class AQLToESQuery
             if (null !== $builtInField) {
                 return [
                     new ClusterGroup([
-                        'field' => $builtInField->getFieldName(),
+                        'field' => $builtInField::getName(),
                         'builtInField' => $builtInField,
                         'type' => $this->attributeTypeRegistry->getStrictType($builtInField->getType()),
                         'locales' => [],
                     ], true),
                 ];
             }
-            $key = substr($fieldSlug, 1);
 
-            return [
-                new ClusterGroup([
-                    'field' => match ($key) {
-                        'id' => '_id',
-                        'size' => 'fileSize',
-                        'type' => 'fileType',
-                        'mimetype' => 'fileMimeType',
-                        'extension' => 'fileExtension',
-                        'filename' => 'fileName',
-                        'hasSource' => 'hasSourceFile',
-                        default => throw new BadRequestHttpException(sprintf('Built-in field "%s" not found', $fieldSlug)),
-                    },
-                    'type' => $this->attributeTypeRegistry->getStrictType(KeywordAttributeType::NAME),
-                    'locales' => [],
-                ], true),
-            ];
-
+            throw new BadRequestHttpException(sprintf('Built-in field "%s" not found', $fieldSlug));
         }
 
         $nameCandidates = [

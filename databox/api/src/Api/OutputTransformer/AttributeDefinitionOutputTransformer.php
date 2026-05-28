@@ -43,7 +43,7 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         $output->slug = $data->getSlug();
         $output->searchSlug = $this->fieldNameResolver->getFieldNameFromDefinition($data);
         $output->fileType = $data->getFileType();
-        $output->fieldType = $data->getFieldType();
+        $output->type = $data->getType();
         $output->entityList = $data->getEntityList();
         $output->searchable = $data->isSearchable();
         $output->sortable = $data->isSortable();

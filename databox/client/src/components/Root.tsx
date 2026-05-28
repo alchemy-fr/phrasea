@@ -38,7 +38,7 @@ export default function Root({}: Props) {
         <>
             {css && <style>{css}</style>}
             <AnalyticsProvider matomo={matomo}>
-                <ToastContainer position={'bottom-left'} />
+                <ToastContainer position={'top-right'} />
                 <AuthenticationProvider
                     oauthClient={oauthClient}
                     keycloakClient={keycloakClient}

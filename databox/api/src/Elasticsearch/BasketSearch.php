@@ -101,7 +101,7 @@ class BasketSearch extends AbstractSearch
 
     private function createBasketACLBoolQuery(string $userId, array $groupIds): ?Query\BoolQuery
     {
-        if ($this->isSuperAdmin()) {
+        if ($this->isAdmin()) {
             return null;
         }
 

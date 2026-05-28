@@ -45,6 +45,7 @@ class FileOutputTransformer implements OutputTransformerInterface
         $output->setId($data->getId());
         $output->setType($data->getType());
         $output->extension = $data->getExtension();
+        $output->fileName = $data->getFileName();
         $output->setSize((int) $data->getSize());
         $output->analysis = $data->getAnalysis();
 

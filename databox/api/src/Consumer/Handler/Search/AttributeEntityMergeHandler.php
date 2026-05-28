@@ -11,6 +11,7 @@ use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeEntityRepository;
+use App\Repository\Core\AttributeRepository;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -20,6 +21,7 @@ final readonly class AttributeEntityMergeHandler
         private ElasticSearchClient $elasticSearchClient,
         private AttributeDefinitionRepository $attributeDefinitionRepository,
         private AttributeEntityRepository $attributeEntityRepository,
+        private AttributeRepository $attributeRepository,
         private FieldNameResolver $fieldNameResolver,
     ) {
     }
@@ -36,6 +38,14 @@ final readonly class AttributeEntityMergeHandler
         );
 
         $merged = $message->getMerged();
+
+        $this->attributeRepository->replaceAttributeEntity(
+            $workspaceId,
+            $mainEntity->getList()->getId(),
+            $mainEntity->getId(),
+            $merged,
+        );
+
         $this->updateAttributeIndex($mainEntity, $merged);
 
         $fields = [];

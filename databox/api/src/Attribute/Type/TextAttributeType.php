@@ -92,4 +92,9 @@ class TextAttributeType extends AbstractAttributeType
     {
         return AttributeTypeInterface::RAW_PROP;
     }
+
+    public function getElasticSearchSortSubField(): ?string
+    {
+        return AttributeTypeInterface::RAW_PROP;
+    }
 }

@@ -4,8 +4,12 @@ export function getCurrentPath(): string {
     return getRelativeUrl(window.location.href);
 }
 
+export function getCurrentUrl(): URL {
+    return new URL(window.location.href);
+}
+
 export function getRelativeUrl(url: string): string {
-    return url.replace(window.location.origin, '');
+    return url.substring(window.location.origin.length);
 }
 
 export function getLocationPrefix(): string {

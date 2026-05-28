@@ -8,7 +8,7 @@ import {useTranslation} from 'react-i18next';
 import React from 'react';
 import {attributesClasses} from './Attributes';
 import {isRtlLocale} from '../../../../lib/lang';
-import {Attribute, AttributeDefinition} from '../../../../types.ts';
+import {Attribute, AttributeDefinitionOrBuiltIn} from '../../../../types.ts';
 import GestureIcon from '@mui/icons-material/Gesture';
 import {AssetAnnotationRef} from '../Annotations/annotationTypes.ts';
 import {AttributeFormat, AttributeFormatterOptions} from './types/types';
@@ -18,10 +18,10 @@ export type BaseAttributeRowUIProps = {
 };
 
 type Props = {
-    definition: AttributeDefinition;
+    definition: AttributeDefinitionOrBuiltIn;
     attribute: Attribute | Attribute[] | undefined;
     displayControls: boolean;
-    togglePin: undefined | ((definition: AttributeDefinition) => void);
+    togglePin: undefined | ((definition: AttributeDefinitionOrBuiltIn) => void);
     pinned: boolean;
     formatContext: TAttributeFormatContext;
     format?: AttributeFormat;
@@ -38,8 +38,8 @@ export default function AttributeRowUI({
     assetAnnotationsRef,
 }: Props) {
     const {t, i18n} = useTranslation();
-    const {displayName, name, fieldType, multiple} = definition;
-    const formatter = getAttributeType(fieldType);
+    const {displayName, name, type, multiple, id} = definition;
+    const formatter = getAttributeType(type);
     const [overControls, setOverControls] = React.useState(false);
 
     const toggleFormat = React.useCallback<
@@ -47,9 +47,9 @@ export default function AttributeRowUI({
     >(
         e => {
             e.stopPropagation();
-            formatContext.toggleFormat(fieldType, definition.id);
+            formatContext.toggleFormat(type, id);
         },
-        [formatContext]
+        [formatContext, id]
     );
 
     const locale = multiple ? undefined : (attribute as Attribute)?.locale;
@@ -67,7 +67,7 @@ export default function AttributeRowUI({
             : (attribute as Attribute)?.value,
         highlight: multiple ? undefined : (attribute as Attribute)?.highlight,
         locale,
-        format: format ?? formatContext.getFormat(fieldType, definition.id),
+        format: format ?? formatContext.getFormat(type, id),
     };
 
     return (
@@ -88,18 +88,17 @@ export default function AttributeRowUI({
                     <div className={attributesClasses.controls}>
                         {overControls ? (
                             <>
-                                {!format &&
-                                    formatContext.hasFormats(fieldType) && (
-                                        <IconButton
-                                            onClick={toggleFormat}
-                                            title={formatContext.getFormatTitle(
-                                                fieldType,
-                                                definition.id
-                                            )}
-                                        >
-                                            <VisibilityIcon />
-                                        </IconButton>
-                                    )}
+                                {!format && formatContext.hasFormats(type) && (
+                                    <IconButton
+                                        onClick={toggleFormat}
+                                        title={formatContext.getFormatTitle(
+                                            type,
+                                            id
+                                        )}
+                                    >
+                                        <VisibilityIcon />
+                                    </IconButton>
+                                )}
 
                                 <CopyAttribute
                                     value={formatter.formatValueAsString(
@@ -140,7 +139,7 @@ export default function AttributeRowUI({
                                       highlight: a.highlight,
                                       locale: a.locale,
                                       format: formatContext.getFormat(
-                                          fieldType,
+                                          type,
                                           a.definition.id
                                       ),
                                   };

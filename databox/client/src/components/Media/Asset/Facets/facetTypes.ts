@@ -96,3 +96,7 @@ export type FacetPreference = {
 };
 
 export const orderInfinity = 999999;
+
+export enum FacetClasses {
+    HoverAction = 'fha',
+}

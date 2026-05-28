@@ -124,7 +124,7 @@ export default function TranslatableAttributeTabs({
                         {definition.multiple ? (
                             <MultiAttributeRow
                                 label={label}
-                                type={definition.fieldType}
+                                type={definition.type}
                                 isRtl={isRtlLocale(locale)}
                                 values={
                                     (attributes[locale] || []) as AttrValue<
@@ -145,7 +145,7 @@ export default function TranslatableAttributeTabs({
                                         | AttrValue<string | number>
                                         | undefined
                                 }
-                                type={definition.fieldType}
+                                type={definition.type}
                                 isRtl={isRtlLocale(locale)}
                                 label={label}
                                 required={false}

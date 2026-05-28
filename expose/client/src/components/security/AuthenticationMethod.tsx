@@ -1,8 +1,8 @@
 import {config, keycloakClient, oauthClient} from '../../init.ts';
 import FormLayout from './FormLayout';
-import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
-import {inIframe, openLoginWindow} from '@alchemy/auth';
-import {getCurrentPath, getRelativeUrl} from '@alchemy/navigation';
+import {useKeycloakUrls} from '@alchemy/react-auth';
+import {AuthConstant, inIframe, openLoginWindow} from '@alchemy/auth';
+import {getRelativeUrl} from '@alchemy/navigation';
 import {useTranslation} from 'react-i18next';
 import React from 'react';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
@@ -11,7 +11,6 @@ import lockImg from '../../images/lock.svg';
 type Props = {};
 
 export default function AuthenticationMethod({}: Props) {
-    const {setRedirectPath} = useAuth();
     const {t} = useTranslation();
 
     const {getLoginUrl} = useKeycloakUrls({
@@ -19,24 +18,31 @@ export default function AuthenticationMethod({}: Props) {
         autoConnectIdP: config.autoConnectIdP,
     });
 
-    const searchParams = new URLSearchParams(window.location.search);
-    const shouldRedirect =
-        !oauthClient.sessionHasExpired && !searchParams.has('logout');
+    const currentLocation = new URL(document.location.href);
+    const hasLoggedOut = currentLocation.searchParams.has(
+        AuthConstant.LoggedOutParam
+    );
+
+    let redirectUri: string | undefined;
+
+    if (hasLoggedOut) {
+        const r = new URL(document.location.href);
+        r.searchParams.delete(AuthConstant.LoggedOutParam);
+        redirectUri = getRelativeUrl(r.toString());
+    }
+
+    const shouldRedirect = !oauthClient.sessionHasExpired && !hasLoggedOut;
+
+    const isInIframe = inIframe();
+    const loginUrl = getLoginUrl(redirectUri);
 
     React.useEffect(() => {
         if (shouldRedirect) {
-            document.location.href = getLoginUrl();
+            document.location.href = loginUrl;
         }
-    }, [shouldRedirect]);
+    }, [shouldRedirect, loginUrl]);
 
-    const isInIframe = inIframe();
-    const redirectUri = new URL(document.location.href);
-    redirectUri.searchParams.delete('logout');
-
-    const loginUrl = getLoginUrl(getRelativeUrl(redirectUri.toString()));
     const onConnect = React.useCallback(() => {
-        setRedirectPath?.(getCurrentPath());
-
         if (isInIframe) {
             openLoginWindow(loginUrl);
         }

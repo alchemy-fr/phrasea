@@ -13,8 +13,9 @@ use App\Entity\Core\CollectionAsset;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-final class CollectionBuiltInField extends AbstractBuiltInField
+final class CollectionBuiltInField extends AbstractBuiltInAttribute
 {
     use UserLocaleTrait;
 
@@ -101,7 +102,7 @@ final class CollectionBuiltInField extends AbstractBuiltInField
         return $value->getId();
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return 'collectionPaths';
     }
@@ -114,6 +115,11 @@ final class CollectionBuiltInField extends AbstractBuiltInField
     public function getValueFromAsset(Asset $asset): mixed
     {
         return $asset->getCollections();
+    }
+
+    public function isMultiple(): bool
+    {
+        return true;
     }
 
     protected function resolveItem($value)
@@ -132,6 +138,11 @@ final class CollectionBuiltInField extends AbstractBuiltInField
             return null;
         }
 
-        return $this->em->find(Collection::class, $value)?->getAbsolutePath();
+        $collection = $this->em->find(Collection::class, $value);
+        if (!$collection) {
+            throw new NotFoundHttpException('Collection not found');
+        }
+
+        return $collection?->getAbsolutePath();
     }
 }

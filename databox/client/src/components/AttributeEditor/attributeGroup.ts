@@ -24,7 +24,7 @@ import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {useTranslation} from 'react-i18next';
 import {getAttributeType} from '../Media/Asset/Attribute/types';
 import {NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
-import {AttributeType} from '../../api/types.ts';
+import {AttributeType, EntityName} from '../../api/types.ts';
 import {isAssetEligibleForAttributeDefinition} from '../../api/asset.ts';
 
 type Props = {
@@ -36,9 +36,11 @@ type Props = {
     setDefinition: StateSetter<AttributeDefinition | undefined>;
     onSaved: () => void;
     modalIndex?: number | undefined;
+    workspaceId: string;
 };
 
 export function useAttributeValues<T>({
+    workspaceId,
     attributeDefinitions,
     assets,
     subSelection,
@@ -51,20 +53,21 @@ export function useAttributeValues<T>({
     const {t} = useTranslation();
     const {openModal} = useModals();
     const [inc, setInc] = React.useState(0);
-    const [definitionIndex, setDefinitionIndex] =
-        React.useState<AttributeDefinitionIndex>({});
+    const [definitionIndex, setDefinitionIndex] = React.useState<
+        AttributeDefinitionIndex<AttributeDefinition>
+    >({});
     const saved = useRef(false);
 
     const createToKey = React.useCallback<CreateToKeyFunc<any>>(
-        (fieldType: AttributeType) => {
-            const type = getAttributeType(fieldType);
+        (type: AttributeType) => {
+            const attributeType = getAttributeType(type);
 
             return (v: any) => {
                 if (!v) {
                     return '';
                 }
 
-                return type.normalize(v)?.toString();
+                return attributeType.normalize(v)?.toString();
             };
         },
         []
@@ -74,18 +77,23 @@ export function useAttributeValues<T>({
         () =>
             ({
                 id: ExtraAttributeDefinition.Tags,
-                fieldType: AttributeType.Tag,
+                type: AttributeType.Tag,
                 name: t('tags.label', 'Tags'),
                 multiple: true,
                 canEdit: true,
                 translatable: false,
+                workspace: {
+                    '@id': `${EntityName.Workspace}/${workspaceId}`,
+                    'id': workspaceId,
+                },
             }) as AttributeDefinition,
         []
     );
 
     const {initialIndex, finalAttributeDefinitions} = React.useMemo(() => {
         const index: BatchAttributeIndex<T> = {};
-        const definitionIndex: AttributeDefinitionIndex = {};
+        const definitionIndex: AttributeDefinitionIndex<AttributeDefinition> =
+            {};
 
         const finalAttributeDefinitions = [
             tagDefinition,
@@ -276,7 +284,7 @@ export function useAttributeValues<T>({
                 ad => ad.id === defId
             )!;
 
-            const toKey = createToKey(attributeDefinition.fieldType);
+            const toKey = createToKey(attributeDefinition.type);
             const key = value ? toKey(value) : '';
 
             setIndex(p => {
@@ -331,7 +339,7 @@ export function useAttributeValues<T>({
             )!;
             locale = attributeDefinition.translatable ? locale : NO_LOCALE;
 
-            const toKey = createToKey(attributeDefinition.fieldType);
+            const toKey = createToKey(attributeDefinition.type);
             const key = value ? toKey(value) : '';
 
             setIndex(p => {
@@ -367,7 +375,7 @@ export function useAttributeValues<T>({
             if (definition && definition.multiple) {
                 locale = definition.translatable ? locale : NO_LOCALE;
                 const v = index[definition.id]?.[asset.id]?.[locale];
-                const toKey = createToKey(definition.fieldType);
+                const toKey = createToKey(definition.type);
                 if (v) {
                     return (v as T[]).some(iv => toKey(iv) === key);
                 }
@@ -449,7 +457,7 @@ export function useAttributeValues<T>({
         openModal(SavePreviewDialog, {
             actions,
             definitionIndex,
-            workspaceId: assets[0].workspace.id,
+            workspaceId,
             onSaved: () => {
                 saved.current = true;
                 onSaved();
