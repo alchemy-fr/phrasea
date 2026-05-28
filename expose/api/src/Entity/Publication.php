@@ -156,7 +156,7 @@ class Publication implements AclObjectInterface, \Stringable
     #[ORM\OrderBy(['position' => 'ASC', 'createdAt' => 'ASC'])]
     private Collection $assets;
 
-    #[ORM\ManyToOne(targetEntity: PublicationProfile::class)]
+    #[ORM\ManyToOne(targetEntity: PublicationProfile::class, inversedBy: 'publications')]
     #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private ?PublicationProfile $profile = null;
 
