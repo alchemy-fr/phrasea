@@ -60,7 +60,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -120,7 +120,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -179,7 +179,7 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -234,7 +234,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -297,7 +297,7 @@
         },
         {
             "name": "alchemy/es-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -355,7 +355,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -409,7 +409,7 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
@@ -466,7 +466,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
@@ -591,7 +591,7 @@
         },
         {
             "name": "alchemy/rendition-factory",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory",
@@ -655,7 +655,7 @@
         },
         {
             "name": "alchemy/rendition-factory-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory-bundle",
@@ -710,7 +710,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -766,7 +766,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -819,7 +819,7 @@
         },
         {
             "name": "alchemy/track-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/track-bundle",
@@ -882,7 +882,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
@@ -940,7 +940,7 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
@@ -1007,7 +1007,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -8911,16 +8911,16 @@
         },
         {
             "name": "symfony/cache",
-            "version": "v6.4.35",
+            "version": "v6.4.41",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/cache.git",
-                "reference": "77f5eca135d1b5471de4301b99496649e4f62878"
+                "reference": "5490a577195422c3c9cda09c64823580858af854"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/cache/zipball/77f5eca135d1b5471de4301b99496649e4f62878",
-                "reference": "77f5eca135d1b5471de4301b99496649e4f62878",
+                "url": "https://api.github.com/repos/symfony/cache/zipball/5490a577195422c3c9cda09c64823580858af854",
+                "reference": "5490a577195422c3c9cda09c64823580858af854",
                 "shasum": ""
             },
             "require": {
@@ -8987,7 +8987,7 @@
                 "psr6"
             ],
             "support": {
-                "source": "https://github.com/symfony/cache/tree/v6.4.35"
+                "source": "https://github.com/symfony/cache/tree/v6.4.41"
             },
             "funding": [
                 {
@@ -9007,7 +9007,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-03-05T20:47:12+00:00"
+            "time": "2026-05-24T08:42:40+00:00"
         },
         {
             "name": "symfony/cache-contracts",
@@ -9499,16 +9499,16 @@
         },
         {
             "name": "symfony/deprecation-contracts",
-            "version": "v3.6.0",
+            "version": "v3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/deprecation-contracts.git",
-                "reference": "63afe740e99a13ba87ec199bb07bbdee937a5b62"
+                "reference": "50f59d1f3ca46d41ac911f97a78626b6756af35b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/63afe740e99a13ba87ec199bb07bbdee937a5b62",
-                "reference": "63afe740e99a13ba87ec199bb07bbdee937a5b62",
+                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/50f59d1f3ca46d41ac911f97a78626b6756af35b",
+                "reference": "50f59d1f3ca46d41ac911f97a78626b6756af35b",
                 "shasum": ""
             },
             "require": {
@@ -9521,7 +9521,7 @@
                     "name": "symfony/contracts"
                 },
                 "branch-alias": {
-                    "dev-main": "3.6-dev"
+                    "dev-main": "3.7-dev"
                 }
             },
             "autoload": {
@@ -9546,7 +9546,7 @@
             "description": "A generic function and convention to trigger deprecation notices",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.6.0"
+                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.7.0"
             },
             "funding": [
                 {
@@ -9558,11 +9558,15 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-25T14:21:43+00:00"
+            "time": "2026-04-13T15:52:40+00:00"
         },
         {
             "name": "symfony/doctrine-bridge",
@@ -12287,7 +12291,7 @@
         },
         {
             "name": "symfony/polyfill-php73",
-            "version": "v1.33.0",
+            "version": "v1.37.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php73.git",
@@ -12343,7 +12347,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php73/tree/v1.33.0"
+                "source": "https://github.com/symfony/polyfill-php73/tree/v1.37.0"
             },
             "funding": [
                 {
@@ -12367,16 +12371,16 @@
         },
         {
             "name": "symfony/polyfill-php80",
-            "version": "v1.33.0",
+            "version": "v1.37.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php80.git",
-                "reference": "0cc9dd0f17f61d8131e7df6b84bd344899fe2608"
+                "reference": "dfb55726c3a76ea3b6459fcfda1ec2d80a682411"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/0cc9dd0f17f61d8131e7df6b84bd344899fe2608",
-                "reference": "0cc9dd0f17f61d8131e7df6b84bd344899fe2608",
+                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/dfb55726c3a76ea3b6459fcfda1ec2d80a682411",
+                "reference": "dfb55726c3a76ea3b6459fcfda1ec2d80a682411",
                 "shasum": ""
             },
             "require": {
@@ -12427,7 +12431,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php80/tree/v1.33.0"
+                "source": "https://github.com/symfony/polyfill-php80/tree/v1.37.0"
             },
             "funding": [
                 {
@@ -12447,7 +12451,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-01-02T08:10:11+00:00"
+            "time": "2026-04-10T16:19:22+00:00"
         },
         {
             "name": "symfony/polyfill-php83",
@@ -13653,16 +13657,16 @@
         },
         {
             "name": "symfony/service-contracts",
-            "version": "v3.6.1",
+            "version": "v3.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/service-contracts.git",
-                "reference": "45112560a3ba2d715666a509a0bc9521d10b6c43"
+                "reference": "d25d82433a80eba6aa0e6c24b61d7370d99e444a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/service-contracts/zipball/45112560a3ba2d715666a509a0bc9521d10b6c43",
-                "reference": "45112560a3ba2d715666a509a0bc9521d10b6c43",
+                "url": "https://api.github.com/repos/symfony/service-contracts/zipball/d25d82433a80eba6aa0e6c24b61d7370d99e444a",
+                "reference": "d25d82433a80eba6aa0e6c24b61d7370d99e444a",
                 "shasum": ""
             },
             "require": {
@@ -13680,7 +13684,7 @@
                     "name": "symfony/contracts"
                 },
                 "branch-alias": {
-                    "dev-main": "3.6-dev"
+                    "dev-main": "3.7-dev"
                 }
             },
             "autoload": {
@@ -13716,7 +13720,7 @@
                 "standards"
             ],
             "support": {
-                "source": "https://github.com/symfony/service-contracts/tree/v3.6.1"
+                "source": "https://github.com/symfony/service-contracts/tree/v3.7.0"
             },
             "funding": [
                 {
@@ -13736,7 +13740,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-07-15T11:30:57+00:00"
+            "time": "2026-03-28T09:44:51+00:00"
         },
         {
             "name": "symfony/stopwatch",
@@ -14701,26 +14705,26 @@
         },
         {
             "name": "symfony/var-exporter",
-            "version": "v6.4.26",
+            "version": "v7.4.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/var-exporter.git",
-                "reference": "466fcac5fa2e871f83d31173f80e9c2684743bfc"
+                "reference": "22e03a49c95ef054a43601cd159b222bfab1c701"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/var-exporter/zipball/466fcac5fa2e871f83d31173f80e9c2684743bfc",
-                "reference": "466fcac5fa2e871f83d31173f80e9c2684743bfc",
+                "url": "https://api.github.com/repos/symfony/var-exporter/zipball/22e03a49c95ef054a43601cd159b222bfab1c701",
+                "reference": "22e03a49c95ef054a43601cd159b222bfab1c701",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.1",
+                "php": ">=8.2",
                 "symfony/deprecation-contracts": "^2.5|^3"
             },
             "require-dev": {
-                "symfony/property-access": "^6.4|^7.0",
-                "symfony/serializer": "^6.4|^7.0",
-                "symfony/var-dumper": "^5.4|^6.0|^7.0"
+                "symfony/property-access": "^6.4|^7.0|^8.0",
+                "symfony/serializer": "^6.4|^7.0|^8.0",
+                "symfony/var-dumper": "^6.4|^7.0|^8.0"
             },
             "type": "library",
             "autoload": {
@@ -14758,7 +14762,7 @@
                 "serialize"
             ],
             "support": {
-                "source": "https://github.com/symfony/var-exporter/tree/v6.4.26"
+                "source": "https://github.com/symfony/var-exporter/tree/v7.4.9"
             },
             "funding": [
                 {
@@ -14778,7 +14782,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-09-11T09:57:09+00:00"
+            "time": "2026-04-18T13:18:21+00:00"
         },
         {
             "name": "symfony/web-link",
@@ -15238,7 +15242,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
