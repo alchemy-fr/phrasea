@@ -60,7 +60,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -120,7 +120,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -179,7 +179,7 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -234,7 +234,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -297,7 +297,7 @@
         },
         {
             "name": "alchemy/es-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -355,7 +355,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -409,7 +409,7 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
@@ -466,7 +466,7 @@
         },
         {
             "name": "alchemy/notify-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notify-bundle",
@@ -591,7 +591,7 @@
         },
         {
             "name": "alchemy/rendition-factory",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory",
@@ -655,7 +655,7 @@
         },
         {
             "name": "alchemy/rendition-factory-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory-bundle",
@@ -710,7 +710,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -766,7 +766,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -819,7 +819,7 @@
         },
         {
             "name": "alchemy/track-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/track-bundle",
@@ -882,7 +882,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
@@ -940,7 +940,7 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
@@ -1007,7 +1007,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -12030,16 +12030,16 @@
         },
         {
             "name": "symfony/polyfill-intl-idn",
-            "version": "v1.33.0",
+            "version": "v1.38.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-idn.git",
-                "reference": "9614ac4d8061dc257ecc64cba1b140873dce8ad3"
+                "reference": "dc21118016c039a66235cf93d96b435ffb282412"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-intl-idn/zipball/9614ac4d8061dc257ecc64cba1b140873dce8ad3",
-                "reference": "9614ac4d8061dc257ecc64cba1b140873dce8ad3",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-idn/zipball/dc21118016c039a66235cf93d96b435ffb282412",
+                "reference": "dc21118016c039a66235cf93d96b435ffb282412",
                 "shasum": ""
             },
             "require": {
@@ -12093,7 +12093,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-idn/tree/v1.33.0"
+                "source": "https://github.com/symfony/polyfill-intl-idn/tree/v1.38.1"
             },
             "funding": [
                 {
@@ -12113,20 +12113,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-10T14:38:51+00:00"
+            "time": "2026-05-25T15:22:23+00:00"
         },
         {
             "name": "symfony/polyfill-intl-normalizer",
-            "version": "v1.33.0",
+            "version": "v1.38.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-normalizer.git",
-                "reference": "3833d7255cc303546435cb650316bff708a1c75c"
+                "reference": "2d446c214bdbe5b71bde5011b060a05fece3ae6b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-intl-normalizer/zipball/3833d7255cc303546435cb650316bff708a1c75c",
-                "reference": "3833d7255cc303546435cb650316bff708a1c75c",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-normalizer/zipball/2d446c214bdbe5b71bde5011b060a05fece3ae6b",
+                "reference": "2d446c214bdbe5b71bde5011b060a05fece3ae6b",
                 "shasum": ""
             },
             "require": {
@@ -12178,7 +12178,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.33.0"
+                "source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.38.0"
             },
             "funding": [
                 {
@@ -12198,20 +12198,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-09-09T11:45:10+00:00"
+            "time": "2026-05-25T13:48:31+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.33.0",
+            "version": "v1.38.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "6d857f4d76bd4b343eac26d6b539585d2bc56493"
+                "reference": "14c5439eec4ccff081ac14eca2dc57feb2a66d92"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/6d857f4d76bd4b343eac26d6b539585d2bc56493",
-                "reference": "6d857f4d76bd4b343eac26d6b539585d2bc56493",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/14c5439eec4ccff081ac14eca2dc57feb2a66d92",
+                "reference": "14c5439eec4ccff081ac14eca2dc57feb2a66d92",
                 "shasum": ""
             },
             "require": {
@@ -12263,7 +12263,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.33.0"
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.38.1"
             },
             "funding": [
                 {
@@ -12283,7 +12283,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-12-23T08:48:59+00:00"
+            "time": "2026-05-26T12:51:13+00:00"
         },
         {
             "name": "symfony/polyfill-php73",
@@ -15238,7 +15238,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-PS-1160-acl-root",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
