@@ -118,7 +118,7 @@ services:
 
   elasticsearch:
     ports:
-      - ${ELASTICSEARCH_PORT}:9200
+      - ${DEV_ELASTICSEARCH_PORT}:9200
 
   dev:
     build: infra/docker/dev
