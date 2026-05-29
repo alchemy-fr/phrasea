@@ -13,10 +13,19 @@ export VERIFY_SSL=false
 export COMPOSE_PROFILES=databox,expose,uploader,db,rabbitmq,redis,minio,report,mailhog,elasticsearch,dashboard
 export FIXTURES_GENERATE_IMAGES=true
 
-docker compose build dashboard-client
-
 docker compose kill
 docker compose down --volumes --remove-orphans
+
+if [[ "$1" == "--clean" ]]; then
+  exit 0
+fi
+
+if [[ -f .env.local ]]; then
+  echo "Disabling .env.local for tests..."
+  mv .env.local .env.local.bak
+fi
+
+docker compose build dashboard-client configurator expose-api-php expose-api-nginx expose-client
 
 bin/dev/make-cert.sh
 sudo PHRASEA_DOMAIN=${PHRASEA_DOMAIN} bin/dev/append-etc-hosts.sh
@@ -28,3 +37,8 @@ wait
 docker compose exec expose-api-php bin/console hautelook:fixtures:load -n
 
 docker compose run --rm cypress
+
+if [[ -f .env.local.bak ]]; then
+  echo "Restoring .env.local..."
+  mv .env.local.bak .env.local
+fi
