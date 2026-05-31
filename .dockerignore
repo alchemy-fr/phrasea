@@ -29,4 +29,4 @@
 /report
 /tmp
 phrasea-manifest.json
-.env*
+.env.local
