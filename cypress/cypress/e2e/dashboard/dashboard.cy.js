@@ -32,7 +32,7 @@ describe('Dashboard loads', () => {
             });
 
             cy.contains('Logout').click();
-        };);
+        });
 
         cy.contains('Sign In');
     });
