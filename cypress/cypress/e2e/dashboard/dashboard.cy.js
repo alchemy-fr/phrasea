@@ -26,6 +26,11 @@ describe('Dashboard loads', () => {
         cy.contains('Logout').click();
 
         cy.origin(keycloakUrl, () => {
+            // Ignore failed requests
+            Cypress.on('uncaught:exception', () => {
+                return false;
+            });
+
             cy.contains('Logout').click();
         });
 

@@ -22,12 +22,10 @@ uploader-api-php
 "
 
 for s in ${SF_SERVICES}; do
-  docker compose run -T --rm ${s} su app -c "composer install --no-interaction && composer test"
+  docker compose run -T --rm ${s} su app -c "rm -rf bin/.phpunit && composer install --no-interaction && composer test"
 done
 
 . bin/vars.sh
-
-export APP_ENV=test
 
 excluded_dirs="api-test report-bundle report-sdk"
 
