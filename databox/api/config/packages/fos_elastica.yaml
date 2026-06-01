@@ -123,6 +123,9 @@ fos_elastica:
                 fileName:
                     type: text
                     property_path: getSourceFilename
+                    fields:
+                        raw:
+                            type: keyword
                 fileType:
                     type: keyword
                     property_path: getSourceFileType

@@ -248,7 +248,11 @@ class AssetSearch extends AbstractSearch
         $sort = [];
         if (isset($options['order'])) {
             foreach ($options['order'] as $field => $way) {
-                $esFieldInfo = $this->attributeSearch->getESFieldInfo($field);
+                try {
+                    $esFieldInfo = $this->attributeSearch->getESFieldInfo($field);
+                } catch (\InvalidArgumentException $e) {
+                    throw new BadRequestHttpException(sprintf('Invalid sort attribute "%s". Did you forget prefixing with "@" for built-in or use "field_type_s" format', $field), $e);
+                }
                 if (!$esFieldInfo['enabled']) {
                     continue;
                 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\BuiltInField;
 
-use App\Attribute\Type\KeywordAttributeType;
+use App\Attribute\Type\TextAttributeType;
 use App\Entity\Core\Asset;
 
 final class FileNameBuiltInField extends AbstractBuiltInAttribute
@@ -31,7 +31,7 @@ final class FileNameBuiltInField extends AbstractBuiltInAttribute
 
     public function getType(): string
     {
-        return KeywordAttributeType::getName();
+        return TextAttributeType::getName();
     }
 
     public function isFacet(): bool

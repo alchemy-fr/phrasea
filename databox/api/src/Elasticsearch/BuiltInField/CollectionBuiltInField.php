@@ -12,6 +12,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use Ramsey\Uuid\Nonstandard\Uuid;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -136,6 +137,10 @@ final class CollectionBuiltInField extends AbstractBuiltInAttribute
     {
         if (!$value || !is_string($value)) {
             return null;
+        }
+
+        if (!Uuid::isValid($value)) {
+            throw new NotFoundHttpException('Invalid collection ID');
         }
 
         $collection = $this->em->find(Collection::class, $value);
