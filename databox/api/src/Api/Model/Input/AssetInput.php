@@ -17,6 +17,7 @@ class AssetInput extends AbstractOwnerIdInput
     use UploadInputTrait;
     use ExtraMetadataDTOTrait;
 
+    #[Assert\Length(max: 255)]
     public ?string $name = null;
     public ?string $externalId = null;
     public ?string $trackingId = null;

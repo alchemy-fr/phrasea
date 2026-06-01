@@ -140,7 +140,7 @@ final readonly class RenditionBuilder
 
         $outputFile = $this->renditionCreator->createRendition(
             $sourcePath,
-            $source->getType(),
+            $source->getType() ?? '',
             $this->loader->parse($buildDef),
             new CreateRenditionOptions(
                 metadataContainer: $metadataContainer,

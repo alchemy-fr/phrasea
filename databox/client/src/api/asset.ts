@@ -651,18 +651,30 @@ export function isAssetEligibleForAttributeDefinition(
 
     return !(definition.target && (definition.target & type) === 0);
 }
+
+function trimName(name: string): string {
+    return name.substring(0, 255);
+}
+
 export function extractNameFromUrl(url: string): string {
     const s = url.split('/').filter(Boolean);
-    return s[s.length - 1];
+    let r = s[s.length - 1];
+    if (r.includes('?')) {
+        r = r.split('?')[0];
+    }
+
+    return trimName(r);
 }
 
 export function getAssetNameFromFile(
     file: File,
     t: TFunction<'translation', undefined>
 ) {
-    return file.name === 'image.png'
-        ? createPastedImageName(t)
-        : file.name.replace(/\.[^/.]+$/, '');
+    return trimName(
+        file.name === 'image.png'
+            ? createPastedImageName(t)
+            : file.name.replace(/\.[^/.]+$/, '')
+    );
 }
 
 function createPastedImageName(t: TFunction): string {
