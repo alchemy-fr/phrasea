@@ -255,9 +255,9 @@ jobs:
       - name: Extract error output
         if: failure()
         run: |
-          mkdir cypress-output
           docker run -d --rm --name dummy -v ${COMPOSE_PROJECT_NAME}_cypress_output:/cypress/output alpine:3.14.8 tail -f /dev/null
-          docker cp dummy:/cypress/output ./cypress
+          rm -rf cypress-output
+          docker cp dummy:/cypress/output ./cypress-output
           docker stop dummy
           docker compose logs > docker-logs.log
           docker compose down --volumes
@@ -268,8 +268,8 @@ jobs:
         with:
           name: phrasea-output
           path: |
-            ./cypress/screenshots
-            ./cypress/results
+            ./cypress-output/screenshots
+            ./cypress-output/results
             ./docker-logs.log
           retention-days: 2
 
