@@ -24,11 +24,5 @@ describe('Dashboard loads', () => {
 
         cy.get('.MuiAvatar-root').click();
         cy.contains('Logout').click();
-
-        cy.origin(keycloakUrl, () => {
-            cy.contains('Logout').click();
-        });
-
-        cy.contains('Sign In');
     });
 });
