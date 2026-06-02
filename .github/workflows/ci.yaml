@@ -259,7 +259,7 @@ jobs:
           rm -rf cypress-output
           docker cp dummy:/cypress/output ./cypress-output
           docker stop dummy
-          docker compose logs > docker-logs.log
+          docker compose logs --no-color > docker-logs.log
           docker compose down --volumes
 
       - name: Upload output

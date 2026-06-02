@@ -40,4 +40,7 @@ USER 1000
 
 COPY entrypoint.sh /entrypoint.sh
 
+HEALTHCHECK --start-interval=2s --start-period=90s --retries=100 --interval=60s --timeout=2s \
+    CMD { printf 'HEAD /health/ready HTTP/1.0\r\n\r\n' >&0; grep 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/9000
+
 ENTRYPOINT ["/entrypoint.sh"]

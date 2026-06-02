@@ -9,6 +9,7 @@ bin/build.sh
 export COMPOSE_PROJECT_NAME=build
 export PS_SUBNET=172.34.0.0/16
 export PS_GATEWAY_IP=172.34.0.1
+export TRUSTED_PROXIES=172.34.0.0/16
 export PHRASEA_DOMAIN=phrasea.local
 export TRAEFIK_HTTPS_PORT=4442
 export TRAEFIK_HTTP_PORT=8042
