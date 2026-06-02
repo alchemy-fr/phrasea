@@ -469,7 +469,7 @@ export default function DefinitionManager<
                                 gap: 1,
                                 p: 1,
                                 zIndex: 2,
-                                backgroundColor: 'transparent',
+                                backgroundColor: 'common.background',
                             }}
                         >
                             <TextField

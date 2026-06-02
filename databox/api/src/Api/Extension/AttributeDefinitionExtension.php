@@ -42,7 +42,10 @@ class AttributeDefinitionExtension implements QueryCollectionExtensionInterface
             return;
         }
 
-        if (!$this->hasScope(AbstractVoter::LIST, AssetDataTemplateVoter::SCOPE_PREFIX)) {
+        if (
+            !$this->hasScope(AbstractVoter::LIST, AssetDataTemplateVoter::SCOPE_PREFIX)
+            && !$this->isAdmin()
+        ) {
             $user = $this->security->getUser();
             $userId = $user instanceof JwtUser ? $user->getId() : null;
             $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
