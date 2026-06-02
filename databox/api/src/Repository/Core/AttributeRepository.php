@@ -7,6 +7,7 @@ namespace App\Repository\Core;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Attribute;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -91,6 +92,14 @@ class AttributeRepository extends ServiceEntityRepository
 
     public function getESQueryBuilder(): QueryBuilder
     {
+        $types = array_map(
+            fn (AttributeTypeInterface $type): string => $type::getName(),
+            array_filter(
+                $this->attributeTypeRegistry->getTypes(),
+                fn (AttributeTypeInterface $type): bool => $type->supportsSuggest()
+            )
+        );
+
         $queryBuilder = $this
             ->createQueryBuilder('t');
 
@@ -98,6 +107,16 @@ class AttributeRepository extends ServiceEntityRepository
             // SQLite does not find asset_id in the wrapped query
             $queryBuilder->addOrderBy('t.asset', 'ASC');
         }
+
+        $queryBuilder
+            ->addOrderBy('t.id', 'ASC')
+            ->innerJoin('t.definition', 'd')
+            ->andWhere('d.enabled = true')
+            ->andWhere('d.type IN (:types)')
+            ->andWhere('t.value != \'\'')
+            ->setParameter('types', $types);
+
+        $this->restrictTranslatableFields($queryBuilder, 't');
 
         return $queryBuilder;
     }
