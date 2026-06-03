@@ -121,7 +121,9 @@ export type SearchSuggestion = {
     id: string;
     name: string;
     hl: string;
-    t: string;
+    t: 'collection' | 'asset' | 'workspace';
+    tName: string;
+    tId?: string;
 };
 
 export async function getSearchSuggestions(

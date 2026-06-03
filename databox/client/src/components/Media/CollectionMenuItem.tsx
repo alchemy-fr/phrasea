@@ -119,11 +119,7 @@ export default function CollectionMenuItem({
 
     const selected = searchContext.collections.includes(id);
     const onClick = () => {
-        searchContext.selectCollection(
-            id,
-            (namePath ?? []).concat(displayName).join(` / `),
-            selected
-        );
+        searchContext.selectCollection(id, collection, selected);
         expand(true);
     };
 

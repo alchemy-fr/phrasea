@@ -105,7 +105,7 @@ export default function SearchBar({}: Props) {
                                     onClick={onClick}
                                     placeholder={placeholder}
                                     onKeyDown={e => e.stopPropagation()} // Prevent Ctrl + A propagation
-                                    onKeyPress={e => e.stopPropagation()} // Prevent Ctrl + A propagation
+                                    onKeyUp={e => e.stopPropagation()} // Prevent Ctrl + A propagation
                                     inputProps={{
                                         'aria-label': 'search',
                                         ...(autocomplete.getInputProps({
@@ -120,9 +120,9 @@ export default function SearchBar({}: Props) {
                                         width: 'auto',
                                     }}
                                 />
-                                <Box sx={{}}>
+                                <div>
                                     <SearchMoreAction search={search} />
-                                </Box>
+                                </div>
                             </Box>
 
                             <SuggestPopover usedSuggest={usedSuggest} />

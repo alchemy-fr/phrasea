@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use App\Api\Traits\UserLocaleTrait;
+use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepository;
 use Elastica\Collapse;
 use Elastica\Query;
@@ -12,9 +14,12 @@ use FOS\ElasticaBundle\Elastica\Index;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SuggestionSearch extends AbstractSearch
 {
+    use UserLocaleTrait;
+
     private const string SUGGEST_FIELD = 'suggestion';
     private const string SUGGEST_SUB_FIELD = 'suggest';
     private const string DEFINITION_ID_FIELD = 'definitionId';
@@ -28,6 +33,9 @@ class SuggestionSearch extends AbstractSearch
         private readonly Index $attributeIndex,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly string $kernelEnv,
+        private readonly TranslatorInterface $translator,
+        #[Autowire(param: 'es_index_prefix')]
+        private readonly ?string $indexPrefix,
     ) {
     }
 
@@ -47,9 +55,9 @@ class SuggestionSearch extends AbstractSearch
             $filterQuery->addFilter(new Query\Terms('workspaceId', $options['workspaces']));
         }
 
-        $queryString = trim($options['query'] ?? '');
-        $queryString = preg_replace('#^"(.*)$#', '$1', $queryString);
-        $queryString = preg_replace('#(.*)"$#', '$1', $queryString);
+        $queryString = trim($options['query'] ?? '')
+                |> (fn (string $x): string => preg_replace('#^"(.*)$#', '$1', $x))
+                |> (fn (string $x): string => preg_replace('#(.*)"$#', '$1', $x));
 
         $suggestAttributes = $this->attributeDefinitionRepository
             ->getSearchableAttributes($userId, $groupIds, [
@@ -58,7 +66,7 @@ class SuggestionSearch extends AbstractSearch
 
         $definitionNames = [];
         foreach ($suggestAttributes as $definition) {
-            $definitionNames[$definition->getId()] = $definition->getName();
+            $definitionNames[$definition->getId()] = $definition->getTranslatedField(AttributeDefinition::TR_FIELD_NAME, $this->getPreferredLocales($definition->getWorkspace()), $definition->getName());
         }
 
         $match = new Query\MatchQuery(self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD, $queryString);
@@ -112,8 +120,8 @@ class SuggestionSearch extends AbstractSearch
         $searchTime = microtime(true) - $start;
 
         $indexNames = [
-            'asset_'.$this->kernelEnv => 'Asset',
-            'collection_'.$this->kernelEnv => 'Collection',
+            'asset_'.$this->kernelEnv => 'asset',
+            'collection_'.$this->kernelEnv => 'collection',
         ];
 
         $result = new Pagerfanta(new ArrayAdapter(array_map(function (Result $result) use (
@@ -121,20 +129,27 @@ class SuggestionSearch extends AbstractSearch
             $definitionNames,
         ): array {
             $hl = $result->getHighlights()[self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD];
-            $indexName = preg_replace('#_\d{4}-\d{2}-\d{2}-\d{6}$#', '', $result->getIndex());
+            $indexName = substr(preg_replace('#_\d{4}-\d{2}-\d{2}-\d{6}$#', '', $result->getIndex()), strlen($this->indexPrefix ?? ''));
 
-            if ('attribute_'.$this->kernelEnv === $indexName) {
-                $type = $definitionNames[$result->getSource()['definitionId']];
-            } else {
-                $type = $indexNames[$indexName];
-            }
-
-            return [
+            $data = [
                 'id' => $result->getId(),
                 'name' => preg_replace('#\[/?hl]#', '', $hl),
                 'hl' => $hl,
-                't' => $type,
             ];
+
+            if ('attribute_'.$this->kernelEnv === $indexName) {
+                $source = $result->getSource();
+                $definitionId = $source['definitionId'];
+                $data['t'] = $definitionId;
+                $data['tName'] = $definitionNames[$definitionId];
+            } else {
+                $type = $indexNames[$indexName];
+                $data['t'] = $type;
+                $data['tName'] = $this->translator->trans(sprintf('search.suggestion.type.%s', $type));
+                $data['tId'] = $result->getId();
+            }
+
+            return $data;
         }, $result->getResults())));
         $esQuery = $query->toArray();
 

@@ -78,7 +78,7 @@ export default function WorkspaceMenuItem({
     };
 
     const onClick = () => {
-        searchContext.selectWorkspace(id, displayName, selected);
+        searchContext.selectWorkspace(id, data, selected);
         expand(true);
     };
 

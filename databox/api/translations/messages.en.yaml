@@ -95,3 +95,9 @@ built_in_attribute:
         name: Has Source File
     deleted:
         name: Deleted
+
+search:
+    suggestion:
+        type:
+            asset: Asset
+            collection: Collection
