@@ -11,6 +11,6 @@
     },
     "dependencies": {
         "@types/js-cookie": "^3.0.6",
-        "js-cookie": "^3.0.5"
+        "js-cookie": "^3.0.8"
     }
 }

@@ -55,7 +55,7 @@ final readonly class ExposeClient
         return $this->create($config, $integrationToken);
     }
 
-    public function createPublications(
+    public function createPublication(
         IntegrationConfig $config,
         IntegrationToken $integrationToken,
         array $data,

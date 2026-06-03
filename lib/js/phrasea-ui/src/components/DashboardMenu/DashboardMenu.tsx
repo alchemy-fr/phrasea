@@ -76,7 +76,7 @@ export default function DashboardMenu({
                     >
                         <iframe
                             title={'services-menu'}
-                            src={`${dashboardBaseUrl}/menu.html`}
+                            src={dashboardBaseUrl}
                             seamless
                             style={{
                                 border: '0',

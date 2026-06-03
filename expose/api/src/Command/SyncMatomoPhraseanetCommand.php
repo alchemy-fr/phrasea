@@ -6,6 +6,8 @@ namespace App\Command;
 
 use App\Matomo\MatomoClient;
 use App\Matomo\PhraseanetClient;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -13,20 +15,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @deprecated
  */
+#[AsCommand(
+    name: 'app:matomo:sync-phraseanet',
+    description: 'Sync Matomo stats with Phraseanet records'
+)]
 final class SyncMatomoPhraseanetCommand extends Command
 {
-    public static $defaultName = 'app:matomo:sync-phraseanet';
-
-    private MatomoClient $matomoClient;
-    private PhraseanetClient $phraseanetClient;
-
     public function __construct(
-        MatomoClient $matomoClient,
-        PhraseanetClient $phraseanetClient,
+        private readonly MatomoClient $matomoClient,
+        private readonly PhraseanetClient $phraseanetClient,
+        private readonly LoggerInterface $logger,
     ) {
-        $this->matomoClient = $matomoClient;
-        $this->phraseanetClient = $phraseanetClient;
-
         parent::__construct();
     }
 
@@ -38,6 +37,10 @@ final class SyncMatomoPhraseanetCommand extends Command
             $stats = $this->matomoClient->getStats($offset, $limit);
 
             foreach ($stats as $stat) {
+                if (!is_array($stat)) {
+                    $this->logger->error('Invalid stat format', ['stat' => $stat]);
+                    continue;
+                }
                 $this->phraseanetClient->patchField($stat);
             }
 

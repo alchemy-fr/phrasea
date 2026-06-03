@@ -37,6 +37,7 @@ export default function PermissionRow({
     definitions,
     userType,
     userId,
+    wildcard,
     metadata: initMetadata,
     onMaskChange,
     onDelete,
@@ -107,8 +108,10 @@ export default function PermissionRow({
         setMetadata(newMetadata);
     };
 
+    const disabled = wildcard || !userId;
+
     return (
-        <tr>
+        <tr className={wildcard ? 'wc' : ''}>
             <td className={'ug'}>
                 {resolving ? (
                     <Skeleton width={100} />
@@ -122,6 +125,7 @@ export default function PermissionRow({
                 return (
                     <td key={`${def.type}${def.key}`} className={'p'}>
                         <Checkbox
+                            disabled={disabled}
                             onChange={
                                 isMask ? onChangeMask : onChangeExtraPermission
                             }
@@ -138,6 +142,7 @@ export default function PermissionRow({
             {hasAll && (
                 <td className={'p'}>
                     <Checkbox
+                        disabled={disabled}
                         onChange={toggleAll}
                         checked={allChecked || false}
                         indeterminate={null === allChecked}
@@ -147,6 +152,7 @@ export default function PermissionRow({
             <td className={'a'}>
                 <Button
                     color={'error'}
+                    disabled={disabled}
                     onClick={(): void => {
                         onDelete(userType, userId);
                     }}

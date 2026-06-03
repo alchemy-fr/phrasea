@@ -76,8 +76,6 @@ class AttributeRepository extends ServiceEntityRepository
             ->addOrderBy('a.id', 'ASC')
         ;
 
-        $this->restrictTranslatableFields($queryBuilder);
-
         return $queryBuilder
             ->getQuery()
             ->getResult();
@@ -86,7 +84,9 @@ class AttributeRepository extends ServiceEntityRepository
     public function getCachedAssetAttributes(string $assetId): array
     {
         return $this->attributeCache->get($assetId, function () use ($assetId): array {
-            return $this->getAssetAttributes($assetId);
+            return array_filter($this->getAssetAttributes($assetId), function (Attribute $attribute): bool {
+                return $attribute->isValidValue();
+            });
         });
     }
 
@@ -115,8 +115,6 @@ class AttributeRepository extends ServiceEntityRepository
             ->andWhere('d.type IN (:types)')
             ->andWhere('t.value != \'\'')
             ->setParameter('types', $types);
-
-        $this->restrictTranslatableFields($queryBuilder, 't');
 
         return $queryBuilder;
     }

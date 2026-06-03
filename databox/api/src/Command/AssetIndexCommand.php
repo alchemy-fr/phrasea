@@ -7,6 +7,7 @@ namespace App\Command;
 use App\Elasticsearch\AssetIndexer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class AssetIndexCommand extends Command
@@ -23,12 +24,18 @@ class AssetIndexCommand extends Command
 
         $this
             ->setName('app:es:index-assets')
-            ->setDescription('Fast asset and attributes indexer');
+            ->addOption('asset-id', null, InputOption::VALUE_REQUIRED, 'Only index a single asset by id')
+            ->addOption('workspace-id', null, InputOption::VALUE_REQUIRED, 'Only index assets from a workspace')
+            ->setDescription('Fast assets and attributes indexer');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->assetIndexer->index($output);
+        $this->assetIndexer->index(
+            $output,
+            $input->getOption('asset-id'),
+            $input->getOption('workspace-id'),
+        );
 
         return Command::SUCCESS;
     }

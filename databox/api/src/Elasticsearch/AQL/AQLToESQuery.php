@@ -19,6 +19,7 @@ use App\Elasticsearch\BuiltInField\BuiltInAttributeInterface;
 use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use Elastica\Query;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final readonly class AQLToESQuery
 {
@@ -535,7 +536,11 @@ final readonly class AQLToESQuery
         $v = $data['literal'] ?? $data;
 
         if (null !== $builtInField) {
-            $v = $builtInField->normalizeValueForSearch($v);
+            try {
+                $v = $builtInField->normalizeValueForSearch($v);
+            } catch (NotFoundHttpException $e) {
+                throw new BadRequestHttpException(sprintf('Invalid value for built-in field "%s": %s', $builtInField::getName(), $e->getMessage()), $e);
+            }
         }
 
         return $v;

@@ -50,7 +50,14 @@ final class AttributePostTransformListener implements EventSubscriberInterface
             $this->lastAssetPermissions = [$assetId, $this->assetPermissionComputer->getAssetPermissionFields($asset)];
         }
 
-        foreach ($this->lastAssetPermissions[1]->toDocument() as $key => $value) {
+        $values = $this->lastAssetPermissions[1]->toDocument();
+        $values = array_intersect_key($values, array_flip([
+            'privacy',
+            'users',
+            'groups',
+        ]));
+
+        foreach ($values as $key => $value) {
             $document->set($key, $value);
         }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Asset\Attribute;
 
+use App\Attribute\AttributeTypeRegistry;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -18,6 +19,7 @@ class FallbackResolver
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly TemplateResolver $templateResolver,
+        private readonly AttributeTypeRegistry $attributeTypeRegistry,
     ) {
     }
 
@@ -73,9 +75,17 @@ class FallbackResolver
                     throw new EntityDisableNotifyableException($definition, sprintf('Error while resolving "%s" (locale=%s) attribute fallback', $definition->getName(), $locale), $e->getMessage(), previous: $e);
                 }
 
+                $type = $this->attributeTypeRegistry->getType($definition->getType());
+
+                $value = $type->normalizeValue($fallbackValue);
+                if (null === $value) {
+                    return null;
+                }
+
                 $attribute = new Attribute();
-                $attribute->setCreatedAt(new \DateTimeImmutable());
-                $attribute->setUpdatedAt(new \DateTimeImmutable());
+                $now = new \DateTimeImmutable();
+                $attribute->setCreatedAt($now);
+                $attribute->setUpdatedAt($now);
                 $attribute->setLocale($locale);
                 $attribute->setDefinition($definition);
                 $attribute->setAsset($asset);

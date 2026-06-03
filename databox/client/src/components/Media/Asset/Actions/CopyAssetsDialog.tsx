@@ -5,17 +5,20 @@ import FormDialog from '../../../Dialog/FormDialog';
 import {useFormSubmit} from '@alchemy/api';
 import CollectionTreeWidget from '../../../Form/CollectionTreeWidget';
 import {copyAssets} from '../../../../api/collection';
-import {FormFieldErrors} from '@alchemy/react-form';
+import {
+    FormFieldErrors,
+    FormRow,
+    RemoteErrors,
+    SwitchWidget,
+} from '@alchemy/react-form';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
-import {RemoteErrors} from '@alchemy/react-form';
-import {FormRow} from '@alchemy/react-form';
-import {SwitchWidget} from '@alchemy/react-form';
 import {Asset} from '../../../../types';
 import AssetSelection from '../../../AssetList/AssetSelection';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {toast} from 'react-toastify';
 import {OnSelectionChange} from '../../../AssetList/types';
+import {WorkspaceOrCollectionTreeItem} from '../../Collection/CollectionTree/types.ts';
 
 function AssetList({
     assets,
@@ -49,7 +52,7 @@ function AssetList({
 }
 
 type FormData = {
-    destination: string;
+    destination: string | WorkspaceOrCollectionTreeItem;
     byReference: boolean;
     withAttributes: boolean;
     withTags: boolean;
@@ -105,7 +108,7 @@ export default function CopyAssetsDialog({
 
             return copyAssets(
                 finalSelection,
-                data.destination,
+                (data.destination as WorkspaceOrCollectionTreeItem).id!,
                 data.byReference,
                 {
                     withAttributes: data.withAttributes,

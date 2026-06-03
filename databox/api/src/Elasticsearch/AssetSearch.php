@@ -248,7 +248,19 @@ class AssetSearch extends AbstractSearch
         $sort = [];
         if (isset($options['order'])) {
             foreach ($options['order'] as $field => $way) {
-                $esFieldInfo = $this->attributeSearch->getESFieldInfo($field);
+                if (!is_string($field)) {
+                    throw new BadRequestHttpException(sprintf('Invalid sort field "%s"', $field));
+                }
+                $w = strtoupper((string) $way);
+                if (!in_array($w, ['ASC', 'DESC'], true)) {
+                    throw new BadRequestHttpException(sprintf('Invalid sort way "%s"', $way));
+                }
+
+                try {
+                    $esFieldInfo = $this->attributeSearch->getESFieldInfo($field);
+                } catch (\InvalidArgumentException $e) {
+                    throw new BadRequestHttpException(sprintf('Invalid sort attribute "%s". Did you forget prefixing with "@" for built-in or use "field_type_s" format', $field), $e);
+                }
                 if (!$esFieldInfo['enabled']) {
                     continue;
                 }
@@ -257,11 +269,6 @@ class AssetSearch extends AbstractSearch
                 $type = $esFieldInfo['type'];
                 if ($type->getElasticSearchSortSubField()) {
                     $fieldName .= '.'.$type->getElasticSearchSortSubField();
-                }
-
-                $w = strtoupper((string) $way);
-                if (!in_array($w, ['ASC', 'DESC'], true)) {
-                    throw new BadRequestHttpException(sprintf('Invalid sort way "%s"', $way));
                 }
 
                 $sort[] = [$fieldName => $w];

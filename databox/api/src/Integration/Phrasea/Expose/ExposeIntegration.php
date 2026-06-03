@@ -72,7 +72,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
 
                 $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
                 $basket = DoctrineUtil::findStrict($this->em, Basket::class, $data['basketId']);
-                $response = $this->exposeClient->createPublications($config, $integrationToken, $data);
+                $response = $this->exposeClient->createPublication($config, $integrationToken, $data);
 
                 $publicationId = $response['id'];
 

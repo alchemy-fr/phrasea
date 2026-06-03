@@ -7,6 +7,7 @@ namespace App\Entity\Core;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use App\Attribute\AttributeInterface;
 use App\Validator\ValidAttributeConstraint;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -42,6 +43,13 @@ abstract class AbstractBaseAttribute extends AbstractUuidEntity
     public function getLocale(): ?string
     {
         return $this->locale;
+    }
+
+    public function isValidValue(): bool
+    {
+        return null === $this->locale
+            || AttributeInterface::NO_LOCALE === $this->locale
+            || $this->getDefinition()->isTranslatable();
     }
 
     public function hasLocale(): bool

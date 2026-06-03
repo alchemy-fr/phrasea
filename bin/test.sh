@@ -6,13 +6,11 @@ load-env
 
 set -ex
 
-export APP_ENV=test
 export XDEBUG_ENABLED=0
 export VERIFY_SSL=false
-export COMPOSE_PROFILES=db,redis,elasticsearch,uploader,report,databox,expose
+export COMPOSE_PROFILES=db,redis,elasticsearch,report,minio
 
 docker compose up -d
-
 docker compose run --rm dockerize
 
 SF_SERVICES="
@@ -22,7 +20,7 @@ uploader-api-php
 "
 
 for s in ${SF_SERVICES}; do
-  docker compose run -T --rm ${s} su app -c "rm -rf bin/.phpunit && composer install --no-interaction && composer test"
+  APP_ENV=test docker compose run --rm -T ${s} su app -c "rm -rf bin/.phpunit && composer install --no-interaction && composer test"
 done
 
 . bin/vars.sh
@@ -36,5 +34,5 @@ for lib in ${PHP_LIBS}; do
     continue
   fi
   echo "Testing PHP lib: ${lib}"
-  docker compose exec -T databox-api-php su app -c "cd vendor/alchemy/${dir} && composer install --no-interaction && composer test"
+  APP_ENV=test  docker compose run --rm -T databox-api-php su app -c "cd vendor/alchemy/${dir} && composer install --no-interaction && composer test"
 done
