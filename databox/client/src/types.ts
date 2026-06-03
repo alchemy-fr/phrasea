@@ -646,6 +646,7 @@ export type Ace = (
     userId: string | null;
     userType: UserType;
     resolving?: boolean;
+    wildcard?: boolean;
     metadata?: AclExtraPermission[];
 } & Entity;
 

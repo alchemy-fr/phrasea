@@ -9,5 +9,5 @@ services:
     Alchemy\ESBundle\Message\ESIndexHandler: ~
 
     Alchemy\ESBundle\Service\IndexRemover: ~
-    Alchemy\ESBundle\Command\ESDebugIndexCommand: ~
-    Alchemy\ESBundle\Command\ESRemoveIndexCommand: ~
+    Alchemy\ESBundle\Command\DebugElasticSearchIndexCommand: ~
+    Alchemy\ESBundle\Command\DeleteElasticSearchIndexCommand: ~

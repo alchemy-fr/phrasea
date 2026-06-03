@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "503c4028faa9e9bb9b077763829cf630",
+    "content-hash": "0b4953cc69821bf768cdea1846ee4d80",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
-            "version": "1.2.0",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/acl-bundle.git",
-                "reference": "37abcf00b83c3b248d58f3d9e443ae266d48ad6c"
+                "reference": "32b293fd12b71fede8575659e350431b72d55698"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/37abcf00b83c3b248d58f3d9e443ae266d48ad6c",
-                "reference": "37abcf00b83c3b248d58f3d9e443ae266d48ad6c",
+                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/32b293fd12b71fede8575659e350431b72d55698",
+                "reference": "32b293fd12b71fede8575659e350431b72d55698",
                 "shasum": ""
             },
             "require": {
@@ -54,9 +54,9 @@
             "homepage": "https://www.alchemy.fr/",
             "support": {
                 "issues": "https://github.com/alchemy-fr/acl-bundle/issues",
-                "source": "https://github.com/alchemy-fr/acl-bundle/tree/1.2.0"
+                "source": "https://github.com/alchemy-fr/acl-bundle/tree/1.3.0"
             },
-            "time": "2026-05-28T08:12:31+00:00"
+            "time": "2026-06-03T13:40:54+00:00"
         },
         {
             "name": "alchemy/admin-bundle",
