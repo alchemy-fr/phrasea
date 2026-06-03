@@ -14,13 +14,12 @@ final class Version20260528082406 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Add metadata field to AccessControlEntry and make createdAt immutable';
+        return 'Change created_at column type to datetime_immutable in access_control_entry table';
     }
 
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE access_control_entry ADD metadata JSON DEFAULT NULL');
         $this->addSql('ALTER TABLE access_control_entry ALTER created_at TYPE TIMESTAMP(0) WITHOUT TIME ZONE');
         $this->addSql('COMMENT ON COLUMN access_control_entry.created_at IS \'(DC2Type:datetime_immutable)\'');
     }
@@ -28,8 +27,6 @@ final class Version20260528082406 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('CREATE SCHEMA public');
-        $this->addSql('ALTER TABLE access_control_entry DROP metadata');
         $this->addSql('ALTER TABLE access_control_entry ALTER created_at TYPE TIMESTAMP(0) WITHOUT TIME ZONE');
         $this->addSql('COMMENT ON COLUMN access_control_entry.created_at IS NULL');
     }
