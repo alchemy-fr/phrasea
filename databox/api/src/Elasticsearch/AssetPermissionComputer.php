@@ -190,6 +190,10 @@ final class AssetPermissionComputer
         $deleteUsers = [];
         $deleteGroups = [];
 
+        if (null !== $workspace->getOwnerId()) {
+            $users[] = $workspace->getOwnerId();
+        }
+
         $aces = $this->permissionManager->getObjectAces($workspace);
         foreach ($aces as $access) {
             $userId = $access->getUserId() ?? AccessControlEntryInterface::USER_WILDCARD;

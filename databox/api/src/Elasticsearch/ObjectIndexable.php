@@ -2,7 +2,6 @@
 
 namespace App\Elasticsearch;
 
-use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Entity\Core\Attribute;
@@ -27,7 +26,7 @@ final class ObjectIndexable
 
             return $definition->isEnabled()
                 && $definition->isSearchable()
-                    && (!$definition->isTranslatable() || null === $object->getLocale() || AttributeInterface::NO_LOCALE === $object->getLocale())
+                && $object->isValidValue()
                 && in_array($definition->getType(), $this->getSuggestTypes(), true);
         }
 

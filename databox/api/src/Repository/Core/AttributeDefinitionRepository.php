@@ -202,9 +202,9 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
         return $this->fbAttrCache->get($workspaceId, function () use ($workspaceId): array {
             return $this
                 ->createQueryBuilder('d')
-                ->andWhere('d.fallback IS NOT NULL')
                 ->andWhere('d.workspace = :workspace')
                 ->andWhere('d.enabled = true')
+                ->andWhere('d.fallback IS NOT NULL')
                 ->setParameter('workspace', $workspaceId)
                 ->getQuery()
                 ->getResult();
@@ -218,8 +218,8 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     {
         return $this
             ->createQueryBuilder('d')
-            ->andWhere('d.initialValues IS NOT NULL')
             ->andWhere('d.workspace = :workspace')
+            ->andWhere('d.initialValues IS NOT NULL')
             ->setParameter('workspace', $workspaceId)
             ->getQuery()
             ->getResult();
