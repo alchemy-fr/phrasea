@@ -63,7 +63,7 @@ export default function SuggestPopover({usedSuggest}: Props) {
                                                         'b' as any
                                                     )}
                                                 </div>
-                                                <small>{item.t}</small>
+                                                <small>{item.tName}</small>
                                             </div>
                                         </li>
                                     ))}
