@@ -26,7 +26,7 @@ class AssetIndexCommand extends Command
             ->setName('app:es:index-assets')
             ->addOption('asset-id', null, InputOption::VALUE_REQUIRED, 'Only index a single asset by id')
             ->addOption('workspace-id', null, InputOption::VALUE_REQUIRED, 'Only index assets from a workspace')
-            ->setDescription('Fast asset and attributes indexer');
+            ->setDescription('Fast assets and attributes indexer');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

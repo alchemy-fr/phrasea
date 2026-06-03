@@ -52,7 +52,10 @@ final readonly class AssetIndexer
         $selectQuery = (clone $baseQuery)
             ->select('a')
             ->resetDQLPart('orderBy')
-            ->addOrderBy('a.referenceCollection', 'ASC');
+            ->addOrderBy('a.referenceCollection', 'ASC')
+            ->addOrderBy('a.createdAt', 'DESC')
+            ->addOrderBy('a.id', 'ASC')
+        ;
 
         $progressBar = new ProgressBar($output, $total);
         $progressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:16s%/%estimated:-16s% %memory:6s%');

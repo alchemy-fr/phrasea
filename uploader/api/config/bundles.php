@@ -31,4 +31,5 @@ return [
     Alchemy\MessengerBundle\AlchemyMessengerBundle::class => ['all' => true],
     Alchemy\ConfiguratorBundle\AlchemyConfiguratorBundle::class => ['all' => true],
     Symfony\UX\TwigComponent\TwigComponentBundle::class => ['all' => true],
+    Twig\Extra\TwigExtraBundle\TwigExtraBundle::class => ['all' => true],
 ];
