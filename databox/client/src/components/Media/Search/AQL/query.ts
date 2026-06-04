@@ -18,7 +18,7 @@ import {
 } from './aqlTypes.ts';
 import {hasProp} from '../../../../lib/utils.ts';
 import {AttributeDefinitionIndex} from '../../../AttributeEditor/types.ts';
-import {AttributeDefinition} from '../../../../types.ts';
+import {AttributeDefinitionOrBuiltIn} from '../../../../types.ts';
 import {writeEntity} from './entities.tsx';
 import {GetOrRequestEntity} from '../../../../store/entitiesStore.ts';
 import {TFunction} from '@alchemy/i18n';
@@ -247,7 +247,7 @@ export type ScalarValue = string | boolean | number | null;
 export function getFieldDefinition(
     node: any,
     definitionsIndex: AttributeDefinitionIndex
-): AttributeDefinition | undefined {
+): AttributeDefinitionOrBuiltIn | undefined {
     if (isAQLField(node)) {
         const field = node.field;
 

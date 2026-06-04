@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useMemo} from 'react';
 import {Button, Menu} from '@mui/material';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
 import SortByChip from '../SortByChip';
@@ -9,20 +9,26 @@ import {
     useAttributeDefinitionStore,
     useIndexBySearchSlug,
 } from '../../../../store/attributeDefinitionStore.ts';
+import {AttributeDefinitionOrBuiltIn} from '../../../../types.ts';
 
 type Props = {};
 
 export default function SortBy({}: Props) {
     const {t} = useTranslation();
     const search = useContext(SearchContext)!;
-    const {load, definitions, loaded} = useAttributeDefinitionStore();
-    const definitionsIndex = useIndexBySearchSlug();
+    const {load, definitions, builtIn, loaded} = useAttributeDefinitionStore();
+
+    const allDefinitions = useMemo<AttributeDefinitionOrBuiltIn[]>(() => {
+        return [...builtIn, ...definitions];
+    }, [definitions, builtIn]);
+
+    const definitionsIndex = useIndexBySearchSlug(true);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const menuOpen = Boolean(anchorEl);
 
     React.useEffect(() => {
-        load(t);
-    }, [load, t]);
+        load();
+    }, [load]);
 
     const handleClose = () => {
         setAnchorEl(null);
@@ -59,7 +65,7 @@ export default function SortBy({}: Props) {
             <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleClose}>
                 <EditSortBy
                     definitionsIndex={definitionsIndex}
-                    definitions={definitions}
+                    definitions={allDefinitions}
                     onClose={handleClose}
                 />
             </Menu>

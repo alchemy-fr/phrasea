@@ -25,7 +25,7 @@ export function getAttributeList(
             return;
         }
 
-        const widget = getAttributeType(definition.fieldType);
+        const widget = getAttributeType(definition.type);
 
         const lv = attributes[defId];
         Object.keys(lv).forEach((locale): void => {

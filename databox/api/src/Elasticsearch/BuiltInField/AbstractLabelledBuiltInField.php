@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\BuiltInField;
 
-abstract class AbstractLabelledBuiltInField extends AbstractBuiltInField
+abstract class AbstractLabelledBuiltInField extends AbstractBuiltInAttribute
 {
     public function normalizeBuckets(array $buckets): array
     {

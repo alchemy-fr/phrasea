@@ -22,7 +22,7 @@ final class RenditionBuiltInField extends AbstractEntityBuiltInField
         return $value->getName();
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return 'renditions';
     }
@@ -45,5 +45,10 @@ final class RenditionBuiltInField extends AbstractEntityBuiltInField
     public function isSortable(): bool
     {
         return false;
+    }
+
+    public function isMultiple(): bool
+    {
+        return true;
     }
 }

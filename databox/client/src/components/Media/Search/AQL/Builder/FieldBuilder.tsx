@@ -51,11 +51,11 @@ export default function FieldBuilder({
 
     const extraProps: Partial<TextFieldProps> = {};
 
-    let fieldType = 'text';
+    let inputType = 'text';
     if (rawType === RawType.Date) {
-        fieldType = 'date';
+        inputType = 'date';
     } else if (rawType === RawType.DateTime) {
-        fieldType = 'datetime-local';
+        inputType = 'datetime-local';
         extraProps.InputProps = {
             inputProps: {
                 step: 1,
@@ -65,7 +65,7 @@ export default function FieldBuilder({
 
     return (
         <TextField
-            type={fieldType}
+            type={inputType}
             name={name}
             label={label}
             value={value}

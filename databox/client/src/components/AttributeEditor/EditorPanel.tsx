@@ -11,9 +11,9 @@ import AttributeWidget from './AttributeWidget.tsx';
 import Flag from '../Ui/Flag.tsx';
 import MultiAttributeRow from './MultiAttributeRow.tsx';
 import {useDebounce} from '@alchemy/react-hooks/src/useDebounce.ts';
-import {createWidgetOptionsFromDefinition} from '../Media/Asset/Attribute/AttributeWidget.tsx';
 import {useTranslation} from 'react-i18next';
 import {NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
+import {createWidgetOptionsFromDefinition} from '../Media/Asset/Attribute/attributeUtils';
 
 type Props<T> = {
     definition: AttributeDefinition;
@@ -162,7 +162,7 @@ export default function EditorPanel<T>({
                     key={definition.id}
                     id={definition.id}
                     label={definition.displayName ?? definition.name}
-                    type={definition.fieldType}
+                    type={definition.type}
                     indeterminate={valueContainer.indeterminate.g}
                     readOnly={readOnly}
                     isRtl={false}

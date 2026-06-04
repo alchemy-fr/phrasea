@@ -1,11 +1,11 @@
-import {Asset, AssetTypeFilter, AttributeDefinition} from '../../types.ts';
+import {Asset, Workspace} from '../../types.ts';
 import {getAssets} from '../../api/asset.ts';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import React from 'react';
-import {getWorkspaceAttributeDefinitions} from '../../api/attributes.ts';
 import AttributeEditor from './AttributeEditor.tsx';
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
+import {useAttributeDefinitionStore} from '../../store/attributeDefinitionStore.ts';
 
 type Props = {
     ids: string[];
@@ -19,12 +19,17 @@ export default function AttributeEditorLoader({
     onClose,
 }: Props) {
     const [assets, setAssets] = React.useState<Asset[]>();
-    const [attributeDefinitions, setAttributeDefinitions] =
-        React.useState<AttributeDefinition[]>();
 
     const removeFromSelection = React.useCallback((ids: string[]) => {
         setAssets(p => p!.filter(a => !ids.includes(a.id)));
     }, []);
+
+    const loadWorkspaceDefinitions = useAttributeDefinitionStore(
+        s => s.loadWorkspace
+    );
+    const attributeDefinitions = useAttributeDefinitionStore(
+        s => s.definitions
+    )?.filter(d => (d.workspace as Workspace).id === workspaceId);
 
     useEffectOnce(() => {
         getAssets({
@@ -34,12 +39,7 @@ export default function AttributeEditorLoader({
             setAssets(r.result);
         });
 
-        getWorkspaceAttributeDefinitions({
-            workspaceId,
-            target: AssetTypeFilter.All,
-        }).then(r => {
-            setAttributeDefinitions(r.result);
-        });
+        loadWorkspaceDefinitions(workspaceId);
     }, [ids, workspaceId]);
 
     if (!assets || !attributeDefinitions) {
@@ -53,6 +53,7 @@ export default function AttributeEditorLoader({
             }}
         >
             <AttributeEditor
+                workspaceId={workspaceId}
                 assets={assets}
                 attributeDefinitions={attributeDefinitions}
                 onClose={onClose}

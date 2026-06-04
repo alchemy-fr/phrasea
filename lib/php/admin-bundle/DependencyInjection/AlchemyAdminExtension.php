@@ -78,8 +78,11 @@ class AlchemyAdminExtension extends Extension implements PrependExtensionInterfa
                     'dashboard_menu_url' => '%alchemy_admin.dashboard_menu_url%',
                     'services_menu_enabled' => '%alchemy_admin.services_menu_enabled%',
                 ],
-            ]
-            );
+            ]);
+
+            $container->prependExtensionConfig('twig_component', [
+                'anonymous_template_directory' => 'components/',
+            ]);
         }
     }
 }

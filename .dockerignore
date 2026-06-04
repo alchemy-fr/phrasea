@@ -1,6 +1,5 @@
 **/*.log
 **/.build
-**/.dockerignore
 **/.git
 **/.github
 **/.gitignore
@@ -30,3 +29,4 @@
 /report
 /tmp
 phrasea-manifest.json
+.env.local

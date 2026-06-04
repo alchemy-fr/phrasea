@@ -8,7 +8,7 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\Type\KeywordAttributeType;
 use Doctrine\ORM\EntityManagerInterface;
 
-abstract class AbstractEntityBuiltInField extends AbstractBuiltInField
+abstract class AbstractEntityBuiltInField extends AbstractBuiltInAttribute
 {
     public function __construct(private readonly EntityManagerInterface $em)
     {

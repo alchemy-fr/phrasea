@@ -24,6 +24,7 @@ export default function UserPreferencesProvider({children}: Props) {
     }
 
     const preferences = useUserPreferencesStore(s => s.preferences);
+    const applyProfile = useUserPreferencesStore(s => s.applyProfile);
     const loadPreferences = useUserPreferencesStore(s => s.load);
     const loading = useUserPreferencesStore(s => s.loading);
     const loadCurrentProfile = useProfileStore(s => s.loadCurrent);
@@ -31,17 +32,19 @@ export default function UserPreferencesProvider({children}: Props) {
     const isLoading = loading || loadingRef.current;
 
     React.useEffect(() => {
-        if (user) {
-            loadingRef.current = false;
-            loadPreferences();
-        }
-    }, [loadPreferences, user]);
-
-    React.useEffect(() => {
-        if (preferences?.profile) {
-            loadCurrentProfile(preferences.profile);
-        }
-    }, [preferences?.profile, loadCurrentProfile]);
+        (async () => {
+            if (user) {
+                loadingRef.current = false;
+                const up = await loadPreferences();
+                if (up.profile) {
+                    const profile = await loadCurrentProfile(up.profile);
+                    if (profile) {
+                        applyProfile(profile);
+                    }
+                }
+            }
+        })();
+    }, [loadPreferences, user, loadCurrentProfile, applyProfile]);
 
     React.useEffect(() => {
         updateClientDataLocale(preferences?.dataLocale);

@@ -37,11 +37,11 @@ class FileOutput extends AbstractUuidOutput
     #[Groups(self::COMMON_GROUPS)]
     private ?string $type = null;
 
-    /**
-     * The file extension.
-     */
     #[Groups(self::COMMON_GROUPS)]
     public ?string $extension = null;
+
+    #[Groups(self::COMMON_GROUPS)]
+    public ?string $fileName = null;
 
     #[Groups(self::COMMON_GROUPS)]
     private ?int $size = null;

@@ -12,7 +12,7 @@ trait WorkspaceCollectionTrait
         $workspaceId = $context['filters']['workspace'] ?? null;
         if (!$workspaceId) {
             $user = $this->getUser();
-            $workspaces = $this->em->getRepository(Workspace::class)->getAllowedWorkspaceIds($user?->getId(), $user?->getGroups() ?? []);
+            $workspaces = $this->em->getRepository(Workspace::class)->getAllowedWorkspaceIds($user?->getId(), $user?->getGroups() ?? [], $this->isAdmin());
         } else {
             $workspace = $this->entityIriConverter->getItemFromIri(Workspace::class, $workspaceId);
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $workspace);

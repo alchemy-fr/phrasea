@@ -230,9 +230,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
     private function getAppScopes(): array
     {
         return [
-            'databox' => array_merge([
-                'super-admin',
-            ], ...array_map(fn (string $ns): array => array_map(fn (string $p): string => $ns.':'.$p, [
+            'databox' => array_merge([], ...array_map(fn (string $ns): array => array_map(fn (string $p): string => $ns.':'.$p, [
                 'create',
                 'list',
                 'read',
@@ -340,8 +338,8 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             'loginTheme' => 'phrasea',
             'smtpServer' => [
                 'auth' => (bool) EnvHelper::getEnv('MAILER_USER'),
-                'from' => EnvHelper::getEnv('MAIL_FROM', 'noreply@phrasea.io'),
-                'fromDisplayName' => EnvHelper::getEnv('MAIL_FROM_DISPLAY_NAME', 'Phrasea'),
+                'from' => EnvHelper::getEnv('MAIL_FROM') ?: 'noreply@phrasea.io',
+                'fromDisplayName' => EnvHelper::getEnv('MAIL_FROM_DISPLAY_NAME') ?: 'Phrasea',
                 'replyTo' => EnvHelper::getEnv('MAIL_REPLY_TO', ''),
                 'replyToDisplayName' => EnvHelper::getEnv('MAIL_REPLY_TO_DISPLAY_NAME', ''),
                 'envelopeFrom' => EnvHelper::getEnv('MAIL_ENVELOPE_FROM', ''),

@@ -118,7 +118,7 @@ services:
 
   elasticsearch:
     ports:
-      - ${ELASTICSEARCH_PORT}:9200
+      - ${DEV_ELASTICSEARCH_PORT}:9200
 
   dev:
     build: infra/docker/dev
@@ -131,6 +131,7 @@ services:
       - "0.0.0.0:4000:4000"
     environment:
       - APP_ENV
+      - SYMFONY_DEPRECATIONS_HELPER=disabled
       - SSH_AUTH_SOCK=/ssh-auth-sock
       - UPLOADER_API_URL
       - DATABOX_API_URL

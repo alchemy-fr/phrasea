@@ -7,30 +7,29 @@ namespace App\Elasticsearch\Mapping;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
-use App\Attribute\Type\TextAttributeType;
-use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
+use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use App\Entity\Core\AttributeDefinition;
 
 final readonly class FieldNameResolver
 {
     public function __construct(
         private AttributeTypeRegistry $attributeTypeRegistry,
-        private BuiltInFieldRegistry $builtInFieldRegistry,
+        private BuiltInAttributeRegistry $builtInFieldRegistry,
     ) {
     }
 
     public function getFieldNameFromDefinition(AttributeDefinition $definition): string
     {
-        return $this->getFieldName($definition->getSlug(), $definition->getFieldType(), $definition->isMultiple());
+        return $this->getFieldName($definition->getSlug(), $definition->getType(), $definition->isMultiple());
     }
 
-    public function getFieldName(string $slug, string $fieldType, bool $isMultiple): string
+    public function getFieldName(string $slug, string $type, bool $isMultiple): string
     {
-        $type = $this->attributeTypeRegistry->getStrictType($fieldType);
+        $attributeType = $this->attributeTypeRegistry->getStrictType($type);
 
         return sprintf('%s_%s_%s',
             $slug,
-            $this->normalizeTypeNameForField($type::getName()),
+            $this->normalizeTypeNameForField($attributeType::getName()),
             $isMultiple ? 'm' : 's'
         );
     }
@@ -45,21 +44,16 @@ final readonly class FieldNameResolver
      */
     public function getFieldFromName(string $name): array
     {
-        if ('name' === $name) {
-            return [
-                'field' => $name,
-                'type' => $this->attributeTypeRegistry->getStrictType(TextAttributeType::NAME),
-            ];
-        }
-
+        $enabled = true;
         $builtInField = $this->builtInFieldRegistry->getBuiltInField($name);
         if (null !== $builtInField) {
             $type = $this->attributeTypeRegistry->getStrictType($builtInField->getType());
-            $f = $builtInField->getFieldName();
+            $f = $builtInField::getName();
+            $enabled = $builtInField->isEnabled();
         } else {
-            $info = $this->extractField($name);
+            $info = $this->extractFieldFromAttributeKey($name);
             $type = $info['type'];
-            $f = sprintf('%s._.%s', AttributeInterface::ATTRIBUTES_FIELD, $info['field']);
+            $f = sprintf('%s._.%s', AttributeInterface::ATTRIBUTES_FIELD, $info['key']);
             if (null !== $subField = $type->getAggregationField()) {
                 $f .= '.'.$subField;
             }
@@ -68,23 +62,24 @@ final readonly class FieldNameResolver
         return [
             'field' => $f,
             'type' => $type,
+            'enabled' => $enabled,
         ];
     }
 
     /**
-     * @return array{name: string, field: string, type: AttributeTypeInterface, multiple: bool}
+     * @return array{name: string, key: string, type: AttributeTypeInterface, multiple: bool}
      */
-    private function extractField(string $fieldName): array
+    private function extractFieldFromAttributeKey(string $attributeKey): array
     {
-        if (1 === preg_match('#^(.+)_([^_]+)_([sm])$#', $fieldName, $matches)) {
+        if (1 === preg_match('#^(.+)_([^_]+)_([sm])$#', $attributeKey, $matches)) {
             return [
                 'name' => $matches[1],
-                'field' => $fieldName,
+                'key' => $attributeKey,
                 'type' => $this->attributeTypeRegistry->getStrictType(str_replace('-', '_', $matches[2])),
                 'multiple' => 'm' === $matches[3],
             ];
         }
 
-        throw new \InvalidArgumentException(sprintf('Cannot parse field "%s"', $fieldName));
+        throw new \InvalidArgumentException(sprintf('Cannot parse attribute key "%s"', $attributeKey));
     }
 }

@@ -22,14 +22,14 @@ export default function SearchConditions({search}: Props) {
     const {t} = useTranslation();
     const {openModal} = useModals();
     const {load, loaded} = useAttributeDefinitionStore();
-    const definitionsIndexBySlug = useIndexBySlug();
-    const definitionsIndexBySearchSlug = useIndexBySearchSlug();
+    const definitionsIndexBySlug = useIndexBySlug(true);
+    const definitionsIndexBySearchSlug = useIndexBySearchSlug(true);
 
     React.useEffect(() => {
         if (!loaded) {
-            load(t);
+            load();
         }
-    }, [loaded, t, load]);
+    }, [loaded, load]);
 
     const asts = useResolveASTs({
         conditions: search.conditions,

@@ -16,6 +16,8 @@ use App\Consumer\Handler\Search\AclAddUserToCollection;
 use App\Consumer\Handler\Search\AclAddUserToCollectionAssets;
 use App\Consumer\Handler\Search\AclAddUserToWorkspaceAssets;
 use App\Consumer\Handler\Search\AclAddUserToWorkspaceCollections;
+use App\Consumer\Handler\Search\ComputeCollectionBranch;
+use App\Consumer\Handler\Search\ComputeWorkspaceCollections;
 use App\Consumer\Handler\Search\IndexAllAssets;
 use App\Consumer\Handler\Search\IndexAllCollections;
 use App\Consumer\Handler\Search\IndexCollectionBranch;
@@ -81,6 +83,7 @@ readonly class AclListener
         $objectClass = $this->objectMapping->getClassName($event->getObjectType());
         $assetsHandled = false;
         $collectionsHandled = false;
+        $computeCollectionBranch = true;
 
         switch ($objectClass) {
             case Workspace::class:
@@ -96,6 +99,8 @@ readonly class AclListener
                     }
 
                     $assetsHandled = true;
+                } elseif ($this->hasOneOfPermissions($newPermissions, $assetDiscriminantPerms)) {
+                    $assetsHandled = true;
                 }
 
                 $collectionDiscriminantPerms = [
@@ -108,6 +113,9 @@ readonly class AclListener
                     }
 
                     $collectionsHandled = true;
+                } elseif ($this->hasOneOfPermissions($newPermissions, $collectionDiscriminantPerms)) {
+                    $collectionsHandled = true;
+                    $computeCollectionBranch = false;
                 }
                 break;
             case Collection::class:
@@ -129,6 +137,8 @@ readonly class AclListener
                     }
 
                     $assetsHandled = true;
+                } elseif ($this->hasOneOfPermissions($newPermissions, $assetDiscriminantPerms)) {
+                    $assetsHandled = true;
                 }
 
                 $collectionDiscriminantPerms = [
@@ -147,14 +157,17 @@ readonly class AclListener
                     }
 
                     $collectionsHandled = true;
+                } elseif ($this->hasOneOfPermissions($newPermissions, $collectionDiscriminantPerms)) {
+                    $collectionsHandled = true;
+                    $computeCollectionBranch = false;
                 }
                 break;
         }
 
-        $this->indexObject($event->getObjectType(), $event->getObjectId(), $assetsHandled, $collectionsHandled);
+        $this->indexObject($event->getObjectType(), $event->getObjectId(), $assetsHandled, $collectionsHandled, $computeCollectionBranch);
     }
 
-    private function indexObject(string $objectType, ?string $objectId, bool $assetsHandled, bool $collectionsHandled): void
+    private function indexObject(string $objectType, ?string $objectId, bool $assetsHandled, bool $collectionsHandled, bool $computeCollectionBranch): void
     {
         $this->collectionCache->invalidateTags([CollectionOutputTransformer::COLLECTION_CACHE_NS]);
 
@@ -170,6 +183,7 @@ readonly class AclListener
                     break;
                 case Collection::class:
                     if (!$collectionsHandled) {
+                        $this->bus->dispatch(new ComputeCollectionBranch(null));
                         $this->bus->dispatch(new IndexAllCollections());
                     }
                     if (!$assetsHandled) {
@@ -189,6 +203,9 @@ readonly class AclListener
                 if (!$collectionsHandled) {
                     $this->bus->dispatch(new IndexAllCollections($objectId));
                 }
+                if ($computeCollectionBranch) {
+                    $this->bus->dispatch(new ComputeWorkspaceCollections($objectId));
+                }
                 break;
             case Asset::class:
                 $this->searchIndexer->scheduleObjectsIndex($objectClass, [$objectId], Operation::Upsert);
@@ -196,6 +213,9 @@ readonly class AclListener
             case Collection::class:
                 if (!$collectionsHandled) {
                     $this->bus->dispatch(new IndexCollectionBranch($objectId, !$assetsHandled));
+                }
+                if ($computeCollectionBranch) {
+                    $this->bus->dispatch(new ComputeCollectionBranch($objectId));
                 }
                 break;
         }

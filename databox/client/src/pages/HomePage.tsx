@@ -15,7 +15,7 @@ export default function HomePage({}: Props) {
 
     useEffect(() => {
         (async () => {
-            const r = () => navigate(getPath(routes.assets));
+            const r = () => navigate(getPath(routes.assets), {replace: true});
 
             try {
                 const page = await getPageBySlug('', {

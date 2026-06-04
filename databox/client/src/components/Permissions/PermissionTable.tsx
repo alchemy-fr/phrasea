@@ -81,6 +81,11 @@ export default function PermissionTable({
                         },
                     },
                 },
+                '.wc': {
+                    td: {
+                        opacity: 0.6,
+                    },
+                },
             })}
         >
             <thead>

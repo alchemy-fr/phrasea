@@ -33,8 +33,8 @@ type Props = {
 export default function ItemForm({item, listId, onChange}: Props) {
     const {t, i18n} = useTranslation();
     const updateProfileItem = useProfileStore(state => state.updateProfileItem);
-    const definitionIndexBySlug = useIndexBySlug();
-    const definitionIndexById = useIndexById();
+    const definitionIndexBySlug = useIndexBySlug(true);
+    const definitionIndexById = useIndexById(true);
 
     const {
         submitting,
@@ -67,7 +67,7 @@ export default function ItemForm({item, listId, onChange}: Props) {
     if (item.type === ProfileItemType.BuiltIn) {
         def = definitionIndexBySlug[item.key!];
     }
-    const attributeType = def ? getAttributeType(def!.fieldType) : undefined;
+    const attributeType = def ? getAttributeType(def!.type) : undefined;
     const formats = attributeType
         ? attributeType.getAvailableFormats({
               uiLocale: i18n.language,

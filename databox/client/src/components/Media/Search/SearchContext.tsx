@@ -1,18 +1,18 @@
 import {SortBy} from './Filter';
 import React, {RefObject} from 'react';
 import {AQLQueries, AQLQuery} from './AQL/query.ts';
-import {SavedSearch} from '../../../types.ts';
+import {Collection, SavedSearch, Workspace} from '../../../types.ts';
 
 export type TSearchContext = {
     workspaceId?: string;
     selectCollection: (
-        absolutePath: string | undefined,
-        title: string | undefined,
+        id: string | undefined,
+        collection?: Collection | undefined,
         forceReload?: boolean
     ) => void;
     selectWorkspace: (
         id: string | undefined,
-        title: string | undefined,
+        workspace?: Workspace | undefined,
         forceReload?: boolean
     ) => void;
     collections: string[];

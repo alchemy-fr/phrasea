@@ -6,8 +6,6 @@ set -e
 
 load-env
 
-set -ex
-
 export COMPOSE_PROFILES="dashboard,databox,db,elasticsearch,expose,minio,rabbitmq,redis,report,uploader"
 
 docker compose up -d traefik keycloak minio rabbitmq db redis elasticsearch

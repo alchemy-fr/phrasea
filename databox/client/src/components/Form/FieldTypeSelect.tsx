@@ -1,6 +1,6 @@
 import {useCallback} from 'react';
 import {FieldValues} from 'react-hook-form';
-import {fieldTypesIcons} from '../../lib/icons';
+import {typesIcons} from '../../lib/icons';
 import {getAttributeFieldTypes} from '../../api/attributes';
 import {
     AsyncRSelectProps,
@@ -31,8 +31,8 @@ export default function FieldTypeSelect<TFieldValues extends FieldValues>({
                     label: d.displayName,
                     value: d.name,
                     image:
-                        fieldTypesIcons[d.name as AttributeType] ??
-                        fieldTypesIcons[AttributeType.Text],
+                        typesIcons[d.name as AttributeType] ??
+                        typesIcons[AttributeType.Text],
                 }));
         },
         []
@@ -40,7 +40,7 @@ export default function FieldTypeSelect<TFieldValues extends FieldValues>({
 
     return (
         <AsyncRSelectWidget<TFieldValues>
-            cacheId={'fieldType'}
+            cacheId={'type'}
             {...rest}
             loadOptions={load}
         />

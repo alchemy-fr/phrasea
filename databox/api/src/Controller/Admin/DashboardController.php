@@ -24,6 +24,7 @@ use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\Collection;
+use App\Entity\Core\CollectionAccess;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
@@ -75,6 +76,7 @@ class DashboardController extends AbstractAdminDashboardController
         $submenu2 = [
             MenuItem::linkToCrud('Workspace', '', Workspace::class),
             MenuItem::linkToCrud('Collection', '', Collection::class),
+            MenuItem::linkToCrud('Collection Access', '', CollectionAccess::class),
             MenuItem::linkToCrud('Asset', '', Asset::class),
             MenuItem::linkToCrud('File', '', File::class),
             MenuItem::linkToCrud('Attachment', '', AssetAttachment::class),

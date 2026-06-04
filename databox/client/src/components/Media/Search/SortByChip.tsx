@@ -2,10 +2,10 @@ import {SortBy} from './Filter';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import {Chip} from '@mui/material';
-import {AttributeDefinition} from '../../../types.ts';
+import {AttributeDefinitionOrBuiltIn} from '../../../types.ts';
 
 type Props = {
-    definition: AttributeDefinition;
+    definition: AttributeDefinitionOrBuiltIn;
     sortBy: SortBy;
 };
 
@@ -25,7 +25,7 @@ export default function SortByChip({definition, sortBy}: Props) {
             key={sortBy.a}
             label={
                 <>
-                    {definition.displayName ?? definition.name}{' '}
+                    {definition.displayName}{' '}
                     {sortBy.w ? (
                         <ArrowDownwardIcon
                             fontSize={'small'}

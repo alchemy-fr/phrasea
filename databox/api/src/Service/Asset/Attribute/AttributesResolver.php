@@ -79,7 +79,6 @@ readonly class AttributesResolver
                 foreach ($fallbacks as $locale => $fb) {
                     if (null === $attributes->getAttribute($k, $locale)) {
                         try {
-
                             $attr = $this->fallbackResolver->resolveAttrFallback(
                                 $asset,
                                 $locale,

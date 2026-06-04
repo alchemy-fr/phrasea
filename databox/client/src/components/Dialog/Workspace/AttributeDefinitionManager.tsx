@@ -32,7 +32,7 @@ import DefinitionManager from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import AttributePolicySelect from '../../Form/AttributePolicySelect';
 import FieldTypeSelect from '../../Form/FieldTypeSelect';
-import {fieldTypesIcons} from '../../../lib/icons';
+import {typesIcons} from '../../../lib/icons';
 import {toast} from 'react-toastify';
 import CodeEditorWidget from '../../Form/CodeEditorWidget.tsx';
 import ObjectTranslationField from '../../Form/ObjectTranslationField.tsx';
@@ -91,7 +91,7 @@ function Item({
         },
     });
 
-    const fieldType = watch('fieldType');
+    const type = watch('type');
     const translatable = watch('translatable');
 
     return (
@@ -148,10 +148,10 @@ function Item({
                     </FormLabel>
                     <FieldTypeSelect
                         disabled={submitting}
-                        name={'fieldType'}
+                        name={'type'}
                         control={control}
                     />
-                    <FormFieldErrors field={'fieldType'} errors={errors} />
+                    <FormFieldErrors field={'type'} errors={errors} />
                 </FormGroup>
             </FormRow>
             <FormRow>
@@ -165,7 +165,7 @@ function Item({
                     disabled={submitting}
                 />
             </FormRow>
-            {fieldType === AttributeType.Entity ? (
+            {type === AttributeType.Entity ? (
                 <FormRow>
                     <FormLabel>
                         {t(
@@ -374,8 +374,8 @@ function ListItem({data}: DefinitionItemProps<AttributeDefinition>) {
         <>
             <ListItemIcon>
                 {React.createElement(
-                    fieldTypesIcons[data.fieldType || AttributeType.Text] ??
-                        fieldTypesIcons.text
+                    typesIcons[data.type || AttributeType.Text] ??
+                        typesIcons.text
                 )}
             </ListItemIcon>
             <ListItemText
@@ -383,7 +383,7 @@ function ListItem({data}: DefinitionItemProps<AttributeDefinition>) {
                 primaryTypographyProps={{
                     color: data.enabled ? undefined : 'error',
                 }}
-                secondary={data.fieldType}
+                secondary={data.type}
             />
         </>
     );
@@ -401,7 +401,7 @@ function createNewItem(): Partial<AttributeDefinition> {
         suggest: false,
         editable: true,
         editableInGui: true,
-        fieldType: AttributeType.Text,
+        type: AttributeType.Text,
         policy: null,
         entityList: null,
         enabled: true,
@@ -460,7 +460,7 @@ export default function AttributeDefinitionManager({
                 list.filter(ad => {
                     let r = true;
                     if (type) {
-                        r = r && ad.fieldType === type;
+                        r = r && ad.type === type;
                     }
                     if (target) {
                         r = r && (target & ad.target) === target;

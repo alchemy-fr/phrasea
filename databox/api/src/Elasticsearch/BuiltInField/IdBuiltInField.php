@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\BuiltInField;
 
-use App\Attribute\Type\KeywordAttributeType;
+use App\Attribute\Type\IdAttributeType;
 use App\Entity\Core\Asset;
 use Elastica\Query;
 
-final class IdBuiltInField extends AbstractBuiltInField
+final class IdBuiltInField extends AbstractBuiltInAttribute
 {
     protected function getAggregationTranslationKey(): string
     {
         return 'id';
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return '_id';
     }
@@ -32,7 +32,7 @@ final class IdBuiltInField extends AbstractBuiltInField
 
     public function getType(): string
     {
-        return KeywordAttributeType::getName();
+        return IdAttributeType::getName();
     }
 
     public function createFilterQuery(mixed $value, array $options): ?Query\AbstractQuery

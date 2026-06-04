@@ -7,12 +7,11 @@ namespace App\Api\OutputTransformer;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
-use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Attribute\AttributeTypeRegistry;
-use App\Elasticsearch\BuiltInField\BuiltInFieldRegistry;
+use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
@@ -31,6 +30,7 @@ use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Discussion\DiscussionManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class AssetOutputTransformer implements OutputTransformerInterface
 {
@@ -39,17 +39,17 @@ class AssetOutputTransformer implements OutputTransformerInterface
     use UserLocaleTrait;
     use GroupsHelperTrait;
 
-    private ?string $lastGroupKey = null;
-
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly AttributesResolver $attributesResolver,
         private readonly AssetNameResolver $assetNameResolver,
         private readonly FieldNameResolver $fieldNameResolver,
-        private readonly BuiltInFieldRegistry $builtInFieldRegistry,
+        private readonly BuiltInAttributeRegistry $builtInFieldRegistry,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
         private readonly DiscussionManager $discussionManager,
         private readonly NotifierInterface $notifier,
+        #[Autowire(env: 'API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE')]
+        private readonly string $ownerPropertyRequiredRole,
         private readonly ClientUrlHelper $clientUrlHelper,
     ) {
     }
@@ -98,7 +98,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
             Share::GROUP_PUBLIC_READ,
             ResolveEntitiesOutput::GROUP_READ,
         ], $context)) {
-            $attributesIndex = $this->attributesResolver->resolveAssetAttributes($data, true);
+            $attributesIndex = $data->attributesIndex ?? $this->attributesResolver->resolveAssetAttributes($data, true);
             $attributes = $attributesIndex->getFlattenAttributes();
 
             if (!empty($highlights)) {
@@ -118,35 +118,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
                 }
             }
 
-            $groupBy = $context['groupBy'][0] ?? null;
-            if (null !== $groupBy) {
-                $indexValue = null;
-                foreach ($attributesIndex->getDefinitions() as $definitionIndex) {
-                    if ($groupBy === $this->fieldNameResolver->getFieldNameFromDefinition($definitionIndex->getDefinition())) {
-                        foreach ($preferredLocales as $l) {
-                            if ($definitionIndex->getDefinition()->isMultiple()) {
-                                continue;
-                            }
-                            if (null !== $attr = $definitionIndex->getAttribute($l)) {
-                                $indexValue = $attr->getValue();
-                                break 2;
-                            }
-                        }
-
-                        break;
-                    }
-                }
-
-                $groupValue = $this->getGroupValue($groupBy, $data, $indexValue);
-                $groupKey = $groupValue->getKey();
-
-                if ($this->lastGroupKey !== $groupKey) {
-                    $output->setGroupValue($groupValue);
-
-                    $this->lastGroupKey = $groupKey;
-                }
-            }
-
+            $output->setGroupValue($data->groupValue);
             $output->setPrivacy($data->getPrivacy());
             $output->setTags($data->getTags()->getValues());
             $output->setWorkspace($data->getWorkspace());
@@ -197,7 +169,10 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
             $output->setCapabilities($capabilities);
 
-            $output->owner = $this->transformUser($data->getOwnerId());
+            if (empty($this->ownerPropertyRequiredRole) || $this->hasRole($this->ownerPropertyRequiredRole)) {
+                $output->owner = $this->transformUser($data->getOwnerId());
+            }
+
             $output->threadKey = $this->discussionManager->getObjectKey($data);
         }
 
@@ -233,26 +208,5 @@ class AssetOutputTransformer implements OutputTransformerInterface
         }
 
         return null;
-    }
-
-    private function getGroupValue($groupBy, Asset $object, $indexValue): GroupValue
-    {
-        $builtInField = $this->builtInFieldRegistry->getBuiltInField($groupBy);
-
-        if (null !== $builtInField) {
-            $value = $builtInField->getValueFromAsset($object);
-
-            return $builtInField->resolveGroupValue($groupBy, $value);
-        }
-
-        ['type' => $type] = $this->fieldNameResolver->getFieldFromName($groupBy);
-        $key = $value = $indexValue ?? null;
-        if (is_array($key)) {
-            $key = implode(',', $key);
-        }
-        $value = $type->getGroupValueLabel($type->denormalizeValue($value));
-
-        return new GroupValue($groupBy, $type::getName(), $key, null !== $value ? [$value] : []);
-
     }
 }

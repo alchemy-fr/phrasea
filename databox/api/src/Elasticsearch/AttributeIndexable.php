@@ -18,7 +18,7 @@ final readonly class AttributeIndexable
             return false;
         }
 
-        $type = $this->attributeTypeRegistry->getStrictType($attribute->getDefinition()->getFieldType());
+        $type = $this->attributeTypeRegistry->getStrictType($attribute->getDefinition()->getType());
 
         return $type->supportsSuggest();
     }

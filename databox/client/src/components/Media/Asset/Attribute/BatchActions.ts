@@ -134,7 +134,7 @@ export function getBatchActions(
     }
 
     return actions.map(a => {
-        const widget = getAttributeType(definitions[a.definitionId!].fieldType);
+        const widget = getAttributeType(definitions[a.definitionId!].type);
 
         return {
             ...a,

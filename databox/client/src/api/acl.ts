@@ -11,10 +11,32 @@ export async function getAces(
         params: {
             objectType,
             objectId,
+            userIdWildcard: true,
+            objectIdWildcard: true,
         },
     });
 
-    return res.data;
+    const aces = res.data.map(
+        (
+            ace: Ace & {
+                objectType: string;
+                objectId: string;
+            }
+        ) => ({
+            ...ace,
+            wildcard: !ace.objectId,
+        })
+    );
+    aces.sort((a: Ace, b: Ace) => {
+        const u = (b.userId ? 0 : 1) - (a.userId ? 0 : 1);
+        if (u === 0) {
+            return (b.wildcard ? 1 : 0) - (a.wildcard ? 1 : 0);
+        }
+
+        return u;
+    });
+
+    return aces;
 }
 
 export async function putAce(

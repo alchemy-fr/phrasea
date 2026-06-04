@@ -7,15 +7,15 @@ namespace App\Elasticsearch\BuiltInField;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 
-final readonly class BuiltInFieldRegistry
+final readonly class BuiltInAttributeRegistry
 {
     public function __construct(
-        #[TaggedLocator(BuiltInFieldInterface::TAG, defaultIndexMethod: 'getKey')]
+        #[TaggedLocator(BuiltInAttributeInterface::TAG, defaultIndexMethod: 'getKey')]
         private ServiceProviderInterface $items,
     ) {
     }
 
-    public function getBuiltInField(string $key): ?BuiltInFieldInterface
+    public function getBuiltInField(string $key): ?BuiltInAttributeInterface
     {
         if (!str_starts_with($key, '@')) {
             return null;
@@ -29,7 +29,7 @@ final readonly class BuiltInFieldRegistry
     }
 
     /**
-     * @return BuiltInFieldInterface[]
+     * @return BuiltInAttributeInterface[]
      */
     public function getAll(): iterable
     {

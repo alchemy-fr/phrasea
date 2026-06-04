@@ -90,9 +90,6 @@ class CollectionCrudController extends AbstractAclAdminCrudController
         yield AssociationField::new('children')
             ->autocomplete()
             ->onlyOnDetail();
-        yield AssociationField::new('assets')
-            ->autocomplete()
-            ->onlyOnDetail();
         yield AssociationField::new('referenceAssets')
             ->autocomplete()
             ->onlyOnDetail();

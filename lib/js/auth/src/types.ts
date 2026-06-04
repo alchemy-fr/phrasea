@@ -107,6 +107,8 @@ export type OAuthClientOptions = {
     clientId: string;
     clientSecret?: string;
     baseUrl: string;
+    clientCheckCodePath?: string;
+    defaultRedirectPath?: string;
     refreshTokenStorageKey?: string;
     httpClient?: HttpClient;
     scope?: string | undefined;
@@ -124,3 +126,18 @@ export enum OAuthEvent {
     refreshToken = 'refreshToken',
     sessionExpired = 'sessionExpired',
 }
+
+export enum AuthConstant {
+    DefaultCheckCodePath = '/auth/check',
+    RedirectUriParam = 'redirect_uri',
+    ClientIdParam = 'client_id',
+    PostLogoutRedirectUri = 'post_logout_redirect_uri',
+    StateParam = 'state',
+    KcIdpHintParam = 'kc_idp_hint',
+    ResponseTypeParam = 'response_type',
+    ResponseCodeParam = 'code',
+    LoggedOutParam = 'logout',
+    StateRedirectParam = 'r',
+}
+
+export type StateParams = Record<string, any>;

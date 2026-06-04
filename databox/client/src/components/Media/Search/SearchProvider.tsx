@@ -1,7 +1,7 @@
 import React, {PropsWithChildren, useCallback, useState} from 'react';
 import {SearchContext, TSearchContext} from './SearchContext';
 import {
-    BuiltInField,
+    BuiltInFieldEnum,
     getResolvedSortBy,
     hashToQuery,
     queryToHash,
@@ -19,11 +19,13 @@ import {parseAQLQuery} from './AQL/AQL.ts';
 import {AQLCondition, AQLQueryAST} from './AQL/aqlTypes.ts';
 import {SavedSearch} from '../../../types.ts';
 import {extractSearchData} from '../../../api/savedSearch.ts';
+import {useEntitiesStore} from '../../../store/entitiesStore.ts';
 
 type Props = PropsWithChildren<{}>;
 
 export default function SearchProvider({children}: Props) {
     const [hash, setHash] = useHash();
+    const store = useEntitiesStore(s => s.store);
     const [reloadInc, setReloadInc] = useState(0);
     const {searchId, query, conditions, sortBy, geolocation} =
         hashToQuery(hash);
@@ -113,23 +115,26 @@ export default function SearchProvider({children}: Props) {
     }
 
     const selectWorkspace = useCallback<TSearchContext['selectWorkspace']>(
-        (workspaceId, _title, forceReload): void => {
+        (id, workspace, forceReload): void => {
+            if (workspace) {
+                store(workspace['@id'], workspace);
+            }
             if (
                 !setConditions(p => {
                     const newConditions = removeConditionsHelper(p, [
-                        BuiltInField.Collection,
-                        BuiltInField.Deleted,
+                        BuiltInFieldEnum.Collection,
+                        BuiltInFieldEnum.Deleted,
                     ]);
 
-                    if (!workspaceId) {
+                    if (!id) {
                         return removeConditionsHelper(newConditions, [
-                            BuiltInField.Workspace,
+                            BuiltInFieldEnum.Workspace,
                         ]);
                     }
 
                     return replaceConditionHelper(newConditions, {
-                        id: BuiltInField.Workspace,
-                        query: `${BuiltInField.Workspace} = "${workspaceId}"`,
+                        id: BuiltInFieldEnum.Workspace,
+                        query: `${BuiltInFieldEnum.Workspace} = "${id}"`,
                     });
                 }) &&
                 forceReload
@@ -137,27 +142,30 @@ export default function SearchProvider({children}: Props) {
                 setReloadInc(p => p + 1);
             }
         },
-        [setConditions]
+        [setConditions, store]
     );
 
     const selectCollection = useCallback<TSearchContext['selectCollection']>(
-        (collectionId, _title, forceReload): void => {
+        (id, collection, forceReload): void => {
+            if (collection) {
+                store(collection['@id'], collection);
+            }
             if (
                 !setConditions(p => {
                     const newConditions = removeConditionsHelper(p, [
-                        BuiltInField.Workspace,
-                        BuiltInField.Deleted,
+                        BuiltInFieldEnum.Workspace,
+                        BuiltInFieldEnum.Deleted,
                     ]);
 
-                    if (!collectionId) {
+                    if (!id) {
                         return removeConditionsHelper(newConditions, [
-                            BuiltInField.Collection,
+                            BuiltInFieldEnum.Collection,
                         ]);
                     }
 
                     return replaceConditionHelper(newConditions, {
-                        id: BuiltInField.Collection,
-                        query: `${BuiltInField.Collection} = "${collectionId}"`,
+                        id: BuiltInFieldEnum.Collection,
+                        query: `${BuiltInFieldEnum.Collection} = "${id}"`,
                     });
                 }) &&
                 forceReload
@@ -165,7 +173,7 @@ export default function SearchProvider({children}: Props) {
                 setReloadInc(p => p + 1);
             }
         },
-        [setConditions]
+        [setConditions, store]
     );
 
     const setSortBy = useCallback<TSearchContext['setSortBy']>(
@@ -239,7 +247,7 @@ export default function SearchProvider({children}: Props) {
             .filter(q => q && isAQLCondition(q.expression)) as AQLQueryAST[]
     ).map(q => q.expression) as AQLCondition[];
 
-    function filterOfType(type: BuiltInField): string[] {
+    function filterOfType(type: BuiltInFieldEnum): string[] {
         return conditionsAst
             .filter(
                 c =>
@@ -257,14 +265,14 @@ export default function SearchProvider({children}: Props) {
             .flat() as string[];
     }
 
-    const workspaces = filterOfType(BuiltInField.Workspace);
-    const collections = filterOfType(BuiltInField.Collection);
+    const workspaces = filterOfType(BuiltInFieldEnum.Workspace);
+    const collections = filterOfType(BuiltInFieldEnum.Collection);
     const hasSearch = Boolean(
         query ||
         conditions.length > 0 ||
         (sortBy.length > 0 &&
-            (sortBy[0].a !== BuiltInField.Score ||
-                sortBy[1]?.a !== BuiltInField.CreatedAt)) ||
+            (sortBy[0].a !== BuiltInFieldEnum.Score ||
+                sortBy[1]?.a !== BuiltInFieldEnum.CreatedAt)) ||
         geolocation
     );
 

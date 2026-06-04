@@ -138,7 +138,6 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 || $this->hasAcl(PermissionInterface::CHILD_CREATE, $subject, $token, ownershipGrants: false)
                 || $this->parentIsGranted($attribute, $subject)
                 || $isWorkspaceOwnerSlow()
-                || $this->isAdmin()
             ,
             AssetContainerVoterInterface::ASSET_EDIT_ATTRIBUTES => $isWorkspaceOwnerFast()
                 || $this->hasAcl([

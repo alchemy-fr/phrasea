@@ -7,16 +7,19 @@ namespace App\Doctrine\Listener;
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Api\OutputTransformer\CollectionOutputTransformer;
 use App\Consumer\Handler\Collection\DeleteCollection;
+use App\Consumer\Handler\Search\ComputeCollectionBranch;
 use App\Consumer\Handler\Search\IndexCollectionBranch;
 use App\Entity\Core\Collection;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\OnFlushEventArgs;
+use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Events;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[AsDoctrineListener(Events::postUpdate)]
+#[AsDoctrineListener(Events::postPersist)]
 #[AsDoctrineListener(Events::onFlush)]
 class CollectionListener implements EventSubscriber
 {
@@ -28,6 +31,18 @@ class CollectionListener implements EventSubscriber
         private readonly PostFlushStack $postFlushStack,
         private readonly TagAwareCacheInterface $collectionCache,
     ) {
+    }
+
+    public function postPersist(PostPersistEventArgs $args): void
+    {
+        $entity = $args->getObject();
+        if (!$entity instanceof Collection) {
+            return;
+        }
+
+        $this->collectionCache->invalidateTags([CollectionOutputTransformer::COLLECTION_CACHE_NS]);
+
+        $this->postFlushStack->addBusMessage(new ComputeCollectionBranch($entity->getId()));
     }
 
     public function postUpdate(PostUpdateEventArgs $args): void
@@ -48,7 +63,8 @@ class CollectionListener implements EventSubscriber
 
         $this->collectionCache->invalidateTags([CollectionOutputTransformer::COLLECTION_CACHE_NS]);
 
-        $this->postFlushStack->addBusMessage(new IndexCollectionBranch($entity->getId()));
+        $this->postFlushStack->addBusMessage(new ComputeCollectionBranch($entity->getId()));
+        $this->postFlushStack->addBusMessage(new IndexCollectionBranch($entity->getId(), true));
     }
 
     public function onFlush(OnFlushEventArgs $args): void

@@ -29,6 +29,8 @@ interface AttributeTypeInterface
 
     public function getElasticSearchRawField(): ?string;
 
+    public function getElasticSearchSortSubField(): ?string;
+
     public function supportsElasticSearchFuzziness(): bool;
 
     public function getFacetType(): string;

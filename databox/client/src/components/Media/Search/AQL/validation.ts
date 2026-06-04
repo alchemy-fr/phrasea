@@ -7,7 +7,7 @@ import {
     RawType,
 } from './aqlTypes.ts';
 import {hasProp} from '../../../../lib/utils.ts';
-import {AttributeDefinition} from '../../../../types.ts';
+import {AttributeDefinitionOrBuiltIn} from '../../../../types.ts';
 import {isAQLCondition, isAQLField, valueToString} from './query.ts';
 
 import {AttributeType} from '../../../../api/types.ts';
@@ -80,7 +80,7 @@ function validateConditionType(
             definitionsIndex
         );
         if (attributeDefinition) {
-            const type = attributeDefinition.fieldType;
+            const type = attributeDefinition.type;
             const rawType = typeMap[type];
             if (!rawType) {
                 return;
@@ -166,7 +166,7 @@ function validateOfType(
     if (typeof node === 'object' && node !== null) {
         if (isAQLField(node)) {
             const f = validateField(node, definitionsIndex);
-            if (f && typeMap[f.fieldType] !== type) {
+            if (f && typeMap[f.type] !== type) {
                 throw new Error(`Field "${f.name}" is not of type ${type}`);
             }
 
@@ -195,7 +195,7 @@ function validateOfType(
 function validateField(
     node: any,
     definitionsIndex: AttributeDefinitionIndex
-): AttributeDefinition | undefined {
+): AttributeDefinitionOrBuiltIn | undefined {
     if (isAQLField(node)) {
         const field = node.field;
 

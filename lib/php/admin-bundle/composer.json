@@ -19,9 +19,10 @@
     "require": {
         "php": "^8.5",
         "alchemy/auth-bundle": "@dev",
-        "easycorp/easyadmin-bundle": "^4.0",
+        "symfony/framework-bundle": "^7.1",
+        "easycorp/easyadmin-bundle": "^4.29.11",
         "php-amqplib/php-amqplib": "^3.7",
-        "symfony/framework-bundle": "^7.1"
+        "symfony/ux-twig-component":"^2.36.0"
     },
     "config": {
         "sort-packages": true

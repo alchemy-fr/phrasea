@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch\BuiltInField;
 
 use App\Api\Filter\Group\GroupValue;
+use App\Attribute\Type\BooleanAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\ESFacetInterface;
 use Doctrine\Common\Collections\Collection;
@@ -12,7 +13,7 @@ use Elastica\Aggregation;
 use Elastica\Query;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-abstract class AbstractBuiltInField implements BuiltInFieldInterface
+abstract class AbstractBuiltInAttribute implements BuiltInAttributeInterface
 {
     public function getType(): string
     {
@@ -61,15 +62,28 @@ abstract class AbstractBuiltInField implements BuiltInFieldInterface
 
     protected function resolveLabel($value): string
     {
-        return $value;
+        if (BooleanAttributeType::NAME === $this->getType()) {
+            return $value ? 'True' : 'False';
+        }
+
+        return $value ?? '';
     }
 
     protected function resolveKey($value): string
     {
-        return $value;
+        if (BooleanAttributeType::NAME === $this->getType()) {
+            return $value ? 'true' : 'false';
+        }
+
+        return $value ?? '';
     }
 
     public function isSortable(): bool
+    {
+        return true;
+    }
+
+    public function isSearchable(): bool
     {
         return true;
     }
@@ -82,7 +96,7 @@ abstract class AbstractBuiltInField implements BuiltInFieldInterface
     public function buildFacet(Query $query, TranslatorInterface $translator): void
     {
         $agg = new Aggregation\Terms(static::getKey());
-        $agg->setField($this->getFieldName());
+        $agg->setField(static::getName());
         $agg->setSize($this->getAggregationSize());
         $agg->setMeta($this->getAggregationMeta($translator));
         $query->addAggregation($agg);
@@ -103,6 +117,11 @@ abstract class AbstractBuiltInField implements BuiltInFieldInterface
         }
 
         return $meta;
+    }
+
+    public function isMultiple(): bool
+    {
+        return false;
     }
 
     protected function getAggregationSize(): int
@@ -130,5 +149,10 @@ abstract class AbstractBuiltInField implements BuiltInFieldInterface
     public function createFilterQuery(mixed $value, array $options): ?Query\AbstractQuery
     {
         return null;
+    }
+
+    public function isEnabled(): bool
+    {
+        return true;
     }
 }

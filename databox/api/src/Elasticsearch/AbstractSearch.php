@@ -16,17 +16,14 @@ abstract class AbstractSearch
 
     protected WorkspaceRepository $workspaceRepository;
 
-    private ?array $allowedWorkspaces = null;
-    private ?array $publicWorkspaceIds = null;
-
     protected function createACLBoolQuery(?string $userId, array $groupIds): ?Query\BoolQuery
     {
-        if ($this->isSuperAdmin()) {
+        if ($this->isAdmin()) {
             return null;
         }
 
         if (null !== $adminScope = $this->getAdminScope()) {
-            if ($this->hasScope($adminScope)) {
+            if ($this->hasScope($adminScope, null, false)) {
                 return null;
             }
         }
@@ -34,7 +31,7 @@ abstract class AbstractSearch
         $workspacesQuery = new Query\BoolQuery();
 
         $should = [];
-        $permittedWorkspaces = $publicWorkspaceIds = $this->getPublicWorkspaceIds();
+        $permittedWorkspaces = $publicWorkspaceIds = $this->workspaceRepository->getPublicWorkspaceIds();
         if (null !== $userId) {
             if (!empty($publicWorkspaceIds)) {
                 $publicWorkspaceBoolQuery = new Query\BoolQuery();
@@ -45,7 +42,7 @@ abstract class AbstractSearch
                 $should[] = $publicWorkspaceBoolQuery;
             }
 
-            $allowedWorkspaceIds = $this->getAllowedWorkspaceIds($userId, $groupIds);
+            $allowedWorkspaceIds = $this->workspaceRepository->getAllowedWorkspaceIds($userId, $groupIds, $this->isAdmin());
             if (!empty($allowedWorkspaceIds)) {
                 $permittedWorkspaces = array_merge($permittedWorkspaces, $allowedWorkspaceIds);
                 $workspaceBoolQuery = new Query\BoolQuery();
@@ -97,24 +94,6 @@ abstract class AbstractSearch
     protected function getAdminScope(): ?string
     {
         return null;
-    }
-
-    protected function getAllowedWorkspaceIds(string $userId, array $groupIds): array
-    {
-        if (null !== $this->allowedWorkspaces) {
-            return $this->allowedWorkspaces;
-        }
-
-        return $this->allowedWorkspaces = $this->workspaceRepository->getAllowedWorkspaceIds($userId, $groupIds);
-    }
-
-    protected function getPublicWorkspaceIds(): array
-    {
-        if (null !== $this->publicWorkspaceIds) {
-            return $this->publicWorkspaceIds;
-        }
-
-        return $this->publicWorkspaceIds = $this->workspaceRepository->getPublicWorkspaceIds();
     }
 
     #[Required]

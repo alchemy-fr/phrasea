@@ -65,11 +65,11 @@ class AttributeSearch
             }
             $fieldName = $this->fieldNameResolver->getFieldName(
                 $d['slug'],
-                $d['fieldType'],
+                $d['type'],
                 $d['multiple']
             );
 
-            $type = $this->typeRegistry->getStrictType($d['fieldType']);
+            $type = $this->typeRegistry->getStrictType($d['type']);
 
             $searchType = $type->getElasticSearchSearchType() ?? SearchType::Other;
 
@@ -275,15 +275,16 @@ class AttributeSearch
     }
 
     /**
-     * @return array{name: string, type: AttributeTypeInterface}
+     * @return array{name: string, type: AttributeTypeInterface, enabled: bool}
      */
     public function getESFieldInfo(string $attr): array
     {
-        ['field' => $field, 'type' => $type] = $this->fieldNameResolver->getFieldFromName($attr);
+        ['field' => $field, 'type' => $type, 'enabled' => $enabled] = $this->fieldNameResolver->getFieldFromName($attr);
 
         return [
             'name' => $field,
             'type' => $type,
+            'enabled' => $enabled,
         ];
     }
 
@@ -331,7 +332,7 @@ class AttributeSearch
         $facets = [];
         foreach ($attributeDefinitions as $definition) {
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
-            $type = $this->typeRegistry->getStrictType($definition->getFieldType());
+            $type = $this->typeRegistry->getStrictType($definition->getType());
 
             $l = $type->isLocaleAware() && $definition->isTranslatable() ?
                 ($this->getBestWorkspaceLocale($definition->getWorkspace()) ?? AttributeInterface::NO_LOCALE)

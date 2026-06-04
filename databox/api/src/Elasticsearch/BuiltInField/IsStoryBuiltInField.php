@@ -7,14 +7,14 @@ namespace App\Elasticsearch\BuiltInField;
 use App\Attribute\Type\BooleanAttributeType;
 use App\Entity\Core\Asset;
 
-final class IsStoryBuiltInField extends AbstractBuiltInField
+final class IsStoryBuiltInField extends AbstractBuiltInAttribute
 {
     protected function getAggregationTranslationKey(): string
     {
         return 'is_story';
     }
 
-    public function getFieldName(): string
+    public static function getName(): string
     {
         return 'isStory';
     }
@@ -31,6 +31,6 @@ final class IsStoryBuiltInField extends AbstractBuiltInField
 
     public function getType(): string
     {
-        return BooleanAttributeType::getName();
+        return BooleanAttributeType::NAME;
     }
 }

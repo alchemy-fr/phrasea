@@ -26,7 +26,7 @@ export function useAttributeEditor({workspaceId, assetId, target}: Props) {
     const loadWorkspaceDefinitions = useAttributeDefinitionStore(
         s => s.loadWorkspace
     );
-    const definitionIndex = useIndexById({workspaceId, target});
+    const definitionIndex = useIndexById(false, {workspaceId, target});
     const [attributes, setAttributes] = React.useState<
         AttributeIndex<string | number>
     >(buildAttributeIndex(definitionIndex, remoteAttributes ?? []));

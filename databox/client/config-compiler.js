@@ -88,11 +88,13 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
     const redirectUri = `${env.DATABOX_CLIENT_URL}/auth`;
     const autoConnectIdP = env.AUTO_CONNECT_IDP;
     const authUrl = `${env.KEYCLOAK_URL}/realms/${realmName}/protocol/openid-connect/auth?response_type=code&client_id=${encodeURIComponent(env.CLIENT_ID)}&redirect_uri=${encodeURIComponent(redirectUri)}${autoConnectIdP ? `&kc_idp_hint=${encodeURIComponent(autoConnectIdP)}` : ''}`;
+    const databoxApiUrl = env.DATABOX_API_URL;
 
     require('node:fs').writeFileSync(
         'phrasea-manifest.json',
         JSON.stringify({
             authUrl,
+            databoxApiUrl,
         }),
         'utf8'
     );
@@ -101,7 +103,7 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
         customHTML,
         logo: stackConfig.logo,
         autoConnectIdP,
-        baseUrl: env.DATABOX_API_URL,
+        baseUrl: databoxApiUrl,
         keycloakUrl: env.KEYCLOAK_URL,
         realmName,
         clientId: env.CLIENT_ID,

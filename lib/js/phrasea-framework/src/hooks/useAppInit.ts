@@ -14,16 +14,16 @@ export function useAppInit({apiClient, userIdProp = 'id'}: UseAppInitProps) {
     React.useEffect(() => {
         pushInstruction(
             'setUserId',
-            user ? (user[userIdProp as keyof typeof user] as string) : null
+            user ? (user[userIdProp as keyof typeof user] as string) : undefined
         );
         setSentryUser(user);
     }, [user]);
 
     const onError = useRequestErrorHandler({
         onError: toast,
-        logout: redirectPathAfterLogin => {
+        logout: options => {
             logout({
-                redirectPathAfterLogin,
+                ...(options ?? {}),
                 quiet: true,
             });
         },

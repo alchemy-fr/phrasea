@@ -30,6 +30,7 @@ wait_for_es() {
 wait_for_es
 
 "${BASEDIR}/console" doctrine:database:create --if-not-exists
+"${BASEDIR}/console" app:database:configure
 "${BASEDIR}/console" doctrine:schema:update -f
 "${BASEDIR}/console" fos:elastica:reset
 php -d memory_limit=1G "${BASEDIR}/console" fos:elastica:populate

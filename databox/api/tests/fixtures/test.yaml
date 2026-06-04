@@ -1,7 +1,7 @@
 parameters:
-  user_id: '123'
-  other_user_id: '999'
-  admin_user_id: '4242'
+  user_id: !php/const Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock::USER_UID
+  other_user_id: !php/const Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock::OTHER_USER_UID
+  admin_user_id: !php/const Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock::ADMIN_UID
 
 App\Entity\Core\Workspace:
   w_test:
@@ -60,29 +60,29 @@ App\Entity\Core\AttributePolicy:
 App\Entity\Core\AttributeDefinition:
   ad_photographer:
     name: Photographer
-    fieldType: text
+    type: text
     workspace: '@w_test'
     policy: '@ap_public'
   ad_desc:
     name: Description
-    fieldType: text
+    type: text
     workspace: '@w_test'
     policy: '@ap_public'
   ad_keywords:
     name: Keywords
-    fieldType: text
+    type: text
     multiple: true
     workspace: '@w_test'
     policy: '@ap_public'
   ad_date:
     name: Date
-    fieldType: date
+    type: date
     multiple: false
     workspace: '@w_test'
     policy: '@ap_public'
   ad_business:
     name: Business field
-    fieldType: text
+    type: text
     workspace: '@w_test'
     policy: '@ap_private'
 

@@ -99,11 +99,11 @@ export default function ExportAssetsDialog({assets, ...modalProps}: Props) {
     });
     useDirtyFormPrompt(forbidNavigation, modalProps.modalIndex);
 
-    const formId = 'export';
-
     if (!definitions) {
         return <FullPageLoader />;
     }
+
+    const formId = 'export-assets';
 
     return (
         <FormDialog

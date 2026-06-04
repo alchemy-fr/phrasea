@@ -1,4 +1,9 @@
-import {Asset, AttributeDefinition, ProfileItemType} from '../../../../types';
+import {
+    Asset,
+    AttributeDefinitionOrBuiltIn,
+    BaseAttribute,
+    ProfileItemType,
+} from '../../../../types';
 import React, {useContext, useMemo} from 'react';
 import AttributeRowUI, {BaseAttributeRowUIProps} from './AttributeRowUI';
 import {SxProps} from '@mui/material';
@@ -18,18 +23,19 @@ import {
 } from '../../../../store/profileStore.ts';
 import {useTranslation} from 'react-i18next';
 import {
-    getBuiltInFilters,
+    getBuiltInFieldValueResolver,
     useIndexById,
 } from '../../../../store/attributeDefinitionStore.ts';
 import Separator from '../../../Ui/Separator.tsx';
 import {Spacer} from '../../../Ui/VerticalSpacer.tsx';
 import {AttributeFormat} from './types/types';
 import {NO_LOCALE} from './constants.ts';
+import {BuiltInFieldEnum} from '../../Search/search.ts';
 
 type AttributeItem = {
     id: string;
     type: ProfileItemType;
-    definition?: AttributeDefinition;
+    definition?: AttributeDefinitionOrBuiltIn;
     attribute?: AttributeGroup['attribute'];
     format?: AttributeFormat;
     key?: string;
@@ -49,7 +55,7 @@ function Attributes({
 }: Props) {
     const {t} = useTranslation();
     const formatContext = useContext(AttributeFormatContext);
-    const definitionsIndex = useIndexById();
+    const definitionsIndex = useIndexById(true);
     const toggleDefinition = useProfileStore(s => s.toggleDefinition);
     const current = useProfileStore(s => s.current);
     const pinnedAttributes = useMemo(() => current?.items ?? [], [current]);
@@ -69,8 +75,6 @@ function Attributes({
         }
 
         const attributeItems: AttributeItem[] = [];
-
-        const builtInDef = getBuiltInFilters(t);
 
         pinnedAttributes.forEach(item => {
             const props = {
@@ -98,18 +102,23 @@ function Attributes({
                     });
                 }
             } else if (item.type === ProfileItemType.BuiltIn) {
-                const definition = builtInDef.find(g => g.id === item.key!);
+                const getValueFromAsset = getBuiltInFieldValueResolver(
+                    item.key as BuiltInFieldEnum
+                );
 
-                if (definition && definition.getValueFromAsset) {
-                    const v = definition.getValueFromAsset(asset);
-                    if (
-                        (definition.multiple ? v && v.length > 0 : !!v) ||
-                        item.displayEmpty
-                    ) {
-                        attributeItems.push({
-                            ...props,
-                            definition,
-                        });
+                if (getValueFromAsset) {
+                    const v = getValueFromAsset(asset);
+                    const def = definitionsIndex[item.key!];
+                    if (def) {
+                        if (
+                            (def.multiple ? v && v.length > 0 : !!v) ||
+                            item.displayEmpty
+                        ) {
+                            attributeItems.push({
+                                ...props,
+                                definition: def,
+                            });
+                        }
                     }
                 }
             } else {
@@ -143,7 +152,7 @@ function Attributes({
         return null;
     }
 
-    const createAttrProps = (definition: AttributeDefinition) => ({
+    const createAttrProps = (definition: BaseAttribute) => ({
         origin: 'machine',
         locale: NO_LOCALE,
         capabilities: {},
@@ -177,9 +186,13 @@ function Attributes({
                     );
                 } else if (ai.type === ProfileItemType.BuiltIn) {
                     const definition = ai.definition!;
-                    if (definition.getValueFromAsset) {
-                        const valueFromAsset =
-                            definition.getValueFromAsset(asset);
+
+                    const getValueFromAsset = getBuiltInFieldValueResolver(
+                        ai.definition!.id as BuiltInFieldEnum
+                    );
+
+                    if (getValueFromAsset) {
+                        const valueFromAsset = getValueFromAsset(asset);
 
                         return (
                             <AttributeRowUI

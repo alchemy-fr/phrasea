@@ -84,6 +84,12 @@ readonly class AttributeTypeChangeService
             FileSizeAttributeType::NAME => [
                 ...$text,
             ],
+            IdAttributeType::NAME => [
+                ...$text,
+            ],
+            PrivacyAttributeType::NAME => [
+                ...$text,
+            ],
         ];
 
         if (isset($allowedTranslations[$previousType])) {

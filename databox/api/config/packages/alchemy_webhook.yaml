@@ -1,6 +1,6 @@
 alchemy_webhook:
   normalizer_roles:
-    - ROLE_SUPER-ADMIN
+    - ROLE_ADMIN
   entities:
     App\Entity\Core\Asset:
       groups:

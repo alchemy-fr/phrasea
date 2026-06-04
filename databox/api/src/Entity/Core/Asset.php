@@ -20,6 +20,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetsDeleteInput;
 use App\Api\Model\Input\AssetsRestoreInput;
@@ -69,6 +70,7 @@ use App\Entity\TranslatableInterface;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\AssetRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\Attribute\Index\AttributeIndex;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
@@ -294,6 +296,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]
+#[ORM\Index(columns: ['created_at'], name: 'asset_created_at_idx')]
 #[ORM\Entity(repositoryClass: AssetRepository::class)]
 class Asset extends AbstractUuidEntity implements FollowableInterface, HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, ObjectDisplayableNameInterface, \Stringable
 {
@@ -393,6 +396,9 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     #[Groups(['dates'])]
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     protected ?\DateTimeImmutable $tagsEditedAt = null;
+
+    public ?GroupValue $groupValue = null;
+    public ?AttributeIndex $attributesIndex = null;
 
     /**
      * @param float $now got from microtime(true)
@@ -722,23 +728,15 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     /**
      * Used by ES.
      */
-    public function getSourceFilename(): ?string
+    public function getSourceFileName(): ?string
     {
-        return $this->source?->getFilename();
+        return $this->source?->getFileName();
     }
 
     /**
      * Used by ES.
      */
     public function getSourceFileType(): ?string
-    {
-        return $this->source?->getType();
-    }
-
-    /**
-     * Used by ES.
-     */
-    public function getSourceFileMimeType(): ?string
     {
         return $this->source?->getType();
     }

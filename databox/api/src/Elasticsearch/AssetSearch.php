@@ -16,12 +16,14 @@ use App\Repository\SavedSearch\SavedSearchRepository;
 use App\Security\TagFilterManager;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
+use App\Service\Asset\AssetSortGroupMapper;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AssetSearch extends AbstractSearch
 {
@@ -35,6 +37,7 @@ class AssetSearch extends AbstractSearch
         private readonly DeletedBuiltInField $deletedBuiltInField,
         private readonly CollectionRepository $collectionRepository,
         private readonly SavedSearchRepository $savedSearchRepository,
+        private readonly AssetSortGroupMapper $assetSortGroupMapper,
     ) {
     }
 
@@ -71,6 +74,10 @@ class AssetSearch extends AbstractSearch
         if (isset($options['parents'])) {
             $parentCollections = DoctrineUtil::getFromIds($this->collectionRepository, $options['parents']);
             $paths = array_map(fn (Collection $parentCollection): string => $parentCollection->getAbsolutePath(), $parentCollections);
+
+            if (empty($paths)) {
+                throw new NotFoundHttpException('Collections not found');
+            }
 
             $filterQueries[] = new Query\Terms('collectionPaths', $paths);
         }
@@ -197,6 +204,11 @@ class AssetSearch extends AbstractSearch
 
         $esQuery = $query->toArray();
 
+        $groupByKey = $options['group'][0] ?? null;
+        if (null !== $groupByKey) {
+            $this->assetSortGroupMapper->resolveSortGroups($result, $groupByKey);
+        }
+
         return [$result, $facets, $esQuery, $searchTime];
     }
 
@@ -236,14 +248,30 @@ class AssetSearch extends AbstractSearch
         $sort = [];
         if (isset($options['order'])) {
             foreach ($options['order'] as $field => $way) {
-                $esFieldInfo = $this->attributeSearch->getESFieldInfo($field);
-
+                if (!is_string($field)) {
+                    throw new BadRequestHttpException(sprintf('Invalid sort field "%s"', $field));
+                }
                 $w = strtoupper((string) $way);
                 if (!in_array($w, ['ASC', 'DESC'], true)) {
                     throw new BadRequestHttpException(sprintf('Invalid sort way "%s"', $way));
                 }
 
-                $sort[] = [$esFieldInfo['name'] => $w];
+                try {
+                    $esFieldInfo = $this->attributeSearch->getESFieldInfo($field);
+                } catch (\InvalidArgumentException $e) {
+                    throw new BadRequestHttpException(sprintf('Invalid sort attribute "%s". Did you forget prefixing with "@" for built-in or use "field_type_s" format', $field), $e);
+                }
+                if (!$esFieldInfo['enabled']) {
+                    continue;
+                }
+
+                $fieldName = $esFieldInfo['name'];
+                $type = $esFieldInfo['type'];
+                if ($type->getElasticSearchSortSubField()) {
+                    $fieldName .= '.'.$type->getElasticSearchSortSubField();
+                }
+
+                $sort[] = [$fieldName => $w];
             }
         } else {
             $sort[] = [

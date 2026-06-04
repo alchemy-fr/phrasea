@@ -58,7 +58,7 @@ export default function ValueDiff({actions, definitionIndex}: Props) {
             {Object.keys(indexedActions).map(defId => {
                 const defActions = indexedActions[defId];
                 const definition = definitionIndex[defId];
-                const formatter = getAttributeType(definition.fieldType);
+                const formatter = getAttributeType(definition.type);
 
                 return (
                     <ListItem key={defId} alignItems="flex-start">
@@ -76,7 +76,7 @@ export default function ValueDiff({actions, definitionIndex}: Props) {
                                                 value: a.value,
                                                 locale: a.locale,
                                                 format: formatContext.getFormat(
-                                                    definition.fieldType,
+                                                    definition.type,
                                                     definition.id
                                                 ),
                                             };

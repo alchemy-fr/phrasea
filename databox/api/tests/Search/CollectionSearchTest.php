@@ -7,6 +7,7 @@ namespace App\Tests\Search;
 use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
 
 class CollectionSearchTest extends AbstractSearchTest
 {
@@ -63,17 +64,22 @@ class CollectionSearchTest extends AbstractSearchTest
         $workspace = $this->createWorkspace([
             'name' => 'Workspace',
             'public' => true,
+            'no_flush' => true,
         ]);
         $A = $this->createCollection([
             'name' => 'A',
             'workspace' => $workspace,
+            'no_flush' => true,
         ]);
-        $this->createCollection([
+        $collB = $this->createCollection([
             'name' => 'B',
             'parent' => $A,
             'public' => true,
             'workspace' => $workspace,
+            'no_flush' => true,
         ]);
+        $this->createCollectionAccess($collB, null, WorkspaceItemPrivacyInterface::PUBLIC);
+
         self::releaseIndex();
 
         $client = self::createClient();
@@ -89,18 +95,23 @@ class CollectionSearchTest extends AbstractSearchTest
         $workspace = $this->createWorkspace([
             'name' => 'Workspace',
             'public' => true,
+            'no_flush' => true,
         ]);
         $A = $this->createCollection([
             'name' => 'A',
             'public' => true,
             'workspace' => $workspace,
+            'no_flush' => true,
         ]);
         $this->createCollection([
             'name' => 'B',
             'parent' => $A,
             'public' => true,
             'workspace' => $workspace,
+            'no_flush' => true,
         ]);
+        $this->createCollectionAccess($A, null, WorkspaceItemPrivacyInterface::PUBLIC);
+
         self::releaseIndex();
 
         $client = self::createClient();
@@ -136,7 +147,9 @@ class CollectionSearchTest extends AbstractSearchTest
             'workspace' => $workspace,
             'name' => 'Foo',
             'public' => true,
+            'no_flush' => true,
         ]);
+        $this->createCollectionAccess($collection, null, WorkspaceItemPrivacyInterface::PUBLIC);
         self::releaseIndex();
 
         $client = self::createClient();
@@ -167,10 +180,12 @@ class CollectionSearchTest extends AbstractSearchTest
 
     public function testSearchOwnedCollectionsAsOwner(): void
     {
-        $asset = $this->createCollection([
+        $collection = $this->createCollection([
             'name' => 'Foo',
             'ownerId' => KeycloakClientTestMock::USER_UID,
+            'no_flush' => true,
         ]);
+        $this->createCollectionAccess($collection, KeycloakClientTestMock::USER_UID, WorkspaceItemPrivacyInterface::PRIVATE);
         $this->addUserOnWorkspace(KeycloakClientTestMock::USER_UID, $this->defaultWorkspace->getId());
 
         self::releaseIndex();
@@ -184,7 +199,7 @@ class CollectionSearchTest extends AbstractSearchTest
 
         $data = $this->getDataFromResponse($response, 200)['hydra:member'];
         $this->assertCount(1, $data);
-        $this->assertEquals($asset->getId(), $data[0]['id']);
+        $this->assertEquals($collection->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['name']);
     }
 
@@ -243,6 +258,7 @@ class CollectionSearchTest extends AbstractSearchTest
             $collection,
             PermissionInterface::VIEW
         );
+        $this->createCollectionAccess($collection, KeycloakClientTestMock::USER_UID, WorkspaceItemPrivacyInterface::PRIVATE);
 
         self::releaseIndex();
 
@@ -266,6 +282,7 @@ class CollectionSearchTest extends AbstractSearchTest
             'ownerId' => 'another_owner',
         ]);
         $this->addUserOnWorkspace(KeycloakClientTestMock::USER_UID, $this->defaultWorkspace->getId());
+        $this->createCollectionAccess($collection, KeycloakClientTestMock::USER_UID, WorkspaceItemPrivacyInterface::PRIVATE);
         self::releaseIndex();
 
         self::getPermissionManager()->updateOrCreateAce(

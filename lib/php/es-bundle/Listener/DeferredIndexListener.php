@@ -9,6 +9,7 @@ use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
 use Alchemy\ESBundle\Indexer\ESIndexableInterface;
 use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
+use App\Elasticsearch\ObjectIndexable;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\DBAL\Connection;
@@ -55,6 +56,7 @@ final class DeferredIndexListener
     public function __construct(
         private readonly SearchIndexer $searchIndexer,
         private readonly Connection $connection,
+        private readonly ObjectIndexable $indexable,
     ) {
         $this->connection->getEventManager()->addEventListener(\Doctrine\DBAL\Events::onTransactionRollBack, $this);
     }
@@ -224,6 +226,10 @@ final class DeferredIndexListener
     {
         if ($object instanceof ESIndexableInterface) {
             return $object->isObjectIndexable();
+        }
+
+        if (!$this->indexable->isObjectIndexable($object)) {
+            return false;
         }
 
         return true;

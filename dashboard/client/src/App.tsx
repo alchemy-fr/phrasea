@@ -1,14 +1,4 @@
-import {
-    Alert,
-    Box,
-    Chip,
-    Container,
-    Grid2 as Grid,
-    Link,
-    Typography,
-    useMediaQuery,
-    useTheme,
-} from '@mui/material';
+import {Alert, Box, Chip, Grid2 as Grid, Link, Typography} from '@mui/material';
 import Service from './Service';
 import ClientApp from './ClientApp.tsx';
 import SellIcon from '@mui/icons-material/Sell';
@@ -17,24 +7,16 @@ import databoxImg from './images/databox.png';
 import uploaderImg from './images/uploader.png';
 import exposeImg from './images/expose.png';
 import dashboardImg from './images/dashboard.png';
-import DashboardBar from './DashboardBar';
 import {useAuth} from '@alchemy/react-auth';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import {config} from './init.ts';
-import {useEffect} from 'react';
-import {useTracking} from '@alchemy/phrasea-framework';
+import {useIsLarge} from './hooks/useIsLarge.ts';
 
 type Props = {};
 
 export default function App({}: Props) {
-    const theme = useTheme();
-    const isLarge = useMediaQuery(theme.breakpoints.up('sm'));
     const {user} = useAuth();
-    const {trackPageView} = useTracking();
-
-    useEffect(() => {
-        trackPageView();
-    }, [trackPageView]);
+    const isLarge = useIsLarge();
 
     const {
         DATABOX_API_URL,
@@ -60,9 +42,7 @@ export default function App({}: Props) {
     const isInIframe = inIframe();
 
     return (
-        <Container>
-            {isLarge && <DashboardBar />}
-
+        <>
             <Box
                 sx={{
                     display: 'flex',
@@ -265,7 +245,7 @@ export default function App({}: Props) {
                     )}
                 </Grid>
             )}
-        </Container>
+        </>
     );
 }
 

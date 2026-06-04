@@ -76,8 +76,6 @@ class AttributeRepository extends ServiceEntityRepository
             ->addOrderBy('a.id', 'ASC')
         ;
 
-        $this->restrictTranslatableFields($queryBuilder);
-
         return $queryBuilder
             ->getQuery()
             ->getResult();
@@ -86,7 +84,9 @@ class AttributeRepository extends ServiceEntityRepository
     public function getCachedAssetAttributes(string $assetId): array
     {
         return $this->attributeCache->get($assetId, function () use ($assetId): array {
-            return $this->getAssetAttributes($assetId);
+            return array_filter($this->getAssetAttributes($assetId), function (Attribute $attribute): bool {
+                return $attribute->isValidValue();
+            });
         });
     }
 
@@ -112,11 +112,9 @@ class AttributeRepository extends ServiceEntityRepository
             ->addOrderBy('t.id', 'ASC')
             ->innerJoin('t.definition', 'd')
             ->andWhere('d.enabled = true')
-            ->andWhere('d.fieldType IN (:types)')
+            ->andWhere('d.type IN (:types)')
             ->andWhere('t.value != \'\'')
             ->setParameter('types', $types);
-
-        $this->restrictTranslatableFields($queryBuilder, 't');
 
         return $queryBuilder;
     }
@@ -138,16 +136,44 @@ class AttributeRepository extends ServiceEntityRepository
                     ->createQueryBuilder('a')
                     ->select('a.id')
                     ->innerJoin('a.definition', 'd')
-                    ->andWhere('d.workspace = :workspace')
-                    ->andWhere('d.fieldType = :t')
+                    ->andWhere('d.workspace = :w')
+                    ->andWhere('d.type = :t')
                     ->andWhere('d.entityList = :etype')
                     ->andWhere('a.value = :id')
                     ->getDQL()
             ))
-            ->setParameter('workspace', $workspaceId)
+            ->setParameter('w', $workspaceId)
             ->setParameter('t', EntityAttributeType::getName())
             ->setParameter('etype', $entityListId)
             ->setParameter('id', $entityId)
+            ->getQuery()
+            ->execute();
+    }
+
+    public function replaceAttributeEntity(string $workspaceId, string $entityListId, $newId, array $previousIds): void
+    {
+        $expr = $this->_em->getExpressionBuilder();
+        $this
+            ->createQueryBuilder('t')
+            ->update()
+            ->set('t.value', ':newValue')
+            ->andWhere($expr->in(
+                't.id',
+                $this
+                    ->createQueryBuilder('a')
+                    ->select('a.id')
+                    ->innerJoin('a.definition', 'd')
+                    ->andWhere('d.workspace = :w')
+                    ->andWhere('d.type = :t')
+                    ->andWhere('d.entityList = :etype')
+                    ->andWhere('a.value IN (:prev)')
+                    ->getDQL()
+            ))
+            ->setParameter('w', $workspaceId)
+            ->setParameter('t', EntityAttributeType::getName())
+            ->setParameter('etype', $entityListId)
+            ->setParameter('prev', $previousIds)
+            ->setParameter('newValue', $newId)
             ->getQuery()
             ->execute();
     }

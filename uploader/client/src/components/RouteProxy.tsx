@@ -1,7 +1,9 @@
-import type {RouteProxyProps} from '@alchemy/navigation';
+import {getCurrentUrl, RouteProxyProps} from '@alchemy/navigation';
 import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
 import {config, keycloakClient} from '../init.ts';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
+import {AuthConstant} from '@alchemy/auth';
+import RequireLogin from './RequireLogin.tsx';
 
 export default function RouteProxy({
     component: Component,
@@ -15,7 +17,10 @@ export default function RouteProxy({
 
     if (!isPublic && !isAuthenticated) {
         if (!hasSession) {
-            // No session, redirect to login
+            if (getCurrentUrl().searchParams.has(AuthConstant.LoggedOutParam)) {
+                return <RequireLogin />;
+            }
+
             // eslint-disable-next-line react-hooks/immutability
             document.location.href = getLoginUrl();
         }

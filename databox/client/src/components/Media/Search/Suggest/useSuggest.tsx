@@ -29,6 +29,12 @@ export function useSuggest({search, placeholder}: Props): UsedSuggest {
             {
                 sourceId: 'items',
                 onSelect: ({item, setQuery}) => {
+                    if (item.t === 'collection') {
+                        setInputQuery('');
+                        search.selectCollection(item.tId!);
+                        return;
+                    }
+
                     const newQuery = `"${item.name}"`;
                     setQuery(newQuery);
                     setInputQuery(newQuery);
@@ -60,7 +66,7 @@ export function useSuggest({search, placeholder}: Props): UsedSuggest {
                 getSources,
                 placeholder,
             }),
-        []
+        [getSources]
     );
 
     React.useEffect(() => {

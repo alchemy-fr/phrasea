@@ -89,7 +89,7 @@ final readonly class AttributeValidator
 
             $value = $attributeInput->value;
             if (null !== $value) {
-                $type = $this->typeRegistry->getStrictType($definition->getFieldType());
+                $type = $this->typeRegistry->getStrictType($definition->getType());
                 $validationContext->setNode($value, $attributeInput, null, sprintf('%s[%d].value', $contextName, $i));
 
                 if ($definition->isMultiple()) {

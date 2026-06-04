@@ -15,11 +15,13 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\Collection;
+use App\Entity\Core\CollectionAccess;
 use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\TagFilterManager;
+use MartinGeorgiev\Doctrine\DBAL\Types\ValueObject\Ltree;
 use Ramsey\Uuid\Uuid;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
@@ -81,7 +83,7 @@ trait DataboxTestTrait
                 $a->setLocale($attr['locale'] ?? null);
                 $a->setPosition($attr['position'] ?? 0);
                 $a->setOrigin($attr['origin'] ?? Attribute::ORIGIN_MACHINE);
-                $a->setValue($typeRegistry->getStrictType($attr['definition']->getFieldType())->normalizeValue($attr['value']));
+                $a->setValue($typeRegistry->getStrictType($attr['definition']->getType())->normalizeValue($attr['value']));
 
                 $em->persist($a);
             }
@@ -120,6 +122,28 @@ trait DataboxTestTrait
         return $collection;
     }
 
+    protected function createCollectionAccess(Collection $collection, ?string $userId, int $privacy, array $options = []): CollectionAccess
+    {
+        $em = self::getEntityManager();
+
+        $collectionAccess = new CollectionAccess();
+        $collectionAccess->setWorkspace($collection->getWorkspace());
+        $collectionAccess->setCollection($collection);
+        $collectionAccess->setUserId($userId);
+        $collectionAccess->setPrivacy($privacy);
+
+        $ltree = new Ltree(explode('/', substr($collection->getAbsolutePath(), 1)));
+        $collectionAccess->setPath($ltree);
+
+        $em->persist($collectionAccess);
+
+        if (!($options['no_flush'] ?? false)) {
+            $em->flush();
+        }
+
+        return $collectionAccess;
+    }
+
     protected function createAttributeDefinition(array $options = []): AttributeDefinition
     {
         $em = self::getEntityManager();
@@ -130,7 +154,7 @@ trait DataboxTestTrait
             'workspace' => $options['workspace'] ?? null,
         ]));
         $definition->setWorkspace($options['workspace'] ?? $this->getOrCreateDefaultWorkspace());
-        $definition->setFieldType($options['type'] ?? TextAttributeType::NAME);
+        $definition->setType($options['type'] ?? TextAttributeType::NAME);
         $definition->setTranslatable($options['translatable'] ?? false);
         $definition->setMultiple($options['multiple'] ?? false);
         $definition->setSearchable($options['searchable'] ?? true);

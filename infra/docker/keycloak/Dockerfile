@@ -12,7 +12,7 @@ COPY . .
 RUN mvn clean package
 
 
-FROM quay.io/keycloak/keycloak:26.4.7 AS builder
+FROM quay.io/keycloak/keycloak:26.6.2 AS builder
 
 COPY --from=spi-builder /app/group-uuid-mapper/target/group-uuid-mapper.jar /opt/keycloak/providers/
 COPY --from=spi-builder /app/jq-idp-mapper/target/jq-idp-mapper-jar-with-dependencies.jar /opt/keycloak/providers/
@@ -26,7 +26,7 @@ RUN /opt/keycloak/bin/kc.sh build \
 COPY themes/phrasea /opt/keycloak/themes/phrasea
 
 
-FROM quay.io/keycloak/keycloak:26.4.7 AS keycloak
+FROM quay.io/keycloak/keycloak:26.6.2 AS keycloak
 
 ENV KC_SPI_THEME_DEFAULT=phrasea
 
@@ -39,5 +39,8 @@ RUN chown -R 1000:1000 /opt/keycloak/themes/phrasea
 USER 1000
 
 COPY entrypoint.sh /entrypoint.sh
+
+HEALTHCHECK --start-interval=2s --start-period=90s --retries=100 --interval=60s --timeout=2s \
+    CMD { printf 'HEAD /health/ready HTTP/1.0\r\n\r\n' >&0; grep 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/9000
 
 ENTRYPOINT ["/entrypoint.sh"]

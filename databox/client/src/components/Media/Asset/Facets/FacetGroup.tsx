@@ -1,4 +1,4 @@
-import {FacetGroupProps, FacetType} from './facetTypes.ts';
+import {FacetClasses, FacetGroupProps, FacetType} from './facetTypes.ts';
 import React from 'react';
 import {
     Collapse,
@@ -59,6 +59,7 @@ export function FacetGroup({
                     />
                     <Stack direction="row" spacing={0.5} alignItems="center">
                         <IconButton
+                            className={FacetClasses.HoverAction}
                             onMouseDown={e => e.stopPropagation()}
                             onClick={e => {
                                 e.stopPropagation();
@@ -76,6 +77,7 @@ export function FacetGroup({
                             )}
                         </IconButton>
                         <IconButton
+                            className={FacetClasses.HoverAction}
                             onMouseDown={e => e.stopPropagation()}
                             onClick={e => {
                                 e.stopPropagation();

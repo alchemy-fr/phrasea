@@ -1,6 +1,6 @@
 import {create} from 'zustand';
 import {
-    AttributeDefinition,
+    BaseAttribute,
     Profile,
     ProfileItem,
     ProfileItemSection,
@@ -29,6 +29,7 @@ type State = {
     current: Profile | undefined;
     nextUrl?: string | undefined;
     loaded: boolean;
+    currentLoaded: boolean;
     loading: boolean;
     loadingCurrent: boolean;
     loadingMore: boolean;
@@ -46,10 +47,10 @@ type State = {
     addToCurrent: (items: ProfileItem[]) => void;
     addToList: (profileId: string | undefined, items: ProfileItem[]) => void;
     sortList: (profileId: string, items: string[]) => void;
-    toggleDefinition: (definition: AttributeDefinition) => void;
+    toggleDefinition: (definition: BaseAttribute) => void;
     removeFromProfile: (profileId: string, ids: string[]) => void;
     setCurrent: (id: string | undefined) => Promise<void>;
-    loadCurrent: (id: string) => Promise<void>;
+    loadCurrent: (id: string) => Promise<Profile | undefined>;
     shouldSelectProfile: () => boolean;
 };
 
@@ -57,6 +58,7 @@ export const useProfileStore = create<State>((set, getState) => ({
     loadingMore: false,
     loaded: false,
     loading: false,
+    currentLoaded: false,
     loadingCurrent: false,
     current: undefined,
     profiles: [],
@@ -126,6 +128,7 @@ export const useProfileStore = create<State>((set, getState) => ({
             set({
                 current: undefined,
                 loadingCurrent: false,
+                currentLoaded: false,
             });
 
             await applyProfile(null);
@@ -142,6 +145,7 @@ export const useProfileStore = create<State>((set, getState) => ({
         set({
             current: data,
             loadingCurrent: true,
+            currentLoaded: false,
         });
 
         try {
@@ -149,6 +153,7 @@ export const useProfileStore = create<State>((set, getState) => ({
             set({
                 current: profile,
                 loadingCurrent: false,
+                currentLoaded: true,
             });
             await applyProfile(profile);
         } catch (e: any) {
@@ -179,7 +184,10 @@ export const useProfileStore = create<State>((set, getState) => ({
             set({
                 current: profile,
                 loadingCurrent: false,
+                currentLoaded: true,
             });
+
+            return profile;
         } catch (e: any) {
             logError(e);
             set({
@@ -460,7 +468,7 @@ export const useProfileStore = create<State>((set, getState) => ({
 }));
 
 export function attributeDefinitionToItem(
-    definition: AttributeDefinition
+    definition: BaseAttribute
 ): ProfileItem {
     const isBI = definition.builtIn;
 

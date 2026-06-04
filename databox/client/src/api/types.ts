@@ -58,4 +58,8 @@ export enum EntityName {
     RenditionDefinition = 'rendition-definitions',
     RenditionPolicy = 'rendition-policies',
     Rendition = 'renditions',
+    BuiltInAttribute = 'built-in-attributes',
+    Entity = 'attribute-entities',
+    User = 'users',
+    Tag = 'tags',
 }

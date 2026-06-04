@@ -39,7 +39,7 @@ export default function SavePreviewDialog({
                     workspaceId,
                     actions.map(a => {
                         const widget = getAttributeType(
-                            definitionIndex[a.definitionId!].fieldType
+                            definitionIndex[a.definitionId!].type
                         );
 
                         return {

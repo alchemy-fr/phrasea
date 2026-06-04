@@ -54,6 +54,9 @@ fos_elastica:
                 name:
                     type: text
                     analyzer: text
+                    fields:
+                        raw:
+                            type: keyword
                 suggestion:
                     property_path: name
                     type: text
@@ -120,12 +123,12 @@ fos_elastica:
                 fileName:
                     type: text
                     property_path: getSourceFilename
+                    fields:
+                        raw:
+                            type: keyword
                 fileType:
                     type: keyword
                     property_path: getSourceFileType
-                fileMimeType:
-                    type: keyword
-                    property_path: getSourceFileMimeType
                 fileExtension:
                     type: keyword
                     property_path: getSourceFileExtension
@@ -160,7 +163,7 @@ fos_elastica:
                 elastica_to_model_transformer:
                     query_builder_method: createElasticaToModelQueryBuilder
                 provider:
-                    query_builder_method: getESQueryBuilder
+                    service: App\Elasticsearch\Provider\AssetPagerProvider
 
         collection:
             use_alias: '%elastica.use_alias%'
@@ -216,14 +219,6 @@ fos_elastica:
                 groups:
                     property_path: false
                     type: keyword
-                nlUsers:
-                    property_path: false
-                    type: keyword
-                nlGroups:
-                    property_path: false
-                    type: keyword
-                privacyRoots:
-                    type: keyword
                 deleted:
                     type: boolean
                 createdAt:
@@ -277,14 +272,6 @@ fos_elastica:
                 groups:
                     property_path: false
                     type: keyword
-                nlUsers:
-                    property_path: false
-                    type: keyword
-                nlGroups:
-                    property_path: false
-                    type: keyword
-                privacyRoots:
-                    type: keyword
                 createdAt:
                     type: date
             persistence:
@@ -292,7 +279,7 @@ fos_elastica:
                 model: App\Entity\Core\Attribute
                 listener: { enabled: false }
                 provider:
-                    query_builder_method: getESQueryBuilder
+                    service: App\Elasticsearch\Provider\AttributeProvider
 
         asset_data_template:
             use_alias: '%elastica.use_alias%'
