@@ -67,7 +67,7 @@ final class AssetSortGroupMapper
             return $builtInField->resolveGroupValue($groupBy, $value);
         }
 
-        ['type' => $type] = $this->fieldNameResolver->getFieldFromName($groupBy);
+        $type = $this->fieldNameResolver->getFieldFromName($groupBy)->type;
         $key = $value = $indexValue ?? null;
         if (is_array($key)) {
             $key = implode(',', $key);

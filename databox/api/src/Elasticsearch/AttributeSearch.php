@@ -12,6 +12,7 @@ use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
+use App\Elasticsearch\Mapping\FieldInfoDto;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepository;
@@ -274,18 +275,9 @@ class AttributeSearch
         }
     }
 
-    /**
-     * @return array{name: string, type: AttributeTypeInterface, enabled: bool}
-     */
-    public function getESFieldInfo(string $attr): array
+    public function getESFieldInfo(string $attr): FieldInfoDto
     {
-        ['field' => $field, 'type' => $type, 'enabled' => $enabled] = $this->fieldNameResolver->getFieldFromName($attr);
-
-        return [
-            'name' => $field,
-            'type' => $type,
-            'enabled' => $enabled,
-        ];
+        return $this->fieldNameResolver->getFieldFromName($attr);
     }
 
     private function createMultiMatch(string $queryString, array $weights, bool $fuzziness, array $options): Query\MultiMatch
