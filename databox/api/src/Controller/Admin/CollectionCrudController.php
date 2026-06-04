@@ -57,6 +57,7 @@ class CollectionCrudController extends AbstractAclAdminCrudController
         return $filters
             ->add(EntityFilter::new('workspace'))
             ->add(TextFilter::new('name'))
+            ->add(TextFilter::new('ownerId'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
     }

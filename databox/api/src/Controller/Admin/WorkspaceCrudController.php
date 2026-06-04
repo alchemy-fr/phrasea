@@ -84,6 +84,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
     {
         return $filters
             ->add(TextFilter::new('name'))
+            ->add(TextFilter::new('ownerId'))
             ->add(BooleanFilter::new('public'))
         ;
     }
