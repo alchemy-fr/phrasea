@@ -14,6 +14,7 @@ import {
 type Props<D extends TreeBaseItem> = {
     nodes: TreeNode<D>[];
     newItem?: (parentNode?: TreeNode<D>) => D;
+    onVirtualNodeUpdate?: OnNodeUpdate<D>;
 };
 
 type Return<D extends TreeBaseItem> = {
@@ -25,6 +26,7 @@ type Return<D extends TreeBaseItem> = {
 export function useVirtualNodes<D extends TreeBaseItem>({
     newItem,
     nodes,
+    onVirtualNodeUpdate,
 }: Props<D>): Return<D> {
     const [virtualNodes, setVirtualNodes] = useState<VirtualNodes<D>>([]);
 
@@ -82,8 +84,10 @@ export function useVirtualNodes<D extends TreeBaseItem>({
                     return n;
                 })
             );
+
+            onVirtualNodeUpdate?.(oldNode, newNode);
         },
-        [setVirtualNodes]
+        [setVirtualNodes, onVirtualNodeUpdate]
     );
 
     const nodeToggleEdit = useCallback(

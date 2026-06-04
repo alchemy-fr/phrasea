@@ -68,7 +68,6 @@ export default function CollectionMenuItem({
     const childCount = children?.length ?? 0;
 
     const load = useCollectionStore(state => state.load);
-    const addCollection = useCollectionStore(state => state.addCollection);
     const loadMore = useCollectionStore(state => state.loadMore);
     useCollectionStore(state => state.collections); // Subscribe to collection updates
 
@@ -208,12 +207,7 @@ export default function CollectionMenuItem({
                                                 namePath: (
                                                     namePath ?? []
                                                 ).concat(displayName),
-                                                onCreate: coll => {
-                                                    addCollection(
-                                                        coll,
-                                                        workspace.id,
-                                                        id
-                                                    );
+                                                onCreate: () => {
                                                     expand(true);
                                                 },
                                             })

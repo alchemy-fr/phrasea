@@ -27,9 +27,11 @@ export default function OrganizeProfile({data, onClose, minHeight}: Props) {
         load();
     }, [load]);
 
-    const {definitions, loaded} = useAttributeDefinitionStore(state => ({
+    const {allDefinitions, loaded} = useAttributeDefinitionStore(state => ({
         definitions: state.definitions,
         loaded: state.loaded,
+        // @ts-expect-error concat mixes 2 types
+        allDefinitions: state.builtIn.concat(state.definitions),
     }));
     const definitionsIndex = useIndexById(true);
 
@@ -52,7 +54,7 @@ export default function OrganizeProfile({data, onClose, minHeight}: Props) {
             >
                 <AttributeDefinitionTransferList
                     listId={data.id}
-                    definitions={definitions}
+                    definitions={allDefinitions}
                     definitionsIndex={definitionsIndex}
                     list={data.items!}
                     onSort={items => {

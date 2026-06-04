@@ -6,10 +6,12 @@ import {useCollectionStore} from '../../../../store/collectionStore.ts';
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce.ts';
 import {
     LoadNodeChildren,
+    OnNodeUpdate,
     OnSelectionChange,
     TreeNode,
     TreeView,
     TreeViewOptionsProps,
+    useTreeState,
     useVirtualNodes,
 } from '@alchemy/phrasea-framework';
 import {EntityType, WorkspaceOrCollectionTreeItem} from './types.ts';
@@ -39,6 +41,8 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
     allowNew,
     multiple,
     onChange,
+    defaultSelectedNodes,
+    defaultExpandedNodes,
     ...treeViewProps
 }: Props<IsMulti>) {
     const {t} = useTranslation();
@@ -119,6 +123,54 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
         });
     }, [workspaces, collectionsTree]);
 
+    const treeStateProps = useTreeState({
+        defaultSelectedNodes,
+        defaultExpandedNodes,
+    });
+    const {selectedNodes} = treeStateProps;
+
+    const onVirtualNodeUpdate = useCallback<OnNodeUpdate<CollectionTreeData>>(
+        (oldNode, newNode) => {
+            if (onChange) {
+                if (multiple) {
+                    if (selectedNodes.some(n => n === oldNode.id)) {
+                        onChange(
+                            // @ts-expect-error TS can't infer multiple is false here
+                            selectedNodes.map(n => {
+                                if (n === oldNode.id) {
+                                    return {
+                                        ...oldNode,
+                                        ...newNode,
+                                        data: {
+                                            ...(oldNode.data ?? {}),
+                                            ...(newNode.data ?? {}),
+                                        },
+                                    };
+                                }
+
+                                return items.find(i => i.id === n);
+                            })
+                        );
+                    }
+                } else if (
+                    selectedNodes[0] &&
+                    selectedNodes[0] === oldNode.id
+                ) {
+                    // @ts-expect-error TS can't infer multiple is false here
+                    onChange({
+                        ...oldNode,
+                        ...newNode,
+                        data: {
+                            ...(oldNode.data ?? {}),
+                            ...(newNode.data ?? {}),
+                        },
+                    });
+                }
+            }
+        },
+        [onChange, items, selectedNodes]
+    );
+
     const {normalizedNodes, ...editingProps} = useVirtualNodes({
         nodes: items,
         newItem: parentNode => ({
@@ -131,6 +183,7 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
             },
             workspaceId: parentNode!.data.workspaceId,
         }),
+        onVirtualNodeUpdate,
     });
 
     const onSelectionChange = useCallback<
@@ -150,6 +203,7 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
     return (
         <TreeView
             {...treeViewProps}
+            {...treeStateProps}
             loadChildren={loadChildren}
             onSelectionChange={onSelectionChange}
             renderNodeLabel={props => {
