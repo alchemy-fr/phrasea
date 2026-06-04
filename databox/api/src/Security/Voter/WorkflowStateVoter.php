@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use Alchemy\Workflow\Doctrine\Entity\WorkflowState;
+use App\Entity\Workflow\WorkflowState;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class WorkflowStateVoter extends AbstractVoter
@@ -24,6 +24,14 @@ class WorkflowStateVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        return $this->isAdmin();
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        if (null !== $asset = $subject->getAsset()) {
+            return $this->security->isGranted(AbstractVoter::EDIT, $asset);
+        }
+
+        return false;
     }
 }

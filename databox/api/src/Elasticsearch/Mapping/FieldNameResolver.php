@@ -6,7 +6,6 @@ namespace App\Elasticsearch\Mapping;
 
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
-use App\Attribute\Type\AttributeTypeInterface;
 use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use App\Entity\Core\AttributeDefinition;
 
@@ -39,45 +38,35 @@ final readonly class FieldNameResolver
         return str_replace('_', '-', $type);
     }
 
-    /**
-     * @return array{field: string, type: AttributeTypeInterface}
-     */
-    public function getFieldFromName(string $name): array
+    public function getFieldFromName(string $name): FieldInfoDto
     {
-        $enabled = true;
         $builtInField = $this->builtInFieldRegistry->getBuiltInField($name);
         if (null !== $builtInField) {
-            $type = $this->attributeTypeRegistry->getStrictType($builtInField->getType());
-            $f = $builtInField::getName();
-            $enabled = $builtInField->isEnabled();
-        } else {
-            $info = $this->extractFieldFromAttributeKey($name);
-            $type = $info['type'];
-            $f = sprintf('%s._.%s', AttributeInterface::ATTRIBUTES_FIELD, $info['key']);
-            if (null !== $subField = $type->getAggregationField()) {
-                $f .= '.'.$subField;
-            }
+            return new FieldInfoDto(
+                $builtInField::getName(),
+                $this->attributeTypeRegistry->getStrictType($builtInField->getType()),
+                $builtInField->isEnabled()
+            );
         }
+        $info = $this->extractFieldFromAttributeKey($name);
 
-        return [
-            'field' => $f,
-            'type' => $type,
-            'enabled' => $enabled,
-        ];
+        return new FieldInfoDto(
+            sprintf('%s._.%s', AttributeInterface::ATTRIBUTES_FIELD, $info->key),
+            $info->type,
+            true,
+        );
+
     }
 
-    /**
-     * @return array{name: string, key: string, type: AttributeTypeInterface, multiple: bool}
-     */
-    private function extractFieldFromAttributeKey(string $attributeKey): array
+    private function extractFieldFromAttributeKey(string $attributeKey): ExtractedFieldDto
     {
         if (1 === preg_match('#^(.+)_([^_]+)_([sm])$#', $attributeKey, $matches)) {
-            return [
-                'name' => $matches[1],
-                'key' => $attributeKey,
-                'type' => $this->attributeTypeRegistry->getStrictType(str_replace('-', '_', $matches[2])),
-                'multiple' => 'm' === $matches[3],
-            ];
+            return new ExtractedFieldDto(
+                $matches[1],
+                $attributeKey,
+                $this->attributeTypeRegistry->getStrictType(str_replace('-', '_', $matches[2])),
+                'm' === $matches[3],
+            );
         }
 
         throw new \InvalidArgumentException(sprintf('Cannot parse attribute key "%s"', $attributeKey));

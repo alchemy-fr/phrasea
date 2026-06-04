@@ -261,14 +261,13 @@ class AssetSearch extends AbstractSearch
                 } catch (\InvalidArgumentException $e) {
                     throw new BadRequestHttpException(sprintf('Invalid sort attribute "%s". Did you forget prefixing with "@" for built-in or use "field_type_s" format', $field), $e);
                 }
-                if (!$esFieldInfo['enabled']) {
+                if (!$esFieldInfo->enabled) {
                     continue;
                 }
 
-                $fieldName = $esFieldInfo['name'];
-                $type = $esFieldInfo['type'];
-                if ($type->getElasticSearchSortSubField()) {
-                    $fieldName .= '.'.$type->getElasticSearchSortSubField();
+                $fieldName = $esFieldInfo->name;
+                if ($esFieldInfo->type->getElasticSearchSortSubField()) {
+                    $fieldName .= '.'.$esFieldInfo->type->getElasticSearchSortSubField();
                 }
 
                 $sort[] = [$fieldName => $w];
