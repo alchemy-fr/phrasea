@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4a3fd994cbc3aa7bc317b73619150d05",
+    "content-hash": "800c3c7e6f1ee7b78c1dd87ce0970e14",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
-            "version": "dev-main",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/acl-bundle.git",
@@ -37,7 +37,6 @@
                 "phpunit/phpunit": "^8.4|^10.2.2",
                 "rector/rector": "^2.0.7"
             },
-            "default-branch": true,
             "type": "symfony-bundle",
             "autoload": {
                 "psr-4": {
@@ -55,7 +54,7 @@
             "homepage": "https://www.alchemy.fr/",
             "support": {
                 "issues": "https://github.com/alchemy-fr/acl-bundle/issues",
-                "source": "https://github.com/alchemy-fr/acl-bundle/tree/main"
+                "source": "https://github.com/alchemy-fr/acl-bundle/tree/1.3.0"
             },
             "time": "2026-06-03T13:40:54+00:00"
         },
@@ -65,14 +64,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
-                "reference": "65ec66b3f3d1f72b86b130f0120d423bea725231"
+                "reference": "f25e640c4caa09f1f57181146a66f9623cd032a0"
             },
             "require": {
                 "alchemy/auth-bundle": "@dev",
-                "easycorp/easyadmin-bundle": "^4.0",
+                "easycorp/easyadmin-bundle": "^4.29.11",
                 "php": "^8.5",
                 "php-amqplib/php-amqplib": "^3.7",
-                "symfony/framework-bundle": "^7.1"
+                "symfony/framework-bundle": "^7.1",
+                "symfony/ux-twig-component": "^2.36.0"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
@@ -16104,7 +16104,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "alchemy/acl-bundle": 20,
         "alchemy/admin-bundle": 20,
         "alchemy/api-test": 20,
         "alchemy/auth-bundle": 20,
