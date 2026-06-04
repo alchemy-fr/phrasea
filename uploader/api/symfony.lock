@@ -400,18 +400,6 @@
     "sebastian/version": {
         "version": "3.0.2"
     },
-    "sensio/framework-extra-bundle": {
-        "version": "5.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "5.2",
-            "ref": "fb7e19da7f013d0d422fa9bce16f5c510e27609b"
-        },
-        "files": [
-            "config/packages/sensio_framework_extra.yaml"
-        ]
-    },
     "sentry/sentry-symfony": {
         "version": "4.11",
         "recipe": {
@@ -818,6 +806,9 @@
     },
     "theseer/tokenizer": {
         "version": "1.2.0"
+    },
+    "twig/extra-bundle": {
+        "version": "v3.24.0"
     },
     "twig/twig": {
         "version": "v2.7.4"
