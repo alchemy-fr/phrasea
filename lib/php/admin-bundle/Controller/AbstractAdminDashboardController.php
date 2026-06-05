@@ -6,6 +6,7 @@ namespace Alchemy\AdminBundle\Controller;
 
 use Alchemy\AdminBundle\AdminConfigRegistry;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\MessengerBundle\Controller\MessengerMessageCrudController;
 use Alchemy\MessengerBundle\Entity\MessengerMessage;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -59,7 +60,7 @@ abstract class AbstractAdminDashboardController extends AbstractDashboardControl
     {
         $subMenu = [];
         if (class_exists(MessengerMessage::class)) {
-            $subMenu[] = MenuItem::linkToCrud('Messenger Failed Event', 'fa fa-bug', MessengerMessage::class);
+            $subMenu[] = MenuItem::linkTo(MessengerMessageCrudController::class, 'Messenger Failed Event', 'fa fa-bug');
         }
         $subMenu[] = MenuItem::linkToRoute('PHP Info', 'fa fa-info', 'alchemy_admin_phpinfo')->setPermission(JwtUser::ROLE_TECH);
         $subMenu[] = MenuItem::linkToRoute('Queues', 'fa fa-prescription-bottle', 'alchemy_admin_queues_list')->setPermission(JwtUser::ROLE_TECH);

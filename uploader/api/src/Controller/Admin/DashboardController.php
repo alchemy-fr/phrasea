@@ -11,10 +11,21 @@ use App\Entity\Commit;
 use App\Entity\FormSchema;
 use App\Entity\Target;
 use App\Entity\TargetParams;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Component\HttpFoundation\Response;
 
+#[AdminDashboard(routePath: '/admin', routeName: 'easyadmin')]
 class DashboardController extends AbstractAdminDashboardController
 {
+    public function index(): Response
+    {
+        $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
+
+        return $this->redirect($adminUrlGenerator->setController(AssetCrudController::class)->generateUrl());
+    }
+
     public function configureMenuItems(): iterable
     {
         $submenu1 = [
