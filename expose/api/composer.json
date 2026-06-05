@@ -168,8 +168,7 @@
     "scripts": {
         "cache-clear": "php -d memory_limit=-1 bin/console cache:clear",
         "auto-scripts": {
-            "assets:install %PUBLIC_DIR%": "symfony-cmd",
-            "cache:clear": "symfony-cmd"
+            "assets:install %PUBLIC_DIR%": "symfony-cmd"
         },
         "post-install-cmd": [
             "@cache-clear",
