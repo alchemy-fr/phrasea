@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "edbc15ec242e0e3f2e694436b1d0b330",
+    "content-hash": "85c141fac63a2c43953f103713b5056c",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -11835,6 +11835,59 @@
                 "API",
                 "test"
             ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "alchemy/test-bundle",
+            "version": "dev-PS-1125-bump-symfony-version",
+            "dist": {
+                "type": "path",
+                "url": "../../lib/php/test-bundle",
+                "reference": "04bcc847d1811f32d821fbaec06cc0005defd7c0"
+            },
+            "require": {
+                "php": "^8.5",
+                "symfony/framework-bundle": "^4.0 ||^5 || ^6 || ^7"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.17",
+                "php-parallel-lint/php-var-dump-check": "v0.5",
+                "phpunit/phpunit": "^9.5",
+                "rector/rector": "^2.3.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Alchemy\\TestBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Alchemy\\TestBundle\\Tests\\": "/Tests/"
+                }
+            },
+            "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
+                "cs": [
+                    "vendor/bin/php-cs-fixer fix"
+                ],
+                "test": [
+                    "vendor/bin/var-dump-check --symfony --exclude vendor ."
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Symfony test bundle",
+            "homepage": "https://www.alchemy.fr/",
             "transport-options": {
                 "symlink": true,
                 "relative": true

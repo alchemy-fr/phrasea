@@ -32,6 +32,9 @@
     "alchemy/storage-bundle": {
         "version": "dev-main"
     },
+    "alchemy/test-bundle": {
+        "version": "dev-PS-1125-bump-symfony-version"
+    },
     "api-platform/core": {
         "version": "3.4",
         "recipe": {

@@ -18,6 +18,13 @@
         },
         {
             "type": "path",
+            "url": "../../lib/php/test-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
             "url": "../../lib/php/storage-bundle",
             "options": {
                 "symlink": true
@@ -127,6 +134,7 @@
     "require-dev": {
         "ext-json": "*",
         "alchemy/api-test": "@dev",
+        "alchemy/test-bundle": "*",
         "colinodell/psr-testlogger": "*",
         "friendsofphp/php-cs-fixer": "^3.17",
         "hautelook/alice-bundle": "^2.10",

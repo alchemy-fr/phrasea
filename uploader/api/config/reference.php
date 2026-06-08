@@ -1613,6 +1613,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         eloquent_orm?: bool|Param|null, // Default: null
  *     },
  * }
+ * @psalm-type AlchemyTestConfig = array{
+ *     db_path?: scalar|Param|null, // Default: "%kernel.cache_dir%/data.db"
+ *     db_filled_path?: scalar|Param|null, // Default: "%kernel.cache_dir%/data.filled.db"
+ *     db_empty_path?: scalar|Param|null, // Default: "%kernel.cache_dir%/data.empty.db"
+ * }
  * @psalm-type HautelookAliceConfig = array{
  *     fixtures_path?: list<scalar|Param|null>,
  *     root_dirs?: list<scalar|Param|null>,
@@ -2216,10 +2221,12 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         security?: SecurityConfig,
  *         twig?: TwigConfig,
  *         web_profiler?: WebProfilerConfig,
+ *         debug?: DebugConfig,
  *         nelmio_cors?: NelmioCorsConfig,
  *         api_platform?: ApiPlatformConfig,
  *         nelmio_alice?: NelmioAliceConfig,
  *         fidry_alice_data_fixtures?: FidryAliceDataFixturesConfig,
+ *         alchemy_test?: AlchemyTestConfig,
  *         hautelook_alice?: HautelookAliceConfig,
  *         alchemy_admin?: AlchemyAdminConfig,
  *         alchemy_notify?: AlchemyNotifyConfig,

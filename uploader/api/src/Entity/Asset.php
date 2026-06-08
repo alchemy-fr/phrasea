@@ -138,7 +138,10 @@ class Asset extends AbstractUuidEntity
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups(self::GROUP_READ)]
-    private ?array $data = [];
+    /**
+     * @var array<string, mixed>
+     */
+    private array $data = [];
 
     /**
      * Dynamic signed URL.
@@ -208,7 +211,7 @@ class Asset extends AbstractUuidEntity
         return (int) $this->size;
     }
 
-    public function setSize($size): void
+    public function setSize(string|float|int $size): void
     {
         $this->size = (string) $size;
     }

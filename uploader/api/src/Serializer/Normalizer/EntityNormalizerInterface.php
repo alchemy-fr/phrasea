@@ -11,7 +11,7 @@ interface EntityNormalizerInterface
 {
     final public const string TAG = 'app.entity_normalizer';
 
-    public function normalize($object, array &$context = []): void;
+    public function normalize(object $object, array &$context = []): void;
 
-    public function support($object): bool;
+    public function support(object $object): bool;
 }
