@@ -22,7 +22,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     shortName: 'asset',
     operations: [
-
         new Get(security: 'is_granted("READ_META", object)'),
         new Post(
             uriTemplate: '/assets/{id}/ack',
