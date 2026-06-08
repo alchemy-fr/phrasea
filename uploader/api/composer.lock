@@ -849,16 +849,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.384.2",
+            "version": "3.384.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "a6c85b3a1f5f8327076291040329214b3a2caf2b"
+                "reference": "8e232a5703896541a7a34691a41ece5bd6170269"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/a6c85b3a1f5f8327076291040329214b3a2caf2b",
-                "reference": "a6c85b3a1f5f8327076291040329214b3a2caf2b",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/8e232a5703896541a7a34691a41ece5bd6170269",
+                "reference": "8e232a5703896541a7a34691a41ece5bd6170269",
                 "shasum": ""
             },
             "require": {
@@ -940,9 +940,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.384.2"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.384.4"
             },
-            "time": "2026-06-03T18:07:33+00:00"
+            "time": "2026-06-05T18:05:57+00:00"
         },
         {
             "name": "brick/math",
@@ -2778,16 +2778,16 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "7.11.0",
+            "version": "7.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "c987f8ce84b8434fa430795eca0f3430663da72b"
+                "reference": "5af96f374e0ab4ebd747b8310888c99d3adb0a8c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/c987f8ce84b8434fa430795eca0f3430663da72b",
-                "reference": "c987f8ce84b8434fa430795eca0f3430663da72b",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/5af96f374e0ab4ebd747b8310888c99d3adb0a8c",
+                "reference": "5af96f374e0ab4ebd747b8310888c99d3adb0a8c",
                 "shasum": ""
             },
             "require": {
@@ -2806,7 +2806,7 @@
                 "bamarni/composer-bin-plugin": "^1.8.2",
                 "ext-curl": "*",
                 "guzzle/client-integration-tests": "3.0.2",
-                "guzzlehttp/test-server": "^0.4",
+                "guzzlehttp/test-server": "^0.5",
                 "php-http/message-factory": "^1.1",
                 "phpunit/phpunit": "^8.5.52 || ^9.6.34",
                 "psr/log": "^1.1 || ^2.0 || ^3.0"
@@ -2886,7 +2886,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/guzzle/issues",
-                "source": "https://github.com/guzzle/guzzle/tree/7.11.0"
+                "source": "https://github.com/guzzle/guzzle/tree/7.11.1"
             },
             "funding": [
                 {
@@ -2902,7 +2902,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-06-02T12:40:51+00:00"
+            "time": "2026-06-07T22:54:06+00:00"
         },
         {
             "name": "guzzlehttp/promises",
@@ -12906,16 +12906,16 @@
         },
         {
             "name": "nelmio/alice",
-            "version": "3.15.0",
+            "version": "3.16.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nelmio/alice.git",
-                "reference": "9cd00ce94b91be0f99fd969b7e8b591e5780fe53"
+                "reference": "56dd770a6ba7f43cea91375f4b7d1b4bed80d6b9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nelmio/alice/zipball/9cd00ce94b91be0f99fd969b7e8b591e5780fe53",
-                "reference": "9cd00ce94b91be0f99fd969b7e8b591e5780fe53",
+                "url": "https://api.github.com/repos/nelmio/alice/zipball/56dd770a6ba7f43cea91375f4b7d1b4bed80d6b9",
+                "reference": "56dd770a6ba7f43cea91375f4b7d1b4bed80d6b9",
                 "shasum": ""
             },
             "require": {
@@ -12924,22 +12924,22 @@
                 "php": "^8.2",
                 "sebastian/comparator": "^3.0 || ^4.0 || ^5.0 || ^6.0 || ^7.0",
                 "symfony/polyfill-php84": "^1.31",
-                "symfony/property-access": "^6.4 || ^7.4",
-                "symfony/yaml": "^6.0 || ^7.4"
+                "symfony/property-access": "^7.4 || ^8.0",
+                "symfony/yaml": "^7.4 || ^8.0"
             },
             "conflict": {
-                "symfony/framework-bundle": "<6.4.0 || >=7.0 <7.4.0"
+                "symfony/framework-bundle": "<7.4.0"
             },
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.8.1",
                 "phpspec/prophecy": "^1.6",
                 "phpspec/prophecy-phpunit": "^2.0",
                 "phpunit/phpunit": "^11",
-                "symfony/config": "^6.4 || ^7.4",
-                "symfony/dependency-injection": "^6.4 || ^7.4",
-                "symfony/finder": "^6.4 || ^7.4",
-                "symfony/http-kernel": "^6.4 || ^7.4",
-                "symfony/var-dumper": "^6.4 || ^7.4"
+                "symfony/config": "^7.4 || ^8.0",
+                "symfony/dependency-injection": "^7.4 || ^8.0",
+                "symfony/finder": "^7.4 || ^8.0",
+                "symfony/http-kernel": "^7.4 || ^8.0",
+                "symfony/var-dumper": "^7.4 || ^8.0"
             },
             "suggest": {
                 "theofidry/alice-data-fixtures": "Wrapper for Alice to provide a persistence layer."
@@ -12989,7 +12989,7 @@
             ],
             "support": {
                 "issues": "https://github.com/nelmio/alice/issues",
-                "source": "https://github.com/nelmio/alice/tree/3.15.0"
+                "source": "https://github.com/nelmio/alice/tree/3.16.1"
             },
             "funding": [
                 {
@@ -12997,7 +12997,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-12-09T11:29:11+00:00"
+            "time": "2025-12-17T08:56:35+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -13230,11 +13230,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.2.1",
+            "version": "2.2.2",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/dea9c8f2d25cc849391042b71e429c1a4bf82660",
-                "reference": "dea9c8f2d25cc849391042b71e429c1a4bf82660",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/e5cc34d491a90e79c216d824f60fe21fd4d93bd6",
+                "reference": "e5cc34d491a90e79c216d824f60fe21fd4d93bd6",
                 "shasum": ""
             },
             "require": {
@@ -13290,7 +13290,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-05-28T14:44:12+00:00"
+            "time": "2026-06-05T09:00:01+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
