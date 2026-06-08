@@ -36,7 +36,7 @@ export function useAuthorizationCode({
         const errorDescription = urlParams.get('error_description');
 
         if (errorDescription || errorName) {
-            setError(errorDescription ?? errorName);
+            setError(errorDescription || errorName!);
 
             return;
         } else if (!code) {
