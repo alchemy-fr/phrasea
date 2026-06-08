@@ -1,4 +1,10 @@
-import {Button, ListItem, Skeleton} from '@mui/material';
+import {
+    Button,
+    ListItem,
+    ListItemButton,
+    ListItemText,
+    Skeleton,
+} from '@mui/material';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useProfileStore} from '../../store/profileStore.ts';
 import {AppDialog} from '@alchemy/phrasea-ui';
@@ -11,6 +17,7 @@ import {useEffect, useState} from 'react';
 import {useNavigateToModal} from '../Routing/ModalLink.tsx';
 import {modalRoutes} from '../../routes.ts';
 import {useAuth} from '@alchemy/react-auth';
+import {Classes} from '../../classes.ts';
 
 type Props = {} & StackedModalProps;
 
@@ -28,6 +35,7 @@ export default function SelectProfileDialog({modalIndex, open}: Props) {
     const setCurrent = useProfileStore(state => state.setCurrent);
     const deleteProfile = useProfileStore(state => state.deleteProfile);
     const load = useProfileStore(state => state.load);
+    const loadProfile = useProfileStore(state => state.loadProfile);
     const loading = useProfileStore(state => !state.loaded);
     const lists = useProfileStore(state => state.profiles);
     const [synced, setSynced] = useState<boolean | undefined>();
@@ -36,8 +44,9 @@ export default function SelectProfileDialog({modalIndex, open}: Props) {
         load();
     }, [load]);
 
-    const onSelect = (data: Profile): void => {
-        setCurrent(data.id);
+    const onSelect = async (data: Profile | undefined): Promise<void> => {
+        const profile = data ? await loadProfile(data.id) : undefined;
+        setCurrent(profile);
         closeModal();
     };
 
@@ -92,6 +101,19 @@ export default function SelectProfileDialog({modalIndex, open}: Props) {
                 </>
             )}
         >
+            <ListItem disablePadding>
+                <ListItemButton
+                    selected={!current}
+                    role={undefined}
+                    onClick={() => onSelect(undefined)}
+                >
+                    <ListItemText
+                        className={Classes.ellipsisText}
+                        primary={t('profile.default.title', 'Default Profile')}
+                    />
+                </ListItemButton>
+            </ListItem>
+
             {!loading ? (
                 lists.map(p => (
                     <ProfileMenuItem

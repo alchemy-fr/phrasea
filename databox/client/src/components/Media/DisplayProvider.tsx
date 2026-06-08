@@ -1,4 +1,4 @@
-import {PropsWithChildren, useEffect, useMemo, useState} from 'react';
+import {PropsWithChildren, useMemo, useState} from 'react';
 import {
     DisplayContext,
     DisplayPreferences,
@@ -11,7 +11,7 @@ import {
 } from '../../store/userPreferencesStore.ts';
 import {Layout} from '../AssetList/Layouts';
 import {StateSetter} from '../../types.ts';
-import createStateSetterProxy from '@alchemy/react-hooks/src/createStateSetterProxy.ts';
+import {mergeDeep} from '../../lib/merge';
 
 type Props = PropsWithChildren<{
     defaultState?: Partial<DisplayPreferences>;
@@ -31,54 +31,42 @@ export default function DisplayProvider({
     ];
     const updatePreference = useUserPreferencesStore(s => s.updatePreference);
 
-    const [state, setState] = useState<DisplayPreferences>({
-        layout: Layout.Grid,
-        thumbSize: 200,
-        displayName: true,
-        displayTags: true,
-        displayPreview: true,
-        nameRows: 1,
-        displayCollections: true,
-        displayAttributes: true,
-        playVideos: true,
-        collectionsLimit: 2,
-        tagsLimit: 1,
-        previewLocked: false,
-        ...(defaultState ?? {}),
-        ...(displayPref ?? {}),
-        previewOptions: {
-            sizeRatio: 60,
-            attributesRatio: 30,
-            displayFile: true,
-            displayAttributes: true,
-            ...(defaultState?.previewOptions ?? {}),
-            ...(displayPref?.previewOptions ?? {}),
-        },
-    });
-
-    useEffect(() => {
-        if (displayPref) {
-            setState(prev => ({
-                ...prev,
+    const state = useMemo<DisplayPreferences>(
+        () =>
+            mergeDeep({
+                layout: Layout.Grid,
+                thumbSize: 200,
+                displayName: true,
+                displayTags: true,
+                displayPreview: true,
+                nameRows: 1,
+                displayCollections: true,
+                displayAttributes: true,
+                playVideos: true,
+                collectionsLimit: 2,
+                tagsLimit: 1,
+                previewLocked: false,
+                ...(defaultState ?? {}),
                 ...(displayPref ?? {}),
                 previewOptions: {
-                    ...prev.previewOptions,
-                    ...(displayPref ?? {}).previewOptions,
+                    sizeRatio: 60,
+                    attributesRatio: 30,
+                    displayFile: true,
+                    displayAttributes: true,
+                    ...(defaultState?.previewOptions ?? {}),
+                    ...(displayPref?.previewOptions ?? {}),
                 },
-            }));
-        }
-    }, [displayPref]);
+            }),
+        [displayPref]
+    );
 
-    const setStateProxy = useMemo<StateSetter<DisplayPreferences>>(
-        () => handler =>
-            setState(
-                createStateSetterProxy(handler, newState => {
-                    updatePreference(displayPrefKey, newState);
-
-                    return newState;
-                })
-            ),
-        [updatePreference, setState]
+    const setState = useMemo<StateSetter<DisplayPreferences>>(
+        () => handler => {
+            const newState =
+                typeof handler === 'function' ? handler(state) : handler;
+            updatePreference(displayPrefKey, newState);
+        },
+        [updatePreference, state]
     );
 
     return (
@@ -86,7 +74,7 @@ export default function DisplayProvider({
             value={{
                 inOverflowDiv,
                 state,
-                setState: setStateProxy,
+                setState,
                 playing: playingContext,
                 setPlaying: (context: PlayingContext) => {
                     setPlayingContext(p => {

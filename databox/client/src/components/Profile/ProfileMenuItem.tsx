@@ -51,10 +51,7 @@ export default function ProfileMenuItem({
                 >
                     <ListItemText
                         className={Classes.ellipsisText}
-                        primary={
-                            data.name ||
-                            t('profile.default.title', 'Default Profile')
-                        }
+                        primary={data.name}
                         secondary={data.description}
                         secondaryTypographyProps={{
                             style: {whiteSpace: 'normal'},

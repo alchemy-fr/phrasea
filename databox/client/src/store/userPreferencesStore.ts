@@ -134,14 +134,15 @@ export const useUserPreferencesStore = create<UserPreferencesStore>(
             });
         },
         applyProfile: async profile => {
-            const state = get();
             if (profile) {
-                return state.updatePreference('profile', profile.id, {
+                return get().updatePreference('profile', profile.id, {
                     reset: true,
                     offlineUpdates: profile.data,
                 });
             } else {
-                return state.updatePreference('profile', null);
+                return get().updatePreference('profile', null, {
+                    reset: true,
+                });
             }
         },
     })
