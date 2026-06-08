@@ -11,8 +11,10 @@ import {deepEquals} from '@alchemy/core';
 import {oauthClient} from '../init.ts';
 import {FacetPreference} from '../components/Media/Asset/Facets/facetTypes.ts';
 import {Profile} from '../types.ts';
+import {useProfileStore} from './profileStore.ts';
 
 export type UserPreferences = {
+    autoSync?: boolean;
     theme?: ThemeName | undefined;
     layout?: Layout;
     dataLocale?: string | undefined;
@@ -116,6 +118,12 @@ export const useUserPreferencesStore = create<UserPreferencesStore>(
             putToStorage(newPrefs);
 
             if (deepEquals(newPrefs[name], prev[name])) {
+                return;
+            }
+
+            if (newPrefs.profile) {
+                useProfileStore.getState().autoSync();
+
                 return;
             }
 

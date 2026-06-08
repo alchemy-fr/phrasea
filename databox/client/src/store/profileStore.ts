@@ -39,6 +39,8 @@ type State = {
     storeProfile: (profile: Profile) => void;
     loadProfile: (id: string) => Promise<Profile>;
     updateProfile: (profile: Profile) => void;
+    autoSync: () => Promise<void>;
+    toggleAutoSync: () => void;
     syncData: () => Promise<void>;
     arePreferencesSynced: (profile: Profile) => Promise<boolean>;
     updateProfileItem: (profileId: string, data: ProfileItem) => void;
@@ -204,6 +206,52 @@ export const useProfileStore = create<State>((set, get) => ({
             }),
             current: state.current?.id === data.id ? data : state.current,
         }));
+    },
+
+    autoSync: async () => {
+        const s = get();
+        if (s.current?.data?.autoSync) {
+            await s.syncData();
+        }
+    },
+
+    toggleAutoSync: () => {
+        set(state => {
+            const current = state.current;
+            if (!current?.data) {
+                return {};
+            }
+
+            const as = current.data.autoSync;
+            const newData = {
+                ...current.data,
+                autoSync: !as,
+            };
+
+            putProfile(state.current!.id, {data: newData});
+
+            useUserPreferencesStore.getState().applyProfile({
+                ...current,
+                data: newData,
+            });
+
+            return {
+                current: {
+                    ...current,
+                    data: newData,
+                },
+                profiles: state.profiles.map(p => {
+                    if (p.id === current.id) {
+                        return {
+                            ...current,
+                            data: newData,
+                        };
+                    }
+
+                    return p;
+                }),
+            };
+        });
     },
 
     syncData: async () => {

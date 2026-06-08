@@ -1,9 +1,11 @@
 import {
     Button,
+    FormControlLabel,
     ListItem,
     ListItemButton,
     ListItemText,
     Skeleton,
+    Switch,
 } from '@mui/material';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useProfileStore} from '../../store/profileStore.ts';
@@ -28,6 +30,7 @@ export default function SelectProfileDialog({modalIndex, open}: Props) {
     const navigateToModal = useNavigateToModal();
 
     const current = useProfileStore(state => state.current);
+    const toggleAutoSync = useProfileStore(state => state.toggleAutoSync);
     const syncData = useProfileStore(state => state.syncData);
     const arePreferencesSynced = useProfileStore(
         state => state.arePreferencesSynced
@@ -83,6 +86,22 @@ export default function SelectProfileDialog({modalIndex, open}: Props) {
             title={t('profile.choose_modal.title', 'Select current Profile')}
             actions={({onClose}) => (
                 <>
+                    {current ? (
+                        <div>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={current.data?.autoSync}
+                                        onChange={() => toggleAutoSync()}
+                                    />
+                                }
+                                label={t(
+                                    'profile.auto_sync.label',
+                                    'Auto-sync preferences'
+                                )}
+                            />
+                        </div>
+                    ) : null}
                     <Button
                         variant={'contained'}
                         onClick={createProfile}

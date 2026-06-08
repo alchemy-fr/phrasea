@@ -11,7 +11,6 @@ import {useTranslation} from 'react-i18next';
 import {Classes} from '../../classes.ts';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-
 import SyncIcon from '@mui/icons-material/Sync';
 
 type Props = {
