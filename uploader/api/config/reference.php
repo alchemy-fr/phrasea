@@ -2216,7 +2216,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         security?: SecurityConfig,
  *         twig?: TwigConfig,
  *         web_profiler?: WebProfilerConfig,
- *         debug?: DebugConfig,
  *         nelmio_cors?: NelmioCorsConfig,
  *         api_platform?: ApiPlatformConfig,
  *         nelmio_alice?: NelmioAliceConfig,

@@ -52,9 +52,6 @@
     "brick/math": {
         "version": "0.9.3"
     },
-    "composer/package-versions-deprecated": {
-        "version": "1.11.99.3"
-    },
     "composer/pcre": {
         "version": "1.0.1"
     },
@@ -63,16 +60,6 @@
     },
     "composer/xdebug-handler": {
         "version": "1.4.0"
-    },
-    "doctrine/annotations": {
-        "version": "2.0",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "1.10",
-            "ref": "64d8583af5ea57b7afa4aba4b159907f3a148b05"
-        },
-        "files": []
     },
     "doctrine/cache": {
         "version": "v1.8.0"
@@ -770,17 +757,16 @@
         "version": "v4.2.5"
     },
     "symfony/web-profiler-bundle": {
-        "version": "3.3",
+        "version": "7.4",
         "recipe": {
             "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "3.3",
-            "ref": "6bdfa1a95f6b2e677ab985cd1af2eae35d62e0f6"
+            "branch": "main",
+            "version": "7.3",
+            "ref": "a363460c1b0b4a4d0242f2ce1a843ca0f6ac9026"
         },
         "files": [
-            "config/packages/dev/web_profiler.yaml",
-            "config/packages/test/web_profiler.yaml",
-            "config/routes/dev/web_profiler.yaml"
+            "config/packages/web_profiler.yaml",
+            "config/routes/web_profiler.yaml"
         ]
     },
     "symfony/yaml": {
