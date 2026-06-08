@@ -570,17 +570,15 @@
         "version": "v4.2.5"
     },
     "symfony/monolog-bundle": {
-        "version": "3.1",
+        "version": "4.0",
         "recipe": {
             "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "3.1",
-            "ref": "18ebf5a940573a20de06f9c4060101eeb438cf3d"
+            "branch": "main",
+            "version": "3.7",
+            "ref": "1b9efb10c54cb51c713a9391c9300ff8bceda459"
         },
         "files": [
-            "config/packages/dev/monolog.yaml",
-            "config/packages/prod/monolog.yaml",
-            "config/packages/test/monolog.yaml"
+            "config/packages/monolog.yaml"
         ]
     },
     "symfony/notifier": {
