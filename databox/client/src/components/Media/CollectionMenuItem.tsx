@@ -141,7 +141,7 @@ export default function CollectionMenuItem({
                             {closeWrapper => [
                                 <MenuItem
                                     key="notifications"
-                                    onClick={closeWrapper()}
+                                    closeWrapper={closeWrapper}
                                     component={ModalLink}
                                     route={
                                         modalRoutes.collections.routes.manage
@@ -231,8 +231,8 @@ export default function CollectionMenuItem({
                                 ) : null,
                                 isAuthenticated && capabilities.edit ? (
                                     <MenuItem
+                                        closeWrapper={closeWrapper}
                                         key="edit"
-                                        onClick={closeWrapper()}
                                         component={ModalLink}
                                         route={
                                             modalRoutes.collections.routes

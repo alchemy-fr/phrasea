@@ -7,14 +7,16 @@ import {
     useCloseOverlay,
     useNavigateToOverlay,
 } from '@alchemy/navigation';
+import {CloseWrapper} from '@alchemy/phrasea-ui';
 
 type Props = {
     route: RouteDefinition;
     params?: RouteParameters;
+    closeWrapper?: CloseWrapper;
 } & HTMLProps<HTMLAnchorElement>;
 
 export default React.forwardRef<HTMLAnchorElement, Props>(
-    ({route, params, onClick, ...rest}, ref) => {
+    ({route, params, onClick, closeWrapper, ...rest}, ref) => {
         const navigateToModal = useNavigateToModal();
 
         const clickHandler: MouseEventHandler<HTMLAnchorElement> = e => {
@@ -23,7 +25,15 @@ export default React.forwardRef<HTMLAnchorElement, Props>(
             navigateToModal(route, params);
         };
 
-        return <a ref={ref} onClick={clickHandler} {...rest} />;
+        return (
+            <a
+                ref={ref}
+                onClick={
+                    closeWrapper ? closeWrapper(clickHandler) : clickHandler
+                }
+                {...rest}
+            />
+        );
     }
 );
 

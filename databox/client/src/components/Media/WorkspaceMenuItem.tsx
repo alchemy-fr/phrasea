@@ -160,6 +160,7 @@ export default function WorkspaceMenuItem({
                                             ) : null,
                                             capabilities.edit ? (
                                                 <MenuItem
+                                                    closeWrapper={closeWrapper}
                                                     key={'edit'}
                                                     component={ModalLink}
                                                     route={
