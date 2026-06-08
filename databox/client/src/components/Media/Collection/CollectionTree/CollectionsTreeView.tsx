@@ -168,7 +168,7 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
                 }
             }
         },
-        [onChange, items, selectedNodes]
+        [onChange, items, selectedNodes, multiple]
     );
 
     const {normalizedNodes, ...editingProps} = useVirtualNodes({

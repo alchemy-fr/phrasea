@@ -44,7 +44,6 @@ import {toast} from 'react-toastify';
 import {WorkspaceOrCollectionTreeItem} from '../Media/Collection/CollectionTree/types.ts';
 import {TreeNode} from '@alchemy/phrasea-framework';
 import {EntityName} from '../../api/types.ts';
-import {CollectionTreeData} from '../Media/Collection/CollectionTree/CollectionsTreeView.tsx';
 
 type FileWrapper = {
     id: string;
@@ -259,7 +258,7 @@ export default function UploadDialog({
     const isNewCollection = Boolean(
         destinationWatched &&
         typeof destinationWatched === 'object' &&
-        (destinationWatched as TreeNode<CollectionTreeData>).virtual
+        (destinationWatched as TreeNode<WorkspaceOrCollectionTreeItem>).virtual
     );
 
     const destinationIri =

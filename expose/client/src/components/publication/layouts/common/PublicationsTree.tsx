@@ -2,6 +2,7 @@ import {
     getAllTreeNodeIds,
     TreeNode,
     TreeView,
+    useTreeState,
 } from '@alchemy/phrasea-framework';
 import {Publication} from '../../../../types.ts';
 import {useNavigateToPublication} from '../../../../hooks/useNavigateToPublication.ts';
@@ -38,9 +39,15 @@ export default function PublicationsTree({publication}: Props) {
 
     const allNodes = useMemo(() => getAllTreeNodeIds(nodes), [nodes]);
 
+    const treeStateProps = useTreeState({
+        defaultSelectedNodes: allNodes,
+        defaultExpandedNodes: [publication.id],
+    });
+
     return (
         <>
             <TreeView
+                {...treeStateProps}
                 key={publication.id}
                 required={true}
                 onToggleSelect={(node, selected) => {
@@ -48,8 +55,6 @@ export default function PublicationsTree({publication}: Props) {
                         navigateToPublication(node.data);
                     }
                 }}
-                defaultExpandedNodes={allNodes}
-                defaultSelectedNodes={[publication.id]}
                 nodes={nodes}
                 renderNodeLabel={props => {
                     return <PublicationNodeLabel {...props} />;
