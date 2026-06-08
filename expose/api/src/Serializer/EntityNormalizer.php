@@ -7,14 +7,14 @@ namespace App\Serializer;
 use App\Serializer\Normalizer\EntityNormalizerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
-class EntityNormalizer
+final readonly class EntityNormalizer
 {
     public function __construct(
         /**
          * @var EntityNormalizerInterface[]
          */
         #[AutowireIterator(EntityNormalizerInterface::TAG)]
-        private readonly iterable $normalizers,
+        private iterable $normalizers,
     ) {
     }
 

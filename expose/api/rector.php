@@ -23,12 +23,11 @@ return static function (RectorConfig $rectorConfig): void {
 
     // define sets of rules
     $rectorConfig->sets([
-        LevelSetList::UP_TO_PHP_82,
+        LevelSetList::UP_TO_PHP_85,
         SymfonySetList::SYMFONY_70,
         SymfonySetList::SYMFONY_74,
         DoctrineSetList::ANNOTATIONS_TO_ATTRIBUTES,
         SymfonySetList::ANNOTATIONS_TO_ATTRIBUTES,
-        // SymfonySetList::FRAMEWORK_EXTRA_61,
     ]);
     $rectorConfig->ruleWithConfiguration(AnnotationToAttributeRector::class, [
         new AnnotationToAttribute(ApiPlatform\Core\Annotation\ApiFilter::class),
