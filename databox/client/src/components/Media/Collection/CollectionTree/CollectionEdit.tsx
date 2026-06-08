@@ -15,11 +15,15 @@ export default function CollectionEdit({
     const inputRef = useRef<HTMLInputElement | null>(null);
 
     const onSubmit = () => {
-        onToggleSelect(node, true);
-        onFinishEdit({
-            ...node.data,
-            label: title,
-        });
+        const newNode = {
+            ...node,
+            data: {
+                ...node.data,
+                label: title,
+            },
+        };
+        onToggleSelect(newNode, true);
+        onFinishEdit(newNode.data);
     };
 
     // Select all range

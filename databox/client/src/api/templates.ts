@@ -1,7 +1,7 @@
 import {apiClient} from '../init.ts';
-import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
+import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 import {Attribute, Entity, Tag} from '../types';
-import {AttributeBatchAction} from './types.ts';
+import {AttributeBatchAction, EntityName} from './types.ts';
 
 export type AssetDataTemplate = {
     name: string;
@@ -15,19 +15,17 @@ export type AssetDataTemplate = {
     assetName?: string | undefined;
 } & Entity;
 
-const assetDataTemplateNS = 'asset-data-templates';
-
 export async function postAssetDataTemplate(
     data: Partial<AssetDataTemplate>
 ): Promise<void> {
-    await apiClient.post(assetDataTemplateNS, data);
+    await apiClient.post(EntityName.AssetDataTemplate, data);
 }
 
 export async function putAssetDataTemplate(
     id: string,
     data: Partial<AssetDataTemplate>
 ): Promise<void> {
-    await apiClient.put(`/${assetDataTemplateNS}/${id}`, data);
+    await apiClient.put(`/${EntityName.AssetDataTemplate}/${id}`, data);
 }
 
 type GetAssetDataTemplatesOptions = {
@@ -39,7 +37,7 @@ type GetAssetDataTemplatesOptions = {
 export async function getAssetDataTemplates(
     options?: GetAssetDataTemplatesOptions
 ): Promise<NormalizedCollectionResponse<AssetDataTemplate>> {
-    const res = await apiClient.get(assetDataTemplateNS, {
+    const res = await apiClient.get(EntityName.AssetDataTemplate, {
         params: {
             ...(options ?? {}),
         },
@@ -51,7 +49,7 @@ export async function getAssetDataTemplates(
 export async function getAssetDataTemplate(
     id: string
 ): Promise<AssetDataTemplate> {
-    const res = await apiClient.get(`/${assetDataTemplateNS}/${id}`);
+    const res = await apiClient.get(`/${EntityName.AssetDataTemplate}/${id}`);
 
     return res.data;
 }

@@ -99,7 +99,10 @@ export default function BaseTreeNode<D extends TreeBaseItem>(
                               onFinishEdit: (data: D) => {
                                   onNodeUpdate?.(node, {
                                       ...node,
-                                      data,
+                                      data: {
+                                          ...(node.data ?? {}),
+                                          ...data,
+                                      },
                                   });
                               },
                               onCancelEdit: () => {
@@ -129,7 +132,10 @@ export default function BaseTreeNode<D extends TreeBaseItem>(
                     ) : null}
                     {onNodeRemove && !node.editing && node.canDelete ? (
                         <IconButton
-                            onClick={() => onNodeRemove(node)}
+                            onClick={() => {
+                                onToggleSelect(node, false);
+                                onNodeRemove(node);
+                            }}
                             onMouseDown={e => e.stopPropagation()}
                         >
                             <DeleteIcon />

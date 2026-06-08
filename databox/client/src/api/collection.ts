@@ -91,9 +91,18 @@ type CollectionPostType = {
 export async function postCollection(
     data: CollectionPostType
 ): Promise<Collection> {
-    const res = await apiClient.post(`/collections`, data);
+    const collection = (await apiClient.post(`/collections`, data))
+        .data as Collection;
 
-    return res.data;
+    useCollectionStore
+        .getState()
+        .addCollection(
+            collection,
+            collection.workspace.id,
+            collection.parentId
+        );
+
+    return collection;
 }
 
 export async function putWorkspace(

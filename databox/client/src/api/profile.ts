@@ -2,6 +2,7 @@ import {apiClient} from '../init.ts';
 import {Profile, ProfileItem} from '../types';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {PaginationParams} from './types.ts';
+import {useProfileStore} from '../store/profileStore.ts';
 
 const entityType = 'profiles';
 
@@ -52,6 +53,8 @@ export async function sortProfileItems(
 
 export async function postProfile(data: Partial<Profile>): Promise<Profile> {
     const res = await apiClient.post(`/${entityType}`, data);
+
+    useProfileStore.getState().storeProfile(res.data);
 
     return res.data;
 }
