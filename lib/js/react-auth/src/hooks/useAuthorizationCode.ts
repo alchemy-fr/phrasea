@@ -1,5 +1,5 @@
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
-import React from 'react';
+import {useState} from 'react';
 import {
     AuthConstant,
     decodeState,
@@ -25,21 +25,22 @@ export function useAuthorizationCode({
     successHandler,
     errorHandler,
     navigate,
-    allowNoCode,
-}: {
-    allowNoCode?: boolean;
-} & Props) {
-    const [error, setError] = React.useState<any>();
+}: Props) {
+    const [error, setError] = useState<string>();
 
     useEffectOnce(() => {
         const location = document.location;
         const urlParams = new URLSearchParams(location.search);
         const code = urlParams.get(AuthConstant.ResponseCodeParam);
+        const errorName = urlParams.get('error');
+        const errorDescription = urlParams.get('error_description');
 
-        if (!code) {
-            if (!allowNoCode) {
-                setError(new Error(`Missing authorization code.`));
-            }
+        if (errorDescription || errorName) {
+            setError(errorDescription ?? errorName);
+
+            return;
+        } else if (!code) {
+            setError(`Missing authorization code.`);
 
             return;
         }
@@ -79,14 +80,14 @@ export function useAuthorizationCode({
 
                 navigate(redirectPath, {replace: true});
             })
-            .catch(e => {
+            .catch((e: any) => {
                 if (errorHandler) {
                     errorHandler(e);
 
                     return;
                 }
 
-                setError(e);
+                setError(e.message ?? e.toString());
             });
     }, []);
 
