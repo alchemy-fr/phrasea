@@ -282,7 +282,6 @@ use Symfony\Component\Validator\Constraints as Assert;
     uriVariables: [
         'id' => new Link(toProperty: 'publication', fromClass: Publication::class, identifiers: ['id']),
     ],
-
 )]
 #[ApiFilter(filterClass: OrderFilter::class, properties: ['title', 'position' => 'ASC', 'createdAt' => 'ASC'], arguments: ['orderParameterName' => 'order'])]
 class Asset implements MediaInterface, \Stringable

@@ -630,7 +630,6 @@ class Publication implements AclObjectInterface, \Stringable
         }
 
         return $this->profile?->getConfig()->getBeginsAt();
-
     }
 
     public function getExpiresAt(): ?\DateTimeImmutable
@@ -640,7 +639,6 @@ class Publication implements AclObjectInterface, \Stringable
         }
 
         return $this->profile?->getConfig()->getExpiresAt();
-
     }
 
     public function getDate(): ?\DateTimeImmutable
