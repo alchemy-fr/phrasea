@@ -141,7 +141,7 @@ class Asset extends AbstractUuidEntity
     /**
      * @var array<string, mixed>
      */
-    private array $data = [];
+    private ?array $data = [];
 
     /**
      * Dynamic signed URL.

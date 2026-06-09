@@ -9,6 +9,7 @@ use Alchemy\TestBundle\Helper\FixturesTrait;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Target;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 abstract class AbstractUploaderTestCase extends ApiTestCase
 {
@@ -47,5 +48,21 @@ abstract class AbstractUploaderTestCase extends ApiTestCase
         }
 
         return $target;
+    }
+
+    protected function request(?string $accessToken, string $method, string $url, ?array $data = null): ResponseInterface
+    {
+        $client = static::createClient();
+
+        $options = [
+            'headers' => [
+                'Authorization' => $accessToken ? 'Bearer '.$accessToken : null,
+            ],
+        ];
+        if (null !== $data) {
+            $options['json'] = $data;
+        }
+
+        return $client->request($method, $url, $options);
     }
 }

@@ -13,39 +13,40 @@ class TargetParamsTest extends AbstractUploaderTestCase
         $response = $this->request(
             KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/target-params');
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        $this->assertEquals([], $json);
+        $data = $response->toArray();
+        $this->assertEquals([], $data['hydra:member']);
 
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/target-params', [
             'data' => [],
             'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
         ]);
         $this->assertEquals(201, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        $this->assertArrayHasKey('id', $json);
-        $this->assertArrayHasKey('data', $json);
-        $this->assertEquals([], $json['data']);
+        $data = $response->toArray();
+        $this->assertArrayHasKey('id', $data);
+        $this->assertArrayHasKey('data', $data);
+        $this->assertEquals([], $data['data']);
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'PUT', '/target-params/'.$json['id'], [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'PUT', '/target-params/'.$data['id'], [
             'data' => [
                 'foo' => 'bar',
             ],
         ]);
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        $this->assertArrayHasKey('id', $json);
-        $this->assertArrayHasKey('data', $json);
+        $data = $response->toArray();
+        $this->assertArrayHasKey('id', $data);
+        $this->assertArrayHasKey('data', $data);
         $this->assertEquals([
             'foo' => 'bar',
-        ], $json['data']);
+        ], $data['data']);
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/target-params/'.$json['id']);
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/target-params/'.$data['id']);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertArrayHasKey('id', $json);
-        $this->assertArrayHasKey('data', $json);
+        $data = $response->toArray();
+        $this->assertArrayHasKey('id', $data);
+        $this->assertArrayHasKey('data', $data);
         $this->assertEquals([
             'foo' => 'bar',
-        ], $json['data']);
+        ], $data['data']);
     }
 
     public function testTargetParamsEditWithANonAdminUser(): void
