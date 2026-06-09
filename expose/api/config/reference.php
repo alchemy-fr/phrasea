@@ -1429,7 +1429,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     mercure?: bool|array{
  *         enabled?: bool|Param, // Default: false
  *         hub_url?: scalar|Param|null, // The URL sent in the Link HTTP header. If not set, will default to the URL for MercureBundle's default hub. // Default: null
- *         include_type?: bool|Param, // Always include @var in updates (including delete ones). // Default: false
+ *         include_type?: bool|Param, // Always include @type in updates (including delete ones). // Default: false
  *     },
  *     messenger?: bool|array{
  *         enabled?: bool|Param, // Default: true

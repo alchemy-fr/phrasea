@@ -20,8 +20,9 @@ final class AppNormalizer implements NormalizerInterface, NormalizerAwareInterfa
     ) {
     }
 
-    public function supportsNormalization($data, ?string $format = null, array $context = []): bool
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
+        dump($context);
         if (
             !is_object($data)
             || $data instanceof PaginatorInterface
@@ -32,18 +33,19 @@ final class AppNormalizer implements NormalizerInterface, NormalizerAwareInterfa
         return !isset($context[$this->getObjectKey($data)]);
     }
 
-    public function normalize($object, $format = null, array $context = []): array|\ArrayObject|bool|float|int|string|null
+    public function normalize(mixed $data, $format = null, array $context = []): \ArrayObject|array|string|int|float|bool|null
     {
-        $context[$this->getObjectKey($object)] = true;
-        $this->entityNormalizer->normalize($object, $context);
+        $context[$this->getObjectKey($data)] = true;
+        $this->entityNormalizer->normalize($data, $context);
 
-        return $this->normalizer->normalize($object, $format, $context);
+        return $this->normalizer->normalize($data, $format, $context);
     }
 
     public function getSupportedTypes(?string $format): array
     {
         return [
             'object' => true,
+            PaginatorInterface::class => false,
         ];
     }
 

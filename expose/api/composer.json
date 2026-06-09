@@ -97,8 +97,8 @@
         "doctrine/doctrine-bundle": "^2.9",
         "doctrine/doctrine-migrations-bundle": "^3",
         "doctrine/orm": "^2",
-        "hautelook/alice-bundle": "^2.10",
         "exercise/htmlpurifier-bundle": "^5.2",
+        "hautelook/alice-bundle": "^2.10",
         "lcobucci/clock": "^3.2",
         "nelmio/cors-bundle": "^2.1",
         "phpdocumentor/reflection-docblock": "^5.2",
@@ -115,6 +115,7 @@
         "symfony/property-access": "^7.4",
         "symfony/property-info": "^7.4",
         "symfony/psr-http-message-bridge": "^7.4",
+        "symfony/runtime": "^7.4",
         "symfony/security-bundle": "^7.4",
         "symfony/serializer": "^7.4",
         "symfony/twig-bundle": "^7.4",
@@ -143,8 +144,9 @@
         },
         "sort-packages": true,
         "allow-plugins": {
+            "php-http/discovery": true,
             "symfony/flex": true,
-            "php-http/discovery": true
+            "symfony/runtime": true
         }
     },
     "autoload": {
@@ -179,7 +181,7 @@
             "@auto-scripts"
         ],
         "rector": "vendor/bin/rector",
-        "phpstan": "php -d memory_limit=512M vendor/bin/phpstan analyse -c phpstan.neon",
+        "phpstan": "php -d memory_limit=512M vendor/bin/phpstan analyse",
         "cs": "vendor/bin/php-cs-fixer fix",
         "pre-phpunit": [
             "rm -f var/cache/test/data*.db",

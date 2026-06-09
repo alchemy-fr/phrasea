@@ -18,7 +18,7 @@ class AssetNormalizer extends AbstractRouterNormalizer
     /**
      * @param Asset $object
      */
-    public function normalize(object $object, array &$context = []): void
+    public function normalize($object, array &$context = []): void
     {
         if (in_array(Asset::GROUP_READ, $context['groups'] ?? [])) {
             $publication = $object->getPublication();
