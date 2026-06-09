@@ -53,18 +53,6 @@
             ".php-cs-fixer.dist.php"
         ]
     },
-    "php-http/discovery": {
-        "version": "1.20",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "1.18",
-            "ref": "f45b5dd173a27873ab19f5e3180b2f661c21de02"
-        },
-        "files": [
-            "config/packages/http_discovery.yaml"
-        ]
-    },
     "ramsey/uuid-doctrine": {
         "version": "2.1",
         "recipe": {
@@ -167,6 +155,18 @@
             "version": "6.4",
             "ref": "fec78b082c512ab8ddd97d26dfb48f8a6080d099"
         }
+    },
+    "symfony/property-info": {
+        "version": "7.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "7.3",
+            "ref": "dae70df71978ae9226ae915ffd5fad817f5ca1f7"
+        },
+        "files": [
+            "config/packages/property_info.yaml"
+        ]
     },
     "symfony/routing": {
         "version": "6.3",
