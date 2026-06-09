@@ -2,9 +2,9 @@ import {EntityList} from '../../../types.ts';
 import {useTranslation} from 'react-i18next';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {Button, TextField} from '@mui/material';
+import {Box, Button, TextField} from '@mui/material';
 import {useFormSubmit} from '@alchemy/api';
-import {RemoteErrors} from '@alchemy/react-form';
+import {RemoteErrors, RSelectWidget} from '@alchemy/react-form';
 import {importEntities} from '../../../api/entityList.ts';
 
 type Props = {
@@ -13,7 +13,8 @@ type Props = {
 } & StackedModalProps;
 
 type FormData = {
-    values: string;
+    data: string;
+    format: string;
 };
 
 export default function ImportAttributeEntitiesDialog({
@@ -25,19 +26,29 @@ export default function ImportAttributeEntitiesDialog({
     const {t} = useTranslation();
     const {closeModal} = useModals();
 
+    const formatOptions = [
+        {
+            value: 'raw',
+            label: t(
+                'attribute_entity.import.format.raw',
+                'Raw (One value per line)'
+            ),
+        },
+        {
+            value: 'csv',
+            label: t('attribute_entity.import.format.csv', 'CSV'),
+        },
+    ];
+
     const formId = 'import-attribute-entities-form';
-    const {handleSubmit, register, remoteErrors, submitting} =
+    const {handleSubmit, register, remoteErrors, submitting, control} =
         useFormSubmit<FormData>({
             defaultValues: {
-                values: '',
+                format: formatOptions[0].value,
+                data: '',
             },
             onSubmit: async data => {
-                const entries = data.values
-                    .split('\n')
-                    .map(line => line.trim())
-                    .filter(line => line.length > 0);
-
-                await importEntities(list.id, entries);
+                await importEntities(list.id, data.format, data.data);
 
                 return data;
             },
@@ -82,19 +93,51 @@ export default function ImportAttributeEntitiesDialog({
             )}
         >
             <form onSubmit={handleSubmit} id={formId}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        gap: 2,
+                        mb: 2,
+                    }}
+                >
+                    <div>
+                        <RSelectWidget
+                            control={control}
+                            label={t(
+                                'dialog.export_attribute_entities.format',
+                                'Format'
+                            )}
+                            name={'format'}
+                            required={true}
+                            placeholder={t(
+                                'dialog.export_attribute_entities.select_format',
+                                'Select Format'
+                            )}
+                            isClearable={false}
+                            options={formatOptions.map(opt => ({
+                                value: opt.value,
+                                label: opt.label,
+                            }))}
+                        />
+                    </div>
+                </Box>
+
                 <TextField
                     label={t(
-                        'dialog.export_attribute_entities.values.label',
-                        'Values'
-                    )}
-                    helperText={t(
-                        'dialog.export_attribute_entities.values.helper_text',
-                        'Enter one attribute entity value per line.'
+                        'dialog.export_attribute_entities.data.label',
+                        'Data'
                     )}
                     fullWidth={true}
                     multiline={true}
                     minRows={20}
-                    {...register('values')}
+                    {...register('data')}
+                    slotProps={{
+                        input: {
+                            style: {
+                                fontFamily: 'Monospace, monospace',
+                            },
+                        },
+                    }}
                 />
                 <RemoteErrors errors={remoteErrors} />
             </form>
