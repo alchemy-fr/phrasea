@@ -28,8 +28,7 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
     public function import(EntityList $entityList, string $data): void
     {
         $rows = str_getcsv($data, "\n")
-                |> (fn (array $data): array => array_map('str_getcsv', $data))
-                |> (fn (array $data): array => array_filter($data, fn ($v) => !empty($v)));
+                |> (fn (array $data): array => array_map('str_getcsv', $data));
 
         $headers = array_shift($rows);
 
