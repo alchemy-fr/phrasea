@@ -486,12 +486,12 @@
         "version": "v4.3.4"
     },
     "symfony/flex": {
-        "version": "1.0",
+        "version": "1.22",
         "recipe": {
             "repo": "github.com/symfony/recipes",
-            "branch": "master",
+            "branch": "main",
             "version": "1.0",
-            "ref": "dc3fc2e0334a4137c47cfd5a3ececc601fa61a0b"
+            "ref": "146251ae39e06a95be0fe3d13c807bcf3938b172"
         },
         "files": [
             ".env"
