@@ -10,3 +10,6 @@ api_platform:
     patch_formats:
         json: ['application/merge-patch+json']
 
+framework:
+    serializer:
+        enable_attributes: true

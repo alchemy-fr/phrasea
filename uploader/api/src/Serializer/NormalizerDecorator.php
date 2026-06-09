@@ -17,11 +17,11 @@ final readonly class NormalizerDecorator implements NormalizerInterface, Denorma
     ) {
     }
 
-    public function normalize($object, $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
+    public function normalize(mixed $data, $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
     {
-        $this->entityNormalizer->normalize($object, $context);
+        $this->entityNormalizer->normalize($data, $context);
 
-        return $this->decorated->normalize($object, $format, $context);
+        return $this->decorated->normalize($data, $format, $context);
     }
 
     public function supportsNormalization($data, $format = null, array $context = []): bool

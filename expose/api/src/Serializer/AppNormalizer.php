@@ -13,7 +13,7 @@ final class AppNormalizer implements NormalizerInterface, NormalizerAwareInterfa
 {
     use NormalizerAwareTrait;
 
-    private const string ALREADY_CALLED = self::class.'_ACD';
+    private const string ALREADY_CALLED = '::ACD';
 
     public function __construct(
         private readonly EntityNormalizer $entityNormalizer,
@@ -22,7 +22,6 @@ final class AppNormalizer implements NormalizerInterface, NormalizerAwareInterfa
 
     public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
-        dump($context);
         if (
             !is_object($data)
             || $data instanceof PaginatorInterface
@@ -44,8 +43,8 @@ final class AppNormalizer implements NormalizerInterface, NormalizerAwareInterfa
     public function getSupportedTypes(?string $format): array
     {
         return [
-            'object' => true,
-            PaginatorInterface::class => false,
+            'object' => false,
+            PaginatorInterface::class => null,
         ];
     }
 
