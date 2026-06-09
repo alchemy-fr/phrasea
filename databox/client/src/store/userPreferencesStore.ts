@@ -11,8 +11,10 @@ import {deepEquals} from '@alchemy/core';
 import {oauthClient} from '../init.ts';
 import {FacetPreference} from '../components/Media/Asset/Facets/facetTypes.ts';
 import {Profile} from '../types.ts';
+import {useProfileStore} from './profileStore.ts';
 
 export type UserPreferences = {
+    autoSync?: boolean;
     theme?: ThemeName | undefined;
     layout?: Layout;
     dataLocale?: string | undefined;
@@ -119,6 +121,12 @@ export const useUserPreferencesStore = create<UserPreferencesStore>(
                 return;
             }
 
+            if (newPrefs.profile) {
+                useProfileStore.getState().autoSync();
+
+                return;
+            }
+
             return new Promise(resolve => {
                 setTimeout(async () => {
                     if (await oauthClient.isAuthenticated()) {
@@ -134,14 +142,15 @@ export const useUserPreferencesStore = create<UserPreferencesStore>(
             });
         },
         applyProfile: async profile => {
-            const state = get();
             if (profile) {
-                return state.updatePreference('profile', profile.id, {
+                return get().updatePreference('profile', profile.id, {
                     reset: true,
                     offlineUpdates: profile.data,
                 });
             } else {
-                return state.updatePreference('profile', null);
+                return get().updatePreference('profile', null, {
+                    reset: true,
+                });
             }
         },
     })

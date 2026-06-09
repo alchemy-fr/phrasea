@@ -25,14 +25,16 @@ export default function CollectionDeleteConfirmDialog({
             {...modalProps}
             textToType={collection.name}
             title={
-                <Trans
-                    i18nKey={'collection.delete.confirm_message'}
-                    values={{collection}}
-                    defaults={`Are you sure you want to delete collection <coll/> ?`}
-                    components={{
-                        coll: <CollectionChip collection={collection} />,
-                    }}
-                />
+                <div>
+                    <Trans
+                        i18nKey={'collection.delete.confirm_message'}
+                        values={{collection}}
+                        defaults={`Are you sure you want to delete collection <coll/> ?`}
+                        components={{
+                            coll: <CollectionChip collection={collection} />,
+                        }}
+                    />
+                </div>
             }
             onConfirm={async () => {
                 await deleteCollections([collection.id]);

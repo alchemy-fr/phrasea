@@ -1,4 +1,4 @@
-import {FC, ReactNode} from 'react';
+import {Dispatch, FC, ReactNode, SetStateAction} from 'react';
 
 export type TreeBaseItem = {};
 
@@ -109,12 +109,15 @@ export type OnSelectionChange<D extends TreeBaseItem> = (
     selectedNodes: TreeNode<D>[]
 ) => void;
 
+export type TreeDefaultState = {
+    defaultExpandedNodes?: string[];
+    defaultSelectedNodes?: string[];
+};
+
 export type TreeViewOptionsProps<D extends TreeBaseItem> = {
     onSelectionChange?: OnSelectionChange<D>;
     onToggleExpand?: OnToggleExpand<D>;
     onToggleSelect?: OnToggleSelectNode<D>;
-    defaultExpandedNodes?: string[];
-    defaultSelectedNodes?: string[];
     selectShouldExpand?: boolean;
     selectShouldCollapse?: boolean;
     collapseShouldUnselectChildren?: boolean;
@@ -125,12 +128,14 @@ export type TreeViewOptionsProps<D extends TreeBaseItem> = {
     ) => Promise<TreeNode<D>[]>;
     multiple?: boolean;
     required?: boolean;
-} & CommonTreeOptionsProps<D>;
+} & CommonTreeOptionsProps<D> &
+    TreeDefaultState;
 
 export type TreeViewProps<D extends TreeBaseItem> = {
     nodes: TreeNode<D>[];
 } & TreeViewOptionsProps<D> &
-    CommonTreeProps<D>;
+    CommonTreeProps<D> &
+    TreeStateProps;
 
 export type TreeNodeProps<D extends TreeBaseItem> = {
     node: TreeNode<D>;
@@ -152,3 +157,12 @@ export enum TreeViewClasses {
 }
 
 export type VirtualNodes<D extends TreeBaseItem> = VirtualTreeNode<D>[];
+
+export type TreeStateProps = {
+    expandedNodes: string[];
+    selectedNodes: string[];
+    setExpandedNodes: Dispatch<SetStateAction<string[]>>;
+    setSelectedNodes: Dispatch<SetStateAction<string[]>>;
+};
+
+export type UseTreeStateReturn = TreeStateProps;

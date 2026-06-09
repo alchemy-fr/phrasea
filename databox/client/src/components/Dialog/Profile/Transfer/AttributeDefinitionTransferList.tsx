@@ -9,7 +9,7 @@ import Checkbox from '@mui/material/Checkbox';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import {
-    AttributeDefinition,
+    AttributeDefinitionOrBuiltIn,
     ProfileItem,
     Workspace,
 } from '../../../../types.ts';
@@ -31,7 +31,7 @@ import Item, {getItemLabel} from './Item.tsx';
 import ItemForm from './ItemForm.tsx';
 
 type Props = {
-    definitions: AttributeDefinition[];
+    definitions: AttributeDefinitionOrBuiltIn[];
     definitionsIndex: AttributeDefinitionsIndex;
     list: ProfileItem[];
     listId: string;
@@ -162,11 +162,12 @@ export default function AttributeDefinitionTransferList({
                         !queryLeft ||
                         d.name.toLowerCase().includes(queryLeft.toLowerCase())
                 )
-                .map((definition: AttributeDefinition) => {
+                .map((definition: AttributeDefinitionOrBuiltIn) => {
                     const labelId = `d-${definition.id}-label`;
 
                     let displayWorkspace = false;
                     if (
+                        !definition.builtIn &&
                         definition.workspace &&
                         lastWorkspace?.id !==
                             (definition.workspace as Workspace).id

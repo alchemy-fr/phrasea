@@ -7,7 +7,6 @@ import {toast} from 'react-toastify';
 import {useTranslation} from 'react-i18next';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
-import {useProfileStore} from '../../store/profileStore.ts';
 import {useUserPreferencesStore} from '../../store/userPreferencesStore.ts';
 
 type Props = {
@@ -17,8 +16,9 @@ type Props = {
 export default function CreateProfileDialog({onCreate, ...modalProps}: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
-    const addProfile = useProfileStore(state => state.addProfile);
-    const preferences = useUserPreferencesStore(state => state.preferences);
+    const {profile: _profile, ...preferences} = useUserPreferencesStore(
+        state => state.preferences
+    );
 
     const usedFormSubmit = useFormSubmit<Profile>({
         defaultValues: {
@@ -34,9 +34,7 @@ export default function CreateProfileDialog({onCreate, ...modalProps}: Props) {
             toast.success(
                 t('form.profile_create.success', 'Profile created!') as string
             );
-            addProfile(data);
             closeModal();
-
             onCreate?.(data);
         },
     });

@@ -7,7 +7,7 @@ import {
 } from './types';
 import {List} from '@mui/material';
 import BaseTreeNode from './BaseTreeNode';
-import {useCallback, useState} from 'react';
+import {useCallback} from 'react';
 import {findNodeById, getFlattenNodes} from './treeHelper';
 
 export default function TreeView<D extends TreeBaseItem>({
@@ -19,18 +19,15 @@ export default function TreeView<D extends TreeBaseItem>({
     selectShouldCollapse,
     selectShouldExpand = true,
     collapseShouldUnselectChildren = true,
-    defaultExpandedNodes = [],
-    defaultSelectedNodes = [],
     required,
     multiple = false,
     onSelectionChange,
+    selectedNodes,
+    expandedNodes,
+    setExpandedNodes,
+    setSelectedNodes,
     ...nodeProps
 }: TreeViewProps<D>) {
-    const [expandedNodes, setExpandedNodes] =
-        useState<string[]>(defaultExpandedNodes);
-    const [selectedNodes, setSelectedNodes] =
-        useState<string[]>(defaultSelectedNodes);
-
     const onToggleExpandInternal = useCallback<OnToggleExpand<D>>(
         async (node, expanded) => {
             if (
@@ -54,9 +51,17 @@ export default function TreeView<D extends TreeBaseItem>({
 
                 setSelectedNodes(updateSelectedNodes);
                 onSelectionChange?.(
-                    updateSelectedNodes(selectedNodes).map(id =>
-                        findNodeById(nodes, id)
-                    )
+                    updateSelectedNodes(selectedNodes).map(id => {
+                        const n = findNodeById(nodes, id);
+                        if (node.id === id) {
+                            return {
+                                ...n,
+                                ...(node.id === id ? node : {}),
+                            };
+                        }
+
+                        return n;
+                    })
                 );
 
                 if (onToggleSelect) {
@@ -120,13 +125,19 @@ export default function TreeView<D extends TreeBaseItem>({
 
             setSelectedNodes(updateSelectedNodes);
 
-            if (onSelectionChange) {
-                onSelectionChange(
-                    updateSelectedNodes(selectedNodes).map(id =>
-                        findNodeById(nodes, id)
-                    )
-                );
-            }
+            onSelectionChange?.(
+                updateSelectedNodes(selectedNodes).map(id => {
+                    const n = findNodeById(nodes, id);
+                    if (node.id === id) {
+                        return {
+                            ...n,
+                            ...(node.id === id ? node : {}),
+                        };
+                    }
+
+                    return n;
+                })
+            );
         },
         [
             selectedNodes,

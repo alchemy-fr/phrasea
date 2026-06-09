@@ -255,13 +255,21 @@ export default function UploadDialog({
     const {reset, getValues, remoteErrors, submitting, watch} = usedFormSubmit;
 
     const destinationWatched = watch('destination');
+    const isNewCollection = Boolean(
+        destinationWatched &&
+        typeof destinationWatched === 'object' &&
+        (destinationWatched as TreeNode<WorkspaceOrCollectionTreeItem>).virtual
+    );
+
     const destinationIri =
         typeof destinationWatched === 'string'
             ? destinationWatched
             : destinationWatched?.id;
 
     const collectionId =
-        destinationIri && isEntityIri(EntityName.Collection, destinationIri)
+        destinationIri &&
+        !isNewCollection &&
+        isEntityIri(EntityName.Collection, destinationIri)
             ? extractIdFromIri(destinationIri)
             : undefined;
 

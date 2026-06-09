@@ -11,7 +11,6 @@ import {useTranslation} from 'react-i18next';
 import {Classes} from '../../classes.ts';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-
 import SyncIcon from '@mui/icons-material/Sync';
 
 type Props = {
@@ -51,10 +50,7 @@ export default function ProfileMenuItem({
                 >
                     <ListItemText
                         className={Classes.ellipsisText}
-                        primary={
-                            data.name ||
-                            t('profile.default.title', 'Default Profile')
-                        }
+                        primary={data.name}
                         secondary={data.description}
                         secondaryTypographyProps={{
                             style: {whiteSpace: 'normal'},

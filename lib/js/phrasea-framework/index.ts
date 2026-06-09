@@ -37,6 +37,7 @@ import BetaChip from './src/Ui/BetaChip';
 import DarkModeSwitch from './src/Theme/ThemeEditor/DarkModeSwitch';
 import ListItemLoadingIcon from './src/Ui/ListItemLoadingIcon';
 import {getContrastText} from './src/Ui/colorUtil';
+import {useTreeState} from './src/Tree/useTreeState';
 
 export {
     AppProvider,
@@ -67,6 +68,7 @@ export {
     VerticalAppMenu,
     VerticalMenuLayout,
     TreeView,
+    useTreeState,
     UserHookCaller,
     AnalyticsProvider,
     getAllTreeNodeIds,

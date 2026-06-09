@@ -49,8 +49,6 @@ export default function WorkspaceMenuItem({
     const {openModal} = useModals();
     const selected = searchContext.workspaces.includes(id);
     const [expanded, setExpanded] = React.useState(false);
-
-    const addCollection = useCollectionStore(state => state.addCollection);
     const loadMore = useCollectionStore(state => state.loadMore);
     const loadRoot = useCollectionStore(state => state.load);
 
@@ -110,12 +108,6 @@ export default function WorkspaceMenuItem({
                                                                 workspaceId: id,
                                                                 workspaceName:
                                                                     displayName,
-                                                                onCreate:
-                                                                    coll =>
-                                                                        addCollection(
-                                                                            coll,
-                                                                            id
-                                                                        ),
                                                             }
                                                         )
                                                     )}
@@ -168,6 +160,7 @@ export default function WorkspaceMenuItem({
                                             ) : null,
                                             capabilities.edit ? (
                                                 <MenuItem
+                                                    closeWrapper={closeWrapper}
                                                     key={'edit'}
                                                     component={ModalLink}
                                                     route={

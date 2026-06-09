@@ -62,4 +62,5 @@ export enum EntityName {
     Entity = 'attribute-entities',
     User = 'users',
     Tag = 'tags',
+    AssetDataTemplate = 'asset-data-templates',
 }

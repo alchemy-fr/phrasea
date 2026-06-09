@@ -21,8 +21,7 @@ import {
     UserPreferences,
     useUserPreferencesStore,
 } from './userPreferencesStore.ts';
-import {deepEquals} from '@alchemy/core';
-import {logError} from '@alchemy/core';
+import {deepEquals, logError} from '@alchemy/core';
 
 type State = {
     profiles: Profile[];
@@ -37,9 +36,11 @@ type State = {
     hasMore: () => boolean;
     load: (params?: GetProfileOptions, force?: boolean) => Promise<void>;
     loadMore: () => Promise<void>;
-    addProfile: (profile: Profile) => void;
+    storeProfile: (profile: Profile) => void;
     loadProfile: (id: string) => Promise<Profile>;
     updateProfile: (profile: Profile) => void;
+    autoSync: () => Promise<void>;
+    toggleAutoSync: () => void;
     syncData: () => Promise<void>;
     arePreferencesSynced: (profile: Profile) => Promise<boolean>;
     updateProfileItem: (profileId: string, data: ProfileItem) => void;
@@ -49,12 +50,12 @@ type State = {
     sortList: (profileId: string, items: string[]) => void;
     toggleDefinition: (definition: BaseAttribute) => void;
     removeFromProfile: (profileId: string, ids: string[]) => void;
-    setCurrent: (id: string | undefined) => Promise<void>;
+    setCurrent: (Profile: Profile | undefined) => Promise<void>;
     loadCurrent: (id: string) => Promise<Profile | undefined>;
     shouldSelectProfile: () => boolean;
 };
 
-export const useProfileStore = create<State>((set, getState) => ({
+export const useProfileStore = create<State>((set, get) => ({
     loadingMore: false,
     loaded: false,
     loading: false,
@@ -64,7 +65,7 @@ export const useProfileStore = create<State>((set, getState) => ({
     profiles: [],
 
     load: async (params, force) => {
-        const currentState = getState();
+        const currentState = get();
         if ((currentState.loaded || currentState.loading) && !force) {
             return;
         }
@@ -117,14 +118,15 @@ export const useProfileStore = create<State>((set, getState) => ({
     },
 
     hasMore() {
-        return !!getState().nextUrl;
+        return !!get().nextUrl;
     },
 
-    setCurrent: async id => {
-        const applyProfile = (profile: Profile | null) =>
-            useUserPreferencesStore.getState().applyProfile(profile);
+    setCurrent: async profile => {
+        const applyProfile = (profile: Profile | null) => {
+            return useUserPreferencesStore.getState().applyProfile(profile);
+        };
 
-        if (!id) {
+        if (!profile) {
             set({
                 current: undefined,
                 loadingCurrent: false,
@@ -136,38 +138,20 @@ export const useProfileStore = create<State>((set, getState) => ({
             return;
         }
 
-        if (getState().current?.id === id) {
+        if (get().current?.id === profile.id) {
             return;
         }
 
-        const data = getState().profiles.find(l => l.id === id);
-
         set({
-            current: data,
-            loadingCurrent: true,
-            currentLoaded: false,
+            current: profile,
+            loadingCurrent: false,
+            currentLoaded: true,
         });
-
-        try {
-            const profile = await getProfile(id);
-            set({
-                current: profile,
-                loadingCurrent: false,
-                currentLoaded: true,
-            });
-            await applyProfile(profile);
-        } catch (e: any) {
-            logError(e);
-            await applyProfile(null);
-            set({
-                current: undefined,
-                loadingCurrent: false,
-            });
-        }
+        await applyProfile(profile);
     },
 
     loadCurrent: async id => {
-        const currentState = getState();
+        const currentState = get();
         if (currentState.loadingCurrent || currentState.current?.id === id) {
             return;
         }
@@ -190,15 +174,12 @@ export const useProfileStore = create<State>((set, getState) => ({
             return profile;
         } catch (e: any) {
             logError(e);
-            set({
-                current: undefined,
-                loadingCurrent: false,
-            });
+            get().setCurrent(undefined);
         }
     },
 
     shouldSelectProfile: () => {
-        const {current, loading, profiles} = getState();
+        const {current, loading, profiles} = get();
 
         if (current) {
             return false;
@@ -227,8 +208,56 @@ export const useProfileStore = create<State>((set, getState) => ({
         }));
     },
 
+    autoSync: async () => {
+        const s = get();
+        if (s.current?.data?.autoSync) {
+            await s.syncData();
+        }
+    },
+
+    toggleAutoSync: () => {
+        set(state => {
+            const current = state.current;
+            if (!current?.data) {
+                return {};
+            }
+
+            const as = current.data.autoSync;
+            const newData = {
+                ...current.data,
+                autoSync: !as,
+            };
+
+            putProfile(state.current!.id, {data: newData});
+
+            useUserPreferencesStore.getState().applyProfile({
+                ...current,
+                data: newData,
+            });
+
+            return {
+                current: {
+                    ...current,
+                    data: newData,
+                },
+                profiles: state.profiles.map(p => {
+                    if (p.id === current.id) {
+                        return {
+                            ...current,
+                            data: newData,
+                        };
+                    }
+
+                    return p;
+                }),
+            };
+        });
+    },
+
     syncData: async () => {
-        const data = await useUserPreferencesStore.getState().load();
+        const {profile: _profile, ...data} = await useUserPreferencesStore
+            .getState()
+            .load();
 
         set(state => {
             if (!state.current) {
@@ -260,7 +289,7 @@ export const useProfileStore = create<State>((set, getState) => ({
         const data = await useUserPreferencesStore.getState().load();
 
         const norm = (d: UserPreferences | undefined) => {
-            if (d && d.profile) {
+            if (d) {
                 return {
                     ...d,
                     profile: undefined,
@@ -301,7 +330,7 @@ export const useProfileStore = create<State>((set, getState) => ({
     },
 
     loadMore: async () => {
-        const nextUrl = getState().nextUrl;
+        const nextUrl = get().nextUrl;
         if (!nextUrl) {
             return;
         }
@@ -326,7 +355,7 @@ export const useProfileStore = create<State>((set, getState) => ({
         }
     },
 
-    addProfile(data) {
+    storeProfile(data) {
         set(state => ({
             profiles: [data].concat(state.profiles),
         }));
@@ -337,12 +366,12 @@ export const useProfileStore = create<State>((set, getState) => ({
 
         set(state => ({
             profiles: state.profiles.filter(b => b.id !== id),
-            current: state.current?.id === id ? undefined : state.current,
         }));
+        get().setCurrent(undefined);
     },
 
     toggleDefinition: definition => {
-        const state = getState();
+        const state = get();
         const current = state.current;
         const defId = definition.id;
 
@@ -375,7 +404,7 @@ export const useProfileStore = create<State>((set, getState) => ({
 
             return profile;
         } catch (e: any) {
-            const s = getState();
+            const s = get();
             if (s.current?.id === id) {
                 s.setCurrent(undefined);
             }
@@ -418,7 +447,7 @@ export const useProfileStore = create<State>((set, getState) => ({
     },
 
     addToCurrent: async items => {
-        const state = getState();
+        const state = get();
         state.addToList(state.current?.id, items);
     },
 
@@ -441,7 +470,7 @@ export const useProfileStore = create<State>((set, getState) => ({
     },
 
     removeFromProfile: async (profileId, items) => {
-        let current: Profile | undefined = getState().current;
+        let current: Profile | undefined = get().current;
         if (current && current.id !== profileId) {
             current = undefined;
         }
