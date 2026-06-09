@@ -17,6 +17,7 @@ security:
             security: false
 
         admin:
+            lazy: true
             pattern:    ^/admin
             stateless:  false
             access_denied_handler: alchemy_admin.access_denied_handler
