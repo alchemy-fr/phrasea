@@ -224,6 +224,12 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $editable = true;
 
+    /**
+     * @var bool Whether this attribute should be set from the "name" property receive on POST /assets
+     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    private bool $fillFromName = false;
+
     #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $searchBoost = null;
 
@@ -587,6 +593,16 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
                 }
             }
         }
+    }
+
+    public function isFillFromName(): bool
+    {
+        return $this->fillFromName;
+    }
+
+    public function setFillFromName(bool $fillFromName): void
+    {
+        $this->fillFromName = $fillFromName;
     }
 
     public function getOwnerId(): ?string
