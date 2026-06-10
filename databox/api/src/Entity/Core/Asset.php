@@ -69,6 +69,7 @@ use App\Entity\TranslatableInterface;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\AssetRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\Attribute\AssetNameFiller;
 use App\Service\Asset\Attribute\Index\AttributeIndex;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
@@ -340,6 +341,13 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
      */
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $key = null;
+
+    /**
+     * Not mapped.
+     *
+     * @see AssetNameFiller
+     */
+    public ?string $name = null;
 
     #[ORM\OneToMany(mappedBy: 'asset', targetEntity: CollectionAsset::class, cascade: ['remove'])]
     #[ORM\JoinColumn(nullable: true)]

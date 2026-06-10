@@ -13,13 +13,20 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class AttributeAssigner
 {
     public function __construct(
         private AttributeTypeRegistry $attributeTypeRegistry,
         private AttributeRepository $attributeRepository,
+        private EntityManagerInterface $em,
     ) {
+    }
+
+    public function resetAssetAttributesCache(Asset $asset): void
+    {
+        $this->attributeRepository->resetAssetCache($asset);
     }
 
     public function assignAttributeFromInput(AbstractBaseAttribute $attribute, AbstractBaseAttributeInput $data): void
@@ -67,11 +74,20 @@ final readonly class AttributeAssigner
         $attribute->setPosition($data->position ?? 0);
     }
 
-    public function upsertAttribute(AttributeDefinition $attributeDefinition, Asset $asset, AttributeInput $data): Attribute
-    {
+    public function upsertAttribute(
+        AttributeDefinition $attributeDefinition,
+        Asset $asset,
+        AttributeInput $data,
+        bool $persist = true,
+    ): Attribute {
         $attribute = $this->getOrCreateAttribute($attributeDefinition, $asset);
 
         $this->assignAttributeFromInput($attribute, $data);
+        if ($persist) {
+            $this->em->persist($attribute);
+        }
+
+        $this->resetAssetAttributesCache($attribute->getAsset());
 
         return $attribute;
     }

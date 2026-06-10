@@ -362,6 +362,7 @@ class BatchAttributeManager
 
             $this->attributeAssigner->assignAttributeFromInput($attribute, $action);
             $this->em->persist($attribute);
+            $this->attributeAssigner->resetAssetAttributesCache($asset);
 
             $attribute = null;
         }
