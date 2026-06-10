@@ -105,6 +105,15 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public ?bool $editableInGui = null;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
+    public ?bool $required = null;
+
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    public ?int $minLength = null;
+
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    public ?int $maxLength = null;
+
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?bool $canEdit = null;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]

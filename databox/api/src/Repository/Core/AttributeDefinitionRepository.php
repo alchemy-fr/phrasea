@@ -199,7 +199,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
      */
     public function getWorkspaceFallbackDefinitions(string $workspaceId): array
     {
-        return $this->cache->get($workspaceId, function () use ($workspaceId): array {
+        return $this->cache->get('fb,'.$workspaceId, function () use ($workspaceId): array {
             return $this
                 ->createQueryBuilder('d')
                 ->andWhere('d.workspace = :workspace')
@@ -216,7 +216,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
      */
     public function getWorkspaceUseAsNameDefinitions(string $workspaceId): array
     {
-        return $this->cache->get($workspaceId, function () use ($workspaceId): array {
+        return $this->cache->get('uan,'.$workspaceId, function () use ($workspaceId): array {
             return $this
                 ->createQueryBuilder('d')
                 ->andWhere('d.workspace = :workspace')
@@ -225,6 +225,22 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
                 ->addOrderBy('d.namePriority', 'DESC')
                 ->addOrderBy('d.position', 'ASC')
                 ->addOrderBy('d.id', 'ASC')
+                ->setParameter('workspace', $workspaceId)
+                ->getQuery()
+                ->getResult();
+        });
+    }
+
+    /**
+     * @return AttributeDefinition[]
+     */
+    public function getWorkspaceFillFromNameDefinitions(string $workspaceId): array
+    {
+        return $this->cache->get('ffn,'.$workspaceId, function () use ($workspaceId): array {
+            return $this
+                ->createQueryBuilder('d')
+                ->andWhere('d.workspace = :workspace')
+                ->andWhere('d.fillFromName = true')
                 ->setParameter('workspace', $workspaceId)
                 ->getQuery()
                 ->getResult();
