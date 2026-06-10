@@ -2,7 +2,6 @@
 
 namespace App\Service\Asset\Attribute\AttributeEntity\Importer;
 
-use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
@@ -13,8 +12,5 @@ interface AttributeEntityImporterInterface
 
     public static function getName(): string;
 
-    /**
-     * @return AttributeEntity[]
-     */
     public function import(EntityList $entityList, string $data): void;
 }
