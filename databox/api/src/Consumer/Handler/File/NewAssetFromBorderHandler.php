@@ -38,9 +38,12 @@ final readonly class NewAssetFromBorderHandler
 
         $asset->setSource($file);
         $asset->setOwnerId($message->getUserId());
-        $asset->setName($name
-            ?? ($filename ? FileUtil::stripExtension($filename) : null)
-            ?? ($file->getPath() ? FileUtil::stripExtension($file->getPath()) : null));
+
+        // TODO
+        //        $asset->setName($name
+        //            ?? ($filename ? FileUtil::stripExtension($filename) : null)
+        //            ?? ($file->getPath() ? FileUtil::stripExtension($file->getPath()) : null));
+
         $asset->setWorkspace($file->getWorkspace());
 
         foreach ($collections as $collection) {

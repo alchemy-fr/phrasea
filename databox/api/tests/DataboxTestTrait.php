@@ -35,7 +35,6 @@ trait DataboxTestTrait
         $em = self::getEntityManager();
 
         $asset = new Asset();
-        $asset->setName($options['name'] ?? null);
         $workspace = $options['workspace'] ?? $this->getOrCreateDefaultWorkspace();
         $asset->setWorkspace($workspace);
         $asset->setOwnerId($options['ownerId'] ?? 'custom_owner');

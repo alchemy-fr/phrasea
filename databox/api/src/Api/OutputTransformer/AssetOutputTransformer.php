@@ -9,7 +9,6 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
-use App\Api\Traits\UserLocaleTrait;
 use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
@@ -36,7 +35,6 @@ class AssetOutputTransformer implements OutputTransformerInterface
 {
     use SecurityAwareTrait;
     use UserOutputTransformerTrait;
-    use UserLocaleTrait;
     use GroupsHelperTrait;
 
     public function __construct(
@@ -73,8 +71,6 @@ class AssetOutputTransformer implements OutputTransformerInterface
             }
         }
 
-        $preferredLocales = $this->getPreferredLocales($data->getWorkspace());
-
         $user = $this->getUser();
 
         $output->setExtraMetadata($data->getExtraMetadata());
@@ -107,12 +103,12 @@ class AssetOutputTransformer implements OutputTransformerInterface
             $output->setAttributes($attributes);
 
             $output->setName($data->getName());
-            $nameAttribute = $this->assetNameResolver->resolveName($data, $attributesIndex, $preferredLocales);
+            $nameAttribute = $this->assetNameResolver->resolveName($data, $attributesIndex);
             if ($nameAttribute instanceof Attribute) {
-                $output->setResolvedName($nameAttribute->getValue());
+                $output->setName($nameAttribute->getValue());
                 $output->setNameHighlight($nameAttribute->getHighlight());
             } else {
-                $output->setResolvedName($nameAttribute ?? $data->getName());
+                $output->setName($nameAttribute);
                 if (isset($highlights['name'])) {
                     $output->setNameHighlight(reset($highlights['name']));
                 }

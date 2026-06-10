@@ -122,6 +122,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[ORM\Table]
 #[ORM\Index(columns: ['searchable'], name: 'searchable_idx')]
 #[ORM\Index(columns: ['type'], name: 'type_idx')]
+#[ORM\Index(columns: ['workspace_id', 'fill_from_name'], name: 'fill_from_name_idx')]
 #[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_name', columns: ['workspace_id', 'name'])]
 #[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_slug', columns: ['workspace_id', 'slug'])]
@@ -223,6 +224,9 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $editable = true;
+
+    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
+    private ?int $namePriority = null;
 
     /**
      * @var bool Whether this attribute should be set from the "name" property receive on POST /assets
@@ -593,6 +597,21 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
                 }
             }
         }
+    }
+
+    public function isUseAsName(): bool
+    {
+        return null !== $this->namePriority;
+    }
+
+    public function getNamePriority(): ?int
+    {
+        return $this->namePriority;
+    }
+
+    public function setNamePriority(?int $namePriority): void
+    {
+        $this->namePriority = $namePriority;
     }
 
     public function isFillFromName(): bool
