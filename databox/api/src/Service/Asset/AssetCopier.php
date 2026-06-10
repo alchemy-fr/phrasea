@@ -12,6 +12,7 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use Doctrine\ORM\EntityManagerInterface;
 
 class AssetCopier
@@ -25,6 +26,7 @@ class AssetCopier
         private readonly EntityManagerInterface $em,
         private readonly FileCopier $fileCopier,
         private readonly PostFlushStack $postFlushStack,
+        private readonly AssetNameResolver $assetNameResolver,
     ) {
     }
 
@@ -53,7 +55,7 @@ class AssetCopier
                     $userId,
                     $file->getId(),
                     $collection ? [$collection->getId()] : [],
-                    $asset->getName(),
+                    $this->assetNameResolver->resolveName($asset),
                     $file->getFileName()
                 ));
             }
