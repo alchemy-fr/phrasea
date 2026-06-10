@@ -3,6 +3,7 @@
 namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
+use App\Entity\Admin\AssetIndexPass;
 use App\Entity\Core\Asset;
 use App\Repository\Core\AssetRepository;
 use App\Repository\Core\AttributeRepository;
@@ -60,6 +61,11 @@ final readonly class AssetIndexer
         $progressBar = new ProgressBar($output, $total);
         $progressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:16s%/%estimated:-16s% %memory:6s%');
 
+        $assetIndexPass = new AssetIndexPass();
+        $assetIndexPass->setProgress(0);
+        $assetIndexPass->setDocumentCount((int) $total);
+        $this->em->persist($assetIndexPass);
+
         $this->assetPermissionComputer->setWorkspaceCache(new ArrayAdapter(storeSerialized: false));
         $this->assetPermissionComputer->setCollectionCache(new ArrayAdapter(storeSerialized: false));
         $this->assetPermissionComputer->setAssetCache(new ArrayAdapter(storeSerialized: false));
@@ -113,6 +119,8 @@ final readonly class AssetIndexer
             $this->temporaryCacheFactory->reset();
 
             $progressBar->advance($i);
+            $assetIndexPass->setProgress($assetIndexPass->getProgress() + $i);
+            $this->em->persist($assetIndexPass);
 
             if ($i < $maxResults) {
                 break;
@@ -120,5 +128,8 @@ final readonly class AssetIndexer
         }
 
         $progressBar->finish();
+        $assetIndexPass->setEndedAt(new \DateTimeImmutable());
+        $this->em->persist($assetIndexPass);
+        $this->em->flush();
     }
 }
