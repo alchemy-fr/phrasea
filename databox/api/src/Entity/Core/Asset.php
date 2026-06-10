@@ -58,7 +58,6 @@ use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Api\Provider\StoryThumbnailsProvider;
 use App\Controller\Core\DeleteAssetByKeysAction;
 use App\Entity\FollowableInterface;
-use App\Entity\ObjectDisplayableNameInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\ExtraMetadataTrait;
 use App\Entity\Traits\LocaleTrait;
@@ -298,7 +297,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Index(columns: ['created_at'], name: 'asset_created_at_idx')]
 #[ORM\Entity(repositoryClass: AssetRepository::class)]
-class Asset extends AbstractUuidEntity implements FollowableInterface, HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, ObjectDisplayableNameInterface, \Stringable
+class Asset extends AbstractUuidEntity implements FollowableInterface, HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -469,11 +468,6 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         return $this->collections;
     }
 
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
     public function addToCollection(
         Collection $collection,
         bool $checkUnique = false,
@@ -566,7 +560,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
 
     public function __toString(): string
     {
-        return $this->getName() ?? $this->getId();
+        return $this->getId();
     }
 
     public function getKey(): ?string
@@ -688,11 +682,6 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     public static function getTopicKey(string $event, string $id): string
     {
         return 'asset:'.$id.':'.$event;
-    }
-
-    public function getObjectDisplayName(): string
-    {
-        return sprintf('Asset %s', $this->getName() ?? $this->getId());
     }
 
     /**

@@ -234,11 +234,11 @@ class PermissionsTest extends AbstractDataboxTestCase
 
     private function assertAssetPermissions(AssetPermissions $expected, Asset $asset, Security $security, callable $userMessage): void
     {
-        $this->assertEquals($expected->view, $security->isGranted(AssetVoter::READ, $asset), $userMessage(sprintf('view asset "%s"', $asset->getName())));
-        $this->assertEquals($expected->edit, $security->isGranted(AssetVoter::EDIT, $asset), $userMessage(sprintf('edit asset "%s"', $asset->getName())));
-        $this->assertEquals($expected->editAttributes, $security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $asset), $userMessage(sprintf('edit attributes of asset "%s"', $asset->getName())));
-        $this->assertEquals($expected->editPermissions, $security->isGranted(AssetVoter::EDIT_PERMISSIONS, $asset), $userMessage(sprintf('edit permissions of asset "%s"', $asset->getName())));
-        $this->assertEquals($expected->delete, $security->isGranted(AssetVoter::DELETE, $asset), $userMessage(sprintf('delete asset "%s"', $asset->getName())));
+        $this->assertEquals($expected->view, $security->isGranted(AssetVoter::READ, $asset), $userMessage(sprintf('view asset "%s"', $asset->getId())));
+        $this->assertEquals($expected->edit, $security->isGranted(AssetVoter::EDIT, $asset), $userMessage(sprintf('edit asset "%s"', $asset->getId())));
+        $this->assertEquals($expected->editAttributes, $security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $asset), $userMessage(sprintf('edit attributes of asset "%s"', $asset->getId())));
+        $this->assertEquals($expected->editPermissions, $security->isGranted(AssetVoter::EDIT_PERMISSIONS, $asset), $userMessage(sprintf('edit permissions of asset "%s"', $asset->getId())));
+        $this->assertEquals($expected->delete, $security->isGranted(AssetVoter::DELETE, $asset), $userMessage(sprintf('delete asset "%s"', $asset->getId())));
     }
 
     /**

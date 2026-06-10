@@ -102,7 +102,6 @@ class AssetOutputTransformer implements OutputTransformerInterface
             }
             $output->setAttributes($attributes);
 
-            $output->setName($data->getName());
             $nameAttribute = $this->assetNameResolver->resolveName($data, $attributesIndex);
             if ($nameAttribute instanceof Attribute) {
                 $output->setName($nameAttribute->getValue());
