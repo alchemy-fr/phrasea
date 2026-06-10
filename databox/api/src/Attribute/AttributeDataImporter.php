@@ -10,6 +10,7 @@ use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Tag;
 use App\Model\AssetTypeEnum;
 use App\Repository\Core\TagRepository;
+use App\Service\Asset\Attribute\AssetNameFiller;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class AttributeDataImporter
@@ -19,6 +20,7 @@ final readonly class AttributeDataImporter
     public function __construct(
         private EntityManagerInterface $em,
         private TagRepository $tagRepository,
+        private AssetNameFiller $assetNameFiller,
     ) {
     }
 
@@ -46,14 +48,12 @@ final readonly class AttributeDataImporter
                         break;
                     case 'name':
                         if (is_string($value) && !$asset->isStory()) {
-                            // TODO
-                            //                            $asset->setName($value);
+                            $this->assetNameFiller->fillName($asset, $value);
                         }
                         break;
                     case 'story_name':
                         if (is_string($value) && $asset->isStory()) {
-                            // TODO
-                            //                            $asset->setName($value);
+                            $this->assetNameFiller->fillName($asset, $value);
                         }
                         break;
                 }
