@@ -147,7 +147,6 @@ export default function ImportAttributeEntitiesDialog({
                             name={'file'}
                             accept={{
                                 'text/csv': ['.csv'],
-                                'application/json': ['.json'],
                             }}
                         />
                     )}

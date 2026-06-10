@@ -10,11 +10,12 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\ImportEntitiesInput;
 use App\Entity\Core\EntityList;
-use App\Repository\Core\AttributeEntityRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\Attribute\AttributeEntity\Importer\AttributeEntityImporterInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 
 class ImportEntitiesProcessor implements ProcessorInterface
@@ -23,7 +24,6 @@ class ImportEntitiesProcessor implements ProcessorInterface
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly AttributeEntityRepository $attributeEntityRepository,
         #[TaggedLocator(AttributeEntityImporterInterface::TAG, defaultIndexMethod: 'getName')]
         private readonly ServiceProviderInterface $importers,
     ) {
@@ -42,8 +42,13 @@ class ImportEntitiesProcessor implements ProcessorInterface
             return $list;
         }
 
-        /** @var AttributeEntityImporterInterface $importer */
-        $importer = $this->importers->get($data->format);
+        try {
+            /** @var AttributeEntityImporterInterface $importer */
+            $importer = $this->importers->get($data->format);
+        } catch (NotFoundExceptionInterface $e) {
+            throw new BadRequestHttpException(sprintf('Unsupported import format "%s".', $data->format), previous: $e);
+        }
+
         $importer->import($list, $data->data);
 
         return $list;

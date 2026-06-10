@@ -27,6 +27,7 @@ final readonly class JsonAttributeEntityExporter extends AbstractAttributeEntity
                     'emoji' => $result->getEmoji(),
                     'color' => $result->getColor(),
                     'status' => $result->getStatus(),
+                    'external_id' => $result->getExternalId(),
                 ];
                 if (!$options->locale) {
                     $d['translations'] = $result->getTranslations();

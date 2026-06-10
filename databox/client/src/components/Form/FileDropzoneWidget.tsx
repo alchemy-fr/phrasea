@@ -41,7 +41,6 @@ const Dropzone: FC<{
 }> = ({value, onChange, ...rest}) => {
     const {t} = useTranslation();
     const {getRootProps, getInputProps, isDragActive} = useDropzone({
-        ...rest,
         noClick: true,
         ...rest,
     });

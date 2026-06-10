@@ -58,7 +58,7 @@ CSV, $entityById->getId()));
         self::assertSame('updated-external-id', $updatedById->getExternalId());
         self::assertSame('#ffffff', $updatedById->getColor());
         self::assertSame(1, $updatedById->getStatus());
-        self::assertSame(['en' => 'Updated EN', 'fr_fr' => 'Updated FR'], $updatedById->getTranslations());
+        self::assertSame(['en' => 'Updated EN', 'fr_FR' => 'Updated FR'], $updatedById->getTranslations());
 
         /** @var AttributeEntity $updatedByExternalId */
         $updatedByExternalId = $repository->findOneBy([
@@ -68,7 +68,8 @@ CSV, $entityById->getId()));
         self::assertSame('updated-by-external-id', $updatedByExternalId->getValue());
         self::assertSame('#000000', $updatedByExternalId->getColor());
         self::assertSame(2, $updatedByExternalId->getStatus());
-        self::assertSame(['en' => 'Updated External EN', 'fr_fr' => 'Updated External FR'], $updatedByExternalId->getTranslations());
+        self::assertSame('external-2', $updatedByExternalId->getExternalId());
+        self::assertSame(['en' => 'Updated External EN', 'fr_FR' => 'Updated External FR'], $updatedByExternalId->getTranslations());
 
         /** @var AttributeEntity $created */
         $created = $repository->findOneBy([
@@ -79,7 +80,8 @@ CSV, $entityById->getId()));
         self::assertSame('new-value', $created->getValue());
         self::assertSame(0, $created->getStatus());
         self::assertSame('#336699', $created->getColor());
-        self::assertSame(['en' => 'New EN', 'fr_fr' => 'New FR'], $created->getTranslations());
+        self::assertSame('new-external-id', $created->getExternalId());
+        self::assertSame(['en' => 'New EN', 'fr_FR' => 'New FR'], $created->getTranslations());
     }
 
     public function testImportRejectsUnsupportedHeader(): void

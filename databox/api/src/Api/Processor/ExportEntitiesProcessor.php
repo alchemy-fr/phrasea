@@ -6,6 +6,7 @@ namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use Alchemy\CoreBundle\Util\LocaleUtil;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\ExportEntitiesInput;
@@ -39,8 +40,12 @@ class ExportEntitiesProcessor implements ProcessorInterface
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): Response
     {
-        if (AttributeInterface::NO_LOCALE === $data->locale) {
-            $data->locale = null;
+        if (null !== $data->locale) {
+            if (AttributeInterface::NO_LOCALE === $data->locale) {
+                $data->locale = null;
+            } else {
+                $data->locale = LocaleUtil::normalizeLocale($data->locale);
+            }
         }
 
         $listId = $uriVariables['id'];
@@ -48,15 +53,15 @@ class ExportEntitiesProcessor implements ProcessorInterface
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $list);
 
         try {
-            /** @var AttributeEntityExporterInterface $importer */
-            $importer = $this->exporters->get($data->format);
+            /** @var AttributeEntityExporterInterface $exporter */
+            $exporter = $this->exporters->get($data->format);
         } catch (NotFoundExceptionInterface $e) {
             throw new BadRequestHttpException(sprintf('Unsupported export format "%s".', $data->format), previous: $e);
         }
 
-        return new StreamedResponse($importer->export($list, $data), Response::HTTP_OK, [
-            'Content-Type' => $importer->getMimeType($data),
-            'Content-Disposition' => sprintf('attachment; filename="%s"', $importer->getFilename($list, $data)),
+        return new StreamedResponse($exporter->export($list, $data), Response::HTTP_OK, [
+            'Content-Type' => $exporter->getMimeType($data),
+            'Content-Disposition' => sprintf('attachment; filename="%s"', $exporter->getFilename($list, $data)),
         ]);
     }
 }

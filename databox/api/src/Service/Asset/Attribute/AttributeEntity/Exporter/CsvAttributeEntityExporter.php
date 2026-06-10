@@ -24,6 +24,7 @@ final readonly class CsvAttributeEntityExporter extends AbstractAttributeEntityE
             'emoji',
             'color',
             'status',
+            'external_id',
         ];
 
         $allLocales = null;
@@ -48,6 +49,7 @@ final readonly class CsvAttributeEntityExporter extends AbstractAttributeEntityE
                     $result->getEmoji(),
                     $result->getColor(),
                     $result->getStatus(),
+                    $result->getExternalId(),
                     ...($allLocales ? array_map(fn (string $l): string => $result->getTranslations()[$l] ?? '', $allLocales) : []),
                 ]);
             }, $listId);

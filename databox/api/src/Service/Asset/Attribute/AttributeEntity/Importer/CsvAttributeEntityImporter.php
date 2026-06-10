@@ -124,7 +124,7 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
                             $entity->setValue($v);
                             break;
                         case 'external_id':
-                            $entity->setExternalId($v);
+                            $entity->setExternalId($v ?: null);
                             break;
                         case 'emoji':
                             $entity->setEmoji($v ?: null);
