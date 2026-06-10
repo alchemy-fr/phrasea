@@ -68,7 +68,6 @@ readonly class AcceptFileAction implements ActionInterface
             }
 
             $asset = new Asset();
-            $asset->setName($assetData['originalName']);
             $asset->setOwnerId($userId);
             $asset->setWorkspace($workspace);
             if (null !== $collection) {

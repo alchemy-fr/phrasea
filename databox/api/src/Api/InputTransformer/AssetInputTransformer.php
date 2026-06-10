@@ -74,7 +74,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
         }
 
         if ($data->name) {
-            $object->setName($data->name);
+            // TODO set useAsName attributes
         }
 
         if ($data->trackingId) {

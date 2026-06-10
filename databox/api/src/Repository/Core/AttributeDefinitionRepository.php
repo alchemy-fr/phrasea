@@ -24,12 +24,12 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     public const string OPT_FACET_ENABLED = 'facet_enabled';
     public const string OPT_SUGGEST_ENABLED = 'suggest_enabled';
 
-    private CacheInterface $fbAttrCache;
+    private CacheInterface $cache;
 
     public function __construct(ManagerRegistry $registry, TemporaryCacheFactory $cacheFactory)
     {
         parent::__construct($registry, AttributeDefinition::class);
-        $this->fbAttrCache = $cacheFactory->createCache();
+        $this->cache = $cacheFactory->createCache();
     }
 
     public function addAclConditions(
@@ -199,12 +199,32 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
      */
     public function getWorkspaceFallbackDefinitions(string $workspaceId): array
     {
-        return $this->fbAttrCache->get($workspaceId, function () use ($workspaceId): array {
+        return $this->cache->get($workspaceId, function () use ($workspaceId): array {
             return $this
                 ->createQueryBuilder('d')
                 ->andWhere('d.workspace = :workspace')
                 ->andWhere('d.enabled = true')
                 ->andWhere('d.fallback IS NOT NULL')
+                ->setParameter('workspace', $workspaceId)
+                ->getQuery()
+                ->getResult();
+        });
+    }
+
+    /**
+     * @return AttributeDefinition[]
+     */
+    public function getWorkspaceUseAsNameDefinitions(string $workspaceId): array
+    {
+        return $this->cache->get($workspaceId, function () use ($workspaceId): array {
+            return $this
+                ->createQueryBuilder('d')
+                ->andWhere('d.workspace = :workspace')
+                ->andWhere('d.enabled = true')
+                ->andWhere('d.namePriority IS NOT NULL')
+                ->addOrderBy('d.namePriority', 'DESC')
+                ->addOrderBy('d.position', 'ASC')
+                ->addOrderBy('d.id', 'ASC')
                 ->setParameter('workspace', $workspaceId)
                 ->getQuery()
                 ->getResult();
