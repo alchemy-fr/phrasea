@@ -46,12 +46,14 @@ final readonly class AttributeDataImporter
                         break;
                     case 'name':
                         if (is_string($value) && !$asset->isStory()) {
-                            $asset->setName($value);
+                            // TODO
+                            //                            $asset->setName($value);
                         }
                         break;
                     case 'story_name':
                         if (is_string($value) && $asset->isStory()) {
-                            $asset->setName($value);
+                            // TODO
+                            //                            $asset->setName($value);
                         }
                         break;
                 }

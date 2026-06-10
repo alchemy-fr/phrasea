@@ -328,10 +328,6 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $sequence = 0;
 
-    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    #[Assert\Length(max: 255)]
-    private ?string $name = null;
-
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     #[Assert\Length(max: 100)]
     private ?string $externalId = null;
@@ -476,11 +472,6 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     public function getName(): ?string
     {
         return $this->name;
-    }
-
-    public function setName(?string $name): void
-    {
-        $this->name = $name;
     }
 
     public function addToCollection(

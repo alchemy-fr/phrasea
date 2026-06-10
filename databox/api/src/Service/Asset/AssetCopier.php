@@ -83,7 +83,6 @@ class AssetCopier
         $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
         $copy = new Asset();
         $copy->setOwnerId($userId);
-        $copy->setName($asset->getName());
         $copy->setPrivacy($asset->getPrivacy());
         $copy->setLocale($asset->getLocale());
         $copy->setWorkspace($workspace);

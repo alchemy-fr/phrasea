@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\BuiltInField;
 
-use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\CollectionAsset;
@@ -13,11 +12,9 @@ use Doctrine\ORM\EntityManagerInterface;
 
 final class StoryBuiltInField extends AbstractEntityBuiltInField
 {
-    use UserLocaleTrait;
-
     public function __construct(
         private readonly AssetNameResolver $assetNameResolver,
-        private readonly EntityManagerInterface $em,
+        EntityManagerInterface $em,
     ) {
         parent::__construct($em);
     }
@@ -37,7 +34,7 @@ final class StoryBuiltInField extends AbstractEntityBuiltInField
      */
     protected function resolveLabel($value): string
     {
-        $attribute = $this->assetNameResolver->resolveNameWithoutIndex($value, $this->getPreferredLocales($value->getWorkspace()));
+        $attribute = $this->assetNameResolver->resolveName($value);
         if ($attribute instanceof Attribute) {
             return (string) $attribute->getValue();
         }
