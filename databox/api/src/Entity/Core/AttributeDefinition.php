@@ -153,6 +153,9 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     final public const string GROUP_LIST = 'attrdef:i';
 
     private const string OPT_EDITABLE_IN_GUI = 'gui-edit';
+    private const string OPT_MIN_LENGTH = 'min-length';
+    private const string OPT_MAX_LENGTH = 'max-length';
+    private const string OPT_REQUIRED = 'req';
 
     final public const string TR_FIELD_NAME = 'name';
 
@@ -557,6 +560,50 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     public function isEditableInGui(): bool
     {
         return $this->options[self::OPT_EDITABLE_IN_GUI] ?? true;
+    }
+
+    public function setMaxLength(?int $maxLength): void
+    {
+        if (null === $maxLength) {
+            unset($this->options[self::OPT_MAX_LENGTH]);
+        } else {
+            $this->options[self::OPT_MAX_LENGTH] = $maxLength;
+        }
+    }
+
+    public function getMaxLength(): ?int
+    {
+        return $this->options[self::OPT_MAX_LENGTH] ?? null;
+    }
+
+    public function setMinLength(?int $minLength): void
+    {
+        if (null === $minLength) {
+            unset($this->options[self::OPT_MIN_LENGTH]);
+        } else {
+            $this->options[self::OPT_MIN_LENGTH] = $minLength;
+        }
+    }
+
+    public function getMinLength(): ?int
+    {
+        return $this->options[self::OPT_MIN_LENGTH] ?? null;
+    }
+
+    public function isRequired(): bool
+    {
+        return $this->options[self::OPT_REQUIRED] ?? false;
+    }
+
+    public function setRequired(bool $required): void
+    {
+        if (!$required) {
+            unset($this->options[self::OPT_REQUIRED]);
+
+            return;
+        }
+
+        $this->options[self::OPT_REQUIRED] = true;
     }
 
     #[Assert\Callback]

@@ -14,6 +14,7 @@ use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Service\Asset\AssetManager;
+use App\Service\Asset\Attribute\AssetNameFiller;
 use App\Service\Asset\PickSourceRenditionManager;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
@@ -29,6 +30,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
         private readonly AttributeInputTransformer $attributeInputProcessor,
         private readonly AssetManager $assetManager,
         private readonly AssetRenditionInputTransformer $renditionInputTransformer,
+        private readonly AssetNameFiller $assetNameFiller,
     ) {
     }
 
@@ -73,8 +75,8 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             }
         }
 
-        if ($data->name) {
-            // TODO set useAsName attributes
+        if (null !== $data->name) {
+            $this->assetNameFiller->fillName($object, $data->name);
         }
 
         if ($data->trackingId) {
