@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Asset\Attribute\AttributeEntity;
+namespace App\Service\Asset\Attribute\AttributeEntity\Importer;
 
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final readonly class CsvAttributeEntityImporter implements AttributeEntityImporterInterface
 {
-    private const string TRANSLATION_PREFIX = 'translation_';
+    final public const string TRANSLATION_PREFIX = 'translation_';
 
     public function __construct(
         private EntityManagerInterface $em,

@@ -246,7 +246,7 @@ export default function AttributeEntityManager({
                                         openModal(
                                             ExportAttributeEntitiesDialog,
                                             {
-                                                list: items,
+                                                list,
                                                 locales:
                                                     workspace.enabledLocales ??
                                                     [],

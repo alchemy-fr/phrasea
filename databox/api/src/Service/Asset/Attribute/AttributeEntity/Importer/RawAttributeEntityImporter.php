@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\Asset\Attribute\AttributeEntity;
+namespace App\Service\Asset\Attribute\AttributeEntity\Importer;
 
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;

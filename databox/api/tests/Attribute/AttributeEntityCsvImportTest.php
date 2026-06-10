@@ -6,7 +6,7 @@ namespace App\Tests\Attribute;
 
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
-use App\Service\Asset\Attribute\AttributeEntity\CsvAttributeEntityImporter;
+use App\Service\Asset\Attribute\AttributeEntity\Importer\CsvAttributeEntityImporter;
 use App\Tests\Search\AbstractSearchTest;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 

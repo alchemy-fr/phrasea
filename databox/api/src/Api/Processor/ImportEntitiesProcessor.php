@@ -12,7 +12,7 @@ use App\Api\Model\Input\ImportEntitiesInput;
 use App\Entity\Core\EntityList;
 use App\Repository\Core\AttributeEntityRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Service\Asset\Attribute\AttributeEntity\AttributeEntityImporterInterface;
+use App\Service\Asset\Attribute\AttributeEntity\Importer\AttributeEntityImporterInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 use Symfony\Contracts\Service\ServiceProviderInterface;

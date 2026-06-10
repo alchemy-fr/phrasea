@@ -53,6 +53,36 @@ export async function deleteEntityList(id: string): Promise<void> {
     await apiClient.delete(`${entityTypeNS}/${id}`);
 }
 
+export async function exportEntities(
+    listId: string,
+    options: {
+        format: string;
+        locale?: string;
+    }
+): Promise<void> {
+    const response = await apiClient.post(
+        `${entityTypeNS}/${listId}/export`,
+        options,
+        {
+            responseType: 'blob',
+        }
+    );
+
+    const disposition = response.headers['content-disposition'];
+
+    const filename =
+        disposition?.match(/filename="?([^"]+)"?/)?.[1] ?? 'download';
+
+    const url = URL.createObjectURL(response.data);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+
 export async function importEntities(
     listId: string,
     format: string,
