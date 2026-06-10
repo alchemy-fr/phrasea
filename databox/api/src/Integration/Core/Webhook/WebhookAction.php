@@ -6,6 +6,7 @@ namespace App\Integration\Core\Webhook;
 
 use Alchemy\Workflow\Executor\RunContext;
 use App\Integration\AbstractIntegrationAction;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class WebhookAction extends AbstractIntegrationAction
@@ -13,6 +14,7 @@ final class WebhookAction extends AbstractIntegrationAction
     public function __construct(
         private readonly HttpClientInterface $client,
         private readonly string $databoxBaseUrl,
+        private readonly AssetNameResolver $assetNameResolver,
     ) {
     }
 
@@ -30,7 +32,7 @@ final class WebhookAction extends AbstractIntegrationAction
         if ($config['includeInputs']) {
             $options['json']['asset'] = [
                 'id' => $asset->getId(),
-                'name' => $asset->getName(),
+                'name' => $this->assetNameResolver->resolveName($asset),
             ];
             $workspace = $asset->getWorkspace();
             $options['json']['workspace'] = [
