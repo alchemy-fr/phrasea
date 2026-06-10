@@ -4,10 +4,6 @@ import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {NO_LOCALE} from '../../Media/Asset/Attribute/constants.ts';
 import {Button} from '@mui/material';
-import {jsonFormatter} from './formatters/jsonFormatter.ts';
-import {csvFormatter} from './formatters/csvFormatter.ts';
-import {xmlFormatter} from './formatters/xmlFormatter.ts';
-import {liFormFormatter} from './formatters/liFormFormatter.ts';
 import {FormRow, RemoteErrors, RSelectWidget} from '@alchemy/react-form';
 import {exportEntities} from '../../../api/entityList.ts';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -33,22 +29,14 @@ export default function ExportAttributeEntitiesDialog({
         {
             value: 'liform',
             label: 'LiForm (Uploader)',
-            formatter: liFormFormatter,
         },
         {
             value: 'json',
             label: 'JSON',
-            formatter: jsonFormatter,
         },
         {
             value: 'csv',
             label: 'CSV',
-            formatter: csvFormatter,
-        },
-        {
-            value: 'xml',
-            label: 'XML',
-            formatter: xmlFormatter,
         },
     ];
 

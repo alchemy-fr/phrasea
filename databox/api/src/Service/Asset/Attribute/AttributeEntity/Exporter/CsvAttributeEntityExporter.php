@@ -7,18 +7,10 @@ namespace App\Service\Asset\Attribute\AttributeEntity\Exporter;
 use App\Api\Model\Input\ExportEntitiesInput;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
-use App\Repository\Core\AttributeEntityRepository;
 use App\Service\Asset\Attribute\AttributeEntity\Importer\CsvAttributeEntityImporter;
-use Doctrine\ORM\EntityManagerInterface;
 
-final readonly class CsvAttributeEntityExporter implements AttributeEntityExporterInterface
+final readonly class CsvAttributeEntityExporter extends AbstractAttributeEntityExporter
 {
-    public function __construct(
-        private EntityManagerInterface $em,
-        private AttributeEntityRepository $attributeEntityRepository,
-    ) {
-    }
-
     public static function getName(): string
     {
         return 'csv';
@@ -49,45 +41,17 @@ final readonly class CsvAttributeEntityExporter implements AttributeEntityExport
 
             fputcsv($stdout, $headers);
 
-            $page = 0;
-            while (true) {
-                if (!$this->iterate($stdout, $listId, $page++, $allLocales, $locale)) {
-                    break;
-                }
-            }
+            $this->handle(function (AttributeEntity $result) use ($stdout, $locale, $allLocales): void {
+                fputcsv($stdout, [
+                    $result->getId(),
+                    $locale ? $result->getTranslations()[$locale] ?? '' : $result->getValue(),
+                    $result->getEmoji(),
+                    $result->getColor(),
+                    $result->getStatus(),
+                    ...($allLocales ? array_map(fn (string $l): string => $result->getTranslations()[$l] ?? '', $allLocales) : []),
+                ]);
+            }, $listId);
         };
-    }
-
-    private function iterate($stream, string $listId, int $page, ?array $locales, ?string $locale): bool
-    {
-        $limit = 200;
-        /** @var AttributeEntity[] $results */
-        $results = $this->attributeEntityRepository->createQueryBuilder('t')
-            ->select('t')
-            ->andWhere('t.list = :list')
-            ->setFirstResult($page * $limit)
-            ->setMaxResults($limit)
-            ->setParameter('list', $listId)
-            ->getQuery()
-            ->toIterable()
-        ;
-
-        $i = 0;
-        foreach ($results as $result) {
-            fputcsv($stream, [
-                $result->getId(),
-                $locale ? $result->getTranslations()[$locale] ?? '' : $result->getValue(),
-                $result->getEmoji(),
-                $result->getColor(),
-                $result->getStatus(),
-                ...($locales ? array_map(fn (string $l): string => $result->getTranslations()[$l] ?? '', $locales) : []),
-            ]);
-            ++$i;
-        }
-
-        $this->em->clear();
-
-        return $i === $limit;
     }
 
     public function getMimeType(ExportEntitiesInput $options): string
