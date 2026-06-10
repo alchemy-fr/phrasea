@@ -21,6 +21,7 @@ use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\TagFilterManager;
+use App\Service\Workspace\WorkspaceCreator;
 use MartinGeorgiev\Doctrine\DBAL\Types\ValueObject\Ltree;
 use Ramsey\Uuid\Uuid;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -35,6 +36,7 @@ trait DataboxTestTrait
         $em = self::getEntityManager();
 
         $asset = new Asset();
+        $asset->name = $options['name'] ?? null;
         $workspace = $options['workspace'] ?? $this->getOrCreateDefaultWorkspace();
         $asset->setWorkspace($workspace);
         $asset->setOwnerId($options['ownerId'] ?? 'custom_owner');
@@ -216,7 +218,9 @@ trait DataboxTestTrait
             $workspace->setPublic(true);
         }
 
-        $em->persist($workspace);
+        /** @var WorkspaceCreator $workspaceCreator */
+        $workspaceCreator = self::getService(WorkspaceCreator::class);
+        $workspaceCreator->createWorkspace($workspace);
 
         if (!($options['no_acl'] ?? false)) {
             $this->addUserOnWorkspace($ownerId, $workspace->getId());

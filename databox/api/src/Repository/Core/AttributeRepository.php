@@ -9,6 +9,7 @@ use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\EntityAttributeType;
+use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -79,6 +80,11 @@ class AttributeRepository extends ServiceEntityRepository
         return $queryBuilder
             ->getQuery()
             ->getResult();
+    }
+
+    public function resetAssetCache(Asset $asset): void
+    {
+        $this->attributeCache->delete($asset->getId());
     }
 
     public function getCachedAssetAttributes(string $assetId): array

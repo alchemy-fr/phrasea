@@ -75,10 +75,6 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             }
         }
 
-        if (null !== $data->name) {
-            $this->assetNameFiller->fillName($object, $data->name);
-        }
-
         if ($data->trackingId) {
             $object->setTrackingId($data->trackingId);
         }
@@ -115,6 +111,10 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             if ($data->relationship) {
                 $this->handleRelationship($data->relationship, $object);
             }
+        }
+
+        if (null !== $data->name && null !== $object->getWorkspace()) {
+            $this->assetNameFiller->fillName($object, $data->name);
         }
 
         if (null !== $file = $this->handleFile($data, $object)) {
