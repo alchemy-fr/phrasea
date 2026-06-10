@@ -2,10 +2,11 @@ import {EntityList} from '../../../types.ts';
 import {useTranslation} from 'react-i18next';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
-import {Box, Button, TextField} from '@mui/material';
+import {Button, TextField} from '@mui/material';
 import {useFormSubmit} from '@alchemy/api';
-import {RemoteErrors, RSelectWidget} from '@alchemy/react-form';
+import {FormRow, RemoteErrors, RSelectWidget} from '@alchemy/react-form';
 import {importEntities} from '../../../api/entityList.ts';
+import FileDropzoneWidget from '../../Form/FileDropzoneWidget.tsx';
 
 type Props = {
     list: EntityList;
@@ -15,6 +16,7 @@ type Props = {
 type FormData = {
     data: string;
     format: string;
+    file?: File | null;
 };
 
 export default function ImportAttributeEntitiesDialog({
@@ -41,14 +43,18 @@ export default function ImportAttributeEntitiesDialog({
     ];
 
     const formId = 'import-attribute-entities-form';
-    const {handleSubmit, register, remoteErrors, submitting, control} =
+    const {handleSubmit, register, remoteErrors, submitting, control, watch} =
         useFormSubmit<FormData>({
             defaultValues: {
                 format: formatOptions[0].value,
                 data: '',
+                file: null,
             },
             onSubmit: async data => {
-                await importEntities(list.id, data.format, data.data);
+                const d = data.file
+                    ? await new Blob([data.file]).text()
+                    : data.data;
+                await importEntities(list.id, data.format, d);
 
                 return data;
             },
@@ -61,6 +67,8 @@ export default function ImportAttributeEntitiesDialog({
                 onSuccess();
             },
         });
+
+    const currentFormat = watch('format');
 
     return (
         <AppDialog
@@ -93,52 +101,57 @@ export default function ImportAttributeEntitiesDialog({
             )}
         >
             <form onSubmit={handleSubmit} id={formId}>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        gap: 2,
-                        mb: 2,
-                    }}
-                >
-                    <div>
-                        <RSelectWidget
-                            control={control}
-                            label={t(
-                                'dialog.export_attribute_entities.format',
-                                'Format'
-                            )}
-                            name={'format'}
-                            required={true}
-                            placeholder={t(
-                                'dialog.export_attribute_entities.select_format',
-                                'Select Format'
-                            )}
-                            isClearable={false}
-                            options={formatOptions.map(opt => ({
-                                value: opt.value,
-                                label: opt.label,
-                            }))}
-                        />
-                    </div>
-                </Box>
+                <FormRow>
+                    <RSelectWidget
+                        control={control}
+                        label={t(
+                            'dialog.export_attribute_entities.format',
+                            'Format'
+                        )}
+                        name={'format'}
+                        required={true}
+                        placeholder={t(
+                            'dialog.export_attribute_entities.select_format',
+                            'Select Format'
+                        )}
+                        isClearable={false}
+                        options={formatOptions.map(opt => ({
+                            value: opt.value,
+                            label: opt.label,
+                        }))}
+                    />
+                </FormRow>
 
-                <TextField
-                    label={t(
-                        'dialog.export_attribute_entities.data.label',
-                        'Data'
+                <FormRow>
+                    {currentFormat === 'raw' ? (
+                        <TextField
+                            label={t(
+                                'dialog.export_attribute_entities.data.label',
+                                'Data'
+                            )}
+                            fullWidth={true}
+                            multiline={true}
+                            minRows={20}
+                            {...register('data')}
+                            slotProps={{
+                                input: {
+                                    style: {
+                                        fontFamily: 'Monospace, monospace',
+                                    },
+                                },
+                            }}
+                        />
+                    ) : (
+                        <FileDropzoneWidget
+                            control={control}
+                            name={'file'}
+                            accept={{
+                                'text/csv': ['.csv'],
+                                'application/json': ['.json'],
+                            }}
+                        />
                     )}
-                    fullWidth={true}
-                    multiline={true}
-                    minRows={20}
-                    {...register('data')}
-                    slotProps={{
-                        input: {
-                            style: {
-                                fontFamily: 'Monospace, monospace',
-                            },
-                        },
-                    }}
-                />
+                </FormRow>
                 <RemoteErrors errors={remoteErrors} />
             </form>
         </AppDialog>
