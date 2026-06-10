@@ -68,8 +68,6 @@ class IndexMappingDiff
             }
         }
 
-        // TODO check if Attribute is present.
-
         return false;
     }
 }

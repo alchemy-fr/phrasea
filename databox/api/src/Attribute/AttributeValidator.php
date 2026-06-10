@@ -131,7 +131,7 @@ final readonly class AttributeValidator
 
             $this->denyUnlessGranted($definition);
 
-            $validationContext->setNode($attributeInput->value, $attributeInput, null, sprintf('%[%s]', $validationContext->getRoot(), $i));
+            $validationContext->setNode($attributeInput->value, $attributeInput, null, sprintf('%s[%s]', $validationContext->getRoot(), $i));
 
             $this->doValidateAttribute($definition, $attributeInput, $validationContext);
         }

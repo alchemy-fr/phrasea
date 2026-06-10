@@ -6,8 +6,6 @@ namespace App\Entity;
 
 interface TranslatableInterface
 {
-    // TODO public static function getTranslatableProperties(): array;
-
     public function getLocale(): string;
 
     public function hasLocale(): bool;
