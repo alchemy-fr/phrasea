@@ -13,7 +13,8 @@ class AttributeInputTransformer extends AbstractInputTransformer
 {
     use AttributeInputTrait;
 
-    public function __construct(private readonly AttributeAssigner $attributeAssigner)
+    public function __construct(
+        private readonly AttributeAssigner $attributeAssigner)
     {
     }
 
@@ -37,6 +38,7 @@ class AttributeInputTransformer extends AbstractInputTransformer
         }
 
         $this->attributeAssigner->assignAttributeFromInput($object, $data);
+        $this->attributeAssigner->resetAssetAttributesCache($object->getAsset());
 
         return $object;
     }

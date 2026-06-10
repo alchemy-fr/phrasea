@@ -23,10 +23,17 @@ final readonly class AssetNameFiller
     public function fillName(
         Asset $asset,
         ?string $name,
-    ): void {
+        bool $persist = true,
+    ): array {
         $target = $asset->isStory() ? AssetTypeEnum::Story : AssetTypeEnum::Asset;
+
+        if (null === $asset->getWorkspace()) {
+            throw new \InvalidArgumentException(sprintf('Asset must have a workspace to fill name, asset id: %d', $asset->getId()));
+        }
+
         $nameAttributes = $this->attributeDefinitionRepository->getWorkspaceFillFromNameDefinitions($asset->getWorkspaceId());
 
+        $attributes = [];
         foreach ($nameAttributes as $nameAttribute) {
             if (!$nameAttribute->isForTarget($target)) {
                 continue;
@@ -39,7 +46,9 @@ final readonly class AssetNameFiller
 
             $this->attributeValidator->validateAttribute($nameAttribute, $input, 'name');
 
-            $this->attributeAssigner->upsertAttribute($nameAttribute, $asset, $input);
+            $attributes[] = $this->attributeAssigner->upsertAttribute($nameAttribute, $asset, $input, $persist);
         }
+
+        return $attributes;
     }
 }

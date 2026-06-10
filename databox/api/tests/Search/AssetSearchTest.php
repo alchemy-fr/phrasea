@@ -207,7 +207,7 @@ class AssetSearchTest extends AbstractSearchTest
         $this->assertSameSize($expectedResults, $data, $getMessage('Invalid result count'));
         foreach ($expectedResults as $expectedResult) {
             $r = array_shift($data);
-            $this->assertEquals($expectedResult, $r['name'], $getMessage('Invalid result order'));
+            $this->assertEquals($expectedResult, $r['name'] ?? null, $getMessage('Invalid result order'));
         }
     }
 }

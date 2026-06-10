@@ -8,8 +8,10 @@ use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Consumer\Handler\Search\IndexAssetAttributes;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetFileVersion;
+use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
 use App\Model\ActionLogTypeEnum;
+use App\Service\Asset\Attribute\AssetNameFiller;
 use App\Service\Log\ActionLogManager;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\OnFlushEventArgs;
@@ -25,6 +27,7 @@ class AssetListener
     public function __construct(
         private readonly PostFlushStack $postFlushStack,
         private readonly ActionLogManager $actionLogManager,
+        private readonly AssetNameFiller $assetNameFiller,
     ) {
     }
 
@@ -39,6 +42,18 @@ class AssetListener
                     $storyCollection->setStoryAsset(null);
                     $em->persist($storyCollection);
                     $em->remove($storyCollection);
+                }
+            }
+        }
+        foreach ($uow->getScheduledEntityInsertions() as $entityInsertion) {
+            if ($entityInsertion instanceof Asset && $entityInsertion->name) {
+                $attributes = $this->assetNameFiller->fillName($entityInsertion, $entityInsertion->name, persist: false);
+                if (!empty($attributes)) {
+                    $metadata = $em->getClassMetadata(Attribute::class);
+                    foreach ($attributes as $attribute) {
+                        $uow->persist($attribute);
+                        $uow->computeChangeSet($metadata, $attribute);
+                    }
                 }
             }
         }

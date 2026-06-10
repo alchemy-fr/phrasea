@@ -58,6 +58,16 @@ App\Entity\Core\AttributePolicy:
     editable: false
 
 App\Entity\Core\AttributeDefinition:
+  ad_name:
+    name: Name
+    slug: name
+    type: text
+    workspace: '@w_test'
+    policy: '@ap_public'
+    namePriority: 0
+    fillFromName: true
+    enabled: true
+    target: 3
   ad_photographer:
     name: Photographer
     type: text
