@@ -37,7 +37,7 @@ final readonly class AssetNameFiller
             $input->asset = $asset;
             $input->value = $name;
 
-            $this->attributeValidator->validateAttributeInputs($asset->getWorkspaceId(), [$input], 'name');
+            $this->attributeValidator->validateAttribute($nameAttribute, $input, 'name');
 
             $this->attributeAssigner->upsertAttribute($nameAttribute, $asset, $input);
         }
