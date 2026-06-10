@@ -7,6 +7,7 @@ namespace App\Entity\Core;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use Alchemy\CoreBundle\Util\LocaleUtil;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
@@ -191,6 +192,9 @@ class AttributeEntity extends AbstractUuidEntity
         if (null !== $translations) {
             foreach ($translations as $locale => $v) {
                 if (is_numeric($locale) || empty($v)) {
+                    unset($translations[$locale]);
+                } elseif (LocaleUtil::normalizeLocale($locale) !== $locale) {
+                    $translations[LocaleUtil::normalizeLocale($locale)] = $v;
                     unset($translations[$locale]);
                 }
             }

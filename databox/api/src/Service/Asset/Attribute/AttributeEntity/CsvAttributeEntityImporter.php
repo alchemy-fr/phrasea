@@ -8,11 +8,14 @@ use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
 use App\Repository\Core\AttributeEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Ramsey\Uuid\Nonstandard\Uuid;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 final readonly class CsvAttributeEntityImporter implements AttributeEntityImporterInterface
 {
+    private const string TRANSLATION_PREFIX = 'translation_';
+
     public function __construct(
         private EntityManagerInterface $em,
         private AttributeEntityRepository $attributeEntityRepository,
@@ -27,22 +30,13 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
 
     public function import(EntityList $entityList, string $data): void
     {
-        $rows = str_getcsv($data, "\n")
-                |> (fn (array $data): array => array_map('str_getcsv', $data));
+        $rows = str_getcsv($data, separator: "\n", escape: '')
+                |> (fn (array $data): array => array_map(fn (string $r) => str_getcsv($r, escape: ''), $data));
 
         $headers = array_shift($rows);
-
-        $locales = [
-            'fr',
-            'es',
-            'it',
-            'de',
-            'pt',
-            'ru',
-            'zh',
-            'ja',
-            'ko',
-        ];
+        if (empty($headers)) {
+            throw new BadRequestHttpException('Empty headers');
+        }
 
         $allowedHeaders = [
             'id',
@@ -51,46 +45,63 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
             'emoji',
             'color',
             'status',
-            ...$locales,
         ];
-
         foreach ($headers as $header) {
-            if (!in_array($header, $allowedHeaders, true)) {
-                throw new \InvalidArgumentException(sprintf('Unsupported header "%s" in CSV data', $header));
+            if (!str_starts_with($header, self::TRANSLATION_PREFIX) && !in_array($header, $allowedHeaders, true)) {
+                throw new BadRequestHttpException(sprintf('Unsupported header "%s" in CSV data', $header));
             }
         }
+
         if (!in_array('value', $headers, true)) {
-            throw new \InvalidArgumentException(sprintf('Missing required header "value" in CSV data'));
+            throw new BadRequestHttpException(sprintf('Missing required header "value" in CSV data'));
         }
 
         $errors = [];
 
+        $getValue = function (array $row, string $header) use ($headers): string {
+            if (false !== $k = array_search($header, $headers, true)) {
+                return trim($row[$k] ?? '');
+            }
+
+            return '';
+        };
+
+        $addError = function (int $row, string $property, string $error) use (&$errors): void {
+            $errors[] = sprintf('Line %d: %s: %s', $row + 2, $property, $error);
+        };
+
         foreach ($rows as $r => $row) {
-            if (false !== $k = array_search('id', $headers, true)) {
-                $v = $row[$k];
+            if ($v = $getValue($row, 'id')) {
+                if (!Uuid::isValid($v)) {
+                    $addError($r, 'id', sprintf('Invalid UUID "%s"', $v));
+                    continue;
+                }
                 /** @var AttributeEntity|null $entity */
-                $entity = $this->attributeEntityRepository->find(trim($v));
+                $entity = $this->attributeEntityRepository->find($v);
                 if (null === $entity) {
-                    throw new \InvalidArgumentException(sprintf('Attribute entity with ID "%s" not found', $v));
+                    $addError($r, 'id', sprintf('Attribute entity with ID "%s" not found', $v));
+                    continue;
                 }
                 if ($entity->getListId() !== $entityList->getId()) {
-                    throw new \InvalidArgumentException(sprintf('Attribute entity with ID "%s" does not belong to list', $v));
+                    $addError($r, 'id', sprintf('Attribute entity with ID "%s" does not belong to list', $v));
+                    continue;
                 }
-            } elseif (false !== $k = array_search('external_id', $headers, true)) {
-                $v = $row[$k];
+            } elseif ($v = $getValue($row, 'external_id')) {
                 /** @var AttributeEntity|null $entity */
                 $entity = $this->attributeEntityRepository->findOneBy([
-                    'listId' => $entityList->getId(),
+                    'list' => $entityList->getId(),
                     'externalId' => $v,
                 ]);
-                if (null === $entity) {
-                    throw new \InvalidArgumentException(sprintf('Attribute entity with external ID "%s" not found', $v));
+
+                if (!$entity instanceof AttributeEntity) {
+                    $entity = new AttributeEntity();
+                    $entity->setList($entityList);
+                    $entity->setExternalId($v);
                 }
             } else {
-                $k = array_search('value', $headers, true);
-                $v = $row[$k];
+                $v = $getValue($row, 'value');
                 $entity = $this->attributeEntityRepository->findOneBy([
-                    'listId' => $entityList->getId(),
+                    'list' => $entityList->getId(),
                     'value' => $v,
                 ]);
                 if (!$entity instanceof AttributeEntity) {
@@ -102,11 +113,10 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
             $translations = null;
 
             foreach ($headers as $index => $header) {
-                $v = trim($row[$index]) ?: null;
-
-                if (in_array($header, $locales, true)) {
+                $v = trim($row[$index] ?? '');
+                if (str_starts_with($header, self::TRANSLATION_PREFIX)) {
                     $translations ??= [];
-                    $translations[$header] = $v;
+                    $translations[substr($header, strlen(self::TRANSLATION_PREFIX))] = $v;
                 } else {
                     switch ($header) {
                         case 'value':
@@ -122,7 +132,9 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
                             $entity->setColor($v ?: null);
                             break;
                         case 'status':
-                            $entity->setStatus((int) $v);
+                            if ('' !== $v) {
+                                $entity->setStatus((int) $v);
+                            }
                             break;
                     }
                 }
@@ -135,11 +147,11 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
             $violations = $this->validator->validate($entity);
             if ($violations->count() > 0) {
                 foreach ($violations as $violation) {
-                    $errors[] = sprintf('Line %d: %s: %s', $r + 2, $violation->getPropertyPath(), $violation->getMessage());
+                    $addError($r, $violation->getPropertyPath(), $violation->getMessage());
                 }
             }
 
-            if (!empty($errors)) {
+            if (empty($errors)) {
                 $this->em->persist($entity);
             }
         }

@@ -8,7 +8,9 @@ final readonly class LocaleUtil
 {
     public static function normalizeLocale(string $locale): string
     {
-        return trim(str_replace('-', '_', $locale));
+        return str_replace('-', '_', $locale)
+                |> trim(...)
+                |> strtolower(...);
     }
 
     public static function getBestLocale(array $availableLocales, array $locales): ?string
