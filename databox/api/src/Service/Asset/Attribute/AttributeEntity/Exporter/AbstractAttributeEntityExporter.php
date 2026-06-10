@@ -28,7 +28,7 @@ abstract readonly class AbstractAttributeEntityExporter implements AttributeEnti
 
     private function iterate(callable $handler, string $listId, int $page): bool
     {
-        $limit = 2;
+        $limit = 200;
         /** @var AttributeEntity[] $results */
         $results = $this->attributeEntityRepository->createQueryBuilder('t')
             ->select('t')

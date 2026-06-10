@@ -1,7 +1,7 @@
 import {DropzoneOptions, useDropzone} from 'react-dropzone';
 import {Box, Typography} from '@mui/material';
 import {grey} from '@mui/material/colors';
-import React, {ChangeEventHandler, FC} from 'react';
+import React, {ChangeEvent, ChangeEventHandler, FC} from 'react';
 import {useTranslation} from 'react-i18next';
 import {Control, Controller, FieldPath, FieldValues} from 'react-hook-form';
 import FileToUploadCard from '../Upload/FileToUploadCard.tsx';
@@ -36,7 +36,7 @@ export default function FileDropzoneWidget<TFieldValues extends FieldValues>({
 }
 
 const Dropzone: FC<{
-    value?: File | File[];
+    value?: File;
     onChange: ChangeEventHandler<HTMLInputElement>;
 }> = ({value, onChange, ...rest}) => {
     const {t} = useTranslation();
@@ -69,7 +69,7 @@ const Dropzone: FC<{
                                 target: {
                                     value: '',
                                 },
-                            })
+                            } as ChangeEvent<HTMLInputElement>)
                         }
                     />
                 </>

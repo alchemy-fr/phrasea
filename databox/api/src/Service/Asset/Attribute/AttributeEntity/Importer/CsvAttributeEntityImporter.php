@@ -33,6 +33,7 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
         $rows = str_getcsv($data, separator: "\n", escape: '')
                 |> (fn (array $data): array => array_map(fn (string $r) => str_getcsv($r, escape: ''), $data));
 
+        /** @var array $headers */
         $headers = array_shift($rows);
         if (empty($headers)) {
             throw new BadRequestHttpException('Empty headers');
