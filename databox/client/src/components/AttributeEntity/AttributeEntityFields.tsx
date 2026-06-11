@@ -1,7 +1,12 @@
 import {InputLabel, TextField} from '@mui/material';
 import Flag from '../Ui/Flag.tsx';
 import React from 'react';
-import {AttributeEntity, EntityList, Workspace} from '../../types.ts';
+import {
+    AttributeEntity,
+    AttributeEntityStatus,
+    EntityList,
+    Workspace,
+} from '../../types.ts';
 import {useTranslation} from 'react-i18next';
 import {UseFormSubmitReturn} from '@alchemy/api';
 import {
@@ -15,19 +20,29 @@ import KeyIcon from '@mui/icons-material/Key';
 import InfoRow from '../Dialog/Info/InfoRow.tsx';
 import {Controller} from 'react-hook-form';
 import EmojiPicker from '../Discussion/EmojiPicker.tsx';
+import AttributeEntityStatusSelect from '../Form/AttributeEntityStatusSelect.tsx';
 
 type Props = {
     workspace?: Workspace;
     usedFormSubmit: UseFormSubmitReturn<AttributeEntity, AttributeEntity>;
     data?: AttributeEntity;
     list: EntityList;
+    withStatus?: boolean;
 };
 
 export default function AttributeEntityFields({
     workspace,
     data,
     usedFormSubmit,
-    list: {withColors, withEmojis, withTranslations, withSynonyms},
+    withStatus,
+    list: {
+        withColors,
+        withEmojis,
+        withTranslations,
+        withSynonyms,
+        allowNewValues,
+        approveNewValues,
+    },
 }: Props) {
     const {t} = useTranslation();
 
@@ -62,6 +77,21 @@ export default function AttributeEntityFields({
                 />
                 <FormFieldErrors field={'value'} errors={errors} />
             </FormRow>
+            {withStatus &&
+                data?.id &&
+                ((allowNewValues && !approveNewValues) ||
+                    data.status !== AttributeEntityStatus.Approved) && (
+                    <FormRow>
+                        <AttributeEntityStatusSelect
+                            label={t(
+                                'form.attribute_entity.status.label',
+                                'Status'
+                            )}
+                            control={control}
+                            name={'status'}
+                        />
+                    </FormRow>
+                )}
             {withEmojis && (
                 <FormRow>
                     <InputLabel>

@@ -124,7 +124,11 @@ export default function RSelectWidget<
                 rules={{
                     required,
                 }}
-                render={({field: {onChange, value, ref}}) => {
+                render={({field: {onChange, value: proxyValue, ref}}) => {
+                    const value = normalizeValue
+                        ? normalizeValue(proxyValue)
+                        : proxyValue;
+
                     return (
                         <>
                             {label ? <InputLabel>{label}</InputLabel> : ''}

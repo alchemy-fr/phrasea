@@ -1,20 +1,21 @@
-import {AttributeEntity} from '../../../types.ts';
+import {EntityList} from '../../../types.ts';
 import {useTranslation} from 'react-i18next';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {NO_LOCALE} from '../../Media/Asset/Attribute/constants.ts';
-import {Box, Button} from '@mui/material';
-import {useState} from 'react';
-import {jsonFormatter} from './formatters/jsonFormatter.ts';
-import {csvFormatter} from './formatters/csvFormatter.ts';
-import {xmlFormatter} from './formatters/xmlFormatter.ts';
-import {liFormFormatter} from './formatters/liFormFormatter.ts';
-import {RSelectWidget} from '@alchemy/react-form';
-import CopyToClipboard from '../../../lib/CopyToClipboard.tsx';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import {Button} from '@mui/material';
+import {FormRow, RemoteErrors, RSelectWidget} from '@alchemy/react-form';
+import {exportEntities} from '../../../api/entityList.ts';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import {useFormSubmit} from '@alchemy/api';
+
+type FormData = {
+    format: string;
+    locale: string;
+};
 
 type Props = {
-    list: AttributeEntity[];
+    list: EntityList;
     locales: string[];
 } & StackedModalProps;
 
@@ -28,88 +29,100 @@ export default function ExportAttributeEntitiesDialog({
         {
             value: 'liform',
             label: 'LiForm (Uploader)',
-            formatter: liFormFormatter,
         },
         {
             value: 'json',
             label: 'JSON',
-            formatter: jsonFormatter,
         },
         {
             value: 'csv',
             label: 'CSV',
-            formatter: csvFormatter,
-        },
-        {
-            value: 'xml',
-            label: 'XML',
-            formatter: xmlFormatter,
         },
     ];
 
     const {t} = useTranslation();
     const {closeModal} = useModals();
-    const [locale, setLocale] = useState<string>(NO_LOCALE);
-    const [format, setFormat] = useState<string>(formatOptions[0].value);
-    const code = formatOptions
-        .find(opt => opt.value === format)!
-        .formatter(list, NO_LOCALE === locale, locale);
+
+    const formId = 'export-attribute-entities-form';
+    const {handleSubmit, remoteErrors, submitting, control} =
+        useFormSubmit<FormData>({
+            defaultValues: {
+                format: '',
+                locale: NO_LOCALE,
+            },
+            onSubmit: async data => {
+                await exportEntities(list.id, data);
+
+                return data;
+            },
+            onSuccess: () => {
+                closeModal();
+            },
+        });
 
     return (
         <AppDialog
             maxWidth={'md'}
             modalIndex={modalIndex}
-            onClose={() => {
-                closeModal();
-            }}
-            title={t(
-                'dialog.export_attribute_entities.title',
-                'Export Attribute Entities'
-            )}
+            onClose={closeModal}
+            title={t('dialog.export_attribute_entities.title', {
+                defaultValue: 'Export {{list}}',
+                list: list.name,
+            })}
             open={open}
             actions={({onClose}) => (
                 <>
-                    <CopyToClipboard>
-                        {({copy}) => (
-                            <Button
-                                variant={'contained'}
-                                onClick={() => copy(code)}
-                                startIcon={<ContentCopyIcon />}
-                            >
-                                {t(
-                                    'dialog.export_attribute_entities.copy_code',
-                                    'Copy Code'
-                                )}
-                            </Button>
-                        )}
-                    </CopyToClipboard>
-                    <Button onClick={onClose} sx={{ml: 1}}>
-                        {t('dialog.close', 'Close')}
+                    <Button onClick={onClose} disabled={submitting}>
+                        {t('dialog.cancel', 'Cancel')}
+                    </Button>
+                    <Button
+                        type={'submit'}
+                        disabled={submitting}
+                        loading={submitting}
+                        form={formId}
+                        variant={'contained'}
+                        startIcon={<FileDownloadIcon />}
+                    >
+                        {t('dialog.export_attribute_entities.export', 'Export')}
                     </Button>
                 </>
             )}
         >
-            <Box
-                sx={{
-                    display: 'flex',
-                    gap: 2,
-                    mb: 2,
-                }}
-            >
-                <div>
+            <form onSubmit={handleSubmit} id={formId}>
+                <FormRow>
                     <RSelectWidget
+                        control={control}
+                        name={'format'}
+                        label={t(
+                            'dialog.export_attribute_entities.format',
+                            'Format'
+                        )}
+                        required={true}
+                        placeholder={t(
+                            'dialog.export_attribute_entities.select_format',
+                            'Select Format'
+                        )}
+                        isClearable={false}
+                        options={formatOptions.map(opt => ({
+                            value: opt.value,
+                            label: opt.label,
+                        }))}
+                    />
+                </FormRow>
+                <FormRow>
+                    <RSelectWidget
+                        control={control}
+                        name={'locale'}
                         label={t(
                             'dialog.export_attribute_entities.locale',
                             'Locale'
                         )}
-                        value={locale as any}
                         placeholder={t(
                             'dialog.export_attribute_entities.select_locale',
                             'Select Locale'
                         )}
                         isClearable={false}
                         required={true}
-                        onChange={newValue => setLocale(newValue!.value)}
                         options={[
                             {
                                 value: NO_LOCALE,
@@ -124,29 +137,9 @@ export default function ExportAttributeEntitiesDialog({
                             })),
                         ]}
                     />
-                </div>
-                <div>
-                    <RSelectWidget
-                        label={t(
-                            'dialog.export_attribute_entities.format',
-                            'Format'
-                        )}
-                        required={true}
-                        value={format as any}
-                        placeholder={t(
-                            'dialog.export_attribute_entities.select_format',
-                            'Select Format'
-                        )}
-                        isClearable={false}
-                        onChange={newValue => setFormat(newValue!.value)}
-                        options={formatOptions.map(opt => ({
-                            value: opt.value,
-                            label: opt.label,
-                        }))}
-                    />
-                </div>
-            </Box>
-            <pre>{code}</pre>
+                </FormRow>
+                <RemoteErrors errors={remoteErrors} />
+            </form>
         </AppDialog>
     );
 }

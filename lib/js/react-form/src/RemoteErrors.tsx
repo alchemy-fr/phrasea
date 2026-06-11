@@ -16,7 +16,13 @@ export default function RemoteErrors({errors}: Props) {
         <FormRow>
             {errors.map((e, i) => (
                 <Alert key={i} severity="error">
-                    {nl2br(e)}
+                    <div
+                        style={{
+                            whiteSpace: 'pre',
+                        }}
+                    >
+                        {nl2br(e)}
+                    </div>
                 </Alert>
             ))}
         </FormRow>

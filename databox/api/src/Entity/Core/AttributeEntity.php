@@ -7,6 +7,7 @@ namespace App\Entity\Core;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use Alchemy\CoreBundle\Util\LocaleUtil;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
@@ -82,7 +83,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     properties: ['workspace', 'list.workspace'],
 )]
 #[UniqueConstraint(name: 'list_value_uniq', fields: ['list', 'value'])]
+#[UniqueConstraint(name: 'list_external_id_uniq', fields: ['list', 'externalId'])]
 #[UniqueEntity(fields: ['list', 'value'], message: 'This value already exists in the list', errorPath: 'value')]
+#[UniqueEntity(fields: ['list', 'externalId'], message: 'This external ID already exists in the list', errorPath: 'externalId')]
 class AttributeEntity extends AbstractUuidEntity
 {
     use CreatedAtTrait;
@@ -133,6 +136,9 @@ class AttributeEntity extends AbstractUuidEntity
         ]),
     ])]
     private ?array $synonyms = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $externalId = null;
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $position = 0;
@@ -187,6 +193,9 @@ class AttributeEntity extends AbstractUuidEntity
         if (null !== $translations) {
             foreach ($translations as $locale => $v) {
                 if (is_numeric($locale) || empty($v)) {
+                    unset($translations[$locale]);
+                } elseif (LocaleUtil::normalizeLocale($locale) !== $locale) {
+                    $translations[LocaleUtil::normalizeLocale($locale)] = $v;
                     unset($translations[$locale]);
                 }
             }
@@ -274,6 +283,7 @@ class AttributeEntity extends AbstractUuidEntity
     }
 
     #[Groups([self::GROUP_LIST])]
+    #[Assert\Length(min: 1, max: 1, countUnit: Assert\Length::COUNT_GRAPHEMES)]
     public function getEmoji(): ?string
     {
         return $this->data[self::DATA_EMOJI] ?? null;
@@ -289,6 +299,7 @@ class AttributeEntity extends AbstractUuidEntity
     }
 
     #[Groups([self::GROUP_LIST])]
+    #[Assert\CssColor]
     public function getColor(): ?string
     {
         return $this->data[self::DATA_COLOR] ?? null;
@@ -306,5 +317,15 @@ class AttributeEntity extends AbstractUuidEntity
     public function __toString(): string
     {
         return $this->value ?? $this->getId() ?? '';
+    }
+
+    public function getExternalId(): ?string
+    {
+        return $this->externalId;
+    }
+
+    public function setExternalId(?string $externalId): void
+    {
+        $this->externalId = $externalId;
     }
 }
