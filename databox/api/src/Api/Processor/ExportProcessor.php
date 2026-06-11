@@ -59,7 +59,7 @@ class ExportProcessor implements ProcessorInterface
                 $extension = FileUtil::getExtensionFromType($file->getType());
                 $ext = $extension ? '.'.$extension : '';
 
-                $assetName = $this->assetNameResolver->resolveName($asset);
+                $assetName = $this->assetNameResolver->resolveNameAsString($asset);
                 $renditionName = $rendition->getName();
 
                 $files[] = [

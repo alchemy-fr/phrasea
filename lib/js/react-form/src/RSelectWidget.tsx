@@ -1,31 +1,25 @@
-import {Controller} from 'react-hook-form';
-import {FieldValues} from 'react-hook-form';
-import {Control} from 'react-hook-form';
-import {FieldPath} from 'react-hook-form';
-import React, {ReactNode, useEffect, useState} from 'react';
+import {Controller, FieldValues} from 'react-hook-form';
+import React, {useEffect, useState} from 'react';
 import {GlobalStyles, InputLabel, useTheme} from '@mui/material';
-import Select, {CommonProps, components, OptionProps} from 'react-select';
+import Select, {components, OptionProps} from 'react-select';
 import {createSelectStyles} from './selectStyles';
 import {valueToOption} from './AsyncRSelectWidget';
-import CreatableSelect, {CreatableProps} from 'react-select/creatable';
+import CreatableSelect from 'react-select/creatable';
+import {
+    ResolvedChangedValue,
+    RSelectProps,
+    SelectDenormalizeValue,
+    SelectOption,
+} from './types';
 
 export interface GroupBase<Option> {
     readonly options: readonly Option[];
     readonly label?: string;
 }
 
-type Option = Readonly<{
-    label: string;
-    value: string;
-    image?: React.ElementType | React.FC;
-    item?: object | undefined;
-}>;
-
-export type {Option as SelectOption};
-
 export const rSelectClassName = 'rselect-img';
 
-export function ImageOption<Opt extends Option>(props: OptionProps<Opt>) {
+export function ImageOption<Opt extends SelectOption>(props: OptionProps<Opt>) {
     return (
         <components.Option {...props}>
             {props.data.image && (
@@ -44,38 +38,12 @@ const componentsProp = {
     Option: ImageOption,
 };
 
-type Props<
-    TFieldValues extends FieldValues,
-    IsMulti extends boolean,
-    Opt extends Option = Option,
-> = (
-    | {
-          control: Control<TFieldValues>;
-          name: FieldPath<TFieldValues>;
-      }
-    | {
-          control?: undefined;
-          name?: string;
-      }
-) & {
-    error?: boolean | undefined;
-    clearOnSelect?: boolean;
-    disabled?: boolean | undefined;
-    label?: ReactNode;
-    allowCreate?: boolean;
-    inputHeight?: number;
-    menuWidth?: number;
-    creatableProps?: Partial<CreatableProps<Opt, IsMulti, GroupBase<Opt>>>;
-    denormalizeValue?: (value: any) => any;
-    normalizeValue?: (value: any) => any;
-} & Partial<CommonProps<Opt, IsMulti, GroupBase<Opt>>['selectProps']>;
-
-export type {Props as RSelectProps};
-
 export default function RSelectWidget<
     TFieldValues extends FieldValues,
     IsMulti extends boolean = false,
-    Opt extends Option = Option,
+    IsAllowCreate extends boolean = false,
+    Opt extends SelectOption = SelectOption,
+    Normalized = any,
 >({
     control,
     name,
@@ -95,11 +63,17 @@ export default function RSelectWidget<
     normalizeValue,
     denormalizeValue,
     ...rest
-}: Props<TFieldValues, IsMulti, Opt>) {
+}: RSelectProps<TFieldValues, IsMulti, IsAllowCreate, Opt, Normalized>) {
     const [proxyValue, setValue] = useState(initialValue);
     const theme = useTheme();
 
-    const value = normalizeValue ? normalizeValue(proxyValue) : proxyValue;
+    const value = normalizeValue
+        ? isMulti
+            ? proxyValue
+                ? (proxyValue as any[]).map(normalizeValue)
+                : proxyValue
+            : normalizeValue(proxyValue as any)
+        : proxyValue;
 
     useEffect(() => {
         setValue(initialValue);
@@ -150,20 +124,21 @@ export default function RSelectWidget<
                                           )
                                 }
                                 onChange={(newValue, meta) => {
-                                    const v = isMulti
-                                        ? allowCreate
-                                            ? newValue
-                                            : (newValue as Opt[]).map(
-                                                  v => v.value
-                                              )
-                                        : allowCreate
-                                          ? newValue
-                                          : (newValue as Opt | null)?.value;
-                                    const denormValue = denormalizeValue
-                                        ? denormalizeValue(v)
-                                        : v;
-                                    onChange(denormValue);
-                                    onChangeProp?.(denormValue as any, meta);
+                                    const denormalizedValue = resolveValues<
+                                        true,
+                                        IsMulti,
+                                        Opt
+                                    >({
+                                        handler: denormalizeValue,
+                                        isMulti,
+                                        resolveValue: true,
+                                        newValue: newValue as any,
+                                    });
+                                    onChange(denormalizedValue);
+                                    onChangeProp?.(
+                                        denormalizedValue as any,
+                                        meta
+                                    );
                                 }}
                                 isClearable={!required}
                                 isMulti={isMulti}
@@ -193,20 +168,18 @@ export default function RSelectWidget<
                 required={required}
                 components={componentsProp}
                 onChange={(newValue, meta) => {
-                    const v = isMulti
-                        ? allowCreate
-                            ? newValue
-                            : (newValue as Opt[]).map(v => v.value)
-                        : allowCreate
-                          ? newValue
-                          : (newValue as Opt | null)?.value;
-
-                    const denormValue = denormalizeValue
-                        ? denormalizeValue(v)
-                        : v;
-
-                    onChangeProp?.(denormValue, meta);
-                    setValue(!clearOnSelect ? denormValue : null);
+                    const denormalizedValue = resolveValues<
+                        false,
+                        IsMulti,
+                        Opt
+                    >({
+                        handler: denormalizeValue,
+                        isMulti,
+                        resolveValue: false,
+                        newValue: newValue as any,
+                    });
+                    onChangeProp?.(denormalizedValue as any, meta);
+                    setValue(!clearOnSelect ? denormalizedValue : null);
                 }}
                 value={valueToOption(
                     isMulti || false,
@@ -226,6 +199,65 @@ export default function RSelectWidget<
             />
         </>
     );
+}
+
+function resolveValues<
+    ResolveValue extends boolean,
+    IsMulti extends boolean = false,
+    Opt extends SelectOption = SelectOption,
+    Normalized = any,
+>({
+    handler,
+    isMulti,
+    newValue,
+    resolveValue,
+}: {
+    handler?: SelectDenormalizeValue<Opt, Normalized> | undefined;
+    isMulti?: IsMulti;
+    newValue: IsMulti extends true ? Opt[] : Opt | null;
+    resolveValue: ResolveValue;
+}): ResolvedChangedValue<ResolveValue, IsMulti, Opt> {
+    handler ??= (v => v) as SelectDenormalizeValue<Opt, Normalized>;
+
+    if (resolveValue) {
+        const v = isMulti
+            ? (newValue as Opt[]).map(v => v.value)
+            : (newValue as Opt | null)?.value || null;
+
+        if (isMulti) {
+            // @ts-expect-error Unknown
+            return (v as Opt['value'][]).map(handler) as Opt['value'][] &
+                ResolvedChangedValue<true, true, Opt>;
+        }
+
+        if (v) {
+            // @ts-expect-error Unknown
+            return handler(v as Opt['value']) as Opt['value'] &
+                ResolvedChangedValue<true, false, Opt>;
+        }
+
+        // @ts-expect-error Unknown
+        return null as ResolvedChangedValue<true, false, Opt>;
+    }
+
+    if (isMulti) {
+        // @ts-expect-error Unknown
+        return (newValue as Opt[]).map(opt => ({
+            ...opt,
+            value: handler(opt.value),
+        })) as ResolvedChangedValue<false, true, Opt>;
+    }
+
+    if (newValue) {
+        // @ts-expect-error Unknown
+        return {
+            ...newValue,
+            value: handler((newValue as Opt).value),
+        } as ResolvedChangedValue<false, false, Opt>;
+    }
+
+    // @ts-expect-error Unknown
+    return null as ResolvedChangedValue<false, false, Opt>;
 }
 
 export function RSelectStyle() {

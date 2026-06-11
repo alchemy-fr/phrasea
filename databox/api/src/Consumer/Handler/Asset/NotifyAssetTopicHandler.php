@@ -33,7 +33,7 @@ readonly class NotifyAssetTopicHandler
             default => throw new \InvalidArgumentException(sprintf('Invalid asset event "%s"', $message->getEvent())),
         };
 
-        $assetName = $asset ? $this->assetNameResolver->resolveName($asset) : null;
+        $assetName = $asset ? $this->assetNameResolver->resolveNameAsString($asset) : null;
 
         $notificationParams = [
             'name' => $assetName ?? $asset?->getId() ?? $message->getAssetName() ?? 'Undefined',

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Elasticsearch\BuiltInField;
 
 use App\Entity\Core\Asset;
-use App\Entity\Core\Attribute;
 use App\Entity\Core\CollectionAsset;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,12 +33,7 @@ final class StoryBuiltInField extends AbstractEntityBuiltInField
      */
     protected function resolveLabel($value): string
     {
-        $attribute = $this->assetNameResolver->resolveName($value);
-        if ($attribute instanceof Attribute) {
-            return (string) $attribute->getValue();
-        }
-
-        return $attribute ?? '';
+        return $this->assetNameResolver->resolveNameAsString($value) ?? '';
     }
 
     protected function getEntityClass(): string

@@ -44,20 +44,19 @@ export default function BooleanFilterSelect<TFieldValues extends FieldValues>({
     );
 }
 
-function normalizeValue(
-    value: boolean | number | null | undefined
-): string | undefined {
+function normalizeValue(value: boolean | number | null): string | null {
     if (isNotNull(value)) {
         return value ? Bool.Yes : Bool.No;
     }
+
+    return null;
 }
 
-function denormalizeValue(
-    value: boolean | number | string | undefined | null
-): boolean | undefined {
+function denormalizeValue(value: string | null): boolean | null {
     if (value === Bool.Yes) {
         return true;
     } else if (value === Bool.No) {
         return false;
     }
+    return null;
 }
