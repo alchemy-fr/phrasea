@@ -28,6 +28,7 @@ import {
     CheckboxWidget,
     FormFieldErrors,
     FormRow,
+    ResolvedChangedValue,
     SelectOption,
     TranslatedField,
 } from '@alchemy/react-form';
@@ -557,7 +558,7 @@ export default function AttributeDefinitionManager({
                             'Filter by Asset Type'
                         )}
                         value={filters.target as any}
-                        onChange={newValue =>
+                        onChange={(newValue: ResolvedChangedValue<false>) =>
                             setFilter(
                                 'target',
                                 denormalizeAssetTypeFilterValue(
@@ -586,8 +587,8 @@ export default function AttributeDefinitionManager({
                             'Fill from Name'
                         )}
                         value={filters.fillFromName as any}
-                        onChange={newValue => {
-                            setFilter('fillFromName', newValue);
+                        onChange={(newValue: ResolvedChangedValue<false>) => {
+                            setFilter('fillFromName', newValue?.value);
                         }}
                     />
                     <BooleanFilterSelect
@@ -596,8 +597,8 @@ export default function AttributeDefinitionManager({
                             'Use as Name'
                         )}
                         value={filters.useAsName as any}
-                        onChange={newValue => {
-                            setFilter('useAsName', newValue);
+                        onChange={(newValue: ResolvedChangedValue<false>) => {
+                            setFilter('useAsName', newValue?.value);
                         }}
                     />
                 </Box>

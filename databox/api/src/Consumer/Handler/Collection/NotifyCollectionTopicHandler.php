@@ -45,7 +45,7 @@ readonly class NotifyCollectionTopicHandler
 
         $assetName = null;
         if ($asset instanceof Asset) {
-            $assetName = $this->assetNameResolver->resolveName($asset) ?? $message->getAssetName() ?? $asset->getId();
+            $assetName = $this->assetNameResolver->resolveNameAsString($asset) ?? $message->getAssetName() ?? $asset->getId();
         }
         $assetName ??= 'Undefined';
 

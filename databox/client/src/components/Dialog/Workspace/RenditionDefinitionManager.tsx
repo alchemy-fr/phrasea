@@ -16,6 +16,7 @@ import {
     CheckboxWidget,
     FormFieldErrors,
     FormRow,
+    ResolvedChangedValue,
     RSelectWidget,
     SelectOption,
     TranslatedField,
@@ -306,7 +307,7 @@ export default function RenditionDefinitionManager({
                             'Filter by Asset Type'
                         )}
                         value={filters.target as any}
-                        onChange={newValue =>
+                        onChange={(newValue: ResolvedChangedValue<false>) =>
                             setFilter(
                                 'target',
                                 denormalizeValue(

@@ -43,15 +43,13 @@ export default function AssetTypeSelect<TFieldValues extends FieldValues>({
     );
 }
 
-function normalizeValue(
-    value: string | number | null | undefined
-): string | undefined {
-    return value?.toString();
+function normalizeValue(value: string | number | null): string | null {
+    return value?.toString() || null;
 }
 
 export function denormalizeValue(
-    value: AssetType | number | string | undefined | null
-): AssetType | null | undefined {
+    value: AssetType | number | string | null
+): AssetType | null {
     if (value) {
         if (typeof value === 'string') {
             return parseInt(value) as AssetType;
@@ -60,5 +58,5 @@ export function denormalizeValue(
         return value as AssetType;
     }
 
-    return undefined;
+    return null;
 }

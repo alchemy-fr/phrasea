@@ -11,13 +11,7 @@ import {
 } from '../../../api/asset';
 import {Privacy} from '../../../api/privacy';
 import {FormFieldErrors, FormRow} from '@alchemy/react-form';
-import {
-    FormGroup,
-    FormLabel,
-    InputLabel,
-    Skeleton,
-    TextField,
-} from '@mui/material';
+import {FormGroup, FormLabel, InputLabel, Skeleton} from '@mui/material';
 import TagSelect from '../../Form/TagSelect';
 import PrivacyField from '../../Ui/PrivacyField';
 import {useAssetStore} from '../../../store/assetStore.ts';
@@ -77,7 +71,6 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
     }, [getActions]);
 
     const {
-        register,
         control,
         formState: {errors, isDirty: editDirty},
         submitting,
@@ -136,18 +129,6 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
             <form id={formId} onSubmit={handleSubmit}>
                 {capabilities.edit ? (
                     <>
-                        <FormRow>
-                            <TextField
-                                autoFocus
-                                required={true}
-                                label={t('form.asset.name.label', 'Name')}
-                                disabled={submitting}
-                                {...register('name', {
-                                    required: true,
-                                })}
-                            />
-                            <FormFieldErrors field={'name'} errors={errors} />
-                        </FormRow>
                         <FormRow>
                             <FormGroup>
                                 <InputLabel>
