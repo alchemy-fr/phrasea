@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Asset\Attribute;
 
+use App\Attribute\AttributeTypeRegistry;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Http\LocaleContext;
@@ -19,7 +20,23 @@ final readonly class AssetNameResolver
         private AttributesResolver $attributesResolver,
         private AttributeDefinitionRepository $attributeDefinitionRepository,
         private LocaleContext $localeContext,
+        private AttributeTypeRegistry $attributeTypeRegistry,
     ) {
+    }
+
+    public function resolveNameAsString(
+        Asset $asset,
+        ?AttributeIndex $attributesIndex = null,
+        ?array $preferredLocales = null,
+    ): ?string {
+        $name = $this->resolveName($asset, $attributesIndex, $preferredLocales);
+        if ($name instanceof Attribute) {
+            $attributeType = $this->attributeTypeRegistry->getStrictType($name->getDefinition()->getType());
+
+            return $attributeType->getStringValue($name->getValue(), null);
+        }
+
+        return $name;
     }
 
     public function resolveName(

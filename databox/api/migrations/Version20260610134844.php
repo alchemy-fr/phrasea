@@ -97,7 +97,7 @@ SQL);
 
         $this->addSql(<<<SQL
 UPDATE attribute_definition ad
-SET name_priority = ana.priority + (ana.overrides::int * 10)
+SET name_priority = ana.priority + (ana.overrides::int * 11)
 FROM asset_name_attribute ana
 WHERE ana.workspace_id = ad.workspace_id AND ana.definition_id = ad.id
 SQL);

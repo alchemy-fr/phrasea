@@ -126,7 +126,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
                 ],
                 'json' => [
                     'transcription' => [
-                        'name' => $this->assetNameResolver->resolveName($asset),
+                        'name' => $this->assetNameResolver->resolveNameAsString($asset),
                         'is_subtitle' => true,
                         'language' => $sourceLanguage,
                         'organization_id' => $organizationId,

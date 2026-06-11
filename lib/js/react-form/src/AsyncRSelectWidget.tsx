@@ -9,12 +9,8 @@ import {AsyncProps} from 'react-select/async';
 import {OnChangeValue} from 'react-select';
 import {createSelectStyles} from './selectStyles';
 import AsyncCreatableSelect from 'react-select/async-creatable';
-import {
-    GroupBase,
-    ImageOption,
-    RSelectStyle,
-    SelectOption,
-} from './RSelectWidget';
+import {GroupBase, ImageOption, RSelectStyle} from './RSelectWidget';
+import {SelectOption} from './types';
 
 type CompositeValue<IsMulti extends boolean> = IsMulti extends true
     ? string[]

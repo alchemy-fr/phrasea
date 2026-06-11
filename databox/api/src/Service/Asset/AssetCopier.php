@@ -55,7 +55,7 @@ class AssetCopier
                     $userId,
                     $file->getId(),
                     $collection ? [$collection->getId()] : [],
-                    $this->assetNameResolver->resolveName($asset),
+                    $this->assetNameResolver->resolveNameAsString($asset),
                     $file->getFileName()
                 ));
             }

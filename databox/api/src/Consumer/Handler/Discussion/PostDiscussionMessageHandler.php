@@ -49,7 +49,7 @@ readonly class PostDiscussionMessageHandler
         $notificationId = 'databox-discussion-new-comment';
 
         if ($object instanceof Asset) {
-            $objectName = $this->assetNameResolver->resolveName($object);
+            $objectName = $this->assetNameResolver->resolveNameAsString($object);
         } elseif ($object instanceof ObjectDisplayableNameInterface) {
             $objectName = $object->getObjectDisplayName();
         } else {
