@@ -11,6 +11,7 @@ export default function ListItemContainer<D extends DefinitionBase>({
     selection,
     listComponent,
     onDelete,
+    onUpdate,
 }: ListItemContainerProps<D>) {
     return (
         <>
@@ -40,10 +41,11 @@ export default function ListItemContainer<D extends DefinitionBase>({
                         </div>
                     ) : null}
                     {React.createElement(listComponent, {
-                        data: item,
                         key: item.id,
+                        data: item,
                         onEdit: handleItemClick(item, true),
                         onDelete: onDelete ? () => onDelete(item) : undefined,
+                        onUpdate,
                     })}
                 </ListItemButton>
             </ListItem>

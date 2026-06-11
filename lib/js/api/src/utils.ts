@@ -20,18 +20,30 @@ export function getBestErrorProp(data: any): string | undefined {
         return;
     }
 
+    let error: string | undefined;
     if (data[ApiConstant.HydraTitle] && data[ApiConstant.HydraDescription]) {
-        return `${data[ApiConstant.HydraTitle]}: ${data[ApiConstant.HydraDescription]}`;
+        error = `${data[ApiConstant.HydraTitle]}: ${data[ApiConstant.HydraDescription]}`;
+    } else {
+        error =
+            data['error_message'] ??
+            data['detail'] ??
+            data['message'] ??
+            data[ApiConstant.HydraDescription] ??
+            data[ApiConstant.HydraTitle] ??
+            data['title'];
     }
 
-    return (
-        data['error_message'] ??
-        data['detail'] ??
-        data['message'] ??
-        data[ApiConstant.HydraDescription] ??
-        data[ApiConstant.HydraTitle] ??
-        data['title']
-    );
+    if (error && data['trace']) {
+        return `${error}
+
+${formatTrace(data['trace'])}`;
+    }
+
+    return error;
+}
+
+function formatTrace(trace: any): string {
+    return JSON.stringify(trace, null, 4);
 }
 
 export function isErrorOfCode(e: any, codes: number[]): e is AxiosError {

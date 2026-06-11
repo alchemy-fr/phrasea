@@ -91,7 +91,15 @@ export default function useFormSubmit<
                     e.response &&
                     [400, 500].includes(e.response.status)
                 ) {
-                    const resData = e.response.data;
+                    let resData = e.response.data;
+                    if (e.response.config.responseType === 'blob') {
+                        const txt = await (e.response.data as Blob).text();
+                        try {
+                            resData = JSON.parse(txt);
+                        } catch {
+                            resData = {message: txt};
+                        }
+                    }
 
                     setRemoteErrors(p =>
                         p.concat(

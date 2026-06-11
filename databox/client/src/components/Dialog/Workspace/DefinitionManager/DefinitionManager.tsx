@@ -99,6 +99,7 @@ type Props<
     ) => ConfirmDialogProps<any>['assertions'];
     batchActions?: (selection: string[]) => BatchAction<D>[];
     extraProps?: EP;
+    listWidth?: number;
 };
 
 export default function DefinitionManager<
@@ -133,6 +134,7 @@ export default function DefinitionManager<
     batchActions,
     extraProps,
     filters: inputFilters,
+    listWidth = 250,
 }: Props<D, F, EP>) {
     const {openModal} = useModals();
     const [selection, setSelection] = useState<string[]>([]);
@@ -422,6 +424,7 @@ export default function DefinitionManager<
         return {
             selectedItem: item as (D & SortableItem) | undefined,
             listComponent,
+            onUpdate: onItemUpdate,
             handleItemClick,
             setSelection,
             selection: batchActions ? selection : undefined,
@@ -432,6 +435,7 @@ export default function DefinitionManager<
     }, [
         onSort,
         batchActions,
+        onItemUpdate,
         handleItemClick,
         itemDeletable,
         onDelete,
@@ -454,7 +458,7 @@ export default function DefinitionManager<
                     sx={{
                         overflowY: 'auto',
                         p: 0,
-                        width: 250,
+                        width: listWidth,
                     }}
                     component="div"
                     role="list"
@@ -630,6 +634,7 @@ export default function DefinitionManager<
                                                     : undefined
                                             }
                                             listComponent={listComponent}
+                                            onUpdate={onItemUpdate}
                                             setSelection={setSelection}
                                         />
                                     );

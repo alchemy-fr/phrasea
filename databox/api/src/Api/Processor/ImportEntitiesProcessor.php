@@ -9,11 +9,14 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\ImportEntitiesInput;
-use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
-use App\Repository\Core\AttributeEntityRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\Attribute\AttributeEntity\Importer\AttributeEntityImporterInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Container\NotFoundExceptionInterface;
+use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Contracts\Service\ServiceProviderInterface;
 
 class ImportEntitiesProcessor implements ProcessorInterface
 {
@@ -21,7 +24,8 @@ class ImportEntitiesProcessor implements ProcessorInterface
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly AttributeEntityRepository $attributeEntityRepository,
+        #[TaggedLocator(AttributeEntityImporterInterface::TAG, defaultIndexMethod: 'getName')]
+        private readonly ServiceProviderInterface $importers,
     ) {
     }
 
@@ -34,39 +38,18 @@ class ImportEntitiesProcessor implements ProcessorInterface
         $list = DoctrineUtil::findStrict($this->em, EntityList::class, $listId);
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $list);
 
-        $inputValues = $data->values ?? [];
-        if ([] === $inputValues) {
+        if (empty($data->data)) {
             return $list;
         }
 
-        $normalizedValues = array_values(array_unique($inputValues));
-
-        foreach (array_chunk($normalizedValues, 2) as $chunk) { // TODO change number
-            $qb = $this->attributeEntityRepository->createQueryBuilder('a')
-                ->select('a.value')
-                ->andWhere('a.list = :list')
-                ->andWhere('a.value IN (:values)')
-                ->setParameter('list', $list->getId())
-                ->setParameter('values', $chunk);
-
-            $existingRows = $qb->getQuery()->getScalarResult();
-
-            $existingValues = array_column($existingRows, 'value');
-            $normalizedValues = array_diff($normalizedValues, $existingValues);
+        try {
+            /** @var AttributeEntityImporterInterface $importer */
+            $importer = $this->importers->get($data->format);
+        } catch (NotFoundExceptionInterface $e) {
+            throw new BadRequestHttpException(sprintf('Unsupported import format "%s".', $data->format), previous: $e);
         }
 
-        if (empty($normalizedValues)) {
-            return $list;
-        }
-
-        foreach ($normalizedValues as $value) {
-            $entity = new AttributeEntity();
-            $entity->setList($list);
-            $entity->setValue($value);
-            $this->em->persist($entity);
-        }
-
-        $this->em->flush();
+        $importer->import($list, $data->data);
 
         return $list;
     }

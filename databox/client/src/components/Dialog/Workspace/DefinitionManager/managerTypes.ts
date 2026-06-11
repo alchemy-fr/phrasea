@@ -16,10 +16,13 @@ export type DefinitionItemProps<D extends DefinitionBase> = {
     data: D;
 };
 export type DefinitionManagerExtraProps = Record<string, any>;
+
 export type DefinitionListItemProps<D extends DefinitionBase> = {
     onEdit: () => void;
     onDelete?: () => void;
+    onUpdate: (data: D) => void;
 } & DefinitionItemProps<D>;
+
 export type DefinitionItemFormProps<
     D extends DefinitionBase,
     EP extends DefinitionManagerExtraProps = {},
@@ -104,6 +107,7 @@ export type ListItemContainerProps<D extends DefinitionBase> = {
     setSelection: StateSetter<string[]>;
     itemDeletable?: boolean;
     onDelete?: (item: D) => void;
+    onUpdate: (item: D) => void;
     handleItemClick: (
         item: D,
         forceEdit?: boolean

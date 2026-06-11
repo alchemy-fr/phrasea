@@ -4,11 +4,10 @@ namespace App\Api\Model\Input;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-final class ImportEntitiesInput
+final class ExportEntitiesInput
 {
-    #[Assert\NotBlank]
-    public ?string $data = null;
-
+    public ?string $locale = null;
     #[Assert\NotBlank]
     public ?string $format = null;
+
 }

@@ -4,8 +4,9 @@ import {AppDialog} from '@alchemy/phrasea-ui';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {Button, TextField} from '@mui/material';
 import {useFormSubmit} from '@alchemy/api';
-import {RemoteErrors} from '@alchemy/react-form';
+import {FormRow, RemoteErrors, RSelectWidget} from '@alchemy/react-form';
 import {importEntities} from '../../../api/entityList.ts';
+import FileDropzoneWidget from '../../Form/FileDropzoneWidget.tsx';
 
 type Props = {
     list: EntityList;
@@ -13,7 +14,9 @@ type Props = {
 } & StackedModalProps;
 
 type FormData = {
-    values: string;
+    data: string;
+    format: string;
+    file?: File | null;
 };
 
 export default function ImportAttributeEntitiesDialog({
@@ -25,19 +28,33 @@ export default function ImportAttributeEntitiesDialog({
     const {t} = useTranslation();
     const {closeModal} = useModals();
 
+    const formatOptions = [
+        {
+            value: 'raw',
+            label: t(
+                'attribute_entity.import.format.raw',
+                'Raw (One value per line)'
+            ),
+        },
+        {
+            value: 'csv',
+            label: t('attribute_entity.import.format.csv', 'CSV'),
+        },
+    ];
+
     const formId = 'import-attribute-entities-form';
-    const {handleSubmit, register, remoteErrors, submitting} =
+    const {handleSubmit, register, remoteErrors, submitting, control, watch} =
         useFormSubmit<FormData>({
             defaultValues: {
-                values: '',
+                format: formatOptions[0].value,
+                data: '',
+                file: null,
             },
             onSubmit: async data => {
-                const entries = data.values
-                    .split('\n')
-                    .map(line => line.trim())
-                    .filter(line => line.length > 0);
-
-                await importEntities(list.id, entries);
+                const d = data.file
+                    ? await new Blob([data.file]).text()
+                    : data.data;
+                await importEntities(list.id, data.format, d);
 
                 return data;
             },
@@ -50,6 +67,8 @@ export default function ImportAttributeEntitiesDialog({
                 onSuccess();
             },
         });
+
+    const currentFormat = watch('format');
 
     return (
         <AppDialog
@@ -82,20 +101,56 @@ export default function ImportAttributeEntitiesDialog({
             )}
         >
             <form onSubmit={handleSubmit} id={formId}>
-                <TextField
-                    label={t(
-                        'dialog.export_attribute_entities.values.label',
-                        'Values'
+                <FormRow>
+                    <RSelectWidget
+                        control={control}
+                        label={t(
+                            'dialog.export_attribute_entities.format',
+                            'Format'
+                        )}
+                        name={'format'}
+                        required={true}
+                        placeholder={t(
+                            'dialog.export_attribute_entities.select_format',
+                            'Select Format'
+                        )}
+                        isClearable={false}
+                        options={formatOptions.map(opt => ({
+                            value: opt.value,
+                            label: opt.label,
+                        }))}
+                    />
+                </FormRow>
+
+                <FormRow>
+                    {currentFormat === 'raw' ? (
+                        <TextField
+                            label={t(
+                                'dialog.export_attribute_entities.data.label',
+                                'Data'
+                            )}
+                            fullWidth={true}
+                            multiline={true}
+                            minRows={20}
+                            {...register('data')}
+                            slotProps={{
+                                input: {
+                                    style: {
+                                        fontFamily: 'Monospace, monospace',
+                                    },
+                                },
+                            }}
+                        />
+                    ) : (
+                        <FileDropzoneWidget
+                            control={control}
+                            name={'file'}
+                            accept={{
+                                'text/csv': ['.csv'],
+                            }}
+                        />
                     )}
-                    helperText={t(
-                        'dialog.export_attribute_entities.values.helper_text',
-                        'Enter one attribute entity value per line.'
-                    )}
-                    fullWidth={true}
-                    multiline={true}
-                    minRows={20}
-                    {...register('values')}
-                />
+                </FormRow>
                 <RemoteErrors errors={remoteErrors} />
             </form>
         </AppDialog>

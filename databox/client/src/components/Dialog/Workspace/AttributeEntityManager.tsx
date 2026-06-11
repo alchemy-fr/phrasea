@@ -1,4 +1,8 @@
-import {AttributeEntity, EntityList} from '../../../types';
+import {
+    AttributeEntity,
+    AttributeEntityStatus,
+    EntityList,
+} from '../../../types';
 import {
     deleteAttributeEntity,
     getAttributeEntities,
@@ -37,6 +41,9 @@ import {
 import {forceObject} from '@alchemy/core';
 import AttributeEntityListText from '../../Media/Asset/Attribute/AttributeEntityListText.tsx';
 import MergeEntitiesDialog from './MergeEntitiesDialog.tsx';
+import {stopPropagation} from '../../../lib/stdFuncs.ts';
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 
 type ExtraProps = {
     list: EntityList;
@@ -54,6 +61,7 @@ function Item({
             workspace={workspace}
             data={data}
             list={list}
+            withStatus={true}
         />
     );
 }
@@ -61,7 +69,23 @@ function Item({
 function EntityListItem({
     data,
     onDelete,
+    onUpdate,
 }: DefinitionListItemProps<AttributeEntity>) {
+    const {t} = useTranslation();
+
+    const createUpdateStatus =
+        (status: AttributeEntityStatus) =>
+        async (e: React.MouseEvent<HTMLButtonElement>) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            onUpdate(
+                await putAttributeEntity(data.id, {
+                    status,
+                })
+            );
+        };
+
     return (
         <>
             <AttributeEntityListText
@@ -71,19 +95,54 @@ function EntityListItem({
                 }}
                 inList={true}
             />
-            {onDelete ? (
+
+            {onDelete || data.status === AttributeEntityStatus.Pending ? (
                 <ListItemSecondaryAction>
-                    <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        color={'error'}
-                        onClick={e => {
-                            e.stopPropagation();
-                            onDelete();
-                        }}
-                    >
-                        <DeleteIcon />
-                    </IconButton>
+                    {data.status === AttributeEntityStatus.Pending && (
+                        <>
+                            <IconButton
+                                size={'small'}
+                                onMouseDown={stopPropagation}
+                                onClick={createUpdateStatus(
+                                    AttributeEntityStatus.Approved
+                                )}
+                                title={t(
+                                    'attribute_entity.pending.approve',
+                                    'Approve'
+                                )}
+                                color={'success'}
+                            >
+                                <ThumbUpIcon fontSize={'small'} />
+                            </IconButton>
+                            <IconButton
+                                size={'small'}
+                                onMouseDown={stopPropagation}
+                                onClick={createUpdateStatus(
+                                    AttributeEntityStatus.Rejected
+                                )}
+                                title={t(
+                                    'attribute_entity.pending.reject',
+                                    'Reject'
+                                )}
+                                color={'error'}
+                            >
+                                <ThumbDownIcon fontSize={'small'} />
+                            </IconButton>
+                        </>
+                    )}
+                    {onDelete ? (
+                        <IconButton
+                            edge="end"
+                            aria-label="delete"
+                            color={'error'}
+                            onClick={e => {
+                                e.stopPropagation();
+                                onDelete();
+                            }}
+                        >
+                            <DeleteIcon />
+                        </IconButton>
+                    ) : null}
                 </ListItemSecondaryAction>
             ) : null}
         </>
@@ -122,6 +181,7 @@ export default function AttributeEntityManager({
 
     return (
         <DefinitionManager
+            listWidth={350}
             normalizeData={data => {
                 return {
                     ...data,
@@ -186,7 +246,7 @@ export default function AttributeEntityManager({
                                         openModal(
                                             ExportAttributeEntitiesDialog,
                                             {
-                                                list: items,
+                                                list,
                                                 locales:
                                                     workspace.enabledLocales ??
                                                     [],
