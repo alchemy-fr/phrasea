@@ -23,7 +23,7 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
         }
     }
 
-    public function denormalizeValue(?string $value)
+    public function denormalizeValue(?string $value): mixed
     {
         return $value;
     }
