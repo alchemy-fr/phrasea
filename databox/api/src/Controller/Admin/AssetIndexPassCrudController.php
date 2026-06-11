@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use App\Consumer\Handler\Search\AssetIndex;
 use App\Elasticsearch\AssetIndexer;
 use App\Entity\Admin\AssetIndexPass;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -14,14 +15,15 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 class AssetIndexPassCrudController extends AbstractAdminCrudController
 {
     public function __construct(
         private readonly AdminUrlGenerator $adminUrlGenerator,
         private readonly AssetIndexer $assetIndexer,
+        private readonly MessageBusInterface $bus,
     ) {
     }
 
@@ -56,7 +58,7 @@ class AssetIndexPassCrudController extends AbstractAdminCrudController
     {
         yield IdField::new()
             ->hideOnForm();
-        yield TextareaField::new('progressString')
+        yield TextareaField::new('progressString', 'Progress')
             ->onlyOnIndex();
         yield TextareaField::new('timeTakenUnit')
             ->onlyOnIndex();
@@ -75,7 +77,7 @@ class AssetIndexPassCrudController extends AbstractAdminCrudController
 
     public function assetIndex(): Response
     {
-        $this->assetIndexer->index(new NullOutput());
+        $this->bus->dispatch(new AssetIndex());
         $this->addFlash('info', 'Asset indexing has been triggered');
 
         $url = $this->adminUrlGenerator
