@@ -234,7 +234,7 @@ class AssetTest extends AbstractSearchTestCase
             ],
         ]);
 
-        $this->assertResponseStatusCodeSame(403);
+        $this->assertResponseStatusCodeSame(422);
     }
 
     public function testUpdateAsset(): void

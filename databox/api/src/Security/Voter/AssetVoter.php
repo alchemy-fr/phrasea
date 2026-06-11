@@ -45,7 +45,7 @@ class AssetVoter extends AbstractVoter
         }
 
         $workspace = $subject->getWorkspace();
-        if (!$this->security->isGranted(self::READ, $workspace)) {
+        if (!$workspace || !$this->security->isGranted(self::READ, $workspace)) {
             return false;
         }
 

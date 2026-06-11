@@ -6,7 +6,7 @@ use Alchemy\AdminBundle\Field\CodeField;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AuthBundle\Security\JwtUser;
-use Alchemy\AuthBundle\Security\Voter\SuperAdminVoter;
+use Alchemy\AuthBundle\Security\Voter\AdminVoter;
 use Alchemy\MessengerBundle\Entity\MessengerMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -27,7 +27,7 @@ use Symfony\Component\Messenger\Stamp\SentToFailureTransportStamp;
 use Symfony\Component\Messenger\Transport\Serialization\SerializerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted(new Expression('is_granted("'.SuperAdminVoter::ROLE.'") or is_granted("'.JwtUser::ROLE_TECH.'")'))]
+#[IsGranted(new Expression('is_granted("'.AdminVoter::ROLE.'") or is_granted("'.JwtUser::ROLE_TECH.'")'))]
 class MessengerMessageCrudController extends AbstractCrudController
 {
     public function __construct(
