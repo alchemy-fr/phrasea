@@ -3,7 +3,7 @@
 namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
-use App\Entity\Core\Asset;
+use App\Entity\Admin\AssetIndexPass;
 use App\Repository\Core\AssetRepository;
 use App\Repository\Core\AttributeRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -60,6 +60,14 @@ final readonly class AssetIndexer
         $progressBar = new ProgressBar($output, $total);
         $progressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:16s%/%estimated:-16s% %memory:6s%');
 
+        $assetIndexPass = new AssetIndexPass();
+        $assetIndexPass->setProgress(0);
+        $assetIndexPass->setDocumentCount((int) $total);
+        $this->em->persist($assetIndexPass);
+        $this->em->flush();
+
+        $assetIndexPassId = $assetIndexPass->getId();
+
         $this->assetPermissionComputer->setWorkspaceCache(new ArrayAdapter(storeSerialized: false));
         $this->assetPermissionComputer->setCollectionCache(new ArrayAdapter(storeSerialized: false));
         $this->assetPermissionComputer->setAssetCache(new ArrayAdapter(storeSerialized: false));
@@ -82,6 +90,7 @@ final readonly class AssetIndexer
         /* @var Asset $asset */
         while ($assets = $getPage($cursor)) {
             $i = 0;
+            $aIndexPass = $this->getIndexPass($assetIndexPassId);
 
             $shouldClearLastCollection = false;
             $assetStack = [];
@@ -113,6 +122,10 @@ final readonly class AssetIndexer
             $this->temporaryCacheFactory->reset();
 
             $progressBar->advance($i);
+            $aIndexPass = $this->getIndexPass($assetIndexPassId);
+            $aIndexPass->setProgress($aIndexPass->getProgress() + $i);
+            $this->em->persist($aIndexPass);
+            $this->em->flush();
 
             if ($i < $maxResults) {
                 break;
@@ -120,5 +133,20 @@ final readonly class AssetIndexer
         }
 
         $progressBar->finish();
+        $aIndexPass = $this->getIndexPass($assetIndexPassId);
+        $aIndexPass->setEndedAt(new \DateTimeImmutable());
+        $this->em->persist($aIndexPass);
+        $this->em->flush();
+    }
+
+    private function getIndexPass(string $id): AssetIndexPass
+    {
+        /** @var AssetIndexPass $assetIndexPass */
+        $assetIndexPass = $this->em->find(AssetIndexPass::class, $id);
+        if (null === $assetIndexPass) {
+            throw new \RuntimeException('No asset index pass found with ID '.$id);
+        }
+
+        return $assetIndexPass;
     }
 }
