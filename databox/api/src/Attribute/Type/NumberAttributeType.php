@@ -59,7 +59,7 @@ class NumberAttributeType extends AbstractAttributeType
         }
     }
 
-    public function denormalizeValue(?string $value)
+    public function denormalizeValue(?string $value): mixed
     {
         if (is_numeric($value)) {
             return $value + 0; // Convert to int or float

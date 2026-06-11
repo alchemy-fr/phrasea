@@ -171,7 +171,7 @@ final class EntityAttributeType extends TextAttributeType
         return $this->getTranslatedValue($entity, $locale);
     }
 
-    public function denormalizeValue(?string $value)
+    public function denormalizeValue(?string $value): mixed
     {
         $entity = $this->getEntityFromValue($value);
         if (!$entity instanceof AttributeEntity) {

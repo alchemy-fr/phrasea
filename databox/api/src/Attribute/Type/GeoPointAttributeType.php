@@ -49,7 +49,7 @@ final class GeoPointAttributeType extends AbstractAttributeType
         return $this->normalizeValue($this->denormalizeValue($value));
     }
 
-    public function denormalizeValue(?string $value)
+    public function denormalizeValue(?string $value): mixed
     {
         if (null === $value) {
             return null;

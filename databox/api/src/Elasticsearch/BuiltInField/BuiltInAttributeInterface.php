@@ -15,6 +15,11 @@ interface BuiltInAttributeInterface
 {
     final public const string TAG = 'app.built_in_attribute';
 
+    /**
+     * De-normalize value from database to PHP.
+     */
+    public function denormalizeValue(?string $value): mixed;
+
     public function normalizeBuckets(array $buckets): array;
 
     public function resolveGroupValue(string $name, $value): GroupValue;

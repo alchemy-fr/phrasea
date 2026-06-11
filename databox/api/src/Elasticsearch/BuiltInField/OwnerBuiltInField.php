@@ -22,6 +22,23 @@ final class OwnerBuiltInField extends AbstractBuiltInAttribute
     ) {
     }
 
+    public function denormalizeValue(?string $value): mixed
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        $users = $this->userRepository->getUsersByIds([$value]);
+        if (empty($users)) {
+            return null;
+        }
+
+        return [
+            'id' => $value,
+            'username' => $this->resolveLabel($users[$value]),
+        ];
+    }
+
     public function normalizeBuckets(array $buckets): array
     {
         $users = $this->userRepository->getUsersByIds(array_map(function (array $bucket): string {
@@ -60,7 +77,7 @@ final class OwnerBuiltInField extends AbstractBuiltInAttribute
 
     protected function resolveKey($value): string
     {
-        return (string) $value;
+        return (string) $value['id'];
     }
 
     public static function getName(): string
