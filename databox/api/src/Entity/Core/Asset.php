@@ -366,6 +366,9 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     #[ORM\JoinColumn(nullable: true)]
     private ?Collection $referenceCollection = null;
 
+    /**
+     * @var Attribute[]
+     */
     #[ORM\OneToMany(mappedBy: 'asset', targetEntity: Attribute::class, cascade: ['persist', 'remove'])]
     private ?DoctrineCollection $attributes = null;
 
@@ -587,6 +590,9 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         $this->attributes->add($attribute);
     }
 
+    /**
+     * @return Attribute[]
+     */
     public function getAttributes(): DoctrineCollection
     {
         return $this->attributes;
