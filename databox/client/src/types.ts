@@ -110,7 +110,6 @@ export interface Asset
         }>,
         Entity {
     name?: string | undefined;
-    resolvedName?: string;
     nameHighlight: string | null;
     description?: string;
     privacy: number;

@@ -41,7 +41,7 @@ export default function AssetShare({asset}: Props) {
                             p: 2,
                         }}
                     >
-                        {asset.resolvedName}
+                        {asset.name}
                     </Typography>
                     <div
                         style={{
@@ -53,7 +53,7 @@ export default function AssetShare({asset}: Props) {
                         <FilePlayer
                             file={rendition.file!}
                             trackingId={asset.resolvedTrackingId}
-                            title={asset.resolvedName}
+                            title={asset.name}
                             autoPlayable={false}
                             controls={true}
                         />
