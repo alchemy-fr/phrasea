@@ -19,22 +19,23 @@ final readonly class WorkspaceCreator
 
     public function createWorkspace(Workspace $workspace): void
     {
-        $publicRenditionPolicy = new RenditionPolicy();
-        $publicRenditionPolicy->setWorkspace($workspace);
-        $publicRenditionPolicy->setName('Public');
-        $publicRenditionPolicy->setPublic(true);
-        $this->em->persist($publicRenditionPolicy);
+        $renditionPolicy = new RenditionPolicy();
+        $renditionPolicy->setWorkspace($workspace);
+        $renditionPolicy->setName('Public');
+        $renditionPolicy->setPublic(true);
+        $renditionPolicy->setEditable(true);
+        $this->em->persist($renditionPolicy);
 
-        $publicPolicy = new AttributePolicy();
-        $publicPolicy->setWorkspace($workspace);
-        $publicPolicy->setPublic(true);
-        $publicPolicy->setEditable(true);
-        $publicPolicy->setName('Public');
-        $this->em->persist($publicPolicy);
+        $attributePolicy = new AttributePolicy();
+        $attributePolicy->setWorkspace($workspace);
+        $attributePolicy->setPublic(true);
+        $attributePolicy->setEditable(true);
+        $attributePolicy->setName('Public');
+        $this->em->persist($attributePolicy);
 
         $nameAttribute = new AttributeDefinition();
         $nameAttribute->setWorkspace($workspace);
-        $nameAttribute->setPolicy($publicPolicy);
+        $nameAttribute->setPolicy($attributePolicy);
         $nameAttribute->setName('Name');
         $nameAttribute->setSlug('name');
         $nameAttribute->setType(TextAttributeType::NAME);
