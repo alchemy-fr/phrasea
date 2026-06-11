@@ -33,8 +33,20 @@ final readonly class AssetNameFiller
 
         $nameAttributes = $this->attributeDefinitionRepository->getWorkspaceFillFromNameDefinitions($asset->getWorkspaceId());
 
+        $filledNameAttributes = [];
+        foreach ($asset->getAttributes() as $attribute) {
+            $definition = $attribute->getDefinition();
+            if ($definition->isFillFromName()) {
+                $filledNameAttributes[$definition->getId()] = true;
+            }
+        }
+
         $attributes = [];
         foreach ($nameAttributes as $nameAttribute) {
+            if (isset($filledNameAttributes[$nameAttribute->getId()])) {
+                continue;
+            }
+
             if (!$nameAttribute->isForTarget($target)) {
                 continue;
             }
