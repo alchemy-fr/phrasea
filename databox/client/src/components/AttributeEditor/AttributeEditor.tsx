@@ -189,7 +189,6 @@ export default function AttributeEditor({
                                 displayPreview: true,
                                 displayCollections: false,
                                 displayTags: false,
-                                displayAttributes: false,
                             }}
                         >
                             <AssetList

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
     AssetType,
     AssetTypeFilter,
@@ -15,10 +15,13 @@ import {
 } from '../../../api/attributes';
 import {
     Box,
+    FormControlLabel,
     FormGroup,
+    FormHelperText,
     FormLabel,
     ListItemIcon,
     ListItemText,
+    Switch,
     TextField,
 } from '@mui/material';
 import {
@@ -55,6 +58,7 @@ import {
     DefinitionItemProps,
     OnSort,
 } from './DefinitionManager/managerTypes.ts';
+import {isNotNull} from '@alchemy/core';
 
 function Item({
     usedFormSubmit,
@@ -64,6 +68,9 @@ function Item({
     onItemUpdate,
 }: DefinitionItemFormProps<AttributeDefinition>) {
     const {t} = useTranslation();
+    const [useAsName, setUseAsName] = useState<boolean>(
+        isNotNull(data.namePriority)
+    );
 
     const isNew = !data.id;
 
@@ -76,6 +83,10 @@ function Item({
         getValues,
         formState: {errors},
     } = usedFormSubmit;
+
+    React.useEffect(() => {
+        setUseAsName(isNotNull(data.namePriority));
+    }, [data]);
 
     const createSaveTranslations = useCreateSaveTranslations({
         data,
@@ -365,6 +376,62 @@ function Item({
                 />
                 <FormFieldErrors field={'initialValues'} errors={errors} />
             </FormRow>
+
+            <FormRow>
+                <CheckboxWidget
+                    label={t(
+                        'form.attribute_definition.fillFromName.label',
+                        'Fill From name'
+                    )}
+                    control={control}
+                    name={'fillFromName'}
+                    disabled={submitting}
+                />
+                <FormHelperText>
+                    {t(
+                        'form.attribute_definition.fillFromName.helper',
+                        'Automatically fill this attribute with the value of the name field. Only applies to text attributes.'
+                    )}
+                </FormHelperText>
+                <FormFieldErrors field={'fillFromName'} errors={errors} />
+            </FormRow>
+
+            <FormRow>
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={useAsName}
+                            onChange={() => {
+                                setUseAsName(!useAsName);
+                                setValue('namePriority', useAsName ? null : 0);
+                            }}
+                            disabled={submitting}
+                        />
+                    }
+                    label={t(
+                        'form.attribute_definition.useAsName.label',
+                        'Use as Asset Name'
+                    )}
+                />
+                {useAsName && (
+                    <TextField
+                        type={'number'}
+                        label={t(
+                            'form.attribute_definition.namePriority.label',
+                            'Name priority'
+                        )}
+                        {...register('namePriority')}
+                        disabled={submitting}
+                    />
+                )}
+                <FormHelperText>
+                    {t(
+                        'form.attribute_definition.namePriority.helper',
+                        'Use this attribute as name when displaying the asset. Only applies to text attributes.'
+                    )}
+                </FormHelperText>
+                <FormFieldErrors field={'namePriority'} errors={errors} />
+            </FormRow>
         </>
     );
 }
@@ -526,8 +593,18 @@ export default function AttributeDefinitionManager({
             handleDelete={deleteAttributeDefinition}
             onSort={onSort}
             normalizeData={normalizeData}
+            denormalizeData={denormalizeData}
         />
     );
+}
+
+function denormalizeData(data: AttributeDefinition): AttributeDefinition {
+    return {
+        ...data,
+        namePriority: isNotNull(data.namePriority)
+            ? parseInt(data.namePriority as unknown as string)
+            : null,
+    };
 }
 
 function normalizeData(data: AttributeDefinition) {
