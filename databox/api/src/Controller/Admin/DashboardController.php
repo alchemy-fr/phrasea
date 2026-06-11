@@ -121,7 +121,7 @@ class DashboardController extends AbstractAdminDashboardController
         $submenu3 = [
             MenuItem::linkToCrud('Populate Pass', '', PopulatePass::class),
             MenuItem::linkToCrud('ES Index State', '', ESIndexState::class),
-            MenuItem::linkToCrud('Asset Index Pass', '', AssetIndexPass::class),
+            MenuItem::linkToCrud('Asset and Attributes Index Pass', '', AssetIndexPass::class),
         ];
 
         $submenu4 = [

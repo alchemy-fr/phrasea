@@ -4,7 +4,7 @@ namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
-use App\Consumer\Handler\Search\AssetIndex;
+use App\Consumer\Handler\Search\IndexAssets;
 use App\Elasticsearch\AssetIndexer;
 use App\Entity\Admin\AssetIndexPass;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -48,8 +48,8 @@ class AssetIndexPassCrudController extends AbstractAdminCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
-            ->setEntityLabelInSingular('AssetIndex Pass')
-            ->setEntityLabelInPlural('AssetIndex Passes')
+            ->setEntityLabelInSingular('Asset and Attributes Index Pass')
+            ->setEntityLabelInPlural('Asset and Attributes Index Passes')
             ->setSearchFields(['id', 'documentCount', 'progress'])
             ->setDefaultSort(['createdAt' => 'DESC']);
     }
@@ -77,8 +77,8 @@ class AssetIndexPassCrudController extends AbstractAdminCrudController
 
     public function assetIndex(): Response
     {
-        $this->bus->dispatch(new AssetIndex());
-        $this->addFlash('info', 'Asset indexing has been triggered');
+        $this->bus->dispatch(new IndexAssets());
+        $this->addFlash('info', 'Asset and Attributes indexing has been triggered');
 
         $url = $this->adminUrlGenerator
             ->setController(AssetIndexPassCrudController::class)
