@@ -63,7 +63,7 @@ class AssetGetTest extends AbstractAssetTest
 
     public function testUnCommittedAssetGet(): void
     {
-        $response = $this->requestGet(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'Bearer');
+        $response = $this->requestGet(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'Bearer');
         $this->assertEquals(403, $response->getStatusCode());
     }
 
