@@ -59,6 +59,7 @@ import {
     OnSort,
 } from './DefinitionManager/managerTypes.ts';
 import {isNotNull} from '@alchemy/core';
+import BooleanFilterSelect from '../../Form/BooleanFilterSelect.tsx';
 
 function Item({
     usedFormSubmit,
@@ -523,7 +524,7 @@ export default function AttributeDefinitionManager({
                     value
                 )
             }
-            applyFilters={(list, {type, target}) =>
+            applyFilters={(list, {type, target, fillFromName, useAsName}) =>
                 list.filter(ad => {
                     let r = true;
                     if (type) {
@@ -531,6 +532,14 @@ export default function AttributeDefinitionManager({
                     }
                     if (target) {
                         r = r && (target & ad.target) === target;
+                    }
+
+                    if (isNotNull(fillFromName)) {
+                        r = r && ad.fillFromName === fillFromName;
+                    }
+                    if (isNotNull(useAsName)) {
+                        // @ts-expect-error Unsupported XOR
+                        r = r && !useAsName ^ isNotNull(ad.namePriority);
                     }
 
                     return r;
@@ -570,6 +579,26 @@ export default function AttributeDefinitionManager({
                                     ?.value as AttributeType | null
                             )
                         }
+                    />
+                    <BooleanFilterSelect
+                        label={t(
+                            'attribute_definitions.filter.fillFromName',
+                            'Fill from Name'
+                        )}
+                        value={filters.fillFromName as any}
+                        onChange={newValue => {
+                            setFilter('fillFromName', newValue);
+                        }}
+                    />
+                    <BooleanFilterSelect
+                        label={t(
+                            'attribute_definitions.filter.useAsName',
+                            'Use as Name'
+                        )}
+                        value={filters.useAsName as any}
+                        onChange={newValue => {
+                            setFilter('useAsName', newValue);
+                        }}
                     />
                 </Box>
             )}

@@ -163,7 +163,7 @@ export default function RSelectWidget<
                                         ? denormalizeValue(v)
                                         : v;
                                     onChange(denormValue);
-                                    onChangeProp?.(newValue as any, meta);
+                                    onChangeProp?.(denormValue as any, meta);
                                 }}
                                 isClearable={!required}
                                 isMulti={isMulti}
@@ -193,8 +193,20 @@ export default function RSelectWidget<
                 required={required}
                 components={componentsProp}
                 onChange={(newValue, meta) => {
-                    onChangeProp?.(newValue, meta);
-                    setValue(!clearOnSelect ? newValue : null);
+                    const v = isMulti
+                        ? allowCreate
+                            ? newValue
+                            : (newValue as Opt[]).map(v => v.value)
+                        : allowCreate
+                          ? newValue
+                          : (newValue as Opt | null)?.value;
+
+                    const denormValue = denormalizeValue
+                        ? denormalizeValue(v)
+                        : v;
+
+                    onChangeProp?.(denormValue, meta);
+                    setValue(!clearOnSelect ? denormValue : null);
                 }}
                 value={valueToOption(
                     isMulti || false,
