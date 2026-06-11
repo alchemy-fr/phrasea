@@ -110,6 +110,7 @@ final readonly class AttributeAssigner
         $attribute = new Attribute();
         $attribute->setDefinition($attributeDefinition);
         $attribute->setAsset($asset);
+        $asset->addAttribute($attribute);
 
         return $attribute;
     }
