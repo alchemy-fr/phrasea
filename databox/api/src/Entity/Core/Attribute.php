@@ -123,7 +123,7 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $originVendorContext = null;
 
-    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
+    #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     private int $status = self::STATUS_VALID;
 
     #[ORM\Column(type: Types::FLOAT, nullable: false)]
