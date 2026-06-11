@@ -107,7 +107,6 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                         PermissionInterface::CHILD_OWNER,
                         PermissionInterface::OWNER,
                     ], $subject, $token)
-                    || $this->isAdmin()
                 )
             ,
             AbstractVoter::EDIT => $isCreator()

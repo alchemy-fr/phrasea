@@ -10,6 +10,7 @@ services:
     autoconfigure: true
     public: false
 
+  Alchemy\AuthBundle\Security\Voter\AdminVoter: ~
   Alchemy\AuthBundle\Client\KeycloakUrlGenerator: ~
   Alchemy\AuthBundle\Client\KeycloakClient: ~
   Alchemy\AuthBundle\Client\ServiceAccountClient: ~
