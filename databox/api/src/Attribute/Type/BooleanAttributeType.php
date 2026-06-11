@@ -61,7 +61,7 @@ final class BooleanAttributeType extends AbstractAttributeType
         return (bool) $value;
     }
 
-    public function denormalizeValue(?string $value)
+    public function denormalizeValue(?string $value): mixed
     {
         if (null === $value) {
             return null;

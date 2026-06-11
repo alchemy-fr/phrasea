@@ -29,7 +29,7 @@ class DateAttributeType extends DateTimeAttributeType
     /**
      * @return \DateTimeImmutable|null
      */
-    public function denormalizeValue(?string $value)
+    public function denormalizeValue(?string $value): mixed
     {
         if (null === $value) {
             return null;

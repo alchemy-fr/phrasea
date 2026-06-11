@@ -89,7 +89,7 @@ class DateTimeAttributeType extends AbstractAttributeType
     /**
      * @return \DateTimeImmutable|null
      */
-    public function denormalizeValue(?string $value)
+    public function denormalizeValue(?string $value): mixed
     {
         return DateUtil::normalizeDate($value);
     }
