@@ -191,10 +191,7 @@ export default function AssetView({modalIndex, open}: Props) {
 
     React.useEffect(() => {
         if (asset && isImpressionTrackedRef.current !== asset.id) {
-            trackContentImpression(
-                asset.resolvedTrackingId,
-                asset.resolvedName
-            );
+            trackContentImpression(asset.resolvedTrackingId, asset.name);
             isImpressionTrackedRef.current = asset.id;
         }
     }, [asset?.id, isImpressionTrackedRef, trackContentImpression]);
@@ -299,9 +296,7 @@ export default function AssetView({modalIndex, open}: Props) {
                                                     file={
                                                         displayedRenditionFile!
                                                     }
-                                                    title={
-                                                        displayedAsset.resolvedName
-                                                    }
+                                                    title={displayedAsset.name}
                                                     trackingId={
                                                         displayedAsset.resolvedTrackingId
                                                     }

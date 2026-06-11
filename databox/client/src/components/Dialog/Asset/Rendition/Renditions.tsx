@@ -126,7 +126,7 @@ export default function Renditions({data, onClose, minHeight}: Props) {
                             asset={data}
                             key={r.id}
                             rendition={r}
-                            name={data.resolvedName}
+                            name={data.name}
                             dimensions={maxDimensions}
                             onUpload={onUpload}
                         />
