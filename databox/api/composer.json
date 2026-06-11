@@ -162,7 +162,6 @@
         "alchemy/rendition-factory": "@dev",
         "alchemy/rendition-factory-bundle": "@dev",
         "alchemy/storage-bundle": "*",
-        "alchemy/test-bundle": "*",
         "alchemy/track-bundle": "@dev",
         "alchemy/webhook-bundle": "@dev",
         "alchemy/workflow-bundle": "@dev",
@@ -216,6 +215,7 @@
     },
     "require-dev": {
         "alchemy/api-test": "@dev",
+        "alchemy/test-bundle": "*",
         "friendsofphp/php-cs-fixer": "^3.17",
         "justinrainbow/json-schema": "^5.2",
         "lcobucci/clock": "^3.1",

@@ -5,12 +5,12 @@ namespace Alchemy\ConfiguratorBundle\Controller;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AuthBundle\Security\JwtUser;
-use Alchemy\AuthBundle\Security\Voter\SuperAdminVoter;
 use Alchemy\ConfiguratorBundle\Entity\ConfiguratorEntry;
 use Alchemy\ConfiguratorBundle\Field\FileField;
 use Alchemy\ConfiguratorBundle\Form\Type\ConfigurationKeyType;
 use Alchemy\ConfiguratorBundle\Message\DeployConfig;
 use Alchemy\ConfiguratorBundle\Service\ConfigurationReference;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -23,7 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted(new Expression('is_granted("'.SuperAdminVoter::ROLE.'") or is_granted("'.JwtUser::ROLE_TECH.'")'))]
+#[IsGranted(new Expression('is_granted("'.JwtUser::ROLE_TECH.'")'))]
 class ConfiguratorEntryCrudController extends AbstractAdminCrudController
 {
     public function __construct(
@@ -67,6 +67,7 @@ class ConfiguratorEntryCrudController extends AbstractAdminCrudController
             );
     }
 
+    #[AdminRoute('/configurator-push', name: 'configurator_push')]
     public function configuratorPush(AdminContext $context): Response
     {
         $this->bus->dispatch(new DeployConfig());

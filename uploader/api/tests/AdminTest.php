@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Admin;
+namespace App\Tests;
 
 use Alchemy\AdminBundle\Tests\AbstractAdminTest;
 

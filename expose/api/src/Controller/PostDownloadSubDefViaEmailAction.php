@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(path: '/publications/{publicationId}/subdef/{subDefId}/download-request', name: 'download_subdef_request_create', methods: ['POST'])]
 final class PostDownloadSubDefViaEmailAction extends AbstractAssetAction

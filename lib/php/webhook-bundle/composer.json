@@ -10,9 +10,9 @@
     "require": {
         "php": "^8.5",
         "ramsey/uuid-doctrine": "^1.5",
-        "symfony/framework-bundle": "^6",
-        "symfony/http-client": "^6",
-        "symfony/messenger": "^6"
+        "symfony/framework-bundle": "^7",
+        "symfony/http-client": "^7",
+        "symfony/messenger": "^7"
     },
     "config": {
         "sort-packages": true

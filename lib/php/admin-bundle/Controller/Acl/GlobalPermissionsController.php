@@ -7,7 +7,7 @@ namespace Alchemy\AdminBundle\Controller\Acl;
 use Alchemy\AclBundle\Admin\PermissionView;
 use Alchemy\AdminBundle\Controller\AbstractAdminController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(path: '/acl', name: 'alchemy_admin_acl_')]
 class GlobalPermissionsController extends AbstractAdminController

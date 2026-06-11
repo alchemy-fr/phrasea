@@ -158,6 +158,7 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                 'session' => [
                     'handler_id' => RedisSessionHandler::class,
                 ],
+                'trusted_proxies' => '%env(TRUSTED_PROXIES)%',
                 'exceptions' => [
                     ConversionException::class => [
                         'status_code' => 404,
