@@ -1,7 +1,7 @@
-import {BaseAttribute} from '../../../types.ts';
+import {BaseAttributeDefinition} from '../../../types.ts';
 import * as React from 'react';
 
-type Props = {data: BaseAttribute};
+type Props = {data: BaseAttributeDefinition};
 
 export default function AttributeDefinitionLabel({data}: Props) {
     return (
