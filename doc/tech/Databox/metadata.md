@@ -130,27 +130,4 @@ Fallback formulas can reference other attribute values, allowing for dynamic war
 **Example file property:**
 - `tech.length`
 
----
-
-## Legacy Notes (To Be Cleaned)
-- Title
-- Length : [00:31:01] [X] Override value
-
-METADATA_MAPPING:
-Title -> file.filename (editable=true)
-Taille du fichier -> file.size (editable=false)
-Durée du film -> file.length (editable=true, keep_on_new_version=true)
-Durée réelle du film (editable=true, keep_on_new_version=true)
-
-METADATA:
-Title: "Mon fichier"
-
-FILE:
-- filename
-- size
-- length
-- width
-- height
-
-tech.length
 
