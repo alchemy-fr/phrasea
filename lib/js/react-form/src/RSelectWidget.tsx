@@ -117,11 +117,11 @@ export default function RSelectWidget<
                                 value={
                                     allowCreate
                                         ? value
-                                        : valueToOption(
+                                        : (valueToOption(
                                               isMulti || false,
                                               value || undefined,
                                               indexedOptions
-                                          )
+                                          ) as any)
                                 }
                                 onChange={(newValue, meta) => {
                                     const denormalizedValue = resolveValues<
