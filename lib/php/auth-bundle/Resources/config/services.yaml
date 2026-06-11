@@ -10,7 +10,6 @@ services:
     autoconfigure: true
     public: false
 
-  Alchemy\AuthBundle\Security\Voter\AdminVoter: ~
   Alchemy\AuthBundle\Client\KeycloakUrlGenerator: ~
   Alchemy\AuthBundle\Client\KeycloakClient: ~
   Alchemy\AuthBundle\Client\ServiceAccountClient: ~
@@ -36,5 +35,5 @@ services:
       public: true
 
   Alchemy\AuthBundle\Security\Voter\ScopeVoter: ~
-  Alchemy\AuthBundle\Security\Voter\SuperAdminVoter: ~
+  Alchemy\AuthBundle\Security\Voter\AdminVoter: ~
   Alchemy\AuthBundle\Security\UriJwtManager: ~
