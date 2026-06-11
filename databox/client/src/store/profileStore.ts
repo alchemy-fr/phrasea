@@ -1,6 +1,6 @@
 import {create} from 'zustand';
 import {
-    BaseAttribute,
+    BaseAttributeDefinition,
     Profile,
     ProfileItem,
     ProfileItemSection,
@@ -48,7 +48,7 @@ type State = {
     addToCurrent: (items: ProfileItem[]) => void;
     addToList: (profileId: string | undefined, items: ProfileItem[]) => void;
     sortList: (profileId: string, items: string[]) => void;
-    toggleDefinition: (definition: BaseAttribute) => void;
+    toggleDefinition: (definition: BaseAttributeDefinition) => void;
     removeFromProfile: (profileId: string, ids: string[]) => void;
     setCurrent: (Profile: Profile | undefined) => Promise<void>;
     loadCurrent: (id: string) => Promise<Profile | undefined>;
@@ -497,7 +497,7 @@ export const useProfileStore = create<State>((set, get) => ({
 }));
 
 export function attributeDefinitionToItem(
-    definition: BaseAttribute
+    definition: BaseAttributeDefinition
 ): ProfileItem {
     const isBI = definition.builtIn;
 

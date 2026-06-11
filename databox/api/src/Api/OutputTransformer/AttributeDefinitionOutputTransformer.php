@@ -68,6 +68,8 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
             $output->minLength = $data->getMinLength();
             $output->maxLength = $data->getMaxLength();
             $output->editableInGui = $data->isEditableInGui();
+            $output->fillFromName = $data->isFillFromName();
+            $output->namePriority = $data->getNamePriority();
             if ($this->isGranted(AbstractVoter::EDIT, $data)) {
                 $output->lastErrors = $data->getLastErrors();
             }
