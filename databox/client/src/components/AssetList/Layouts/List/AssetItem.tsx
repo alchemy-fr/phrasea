@@ -5,7 +5,6 @@ import IconButton from '@mui/material/IconButton';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AssetThumb from '../../../Media/Asset/AssetThumb';
-import {replaceHighlight} from '../../../Media/Asset/Attribute/AttributeHighlights.tsx';
 import Attributes from '../../../Media/Asset/Attribute/Attributes';
 import {AssetItemProps, OnPreviewToggle} from '../../types';
 import {Checkbox} from '@mui/material';
@@ -14,7 +13,6 @@ import AssetItemWrapper from '../AssetItemWrapper';
 
 type Props<Item extends AssetOrAssetContainer> = {
     onPreviewToggle?: OnPreviewToggle;
-    displayAttributes: boolean;
 } & AssetItemProps<Item>;
 
 export default function AssetItem<Item extends AssetOrAssetContainer>({
@@ -25,7 +23,6 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
     onToggle,
     onContextMenuOpen,
     onPreviewToggle,
-    displayAttributes,
     onAddToBasket,
     itemComponent,
 }: Props<Item>) {
@@ -83,15 +80,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                 <AssetThumb onPreviewToggle={onPreviewToggle} asset={asset} />
             </div>
             <div className={assetClasses.attributes}>
-                <div className={assetClasses.name}>
-                    {asset.nameHighlight
-                        ? replaceHighlight(asset.nameHighlight)
-                        : (asset.resolvedName ?? asset.name)}
-                </div>
-
-                {displayAttributes && (
-                    <Attributes asset={asset} displayControls={true} />
-                )}
+                <Attributes asset={asset} displayControls={true} />
             </div>
         </AssetItemWrapper>
     );

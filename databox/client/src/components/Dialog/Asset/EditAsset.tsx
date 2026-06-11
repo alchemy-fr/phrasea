@@ -87,7 +87,7 @@ export default function EditAsset({data, onClose, minHeight}: Props) {
     } = useFormSubmit<Asset>({
         defaultValues: data
             ? {
-                  name: data.resolvedName,
+                  name: data.name,
                   privacy: data.privacy,
                   tags: (data?.tags?.map(t => t['@id']) ??
                       []) as unknown as Tag[],

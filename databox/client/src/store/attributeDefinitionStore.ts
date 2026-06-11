@@ -337,8 +337,7 @@ function normalizeDefinition<T extends BaseAttribute>(definition: T): T {
             return {
                 ...d,
                 entityIri: EntityName.Asset,
-                resolveLabel: (entity: Asset) =>
-                    entity.resolvedName ?? entity.name ?? '',
+                resolveLabel: (entity: Asset) => entity.name ?? '',
                 widget: {
                     component: TagSelect,
                     props: {
