@@ -45,7 +45,7 @@ class AttributeDefinitionInput
      */
     public $fileType;
 
-    public ?bool $fillFromName;
+    public ?bool $fillFromName = null;
 
     public ?int $namePriority = null;
 
