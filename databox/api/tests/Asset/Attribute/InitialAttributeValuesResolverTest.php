@@ -13,6 +13,7 @@ use App\Entity\Core\File;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Service\Asset\Attribute\InitialAttributeValuesResolver;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Ramsey\Uuid\Nonstandard\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Yaml\Yaml;
 
@@ -84,9 +85,14 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
             ->willReturn($this->normalizeMetadata($metadata));
 
         $assetMock = $this->createMock(Asset::class);
-        $assetMock->expects($this->any())
+        $assetMock
+            ->expects($this->any())
             ->method('getSource')
             ->willReturn($fileMock);
+        $assetMock
+            ->expects($this->any())
+            ->method('getId')
+            ->willReturn(Uuid::uuid4()->toString());
 
         $iavr = new InitialAttributeValuesResolver(
             $adr,
