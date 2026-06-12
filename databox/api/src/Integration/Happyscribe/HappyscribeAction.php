@@ -12,6 +12,7 @@ use App\Integration\AbstractIntegrationAction;
 use App\Integration\Happyscribe\Consumer\TranscriptionHappyscribeMessage;
 use App\Integration\IfActionInterface;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Asset\FileFetcher;
 use App\Service\Storage\RenditionManager;
@@ -29,6 +30,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly AttributesResolver $attributesResolver,
         private readonly MessageBusInterface $bus,
+        private readonly AssetNameResolver $assetNameResolver,
     ) {
     }
 
@@ -124,7 +126,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
                 ],
                 'json' => [
                     'transcription' => [
-                        'name' => $asset->getName(),
+                        'name' => $this->assetNameResolver->resolveNameAsString($asset),
                         'is_subtitle' => true,
                         'language' => $sourceLanguage,
                         'organization_id' => $organizationId,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
     AssetType,
     AssetTypeFilter,
@@ -15,16 +15,20 @@ import {
 } from '../../../api/attributes';
 import {
     Box,
+    FormControlLabel,
     FormGroup,
+    FormHelperText,
     FormLabel,
     ListItemIcon,
     ListItemText,
+    Switch,
     TextField,
 } from '@mui/material';
 import {
     CheckboxWidget,
     FormFieldErrors,
     FormRow,
+    ResolvedChangedValue,
     SelectOption,
     TranslatedField,
 } from '@alchemy/react-form';
@@ -55,6 +59,8 @@ import {
     DefinitionItemProps,
     OnSort,
 } from './DefinitionManager/managerTypes.ts';
+import {isNotNull} from '@alchemy/core';
+import BooleanFilterSelect from '../../Form/BooleanFilterSelect.tsx';
 
 function Item({
     usedFormSubmit,
@@ -64,6 +70,9 @@ function Item({
     onItemUpdate,
 }: DefinitionItemFormProps<AttributeDefinition>) {
     const {t} = useTranslation();
+    const [useAsName, setUseAsName] = useState<boolean>(
+        isNotNull(data.namePriority)
+    );
 
     const isNew = !data.id;
 
@@ -76,6 +85,10 @@ function Item({
         getValues,
         formState: {errors},
     } = usedFormSubmit;
+
+    React.useEffect(() => {
+        setUseAsName(isNotNull(data.namePriority));
+    }, [data]);
 
     const createSaveTranslations = useCreateSaveTranslations({
         data,
@@ -365,6 +378,62 @@ function Item({
                 />
                 <FormFieldErrors field={'initialValues'} errors={errors} />
             </FormRow>
+
+            <FormRow>
+                <CheckboxWidget
+                    label={t(
+                        'form.attribute_definition.fillFromName.label',
+                        'Fill From name'
+                    )}
+                    control={control}
+                    name={'fillFromName'}
+                    disabled={submitting}
+                />
+                <FormHelperText>
+                    {t(
+                        'form.attribute_definition.fillFromName.helper',
+                        'Automatically fill this attribute with the value of the name field. Only applies to text attributes.'
+                    )}
+                </FormHelperText>
+                <FormFieldErrors field={'fillFromName'} errors={errors} />
+            </FormRow>
+
+            <FormRow>
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={useAsName}
+                            onChange={() => {
+                                setUseAsName(!useAsName);
+                                setValue('namePriority', useAsName ? null : 0);
+                            }}
+                            disabled={submitting}
+                        />
+                    }
+                    label={t(
+                        'form.attribute_definition.useAsName.label',
+                        'Use as Asset Name'
+                    )}
+                />
+                {useAsName && (
+                    <TextField
+                        type={'number'}
+                        label={t(
+                            'form.attribute_definition.namePriority.label',
+                            'Name priority'
+                        )}
+                        {...register('namePriority')}
+                        disabled={submitting}
+                    />
+                )}
+                <FormHelperText>
+                    {t(
+                        'form.attribute_definition.namePriority.helper',
+                        'Use this attribute as name when displaying the asset. Only applies to text attributes.'
+                    )}
+                </FormHelperText>
+                <FormFieldErrors field={'namePriority'} errors={errors} />
+            </FormRow>
         </>
     );
 }
@@ -456,7 +525,7 @@ export default function AttributeDefinitionManager({
                     value
                 )
             }
-            applyFilters={(list, {type, target}) =>
+            applyFilters={(list, {type, target, fillFromName, useAsName}) =>
                 list.filter(ad => {
                     let r = true;
                     if (type) {
@@ -464,6 +533,14 @@ export default function AttributeDefinitionManager({
                     }
                     if (target) {
                         r = r && (target & ad.target) === target;
+                    }
+
+                    if (isNotNull(fillFromName)) {
+                        r = r && ad.fillFromName === fillFromName;
+                    }
+                    if (isNotNull(useAsName)) {
+                        // @ts-expect-error Unsupported XOR
+                        r = r && !useAsName ^ isNotNull(ad.namePriority);
                     }
 
                     return r;
@@ -481,7 +558,7 @@ export default function AttributeDefinitionManager({
                             'Filter by Asset Type'
                         )}
                         value={filters.target as any}
-                        onChange={newValue =>
+                        onChange={(newValue: ResolvedChangedValue<false>) =>
                             setFilter(
                                 'target',
                                 denormalizeAssetTypeFilterValue(
@@ -503,6 +580,26 @@ export default function AttributeDefinitionManager({
                                     ?.value as AttributeType | null
                             )
                         }
+                    />
+                    <BooleanFilterSelect
+                        label={t(
+                            'attribute_definitions.filter.fillFromName',
+                            'Fill from Name'
+                        )}
+                        value={filters.fillFromName as any}
+                        onChange={(newValue: ResolvedChangedValue<false>) => {
+                            setFilter('fillFromName', newValue?.value);
+                        }}
+                    />
+                    <BooleanFilterSelect
+                        label={t(
+                            'attribute_definitions.filter.useAsName',
+                            'Use as Name'
+                        )}
+                        value={filters.useAsName as any}
+                        onChange={(newValue: ResolvedChangedValue<false>) => {
+                            setFilter('useAsName', newValue?.value);
+                        }}
                     />
                 </Box>
             )}
@@ -526,8 +623,18 @@ export default function AttributeDefinitionManager({
             handleDelete={deleteAttributeDefinition}
             onSort={onSort}
             normalizeData={normalizeData}
+            denormalizeData={denormalizeData}
         />
     );
+}
+
+function denormalizeData(data: AttributeDefinition): AttributeDefinition {
+    return {
+        ...data,
+        namePriority: isNotNull(data.namePriority)
+            ? parseInt(data.namePriority as unknown as string)
+            : null,
+    };
 }
 
 function normalizeData(data: AttributeDefinition) {

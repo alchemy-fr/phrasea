@@ -76,6 +76,8 @@ readonly class InitialAttributeValuesResolver
                             continue;
                         }
 
+                        $this->attributeAssigner->resetAssetAttributesCache($asset);
+
                         $attributes[] = $attribute;
                     }
                 }

@@ -110,7 +110,6 @@ export interface Asset
         }>,
         Entity {
     name?: string | undefined;
-    resolvedName?: string;
     nameHighlight: string | null;
     description?: string;
     privacy: number;
@@ -164,7 +163,7 @@ export interface AssetFileVersion extends Entity {
     createdAt: string;
 }
 
-export interface BaseAttribute extends Entity {
+export interface BaseAttributeDefinition extends Entity {
     name: string;
     enabled: boolean;
     displayName: string;
@@ -182,11 +181,12 @@ export interface BaseAttribute extends Entity {
     builtIn?: true;
 }
 
-export interface BuiltInAttribute extends BaseAttribute {
+export interface BuiltInAttribute extends BaseAttributeDefinition {
     builtIn: true;
 }
 
-export interface AttributeDefinition extends BaseAttribute, IPermissions {
+export interface AttributeDefinition
+    extends BaseAttributeDefinition, IPermissions {
     builtIn?: never;
     editable: boolean;
     editableInGui: boolean;
@@ -194,6 +194,8 @@ export interface AttributeDefinition extends BaseAttribute, IPermissions {
     translatable: boolean;
     locales?: string[];
     allowInvalid: boolean;
+    fillFromName: boolean;
+    namePriority?: number | null;
     canEdit: boolean;
     searchBoost: number;
     fallback: Record<string, string>;

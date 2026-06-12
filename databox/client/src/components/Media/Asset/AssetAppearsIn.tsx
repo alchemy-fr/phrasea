@@ -68,12 +68,7 @@ function AssetAppearsIn({asset}: Props) {
                                             noStoryCarousel={true}
                                         />
                                     </ListItemIcon>
-                                    <ListItemText
-                                        primary={
-                                            storyAsset.resolvedName ??
-                                            storyAsset.name
-                                        }
-                                    />
+                                    <ListItemText primary={storyAsset.name} />
                                 </ListItemButton>
                             );
                         }

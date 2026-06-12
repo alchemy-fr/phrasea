@@ -31,7 +31,7 @@ final class AssetMetadataContainer implements MetadataContainerInterface
             case 'name':
                 $this->fetchAttributes();
 
-                return $this->assetNameResolver->resolveName($this->asset, $this->attributeIndex, ['en']);
+                return $this->assetNameResolver->resolveNameAsString($this->asset, $this->attributeIndex);
             default:
                 return null;
         }

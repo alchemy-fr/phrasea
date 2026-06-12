@@ -17,7 +17,6 @@ use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetAttachment;
-use App\Entity\Core\AssetNameAttribute;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -84,7 +83,6 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Attribute', '', Attribute::class),
             MenuItem::linkToCrud('Attribute Entity', '', AttributeEntity::class),
             MenuItem::linkToCrud('Entity List', '', EntityList::class),
-            MenuItem::linkToCrud('Asset Name Attribute', '', AssetNameAttribute::class),
             MenuItem::linkToCrud('Attribute Definition', '', AttributeDefinition::class),
             MenuItem::linkToCrud('Attribute Policy', '', AttributePolicy::class),
             MenuItem::linkToCrud('Tag', '', Tag::class),

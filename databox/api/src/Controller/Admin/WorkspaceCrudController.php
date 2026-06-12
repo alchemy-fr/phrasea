@@ -9,6 +9,7 @@ use Alchemy\AdminBundle\Field\UserChoiceField;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\WorkspaceTemplate;
 use App\Repository\Template\WorkspaceTemplateRepository;
+use App\Service\Workspace\WorkspaceCreator;
 use App\Service\Workspace\WorkspaceTemplater;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -34,6 +35,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         private readonly WorkspaceTemplateRepository $workspaceTemplateRepository,
         private readonly WorkspaceTemplater $workspaceTemplater,
         private readonly AdminUrlGenerator $adminUrlGenerator,
+        private readonly WorkspaceCreator $workspaceCreator,
     ) {
     }
 
@@ -147,6 +149,9 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
 
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
+        assert($entityInstance instanceof Workspace);
+        $this->workspaceCreator->createWorkspace($entityInstance);
+
         parent::persistEntity($entityManager, $entityInstance);
         $this->applyWorkspaceTemplate($entityInstance);
     }

@@ -25,6 +25,7 @@ final class Version20251006090850 extends AbstractMigration implements KeycloakM
     {
         $appScopes = [
             'databox' => array_merge([
+                'admin',
             ], ...array_map(fn (string $ns): array => array_map(fn (string $p): string => $ns.':'.$p, [
                 'create',
                 'list',
@@ -49,9 +50,11 @@ final class Version20251006090850 extends AbstractMigration implements KeycloakM
                 'workspace',
             ])),
             'expose' => [
+                'admin',
                 'publish',
             ],
             'uploader' => [
+                'admin',
                 'commit:list',
             ],
         ];

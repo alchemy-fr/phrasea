@@ -7,7 +7,6 @@ import {toast} from 'react-toastify';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
 import CollectionsTreeView from './CollectionTree/CollectionsTreeView.tsx';
 
-// TODO test separator consistency
 type Props = {
     collection: Collection;
     onMoved?: () => void;

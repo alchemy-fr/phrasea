@@ -5,7 +5,7 @@ import {
     AttributeDefinition,
     AttributeDefinitionOrBuiltIn,
     AttributeEntity,
-    BaseAttribute,
+    BaseAttributeDefinition,
     BuiltInAttribute,
     Collection,
     RenditionDefinition,
@@ -31,7 +31,7 @@ import RenditionDefinitionSelect from '../components/Form/RenditionDefinitionSel
 import {getBestTranslatedValue} from '@alchemy/i18n/src/Locale/localeHelper.ts';
 
 export type AttributeDefinitionsIndex<
-    T extends BaseAttribute = AttributeDefinitionOrBuiltIn,
+    T extends BaseAttributeDefinition = AttributeDefinitionOrBuiltIn,
 > = Record<string, T>;
 
 type State = {
@@ -176,7 +176,7 @@ export function useIndexById<BI extends boolean>(
 }
 
 function useIndexByKey<BI extends boolean>(
-    key: keyof BaseAttribute,
+    key: keyof BaseAttributeDefinition,
     withBuiltInAttributes?: BI,
     filters: Filters = {}
 ): AttributeDefinitionsIndex<
@@ -257,7 +257,9 @@ function normalizeBuiltInAttribute(d: BuiltInAttribute): BuiltInAttribute {
     });
 }
 
-function normalizeDefinition<T extends BaseAttribute>(definition: T): T {
+function normalizeDefinition<T extends BaseAttributeDefinition>(
+    definition: T
+): T {
     const d = normalizeDefinitionFromId({
         ...definition,
         searchSlug: definition.searchSlug ?? definition.slug,
@@ -337,8 +339,7 @@ function normalizeDefinition<T extends BaseAttribute>(definition: T): T {
             return {
                 ...d,
                 entityIri: EntityName.Asset,
-                resolveLabel: (entity: Asset) =>
-                    entity.resolvedName ?? entity.name ?? '',
+                resolveLabel: (entity: Asset) => entity.name ?? '',
                 widget: {
                     component: TagSelect,
                     props: {
@@ -364,7 +365,7 @@ function normalizeDefinition<T extends BaseAttribute>(definition: T): T {
     }
 }
 
-function normalizeDefinitionFromId<T extends BaseAttribute>(d: T): T {
+function normalizeDefinitionFromId<T extends BaseAttributeDefinition>(d: T): T {
     switch (d.id) {
         case BuiltInFieldEnum.Privacy:
             return {

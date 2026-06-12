@@ -60,10 +60,15 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         $output->target = $data->getTarget()->value;
         $output->key = $data->getKey();
         $output->position = $data->getPosition();
+        $output->fillFromName = $data->isFillFromName();
+        $output->namePriority = $data->getNamePriority();
 
         if ($this->hasGroup(AttributeDefinition::GROUP_LIST, $context)) {
             $output->labels = $data->getLabels();
             $output->editable = $data->isEditable();
+            $output->required = $data->isRequired();
+            $output->minLength = $data->getMinLength();
+            $output->maxLength = $data->getMaxLength();
             $output->editableInGui = $data->isEditableInGui();
             if ($this->isGranted(AbstractVoter::EDIT, $data)) {
                 $output->lastErrors = $data->getLastErrors();

@@ -19,7 +19,7 @@ class HtmlAttributeType extends CodeAttributeType
         return $this->purify($value);
     }
 
-    public function denormalizeValue($value): ?string
+    public function denormalizeValue($value): mixed
     {
         return $this->purify($value);
     }

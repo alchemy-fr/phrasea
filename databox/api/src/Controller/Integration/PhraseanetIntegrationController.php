@@ -150,7 +150,7 @@ class PhraseanetIntegrationController extends AbstractController
                         ['built' => 1]
                     );
 
-                    // TODO Temporary hack
+                    // Temporary hack
                     $url = preg_replace('#^http://localhost/#', 'https://'.$json['url'].'/', (string) $data['permalink']);
 
                     $logger->debug(sprintf('URL: %s', $url));

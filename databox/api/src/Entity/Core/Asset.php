@@ -58,7 +58,6 @@ use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Api\Provider\StoryThumbnailsProvider;
 use App\Controller\Core\DeleteAssetByKeysAction;
 use App\Entity\FollowableInterface;
-use App\Entity\ObjectDisplayableNameInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\ExtraMetadataTrait;
 use App\Entity\Traits\LocaleTrait;
@@ -70,6 +69,7 @@ use App\Entity\TranslatableInterface;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\AssetRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\Attribute\AssetNameFiller;
 use App\Service\Asset\Attribute\Index\AttributeIndex;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
@@ -298,7 +298,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Index(columns: ['created_at'], name: 'asset_created_at_idx')]
 #[ORM\Entity(repositoryClass: AssetRepository::class)]
-class Asset extends AbstractUuidEntity implements FollowableInterface, HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, ObjectDisplayableNameInterface, \Stringable
+class Asset extends AbstractUuidEntity implements FollowableInterface, HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
@@ -328,10 +328,6 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $sequence = 0;
 
-    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    #[Assert\Length(max: 255)]
-    private ?string $name = null;
-
     #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
     #[Assert\Length(max: 100)]
     private ?string $externalId = null;
@@ -345,6 +341,13 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
      */
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $key = null;
+
+    /**
+     * Not mapped.
+     *
+     * @see AssetNameFiller
+     */
+    public ?string $name = null;
 
     #[ORM\OneToMany(mappedBy: 'asset', targetEntity: CollectionAsset::class, cascade: ['remove'])]
     #[ORM\JoinColumn(nullable: true)]
@@ -363,6 +366,9 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     #[ORM\JoinColumn(nullable: true)]
     private ?Collection $referenceCollection = null;
 
+    /**
+     * @var Attribute[]
+     */
     #[ORM\OneToMany(mappedBy: 'asset', targetEntity: Attribute::class, cascade: ['persist', 'remove'])]
     private ?DoctrineCollection $attributes = null;
 
@@ -473,16 +479,6 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         return $this->collections;
     }
 
-    public function getName(): ?string
-    {
-        return $this->name;
-    }
-
-    public function setName(?string $name): void
-    {
-        $this->name = $name;
-    }
-
     public function addToCollection(
         Collection $collection,
         bool $checkUnique = false,
@@ -575,7 +571,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
 
     public function __toString(): string
     {
-        return $this->getName() ?? $this->getId();
+        return $this->getId();
     }
 
     public function getKey(): ?string
@@ -594,6 +590,9 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         $this->attributes->add($attribute);
     }
 
+    /**
+     * @return Attribute[]
+     */
     public function getAttributes(): DoctrineCollection
     {
         return $this->attributes;
@@ -697,11 +696,6 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     public static function getTopicKey(string $event, string $id): string
     {
         return 'asset:'.$id.':'.$event;
-    }
-
-    public function getObjectDisplayName(): string
-    {
-        return sprintf('Asset %s', $this->getName() ?? $this->getId());
     }
 
     /**

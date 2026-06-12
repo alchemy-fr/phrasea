@@ -51,12 +51,6 @@ fos_elastica:
                                 catenate_words: true
                                 preserve_original: true
             properties:
-                name:
-                    type: text
-                    analyzer: text
-                    fields:
-                        raw:
-                            type: keyword
                 suggestion:
                     property_path: name
                     type: text

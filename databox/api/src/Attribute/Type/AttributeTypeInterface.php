@@ -47,7 +47,7 @@ interface AttributeTypeInterface
     /**
      * De-normalize value from database to PHP.
      */
-    public function denormalizeValue(?string $value);
+    public function denormalizeValue(?string $value): mixed;
 
     public function getStringValue(?string $value, ?string $locale): string;
 

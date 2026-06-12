@@ -46,14 +46,14 @@ export default function AttributeEntityStatusSelect<
 }
 
 function normalizeValue(
-    value: string | number | null | undefined
-): string | undefined {
-    return value?.toString();
+    value: AttributeEntityStatus | string | null
+): string | null {
+    return value?.toString() ?? null;
 }
 
 function denormalizeValue(
-    value: AttributeEntityStatus | number | string | undefined | null
-): AttributeEntityStatus | null | undefined {
+    value: AttributeEntityStatus | string | null
+): AttributeEntityStatus | null {
     if (value || value === 0) {
         if (typeof value === 'string') {
             return parseInt(value) as AttributeEntityStatus;
@@ -62,5 +62,5 @@ function denormalizeValue(
         return value as AttributeEntityStatus;
     }
 
-    return undefined;
+    return null;
 }
