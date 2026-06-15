@@ -85,15 +85,22 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
     }
 
     const realmName = env.KEYCLOAK_REALM_NAME;
-    const redirectUri = `${env.DATABOX_CLIENT_URL}/auth`;
     const autoConnectIdP = env.AUTO_CONNECT_IDP;
-    const authUrl = `${env.KEYCLOAK_URL}/realms/${realmName}/protocol/openid-connect/auth?response_type=code&client_id=${encodeURIComponent(env.CLIENT_ID)}&redirect_uri=${encodeURIComponent(redirectUri)}${autoConnectIdP ? `&kc_idp_hint=${encodeURIComponent(autoConnectIdP)}` : ''}`;
+    const authUrl = `${env.KEYCLOAK_URL}/realms/${realmName}/protocol/openid-connect/auth${autoConnectIdP ? `?kc_idp_hint=${encodeURIComponent(autoConnectIdP)}` : ''}`;
+    const tokenUrl = `${env.KEYCLOAK_URL}/realms/${realmName}/protocol/openid-connect/token`;
+    const userinfoUrl = `${env.KEYCLOAK_URL}/realms/${realmName}/protocol/openid-connect/userinfo`;
+    const logoutUrl = `${env.KEYCLOAK_URL}/realms/${realmName}/protocol/openid-connect/logout`;
+    const openidConfigurationUrl = `${env.KEYCLOAK_URL}/realms/${realmName}/.well-known/openid-configuration`;
     const databoxApiUrl = env.DATABOX_API_URL;
 
     require('node:fs').writeFileSync(
         'phrasea-manifest.json',
         JSON.stringify({
             authUrl,
+            tokenUrl,
+            userinfoUrl,
+            logoutUrl,
+            openidConfigurationUrl,
             databoxApiUrl,
         }),
         'utf8'
