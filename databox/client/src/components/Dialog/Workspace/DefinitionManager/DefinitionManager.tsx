@@ -540,6 +540,9 @@ export default function DefinitionManager<
                                     badgeContent={selection.length}
                                     color="primary"
                                     invisible={selection.length === 0}
+                                    sx={{
+                                        zIndex: 2,
+                                    }}
                                 >
                                     <Checkbox
                                         checked={
@@ -685,6 +688,19 @@ export default function DefinitionManager<
                             </ListItem>
                         ))
                     )}
+                    <Box
+                        sx={theme => ({
+                            borderTop: `1px solid ${theme.palette.divider}`,
+                            color: theme.palette.divider,
+                            fontSize: 12,
+                        })}
+                    >
+                        {t('definition_manager.count', {
+                            defaultValue: '{{count}} item',
+                            defaultValue_other: `{{count}} items`,
+                            count: list?.length ?? 0,
+                        })}
+                    </Box>
                 </List>
             </Box>
             <Box

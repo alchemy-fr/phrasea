@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
-
 class IdAttributeType extends KeywordAttributeType
 {
     public const string NAME = 'id';
@@ -20,18 +18,22 @@ class IdAttributeType extends KeywordAttributeType
         return false;
     }
 
-    public function validate($value, ExecutionContextInterface $context): void
+    public function validate(mixed $value): ?array
     {
-        parent::validate($value, $context);
+        $errors = parent::validate($value);
 
-        if ($context->getViolations()->count() > 0) {
-            return;
+        if (!empty($errors)) {
+            return $errors;
         }
 
         $v = (string) $value;
         if ($v && str_contains($v, ' ')) {
-            $context->addViolation('ID cannot contain spaces');
+            $errors[] = 'ID cannot contain spaces';
+
+            return $errors;
         }
+
+        return null;
     }
 
     public function supportsAggregation(): bool

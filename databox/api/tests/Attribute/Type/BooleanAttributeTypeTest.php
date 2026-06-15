@@ -14,6 +14,20 @@ class BooleanAttributeTypeTest extends AbstractAttributeTypeTest
         return new BooleanAttributeType();
     }
 
+    public function getValidationCases(): array
+    {
+        return [
+            [false, null],
+            [true, null],
+            ['', ['Invalid boolean']],
+            ['a', ['Invalid boolean']],
+            ['true', ['Invalid boolean']],
+            ['false', ['Invalid boolean']],
+            [1, ['Invalid boolean']],
+            [0, ['Invalid boolean']],
+        ];
+    }
+
     public function getNormalizationCases(): array
     {
         return [

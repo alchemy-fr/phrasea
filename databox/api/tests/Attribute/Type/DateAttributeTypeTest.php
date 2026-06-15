@@ -14,6 +14,25 @@ class DateAttributeTypeTest extends AbstractAttributeTypeTest
         return new DateAttributeType();
     }
 
+    public function getValidationCases(): array
+    {
+        return [
+            ['', ['Invalid date']],
+            [' ', ['Invalid date']],
+            ['2008', ['Invalid date']],
+            ['2009', ['Invalid date']],
+            ['foo', ['Invalid date']],
+            ['1', ['Invalid date']],
+            ['2008-01-12T12:13:00Z', null],
+            ['2008-01-12T00:00:00Z', null],
+            ['2008-01-12T00:00:00+00:00', null],
+            ['2008-01-12', null],
+            [new \DateTimeImmutable('2008-01-12T00:00:00'), null],
+            [new \DateTime('2008-01-12T00:00:00'), null],
+            ['1997/1997_01/', ['Invalid date']],
+        ];
+    }
+
     public function getNormalizationCases(): array
     {
         return [

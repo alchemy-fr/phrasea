@@ -12,7 +12,6 @@ use App\Elasticsearch\ESFacetInterface;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeEntityRepository;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 final class EntityAttributeType extends TextAttributeType
 {
@@ -30,11 +29,13 @@ final class EntityAttributeType extends TextAttributeType
         return true;
     }
 
-    public function validate($value, ExecutionContextInterface $context): void
+    public function validate(mixed $value): ?array
     {
         if (!Uuid::isValid($value)) {
-            $context->addViolation('Invalid entity ID');
+            return ['Invalid entity ID'];
         }
+
+        return null;
     }
 
     public function normalizeElasticsearchValue(?string $value): string|array|null

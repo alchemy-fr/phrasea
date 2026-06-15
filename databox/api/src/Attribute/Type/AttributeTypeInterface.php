@@ -6,7 +6,6 @@ namespace App\Attribute\Type;
 
 use App\Elasticsearch\SearchType;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[AutoconfigureTag(self::TAG)]
 interface AttributeTypeInterface
@@ -74,7 +73,10 @@ interface AttributeTypeInterface
 
     public function supportsTranslations(): bool;
 
-    public function validate($value, ExecutionContextInterface $context): void;
+    /**
+     * @return array Errors
+     */
+    public function validate(mixed $value): ?array;
 
     public function getAggregationField(): ?string;
 

@@ -34,6 +34,11 @@ class ValidAttributeConstraintValidator extends ConstraintValidator
         }
 
         $this->context->setNode($v, $value, null, 'value');
-        $type->validate($v, $this->context);
+        $errors = $type->validate($v);
+        if (!empty($errors)) {
+            foreach ($errors as $error) {
+                $this->context->addViolation($error);
+            }
+        }
     }
 }

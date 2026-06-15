@@ -26,12 +26,25 @@ class TextAttributeTypeTest extends AbstractAttributeTypeTest
         return new TextAttributeType();
     }
 
+    public function getValidationCases(): array
+    {
+        return [
+            ['', null],
+            ['a', null],
+            [' ', null],
+            [0, ['Invalid text value']],
+            [1, ['Invalid text value']],
+            [false, ['Invalid text value']],
+            [true, ['Invalid text value']],
+        ];
+    }
+
     public function getNormalizationCases(): array
     {
         return [
             [null, null],
             ['', null],
-            [' ', ' '],
+            [' ', ''],
             [[], null],
             [false, null],
             [true, '1'],

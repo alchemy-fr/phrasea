@@ -7,7 +7,6 @@ namespace App\Attribute\Type;
 use Alchemy\CoreBundle\Util\LocaleUtil;
 use App\Attribute\AttributeLocaleInterface;
 use App\Elasticsearch\SearchType;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class TextAttributeType extends AbstractAttributeType
 {
@@ -26,6 +25,16 @@ class TextAttributeType extends AbstractAttributeType
     public function getElasticSearchSearchType(): ?SearchType
     {
         return SearchType::Match;
+    }
+
+    public function normalizeValue($value): ?string
+    {
+        $value = parent::normalizeValue($value);
+        if (null === $value) {
+            return null;
+        }
+
+        return trim($value);
     }
 
     public function supportsElasticSearchFuzziness(): bool
@@ -71,11 +80,13 @@ class TextAttributeType extends AbstractAttributeType
         return true;
     }
 
-    public function validate($value, ExecutionContextInterface $context): void
+    public function validate(mixed $value): ?array
     {
         if (!is_string($value) && !(is_object($value) && method_exists($value, '__toString'))) {
-            $context->addViolation('Invalid text value');
+            return ['Invalid text value'];
         }
+
+        return null;
     }
 
     public function getAggregationField(): ?string

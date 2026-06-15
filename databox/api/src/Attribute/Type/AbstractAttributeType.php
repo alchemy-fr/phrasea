@@ -6,7 +6,6 @@ namespace App\Attribute\Type;
 
 use App\Elasticsearch\ESFacetInterface;
 use App\Elasticsearch\SearchType;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 abstract class AbstractAttributeType implements AttributeTypeInterface
 {
@@ -86,8 +85,9 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
         return [];
     }
 
-    public function validate($value, ExecutionContextInterface $context): void
+    public function validate(mixed $value): ?array
     {
+        return null;
     }
 
     public function supportsAggregation(): bool

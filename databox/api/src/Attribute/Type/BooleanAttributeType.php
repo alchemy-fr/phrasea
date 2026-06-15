@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
-
 final class BooleanAttributeType extends AbstractAttributeType
 {
     final public const string NAME = 'boolean';
@@ -102,11 +100,13 @@ final class BooleanAttributeType extends AbstractAttributeType
         return $value ? '1' : '0';
     }
 
-    public function validate($value, ExecutionContextInterface $context): void
+    public function validate(mixed $value): ?array
     {
         if (!is_bool($value)) {
-            $context->addViolation('Invalid boolean');
+            return ['Invalid boolean'];
         }
+
+        return null;
     }
 
     public function supportsAggregation(): bool
