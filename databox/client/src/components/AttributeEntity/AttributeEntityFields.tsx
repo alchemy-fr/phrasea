@@ -71,6 +71,7 @@ export default function AttributeEntityFields({
                     required={true}
                     label={t('form.attribute_entity.value.label', 'Value')}
                     disabled={submitting}
+                    fullWidth={true}
                     {...register('value', {
                         required: true,
                     })}
@@ -146,6 +147,9 @@ export default function AttributeEntityFields({
                         name={'translations'}
                         errors={errors}
                         register={register}
+                        fieldProps={{
+                            fullWidth: true,
+                        }}
                     />
                     <FormFieldErrors field={'translations'} errors={errors} />
                 </FormRow>
@@ -192,6 +196,7 @@ export default function AttributeEntityFields({
                                                         required: true,
                                                     }
                                                 )}
+                                                fullWidth={true}
                                             />
                                             <FormFieldErrors
                                                 field={

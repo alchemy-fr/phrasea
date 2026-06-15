@@ -8,7 +8,6 @@ use App\Attribute\AttributeInterface;
 use App\Elasticsearch\ESFacetInterface;
 use App\Elasticsearch\SearchType;
 use App\Util\DateUtil;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class DateTimeAttributeType extends AbstractAttributeType
 {
@@ -109,11 +108,13 @@ class DateTimeAttributeType extends AbstractAttributeType
         return '';
     }
 
-    public function validate($value, ExecutionContextInterface $context): void
+    public function validate(mixed $value): ?array
     {
         if (null === DateUtil::normalizeDate($value)) {
-            $context->addViolation('Invalid date');
+            return ['Invalid date'];
         }
+
+        return null;
     }
 
     public function normalizeElasticsearchValue(?string $value)

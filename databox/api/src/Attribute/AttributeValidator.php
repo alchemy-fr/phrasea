@@ -71,12 +71,21 @@ final readonly class AttributeValidator
                 foreach ($value as $j => $v) {
                     $validationContext->setNode($value, $attributeInput, null, sprintf('%s.value[%s]', $validationContext->getRoot(), $j));
                     if (null !== $v) {
-                        $type->validate($v, $validationContext);
+                        $this->addErrorsToContext($validationContext, $type->validate($v));
                     }
                 }
             } else {
                 $validationContext->setNode($value, $attributeInput, null, sprintf('%s.value', $validationContext->getRoot()));
-                $type->validate($value, $validationContext);
+                $this->addErrorsToContext($validationContext, $type->validate($value));
+            }
+        }
+    }
+
+    private function addErrorsToContext(ExecutionContextInterface $validationContext, ?array $errors): void
+    {
+        if (!empty($errors)) {
+            foreach ($errors as $error) {
+                $validationContext->addViolation($error);
             }
         }
     }

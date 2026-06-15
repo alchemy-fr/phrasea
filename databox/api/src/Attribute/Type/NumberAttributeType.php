@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use App\Elasticsearch\SearchType;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class NumberAttributeType extends AbstractAttributeType
 {
@@ -52,11 +51,13 @@ class NumberAttributeType extends AbstractAttributeType
         return (float) $value;
     }
 
-    public function validate($value, ExecutionContextInterface $context): void
+    public function validate(mixed $value): ?array
     {
         if (!is_numeric($value)) {
-            $context->addViolation('Invalid number');
+            return ['Invalid number'];
         }
+
+        return null;
     }
 
     public function denormalizeValue(?string $value): mixed

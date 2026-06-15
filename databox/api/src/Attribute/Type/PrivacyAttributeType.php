@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
-
 class PrivacyAttributeType extends KeywordAttributeType
 {
     public const string NAME = 'privacy';
@@ -20,18 +18,22 @@ class PrivacyAttributeType extends KeywordAttributeType
         return false;
     }
 
-    public function validate($value, ExecutionContextInterface $context): void
+    public function validate(mixed $value): ?array
     {
-        parent::validate($value, $context);
+        $errors = parent::validate($value);
 
-        if ($context->getViolations()->count() > 0) {
-            return;
+        if (!empty($errors)) {
+            return $errors;
         }
 
         $v = (string) $value;
         if ($v && !is_numeric($v)) {
-            $context->addViolation('Invalid privacy value');
+            $errors[] = 'Invalid privacy value';
+
+            return $errors;
         }
+
+        return null;
     }
 
     public function supportsAggregation(): bool
