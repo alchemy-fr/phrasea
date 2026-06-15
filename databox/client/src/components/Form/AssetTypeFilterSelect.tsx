@@ -34,15 +34,27 @@ export default function AssetTypeFilterSelect<
             {...props}
             options={options}
             normalizeValue={normalizeValue}
-            denormalizeValue={denormalizeAssetTypeFilterValue}
+            denormalizeValue={denormalizeValue}
         />
     );
 }
 
 function normalizeValue(
-    value: string | number | null | undefined
-): string | undefined {
-    return value?.toString();
+    value: AssetTypeFilter | number | string | null
+): string | null {
+    return value?.toString() || null;
+}
+
+function denormalizeValue(value: string | null): AssetTypeFilter | null {
+    if (value) {
+        if (typeof value === 'string') {
+            return parseInt(value) as AssetTypeFilter;
+        }
+
+        return value as AssetTypeFilter;
+    }
+
+    return null;
 }
 
 export function denormalizeAssetTypeFilterValue(

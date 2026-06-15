@@ -12,6 +12,16 @@ abstract class AbstractAttributeTypeTest extends TestCase
     abstract protected function getType(): AttributeTypeInterface;
 
     /**
+     * @dataProvider getValidationCases
+     */
+    public function testValidation($value, ?array $expected): void
+    {
+        $type = $this->getType();
+
+        $this->assertEquals($expected, $type->validate($value));
+    }
+
+    /**
      * @dataProvider getNormalizationCases
      */
     public function testNormalization($value, ?string $expected): void
@@ -49,6 +59,11 @@ abstract class AbstractAttributeTypeTest extends TestCase
         $type = $this->getType();
 
         $this->assertEquals($expected, $type->denormalizeElasticsearchValue($value));
+    }
+
+    public function getValidationCases(): array
+    {
+        return [];
     }
 
     public function getNormalizationCases(): array

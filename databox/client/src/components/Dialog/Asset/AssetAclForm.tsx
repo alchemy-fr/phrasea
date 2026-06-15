@@ -120,11 +120,11 @@ export default function AssetAclForm({
                                 i18nKey={'collection.acl.parent.story'}
                                 defaults={`Permissions on Story <strong>{{name}}</strong>`}
                                 values={{
-                                    name: c.storyAsset.resolvedName,
+                                    name: c.storyAsset.name,
                                 }}
                             />
                         }
-                        name={c.storyAsset.resolvedName || 'Story'}
+                        name={c.storyAsset.name || 'Story'}
                     >
                         <AssetAclForm
                             data={c.storyAsset!}

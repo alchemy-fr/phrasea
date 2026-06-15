@@ -114,6 +114,11 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
             $object->setEntityList(null);
         }
 
+        if (null !== $data->fillFromName) {
+            $object->setFillFromName($data->fillFromName);
+        }
+        $object->setNamePriority($data->namePriority);
+
         if (null !== $data->fileType) {
             $object->setFileType($data->fileType);
         }

@@ -30,6 +30,25 @@ final class GeoPointAttributeType extends AbstractAttributeType
         return true;
     }
 
+    public function validate(mixed $value): ?array
+    {
+        if (is_array($value)) {
+            if (!isset($value['lat']) || !isset($value['lon'])) {
+                return ['Invalid Geo point'];
+            }
+
+            return null;
+        } elseif (is_string($value)) {
+            if (!preg_match('#^\d+([.]\d+)?,\s*\d+([.]\d+)?$#', $value)) {
+                return ['Invalid Geo point'];
+            }
+
+            return null;
+        }
+
+        return ['Invalid Geo point'];
+    }
+
     public function normalizeValue($value): ?string
     {
         if (is_array($value)) {
@@ -49,7 +68,7 @@ final class GeoPointAttributeType extends AbstractAttributeType
         return $this->normalizeValue($this->denormalizeValue($value));
     }
 
-    public function denormalizeValue(?string $value)
+    public function denormalizeValue(?string $value): mixed
     {
         if (null === $value) {
             return null;

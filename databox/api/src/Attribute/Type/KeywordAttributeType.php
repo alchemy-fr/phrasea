@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use App\Elasticsearch\SearchType;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class KeywordAttributeType extends AbstractAttributeType
 {
@@ -36,11 +35,13 @@ class KeywordAttributeType extends AbstractAttributeType
         return true;
     }
 
-    public function validate($value, ExecutionContextInterface $context): void
+    public function validate(mixed $value): ?array
     {
         if (!is_string($value) && !(is_object($value) && method_exists($value, '__toString'))) {
-            $context->addViolation('Invalid text value');
+            return ['Invalid text value'];
         }
+
+        return null;
     }
 
     public function supportsAggregation(): bool

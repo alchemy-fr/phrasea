@@ -12,6 +12,7 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Share;
 use App\Repository\Core\ShareRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\FileUrlResolver;
 use App\Service\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,6 +30,7 @@ final class ShareRenditionProvider implements ProviderInterface
         private readonly FileUrlResolver $fileUrlResolver,
         private readonly ShareRepository $shareRepository,
         private readonly TerminateStackListener $terminateStackListener,
+        private readonly AssetNameResolver $assetNameResolver,
         private string $matomoSiteId,
         #[Autowire(env: 'MATOMO_URL')]
         private string $matomoUrl,
@@ -58,7 +60,7 @@ final class ShareRenditionProvider implements ProviderInterface
             $matomoTracker = new \MatomoTracker((int) $this->matomoSiteId, $this->matomoUrl);
             $asset = $item->getAsset();
             $trackingId = $asset->getResolvedTrackingId();
-            $name = $asset->getName();
+            $name = $this->assetNameResolver->resolveNameAsString($asset);
 
             $this->terminateStackListener->addCallback(function () use ($matomoTracker, $name, $trackingId) {
                 $matomoTracker->doTrackContentImpression($name, $trackingId);

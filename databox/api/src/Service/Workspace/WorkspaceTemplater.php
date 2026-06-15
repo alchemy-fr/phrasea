@@ -34,12 +34,12 @@ final readonly class WorkspaceTemplater
 
         return [
             'Workspace' => $this->exportWorkspace($workspace),
-            'RenditionPolicy' => $this->exportRenditionPolicy($workspace->getId(), $renditionClassMap),
-            'RenditionDefinition' => $this->exportRenditionDefinition($workspace->getId(), $renditionClassMap),
-            'EntityList' => $this->exportEntityList($workspace->getId(), $entityClassMap),
-            'AttributePolicy' => $this->exportAttributePolicy($workspace->getId(), $attributeClassMap),
-            'AttributeDefinition' => $this->exportAttributeDefinition($workspace->getId(), $attributeClassMap, $entityClassMap),
-            'Tag' => $this->exportTag($workspace->getId()),
+            'RenditionPolicy' => $this->exportRenditionPolicies($workspace->getId(), $renditionClassMap),
+            'RenditionDefinition' => $this->exportRenditionDefinitions($workspace->getId(), $renditionClassMap),
+            'EntityList' => $this->exportEntityLists($workspace->getId(), $entityClassMap),
+            'AttributePolicy' => $this->exportAttributePolicies($workspace->getId(), $attributeClassMap),
+            'AttributeDefinition' => $this->exportAttributeDefinitions($workspace->getId(), $attributeClassMap, $entityClassMap),
+            'Tag' => $this->exportTags($workspace->getId()),
         ];
     }
 
@@ -91,17 +91,17 @@ final readonly class WorkspaceTemplater
             $this->importWorkspace($ws, $data['Workspace'] ?? []);
 
             $entityClassMap = [];
-            $this->importEntityList($ws, $data['EntityList'] ?? [], $entityClassMap);
+            $this->importEntityLists($ws, $data['EntityList'] ?? [], $entityClassMap);
 
             $attributeClassMap = [];
-            $this->importAttributePolicy($ws, $data['AttributePolicy'] ?? [], $attributeClassMap);
+            $this->importAttributePolicies($ws, $data['AttributePolicy'] ?? [], $attributeClassMap);
             $this->importAttributeDefinition($ws, $data['AttributeDefinition'] ?? [], $attributeClassMap, $entityClassMap);
 
             $renditionClassMap = [];
-            $this->importRenditionPolicy($ws, $data['RenditionPolicy'] ?? [], $renditionClassMap);
-            $this->importRenditionDefinition($ws, $data['RenditionDefinition'] ?? [], $renditionClassMap);
+            $this->importRenditionPolicies($ws, $data['RenditionPolicy'] ?? [], $renditionClassMap);
+            $this->importRenditionDefinitions($ws, $data['RenditionDefinition'] ?? [], $renditionClassMap);
 
-            $this->importTag($ws, $data['Tag'] ?? []);
+            $this->importTags($ws, $data['Tag'] ?? []);
 
             $this->em->flush();
             if ($addTransaction) {
@@ -142,7 +142,7 @@ final readonly class WorkspaceTemplater
         $this->em->persist($ws);
     }
 
-    private function exportRenditionPolicy(string $workspaceId, array &$renditionClassMap): array
+    private function exportRenditionPolicies(string $workspaceId, array &$renditionClassMap): array
     {
         $o = [];
 
@@ -164,7 +164,7 @@ final readonly class WorkspaceTemplater
         return $o;
     }
 
-    private function importRenditionPolicy(Workspace $ws, array $data, array &$renditionClassMap): void
+    private function importRenditionPolicies(Workspace $ws, array $data, array &$renditionClassMap): void
     {
         foreach ($data as $item) {
             /** @var RenditionPolicy $o */
@@ -189,7 +189,7 @@ final readonly class WorkspaceTemplater
         }
     }
 
-    private function exportRenditionDefinition(string $workspaceId, array $renditionPolicyMap): array
+    private function exportRenditionDefinitions(string $workspaceId, array $renditionPolicyMap): array
     {
         $o = [];
 
@@ -244,7 +244,7 @@ final readonly class WorkspaceTemplater
         return $end || empty($tu) ? $o : $this->orderByParent($tu, $o);
     }
 
-    private function importRenditionDefinition(Workspace $ws, array $data, array $renditionClassMap): void
+    private function importRenditionDefinitions(Workspace $ws, array $data, array $renditionClassMap): void
     {
         $rdOrdered = $this->orderByParent($data);
 
@@ -283,7 +283,7 @@ final readonly class WorkspaceTemplater
         }
     }
 
-    private function exportAttributePolicy(string $workspaceId, array &$attributeClassMap): array
+    private function exportAttributePolicies(string $workspaceId, array &$attributeClassMap): array
     {
         $o = [];
 
@@ -306,7 +306,7 @@ final readonly class WorkspaceTemplater
         return $o;
     }
 
-    private function importAttributePolicy(Workspace $ws, array $data, array &$attributeClassMap): void
+    private function importAttributePolicies(Workspace $ws, array $data, array &$attributeClassMap): void
     {
         foreach ($data as $item) {
             /** @var AttributePolicy $o */
@@ -330,7 +330,7 @@ final readonly class WorkspaceTemplater
         }
     }
 
-    private function exportAttributeDefinition(string $workspaceId, array $attributePolicyMap, array $entityClassMap): array
+    private function exportAttributeDefinitions(string $workspaceId, array $attributePolicyMap, array $entityClassMap): array
     {
         $o = [];
 
@@ -360,6 +360,11 @@ final readonly class WorkspaceTemplater
                 'target' => $item->getTarget()->value,
                 'editable' => $item->isEditable(),
                 'guiEdit' => $item->isEditableInGui(),
+                'fillFromName' => $item->isFillFromName(),
+                'namePriority' => $item->getNamePriority(),
+                'required' => $item->isRequired(),
+                'maxLength' => $item->getMaxLength(),
+                'minLength' => $item->getMinLength(),
             ];
         }
 
@@ -403,11 +408,16 @@ final readonly class WorkspaceTemplater
             $o->setTranslatable($item['translatable']);
             $o->setEditable($item['editable']);
             $o->setEditableInGui($item['guiEdit']);
+            $o->setFillFromName($item['fillFromName'] ?? false);
+            $o->setNamePriority($item['namePriority'] ?? null);
+            $o->setRequired($item['required'] ?? false);
+            $o->setMaxLength($item['maxLength'] ?? null);
+            $o->setMinLength($item['minLength'] ?? null);
             $this->em->persist($o);
         }
     }
 
-    private function exportTag(string $workspaceId): array
+    private function exportTags(string $workspaceId): array
     {
         $o = [];
 
@@ -427,7 +437,7 @@ final readonly class WorkspaceTemplater
         return $o;
     }
 
-    private function importTag(Workspace $ws, array $data): void
+    private function importTags(Workspace $ws, array $data): void
     {
         foreach ($data as $item) {
             /** @var Tag $o */
@@ -449,7 +459,7 @@ final readonly class WorkspaceTemplater
         }
     }
 
-    private function exportEntityList(string $workspaceId, array &$entityClassMap): array
+    private function exportEntityLists(string $workspaceId, array &$entityClassMap): array
     {
         $o = [];
 
@@ -484,7 +494,7 @@ final readonly class WorkspaceTemplater
         return $o;
     }
 
-    private function importEntityList(Workspace $ws, array $data, array &$entityClassMap): void
+    private function importEntityLists(Workspace $ws, array $data, array &$entityClassMap): void
     {
         foreach ($data as $entityList) {
             /** @var EntityList $o */

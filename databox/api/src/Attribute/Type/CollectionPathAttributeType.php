@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
-
 final class CollectionPathAttributeType extends AbstractAttributeType
 {
     final public const string NAME = 'collection_path';
@@ -30,7 +28,7 @@ final class CollectionPathAttributeType extends AbstractAttributeType
         return false;
     }
 
-    public function validate($value, ExecutionContextInterface $context): void
+    public function validate(mixed $value): ?array
     {
         throw new \LogicException('Should never be called');
     }

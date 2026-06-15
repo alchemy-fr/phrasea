@@ -42,7 +42,7 @@ export default function AssetDialog({}: Props) {
             routeParams={{id}}
             maxWidth={'md'}
             title={t('asset.manage.title', 'Manage asset {{name}}', {
-                name: data.resolvedName,
+                name: data.name,
             })}
             tabs={[
                 {

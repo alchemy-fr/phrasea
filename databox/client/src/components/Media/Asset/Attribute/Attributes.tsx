@@ -1,7 +1,7 @@
 import {
     Asset,
     AttributeDefinitionOrBuiltIn,
-    BaseAttribute,
+    BaseAttributeDefinition,
     ProfileItemType,
 } from '../../../../types';
 import React, {useContext, useMemo} from 'react';
@@ -152,7 +152,7 @@ function Attributes({
         return null;
     }
 
-    const createAttrProps = (definition: BaseAttribute) => ({
+    const createAttrProps = (definition: BaseAttributeDefinition) => ({
         origin: 'machine',
         locale: NO_LOCALE,
         capabilities: {},

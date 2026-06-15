@@ -40,6 +40,11 @@ abstract class AbstractBuiltInAttribute implements BuiltInAttributeInterface
         return new GroupValue($name, $this->getType(), $this->resolveKey($item), [$this->resolveItem($item) ?? $this->resolveLabel($item)]);
     }
 
+    public function denormalizeValue(?string $value): mixed
+    {
+        return $value;
+    }
+
     public function normalizeBuckets(array $buckets): array
     {
         return $buckets;

@@ -10,6 +10,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Discussion\Message;
 use App\Entity\ObjectDisplayableNameInterface;
 use App\Repository\Discussion\MessageRepository;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\ObjectNotifier;
 use App\Service\Discussion\DiscussionManager;
 use App\Service\Discussion\MentionExtractor;
@@ -24,6 +25,7 @@ readonly class PostDiscussionMessageHandler
         private DiscussionManager $discussionManager,
         private ObjectNotifier $objectNotifier,
         private MentionExtractor $mentionExtractor,
+        private AssetNameResolver $assetNameResolver,
     ) {
     }
 
@@ -45,8 +47,17 @@ readonly class PostDiscussionMessageHandler
         $authorId = $message->getAuthorId();
 
         $notificationId = 'databox-discussion-new-comment';
+
+        if ($object instanceof Asset) {
+            $objectName = $this->assetNameResolver->resolveNameAsString($object);
+        } elseif ($object instanceof ObjectDisplayableNameInterface) {
+            $objectName = $object->getObjectDisplayName();
+        } else {
+            $objectName = 'Undefined Object';
+        }
+
         $params = [
-            'object' => $object instanceof ObjectDisplayableNameInterface ? $object->getObjectDisplayName() : 'Undefined Object',
+            'object' => $objectName,
             'objectId' => $object->getId(),
             'authorId' => $authorId,
             'author' => $this->notifier->getUsername($authorId),

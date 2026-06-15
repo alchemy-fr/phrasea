@@ -18,7 +18,6 @@ export default function AssetSelection({assets, onSelectionChange}: Props) {
         <DisplayProvider
             defaultState={{
                 thumbSize: 100,
-                displayAttributes: false,
                 layout: Layout.List,
             }}
         >

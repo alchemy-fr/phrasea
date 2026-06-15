@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Util\StringUtil;
 use Alchemy\StorageBundle\Util\FileUtil;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
@@ -13,6 +14,7 @@ use App\Entity\Core\AssetRendition;
 use App\Model\Export;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\FileUrlResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -27,6 +29,7 @@ class ExportProcessor implements ProcessorInterface
         private readonly ValidatorInterface $validator,
         private readonly EntityManagerInterface $em,
         private readonly FileUrlResolver $fileUrlResolver,
+        private readonly AssetNameResolver $assetNameResolver,
     ) {
     }
 
@@ -55,9 +58,13 @@ class ExportProcessor implements ProcessorInterface
                 $file = $rendition->getFile();
                 $extension = FileUtil::getExtensionFromType($file->getType());
                 $ext = $extension ? '.'.$extension : '';
+
+                $assetName = $this->assetNameResolver->resolveNameAsString($asset);
+                $renditionName = $rendition->getName();
+
                 $files[] = [
                     'uri' => $this->fileUrlResolver->resolveUrl($file),
-                    'path' => sprintf('%s-%s-%s%s', $rendition->getName(), $asset->getName(), $assetId, $ext),
+                    'path' => sprintf('%s-%s-%s%s', StringUtil::slugify($renditionName), StringUtil::slugify($assetName), $assetId, $ext),
                 ];
             }
         }
