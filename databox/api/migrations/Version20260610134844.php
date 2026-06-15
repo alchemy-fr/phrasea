@@ -66,8 +66,7 @@ updated_at,
 target,
 name_priority,
 fill_from_name,
-suggest,
-status
+suggest
 ) SELECT
 gen_random_uuid(),
 w.id,
@@ -89,8 +88,7 @@ w.created_at,
 3,
 10,
 true,
-true,
-0
+true
 FROM workspace w
 INNER JOIN attribute_policy ap ON ap.workspace_id = w.id AND ap.name = 'NamePolicy'
 SQL);
@@ -114,7 +112,8 @@ created_at,
 updated_at,
 locked,
 origin,
-confidence
+confidence,
+status
 ) SELECT
 gen_random_uuid(),
 a.id,
@@ -125,7 +124,8 @@ a.created_at,
 a.created_at,
 false,
 1,
-1.0
+1.0,
+0
 FROM asset a
 INNER JOIN attribute_definition ad ON ad.workspace_id = a.workspace_id AND ad.slug = 'systemname'
 WHERE a.name IS NOT NULL AND a.name <> ''
