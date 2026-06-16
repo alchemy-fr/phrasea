@@ -12,7 +12,7 @@ use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\AttributeSearch;
 use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
-use App\Tests\Attribute\Type\AttributeTypeRegistyTestFactory;
+use App\Tests\Attribute\Type\AttributeTypeRegistryTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -24,7 +24,7 @@ class AttributeSearchTest extends TestCase
      */
     public function testAttributeClustering(array $definitions, array $expectedClusters): void
     {
-        $attributeTypeRegistry = AttributeTypeRegistyTestFactory::create();
+        $attributeTypeRegistry = AttributeTypeRegistryTestFactory::create();
         $builtInFieldRegistry = new BuiltInAttributeRegistry(new ServiceLocator([]));
 
         $fieldNameResolver = new FieldNameResolver(

@@ -76,7 +76,7 @@ class DateTimeAttributeType extends AbstractAttributeType
         return 'text';
     }
 
-    public function normalizeValue($value): ?string
+    public function convertToDbValue(mixed $value): ?string
     {
         if (!$value instanceof \DateTimeInterface) {
             $value = DateUtil::normalizeDate($value);
@@ -117,7 +117,7 @@ class DateTimeAttributeType extends AbstractAttributeType
         return null;
     }
 
-    public function normalizeElasticsearchValue(?string $value)
+    public function normalizeElasticsearchValue(?string $value): mixed
     {
         if (empty($value)) {
             return null;

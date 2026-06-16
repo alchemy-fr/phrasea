@@ -33,7 +33,7 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
-    public function getNormalizationCases(): array
+    public function getConvertToDbValueCases(): array
     {
         return [
             [['lat' => 48.8, 'lng' => 2.32], '48.8,2.32'],

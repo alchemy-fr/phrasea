@@ -64,7 +64,7 @@ final readonly class AttributeAssigner
         }
 
         $type = $this->attributeTypeRegistry->getStrictType($attribute->getDefinition()->getType());
-        $value = $type->normalizeValue($data->value);
+        $value = $type->convertToDbValue($data->value);
 
         if (null === $value) {
             throw new InvalidAttributeValueException(sprintf('Normalized "%s" value is NULL (from: "%s"): %s', $type::getName(), get_debug_type($data->value), var_export($data->value, true)));

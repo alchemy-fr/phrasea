@@ -14,7 +14,7 @@ use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use App\Elasticsearch\BuiltInField\CreatedAtBuiltInField;
 use App\Elasticsearch\BuiltInField\WorkspaceBuiltInField;
-use App\Tests\Attribute\Type\AttributeTypeRegistyTestFactory;
+use App\Tests\Attribute\Type\AttributeTypeRegistryTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\Service\ServiceLocatorTrait;
@@ -34,7 +34,7 @@ class AQLToESQueryTest extends TestCase
         $functionRegistry = new AQLFunctionRegistry();
         $functionRegistry->register(new MockNowFunction());
 
-        $attributeTypeRegistry = AttributeTypeRegistyTestFactory::create();
+        $attributeTypeRegistry = AttributeTypeRegistryTestFactory::create();
 
         $container = new class([WorkspaceBuiltInField::getKey() => fn () => new WorkspaceBuiltInField($em), CreatedAtBuiltInField::getKey() => fn () => new CreatedAtBuiltInField()]) implements ServiceProviderInterface {
             use ServiceLocatorTrait;

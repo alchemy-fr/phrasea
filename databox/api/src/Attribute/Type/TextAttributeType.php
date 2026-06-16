@@ -27,9 +27,9 @@ class TextAttributeType extends AbstractAttributeType
         return SearchType::Match;
     }
 
-    public function normalizeValue($value): ?string
+    public function convertToDbValue(mixed $value): ?string
     {
-        $value = parent::normalizeValue($value);
+        $value = parent::convertToDbValue($value);
         if (null === $value) {
             return null;
         }
@@ -83,7 +83,7 @@ class TextAttributeType extends AbstractAttributeType
     public function validate(mixed $value): ?array
     {
         if (!is_string($value) && !(is_object($value) && method_exists($value, '__toString'))) {
-            return ['Invalid text value'];
+            return ['Invalid value'];
         }
 
         return null;

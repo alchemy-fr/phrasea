@@ -38,7 +38,7 @@ class KeywordAttributeType extends AbstractAttributeType
     public function validate(mixed $value): ?array
     {
         if (!is_string($value) && !(is_object($value) && method_exists($value, '__toString'))) {
-            return ['Invalid text value'];
+            return ['Invalid value'];
         }
 
         return null;

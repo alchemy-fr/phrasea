@@ -12,9 +12,9 @@ class HtmlAttributeType extends CodeAttributeType
     {
     }
 
-    public function normalizeValue($value): ?string
+    public function convertToDbValue(mixed $value): ?string
     {
-        $value = parent::normalizeValue($value);
+        $value = parent::convertToDbValue($value);
 
         return $this->purify($value);
     }
@@ -24,7 +24,7 @@ class HtmlAttributeType extends CodeAttributeType
         return $this->purify($value);
     }
 
-    public function normalizeElasticsearchValue(?string $value)
+    public function normalizeElasticsearchValue(?string $value): mixed
     {
         if (null === $value) {
             return null;

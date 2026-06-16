@@ -9,10 +9,23 @@ use App\Elasticsearch\SearchType;
 
 abstract class AbstractAttributeType implements AttributeTypeInterface
 {
-    public function normalizeValue($value): ?string
+    public function normalizeValue(mixed $value): mixed
+    {
+        if (is_string($value)) {
+            return trim($value) ?: null;
+        }
+
+        return $value;
+    }
+
+    public function convertToDbValue(mixed $value): ?string
     {
         if (null === $value) {
             return null;
+        }
+
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
         }
 
         try {
@@ -32,18 +45,9 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
         return (string) $this->denormalizeValue($value);
     }
 
-    public function normalizeElasticsearchValue(?string $value)
+    public function normalizeElasticsearchValue(?string $value): mixed
     {
         return $value;
-    }
-
-    public function denormalizeElasticsearchValue($value): ?string
-    {
-        if (empty($value)) {
-            return null;
-        }
-
-        return (string) $value;
     }
 
     public function getFacetType(): string

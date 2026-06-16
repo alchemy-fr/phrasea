@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use App\Entity\Core\WorkspaceItemPrivacyInterface;
+
 class PrivacyAttributeType extends KeywordAttributeType
 {
     public const string NAME = 'privacy';
@@ -18,19 +20,26 @@ class PrivacyAttributeType extends KeywordAttributeType
         return false;
     }
 
-    public function validate(mixed $value): ?array
+    public function normalizeValue(mixed $value): mixed
     {
-        $errors = parent::validate($value);
-
-        if (!empty($errors)) {
-            return $errors;
+        if (is_string($value) && is_numeric($value)) {
+            return (int) $value;
         }
 
-        $v = (string) $value;
-        if ($v && !is_numeric($v)) {
-            $errors[] = 'Invalid privacy value';
+        return parent::normalizeValue($value);
+    }
 
-            return $errors;
+    public function validate(mixed $value): ?array
+    {
+        if (!in_array($value, [
+            WorkspaceItemPrivacyInterface::SECRET,
+            WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
+            WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE,
+            WorkspaceItemPrivacyInterface::PRIVATE,
+            WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS,
+            WorkspaceItemPrivacyInterface::PUBLIC,
+        ], true)) {
+            return ['Invalid privacy value'];
         }
 
         return null;

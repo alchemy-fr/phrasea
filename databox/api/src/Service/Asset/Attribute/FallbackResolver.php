@@ -77,7 +77,7 @@ class FallbackResolver
 
                 $type = $this->attributeTypeRegistry->getType($definition->getType());
 
-                $value = $type->normalizeValue($fallbackValue);
+                $value = $type->convertToDbValue($fallbackValue);
                 if (null === $value) {
                     return null;
                 }

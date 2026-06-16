@@ -31,14 +31,14 @@ final class EntityAttributeType extends TextAttributeType
 
     public function validate(mixed $value): ?array
     {
-        if (!Uuid::isValid($value)) {
+        if (!is_string($value) || !Uuid::isValid($value)) {
             return ['Invalid entity ID'];
         }
 
         return null;
     }
 
-    public function normalizeElasticsearchValue(?string $value): string|array|null
+    public function normalizeElasticsearchValue(?string $value): mixed
     {
         $entity = $this->getEntityFromValue($value);
         if (!$entity instanceof AttributeEntity || !$entity->isApproved()) {
@@ -140,7 +140,7 @@ final class EntityAttributeType extends TextAttributeType
         return 'id';
     }
 
-    public function normalizeValue($value): ?string
+    public function convertToDbValue(mixed $value): ?string
     {
         if (null === $value) {
             return null;

@@ -49,7 +49,7 @@ final class GeoPointAttributeType extends AbstractAttributeType
         return ['Invalid Geo point'];
     }
 
-    public function normalizeValue($value): ?string
+    public function convertToDbValue(mixed $value): ?string
     {
         if (is_array($value)) {
             if (isset($value['lat'], $value['lng'])) {
@@ -65,7 +65,7 @@ final class GeoPointAttributeType extends AbstractAttributeType
             return null;
         }
 
-        return $this->normalizeValue($this->denormalizeValue($value));
+        return $this->convertToDbValue($this->denormalizeValue($value));
     }
 
     public function denormalizeValue(?string $value): mixed
@@ -100,7 +100,7 @@ final class GeoPointAttributeType extends AbstractAttributeType
         return sprintf('%g,%g', $value['lat'], $value['lng']);
     }
 
-    public function normalizeElasticsearchValue(?string $value)
+    public function normalizeElasticsearchValue(?string $value): mixed
     {
         $value = $this->denormalizeValue($value);
         if (null === $value) {

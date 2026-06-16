@@ -7,7 +7,7 @@ namespace App\Tests\Attribute\Type;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\HtmlAttributeType;
 
-class HtmlAttributeTypeTest extends AbstractAttributeTypeTest
+class HtmlAttributeTypeTest extends TextAttributeTypeTest
 {
     protected function getType(): AttributeTypeInterface
     {

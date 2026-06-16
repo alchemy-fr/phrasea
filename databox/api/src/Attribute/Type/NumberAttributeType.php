@@ -41,12 +41,19 @@ class NumberAttributeType extends AbstractAttributeType
         return false;
     }
 
+    public function denormalizeValue(?string $value): mixed
+    {
+        if (is_numeric($value)) {
+            return $value + 0; // Convert to int or float
+        }
+
+        return null;
+    }
+
     /**
      * @param int|float|string $value
-     *
-     * @return float
      */
-    public function normalizeElasticsearchValue($value)
+    public function normalizeElasticsearchValue($value): mixed
     {
         return (float) $value;
     }
@@ -58,15 +65,6 @@ class NumberAttributeType extends AbstractAttributeType
         }
 
         return null;
-    }
-
-    public function denormalizeValue(?string $value): mixed
-    {
-        if (is_numeric($value)) {
-            return $value + 0; // Convert to int or float
-        }
-
-        return $value;
     }
 
     public function supportsAggregation(): bool

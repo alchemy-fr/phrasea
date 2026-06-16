@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use App\Attribute\AttributeInterface;
+
 class DateAttributeType extends DateTimeAttributeType
 {
     public const string NAME = 'date';
@@ -19,7 +21,7 @@ class DateAttributeType extends DateTimeAttributeType
         return parent::getGroupValueLabel($value);
     }
 
-    public function normalizeElasticsearchValue(?string $value)
+    public function normalizeElasticsearchValue(?string $value): mixed
     {
         $value = parent::normalizeElasticsearchValue($value);
 
@@ -49,5 +51,20 @@ class DateAttributeType extends DateTimeAttributeType
         } catch (\Throwable) {
             return null;
         }
+    }
+
+    public function getStringValue(?string $value, ?string $locale): string
+    {
+        $date = $this->denormalizeValue($value);
+        if ($date) {
+            if (AttributeInterface::NO_LOCALE === $locale) {
+                $locale = 'en';
+            }
+            $formatter = new \IntlDateFormatter($locale, \IntlDateFormatter::LONG, \IntlDateFormatter::NONE);
+
+            return $formatter->format($date);
+        }
+
+        return '';
     }
 }

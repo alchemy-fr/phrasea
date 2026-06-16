@@ -84,7 +84,7 @@ trait DataboxTestTrait
                 $a->setLocale($attr['locale'] ?? null);
                 $a->setPosition($attr['position'] ?? 0);
                 $a->setOrigin($attr['origin'] ?? Attribute::ORIGIN_MACHINE);
-                $a->setValue($typeRegistry->getStrictType($attr['definition']->getType())->normalizeValue($attr['value']));
+                $a->setValue($typeRegistry->getStrictType($attr['definition']->getType())->convertToDbValue($attr['value']));
 
                 $em->persist($a);
             }

@@ -33,7 +33,7 @@ class DateAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
-    public function getNormalizationCases(): array
+    public function getConvertToDbValueCases(): array
     {
         return [
             [null, null],
