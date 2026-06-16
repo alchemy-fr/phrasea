@@ -16,12 +16,18 @@ class HtmlAttributeTypeTest extends TextAttributeTypeTest
 
     public function getNormalizationCases(): array
     {
-        return $this->getPurifyCases();
+        return [
+            ...parent::getNormalizationCases(),
+            ...$this->getPurifyCases(),
+        ];
     }
 
     public function getDenormalizationCases(): array
     {
-        return $this->getPurifyCases();
+        return [
+            ...parent::getDenormalizationCases(),
+            ...$this->getPurifyCases(),
+        ];
     }
 
     private function getPurifyCases(): array
@@ -40,9 +46,7 @@ class HtmlAttributeTypeTest extends TextAttributeTypeTest
     public function getElasticsearchNormalizationCases(): array
     {
         return [
-            [null, null],
-            ['null', 'null'],
-            ['', ''],
+            ...parent::getElasticsearchNormalizationCases(),
             ['<a>link</a>', 'link'],
             ['<br/>', ''],
         ];

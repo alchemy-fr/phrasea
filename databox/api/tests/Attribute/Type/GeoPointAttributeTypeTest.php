@@ -19,12 +19,10 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
     {
         return [
             ...parent::getValidationCases(),
-            [null, ['Invalid Geo point']],
             ['1,1', null],
             ['1.0,1', null],
             ['1.0,1.0', null],
             ['1.0, 1.0', null],
-            ['', ['Invalid Geo point']],
             ['11', ['Invalid Geo point']],
             ['1?', ['Invalid Geo point']],
             ['a', ['Invalid Geo point']],
@@ -39,14 +37,15 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
     {
         return [
             ...parent::getNormalizationCases(),
-            [['lat' => 48.8, 'lng' => 2.32], '48.8,2.32'],
-            ['2.32, 48.8', '2.32,48.8'],
-            ['2.32  ,  48.8', '2.32,48.8'],
-            ['2.32,48.8', '2.32,48.8'],
-            ['0,0', '0,0'],
-            ['0.0,0.01', '0,0.01'],
-            ['0.00099999991,0.01', '0.001,0.01'],
-            ['0.00099999991 0.01', '0.001,0.01'],
+            [['lat' => 48.8, 'lng' => 2.32], new GeoPoint(48.8, 2.32)],
+            ['2.32, 48.8', new GeoPoint(2.32, 48.8)],
+            ['2.32  ,  48.8', new GeoPoint(2.32, 48.8)],
+            ['2.32,48.8', new GeoPoint(2.32, 48.8)],
+            ['2.32;48.8', new GeoPoint(2.32, 48.8)],
+            ['0,0', new GeoPoint(0, 0)],
+            ['0.0,0.01', new GeoPoint(0, 0.01)],
+            ['0.00099999991,0.01', new GeoPoint(0.00099999991, 0.01)],
+            ['0.00099999991 0.01', new GeoPoint(0.00099999991, 0.01)],
         ];
     }
 
@@ -58,6 +57,7 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
             ['2.32, 48.8', '2.32,48.8'],
             ['2.32  ,  48.8', '2.32,48.8'],
             ['2.32,48.8', '2.32,48.8'],
+            ['2.32;48.8', '2.32,48.8'],
             ['0,0', '0,0'],
             ['0.0,0.01', '0,0.01'],
             ['0.00099999991,0.01', '0.001,0.01'],
@@ -82,15 +82,14 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
             ...parent::getElasticsearchNormalizationCases(),
             'empty' => ['', null],
             'single_space' => [' ', null],
-            ['0.00099999991,0.01', '0.001,0.01'],
-            ['0.00099999991 0.01', '0.001,0.01'],
-            ['48.8,2.32', '48.8,2.32'],
-            [new GeoPoint(48.8, 2.32), '48.8,2.32'],
-            [new GeoPoint(-48.8, 2.32), '-48.8,2.32'],
-            [new GeoPoint(-48.8, -2.32), '-48.8,-2.32'],
-            [new GeoPoint(48.8, -2.32), '48.8,-2.32'],
-            [new GeoPoint(0, 0), '0,0'],
-
+            ['0.00099999991,0.01', ['lat' => 0.00099999991, 'lon' => 0.01]],
+            ['0.00099999991 0.01', ['lat' => 0.00099999991, 'lon' => 0.01]],
+            ['48.8,2.32', ['lat' => 48.8, 'lon' => 2.32]],
+            ['48.8, 2.32', ['lat' => 48.8, 'lon' => 2.32]],
+            ['-48.8, 2.32', ['lat' => -48.8, 'lon' => 2.32]],
+            ['-48.8, -2.32', ['lat' => -48.8, 'lon' => -2.32]],
+            ['48.8, -2.32', ['lat' => 48.8, 'lon' => -2.32]],
+            ['0, 0', ['lat' => 0, 'lon' => 0]],
         ];
     }
 }

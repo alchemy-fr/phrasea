@@ -40,7 +40,8 @@ final class GeoPointAttributeType extends AbstractAttributeType
                 return new GeoPoint($value['lat'], $value['lng']);
             }
         } elseif (is_string($value)) {
-            if (1 === preg_match('#^(\d+(?:[.]\d+)?),\s*(\d+(?:[.]\d+)?)$#', $value, $matches)) {
+            $value = trim($value);
+            if (1 === preg_match('#^(\d+(?:[.]\d+)?)\s*[;,\s]\s*(\d+(?:[.]\d+)?)$#', $value, $matches)) {
                 return new GeoPoint((float) $matches[1], (float) $matches[2]);
             }
         }
@@ -61,21 +62,11 @@ final class GeoPointAttributeType extends AbstractAttributeType
 
     public function convertToDbValue(mixed $value): ?string
     {
-        if (is_array($value)) {
-            if (isset($value['lat'], $value['lng'])) {
-                return sprintf('%g,%g', $value['lat'], $value['lng']);
-            } elseif (isset($value[0], $value[1])) {
-                return sprintf('%g,%g', $value[0], $value[1]);
-            }
-
-            return null;
+        if ($value instanceof GeoPoint) {
+            return sprintf('%g,%g', $value->latitude, $value->longitude);
         }
 
-        if (!is_string($value) || (!str_contains($value, ' ') && !str_contains($value, ','))) {
-            return null;
-        }
-
-        return $this->convertToDbValue($this->denormalizeValue($value));
+        return parent::convertToDbValue($value);
     }
 
     public function denormalizeValue(?string $value): mixed
@@ -88,13 +79,17 @@ final class GeoPointAttributeType extends AbstractAttributeType
             return null;
         }
 
-        if (!is_string($value) || (!str_contains($value, ' ') && !str_contains($value, ','))) {
+        if (!is_string($value)
+            || (!str_contains($value, ' ') && !str_contains($value, ',') && !str_contains($value, ';'))
+        ) {
             return null;
         }
 
-        [$lat, $lng] = preg_split('#\s*[, ]\s*#', $value);
+        if (1 === preg_match('#^(-?\d+(?:[.]\d+)?)\s*[;,\s]\s*(-?\d+(?:[.]\d+)?)$#', $value, $matches)) {
+            return new GeoPoint((float) $matches[1], (float) $matches[2]);
+        }
 
-        return new GeoPoint($lat, $lng);
+        return null;
     }
 
     public function getStringValue(?string $value, ?string $locale): string

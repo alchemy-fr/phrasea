@@ -17,8 +17,9 @@ class IdAttributeTypeTest extends AbstractAttributeTypeTest
     public function getValidationCases(): array
     {
         return [
-            ['', null],
+            ...parent::getValidationCases(),
             ['asset-id', null],
+            ['88065897-db30-44e3-91d9-762e41d2c258', null],
             ['asset id', ['ID cannot contain spaces']],
             [0, ['Invalid value']],
             [false, ['Invalid value']],
@@ -28,12 +29,10 @@ class IdAttributeTypeTest extends AbstractAttributeTypeTest
     public function getConvertToDbValueCases(): array
     {
         return [
-            [null, null],
-            ['', ''],
+            ...parent::getConvertToDbValueCases(),
+            ['88065897-db30-44e3-91d9-762e41d2c258', '88065897-db30-44e3-91d9-762e41d2c258'],
             ['asset-id', 'asset-id'],
             ['asset id', 'asset id'],
-            [1, '1'],
-            [[], null],
         ];
     }
 }

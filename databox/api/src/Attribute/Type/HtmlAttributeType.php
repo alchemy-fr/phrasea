@@ -12,11 +12,13 @@ class HtmlAttributeType extends CodeAttributeType
     {
     }
 
-    public function convertToDbValue(mixed $value): ?string
+    public function normalizeValue(mixed $value): mixed
     {
-        $value = parent::convertToDbValue($value);
+        if (is_string($value)) {
+            $value = $this->HTMLPurifier->purify($value);
+        }
 
-        return $this->purify($value);
+        return parent::normalizeValue($value);
     }
 
     public function denormalizeValue($value): mixed

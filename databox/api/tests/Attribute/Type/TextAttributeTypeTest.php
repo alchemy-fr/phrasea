@@ -17,13 +17,16 @@ class TextAttributeTypeTest extends AbstractAttributeTypeTest
     public function getValidationCases(): array
     {
         return [
-            ['', null],
-            ['a', null],
-            [' ', null],
+            ...parent::getValidationCases(),
+            'foo' => ['foo', null],
             [0, ['Invalid value']],
             [1, ['Invalid value']],
+            [-1, ['Invalid value']],
             [false, ['Invalid value']],
             [true, ['Invalid value']],
+            [[], ['Invalid value']],
+            [[true], ['Invalid value']],
+            [1.0, ['Invalid value']],
         ];
     }
 }
