@@ -25,7 +25,7 @@ class TemplateAttributeInputTransformer extends AbstractInputTransformer
     /**
      * @param TemplateAttributeInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function transform(object $data, string $resourceClass, array $context = []): object|iterable|null
     {
         $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var TemplateAttribute $object */
@@ -40,7 +40,15 @@ class TemplateAttributeInputTransformer extends AbstractInputTransformer
             ));
         }
 
-        $this->attributeAssigner->assignAttributeFromInput($object, $data);
+        $normalizedValue = $this->attributeAssigner->normalizeValue($object->getDefinition(), $data->value);
+        if (null === $normalizedValue) {
+            if (!$isNew) {
+                $this->em->remove($object);
+            }
+
+            return null;
+        }
+        $this->attributeAssigner->assignAttributeFromInput($object, $data, $normalizedValue);
 
         return $object;
     }

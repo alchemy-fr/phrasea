@@ -70,12 +70,17 @@ readonly class InitialAttributeValuesResolver
                         $attribute->setAsset($asset);
 
                         try {
-                            $this->attributeAssigner->assignAttributeFromInput($attribute, $input);
+                            $normalizedValue = $this->attributeAssigner->normalizeValue($definition, $input->value);
                         } catch (InvalidAttributeValueException) {
                             // this can happen for e.g. if a date is invalid and cannot be normalized
                             continue;
                         }
 
+                        if (null === $normalizedValue) {
+                            continue;
+                        }
+
+                        $this->attributeAssigner->assignAttributeFromInput($attribute, $input, $normalizedValue);
                         $this->attributeAssigner->resetAssetAttributesCache($asset);
 
                         $attributes[] = $attribute;

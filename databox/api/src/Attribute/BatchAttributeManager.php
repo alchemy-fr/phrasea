@@ -149,7 +149,7 @@ class BatchAttributeManager
                                 throw new BadRequestHttpException(sprintf('Attribute "%s" is not multi-valued in action #%d', $definition->getName(), $i));
                             }
 
-                            $this->upsertAttribute(null, $ids, $definition, $action);
+                            $this->upsertOrRemoveAttribute(null, $ids, $definition, $action);
                             break;
                         case self::ACTION_DELETE:
                             if (!$definition) {
@@ -172,7 +172,7 @@ class BatchAttributeManager
                                     }
                                     $def = $attribute->getDefinition();
 
-                                    $this->upsertAttribute($attribute, $ids, $def, $action);
+                                    $this->upsertOrRemoveAttribute($attribute, $ids, $def, $action);
                                 } catch (ConversionException $e) {
                                     throw new BadRequestHttpException(sprintf('Invalid attribute ID "%s" in action #%d', $action->id, $i), $e);
                                 }
@@ -190,7 +190,7 @@ class BatchAttributeManager
                                     foreach ($action->value as $value) {
                                         $vAction = clone $action;
                                         $vAction->value = $value;
-                                        $this->upsertAttribute(null, $ids, $definition, $vAction);
+                                        $this->upsertOrRemoveAttribute(null, $ids, $definition, $vAction);
                                     }
                                 } else {
                                     foreach ($ids as $assetId) {
@@ -199,7 +199,7 @@ class BatchAttributeManager
                                             'asset' => $assetId,
                                             'locale' => $action->locale,
                                         ]);
-                                        $this->upsertAttribute($attribute, [$assetId], $definition, $action);
+                                        $this->upsertOrRemoveAttribute($attribute, [$assetId], $definition, $action);
                                     }
                                 }
                             }
@@ -338,7 +338,7 @@ class BatchAttributeManager
         }
     }
 
-    private function upsertAttribute(
+    private function upsertOrRemoveAttribute(
         ?Attribute $attribute,
         array $assetsId,
         AttributeDefinition $definition,
@@ -354,14 +354,22 @@ class BatchAttributeManager
         });
 
         foreach ($assets as $asset) {
-            if (null === $attribute) {
-                $attribute = new Attribute();
-                $attribute->setAsset($asset);
-                $attribute->setDefinition($definition);
+            $normalizedValue = $this->attributeAssigner->normalizeValue($definition, $action->value);
+            if (null !== $normalizedValue) {
+                if (null !== $attribute) {
+                    $this->em->remove($attribute);
+                }
+            } else {
+                if (null === $attribute) {
+                    $attribute = new Attribute();
+                    $attribute->setAsset($asset);
+                    $attribute->setDefinition($definition);
+                }
+
+                $this->attributeAssigner->assignAttributeFromInput($attribute, $action, $normalizedValue);
+                $this->em->persist($attribute);
             }
 
-            $this->attributeAssigner->assignAttributeFromInput($attribute, $action);
-            $this->em->persist($attribute);
             $this->attributeAssigner->resetAssetAttributesCache($asset);
 
             $attribute = null;
