@@ -355,7 +355,7 @@ class BatchAttributeManager
 
         foreach ($assets as $asset) {
             $normalizedValue = $this->attributeAssigner->normalizeValue($definition, $action->value);
-            if (null !== $normalizedValue) {
+            if (null === $normalizedValue) {
                 if (null !== $attribute) {
                     $this->em->remove($attribute);
                 }
