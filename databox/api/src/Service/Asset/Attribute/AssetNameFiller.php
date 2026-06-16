@@ -28,7 +28,7 @@ final readonly class AssetNameFiller
         $target = $asset->isStory() ? AssetTypeEnum::Story : AssetTypeEnum::Asset;
 
         if (null === $asset->getWorkspace()) {
-            throw new \InvalidArgumentException(sprintf('Asset must have a workspace to fill name, asset id: %d', $asset->getId()));
+            throw new \InvalidArgumentException('Asset must have a workspace to fill name');
         }
 
         $nameAttributes = $this->attributeDefinitionRepository->getWorkspaceFillFromNameDefinitions($asset->getWorkspaceId());
