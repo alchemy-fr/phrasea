@@ -18,7 +18,7 @@ class PrivacyAttributeTypeTest extends AbstractAttributeTypeTest
     public function getValidationCases(): array
     {
         return [
-            ['',  ['Invalid privacy value']],
+            ...parent::getValidationCases(),
             [WorkspaceItemPrivacyInterface::SECRET, null],
             [WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE, null],
             [WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE, null],

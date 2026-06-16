@@ -6,6 +6,7 @@ namespace App\Tests\Attribute\Type;
 
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\GeoPointAttributeType;
+use App\Model\GeoPoint;
 
 class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
 {
@@ -17,6 +18,7 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
     public function getValidationCases(): array
     {
         return [
+            ...parent::getValidationCases(),
             [null, ['Invalid Geo point']],
             ['1,1', null],
             ['1.0,1', null],
@@ -33,9 +35,10 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
-    public function getConvertToDbValueCases(): array
+    public function getNormalizationCases(): array
     {
         return [
+            ...parent::getNormalizationCases(),
             [['lat' => 48.8, 'lng' => 2.32], '48.8,2.32'],
             ['2.32, 48.8', '2.32,48.8'],
             ['2.32  ,  48.8', '2.32,48.8'],
@@ -44,19 +47,50 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
             ['0.0,0.01', '0,0.01'],
             ['0.00099999991,0.01', '0.001,0.01'],
             ['0.00099999991 0.01', '0.001,0.01'],
-            [null, null],
-            ['', null],
-            [' ', null],
+        ];
+    }
+
+    public function getConvertToDbValueCases(): array
+    {
+        return [
+            ...parent::getConvertToDbValueCases(),
+            [['lat' => 48.8, 'lng' => 2.32], '48.8,2.32'],
+            ['2.32, 48.8', '2.32,48.8'],
+            ['2.32  ,  48.8', '2.32,48.8'],
+            ['2.32,48.8', '2.32,48.8'],
+            ['0,0', '0,0'],
+            ['0.0,0.01', '0,0.01'],
+            ['0.00099999991,0.01', '0.001,0.01'],
+            ['0.00099999991 0.01', '0.001,0.01'],
         ];
     }
 
     public function getDenormalizationCases(): array
     {
         return [
-            ['48.8,2.32', ['lat' => 48.8, 'lng' => 2.32]],
-            [null, null],
-            ['', null],
-            [' ', null],
+            ...parent::getDenormalizationCases(),
+            'null' => [null, null],
+            'empty' => ['', null],
+            'single_space' => [' ', null],
+            ['48.8,2.32', new GeoPoint(48.8, 2.32)],
+        ];
+    }
+
+    public function getElasticsearchNormalizationCases(): array
+    {
+        return [
+            ...parent::getElasticsearchNormalizationCases(),
+            'empty' => ['', null],
+            'single_space' => [' ', null],
+            ['0.00099999991,0.01', '0.001,0.01'],
+            ['0.00099999991 0.01', '0.001,0.01'],
+            ['48.8,2.32', '48.8,2.32'],
+            [new GeoPoint(48.8, 2.32), '48.8,2.32'],
+            [new GeoPoint(-48.8, 2.32), '-48.8,2.32'],
+            [new GeoPoint(-48.8, -2.32), '-48.8,-2.32'],
+            [new GeoPoint(48.8, -2.32), '48.8,-2.32'],
+            [new GeoPoint(0, 0), '0,0'],
+
         ];
     }
 }

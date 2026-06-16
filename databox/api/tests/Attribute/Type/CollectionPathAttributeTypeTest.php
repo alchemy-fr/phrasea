@@ -14,22 +14,26 @@ class CollectionPathAttributeTypeTest extends AbstractAttributeTypeTest
         return new CollectionPathAttributeType();
     }
 
+    public function getValidationCases(): array
+    {
+        // Validation should not be called for this type
+        return [];
+    }
+
     public function getConvertToDbValueCases(): array
     {
         return [
-            [null, null],
+            ...parent::getConvertToDbValueCases(),
             ['root/children', 'root/children'],
-            [1, '1'],
-            [[], null],
         ];
     }
 
     public function getDenormalizationCases(): array
     {
         return [
-            [null, null],
-            ['', null],
+            ...parent::getDenormalizationCases(),
             ['root/children', 'root/children'],
+            ['root', 'root'],
         ];
     }
 

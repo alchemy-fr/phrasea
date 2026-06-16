@@ -24,28 +24,29 @@ class EntityAttributeTypeTest extends AbstractAttributeTypeTest
         return new EntityAttributeType($this->repository);
     }
 
-    public function getValidationCases(): array
-    {
-        return [
-            [null, ['Invalid entity ID']],
-            ['foo', ['Invalid entity ID']],
-            ['17e9152c-fa5f-4f53-83ac-62674f6f6f8d', null],
-        ];
-    }
-
-    public function getConvertToDbValueCases(): array
-    {
-        return [
-            [null, null],
-            ['17e9152c-fa5f-4f53-83ac-62674f6f6f8d', '17e9152c-fa5f-4f53-83ac-62674f6f6f8d'],
-        ];
-    }
-
     public function getDenormalizationCases(): array
     {
         return [
-            [null, null],
-            ['', null],
+            ...parent::getDenormalizationCases(),
+            'empty' => ['', null],
+            'single_space' => [' ', null],
+        ];
+    }
+
+    public function getElasticsearchNormalizationCases(): array
+    {
+        return [
+            ...parent::getElasticsearchNormalizationCases(),
+            'empty' => ['', null],
+            'single_space' => [' ', null],
+        ];
+    }
+
+    public function getValidationCases(): array
+    {
+        return [
+            ...parent::getValidationCases(),
+            ['foo', ['Invalid entity ID']],
             ['17e9152c-fa5f-4f53-83ac-62674f6f6f8d', null],
         ];
     }

@@ -17,6 +17,7 @@ class NumberAttributeTypeTest extends AbstractAttributeTypeTest
     public function getValidationCases(): array
     {
         return [
+            ...parent::getValidationCases(),
             [0, null],
             [1, null],
             [1.2, null],
@@ -24,34 +25,38 @@ class NumberAttributeTypeTest extends AbstractAttributeTypeTest
             ['1.2', null],
             ['foo', ['Invalid number']],
             [true, ['Invalid number']],
-            [null, ['Invalid number']],
+        ];
+    }
+
+    public function getNormalizationCases(): array
+    {
+        return [
+            ...parent::getNormalizationCases(),
+            '0_string' => ['0', 0],
+            '1_string' => ['1', 1],
+            '-1_string' => ['-1', -1],
+            ['1.2', 1.2],
+            [1.2, 1.2],
+            [-1.2, -1.2],
         ];
     }
 
     public function getConvertToDbValueCases(): array
     {
         return [
-            [null, null],
-            ['', ''],
-            ['1', '1'],
+            ...parent::getConvertToDbValueCases(),
             ['1.2', '1.2'],
-            [1, '1'],
-            [0, '0'],
-            ['0', '0'],
             [1.2, '1.2'],
             [-1.2, '-1.2'],
-            [true, '1'],
-            [false, '0'],
-            ['foo', 'foo'],
-            [[], null],
         ];
     }
 
     public function getDenormalizationCases(): array
     {
         return [
-            [null, null],
-            ['', null],
+            ...parent::getDenormalizationCases(),
+            'empty' => ['', null],
+            'single_space' => [' ', null],
             ['1', 1],
             ['1.2', 1.2],
             ['foo', null],

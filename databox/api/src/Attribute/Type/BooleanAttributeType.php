@@ -46,7 +46,11 @@ final class BooleanAttributeType extends AbstractAttributeType
             return false;
         }
 
-        return parent::normalizeValue($value);
+        if (is_string($value)) {
+            $value = trim($value);
+        }
+
+        return $value;
     }
 
     public function convertToDbValue(mixed $value): ?string

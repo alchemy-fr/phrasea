@@ -13,9 +13,13 @@ abstract class DateUtil
         if ($date instanceof \DateTimeInterface) {
             return \DateTimeImmutable::createFromInterface($date);
         } elseif (is_int($date)) {
+            if ($date <= 0) {
+                return null;
+            }
+
             return new \DateTimeImmutable('@'.$date);
         } elseif (is_string($date)) {
-            $value = $date;
+            $value = trim($date);
             foreach ([
                 [
                     'p' => '#^(\d{4})\D(\d{2})\D(\d{2})$#',

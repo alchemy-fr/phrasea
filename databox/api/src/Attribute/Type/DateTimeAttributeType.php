@@ -76,13 +76,26 @@ class DateTimeAttributeType extends AbstractAttributeType
         return 'text';
     }
 
-    public function convertToDbValue(mixed $value): ?string
+    public function normalizeValue(mixed $value): mixed
     {
-        if (!$value instanceof \DateTimeInterface) {
-            $value = DateUtil::normalizeDate($value);
+        if ($value instanceof \DateTimeInterface) {
+            return $value;
+        }
+        $date = DateUtil::normalizeDate($value);
+        if ($date instanceof \DateTimeInterface) {
+            return $date;
         }
 
-        return $value?->format(\DateTimeInterface::ATOM);
+        return parent::normalizeValue($value);
+    }
+
+    public function convertToDbValue(mixed $value): ?string
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format(\DateTimeInterface::ATOM);
+        }
+
+        return parent::convertToDbValue($value);
     }
 
     /**

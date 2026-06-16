@@ -37,6 +37,11 @@ class DateAttributeType extends DateTimeAttributeType
             return null;
         }
 
+        $value = trim($value);
+        if ('' === $value) {
+            return null;
+        }
+
         try {
             $date = \DateTimeImmutable::createFromFormat('Y-m-d', $value);
             if (false === $date) {

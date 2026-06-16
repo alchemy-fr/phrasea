@@ -17,6 +17,7 @@ class ColorAttributeTypeTest extends AbstractAttributeTypeTest
     public function getValidationCases(): array
     {
         return [
+            ...parent::getValidationCases(),
             ['#fff', null],
             ['red', null],
             [0, ['Invalid value']],
@@ -28,11 +29,9 @@ class ColorAttributeTypeTest extends AbstractAttributeTypeTest
     public function getConvertToDbValueCases(): array
     {
         return [
-            [null, null],
+            ...parent::getValidationCases(),
             ['#fff', '#fff'],
-            [' red ', ' red '],
-            [1, '1'],
-            [[], null],
+            [' red ', 'red'],
         ];
     }
 }

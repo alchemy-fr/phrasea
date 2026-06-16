@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use App\Elasticsearch\ESFacetInterface;
+use App\Model\GeoPoint;
 
 final class GeoPointAttributeType extends AbstractAttributeType
 {
@@ -30,19 +31,28 @@ final class GeoPointAttributeType extends AbstractAttributeType
         return true;
     }
 
-    public function validate(mixed $value): ?array
+    public function normalizeValue(mixed $value): mixed
     {
         if (is_array($value)) {
-            if (!isset($value['lat']) || !isset($value['lon'])) {
-                return ['Invalid Geo point'];
+            if (isset($value['lat']) && isset($value['lon'])) {
+                return new GeoPoint($value['lat'], $value['lon']);
+            } elseif (isset($value['lat']) && isset($value['lng'])) {
+                return new GeoPoint($value['lat'], $value['lng']);
             }
-
-            return null;
         } elseif (is_string($value)) {
-            if (!preg_match('#^\d+([.]\d+)?,\s*\d+([.]\d+)?$#', $value)) {
-                return ['Invalid Geo point'];
+            if (1 === preg_match('#^(\d+(?:[.]\d+)?),\s*(\d+(?:[.]\d+)?)$#', $value, $matches)) {
+                return new GeoPoint((float) $matches[1], (float) $matches[2]);
             }
+        }
 
+        return parent::normalizeValue($value);
+    }
+
+    public function validate(mixed $value): ?array
+    {
+        if ($value instanceof GeoPoint) {
+            return null;
+        } elseif (null === $value) {
             return null;
         }
 
@@ -84,10 +94,7 @@ final class GeoPointAttributeType extends AbstractAttributeType
 
         [$lat, $lng] = preg_split('#\s*[, ]\s*#', $value);
 
-        return [
-            'lat' => (float) trim($lat),
-            'lng' => (float) trim($lng),
-        ];
+        return new GeoPoint($lat, $lng);
     }
 
     public function getStringValue(?string $value, ?string $locale): string
@@ -103,13 +110,14 @@ final class GeoPointAttributeType extends AbstractAttributeType
     public function normalizeElasticsearchValue(?string $value): mixed
     {
         $value = $this->denormalizeValue($value);
-        if (null === $value) {
-            return null;
+        if ($value instanceof GeoPoint) {
+            return [
+                'lat' => $value->latitude,
+                'lon' => $value->longitude,
+            ];
         }
 
-        return [
-            'lat' => $value['lat'],
-            'lon' => $value['lng'],
-        ];
+        return null;
+
     }
 }

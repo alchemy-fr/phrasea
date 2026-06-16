@@ -39,10 +39,13 @@ interface AttributeTypeInterface
     public function getElasticSearchMapping(string $locale): ?array;
 
     /**
-     * Normalize input value, before validation.
+     * Normalize input value to PHP type, before validation.
      */
     public function normalizeValue(mixed $value): mixed;
 
+    /**
+     * Convert PHP typed value to string for database.
+     */
     public function convertToDbValue(mixed $value): ?string;
 
     /**

@@ -30,7 +30,13 @@ abstract class AbstractAttributeTypeTest extends TestCase
     {
         $type = $this->getType();
 
-        $this->assertEquals($expected, $type->validate($type->normalizeValue($value)));
+        $normalized = $type->normalizeValue($value);
+        if (null === $normalized) {
+            $this->assertNull($expected, 'Normalization led to a NULL value but expected errors were not NULL');
+        } else {
+            $errors = $type->validate($normalized);
+            $this->assertEquals($expected, $errors);
+        }
     }
 
     /**
@@ -75,7 +81,11 @@ abstract class AbstractAttributeTypeTest extends TestCase
 
     public function getValidationCases(): array
     {
-        return [];
+        return [
+            'null' => [null, null],
+            'empty_string' => ['', null],
+            'single_space' => [' ', null],
+        ];
     }
 
     public function getNormalizationCases(): array
@@ -121,7 +131,7 @@ abstract class AbstractAttributeTypeTest extends TestCase
             'right_trimmed_string' => ['a    ', 'a'],
             '0' => [0, '0'],
             '1' => [1, '1'],
-            '-1' => [-1, -1],
+            '-1' => [-1, '-1'],
             '0_string' => ['0', '0'],
             '1_string' => ['1', '1'],
             '-1_string' => ['-1', '-1'],

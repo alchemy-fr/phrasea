@@ -18,6 +18,9 @@ class BooleanAttributeTypeTest extends AbstractAttributeTypeTest
     {
         return [
             ...parent::getValidationCases(),
+            'null' => [null, null],
+            'empty_string' => ['', ['Invalid boolean']],
+            'single_space' => [' ', ['Invalid boolean']],
             [false, null],
             [true, null],
             [1, null],
@@ -40,7 +43,6 @@ class BooleanAttributeTypeTest extends AbstractAttributeTypeTest
             ['OFF', null],
             ['Off', null],
             ['0', null],
-            ['', ['Invalid boolean']],
             ['a', ['Invalid boolean']],
         ];
     }

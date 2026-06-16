@@ -142,20 +142,21 @@ final class EntityAttributeType extends TextAttributeType
 
     public function convertToDbValue(mixed $value): ?string
     {
-        if (null === $value) {
-            return null;
-        }
-
         if ($value instanceof AttributeEntity) {
             return $value->getId();
         }
 
-        return $value;
+        return parent::convertToDbValue($value);
     }
 
     private function getEntityFromValue(?string $value): ?AttributeEntity
     {
         if (null === $value) {
+            return null;
+        }
+
+        $value = trim($value);
+        if (empty($value)) {
             return null;
         }
 
