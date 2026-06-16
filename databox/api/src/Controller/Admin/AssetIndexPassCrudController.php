@@ -62,16 +62,18 @@ class AssetIndexPassCrudController extends AbstractAdminCrudController
             ->onlyOnIndex();
         yield TextareaField::new('timeTakenUnit')
             ->onlyOnIndex();
+        yield TextareaField::new('estimated');
+        yield TextareaField::new('remaining');
         yield DateTimeField::new('endedAt');
-        yield IntegerField::new('documentCount')
-            ->hideOnForm();
         yield IntegerField::new('progress')
             ->hideOnIndex();
+        yield DateTimeField::new('createdAt')
+            ->hideOnForm();
+        yield IntegerField::new('documentCount')
+            ->hideOnForm();
         yield BooleanField::new('successful')
             ->renderAsSwitch(false)
             ->onlyOnIndex();
-        yield DateTimeField::new('createdAt')
-            ->hideOnForm();
 
     }
 

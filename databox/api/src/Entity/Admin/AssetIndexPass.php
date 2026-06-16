@@ -25,10 +25,16 @@ class AssetIndexPass extends AbstractUuidEntity
     #[ORM\Column(type: Types::BIGINT, nullable: true)]
     private ?string $progress = null;
 
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $estimated = null;
+
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $remaining = null;
+
     public function getTimeTaken(): ?int
     {
         if (null === $this->endedAt) {
-            return null;
+            return (new \DateTimeImmutable())->getTimestamp() - $this->createdAt->getTimestamp();
         }
 
         return $this->endedAt->getTimestamp() - $this->createdAt->getTimestamp();
@@ -43,6 +49,26 @@ class AssetIndexPass extends AbstractUuidEntity
         }
 
         return Time::time2string($took);
+    }
+
+    public function getEstimated(): ?string
+    {
+        return $this->estimated;
+    }
+
+    public function setEstimated(?string $estimated): void
+    {
+        $this->estimated = $estimated;
+    }
+
+    public function getRemaining(): ?string
+    {
+        return $this->remaining;
+    }
+
+    public function setRemaining(?string $remaining): void
+    {
+        $this->remaining = $remaining;
     }
 
     public function getDocumentCount(): int

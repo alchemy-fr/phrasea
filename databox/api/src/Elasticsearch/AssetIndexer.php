@@ -9,6 +9,7 @@ use App\Repository\Core\AttributeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -124,6 +125,8 @@ final readonly class AssetIndexer
             $progressBar->advance($i);
             $aIndexPass = $this->getIndexPass($assetIndexPassId);
             $aIndexPass->setProgress($aIndexPass->getProgress() + $i);
+            $aIndexPass->setEstimated(Helper::formatTime($progressBar->getEstimated(), 2));
+            $aIndexPass->setRemaining(Helper::formatTime($progressBar->getRemaining(), 2));
             $this->em->persist($aIndexPass);
             $this->em->flush();
 
