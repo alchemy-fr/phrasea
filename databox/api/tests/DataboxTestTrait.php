@@ -160,8 +160,10 @@ trait DataboxTestTrait
         $definition->setMultiple($options['multiple'] ?? false);
         $definition->setSearchable($options['searchable'] ?? true);
         $definition->setName($options['name'] ?? null);
+        $definition->setSlug($options['slug'] ?? null);
         $definition->setEntityList($options['list'] ?? null);
         $definition->setFallback($options['fallback'] ?? null);
+        $definition->setAllowInvalid($options['allow_invalid'] ?? false);
 
         $em->persist($definition);
         if (!($options['no_flush'] ?? false)) {

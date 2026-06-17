@@ -69,23 +69,26 @@ final readonly class AttributeValidator
                 }
 
                 foreach ($value as $j => $v) {
-                    $validationContext->setNode($value, $attributeInput, null, sprintf('%s.value[%s]', $validationContext->getRoot(), $j));
+                    $validationContext->setNode($value, $attributeInput, null, sprintf('%s.value[%s]', $validationContext->getPropertyPath(), $j));
                     if (null !== $v) {
-                        $this->addErrorsToContext($validationContext, $type->validate($v));
+                        $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($v));
                     }
                 }
             } else {
-                $validationContext->setNode($value, $attributeInput, null, sprintf('%s.value', $validationContext->getRoot()));
-                $this->addErrorsToContext($validationContext, $type->validate($value));
+                $validationContext->setNode($value, $attributeInput, null, sprintf('%s.value', $validationContext->getPropertyPath()));
+                $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($value));
             }
         }
     }
 
-    private function addErrorsToContext(ExecutionContextInterface $validationContext, ?array $errors): void
+    private function addErrorsToContext(AttributeDefinition $definition, AbstractBaseAttributeInput $attributeInput, ExecutionContextInterface $validationContext, ?array $errors): void
     {
         if (!empty($errors)) {
-            foreach ($errors as $error) {
-                $validationContext->addViolation($error);
+            $attributeInput->errors = $errors;
+            if (!$definition->isAllowInvalid()) {
+                foreach ($errors as $error) {
+                    $validationContext->addViolation($error);
+                }
             }
         }
     }

@@ -13,6 +13,8 @@ abstract class AbstractBaseAttributeInput
      */
     public $value;
 
+    public ?array $errors = null;
+
     /**
      * @var string|null
      */

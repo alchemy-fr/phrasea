@@ -6,6 +6,7 @@ namespace App\Tests\Api;
 
 use Alchemy\ApiTest\ApiTestCase as AlchemyApiTestCase;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use App\Attribute\Type\DateTimeAttributeType;
 use App\Entity\Core\Asset;
 use App\Tests\AbstractSearchTestCase;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -19,13 +20,62 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
 
     public function testAssetAttributesBatchUpdateWithInvalidValue(): void
     {
-        $this->assetBatchAction([
+        self::enableFixtures();
+        $client = static::createClient();
+        $assetIri = $this->findIriBy(Asset::class, [
+            'key' => 'foo',
+        ]);
+
+        $action = function (array $actions) use ($client, $assetIri): ResponseInterface {
+            return $client->request('POST', $assetIri.'/attributes', [
+                'headers' => [
+                    'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+                ],
+                'json' => [
+                    'actions' => $actions,
+                ],
+            ]);
+        };
+
+        $action([
             [
                 'name' => 'Keywords',
                 'value' => 'Foo',
             ],
         ]);
         $this->assertResponseStatusCodeSame(400);
+
+        $action([
+            [
+                'name' => 'Date',
+                'value' => 'invalid_date',
+            ],
+        ]);
+
+        $asset = self::getEntityManager()->getRepository(Asset::class)->findOneBy([
+            'key' => 'foo',
+        ]);
+        assert($asset instanceof Asset);
+
+        $definition = $this->createAttributeDefinition([
+            'workspace' => $asset->getWorkspace(),
+            'name' => 'DateInvalid',
+            'slug' => 'date_invalid',
+            'type' => DateTimeAttributeType::getName(),
+            'allow_invalid' => true,
+        ]);
+
+        $action([
+            [
+                'name' => 'keywords',
+                'value' => 'Foo',
+            ],
+            [
+                'name' => $definition->getSlug(),
+                'value' => 'invalid_date',
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(200);
     }
 
     public function testAssetAttributesBatchUpdateWithNoAction(): void
@@ -117,9 +167,8 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
 
     public function getCases(): array
     {
-        $withoutDesc = self::$defaultAttributes;
+        $withoutKeywords = $withoutDesc = self::$defaultAttributes;
         unset($withoutDesc['Description']);
-        $withoutKeywords = self::$defaultAttributes;
         unset($withoutKeywords['Keywords']);
 
         $replacedDesc = self::$defaultAttributes;
