@@ -68,14 +68,14 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
         $action([
             [
                 'name' => 'keywords',
-                'value' => 'Foo',
+                'value' => ['Foo'],
             ],
             [
                 'name' => $definition->getSlug(),
                 'value' => 'invalid_date',
             ],
         ]);
-        $this->assertResponseStatusCodeSame(200);
+        $this->assertResponseStatusCodeSame(201);
     }
 
     public function testAssetAttributesBatchUpdateWithNoAction(): void

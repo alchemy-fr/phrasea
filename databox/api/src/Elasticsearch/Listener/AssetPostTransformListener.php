@@ -94,9 +94,16 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
                 $v = null;
                 if ($isMultiple) {
                     if (!empty($a)) {
-                        $v = array_map(fn (Attribute $v): mixed => $type->normalizeElasticsearchValue($v->getValue()), $a);
+                        $v = array_map(
+                            fn (Attribute $v): mixed => $type->normalizeElasticsearchValue($v->getValue()),
+                            array_filter($a, fn (Attribute $v): bool => !$v->isInvalid())
+                        );
                     }
                 } else {
+                    assert($a instanceof Attribute);
+                    if ($a->isInvalid()) {
+                        continue;
+                    }
                     $v = $a->getValue();
                     if (null !== $v) {
                         $v = $type->normalizeElasticsearchValue($v);
