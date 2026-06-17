@@ -123,7 +123,7 @@ export default function RemoveBGAssetEditorActions({
                     file={bgRemovedFile}
                     suggestedName={t('remove_bg.bg_removed', {
                         defaultValue: `{{name}} - BG removed`,
-                        name: asset.resolvedName,
+                        name: asset.name,
                     })}
                 />
             </IntegrationPanelContent>

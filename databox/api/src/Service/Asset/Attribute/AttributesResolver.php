@@ -29,6 +29,10 @@ readonly class AttributesResolver
 
     public function resolveAssetAttributes(Asset $asset, bool $applyPermissions): AttributeIndex
     {
+        if ($applyPermissions && $asset->attributesIndex) {
+            return $asset->attributesIndex;
+        }
+
         /** @var Attribute[] $attributes */
         $attributes = $this->em->getRepository(Attribute::class)
             ->getCachedAssetAttributes($asset->getId());
@@ -43,6 +47,8 @@ readonly class AttributesResolver
                     $index->removeDefinition($definition->getId());
                 }
             }
+
+            $asset->attributesIndex = $index;
         }
 
         return $index;

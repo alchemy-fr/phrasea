@@ -88,13 +88,7 @@ final readonly class ExposeClient
             $wsLocales = $asset->getWorkspace()->getEnabledLocales();
 
             $attributesIndex = $this->attributesResolver->resolveAssetAttributes($asset, true);
-            $resolvedNameAttr = $this->assetNameResolver->resolveName($asset, $attributesIndex, []);
-            if ($resolvedNameAttr instanceof Attribute) {
-                $attributeType = $this->attributeTypeRegistry->getStrictType($resolvedNameAttr->getDefinition()->getType());
-                $resolvedName = $attributeType->getStringValue($resolvedNameAttr->getValue(), null);
-            } else {
-                $resolvedName = $resolvedNameAttr;
-            }
+            $resolvedName = $this->assetNameResolver->resolveNameAsString($asset, $attributesIndex);
 
             $descriptionTranslations = [];
             foreach ($attributesIndex->getDefinitions() as $definitionIndex) {

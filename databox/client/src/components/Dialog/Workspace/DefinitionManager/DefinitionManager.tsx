@@ -59,7 +59,7 @@ import {
 } from './managerTypes.ts';
 import {SortableListItem} from './SortableListItem.tsx';
 import ListItemContainer from './ListItemContainer.tsx';
-import {logError} from '@alchemy/core';
+import {isEmpty, logError} from '@alchemy/core';
 
 type Props<
     D extends DefinitionBase,
@@ -496,7 +496,7 @@ export default function DefinitionManager<
                                     <FilterDropdown
                                         activeFilterCount={
                                             Object.entries(filters).filter(
-                                                ([_, v]) => !!v
+                                                ([_, v]) => !isEmpty(v)
                                             ).length
                                         }
                                     >

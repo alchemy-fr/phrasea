@@ -170,7 +170,6 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                                     disabled={disabledAssets.includes(item)}
                                     onAddToBasket={onAddToBasket}
                                     onContextMenuOpen={onContextMenuOpen}
-                                    displayAttributes={d.displayAttributes}
                                     onPreviewToggle={onPreviewToggle}
                                 />
                                 {loadMore && index === rowCount - 1 ? (
@@ -269,7 +268,7 @@ export default function ListLayout<Item extends AssetOrAssetContainer>({
                 key={previewAnchorEl?.asset.id ?? 'none'}
                 asset={previewAnchorEl?.asset}
                 anchorEl={previewAnchorEl?.anchorEl}
-                displayAttributes={d.displayAttributes}
+                displayAttributes={false}
                 zIndex={previewZIndex}
             />
         </Box>

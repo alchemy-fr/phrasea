@@ -59,61 +59,52 @@ class PermissionsTest extends AbstractDataboxTestCase
 
         $lostRoot = new Asset();
         $lostRoot->setWorkspace($workspace);
-        $lostRoot->setName('Lost-root');
         $lostRoot->setOwnerId(self::ROOT);
         $em->persist($lostRoot);
 
         $lostAlice = new Asset();
         $lostAlice->setWorkspace($workspace);
-        $lostAlice->setName('Lost-alice');
         $lostAlice->setOwnerId(self::ALICE);
         $em->persist($lostAlice);
 
         $lostBob = new Asset();
         $lostBob->setWorkspace($workspace);
-        $lostBob->setName('Lost-bob');
         $lostBob->setOwnerId(self::BOB);
         $em->persist($lostBob);
 
         $inARoot = new Asset();
         $inARoot->setReferenceCollection($collectionA);
         $inARoot->setWorkspace($workspace);
-        $inARoot->setName('InA-root');
         $inARoot->setOwnerId(self::ROOT);
         $em->persist($inARoot);
 
         $inAAlice = new Asset();
         $inAAlice->setReferenceCollection($collectionA);
         $inAAlice->setWorkspace($workspace);
-        $inAAlice->setName('InA-alice');
         $inAAlice->setOwnerId(self::ALICE);
         $em->persist($inAAlice);
 
         $inABob = new Asset();
         $inABob->setReferenceCollection($collectionA);
         $inABob->setWorkspace($workspace);
-        $inABob->setName('InA-bob');
         $inABob->setOwnerId(self::BOB);
         $em->persist($inABob);
 
         $inBRoot = new Asset();
         $inBRoot->setReferenceCollection($collectionB);
         $inBRoot->setWorkspace($workspace);
-        $inBRoot->setName('InB-root');
         $inBRoot->setOwnerId(self::ROOT);
         $em->persist($inBRoot);
 
         $inBAlice = new Asset();
         $inBAlice->setReferenceCollection($collectionB);
         $inBAlice->setWorkspace($workspace);
-        $inBAlice->setName('InB-alice');
         $inBAlice->setOwnerId(self::ALICE);
         $em->persist($inBAlice);
 
         $inBBob = new Asset();
         $inBBob->setReferenceCollection($collectionB);
         $inBBob->setWorkspace($workspace);
-        $inBBob->setName('InB-bob');
         $inBBob->setOwnerId(self::BOB);
         $em->persist($inBBob);
 
@@ -243,11 +234,11 @@ class PermissionsTest extends AbstractDataboxTestCase
 
     private function assertAssetPermissions(AssetPermissions $expected, Asset $asset, Security $security, callable $userMessage): void
     {
-        $this->assertEquals($expected->view, $security->isGranted(AssetVoter::READ, $asset), $userMessage(sprintf('view asset "%s"', $asset->getName())));
-        $this->assertEquals($expected->edit, $security->isGranted(AssetVoter::EDIT, $asset), $userMessage(sprintf('edit asset "%s"', $asset->getName())));
-        $this->assertEquals($expected->editAttributes, $security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $asset), $userMessage(sprintf('edit attributes of asset "%s"', $asset->getName())));
-        $this->assertEquals($expected->editPermissions, $security->isGranted(AssetVoter::EDIT_PERMISSIONS, $asset), $userMessage(sprintf('edit permissions of asset "%s"', $asset->getName())));
-        $this->assertEquals($expected->delete, $security->isGranted(AssetVoter::DELETE, $asset), $userMessage(sprintf('delete asset "%s"', $asset->getName())));
+        $this->assertEquals($expected->view, $security->isGranted(AssetVoter::READ, $asset), $userMessage(sprintf('view asset "%s"', $asset->getId())));
+        $this->assertEquals($expected->edit, $security->isGranted(AssetVoter::EDIT, $asset), $userMessage(sprintf('edit asset "%s"', $asset->getId())));
+        $this->assertEquals($expected->editAttributes, $security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $asset), $userMessage(sprintf('edit attributes of asset "%s"', $asset->getId())));
+        $this->assertEquals($expected->editPermissions, $security->isGranted(AssetVoter::EDIT_PERMISSIONS, $asset), $userMessage(sprintf('edit permissions of asset "%s"', $asset->getId())));
+        $this->assertEquals($expected->delete, $security->isGranted(AssetVoter::DELETE, $asset), $userMessage(sprintf('delete asset "%s"', $asset->getId())));
     }
 
     /**

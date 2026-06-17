@@ -64,7 +64,7 @@ final class AssetSortGroupMapper
         if (null !== $builtInField) {
             $value = $builtInField->getValueFromAsset($object);
 
-            return $builtInField->resolveGroupValue($groupBy, $value);
+            return $builtInField->resolveGroupValue($groupBy, $builtInField->denormalizeValue($value));
         }
 
         $type = $this->fieldNameResolver->getFieldFromName($groupBy)->type;

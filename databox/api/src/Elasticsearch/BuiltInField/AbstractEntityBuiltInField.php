@@ -10,7 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 
 abstract class AbstractEntityBuiltInField extends AbstractBuiltInAttribute
 {
-    public function __construct(private readonly EntityManagerInterface $em)
+    public function __construct(private EntityManagerInterface $em)
     {
     }
 

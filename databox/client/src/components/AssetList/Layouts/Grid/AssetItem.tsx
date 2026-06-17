@@ -104,7 +104,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                 <div className={assetClasses.name}>
                     {asset.nameHighlight
                         ? replaceHighlight(asset.nameHighlight)
-                        : (asset.resolvedName ?? asset.name)}
+                        : asset.name}
                 </div>
                 {asset.tags && asset.tags.length > 0 && (
                     <AssetTagList tags={asset.tags!} />

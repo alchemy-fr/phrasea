@@ -2,7 +2,7 @@ import {
     Asset,
     AttributeDefinition,
     AttributeDefinitionOrBuiltIn,
-    BaseAttribute,
+    BaseAttributeDefinition,
     StateSetter,
 } from '../../types.ts';
 
@@ -20,7 +20,7 @@ export type Values<T = any> = {
 };
 
 export type AttributeDefinitionIndex<
-    T extends BaseAttribute = AttributeDefinitionOrBuiltIn,
+    T extends BaseAttributeDefinition = AttributeDefinitionOrBuiltIn,
 > = Record<string, T>;
 
 export type LocalizedAttributeIndex<T = string> = {

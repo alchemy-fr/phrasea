@@ -72,10 +72,6 @@ final class CrudTest extends AbstractDataboxTestCase
 
         $this->assertResponseStatusCodeSame($expectedStatusCode);
 
-        foreach ($expectations as $expectation) {
-            // TODO
-        }
-
         return $response;
     }
 

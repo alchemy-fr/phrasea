@@ -10,6 +10,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Service\Asset\AssetManager;
+use App\Service\Asset\Attribute\AssetNameFiller;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -19,6 +20,7 @@ final readonly class NewAssetFromBorderHandler
     public function __construct(
         private AssetManager $assetManager,
         private EntityManagerInterface $em,
+        private AssetNameFiller $assetNameFiller,
     ) {
     }
 
@@ -38,10 +40,11 @@ final readonly class NewAssetFromBorderHandler
 
         $asset->setSource($file);
         $asset->setOwnerId($message->getUserId());
-        $asset->setName($name
-            ?? ($filename ? FileUtil::stripExtension($filename) : null)
-            ?? ($file->getPath() ? FileUtil::stripExtension($file->getPath()) : null));
         $asset->setWorkspace($file->getWorkspace());
+
+        $name ??= ($filename ? FileUtil::stripExtension($filename) : null)
+            ?? ($file->getPath() ? FileUtil::stripExtension($file->getPath()) : null);
+        $this->assetNameFiller->fillName($asset, $name);
 
         foreach ($collections as $collection) {
             if (null === $asset->getReferenceCollection()) {

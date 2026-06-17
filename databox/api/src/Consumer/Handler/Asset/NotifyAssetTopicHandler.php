@@ -6,6 +6,7 @@ namespace App\Consumer\Handler\Asset;
 
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\ObjectNotifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -16,6 +17,7 @@ readonly class NotifyAssetTopicHandler
     public function __construct(
         private EntityManagerInterface $em,
         private ObjectNotifier $objectNotifier,
+        private AssetNameResolver $assetNameResolver,
     ) {
     }
 
@@ -31,8 +33,10 @@ readonly class NotifyAssetTopicHandler
             default => throw new \InvalidArgumentException(sprintf('Invalid asset event "%s"', $message->getEvent())),
         };
 
+        $assetName = $asset ? $this->assetNameResolver->resolveNameAsString($asset) : null;
+
         $notificationParams = [
-            'name' => $asset?->getName() ?? $asset?->getId() ?? $message->getAssetName() ?? 'Undefined',
+            'name' => $assetName ?? $asset?->getId() ?? $message->getAssetName() ?? 'Undefined',
             'url' => '/assets/'.$assetId,
         ];
 

@@ -49,7 +49,7 @@ export default function SaveFileAsNewAssetDialog({
         forbidNavigation,
     } = useFormSubmit({
         defaultValues: {
-            name: suggestedName || asset.resolvedName,
+            name: suggestedName || asset.name,
             destination: undefined,
         },
         onSubmit: async (data: FormData) => {

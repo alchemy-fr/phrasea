@@ -26,7 +26,7 @@ export default function PreviewPopover({
     asset,
     onHide,
     anchorEl,
-    displayAttributes,
+    displayAttributes: da,
     zIndex = ZIndex.assetPreview,
 }: Props) {
     const {
@@ -41,6 +41,8 @@ export default function PreviewPopover({
     const theme = useTheme();
     const padding = 1;
     const spacingInt = parseInt(theme.spacing(padding));
+
+    const displayAttributes = da && previewOptions.displayAttributes;
 
     const previewWidth = displayAttributes ? width * previewRatio : width;
     const attributeWidth = displayAttributes
@@ -131,7 +133,7 @@ export default function PreviewPopover({
                                         width: previewWidth,
                                         height: height - spacingInt * 2,
                                     }}
-                                    title={asset.resolvedName}
+                                    title={asset.name}
                                     noInteraction={!previewLocked}
                                     controls={previewLocked}
                                     autoPlayable={true}
