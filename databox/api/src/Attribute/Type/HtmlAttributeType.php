@@ -14,7 +14,7 @@ class HtmlAttributeType extends CodeAttributeType
 
     public function normalizeValue(mixed $value): mixed
     {
-        if (is_string($value)) {
+        if (is_string($value) && !empty(trim($value))) {
             $value = $this->HTMLPurifier->purify($value);
         }
 

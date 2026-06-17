@@ -64,7 +64,7 @@ class ExportProcessor implements ProcessorInterface
 
                 $files[] = [
                     'uri' => $this->fileUrlResolver->resolveUrl($file),
-                    'path' => sprintf('%s-%s-%s%s', StringUtil::slugify($renditionName), StringUtil::slugify($assetName), $assetId, $ext),
+                    'path' => sprintf('%s-%s-%s%s', StringUtil::slugify($renditionName), StringUtil::slugify($assetName ?? ''), $assetId, $ext),
                 ];
             }
         }

@@ -77,10 +77,11 @@ class FallbackResolver
 
                 $type = $this->attributeTypeRegistry->getType($definition->getType());
 
-                $value = $type->convertToDbValue($fallbackValue);
-                if (null === $value) {
+                $normalizedValue = $type->normalizeValue($fallbackValue);
+                if (null === $normalizedValue) {
                     return null;
                 }
+                $value = $type->convertToDbValue($normalizedValue);
 
                 $attribute = new Attribute();
                 $now = new \DateTimeImmutable();
@@ -90,7 +91,7 @@ class FallbackResolver
                 $attribute->setDefinition($definition);
                 $attribute->setAsset($asset);
                 $attribute->setOrigin(Attribute::ORIGIN_FALLBACK);
-                $attribute->setValue($fallbackValue);
+                $attribute->setValue($value);
 
                 $attributesIndex->addAttribute($attribute);
 

@@ -21,7 +21,6 @@ class IdAttributeType extends KeywordAttributeType
     public function validate(mixed $value): ?array
     {
         $errors = parent::validate($value);
-
         if (!empty($errors)) {
             return $errors;
         }

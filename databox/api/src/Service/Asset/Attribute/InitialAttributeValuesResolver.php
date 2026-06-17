@@ -54,6 +54,17 @@ readonly class InitialAttributeValuesResolver
                     $position = 0;
                     $now = new \DateTimeImmutable();
                     foreach ($initialValues as $initialValue) {
+                        try {
+                            $normalizedValue = $this->attributeAssigner->normalizeValue($definition, $initialValue);
+                        } catch (InvalidAttributeValueException) {
+                            // this can happen for e.g. if a date is invalid and cannot be normalized
+                            continue;
+                        }
+
+                        if (null === $normalizedValue) {
+                            continue;
+                        }
+
                         $input = new AttributeInput();
                         $input->value = $initialValue;
                         $input->locale = $locale;
@@ -68,17 +79,6 @@ readonly class InitialAttributeValuesResolver
                         $attribute->setCreatedAt($now);
                         $attribute->setUpdatedAt($now);
                         $attribute->setAsset($asset);
-
-                        try {
-                            $normalizedValue = $this->attributeAssigner->normalizeValue($definition, $input->value);
-                        } catch (InvalidAttributeValueException) {
-                            // this can happen for e.g. if a date is invalid and cannot be normalized
-                            continue;
-                        }
-
-                        if (null === $normalizedValue) {
-                            continue;
-                        }
 
                         $this->attributeAssigner->assignAttributeFromInput($attribute, $input, $normalizedValue);
                         $this->attributeAssigner->resetAssetAttributesCache($asset);
