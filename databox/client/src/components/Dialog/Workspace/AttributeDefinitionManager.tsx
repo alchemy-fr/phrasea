@@ -38,7 +38,7 @@ import AttributePolicySelect from '../../Form/AttributePolicySelect';
 import FieldTypeSelect from '../../Form/FieldTypeSelect';
 import {typesIcons} from '../../../lib/icons';
 import {toast} from 'react-toastify';
-import CodeEditorWidget from '../../Form/CodeEditorWidget.tsx';
+import CodeEditorWidget from '../../Form/CodeEditor/CodeEditorWidget.tsx';
 import ObjectTranslationField from '../../Form/ObjectTranslationField.tsx';
 import LastErrorsList from './LastErrorsList.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
@@ -61,6 +61,7 @@ import {
 } from './DefinitionManager/managerTypes.ts';
 import {isNotNull} from '@alchemy/core';
 import BooleanFilterSelect from '../../Form/BooleanFilterSelect.tsx';
+import TwigEditorWidget from '../../Form/CodeEditor/TwigEditorWidget.tsx';
 
 function Item({
     usedFormSubmit,
@@ -343,11 +344,10 @@ function Item({
                     locales={workspace.enabledLocales ?? []}
                     field={({locale}) => {
                         return (
-                            <CodeEditorWidget
+                            <TwigEditorWidget
                                 control={control}
                                 name={`fallback.${locale ?? NO_LOCALE}`}
                                 disabled={submitting}
-                                mode={'twig'}
                                 height={'200px'}
                             />
                         );

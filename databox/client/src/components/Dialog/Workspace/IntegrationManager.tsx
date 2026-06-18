@@ -14,7 +14,7 @@ import {
 import {CheckboxWidget, FormFieldErrors, FormRow} from '@alchemy/react-form';
 import DefinitionManager from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
-import CodeEditorWidget from '../../Form/CodeEditorWidget.tsx';
+import CodeEditorWidget from '../../Form/CodeEditor/CodeEditorWidget.tsx';
 import {
     deleteIntegration,
     getIntegrationType,
@@ -24,7 +24,6 @@ import {
 } from '../../../api/integrations.ts';
 import React, {useEffect, useMemo, useState} from 'react';
 import IntegrationTypeSelect from '../../Form/IntegrationTypeSelect.tsx';
-import CodeEditor from '../../Media/Asset/Widgets/CodeEditor.tsx';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import LastErrorsList from './LastErrorsList.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
@@ -41,6 +40,7 @@ import {
     PermissionObject,
     PermissionType,
 } from '../../Permissions/permissionsTypes.ts';
+import CodeEditor from '../../Form/CodeEditor/CodeEditor.tsx';
 
 function Item({
     usedFormSubmit,

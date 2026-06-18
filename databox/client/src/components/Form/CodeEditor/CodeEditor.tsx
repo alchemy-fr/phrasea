@@ -1,23 +1,24 @@
-import React from 'react';
 import AceEditor, {IAceEditorProps} from 'react-ace';
+import React, {MutableRefObject} from 'react';
 import 'ace-builds/src-noconflict/theme-monokai';
 import 'ace-builds/src-noconflict/ext-language_tools';
 import 'ace-builds/src-noconflict/mode-yaml';
+import 'ace-builds/src-noconflict/mode-html';
 import 'ace-builds/src-noconflict/mode-json';
 
-type Props = {
+export type CodeEditorProps = {
     prettify?: (code: string) => string;
+    editorRef?: MutableRefObject<AceEditor | null>;
 } & IAceEditorProps;
-
-export type {Props as CodeEditorProps};
 
 export default function CodeEditor({
     value: initialValue,
     onChange,
     prettify,
+    editorRef,
     mode,
     ...rest
-}: Props) {
+}: CodeEditorProps) {
     const [value, setValue] = React.useState<string | undefined>();
 
     React.useEffect(() => {
@@ -44,6 +45,7 @@ export default function CodeEditor({
             onMouseDown={e => e.stopPropagation()}
         >
             <AceEditor
+                ref={editorRef}
                 theme="monokai"
                 fontSize={15}
                 mode={mode}
@@ -51,10 +53,12 @@ export default function CodeEditor({
                 showGutter={true}
                 highlightActiveLine={true}
                 onChange={changeHandler}
-                editorProps={{$blockScrolling: true}}
+                editorProps={{
+                    $blockScrolling: true,
+                }}
                 value={value}
                 setOptions={{
-                    enableBasicAutocompletion: false,
+                    enableBasicAutocompletion: true,
                     enableLiveAutocompletion: true,
                     enableSnippets: true,
                     showLineNumbers: true,
