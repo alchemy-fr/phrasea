@@ -15,7 +15,13 @@ final class AttributeIndex
     {
         $definition = $attribute->getDefinition();
         $definitionId = $definition->getId();
-        $this->definitions[$definitionId] ??= new DefinitionIndex($definition);
+        if (!isset($this->definitions[$definitionId])) {
+            $this->definitions[$definitionId] = new DefinitionIndex($definition);
+
+            uasort($this->definitions, function (DefinitionIndex $a, DefinitionIndex $b) {
+                return $a->getDefinition()->getPosition() <=> $b->getDefinition()->getPosition();
+            });
+        }
         $this->definitions[$definitionId]->addAttribute($attribute);
     }
 
