@@ -29,7 +29,7 @@ class ColorAttributeTypeTest extends AbstractAttributeTypeTest
     public function getConvertToDbValueCases(): array
     {
         return [
-            ...parent::getValidationCases(),
+            ...parent::getConvertToDbValueCases(),
             ['#fff', '#fff'],
             [' red ', 'red'],
         ];

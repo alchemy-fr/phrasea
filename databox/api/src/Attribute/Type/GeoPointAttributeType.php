@@ -10,6 +10,7 @@ use App\Model\GeoPoint;
 final class GeoPointAttributeType extends AbstractAttributeType
 {
     final public const string NAME = 'geo_point';
+    private const string GEO_POINT_REGEX = '#^(-?\d+(?:[.]\d+)?)\s*[;,\s]\s*(-?\d+(?:[.]\d+)?)$#';
 
     public static function getName(): string
     {
@@ -41,7 +42,7 @@ final class GeoPointAttributeType extends AbstractAttributeType
             }
         } elseif (is_string($value)) {
             $value = trim($value);
-            if (1 === preg_match('#^(\d+(?:[.]\d+)?)\s*[;,\s]\s*(\d+(?:[.]\d+)?)$#', $value, $matches)) {
+            if (1 === preg_match(self::GEO_POINT_REGEX, $value, $matches)) {
                 return new GeoPoint((float) $matches[1], (float) $matches[2]);
             }
         }
@@ -69,6 +70,9 @@ final class GeoPointAttributeType extends AbstractAttributeType
         return parent::convertToDbValue($value);
     }
 
+    /**
+     * @return GeoPoint|null
+     */
     public function denormalizeValue(?string $value): mixed
     {
         if (null === $value) {
@@ -85,7 +89,7 @@ final class GeoPointAttributeType extends AbstractAttributeType
             return null;
         }
 
-        if (1 === preg_match('#^(-?\d+(?:[.]\d+)?)\s*[;,\s]\s*(-?\d+(?:[.]\d+)?)$#', $value, $matches)) {
+        if (1 === preg_match(self::GEO_POINT_REGEX, $value, $matches)) {
             return new GeoPoint((float) $matches[1], (float) $matches[2]);
         }
 
@@ -95,11 +99,11 @@ final class GeoPointAttributeType extends AbstractAttributeType
     public function getStringValue(?string $value, ?string $locale): string
     {
         $value = $this->denormalizeValue($value);
-        if (null === $value) {
-            return '';
+        if ($value instanceof GeoPoint) {
+            return sprintf('%g,%g', $value->latitude, $value->longitude);
         }
 
-        return sprintf('%g,%g', $value['lat'], $value['lng']);
+        return '';
     }
 
     public function normalizeElasticsearchValue(?string $value): mixed

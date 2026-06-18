@@ -71,12 +71,14 @@ final readonly class AttributeValidator
                 foreach ($value as $j => $v) {
                     $validationContext->setNode($value, $attributeInput, null, sprintf('%s.value[%s]', $validationContext->getPropertyPath(), $j));
                     if (null !== $v) {
-                        $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($v));
+                        $normalized = $type->normalizeValue($v);
+                        $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($normalized));
                     }
                 }
             } else {
                 $validationContext->setNode($value, $attributeInput, null, sprintf('%s.value', $validationContext->getPropertyPath()));
-                $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($value));
+                $normalized = $type->normalizeValue($value);
+                $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($normalized));
             }
         }
     }

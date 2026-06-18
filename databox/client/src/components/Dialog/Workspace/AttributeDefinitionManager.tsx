@@ -539,8 +539,11 @@ export default function AttributeDefinitionManager({
                         r = r && ad.fillFromName === fillFromName;
                     }
                     if (isNotNull(useAsName)) {
-                        // @ts-expect-error Unsupported XOR
-                        r = r && !useAsName ^ isNotNull(ad.namePriority);
+                        r =
+                            r &&
+                            (useAsName
+                                ? isNotNull(ad.namePriority)
+                                : !isNotNull(ad.namePriority));
                     }
 
                     return r;

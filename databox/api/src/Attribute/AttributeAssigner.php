@@ -82,7 +82,7 @@ final readonly class AttributeAssigner
         }
 
         $attribute->setValue($value);
-        $attribute->setInvalid(!empty($type->validate($value)));
+        $attribute->setInvalid(!empty($type->validate($normalizedValue)));
         $attribute->setPosition($data->position ?? 0);
     }
 
