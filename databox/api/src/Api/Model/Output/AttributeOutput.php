@@ -43,6 +43,13 @@ class AttributeOutput extends AbstractUuidOutput
         AssetDataTemplate::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     public $value;
 
+    #[Groups([Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        Attribute::GROUP_LIST,
+        Attribute::GROUP_READ,
+        AssetDataTemplate::GROUP_READ, Share::GROUP_PUBLIC_READ])]
+    public ?bool $invalid;
+
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Attribute::GROUP_LIST, Attribute::GROUP_READ])]
     public string|array|null $highlight;
 

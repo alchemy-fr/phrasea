@@ -206,6 +206,8 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
                 ->andWhere('d.enabled = true')
                 ->andWhere('d.fallback IS NOT NULL')
                 ->setParameter('workspace', $workspaceId)
+                ->addOrderBy('d.position', 'ASC')
+                ->addOrderBy('d.name', 'ASC')
                 ->getQuery()
                 ->getResult();
         });

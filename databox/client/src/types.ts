@@ -147,6 +147,7 @@ export interface Attribute extends IPermissions, Entity {
     definition: AttributeDefinition;
     origin: AttributeOrigin;
     multiple: boolean;
+    invalid?: boolean;
     originVendor?: string;
     locale?: string | undefined;
     originUserId?: string;

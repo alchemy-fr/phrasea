@@ -36,7 +36,10 @@ class AttributeOutputTransformer implements OutputTransformerInterface
         $output->setCreatedAt($data->getCreatedAt());
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
-        $output->value = $type->denormalizeValue($data->getValue());
+        $isInvalid = $data->isInvalid();
+        $output->invalid = $isInvalid;
+        dump($data->getValue());
+        $output->value = $isInvalid ? $data->getValue() : $type->denormalizeValue($data->getValue());
 
         /** @var AttributeDefinition $definition */
         $definition = $data->getDefinition();

@@ -48,6 +48,10 @@ class FallbackResolver
         $definitionsIndex = $this->getDefinitionIndexByName($asset->getWorkspaceId());
         $fallbacks = $definition->getFallback();
 
+        if (!$definition->isEnabled()) {
+            return null;
+        }
+
         if ($definition->isMultiple()) {
             return null;
         }
@@ -81,7 +85,11 @@ class FallbackResolver
                 if (null === $normalizedValue) {
                     return null;
                 }
+                $isInvalid = !empty($type->validate($normalizedValue));
                 $value = $type->convertToDbValue($normalizedValue);
+                if ($isInvalid && !$definition->isAllowInvalid()) {
+                    throw new EntityDisableNotifyableException($definition, sprintf('Invalid value "%s" for "%s" (locale=%s) attribute fallback', $value, $definition->getName(), $locale), sprintf('Invalid value "%s"', $value));
+                }
 
                 $attribute = new Attribute();
                 $now = new \DateTimeImmutable();
@@ -92,6 +100,7 @@ class FallbackResolver
                 $attribute->setAsset($asset);
                 $attribute->setOrigin(Attribute::ORIGIN_FALLBACK);
                 $attribute->setValue($value);
+                $attribute->setInvalid($isInvalid);
 
                 $attributesIndex->addAttribute($attribute);
 
