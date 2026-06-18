@@ -220,6 +220,11 @@ class AssetDataTemplate extends AbstractUuidEntity implements AclObjectInterface
         $this->attributes->add($attribute);
     }
 
+    public function removeAttribute(TemplateAttribute $attribute): void
+    {
+        $this->attributes->removeElement($attribute);
+    }
+
     public function __toString(): string
     {
         return $this->getName() ?? $this->getId();
