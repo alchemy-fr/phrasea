@@ -6,7 +6,10 @@ namespace App\Validator;
 
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
-use Symfony\Component\Yaml\Exception\ParseException;
+use Twig\Environment;
+use Twig\Error\SyntaxError;
+use Twig\Loader\ArrayLoader;
+use Twig\Source;
 
 class TwigConstraintValidator extends ConstraintValidator
 {
@@ -20,12 +23,17 @@ class TwigConstraintValidator extends ConstraintValidator
             return;
         }
 
-        try {
+        $twig = new Environment(new ArrayLoader());
 
-        } catch (ParseException $e) {
+        try {
+            $source = new Source((string) $value, 'template');
+
+            $stream = $twig->tokenize($source);
+            $twig->parse($stream);
+        } catch (SyntaxError $e) {
             $this->context
                 ->buildViolation(sprintf(
-                    'YAML error: %s',
+                    'Twig syntax error: %s',
                     $e->getMessage()
                 ))
                 ->addViolation();
