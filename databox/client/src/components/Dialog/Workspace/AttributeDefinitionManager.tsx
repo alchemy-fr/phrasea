@@ -353,7 +353,11 @@ function Item({
                         );
                     }}
                 />
-                <FormFieldErrors field={'fallback'} errors={errors} />
+                <FormFieldErrors
+                    field={'fallback'}
+                    errors={errors}
+                    hasTranslations={true}
+                />
             </FormRow>
             <FormRow>
                 <ObjectTranslationField

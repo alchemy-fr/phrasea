@@ -6,24 +6,48 @@ import {getObjectPropertyPath} from '@alchemy/api';
 type Props<T extends FieldValues> = {
     field: keyof T;
     errors: FieldErrors<T>;
+    hasTranslations?: boolean;
 };
 
 export default function FormFieldErrors<T extends FieldValues = FieldValues>({
     field,
     errors,
+    hasTranslations,
 }: Props<T>) {
-    const {t} = useTranslation();
-
     const error = getObjectPropertyPath(errors, field);
+    if (!error) {
+        return;
+    }
+
+    if (hasTranslations && !error.message) {
+        return Object.entries(error).map(([key, value]: any) => (
+            <Error
+                key={key}
+                type={value.type}
+                message={`[${key}] ${value.message}`}
+            />
+        ));
+    }
+
+    return <Error type={error.type} message={error.message} />;
+}
+
+function Error({type, message}: ErrorProps) {
+    const {t} = useTranslation();
 
     return (
         <>
-            {error?.type === 'required' && (
+            {type === 'required' && (
                 <FormError>
                     {t('lib.form.error.required', 'This field is required')}
                 </FormError>
             )}
-            {error && <FormError>{error!.message as string}</FormError>}
+            {message ? <FormError>{message}</FormError> : null}
         </>
     );
 }
+
+type ErrorProps = {
+    type: string;
+    message: string;
+};
