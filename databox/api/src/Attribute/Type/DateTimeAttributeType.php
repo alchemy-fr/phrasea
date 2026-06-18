@@ -81,6 +81,7 @@ class DateTimeAttributeType extends AbstractAttributeType
         if ($value instanceof \DateTimeInterface) {
             return $value;
         }
+
         $date = DateUtil::normalizeDate($value);
         if ($date instanceof \DateTimeInterface) {
             return $date;
@@ -132,7 +133,7 @@ class DateTimeAttributeType extends AbstractAttributeType
 
     public function normalizeElasticsearchValue(?string $value): mixed
     {
-        if (empty($value)) {
+        if (empty($value) || null === DateUtil::normalizeDate($value)) {
             return null;
         }
 

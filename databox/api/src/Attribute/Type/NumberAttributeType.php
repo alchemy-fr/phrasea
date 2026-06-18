@@ -41,6 +41,15 @@ class NumberAttributeType extends AbstractAttributeType
         return false;
     }
 
+    public function normalizeValue(mixed $value): mixed
+    {
+        if (is_numeric($value)) {
+            return $value + 0; // Convert to int or float
+        }
+
+        return parent::normalizeValue($value);
+    }
+
     public function denormalizeValue(?string $value): mixed
     {
         if (is_numeric($value)) {
@@ -55,7 +64,11 @@ class NumberAttributeType extends AbstractAttributeType
      */
     public function normalizeElasticsearchValue($value): mixed
     {
-        return (float) $value;
+        if (is_numeric($value)) {
+            return $value + 0; // Convert to int or float
+        }
+
+        return null;
     }
 
     public function validate(mixed $value): ?array

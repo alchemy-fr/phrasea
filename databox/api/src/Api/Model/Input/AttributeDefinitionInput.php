@@ -110,6 +110,9 @@ class AttributeDefinitionInput
      *
      * @var string[]
      */
+    #[Assert\All([
+
+    ])]
     public $fallback;
 
     /**

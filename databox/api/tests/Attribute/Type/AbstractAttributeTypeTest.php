@@ -35,7 +35,7 @@ abstract class AbstractAttributeTypeTest extends TestCase
             $this->assertNull($expected, 'Normalization led to a NULL value but expected errors were not NULL');
         } else {
             $errors = $type->validate($normalized);
-            $this->assertEquals($expected, $errors);
+            $this->assertSame($expected, $errors);
         }
     }
 
@@ -46,7 +46,12 @@ abstract class AbstractAttributeTypeTest extends TestCase
     {
         $type = $this->getType();
 
-        $this->assertEquals($expected, $type->normalizeValue($value));
+        $normalizedValue = $type->normalizeValue($value);
+        if (is_object($expected)) {
+            $this->assertEquals($expected, $normalizedValue);
+        } else {
+            $this->assertSame($expected, $normalizedValue);
+        }
     }
 
     /**
@@ -56,7 +61,7 @@ abstract class AbstractAttributeTypeTest extends TestCase
     {
         $type = $this->getType();
 
-        $this->assertEquals($expected, $type->convertToDbValue($type->normalizeValue($value)));
+        $this->assertSame($expected, $type->convertToDbValue($type->normalizeValue($value)));
     }
 
     /**
@@ -66,7 +71,12 @@ abstract class AbstractAttributeTypeTest extends TestCase
     {
         $type = $this->getType();
 
-        $this->assertEquals($expected, $type->denormalizeValue($value));
+        $denormalizedValue = $type->denormalizeValue($value);
+        if (is_object($expected)) {
+            $this->assertEquals($expected, $denormalizedValue);
+        } else {
+            $this->assertSame($expected, $denormalizedValue);
+        }
     }
 
     /**
@@ -76,7 +86,7 @@ abstract class AbstractAttributeTypeTest extends TestCase
     {
         $type = $this->getType();
 
-        $this->assertEquals($expected, $type->normalizeElasticsearchValue($value));
+        $this->assertSame($expected, $type->normalizeElasticsearchValue($value));
     }
 
     public function getValidationCases(): array
@@ -92,6 +102,7 @@ abstract class AbstractAttributeTypeTest extends TestCase
     {
         return [
             'null' => [null, null],
+            'null_string' => ['null', 'null'],
             'object' => [new \stdClass(), new \stdClass()],
             'empty_array' => [[], []],
             'false' => [false, false],

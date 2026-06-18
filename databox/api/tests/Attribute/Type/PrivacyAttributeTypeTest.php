@@ -37,6 +37,7 @@ class PrivacyAttributeTypeTest extends AbstractAttributeTypeTest
         return [
             ...parent::getNormalizationCases(),
             '0_string' => ['0', 0],
+            '1_string' => ['1', 1],
         ];
     }
 }

@@ -11,6 +11,10 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
 {
     public function normalizeValue(mixed $value): mixed
     {
+        if ($value instanceof \Stringable) {
+            $value = $value->__toString();
+        }
+
         if (is_string($value)) {
             $value = trim($value);
             if ('' === $value) {

@@ -22,8 +22,18 @@ class PrivacyAttributeType extends KeywordAttributeType
 
     public function normalizeValue(mixed $value): mixed
     {
-        if (is_string($value) && is_numeric($value)) {
-            return (int) $value;
+        if (is_numeric($value)) {
+            $int = (int) $value;
+            if (in_array($int, [
+                WorkspaceItemPrivacyInterface::SECRET,
+                WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE,
+                WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE,
+                WorkspaceItemPrivacyInterface::PRIVATE,
+                WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS,
+                WorkspaceItemPrivacyInterface::PUBLIC,
+            ], true)) {
+                return $int;
+            }
         }
 
         return parent::normalizeValue($value);

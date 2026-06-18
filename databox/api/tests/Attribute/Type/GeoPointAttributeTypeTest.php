@@ -89,7 +89,7 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
             ['-48.8, 2.32', ['lat' => -48.8, 'lon' => 2.32]],
             ['-48.8, -2.32', ['lat' => -48.8, 'lon' => -2.32]],
             ['48.8, -2.32', ['lat' => 48.8, 'lon' => -2.32]],
-            ['0, 0', ['lat' => 0, 'lon' => 0]],
+            ['0, 0', ['lat' => 0.0, 'lon' => 0.0]],
         ];
     }
 }

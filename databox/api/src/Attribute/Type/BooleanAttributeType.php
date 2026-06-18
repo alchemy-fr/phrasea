@@ -22,7 +22,9 @@ final class BooleanAttributeType extends AbstractAttributeType
     {
         if (is_bool($value)) {
             return $value;
-        } elseif (is_string($value)) {
+        } elseif (is_string($value) || $value instanceof \Stringable) {
+            $value = (string) $value;
+
             if (in_array(strtolower($value), [
                 'y',
                 'yes',
@@ -50,7 +52,7 @@ final class BooleanAttributeType extends AbstractAttributeType
             $value = trim($value);
         }
 
-        return $value;
+        return parent::normalizeValue($value);
     }
 
     public function convertToDbValue(mixed $value): ?string

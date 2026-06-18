@@ -23,7 +23,26 @@ class NumberAttributeTypeTest extends AbstractAttributeTypeTest
             [1.2, null],
             ['1', null],
             ['1.2', null],
+            ['1e3', null],
+            ['1E3', null],
+            ['1e+3', null],
+            ['1e-3', null],
+            ['-1e3', null],
+            ['+1e3', null],
+            ['3.14e2', null],
+            ['-3.14E-2', null],
+            ['0e0', null],
             ['foo', ['Invalid number']],
+            ['e3', ['Invalid number']],
+            ['1e', ['Invalid number']],
+            ['1e+', ['Invalid number']],
+            ['1e-', ['Invalid number']],
+            ['1e--3', ['Invalid number']],
+            ['1ee3', ['Invalid number']],
+            ['1.2.3e4', ['Invalid number']],
+            ['--1e3', ['Invalid number']],
+            ['+-1e3', ['Invalid number']],
+            ['1 e3', ['Invalid number']],
             [true, ['Invalid number']],
         ];
     }
@@ -36,6 +55,9 @@ class NumberAttributeTypeTest extends AbstractAttributeTypeTest
             '1_string' => ['1', 1],
             '-1_string' => ['-1', -1],
             ['1.2', 1.2],
+            ['1e3', 1000.0],
+            ['1e-3', 0.001],
+            ['-3.14E-2', -0.0314],
             [1.2, 1.2],
             [-1.2, -1.2],
         ];
@@ -46,6 +68,9 @@ class NumberAttributeTypeTest extends AbstractAttributeTypeTest
         return [
             ...parent::getConvertToDbValueCases(),
             ['1.2', '1.2'],
+            ['1e3', '1000'],
+            ['1e-3', '0.001'],
+            ['-3.14E-2', '-0.0314'],
             [1.2, '1.2'],
             [-1.2, '-1.2'],
         ];
@@ -59,6 +84,10 @@ class NumberAttributeTypeTest extends AbstractAttributeTypeTest
             'single_space' => [' ', null],
             ['1', 1],
             ['1.2', 1.2],
+            ['1e3', 1000.0],
+            ['1e-3', 0.001],
+            ['-3.14E-2', -0.0314],
+            ['1e+', null],
             ['foo', null],
         ];
     }
@@ -67,9 +96,13 @@ class NumberAttributeTypeTest extends AbstractAttributeTypeTest
     {
         return [
             [null, null],
-            ['1', 1.0],
+            ['1', 1],
             ['1.2', 1.2],
             ['-1.2', -1.2],
+            ['1e3', 1000.0],
+            ['1e-3', 0.001],
+            ['-3.14E-2', -0.0314],
+            ['1e+', null],
             ['foo', null],
             ['', null],
             [' ', null],

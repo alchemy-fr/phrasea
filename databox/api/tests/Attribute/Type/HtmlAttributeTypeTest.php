@@ -18,7 +18,10 @@ class HtmlAttributeTypeTest extends TextAttributeTypeTest
     {
         return [
             ...parent::getNormalizationCases(),
-            ...$this->getPurifyCases(),
+            ['<a>link</a>', '<a>link</a>'],
+            ['<img onclick="alert()" src="https://foo/img.jpg">', '<img src="https://foo/img.jpg" alt="img.jpg" />'],
+            ['<br/>', '<br />'],
+            ['<script>alert("ok")</script>', null],
         ];
     }
 
@@ -26,16 +29,6 @@ class HtmlAttributeTypeTest extends TextAttributeTypeTest
     {
         return [
             ...parent::getDenormalizationCases(),
-            ...$this->getPurifyCases(),
-        ];
-    }
-
-    private function getPurifyCases(): array
-    {
-        return [
-            [null, null],
-            ['null', 'null'],
-            ['', ''],
             ['<a>link</a>', '<a>link</a>'],
             ['<img onclick="alert()" src="https://foo/img.jpg">', '<img src="https://foo/img.jpg" alt="img.jpg" />'],
             ['<br/>', '<br />'],

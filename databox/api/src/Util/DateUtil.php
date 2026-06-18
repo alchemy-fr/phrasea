@@ -18,8 +18,8 @@ abstract class DateUtil
             }
 
             return new \DateTimeImmutable('@'.$date);
-        } elseif (is_string($date)) {
-            $value = trim($date);
+        } elseif (is_string($date) || $date instanceof \Stringable) {
+            $value = trim((string) $date);
             foreach ([
                 [
                     'p' => '#^(\d{4})\D(\d{2})\D(\d{2})$#',

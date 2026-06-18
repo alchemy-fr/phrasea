@@ -19,8 +19,8 @@ class BooleanAttributeTypeTest extends AbstractAttributeTypeTest
         return [
             ...parent::getValidationCases(),
             'null' => [null, null],
-            'empty_string' => ['', ['Invalid boolean']],
-            'single_space' => [' ', ['Invalid boolean']],
+            'empty_string' => ['', null],
+            'single_space' => [' ', null],
             [false, null],
             [true, null],
             [1, null],
@@ -51,10 +51,14 @@ class BooleanAttributeTypeTest extends AbstractAttributeTypeTest
     {
         return [
             ...parent::getNormalizationCases(),
-            'false_string' => ['false', '0'],
-            'true_string' => ['true', '1'],
-            'false' => [false, '0'],
-            'true' => [true, '1'],
+            'false_string' => ['false', false],
+            'true_string' => ['true', true],
+            'false' => [false, false],
+            'true' => [true, true],
+            '0' => [0, false],
+            '1' => [1, true],
+            '0_string' => ['0', false],
+            '1_string' => ['1', true],
         ];
     }
 

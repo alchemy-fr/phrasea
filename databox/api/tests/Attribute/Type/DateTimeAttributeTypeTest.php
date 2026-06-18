@@ -84,4 +84,13 @@ class DateTimeAttributeTypeTest extends AbstractAttributeTypeTest
             ['2008-01-12T12:13:00Z', new \DateTime('2008-01-12T12:13:00')],
         ];
     }
+
+    public function getElasticsearchNormalizationCases(): array
+    {
+        return [
+            ...parent::getElasticsearchNormalizationCases(),
+            'empty' => ['', null],
+            'single_space' => [' ', null],
+        ];
+    }
 }
