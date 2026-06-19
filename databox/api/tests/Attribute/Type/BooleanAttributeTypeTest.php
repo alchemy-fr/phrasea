@@ -51,8 +51,8 @@ class BooleanAttributeTypeTest extends AbstractAttributeTypeTest
     {
         return [
             ...parent::getNormalizationCases(),
-            'int0' => [0, false],
-            'int1' => [1, true],
+            '0_int' => [0, false],
+            '1_int' => [1, true],
             'false_string' => ['false', false],
             'true_string' => ['true', true],
             'false' => [false, false],

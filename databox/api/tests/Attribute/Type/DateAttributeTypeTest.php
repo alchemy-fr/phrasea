@@ -36,7 +36,7 @@ class DateAttributeTypeTest extends AbstractAttributeTypeTest
     {
         return [
             ...parent::getNormalizationCases(),
-            '1' => [1, new \DateTimeImmutable('1970-01-01T00:00:01+00:00')],
+            '1_int' => [1, new \DateTimeImmutable('1970-01-01T00:00:01+00:00')],
             ['2008', '2008'],
             ['2009', '2009'],
             ['2008-01-12T12:13:00Z', new \DateTimeImmutable('2008-01-12T12:13:00+00:00')],
@@ -53,7 +53,7 @@ class DateAttributeTypeTest extends AbstractAttributeTypeTest
     {
         return [
             ...parent::getConvertToDbValueCases(),
-            '1' => [1, '1970-01-01T00:00:01+00:00'],
+            '1_int' => [1, '1970-01-01T00:00:01+00:00'],
             ['2008', '2008'],
             ['2009', '2009'],
             ['2008-01-12T12:13:00Z', '2008-01-12T12:13:00+00:00'],
