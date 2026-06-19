@@ -38,6 +38,7 @@ import {getMediaBackgroundColor, scrollbarWidth} from '../../../uiVars.ts';
 import {NormalizedCollectionResponse} from '@alchemy/api';
 import {useTracking} from '@alchemy/phrasea-framework';
 import AssetMatomoMetricsView from '../AssetMatomoMetricsView.tsx';
+import {FileTypeEnum, getFileTypeFromMIMEType} from '@alchemy/core';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -191,7 +192,11 @@ export default function AssetView({modalIndex, open}: Props) {
 
     React.useEffect(() => {
         if (asset && isImpressionTrackedRef.current !== asset.id) {
-            trackContentImpression(asset.resolvedTrackingId, asset.name);
+            const type = getFileTypeFromMIMEType(asset?.source?.type);
+            if (![FileTypeEnum.Audio, FileTypeEnum.Video].includes(type)) {
+                trackContentImpression(asset.resolvedTrackingId, asset.name);
+            }
+
             isImpressionTrackedRef.current = asset.id;
         }
     }, [asset?.id, isImpressionTrackedRef, trackContentImpression]);
