@@ -14,6 +14,7 @@ return RectorConfig::configure()
         __DIR__.'/tests',
     ])
     ->withSets([SetList::DEAD_CODE])
+    ->withPhpSets(php85: true)
     ->withRules([
         DeclareStrictTypesRector::class,
     ]);
