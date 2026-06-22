@@ -13,7 +13,7 @@ return RectorConfig::configure()
         __DIR__.'/src',
         __DIR__.'/tests',
     ])
-    ->withSets([SetList::DEAD_CODE])
+//    ->withSets([SetList::DEAD_CODE])
     ->withPhpSets(php85: true)
     ->withRules([
         DeclareStrictTypesRector::class,

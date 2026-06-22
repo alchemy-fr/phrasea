@@ -63,7 +63,6 @@ final class ClusterGroup
                     || $l->hasSameWorkspaceIds($r)
                 ) {
                     $ref = $l->isConstant ? $r : (!empty($l->getWorkspaceIds()) ? $l : $r);
-                    dump($r->getItem());
                     $groups[] = $ref->convert($merge($l->getItem(), $r->getItem()));
                 }
             }

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Elasticsearch\AQL;
 
 use hafriedlander\Peg\Parser;
@@ -79,7 +77,7 @@ function match_expression($stack = []) {
 	}
 	while(\false);
 	if($_18298 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18298 === \false) { return \false; }
 }
 
 public function expression__finalise (&$result) {
@@ -153,7 +151,7 @@ function match_and_expression($stack = []) {
 	}
 	while(\false);
 	if($_18307 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18307 === \false) { return \false; }
 }
 
 public function and_expression__finalise (&$result) {
@@ -251,7 +249,7 @@ function match_condition($stack = []) {
 	}
 	while(\false);
 	if($_18322 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18322 === \false) { return \false; }
 }
 
 public function condition__finalise (&$result) {
@@ -285,7 +283,7 @@ function match_not_expression($stack = []) {
 	}
 	while(\false);
 	if($_18327 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18327 === \false) { return \false; }
 }
 
 public function not_expression__finalise (&$result) {
@@ -325,7 +323,7 @@ function match_criteria($stack = []) {
 	}
 	while(\false);
 	if($_18331 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18331 === \false) { return \false; }
 }
 
 public function criteria__finalise (&$result) {
@@ -360,7 +358,7 @@ function match_builtin_field($stack = []) {
 	}
 	while(\false);
 	if($_18335 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18335 === \false) { return \false; }
 }
 
 public function builtin_field__finalise (&$result) {
@@ -422,7 +420,7 @@ function match_field($stack = []) {
 	}
 	while(\false);
 	if($_18341 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18341 === \false) { return \false; }
 }
 
 public function field__finalise (&$result) {
@@ -488,11 +486,11 @@ function match_boolean($stack = []) {
 	}
 	while(\false);
 	if($_18354 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18354 === \false) { return \false; }
 }
 
 public function boolean__finalise (&$result) {
-        $result['data'] = strtolower((string) $result['text']) === 'true';
+        $result['data'] = strtolower($result['text']) === 'true';
     }
 
 /* const_null: "null" | "NULL" */
@@ -521,7 +519,7 @@ function match_const_null($stack = []) {
 	}
 	while(\false);
 	if($_18359 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18359 === \false) { return \false; }
 }
 
 public function const_null__finalise (&$result) {
@@ -688,7 +686,7 @@ function match_operator($stack = []) {
 	}
 	while(\false);
 	if($_18398 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18398 === \false) { return \false; }
 }
 
 public function operator__finalise (&$result) {
@@ -746,7 +744,7 @@ function match_geo_operator($stack = []) {
 	}
 	while(\false);
 	if($_18409 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18409 === \false) { return \false; }
 }
 
 public function geo_operator__finalise (&$result) {
@@ -819,7 +817,7 @@ function match_within_circle_operator($stack = []) {
 	}
 	while(\false);
 	if($_18426 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18426 === \false) { return \false; }
 }
 
 public function within_circle_operator__finalise (&$result) {
@@ -914,7 +912,7 @@ function match_within_rectangle_operator($stack = []) {
 	}
 	while(\false);
 	if($_18447 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18447 === \false) { return \false; }
 }
 
 public function within_rectangle_operator__finalise (&$result) {
@@ -989,7 +987,7 @@ function match_between_operator($stack = []) {
 	}
 	while(\false);
 	if($_18460 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18460 === \false) { return \false; }
 }
 
 public function between_operator__finalise (&$result) {
@@ -1034,7 +1032,7 @@ function match_ending_operator($stack = []) {
 	}
 	while(\false);
 	if($_18469 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18469 === \false) { return \false; }
 }
 
 public function ending_operator__finalise (&$result) {
@@ -1043,7 +1041,7 @@ public function ending_operator__finalise (&$result) {
             'EXISTS' => 'EXISTS',
         ];
         $result['data'] = [
-            'operator' => $assoc[preg_replace('#\s+#', '_', (string) $result['text'])],
+            'operator' => $assoc[preg_replace('#\s+#', '_', $result['text'])],
         ];
     }
 
@@ -1133,7 +1131,7 @@ function match_in_operator($stack = []) {
 	}
 	while(\false);
 	if($_18488 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18488 === \false) { return \false; }
 }
 
 public function in_operator__finalise (&$result) {
@@ -1181,12 +1179,12 @@ function match_simple_operator($stack = []) {
 	}
 	while(\false);
 	if($_18493 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18493 === \false) { return \false; }
 }
 
 public function simple_operator__finalise (&$result) {
         $result['data'] = [
-            'operator' => preg_replace('#\s+#', '_', (string) $result['op']['text']),
+            'operator' => preg_replace('#\s+#', '_', $result['op']['text']),
             'rightOperand' => $result['v']['data'],
         ];
         unset($result['op'], $result['v']);
@@ -1220,7 +1218,7 @@ function match_keyword_operator($stack = []) {
 	}
 	while(\false);
 	if($_18498 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18498 === \false) { return \false; }
 }
 
 public function keyword_operator__finalise (&$result) {
@@ -1266,11 +1264,11 @@ function match_op_keyword($stack = []) {
 	}
 	while(\false);
 	if($_18502 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18502 === \false) { return \false; }
 }
 
 public function op_keyword__finalise (&$result) {
-        $key = preg_replace('#\s+#', '_', (string) $result['key']['text']);
+        $key = preg_replace('#\s+#', '_', $result['key']['text']);
         $result['data'] = (isset($result['not']) ? 'NOT_' : '').match ($key) {
             'CONTAINS', 'CONTAIN' => 'CONTAINS',
             'MATCHES', 'MATCH' => 'MATCHES',
@@ -1354,7 +1352,7 @@ function match_function_call($stack = []) {
 	}
 	while(\false);
 	if($_18517 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18517 === \false) { return \false; }
 }
 
 public function function_call__finalise (&$result) {
@@ -1462,7 +1460,7 @@ function match_value_product($stack = []) {
 	}
 	while(\false);
 	if($_18533 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18533 === \false) { return \false; }
 }
 
 public function value_product_handleOperator (mixed $l, mixed $r, string $operator): array|int|float {
@@ -1571,7 +1569,7 @@ function match_value_sum($stack = []) {
 	}
 	while(\false);
 	if($_18548 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18548 === \false) { return \false; }
 }
 
 public function value_sum_handleOperator (mixed $l, mixed $r, string $operator): array|int|float {
@@ -1653,7 +1651,7 @@ function match_value_or_expr($stack = []) {
 	}
 	while(\false);
 	if($_18559 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18559 === \false) { return \false; }
 }
 
 public function value_or_expr__finalise (&$result) {
@@ -1783,7 +1781,7 @@ function match_value($stack = []) {
 	}
 	while(\false);
 	if($_18580 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18580 === \false) { return \false; }
 }
 
 public function value__finalise (&$result) {
@@ -1843,7 +1841,7 @@ function match_decimal($stack = []) {
 	}
 	while(\false);
 	if($_18586 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18586 === \false) { return \false; }
 }
 
 public function decimal__finalise (&$result) {
@@ -1864,7 +1862,7 @@ function match_quoted_string($stack = []) {
 }
 
 public function quoted_string__finalise (&$result) {
-        $result['data'] = ['literal' => substr((string) $result['text'], 1, -1)];
+        $result['data'] = ['literal' => substr($result['text'], 1, -1)];
     }
 
 /* number: v:decimal | v:int */
@@ -1901,7 +1899,7 @@ function match_number($stack = []) {
 	}
 	while(\false);
 	if($_18592 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18592 === \false) { return \false; }
 }
 
 public function number__finalise (&$result) {
@@ -1970,7 +1968,7 @@ function match_identifier($stack = []) {
 	}
 	while(\false);
 	if($_18598 === \true) { return $this->finalise($result); }
-	return \false;
+	if($_18598 === \false) { return \false; }
 }
 
 
