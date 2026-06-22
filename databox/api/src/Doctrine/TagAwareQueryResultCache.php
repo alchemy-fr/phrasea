@@ -19,12 +19,12 @@ class TagAwareQueryResultCache implements CacheItemPoolInterface
     {
     }
 
-    public function save(CacheItemInterface $item)
+    public function save(CacheItemInterface $item): bool
     {
         return $this->cache->save($item);
     }
 
-    public function getItem($key)
+    public function getItem(string $key): CacheItemInterface
     {
         $item = $this->cache->getItem($key);
 
@@ -35,37 +35,37 @@ class TagAwareQueryResultCache implements CacheItemPoolInterface
         return $item;
     }
 
-    public function getItems(array $keys = [])
+    public function getItems(array $keys = []): \Traversable|array
     {
         return $this->cache->getItems($keys);
     }
 
-    public function hasItem($key)
+    public function hasItem(string $key): bool
     {
         return $this->cache->hasItem($key);
     }
 
-    public function clear()
+    public function clear(): bool
     {
         return $this->cache->clear();
     }
 
-    public function deleteItem($key)
+    public function deleteItem(mixed $key): bool
     {
         return $this->cache->deleteItem($key);
     }
 
-    public function deleteItems(array $keys)
+    public function deleteItems(array $keys): bool
     {
         return $this->cache->deleteItems($keys);
     }
 
-    public function saveDeferred(CacheItemInterface $item)
+    public function saveDeferred(CacheItemInterface $item): bool
     {
         return $this->cache->saveDeferred($item);
     }
 
-    public function commit()
+    public function commit(): bool
     {
         return $this->cache->commit();
     }

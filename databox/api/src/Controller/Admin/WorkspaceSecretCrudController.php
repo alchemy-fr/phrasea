@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
@@ -21,6 +23,7 @@ class WorkspaceSecretCrudController extends AbstractAdminCrudController
         return WorkspaceSecret::class;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -28,6 +31,7 @@ class WorkspaceSecretCrudController extends AbstractAdminCrudController
             ->setPaginatorPageSize(100);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -36,6 +40,7 @@ class WorkspaceSecretCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new()

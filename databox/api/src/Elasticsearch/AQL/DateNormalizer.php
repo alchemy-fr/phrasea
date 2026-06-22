@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Elasticsearch\AQL;
 
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -10,9 +12,7 @@ final readonly class DateNormalizer
     {
         $originalValue = $value;
         if (is_array($value)) {
-            return array_map(function ($v) {
-                return $this->normalizeDate($v);
-            }, $value);
+            return array_map(fn ($v) => $this->normalizeDate($v), $value);
         }
 
         if (is_int($value)) {
@@ -69,7 +69,7 @@ final readonly class DateNormalizer
                 }
             }
 
-            if ($allowPartialDate && preg_match('/^\d{4}(-\d{2}(-\d{2})?([T\s]\d{2}(:\d{2})?(:\d{2})?)?)?$/', $originalValue)) {
+            if ($allowPartialDate && preg_match('/^\d{4}(-\d{2}(-\d{2})?([T\s]\d{2}(:\d{2})?(:\d{2})?)?)?$/', (string) $originalValue)) {
                 return str_replace(' ', 'T', $originalValue);
             }
 

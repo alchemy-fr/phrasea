@@ -14,22 +14,22 @@ class AssetAnnotationsFaker extends BaseProvider
         return [
             [
                 'type' => AssetAnnotationsInterface::TYPE_CUE,
-                't' => rand(0, 10),
+                't' => random_int(0, 10),
             ],
         ];
     }
 
     public function assetAnnotationsCircle(): array
     {
-        $x = rand(5, 100) / 100;
-        $y = rand(5, 100) / 100;
+        $x = random_int(5, 100) / 100;
+        $y = random_int(5, 100) / 100;
 
         return [
             [
                 'type' => AssetAnnotationsInterface::TYPE_CIRCLE,
                 'x' => $x,
                 'y' => $y,
-                'r' => min(1 - $x, 1 - $y, rand(5, 50) / 100),
+                'r' => min(1 - $x, 1 - $y, random_int(5, 50) / 100),
                 'c' => $this->randomColor(),
                 's' => $this->randomSize(),
                 'page' => 2,
@@ -39,8 +39,8 @@ class AssetAnnotationsFaker extends BaseProvider
 
     public function assetAnnotationsTarget(): array
     {
-        $x = rand(0, 100) / 100;
-        $y = rand(0, 100) / 100;
+        $x = random_int(0, 100) / 100;
+        $y = random_int(0, 100) / 100;
 
         return [
             [
@@ -56,10 +56,10 @@ class AssetAnnotationsFaker extends BaseProvider
 
     public function assetAnnotationsRect(): array
     {
-        $x1 = rand(0, 100) / 100;
-        $y1 = rand(0, 100) / 100;
-        $x2 = min($x1 * (1 + rand(10, 100) / 100), 1);
-        $y2 = min($y1 * (1 + rand(10, 100) / 100), 1);
+        $x1 = random_int(0, 100) / 100;
+        $y1 = random_int(0, 100) / 100;
+        $x2 = min($x1 * (1 + random_int(10, 100) / 100), 1);
+        $y2 = min($y1 * (1 + random_int(10, 100) / 100), 1);
 
         return [
             [
@@ -77,9 +77,9 @@ class AssetAnnotationsFaker extends BaseProvider
 
     private function randomColor(): string
     {
-        $rouge = dechex(rand(0, 255));
-        $vert = dechex(rand(0, 255));
-        $bleu = dechex(rand(0, 255));
+        $rouge = dechex(random_int(0, 255));
+        $vert = dechex(random_int(0, 255));
+        $bleu = dechex(random_int(0, 255));
 
         $rouge = str_pad($rouge, 2, '0', STR_PAD_LEFT);
         $vert = str_pad($vert, 2, '0', STR_PAD_LEFT);
@@ -90,6 +90,6 @@ class AssetAnnotationsFaker extends BaseProvider
 
     private function randomSize(): float
     {
-        return (rand(1, 10) / 2) / 100;
+        return (random_int(1, 10) / 2) / 100;
     }
 }

@@ -12,7 +12,7 @@ type KeyTranslations = {
 
 type Props<TFieldValues extends {translations: KeyTranslations}> = {
     register: UseFormRegister<TFieldValues>;
-    inputProps?: TextFieldProps;
+    fieldProps?: TextFieldProps;
     locales: string[];
     name: string;
     errors: FieldErrors<TFieldValues>;
@@ -29,7 +29,7 @@ export default function KeyTranslationsWidget<
     name,
     register,
     errors,
-    inputProps,
+    fieldProps,
     locales,
     renderLocale,
     renderField,
@@ -52,7 +52,7 @@ export default function KeyTranslationsWidget<
                                 >
                                     {renderLocale(l)}
                                 </div>
-                                <div>
+                                <div style={{flex: 1}}>
                                     {renderField ? (
                                         renderField({
                                             locale: l,
@@ -69,7 +69,7 @@ export default function KeyTranslationsWidget<
                                                 }
                                             )}
                                             {...register(`${path}.${l}` as any)}
-                                            {...(inputProps ?? {})}
+                                            {...(fieldProps ?? {})}
                                         />
                                     )}
                                     <FormFieldErrors

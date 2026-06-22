@@ -98,7 +98,7 @@ class CollectionOutput extends AbstractUuidOutput
     #[Context(
         normalizationContext: ['groups' => [Collection::GROUP_LIST, Asset::GROUP_STORY, '_']],
     )]
-    private ?Asset $storyAsset;
+    private ?Asset $storyAsset = null;
 
     #[Groups(['_'])]
     public ?array $relationExtraMetadata = null;

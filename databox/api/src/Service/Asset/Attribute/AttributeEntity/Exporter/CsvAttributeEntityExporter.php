@@ -40,7 +40,7 @@ final readonly class CsvAttributeEntityExporter extends AbstractAttributeEntityE
             $stdout = fopen('php://output', 'w');
             $listId = $entityList->getId();
 
-            fputcsv($stdout, $headers);
+            fputcsv($stdout, $headers, escape: '\\');
 
             $this->handle(function (AttributeEntity $result) use ($stdout, $locale, $allLocales): void {
                 fputcsv($stdout, [
@@ -51,7 +51,8 @@ final readonly class CsvAttributeEntityExporter extends AbstractAttributeEntityE
                     $result->getStatus(),
                     $result->getExternalId(),
                     ...($allLocales ? array_map(fn (string $l): string => $result->getTranslations()[$l] ?? '', $allLocales) : []),
-                ]);
+                ],
+                    escape: '\\');
             }, $listId);
         };
     }

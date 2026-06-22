@@ -1,7 +1,7 @@
 import {toast} from 'react-toastify';
 import React, {FunctionComponent} from 'react';
 import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
-import {useFormSubmit} from '@alchemy/api';
+import {useFormSubmit, UseFormSubmitProps} from '@alchemy/api';
 import {RemoteErrors} from '@alchemy/react-form';
 import {StateSetter, Workspace} from '../../../../types.ts';
 import {useTranslation} from 'react-i18next';
@@ -24,6 +24,7 @@ type Props<D extends DefinitionBase, EP extends DefinitionManagerExtraProps> = {
     normalizeData?: NormalizeData<D>;
     denormalizeData?: NormalizeData<D>;
     extraProps: EP;
+    formSubmitProps?: Partial<UseFormSubmitProps<D>>;
 };
 
 export default function ItemForm<
@@ -40,6 +41,7 @@ export default function ItemForm<
     normalizeData,
     denormalizeData,
     extraProps,
+    formSubmitProps = {},
 }: Props<D, EP>) {
     const {t} = useTranslation();
     const usedFormSubmit = useFormSubmit({
@@ -73,9 +75,13 @@ export default function ItemForm<
                 setSubmitting(false);
             }
         },
+        onError: error => {
+            toast.error(error);
+        },
         onSuccess: () => {
             toast.success(t('definition_manager.saved', 'Saved!') as string);
         },
+        ...formSubmitProps,
     });
 
     const {remoteErrors, forbidNavigation, reset, getValues} = usedFormSubmit;

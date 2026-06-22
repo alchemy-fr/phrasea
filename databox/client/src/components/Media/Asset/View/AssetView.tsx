@@ -3,7 +3,7 @@ import {Asset, AssetRendition} from '../../../../types.ts';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {MemoizedFilePlayer} from '../FilePlayer.tsx';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
-import {StackedModalProps, useParams, useLocation} from '@alchemy/navigation';
+import {useParams, useLocation} from '@alchemy/navigation';
 import {filePlayerRelativeWrapperClassName} from '../Players';
 import {Dimensions} from '@alchemy/core';
 import {Box, Typography} from '@mui/material';
@@ -56,9 +56,9 @@ export type SetIntegrationOverlayFunction<P extends {} = any> = (
     replace?: boolean
 ) => void;
 
-type Props = {} & StackedModalProps;
+type Props = {};
 
-export default function AssetView({modalIndex, open}: Props) {
+export default function AssetView({}: Props) {
     const menuWidth = 400;
     const headerHeight = 60;
     let heightRest = headerHeight;
@@ -202,10 +202,6 @@ export default function AssetView({modalIndex, open}: Props) {
     }, [asset?.id, isImpressionTrackedRef, trackContentImpression]);
 
     if (!isSuccess && !isError && !previousData.current) {
-        if (!open) {
-            return null;
-        }
-
         return <FullPageLoader />;
     }
 
@@ -214,8 +210,7 @@ export default function AssetView({modalIndex, open}: Props) {
             {({onClose}) => (
                 <AppDialog
                     disableEscapeKeyDown={true}
-                    modalIndex={modalIndex}
-                    open={open}
+                    open={true}
                     disablePadding={true}
                     sx={{
                         '.MuiDialogTitle-root': {

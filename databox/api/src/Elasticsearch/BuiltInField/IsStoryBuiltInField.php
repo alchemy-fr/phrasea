@@ -29,6 +29,7 @@ final class IsStoryBuiltInField extends AbstractBuiltInAttribute
         return $asset->isStory();
     }
 
+    #[\Override]
     public function getType(): string
     {
         return BooleanAttributeType::NAME;

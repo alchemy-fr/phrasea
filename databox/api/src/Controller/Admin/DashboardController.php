@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use Alchemy\AclBundle\Entity\AccessControlEntry;
@@ -56,6 +58,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DashboardController extends AbstractAdminDashboardController
 {
     #[Route(path: '/admin', name: 'easyadmin')]
+    #[\Override]
     public function index(): Response
     {
         $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
@@ -63,6 +66,7 @@ class DashboardController extends AbstractAdminDashboardController
         return $this->redirect($adminUrlGenerator->setController(WorkspaceCrudController::class)->generateUrl());
     }
 
+    #[\Override]
     public function configureMenuItems(): iterable
     {
         $submenu1 = [

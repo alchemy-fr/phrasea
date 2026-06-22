@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use App\Elasticsearch\SearchType;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class NumberAttributeType extends AbstractAttributeType
 {
@@ -16,6 +15,7 @@ class NumberAttributeType extends AbstractAttributeType
         return static::NAME;
     }
 
+    #[\Override]
     public function getElasticSearchMapping(string $locale): ?array
     {
         return [
@@ -37,37 +37,55 @@ class NumberAttributeType extends AbstractAttributeType
         return 'long';
     }
 
+    #[\Override]
     public function supportsSuggest(): bool
     {
         return false;
     }
 
-    /**
-     * @param int|float|string $value
-     *
-     * @return float
-     */
-    public function normalizeElasticsearchValue($value)
+    #[\Override]
+    public function normalizeValue(mixed $value): mixed
     {
-        return (float) $value;
-    }
-
-    public function validate($value, ExecutionContextInterface $context): void
-    {
-        if (!is_numeric($value)) {
-            $context->addViolation('Invalid number');
+        if (is_numeric($value)) {
+            return $value + 0; // Convert to int or float
         }
+
+        return parent::normalizeValue($value);
     }
 
+    #[\Override]
     public function denormalizeValue(?string $value): mixed
     {
         if (is_numeric($value)) {
             return $value + 0; // Convert to int or float
         }
 
-        return $value;
+        return null;
     }
 
+    /**
+     * @param int|float|string $value
+     */
+    #[\Override]
+    public function normalizeElasticsearchValue($value): mixed
+    {
+        if (is_numeric($value)) {
+            return $value + 0; // Convert to int or float
+        }
+
+        return null;
+    }
+
+    public function validate(mixed $value): ?array
+    {
+        if (!is_numeric($value)) {
+            return ['Invalid number'];
+        }
+
+        return null;
+    }
+
+    #[\Override]
     public function supportsAggregation(): bool
     {
         return true;

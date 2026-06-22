@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
@@ -43,6 +45,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
     ) {
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         $viewWorkflow = Action::new('triggerIngest', 'Trigger Ingest', 'fa fa-gear')
@@ -73,6 +76,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
         return $this->returnToReferer($context);
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -81,6 +85,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
             ->setSearchFields(['id', 'ownerId', 'key', 'locale', 'privacy']);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -91,6 +96,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new()

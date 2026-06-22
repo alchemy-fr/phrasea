@@ -75,6 +75,7 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
         ]);
     }
 
+    #[\Override]
     public function getConfigurationInfo(IntegrationConfig $config): array
     {
         $info = [];

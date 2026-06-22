@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Attribute;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
@@ -69,14 +71,33 @@ final readonly class AttributeValidator
                 }
 
                 foreach ($value as $j => $v) {
-                    $validationContext->setNode($value, $attributeInput, null, sprintf('%s.value[%s]', $validationContext->getRoot(), $j));
+                    $validationContext->setNode($value, $attributeInput, null, sprintf('%s.value[%s]', $validationContext->getPropertyPath(), $j));
                     if (null !== $v) {
-                        $type->validate($v, $validationContext);
+                        $normalized = $type->normalizeValue($v);
+                        if (null !== $normalized) {
+                            $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($normalized));
+                        }
                     }
                 }
             } else {
-                $validationContext->setNode($value, $attributeInput, null, sprintf('%s.value', $validationContext->getRoot()));
-                $type->validate($value, $validationContext);
+                $validationContext->setNode($value, $attributeInput, null, sprintf('%s.value', $validationContext->getPropertyPath()));
+                $normalized = $type->normalizeValue($value);
+
+                if (null !== $normalized) {
+                    $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($normalized));
+                }
+            }
+        }
+    }
+
+    private function addErrorsToContext(AttributeDefinition $definition, AbstractBaseAttributeInput $attributeInput, ExecutionContextInterface $validationContext, ?array $errors): void
+    {
+        if (!empty($errors)) {
+            $attributeInput->errors = $errors;
+            if (!$definition->isAllowInvalid()) {
+                foreach ($errors as $error) {
+                    $validationContext->addViolation($error);
+                }
             }
         }
     }

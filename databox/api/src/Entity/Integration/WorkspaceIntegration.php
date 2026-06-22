@@ -270,7 +270,7 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
             return sprintf('%s - %s', $this->workspace->getName(), $this->getIntegration());
         }
 
-        return $this->getIntegration();
+        return (string) $this->getIntegration();
     }
 
     public function getAclOwnerId(): string

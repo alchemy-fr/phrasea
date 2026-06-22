@@ -87,13 +87,11 @@ final readonly class AttributeEntityMergeHandler
                             ],
                         ],
                     ],
-                    'should' => array_map(function (string $field) use ($id, $merged): array {
-                        return [
-                            'terms' => [
-                                $field.'.id' => array_merge([$id], $merged),
-                            ],
-                        ];
-                    }, array_keys($fields)),
+                    'should' => array_map(fn (string $field): array => [
+                        'terms' => [
+                            $field.'.id' => array_merge([$id], $merged),
+                        ],
+                    ], array_keys($fields)),
                 ],
             ],
             [

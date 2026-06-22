@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Elasticsearch\Provider;
 
 use App\Repository\Core\AttributeRepository;

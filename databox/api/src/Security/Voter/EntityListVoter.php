@@ -16,6 +16,7 @@ class EntityListVoter extends AbstractVoter
         return $subject instanceof EntityList;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, EntityList::class, true);

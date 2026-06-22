@@ -188,7 +188,7 @@ class PhraseanetIntegrationController extends AbstractController
         $logger->debug(sprintf('Fetch asset "%s" from Phraseanet enqueue', $assetId));
 
         $auth = $request->headers->get('Authorization', '');
-        if (1 !== preg_match('#^AssetToken (.+)$#', $auth, $matches)) {
+        if (1 !== preg_match('#^AssetToken (.+)$#', (string) $auth, $matches)) {
             throw new UnauthorizedHttpException('Missing AssetToken authorization');
         }
         $assetToken = $matches[1];

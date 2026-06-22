@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Border\Analyzer;
 
 use App\Entity\Core\File;
@@ -45,7 +47,7 @@ final readonly class FilenameAnalyzer extends AbstractAnalyzer
     public function analyzeFile(File $file, ?string $path, array $config): AnalysisOutput
     {
         $filename = $file->getOriginalName();
-        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $extension = strtolower(pathinfo((string) $filename, PATHINFO_EXTENSION));
         if (!empty($config['disallowed_extensions']) && in_array($extension, $config['disallowed_extensions'], true)) {
             return new AnalysisOutput(
                 errors: [sprintf('File extension "%s" is disallowed.', $extension)]
@@ -72,7 +74,7 @@ final readonly class FilenameAnalyzer extends AbstractAnalyzer
 
         if (!empty($config['disallowed_patterns'])) {
             foreach ($config['disallowed_patterns'] as $disallowedPattern) {
-                if (preg_match($disallowedPattern, $filename)) {
+                if (preg_match($disallowedPattern, (string) $filename)) {
                     return new AnalysisOutput(
                         errors: [sprintf('Filename "%s" matches a disallowed pattern.', $filename)]
                     );
@@ -83,7 +85,7 @@ final readonly class FilenameAnalyzer extends AbstractAnalyzer
         if (!empty($config['allowed_patterns'])) {
             $matchesAllowed = false;
             foreach ($config['allowed_patterns'] as $allowedPattern) {
-                if (preg_match($allowedPattern, $filename)) {
+                if (preg_match($allowedPattern, (string) $filename)) {
                     $matchesAllowed = true;
                     break;
                 }

@@ -41,7 +41,7 @@ final readonly class RekognitionAnalyzer
 
         $path = $this->fileFetcher->getFile($file);
         if (null !== $data = $this->dataManager->getData($wsIntegration, null, $file, $category)) {
-            $result = json_decode($data->getValue(), true, 512, JSON_THROW_ON_ERROR);
+            $result = json_decode((string) $data->getValue(), true, 512, JSON_THROW_ON_ERROR);
         } else {
             $this->apiBudgetLimiter->acceptIntegrationApiCall($config);
 

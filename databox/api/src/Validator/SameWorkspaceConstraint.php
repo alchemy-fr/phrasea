@@ -9,17 +9,15 @@ use Symfony\Component\Validator\Constraint;
 #[\Attribute]
 class SameWorkspaceConstraint extends Constraint
 {
-    /**
+    public function __construct(/**
      * @var string[]
      */
-    public array $properties = [];
-
-    public function __construct(array $properties, ?array $groups = null, mixed $payload = null)
+        public array $properties, ?array $groups = null, mixed $payload = null)
     {
         parent::__construct([], $groups, $payload);
-        $this->properties = $properties;
     }
 
+    #[\Override]
     public function getTargets(): string|array
     {
         return self::CLASS_CONSTRAINT;

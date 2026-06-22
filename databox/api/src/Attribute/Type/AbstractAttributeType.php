@@ -6,14 +6,33 @@ namespace App\Attribute\Type;
 
 use App\Elasticsearch\ESFacetInterface;
 use App\Elasticsearch\SearchType;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 abstract class AbstractAttributeType implements AttributeTypeInterface
 {
-    public function normalizeValue($value): ?string
+    public function normalizeValue(mixed $value): mixed
+    {
+        if ($value instanceof \Stringable) {
+            $value = $value->__toString();
+        }
+
+        if (is_string($value)) {
+            $value = trim($value);
+            if ('' === $value) {
+                return null;
+            }
+        }
+
+        return $value;
+    }
+
+    public function convertToDbValue(mixed $value): ?string
     {
         if (null === $value) {
             return null;
+        }
+
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
         }
 
         try {
@@ -33,18 +52,9 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
         return (string) $this->denormalizeValue($value);
     }
 
-    public function normalizeElasticsearchValue(?string $value)
+    public function normalizeElasticsearchValue(?string $value): mixed
     {
         return $value;
-    }
-
-    public function denormalizeElasticsearchValue($value): ?string
-    {
-        if (empty($value)) {
-            return null;
-        }
-
-        return (string) $value;
     }
 
     public function getFacetType(): string
@@ -86,8 +96,9 @@ abstract class AbstractAttributeType implements AttributeTypeInterface
         return [];
     }
 
-    public function validate($value, ExecutionContextInterface $context): void
+    public function validate(mixed $value): ?array
     {
+        return null;
     }
 
     public function supportsAggregation(): bool

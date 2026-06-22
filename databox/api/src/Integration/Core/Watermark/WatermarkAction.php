@@ -111,6 +111,7 @@ class WatermarkAction extends AbstractIntegrationAction implements IfActionInter
             ?? throw new \InvalidArgumentException(sprintf('Rendition "%s" does not exist for asset "%s"', $renditionName, $assetId));
     }
 
+    #[\Override]
     protected function shouldRun(Asset $asset): bool
     {
         if (null === $asset->getSource()) {

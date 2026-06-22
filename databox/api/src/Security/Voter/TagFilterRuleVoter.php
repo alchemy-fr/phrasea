@@ -14,6 +14,7 @@ class TagFilterRuleVoter extends AbstractVoter
         return $subject instanceof TagFilterRule;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, TagFilterRule::class, true);

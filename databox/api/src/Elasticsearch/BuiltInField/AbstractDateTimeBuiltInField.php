@@ -12,11 +12,13 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class AbstractDateTimeBuiltInField extends AbstractBuiltInAttribute
 {
+    #[\Override]
     protected function resolveLabel($value): string
     {
         return $this->resolveKey($value);
     }
 
+    #[\Override]
     protected function resolveKey($value): string
     {
         if ($value instanceof \DateTimeInterface) {
@@ -26,6 +28,7 @@ abstract class AbstractDateTimeBuiltInField extends AbstractBuiltInAttribute
         return $value;
     }
 
+    #[\Override]
     public function buildFacet(Query $query, TranslatorInterface $translator): void
     {
         $agg = new Aggregation\AutoDateHistogram(
@@ -43,11 +46,13 @@ abstract class AbstractDateTimeBuiltInField extends AbstractBuiltInAttribute
         return 'minute';
     }
 
+    #[\Override]
     protected function getFacetWidget(): string
     {
         return ESFacetInterface::TYPE_DATE_RANGE;
     }
 
+    #[\Override]
     public function getType(): string
     {
         return DateTimeAttributeType::getName();

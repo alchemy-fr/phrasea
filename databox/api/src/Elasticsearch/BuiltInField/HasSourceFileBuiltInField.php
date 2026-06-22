@@ -29,11 +29,13 @@ final class HasSourceFileBuiltInField extends AbstractBuiltInAttribute
         return null !== $asset->getSource();
     }
 
+    #[\Override]
     public function getType(): string
     {
         return BooleanAttributeType::getName();
     }
 
+    #[\Override]
     public function isFacet(): bool
     {
         return true;

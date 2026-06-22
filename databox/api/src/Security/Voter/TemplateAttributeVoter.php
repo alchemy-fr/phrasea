@@ -15,6 +15,7 @@ class TemplateAttributeVoter extends AbstractVoter
         return $subject instanceof TemplateAttribute;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, TemplateAttribute::class, true);

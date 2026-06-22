@@ -18,6 +18,7 @@ class PageVoter extends AbstractVoter
         return $subject instanceof Page;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, Page::class, true);

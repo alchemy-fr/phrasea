@@ -37,7 +37,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
     final public const string TEXTS = 'texts';
     final public const string FACES = 'faces';
 
-    private const CATEGORIES = [
+    private const array CATEGORIES = [
         self::LABELS => RekognitionLabelsAction::class,
         self::TEXTS => RekognitionTextsAction::class,
         self::FACES => RekognitionFacesAction::class,
@@ -135,21 +135,19 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
     public function handleUserAction(string $action, Request $request, IntegrationConfig $config): ?Response
     {
         $file = $this->getFile($request);
-        switch ($action) {
-            case self::ACTION_ANALYZE:
-                $this->bus->dispatch(new RekognitionAnalyze(
-                    $file->getId(),
-                    $config->getIntegrationId(),
-                    $request->request->get('category')
-                ));
-                break;
-            default:
-                throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
-        }
+        match ($action) {
+            self::ACTION_ANALYZE => $this->bus->dispatch(new RekognitionAnalyze(
+                $file->getId(),
+                $config->getIntegrationId(),
+                $request->request->get('category')
+            )),
+            default => throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action)),
+        };
 
         return null;
     }
 
+    #[\Override]
     public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationConfig $config): array
     {
         $output = [];
@@ -172,6 +170,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
         return 'AWS Rekognition';
     }
 
+    #[\Override]
     public function getSupportedContexts(): array
     {
         return [IntegrationContext::AssetView];

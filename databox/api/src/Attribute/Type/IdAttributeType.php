@@ -4,36 +4,41 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
-
 class IdAttributeType extends KeywordAttributeType
 {
     public const string NAME = 'id';
 
+    #[\Override]
     public function isLocaleAware(): bool
     {
         return false;
     }
 
+    #[\Override]
     public function supportsSuggest(): bool
     {
         return false;
     }
 
-    public function validate($value, ExecutionContextInterface $context): void
+    #[\Override]
+    public function validate(mixed $value): ?array
     {
-        parent::validate($value, $context);
-
-        if ($context->getViolations()->count() > 0) {
-            return;
+        $errors = parent::validate($value);
+        if (!empty($errors)) {
+            return $errors;
         }
 
         $v = (string) $value;
         if ($v && str_contains($v, ' ')) {
-            $context->addViolation('ID cannot contain spaces');
+            $errors[] = 'ID cannot contain spaces';
+
+            return $errors;
         }
+
+        return null;
     }
 
+    #[\Override]
     public function supportsAggregation(): bool
     {
         return true;

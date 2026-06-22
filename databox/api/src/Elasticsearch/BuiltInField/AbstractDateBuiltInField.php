@@ -8,11 +8,13 @@ use App\Attribute\Type\DateAttributeType;
 
 abstract class AbstractDateBuiltInField extends AbstractDateTimeBuiltInField
 {
+    #[\Override]
     protected function getAggregationMinimumInterval(): string
     {
         return 'day';
     }
 
+    #[\Override]
     public function getType(): string
     {
         return DateAttributeType::getName();

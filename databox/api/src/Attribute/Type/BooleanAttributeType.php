@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
-
 final class BooleanAttributeType extends AbstractAttributeType
 {
     final public const string NAME = 'boolean';
@@ -20,23 +18,14 @@ final class BooleanAttributeType extends AbstractAttributeType
         return 'boolean';
     }
 
-    public function normalizeValue($value): ?string
+    #[\Override]
+    public function normalizeValue(mixed $value): mixed
     {
-        $bool = $this->castValue($value);
-        if (null === $bool) {
-            return null;
-        }
+        if (is_bool($value)) {
+            return $value;
+        } elseif (is_string($value) || $value instanceof \Stringable) {
+            $value = (string) $value;
 
-        return $bool ? '1' : '0';
-    }
-
-    private function castValue($value): ?bool
-    {
-        if (null === $value) {
-            return null;
-        }
-
-        if (is_string($value)) {
             if (in_array(strtolower($value), [
                 'y',
                 'yes',
@@ -54,26 +43,42 @@ final class BooleanAttributeType extends AbstractAttributeType
             ], true)) {
                 return false;
             }
-
-            return null;
+        } elseif (1 === $value) {
+            return true;
+        } elseif (0 === $value) {
+            return false;
         }
 
-        return (bool) $value;
+        if (is_string($value)) {
+            $value = trim($value);
+        }
+
+        return parent::normalizeValue($value);
     }
 
+    #[\Override]
+    public function convertToDbValue(mixed $value): ?string
+    {
+        if (is_bool($value)) {
+            return $value ? '1' : '0';
+        }
+
+        return parent::convertToDbValue($value);
+    }
+
+    #[\Override]
     public function denormalizeValue(?string $value): mixed
     {
-        if (null === $value) {
-            return null;
-        }
-
         if ('1' === $value) {
             return true;
+        } elseif ('0' === $value) {
+            return false;
         }
 
-        return false;
+        return null;
     }
 
+    #[\Override]
     public function getStringValue(?string $value, ?string $locale): string
     {
         $bool = $this->denormalizeValue($value);
@@ -84,31 +89,28 @@ final class BooleanAttributeType extends AbstractAttributeType
         return $bool ? 'true' : 'false';
     }
 
-    public function normalizeElasticsearchValue(?string $value)
+    #[\Override]
+    public function normalizeElasticsearchValue(?string $value): mixed
     {
-        if (null === $value) {
-            return null;
+        if ('1' === $value) {
+            return true;
+        } elseif ('0' === $value) {
+            return false;
         }
 
-        return (bool) $value;
+        return null;
     }
 
-    public function denormalizeElasticsearchValue($value): ?string
-    {
-        if (null === $value) {
-            return null;
-        }
-
-        return $value ? '1' : '0';
-    }
-
-    public function validate($value, ExecutionContextInterface $context): void
+    public function validate(mixed $value): ?array
     {
         if (!is_bool($value)) {
-            $context->addViolation('Invalid boolean');
+            return ['Invalid boolean'];
         }
+
+        return null;
     }
 
+    #[\Override]
     public function supportsAggregation(): bool
     {
         return true;

@@ -100,7 +100,9 @@ trait AttributeInputTrait
 
                         /** @var Attribute|TemplateAttribute $returnedAttribute */
                         $returnedAttribute = $attributeInputProcessor->transform($attr, Attribute::class, $subContext);
-                        $object->addAttribute($returnedAttribute);
+                        if (null !== $returnedAttribute) {
+                            $object->addAttribute($returnedAttribute);
+                        }
                     }
 
                     continue;
@@ -110,7 +112,9 @@ trait AttributeInputTrait
 
             /** @var Attribute|TemplateAttribute $returnedAttribute */
             $returnedAttribute = $attributeInputProcessor->transform($attribute, Attribute::class, $subContext);
-            $object->addAttribute($returnedAttribute);
+            if (null !== $returnedAttribute) {
+                $object->addAttribute($returnedAttribute);
+            }
         }
     }
 }

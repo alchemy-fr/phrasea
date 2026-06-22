@@ -29,11 +29,13 @@ final class FileTypeBuiltInField extends AbstractBuiltInAttribute
         return $asset->getSourceFileType();
     }
 
+    #[\Override]
     public function getType(): string
     {
         return KeywordAttributeType::getName();
     }
 
+    #[\Override]
     public function isFacet(): bool
     {
         return true;

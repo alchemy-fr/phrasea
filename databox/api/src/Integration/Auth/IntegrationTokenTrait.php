@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Integration\Auth;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;

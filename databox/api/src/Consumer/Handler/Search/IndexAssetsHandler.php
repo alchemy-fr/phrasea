@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Consumer\Handler\Search;
 
 use App\Elasticsearch\AssetIndexer;

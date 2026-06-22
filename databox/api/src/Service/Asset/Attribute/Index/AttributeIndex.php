@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service\Asset\Attribute\Index;
 
 use App\Entity\Core\Attribute;
@@ -15,7 +17,11 @@ final class AttributeIndex
     {
         $definition = $attribute->getDefinition();
         $definitionId = $definition->getId();
-        $this->definitions[$definitionId] ??= new DefinitionIndex($definition);
+        if (!isset($this->definitions[$definitionId])) {
+            $this->definitions[$definitionId] = new DefinitionIndex($definition);
+
+            uasort($this->definitions, fn (DefinitionIndex $a, DefinitionIndex $b) => $a->getDefinition()->getPosition() <=> $b->getDefinition()->getPosition());
+        }
         $this->definitions[$definitionId]->addAttribute($attribute);
     }
 

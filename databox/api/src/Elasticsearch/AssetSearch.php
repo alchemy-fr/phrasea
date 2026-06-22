@@ -123,7 +123,7 @@ class AssetSearch extends AbstractSearch
                     $condition = $condition['query'] ?? '';
                 }
 
-                if (str_starts_with($condition, DeletedBuiltInField::getKey())) {
+                if (str_starts_with((string) $condition, DeletedBuiltInField::getKey())) {
                     $hasDeletedFilter = true;
                 }
                 $filterQueries[] = $this->attributeSearch->buildConditionQuery(

@@ -34,7 +34,7 @@ import RenditionPolicySelect from '../../Form/RenditionPolicySelect';
 import {toast} from 'react-toastify';
 import React from 'react';
 import RenditionDefinitionSelect from '../../Form/RenditionDefinitionSelect.tsx';
-import CodeEditorWidget from '../../Form/CodeEditorWidget.tsx';
+import CodeEditorWidget from '../../Form/CodeEditor/CodeEditorWidget.tsx';
 import UseAsWidget from '../../Form/UseAsWidget.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import {useCreateSaveTranslations} from '../../../hooks/useCreateSaveTranslations.ts';

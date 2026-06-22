@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Integration\Phrasea\Uploader\Message;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;

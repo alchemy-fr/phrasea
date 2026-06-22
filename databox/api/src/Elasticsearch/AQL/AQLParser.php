@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Elasticsearch\AQL;
 
 use hafriedlander\Peg\Compiler;
@@ -15,7 +17,7 @@ readonly class AQLParser
     {
         $this->compile();
 
-        $result = (new AQLGrammar(trim($condition)))->match_main();
+        $result = new AQLGrammar(trim($condition))->match_main();
         if (false === $result) {
             return null;
         }

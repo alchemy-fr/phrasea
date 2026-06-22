@@ -30,16 +30,18 @@ final class IdBuiltInField extends AbstractBuiltInAttribute
         return $asset->getId();
     }
 
+    #[\Override]
     public function getType(): string
     {
         return IdAttributeType::getName();
     }
 
-    public function createFilterQuery(mixed $value, array $options): ?Query\AbstractQuery
+    public function createFilterQuery(mixed $value, array $options): Query\AbstractQuery
     {
         return new Query\Term(['_id' => $value]);
     }
 
+    #[\Override]
     public function isFacet(): bool
     {
         return false;

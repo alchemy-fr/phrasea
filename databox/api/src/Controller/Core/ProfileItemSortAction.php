@@ -21,6 +21,7 @@ class ProfileItemSortAction extends AbstractSortAction
     /**
      * @param ProfileItem $firstItem
      */
+    #[\Override]
     protected function buildQuery(QueryBuilder $queryBuilder, object $firstItem): array
     {
         if (!method_exists($firstItem, 'getProfile')) {

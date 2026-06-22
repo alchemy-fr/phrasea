@@ -75,7 +75,7 @@ class StoryTest extends AbstractSearchTestCase
         ]);
         $this->assertResponseStatusCodeSame(404);
 
-        $client->request('GET', '/collections/'.urlencode($collectionId), [
+        $client->request('GET', '/collections/'.urlencode((string) $collectionId), [
             'headers' => [
                 'Authorization' => $adminAuthorization,
             ],

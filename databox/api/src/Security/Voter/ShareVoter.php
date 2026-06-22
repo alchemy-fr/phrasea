@@ -21,6 +21,7 @@ class ShareVoter extends AbstractVoter
         return $subject instanceof Share;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, Share::class, true);

@@ -24,9 +24,11 @@ import RadioWidget from './src/Widget/RadioWidget';
 import DateWidget from './src/Widget/DateWidget';
 import ColorWidget from './src/Widget/ColorWidget';
 import {RSelectProps, SelectOption} from './src/types';
+import FormHasErrorsAlert from './src/FormHasErrorsAlert';
 
 export {
     CollectionWidget,
+    FormHasErrorsAlert,
     ColorPicker,
     ColorWidget,
     ColorBox,

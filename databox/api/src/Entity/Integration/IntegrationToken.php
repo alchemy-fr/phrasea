@@ -59,10 +59,10 @@ class IntegrationToken extends AbstractUuidEntity
 
     #[ORM\Column(type: UuidType::NAME, nullable: true)]
     #[Groups([self::GROUP_LIST, WorkspaceIntegration::GROUP_LIST])]
-    private ?string $userId;
+    private ?string $userId = null;
 
     #[ORM\Column(type: Types::JSON, nullable: false)]
-    private ?array $token;
+    private ?array $token = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: false)]
     #[Groups([self::GROUP_LIST, WorkspaceIntegration::GROUP_LIST])]

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
@@ -36,6 +38,7 @@ class PopulatePassCrudController extends AbstractAdminCrudController
     ) {
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         $globalAddPopulateAction = Action::new('AddPopulate')
@@ -49,6 +52,7 @@ class PopulatePassCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -58,6 +62,7 @@ class PopulatePassCrudController extends AbstractAdminCrudController
             ->setDefaultSort(['createdAt' => 'DESC']);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -68,6 +73,7 @@ class PopulatePassCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new()

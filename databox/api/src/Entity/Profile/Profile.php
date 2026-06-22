@@ -65,8 +65,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: false,
             output: false,
             read: false,
-            name: 'profile_item_post_sort',
-            provider: null
+            name: 'profile_item_post_sort'
         ),
         new Put(
             normalizationContext: [
@@ -119,7 +118,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ProfileCollectionProvider::class,
 )]
 #[ORM\Entity(repositoryClass: ProfileRepository::class)]
-class Profile extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface
+class Profile extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, \Stringable
 {
     use OwnerIdTrait;
     use CreatedAtTrait;

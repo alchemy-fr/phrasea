@@ -14,6 +14,7 @@ class AssetAttachmentVoter extends AbstractVoter
         return $subject instanceof AssetAttachment;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, AssetAttachment::class, true);

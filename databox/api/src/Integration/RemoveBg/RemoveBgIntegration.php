@@ -65,13 +65,10 @@ class RemoveBgIntegration extends AbstractIntegration implements IntegrationData
     {
         $file = $this->getFile($request);
 
-        switch ($action) {
-            case self::ACTION_PROCESS:
-                $this->bus->dispatch(new RemoveBgCall($file->getId(), $config->getIntegrationId()));
-                break;
-            default:
-                throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action));
-        }
+        match ($action) {
+            self::ACTION_PROCESS => $this->bus->dispatch(new RemoveBgCall($file->getId(), $config->getIntegrationId())),
+            default => throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action)),
+        };
 
         return null;
     }
@@ -86,6 +83,7 @@ class RemoveBgIntegration extends AbstractIntegration implements IntegrationData
         return 'Remove BG';
     }
 
+    #[\Override]
     public function getSupportedContexts(): array
     {
         return [IntegrationContext::AssetView];

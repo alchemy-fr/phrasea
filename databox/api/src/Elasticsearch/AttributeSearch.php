@@ -173,7 +173,7 @@ class AttributeSearch
                 return true;
             }
 
-            foreach ($wsTr as $tr => $wsSt) {
+            foreach ($wsTr as $wsSt) {
                 if (count($wsSt) > 1) {
                     return true;
                 }

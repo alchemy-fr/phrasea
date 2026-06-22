@@ -20,6 +20,7 @@ class BasketVoter extends AbstractVoter
         return $subject instanceof Basket;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, Basket::class, true);

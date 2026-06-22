@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Attribute;
 
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
@@ -12,7 +14,7 @@ use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\AttributeSearch;
 use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
-use App\Tests\Attribute\Type\AttributeTypeRegistyTestFactory;
+use App\Tests\Attribute\Type\AttributeTypeRegistryTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -24,7 +26,7 @@ class AttributeSearchTest extends TestCase
      */
     public function testAttributeClustering(array $definitions, array $expectedClusters): void
     {
-        $attributeTypeRegistry = AttributeTypeRegistyTestFactory::create();
+        $attributeTypeRegistry = AttributeTypeRegistryTestFactory::create();
         $builtInFieldRegistry = new BuiltInAttributeRegistry(new ServiceLocator([]));
 
         $fieldNameResolver = new FieldNameResolver(
@@ -66,26 +68,16 @@ class AttributeSearchTest extends TestCase
 
     public function getCases(): array
     {
-        $createField = function (
-            bool $allowed,
-            string $wsId,
-            string $slug,
-            ?int $boost = null,
-            $type = TextAttributeType::NAME,
-            bool $multiple = false,
-            bool $translatable = false,
-        ): array {
-            return [
-                'allowed' => $allowed,
-                'slug' => $slug,
-                'type' => $type,
-                'multiple' => $multiple,
-                'workspaceId' => $wsId,
-                'searchBoost' => $boost,
-                'translatable' => $translatable,
-                'enabledLocales' => [],
-            ];
-        };
+        $createField = (fn (bool $allowed, string $wsId, string $slug, ?int $boost = null, $type = TextAttributeType::NAME, bool $multiple = false, bool $translatable = false): array => [
+            'allowed' => $allowed,
+            'slug' => $slug,
+            'type' => $type,
+            'multiple' => $multiple,
+            'workspaceId' => $wsId,
+            'searchBoost' => $boost,
+            'translatable' => $translatable,
+            'enabledLocales' => [],
+        ]);
 
         $defaultNameCluster = [
             'fields' => [

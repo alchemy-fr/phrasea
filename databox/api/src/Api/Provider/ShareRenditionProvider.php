@@ -37,7 +37,7 @@ final class ShareRenditionProvider implements ProviderInterface
     ) {
     }
 
-    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object
     {
         $item = $this->shareRepository->find($uriVariables['id']);
         if (!$item instanceof Share) {

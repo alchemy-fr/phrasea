@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service\Asset\Attribute\AttributeEntity\Importer;
 
 use App\Entity\Core\EntityList;

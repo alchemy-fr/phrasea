@@ -10,10 +10,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 final readonly class MessagePostTransformListener implements EventSubscriberInterface
 {
-    public function __construct(
-    ) {
-    }
-
     public function hydrateDocument(PostTransformEvent $event): void
     {
         /** @var Message $message */

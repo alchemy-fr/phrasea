@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service\Asset;
 
 use App\Api\Filter\Group\GroupValue;

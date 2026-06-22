@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Elasticsearch\AQL\Function;
 
 final readonly class SubstringFunction implements AQLFunctionInterface
 {
     public function resolve(array $arguments): mixed
     {
-        return substr($arguments[0], $arguments[1], $arguments[2] ?? null);
+        return substr((string) $arguments[0], $arguments[1], $arguments[2] ?? null);
     }
 
     public static function getName(): string

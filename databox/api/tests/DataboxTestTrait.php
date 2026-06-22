@@ -84,7 +84,7 @@ trait DataboxTestTrait
                 $a->setLocale($attr['locale'] ?? null);
                 $a->setPosition($attr['position'] ?? 0);
                 $a->setOrigin($attr['origin'] ?? Attribute::ORIGIN_MACHINE);
-                $a->setValue($typeRegistry->getStrictType($attr['definition']->getType())->normalizeValue($attr['value']));
+                $a->setValue($typeRegistry->getStrictType($attr['definition']->getType())->convertToDbValue($attr['value']));
 
                 $em->persist($a);
             }
@@ -160,8 +160,10 @@ trait DataboxTestTrait
         $definition->setMultiple($options['multiple'] ?? false);
         $definition->setSearchable($options['searchable'] ?? true);
         $definition->setName($options['name'] ?? null);
+        $definition->setSlug($options['slug'] ?? null);
         $definition->setEntityList($options['list'] ?? null);
         $definition->setFallback($options['fallback'] ?? null);
+        $definition->setAllowInvalid($options['allow_invalid'] ?? false);
 
         $em->persist($definition);
         if (!($options['no_flush'] ?? false)) {

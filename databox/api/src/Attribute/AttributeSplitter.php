@@ -35,7 +35,7 @@ final readonly class AttributeSplitter
             if (str_contains((string) $value, $delimiter)) {
                 $attribute = $this->em->find(Attribute::class, $attr['id']);
 
-                $parts = explode($delimiter, $attribute->getValue());
+                $parts = explode($delimiter, (string) $attribute->getValue());
                 foreach ($parts as $p) {
                     $a = new Attribute();
                     $a->setDefinition($attribute->getDefinition());

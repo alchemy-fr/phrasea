@@ -11,7 +11,13 @@ import {isRtlLocale} from '../../../../lib/lang';
 import {Attribute, AttributeDefinitionOrBuiltIn} from '../../../../types.ts';
 import GestureIcon from '@mui/icons-material/Gesture';
 import {AssetAnnotationRef} from '../Annotations/annotationTypes.ts';
-import {AttributeFormat, AttributeFormatterOptions} from './types/types';
+import {
+    AttributeFormat,
+    AttributeFormatterOptions,
+    AttributeFormatterProps,
+} from './types/types';
+import InvalidAttributeIcon from './InvalidAttributeIcon.tsx';
+import {AttributeType} from '../../../../api/types.ts';
 
 export type BaseAttributeRowUIProps = {
     assetAnnotationsRef?: AssetAnnotationRef;
@@ -60,7 +66,7 @@ export default function AttributeRowUI({
         t,
     };
 
-    const valueFormatterProps = {
+    const valueFormatterProps: AttributeFormatterProps = {
         ...formatterOptions,
         value: multiple
             ? ((attribute as Attribute[] | undefined) ?? []).map(a => a.value)
@@ -146,8 +152,11 @@ export default function AttributeRowUI({
 
                                   const isRtl = isRtlLocale(a.locale);
 
-                                  const value =
-                                      formatter.formatValue(formatProps);
+                                  const value = (
+                                      a.invalid
+                                          ? getAttributeType(AttributeType.Text)
+                                          : formatter
+                                  ).formatValue(formatProps);
                                   if (undefined === value || null === value) {
                                       return null;
                                   }
@@ -186,6 +195,9 @@ export default function AttributeRowUI({
                                                   <GestureIcon />
                                               </IconButton>
                                           ) : null}
+                                          {Boolean(a.invalid) && (
+                                              <InvalidAttributeIcon />
+                                          )}
                                           {displayControls ? (
                                               <CopyAttribute
                                                   value={formatter.formatValueAsString(
@@ -201,7 +213,15 @@ export default function AttributeRowUI({
                             : null}
                     </ul>
                 ) : (
-                    formatter.formatValue(valueFormatterProps)
+                    <>
+                        {((attribute as Attribute).invalid
+                            ? getAttributeType(AttributeType.Text)
+                            : formatter
+                        ).formatValue(valueFormatterProps)}
+                        {Boolean((attribute as Attribute).invalid) && (
+                            <InvalidAttributeIcon />
+                        )}
+                    </>
                 )}
             </div>
         </div>

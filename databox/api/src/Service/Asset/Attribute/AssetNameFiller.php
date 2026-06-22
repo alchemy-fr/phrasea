@@ -58,7 +58,10 @@ final readonly class AssetNameFiller
 
             $this->attributeValidator->validateAttribute($nameAttribute, $input, 'name');
 
-            $attributes[] = $this->attributeAssigner->upsertAttribute($nameAttribute, $asset, $input, $persist);
+            $a = $this->attributeAssigner->upsertOrRemoveAttribute($nameAttribute, $asset, $input, $persist);
+            if (null !== $a) {
+                $attributes[] = $a;
+            }
         }
 
         return $attributes;

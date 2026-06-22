@@ -20,6 +20,7 @@ final class WorkspaceBuiltInField extends AbstractEntityBuiltInField
     /**
      * @param Workspace $value
      */
+    #[\Override]
     protected function resolveLabel($value): string
     {
         return $value->getTranslatedField(Workspace::TR_FIELD_NAME, $this->getPreferredLocales($value), $value->getName());

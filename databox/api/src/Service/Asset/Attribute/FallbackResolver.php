@@ -48,6 +48,10 @@ class FallbackResolver
         $definitionsIndex = $this->getDefinitionIndexByName($asset->getWorkspaceId());
         $fallbacks = $definition->getFallback();
 
+        if (!$definition->isEnabled()) {
+            return null;
+        }
+
         if ($definition->isMultiple()) {
             return null;
         }
@@ -58,18 +62,12 @@ class FallbackResolver
                     $fallbackValue = $this->templateResolver->resolve($fallbacks[$locale], [
                         'file' => $asset->getSource(),
                         'asset' => $asset,
-                        'attr' => new DynamicAttributeBag($attributesIndex, $definitionsIndex, function (AttributeDefinition $depDef) use (
+                        'attr' => new DynamicAttributeBag($attributesIndex, $definitionsIndex, fn (AttributeDefinition $depDef): ?Attribute => $this->resolveAttrFallback(
                             $asset,
-                            $attributesIndex,
-                            $locale
-                        ): ?Attribute {
-                            return $this->resolveAttrFallback(
-                                $asset,
-                                $locale,
-                                $depDef,
-                                $attributesIndex
-                            );
-                        }, $locale),
+                            $locale,
+                            $depDef,
+                            $attributesIndex
+                        ), $locale),
                     ]);
                 } catch (\Throwable $e) {
                     throw new EntityDisableNotifyableException($definition, sprintf('Error while resolving "%s" (locale=%s) attribute fallback', $definition->getName(), $locale), $e->getMessage(), previous: $e);
@@ -77,9 +75,14 @@ class FallbackResolver
 
                 $type = $this->attributeTypeRegistry->getType($definition->getType());
 
-                $value = $type->normalizeValue($fallbackValue);
-                if (null === $value) {
+                $normalizedValue = $type->normalizeValue($fallbackValue);
+                if (null === $normalizedValue) {
                     return null;
+                }
+                $isInvalid = !empty($type->validate($normalizedValue));
+                $value = $type->convertToDbValue($normalizedValue);
+                if ($isInvalid && !$definition->isAllowInvalid()) {
+                    throw new EntityDisableNotifyableException($definition, sprintf('Invalid value "%s" for "%s" (locale=%s) attribute fallback', $value, $definition->getName(), $locale), sprintf('Invalid value "%s"', $value));
                 }
 
                 $attribute = new Attribute();
@@ -90,7 +93,8 @@ class FallbackResolver
                 $attribute->setDefinition($definition);
                 $attribute->setAsset($asset);
                 $attribute->setOrigin(Attribute::ORIGIN_FALLBACK);
-                $attribute->setValue($fallbackValue);
+                $attribute->setValue($value);
+                $attribute->setInvalid($isInvalid);
 
                 $attributesIndex->addAttribute($attribute);
 

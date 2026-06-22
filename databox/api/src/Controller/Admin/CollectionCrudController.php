@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Admin\Field\PrivacyField;
 use App\Entity\Core\Collection;
 use Doctrine\ORM\QueryBuilder;
@@ -27,6 +30,7 @@ class CollectionCrudController extends AbstractAclAdminCrudController
 {
     public function __construct(
         private readonly UserChoiceField $userChoiceField,
+        private readonly UserChoiceFilter $userChoiceFilter,
         private readonly PrivacyField $privacyField,
     ) {
     }
@@ -36,12 +40,14 @@ class CollectionCrudController extends AbstractAclAdminCrudController
         return Collection::class;
     }
 
+    #[\Override]
     public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
     {
         return parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters)
             ->andWhere('entity.storyAsset IS NULL');
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -52,16 +58,18 @@ class CollectionCrudController extends AbstractAclAdminCrudController
             ->setDefaultSort(['workspace.name' => 'ASC', 'name' => 'ASC']);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
             ->add(EntityFilter::new('workspace'))
             ->add(TextFilter::new('name'))
-            ->add(TextFilter::new('ownerId'))
+            ->add($this->userChoiceFilter->createFilter('ownerId'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();

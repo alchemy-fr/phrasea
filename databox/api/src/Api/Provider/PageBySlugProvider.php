@@ -8,10 +8,10 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Repository\Page\PageRepository;
 
-final class PageBySlugProvider implements ProviderInterface
+final readonly class PageBySlugProvider implements ProviderInterface
 {
     public function __construct(
-        private readonly PageRepository $pageRepository,
+        private PageRepository $pageRepository,
     ) {
     }
 

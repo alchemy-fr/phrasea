@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
@@ -75,13 +77,11 @@ final readonly class AssetIndexer
 
         $maxResults = 500;
 
-        $getPage = function (int $offset) use ($selectQuery, $maxResults): iterable {
-            return $selectQuery
-                ->getQuery()
-                ->setMaxResults($maxResults)
-                ->setFirstResult($offset)
-                ->toIterable();
-        };
+        $getPage = (fn (int $offset): iterable => $selectQuery
+            ->getQuery()
+            ->setMaxResults($maxResults)
+            ->setFirstResult($offset)
+            ->toIterable());
 
         $lastCollectionId = null;
         $progressBar->start();

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Elasticsearch\Provider;
 
 use App\Entity\Core\Attribute;
@@ -32,7 +34,7 @@ abstract readonly class AbstractPagerProvider implements PagerProviderInterface
 
         $qb = $this->getQueryBuilder();
 
-        if ($qb instanceof QueryBuilder && empty($qb->getDQLPart('orderBy'))) {
+        if (empty($qb->getDQLPart('orderBy'))) {
             // When getting root aliases, the QueryBuilder normalizes all from parts to From objects, in case they were added as string using the low-level API.
             // This side-effect allows us to be sure to get only From objects in the next call.
             $qb->getRootAliases();

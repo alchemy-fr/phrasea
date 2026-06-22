@@ -16,6 +16,7 @@ class CollectionAssetVoter extends AbstractVoter
         return $subject instanceof CollectionAsset;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, CollectionAsset::class, true);

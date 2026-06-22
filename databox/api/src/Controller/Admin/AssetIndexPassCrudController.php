@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use App\Consumer\Handler\Search\IndexAssets;
-use App\Elasticsearch\AssetIndexer;
 use App\Entity\Admin\AssetIndexPass;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -22,7 +23,6 @@ class AssetIndexPassCrudController extends AbstractAdminCrudController
 {
     public function __construct(
         private readonly AdminUrlGenerator $adminUrlGenerator,
-        private readonly AssetIndexer $assetIndexer,
         private readonly MessageBusInterface $bus,
     ) {
     }
@@ -32,6 +32,7 @@ class AssetIndexPassCrudController extends AbstractAdminCrudController
         return AssetIndexPass::class;
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         $globalAssetIndexAction = Action::new('Index Assets')
@@ -45,6 +46,7 @@ class AssetIndexPassCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -54,6 +56,7 @@ class AssetIndexPassCrudController extends AbstractAdminCrudController
             ->setDefaultSort(['createdAt' => 'DESC']);
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new()

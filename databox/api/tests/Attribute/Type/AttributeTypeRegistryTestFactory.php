@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Attribute\Type;
 
 use App\Attribute\AttributeTypeRegistry;
@@ -11,7 +13,7 @@ use App\Attribute\Type\KeywordAttributeType;
 use App\Attribute\Type\NumberAttributeType;
 use App\Attribute\Type\TextAttributeType;
 
-class AttributeTypeRegistyTestFactory
+class AttributeTypeRegistryTestFactory
 {
     public static function create(): AttributeTypeRegistry
     {

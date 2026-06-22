@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Util;
 
 abstract class DateUtil
@@ -13,9 +15,13 @@ abstract class DateUtil
         if ($date instanceof \DateTimeInterface) {
             return \DateTimeImmutable::createFromInterface($date);
         } elseif (is_int($date)) {
+            if ($date <= 0) {
+                return null;
+            }
+
             return new \DateTimeImmutable('@'.$date);
-        } elseif (is_string($date)) {
-            $value = $date;
+        } elseif (is_string($date) || $date instanceof \Stringable) {
+            $value = trim((string) $date);
             foreach ([
                 [
                     'p' => '#^(\d{4})\D(\d{2})\D(\d{2})$#',
@@ -31,8 +37,8 @@ abstract class DateUtil
                     'm' => [1, 2, 3, 4, 5]],
             ] as $tryout) {
                 $matches = [];
-                if (1 === preg_match($tryout['p'], $date, $matches)) {
-                    $args = array_map(fn (string $a): string => (int) $matches[$a], $tryout['m']);
+                if (1 === preg_match($tryout['p'], $value, $matches)) {
+                    $args = array_map(fn (string $a): string => $matches[$a], $tryout['m']);
                     $value = vsprintf($tryout['f'], $args);
                     break;
                 }

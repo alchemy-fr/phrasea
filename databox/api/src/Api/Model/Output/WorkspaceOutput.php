@@ -46,7 +46,7 @@ class WorkspaceOutput extends AbstractUuidOutput
         AttributeDefinition::GROUP_LIST,
         ResolveEntitiesOutput::GROUP_READ,
     ])]
-    public ?string $displayName;
+    public ?string $displayName = null;
 
     #[Groups([Workspace::GROUP_LIST])]
     private string $slug;
@@ -64,7 +64,7 @@ class WorkspaceOutput extends AbstractUuidOutput
     private ?array $localeFallbacks = null;
 
     #[Groups([Workspace::GROUP_READ])]
-    public ?string $fileAnalyzers;
+    public ?string $fileAnalyzers = null;
 
     #[Groups([Workspace::GROUP_READ])]
     public ?int $trashRetentionDelay = null;

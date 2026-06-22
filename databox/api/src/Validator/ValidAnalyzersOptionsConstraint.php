@@ -9,6 +9,7 @@ use Symfony\Component\Validator\Constraint;
 #[\Attribute(\Attribute::TARGET_CLASS)]
 class ValidAnalyzersOptionsConstraint extends Constraint
 {
+    #[\Override]
     public function getTargets(): string|array
     {
         return self::CLASS_CONSTRAINT;

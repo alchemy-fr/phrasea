@@ -30,19 +30,15 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
     public static function dataProvider(): array
     {
         return array_map(
-            function ($test) {
-                return [
-                    $test['definitions'],
-                    $test['metadata'],
-                    $test['expected'],
-                ];
-            },
+            fn ($test) => [
+                $test['definitions'],
+                $test['metadata'],
+                $test['expected'],
+            ],
             array_filter(
                 // the data file is used for documentation generation AND as a data provider for tests
                 Yaml::parseFile(__DIR__.'/../../../src/Documentation/InitialAttributeValuesResolverData.yaml'),
-                function ($test) {
-                    return $test['test'] ?? true;
-                }
+                fn ($test) => $test['test'] ?? true
             )
         );
     }
@@ -121,9 +117,7 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
                 } else {
                     // an array with key=locale
                     $normalized[$attributeName] = array_map(
-                        function ($v) {
-                            return is_array($v) ? $v : [$v];
-                        },
+                        fn ($v) => is_array($v) ? $v : [$v],
                         $value
                     );
                 }
@@ -141,13 +135,8 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
         if (!is_array($a)) {
             return false;
         }
-        foreach ($a as $k => $v) {
-            if (!is_numeric($k)) {
-                return false;
-            }
-        }
 
-        return true;
+        return array_all($a, fn ($v, $k) => is_numeric($k));
     }
 
     private function normalizeMetadata($data): array

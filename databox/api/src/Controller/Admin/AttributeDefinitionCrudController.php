@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
@@ -34,6 +36,7 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         return AttributeDefinition::class;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -44,6 +47,7 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
             ->setDefaultSort(['workspace.name' => 'ASC', 'slug' => 'ASC']);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -56,6 +60,7 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();

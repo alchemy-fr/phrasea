@@ -43,6 +43,7 @@ abstract class AbstractRekognitionAction extends AbstractIntegrationAction imple
 
     abstract protected function getCategory(): string;
 
+    #[\Override]
     protected function shouldRun(Asset $asset): bool
     {
         if (null === $asset->getSource()) {

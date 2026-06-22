@@ -17,10 +17,6 @@ use Symfony\Component\Validator\Constraints\Email;
 
 class ModerationIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
-    public function __construct(
-    ) {
-    }
-
     public function buildConfiguration(NodeBuilder $builder): void
     {
         $builder

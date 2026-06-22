@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Elasticsearch;
 
 use App\Attribute\AttributeTypeRegistry;
@@ -14,7 +16,7 @@ final readonly class AttributeIndexable
 
     public function isAttributeIndexable(Attribute $attribute): bool
     {
-        if (strlen($attribute->getValue()) > 300) {
+        if (strlen((string) $attribute->getValue()) > 300) {
             return false;
         }
 

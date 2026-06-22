@@ -590,6 +590,11 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         $this->attributes->add($attribute);
     }
 
+    public function removeAttribute(Attribute $attribute): void
+    {
+        $this->attributes->removeElement($attribute);
+    }
+
     /**
      * @return Attribute[]
      */

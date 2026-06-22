@@ -74,7 +74,7 @@ abstract class AbstractIntegrationAction implements IfActionInterface
     {
         try {
             $asset = $this->getAsset($context);
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException) {
             return false;
         }
 

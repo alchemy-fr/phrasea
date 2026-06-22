@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
@@ -25,6 +27,7 @@ class CollectionAccessCrudController extends AbstractAdminCrudController
         return CollectionAccess::class;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -34,6 +37,7 @@ class CollectionAccessCrudController extends AbstractAdminCrudController
             ->setPaginatorPageSize(100);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -46,6 +50,7 @@ class CollectionAccessCrudController extends AbstractAdminCrudController
             ->add(TextFilter::new('privacy'));
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();

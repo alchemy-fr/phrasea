@@ -42,6 +42,7 @@ class ReadMetadataAction extends AbstractIntegrationAction implements IfActionIn
         }
     }
 
+    #[\Override]
     protected function shouldRun(Asset $asset): bool
     {
         if (null === $asset->getSource()) {

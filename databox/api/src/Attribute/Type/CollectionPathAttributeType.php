@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
-
 final class CollectionPathAttributeType extends AbstractAttributeType
 {
     final public const string NAME = 'collection_path';
@@ -20,17 +18,19 @@ final class CollectionPathAttributeType extends AbstractAttributeType
         return 'text';
     }
 
+    #[\Override]
     public function getElasticSearchMapping(string $locale): ?array
     {
         return null;
     }
 
+    #[\Override]
     public function isLocaleAware(): bool
     {
         return false;
     }
 
-    public function validate($value, ExecutionContextInterface $context): void
+    public function validate(mixed $value): ?array
     {
         throw new \LogicException('Should never be called');
     }
@@ -40,11 +40,13 @@ final class CollectionPathAttributeType extends AbstractAttributeType
         throw new \LogicException('Should never be called');
     }
 
+    #[\Override]
     public function supportsAggregation(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function isListed(): bool
     {
         return false;

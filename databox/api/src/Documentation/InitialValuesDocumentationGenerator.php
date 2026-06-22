@@ -15,7 +15,7 @@ final class InitialValuesDocumentationGenerator extends DocumentationGenerator
         return '_initial_attribute_values.md';
     }
 
-    public function getContent(): ?string
+    public function getContent(): string
     {
         $n = 0;
         $output = '';
@@ -53,12 +53,12 @@ final class InitialValuesDocumentationGenerator extends DocumentationGenerator
                 if (is_array($definition['initialValues'] ?? null)) {
                     foreach ($definition['initialValues'] as $locale => $initializer) {
                         $output .= sprintf("  - locale `%s`\n", $locale);
-                        $code = json_encode(json_decode($initializer), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                        $code = json_encode(json_decode((string) $initializer), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
                         $this->codeBlockIndented($output, $code, 'json', 1);
                     }
                 } elseif (null !== ($definition['initialValues'] ?? null)) {
                     $initializer = $definition['initialValues'];
-                    $code = json_encode(json_decode($initializer), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                    $code = json_encode(json_decode((string) $initializer), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
                     $this->codeBlockIndented($output, $code, 'json', 0);
                 }
 
@@ -133,12 +133,7 @@ final class InitialValuesDocumentationGenerator extends DocumentationGenerator
         if (!is_array($a)) {
             return false;
         }
-        foreach ($a as $k => $v) {
-            if (!is_numeric($k)) {
-                return false;
-            }
-        }
 
-        return true;
+        return array_all($a, fn ($v, $k) => is_numeric($k));
     }
 }

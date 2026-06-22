@@ -8,6 +8,7 @@ class CodeAttributeType extends TextareaAttributeType
 {
     public const string NAME = 'code';
 
+    #[\Override]
     public function isMappingLocaleAware(): bool
     {
         return false;

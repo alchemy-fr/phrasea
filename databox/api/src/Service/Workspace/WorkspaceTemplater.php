@@ -67,7 +67,7 @@ final readonly class WorkspaceTemplater
                 $ws = new Workspace();
                 $ws->setOwnerId($ownerId);
                 $ws->setName($newName);
-                $ws->setSlug($slug ?: (new AsciiSlugger())->slug($newName)->toString());
+                $ws->setSlug($slug ?: new AsciiSlugger()->slug($newName)->toString());
             } else {
                 $this->logger->info(sprintf('Updating Workspace "%s"', $newName));
             }
@@ -237,7 +237,7 @@ final readonly class WorkspaceTemplater
         $tu = array_filter(
             $u,
             function ($x) use (&$o, &$end) {
-                return ($x['parent'] && !array_key_exists($x['parent'], $o)) || ($end = is_null($o[$x['id']] = $x));
+                return ($x['parent'] && !array_key_exists((string) $x['parent'], $o)) || ($end = is_null($o[$x['id']] = $x));
             }
         );
 
@@ -480,14 +480,12 @@ final readonly class WorkspaceTemplater
             $o[] = [
                 'id' => $list->getId(),
                 'name' => $list->getName(),
-                'entities' => array_map(function (AttributeEntity $item) {
-                    return [
-                        'value' => $item->getValue(),
-                        'position' => $item->getPosition(),
-                        'translations' => $item->getTranslations(),
-                        'synonyms' => $item->getSynonyms(),
-                    ];
-                }, $items),
+                'entities' => array_map(fn (AttributeEntity $item) => [
+                    'value' => $item->getValue(),
+                    'position' => $item->getPosition(),
+                    'translations' => $item->getTranslations(),
+                    'synonyms' => $item->getSynonyms(),
+                ], $items),
             ];
         }
 

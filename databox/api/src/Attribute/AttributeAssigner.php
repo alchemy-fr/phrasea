@@ -29,8 +29,19 @@ final readonly class AttributeAssigner
         $this->attributeRepository->resetAssetCache($asset);
     }
 
-    public function assignAttributeFromInput(AbstractBaseAttribute $attribute, AbstractBaseAttributeInput $data): void
+    public function normalizeValue(AttributeDefinition $definition, mixed $value): mixed
     {
+        $type = $this->attributeTypeRegistry->getStrictType($definition->getType());
+
+        return $type->normalizeValue($value);
+    }
+
+    public function assignAttributeFromInput(AbstractBaseAttribute $attribute, AbstractBaseAttributeInput $data, mixed $normalizedValue): void
+    {
+        if (null === $normalizedValue) {
+            throw new \LogicException('NULL value should never be passed here');
+        }
+
         if ($data instanceof AbstractExtendedAttributeInput) {
             assert($attribute instanceof Attribute);
             if ($data->origin) {
@@ -64,25 +75,37 @@ final readonly class AttributeAssigner
         }
 
         $type = $this->attributeTypeRegistry->getStrictType($attribute->getDefinition()->getType());
-        $value = $type->normalizeValue($data->value);
+        $value = $type->convertToDbValue($normalizedValue);
 
         if (null === $value) {
-            throw new InvalidAttributeValueException(sprintf('Normalized "%s" value is NULL (from: "%s"): %s', $type::getName(), get_debug_type($data->value), var_export($data->value, true)));
+            throw new InvalidAttributeValueException(sprintf('Normalized "%s" value is NULL (from: "%s"): %s', $type::getName(), get_debug_type($normalizedValue), var_export($normalizedValue, true)));
         }
 
         $attribute->setValue($value);
+        $attribute->setInvalid(!empty($type->validate($normalizedValue)));
         $attribute->setPosition($data->position ?? 0);
     }
 
-    public function upsertAttribute(
+    public function upsertOrRemoveAttribute(
         AttributeDefinition $attributeDefinition,
         Asset $asset,
         AttributeInput $data,
         bool $persist = true,
-    ): Attribute {
+    ): ?Attribute {
+        $normalizedValue = $this->normalizeValue($attributeDefinition, $data->value);
+        if (null === $normalizedValue) {
+            if ($persist && (null !== $attribute = $this->getAttribute($attributeDefinition, $asset))) {
+                $this->em->remove($attribute);
+            }
+
+            $this->resetAssetAttributesCache($asset);
+
+            return null;
+        }
+
         $attribute = $this->getOrCreateAttribute($attributeDefinition, $asset);
 
-        $this->assignAttributeFromInput($attribute, $data);
+        $this->assignAttributeFromInput($attribute, $data, $normalizedValue);
         if ($persist) {
             $this->em->persist($attribute);
         }
@@ -94,15 +117,7 @@ final readonly class AttributeAssigner
 
     private function getOrCreateAttribute(AttributeDefinition $attributeDefinition, Asset $asset): Attribute
     {
-        if ($attributeDefinition->isMultiple()) {
-            throw new \LogicException('Multiple attributes are not supported');
-        }
-
-        $attribute = $this->attributeRepository->findOneBy([
-            'definition' => $attributeDefinition->getId(),
-            'asset' => $asset->getId(),
-        ]);
-
+        $attribute = $this->getAttribute($attributeDefinition, $asset);
         if ($attribute instanceof Attribute) {
             return $attribute;
         }
@@ -113,5 +128,17 @@ final readonly class AttributeAssigner
         $asset->addAttribute($attribute);
 
         return $attribute;
+    }
+
+    private function getAttribute(AttributeDefinition $attributeDefinition, Asset $asset): ?Attribute
+    {
+        if ($attributeDefinition->isMultiple()) {
+            throw new \LogicException('Multiple attributes are not supported');
+        }
+
+        return $this->attributeRepository->findOneBy([
+            'definition' => $attributeDefinition->getId(),
+            'asset' => $asset->getId(),
+        ]);
     }
 }

@@ -17,6 +17,7 @@ final class RenditionBuiltInField extends AbstractEntityBuiltInField
     /**
      * @param RenditionDefinition $value
      */
+    #[\Override]
     public function resolveLabel($value): string
     {
         return $value->getName();
@@ -42,11 +43,13 @@ final class RenditionBuiltInField extends AbstractEntityBuiltInField
         return 'renditions';
     }
 
+    #[\Override]
     public function isSortable(): bool
     {
         return false;
     }
 
+    #[\Override]
     public function isMultiple(): bool
     {
         return true;
