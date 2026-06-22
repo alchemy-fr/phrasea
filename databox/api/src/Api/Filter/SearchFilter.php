@@ -36,7 +36,7 @@ final class SearchFilter extends AbstractFilter
             ->setParameter($parameterName, (string) $value);
     }
 
-    protected function getProperties(): ?array
+    protected function getProperties(): array
     {
         return [':property'];
     }

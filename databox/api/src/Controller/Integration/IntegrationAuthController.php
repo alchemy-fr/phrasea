@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Integration;
 
 use Alchemy\AuthBundle\Security\OneTimeTokenAuthenticator;

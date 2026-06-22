@@ -80,7 +80,7 @@ final class EntityAttributeType extends TextAttributeType
         return $output;
     }
 
-    public function getElasticSearchTextSubField(): ?string
+    public function getElasticSearchTextSubField(): string
     {
         return 'value';
     }
@@ -135,7 +135,7 @@ final class EntityAttributeType extends TextAttributeType
         return $translations[$locale] ?? $entity->getValue();
     }
 
-    public function getAggregationField(): ?string
+    public function getAggregationField(): string
     {
         return 'id';
     }
@@ -192,7 +192,7 @@ final class EntityAttributeType extends TextAttributeType
         return $this->getEntityBestTranslation($value, $locale) ?? '';
     }
 
-    public function getElasticSearchMapping(string $locale): ?array
+    public function getElasticSearchMapping(string $locale): array
     {
         $mapping = parent::getElasticSearchMapping($locale);
 
@@ -218,7 +218,7 @@ final class EntityAttributeType extends TextAttributeType
         return ESFacetInterface::TYPE_ENTITY;
     }
 
-    public function getElasticSearchRawField(): ?string
+    public function getElasticSearchRawField(): string
     {
         return 'id';
     }

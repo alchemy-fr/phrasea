@@ -83,8 +83,7 @@ final class GeoPointAttributeType extends AbstractAttributeType
             return null;
         }
 
-        if (!is_string($value)
-            || (!str_contains($value, ' ') && !str_contains($value, ',') && !str_contains($value, ';'))
+        if (!str_contains($value, ' ') && !str_contains($value, ',') && !str_contains($value, ';')
         ) {
             return null;
         }

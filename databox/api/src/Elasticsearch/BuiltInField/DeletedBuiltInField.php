@@ -35,10 +35,10 @@ final class DeletedBuiltInField extends AbstractBuiltInAttribute
         return BooleanAttributeType::getName();
     }
 
-    public function createFilterQuery(mixed $value, array $options): ?Query\AbstractQuery
+    public function createFilterQuery(mixed $value, array $options): Query\AbstractQuery
     {
         if (null !== $value) {
-            $value = (bool) filter_var($value, FILTER_VALIDATE_BOOLEAN);
+            $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
         }
 
         if (false === $value) {

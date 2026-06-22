@@ -15,7 +15,7 @@ final class InitialValuesDocumentationGenerator extends DocumentationGenerator
         return '_initial_attribute_values.md';
     }
 
-    public function getContent(): ?string
+    public function getContent(): string
     {
         $n = 0;
         $output = '';

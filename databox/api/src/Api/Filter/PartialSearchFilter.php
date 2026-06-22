@@ -36,7 +36,7 @@ final class PartialSearchFilter extends AbstractFilter
             ->setParameter($parameterName, '%'.strtolower($value).'%');
     }
 
-    protected function getProperties(): ?array
+    protected function getProperties(): array
     {
         return [':property'];
     }

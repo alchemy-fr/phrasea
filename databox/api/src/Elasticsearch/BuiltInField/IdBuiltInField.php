@@ -35,7 +35,7 @@ final class IdBuiltInField extends AbstractBuiltInAttribute
         return IdAttributeType::getName();
     }
 
-    public function createFilterQuery(mixed $value, array $options): ?Query\AbstractQuery
+    public function createFilterQuery(mixed $value, array $options): Query\AbstractQuery
     {
         return new Query\Term(['_id' => $value]);
     }

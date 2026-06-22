@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Elasticsearch\Listener\Dto;
 
 final readonly class WorkspacePermissionsDTO

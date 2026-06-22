@@ -24,7 +24,7 @@ final class ItemElasticsearchDocumentProvider implements ProviderInterface
     ) {
     }
 
-    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): ?object
     {
         $item = $this->itemProvider->provide($operation, $uriVariables, $context);
         $this->denyAccessUnlessGranted(AbstractVoter::READ, $item);

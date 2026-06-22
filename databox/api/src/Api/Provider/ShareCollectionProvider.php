@@ -18,7 +18,7 @@ final class ShareCollectionProvider extends AbstractAssetFilteredCollectionProvi
         Operation $operation,
         array $uriVariables = [],
         array $context = [],
-    ): array|object {
+    ): array {
 
         $asset = $this->getAsset($context);
 

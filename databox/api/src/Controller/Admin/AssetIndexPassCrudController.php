@@ -1,11 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use App\Consumer\Handler\Search\IndexAssets;
-use App\Elasticsearch\AssetIndexer;
 use App\Entity\Admin\AssetIndexPass;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -22,7 +23,6 @@ class AssetIndexPassCrudController extends AbstractAdminCrudController
 {
     public function __construct(
         private readonly AdminUrlGenerator $adminUrlGenerator,
-        private readonly AssetIndexer $assetIndexer,
         private readonly MessageBusInterface $bus,
     ) {
     }

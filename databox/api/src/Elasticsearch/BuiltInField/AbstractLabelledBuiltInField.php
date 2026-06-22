@@ -8,7 +8,7 @@ abstract class AbstractLabelledBuiltInField extends AbstractBuiltInAttribute
 {
     public function normalizeBuckets(array $buckets): array
     {
-        return array_map(function (array $bucket): ?array {
+        return array_map(function (array $bucket): array {
             $newKey = [
                 'value' => $bucket['key'],
                 'label' => $this->resolveLabel($bucket['key']),

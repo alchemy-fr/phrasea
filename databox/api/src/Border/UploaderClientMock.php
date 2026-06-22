@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Border;
 
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;

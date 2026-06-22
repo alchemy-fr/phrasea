@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace AQL;
 
 use App\Elasticsearch\AQL\DateNormalizer;

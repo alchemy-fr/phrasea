@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Integration\Phrasea\Expose;
 
 use Alchemy\CoreBundle\Util\LocaleUtil;
@@ -135,7 +137,7 @@ final readonly class ExposeClient
                         $attributeHtml = $this->getAttributeHtml(
                             $definition,
                             $definition->isMultiple() ? array_map(fn (Attribute $a,
-                            ): ?string => $attributeType->getStringValue($a->getValue(), $locale), $attribute) : $attributeType->getStringValue($attribute->getValue(), $locale),
+                            ): string => $attributeType->getStringValue($a->getValue(), $locale), $attribute) : $attributeType->getStringValue($attribute->getValue(), $locale),
                             $locale
                         );
                         if (!empty($attributeHtml)) {

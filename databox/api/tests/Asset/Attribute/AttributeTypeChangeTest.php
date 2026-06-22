@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Asset\Attribute;
 
 use App\Attribute\AttributeTypeRegistry;

@@ -65,8 +65,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: false,
             output: false,
             read: false,
-            name: 'profile_item_post_sort',
-            provider: null
+            name: 'profile_item_post_sort'
         ),
         new Put(
             normalizationContext: [

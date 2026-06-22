@@ -109,7 +109,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         self::assertEquals('POST', $mockResponse->getRequestMethod());
         $requestOptions = $mockResponse->getRequestOptions();
         self::assertEquals('Authorization: OAuth baz', $requestOptions['headers'][0]);
-        self::assertEquals('https://foo.bar/api/v3/subdefs_service/', (string) $mockResponse->getRequestUrl());
+        self::assertEquals('https://foo.bar/api/v3/subdefs_service/', $mockResponse->getRequestUrl());
         $phraseanetBodyData = json_decode($requestOptions['body'], true, 512, JSON_THROW_ON_ERROR);
         self::assertArraySubset([
             'databoxId' => 2,

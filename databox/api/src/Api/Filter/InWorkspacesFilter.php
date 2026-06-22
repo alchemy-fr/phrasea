@@ -45,7 +45,7 @@ final class InWorkspacesFilter extends AbstractFilter
             ->setParameter($parameterName, $value);
     }
 
-    protected function getProperties(): ?array
+    protected function getProperties(): array
     {
         return ['workspace'];
     }
