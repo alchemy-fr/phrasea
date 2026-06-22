@@ -7,6 +7,7 @@ namespace App\Entity\Admin;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -187,11 +188,6 @@ class OperationTask extends AbstractUuidEntity
         return null;
     }
 
-    public function isSuccessful(): ?bool
-    {
-        return null !== $this->endedAt;
-    }
-
     public function getProgress(): string
     {
         return $this->progress;
@@ -200,6 +196,20 @@ class OperationTask extends AbstractUuidEntity
     public function setProgress(string $progress): void
     {
         $this->progress = $progress;
+    }
+
+    #[ApiProperty(
+        description: 'Progression of the task in percentage',
+        readable: true,
+        writable: false,
+    )]
+    public function getProgression(): ?int
+    {
+        if (null === $this->progress || $this->itemTotal <= 0) {
+            return null;
+        }
+
+        return (int) round($this->progress / $this->itemTotal * 100);
     }
 
     public function getItemTotal(): string

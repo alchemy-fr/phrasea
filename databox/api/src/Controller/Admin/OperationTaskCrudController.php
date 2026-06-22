@@ -15,7 +15,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -97,17 +96,21 @@ class OperationTaskCrudController extends AbstractAdminCrudController
         yield TextareaField::new('estimated');
         yield TextareaField::new('remaining');
         yield ChoiceField::new('status')
-            ->setChoices(OperationTask::STATUS_CHOICES);
+            ->setChoices(OperationTask::STATUS_CHOICES)
+            ->renderAsBadges([
+                OperationTask::STATUS_IN_PROGRESS => 'info',
+                OperationTask::STATUS_COMPLETED => 'success',
+                OperationTask::STATUS_FAILED => 'danger',
+                OperationTask::STATUS_CANCELLED => 'secondary',
+                OperationTask::STATUS_PENDING => 'warning',
+            ])
+        ;
         yield DateTimeField::new('startedAt');
         yield DateTimeField::new('endedAt');
         yield IntegerField::new('progress')
             ->hideOnIndex();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
-        yield BooleanField::new('successful')
-            ->renderAsSwitch(false)
-            ->onlyOnIndex();
-
     }
 
     public function assetIndex(): Response

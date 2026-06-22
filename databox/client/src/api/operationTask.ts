@@ -1,5 +1,4 @@
 import {apiClient} from '../init.ts';
-import {Basket} from '../types';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 import {OperationTask, EntityName, PaginationParams} from './types.ts';
 
@@ -11,7 +10,7 @@ export type GetTasksOptions = {
 export async function getTasks({
     nextUrl,
     ...params
-}: GetTasksOptions = {}): Promise<NormalizedCollectionResponse<Basket>> {
+}: GetTasksOptions = {}): Promise<NormalizedCollectionResponse<OperationTask>> {
     const res = await apiClient.get(nextUrl ?? `/${EntityName.OperationTask}`, {
         params,
     });

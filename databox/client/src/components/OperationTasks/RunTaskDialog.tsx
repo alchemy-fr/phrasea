@@ -7,7 +7,8 @@ import RouteDialog from '../Dialog/RouteDialog.tsx';
 import {useParams} from '@alchemy/navigation';
 import {useFormSubmit} from '@alchemy/api';
 import {postRunOperationTask} from '../../api/operationTask.ts';
-import {useCloseModal} from '../Routing/ModalLink.tsx';
+import {useNavigateToModal} from '../Routing/ModalLink.tsx';
+import {modalRoutes} from '../../routes.ts';
 
 type Props = {};
 
@@ -15,7 +16,7 @@ export default function RunTaskDialog({}: Props) {
     const {t} = useTranslation();
     const {task} = useParams();
     const tasks = useTasks();
-    const closeModal = useCloseModal();
+    const navigateToModal = useNavigateToModal();
 
     const taskO = tasks.find(t => t.name === task);
     const component = taskO?.component;
@@ -29,8 +30,12 @@ export default function RunTaskDialog({}: Props) {
                 payload: data,
             });
         },
+        toastSuccess: t(
+            'run_task.initiated',
+            'Task was initiated successfully'
+        ),
         onSuccess: () => {
-            closeModal();
+            navigateToModal(modalRoutes.operationTasks.routes.index);
         },
     });
     const {handleSubmit, submitting} = usedFormSubmit;
@@ -45,7 +50,6 @@ export default function RunTaskDialog({}: Props) {
                     })}
                     open={open}
                     loading={submitting}
-                    disablePadding={true}
                     maxWidth={'md'}
                     onClose={onClose}
                     actions={({onClose, loading}) => {

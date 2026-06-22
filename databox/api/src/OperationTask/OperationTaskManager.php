@@ -89,5 +89,7 @@ final readonly class OperationTaskManager
         if (OperationTask::STATUS_CANCELLED === $task->getStatus()) {
             throw new \RuntimeException('Task cancelled');
         }
+
+        return $task;
     }
 }

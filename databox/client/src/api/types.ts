@@ -9,11 +9,24 @@ export type PaginationParams = {
     nextUrl?: string;
 };
 
+export enum OperationTaskStatus {
+    Pending = 0,
+    InProgress = 1,
+    Completed = 2,
+    Failed = 3,
+    Cancelled = 4,
+}
+
 export type OperationTask = {
     id: string;
-    name: string;
+    task: string;
     payload: Record<string, any>;
     owner: string;
+    status: OperationTaskStatus;
+    remaining?: string;
+    startedAt: string;
+    progression?: number;
+    endedAt: string;
     createdAt: string;
 };
 

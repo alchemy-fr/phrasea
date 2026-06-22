@@ -50,14 +50,16 @@ final readonly class AssetIndexer
             ->getQuery()
             ->getSingleScalarResult();
 
+        if (0 === $total) {
+            return;
+        }
+
         $selectQuery = (clone $baseQuery)
             ->select('a')
             ->resetDQLPart('orderBy')
             ->addOrderBy('a.referenceCollection', 'ASC')
             ->addOrderBy('a.createdAt', 'DESC')
             ->addOrderBy('a.id', 'ASC');
-
-        $runContext->getProgressBar()->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:16s%/%estimated:-16s% %memory:6s%');
 
         $this->assetPermissionComputer->setWorkspaceCache(new ArrayAdapter(storeSerialized: false));
         $this->assetPermissionComputer->setCollectionCache(new ArrayAdapter(storeSerialized: false));
@@ -73,6 +75,7 @@ final readonly class AssetIndexer
 
         $lastCollectionId = null;
         $runContext->start((int) $total);
+        $runContext->getProgressBar()->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:16s%/%estimated:-16s% %memory:6s%');
 
         $cursor = 0;
 
@@ -98,8 +101,12 @@ final readonly class AssetIndexer
             }
             $cursor += $i;
 
-            $this->assetObjectPersister->replaceMany($assetStack);
-            $this->attributeObjectPersister->replaceMany($attributeStack);
+            if (!empty($assetStack)) {
+                $this->assetObjectPersister->replaceMany($assetStack);
+            }
+            if (!empty($attributeStack)) {
+                $this->attributeObjectPersister->replaceMany($attributeStack);
+            }
             unset($assetStack);
 
             if ($shouldClearLastCollection) {

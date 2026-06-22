@@ -20,6 +20,7 @@ import PageIndexPage from './pages/PageIndexPage.tsx';
 import {AuthConstant} from '@alchemy/auth';
 import OperationTasksDialog from './components/OperationTasks/OperationTasksDialog.tsx';
 import RunTaskDialog from './components/OperationTasks/RunTaskDialog.tsx';
+import TasksListDialog from './components/OperationTasks/TasksListDialog.tsx';
 
 export enum Routing {
     UnknownRendition = '_',
@@ -120,7 +121,11 @@ const modalRoutes = {
         public: false,
         routes: {
             index: {
+                component: TasksListDialog,
                 path: '',
+            },
+            create: {
+                path: 'new',
                 component: OperationTasksDialog,
             },
             task: {

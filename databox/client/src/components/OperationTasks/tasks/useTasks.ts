@@ -40,9 +40,7 @@ export function useTasks(): Task[] {
                 `ReIndex Assets and their Attributes`
             ),
             defaultValues: {
-                definition: null,
-                fromLocale: null,
-                toLocale: null,
+                workspaceId: null,
             },
         },
     ];

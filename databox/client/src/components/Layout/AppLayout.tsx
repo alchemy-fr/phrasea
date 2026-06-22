@@ -60,7 +60,7 @@ export default function AppLayout({children}: Props) {
                             <MenuItem
                                 onClick={() =>
                                     navigateToModal(
-                                        modalRoutes.operationTasks.routes.index
+                                        modalRoutes.operationTasks.routes.create
                                     )
                                 }
                                 key={'operation-tasks'}
