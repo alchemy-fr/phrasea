@@ -12,6 +12,7 @@ use Alchemy\TrackBundle\Entity\ChangeLog;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
+use App\Entity\Admin\AdminTask;
 use App\Entity\Admin\AssetIndexPass;
 use App\Entity\Admin\ESIndexState;
 use App\Entity\Admin\PopulatePass;
@@ -121,6 +122,7 @@ class DashboardController extends AbstractAdminDashboardController
         ];
 
         $submenu3 = [
+            MenuItem::linkToCrud('Admin Task', '', AdminTask::class),
             MenuItem::linkToCrud('Populate Pass', '', PopulatePass::class),
             MenuItem::linkToCrud('ES Index State', '', ESIndexState::class),
             MenuItem::linkToCrud('Asset and Attributes Index Pass', '', AssetIndexPass::class),
