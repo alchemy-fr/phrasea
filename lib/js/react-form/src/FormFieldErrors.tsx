@@ -16,7 +16,7 @@ export default function FormFieldErrors<T extends FieldValues = FieldValues>({
 }: Props<T>) {
     const error = getObjectPropertyPath(errors, field);
     if (!error) {
-        return;
+        return null;
     }
 
     if (hasTranslations && !error.message) {
@@ -49,5 +49,5 @@ function Error({type, message}: ErrorProps) {
 
 type ErrorProps = {
     type: string;
-    message: string;
+    message?: string;
 };

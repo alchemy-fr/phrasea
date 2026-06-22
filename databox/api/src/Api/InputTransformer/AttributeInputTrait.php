@@ -102,8 +102,6 @@ trait AttributeInputTrait
                         $returnedAttribute = $attributeInputProcessor->transform($attr, Attribute::class, $subContext);
                         if (null !== $returnedAttribute) {
                             $object->addAttribute($returnedAttribute);
-                        } else {
-                            $object->removeAttribute($attribute);
                         }
                     }
 
@@ -116,8 +114,6 @@ trait AttributeInputTrait
             $returnedAttribute = $attributeInputProcessor->transform($attribute, Attribute::class, $subContext);
             if (null !== $returnedAttribute) {
                 $object->addAttribute($returnedAttribute);
-            } else {
-                $object->removeAttribute($attribute);
             }
         }
     }

@@ -72,13 +72,18 @@ final readonly class AttributeValidator
                     $validationContext->setNode($value, $attributeInput, null, sprintf('%s.value[%s]', $validationContext->getPropertyPath(), $j));
                     if (null !== $v) {
                         $normalized = $type->normalizeValue($v);
-                        $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($normalized));
+                        if (null !== $normalized) {
+                            $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($normalized));
+                        }
                     }
                 }
             } else {
                 $validationContext->setNode($value, $attributeInput, null, sprintf('%s.value', $validationContext->getPropertyPath()));
                 $normalized = $type->normalizeValue($value);
-                $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($normalized));
+
+                if (null !== $normalized) {
+                    $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($normalized));
+                }
             }
         }
     }

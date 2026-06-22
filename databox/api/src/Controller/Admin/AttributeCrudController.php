@@ -52,6 +52,7 @@ class AttributeCrudController extends AbstractAdminCrudController
             ->add(TextFilter::new('value'))
             ->add(TextFilter::new('locale'))
             ->add(BooleanFilter::new('locked'))
+            ->add(BooleanFilter::new('invalid'))
         ;
     }
 
@@ -80,6 +81,7 @@ class AttributeCrudController extends AbstractAdminCrudController
         yield TextareaField::new('originVendorContext')
             ->hideOnIndex();
         yield IntegerField::new('position');
+        yield BooleanField::new('invalid');
         yield IdField::new('originUserId')
             ->hideOnIndex();
         yield JsonField::new('assetAnnotations')

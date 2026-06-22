@@ -129,9 +129,6 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     #[ORM\Column(type: Types::FLOAT, nullable: false)]
     private float $confidence = 1.0;
 
-    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
-    private bool $invalid = false;
-
     public ?AttributeBatchUpdateInput $batchUpdate = null;
 
     public function getAsset(): ?Asset
@@ -288,15 +285,5 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     public function getOwnerId(): ?string
     {
         return $this->definition->getOwnerId();
-    }
-
-    public function isInvalid(): bool
-    {
-        return $this->invalid;
-    }
-
-    public function setInvalid(bool $invalid): void
-    {
-        $this->invalid = $invalid;
     }
 }
