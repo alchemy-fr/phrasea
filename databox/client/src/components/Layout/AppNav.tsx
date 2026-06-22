@@ -9,6 +9,7 @@ import {useTranslation} from 'react-i18next';
 import {useAuth} from '@alchemy/react-auth';
 import {getPath, useLocation} from '@alchemy/navigation';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import {UserRole} from '../../constants.ts';
 
 type Props = {} & Pick<NavMenuProps, 'orientation'>;
 
@@ -18,7 +19,7 @@ export default function AppNav({orientation}: Props) {
     const location = useLocation();
 
     const displayAdminMenu =
-        isAuthenticated && user?.roles.includes('databox-admin');
+        isAuthenticated && user?.roles.includes(UserRole.DataboxAdmin);
 
     const items: NavItem[] = [];
 

@@ -1,12 +1,13 @@
 import {useCallback} from 'react';
 import {AttributePolicy} from '../../types';
 import {FieldValues} from 'react-hook-form';
-import {attributePolicyNS, getAttributePolicies} from '../../api/attributes';
+import {getAttributePolicies} from '../../api/attributes';
 import {
     AsyncRSelectWidget,
     SelectOption,
     AsyncRSelectProps,
 } from '@alchemy/react-form';
+import {EntityName} from '../../api/types.ts';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
@@ -21,7 +22,7 @@ export default function AttributePolicySelect<
 
             return data
                 .map((t: AttributePolicy) => ({
-                    value: `${attributePolicyNS}/${t.id}`,
+                    value: `${EntityName.AttributePolicy}/${t.id}`,
                     label: t.name,
                 }))
                 .filter(i =>

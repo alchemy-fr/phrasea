@@ -1,6 +1,6 @@
 <?php
 
-namespace App\AdminTask;
+namespace App\OperationTask;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Helper\ProgressBar;

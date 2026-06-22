@@ -9,6 +9,14 @@ export type PaginationParams = {
     nextUrl?: string;
 };
 
+export type OperationTask = {
+    id: string;
+    name: string;
+    payload: Record<string, any>;
+    owner: string;
+    createdAt: string;
+};
+
 export type AttributeBatchAction = {
     action?: AttributeBatchActionEnum | undefined;
     id?: string | undefined;
@@ -55,6 +63,8 @@ export enum EntityName {
     Workspace = 'workspaces',
     SavedSearch = 'saved-searches',
     Page = 'pages',
+    AttributeDefinition = 'attribute-definitions',
+    AttributePolicy = 'attribute-policies',
     RenditionDefinition = 'rendition-definitions',
     RenditionPolicy = 'rendition-policies',
     Rendition = 'renditions',
@@ -63,4 +73,5 @@ export enum EntityName {
     User = 'users',
     Tag = 'tags',
     AssetDataTemplate = 'asset-data-templates',
+    OperationTask = 'operation-tasks',
 }

@@ -18,6 +18,8 @@ import PageEditPage from './pages/PageEditPage.tsx';
 import PagePage from './pages/PagePage.tsx';
 import PageIndexPage from './pages/PageIndexPage.tsx';
 import {AuthConstant} from '@alchemy/auth';
+import OperationTasksDialog from './components/OperationTasks/OperationTasksDialog.tsx';
+import RunTaskDialog from './components/OperationTasks/RunTaskDialog.tsx';
 
 export enum Routing {
     UnknownRendition = '_',
@@ -112,6 +114,20 @@ const modalRoutes = {
         path: '/attributes/editor',
         component: AttributeEditorView,
         public: false,
+    },
+    operationTasks: {
+        path: '/admin/tasks',
+        public: false,
+        routes: {
+            index: {
+                path: '',
+                component: OperationTasksDialog,
+            },
+            task: {
+                component: RunTaskDialog,
+                path: ':task/run',
+            },
+        },
     },
 };
 

@@ -4,18 +4,52 @@ declare(strict_types=1);
 
 namespace App\Entity\Admin;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use App\Api\Model\Input\OperationTaskInput;
+use App\Api\Processor\RunOperationTaskProcessor;
+use App\Entity\Traits\OwnerIdTrait;
 use App\Util\Time;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ApiResource(
+    shortName: 'operation-task',
+    operations: [
+        new GetCollection(),
+        new Get(),
+        new Post(
+            input: OperationTaskInput::class,
+            processor: RunOperationTaskProcessor::class
+        ),
+    ],
+    security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")',
+)]
 #[ORM\Table]
 #[ORM\Entity]
-#[ORM\Index(columns: ['task'], name: 'admin_task_task_idx')]
-class AdminTask extends AbstractUuidEntity
+#[ORM\Index(columns: ['task'], name: 'operation_task_idx')]
+#[ORM\Index(columns: ['status'], name: 'operation_status_idx')]
+class OperationTask extends AbstractUuidEntity
 {
     use CreatedAtTrait;
+    use OwnerIdTrait;
+
+    final public const int STATUS_PENDING = 0;
+    final public const int STATUS_IN_PROGRESS = 1;
+    final public const int STATUS_COMPLETED = 2;
+    final public const int STATUS_FAILED = 3;
+
+    public const array STATUS_CHOICES = [
+        'Pending' => self::STATUS_PENDING,
+        'In Progress' => self::STATUS_IN_PROGRESS,
+        'Completed' => self::STATUS_COMPLETED,
+        'Failed' => self::STATUS_FAILED,
+    ];
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     private ?string $task = null;
@@ -23,8 +57,14 @@ class AdminTask extends AbstractUuidEntity
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $payload = [];
 
+    #[ORM\Column(type: Types::SMALLINT, nullable: false)]
+    private ?int $status = self::STATUS_PENDING;
+
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $output = null;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $startedAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $endedAt = null;
@@ -64,11 +104,15 @@ class AdminTask extends AbstractUuidEntity
 
     public function getTimeTaken(): ?int
     {
-        if (null === $this->endedAt) {
-            return new \DateTimeImmutable()->getTimestamp() - $this->createdAt->getTimestamp();
+        if (null === $this->startedAt) {
+            return null;
         }
 
-        return $this->endedAt->getTimestamp() - $this->createdAt->getTimestamp();
+        if (null === $this->endedAt) {
+            return new \DateTimeImmutable()->getTimestamp() - $this->startedAt->getTimestamp();
+        }
+
+        return $this->endedAt->getTimestamp() - $this->startedAt->getTimestamp();
     }
 
     public function getTimeTakenUnit(): ?string
@@ -100,6 +144,26 @@ class AdminTask extends AbstractUuidEntity
     public function setRemaining(?string $remaining): void
     {
         $this->remaining = $remaining;
+    }
+
+    public function getStatus(): ?int
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?int $status): void
+    {
+        $this->status = $status;
+    }
+
+    public function getStartedAt(): ?\DateTimeImmutable
+    {
+        return $this->startedAt;
+    }
+
+    public function setStartedAt(?\DateTimeImmutable $startedAt): void
+    {
+        $this->startedAt = $startedAt;
     }
 
     public function getEndedAt(): ?\DateTimeImmutable
