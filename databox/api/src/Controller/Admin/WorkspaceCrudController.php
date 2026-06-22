@@ -6,6 +6,7 @@ use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\WorkspaceTemplate;
 use App\Repository\Template\WorkspaceTemplateRepository;
@@ -32,6 +33,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
 {
     public function __construct(
         private readonly UserChoiceField $userChoiceField,
+        private readonly UserChoiceFilter $userChoiceFilter,
         private readonly WorkspaceTemplateRepository $workspaceTemplateRepository,
         private readonly WorkspaceTemplater $workspaceTemplater,
         private readonly AdminUrlGenerator $adminUrlGenerator,
@@ -86,8 +88,8 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
     {
         return $filters
             ->add(TextFilter::new('name'))
-            ->add(TextFilter::new('ownerId'))
             ->add(BooleanFilter::new('public'))
+            ->add($this->userChoiceFilter->createFilter('ownerId'))
         ;
     }
 

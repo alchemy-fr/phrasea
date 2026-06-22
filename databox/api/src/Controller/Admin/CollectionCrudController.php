@@ -6,6 +6,7 @@ use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Admin\Field\PrivacyField;
 use App\Entity\Core\Collection;
 use Doctrine\ORM\QueryBuilder;
@@ -27,6 +28,7 @@ class CollectionCrudController extends AbstractAclAdminCrudController
 {
     public function __construct(
         private readonly UserChoiceField $userChoiceField,
+        private readonly UserChoiceFilter $userChoiceFilter,
         private readonly PrivacyField $privacyField,
     ) {
     }
@@ -57,7 +59,7 @@ class CollectionCrudController extends AbstractAclAdminCrudController
         return $filters
             ->add(EntityFilter::new('workspace'))
             ->add(TextFilter::new('name'))
-            ->add(TextFilter::new('ownerId'))
+            ->add($this->userChoiceFilter->createFilter('ownerId'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
     }
