@@ -163,10 +163,8 @@ final readonly class ExposeClient
             $translations = [];
             $description = null;
             if (!empty($descriptionTranslations)) {
-                $descriptionTranslations = array_map(function (array $ltr): string {
-                    return sprintf('<div class="attributes">
-    %s</div>', implode("\n", $ltr));
-                }, $descriptionTranslations);
+                $descriptionTranslations = array_map(fn (array $ltr): string => sprintf('<div class="attributes">
+    %s</div>', implode("\n", $ltr)), $descriptionTranslations);
 
                 if (isset($descriptionTranslations[AttributeInterface::NO_LOCALE])) {
                     $description = $descriptionTranslations[AttributeInterface::NO_LOCALE];

@@ -16,7 +16,7 @@ final readonly class AttributeIndexable
 
     public function isAttributeIndexable(Attribute $attribute): bool
     {
-        if (strlen($attribute->getValue()) > 300) {
+        if (strlen((string) $attribute->getValue()) > 300) {
             return false;
         }
 

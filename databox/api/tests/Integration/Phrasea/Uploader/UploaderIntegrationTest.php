@@ -89,6 +89,7 @@ class UploaderIntegrationTest extends ApiTestCase
         $this->assertCount(1, $uploadClient->getAcknowledgedAssets());
     }
 
+    #[\Override]
     protected static function bootKernel(array $options = []): KernelInterface
     {
         return static::bootKernelWithFixtures($options);

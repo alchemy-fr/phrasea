@@ -60,7 +60,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[ORM\Entity(repositoryClass: PageRepository::class)]
 #[UniqueEntity(fields: ['slug'])]
-class Page extends AbstractUuidEntity implements OwnerPersistableInterface, AclObjectInterface
+class Page extends AbstractUuidEntity implements OwnerPersistableInterface, AclObjectInterface, \Stringable
 {
     use OwnerIdTrait;
     use CreatedAtTrait;

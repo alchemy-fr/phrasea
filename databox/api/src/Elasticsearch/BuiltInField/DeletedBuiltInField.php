@@ -30,6 +30,7 @@ final class DeletedBuiltInField extends AbstractBuiltInAttribute
         return $asset->isDeleted();
     }
 
+    #[\Override]
     public function getType(): string
     {
         return BooleanAttributeType::getName();
@@ -91,6 +92,7 @@ final class DeletedBuiltInField extends AbstractBuiltInAttribute
         return $isNotDeletedQuery;
     }
 
+    #[\Override]
     public function isFacet(): bool
     {
         return false;

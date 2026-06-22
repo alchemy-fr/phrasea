@@ -33,6 +33,7 @@ class AttributeCrudController extends AbstractAdminCrudController
         return Attribute::class;
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)
@@ -40,6 +41,7 @@ class AttributeCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -58,6 +60,7 @@ class AttributeCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -67,6 +70,7 @@ class AttributeCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();

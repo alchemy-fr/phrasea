@@ -14,6 +14,7 @@ class IpAttributeTypeTest extends AbstractAttributeTypeTest
         return new IpAttributeType();
     }
 
+    #[\Override]
     public function getValidationCases(): array
     {
         return [
@@ -29,6 +30,7 @@ class IpAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getConvertToDbValueCases(): array
     {
         return [
@@ -40,6 +42,7 @@ class IpAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getDenormalizationCases(): array
     {
         return [

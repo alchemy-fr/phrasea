@@ -15,6 +15,7 @@ class PrivacyAttributeTypeTest extends AbstractAttributeTypeTest
         return new PrivacyAttributeType();
     }
 
+    #[\Override]
     public function getValidationCases(): array
     {
         return [
@@ -32,6 +33,7 @@ class PrivacyAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getNormalizationCases(): array
     {
         return [

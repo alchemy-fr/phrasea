@@ -77,6 +77,7 @@ class TuiPhotoEditorIntegration extends AbstractIntegration implements UserActio
         return 'Toast UI Photo Editor';
     }
 
+    #[\Override]
     public function getSupportedContexts(): array
     {
         return [IntegrationContext::AssetView];

@@ -24,6 +24,7 @@ class TemplateAttributeCrudController extends AbstractCrudController
         return TemplateAttribute::class;
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -34,6 +35,7 @@ class TemplateAttributeCrudController extends AbstractCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();

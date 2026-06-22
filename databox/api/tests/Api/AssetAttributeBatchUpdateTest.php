@@ -26,16 +26,14 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
             'key' => 'foo',
         ]);
 
-        $action = function (array $actions) use ($client, $assetIri): ResponseInterface {
-            return $client->request('POST', $assetIri.'/attributes', [
-                'headers' => [
-                    'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
-                ],
-                'json' => [
-                    'actions' => $actions,
-                ],
-            ]);
-        };
+        $action = (fn (array $actions): ResponseInterface => $client->request('POST', $assetIri.'/attributes', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+            'json' => [
+                'actions' => $actions,
+            ],
+        ]));
 
         $action([
             [

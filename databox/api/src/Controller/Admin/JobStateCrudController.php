@@ -39,6 +39,7 @@ class JobStateCrudController extends AbstractAdminCrudController
         return JobState::class;
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         $retry = Action::new('retryJob', 'Retry job', 'fas fa-wrench')
@@ -89,6 +90,7 @@ class JobStateCrudController extends AbstractAdminCrudController
         return $this->returnToReferer($context);
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -100,6 +102,7 @@ class JobStateCrudController extends AbstractAdminCrudController
             ->setSearchFields(['id']);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -117,6 +120,7 @@ class JobStateCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();

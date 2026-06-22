@@ -62,18 +62,12 @@ class FallbackResolver
                     $fallbackValue = $this->templateResolver->resolve($fallbacks[$locale], [
                         'file' => $asset->getSource(),
                         'asset' => $asset,
-                        'attr' => new DynamicAttributeBag($attributesIndex, $definitionsIndex, function (AttributeDefinition $depDef) use (
+                        'attr' => new DynamicAttributeBag($attributesIndex, $definitionsIndex, fn (AttributeDefinition $depDef): ?Attribute => $this->resolveAttrFallback(
                             $asset,
-                            $attributesIndex,
-                            $locale
-                        ): ?Attribute {
-                            return $this->resolveAttrFallback(
-                                $asset,
-                                $locale,
-                                $depDef,
-                                $attributesIndex
-                            );
-                        }, $locale),
+                            $locale,
+                            $depDef,
+                            $attributesIndex
+                        ), $locale),
                     ]);
                 } catch (\Throwable $e) {
                     throw new EntityDisableNotifyableException($definition, sprintf('Error while resolving "%s" (locale=%s) attribute fallback', $definition->getName(), $locale), $e->getMessage(), previous: $e);

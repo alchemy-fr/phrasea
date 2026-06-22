@@ -27,6 +27,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
     use FileUploadTrait;
     use TestServicesTrait;
 
+    #[\Override]
     protected static function bootKernel(array $options = []): KernelInterface
     {
         return static::bootKernelWithFixtures($options);
@@ -115,7 +116,7 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $requestOptions = $mockResponse->getRequestOptions();
         self::assertEquals('Authorization: OAuth baz', $requestOptions['headers'][0]);
         self::assertEquals('https://foo.bar/api/v1/upload/enqueue/', $mockResponse->getRequestUrl());
-        $phraseanetBodyData = json_decode($requestOptions['body'], true, 512, JSON_THROW_ON_ERROR);
+        $phraseanetBodyData = json_decode((string) $requestOptions['body'], true, 512, JSON_THROW_ON_ERROR);
         self::assertArraySubset([
             'assets' => [$assetId],
             'publisher' => KeycloakClientTestMock::ADMIN_UID,

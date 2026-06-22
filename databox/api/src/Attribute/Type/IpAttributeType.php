@@ -35,11 +35,13 @@ final class IpAttributeType extends AbstractAttributeType
         return null;
     }
 
+    #[\Override]
     public function supportsAggregation(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function supportsSuggest(): bool
     {
         return true;

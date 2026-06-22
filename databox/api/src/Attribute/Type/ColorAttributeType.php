@@ -8,6 +8,7 @@ class ColorAttributeType extends KeywordAttributeType
 {
     public const string NAME = 'color';
 
+    #[\Override]
     public function isLocaleAware(): bool
     {
         return true;

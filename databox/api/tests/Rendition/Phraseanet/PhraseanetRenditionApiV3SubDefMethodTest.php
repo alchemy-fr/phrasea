@@ -24,6 +24,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
     use FileUploadTrait;
     use TestServicesTrait;
 
+    #[\Override]
     protected static function bootKernel(array $options = []): KernelInterface
     {
         return static::bootKernelWithFixtures($options);
@@ -110,7 +111,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         $requestOptions = $mockResponse->getRequestOptions();
         self::assertEquals('Authorization: OAuth baz', $requestOptions['headers'][0]);
         self::assertEquals('https://foo.bar/api/v3/subdefs_service/', $mockResponse->getRequestUrl());
-        $phraseanetBodyData = json_decode($requestOptions['body'], true, 512, JSON_THROW_ON_ERROR);
+        $phraseanetBodyData = json_decode((string) $requestOptions['body'], true, 512, JSON_THROW_ON_ERROR);
         self::assertArraySubset([
             'databoxId' => 2,
             'source' => [],

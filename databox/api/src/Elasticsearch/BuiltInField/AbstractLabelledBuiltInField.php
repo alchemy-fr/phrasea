@@ -6,6 +6,7 @@ namespace App\Elasticsearch\BuiltInField;
 
 abstract class AbstractLabelledBuiltInField extends AbstractBuiltInAttribute
 {
+    #[\Override]
     public function normalizeBuckets(array $buckets): array
     {
         return array_map(function (array $bucket): array {

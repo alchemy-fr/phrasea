@@ -33,9 +33,10 @@ final class PartialSearchFilter extends AbstractFilter
         $parameterName = $queryNameGenerator->generateParameterName($property);
         $queryBuilder
             ->andWhere(sprintf('LOWER(%s.%s) LIKE :%s', $alias, $property, $parameterName))
-            ->setParameter($parameterName, '%'.strtolower($value).'%');
+            ->setParameter($parameterName, '%'.strtolower((string) $value).'%');
     }
 
+    #[\Override]
     protected function getProperties(): array
     {
         return [':property'];

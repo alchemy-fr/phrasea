@@ -86,9 +86,7 @@ class BatchAttributeManager
             }
         }
 
-        $this->attributeValidator->validateAttributeInputs($workspaceId, array_filter($input->actions, function (AbstractBaseAttributeInput $input): bool {
-            return in_array($input->action, [self::ACTION_ADD, self::ACTION_SET], true);
-        }), 'actions');
+        $this->attributeValidator->validateAttributeInputs($workspaceId, array_filter($input->actions, fn (AbstractBaseAttributeInput $input): bool => in_array($input->action, [self::ACTION_ADD, self::ACTION_SET], true)), 'actions');
     }
 
     public function handleBatch(
@@ -349,9 +347,7 @@ class BatchAttributeManager
         }
 
         $assets = $this->em->getRepository(Asset::class)->findByIds($assetsId);
-        $assets = array_filter($assets, function (Asset $asset) use ($definition): bool {
-            return $asset->getWorkspaceId() === $definition->getWorkspaceId() && $definition->isTargetedForAsset($asset);
-        });
+        $assets = array_filter($assets, fn (Asset $asset): bool => $asset->getWorkspaceId() === $definition->getWorkspaceId() && $definition->isTargetedForAsset($asset));
 
         foreach ($assets as $asset) {
             $normalizedValue = $this->attributeAssigner->normalizeValue($definition, $action->value);

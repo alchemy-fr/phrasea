@@ -25,7 +25,7 @@ class UploaderIntegrationController extends AbstractController
         MessageBusInterface $bus,
         IntegrationManager $integrationManager,
     ): Response {
-        $authToken = preg_replace('#^ApiKey\s+#', '', $request->headers->get('Authorization', ''));
+        $authToken = preg_replace('#^ApiKey\s+#', '', (string) $request->headers->get('Authorization', ''));
         if (!$authToken) {
             throw new UnauthorizedHttpException('Missing ApiKey token');
         }

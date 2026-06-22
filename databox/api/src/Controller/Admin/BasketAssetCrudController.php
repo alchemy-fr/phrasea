@@ -23,12 +23,14 @@ class BasketAssetCrudController extends AbstractAdminCrudController
         return BasketAsset::class;
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)
             ->remove(Crud::PAGE_INDEX, Action::NEW);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -36,6 +38,7 @@ class BasketAssetCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();

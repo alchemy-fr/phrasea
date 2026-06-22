@@ -38,7 +38,7 @@ class PopulatePass extends AbstractUuidEntity
     {
         if (null === $this->endedAt) {
             if (null === $this->error) {
-                return (new \DateTimeImmutable())->getTimestamp() - $this->createdAt->getTimestamp();
+                return new \DateTimeImmutable()->getTimestamp() - $this->createdAt->getTimestamp();
             }
 
             return null;

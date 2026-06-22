@@ -17,6 +17,7 @@ class AttributePolicyVoter extends AbstractVoter
         return $subject instanceof AttributePolicy;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, AttributePolicy::class, true);

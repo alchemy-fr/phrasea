@@ -614,7 +614,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         }
 
         foreach ($this->initialValues as $locale => $value) {
-            $data = json_decode($value, true);
+            $data = json_decode((string) $value, true);
             if (JSON_ERROR_NONE !== json_last_error()) {
                 $context->buildViolation('The initial value for locale "%locale%" is not valid JSON.')
                     ->setParameter('%locale%', $locale)

@@ -118,7 +118,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ProfileCollectionProvider::class,
 )]
 #[ORM\Entity(repositoryClass: ProfileRepository::class)]
-class Profile extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface
+class Profile extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, \Stringable
 {
     use OwnerIdTrait;
     use CreatedAtTrait;

@@ -10,6 +10,7 @@ class DateAttributeType extends DateTimeAttributeType
 {
     public const string NAME = 'date';
 
+    #[\Override]
     public function getGroupValueLabel($value): ?string
     {
         if ($value instanceof \DateTimeInterface) {
@@ -21,16 +22,18 @@ class DateAttributeType extends DateTimeAttributeType
         return parent::getGroupValueLabel($value);
     }
 
+    #[\Override]
     public function normalizeElasticsearchValue(?string $value): mixed
     {
         $value = parent::normalizeElasticsearchValue($value);
 
-        return $value ? substr($value, 0, 10) : null;
+        return $value ? substr((string) $value, 0, 10) : null;
     }
 
     /**
      * @return \DateTimeImmutable|null
      */
+    #[\Override]
     public function denormalizeValue(?string $value): mixed
     {
         if (null === $value) {
@@ -58,6 +61,7 @@ class DateAttributeType extends DateTimeAttributeType
         }
     }
 
+    #[\Override]
     public function getStringValue(?string $value, ?string $locale): string
     {
         $date = $this->denormalizeValue($value);

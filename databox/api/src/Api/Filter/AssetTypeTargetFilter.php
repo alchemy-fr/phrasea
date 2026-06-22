@@ -34,6 +34,7 @@ final class AssetTypeTargetFilter extends AbstractFilter
             ->setParameter($parameterName, (int) $value);
     }
 
+    #[\Override]
     protected function getProperties(): array
     {
         return ['target'];

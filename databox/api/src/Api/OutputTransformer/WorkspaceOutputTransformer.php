@@ -65,15 +65,13 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
             Workspace::GROUP_LIST,
         ], $context)) {
             $k = $data->getId().$this->getUserCacheId();
-            $output->setCapabilities($this->capCache->get($k, function () use ($data): array {
-                return [
-                    'createAsset' => $this->isGranted(AssetContainerVoterInterface::ASSET_CREATE, $data),
-                    'createCollection' => $this->isGranted(WorkspaceVoter::CREATE_COLLECTION, $data),
-                    'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
-                    'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
-                    'editPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
-                ];
-            }));
+            $output->setCapabilities($this->capCache->get($k, fn (): array => [
+                'createAsset' => $this->isGranted(AssetContainerVoterInterface::ASSET_CREATE, $data),
+                'createCollection' => $this->isGranted(WorkspaceVoter::CREATE_COLLECTION, $data),
+                'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
+                'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                'editPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
+            ]));
         }
 
         return $output;

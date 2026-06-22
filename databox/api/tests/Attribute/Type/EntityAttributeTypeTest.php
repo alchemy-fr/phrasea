@@ -24,6 +24,7 @@ class EntityAttributeTypeTest extends AbstractAttributeTypeTest
         return new EntityAttributeType($this->repository);
     }
 
+    #[\Override]
     public function getDenormalizationCases(): array
     {
         return [
@@ -33,6 +34,7 @@ class EntityAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getElasticsearchNormalizationCases(): array
     {
         return [
@@ -42,6 +44,7 @@ class EntityAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getValidationCases(): array
     {
         return [

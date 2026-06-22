@@ -29,11 +29,13 @@ final class FileSizeBuiltInField extends AbstractBuiltInAttribute
         return $asset->getSourceFileSize();
     }
 
+    #[\Override]
     public function getType(): string
     {
         return NumberAttributeType::getName();
     }
 
+    #[\Override]
     public function isFacet(): bool
     {
         return false;

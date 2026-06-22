@@ -14,12 +14,6 @@ trait GroupsHelperTrait
             return false;
         }
 
-        foreach ($groups as $group) {
-            if (in_array($group, $actual, true)) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($groups, fn ($group) => in_array($group, $actual, true));
     }
 }

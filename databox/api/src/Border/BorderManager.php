@@ -53,11 +53,11 @@ final readonly class BorderManager
         return $file;
     }
 
-    public function validateFile(InputFile $file): void
+    public function validateFile(): void
     {
     }
 
-    public function validateContent(FileContent $fileContent): void
+    public function validateContent(): void
     {
     }
 

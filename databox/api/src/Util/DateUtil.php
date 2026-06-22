@@ -37,8 +37,8 @@ abstract class DateUtil
                     'm' => [1, 2, 3, 4, 5]],
             ] as $tryout) {
                 $matches = [];
-                if (1 === preg_match($tryout['p'], $date, $matches)) {
-                    $args = array_map(fn (string $a): string => (int) $matches[$a], $tryout['m']);
+                if (1 === preg_match($tryout['p'], $value, $matches)) {
+                    $args = array_map(fn (string $a): string => $matches[$a], $tryout['m']);
                     $value = vsprintf($tryout['f'], $args);
                     break;
                 }

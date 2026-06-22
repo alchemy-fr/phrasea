@@ -25,12 +25,14 @@ class IntegrationTokenCrudController extends AbstractAdminCrudController
         return IntegrationToken::class;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
             ->setSearchFields(['id', 'integration']);
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         return $actions
@@ -39,6 +41,7 @@ class IntegrationTokenCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -47,6 +50,7 @@ class IntegrationTokenCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();

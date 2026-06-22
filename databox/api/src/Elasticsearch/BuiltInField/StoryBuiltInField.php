@@ -31,6 +31,7 @@ final class StoryBuiltInField extends AbstractEntityBuiltInField
     /**
      * @param Asset $value
      */
+    #[\Override]
     protected function resolveLabel($value): string
     {
         return $this->assetNameResolver->resolveNameAsString($value) ?? '';
@@ -51,6 +52,7 @@ final class StoryBuiltInField extends AbstractEntityBuiltInField
         return '@story';
     }
 
+    #[\Override]
     public function isMultiple(): bool
     {
         return true;
@@ -58,11 +60,7 @@ final class StoryBuiltInField extends AbstractEntityBuiltInField
 
     public function getValueFromAsset(Asset $asset): mixed
     {
-        return $asset->getCollections()->filter(function (CollectionAsset $collectionAsset): bool {
-            return $collectionAsset->getCollection()->isStory();
-        })->map(function (CollectionAsset $collectionAsset) {
-            return $collectionAsset->getCollection()->getStoryAsset();
-        });
+        return $asset->getCollections()->filter(fn (CollectionAsset $collectionAsset): bool => $collectionAsset->getCollection()->isStory())->map(fn (CollectionAsset $collectionAsset) => $collectionAsset->getCollection()->getStoryAsset());
     }
 
     protected function getAggregationTranslationKey(): string
@@ -70,6 +68,7 @@ final class StoryBuiltInField extends AbstractEntityBuiltInField
         return 'stories';
     }
 
+    #[\Override]
     public function isFacet(): bool
     {
         return false;

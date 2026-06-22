@@ -32,6 +32,7 @@ class AssetIndexPassCrudController extends AbstractAdminCrudController
         return AssetIndexPass::class;
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         $globalAssetIndexAction = Action::new('Index Assets')
@@ -45,6 +46,7 @@ class AssetIndexPassCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -54,6 +56,7 @@ class AssetIndexPassCrudController extends AbstractAdminCrudController
             ->setDefaultSort(['createdAt' => 'DESC']);
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new()

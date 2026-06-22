@@ -14,6 +14,7 @@ class IdAttributeTypeTest extends AbstractAttributeTypeTest
         return new IdAttributeType();
     }
 
+    #[\Override]
     public function getValidationCases(): array
     {
         return [
@@ -26,6 +27,7 @@ class IdAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getConvertToDbValueCases(): array
     {
         return [

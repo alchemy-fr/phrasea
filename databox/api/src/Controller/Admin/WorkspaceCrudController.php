@@ -48,6 +48,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         return Workspace::class;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -58,6 +59,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
             ->setDefaultSort(['name' => 'ASC']);
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         $action = Action::new('saveAsTemplape', 'Save as template', 'fa fa-gear')
@@ -86,6 +88,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         return $this->redirect($url);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -95,6 +98,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new()
@@ -151,6 +155,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         return $templateChoices;
     }
 
+    #[\Override]
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         assert($entityInstance instanceof Workspace);
@@ -160,6 +165,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         $this->applyWorkspaceTemplate($entityInstance);
     }
 
+    #[\Override]
     public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         parent::updateEntity($entityManager, $entityInstance);

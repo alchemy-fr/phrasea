@@ -9,11 +9,13 @@ use App\Attribute\Type\JsonAttributeType;
 
 class JsonAttributeTypeTest extends CodeAttributeTypeTest
 {
+    #[\Override]
     protected function getType(): AttributeTypeInterface
     {
         return new JsonAttributeType();
     }
 
+    #[\Override]
     public function getValidationCases(): array
     {
         return [
@@ -36,6 +38,7 @@ class JsonAttributeTypeTest extends CodeAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getConvertToDbValueCases(): array
     {
         return [

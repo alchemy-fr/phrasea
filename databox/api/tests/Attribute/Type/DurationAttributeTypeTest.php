@@ -9,6 +9,7 @@ use App\Attribute\Type\DurationAttributeType;
 
 class DurationAttributeTypeTest extends NumberAttributeTypeTest
 {
+    #[\Override]
     protected function getType(): AttributeTypeInterface
     {
         return new DurationAttributeType();

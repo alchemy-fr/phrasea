@@ -48,7 +48,7 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
             'status',
         ];
         foreach ($headers as $header) {
-            if (!str_starts_with($header, self::TRANSLATION_PREFIX) && !in_array($header, $allowedHeaders, true)) {
+            if (!str_starts_with((string) $header, self::TRANSLATION_PREFIX) && !in_array($header, $allowedHeaders, true)) {
                 throw new BadRequestHttpException(sprintf('Unsupported header "%s" in CSV data', $header));
             }
         }
@@ -115,9 +115,9 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
 
             foreach ($headers as $index => $header) {
                 $v = trim($row[$index] ?? '');
-                if (str_starts_with($header, self::TRANSLATION_PREFIX)) {
+                if (str_starts_with((string) $header, self::TRANSLATION_PREFIX)) {
                     $translations ??= [];
-                    $translations[substr($header, strlen(self::TRANSLATION_PREFIX))] = $v;
+                    $translations[substr((string) $header, strlen(self::TRANSLATION_PREFIX))] = $v;
                 } else {
                     switch ($header) {
                         case 'value':

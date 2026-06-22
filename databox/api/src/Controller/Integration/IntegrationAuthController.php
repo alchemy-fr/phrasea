@@ -47,9 +47,9 @@ class IntegrationAuthController extends AbstractController
         return $this->redirect(sprintf(
             '%s/oauth/v2/authorize?client_id=%s&redirect_uri=%s&state=%s',
             $options['baseUrl'],
-            urlencode($options['clientId']),
+            urlencode((string) $options['clientId']),
             urlencode($redirectUri),
-            urlencode($token)
+            urlencode((string) $token)
         ));
     }
 

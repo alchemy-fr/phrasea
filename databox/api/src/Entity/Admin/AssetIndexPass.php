@@ -34,7 +34,7 @@ class AssetIndexPass extends AbstractUuidEntity
     public function getTimeTaken(): ?int
     {
         if (null === $this->endedAt) {
-            return (new \DateTimeImmutable())->getTimestamp() - $this->createdAt->getTimestamp();
+            return new \DateTimeImmutable()->getTimestamp() - $this->createdAt->getTimestamp();
         }
 
         return $this->endedAt->getTimestamp() - $this->createdAt->getTimestamp();

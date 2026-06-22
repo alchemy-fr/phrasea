@@ -25,11 +25,13 @@ class KeywordAttributeType extends AbstractAttributeType
         return SearchType::Keyword;
     }
 
+    #[\Override]
     public function isLocaleAware(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function supportsSuggest(): bool
     {
         return true;
@@ -44,6 +46,7 @@ class KeywordAttributeType extends AbstractAttributeType
         return null;
     }
 
+    #[\Override]
     public function supportsAggregation(): bool
     {
         return true;

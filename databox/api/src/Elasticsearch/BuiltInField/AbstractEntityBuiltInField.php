@@ -10,15 +10,17 @@ use Doctrine\ORM\EntityManagerInterface;
 
 abstract class AbstractEntityBuiltInField extends AbstractBuiltInAttribute
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(private readonly EntityManagerInterface $em)
     {
     }
 
+    #[\Override]
     public function getType(): string
     {
         return KeywordAttributeType::NAME;
     }
 
+    #[\Override]
     public function normalizeBuckets(array $buckets): array
     {
         $entities = DoctrineUtil::getIndexFromIds(
@@ -49,6 +51,7 @@ abstract class AbstractEntityBuiltInField extends AbstractBuiltInAttribute
         }, $buckets);
     }
 
+    #[\Override]
     protected function resolveKey($value): string
     {
         return $value->getId();

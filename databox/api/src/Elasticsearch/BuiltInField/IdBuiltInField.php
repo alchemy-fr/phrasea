@@ -30,6 +30,7 @@ final class IdBuiltInField extends AbstractBuiltInAttribute
         return $asset->getId();
     }
 
+    #[\Override]
     public function getType(): string
     {
         return IdAttributeType::getName();
@@ -40,6 +41,7 @@ final class IdBuiltInField extends AbstractBuiltInAttribute
         return new Query\Term(['_id' => $value]);
     }
 
+    #[\Override]
     public function isFacet(): bool
     {
         return false;

@@ -27,7 +27,7 @@ final readonly class ErrorDisableHandler
         }
 
         $entity->appendError([
-            'date' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'date' => new \DateTimeImmutable()->format(\DateTimeInterface::ATOM),
             'message' => $exception->getMessage(),
             'code' => $exception->getCode(),
             'file' => $exception->getFile(),

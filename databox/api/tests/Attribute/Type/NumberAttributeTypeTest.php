@@ -14,6 +14,7 @@ class NumberAttributeTypeTest extends AbstractAttributeTypeTest
         return new NumberAttributeType();
     }
 
+    #[\Override]
     public function getValidationCases(): array
     {
         return [
@@ -47,6 +48,7 @@ class NumberAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getNormalizationCases(): array
     {
         return [
@@ -63,6 +65,7 @@ class NumberAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getConvertToDbValueCases(): array
     {
         return [
@@ -76,6 +79,7 @@ class NumberAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getDenormalizationCases(): array
     {
         return [
@@ -92,6 +96,7 @@ class NumberAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getElasticsearchNormalizationCases(): array
     {
         return [

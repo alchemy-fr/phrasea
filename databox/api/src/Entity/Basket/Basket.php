@@ -95,7 +95,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: BasketCollectionProvider::class,
 )]
 #[ORM\Entity(repositoryClass: BasketRepository::class)]
-class Basket extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, ESIndexableInterface, HighlightableModelInterface
+class Basket extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, ESIndexableInterface, HighlightableModelInterface, \Stringable
 {
     use OwnerIdTrait;
     use CreatedAtTrait;

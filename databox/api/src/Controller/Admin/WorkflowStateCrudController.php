@@ -45,6 +45,7 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
         return $this->returnToReferer($context);
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         $viewWorkflow = Action::new('viewWorkflow', 'View', 'fa fa-eye')
@@ -63,6 +64,7 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -74,6 +76,7 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
             ->setSearchFields(['id']);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -87,6 +90,7 @@ class WorkflowStateCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();

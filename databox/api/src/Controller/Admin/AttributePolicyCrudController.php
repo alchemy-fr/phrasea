@@ -26,6 +26,7 @@ class AttributePolicyCrudController extends AbstractAclAdminCrudController
         return AttributePolicy::class;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -36,6 +37,7 @@ class AttributePolicyCrudController extends AbstractAclAdminCrudController
             ->setDefaultSort(['workspace.name' => 'ASC', 'name' => 'ASC']);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -47,6 +49,7 @@ class AttributePolicyCrudController extends AbstractAclAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new()

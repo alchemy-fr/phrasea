@@ -124,10 +124,10 @@ readonly class IntegrationManager
 
         $output = $dumper->dumpNode($node);
         $output = preg_replace("#^root:(\n( {4})?|\s+\[])#", '', (string) $output);
-        $output = preg_replace("#\n {4}#", "\n", $output);
-        $output = preg_replace("#\n\n#", "\n", $output);
+        $output = preg_replace("#\n {4}#", "\n", (string) $output);
+        $output = preg_replace("#\n\n#", "\n", (string) $output);
 
-        return trim(ltrim($output, "\n"));
+        return trim(ltrim((string) $output, "\n"));
     }
 
     private function getConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): IntegrationConfig

@@ -12,7 +12,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 class AssetRenditionVoter extends AbstractVoter
 {
-    private CacheInterface $cache;
+    private readonly CacheInterface $cache;
 
     public function __construct(
         TemporaryCacheFactory $cacheFactory,
@@ -25,6 +25,7 @@ class AssetRenditionVoter extends AbstractVoter
         return $subject instanceof AssetRendition;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, AssetRendition::class, true);
@@ -35,9 +36,7 @@ class AssetRenditionVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        return $this->cache->get(sprintf('%s,%s,%s', $attribute, $subject->getId(), spl_object_id($token)), function () use ($attribute, $subject, $token) {
-            return $this->doVote($attribute, $subject, $token);
-        });
+        return $this->cache->get(sprintf('%s,%s,%s', $attribute, $subject->getId(), spl_object_id($token)), fn () => $this->doVote($attribute, $subject, $token));
     }
 
     private function doVote(string $attribute, AssetRendition $subject, TokenInterface $token): bool

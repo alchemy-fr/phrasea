@@ -50,7 +50,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: SavedSearchCollectionProvider::class,
 )]
 #[ORM\Entity(repositoryClass: SavedSearchRepository::class)]
-class SavedSearch extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface
+class SavedSearch extends AbstractUuidEntity implements WithOwnerIdInterface, AclObjectInterface, \Stringable
 {
     use OwnerIdTrait;
     use CreatedAtTrait;

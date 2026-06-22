@@ -86,7 +86,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueConstraint(name: 'list_external_id_uniq', fields: ['list', 'externalId'])]
 #[UniqueEntity(fields: ['list', 'value'], message: 'This value already exists in the list', errorPath: 'value')]
 #[UniqueEntity(fields: ['list', 'externalId'], message: 'This external ID already exists in the list', errorPath: 'externalId')]
-class AttributeEntity extends AbstractUuidEntity
+class AttributeEntity extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;

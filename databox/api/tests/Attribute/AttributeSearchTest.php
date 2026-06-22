@@ -68,26 +68,16 @@ class AttributeSearchTest extends TestCase
 
     public function getCases(): array
     {
-        $createField = function (
-            bool $allowed,
-            string $wsId,
-            string $slug,
-            ?int $boost = null,
-            $type = TextAttributeType::NAME,
-            bool $multiple = false,
-            bool $translatable = false,
-        ): array {
-            return [
-                'allowed' => $allowed,
-                'slug' => $slug,
-                'type' => $type,
-                'multiple' => $multiple,
-                'workspaceId' => $wsId,
-                'searchBoost' => $boost,
-                'translatable' => $translatable,
-                'enabledLocales' => [],
-            ];
-        };
+        $createField = (fn (bool $allowed, string $wsId, string $slug, ?int $boost = null, $type = TextAttributeType::NAME, bool $multiple = false, bool $translatable = false): array => [
+            'allowed' => $allowed,
+            'slug' => $slug,
+            'type' => $type,
+            'multiple' => $multiple,
+            'workspaceId' => $wsId,
+            'searchBoost' => $boost,
+            'translatable' => $translatable,
+            'enabledLocales' => [],
+        ]);
 
         $defaultNameCluster = [
             'fields' => [

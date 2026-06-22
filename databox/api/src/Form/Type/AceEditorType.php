@@ -126,6 +126,7 @@ class AceEditorType extends AbstractType
         );
     }
 
+    #[\Override]
     public function getParent(): ?string
     {
         return TextareaType::class;

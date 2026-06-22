@@ -15,6 +15,7 @@ class NumberAttributeType extends AbstractAttributeType
         return static::NAME;
     }
 
+    #[\Override]
     public function getElasticSearchMapping(string $locale): ?array
     {
         return [
@@ -36,11 +37,13 @@ class NumberAttributeType extends AbstractAttributeType
         return 'long';
     }
 
+    #[\Override]
     public function supportsSuggest(): bool
     {
         return false;
     }
 
+    #[\Override]
     public function normalizeValue(mixed $value): mixed
     {
         if (is_numeric($value)) {
@@ -50,6 +53,7 @@ class NumberAttributeType extends AbstractAttributeType
         return parent::normalizeValue($value);
     }
 
+    #[\Override]
     public function denormalizeValue(?string $value): mixed
     {
         if (is_numeric($value)) {
@@ -62,6 +66,7 @@ class NumberAttributeType extends AbstractAttributeType
     /**
      * @param int|float|string $value
      */
+    #[\Override]
     public function normalizeElasticsearchValue($value): mixed
     {
         if (is_numeric($value)) {
@@ -80,6 +85,7 @@ class NumberAttributeType extends AbstractAttributeType
         return null;
     }
 
+    #[\Override]
     public function supportsAggregation(): bool
     {
         return true;

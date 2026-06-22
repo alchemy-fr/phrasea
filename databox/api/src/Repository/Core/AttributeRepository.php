@@ -19,7 +19,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 class AttributeRepository extends ServiceEntityRepository
 {
-    private CacheInterface $attributeCache;
+    private readonly CacheInterface $attributeCache;
 
     public function __construct(
         ManagerRegistry $registry,
@@ -89,11 +89,7 @@ class AttributeRepository extends ServiceEntityRepository
 
     public function getCachedAssetAttributes(string $assetId): array
     {
-        return $this->attributeCache->get($assetId, function () use ($assetId): array {
-            return array_filter($this->getAssetAttributes($assetId), function (Attribute $attribute): bool {
-                return $attribute->isValidValue();
-            });
-        });
+        return $this->attributeCache->get($assetId, fn (): array => array_filter($this->getAssetAttributes($assetId), fn (Attribute $attribute): bool => $attribute->isValidValue()));
     }
 
     public function getESQueryBuilder(): QueryBuilder

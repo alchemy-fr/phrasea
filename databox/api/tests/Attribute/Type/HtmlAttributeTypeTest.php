@@ -9,11 +9,13 @@ use App\Attribute\Type\HtmlAttributeType;
 
 class HtmlAttributeTypeTest extends TextAttributeTypeTest
 {
+    #[\Override]
     protected function getType(): AttributeTypeInterface
     {
         return new HtmlAttributeType(new \HTMLPurifier());
     }
 
+    #[\Override]
     public function getNormalizationCases(): array
     {
         return [
@@ -25,6 +27,7 @@ class HtmlAttributeTypeTest extends TextAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getDenormalizationCases(): array
     {
         return [
@@ -36,6 +39,7 @@ class HtmlAttributeTypeTest extends TextAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getElasticsearchNormalizationCases(): array
     {
         return [

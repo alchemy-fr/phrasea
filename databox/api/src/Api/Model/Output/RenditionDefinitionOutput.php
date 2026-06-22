@@ -55,7 +55,7 @@ class RenditionDefinitionOutput extends AbstractUuidOutput
     public ?array $labels = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
-    public ?int $buildMode;
+    public ?int $buildMode = null;
 
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     public ?bool $useAsMain = null;

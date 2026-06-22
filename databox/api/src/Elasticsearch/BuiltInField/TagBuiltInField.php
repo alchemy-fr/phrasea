@@ -27,6 +27,7 @@ final class TagBuiltInField extends AbstractEntityBuiltInField
     /**
      * @param Tag $value
      */
+    #[\Override]
     protected function resolveLabel($value): string
     {
         return $this->resolveDisplayName($value);
@@ -64,6 +65,7 @@ final class TagBuiltInField extends AbstractEntityBuiltInField
         return 'tags';
     }
 
+    #[\Override]
     public function isMultiple(): bool
     {
         return true;

@@ -62,7 +62,7 @@ final readonly class IntegrationTokenManager
         if (isset($data['refresh_expires_in'])) {
             $data['refresh_expires_at'] = $time + $data['refresh_expires_in'];
         }
-        $integrationToken->setExpiresAt((new \DateTimeImmutable())->setTimestamp($data['refresh_expires_at'] ?? $data['expires_at']));
+        $integrationToken->setExpiresAt(new \DateTimeImmutable()->setTimestamp($data['refresh_expires_at'] ?? $data['expires_at']));
         $integrationToken->setToken($data);
     }
 

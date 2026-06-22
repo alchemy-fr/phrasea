@@ -17,6 +17,7 @@ class RenditionDefinitionVoter extends AbstractVoter
         return $subject instanceof RenditionDefinition;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, RenditionDefinition::class, true);

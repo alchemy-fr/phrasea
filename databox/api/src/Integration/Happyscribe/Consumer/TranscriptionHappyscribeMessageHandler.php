@@ -94,7 +94,7 @@ final readonly class TranscriptionHappyscribeMessageHandler
                     throw new \InvalidArgumentException(sprintf('Attribute "%s" must be mono-valued', $integrationConfig['attribute']));
                 }
 
-                if (AttributeInterface::NO_LOCALE !== $locale && 1 !== preg_match('/'.$locale.'/', $sourceLanguage)) {
+                if (AttributeInterface::NO_LOCALE !== $locale && 1 !== preg_match('/'.$locale.'/', (string) $sourceLanguage)) {
                     $this->translateAndSave($transcriptionId, $integrationConfig['apiKey'], $integrationId, $assetId, $locale);
                 } else {
                     $this->exportAndSaveTranscription($transcriptionId, $integrationId, $assetId, $locale);

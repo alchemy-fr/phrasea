@@ -14,6 +14,7 @@ class BooleanAttributeTypeTest extends AbstractAttributeTypeTest
         return new BooleanAttributeType();
     }
 
+    #[\Override]
     public function getValidationCases(): array
     {
         return [
@@ -47,6 +48,7 @@ class BooleanAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getNormalizationCases(): array
     {
         return [
@@ -62,6 +64,7 @@ class BooleanAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getConvertToDbValueCases(): array
     {
         return [
@@ -92,6 +95,7 @@ class BooleanAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getDenormalizationCases(): array
     {
         return [
@@ -103,6 +107,7 @@ class BooleanAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getElasticsearchNormalizationCases(): array
     {
         return [

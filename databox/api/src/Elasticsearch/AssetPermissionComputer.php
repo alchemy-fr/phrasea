@@ -73,9 +73,7 @@ final class AssetPermissionComputer
             return $this->doGetAssetPermissionFields($asset);
         }
 
-        return $this->assetCache->get($asset->getId(), function () use ($asset): AssetPermissionsDTO {
-            return $this->doGetAssetPermissionFields($asset);
-        });
+        return $this->assetCache->get($asset->getId(), fn (): AssetPermissionsDTO => $this->doGetAssetPermissionFields($asset));
     }
 
     private function doGetAssetPermissionFields(Asset $asset): AssetPermissionsDTO
@@ -180,9 +178,7 @@ final class AssetPermissionComputer
             return $this->doGetWorkspaceHierarchyInfo($workspace);
         }
 
-        return $this->workspaceCache->get($workspace->getId(), function () use ($workspace): WorkspacePermissionsDTO {
-            return $this->doGetWorkspaceHierarchyInfo($workspace);
-        });
+        return $this->workspaceCache->get($workspace->getId(), fn (): WorkspacePermissionsDTO => $this->doGetWorkspaceHierarchyInfo($workspace));
     }
 
     private function doGetWorkspaceHierarchyInfo(Workspace $workspace): WorkspacePermissionsDTO
@@ -234,9 +230,7 @@ final class AssetPermissionComputer
             return $this->doGetCollectionHierarchyInfo($collection);
         }
 
-        return $this->collectionCache->get($collection->getId(), function () use ($collection): CollectionPermissionsDTO {
-            return $this->doGetCollectionHierarchyInfo($collection);
-        });
+        return $this->collectionCache->get($collection->getId(), fn (): CollectionPermissionsDTO => $this->doGetCollectionHierarchyInfo($collection));
     }
 
     private function doGetCollectionHierarchyInfo(Collection $collection): CollectionPermissionsDTO

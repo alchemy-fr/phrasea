@@ -14,6 +14,7 @@ class DateAttributeTypeTest extends AbstractAttributeTypeTest
         return new DateAttributeType();
     }
 
+    #[\Override]
     public function getValidationCases(): array
     {
         return [
@@ -32,6 +33,7 @@ class DateAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getNormalizationCases(): array
     {
         return [
@@ -49,6 +51,7 @@ class DateAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getConvertToDbValueCases(): array
     {
         return [
@@ -66,6 +69,7 @@ class DateAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getDenormalizationCases(): array
     {
         return [
@@ -84,6 +88,7 @@ class DateAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getElasticsearchNormalizationCases(): array
     {
         return [

@@ -19,6 +19,7 @@ class WorkspaceIntegrationVoter extends AbstractVoter
         return $subject instanceof WorkspaceIntegration;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, WorkspaceIntegration::class, true);

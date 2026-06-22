@@ -22,16 +22,19 @@ final class GeoPointAttributeType extends AbstractAttributeType
         return 'geo_point';
     }
 
+    #[\Override]
     public function getFacetType(): string
     {
         return ESFacetInterface::TYPE_GEO_DISTANCE;
     }
 
+    #[\Override]
     public function supportsAggregation(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function normalizeValue(mixed $value): mixed
     {
         if (is_array($value)) {
@@ -61,6 +64,7 @@ final class GeoPointAttributeType extends AbstractAttributeType
         return ['Invalid Geo point'];
     }
 
+    #[\Override]
     public function convertToDbValue(mixed $value): ?string
     {
         if ($value instanceof GeoPoint) {
@@ -73,6 +77,7 @@ final class GeoPointAttributeType extends AbstractAttributeType
     /**
      * @return GeoPoint|null
      */
+    #[\Override]
     public function denormalizeValue(?string $value): mixed
     {
         if (null === $value) {
@@ -95,6 +100,7 @@ final class GeoPointAttributeType extends AbstractAttributeType
         return null;
     }
 
+    #[\Override]
     public function getStringValue(?string $value, ?string $locale): string
     {
         $value = $this->denormalizeValue($value);
@@ -105,6 +111,7 @@ final class GeoPointAttributeType extends AbstractAttributeType
         return '';
     }
 
+    #[\Override]
     public function normalizeElasticsearchValue(?string $value): mixed
     {
         $value = $this->denormalizeValue($value);

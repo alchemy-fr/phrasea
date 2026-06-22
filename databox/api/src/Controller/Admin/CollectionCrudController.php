@@ -40,12 +40,14 @@ class CollectionCrudController extends AbstractAclAdminCrudController
         return Collection::class;
     }
 
+    #[\Override]
     public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
     {
         return parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters)
             ->andWhere('entity.storyAsset IS NULL');
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -56,6 +58,7 @@ class CollectionCrudController extends AbstractAclAdminCrudController
             ->setDefaultSort(['workspace.name' => 'ASC', 'name' => 'ASC']);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -66,6 +69,7 @@ class CollectionCrudController extends AbstractAclAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();

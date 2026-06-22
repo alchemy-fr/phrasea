@@ -14,6 +14,7 @@ class TextAttributeTypeTest extends AbstractAttributeTypeTest
         return new TextAttributeType();
     }
 
+    #[\Override]
     public function getValidationCases(): array
     {
         return [

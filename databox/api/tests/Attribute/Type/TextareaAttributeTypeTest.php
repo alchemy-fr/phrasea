@@ -9,6 +9,7 @@ use App\Attribute\Type\TextareaAttributeType;
 
 class TextareaAttributeTypeTest extends TextAttributeTypeTest
 {
+    #[\Override]
     protected function getType(): AttributeTypeInterface
     {
         return new TextareaAttributeType();

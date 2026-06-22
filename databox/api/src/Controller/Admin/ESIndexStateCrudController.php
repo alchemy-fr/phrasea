@@ -23,6 +23,7 @@ class ESIndexStateCrudController extends AbstractAdminCrudController
         return ESIndexState::class;
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)
@@ -31,6 +32,7 @@ class ESIndexStateCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -39,6 +41,7 @@ class ESIndexStateCrudController extends AbstractAdminCrudController
             ->setSearchFields(['id', 'indexName', 'mapping']);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -46,6 +49,7 @@ class ESIndexStateCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new()

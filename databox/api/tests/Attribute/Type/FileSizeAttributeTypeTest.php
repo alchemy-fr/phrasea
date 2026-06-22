@@ -9,6 +9,7 @@ use App\Attribute\Type\FileSizeAttributeType;
 
 class FileSizeAttributeTypeTest extends NumberAttributeTypeTest
 {
+    #[\Override]
     protected function getType(): AttributeTypeInterface
     {
         return new FileSizeAttributeType();

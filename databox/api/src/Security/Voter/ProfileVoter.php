@@ -18,6 +18,7 @@ class ProfileVoter extends AbstractVoter
         return $subject instanceof Profile;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, Profile::class, true);

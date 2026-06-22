@@ -14,6 +14,7 @@ class ColorAttributeTypeTest extends AbstractAttributeTypeTest
         return new ColorAttributeType();
     }
 
+    #[\Override]
     public function getValidationCases(): array
     {
         return [
@@ -26,6 +27,7 @@ class ColorAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getConvertToDbValueCases(): array
     {
         return [

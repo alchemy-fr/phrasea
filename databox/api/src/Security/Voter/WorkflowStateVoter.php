@@ -14,6 +14,7 @@ class WorkflowStateVoter extends AbstractVoter
         return $subject instanceof WorkflowState;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, WorkflowState::class, true);

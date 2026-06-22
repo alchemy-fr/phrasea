@@ -18,6 +18,7 @@ final class BooleanAttributeType extends AbstractAttributeType
         return 'boolean';
     }
 
+    #[\Override]
     public function normalizeValue(mixed $value): mixed
     {
         if (is_bool($value)) {
@@ -55,6 +56,7 @@ final class BooleanAttributeType extends AbstractAttributeType
         return parent::normalizeValue($value);
     }
 
+    #[\Override]
     public function convertToDbValue(mixed $value): ?string
     {
         if (is_bool($value)) {
@@ -64,6 +66,7 @@ final class BooleanAttributeType extends AbstractAttributeType
         return parent::convertToDbValue($value);
     }
 
+    #[\Override]
     public function denormalizeValue(?string $value): mixed
     {
         if ('1' === $value) {
@@ -75,6 +78,7 @@ final class BooleanAttributeType extends AbstractAttributeType
         return null;
     }
 
+    #[\Override]
     public function getStringValue(?string $value, ?string $locale): string
     {
         $bool = $this->denormalizeValue($value);
@@ -85,6 +89,7 @@ final class BooleanAttributeType extends AbstractAttributeType
         return $bool ? 'true' : 'false';
     }
 
+    #[\Override]
     public function normalizeElasticsearchValue(?string $value): mixed
     {
         if ('1' === $value) {
@@ -105,6 +110,7 @@ final class BooleanAttributeType extends AbstractAttributeType
         return null;
     }
 
+    #[\Override]
     public function supportsAggregation(): bool
     {
         return true;

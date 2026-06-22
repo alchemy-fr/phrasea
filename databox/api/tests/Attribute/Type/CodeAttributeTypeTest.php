@@ -9,6 +9,7 @@ use App\Attribute\Type\CodeAttributeType;
 
 class CodeAttributeTypeTest extends TextAttributeTypeTest
 {
+    #[\Override]
     protected function getType(): AttributeTypeInterface
     {
         return new CodeAttributeType();

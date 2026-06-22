@@ -14,12 +14,14 @@ class CollectionPathAttributeTypeTest extends AbstractAttributeTypeTest
         return new CollectionPathAttributeType();
     }
 
+    #[\Override]
     public function getValidationCases(): array
     {
         // Validation should not be called for this type
         return [];
     }
 
+    #[\Override]
     public function getConvertToDbValueCases(): array
     {
         return [
@@ -28,6 +30,7 @@ class CollectionPathAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getDenormalizationCases(): array
     {
         return [

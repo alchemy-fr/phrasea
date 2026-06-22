@@ -155,6 +155,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
         return $integrationName === static::getName() && self::DATA_PUBLICATION_ID === $dataName;
     }
 
+    #[\Override]
     public static function requiresWorkspace(): bool
     {
         return false;
@@ -167,6 +168,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
         ]);
     }
 
+    #[\Override]
     public function getConfigurationInfo(IntegrationConfig $config): array
     {
         return [
@@ -190,6 +192,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
         return 'phrasea.expose';
     }
 
+    #[\Override]
     public function getSupportedContexts(): array
     {
         return [IntegrationContext::Basket];

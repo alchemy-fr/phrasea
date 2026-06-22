@@ -59,6 +59,7 @@ class WorkflowState extends BaseWorkflowState
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Asset $asset = null;
 
+    #[\Override]
     public function setState(ModelWorkflowState $state, EntityManagerInterface $em): void
     {
         parent::setState($state, $em);

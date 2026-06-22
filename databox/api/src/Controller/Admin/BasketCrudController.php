@@ -29,12 +29,14 @@ class BasketCrudController extends AbstractAclAdminCrudController
         return Basket::class;
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)
         ;
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -45,6 +47,7 @@ class BasketCrudController extends AbstractAclAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();

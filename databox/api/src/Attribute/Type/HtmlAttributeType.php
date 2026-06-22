@@ -12,6 +12,7 @@ class HtmlAttributeType extends CodeAttributeType
     {
     }
 
+    #[\Override]
     public function normalizeValue(mixed $value): mixed
     {
         if (is_string($value) && !empty(trim($value))) {
@@ -21,11 +22,13 @@ class HtmlAttributeType extends CodeAttributeType
         return parent::normalizeValue($value);
     }
 
+    #[\Override]
     public function denormalizeValue($value): mixed
     {
         return $this->purify($value);
     }
 
+    #[\Override]
     public function normalizeElasticsearchValue(?string $value): mixed
     {
         if (null === $value) {
@@ -44,6 +47,7 @@ class HtmlAttributeType extends CodeAttributeType
         return $this->HTMLPurifier->purify($value);
     }
 
+    #[\Override]
     public function supportsAggregation(): bool
     {
         return false;

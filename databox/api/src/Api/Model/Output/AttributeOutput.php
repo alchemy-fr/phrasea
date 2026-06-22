@@ -48,10 +48,10 @@ class AttributeOutput extends AbstractUuidOutput
         Attribute::GROUP_LIST,
         Attribute::GROUP_READ,
         AssetDataTemplate::GROUP_READ, Share::GROUP_PUBLIC_READ])]
-    public ?bool $invalid;
+    public ?bool $invalid = null;
 
     #[Groups([Asset::GROUP_LIST, Asset::GROUP_READ, Attribute::GROUP_LIST, Attribute::GROUP_READ])]
-    public string|array|null $highlight;
+    public string|array|null $highlight = null;
 
     /**
      * "human" or "machine".

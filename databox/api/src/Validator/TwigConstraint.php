@@ -8,6 +8,7 @@ use Symfony\Component\Validator\Constraint;
 
 class TwigConstraint extends Constraint
 {
+    #[\Override]
     public function getTargets(): string|array
     {
         return self::PROPERTY_CONSTRAINT;

@@ -16,19 +16,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 #[AsDecorator(decorates: 'api_platform.state_provider.deserialize', priority: 1)]
-final class InputTransformerProvider implements ProviderInterface
+final readonly class InputTransformerProvider implements ProviderInterface
 {
-    /**
-     * @var InputTransformerInterface[]
-     */
-    private readonly iterable $transformers;
-
     public function __construct(
-        private readonly ProviderInterface $decorated,
+        private ProviderInterface $decorated,
+        /**
+         * @var InputTransformerInterface[]
+         */
         #[TaggedIterator(InputTransformerInterface::TAG)]
-        iterable $transformers,
+        private iterable $transformers,
     ) {
-        $this->transformers = $transformers;
     }
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null

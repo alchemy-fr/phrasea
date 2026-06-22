@@ -23,9 +23,7 @@ final readonly class IntegrationTypeProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         if ($operation instanceof GetCollection) {
-            return array_map(function (IntegrationInterface $integration): IntegrationType {
-                return $this->getIntegration($integration);
-            }, $this->integrationRegistry->getIntegrations());
+            return array_map(fn (IntegrationInterface $integration): IntegrationType => $this->getIntegration($integration), $this->integrationRegistry->getIntegrations());
         }
 
         $integration = $this->integrationRegistry->getIntegration(IntegrationType::denormalizeId($uriVariables['id']));

@@ -199,18 +199,16 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
      */
     public function getWorkspaceFallbackDefinitions(string $workspaceId): array
     {
-        return $this->cache->get('fb,'.$workspaceId, function () use ($workspaceId): array {
-            return $this
-                ->createQueryBuilder('d')
-                ->andWhere('d.workspace = :workspace')
-                ->andWhere('d.enabled = true')
-                ->andWhere('d.fallback IS NOT NULL')
-                ->setParameter('workspace', $workspaceId)
-                ->addOrderBy('d.position', 'ASC')
-                ->addOrderBy('d.name', 'ASC')
-                ->getQuery()
-                ->getResult();
-        });
+        return $this->cache->get('fb,'.$workspaceId, fn (): array => $this
+            ->createQueryBuilder('d')
+            ->andWhere('d.workspace = :workspace')
+            ->andWhere('d.enabled = true')
+            ->andWhere('d.fallback IS NOT NULL')
+            ->setParameter('workspace', $workspaceId)
+            ->addOrderBy('d.position', 'ASC')
+            ->addOrderBy('d.name', 'ASC')
+            ->getQuery()
+            ->getResult());
     }
 
     /**
@@ -218,19 +216,17 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
      */
     public function getWorkspaceUseAsNameDefinitions(string $workspaceId): array
     {
-        return $this->cache->get('uan,'.$workspaceId, function () use ($workspaceId): array {
-            return $this
-                ->createQueryBuilder('d')
-                ->andWhere('d.workspace = :workspace')
-                ->andWhere('d.enabled = true')
-                ->andWhere('d.namePriority IS NOT NULL')
-                ->addOrderBy('d.namePriority', 'DESC')
-                ->addOrderBy('d.position', 'ASC')
-                ->addOrderBy('d.id', 'ASC')
-                ->setParameter('workspace', $workspaceId)
-                ->getQuery()
-                ->getResult();
-        });
+        return $this->cache->get('uan,'.$workspaceId, fn (): array => $this
+            ->createQueryBuilder('d')
+            ->andWhere('d.workspace = :workspace')
+            ->andWhere('d.enabled = true')
+            ->andWhere('d.namePriority IS NOT NULL')
+            ->addOrderBy('d.namePriority', 'DESC')
+            ->addOrderBy('d.position', 'ASC')
+            ->addOrderBy('d.id', 'ASC')
+            ->setParameter('workspace', $workspaceId)
+            ->getQuery()
+            ->getResult());
     }
 
     /**
@@ -238,15 +234,13 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
      */
     public function getWorkspaceFillFromNameDefinitions(string $workspaceId): array
     {
-        return $this->cache->get('ffn,'.$workspaceId, function () use ($workspaceId): array {
-            return $this
-                ->createQueryBuilder('d')
-                ->andWhere('d.workspace = :workspace')
-                ->andWhere('d.fillFromName = true')
-                ->setParameter('workspace', $workspaceId)
-                ->getQuery()
-                ->getResult();
-        });
+        return $this->cache->get('ffn,'.$workspaceId, fn (): array => $this
+            ->createQueryBuilder('d')
+            ->andWhere('d.workspace = :workspace')
+            ->andWhere('d.fillFromName = true')
+            ->setParameter('workspace', $workspaceId)
+            ->getQuery()
+            ->getResult());
     }
 
     /**

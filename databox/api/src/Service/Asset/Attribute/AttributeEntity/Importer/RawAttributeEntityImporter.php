@@ -25,7 +25,7 @@ final readonly class RawAttributeEntityImporter implements AttributeEntityImport
     public function import(EntityList $entityList, string $data): void
     {
         $values = explode("\n", $data)
-            |> (fn (array $x): array => array_map(fn (string $r): string => trim($r), $x))
+            |> (fn (array $x): array => array_map(trim(...), $x))
             |> (fn (array $x): array => array_filter($x, fn ($v) => !empty($v)))
             |> array_unique(...)
             |> array_values(...);

@@ -18,11 +18,13 @@ final class CollectionPathAttributeType extends AbstractAttributeType
         return 'text';
     }
 
+    #[\Override]
     public function getElasticSearchMapping(string $locale): ?array
     {
         return null;
     }
 
+    #[\Override]
     public function isLocaleAware(): bool
     {
         return false;
@@ -38,11 +40,13 @@ final class CollectionPathAttributeType extends AbstractAttributeType
         throw new \LogicException('Should never be called');
     }
 
+    #[\Override]
     public function supportsAggregation(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function isListed(): bool
     {
         return false;

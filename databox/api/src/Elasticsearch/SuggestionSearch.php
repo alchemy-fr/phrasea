@@ -129,7 +129,7 @@ class SuggestionSearch extends AbstractSearch
             $definitionNames,
         ): array {
             $hl = $result->getHighlights()[self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD];
-            $indexName = substr(preg_replace('#_\d{4}-\d{2}-\d{2}-\d{6}$#', '', $result->getIndex()), strlen($this->indexPrefix ?? ''));
+            $indexName = substr((string) preg_replace('#_\d{4}-\d{2}-\d{2}-\d{6}$#', '', $result->getIndex()), strlen($this->indexPrefix ?? ''));
 
             $data = [
                 'id' => $result->getId(),

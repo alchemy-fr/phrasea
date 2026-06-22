@@ -24,11 +24,13 @@ final class EntityAttributeType extends TextAttributeType
     ) {
     }
 
+    #[\Override]
     public function supportsTranslations(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function validate(mixed $value): ?array
     {
         if (!is_string($value) || !Uuid::isValid($value)) {
@@ -38,6 +40,7 @@ final class EntityAttributeType extends TextAttributeType
         return null;
     }
 
+    #[\Override]
     public function normalizeElasticsearchValue(?string $value): mixed
     {
         $entity = $this->getEntityFromValue($value);
@@ -85,6 +88,7 @@ final class EntityAttributeType extends TextAttributeType
         return 'value';
     }
 
+    #[\Override]
     public function getAdditionalSubFields(int $boost): array
     {
         return [
@@ -92,6 +96,7 @@ final class EntityAttributeType extends TextAttributeType
         ];
     }
 
+    #[\Override]
     public function normalizeBuckets(array $buckets): array
     {
         $entities = DoctrineUtil::getIndexFromIds($this->repository, array_map(fn ($b) => $b['key'], $buckets));
@@ -135,11 +140,13 @@ final class EntityAttributeType extends TextAttributeType
         return $translations[$locale] ?? $entity->getValue();
     }
 
+    #[\Override]
     public function getAggregationField(): string
     {
         return 'id';
     }
 
+    #[\Override]
     public function convertToDbValue(mixed $value): ?string
     {
         if ($value instanceof AttributeEntity) {
@@ -173,6 +180,7 @@ final class EntityAttributeType extends TextAttributeType
         return $this->getTranslatedValue($entity, $locale);
     }
 
+    #[\Override]
     public function denormalizeValue(?string $value): mixed
     {
         $entity = $this->getEntityFromValue($value);
@@ -187,11 +195,13 @@ final class EntityAttributeType extends TextAttributeType
         ];
     }
 
+    #[\Override]
     public function getStringValue(?string $value, ?string $locale): string
     {
         return $this->getEntityBestTranslation($value, $locale) ?? '';
     }
 
+    #[\Override]
     public function getElasticSearchMapping(string $locale): array
     {
         $mapping = parent::getElasticSearchMapping($locale);
@@ -213,11 +223,13 @@ final class EntityAttributeType extends TextAttributeType
         ];
     }
 
+    #[\Override]
     public function getFacetType(): string
     {
         return ESFacetInterface::TYPE_ENTITY;
     }
 
+    #[\Override]
     public function getElasticSearchRawField(): string
     {
         return 'id';

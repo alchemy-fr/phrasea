@@ -58,13 +58,11 @@ final readonly class AttributeEntityDeleteHandler
             'asset',
             [
                 'bool' => [
-                    'should' => array_map(function (string $field) use ($id): array {
-                        return [
-                            'term' => [
-                                $field.'.id' => $id,
-                            ],
-                        ];
-                    }, array_keys($fields)),
+                    'should' => array_map(fn (string $field): array => [
+                        'term' => [
+                            $field.'.id' => $id,
+                        ],
+                    ], array_keys($fields)),
                 ],
             ],
             [

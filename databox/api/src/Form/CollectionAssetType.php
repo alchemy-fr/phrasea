@@ -18,6 +18,7 @@ class CollectionAssetType extends AbstractType
         $resolver->setDefault('expanded', true);
     }
 
+    #[\Override]
     public function getParent(): ?string
     {
         return EntityType::class;

@@ -18,12 +18,14 @@ class ThreadCrudController extends AbstractAdminCrudController
         return Thread::class;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
             ->setSearchFields(['id', 'key']);
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();

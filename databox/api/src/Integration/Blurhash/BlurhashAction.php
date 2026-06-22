@@ -97,6 +97,7 @@ class BlurhashAction extends AbstractIntegrationAction implements IfActionInterf
         return Blurhash::encode($pixels, $components_x, $components_y);
     }
 
+    #[\Override]
     protected function shouldRun(Asset $asset): bool
     {
         if (null === $asset->getSource()) {

@@ -15,6 +15,7 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
         return new GeoPointAttributeType();
     }
 
+    #[\Override]
     public function getValidationCases(): array
     {
         return [
@@ -33,6 +34,7 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getNormalizationCases(): array
     {
         return [
@@ -49,6 +51,7 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getConvertToDbValueCases(): array
     {
         return [
@@ -65,6 +68,7 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getDenormalizationCases(): array
     {
         return [
@@ -76,6 +80,7 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getElasticsearchNormalizationCases(): array
     {
         return [

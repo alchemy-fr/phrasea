@@ -34,6 +34,7 @@ class AssetDataTemplateCrudController extends AbstractAclAdminCrudController
     ) {
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -43,6 +44,7 @@ class AssetDataTemplateCrudController extends AbstractAclAdminCrudController
             ->setPaginatorPageSize(100);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -53,6 +55,7 @@ class AssetDataTemplateCrudController extends AbstractAclAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new()

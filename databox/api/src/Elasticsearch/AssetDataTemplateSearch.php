@@ -40,9 +40,7 @@ final readonly class AssetDataTemplateSearch
         }
 
         $aclBoolQuery = $this->createACLBoolQuery($filters, $userId, $groupIds, $collection);
-        if (null !== $aclBoolQuery) {
-            $filterQueries[] = $aclBoolQuery;
-        }
+        $filterQueries[] = $aclBoolQuery;
 
         $queryString = trim($filters['query'] ?? '');
         if (!empty($queryString)) {

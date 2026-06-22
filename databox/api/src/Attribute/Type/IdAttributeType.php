@@ -8,16 +8,19 @@ class IdAttributeType extends KeywordAttributeType
 {
     public const string NAME = 'id';
 
+    #[\Override]
     public function isLocaleAware(): bool
     {
         return false;
     }
 
+    #[\Override]
     public function supportsSuggest(): bool
     {
         return false;
     }
 
+    #[\Override]
     public function validate(mixed $value): ?array
     {
         $errors = parent::validate($value);
@@ -35,6 +38,7 @@ class IdAttributeType extends KeywordAttributeType
         return null;
     }
 
+    #[\Override]
     public function supportsAggregation(): bool
     {
         return true;

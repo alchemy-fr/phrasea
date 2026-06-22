@@ -31,6 +31,7 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
         return AssetRendition::class;
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)
@@ -39,6 +40,7 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -48,6 +50,7 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
             ->setPaginatorPageSize(100);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -66,6 +69,7 @@ class AssetRenditionCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();

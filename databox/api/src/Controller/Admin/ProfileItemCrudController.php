@@ -23,6 +23,7 @@ class ProfileItemCrudController extends AbstractAdminCrudController
         return ProfileItem::class;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -33,6 +34,7 @@ class ProfileItemCrudController extends AbstractAdminCrudController
             ->setDefaultSort(['profile' => 'ASC', 'position' => 'ASC']);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -44,6 +46,7 @@ class ProfileItemCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new()

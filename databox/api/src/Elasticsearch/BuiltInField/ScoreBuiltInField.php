@@ -14,6 +14,7 @@ final class ScoreBuiltInField extends AbstractBuiltInAttribute
         return 'relevance';
     }
 
+    #[\Override]
     public function getType(): string
     {
         return NumberAttributeType::NAME;
@@ -34,11 +35,13 @@ final class ScoreBuiltInField extends AbstractBuiltInAttribute
         return null;
     }
 
+    #[\Override]
     public function isFacet(): bool
     {
         return false;
     }
 
+    #[\Override]
     public function isSearchable(): bool
     {
         return false;

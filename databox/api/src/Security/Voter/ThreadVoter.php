@@ -21,6 +21,7 @@ class ThreadVoter extends AbstractVoter
         return $subject instanceof Thread;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, Thread::class, true);
@@ -33,14 +34,11 @@ class ThreadVoter extends AbstractVoter
     {
         $object = $this->discussionManager->getThreadObject($subject);
 
-        switch ($attribute) {
-            case self::READ:
-                return $this->security->isGranted(self::READ, $object);
-            case self::EDIT:
-                return $this->security->isGranted(JwtUser::IS_AUTHENTICATED_FULLY)
-                    && $this->security->isGranted(self::READ, $object);
-        }
-
-        return false;
+        return match ($attribute) {
+            self::READ => $this->security->isGranted(self::READ, $object),
+            self::EDIT => $this->security->isGranted(JwtUser::IS_AUTHENTICATED_FULLY)
+                && $this->security->isGranted(self::READ, $object),
+            default => false,
+        };
     }
 }

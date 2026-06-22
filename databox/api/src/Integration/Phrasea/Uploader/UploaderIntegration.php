@@ -35,6 +35,7 @@ class UploaderIntegration extends AbstractIntegration
         ;
     }
 
+    #[\Override]
     public function generateConfigurationDefaults(array $userConfig): array
     {
         $userConfig['securityKey'] ??= bin2hex(random_bytes(32));
@@ -49,6 +50,7 @@ class UploaderIntegration extends AbstractIntegration
         ]);
     }
 
+    #[\Override]
     public function getConfigurationInfo(IntegrationConfig $config): array
     {
         return [

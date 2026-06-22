@@ -27,6 +27,7 @@ class TextAttributeType extends AbstractAttributeType
         return SearchType::Match;
     }
 
+    #[\Override]
     public function convertToDbValue(mixed $value): ?string
     {
         $value = parent::convertToDbValue($value);
@@ -37,11 +38,13 @@ class TextAttributeType extends AbstractAttributeType
         return trim($value);
     }
 
+    #[\Override]
     public function supportsElasticSearchFuzziness(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function getElasticSearchMapping(string $locale): ?array
     {
         $mapping = [
@@ -65,16 +68,19 @@ class TextAttributeType extends AbstractAttributeType
         return $mapping;
     }
 
+    #[\Override]
     public function isMappingLocaleAware(): bool
     {
         return $this->isLocaleAware();
     }
 
+    #[\Override]
     public function isLocaleAware(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function supportsSuggest(): bool
     {
         return true;
@@ -94,6 +100,7 @@ class TextAttributeType extends AbstractAttributeType
         return AttributeTypeInterface::RAW_PROP;
     }
 
+    #[\Override]
     public function supportsAggregation(): bool
     {
         return true;

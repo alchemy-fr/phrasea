@@ -26,6 +26,7 @@ final class CollectionBuiltInField extends AbstractBuiltInAttribute
     ) {
     }
 
+    #[\Override]
     public function getType(): string
     {
         return CollectionPathAttributeType::getName();
@@ -35,14 +36,13 @@ final class CollectionBuiltInField extends AbstractBuiltInAttribute
     {
         $parts = explode('/', $path);
 
-        return $parts[array_key_last($parts)];
+        return array_last($parts);
     }
 
+    #[\Override]
     public function normalizeBuckets(array $buckets): array
     {
-        $ids = array_map(function (array $bucket): string {
-            return self::extractIdFromPath($bucket['key']);
-        }, $buckets);
+        $ids = array_map(fn (array $bucket): string => self::extractIdFromPath($bucket['key']), $buckets);
 
         /** @var Collection[] $collections */
         $collections = DoctrineUtil::getIndexFromIds($this->em->getRepository(Collection::class), $ids);
@@ -82,6 +82,7 @@ final class CollectionBuiltInField extends AbstractBuiltInAttribute
     /**
      * @param CollectionAsset $item
      */
+    #[\Override]
     protected function resolveCollectionItem($item): Collection
     {
         return $item->getCollection();
@@ -90,6 +91,7 @@ final class CollectionBuiltInField extends AbstractBuiltInAttribute
     /**
      * @param Collection $value
      */
+    #[\Override]
     public function resolveLabel($value): string
     {
         return $value->getName();
@@ -98,6 +100,7 @@ final class CollectionBuiltInField extends AbstractBuiltInAttribute
     /**
      * @param Collection $value
      */
+    #[\Override]
     protected function resolveKey($value): string
     {
         return $value->getId();
@@ -118,6 +121,7 @@ final class CollectionBuiltInField extends AbstractBuiltInAttribute
         return $asset->getCollections();
     }
 
+    #[\Override]
     public function isMultiple(): bool
     {
         return true;
@@ -133,6 +137,7 @@ final class CollectionBuiltInField extends AbstractBuiltInAttribute
         return 'collections';
     }
 
+    #[\Override]
     public function normalizeValueForSearch(mixed $value): mixed
     {
         if (!$value || !is_string($value)) {

@@ -18,11 +18,13 @@ class DateTimeAttributeType extends AbstractAttributeType
         return static::NAME;
     }
 
+    #[\Override]
     public function supportsAggregation(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function supportsSuggest(): bool
     {
         return false;
@@ -33,6 +35,7 @@ class DateTimeAttributeType extends AbstractAttributeType
         return SearchType::Match;
     }
 
+    #[\Override]
     public function getGroupValueLabel($value): ?string
     {
         if ($value instanceof \DateTimeInterface) {
@@ -42,6 +45,7 @@ class DateTimeAttributeType extends AbstractAttributeType
         return parent::getGroupValueLabel($value);
     }
 
+    #[\Override]
     public function getFacetType(): string
     {
         return ESFacetInterface::TYPE_DATE_RANGE;
@@ -52,6 +56,7 @@ class DateTimeAttributeType extends AbstractAttributeType
         return 'date';
     }
 
+    #[\Override]
     public function getElasticSearchMapping(string $locale): ?array
     {
         return [
@@ -76,6 +81,7 @@ class DateTimeAttributeType extends AbstractAttributeType
         return 'text';
     }
 
+    #[\Override]
     public function normalizeValue(mixed $value): mixed
     {
         if ($value instanceof \DateTimeInterface) {
@@ -90,6 +96,7 @@ class DateTimeAttributeType extends AbstractAttributeType
         return parent::normalizeValue($value);
     }
 
+    #[\Override]
     public function convertToDbValue(mixed $value): ?string
     {
         if ($value instanceof \DateTimeInterface) {
@@ -102,11 +109,13 @@ class DateTimeAttributeType extends AbstractAttributeType
     /**
      * @return \DateTimeImmutable|null
      */
+    #[\Override]
     public function denormalizeValue(?string $value): mixed
     {
         return DateUtil::normalizeDate($value);
     }
 
+    #[\Override]
     public function getStringValue(?string $value, ?string $locale): string
     {
         $date = $this->denormalizeValue($value);
@@ -131,6 +140,7 @@ class DateTimeAttributeType extends AbstractAttributeType
         return null;
     }
 
+    #[\Override]
     public function normalizeElasticsearchValue(?string $value): mixed
     {
         if (empty($value) || null === DateUtil::normalizeDate($value)) {
