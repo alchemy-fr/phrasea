@@ -43,12 +43,14 @@ class OperationTask extends AbstractUuidEntity
     final public const int STATUS_IN_PROGRESS = 1;
     final public const int STATUS_COMPLETED = 2;
     final public const int STATUS_FAILED = 3;
+    final public const int STATUS_CANCELLED = 4;
 
     public const array STATUS_CHOICES = [
         'Pending' => self::STATUS_PENDING,
         'In Progress' => self::STATUS_IN_PROGRESS,
         'Completed' => self::STATUS_COMPLETED,
         'Failed' => self::STATUS_FAILED,
+        'Cancelled' => self::STATUS_CANCELLED,
     ];
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
@@ -215,8 +217,9 @@ class OperationTask extends AbstractUuidEntity
         return $this->output;
     }
 
-    public function setOutput(?string $output): void
+    public function appendOutput(string $output): void
     {
-        $this->output = $output;
+        $this->output ??= '';
+        $this->output .= $output;
     }
 }

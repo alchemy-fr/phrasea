@@ -1,6 +1,7 @@
 import SwitchAttributeLocaleTask from './SwitchAttributeLocaleTask.tsx';
 import {useTranslation} from 'react-i18next';
 import {TaskComponentProps} from './taskTypes.ts';
+import IndexAssetsTask from './IndexAssetsTask.tsx';
 
 type Task = {
     name: string;
@@ -23,6 +24,20 @@ export function useTasks(): Task[] {
             description: t(
                 'operation_task.switch_attribute_locales.desc',
                 `Switch the locales of attributes. This is useful when you want to change the locale of an attribute without having to delete and recreate it.`
+            ),
+            defaultValues: {
+                definition: null,
+                fromLocale: null,
+                toLocale: null,
+            },
+        },
+        {
+            component: IndexAssetsTask,
+            name: 'index_assets',
+            displayName: t('operation_task.index_assets.name', 'Index assets'),
+            description: t(
+                'operation_task.index_assets.desc',
+                `ReIndex Assets and their Attributes`
             ),
             defaultValues: {
                 definition: null,
