@@ -54,6 +54,7 @@ final readonly class OperationTaskManager
         );
         $taskHandler = $this->taskRegistry->getTask($task->getTask());
 
+        $task->setStartedAt(new \DateTimeImmutable());
         $task->setStatus(OperationTask::STATUS_IN_PROGRESS);
         $this->em->persist($task);
         $this->em->flush();

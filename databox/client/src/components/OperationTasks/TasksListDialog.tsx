@@ -1,5 +1,4 @@
 import {
-    Box,
     Button,
     Chip,
     LinearProgress,
@@ -9,18 +8,21 @@ import {
     Skeleton,
 } from '@mui/material';
 import React, {useMemo, useState} from 'react';
-import {AppDialog} from '@alchemy/phrasea-ui';
+import {AppDialog, FlexRow} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
 import RouteDialog from '../Dialog/RouteDialog.tsx';
 import {OperationTask, OperationTaskStatus} from '../../api/types.ts';
 import {getTasks} from '../../api/operationTask.ts';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import {NormalizedCollectionResponse} from '@alchemy/api';
+import {useNavigateToModal} from '../Routing/ModalLink.tsx';
+import {modalRoutes} from '../../routes.ts';
 
 type Props = {};
 
 export default function TasksListDialog({}: Props) {
     const {t} = useTranslation();
+    const navigateToModal = useNavigateToModal();
     const [loading, setLoading] = useState(false);
 
     const [tasks, setTasks] =
@@ -90,6 +92,17 @@ export default function TasksListDialog({}: Props) {
                         return (
                             <>
                                 <Button
+                                    variant="contained"
+                                    onClick={() => {
+                                        navigateToModal(
+                                            modalRoutes.operationTasks.routes
+                                                .create
+                                        );
+                                    }}
+                                >
+                                    {t('tasks_list.create', 'New Task')}
+                                </Button>
+                                <Button
                                     startIcon={<RefreshIcon />}
                                     onClick={reload}
                                     loading={loading}
@@ -117,16 +130,11 @@ export default function TasksListDialog({}: Props) {
                                         >
                                             <ListItemText
                                                 primary={
-                                                    <>
-                                                        <Box
-                                                            sx={{
-                                                                display:
-                                                                    'inline-block',
-                                                                mr: 1,
-                                                            }}
-                                                        >
-                                                            {t.task}
-                                                        </Box>
+                                                    <FlexRow
+                                                        sx={{
+                                                            gap: 1,
+                                                        }}
+                                                    >
                                                         <Chip
                                                             label={
                                                                 statusLabels[
@@ -138,7 +146,9 @@ export default function TasksListDialog({}: Props) {
                                                                 color: `${statusColors[t.status]}.contrastText`,
                                                             }}
                                                         />
-                                                    </>
+                                                        <div>{t.task}</div>
+                                                        <div>{t.startedAt}</div>
+                                                    </FlexRow>
                                                 }
                                                 secondary={
                                                     <>
@@ -160,7 +170,11 @@ export default function TasksListDialog({}: Props) {
                                                             />
                                                         ) : null}
 
-                                                        <pre>
+                                                        <pre
+                                                            style={{
+                                                                fontSize: 11,
+                                                            }}
+                                                        >
                                                             {JSON.stringify(
                                                                 t.payload,
                                                                 null,
