@@ -77,7 +77,7 @@ class CreateAssetWithAttributeTest extends AbstractSearchTestCase
             [['description' => 'Foo bar', 'keywords' => ['KW #1']], ['description' => 'Foo bar', 'keywords' => ['KW #1']]],
             [['description' => 'Foo bar', 'keywords' => ['KW #1', 'KW #2']], ['description' => 'Foo bar', 'keywords' => ['KW #1', 'KW #2']]],
             [['date' => null], []],
-            [['date' => ''], null],
+            [['date' => ''], []],
             [['date' => 'bar'], null],
             [['date' => '-2007-09-10T11:45:28+00:00'], null],
             [['date' => '1997/1997_01/'], null],
