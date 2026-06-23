@@ -107,6 +107,7 @@ function Item({
 
     const type = watch('type');
     const translatable = watch('translatable');
+    const oneLocale = workspace.enabledLocales?.length === 1;
 
     return (
         <>
@@ -285,18 +286,24 @@ function Item({
                 />
                 <FormFieldErrors field={'suggest'} errors={errors} />
             </FormRow>
-            <FormRow>
-                <CheckboxWidget
-                    label={t(
-                        'form.attribute_definition.translatable.label',
-                        'Translatable'
-                    )}
-                    control={control}
-                    name={'translatable'}
-                    disabled={submitting}
-                />
-                <FormFieldErrors field={'translatable'} errors={errors} />
-            </FormRow>
+            {(workspace.enabledLocales?.length ?? 0) > 1 &&
+            [AttributeType.Text, AttributeType.Textarea].includes(type) ? (
+                <FormRow>
+                    <CheckboxWidget
+                        label={t(
+                            'form.attribute_definition.translatable.label',
+                            'Translatable'
+                        )}
+                        control={control}
+                        name={'translatable'}
+                        disabled={submitting}
+                    />
+                    <FormFieldErrors field={'translatable'} errors={errors} />
+                </FormRow>
+            ) : (
+                ''
+            )}
+
             <FormRow>
                 <CheckboxWidget
                     label={t(
@@ -335,8 +342,8 @@ function Item({
             </FormRow>
             <FormRow>
                 <ObjectTranslationField
-                    translatable={translatable}
-                    displayNoLocale={true}
+                    translatable={oneLocale ? true : translatable}
+                    displayNoLocale={oneLocale ? false : true}
                     label={t(
                         'form.attribute_definition.fallback.label',
                         'Fallback'
@@ -361,8 +368,8 @@ function Item({
             </FormRow>
             <FormRow>
                 <ObjectTranslationField
-                    translatable={translatable}
-                    displayNoLocale={true}
+                    translatable={oneLocale ? true : translatable}
+                    displayNoLocale={oneLocale ? false : true}
                     label={t(
                         'form.attribute_definition.initialValues.label',
                         'Initial Values'
