@@ -293,7 +293,7 @@ function Item({
                     )}
                     control={control}
                     name={'translatable'}
-                    disabled={submitting}
+                    disabled={type === AttributeType.Entity ? true : submitting}
                 />
                 <FormFieldErrors field={'translatable'} errors={errors} />
             </FormRow>
