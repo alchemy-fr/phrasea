@@ -14,7 +14,8 @@ import {formatDuration} from '../../lib/duration.ts';
 import TimerIcon from '@mui/icons-material/Timer';
 import {useTranslation} from 'react-i18next';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
-import React from 'react';
+import React, {PropsWithChildren} from 'react';
+import EventIcon from '@mui/icons-material/Event';
 
 type Props = {
     task: OperationTask;
@@ -125,13 +126,19 @@ export default function TaskCard({task, title}: Props) {
                                 textAlign: 'right',
                             }}
                         >
-                            <div>
+                            <Info>
+                                <EventIcon
+                                    fontSize={'small'}
+                                    sx={{
+                                        mr: 1,
+                                    }}
+                                />
                                 {moment(
                                     task.startedAt ?? task.createdAt
                                 ).fromNow()}
-                            </div>
+                            </Info>
                             {task.endedAt ? (
-                                <div>
+                                <Info>
                                     <TimerIcon
                                         fontSize={'small'}
                                         sx={{
@@ -143,10 +150,10 @@ export default function TaskCard({task, title}: Props) {
                                             task.startedAt
                                         ) / 1000
                                     )}
-                                </div>
+                                </Info>
                             ) : null}
                             {task.status === OperationTaskStatus.InProgress && (
-                                <div>
+                                <Info>
                                     <HourglassBottomIcon
                                         fontSize={'small'}
                                         sx={{
@@ -155,12 +162,27 @@ export default function TaskCard({task, title}: Props) {
                                     />
                                     {t('task.card.remaining', 'Remaining:')}{' '}
                                     {task.remaining}
-                                </div>
+                                </Info>
                             )}
                         </div>
                     </Box>
                 </ListItemButton>
             </ListItem>
         </>
+    );
+}
+
+function Info({children}: PropsWithChildren<{}>) {
+    return (
+        <Box
+            sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                color: 'text.secondary',
+            }}
+        >
+            {children}
+        </Box>
     );
 }
