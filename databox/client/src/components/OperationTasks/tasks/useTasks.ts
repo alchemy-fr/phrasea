@@ -26,7 +26,7 @@ export function useTasks(): Task[] {
                 `Switch the locales of attributes. This is useful when you want to change the locale of an attribute without having to delete and recreate it.`
             ),
             defaultValues: {
-                definition: null,
+                definitionId: null,
                 fromLocale: null,
                 toLocale: null,
             },

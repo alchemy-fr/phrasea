@@ -192,12 +192,12 @@ class OperationTask extends AbstractUuidEntity
         return null;
     }
 
-    public function getProgress(): string
+    public function getProgress(): ?string
     {
         return $this->progress;
     }
 
-    public function setProgress(string $progress): void
+    public function setProgress(?string $progress): void
     {
         $this->progress = $progress;
     }
@@ -216,12 +216,12 @@ class OperationTask extends AbstractUuidEntity
         return (int) round($this->progress / $this->itemTotal * 100);
     }
 
-    public function getItemTotal(): string
+    public function getItemTotal(): ?string
     {
         return $this->itemTotal;
     }
 
-    public function setItemTotal(string $itemTotal): void
+    public function setItemTotal(?string $itemTotal): void
     {
         $this->itemTotal = $itemTotal;
     }

@@ -9,7 +9,6 @@ use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use Alchemy\AdminBundle\Filter\UserChoiceFilter;
-use App\Consumer\Handler\Search\IndexAssets;
 use App\Entity\Admin\OperationTask;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -23,15 +22,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
-use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 class OperationTaskCrudController extends AbstractAdminCrudController
 {
     public function __construct(
-        private readonly AdminUrlGenerator $adminUrlGenerator,
-        private readonly MessageBusInterface $bus,
         private readonly UserChoiceField $userChoiceField,
         private readonly UserChoiceFilter $userChoiceFilter,
     ) {
@@ -47,7 +41,7 @@ class OperationTaskCrudController extends AbstractAdminCrudController
     {
         return $filters
             ->add(TextFilter::new('name'))
-            ->add(DateTimeFilter::new('startAt'))
+            ->add(DateTimeFilter::new('startedAt'))
             ->add(DateTimeFilter::new('endedAt'))
             ->add(DateTimeFilter::new('createdAt'))
             ->add($this->userChoiceFilter->createFilter('ownerId'))
@@ -72,7 +66,7 @@ class OperationTaskCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Operation Task')
             ->setEntityLabelInPlural('Operation Tasks')
-            ->setSearchFields(['id', 'task', 'name', 'payload'])
+            ->setSearchFields(['id', 'task', 'payload'])
             ->setDefaultSort(['createdAt' => 'DESC']);
     }
 
@@ -111,18 +105,5 @@ class OperationTaskCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
-    }
-
-    public function assetIndex(): Response
-    {
-        $this->bus->dispatch(new IndexAssets());
-        $this->addFlash('info', 'Asset and Attributes indexing has been triggered');
-
-        $url = $this->adminUrlGenerator
-            ->setController(OperationTaskCrudController::class)
-            ->setAction(Crud::PAGE_INDEX)
-            ->generateUrl();
-
-        return $this->redirect($url);
     }
 }

@@ -24,7 +24,7 @@ export default function AttributeDefinitionSelect<
     const load = useCallback(
         async (inputValue: string): Promise<SelectOption[]> => {
             if (workspaceId) {
-                await loadWorkspace(workspaceId);
+                loadWorkspace(workspaceId);
             }
 
             return definitions
@@ -46,7 +46,7 @@ export default function AttributeDefinitionSelect<
                         .includes((inputValue || '').toLowerCase())
                 );
         },
-        []
+        [workspaceId]
     );
 
     return <AsyncRSelectWidget<TFieldValues> {...rest} loadOptions={load} />;

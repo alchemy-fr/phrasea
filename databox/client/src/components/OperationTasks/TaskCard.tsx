@@ -153,7 +153,7 @@ export default function TaskCard({task, title}: Props) {
                                             mr: 1,
                                         }}
                                     />
-                                    {t('task.card.remaining', 'Remaining')}
+                                    {t('task.card.remaining', 'Remaining:')}{' '}
                                     {task.remaining}
                                 </div>
                             )}

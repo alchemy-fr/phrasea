@@ -6,6 +6,7 @@ use App\Entity\Admin\OperationTask;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final class RunContext
@@ -15,7 +16,7 @@ final class RunContext
     public function __construct(
         private OperationTask $taskEntity,
         private EntityManagerInterface $em,
-        private OutputInterface $output,
+        private BufferedOutput $output,
         private OutputInterface $progressBarOutput,
     ) {
         $this->progressBar = new ProgressBar($this->progressBarOutput);
@@ -47,7 +48,6 @@ final class RunContext
     {
         $this->reload();
         $this->taskEntity->appendOutput($this->output->fetch());
-        $this->taskEntity->setEstimated(Helper::formatTime($this->progressBar->getEstimated(), 2));
         $this->taskEntity->setEstimated(Helper::formatTime($this->progressBar->getEstimated(), 2));
         $this->taskEntity->setRemaining(Helper::formatTime($this->progressBar->getRemaining(), 2));
         $this->taskEntity->setProgress($this->progressBar->getProgress());

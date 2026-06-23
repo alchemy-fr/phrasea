@@ -24,7 +24,7 @@ final readonly class OperationTaskManager
     public function createTask(
         JwtUser $user,
         string $taskName,
-        ?array $payload = [],
+        array $payload = [],
     ): OperationTask {
         $taskHandler = $this->taskRegistry->getTask($taskName);
 
