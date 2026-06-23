@@ -26,7 +26,7 @@ export type OperationTask = {
     owner: User | string;
     status: OperationTaskStatus;
     remaining?: string;
-    startedAt: string;
+    startedAt?: string;
     progression?: number;
     endedAt?: string;
     output?: string;
