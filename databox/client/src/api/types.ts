@@ -28,7 +28,10 @@ export type OperationTask = {
     remaining?: string;
     startedAt: string;
     progression?: number;
-    endedAt: string;
+    endedAt?: string;
+    output?: string;
+    itemTotal?: string;
+    progress?: string;
     createdAt: string;
 };
 

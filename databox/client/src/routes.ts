@@ -21,6 +21,7 @@ import {AuthConstant} from '@alchemy/auth';
 import OperationTasksDialog from './components/OperationTasks/OperationTasksDialog.tsx';
 import RunTaskDialog from './components/OperationTasks/RunTaskDialog.tsx';
 import TasksListDialog from './components/OperationTasks/TasksListDialog.tsx';
+import TaskDetailsDialog from './components/OperationTasks/TaskDetailsDialog.tsx';
 
 export enum Routing {
     UnknownRendition = '_',
@@ -128,9 +129,13 @@ const modalRoutes = {
                 path: 'new',
                 component: OperationTasksDialog,
             },
-            task: {
+            run: {
                 component: RunTaskDialog,
                 path: ':task/run',
+            },
+            taskDetails: {
+                component: TaskDetailsDialog,
+                path: ':id/details',
             },
         },
     },

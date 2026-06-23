@@ -1,6 +1,6 @@
 import {apiClient} from '../init.ts';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
-import {OperationTask, EntityName, PaginationParams} from './types.ts';
+import {EntityName, OperationTask, PaginationParams} from './types.ts';
 
 export type GetTasksOptions = {
     query?: string;
@@ -16,6 +16,10 @@ export async function getTasks({
     });
 
     return getHydraCollection(res.data);
+}
+
+export async function getTask(id: string): Promise<OperationTask> {
+    return (await apiClient.get(`/${EntityName.OperationTask}/${id}`)).data;
 }
 
 export async function postRunOperationTask(

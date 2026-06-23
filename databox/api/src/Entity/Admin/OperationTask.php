@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use App\Api\Model\Input\OperationTaskInput;
+use App\Api\Model\Output\UserOutput;
 use App\Api\Processor\RunOperationTaskProcessor;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Util\Time;
@@ -29,6 +30,7 @@ use Doctrine\ORM\Mapping as ORM;
             processor: RunOperationTaskProcessor::class
         ),
     ],
+    order: ['createdAt' => 'DESC'],
     security: 'is_granted("'.JwtUser::ROLE_ADMIN.'")',
 )]
 #[ORM\Table]
@@ -84,6 +86,8 @@ class OperationTask extends AbstractUuidEntity
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $remaining = null;
+
+    public ?UserOutput $owner = null;
 
     public function getTask(): ?string
     {

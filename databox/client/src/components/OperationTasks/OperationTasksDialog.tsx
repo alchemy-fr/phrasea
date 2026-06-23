@@ -44,7 +44,7 @@ export default function OperationTasksDialog({}: Props) {
                                     onClick={() => {
                                         navigateToModal(
                                             modalRoutes.operationTasks.routes
-                                                .task,
+                                                .run,
                                             {
                                                 task: task.name,
                                             }
