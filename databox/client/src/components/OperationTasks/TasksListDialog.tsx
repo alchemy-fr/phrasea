@@ -17,6 +17,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import {NormalizedCollectionResponse} from '@alchemy/api';
 import {useNavigateToModal} from '../Routing/ModalLink.tsx';
 import {modalRoutes} from '../../routes.ts';
+import {User} from '../../types.ts';
 
 type Props = {};
 
@@ -76,6 +77,24 @@ export default function TasksListDialog({}: Props) {
         }),
         []
     );
+
+    tasks?.result.push({
+        id: '42',
+        task: 'test',
+        startedAt: '2026-05-15T12:00:00Z',
+        status: OperationTaskStatus.InProgress,
+        progression: 50,
+        remaining: '1 minute',
+        payload: {
+            foo: 'bar',
+        },
+        createdAt: '2026-05-15T12:00:00Z',
+        owner: {
+            id: '123',
+            username: 'test',
+        } as User,
+        endedAt: '2026-05-15T12:00:00Z',
+    });
 
     return (
         <RouteDialog>

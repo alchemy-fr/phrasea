@@ -22,6 +22,7 @@ class DynamicAttributeBag
         private readonly array $definitions,
         callable $resolve,
         string $locale,
+        private readonly array $parentDefinitions,
     ) {
         $this->resolve = $resolve;
         $this->locales = array_unique([$locale, AttributeInterface::NO_LOCALE]);
@@ -39,6 +40,9 @@ class DynamicAttributeBag
         }
 
         $defId = $def->getId();
+        if (in_array($defId, $this->parentDefinitions, true)) {
+            throw new \RuntimeException(sprintf('Circular reference detected for attribute definition "%s"', $def->getSlug()));
+        }
 
         foreach ($this->locales as $l) {
             if (null !== $attr = $this->attributes->getAttribute($defId, $l)) {

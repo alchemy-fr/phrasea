@@ -1,3 +1,5 @@
+import {User} from '../types.ts';
+
 export enum AttributeBatchActionEnum {
     Set = 'set',
     Replace = 'replace',
@@ -21,7 +23,7 @@ export type OperationTask = {
     id: string;
     task: string;
     payload: Record<string, any>;
-    owner: string;
+    owner: User | string;
     status: OperationTaskStatus;
     remaining?: string;
     startedAt: string;

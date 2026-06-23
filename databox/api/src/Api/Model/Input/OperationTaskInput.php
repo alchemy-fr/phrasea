@@ -7,7 +7,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class OperationTaskInput
 {
     #[Assert\NotBlank]
-    public ?string $name = null;
+    public ?string $task = null;
 
     public ?array $payload = null;
 }

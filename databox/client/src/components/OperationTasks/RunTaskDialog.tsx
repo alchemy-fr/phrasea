@@ -9,6 +9,7 @@ import {useFormSubmit} from '@alchemy/api';
 import {postRunOperationTask} from '../../api/operationTask.ts';
 import {useNavigateToModal} from '../Routing/ModalLink.tsx';
 import {modalRoutes} from '../../routes.ts';
+import {RemoteErrors} from '@alchemy/react-form';
 
 type Props = {};
 
@@ -26,7 +27,7 @@ export default function RunTaskDialog({}: Props) {
         defaultValues: taskO?.defaultValues ?? {},
         onSubmit: async data => {
             return await postRunOperationTask({
-                name: taskO!.name,
+                task: taskO!.name,
                 payload: data,
             });
         },
@@ -38,7 +39,7 @@ export default function RunTaskDialog({}: Props) {
             navigateToModal(modalRoutes.operationTasks.routes.index);
         },
     });
-    const {handleSubmit, submitting} = usedFormSubmit;
+    const {handleSubmit, submitting, remoteErrors} = usedFormSubmit;
 
     return (
         <RouteDialog>
@@ -76,6 +77,7 @@ export default function RunTaskDialog({}: Props) {
                             {React.createElement(component, {
                                 usedFormSubmit,
                             })}
+                            <RemoteErrors errors={remoteErrors} />
                         </form>
                     ) : (
                         <div>{t('run_task.not_found', 'No task found')}</div>

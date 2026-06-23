@@ -16,6 +16,8 @@ field_type:
     number: Nombre
     text: Texte
     textarea: Zone de texte
+    id: ID
+    privacy: Confidentialité
 privacy:
   secret: Secret
   private_in_workspace: Privé dans l'espace de travail

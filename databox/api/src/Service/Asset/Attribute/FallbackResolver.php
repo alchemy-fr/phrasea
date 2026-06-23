@@ -44,6 +44,7 @@ class FallbackResolver
         string $locale,
         AttributeDefinition $definition,
         AttributeIndex $attributesIndex,
+        array $parentDefinitions = [],
     ): ?Attribute {
         $definitionsIndex = $this->getDefinitionIndexByName($asset->getWorkspaceId());
         $fallbacks = $definition->getFallback();
@@ -56,18 +57,27 @@ class FallbackResolver
             return null;
         }
 
+        $parentDefinitions[] = $definition->getId();
+
         if (!empty($fallbacks[$locale])) {
             if (null === $attributesIndex->getAttribute($definition->getId(), $locale)) {
                 try {
                     $fallbackValue = $this->templateResolver->resolve($fallbacks[$locale], [
                         'file' => $asset->getSource(),
                         'asset' => $asset,
-                        'attr' => new DynamicAttributeBag($attributesIndex, $definitionsIndex, fn (AttributeDefinition $depDef): ?Attribute => $this->resolveAttrFallback(
-                            $asset,
+                        'attr' => new DynamicAttributeBag(
+                            $attributesIndex,
+                            $definitionsIndex,
+                            fn (AttributeDefinition $depDef): ?Attribute => $this->resolveAttrFallback(
+                                $asset,
+                                $locale,
+                                $depDef,
+                                $attributesIndex,
+                                $parentDefinitions,
+                            ),
                             $locale,
-                            $depDef,
-                            $attributesIndex
-                        ), $locale),
+                            $parentDefinitions,
+                        ),
                     ]);
                 } catch (\Throwable $e) {
                     throw new EntityDisableNotifyableException($definition, sprintf('Error while resolving "%s" (locale=%s) attribute fallback', $definition->getName(), $locale), $e->getMessage(), previous: $e);

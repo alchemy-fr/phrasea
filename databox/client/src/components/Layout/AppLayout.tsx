@@ -58,11 +58,11 @@ export default function AppLayout({children}: Props) {
                     if (user?.roles.includes(UserRole.DataboxAdmin)) {
                         actions.push(
                             <MenuItem
-                                onClick={() =>
+                                onClick={closeWrapper(() =>
                                     navigateToModal(
                                         modalRoutes.operationTasks.routes.create
                                     )
-                                }
+                                )}
                                 key={'operation-tasks'}
                             >
                                 <ListItemIcon>

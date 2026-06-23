@@ -8,6 +8,7 @@ import {
     AsyncRSelectProps,
 } from '@alchemy/react-form';
 import {EntityName} from '../../api/types.ts';
+import {createIriFromId} from '@alchemy/api';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
@@ -22,7 +23,7 @@ export default function AttributePolicySelect<
 
             return data
                 .map((t: AttributePolicy) => ({
-                    value: `${EntityName.AttributePolicy}/${t.id}`,
+                    value: createIriFromId(EntityName.AttributePolicy, t.id),
                     label: t.name,
                 }))
                 .filter(i =>
