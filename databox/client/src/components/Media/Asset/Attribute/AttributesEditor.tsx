@@ -19,6 +19,7 @@ import {FlexRow} from '@alchemy/phrasea-ui';
 export type AttrValue<T = string> = {
     id: T;
     value: any;
+    invalid?: boolean;
 };
 
 export type DefinitionIndex = Record<string, AttributeDefinition>;

@@ -12,6 +12,7 @@ import React from 'react';
 enum Formats {
     Map = 'map',
     Coords = 'coords',
+    Json = 'json',
 }
 
 type GeoPoint = {
@@ -77,6 +78,15 @@ export default class GeoPointType extends TextType {
                         Longitude: {lng}, Latitude: {lat}
                     </>
                 );
+            case Formats.Json:
+                return (
+                    <code>
+                        {JSON.stringify({
+                            lat,
+                            lng,
+                        })}
+                    </code>
+                );
         }
     }
 
@@ -93,6 +103,10 @@ export default class GeoPointType extends TextType {
             {
                 name: Formats.Map,
                 title: 'Map',
+            },
+            {
+                name: Formats.Json,
+                title: 'JSON',
             },
         ].map(f => ({
             ...f,
