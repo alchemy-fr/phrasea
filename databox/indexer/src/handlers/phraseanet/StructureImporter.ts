@@ -99,14 +99,23 @@ export async function addMissingAttributeDefinitionsConf(
 
         // import all fields from structure
         for (const name in metaStructure) {
+            const databoxType =
+                attributeTypesEquivalence[metaStructure[name].type];
+
             dm.fieldMap[name] = {
                 id: 'meta_' + metaStructure[name].id,
-                type:
-                    attributeTypesEquivalence[metaStructure[name].type] ??
-                    DataboxAttributeType.Text,
+                type: databoxType ?? DataboxAttributeType.Text,
                 multivalue: metaStructure[name].multivalue,
                 readonly: metaStructure[name].readonly,
                 translatable: false,
+                allowInvalid: [
+                    DataboxAttributeType.Date,
+                    DataboxAttributeType.DateTime,
+                    DataboxAttributeType.Number,
+                    DataboxAttributeType.Boolean,
+                    DataboxAttributeType.GeoPoint,
+                    DataboxAttributeType.Ip,
+                ].includes(databoxType),
                 labels: metaStructure[name].labels,
                 values: [
                     {
@@ -125,6 +134,7 @@ export async function addMissingAttributeDefinitionsConf(
         multivalue: false,
         readonly: true,
         translatable: false,
+        allowInvalid: false,
         labels: {},
         values: [
             {
@@ -142,6 +152,7 @@ export async function addMissingAttributeDefinitionsConf(
         multivalue: false,
         readonly: true,
         translatable: false,
+        allowInvalid: false,
         labels: {},
         values: [
             {
@@ -341,17 +352,27 @@ export async function importSubdefsStructure(
     return subdefToRendition;
 }
 
-export async function importMetadataStructure(
-    databoxClient: DataboxClient,
-    workspaceId: string,
-    phraseanetDataboxId: string,
-    phraseanetClient: PhraseanetClient,
-    dm: ConfigDataboxMapping,
-    fieldMap: Record<string, FieldMap>,
-    idempotencePrefixes: Record<string, string>,
-    attrPolicy: string,
-    logger: Logger
-): Promise<Record<string, FieldMap>> {
+export async function importMetadataStructure({
+    databoxClient,
+    workspaceId,
+    phraseanetDataboxId,
+    phraseanetClient,
+    dm,
+    fieldMap,
+    idempotencePrefixes,
+    attrPolicy,
+    logger,
+}: {
+    databoxClient: DataboxClient;
+    workspaceId: string;
+    phraseanetDataboxId: string;
+    phraseanetClient: PhraseanetClient;
+    dm: ConfigDataboxMapping;
+    fieldMap: Record<string, FieldMap>;
+    idempotencePrefixes: Record<string, string>;
+    attrPolicy: string;
+    logger: Logger;
+}): Promise<Record<string, FieldMap>> {
     const metaStructure =
         await phraseanetClient.getMetaStruct(phraseanetDataboxId);
 
@@ -407,6 +428,7 @@ export async function importMetadataStructure(
                 policy: attrPolicy,
                 labels: fm.labels,
                 translatable: fm.translatable,
+                allowInvalid: fm.allowInvalid,
             };
             logger.info(`  Creating "${name}" attribute definition`);
             attributeDefinitionIndex[name] =

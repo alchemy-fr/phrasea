@@ -85,6 +85,8 @@ services:
         class:  App\Serializer\HydraMetaNormalizer
         public: true
 
+    App\Serializer\Normalizer\OperationTaskNormalizer: ~
+
     App\Api\Serializer\GroupNormalizerContextBuilder:
         decorates: 'alchemy_webhook.normalizer.context_builder'
         arguments: [ '@App\Api\Serializer\GroupNormalizerContextBuilder.inner' ]

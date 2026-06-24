@@ -24,6 +24,7 @@ export async function handlePutObject(
         );
     } catch (error: any) {
         if (error.response) {
+            // eslint-disable-next-line no-console
             console.error(error.response.data);
         }
 
@@ -40,6 +41,7 @@ export async function handleDeleteObject(
         await databoxClient.deleteAsset(asset.workspaceId, asset.path);
     } catch (error: any) {
         if (error.response) {
+            // eslint-disable-next-line no-console
             console.error(error.response.data);
         }
 

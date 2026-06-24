@@ -10,7 +10,7 @@ COPY --chown=node:node ./databox/client ./databox/client
 
 USER node
 
-WORKDIR /srv/workspace/databox/client
+WORKDIR /srv/workspace/phrasea/databox/client
 
 RUN pnpm install \
     && mv index.tpl.html index.html
@@ -24,7 +24,7 @@ FROM ${REGISTRY_NAMESPACE}nginx-client-base:${BASE_TAG} AS client-nginx
 COPY ./databox/client/docker/entrypoint.d/* /docker/entrypoint.d/
 COPY ./lib/bash/configurator /docker/configurator
 COPY ./databox/client/config-compiler.js .
-COPY --from=client-build /srv/workspace/databox/client/dist .
+COPY --from=client-build /srv/workspace/phrasea/databox/client/dist .
 
 ARG SENTRY_RELEASE
 ENV SENTRY_RELEASE=${SENTRY_RELEASE}

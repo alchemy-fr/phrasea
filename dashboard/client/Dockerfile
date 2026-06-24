@@ -10,7 +10,7 @@ COPY --chown=node:node ./dashboard/client ./dashboard/client
 
 USER node
 
-WORKDIR /srv/workspace/dashboard/client
+WORKDIR /srv/workspace/phrasea/dashboard/client
 
 RUN pnpm install \
     && mv index.tpl.html index.html
@@ -24,7 +24,7 @@ FROM ${REGISTRY_NAMESPACE}nginx-client-base:${BASE_TAG} AS client-nginx
 COPY ./dashboard/client/docker/entrypoint.d/* /docker/entrypoint.d/
 COPY ./lib/bash/configurator /docker/configurator
 COPY ./dashboard/client/config-compiler.js .
-COPY --from=client-build /srv/workspace/dashboard/client/dist .
+COPY --from=client-build /srv/workspace/phrasea/dashboard/client/dist .
 COPY ./dashboard/client/git-log.html /var/app/
 
 ARG SENTRY_RELEASE

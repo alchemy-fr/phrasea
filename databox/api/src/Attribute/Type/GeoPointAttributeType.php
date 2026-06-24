@@ -88,11 +88,6 @@ final class GeoPointAttributeType extends AbstractAttributeType
             return null;
         }
 
-        if (!str_contains($value, ' ') && !str_contains($value, ',') && !str_contains($value, ';')
-        ) {
-            return null;
-        }
-
         if (1 === preg_match(self::GEO_POINT_REGEX, $value, $matches)) {
             return new GeoPoint((float) $matches[1], (float) $matches[2]);
         }

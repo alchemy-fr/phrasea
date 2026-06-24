@@ -13,6 +13,9 @@ return RectorConfig::configure()
         __DIR__.'/src',
         __DIR__.'/tests',
     ])
+    ->withSkip([
+        __DIR__.'/src/Elasticsearch/AQL/AQLGrammar.php',
+    ])
 //    ->withSets([SetList::DEAD_CODE])
     ->withPhpSets(php85: true)
     ->withRules([

@@ -10,7 +10,7 @@ COPY --chown=node:node ./uploader/client ./uploader/client
 
 USER node
 
-WORKDIR /srv/workspace/uploader/client
+WORKDIR /srv/workspace/phrasea/uploader/client
 
 RUN pnpm install \
     && mv index.tpl.html index.html
@@ -24,7 +24,7 @@ FROM ${REGISTRY_NAMESPACE}nginx-client-base:${BASE_TAG} AS client-nginx
 COPY ./uploader/client/docker/entrypoint.d/* /docker/entrypoint.d/
 COPY ./lib/bash/configurator /docker/configurator
 COPY ./uploader/client/config-compiler.js .
-COPY --from=client-build /srv/workspace/uploader/client/dist .
+COPY --from=client-build /srv/workspace/phrasea/uploader/client/dist .
 
 ARG SENTRY_RELEASE
 ENV SENTRY_RELEASE=${SENTRY_RELEASE}

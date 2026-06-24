@@ -106,6 +106,7 @@ export function getConfig(
 export function getStrict(configPath: string, root: object = config): any {
     const v = getConfig(configPath, undefined, root);
     if (!v) {
+        // eslint-disable-next-line no-console
         console.error(`Missing config "${configPath}"`);
         process.exit(1);
     }

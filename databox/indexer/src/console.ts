@@ -1,3 +1,4 @@
+import './init';
 import {Command, Option} from 'commander';
 import indexCommand from './command/index.js';
 import listCommand from './command/list';

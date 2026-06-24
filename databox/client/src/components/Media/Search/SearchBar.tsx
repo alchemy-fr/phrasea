@@ -114,6 +114,7 @@ export default function SearchBar({}: Props) {
                                                 autocomplete.setIsOpen(false);
                                             },
                                         }) as any),
+                                        'value': inputQuery.current,
                                     }}
                                     sx={{
                                         flexGrow: 1,
