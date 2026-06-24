@@ -40,7 +40,7 @@ class OperationTaskCrudController extends AbstractAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(TextFilter::new('name'))
+            ->add(TextFilter::new('task'))
             ->add(DateTimeFilter::new('startedAt'))
             ->add(DateTimeFilter::new('endedAt'))
             ->add(DateTimeFilter::new('createdAt'))

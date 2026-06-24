@@ -97,7 +97,7 @@ export default function AttributeWidget({
                     }}
                 >
                     {t(
-                        'attribute.editor.invalid_valud',
+                        'attribute.editor.invalid_valid',
                         'Invalid value. Please correct it!'
                     )}
                     {!wasTextWidget && (

@@ -46,7 +46,7 @@ export default function AttributeDefinitionSelect<
                         .includes((inputValue || '').toLowerCase())
                 );
         },
-        [workspaceId]
+        [workspaceId, useIRI]
     );
 
     return <AsyncRSelectWidget<TFieldValues> {...rest} loadOptions={load} />;

@@ -192,14 +192,18 @@ class OperationTask extends AbstractUuidEntity
         return null;
     }
 
-    public function getProgress(): ?string
+    public function getProgress(): ?int
     {
-        return $this->progress;
+        if (null === $this->progress) {
+            return null;
+        }
+
+        return (int) $this->progress;
     }
 
-    public function setProgress(?string $progress): void
+    public function setProgress(string|int|null $progress): void
     {
-        $this->progress = $progress;
+        $this->progress = null !== $progress ? (string) $progress : null;
     }
 
     #[ApiProperty(
@@ -209,21 +213,29 @@ class OperationTask extends AbstractUuidEntity
     )]
     public function getProgression(): ?int
     {
-        if (null === $this->progress || $this->itemTotal <= 0) {
+        $progress = $this->getProgress();
+
+        $itemTotal = $this->getItemTotal();
+
+        if (null === $progress || null === $itemTotal || $itemTotal <= 0) {
             return null;
         }
 
-        return (int) round($this->progress / $this->itemTotal * 100);
+        return (int) round($progress / $itemTotal * 100);
     }
 
-    public function getItemTotal(): ?string
+    public function getItemTotal(): ?int
     {
-        return $this->itemTotal;
+        if (null === $this->itemTotal) {
+            return null;
+        }
+
+        return (int) $this->itemTotal;
     }
 
-    public function setItemTotal(?string $itemTotal): void
+    public function setItemTotal(string|int|null $itemTotal): void
     {
-        $this->itemTotal = $itemTotal;
+        $this->itemTotal = null !== $itemTotal ? (string) $itemTotal : null;
     }
 
     public function getOutput(): ?string

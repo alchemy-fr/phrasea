@@ -35,7 +35,7 @@ class RunOperationTaskProcessor implements ProcessorInterface
         return $this->operationTaskManager->createTask(
             $user,
             $data->task,
-            $data->payload,
+            $data->payload ?? [],
         );
     }
 }
