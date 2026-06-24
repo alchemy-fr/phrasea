@@ -13,9 +13,10 @@ export type FieldMap = {
     id: string;
     position?: number;
     type: DataboxAttributeType;
-    multivalue: boolean;
-    readonly: boolean;
-    translatable: boolean;
+    multivalue?: boolean;
+    readonly?: boolean;
+    translatable?: boolean;
+    allowInvalid?: boolean;
     labels: Record<string, string>;
     values: FieldMapValue[];
     attributeDefinition: AttributeDefinition;

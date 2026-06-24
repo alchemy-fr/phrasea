@@ -97,6 +97,7 @@ export type AttributeDefinition = {
     policy: string;
     translatable: boolean;
     labels?: Labels | undefined;
+    allowInvalid?: boolean;
 };
 
 export type Tag = {

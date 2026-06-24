@@ -14,12 +14,17 @@ export default function SwitchAttributeLocaleTask({
     return (
         <>
             <FormRow>
-                <WorkspaceSelect control={control} name={'workspaceId'} />
+                <WorkspaceSelect
+                    label={'Workspace'}
+                    control={control}
+                    name={'workspaceId'}
+                />
             </FormRow>
             {workspaceId ? (
                 <>
                     <FormRow>
                         <AttributeDefinitionSelect
+                            label={'Attribute'}
                             key={`definition-select-${workspaceId}`}
                             workspaceId={workspaceId}
                             control={control}
