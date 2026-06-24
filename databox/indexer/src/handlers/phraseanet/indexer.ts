@@ -624,7 +624,7 @@ async function importStory(
             renditions: storyAsset.renditions,
             isStory: storyAsset.isStory,
         });
-        console.log(`created story asset ${story.story_id}...`);
+        logger.info(`Story asset "${story.story_id}" created.`);
 
         storyCollectionId = storyAssetOutput.storyCollection.id;
         storyCollectionFullPath = '';

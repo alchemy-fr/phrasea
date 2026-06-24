@@ -1,6 +1,7 @@
 export function getEnvStrict(name: string): string {
     const v = getEnv(name);
     if (!v) {
+        // eslint-disable-next-line no-console
         console.error(`Missing env "${name}"`);
         process.exit(1);
     }
