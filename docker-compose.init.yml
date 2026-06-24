@@ -3,23 +3,28 @@ services:
     image: ${REGISTRY_NAMESPACE}php-fpm-base:${DOCKER_TAG}
     build:
       context: ./infra/docker/php-fpm-base
+      network: host
 
   nginx-fpm-base:
     image: ${REGISTRY_NAMESPACE}nginx-fpm-base:${DOCKER_TAG}
     build:
       context: ./infra/docker/nginx-fpm-base
+      network: host
 
   nodejs-base:
     image: ${REGISTRY_NAMESPACE}nodejs-base:${DOCKER_TAG}
     build:
       context: ./infra/docker/nodejs-base
+      network: host
 
   nginx-client-base:
     image: ${REGISTRY_NAMESPACE}nginx-client-base:${DOCKER_TAG}
     build:
       context: ./infra/docker/nginx-client-base
+      network: host
 
   nginx-cache-purge:
     image: ${REGISTRY_NAMESPACE}nginx-cache-purge:${DOCKER_TAG}
     build:
       context: ./infra/docker/nginx-cache-purge
+      network: host
