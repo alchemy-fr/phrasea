@@ -729,6 +729,11 @@ services:
     build:
       context: ./
       dockerfile: ./databox/indexer/Dockerfile
+      network: host
+      args:
+        BASE_TAG: ${DOCKER_TAG}
+        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
+        SENTRY_RELEASE: ${SENTRY_RELEASE}
     profiles:
       - indexer
     networks:

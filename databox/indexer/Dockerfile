@@ -1,20 +1,19 @@
-FROM node:20.10.0-buster-slim
-
-WORKDIR /srv/workspace
-
-RUN chown -R node:node /srv/workspace \
-    && npm install -g pnpm@^9.3.0
-
-USER node
+ARG BASE_TAG=latest
+ARG REGISTRY_NAMESPACE
+FROM ${REGISTRY_NAMESPACE}nodejs-base:${BASE_TAG} AS client-build
 
 ENV SERVER_PORT=3000
 
-COPY --chown=node:node /databox/indexer/docker/entrypoint.sh /entrypoint.sh
 COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY --chown=node:node ./lib/js ./lib/js
-COPY --chown=node:node ./databox/indexer /srv/workspace/databox/indexer
 
-WORKDIR /srv/workspace/databox/indexer
+WORKDIR /srv/workspace/phrasea/databox/indexer
+
+COPY --chown=node:node ./databox/indexer /srv/workspace/phrasea/databox/indexer
+
+USER node
+
+WORKDIR /srv/workspace/phrasea/databox/indexer
 
 RUN pnpm install \
     && pnpm build \
@@ -22,4 +21,4 @@ RUN pnpm install \
 
 EXPOSE ${SERVER_PORT}
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/srv/workspace/phrasea/databox/indexer/docker/entrypoint.sh"]
