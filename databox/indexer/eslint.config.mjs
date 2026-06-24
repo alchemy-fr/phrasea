@@ -11,6 +11,7 @@ export default defineConfig(
     tseslint.configs.recommended,
     {
         rules: {
+            'no-console': 'error',
             '@typescript-eslint/ban-ts-comment': 'off',
             '@typescript-eslint/no-explicit-any': 'off',
             '@typescript-eslint/no-unused-expressions': 'off',

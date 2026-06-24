@@ -3,11 +3,11 @@ services:
     environment:
       - REACT_EDITOR
     volumes:
-      - ./lib/js:/srv/workspace/lib/js:rw
-      - ./package.json:/srv/workspace/package.json:ro
-      - ./pnpm-workspace.yaml:/srv/workspace/pnpm-workspace.yaml:ro
-      - ./turbo.json:/srv/workspace/turbo.json:ro
-      - ./node_modules:/srv/workspace/node_modules:ro
+      - ./lib/js:/srv/workspace/phrasea/lib/js:rw
+      - ./package.json:/srv/workspace/phrasea/package.json:ro
+      - ./pnpm-workspace.yaml:/srv/workspace/phrasea/pnpm-workspace.yaml:ro
+      - ./turbo.json:/srv/workspace/phrasea/turbo.json:ro
+      - ./node_modules:/srv/workspace/phrasea/node_modules:ro
 
   dashboard-client:
     extends:
@@ -16,7 +16,7 @@ services:
     build:
       target: client-build
     volumes:
-      - ./dashboard/client:/srv/workspace/dashboard/client:rw
+      - ./dashboard/client:/srv/workspace/phrasea/dashboard/client:rw
       - ./lib/bash/configurator:/var/app/configurator:ro
     environment:
       - WDS_SOCKET_PORT=443
@@ -28,7 +28,7 @@ services:
     build:
       target: client-build
     volumes:
-      - ./uploader/client:/srv/workspace/uploader/client:rw
+      - ./uploader/client:/srv/workspace/phrasea/uploader/client:rw
     environment:
       - WDS_SOCKET_PORT=443
 
@@ -39,7 +39,7 @@ services:
     build:
       target: client-build
     volumes:
-      - ./expose/client:/srv/workspace/expose/client:rw
+      - ./expose/client:/srv/workspace/phrasea/expose/client:rw
     environment:
       - WDS_SOCKET_PORT=443
 
@@ -50,7 +50,7 @@ services:
     build:
       target: client-build
     volumes:
-      - ./databox/client:/srv/workspace/databox/client:rw
+      - ./databox/client:/srv/workspace/phrasea/databox/client:rw
     environment:
       - WDS_SOCKET_PORT=443
 
@@ -121,7 +121,9 @@ services:
       - ${DEV_ELASTICSEARCH_PORT}:9200
 
   dev:
-    build: infra/docker/dev
+    build:
+      context: infra/docker/dev
+      network: host
     networks:
       - internal
     stdin_open: true
@@ -282,7 +284,7 @@ services:
       service: a_client
     entrypoint: ''
     volumes:
-      - ./databox/indexer:/srv/workspace/databox/indexer
+      - ./:/srv/workspace/phrasea
 
   db:
     ports:

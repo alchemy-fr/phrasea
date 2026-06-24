@@ -12,8 +12,8 @@ use Alchemy\TrackBundle\Entity\ChangeLog;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
-use App\Entity\Admin\AssetIndexPass;
 use App\Entity\Admin\ESIndexState;
+use App\Entity\Admin\OperationTask;
 use App\Entity\Admin\PopulatePass;
 use App\Entity\Basket\Basket;
 use App\Entity\Basket\BasketAsset;
@@ -121,9 +121,9 @@ class DashboardController extends AbstractAdminDashboardController
         ];
 
         $submenu3 = [
+            MenuItem::linkToCrud('Operation Task', '', OperationTask::class),
             MenuItem::linkToCrud('Populate Pass', '', PopulatePass::class),
             MenuItem::linkToCrud('ES Index State', '', ESIndexState::class),
-            MenuItem::linkToCrud('Asset and Attributes Index Pass', '', AssetIndexPass::class),
         ];
 
         $submenu4 = [

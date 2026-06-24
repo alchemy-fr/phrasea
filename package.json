@@ -24,7 +24,7 @@
         "turbo": "^2.9.16",
         "typescript-eslint": "^8.58.1"
     },
-    "packageManager": "pnpm@9.3.0",
+    "packageManager": "pnpm@10.28.2",
     "pnpm": {
         "overrides": {
             "i18next": "24.2.1"

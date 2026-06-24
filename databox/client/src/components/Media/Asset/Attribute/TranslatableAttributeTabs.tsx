@@ -30,7 +30,7 @@ function TabPanel({
 }
 
 export default function TranslatableAttributeTabs({
-    currentLocale,
+    currentLocale: inputCurrentLocale,
     onLocaleChange,
     definition,
     changeHandler,
@@ -50,6 +50,11 @@ export default function TranslatableAttributeTabs({
 
         return l;
     }, [definition.locales, attributes]);
+
+    const currentLocale =
+        inputCurrentLocale && locales.includes(inputCurrentLocale)
+            ? inputCurrentLocale
+            : locales[0];
 
     if (locales.length === 0) {
         return (

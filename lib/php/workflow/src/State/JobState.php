@@ -118,6 +118,10 @@ final class JobState
 
     public function getDuration(): ?float
     {
+        if (null === $this->startedAt) {
+            return null;
+        }
+
         return $this->endedAt?->getDiff($this->startedAt);
     }
 

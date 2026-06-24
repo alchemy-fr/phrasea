@@ -1,4 +1,9 @@
-import axios, {AxiosError, AxiosInstance} from 'axios';
+import axios, {
+    AxiosError,
+    AxiosInstance,
+    InternalAxiosRequestConfig,
+    RawAxiosRequestConfig,
+} from 'axios';
 import * as https from 'https';
 import axiosRetry from 'axios-retry';
 import {createLogger} from './logger';
@@ -91,6 +96,37 @@ export function createHttpClient({
                     `Error response headers (${error.config?.url}): ` +
                         JSON.stringify(error.response.headers, undefined, 2)
                 );
+                if (error.request) {
+                    const request =
+                        error.config as InternalAxiosRequestConfig<any>;
+
+                    let data;
+                    try {
+                        data = JSON.parse(request.data);
+                    } catch (_e) {
+                        data = request.data;
+                    }
+                    const headers = request.headers;
+                    if (headers.Authorization) {
+                        headers.Authorization = '***';
+                    }
+
+                    logger.info(
+                        `Request (${error.config?.url}): ` +
+                            JSON.stringify(
+                                {
+                                    url: request.url,
+                                    method: request.method,
+                                    baseURL: request.baseURL,
+                                    headers,
+                                    params: request.params,
+                                    data,
+                                },
+                                undefined,
+                                2
+                            )
+                    );
+                }
                 logger.error(
                     `Error response (${error.config?.url}): ` +
                         JSON.stringify(filtered, undefined, 2)

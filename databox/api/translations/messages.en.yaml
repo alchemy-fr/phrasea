@@ -16,6 +16,8 @@ field_type:
         number: Number
         text: Text
         textarea: Textarea
+        id: ID
+        privacy: Privacy
 privacy:
     secret: Secret
     private_in_workspace: 'Private in workspace'

@@ -107,6 +107,9 @@ export default function EditorPanel<T>({
 
     const readOnly = !definition.canEdit;
 
+    const currentLocale =
+        locale && locales?.includes(locale) ? locale : (locales?.[0] ?? '');
+
     return (
         <Box
             sx={{
@@ -116,7 +119,7 @@ export default function EditorPanel<T>({
             {locales ? (
                 <>
                     <Tabs
-                        value={locale}
+                        value={currentLocale}
                         onChange={(_e, l) => setLocale(l)}
                         aria-label="Locales"
                         sx={{
@@ -151,7 +154,7 @@ export default function EditorPanel<T>({
                     readOnly={readOnly}
                     disabled={disabled}
                     valueContainer={valueContainer}
-                    locale={locale}
+                    locale={currentLocale}
                     createToKey={createToKey}
                     selectedValue={selectedValue}
                     setSelectedValue={setSelectedValue}

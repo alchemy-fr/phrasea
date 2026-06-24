@@ -9,22 +9,21 @@ import {apiClient} from '../init.ts';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {EntityName, PaginationParams} from './types.ts';
 
-export const attributePolicyNS = '/attribute-policies';
-export const attributeDefinitionNS = '/attribute-definitions';
-
 export async function putAttributeDefinition(
     id: string | undefined,
     data: Partial<AttributeDefinition>
 ): Promise<AttributeDefinition> {
     delete data.workspace;
 
-    return (await apiClient.put(`${attributeDefinitionNS}/${id}`, data)).data;
+    return (
+        await apiClient.put(`/${EntityName.AttributeDefinition}/${id}`, data)
+    ).data;
 }
 
 export async function postAttributeDefinition(
     data: AttributeDefinition
 ): Promise<AttributeDefinition> {
-    return (await apiClient.post(attributeDefinitionNS, data)).data;
+    return (await apiClient.post(EntityName.AttributeDefinition, data)).data;
 }
 
 export async function putAttributePolicy(
@@ -33,19 +32,20 @@ export async function putAttributePolicy(
 ): Promise<AttributePolicy> {
     delete data.workspace;
 
-    return (await apiClient.put(`${attributePolicyNS}/${id}`, data)).data;
+    return (await apiClient.put(`${EntityName.AttributePolicy}/${id}`, data))
+        .data;
 }
 
 export async function postAttributePolicy(
     data: AttributePolicy
 ): Promise<AttributePolicy> {
-    return (await apiClient.post(attributePolicyNS, data)).data;
+    return (await apiClient.post(EntityName.AttributePolicy, data)).data;
 }
 
 export async function getAttributePolicies(
     workspaceId: string
 ): Promise<NormalizedCollectionResponse<AttributePolicy>> {
-    const res = await apiClient.get(attributePolicyNS, {
+    const res = await apiClient.get(EntityName.AttributePolicy, {
         params: {
             workspaceId,
         },
@@ -65,7 +65,7 @@ export async function getWorkspaceAttributePolicies(
 ): Promise<NormalizedCollectionResponse<AttributePolicy>> {
     return getHydraCollection(
         (
-            await apiClient.get(attributePolicyNS, {
+            await apiClient.get(EntityName.AttributePolicy, {
                 params: {
                     workspaceId,
                 },
@@ -88,7 +88,7 @@ export async function getWorkspaceAttributeDefinitions({
 } & PaginationParams): Promise<
     NormalizedCollectionResponse<AttributeDefinition>
 > {
-    const res = await apiClient.get(nextUrl ?? attributeDefinitionNS, {
+    const res = await apiClient.get(nextUrl ?? EntityName.AttributeDefinition, {
         params: {
             workspaceId,
             target,
@@ -112,7 +112,7 @@ export async function getBuiltInAttributes(): Promise<
 export async function getAttributeDefinitions(): Promise<
     NormalizedCollectionResponse<AttributeDefinition>
 > {
-    const res = await apiClient.get(attributeDefinitionNS, {
+    const res = await apiClient.get(EntityName.AttributeDefinition, {
         params: {
             limit: 1000,
         },
@@ -122,9 +122,9 @@ export async function getAttributeDefinitions(): Promise<
 }
 
 export async function deleteAttributeDefinition(id: string): Promise<void> {
-    await apiClient.delete(`${attributeDefinitionNS}/${id}`);
+    await apiClient.delete(`${EntityName.AttributeDefinition}/${id}`);
 }
 
 export async function deleteAttributePolicy(id: string): Promise<void> {
-    await apiClient.delete(`${attributePolicyNS}/${id}`);
+    await apiClient.delete(`${EntityName.AttributePolicy}/${id}`);
 }

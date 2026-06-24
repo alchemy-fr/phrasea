@@ -16,11 +16,13 @@ import DropdownActions, {
 } from './src/components/DropdownActions';
 import DashboardMenu from './src/components/DashboardMenu/DashboardMenu';
 import LoadMoreRow from './src/components/LoadMoreRow';
+import CircularProgressWithLabel from './src/components/CircularProgressWithLabel';
 
 export {
     NotFoundPage,
     ErrorPage,
     ErrorLayout,
+    CircularProgressWithLabel,
     UserMenu,
     UserAvatar,
     FullPageLoader,

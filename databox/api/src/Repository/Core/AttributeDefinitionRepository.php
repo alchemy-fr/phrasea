@@ -113,7 +113,11 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     public function getSearchableAttributesWithPermission(?string $userId, array $groupIds): iterable
     {
         $queryBuilder = $this
-            ->createQueryBuilderAcl($userId, $groupIds, withConditions: false)
+            ->createQueryBuilderAcl(
+                $userId,
+                $groupIds,
+                withConditions: false
+            )
             ->select('t.type')
             ->addSelect('t.slug')
             ->addSelect('t.multiple')
@@ -132,15 +136,21 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             $queryBuilder->addSelect('ap_ace.id AS ap_aceId');
         }
 
+        $isAdmin = $this->isAdmin();
+
         foreach ($queryBuilder
                      ->getQuery()
                      ->toIterable() as $row) {
-            if (null !== $userId) {
-                $row['allowed'] = ($row['wPublic'] || $row['w_ownerId'] === $userId || $row['w_aceId'])
-                    && ($row['cPublic'] || $row['ap_aceId']);
-                unset($row['w_ownerId'], $row['w_aceId'], $row['ap_aceId']);
+            if ($isAdmin) {
+                $row['allowed'] = true;
             } else {
-                $row['allowed'] = $row['wPublic'] && $row['cPublic'];
+                if (null !== $userId) {
+                    $row['allowed'] = ($row['wPublic'] || $row['w_ownerId'] === $userId || $row['w_aceId'])
+                        && ($row['cPublic'] || $row['ap_aceId']);
+                    unset($row['w_ownerId'], $row['w_aceId'], $row['ap_aceId']);
+                } else {
+                    $row['allowed'] = $row['wPublic'] && $row['cPublic'];
+                }
             }
 
             unset($row['wPublic'], $row['cPublic']);

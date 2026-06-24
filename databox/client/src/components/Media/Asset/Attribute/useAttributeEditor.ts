@@ -141,6 +141,7 @@ export function buildAttributeIndex(
         const v = {
             id: a.id,
             value: a.value,
+            invalid: a.invalid ?? false,
         };
 
         if (!attributeIndex[a.definition.id]) {

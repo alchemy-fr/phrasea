@@ -21,10 +21,10 @@ import {DataboxClient} from '../../databox/client';
 import p from 'path';
 import {getAlternateUrls} from '../../alternateUrl';
 import {
-    importSubdefsStructure,
+    dumpConfFromStructure,
     importMetadataStructure,
     importStatusBitsStructure,
-    dumpConfFromStructure,
+    importSubdefsStructure,
 } from './StructureImporter';
 import {IndexLocation} from '../../types/config';
 import * as fs from 'fs';
@@ -124,17 +124,17 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 });
 
             logger.info(`Importing metadata structure`);
-            await importMetadataStructure(
+            await importMetadataStructure({
                 databoxClient,
                 workspaceId,
-                phraseanetDatabox.databox_id,
+                phraseanetDataboxId: phraseanetDatabox.databox_id,
                 phraseanetClient,
                 dm,
                 fieldMap,
                 idempotencePrefixes,
-                attrPolicyIndex[defaultPublicPolicy]['@id'],
-                logger
-            );
+                attrPolicy: attrPolicyIndex[defaultPublicPolicy]['@id'],
+                logger,
+            });
 
             logger.info(`Importing status-bits structure`);
             let tagIndex: TagIndex = {};
@@ -624,7 +624,7 @@ async function importStory(
             renditions: storyAsset.renditions,
             isStory: storyAsset.isStory,
         });
-        console.log(`created story asset ${story.story_id}...`);
+        logger.info(`Story asset "${story.story_id}" created.`);
 
         storyCollectionId = storyAssetOutput.storyCollection.id;
         storyCollectionFullPath = '';

@@ -75,6 +75,7 @@ services:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
         SENTRY_RELEASE: ${SENTRY_RELEASE}
+      network: host
     networks:
       - internal
     environment:
@@ -122,6 +123,7 @@ services:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
         SENTRY_RELEASE: ${SENTRY_RELEASE}
+      network: host
     networks:
       - internal
     environment:
@@ -230,6 +232,7 @@ services:
       args:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
+      network: host
     environment:
       - UPLOAD_MAX_FILE_SIZE
     networks:
@@ -365,6 +368,7 @@ services:
       args:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
+      network: host
     volumes:
       - expose_nginx_cache:/var/cache/nginx
     networks:
@@ -467,7 +471,9 @@ services:
     profiles:
       - matomo
     image: ${REGISTRY_NAMESPACE}matomo-php:${DOCKER_TAG}
-    build: ./infra/docker/matomo-php
+    build:
+      context: ./infra/docker/matomo-php
+      network: host
     networks:
       - internal
     environment:
@@ -482,7 +488,9 @@ services:
     profiles:
       - matomo
     image: ${REGISTRY_NAMESPACE}matomo-nginx:${DOCKER_TAG}
-    build: ./infra/docker/matomo-nginx
+    build:
+      context: ./infra/docker/matomo-nginx
+      network: host
     networks:
       - internal
     depends_on:
@@ -517,7 +525,9 @@ services:
     profiles:
       - report
     image: ${REGISTRY_NAMESPACE}report-api:${DOCKER_TAG}
-    build: report
+    build:
+      context: report
+      network: host
     networks:
       - internal
     environment:
@@ -710,6 +720,7 @@ services:
       args:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
+      network: host
     networks:
       internal:
         aliases:
@@ -729,6 +740,11 @@ services:
     build:
       context: ./
       dockerfile: ./databox/indexer/Dockerfile
+      args:
+        BASE_TAG: ${DOCKER_TAG}
+        REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
+        SENTRY_RELEASE: ${SENTRY_RELEASE}
+      network: host
     profiles:
       - indexer
     networks:
@@ -766,7 +782,7 @@ services:
       - PHRASEANET_RECORDS_COLLECTION_PATH=${INDEXER_RECORDS_COLLECTION_PATH}
       - PHRASEANET_STORIES_COLLECTION_PATH=${INDEXER_STORIES_COLLECTION_PATH}
     volumes:
-      - ./databox/indexer/config:/srv/workspace/databox/indexer/config
+      - ./databox/indexer/config:/srv/workspace/phrasea/databox/indexer/config
       - ${INDEXER_WATCH_SOURCE_DIR}:${INDEXER_WATCH_DIR}
     extra_hosts:
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
@@ -899,6 +915,7 @@ services:
     build:
       context: ./infra/docker/keycloak
       target: keycloak
+      network: host
     command:
       - 'start'
       - '--optimized'
@@ -962,6 +979,7 @@ services:
       args:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
+      network: host
     networks:
       - internal
     profiles:
@@ -1085,7 +1103,9 @@ services:
       - minio-console.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   cypress:
-    build: ./cypress
+    build:
+      context: ./cypress
+      network: host
     profiles:
       - cypress
     environment:
@@ -1131,7 +1151,9 @@ services:
 
   novu-bridge:
     image: ${REGISTRY_NAMESPACE}novu-bridge:${DOCKER_TAG}
-    build: ./novu/bridge
+    build:
+      context: ./novu/bridge
+      network: host
     profiles:
       - novu
     networks:

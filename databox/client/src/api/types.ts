@@ -1,3 +1,5 @@
+import {User} from '../types.ts';
+
 export enum AttributeBatchActionEnum {
     Set = 'set',
     Replace = 'replace',
@@ -7,6 +9,30 @@ export enum AttributeBatchActionEnum {
 
 export type PaginationParams = {
     nextUrl?: string;
+};
+
+export enum OperationTaskStatus {
+    Pending = 0,
+    InProgress = 1,
+    Completed = 2,
+    Failed = 3,
+    Cancelled = 4,
+}
+
+export type OperationTask = {
+    id: string;
+    task: string;
+    payload: Record<string, any>;
+    owner: User | string;
+    status: OperationTaskStatus;
+    remaining?: string;
+    startedAt?: string;
+    progression?: number;
+    endedAt?: string;
+    output?: string;
+    itemTotal?: string;
+    progress?: string;
+    createdAt: string;
 };
 
 export type AttributeBatchAction = {
@@ -55,6 +81,8 @@ export enum EntityName {
     Workspace = 'workspaces',
     SavedSearch = 'saved-searches',
     Page = 'pages',
+    AttributeDefinition = 'attribute-definitions',
+    AttributePolicy = 'attribute-policies',
     RenditionDefinition = 'rendition-definitions',
     RenditionPolicy = 'rendition-policies',
     Rendition = 'renditions',
@@ -63,4 +91,5 @@ export enum EntityName {
     User = 'users',
     Tag = 'tags',
     AssetDataTemplate = 'asset-data-templates',
+    OperationTask = 'operation-tasks',
 }
