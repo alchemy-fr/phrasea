@@ -4,8 +4,8 @@
 
 Below is an example configuration for a Phraseanet location. Explanations for each field are provided after the code block.
 
-```json lines
-...
+```json
+{
   "locations": [
     {
         "name": "phraseanet-full-example",
@@ -80,7 +80,7 @@ Below is an example configuration for a Phraseanet location. Explanations for ea
             ]
         }
     }
-...
+}
 ```
 
 ## `databox`
