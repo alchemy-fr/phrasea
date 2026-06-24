@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use Elastica\Index;
-use Elastica\Request;
 use Elastica\Response;
 use FOS\ElasticaBundle\Elastica\Client;
 
@@ -46,7 +45,7 @@ final readonly class ElasticSearchClient
         return $this->{$key.'Index'}->getName();
     }
 
-    public function request(string $path, array $data = [], string $method = Request::POST): Response
+    public function request(string $path, array $data = [], string $method = 'POST'): Response
     {
         return $this->client->request($path, $method, $data);
     }

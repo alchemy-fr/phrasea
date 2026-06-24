@@ -4,66 +4,35 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
-use Alchemy\AclBundle\Entity\AccessControlEntry;
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
-use Alchemy\ConfiguratorBundle\Entity\ConfiguratorEntry;
-use Alchemy\StorageBundle\Entity\MultipartUpload;
-use Alchemy\TrackBundle\Entity\ChangeLog;
-use Alchemy\WebhookBundle\Entity\Webhook;
-use Alchemy\WebhookBundle\Entity\WebhookLog;
-use Alchemy\Workflow\Doctrine\Entity\JobState;
-use App\Entity\Admin\ESIndexState;
-use App\Entity\Admin\OperationTask;
-use App\Entity\Admin\PopulatePass;
+use Alchemy\AdminBundle\Controller\Acl\AccessControlEntryCrudController;
+use Alchemy\AdminBundle\Controller\MultipartUploadCrudController;
+use Alchemy\ConfiguratorBundle\Controller\ConfiguratorEntryCrudController;
+use Alchemy\TrackBundle\Controller\ChangeLogCrudController;
+use Alchemy\WebhookBundle\Controller\WebhookCrudController;
+use Alchemy\WebhookBundle\Controller\WebhookLogCrudController;
 use App\Entity\Basket\Basket;
-use App\Entity\Basket\BasketAsset;
-use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\Asset;
-use App\Entity\Core\AssetAttachment;
-use App\Entity\Core\AssetRendition;
-use App\Entity\Core\Attribute;
-use App\Entity\Core\AttributeDefinition;
-use App\Entity\Core\AttributeEntity;
-use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\Collection;
-use App\Entity\Core\CollectionAccess;
-use App\Entity\Core\EntityList;
-use App\Entity\Core\File;
-use App\Entity\Core\RenditionDefinition;
-use App\Entity\Core\RenditionPolicy;
-use App\Entity\Core\Share;
-use App\Entity\Core\Tag;
-use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
-use App\Entity\Discussion\Thread;
-use App\Entity\Integration\IntegrationData;
-use App\Entity\Integration\IntegrationToken;
-use App\Entity\Integration\WorkspaceEnv;
-use App\Entity\Integration\WorkspaceIntegration;
-use App\Entity\Integration\WorkspaceSecret;
-use App\Entity\Log\ActionLog;
-use App\Entity\Page\Page;
-use App\Entity\Profile\Profile;
-use App\Entity\Profile\ProfileItem;
-use App\Entity\SavedSearch\SavedSearch;
-use App\Entity\Template\AssetDataTemplate;
-use App\Entity\Template\TemplateAttribute;
-use App\Entity\Template\WorkspaceTemplate;
-use App\Entity\Workflow\WorkflowState;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
+#[AdminDashboard(routePath: '/admin', routeName: 'easyadmin')]
 class DashboardController extends AbstractAdminDashboardController
 {
-    #[Route(path: '/admin', name: 'easyadmin')]
     #[\Override]
     public function index(): Response
     {
+        /** @var AdminUrlGenerator $adminUrlGenerator */
         $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
 
-        return $this->redirect($adminUrlGenerator->setController(WorkspaceCrudController::class)->generateUrl());
+        return $this->redirect($adminUrlGenerator
+            ->setDashboard(DashboardController::class)
+            ->setController(WorkspaceCrudController::class)
+            ->generateUrl());
     }
 
     #[\Override]
@@ -74,84 +43,84 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToRoute('Collection permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Collection::OBJECT_TYPE]),
             MenuItem::linkToRoute('Workspace permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Workspace::OBJECT_TYPE]),
             MenuItem::linkToRoute('Basket permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Basket::OBJECT_TYPE]),
-            MenuItem::linkToCrud('All permissions (advanced)', '', AccessControlEntry::class),
+            MenuItem::linkTo(AccessControlEntryCrudController::class, 'All permissions (advanced)'),
         ];
 
         $submenu2 = [
-            MenuItem::linkToCrud('Workspace', '', Workspace::class),
-            MenuItem::linkToCrud('Collection', '', Collection::class),
-            MenuItem::linkToCrud('Collection Access', '', CollectionAccess::class),
-            MenuItem::linkToCrud('Asset', '', Asset::class),
-            MenuItem::linkToCrud('File', '', File::class),
-            MenuItem::linkToCrud('Attachment', '', AssetAttachment::class),
-            MenuItem::linkToCrud('Multipart Upload', '', MultipartUpload::class),
-            MenuItem::linkToCrud('Attribute', '', Attribute::class),
-            MenuItem::linkToCrud('Attribute Entity', '', AttributeEntity::class),
-            MenuItem::linkToCrud('Entity List', '', EntityList::class),
-            MenuItem::linkToCrud('Attribute Definition', '', AttributeDefinition::class),
-            MenuItem::linkToCrud('Attribute Policy', '', AttributePolicy::class),
-            MenuItem::linkToCrud('Tag', '', Tag::class),
-            MenuItem::linkToCrud('Tag Filter Rule', '', TagFilterRule::class),
-            MenuItem::linkToCrud('Asset Rendition', '', AssetRendition::class),
-            MenuItem::linkToCrud('Rendition Definition', '', RenditionDefinition::class),
-            MenuItem::linkToCrud('Rendition Policy', '', RenditionPolicy::class),
-            MenuItem::linkToCrud('Alternate URL', '', AlternateUrl::class),
-            MenuItem::linkToCrud('Share', '', Share::class),
+            MenuItem::linkTo(WorkspaceCrudController::class, 'Workspace'),
+            MenuItem::linkTo(CollectionCrudController::class, 'Collection'),
+            MenuItem::linkTo(CollectionAccessCrudController::class, 'Collection Access'),
+            MenuItem::linkTo(AssetCrudController::class, 'Asset'),
+            MenuItem::linkTo(FileCrudController::class, 'File'),
+            MenuItem::linkTo(AssetAttachmentCrudController::class, 'Attachment'),
+            MenuItem::linkTo(MultipartUploadCrudController::class, 'Multipart Upload'),
+            MenuItem::linkTo(AttributeCrudController::class, 'Attribute'),
+            MenuItem::linkTo(AttributeEntityCrudController::class, 'Attribute Entity'),
+            MenuItem::linkTo(EntityListCrudController::class, 'Entity List'),
+            MenuItem::linkTo(AttributeDefinitionCrudController::class, 'Attribute Definition'),
+            MenuItem::linkTo(AttributePolicyCrudController::class, 'Attribute Policy'),
+            MenuItem::linkTo(TagCrudController::class, 'Tag'),
+            MenuItem::linkTo(TagFilterRuleCrudController::class, 'Tag Filter Rule'),
+            MenuItem::linkTo(AssetRenditionCrudController::class, 'Asset Rendition'),
+            MenuItem::linkTo(RenditionDefinitionCrudController::class, 'Rendition Definition'),
+            MenuItem::linkTo(RenditionPolicyCrudController::class, 'Rendition Policy'),
+            MenuItem::linkTo(AlternateUrlCrudController::class, 'Alternate URL'),
+            MenuItem::linkTo(ShareCrudController::class, 'Share'),
         ];
 
         $pages = [
-            MenuItem::linkToCrud('Page', 'fa fa-file', Page::class),
+            MenuItem::linkTo(PageCrudController::class, 'Page', 'fa fa-file'),
         ];
 
         $basket = [
-            MenuItem::linkToCrud('Basket', '', Basket::class),
-            MenuItem::linkToCrud('Basket Assets', '', BasketAsset::class),
+            MenuItem::linkTo(BasketCrudController::class, 'Basket'),
+            MenuItem::linkTo(BasketAssetCrudController::class, 'Basket Assets'),
         ];
 
         $lists = [
-            MenuItem::linkToCrud('Profiles', '', Profile::class),
-            MenuItem::linkToCrud('Lists Items', '', ProfileItem::class),
-            MenuItem::linkToCrud('Saved Searches', '', SavedSearch::class),
+            MenuItem::linkTo(ProfileCrudController::class, 'Profiles'),
+            MenuItem::linkTo(ProfileItemCrudController::class, 'Lists Items'),
+            MenuItem::linkTo(SavedSearchCrudController::class, 'Saved Searches'),
         ];
 
         $submenuTemplates = [
-            MenuItem::linkToCrud('Asset Data Template', '', AssetDataTemplate::class),
-            MenuItem::linkToCrud('Template Attribute', '', TemplateAttribute::class),
-            MenuItem::linkToCrud('Workspace Templates', '', WorkspaceTemplate::class),
+            MenuItem::linkTo(AssetDataTemplateCrudController::class, 'Asset Data Template'),
+            MenuItem::linkTo(TemplateAttributeCrudController::class, 'Template Attribute'),
+            MenuItem::linkTo(WorkspaceTemplateCrudController::class, 'Workspace Templates'),
         ];
 
         $submenu3 = [
-            MenuItem::linkToCrud('Operation Task', '', OperationTask::class),
-            MenuItem::linkToCrud('Populate Pass', '', PopulatePass::class),
-            MenuItem::linkToCrud('ES Index State', '', ESIndexState::class),
+            MenuItem::linkTo(OperationTaskCrudController::class, 'Operation Task'),
+            MenuItem::linkTo(PopulatePassCrudController::class, 'Populate Pass'),
+            MenuItem::linkTo(ESIndexStateCrudController::class, 'ES Index State'),
         ];
 
         $submenu4 = [
-            MenuItem::linkToCrud('Integration', 'fa fa-gear', WorkspaceIntegration::class),
-            MenuItem::linkToCrud('Integration Data', 'fa fa-database', IntegrationData::class),
-            MenuItem::linkToCrud('Integration Token', 'fa fa-fingerprint', IntegrationToken::class),
-            MenuItem::linkToCrud('Env', 'fa fa-database', WorkspaceEnv::class),
-            MenuItem::linkToCrud('Secret', 'fa fa-lock', WorkspaceSecret::class),
+            MenuItem::linkTo(WorkspaceIntegrationCrudController::class, 'Integration', 'fa fa-gear'),
+            MenuItem::linkTo(IntegrationDataCrudController::class, 'Integration Data', 'fa fa-database'),
+            MenuItem::linkTo(IntegrationTokenCrudController::class, 'Integration Token', 'fa fa-fingerprint'),
+            MenuItem::linkTo(WorkspaceEnvCrudController::class, 'Env', 'fa fa-database'),
+            MenuItem::linkTo(WorkspaceSecretCrudController::class, 'Secret', 'fa fa-lock'),
             MenuItem::linkToRoute('Help', 'fa fa-question', 'admin_integrations_help'),
         ];
 
         $webhookSubMenu = [
-            MenuItem::linkToCrud('Webhook', '', Webhook::class),
-            MenuItem::linkToCrud('Webhook Error', '', WebhookLog::class),
+            MenuItem::linkTo(WebhookCrudController::class, 'Webhook'),
+            MenuItem::linkTo(WebhookLogCrudController::class, 'Webhook Error'),
         ];
 
         $workflows = [
-            MenuItem::linkToCrud('Workflows State', '', WorkflowState::class),
-            MenuItem::linkToCrud('Job State', '', JobState::class),
+            MenuItem::linkTo(WorkflowStateCrudController::class, 'Workflows State'),
+            MenuItem::linkTo(JobStateCrudController::class, 'Job State'),
         ];
 
         $discussions = [
-            MenuItem::linkToCrud('Threads', '', Thread::class),
+            MenuItem::linkTo(ThreadCrudController::class, 'Threads'),
         ];
 
         $logs = [
-            MenuItem::linkToCrud('Action Log', '', ActionLog::class),
-            MenuItem::linkToCrud('Change Log', '', ChangeLog::class),
+            MenuItem::linkTo(ActionLogCrudController::class, 'Action Log'),
+            MenuItem::linkTo(ChangeLogCrudController::class, 'Change Log'),
         ];
 
         yield MenuItem::subMenu('Permission', 'fas fa-lock')->setSubItems($submenu1);
@@ -167,7 +136,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Discussions', 'fas fa-message')->setSubItems($discussions);
         yield MenuItem::subMenu('Logs', 'fa fa-history')->setSubItems($logs);
         yield MenuItem::linkToRoute('Notification', 'fas fa-bell', 'alchemy_notify_admin_index');
-        yield MenuItem::linkToCrud('Global Config', 'fa fa-gear', ConfiguratorEntry::class);
+        yield MenuItem::linkTo(ConfiguratorEntryCrudController::class, 'Global Config', 'fa fa-gear');
         yield $this->createDevMenu();
     }
 }

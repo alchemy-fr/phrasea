@@ -15,6 +15,7 @@ use App\Admin\Field\PrivacyField;
 use App\Entity\Core\Asset;
 use App\Entity\Workflow\WorkflowState;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -58,6 +59,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
         ;
     }
 
+    #[AdminRoute(path: '/asset/{id}/trigger-ingest', name: 'triggerIngest')]
     public function triggerIngest(AdminContext $context): Response
     {
         /** @var Asset $asset */
@@ -72,6 +74,8 @@ class AssetCrudController extends AbstractAclAdminCrudController
             AssetIngestWorkflowEvent::createEvent($asset->getId(), $asset->getWorkspaceId()), [
                 WorkflowState::INITIATOR_ID => $user->getId(),
             ]);
+
+        $this->addFlash('info', sprintf('Ingest workflow triggered for asset %s', $asset->getId()));
 
         return $this->returnToReferer($context);
     }
