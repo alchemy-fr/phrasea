@@ -131,6 +131,8 @@ jobs:
       context: ./databox/indexer
       withLibs: true
     secrets: inherit
+    needs:
+      - build_nodejs-base
 
   build_expose_api:
     name: 'Build Expose API'
