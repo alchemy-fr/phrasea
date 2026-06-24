@@ -16,13 +16,16 @@ import {
     AttributeFormatterOptions,
     AttributeFormatterProps,
 } from '../Media/Asset/Attribute/types/types';
-import {useContext} from 'react';
+import React, {useContext} from 'react';
 import {AttributeFormatContext} from '../Media/Asset/Attribute/Format/AttributeFormatContext.ts';
 import {
     AttributeBatchAction,
     AttributeBatchActionEnum,
 } from '../../api/types.ts';
 import {useTranslation} from 'react-i18next';
+import {isNoLocale, NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
+import Flag from '../Ui/Flag.tsx';
+import {FlexRow} from '@alchemy/phrasea-ui';
 
 type Props = {
     actions: AttributeBatchAction[];
@@ -41,6 +44,9 @@ export default function ValueDiff({actions, definitionIndex}: Props) {
         [AttributeBatchActionEnum.Add]: <AddIcon />,
         [AttributeBatchActionEnum.Replace]: <NotesIcon />,
     };
+
+    const humanLocale = (l: string) =>
+        l === NO_LOCALE ? t('editor_panel.untranslated', `Untranslated`) : l;
 
     const indexedActions: Record<string, AttributeBatchAction[]> = {};
     actions.forEach(a => {
@@ -98,12 +104,8 @@ export default function ValueDiff({actions, definitionIndex}: Props) {
                                                         component: 'span',
                                                     }}
                                                     secondary={
-                                                        <>
+                                                        <FlexRow gap={2}>
                                                             <Typography
-                                                                sx={{
-                                                                    display:
-                                                                        'inline',
-                                                                }}
                                                                 component="span"
                                                                 variant="body2"
                                                             >
@@ -129,8 +131,29 @@ export default function ValueDiff({actions, definitionIndex}: Props) {
                                                                     </Set>
                                                                 )}
                                                             </Typography>
-                                                            {` — ${a.assets!.length} assets`}
-                                                        </>
+                                                            {!isNoLocale(
+                                                                a.locale
+                                                            ) && (
+                                                                <FlexRow
+                                                                    gap={1}
+                                                                >
+                                                                    <Flag
+                                                                        locale={
+                                                                            a.locale!
+                                                                        }
+                                                                        sx={{
+                                                                            mb: 1,
+                                                                        }}
+                                                                    />
+                                                                    {humanLocale(
+                                                                        a.locale!
+                                                                    )}
+                                                                </FlexRow>
+                                                            )}
+                                                            <div>
+                                                                {`— ${a.assets!.length} assets`}
+                                                            </div>
+                                                        </FlexRow>
                                                     }
                                                 />
                                             </ListItem>
