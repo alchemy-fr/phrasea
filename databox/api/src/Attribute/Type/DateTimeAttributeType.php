@@ -8,7 +8,6 @@ use App\Attribute\AttributeInterface;
 use App\Elasticsearch\ESFacetInterface;
 use App\Elasticsearch\SearchType;
 use App\Util\DateUtil;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class DateTimeAttributeType extends AbstractAttributeType
 {
@@ -19,11 +18,13 @@ class DateTimeAttributeType extends AbstractAttributeType
         return static::NAME;
     }
 
+    #[\Override]
     public function supportsAggregation(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function supportsSuggest(): bool
     {
         return false;
@@ -34,6 +35,7 @@ class DateTimeAttributeType extends AbstractAttributeType
         return SearchType::Match;
     }
 
+    #[\Override]
     public function getGroupValueLabel($value): ?string
     {
         if ($value instanceof \DateTimeInterface) {
@@ -43,6 +45,7 @@ class DateTimeAttributeType extends AbstractAttributeType
         return parent::getGroupValueLabel($value);
     }
 
+    #[\Override]
     public function getFacetType(): string
     {
         return ESFacetInterface::TYPE_DATE_RANGE;
@@ -53,6 +56,7 @@ class DateTimeAttributeType extends AbstractAttributeType
         return 'date';
     }
 
+    #[\Override]
     public function getElasticSearchMapping(string $locale): ?array
     {
         return [
@@ -77,23 +81,41 @@ class DateTimeAttributeType extends AbstractAttributeType
         return 'text';
     }
 
-    public function normalizeValue($value): ?string
+    #[\Override]
+    public function normalizeValue(mixed $value): mixed
     {
-        if (!$value instanceof \DateTimeInterface) {
-            $value = DateUtil::normalizeDate($value);
+        if ($value instanceof \DateTimeInterface) {
+            return $value;
         }
 
-        return $value?->format(\DateTimeInterface::ATOM);
+        $date = DateUtil::normalizeDate($value);
+        if ($date instanceof \DateTimeInterface) {
+            return $date;
+        }
+
+        return parent::normalizeValue($value);
+    }
+
+    #[\Override]
+    public function convertToDbValue(mixed $value): ?string
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format(\DateTimeInterface::ATOM);
+        }
+
+        return parent::convertToDbValue($value);
     }
 
     /**
      * @return \DateTimeImmutable|null
      */
-    public function denormalizeValue(?string $value)
+    #[\Override]
+    public function denormalizeValue(?string $value): mixed
     {
         return DateUtil::normalizeDate($value);
     }
 
+    #[\Override]
     public function getStringValue(?string $value, ?string $locale): string
     {
         $date = $this->denormalizeValue($value);
@@ -109,16 +131,19 @@ class DateTimeAttributeType extends AbstractAttributeType
         return '';
     }
 
-    public function validate($value, ExecutionContextInterface $context): void
+    public function validate(mixed $value): ?array
     {
         if (null === DateUtil::normalizeDate($value)) {
-            $context->addViolation('Invalid date');
+            return ['Invalid date'];
         }
+
+        return null;
     }
 
-    public function normalizeElasticsearchValue(?string $value)
+    #[\Override]
+    public function normalizeElasticsearchValue(?string $value): mixed
     {
-        if (empty($value)) {
+        if (empty($value) || null === DateUtil::normalizeDate($value)) {
             return null;
         }
 

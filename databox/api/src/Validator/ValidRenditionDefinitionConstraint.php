@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Constraint;
 #[\Attribute]
 class ValidRenditionDefinitionConstraint extends Constraint
 {
+    #[\Override]
     public function getTargets(): string|array
     {
         return self::PROPERTY_CONSTRAINT;

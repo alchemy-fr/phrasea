@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Elasticsearch\AQL;
 
 use App\Attribute\AttributeInterface;
@@ -48,7 +50,7 @@ final readonly class AQLToESQuery
     private function visitExpression(array $fieldClusters, array $data, array $options): Query\AbstractQuery
     {
         $boolQuery = new Query\BoolQuery();
-        $method = LogicOperatorEnum::AND->value === strtoupper($data['operator']) ? 'addMust' : 'addShould';
+        $method = LogicOperatorEnum::AND->value === strtoupper((string) $data['operator']) ? 'addMust' : 'addShould';
 
         foreach ($data['conditions'] as $condition) {
             $boolQuery->$method($this->visitNode($fieldClusters, $condition, $options));
@@ -177,12 +179,8 @@ final readonly class AQLToESQuery
 
         return match ($operator) {
             ConditionOperatorEnum::BETWEEN, ConditionOperatorEnum::NOT_BETWEEN => $this->wrapInNotQuery(new Query\Range($fieldName, $this->createRangeParams($value, $type)), ConditionOperatorEnum::NOT_BETWEEN === $operator),
-            ConditionOperatorEnum::MISSING, ConditionOperatorEnum::EXISTS => $this->wrapInNotQuery($this->yieldShouldQuery($fieldName, $field['locales'], function (string $fn) {
-                return new Query\Exists($fn);
-            }), ConditionOperatorEnum::MISSING === $operator),
-            ConditionOperatorEnum::IN, ConditionOperatorEnum::NOT_IN => $this->wrapInNotQuery($this->yieldShouldQuery($fieldName, $field['locales'], function (string $fn) use ($value) {
-                return new Query\Terms($fn, $value);
-            }), ConditionOperatorEnum::NOT_IN === $operator),
+            ConditionOperatorEnum::MISSING, ConditionOperatorEnum::EXISTS => $this->wrapInNotQuery($this->yieldShouldQuery($fieldName, $field['locales'], fn (string $fn) => new Query\Exists($fn)), ConditionOperatorEnum::MISSING === $operator),
+            ConditionOperatorEnum::IN, ConditionOperatorEnum::NOT_IN => $this->wrapInNotQuery($this->yieldShouldQuery($fieldName, $field['locales'], fn (string $fn) => new Query\Terms($fn, $value)), ConditionOperatorEnum::NOT_IN === $operator),
             ConditionOperatorEnum::EQUALS, ConditionOperatorEnum::MATCHES, ConditionOperatorEnum::NOT_EQUALS, ConditionOperatorEnum::NOT_MATCHES => $this->wrapInNotQuery($this->createTermQuery($fieldName, $value), in_array($operator, [ConditionOperatorEnum::NOT_EQUALS, ConditionOperatorEnum::NOT_MATCHES], true)),
             ConditionOperatorEnum::LT => new Query\Range($fieldName, [
                 'lt' => $value,
@@ -202,7 +200,7 @@ final readonly class AQLToESQuery
                 $this->createPoint($value[2], $value[3]),
             ])),
             ConditionOperatorEnum::CONTAINS, ConditionOperatorEnum::NOT_CONTAINS => $this->wrapInNotQuery(new Query\Wildcard($fieldRaw, sprintf('*%s*', $value)), ConditionOperatorEnum::NOT_CONTAINS === $operator),
-            ConditionOperatorEnum::STARTS_WITH, ConditionOperatorEnum::NOT_STARTS_WITH => $this->wrapInNotQuery((new Query\Prefix())->setPrefix($fieldRaw, $value), ConditionOperatorEnum::NOT_STARTS_WITH === $operator),
+            ConditionOperatorEnum::STARTS_WITH, ConditionOperatorEnum::NOT_STARTS_WITH => $this->wrapInNotQuery(new Query\Prefix()->setPrefix($fieldRaw, $value), ConditionOperatorEnum::NOT_STARTS_WITH === $operator),
             default => throw new BadRequestHttpException(sprintf('Operator "%s" not implemented', $operator->value)),
         };
     }
@@ -380,7 +378,7 @@ final readonly class AQLToESQuery
     private function createTermQuery(string $fieldName, mixed $value): Query\AbstractQuery
     {
         if (str_contains($fieldName, '*')) {
-            return (new Query\MultiMatch())->setQuery($value)->setFields([$fieldName]);
+            return new Query\MultiMatch()->setQuery($value)->setFields([$fieldName]);
         }
 
         return new Query\Term([$fieldName => $value]);
@@ -466,7 +464,7 @@ final readonly class AQLToESQuery
                             $scripts = ClusterGroup::mix(
                                 $lefts,
                                 $rights,
-                                fn (string $l, string $r): string => sprintf('(%s %s %s)', $l, $node['operator'], $r)
+                                fn (string|int|float $l, string|int|float $r): string => sprintf('(%s %s %s)', $l, $node['operator'], $r)
                             );
                         }
                         break;
@@ -477,9 +475,7 @@ final readonly class AQLToESQuery
                         $mixedArguments = [new ClusterGroup([], true)];
                         foreach ($args as $arg) {
                             $arg = array_map(fn (ClusterGroup $a): ClusterGroup => $a->convert([$a->getItem()]), $arg);
-                            $mixedArguments = ClusterGroup::mix($mixedArguments, $arg, function (array $l, array $r): array {
-                                return array_merge($l, $r);
-                            });
+                            $mixedArguments = ClusterGroup::mix($mixedArguments, $arg, fn (array $l, array $r): array => array_merge($l, $r));
                         }
 
                         foreach ($mixedArguments as $args) {
@@ -523,9 +519,7 @@ final readonly class AQLToESQuery
             } elseif ('value_expression' === $type) {
                 $data = $this->resolveValueExpression($data);
             } elseif (isset($data[0])) {
-                return array_map(function (mixed $data) use ($builtInField) {
-                    return $this->resolveValue($data, $builtInField);
-                }, $data);
+                return array_map(fn (mixed $data) => $this->resolveValue($data, $builtInField), $data);
             }
         }
 
@@ -576,7 +570,7 @@ final readonly class AQLToESQuery
             $locales = $cluster['locales'] ?? [];
             foreach ($cluster['fields'] as $cField => $fieldConf) {
                 foreach ($nameCandidates as $nameCandidate) {
-                    if (str_starts_with($cField, $nameCandidate.'_')) {
+                    if (str_starts_with((string) $cField, $nameCandidate.'_')) {
                         $fields[] = new ClusterGroup(
                             [
                                 'field' => $cField,

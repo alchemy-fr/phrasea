@@ -26,6 +26,9 @@ abstract class AbstractBaseAttribute extends AbstractUuidEntity
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $position = 0;
 
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    private bool $invalid = false;
+
     #[ORM\Column(type: Types::TEXT, nullable: false)]
     #[Assert\NotNull]
     private ?string $value = null;
@@ -74,6 +77,16 @@ abstract class AbstractBaseAttribute extends AbstractUuidEntity
     public function setPosition(int $position): void
     {
         $this->position = $position;
+    }
+
+    public function isInvalid(): bool
+    {
+        return $this->invalid;
+    }
+
+    public function setInvalid(bool $invalid): void
+    {
+        $this->invalid = $invalid;
     }
 
     public function setCreatedAt(\DateTimeImmutable $createdAt): void

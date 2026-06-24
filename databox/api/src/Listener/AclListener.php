@@ -47,13 +47,7 @@ readonly class AclListener
 
     private function hasOneOfPermissions(int $permissions, array $permissionsToCheck): bool
     {
-        foreach ($permissionsToCheck as $permission) {
-            if ($this->hasPermission($permissions, $permission)) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any($permissionsToCheck, fn ($permission) => $this->hasPermission($permissions, $permission));
     }
 
     public function onAclUpsert(AclUpsertEvent $event): void

@@ -18,6 +18,7 @@ class SavedSearchVoter extends AbstractVoter
         return $subject instanceof SavedSearch;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, SavedSearch::class, true);

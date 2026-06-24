@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Integration\Phrasea\Expose\Sync;
 
 final readonly class ExposeSubDefinition

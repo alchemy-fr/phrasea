@@ -13,6 +13,7 @@ use App\Entity\Core\File;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Service\Asset\Attribute\InitialAttributeValuesResolver;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Ramsey\Uuid\Nonstandard\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Yaml\Yaml;
 
@@ -29,19 +30,15 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
     public static function dataProvider(): array
     {
         return array_map(
-            function ($test) {
-                return [
-                    $test['definitions'],
-                    $test['metadata'],
-                    $test['expected'],
-                ];
-            },
+            fn ($test) => [
+                $test['definitions'],
+                $test['metadata'],
+                $test['expected'],
+            ],
             array_filter(
                 // the data file is used for documentation generation AND as a data provider for tests
                 Yaml::parseFile(__DIR__.'/../../../src/Documentation/InitialAttributeValuesResolverData.yaml'),
-                function ($test) {
-                    return $test['test'] ?? true;
-                }
+                fn ($test) => $test['test'] ?? true
             )
         );
     }
@@ -84,9 +81,14 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
             ->willReturn($this->normalizeMetadata($metadata));
 
         $assetMock = $this->createMock(Asset::class);
-        $assetMock->expects($this->any())
+        $assetMock
+            ->expects($this->any())
             ->method('getSource')
             ->willReturn($fileMock);
+        $assetMock
+            ->expects($this->any())
+            ->method('getId')
+            ->willReturn(Uuid::uuid4()->toString());
 
         $iavr = new InitialAttributeValuesResolver(
             $adr,
@@ -115,9 +117,7 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
                 } else {
                     // an array with key=locale
                     $normalized[$attributeName] = array_map(
-                        function ($v) {
-                            return is_array($v) ? $v : [$v];
-                        },
+                        fn ($v) => is_array($v) ? $v : [$v],
                         $value
                     );
                 }
@@ -135,13 +135,8 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
         if (!is_array($a)) {
             return false;
         }
-        foreach ($a as $k => $v) {
-            if (!is_numeric($k)) {
-                return false;
-            }
-        }
 
-        return true;
+        return array_all($a, fn ($v, $k) => is_numeric($k));
     }
 
     private function normalizeMetadata($data): array

@@ -13,7 +13,8 @@ class AttributeInputTransformer extends AbstractInputTransformer
 {
     use AttributeInputTrait;
 
-    public function __construct(private readonly AttributeAssigner $attributeAssigner)
+    public function __construct(
+        private readonly AttributeAssigner $attributeAssigner)
     {
     }
 
@@ -25,7 +26,7 @@ class AttributeInputTransformer extends AbstractInputTransformer
     /**
      * @param AttributeInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function transform(object $data, string $resourceClass, array $context = []): object|iterable|null
     {
         $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
         /** @var Attribute $object */
@@ -36,7 +37,17 @@ class AttributeInputTransformer extends AbstractInputTransformer
             $object->setDefinition($this->getAttributeDefinitionFromInput($data, null, $context));
         }
 
-        $this->attributeAssigner->assignAttributeFromInput($object, $data);
+        $normalizedValue = $this->attributeAssigner->normalizeValue($object->getDefinition(), $data->value);
+        if (null === $normalizedValue) {
+            if (!$isNew) {
+                $this->em->remove($object);
+            }
+
+            return null;
+        }
+        $this->attributeAssigner->assignAttributeFromInput($object, $data, $normalizedValue);
+
+        $this->attributeAssigner->resetAssetAttributesCache($object->getAsset());
 
         return $object;
     }

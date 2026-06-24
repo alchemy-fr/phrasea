@@ -10,6 +10,7 @@ use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Tag;
 use App\Model\AssetTypeEnum;
 use App\Repository\Core\TagRepository;
+use App\Service\Asset\Attribute\AssetNameFiller;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class AttributeDataImporter
@@ -19,6 +20,7 @@ final readonly class AttributeDataImporter
     public function __construct(
         private EntityManagerInterface $em,
         private TagRepository $tagRepository,
+        private AssetNameFiller $assetNameFiller,
     ) {
     }
 
@@ -28,8 +30,8 @@ final readonly class AttributeDataImporter
         $repo = $this->em->getRepository(AttributeDefinition::class);
 
         foreach ($data as $key => $value) {
-            if (str_starts_with($key, self::BUILT_IN_ATTRIBUTE_PREFIX)) {
-                $k = substr($key, strlen(self::BUILT_IN_ATTRIBUTE_PREFIX));
+            if (str_starts_with((string) $key, self::BUILT_IN_ATTRIBUTE_PREFIX)) {
+                $k = substr((string) $key, strlen(self::BUILT_IN_ATTRIBUTE_PREFIX));
                 switch ($k) {
                     case 'tags':
                         if (is_array($value)) {
@@ -46,12 +48,12 @@ final readonly class AttributeDataImporter
                         break;
                     case 'name':
                         if (is_string($value) && !$asset->isStory()) {
-                            $asset->setName($value);
+                            $this->assetNameFiller->fillName($asset, $value);
                         }
                         break;
                     case 'story_name':
                         if (is_string($value) && $asset->isStory()) {
-                            $asset->setName($value);
+                            $this->assetNameFiller->fillName($asset, $value);
                         }
                         break;
                 }
@@ -59,7 +61,7 @@ final readonly class AttributeDataImporter
             }
 
             $fieldLocale = $locale;
-            if (1 === preg_match('#^(.+):([a-z_-]{2,5})$#i', $key, $matches)) {
+            if (1 === preg_match('#^(.+):([a-z_-]{2,5})$#i', (string) $key, $matches)) {
                 $key = $matches[1];
                 $fieldLocale = $matches[2];
             }

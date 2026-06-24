@@ -12,7 +12,7 @@ import AsyncRSelectWidget, {
     AsyncRSelectProps,
     RSelectOnCreate,
 } from './src/AsyncRSelectWidget';
-import RSelectWidget, {RSelectProps, SelectOption} from './src/RSelectWidget';
+import RSelectWidget from './src/RSelectWidget';
 import SwitchWidget from './src/Widget/SwitchWidget';
 import CheckboxWidget from './src/Widget/CheckboxWidget';
 import KeyTranslationsWidget, {
@@ -23,9 +23,12 @@ import RemoteErrors from './src/RemoteErrors';
 import RadioWidget from './src/Widget/RadioWidget';
 import DateWidget from './src/Widget/DateWidget';
 import ColorWidget from './src/Widget/ColorWidget';
+import {RSelectProps, SelectOption} from './src/types';
+import FormHasErrorsAlert from './src/FormHasErrorsAlert';
 
 export {
     CollectionWidget,
+    FormHasErrorsAlert,
     ColorPicker,
     ColorWidget,
     ColorBox,

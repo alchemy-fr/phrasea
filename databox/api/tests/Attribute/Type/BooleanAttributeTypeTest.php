@@ -14,15 +14,65 @@ class BooleanAttributeTypeTest extends AbstractAttributeTypeTest
         return new BooleanAttributeType();
     }
 
+    #[\Override]
+    public function getValidationCases(): array
+    {
+        return [
+            ...parent::getValidationCases(),
+            'null' => [null, null],
+            'empty_string' => ['', null],
+            'single_space' => [' ', null],
+            [false, null],
+            [true, null],
+            [1, null],
+            [0, null],
+            ['true', null],
+            ['false', null],
+            ['yes', null],
+            ['Yes', null],
+            ['YES', null],
+            ['ON', null],
+            ['On', null],
+            ['on', null],
+            ['TRUE', null],
+            ['true', null],
+            ['false', null],
+            ['FALSE', null],
+            ['no', null],
+            ['No', null],
+            ['NO', null],
+            ['OFF', null],
+            ['Off', null],
+            ['0', null],
+            ['a', ['Invalid boolean']],
+        ];
+    }
+
+    #[\Override]
     public function getNormalizationCases(): array
     {
         return [
-            [false, '0'],
-            [null, null],
-            ['', null],
-            [' ', null],
-            ['false', '0'],
-            ['true', '1'],
+            ...parent::getNormalizationCases(),
+            '0_int' => [0, false],
+            '1_int' => [1, true],
+            'false_string' => ['false', false],
+            'true_string' => ['true', true],
+            'false' => [false, false],
+            'true' => [true, true],
+            '0_string' => ['0', false],
+            '1_string' => ['1', true],
+        ];
+    }
+
+    #[\Override]
+    public function getConvertToDbValueCases(): array
+    {
+        return [
+            ...parent::getConvertToDbValueCases(),
+            'false_string' => ['false', '0'],
+            'true_string' => ['true', '1'],
+            'false' => [false, '0'],
+            'true' => [true, '1'],
             ['y', '1'],
             ['Y', '1'],
             ['1', '1'],
@@ -42,37 +92,30 @@ class BooleanAttributeTypeTest extends AbstractAttributeTypeTest
             ['OFF', '0'],
             ['Off', '0'],
             ['0', '0'],
-            [true, '1'],
-            ['foo', null],
         ];
     }
 
+    #[\Override]
     public function getDenormalizationCases(): array
     {
         return [
-            [null, null],
-            ['', null],
-            [' ', null],
+            ...parent::getDenormalizationCases(),
+            'empty' => ['', null],
+            'single_space' => [' ', null],
             ['1', true],
             ['0', false],
         ];
     }
 
+    #[\Override]
     public function getElasticsearchNormalizationCases(): array
     {
         return [
-            [null, null],
+            ...parent::getElasticsearchNormalizationCases(),
+            'empty' => ['', null],
+            'single_space' => [' ', null],
             ['0', false],
             ['1', true],
-        ];
-    }
-
-    public function getElasticsearchDenormalizationCases(): array
-    {
-        return [
-            [null, null],
-            [false, '0'],
-            [true, '1'],
         ];
     }
 }

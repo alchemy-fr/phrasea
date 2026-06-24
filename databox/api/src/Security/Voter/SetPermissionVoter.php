@@ -27,6 +27,7 @@ class SetPermissionVoter extends AbstractVoter
         ) && $subject instanceof AclObjectInterface;
     }
 
+    #[\Override]
     public function supportsAttribute(string $attribute): bool
     {
         return in_array(
@@ -38,6 +39,7 @@ class SetPermissionVoter extends AbstractVoter
         );
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, AclObjectInterface::class, true);

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Border;
 
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
@@ -11,6 +13,7 @@ class UploaderClientMock extends UploaderClient
 {
     private array $acknowledgedAssets = [];
 
+    #[\Override]
     public function getCommit(string $baseUrl, string $id, string $token): array
     {
         return [
@@ -22,6 +25,7 @@ class UploaderClientMock extends UploaderClient
         ];
     }
 
+    #[\Override]
     public function getAsset(string $baseUrl, string $id, string $token): array
     {
         return [
@@ -36,6 +40,7 @@ class UploaderClientMock extends UploaderClient
         ];
     }
 
+    #[\Override]
     public function ackAsset(string $baseUrl, string $id, string $token): void
     {
         $this->acknowledgedAssets[] = $id;

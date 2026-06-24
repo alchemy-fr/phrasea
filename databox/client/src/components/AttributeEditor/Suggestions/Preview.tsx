@@ -63,7 +63,7 @@ export default function Preview<T>({
                                 key={asset.id}
                                 trackingId={asset.resolvedTrackingId}
                                 file={asset.preview!.file!}
-                                title={asset.resolvedName}
+                                title={asset.name}
                                 dimensions={{
                                     width: finalWidth,
                                 }}
@@ -86,7 +86,7 @@ export default function Preview<T>({
                                 mb: 2,
                             }}
                         >
-                            {asset.resolvedName}
+                            {asset.name}
                         </Typography>
                     </Box>
                     {index >= 0 ? (

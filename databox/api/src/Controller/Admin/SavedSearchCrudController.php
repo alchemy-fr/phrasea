@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
@@ -30,6 +32,7 @@ class SavedSearchCrudController extends AbstractAclAdminCrudController
         return SavedSearch::class;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -40,6 +43,7 @@ class SavedSearchCrudController extends AbstractAclAdminCrudController
             ->setDefaultSort(['name' => 'ASC']);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -51,6 +55,7 @@ class SavedSearchCrudController extends AbstractAclAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new()

@@ -16,7 +16,7 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
 {
     final public const string SCOPE_PREFIX = 'collection:';
 
-    private CacheInterface $cache;
+    private readonly CacheInterface $cache;
 
     public function __construct(
         TemporaryCacheFactory $cacheFactory,
@@ -29,6 +29,7 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
         return $subject instanceof Collection;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, Collection::class, true);
@@ -39,9 +40,7 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        return $this->cache->get(sprintf('%s_%s_%s', $attribute, $subject->getId(), spl_object_id($token)), function () use ($attribute, $subject, $token): bool {
-            return $this->doVote($attribute, $subject, $token);
-        });
+        return $this->cache->get(sprintf('%s_%s_%s', $attribute, $subject->getId(), spl_object_id($token)), fn (): bool => $this->doVote($attribute, $subject, $token));
     }
 
     private function doVote(string $attribute, Collection $subject, TokenInterface $token): bool
@@ -107,7 +106,6 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                         PermissionInterface::CHILD_OWNER,
                         PermissionInterface::OWNER,
                     ], $subject, $token)
-                    || $this->isAdmin()
                 )
             ,
             AbstractVoter::EDIT => $isCreator()

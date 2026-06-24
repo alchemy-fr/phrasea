@@ -17,7 +17,7 @@ class ThreadMessageOutput extends AbstractUuidOutput
     use UpdatedAtDTOTrait;
 
     #[Groups([Message::GROUP_READ])]
-    public ?Thread $thread;
+    public ?Thread $thread = null;
 
     #[Groups([Message::GROUP_LIST, Message::GROUP_READ])]
     public ?UserOutput $author = null;

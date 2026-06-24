@@ -21,18 +21,15 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
     use InputOutputMetadataTrait;
     use ClassInfoTrait;
 
-    /**
-     * @var OutputTransformerInterface[]
-     */
-    private readonly iterable $transformers;
-
     public function __construct(
         private readonly NormalizerInterface $decorated,
+        /**
+         * @var OutputTransformerInterface[]
+         */
         #[TaggedIterator(OutputTransformerInterface::TAG)]
-        iterable $transformers,
+        private readonly iterable $transformers,
         ?ResourceMetadataCollectionFactoryInterface $resourceMetadataCollectionFactory = null,
     ) {
-        $this->transformers = $transformers;
         $this->resourceMetadataCollectionFactory = $resourceMetadataCollectionFactory;
     }
 

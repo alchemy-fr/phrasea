@@ -122,6 +122,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[ORM\Table]
 #[ORM\Index(columns: ['searchable'], name: 'searchable_idx')]
 #[ORM\Index(columns: ['type'], name: 'type_idx')]
+#[ORM\Index(columns: ['workspace_id', 'fill_from_name'], name: 'fill_from_name_idx')]
 #[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_name', columns: ['workspace_id', 'name'])]
 #[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\UniqueConstraint(name: 'uniq_attr_def_ws_slug', columns: ['workspace_id', 'slug'])]
@@ -152,6 +153,9 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     final public const string GROUP_LIST = 'attrdef:i';
 
     private const string OPT_EDITABLE_IN_GUI = 'gui-edit';
+    private const string OPT_MIN_LENGTH = 'min-length';
+    private const string OPT_MAX_LENGTH = 'max-length';
+    private const string OPT_REQUIRED = 'req';
 
     final public const string TR_FIELD_NAME = 'name';
 
@@ -223,6 +227,15 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $editable = true;
+
+    #[ORM\Column(type: Types::SMALLINT, nullable: true)]
+    private ?int $namePriority = null;
+
+    /**
+     * @var bool Whether this attribute should be set from the "name" property receive on POST /assets
+     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
+    private bool $fillFromName = false;
 
     #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $searchBoost = null;
@@ -549,6 +562,50 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         return $this->options[self::OPT_EDITABLE_IN_GUI] ?? true;
     }
 
+    public function setMaxLength(?int $maxLength): void
+    {
+        if (null === $maxLength) {
+            unset($this->options[self::OPT_MAX_LENGTH]);
+        } else {
+            $this->options[self::OPT_MAX_LENGTH] = $maxLength;
+        }
+    }
+
+    public function getMaxLength(): ?int
+    {
+        return $this->options[self::OPT_MAX_LENGTH] ?? null;
+    }
+
+    public function setMinLength(?int $minLength): void
+    {
+        if (null === $minLength) {
+            unset($this->options[self::OPT_MIN_LENGTH]);
+        } else {
+            $this->options[self::OPT_MIN_LENGTH] = $minLength;
+        }
+    }
+
+    public function getMinLength(): ?int
+    {
+        return $this->options[self::OPT_MIN_LENGTH] ?? null;
+    }
+
+    public function isRequired(): bool
+    {
+        return $this->options[self::OPT_REQUIRED] ?? false;
+    }
+
+    public function setRequired(bool $required): void
+    {
+        if (!$required) {
+            unset($this->options[self::OPT_REQUIRED]);
+
+            return;
+        }
+
+        $this->options[self::OPT_REQUIRED] = true;
+    }
+
     #[Assert\Callback]
     public function validateInitialValues(ExecutionContextInterface $context): void
     {
@@ -557,7 +614,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         }
 
         foreach ($this->initialValues as $locale => $value) {
-            $data = json_decode($value, true);
+            $data = json_decode((string) $value, true);
             if (JSON_ERROR_NONE !== json_last_error()) {
                 $context->buildViolation('The initial value for locale "%locale%" is not valid JSON.')
                     ->setParameter('%locale%', $locale)
@@ -587,6 +644,31 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
                 }
             }
         }
+    }
+
+    public function isUseAsName(): bool
+    {
+        return null !== $this->namePriority;
+    }
+
+    public function getNamePriority(): ?int
+    {
+        return $this->namePriority;
+    }
+
+    public function setNamePriority(?int $namePriority): void
+    {
+        $this->namePriority = $namePriority;
+    }
+
+    public function isFillFromName(): bool
+    {
+        return $this->fillFromName;
+    }
+
+    public function setFillFromName(bool $fillFromName): void
+    {
+        $this->fillFromName = $fillFromName;
     }
 
     public function getOwnerId(): ?string

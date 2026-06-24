@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Integration\Phrasea\Uploader;
 
 use Alchemy\TestBundle\Helper\FixturesTrait;
@@ -12,6 +14,7 @@ use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Phrasea\Uploader\UploaderIntegration;
 use App\Repository\Core\AssetRepository;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Tests\FileUploadTrait;
 use App\Tests\Rendition\Phraseanet\PhraseanetApiClientFactoryMock;
 use Doctrine\ORM\EntityManagerInterface;
@@ -73,17 +76,20 @@ class UploaderIntegrationTest extends ApiTestCase
         $em->clear();
         $assetRepo = $this->getService(AssetRepository::class);
         /** @var Asset $asset */
-        $asset = $assetRepo->findOneBy([
-            'name' => 'test_file.txt',
-        ]);
+        $asset = $assetRepo->findOneBy([], ['createdAt' => 'DESC']);
         $this->assertNotNull($asset);
-        $this->assertEquals('test_file.txt', $asset->getName());
+
+        /** @var AssetNameResolver $nameResolver */
+        $nameResolver = $this->getService(AssetNameResolver::class);
+
+        $this->assertEquals('test_file.txt', $nameResolver->resolveNameAsString($asset));
 
         /** @var UploaderClientMock $uploadClient */
         $uploadClient = $this->getService(UploaderClient::class);
         $this->assertCount(1, $uploadClient->getAcknowledgedAssets());
     }
 
+    #[\Override]
     protected static function bootKernel(array $options = []): KernelInterface
     {
         return static::bootKernelWithFixtures($options);

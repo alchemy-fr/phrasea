@@ -1,14 +1,14 @@
 import React from 'react';
 import {FieldValues} from 'react-hook-form';
-import {RSelectProps, SelectOption} from '../RSelectWidget';
-import AsyncRSelectWidget from '../AsyncRSelectWidget';
+import AsyncRSelectWidget, {AsyncRSelectProps} from '../AsyncRSelectWidget';
+import {SelectOption} from '../types';
 
 export type GetLocales = () => Promise<SelectOption[]>;
 
 type Props<TFieldValues extends FieldValues> = {
     getLocales: GetLocales;
     filteredValues?: string[] | undefined;
-} & RSelectProps<TFieldValues, false>;
+} & AsyncRSelectProps<TFieldValues, false>;
 
 export default function LocaleSelectWidget<TFieldValues extends FieldValues>({
     getLocales,

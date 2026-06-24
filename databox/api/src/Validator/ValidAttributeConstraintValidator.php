@@ -26,14 +26,28 @@ class ValidAttributeConstraintValidator extends ConstraintValidator
             return;
         }
 
+        if ($definition->isAllowInvalid()) {
+            return;
+        }
+
         $type = $this->typeRegistry->getStrictType($definition->getType());
 
         $v = $value->getValue();
         if (null === $v) {
             return;
         }
+        $phpValue = $type->denormalizeValue($v);
+        if (null === $phpValue) {
+            return;
+        }
 
         $this->context->setNode($v, $value, null, 'value');
-        $type->validate($v, $this->context);
+
+        $errors = $type->validate($phpValue);
+        if (!empty($errors)) {
+            foreach ($errors as $error) {
+                $this->context->addViolation($error);
+            }
+        }
     }
 }

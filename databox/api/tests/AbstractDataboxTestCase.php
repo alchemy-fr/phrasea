@@ -15,6 +15,7 @@ abstract class AbstractDataboxTestCase extends ApiTestCase
     use DataboxTestTrait;
     use ApiTestTrait;
 
+    #[\Override]
     protected static function bootKernel(array $options = []): KernelInterface
     {
         return static::bootKernelWithFixtures($options);

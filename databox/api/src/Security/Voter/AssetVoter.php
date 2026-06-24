@@ -17,6 +17,7 @@ class AssetVoter extends AbstractVoter
 
     final public const string SCOPE_PREFIX = 'asset:';
 
+    #[\Override]
     protected function getScopeHierarchy(): array
     {
         return array_merge(parent::getScopeHierarchy(), [
@@ -30,6 +31,7 @@ class AssetVoter extends AbstractVoter
         return $subject instanceof Asset;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, Asset::class, true);
@@ -45,7 +47,7 @@ class AssetVoter extends AbstractVoter
         }
 
         $workspace = $subject->getWorkspace();
-        if (!$this->security->isGranted(self::READ, $workspace)) {
+        if (!$workspace || !$this->security->isGranted(self::READ, $workspace)) {
             return false;
         }
 
@@ -55,80 +57,68 @@ class AssetVoter extends AbstractVoter
         $isWorkspaceOwnerSlow = fn (): bool => $this->security->isGranted(AbstractVoter::OWNER, $workspace);
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
-        switch ($attribute) {
-            case AbstractVoter::CREATE:
-                return $isWorkspaceOwnerFast()
-                    || $this->voteOnContainer($subject, AssetContainerVoterInterface::ASSET_CREATE)
-                    || $isWorkspaceOwnerSlow();
-            case AbstractVoter::READ:
-                return (!$subject->isDeleted() || $this->security->isGranted(self::DELETE, $subject))
-                    && (
-                        $isOwner()
-                        || $isWorkspaceOwnerFast()
-                        || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
-                        || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
-                        || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE
-                        || $this->hasAcl([
-                            PermissionInterface::VIEW,
-                            PermissionInterface::OWNER,
-                        ], $subject, $token)
-                        || $this->security->isGranted(AssetContainerVoterInterface::ASSET_VIEW, $workspace)
-                        || $this->collectionGrantsAccess($subject)
-                        || $isWorkspaceOwnerSlow()
-                    )
-                ;
-            case self::EDIT_ATTRIBUTES:
-                return $isOwner()
+        return match ($attribute) {
+            AbstractVoter::CREATE => $isWorkspaceOwnerFast()
+                || $this->voteOnContainer($subject, AssetContainerVoterInterface::ASSET_CREATE)
+                || $isWorkspaceOwnerSlow(),
+            AbstractVoter::READ => (!$subject->isDeleted() || $this->security->isGranted(self::DELETE, $subject))
+                && (
+                    $isOwner()
                     || $isWorkspaceOwnerFast()
+                    || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
+                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
+                    || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE
                     || $this->hasAcl([
-                        PermissionInterface::EDIT,
+                        PermissionInterface::VIEW,
                         PermissionInterface::OWNER,
                     ], $subject, $token)
-                    || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_EDIT_ATTRIBUTES)
-                    || $isWorkspaceOwnerSlow();
-                // Substitute source file, manage its renditions
-            case AbstractVoter::EDIT:
-                return $isOwner()
-                    || $isWorkspaceOwnerFast()
-                    || $this->hasAcl([
-                        PermissionInterface::OPERATOR,
-                        PermissionInterface::OWNER,
-                    ], $subject, $token)
-                    || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_EDIT)
-                    || $isWorkspaceOwnerSlow();
-            case self::SHARE:
-                return $isWorkspaceOwnerFast()
-                    || $this->hasAcl(PermissionInterface::SHARE, $subject, $token)
-                    || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_SHARE)
-                    || $isWorkspaceOwnerSlow();
-            case AbstractVoter::DELETE:
-                return $isOwner()
-                    || $isWorkspaceOwnerFast()
-                    || $this->hasAcl([
-                        PermissionInterface::DELETE,
-                        PermissionInterface::OWNER,
-                    ], $subject, $token)
-                    || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_DELETE)
-                    || $isWorkspaceOwnerSlow();
-            case AbstractVoter::OWNER:
-                return $isOwner()
-                    || $isWorkspaceOwnerFast()
-                    || $this->hasAcl([
-                        PermissionInterface::OWNER,
-                    ], $subject, $token)
-                    || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_OWNER)
-                    || $isWorkspaceOwnerSlow();
-            case AbstractVoter::EDIT_PERMISSIONS:
-                return $isWorkspaceOwnerFast()
-                    || $this->security->isGranted(self::OWNER, $subject) && (
-                        $this->hasMetadata(DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS, $subject, $token)
-                        || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_EDIT_PERMISSIONS)
-                    )
+                    || $this->security->isGranted(AssetContainerVoterInterface::ASSET_VIEW, $workspace)
+                    || $this->collectionGrantsAccess($subject)
                     || $isWorkspaceOwnerSlow()
-                ;
-        }
-
-        return false;
+                ),
+            self::EDIT_ATTRIBUTES => $isOwner()
+                || $isWorkspaceOwnerFast()
+                || $this->hasAcl([
+                    PermissionInterface::EDIT,
+                    PermissionInterface::OWNER,
+                ], $subject, $token)
+                || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_EDIT_ATTRIBUTES)
+                || $isWorkspaceOwnerSlow(),
+            AbstractVoter::EDIT => $isOwner()
+                || $isWorkspaceOwnerFast()
+                || $this->hasAcl([
+                    PermissionInterface::OPERATOR,
+                    PermissionInterface::OWNER,
+                ], $subject, $token)
+                || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_EDIT)
+                || $isWorkspaceOwnerSlow(),
+            self::SHARE => $isWorkspaceOwnerFast()
+                || $this->hasAcl(PermissionInterface::SHARE, $subject, $token)
+                || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_SHARE)
+                || $isWorkspaceOwnerSlow(),
+            AbstractVoter::DELETE => $isOwner()
+                || $isWorkspaceOwnerFast()
+                || $this->hasAcl([
+                    PermissionInterface::DELETE,
+                    PermissionInterface::OWNER,
+                ], $subject, $token)
+                || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_DELETE)
+                || $isWorkspaceOwnerSlow(),
+            AbstractVoter::OWNER => $isOwner()
+                || $isWorkspaceOwnerFast()
+                || $this->hasAcl([
+                    PermissionInterface::OWNER,
+                ], $subject, $token)
+                || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_OWNER)
+                || $isWorkspaceOwnerSlow(),
+            AbstractVoter::EDIT_PERMISSIONS => $isWorkspaceOwnerFast()
+                || $this->security->isGranted(self::OWNER, $subject) && (
+                    $this->hasMetadata(DataboxExtraPermissionInterface::PERM_EDIT_PERMISSIONS, $subject, $token)
+                    || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_EDIT_PERMISSIONS)
+                )
+                || $isWorkspaceOwnerSlow(),
+            default => false,
+        };
     }
 
     private function voteOnContainer(Asset $asset, string|int $attribute): bool

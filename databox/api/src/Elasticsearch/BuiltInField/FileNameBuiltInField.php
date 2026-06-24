@@ -29,11 +29,13 @@ final class FileNameBuiltInField extends AbstractBuiltInAttribute
         return $asset->getSourceFileName();
     }
 
+    #[\Override]
     public function getType(): string
     {
         return TextAttributeType::getName();
     }
 
+    #[\Override]
     public function isFacet(): bool
     {
         return false;

@@ -6,6 +6,7 @@ namespace App\Consumer\Handler\Collection;
 
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\ObjectNotifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -16,6 +17,7 @@ readonly class NotifyCollectionTopicHandler
     public function __construct(
         private EntityManagerInterface $em,
         private ObjectNotifier $objectNotifier,
+        private AssetNameResolver $assetNameResolver,
     ) {
     }
 
@@ -41,9 +43,15 @@ readonly class NotifyCollectionTopicHandler
             $uri .= '#asset-'.$asset->getId();
         }
 
+        $assetName = null;
+        if ($asset instanceof Asset) {
+            $assetName = $this->assetNameResolver->resolveNameAsString($asset) ?? $message->getAssetName() ?? $asset->getId();
+        }
+        $assetName ??= 'Undefined';
+
         $notificationParams = [
             'collectionName' => $collection?->getName() ?? $collection?->getId() ?? $message->getAssetName() ?? 'Undefined',
-            'assetName' => $asset?->getName() ?? $message->getAssetName() ?? $asset?->getId() ?? 'Undefined',
+            'assetName' => $assetName,
             'url' => $uri,
         ];
 

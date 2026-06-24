@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Api\Model\Input;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-class ImportEntitiesInput
+final class ImportEntitiesInput
 {
-    #[Assert\All([
-        new Assert\Type('string'),
-    ])]
-    #[Assert\Type('array')]
-    public ?array $values = null;
+    #[Assert\NotBlank]
+    public ?string $data = null;
+
+    #[Assert\NotBlank]
+    public ?string $format = null;
 }

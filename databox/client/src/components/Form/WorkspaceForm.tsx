@@ -14,7 +14,7 @@ import {useCreateSaveTranslations} from '../../hooks/useCreateSaveTranslations.t
 import {putWorkspace} from '../../api/collection.ts';
 import {getLocaleOptions} from '../../api/locale.ts';
 import {LocaleSelectWidget} from '@alchemy/react-form';
-import CodeEditorWidget from './CodeEditorWidget.tsx';
+import CodeEditorWidget from './CodeEditor/CodeEditorWidget.tsx';
 
 const emptyLocaleItem = '';
 

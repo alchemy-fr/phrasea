@@ -150,7 +150,7 @@ class PhraseanetIntegrationController extends AbstractController
                         ['built' => 1]
                     );
 
-                    // TODO Temporary hack
+                    // Temporary hack
                     $url = preg_replace('#^http://localhost/#', 'https://'.$json['url'].'/', (string) $data['permalink']);
 
                     $logger->debug(sprintf('URL: %s', $url));
@@ -188,7 +188,7 @@ class PhraseanetIntegrationController extends AbstractController
         $logger->debug(sprintf('Fetch asset "%s" from Phraseanet enqueue', $assetId));
 
         $auth = $request->headers->get('Authorization', '');
-        if (1 !== preg_match('#^AssetToken (.+)$#', $auth, $matches)) {
+        if (1 !== preg_match('#^AssetToken (.+)$#', (string) $auth, $matches)) {
             throw new UnauthorizedHttpException('Missing AssetToken authorization');
         }
         $assetToken = $matches[1];

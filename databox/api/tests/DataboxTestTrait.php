@@ -21,6 +21,7 @@ use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\TagFilterManager;
+use App\Service\Workspace\WorkspaceCreator;
 use MartinGeorgiev\Doctrine\DBAL\Types\ValueObject\Ltree;
 use Ramsey\Uuid\Uuid;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -35,7 +36,7 @@ trait DataboxTestTrait
         $em = self::getEntityManager();
 
         $asset = new Asset();
-        $asset->setName($options['name'] ?? null);
+        $asset->name = $options['name'] ?? null;
         $workspace = $options['workspace'] ?? $this->getOrCreateDefaultWorkspace();
         $asset->setWorkspace($workspace);
         $asset->setOwnerId($options['ownerId'] ?? 'custom_owner');
@@ -83,7 +84,7 @@ trait DataboxTestTrait
                 $a->setLocale($attr['locale'] ?? null);
                 $a->setPosition($attr['position'] ?? 0);
                 $a->setOrigin($attr['origin'] ?? Attribute::ORIGIN_MACHINE);
-                $a->setValue($typeRegistry->getStrictType($attr['definition']->getType())->normalizeValue($attr['value']));
+                $a->setValue($typeRegistry->getStrictType($attr['definition']->getType())->convertToDbValue($attr['value']));
 
                 $em->persist($a);
             }
@@ -159,8 +160,10 @@ trait DataboxTestTrait
         $definition->setMultiple($options['multiple'] ?? false);
         $definition->setSearchable($options['searchable'] ?? true);
         $definition->setName($options['name'] ?? null);
+        $definition->setSlug($options['slug'] ?? null);
         $definition->setEntityList($options['list'] ?? null);
         $definition->setFallback($options['fallback'] ?? null);
+        $definition->setAllowInvalid($options['allow_invalid'] ?? false);
 
         $em->persist($definition);
         if (!($options['no_flush'] ?? false)) {
@@ -217,7 +220,9 @@ trait DataboxTestTrait
             $workspace->setPublic(true);
         }
 
-        $em->persist($workspace);
+        /** @var WorkspaceCreator $workspaceCreator */
+        $workspaceCreator = self::getService(WorkspaceCreator::class);
+        $workspaceCreator->createWorkspace($workspace);
 
         if (!($options['no_acl'] ?? false)) {
             $this->addUserOnWorkspace($ownerId, $workspace->getId());

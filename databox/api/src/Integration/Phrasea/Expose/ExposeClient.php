@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Integration\Phrasea\Expose;
 
 use Alchemy\CoreBundle\Util\LocaleUtil;
@@ -88,13 +90,7 @@ final readonly class ExposeClient
             $wsLocales = $asset->getWorkspace()->getEnabledLocales();
 
             $attributesIndex = $this->attributesResolver->resolveAssetAttributes($asset, true);
-            $resolvedNameAttr = $this->assetNameResolver->resolveName($asset, $attributesIndex, []);
-            if ($resolvedNameAttr instanceof Attribute) {
-                $attributeType = $this->attributeTypeRegistry->getStrictType($resolvedNameAttr->getDefinition()->getType());
-                $resolvedName = $attributeType->getStringValue($resolvedNameAttr->getValue(), null);
-            } else {
-                $resolvedName = $resolvedNameAttr;
-            }
+            $resolvedName = $this->assetNameResolver->resolveNameAsString($asset, $attributesIndex);
 
             $descriptionTranslations = [];
             foreach ($attributesIndex->getDefinitions() as $definitionIndex) {
@@ -141,7 +137,7 @@ final readonly class ExposeClient
                         $attributeHtml = $this->getAttributeHtml(
                             $definition,
                             $definition->isMultiple() ? array_map(fn (Attribute $a,
-                            ): ?string => $attributeType->getStringValue($a->getValue(), $locale), $attribute) : $attributeType->getStringValue($attribute->getValue(), $locale),
+                            ): string => $attributeType->getStringValue($a->getValue(), $locale), $attribute) : $attributeType->getStringValue($attribute->getValue(), $locale),
                             $locale
                         );
                         if (!empty($attributeHtml)) {
@@ -167,10 +163,8 @@ final readonly class ExposeClient
             $translations = [];
             $description = null;
             if (!empty($descriptionTranslations)) {
-                $descriptionTranslations = array_map(function (array $ltr): string {
-                    return sprintf('<div class="attributes">
-    %s</div>', implode("\n", $ltr));
-                }, $descriptionTranslations);
+                $descriptionTranslations = array_map(fn (array $ltr): string => sprintf('<div class="attributes">
+    %s</div>', implode("\n", $ltr)), $descriptionTranslations);
 
                 if (isset($descriptionTranslations[AttributeInterface::NO_LOCALE])) {
                     $description = $descriptionTranslations[AttributeInterface::NO_LOCALE];

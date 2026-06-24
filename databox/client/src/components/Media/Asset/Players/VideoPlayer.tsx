@@ -89,7 +89,10 @@ export default function VideoPlayer({
             const videoElement = playerRef.current.getInternalPlayer();
 
             if (trackingId !== undefined && videoElement) {
-                pushInstruction('MediaAnalytics::scanForMedia');
+                pushInstruction(
+                    'MediaAnalytics::scanForMedia',
+                    videoElement.parentElement
+                );
 
                 videoElement.setAttribute('data-matomo-resource', trackingId);
 
@@ -98,7 +101,7 @@ export default function VideoPlayer({
                 }
             }
         }
-    }, [playerRef]);
+    }, [playerRef.current]);
 
     const visibilityListener = useCallback<IsVisibleCallback>(
         isVisible => {

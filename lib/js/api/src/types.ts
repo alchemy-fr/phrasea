@@ -1,7 +1,13 @@
-import {FieldValues, UseFormReturn} from 'react-hook-form';
+import {
+    DefaultValues,
+    FieldValues,
+    UseFormProps,
+    UseFormReturn,
+} from 'react-hook-form';
 import {AxiosError, AxiosInstance} from 'axios';
 import {type IAxiosRetryConfigExtended} from 'axios-retry';
-import type {BaseSyntheticEvent} from 'react';
+import {BaseSyntheticEvent} from 'react';
+import {ApiErrorMapping, NormalizePath} from './form';
 
 export type RequestMeta = {
     requestStartedAt?: number;
@@ -27,6 +33,24 @@ export type SetOnSubmit<T extends FieldValues, R = T> = (
     fn: OnSubmit<T, R>
 ) => void;
 export type RemoteErrors = string[];
+
+export type UseFormSubmitProps<
+    T extends FieldValues,
+    R = T,
+    FormData extends FieldValues = T,
+> = {
+    normalize?: (data: T) => DefaultValues<FormData>;
+    denormalize?: (data: FormData) => T;
+    toastSuccess?: string;
+    onBeforeSubmit?: OnBeforeSubmit<FormData>;
+    onSubmit: OnSubmit<T, R>;
+    onSuccess?: (res: R) => void;
+    onError?: (errors: string) => void;
+    apiErrors?: {
+        mapping?: ApiErrorMapping<FormData>;
+        normalizePath?: NormalizePath;
+    };
+} & UseFormProps<FormData>;
 
 export type UseFormSubmitReturn<
     T extends FieldValues,

@@ -3,7 +3,7 @@ import {Asset, AssetRendition} from '../../../../types.ts';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {MemoizedFilePlayer} from '../FilePlayer.tsx';
 import {useWindowSize} from '@alchemy/react-hooks/src/useWindowSize.ts';
-import {StackedModalProps, useParams, useLocation} from '@alchemy/navigation';
+import {useParams, useLocation} from '@alchemy/navigation';
 import {filePlayerRelativeWrapperClassName} from '../Players';
 import {Dimensions} from '@alchemy/core';
 import {Box, Typography} from '@mui/material';
@@ -38,6 +38,7 @@ import {getMediaBackgroundColor, scrollbarWidth} from '../../../uiVars.ts';
 import {NormalizedCollectionResponse} from '@alchemy/api';
 import {useTracking} from '@alchemy/phrasea-framework';
 import AssetMatomoMetricsView from '../AssetMatomoMetricsView.tsx';
+import {FileTypeEnum, getFileTypeFromMIMEType} from '@alchemy/core';
 
 export type IntegrationOverlayCommonProps = {
     dimensions: Dimensions;
@@ -55,9 +56,9 @@ export type SetIntegrationOverlayFunction<P extends {} = any> = (
     replace?: boolean
 ) => void;
 
-type Props = {} & StackedModalProps;
+type Props = {};
 
-export default function AssetView({modalIndex, open}: Props) {
+export default function AssetView({}: Props) {
     const menuWidth = 400;
     const headerHeight = 60;
     let heightRest = headerHeight;
@@ -191,19 +192,16 @@ export default function AssetView({modalIndex, open}: Props) {
 
     React.useEffect(() => {
         if (asset && isImpressionTrackedRef.current !== asset.id) {
-            trackContentImpression(
-                asset.resolvedTrackingId,
-                asset.resolvedName
-            );
+            const type = getFileTypeFromMIMEType(asset?.source?.type);
+            if (![FileTypeEnum.Audio, FileTypeEnum.Video].includes(type)) {
+                trackContentImpression(asset.resolvedTrackingId, asset.name);
+            }
+
             isImpressionTrackedRef.current = asset.id;
         }
     }, [asset?.id, isImpressionTrackedRef, trackContentImpression]);
 
     if (!isSuccess && !isError && !previousData.current) {
-        if (!open) {
-            return null;
-        }
-
         return <FullPageLoader />;
     }
 
@@ -212,8 +210,7 @@ export default function AssetView({modalIndex, open}: Props) {
             {({onClose}) => (
                 <AppDialog
                     disableEscapeKeyDown={true}
-                    modalIndex={modalIndex}
-                    open={open}
+                    open={true}
                     disablePadding={true}
                     sx={{
                         '.MuiDialogTitle-root': {
@@ -299,9 +296,7 @@ export default function AssetView({modalIndex, open}: Props) {
                                                     file={
                                                         displayedRenditionFile!
                                                     }
-                                                    title={
-                                                        displayedAsset.resolvedName
-                                                    }
+                                                    title={displayedAsset.name}
                                                     trackingId={
                                                         displayedAsset.resolvedTrackingId
                                                     }

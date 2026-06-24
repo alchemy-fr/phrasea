@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Consumer\Middleware;
 
 use Alchemy\NotifyBundle\Notification\NotifierInterface;

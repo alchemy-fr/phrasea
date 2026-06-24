@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Api\Model\Input\Attribute;
 
+use App\Entity\Core\AttributeDefinition;
+
 abstract class AbstractBaseAttributeInput
 {
     /**
      * @var string|float|int|bool|array|null
      */
     public $value;
+
+    public ?array $errors = null;
 
     /**
      * @var string|null
@@ -27,4 +31,5 @@ abstract class AbstractBaseAttributeInput
     public ?string $name = null;
 
     public ?string $definitionId = null;
+    public ?AttributeDefinition $definition = null;
 }

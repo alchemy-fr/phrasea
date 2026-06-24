@@ -18,11 +18,30 @@ final class IpAttributeType extends AbstractAttributeType
         return 'ip';
     }
 
+    public function validate(mixed $value): ?array
+    {
+        if (null === $value) {
+            return null;
+        }
+
+        if (!is_string($value)) {
+            return ['Invalid IP address'];
+        }
+
+        if (!filter_var($value, FILTER_VALIDATE_IP)) {
+            return ['Invalid IP address'];
+        }
+
+        return null;
+    }
+
+    #[\Override]
     public function supportsAggregation(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function supportsSuggest(): bool
     {
         return true;

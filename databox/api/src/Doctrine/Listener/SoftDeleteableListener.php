@@ -26,6 +26,7 @@ class SoftDeleteableListener extends BaseSoftDeleteableListener
         self::$enabled = false;
     }
 
+    #[\Override]
     public function onFlush(EventArgs $args): void
     {
         if (self::$enabled) {

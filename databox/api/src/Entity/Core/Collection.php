@@ -135,7 +135,6 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             uriTemplate: '/collections/{id}/es-document-sync',
-            input: null,
             validate: false,
             name: 'collection_sync_es_document',
             processor: ItemElasticsearchDocumentSyncProcessor::class,

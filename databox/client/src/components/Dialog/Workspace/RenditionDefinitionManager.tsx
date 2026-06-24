@@ -16,6 +16,7 @@ import {
     CheckboxWidget,
     FormFieldErrors,
     FormRow,
+    ResolvedChangedValue,
     RSelectWidget,
     SelectOption,
     TranslatedField,
@@ -33,7 +34,7 @@ import RenditionPolicySelect from '../../Form/RenditionPolicySelect';
 import {toast} from 'react-toastify';
 import React from 'react';
 import RenditionDefinitionSelect from '../../Form/RenditionDefinitionSelect.tsx';
-import CodeEditorWidget from '../../Form/CodeEditorWidget.tsx';
+import CodeEditorWidget from '../../Form/CodeEditor/CodeEditorWidget.tsx';
 import UseAsWidget from '../../Form/UseAsWidget.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import {useCreateSaveTranslations} from '../../../hooks/useCreateSaveTranslations.ts';
@@ -306,7 +307,7 @@ export default function RenditionDefinitionManager({
                             'Filter by Asset Type'
                         )}
                         value={filters.target as any}
-                        onChange={newValue =>
+                        onChange={(newValue: ResolvedChangedValue<false>) =>
                             setFilter(
                                 'target',
                                 denormalizeValue(

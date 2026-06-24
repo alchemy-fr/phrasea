@@ -59,7 +59,7 @@ import {
 } from './managerTypes.ts';
 import {SortableListItem} from './SortableListItem.tsx';
 import ListItemContainer from './ListItemContainer.tsx';
-import {logError} from '@alchemy/core';
+import {isEmpty, logError} from '@alchemy/core';
 
 type Props<
     D extends DefinitionBase,
@@ -99,6 +99,7 @@ type Props<
     ) => ConfirmDialogProps<any>['assertions'];
     batchActions?: (selection: string[]) => BatchAction<D>[];
     extraProps?: EP;
+    listWidth?: number;
 };
 
 export default function DefinitionManager<
@@ -133,6 +134,7 @@ export default function DefinitionManager<
     batchActions,
     extraProps,
     filters: inputFilters,
+    listWidth = 250,
 }: Props<D, F, EP>) {
     const {openModal} = useModals();
     const [selection, setSelection] = useState<string[]>([]);
@@ -422,6 +424,7 @@ export default function DefinitionManager<
         return {
             selectedItem: item as (D & SortableItem) | undefined,
             listComponent,
+            onUpdate: onItemUpdate,
             handleItemClick,
             setSelection,
             selection: batchActions ? selection : undefined,
@@ -432,6 +435,7 @@ export default function DefinitionManager<
     }, [
         onSort,
         batchActions,
+        onItemUpdate,
         handleItemClick,
         itemDeletable,
         onDelete,
@@ -454,7 +458,7 @@ export default function DefinitionManager<
                     sx={{
                         overflowY: 'auto',
                         p: 0,
-                        width: 250,
+                        width: listWidth,
                     }}
                     component="div"
                     role="list"
@@ -492,7 +496,7 @@ export default function DefinitionManager<
                                     <FilterDropdown
                                         activeFilterCount={
                                             Object.entries(filters).filter(
-                                                ([_, v]) => !!v
+                                                ([_, v]) => !isEmpty(v)
                                             ).length
                                         }
                                     >
@@ -536,6 +540,9 @@ export default function DefinitionManager<
                                     badgeContent={selection.length}
                                     color="primary"
                                     invisible={selection.length === 0}
+                                    sx={{
+                                        zIndex: 2,
+                                    }}
                                 >
                                     <Checkbox
                                         checked={
@@ -630,6 +637,7 @@ export default function DefinitionManager<
                                                     : undefined
                                             }
                                             listComponent={listComponent}
+                                            onUpdate={onItemUpdate}
                                             setSelection={setSelection}
                                         />
                                     );
@@ -680,6 +688,19 @@ export default function DefinitionManager<
                             </ListItem>
                         ))
                     )}
+                    <Box
+                        sx={theme => ({
+                            borderTop: `1px solid ${theme.palette.divider}`,
+                            color: theme.palette.divider,
+                            fontSize: 12,
+                        })}
+                    >
+                        {t('definition_manager.count', {
+                            defaultValue: '{{count}} item',
+                            defaultValue_other: `{{count}} items`,
+                            count: list?.length ?? 0,
+                        })}
+                    </Box>
                 </List>
             </Box>
             <Box

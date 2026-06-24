@@ -18,7 +18,9 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\Api\Model\Input\ExportEntitiesInput;
 use App\Api\Model\Input\ImportEntitiesInput;
+use App\Api\Processor\ExportEntitiesProcessor;
 use App\Api\Processor\ImportEntitiesProcessor;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -46,6 +48,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: ImportEntitiesInput::class,
             name: 'import_entities',
             processor: ImportEntitiesProcessor::class
+        ),
+        new Post(
+            uriTemplate: '/entity-lists/{id}/export',
+            security: 'is_granted("EDIT", object)',
+            input: ExportEntitiesInput::class,
+            name: 'export_entities',
+            processor: ExportEntitiesProcessor::class
         ),
     ],
     normalizationContext: [
@@ -124,7 +133,7 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
         $this->name = $name;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->name ?? $this->getId() ?? '';
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Api\Filter;
 
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
@@ -32,7 +34,8 @@ final class AssetTypeTargetFilter extends AbstractFilter
             ->setParameter($parameterName, (int) $value);
     }
 
-    protected function getProperties(): ?array
+    #[\Override]
+    protected function getProperties(): array
     {
         return ['target'];
     }

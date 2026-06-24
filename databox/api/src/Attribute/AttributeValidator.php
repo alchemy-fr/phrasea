@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Attribute;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
@@ -15,6 +17,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Context\ExecutionContext;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -32,6 +35,73 @@ final readonly class AttributeValidator
     ) {
     }
 
+    public function validateAttribute(
+        AttributeDefinition $definition,
+        AbstractBaseAttributeInput $attributeInput,
+        string $contextName,
+    ): void {
+        $validationContext = new ExecutionContext(
+            $this->validator,
+            $contextName,
+            $this->translator,
+        );
+
+        $this->doValidateAttribute($definition, $attributeInput, $validationContext);
+    }
+
+    private function doValidateAttribute(
+        AttributeDefinition $definition,
+        AbstractBaseAttributeInput $attributeInput,
+        ExecutionContextInterface $validationContext,
+    ): void {
+        if ($attributeInput->locale
+            && AttributeInterface::NO_LOCALE !== $attributeInput->locale
+            && !$definition->isTranslatable()
+        ) {
+            throw new BadRequestHttpException(sprintf('Attribute "%s" is not translatable but locale was provided', $definition->getName()));
+        }
+
+        $value = $attributeInput->value;
+        if (null !== $value) {
+            $type = $this->typeRegistry->getStrictType($definition->getType());
+
+            if ($definition->isMultiple()) {
+                if (!is_array($value)) {
+                    $value = [$value];
+                }
+
+                foreach ($value as $j => $v) {
+                    $validationContext->setNode($value, $attributeInput, null, sprintf('%s.value[%s]', $validationContext->getPropertyPath(), $j));
+                    if (null !== $v) {
+                        $normalized = $type->normalizeValue($v);
+                        if (null !== $normalized) {
+                            $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($normalized));
+                        }
+                    }
+                }
+            } else {
+                $validationContext->setNode($value, $attributeInput, null, sprintf('%s.value', $validationContext->getPropertyPath()));
+                $normalized = $type->normalizeValue($value);
+
+                if (null !== $normalized) {
+                    $this->addErrorsToContext($definition, $attributeInput, $validationContext, $type->validate($normalized));
+                }
+            }
+        }
+    }
+
+    private function addErrorsToContext(AttributeDefinition $definition, AbstractBaseAttributeInput $attributeInput, ExecutionContextInterface $validationContext, ?array $errors): void
+    {
+        if (!empty($errors)) {
+            $attributeInput->errors = $errors;
+            if (!$definition->isAllowInvalid()) {
+                foreach ($errors as $error) {
+                    $validationContext->addViolation($error);
+                }
+            }
+        }
+    }
+
     /**
      * @param AbstractBaseAttributeInput[] $attributes
      */
@@ -45,7 +115,9 @@ final readonly class AttributeValidator
 
         foreach ($attributes as $i => $attributeInput) {
             $definition = null;
-            if ($attributeInput->definitionId) {
+            if ($attributeInput->definition) {
+                $definition = $attributeInput->definition;
+            } elseif ($attributeInput->definitionId) {
                 if (self::TAGS !== $attributeInput->definitionId) {
                     $definition = $this->getAttributeDefinition($workspaceId, $attributeInput->definitionId);
                 } else {
@@ -80,35 +152,9 @@ final readonly class AttributeValidator
 
             $this->denyUnlessGranted($definition);
 
-            if ($attributeInput->locale
-                && AttributeInterface::NO_LOCALE !== $attributeInput->locale
-                && !$definition->isTranslatable()
-            ) {
-                throw new BadRequestHttpException(sprintf('Attribute "%s" is not translatable but locale was provided', $definition->getName()));
-            }
+            $validationContext->setNode($attributeInput->value, $attributeInput, null, sprintf('%s[%s]', $validationContext->getRoot(), $i));
 
-            $value = $attributeInput->value;
-            if (null !== $value) {
-                $type = $this->typeRegistry->getStrictType($definition->getType());
-                $validationContext->setNode($value, $attributeInput, null, sprintf('%s[%d].value', $contextName, $i));
-
-                if ($definition->isMultiple()) {
-                    if (!is_array($value)) {
-                        $value = [$value];
-                    }
-
-                    foreach ($value as $j => $v) {
-                        $validationContext->setNode($value, $attributeInput, null, sprintf('%s[%d].value[%s]', $contextName, $i, $j));
-                        if (null !== $v) {
-                            $type->validate($v, $validationContext);
-                        }
-                    }
-
-                    continue;
-                }
-
-                $type->validate($value, $validationContext);
-            }
+            $this->doValidateAttribute($definition, $attributeInput, $validationContext);
         }
 
         if ($validationContext->getViolations()->count() > 0) {

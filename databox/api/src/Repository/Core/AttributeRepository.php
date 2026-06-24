@@ -9,6 +9,7 @@ use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\EntityAttributeType;
+use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -18,7 +19,7 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 class AttributeRepository extends ServiceEntityRepository
 {
-    private CacheInterface $attributeCache;
+    private readonly CacheInterface $attributeCache;
 
     public function __construct(
         ManagerRegistry $registry,
@@ -81,13 +82,14 @@ class AttributeRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function resetAssetCache(Asset $asset): void
+    {
+        $this->attributeCache->delete($asset->getId());
+    }
+
     public function getCachedAssetAttributes(string $assetId): array
     {
-        return $this->attributeCache->get($assetId, function () use ($assetId): array {
-            return array_filter($this->getAssetAttributes($assetId), function (Attribute $attribute): bool {
-                return $attribute->isValidValue();
-            });
-        });
+        return $this->attributeCache->get($assetId, fn (): array => array_filter($this->getAssetAttributes($assetId), fn (Attribute $attribute): bool => $attribute->isValidValue()));
     }
 
     public function getESQueryBuilder(): QueryBuilder

@@ -56,6 +56,7 @@ final class PhraseanetGenerateAssetRenditionsEnqueueMethodAction extends Abstrac
         }
     }
 
+    #[\Override]
     protected function shouldRun(Asset $asset): bool
     {
         if (null === $asset->getSource()) {

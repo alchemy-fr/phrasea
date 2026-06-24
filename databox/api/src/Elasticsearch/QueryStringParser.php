@@ -20,11 +20,11 @@ class QueryStringParser
             $must[] = substr($r[0], 1, -1);
 
             return '';
-        }, $query);
+        }, (string) $query);
 
         $should = $this->normalizeString($should);
 
-        $must = array_map(fn (string $str): string => $this->normalizeString($str), $must);
+        $must = array_map($this->normalizeString(...), $must);
 
         return [
             'must' => $must,
@@ -35,6 +35,6 @@ class QueryStringParser
 
     private function normalizeString(string $str): string
     {
-        return trim(preg_replace('/\s{2,}/', ' ', $str));
+        return trim((string) preg_replace('/\s{2,}/', ' ', $str));
     }
 }

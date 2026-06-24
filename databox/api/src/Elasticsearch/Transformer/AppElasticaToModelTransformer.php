@@ -29,6 +29,7 @@ class AppElasticaToModelTransformer extends ElasticaToModelTransformer
      *
      * @return array
      **/
+    #[\Override]
     public function transform(array $elasticaObjects)
     {
         $ids = $hasChildren = $highlights = [];

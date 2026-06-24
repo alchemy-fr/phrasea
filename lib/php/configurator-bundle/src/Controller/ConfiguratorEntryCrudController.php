@@ -5,6 +5,7 @@ namespace Alchemy\ConfiguratorBundle\Controller;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AuthBundle\Security\JwtUser;
+use Alchemy\AuthBundle\Security\Voter\AdminVoter;
 use Alchemy\ConfiguratorBundle\Entity\ConfiguratorEntry;
 use Alchemy\ConfiguratorBundle\Field\FileField;
 use Alchemy\ConfiguratorBundle\Form\Type\ConfigurationKeyType;
@@ -23,7 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted(new Expression('is_granted("'.JwtUser::ROLE_TECH.'")'))]
+#[IsGranted(new Expression('is_granted("'.AdminVoter::ROLE.'") or is_granted("'.JwtUser::ROLE_TECH.'")'))]
 class ConfiguratorEntryCrudController extends AbstractAdminCrudController
 {
     public function __construct(

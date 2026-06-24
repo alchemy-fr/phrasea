@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Tests\Attribute;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
@@ -100,6 +102,7 @@ class AttributeEntityTest extends AbstractSearchTest
                     'id' => $entity1->getId(),
                     'value' => 'ae1',
                 ],
+                'name_text_s' => 'Asset1',
             ],
             'en' => [
                 'many_entity_m' => [
@@ -188,6 +191,7 @@ class AttributeEntityTest extends AbstractSearchTest
                     'id' => $entity1->getId(),
                     'value' => 'ae1-bis',
                 ],
+                'name_text_s' => 'Asset1',
             ],
             'en' => [
                 'many_entity_m' => [
@@ -284,6 +288,7 @@ class AttributeEntityTest extends AbstractSearchTest
                         'ae1-bis',
                     ],
                 ],
+                'name_text_s' => 'Asset1',
             ],
             'en' => [
                 'many_entity_m' => [

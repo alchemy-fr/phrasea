@@ -14,6 +14,7 @@ class WorkflowStateVoter extends AbstractVoter
         return $subject instanceof WorkflowState;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, WorkflowState::class, true);
@@ -24,10 +25,6 @@ class WorkflowStateVoter extends AbstractVoter
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
-        if ($this->isAdmin()) {
-            return true;
-        }
-
         if (null !== $asset = $subject->getAsset()) {
             return $this->security->isGranted(AbstractVoter::EDIT, $asset);
         }

@@ -30,6 +30,7 @@ class AssetOutput extends AbstractUuidOutput
 
     #[Groups(['_', Asset::GROUP_LIST])]
     #[ApiProperty(identifier: true)]
+    #[\Override]
     protected string $id;
 
     #[ApiProperty(jsonSchemaContext: [
@@ -64,16 +65,6 @@ class AssetOutput extends AbstractUuidOutput
         ResolveEntitiesOutput::GROUP_READ,
     ])]
     private ?string $name = null;
-
-    #[Groups([
-        Asset::GROUP_LIST,
-        Asset::GROUP_STORY,
-        WebhookSerializationInterface::DEFAULT_GROUP,
-        Share::GROUP_READ,
-        Share::GROUP_PUBLIC_READ,
-        ResolveEntitiesOutput::GROUP_READ,
-    ])]
-    private ?string $resolvedName = null;
 
     #[Groups([Asset::GROUP_LIST])]
     private ?string $nameHighlight = null;
@@ -281,14 +272,19 @@ class AssetOutput extends AbstractUuidOutput
         $this->nameHighlight = $nameHighlight;
     }
 
+    #[Groups([
+        Asset::GROUP_LIST,
+        Asset::GROUP_STORY,
+        WebhookSerializationInterface::DEFAULT_GROUP,
+        Share::GROUP_READ,
+        Share::GROUP_PUBLIC_READ,
+        ResolveEntitiesOutput::GROUP_READ,
+    ])]
+    #[ApiProperty(deprecationReason: 'Use the name property instead')]
+    #[\Deprecated(message: 'Use getName() instead')]
     public function getResolvedName(): ?string
     {
-        return $this->resolvedName;
-    }
-
-    public function setResolvedName(?string $resolvedName): void
-    {
-        $this->resolvedName = $resolvedName;
+        return $this->name;
     }
 
     public function getGroupValue(): ?GroupValue

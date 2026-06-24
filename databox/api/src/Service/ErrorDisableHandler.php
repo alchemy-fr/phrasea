@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use App\Entity\Traits\ErrorDisableInterface;
@@ -25,7 +27,7 @@ final readonly class ErrorDisableHandler
         }
 
         $entity->appendError([
-            'date' => (new \DateTimeImmutable())->format(\DateTimeInterface::ATOM),
+            'date' => new \DateTimeImmutable()->format(\DateTimeInterface::ATOM),
             'message' => $exception->getMessage(),
             'code' => $exception->getCode(),
             'file' => $exception->getFile(),

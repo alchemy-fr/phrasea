@@ -8,6 +8,7 @@ use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\Workspace;
+use App\Validator\TwigConstraint;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -44,6 +45,10 @@ class AttributeDefinitionInput
      * @var string
      */
     public $fileType;
+
+    public ?bool $fillFromName = null;
+
+    public ?int $namePriority = null;
 
     /**
      * @var bool
@@ -106,6 +111,9 @@ class AttributeDefinitionInput
      *
      * @var string[]
      */
+    #[Assert\All([
+        new TwigConstraint(),
+    ])]
     public $fallback;
 
     /**

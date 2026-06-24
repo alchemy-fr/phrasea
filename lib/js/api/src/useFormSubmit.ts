@@ -1,37 +1,16 @@
 import {useState} from 'react';
 import axios from 'axios';
-import {DefaultValues, UseFormProps} from 'react-hook-form';
-import {
-    ApiErrorMapping,
-    mapApiErrors,
-    normalizeApiPlatformPath,
-    NormalizePath,
-} from './form';
-import {useForm} from 'react-hook-form';
-import {FieldValues} from 'react-hook-form';
+import {mapApiErrors, normalizeApiPlatformPath} from './form';
+import {FieldValues, useForm} from 'react-hook-form';
 import {toast} from 'react-toastify';
 import {getBestErrorProp} from './utils';
 import {
     ApiConstant,
-    OnBeforeSubmit,
-    OnSubmit,
     RemoteErrors,
     SetOnSubmit,
+    UseFormSubmitProps,
     UseFormSubmitReturn,
 } from './types';
-
-type Props<T extends FieldValues, R, FormData extends FieldValues> = {
-    normalize?: (data: T) => DefaultValues<FormData>;
-    denormalize?: (data: FormData) => T;
-    toastSuccess?: string;
-    onBeforeSubmit?: OnBeforeSubmit<FormData>;
-    onSubmit: OnSubmit<T, R>;
-    onSuccess?: (res: R) => void;
-    apiErrors?: {
-        mapping?: ApiErrorMapping<FormData>;
-        normalizePath?: NormalizePath;
-    };
-} & UseFormProps<FormData>;
 
 export default function useFormSubmit<
     T extends FieldValues,
@@ -41,12 +20,13 @@ export default function useFormSubmit<
     onBeforeSubmit,
     onSubmit,
     onSuccess,
+    onError,
     apiErrors,
     toastSuccess,
     normalize,
     denormalize,
     ...useFormProps
-}: Props<T, R, FormData>): UseFormSubmitReturn<T, R, FormData> {
+}: UseFormSubmitProps<T, R, FormData>): UseFormSubmitReturn<T, R, FormData> {
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [remoteErrors, setRemoteErrors] = useState<RemoteErrors>([]);
@@ -83,7 +63,7 @@ export default function useFormSubmit<
                         setRemoteErrors,
                         getValues,
                         apiErrors?.mapping,
-                        apiErrors?.normalizePath || normalizeApiPlatformPath
+                        apiErrors?.normalizePath ?? normalizeApiPlatformPath
                     );
 
                     return;
@@ -91,14 +71,21 @@ export default function useFormSubmit<
                     e.response &&
                     [400, 500].includes(e.response.status)
                 ) {
-                    const resData = e.response.data;
+                    let resData = e.response.data;
+                    if (e.response.config.responseType === 'blob') {
+                        const txt = await (e.response.data as Blob).text();
+                        try {
+                            resData = JSON.parse(txt);
+                        } catch {
+                            resData = {message: txt};
+                        }
+                    }
 
-                    setRemoteErrors(p =>
-                        p.concat(
-                            getBestErrorProp(resData) ??
-                                ApiConstant.UnknownError
-                        )
-                    );
+                    const newError =
+                        getBestErrorProp(resData) ?? ApiConstant.UnknownError;
+                    onError?.(newError);
+
+                    setRemoteErrors(p => p.concat(newError));
                 }
 
                 throw e;

@@ -45,7 +45,8 @@ final class InWorkspacesFilter extends AbstractFilter
             ->setParameter($parameterName, $value);
     }
 
-    protected function getProperties(): ?array
+    #[\Override]
+    protected function getProperties(): array
     {
         return ['workspace'];
     }

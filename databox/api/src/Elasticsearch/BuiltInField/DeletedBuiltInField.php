@@ -30,15 +30,16 @@ final class DeletedBuiltInField extends AbstractBuiltInAttribute
         return $asset->isDeleted();
     }
 
+    #[\Override]
     public function getType(): string
     {
         return BooleanAttributeType::getName();
     }
 
-    public function createFilterQuery(mixed $value, array $options): ?Query\AbstractQuery
+    public function createFilterQuery(mixed $value, array $options): Query\AbstractQuery
     {
         if (null !== $value) {
-            $value = (bool) filter_var($value, FILTER_VALIDATE_BOOLEAN);
+            $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
         }
 
         if (false === $value) {
@@ -91,6 +92,7 @@ final class DeletedBuiltInField extends AbstractBuiltInAttribute
         return $isNotDeletedQuery;
     }
 
+    #[\Override]
     public function isFacet(): bool
     {
         return false;

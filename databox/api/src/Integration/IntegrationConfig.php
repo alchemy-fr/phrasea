@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Integration;
 
 use App\Entity\Integration\WorkspaceIntegration;
@@ -67,13 +69,13 @@ class IntegrationConfig implements \ArrayAccess
         if (is_string($value) && str_contains($value, '$')) {
             $value = preg_replace_callback(
                 '#\$\{([^}]+)}#i',
-                fn (array $match): string => $this->resolve($match),
+                $this->resolve(...),
                 $value
             );
             $value = preg_replace_callback(
                 '#\$([A-Z\d_]+)#i',
-                fn (array $match): string => $this->resolve($match),
-                $value
+                $this->resolve(...),
+                (string) $value
             );
         }
 

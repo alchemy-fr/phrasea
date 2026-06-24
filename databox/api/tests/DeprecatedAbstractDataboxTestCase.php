@@ -19,6 +19,7 @@ abstract class DeprecatedAbstractDataboxTestCase extends ApiTestCase
     use FixturesTrait;
     use DataboxTestTrait;
 
+    #[\Override]
     protected static function bootKernel(array $options = []): KernelInterface
     {
         return static::bootKernelWithFixtures($options);

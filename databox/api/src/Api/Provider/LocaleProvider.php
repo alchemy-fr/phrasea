@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Api\Provider;
 
 use ApiPlatform\Metadata\GetCollection;
@@ -10,10 +12,6 @@ use Symfony\Component\Intl\Locales;
 
 final readonly class LocaleProvider implements ProviderInterface
 {
-    public function __construct()
-    {
-    }
-
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         if ($operation instanceof GetCollection) {

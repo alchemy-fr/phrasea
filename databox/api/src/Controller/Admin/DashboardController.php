@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use Alchemy\AclBundle\Entity\AccessControlEntry;
@@ -10,6 +12,7 @@ use Alchemy\TrackBundle\Entity\ChangeLog;
 use Alchemy\WebhookBundle\Entity\Webhook;
 use Alchemy\WebhookBundle\Entity\WebhookLog;
 use Alchemy\Workflow\Doctrine\Entity\JobState;
+use App\Entity\Admin\AssetIndexPass;
 use App\Entity\Admin\ESIndexState;
 use App\Entity\Admin\PopulatePass;
 use App\Entity\Basket\Basket;
@@ -17,7 +20,6 @@ use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetAttachment;
-use App\Entity\Core\AssetNameAttribute;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -56,6 +58,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DashboardController extends AbstractAdminDashboardController
 {
     #[Route(path: '/admin', name: 'easyadmin')]
+    #[\Override]
     public function index(): Response
     {
         $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
@@ -63,6 +66,7 @@ class DashboardController extends AbstractAdminDashboardController
         return $this->redirect($adminUrlGenerator->setController(WorkspaceCrudController::class)->generateUrl());
     }
 
+    #[\Override]
     public function configureMenuItems(): iterable
     {
         $submenu1 = [
@@ -84,7 +88,6 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkToCrud('Attribute', '', Attribute::class),
             MenuItem::linkToCrud('Attribute Entity', '', AttributeEntity::class),
             MenuItem::linkToCrud('Entity List', '', EntityList::class),
-            MenuItem::linkToCrud('Asset Name Attribute', '', AssetNameAttribute::class),
             MenuItem::linkToCrud('Attribute Definition', '', AttributeDefinition::class),
             MenuItem::linkToCrud('Attribute Policy', '', AttributePolicy::class),
             MenuItem::linkToCrud('Tag', '', Tag::class),
@@ -120,6 +123,7 @@ class DashboardController extends AbstractAdminDashboardController
         $submenu3 = [
             MenuItem::linkToCrud('Populate Pass', '', PopulatePass::class),
             MenuItem::linkToCrud('ES Index State', '', ESIndexState::class),
+            MenuItem::linkToCrud('Asset and Attributes Index Pass', '', AssetIndexPass::class),
         ];
 
         $submenu4 = [

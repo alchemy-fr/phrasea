@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
@@ -54,6 +56,6 @@ final readonly class ESDocumentStateManager
             }
         }
 
-        throw new \RuntimeException(sprintf('No object persister found for object of class %s', get_class($object)));
+        throw new \RuntimeException(sprintf('No object persister found for object of class %s', $object::class));
     }
 }

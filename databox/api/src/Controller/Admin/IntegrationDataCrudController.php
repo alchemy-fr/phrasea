@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
@@ -20,7 +22,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 class IntegrationDataCrudController extends AbstractAdminCrudController
 {
     public function __construct(
-        private UserChoiceField $userChoiceField,
+        private readonly UserChoiceField $userChoiceField,
     ) {
     }
 
@@ -29,12 +31,14 @@ class IntegrationDataCrudController extends AbstractAdminCrudController
         return IntegrationData::class;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
             ->setSearchFields(['id', 'value']);
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)
@@ -43,6 +47,7 @@ class IntegrationDataCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -54,6 +59,7 @@ class IntegrationDataCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();

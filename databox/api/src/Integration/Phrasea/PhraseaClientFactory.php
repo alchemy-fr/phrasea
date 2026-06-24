@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Integration\Phrasea;
 
 use App\Entity\Integration\IntegrationToken;
@@ -20,15 +22,13 @@ final readonly class PhraseaClientFactory
             'base_uri' => $baseUrl,
         ]);
 
-        $accessToken = $this->integrationTokenManager->getAccessToken($integrationToken, function (string $refreshToken) use ($client, $clientId): array {
-            return $client->request('POST', '/oauth/v2/token', [
-                'body' => [
-                    'grant_type' => 'refresh_token',
-                    'client_id' => $clientId,
-                    'refresh_token' => $refreshToken,
-                ],
-            ])->toArray();
-        });
+        $accessToken = $this->integrationTokenManager->getAccessToken($integrationToken, fn (string $refreshToken): array => $client->request('POST', '/oauth/v2/token', [
+            'body' => [
+                'grant_type' => 'refresh_token',
+                'client_id' => $clientId,
+                'refresh_token' => $refreshToken,
+            ],
+        ])->toArray());
 
         return $client->withOptions([
             'headers' => [

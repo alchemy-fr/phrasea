@@ -107,6 +107,7 @@ EOL;
         $this->assertEquals($expectedCount, count($results));
     }
 
+    #[\Override]
     protected static function bootKernel(array $options = []): KernelInterface
     {
         return static::bootKernelWithFixtures($options);

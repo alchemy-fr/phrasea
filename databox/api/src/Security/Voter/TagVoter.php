@@ -14,6 +14,7 @@ class TagVoter extends AbstractVoter
         return $subject instanceof Tag;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, Tag::class, true);

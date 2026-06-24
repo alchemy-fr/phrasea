@@ -7,29 +7,31 @@ namespace App\Tests\Attribute\Type;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\HtmlAttributeType;
 
-class HtmlAttributeTypeTest extends AbstractAttributeTypeTest
+class HtmlAttributeTypeTest extends TextAttributeTypeTest
 {
+    #[\Override]
     protected function getType(): AttributeTypeInterface
     {
         return new HtmlAttributeType(new \HTMLPurifier());
     }
 
+    #[\Override]
     public function getNormalizationCases(): array
     {
-        return $this->getPurifyCases();
+        return [
+            ...parent::getNormalizationCases(),
+            ['<a>link</a>', '<a>link</a>'],
+            ['<img onclick="alert()" src="https://foo/img.jpg">', '<img src="https://foo/img.jpg" alt="img.jpg" />'],
+            ['<br/>', '<br />'],
+            ['<script>alert("ok")</script>', null],
+        ];
     }
 
+    #[\Override]
     public function getDenormalizationCases(): array
     {
-        return $this->getPurifyCases();
-    }
-
-    private function getPurifyCases(): array
-    {
         return [
-            [null, null],
-            ['null', 'null'],
-            ['', ''],
+            ...parent::getDenormalizationCases(),
             ['<a>link</a>', '<a>link</a>'],
             ['<img onclick="alert()" src="https://foo/img.jpg">', '<img src="https://foo/img.jpg" alt="img.jpg" />'],
             ['<br/>', '<br />'],
@@ -37,12 +39,11 @@ class HtmlAttributeTypeTest extends AbstractAttributeTypeTest
         ];
     }
 
+    #[\Override]
     public function getElasticsearchNormalizationCases(): array
     {
         return [
-            [null, null],
-            ['null', 'null'],
-            ['', ''],
+            ...parent::getElasticsearchNormalizationCases(),
             ['<a>link</a>', 'link'],
             ['<br/>', ''],
         ];

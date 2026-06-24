@@ -17,6 +17,7 @@ class RenditionPolicyVoter extends AbstractVoter
         return $subject instanceof RenditionPolicy;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, RenditionPolicy::class, true);

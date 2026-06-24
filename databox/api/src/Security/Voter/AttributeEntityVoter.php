@@ -16,6 +16,7 @@ class AttributeEntityVoter extends AbstractVoter
         return $subject instanceof AttributeEntity;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, AttributeEntity::class, true);

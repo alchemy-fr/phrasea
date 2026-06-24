@@ -12,6 +12,7 @@ use App\Integration\AbstractIntegrationAction;
 use App\Integration\Happyscribe\Consumer\TranscriptionHappyscribeMessage;
 use App\Integration\IfActionInterface;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Asset\FileFetcher;
 use App\Service\Storage\RenditionManager;
@@ -29,6 +30,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly AttributesResolver $attributesResolver,
         private readonly MessageBusInterface $bus,
+        private readonly AssetNameResolver $assetNameResolver,
     ) {
     }
 
@@ -46,8 +48,8 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
             return;
         }
 
-        if (in_array(strtolower($extension), HappyscribeIntegration::ALLOWED_EXTENSIONS, true)) {
-            $extension = strtolower($extension);
+        if (in_array(strtolower((string) $extension), HappyscribeIntegration::ALLOWED_EXTENSIONS, true)) {
+            $extension = strtolower((string) $extension);
         } else {
             throw new \InvalidArgumentException('Invalid transcript format, must be one of '.implode(', ', HappyscribeIntegration::ALLOWED_EXTENSIONS));
         }
@@ -106,7 +108,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
                     ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $config['sourceLanguageAttribute'], $asset->getWorkspaceId()));
 
         $sourceLanguage = $attributeIndex->getAttribute($srcLanguageAttrDef->getId(), AttributeInterface::NO_LOCALE)?->getValue() ?? $config['defaultSourceLanguage'];
-        $sourceLanguage = trim($sourceLanguage);
+        $sourceLanguage = trim((string) $sourceLanguage);
 
         if (!in_array(strlen($sourceLanguage), [2, 5])) {
             $t = explode('-', $sourceLanguage, 2);
@@ -124,7 +126,7 @@ class HappyscribeAction extends AbstractIntegrationAction implements IfActionInt
                 ],
                 'json' => [
                     'transcription' => [
-                        'name' => $asset->getName(),
+                        'name' => $this->assetNameResolver->resolveNameAsString($asset),
                         'is_subtitle' => true,
                         'language' => $sourceLanguage,
                         'organization_id' => $organizationId,

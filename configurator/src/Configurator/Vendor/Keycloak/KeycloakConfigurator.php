@@ -230,7 +230,9 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
     private function getAppScopes(): array
     {
         return [
-            'databox' => array_merge([], ...array_map(fn (string $ns): array => array_map(fn (string $p): string => $ns.':'.$p, [
+            'databox' => array_merge([
+                'admin',
+            ], ...array_map(fn (string $ns): array => array_map(fn (string $p): string => $ns.':'.$p, [
                 'create',
                 'list',
                 'read',
@@ -255,9 +257,11 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 'workspace',
             ])),
             'expose' => [
+                'admin',
                 'publish',
             ],
             'uploader' => [
+                'admin',
                 'commit:list',
             ],
         ];

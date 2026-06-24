@@ -18,7 +18,6 @@ import TooltipToggleButton from '../../Ui/TooltipToggleButton.tsx';
 import {Layout} from '../Layouts';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
-import ViewQuiltIcon from '@mui/icons-material/ViewQuilt';
 
 type Props = {};
 
@@ -107,14 +106,6 @@ export default function DisplayOptionsMenu({}: Props) {
                         value={Layout.List}
                     >
                         <ViewListIcon />
-                    </TooltipToggleButton>
-                    <TooltipToggleButton
-                        tooltipProps={{
-                            title: t('layout.view.masonry', 'Masonry View'),
-                        }}
-                        value={Layout.Masonry}
-                    >
-                        <ViewQuiltIcon />
                     </TooltipToggleButton>
                 </ToggleButtonGroup>
             </div>

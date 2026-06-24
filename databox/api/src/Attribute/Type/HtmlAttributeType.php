@@ -12,19 +12,24 @@ class HtmlAttributeType extends CodeAttributeType
     {
     }
 
-    public function normalizeValue($value): ?string
+    #[\Override]
+    public function normalizeValue(mixed $value): mixed
     {
-        $value = parent::normalizeValue($value);
+        if (is_string($value) && !empty(trim($value))) {
+            $value = $this->HTMLPurifier->purify($value);
+        }
 
+        return parent::normalizeValue($value);
+    }
+
+    #[\Override]
+    public function denormalizeValue($value): mixed
+    {
         return $this->purify($value);
     }
 
-    public function denormalizeValue($value): ?string
-    {
-        return $this->purify($value);
-    }
-
-    public function normalizeElasticsearchValue(?string $value)
+    #[\Override]
+    public function normalizeElasticsearchValue(?string $value): mixed
     {
         if (null === $value) {
             return null;
@@ -42,6 +47,7 @@ class HtmlAttributeType extends CodeAttributeType
         return $this->HTMLPurifier->purify($value);
     }
 
+    #[\Override]
     public function supportsAggregation(): bool
     {
         return false;

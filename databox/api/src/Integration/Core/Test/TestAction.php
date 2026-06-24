@@ -48,6 +48,7 @@ class TestAction extends AbstractIntegrationAction implements IfActionInterface
         }
     }
 
+    #[\Override]
     protected function shouldRun(Asset $asset): bool
     {
         if (null === $asset->getSource()) {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
@@ -43,6 +45,7 @@ class AssetCrudController extends AbstractAclAdminCrudController
     ) {
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         $viewWorkflow = Action::new('triggerIngest', 'Trigger Ingest', 'fa fa-gear')
@@ -73,30 +76,30 @@ class AssetCrudController extends AbstractAclAdminCrudController
         return $this->returnToReferer($context);
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Asset')
             ->setEntityLabelInPlural('Assets')
-            ->setSearchFields(['id', 'name', 'ownerId', 'key', 'locale', 'privacy']);
+            ->setSearchFields(['id', 'ownerId', 'key', 'locale', 'privacy']);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
             ->add(TextFilter::new('id'))
-            ->add(TextFilter::new('name'))
             ->add(EntityFilter::new('workspace'))
             ->add(AssociationIdentifierFilter::new('referenceCollection'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new()
-            ->hideOnForm();
-        yield TextField::new('name')
             ->hideOnForm();
         yield AssociationField::new('workspace')
             ->autocomplete();

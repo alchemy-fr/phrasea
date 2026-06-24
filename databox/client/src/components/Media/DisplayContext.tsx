@@ -15,7 +15,6 @@ export type PreviewOptions = {
 
 export type DisplayPreferences = {
     collectionsLimit: number;
-    displayAttributes: boolean;
     displayCollections: boolean;
     displayPreview: boolean;
     previewOptions: PreviewOptions;

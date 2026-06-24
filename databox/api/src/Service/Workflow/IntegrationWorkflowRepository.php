@@ -170,7 +170,7 @@ final readonly class IntegrationWorkflowRepository implements WorkflowRepository
             }
         }
 
-        (new DisabledNeedNormalizer())->normalizeWorkflow($integrationWorkflow);
+        new DisabledNeedNormalizer()->normalizeWorkflow($integrationWorkflow);
 
         return $integrationWorkflow;
     }

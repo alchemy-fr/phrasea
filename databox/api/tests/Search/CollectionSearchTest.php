@@ -205,7 +205,7 @@ class CollectionSearchTest extends AbstractSearchTest
 
     public function testSearchOwnedCollectionsAsOwnerButNotAllowedToWorkspace(): void
     {
-        $asset = $this->createCollection([
+        $this->createCollection([
             'name' => 'Foo',
             'ownerId' => KeycloakClientTestMock::USER_UID,
         ]);

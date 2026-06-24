@@ -1,8 +1,8 @@
 import {AttributeFormatterProps, AttributeWidgetProps} from './types';
 import TextareaType from './TextareaType';
-import CodeEditor from '../../Widgets/CodeEditor';
 import {FormLabel} from '@mui/material';
 import React from 'react';
+import CodeEditor from '../../../../Form/CodeEditor/CodeEditor.tsx';
 
 export default class CodeType extends TextareaType {
     renderWidget({

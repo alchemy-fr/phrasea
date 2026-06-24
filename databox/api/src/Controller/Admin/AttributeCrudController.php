@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
@@ -31,6 +33,7 @@ class AttributeCrudController extends AbstractAdminCrudController
         return Attribute::class;
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)
@@ -38,6 +41,7 @@ class AttributeCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
@@ -52,9 +56,11 @@ class AttributeCrudController extends AbstractAdminCrudController
             ->add(TextFilter::new('value'))
             ->add(TextFilter::new('locale'))
             ->add(BooleanFilter::new('locked'))
+            ->add(BooleanFilter::new('invalid'))
         ;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -64,6 +70,7 @@ class AttributeCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new();
@@ -80,6 +87,7 @@ class AttributeCrudController extends AbstractAdminCrudController
         yield TextareaField::new('originVendorContext')
             ->hideOnIndex();
         yield IntegerField::new('position');
+        yield BooleanField::new('invalid');
         yield IdField::new('originUserId')
             ->hideOnIndex();
         yield JsonField::new('assetAnnotations')

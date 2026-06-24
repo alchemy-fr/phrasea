@@ -54,8 +54,8 @@ class LongTextTest extends AbstractSearchTestCase
                 'query' => $searchKeyword,
             ],
         ]);
-        $this->assertResponseIsSuccessful();
-        $data = json_decode($response->getContent(), true);
+        $this->assertSame(200, $response->getStatusCode());
+        $data = $response->toArray();
         $assetResult = $data['hydra:member'][0];
         $this->assertEquals($longText, $assetResult['attributes'][0]['value']);
     }

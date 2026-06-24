@@ -83,7 +83,7 @@ class TagFilterRuleRepository extends ServiceEntityRepository
             }
         }
 
-        if (array_key_exists('userId', $params) && null === $params['userId']) {
+        if (null === $params['userId']) {
             $queryBuilder->andWhere('a.uid IS NULL');
         }
 

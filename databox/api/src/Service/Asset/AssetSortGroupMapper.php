@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service\Asset;
 
 use App\Api\Filter\Group\GroupValue;
@@ -64,7 +66,7 @@ final class AssetSortGroupMapper
         if (null !== $builtInField) {
             $value = $builtInField->getValueFromAsset($object);
 
-            return $builtInField->resolveGroupValue($groupBy, $value);
+            return $builtInField->resolveGroupValue($groupBy, $builtInField->denormalizeValue($value));
         }
 
         $type = $this->fieldNameResolver->getFieldFromName($groupBy)->type;

@@ -1,14 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\Acl\AbstractAclAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
+use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\WorkspaceTemplate;
 use App\Repository\Template\WorkspaceTemplateRepository;
+use App\Service\Workspace\WorkspaceCreator;
 use App\Service\Workspace\WorkspaceTemplater;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -31,9 +35,11 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
 {
     public function __construct(
         private readonly UserChoiceField $userChoiceField,
+        private readonly UserChoiceFilter $userChoiceFilter,
         private readonly WorkspaceTemplateRepository $workspaceTemplateRepository,
         private readonly WorkspaceTemplater $workspaceTemplater,
         private readonly AdminUrlGenerator $adminUrlGenerator,
+        private readonly WorkspaceCreator $workspaceCreator,
     ) {
     }
 
@@ -42,6 +48,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         return Workspace::class;
     }
 
+    #[\Override]
     public function configureCrud(Crud $crud): Crud
     {
         return parent::configureCrud($crud)
@@ -52,6 +59,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
             ->setDefaultSort(['name' => 'ASC']);
     }
 
+    #[\Override]
     public function configureActions(Actions $actions): Actions
     {
         $action = Action::new('saveAsTemplape', 'Save as template', 'fa fa-gear')
@@ -80,15 +88,17 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         return $this->redirect($url);
     }
 
+    #[\Override]
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
             ->add(TextFilter::new('name'))
-            ->add(TextFilter::new('ownerId'))
             ->add(BooleanFilter::new('public'))
+            ->add($this->userChoiceFilter->createFilter('ownerId'))
         ;
     }
 
+    #[\Override]
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new()
@@ -122,7 +132,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         yield AssociationField::new('renditionDefinitions')
             ->autocomplete()
             ->onlyOnDetail();
-        yield ChoiceField::new('applyWorkspaceTemplate', null)
+        yield ChoiceField::new('applyWorkspaceTemplate')
             ->setFormTypeOption('mapped', false)
             ->setChoices($this->getTemplateChoice());
         yield AssociationField::new('attributeDefinitions')
@@ -145,12 +155,17 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         return $templateChoices;
     }
 
+    #[\Override]
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
+        assert($entityInstance instanceof Workspace);
+        $this->workspaceCreator->createWorkspace($entityInstance);
+
         parent::persistEntity($entityManager, $entityInstance);
         $this->applyWorkspaceTemplate($entityInstance);
     }
 
+    #[\Override]
     public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         parent::updateEntity($entityManager, $entityInstance);

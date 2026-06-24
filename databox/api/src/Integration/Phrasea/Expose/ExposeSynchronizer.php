@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Integration\Phrasea\Expose;
 
 use Alchemy\CoreBundle\Lock\LockTrait;
@@ -51,7 +53,7 @@ final class ExposeSynchronizer
         $exposeAssets = [];
         foreach ($data['assets'] as $asset) {
             if (!empty($asset['clientAnnotations'])) {
-                $annotations = json_decode($asset['clientAnnotations'], true, 512, JSON_THROW_ON_ERROR);
+                $annotations = json_decode((string) $asset['clientAnnotations'], true, 512, JSON_THROW_ON_ERROR);
                 $basketAssetId = $annotations['basketAssetId'] ?? null;
                 if (null !== $basketAssetId) {
                     $subDefinitions = array_map(function (array $subDef): ExposeSubDefinition {

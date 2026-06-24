@@ -18,16 +18,19 @@ final class PrivacyBuiltInField extends AbstractLabelledBuiltInField
     /**
      * @param int $value
      */
+    #[\Override]
     public function resolveLabel($value): string
     {
         return $this->translator->trans(sprintf('privacy.%s', WorkspaceItemPrivacyInterface::KEYS[$value]));
     }
 
+    #[\Override]
     public function getType(): string
     {
         return PrivacyAttributeType::NAME;
     }
 
+    #[\Override]
     protected function resolveKey($value): string
     {
         return (string) $value;
@@ -53,6 +56,7 @@ final class PrivacyBuiltInField extends AbstractLabelledBuiltInField
         return 'privacy';
     }
 
+    #[\Override]
     protected function getAggregationSize(): int
     {
         return count(WorkspaceItemPrivacyInterface::KEYS);

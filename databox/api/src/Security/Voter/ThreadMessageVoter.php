@@ -15,6 +15,7 @@ class ThreadMessageVoter extends AbstractVoter
         return $subject instanceof Message;
     }
 
+    #[\Override]
     public function supportsType(string $subjectType): bool
     {
         return is_a($subjectType, Message::class, true);

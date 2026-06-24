@@ -31,11 +31,6 @@ class WorkspaceTemplate extends AbstractUuidEntity implements \Stringable, Logga
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $data = null;
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
     public function getData(): array
     {
         return $this->data;

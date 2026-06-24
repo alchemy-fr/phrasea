@@ -1,14 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
-use App\Entity\Core\Asset;
+use App\Entity\Admin\AssetIndexPass;
 use App\Repository\Core\AssetRepository;
 use App\Repository\Core\AttributeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -60,19 +63,25 @@ final readonly class AssetIndexer
         $progressBar = new ProgressBar($output, $total);
         $progressBar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %elapsed:16s%/%estimated:-16s% %memory:6s%');
 
+        $assetIndexPass = new AssetIndexPass();
+        $assetIndexPass->setProgress(0);
+        $assetIndexPass->setDocumentCount((int) $total);
+        $this->em->persist($assetIndexPass);
+        $this->em->flush();
+
+        $assetIndexPassId = $assetIndexPass->getId();
+
         $this->assetPermissionComputer->setWorkspaceCache(new ArrayAdapter(storeSerialized: false));
         $this->assetPermissionComputer->setCollectionCache(new ArrayAdapter(storeSerialized: false));
         $this->assetPermissionComputer->setAssetCache(new ArrayAdapter(storeSerialized: false));
 
         $maxResults = 500;
 
-        $getPage = function (int $offset) use ($selectQuery, $maxResults): iterable {
-            return $selectQuery
-                ->getQuery()
-                ->setMaxResults($maxResults)
-                ->setFirstResult($offset)
-                ->toIterable();
-        };
+        $getPage = (fn (int $offset): iterable => $selectQuery
+            ->getQuery()
+            ->setMaxResults($maxResults)
+            ->setFirstResult($offset)
+            ->toIterable());
 
         $lastCollectionId = null;
         $progressBar->start();
@@ -82,6 +91,7 @@ final readonly class AssetIndexer
         /* @var Asset $asset */
         while ($assets = $getPage($cursor)) {
             $i = 0;
+            $aIndexPass = $this->getIndexPass($assetIndexPassId);
 
             $shouldClearLastCollection = false;
             $assetStack = [];
@@ -113,6 +123,12 @@ final readonly class AssetIndexer
             $this->temporaryCacheFactory->reset();
 
             $progressBar->advance($i);
+            $aIndexPass = $this->getIndexPass($assetIndexPassId);
+            $aIndexPass->setProgress($aIndexPass->getProgress() + $i);
+            $aIndexPass->setEstimated(Helper::formatTime($progressBar->getEstimated(), 2));
+            $aIndexPass->setRemaining(Helper::formatTime($progressBar->getRemaining(), 2));
+            $this->em->persist($aIndexPass);
+            $this->em->flush();
 
             if ($i < $maxResults) {
                 break;
@@ -120,5 +136,20 @@ final readonly class AssetIndexer
         }
 
         $progressBar->finish();
+        $aIndexPass = $this->getIndexPass($assetIndexPassId);
+        $aIndexPass->setEndedAt(new \DateTimeImmutable());
+        $this->em->persist($aIndexPass);
+        $this->em->flush();
+    }
+
+    private function getIndexPass(string $id): AssetIndexPass
+    {
+        /** @var AssetIndexPass $assetIndexPass */
+        $assetIndexPass = $this->em->find(AssetIndexPass::class, $id);
+        if (null === $assetIndexPass) {
+            throw new \RuntimeException('No asset index pass found with ID '.$id);
+        }
+
+        return $assetIndexPass;
     }
 }

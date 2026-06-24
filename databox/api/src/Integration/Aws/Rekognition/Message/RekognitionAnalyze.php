@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Integration\Aws\Rekognition\Message;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;

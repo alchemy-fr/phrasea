@@ -26,7 +26,6 @@ use App\Controller\Core\RenditionDefinitionSortAction;
 use App\Entity\Traits\AssetTypeTargetTrait;
 use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
-use App\Security\Voter\RenditionDefinitionVoter;
 use App\Validator as CustomAssert;
 use App\Validator\SameWorkspaceConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -98,8 +97,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: false,
             output: false,
             read: false,
-            name: 'post_sort',
-            provider: null
+            name: 'post_sort'
         ),
     ],
     normalizationContext: [
@@ -148,7 +146,6 @@ class RenditionDefinition extends AbstractUuidEntity implements LoggableChangeSe
     final public const string GROUP_READ = 'renddef:r';
     final public const string GROUP_LIST = 'renddef:i';
     final public const string GROUP_WRITE = 'renddef:w';
-    private const string GRANT_ADMIN_PROP = 'object ? is_granted(\''.RenditionDefinitionVoter::READ_ADMIN.'\', object) : true';
 
     final public const string TR_FIELD_NAME = 'name';
 

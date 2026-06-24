@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Api\Provider;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
@@ -22,7 +24,7 @@ final class CollectionPrivacyInfoProvider implements ProviderInterface
     ) {
     }
 
-    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object
     {
         /** @var Collection $collection */
         $collection = DoctrineUtil::findStrictByRepo($this->collectionRepository, $uriVariables['id']);

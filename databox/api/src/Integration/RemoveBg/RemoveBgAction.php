@@ -24,6 +24,7 @@ class RemoveBgAction extends AbstractIntegrationAction
         $this->removeBgProcessor->process($asset->getSource(), $config);
     }
 
+    #[\Override]
     protected function shouldRun(Asset $asset): bool
     {
         if (null === $asset->getSource()) {

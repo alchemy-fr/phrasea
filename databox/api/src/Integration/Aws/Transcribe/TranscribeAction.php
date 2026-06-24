@@ -42,6 +42,7 @@ final class TranscribeAction extends AbstractIntegrationAction implements IfActi
         $this->client->extractTextFromAudio($asset->getId(), $file->getId(), $s3Uri, $file->getType(), $config);
     }
 
+    #[\Override]
     protected function shouldRun(Asset $asset): bool
     {
         if (null === $asset->getSource()) {

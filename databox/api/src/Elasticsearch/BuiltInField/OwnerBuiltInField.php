@@ -22,11 +22,28 @@ final class OwnerBuiltInField extends AbstractBuiltInAttribute
     ) {
     }
 
+    #[\Override]
+    public function denormalizeValue(?string $value): mixed
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        $users = $this->userRepository->getUsersByIds([$value]);
+        if (empty($users)) {
+            return null;
+        }
+
+        return [
+            'id' => $value,
+            'username' => $this->resolveLabel($users[$value]),
+        ];
+    }
+
+    #[\Override]
     public function normalizeBuckets(array $buckets): array
     {
-        $users = $this->userRepository->getUsersByIds(array_map(function (array $bucket): string {
-            return $bucket['key'];
-        }, $buckets));
+        $users = $this->userRepository->getUsersByIds(array_map(fn (array $bucket): string => $bucket['key'], $buckets));
 
         return array_map(function (array $bucket) use ($users): ?array {
             $user = $users[$bucket['key']] ?? null;
@@ -48,19 +65,22 @@ final class OwnerBuiltInField extends AbstractBuiltInAttribute
     /**
      * @param array $value
      */
+    #[\Override]
     public function resolveLabel($value): string
     {
         return $value['username'] ?? $value['id'];
     }
 
+    #[\Override]
     public function getType(): string
     {
         return KeywordAttributeType::NAME;
     }
 
+    #[\Override]
     protected function resolveKey($value): string
     {
-        return (string) $value;
+        return (string) $value['id'];
     }
 
     public static function getName(): string
@@ -83,11 +103,13 @@ final class OwnerBuiltInField extends AbstractBuiltInAttribute
         return 'owner';
     }
 
+    #[\Override]
     public function isFacet(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function isEnabled(): bool
     {
         return empty($this->ownerPropertyRequiredRole) || $this->hasRole($this->ownerPropertyRequiredRole);
