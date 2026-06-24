@@ -510,11 +510,9 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
             || $this->workspace->isDeleted();
     }
 
-    public function setElasticHighlights(array $highlights)
+    public function setElasticHighlights(array $highlights): void
     {
         $this->highlights = $highlights;
-
-        return $this;
     }
 
     public function getElasticHighlights(): ?array

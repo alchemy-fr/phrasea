@@ -33,17 +33,17 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
         $this->resourceMetadataCollectionFactory = $resourceMetadataCollectionFactory;
     }
 
-    public function normalize(mixed $object, ?string $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
+    public function normalize(mixed $data, ?string $format = null, array $context = []): \ArrayObject|array|string|int|float|bool|null
     {
-        if (is_object($object) && !is_iterable($object)) {
-            if (null !== $outputClass = $this->getOutputClass($object)) {
+        if (is_object($data) && !is_iterable($data)) {
+            if (null !== $outputClass = $this->getOutputClass($data)) {
                 $context['output']['class'] = $outputClass;
                 $context['real_resource_class'] = [
-                    'class' => $this->getObjectClass($object),
+                    'class' => $this->getObjectClass($data),
                     'output' => $outputClass,
                 ];
 
-                $output = $this->transform($object, $outputClass, $context);
+                $output = $this->transform($data, $outputClass, $context);
 
                 return $this->decorated->normalize($output, $format, $context);
             }
@@ -56,7 +56,7 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
             }
         }
 
-        return $this->decorated->normalize($object, $format, $context);
+        return $this->decorated->normalize($data, $format, $context);
     }
 
     private function getOutputClass(object $object): ?string
@@ -104,12 +104,12 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
         return $this->decorated->supportsDenormalization($data, $type, $format, $context);
     }
 
-    public function denormalize($data, string $type, ?string $format = null, array $context = [])
+    public function denormalize($data, string $type, ?string $format = null, array $context = []): mixed
     {
         return $this->decorated->denormalize($data, $type, $format, $context);
     }
 
-    public function setSerializer(SerializerInterface $serializer)
+    public function setSerializer(SerializerInterface $serializer): void
     {
         if ($this->decorated instanceof SerializerAwareInterface) {
             $this->decorated->setSerializer($serializer);

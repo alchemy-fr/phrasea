@@ -611,11 +611,9 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         return $this->renditions;
     }
 
-    public function setElasticHighlights(array $highlights)
+    public function setElasticHighlights(array $highlights): void
     {
         $this->highlights = $highlights;
-
-        return $this;
     }
 
     public function getElasticHighlights()
