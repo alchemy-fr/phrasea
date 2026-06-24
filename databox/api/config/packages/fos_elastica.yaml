@@ -4,10 +4,10 @@ parameters:
 
 # Read the documentation: https://github.com/FriendsOfSymfony/FOSElasticaBundle/blob/master/doc/setup.md
 fos_elastica:
-#    clients:
-#        default:
-#            client_config:
-#                url: '%env(ELASTICSEARCH_URL)%/'
+    clients:
+        default:
+            hosts:
+                - '%env(ELASTICSEARCH_URL)%/'
     indexes:
         asset:
             use_alias: '%elastica.use_alias%'
