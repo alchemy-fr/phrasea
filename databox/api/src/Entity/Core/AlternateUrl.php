@@ -7,11 +7,10 @@ namespace App\Entity\Core;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use App\Entity\Traits\WorkspaceTrait;
-use App\Repository\Core\AttributeRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: AttributeRepository::class)]
+#[ORM\Entity]
 class AlternateUrl extends AbstractUuidEntity
 {
     use CreatedAtTrait;
