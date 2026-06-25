@@ -10,6 +10,8 @@ load-env
 export DEV_PHP_MEMORY_LIMIT=2G
 
 echo "# Generating fixtures..."
+echo "## Setting up configurator..."
+docker compose run --rm configurator /bin/ash -c 'bin/setup.sh'
 
 for service in databox expose uploader; do
   echo "## Setting up ${service}..."

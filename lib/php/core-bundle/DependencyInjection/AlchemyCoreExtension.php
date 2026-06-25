@@ -5,6 +5,8 @@ namespace Alchemy\CoreBundle\DependencyInjection;
 use Alchemy\CoreBundle\Exception\IgnoreSentryExceptionInterface;
 use Alchemy\CoreBundle\Health\Checker\DoctrineConnectionChecker;
 use Alchemy\CoreBundle\Health\HealthCheckerInterface;
+use Alchemy\CoreBundle\Message\Debug\SentryDebugHandler;
+use Alchemy\CoreBundle\Message\PusherHandler;
 use Alchemy\CoreBundle\Pusher\PusherFactory;
 use Alchemy\CoreBundle\Pusher\PusherManager;
 use ApiPlatform\Symfony\Security\Exception\AccessDeniedException;
@@ -32,6 +34,7 @@ use Symfony\Component\HttpKernel\Exception\NotAcceptableHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Exception\RejectRedeliveredMessageException;
 use Symfony\Component\Serializer\Exception\UnsupportedFormatException;
 use Symfony\Component\Yaml\Yaml;
@@ -77,6 +80,14 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
 
         if ($config['pusher']['enabled']) {
             $loader->load('pusher.yaml');
+
+            if (class_exists(AsMessageHandler::class)) {
+                $def = new Definition(PusherHandler::class);
+                $def->setAutoconfigured(true);
+                $def->setAutowired(true);
+                $container->setDefinition(PusherHandler::class, $def);
+            }
+
             $def = $container->getDefinition(PusherManager::class);
             $def->setArgument('$disabled', $config['pusher']['disabled']);
 
@@ -86,6 +97,11 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
         $bundles = $container->getParameter('kernel.bundles');
         if (isset($bundles['SentryBundle'])) {
             $loader->load('sentry.yaml');
+
+            if (class_exists(AsMessageHandler::class)) {
+                $container->setDefinition(SentryDebugHandler::class, new Definition(SentryDebugHandler::class));
+            }
+
             $this->loadSentry($container);
         }
     }

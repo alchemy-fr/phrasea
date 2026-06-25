@@ -9,5 +9,4 @@ services:
         autowire: true
         autoconfigure: true
 
-    Alchemy\CoreBundle\Message\PusherHandler: ~
     Alchemy\CoreBundle\Pusher\PusherManager: ~
