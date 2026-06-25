@@ -30,7 +30,7 @@ final readonly class ESDocumentStateManager
         $indexName = $this->elasticSearchClient->getIndexName($document->getIndex());
         $response = $this->elasticSearchClient->request($indexName.'/_doc/'.$object->getId(), [], 'GET');
 
-        $data = $response->getData();
+        $data = $response->asArray();
         $synced = $this->documentAreSame($document->getData(), $data['_source'] ?? []);
 
         return new ESDocumentStateOutput($data, $synced);

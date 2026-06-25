@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4a8816df2bdd9bebd750b29e45d817ad",
+    "content-hash": "ccf7864723a70ffc2b6abc911c347063",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -303,7 +303,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
-                "reference": "33e183a7f10580600aeff9c0c12efe36a1038cfe"
+                "reference": "3c20ca8bf3e1b3fa54a2ffca28306bd31513022f"
             },
             "require": {
                 "friendsofsymfony/elastica-bundle": "^7.1",
@@ -1234,21 +1234,22 @@
         },
         {
             "name": "arthem/object-reference-bundle",
-            "version": "dev-master",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/object-reference-bundle.git",
-                "reference": "17e7ebf877a66470e91b53b82831efefed97cffe"
+                "reference": "638a26ff6ab111ee559571682e1e2e582829d46e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/object-reference-bundle/zipball/17e7ebf877a66470e91b53b82831efefed97cffe",
-                "reference": "17e7ebf877a66470e91b53b82831efefed97cffe",
+                "url": "https://api.github.com/repos/4rthem/object-reference-bundle/zipball/638a26ff6ab111ee559571682e1e2e582829d46e",
+                "reference": "638a26ff6ab111ee559571682e1e2e582829d46e",
                 "shasum": ""
             },
             "require": {
+                "doctrine/doctrine-bundle": "^2.9 || ^3",
                 "doctrine/orm": "^2.5 || ^3",
-                "php": "^8",
+                "php": "^8.5",
                 "symfony/framework-bundle": "^6.3 || ^7"
             },
             "require-dev": {
@@ -1256,7 +1257,6 @@
                 "phpunit/phpunit": "^11.1.3",
                 "ramsey/uuid": "^4.7"
             },
-            "default-branch": true,
             "type": "symfony-bundle",
             "autoload": {
                 "psr-4": {
@@ -1273,9 +1273,9 @@
             "description": "Object reference bundle",
             "support": {
                 "issues": "https://github.com/4rthem/object-reference-bundle/issues",
-                "source": "https://github.com/4rthem/object-reference-bundle/tree/master"
+                "source": "https://github.com/4rthem/object-reference-bundle/tree/1.0.0"
             },
-            "time": "2024-06-10T09:52:48+00:00"
+            "time": "2026-06-25T08:45:36+00:00"
         },
         {
             "name": "aws/aws-crt-php",
@@ -4680,16 +4680,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "3.35.0",
+            "version": "3.35.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "d0a405f03d980461e4b6e08cfed2c162650f9f6b"
+                "reference": "f23af6c5aafd958a7593029a271d77baf5ed793c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/d0a405f03d980461e4b6e08cfed2c162650f9f6b",
-                "reference": "d0a405f03d980461e4b6e08cfed2c162650f9f6b",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/f23af6c5aafd958a7593029a271d77baf5ed793c",
+                "reference": "f23af6c5aafd958a7593029a271d77baf5ed793c",
                 "shasum": ""
             },
             "require": {
@@ -4757,22 +4757,22 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/flysystem/issues",
-                "source": "https://github.com/thephpleague/flysystem/tree/3.35.0"
+                "source": "https://github.com/thephpleague/flysystem/tree/3.35.1"
             },
-            "time": "2026-06-22T20:12:06+00:00"
+            "time": "2026-06-25T06:52:23+00:00"
         },
         {
             "name": "league/flysystem-aws-s3-v3",
-            "version": "3.34.0",
+            "version": "3.35.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem-aws-s3-v3.git",
-                "reference": "0c62fdac907791d8649ad3c61cb7a77628344fb8"
+                "reference": "3f93d3f4bd5c12a5dfb34a7267c40b1bc4587b94"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem-aws-s3-v3/zipball/0c62fdac907791d8649ad3c61cb7a77628344fb8",
-                "reference": "0c62fdac907791d8649ad3c61cb7a77628344fb8",
+                "url": "https://api.github.com/repos/thephpleague/flysystem-aws-s3-v3/zipball/3f93d3f4bd5c12a5dfb34a7267c40b1bc4587b94",
+                "reference": "3f93d3f4bd5c12a5dfb34a7267c40b1bc4587b94",
                 "shasum": ""
             },
             "require": {
@@ -4812,9 +4812,9 @@
                 "storage"
             ],
             "support": {
-                "source": "https://github.com/thephpleague/flysystem-aws-s3-v3/tree/3.34.0"
+                "source": "https://github.com/thephpleague/flysystem-aws-s3-v3/tree/3.35.1"
             },
-            "time": "2026-05-04T08:24:00+00:00"
+            "time": "2026-06-25T06:51:08+00:00"
         },
         {
             "name": "league/flysystem-local",
@@ -18516,7 +18516,6 @@
         "alchemy/track-bundle": 20,
         "alchemy/webhook-bundle": 20,
         "alchemy/workflow-bundle": 20,
-        "arthem/object-reference-bundle": 20,
         "beberlei/doctrineextensions": 20
     },
     "prefer-stable": true,

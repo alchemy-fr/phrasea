@@ -154,7 +154,7 @@ class AttributeEntityTest extends AbstractSearchTest
                     ],
                 ],
             ],
-        ], $response->getData()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0]);
+        ], $response->asArray()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0]);
 
         $apiClient = static::createClient();
 
@@ -174,7 +174,7 @@ class AttributeEntityTest extends AbstractSearchTest
 
         $response = $esClient->request($assetIndexName.'/_search?q=_id:'.$asset->getId());
 
-        $attrs = $response->getData()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0];
+        $attrs = $response->asArray()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0];
         $this->assertEquals([
             AttributeInterface::NO_LOCALE => [
                 'many_entity_m' => [
@@ -262,7 +262,7 @@ class AttributeEntityTest extends AbstractSearchTest
         self::waitForESIndex('asset');
         $response = $esClient->request($assetIndexName.'/_search?q=_id:'.$asset->getId());
 
-        $attrs = $response->getData()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0];
+        $attrs = $response->asArray()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0];
         $this->assertEquals([
             AttributeInterface::NO_LOCALE => [
                 'many_entity_m' => [
