@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ccf7864723a70ffc2b6abc911c347063",
+    "content-hash": "96fb2befb1f32282e86a6a4f64ab2697",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -760,6 +760,59 @@
                 "MIT"
             ],
             "description": "Symfony storage bundle",
+            "homepage": "https://www.alchemy.fr/",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "alchemy/test-bundle",
+            "version": "dev-PS-1125-bump-symfony-version",
+            "dist": {
+                "type": "path",
+                "url": "../../lib/php/test-bundle",
+                "reference": "04bcc847d1811f32d821fbaec06cc0005defd7c0"
+            },
+            "require": {
+                "php": "^8.5",
+                "symfony/framework-bundle": "^4.0 ||^5 || ^6 || ^7"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.17",
+                "php-parallel-lint/php-var-dump-check": "v0.5",
+                "phpunit/phpunit": "^9.5",
+                "rector/rector": "^2.3.0"
+            },
+            "type": "symfony-bundle",
+            "autoload": {
+                "psr-4": {
+                    "Alchemy\\TestBundle\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Alchemy\\TestBundle\\Tests\\": "/Tests/"
+                }
+            },
+            "scripts": {
+                "rector": [
+                    "vendor/bin/rector"
+                ],
+                "cs": [
+                    "vendor/bin/php-cs-fixer fix"
+                ],
+                "test": [
+                    "vendor/bin/var-dump-check --symfony --exclude vendor ."
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "Symfony test bundle",
             "homepage": "https://www.alchemy.fr/",
             "transport-options": {
                 "symlink": true,
@@ -15407,59 +15460,6 @@
             }
         },
         {
-            "name": "alchemy/test-bundle",
-            "version": "dev-PS-1125-bump-symfony-version",
-            "dist": {
-                "type": "path",
-                "url": "../../lib/php/test-bundle",
-                "reference": "04bcc847d1811f32d821fbaec06cc0005defd7c0"
-            },
-            "require": {
-                "php": "^8.5",
-                "symfony/framework-bundle": "^4.0 ||^5 || ^6 || ^7"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.17",
-                "php-parallel-lint/php-var-dump-check": "v0.5",
-                "phpunit/phpunit": "^9.5",
-                "rector/rector": "^2.3.0"
-            },
-            "type": "symfony-bundle",
-            "autoload": {
-                "psr-4": {
-                    "Alchemy\\TestBundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Alchemy\\TestBundle\\Tests\\": "/Tests/"
-                }
-            },
-            "scripts": {
-                "rector": [
-                    "vendor/bin/rector"
-                ],
-                "cs": [
-                    "vendor/bin/php-cs-fixer fix"
-                ],
-                "test": [
-                    "vendor/bin/var-dump-check --symfony --exclude vendor ."
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "description": "Symfony test bundle",
-            "homepage": "https://www.alchemy.fr/",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
-        },
-        {
             "name": "clue/ndjson-react",
             "version": "v1.3.0",
             "source": {
@@ -15874,16 +15874,16 @@
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.95.10",
+            "version": "v3.95.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "93e1ab3e1f153024bd3ab23c8a349556063c6f17"
+                "reference": "35f98e1293283397824d7f349ce5afb8747c3cd5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/93e1ab3e1f153024bd3ab23c8a349556063c6f17",
-                "reference": "93e1ab3e1f153024bd3ab23c8a349556063c6f17",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/35f98e1293283397824d7f349ce5afb8747c3cd5",
+                "reference": "35f98e1293283397824d7f349ce5afb8747c3cd5",
                 "shasum": ""
             },
             "require": {
@@ -15917,7 +15917,7 @@
             "require-dev": {
                 "facile-it/paraunit": "^1.3.1 || ^2.11.0",
                 "infection/infection": "^0.32.7",
-                "justinrainbow/json-schema": "^6.9.0",
+                "justinrainbow/json-schema": "^6.10.0",
                 "keradus/cli-executor": "^2.3",
                 "mikey179/vfsstream": "^1.6.12",
                 "php-coveralls/php-coveralls": "^2.9.1",
@@ -15967,7 +15967,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.95.10"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.95.11"
             },
             "funding": [
                 {
@@ -15975,7 +15975,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-06-19T14:45:22+00:00"
+            "time": "2026-06-25T14:17:04+00:00"
         },
         {
             "name": "justinrainbow/json-schema",
@@ -18513,6 +18513,7 @@
         "alchemy/notify-bundle": 20,
         "alchemy/rendition-factory": 20,
         "alchemy/rendition-factory-bundle": 20,
+        "alchemy/test-bundle": 20,
         "alchemy/track-bundle": 20,
         "alchemy/webhook-bundle": 20,
         "alchemy/workflow-bundle": 20,
