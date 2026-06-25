@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Search;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Elastica\Index;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
@@ -28,6 +29,10 @@ trait SearchTestTrait
             'asset_data_template',
         ];
         self::$documentIndices = [];
+        foreach ($indexes as $indexName) {
+            /* @var Index $documentIndices */
+            self::$documentIndices[$indexName] = $container->get('fos_elastica.index.'.$indexName);
+        }
 
         $application = new Application($kernel);
         $application->setAutoExit(false);
