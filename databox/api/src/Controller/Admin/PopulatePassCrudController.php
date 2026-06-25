@@ -9,6 +9,7 @@ use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use App\Consumer\Handler\Search\ESPopulate;
 use App\Entity\Admin\PopulatePass;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -99,6 +100,7 @@ class PopulatePassCrudController extends AbstractAdminCrudController
 
     }
 
+    #[AdminRoute('/populate-pass/add', name: 'populate_pass_add_populate')]
     public function addPopulate(): Response
     {
         $this->bus->dispatch(new ESPopulate());
