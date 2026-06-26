@@ -19,7 +19,8 @@ final class Version20260622080201 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE template_attribute ADD invalid BOOLEAN NOT NULL');
+        $this->addSql('ALTER TABLE template_attribute ADD invalid BOOLEAN NOT NULL DEFAULT FALSE');
+        $this->addSql('ALTER TABLE template_attribute ALTER invalid DROP DEFAULT');
     }
 
     public function down(Schema $schema): void
