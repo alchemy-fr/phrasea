@@ -32,6 +32,7 @@ export async function dumpConfFromStructure(
     dm.renditions = undefined;
     dm.sourceFile = undefined;
     dm.fieldMap = undefined;
+    await addCollectionsConf(phraseanetDataboxId, phraseanetClient, dm);
     await addMissingRenditionsConf(phraseanetDataboxId, phraseanetClient, dm);
     await addMissingAttributeDefinitionsConf(
         phraseanetDataboxId,
@@ -39,12 +40,46 @@ export async function dumpConfFromStructure(
         dm
     );
 
+    // Build ordered output: workspaceSlug -> collections -> phraseanetCollectionsInventory -> searchQuery -> rest
+    const {
+        databox,
+        workspaceSlug,
+        collections,
+        phraseanetCollectionsInventory,
+        searchQuery,
+        ...rest
+    } = dm as any;
+    const orderedDm = {
+        databox,
+        workspaceSlug,
+        collections,
+        phraseanetCollectionsInventory,
+        ...(searchQuery !== undefined ? {searchQuery} : {}),
+        ...rest,
+    };
+
     logger.info(
         "**** Missing 'renditions' or 'fieldMap' configuration ****\n" +
             '____ Phraseanet full configuration equivalent:\n' +
-            JSON.stringify(dm, null, 2) +
+            JSON.stringify(orderedDm, null, 2) +
             '\n' +
             '____ Copy/paste/adapt the completed configuration above ____'
+    );
+}
+
+export async function addCollectionsConf(
+    phraseanetDataboxId: string,
+    phraseanetClient: PhraseanetClient,
+    dm: ConfigDataboxMapping
+) {
+    const collections =
+        await phraseanetClient.getCollectionsForDatabox(phraseanetDataboxId);
+    const filtered = collections.filter(c => c.name !== '_TRASH_');
+
+    dm.collections = filtered.map(c => c.base_id).join(',');
+    dm.phraseanetCollectionsInventory = filtered.map(
+        c =>
+            `${c.name} id: ${c.base_id} count: ${c.record_amount ?? 0}`
     );
 }
 
