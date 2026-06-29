@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Api\InputTransformer;
 
-use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Operation;
+use App\Api\EntityIriConverter;
 use App\Api\Model\Input\AssetPolicyInput;
 use App\Entity\Core\AssetPolicy\AssetPolicy;
 use App\Entity\Core\AssetPolicy\AssetPolicyUser;
@@ -16,8 +16,9 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class AssetPolicyInputTransformer extends AbstractInputTransformer
 {
-    public function __construct()
-    {
+    public function __construct(
+        private readonly EntityIriConverter $iriConverter,
+    ) {
     }
 
     public function supports(string $resourceClass, object $data): bool
@@ -34,19 +35,20 @@ class AssetPolicyInputTransformer extends AbstractInputTransformer
         $entity = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new AssetPolicy();
         /** @var Operation $operation */
         $operation = $context['operation'];
-        $this->validator->validate($data, $operation->getValidationContext());
+        $this->validator->validate($data, $operation->getValidationContext() ?? []);
 
         if ($isNew) {
             $user = $this->getStrictUser();
             $entity->setOwnerId($user->getUserIdentifier());
         }
 
-        if ($data->workspaceId) {
-            $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $data->workspaceId);
+        if ($data->workspace) {
+            /** @var Workspace $workspace */
+            $workspace = $this->iriConverter->getItemFromIri(Workspace::class, $data->workspace);
             $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $workspace);
             $entity->setWorkspace($workspace);
         } elseif ($isNew) {
-            throw new BadRequestHttpException('Missing workspaceId');
+            throw new BadRequestHttpException('Missing workspace');
         }
 
         if (null !== $data->groups || null !== $data->users) {

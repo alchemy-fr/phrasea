@@ -28,7 +28,7 @@ final class AssetPolicyInput
 
     #[Groups([AssetPolicy::GROUP_WRITE])]
     #[Assert\NotNull(groups: ['create'])]
-    public ?string $workspaceId = null;
+    public ?string $workspace = null;
 
     #[Groups([AssetPolicy::GROUP_WRITE])]
     #[Assert\NotNull(groups: ['create'])]

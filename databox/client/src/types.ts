@@ -237,7 +237,7 @@ export type AssetPolicyCondition = {
 };
 
 export type AssetPolicyAction = {
-    name: string;
+    action: string;
 } & Record<string, any>;
 
 export interface AssetPolicy extends ApiHydraObjectResponse, Entity {

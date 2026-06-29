@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\AssetPolicyInput;
 use App\Api\Model\Output\AssetPolicyOutput;
 use App\Api\Provider\AssetPolicyCollectionProvider;
@@ -32,6 +33,7 @@ use Ramsey\Uuid\UuidInterface;
         new Post(securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)', validationContext: [
             'groups' => ['Default', 'create'],
         ]),
+        new Put(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
         new GetCollection(
             normalizationContext: [

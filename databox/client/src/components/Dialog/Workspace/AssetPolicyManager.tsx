@@ -1,8 +1,13 @@
-import {AssetPolicy, Workspace} from '../../../types';
-import {Chip, ListItemText, TextField} from '@mui/material';
-import {CheckboxWidget, FormFieldErrors, FormRow} from '@alchemy/react-form';
+import {AssetPolicy, Group, User, Workspace} from '../../../types';
+import {Chip, Hidden, ListItemText, TextField} from '@mui/material';
+import {
+    CheckboxWidget,
+    FormFieldErrors,
+    FormRow,
+    SortableCollectionWidget,
+} from '@alchemy/react-form';
 import DefinitionManager from './DefinitionManager/DefinitionManager.tsx';
-import {useTranslation} from 'react-i18next';
+import {Trans, useTranslation} from 'react-i18next';
 import {
     deleteAssetPolicy,
     getAssetPolicies,
@@ -18,8 +23,13 @@ import {EntityName} from '../../../api/types.ts';
 import {createIriFromId} from '@alchemy/api';
 import UserSelect from '../../Form/UserSelect.tsx';
 import GroupSelect from '../../Form/GroupSelect.tsx';
+import IconFormLabel from '../../Form/IconFormLabel.tsx';
+import React from 'react';
+import AssetPolicyActionWidget from '../../Form/AssetPolicy/AssetPolicyActionWidget.tsx';
+import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
 
 function Item({
+    workspace,
     usedFormSubmit: {
         submitting,
         register,
@@ -62,6 +72,42 @@ function Item({
                     control={control}
                     name={'groups'}
                     isMulti={true}
+                />
+            </FormRow>
+            <FormRow>
+                <SortableCollectionWidget
+                    errors={errors}
+                    emptyItem={{
+                        name: null,
+                    }}
+                    control={control}
+                    label={
+                        <IconFormLabel
+                            startIcon={<PlayCircleFilledWhiteIcon />}
+                        >
+                            {t('form.asset_policy.actions.label', 'Actions')}
+                        </IconFormLabel>
+                    }
+                    path={'actions'}
+                    register={register}
+                    addLabel={t('form.asset_policy.actions.add', 'Add action')}
+                    removeLabel={
+                        <Trans t={t} i18nKey="form.asset_policy.actions.remove">
+                            Remove <Hidden smDown>this action</Hidden>
+                        </Trans>
+                    }
+                    renderForm={({index, path}) => {
+                        return (
+                            <FormRow>
+                                <AssetPolicyActionWidget
+                                    path={`${path}.${index}` as any}
+                                    control={control}
+                                    workspaceId={workspace.id}
+                                    register={register}
+                                />
+                            </FormRow>
+                        );
+                    }}
                 />
             </FormRow>
         </>
@@ -145,6 +191,40 @@ export default function AssetPolicyManager({
             newLabel={t('asset_policy.new.label', 'New Asset Policy')}
             handleSave={handleSave}
             handleDelete={deleteAssetPolicy}
+            normalizeData={normalizeData}
+            denormalizeData={denormalizeData}
         />
     );
+}
+
+function denormalizeData(data: AssetPolicy): AssetPolicy {
+    return {
+        ...data,
+        users: data.users?.map(denormalizeUser),
+        groups: data.groups?.map(denormalizeUser),
+    };
+}
+
+function denormalizeUser<T extends User | Group>(user: T | string): string {
+    if (typeof user === 'string') {
+        return user;
+    }
+
+    return user.id;
+}
+
+function normalizeUser<T extends User | Group>(user: T | string): string {
+    if (typeof user === 'string') {
+        return user;
+    }
+
+    return user.id;
+}
+
+function normalizeData(data: AssetPolicy): AssetPolicy {
+    return {
+        ...data,
+        users: data.users?.map(normalizeUser) as AssetPolicy['users'],
+        groups: data.groups?.map(normalizeUser) as AssetPolicy['groups'],
+    };
 }
