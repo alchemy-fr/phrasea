@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Entity\Core;
+namespace App\Entity\Core\AssetPolicy;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Arthem\ObjectReferenceBundle\Mapping\Attribute\ObjectReference;
@@ -24,4 +24,38 @@ class AssetPolicyDependency extends AbstractUuidEntity
     private \Closure|AbstractUuidEntity|null $object = null;
     private ?string $objectType = null;
     private UuidInterface|string|null $objectId = null;
+
+    public function getPolicy(): ?AssetPolicy
+    {
+        return $this->policy;
+    }
+
+    public function setPolicy(?AssetPolicy $policy): void
+    {
+        $this->policy = $policy;
+    }
+
+    public function getObject(): ?AbstractUuidEntity
+    {
+        if ($this->object instanceof \Closure) {
+            $this->object = $this->object->call($this);
+        }
+
+        return $this->object;
+    }
+
+    public function setObject(?AbstractUuidEntity $object): void
+    {
+        $this->object = $object;
+    }
+
+    public function getObjectType(): ?string
+    {
+        return $this->objectType;
+    }
+
+    public function getObjectId(): ?string
+    {
+        return $this->objectId;
+    }
 }
