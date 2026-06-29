@@ -214,13 +214,13 @@ export default function AttributeRowUI({
                     </ul>
                 ) : (
                     <>
-                        {((attribute as Attribute).invalid
+                        {((attribute as Attribute | undefined)?.invalid
                             ? getAttributeType(AttributeType.Text)
                             : formatter
                         ).formatValue(valueFormatterProps)}
-                        {Boolean((attribute as Attribute).invalid) && (
-                            <InvalidAttributeIcon />
-                        )}
+                        {Boolean(
+                            (attribute as Attribute | undefined)?.invalid
+                        ) && <InvalidAttributeIcon />}
                     </>
                 )}
             </div>
