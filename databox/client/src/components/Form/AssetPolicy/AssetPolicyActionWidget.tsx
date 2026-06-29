@@ -1,5 +1,5 @@
 import {FlexRow} from '@alchemy/phrasea-ui';
-import {RSelectWidget} from '@alchemy/react-form';
+import {FormRow, RSelectWidget} from '@alchemy/react-form';
 import {Control, FieldValues, UseFormRegister, useWatch} from 'react-hook-form';
 import {useTranslation} from 'react-i18next';
 import RenditionDefinitionSelect from '../RenditionDefinitionSelect.tsx';
@@ -42,21 +42,26 @@ export default function AssetPolicyActionWidget<
     return (
         <>
             <FlexRow gap={1}>
-                <RSelectWidget
-                    label={t('form.asset_policy.action.label', 'Action')}
-                    control={control}
-                    name={actionPath as any}
-                    options={[
-                        {
-                            label: t(
-                                'form.asset_policy.actions.hide_rendition',
-                                'Hide Rendition'
-                            ),
-                            value: 'hide_rendition',
-                        },
-                    ]}
-                />
-                {form}
+                <FormRow>
+                    <RSelectWidget
+                        label={t(
+                            'form.asset_policy.actions.action.label',
+                            'Action'
+                        )}
+                        control={control}
+                        name={actionPath as any}
+                        options={[
+                            {
+                                label: t(
+                                    'form.asset_policy.actions.action.hide_rendition',
+                                    'Hide Rendition'
+                                ),
+                                value: 'hide_rendition',
+                            },
+                        ]}
+                    />
+                </FormRow>
+                <div>{form}</div>
             </FlexRow>
         </>
     );

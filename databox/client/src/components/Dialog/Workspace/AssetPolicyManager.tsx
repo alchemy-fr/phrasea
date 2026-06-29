@@ -1,4 +1,10 @@
-import {AssetPolicy, Group, User, Workspace} from '../../../types';
+import {
+    AssetPolicy,
+    AssetPolicyCondition,
+    Group,
+    User,
+    Workspace,
+} from '../../../types';
 import {Chip, Hidden, ListItemText, TextField} from '@mui/material';
 import {
     CheckboxWidget,
@@ -27,6 +33,8 @@ import IconFormLabel from '../../Form/IconFormLabel.tsx';
 import React from 'react';
 import AssetPolicyActionWidget from '../../Form/AssetPolicy/AssetPolicyActionWidget.tsx';
 import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import AssetPolicyConditionWidget from '../../Form/AssetPolicy/AssetPolicyConditionWidget.tsx';
 
 function Item({
     workspace,
@@ -78,6 +86,51 @@ function Item({
                 <SortableCollectionWidget
                     errors={errors}
                     emptyItem={{
+                        field: '',
+                        operator: '=',
+                        value: null,
+                    }}
+                    control={control}
+                    label={
+                        <IconFormLabel startIcon={<FilterAltIcon />}>
+                            {t(
+                                'form.asset_policy.conditions.label',
+                                'Conditions'
+                            )}
+                        </IconFormLabel>
+                    }
+                    path={'conditions'}
+                    register={register}
+                    addLabel={t(
+                        'form.asset_policy.conditions.add',
+                        'Add Condition'
+                    )}
+                    removeLabel={
+                        <Trans
+                            t={t}
+                            i18nKey="form.asset_policy.conditions.remove"
+                        >
+                            Remove <Hidden smDown>this Condition</Hidden>
+                        </Trans>
+                    }
+                    renderForm={({index, path}) => {
+                        return (
+                            <FormRow>
+                                <AssetPolicyConditionWidget
+                                    path={`${path}.${index}` as any}
+                                    control={control}
+                                    workspaceId={workspace.id}
+                                    register={register}
+                                />
+                            </FormRow>
+                        );
+                    }}
+                />
+            </FormRow>
+            <FormRow>
+                <SortableCollectionWidget
+                    errors={errors}
+                    emptyItem={{
                         name: null,
                     }}
                     control={control}
@@ -90,10 +143,10 @@ function Item({
                     }
                     path={'actions'}
                     register={register}
-                    addLabel={t('form.asset_policy.actions.add', 'Add action')}
+                    addLabel={t('form.asset_policy.actions.add', 'Add Action')}
                     removeLabel={
                         <Trans t={t} i18nKey="form.asset_policy.actions.remove">
-                            Remove <Hidden smDown>this action</Hidden>
+                            Remove <Hidden smDown>this Action</Hidden>
                         </Trans>
                     }
                     renderForm={({index, path}) => {
@@ -200,8 +253,9 @@ export default function AssetPolicyManager({
 function denormalizeData(data: AssetPolicy): AssetPolicy {
     return {
         ...data,
-        users: data.users?.map(denormalizeUser),
-        groups: data.groups?.map(denormalizeUser),
+        users: data.users.map(denormalizeUser),
+        groups: data.groups.map(denormalizeUser),
+        conditions: data.conditions.map(denormalizeCondition),
     };
 }
 
@@ -211,6 +265,12 @@ function denormalizeUser<T extends User | Group>(user: T | string): string {
     }
 
     return user.id;
+}
+
+function denormalizeCondition(
+    condition: AssetPolicyCondition
+): AssetPolicyCondition {
+    return condition; // TODO
 }
 
 function normalizeUser<T extends User | Group>(user: T | string): string {
