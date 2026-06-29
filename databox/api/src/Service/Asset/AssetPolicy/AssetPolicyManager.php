@@ -2,12 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Asset\Attribute;
+namespace App\Service\Asset\AssetPolicy;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use App\Api\Model\Output\AssetOutput;
 use App\Entity\Core\Asset;
-use App\Entity\Core\AssetRendition;
 use App\Repository\Core\AssetPolicyRepository;
 
 final class AssetPolicyManager
@@ -19,7 +17,7 @@ final class AssetPolicyManager
     ) {
     }
 
-    public function applyPolicy(Asset $asset, AssetOutput $assetOutput): void
+    public function getPolicyApplicationFilter(Asset $asset): AssetPolicyResultFilter
     {
         $user = $this->getUser();
 
@@ -29,11 +27,15 @@ final class AssetPolicyManager
             $user?->getGroups() ?? []
         );
 
+        $filter = new AssetPolicyResultFilter();
+
         foreach ($policies as $policy) {
             if ($this->matchesConditions($asset, $policy->getConditions())) {
-                $this->applyPolicyToOutput($assetOutput, $policy->getActions());
+                $this->applyPolicyToOutput($policy->getActions(), $filter);
             }
         }
+
+        return $filter;
     }
 
     private function matchesConditions(Asset $asset, array $conditions): bool
@@ -59,29 +61,15 @@ final class AssetPolicyManager
         return true;
     }
 
-    private function applyPolicyToOutput(AssetOutput $assetOutput, array $actions): void
+    private function applyPolicyToOutput(array $actions, AssetPolicyResultFilter $filter): void
     {
         foreach ($actions as $action) {
             switch ($action['action']) {
                 case 'hide_rendition':
-                    $renditionId = $action['renditionId'];
-
-                    foreach ([
-                        'main',
-                        'preview',
-                        'thumbnail',
-                        'animatedThumbnail',
-                    ] as $r) {
-                        $rendition = $assetOutput->{'get'.ucfirst($r)}();
-                        /** @var AssetRendition $rendition */
-                        if ($rendition) {
-
-                            if ($rendition->getDefinition()->getId() === $renditionId) {
-                                $assetOutput->{'set'.ucfirst($r)}(null);
-                            }
-                        }
-                    }
-
+                    $filter->addFilteredRendition($action['definitionId']);
+                    break;
+                case 'hide_attribute':
+                    $filter->addFilteredAttribute($action['definitionId']);
                     break;
             }
         }

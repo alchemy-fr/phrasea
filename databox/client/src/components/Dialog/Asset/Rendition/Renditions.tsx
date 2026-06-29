@@ -46,6 +46,7 @@ export default function Renditions({data, onClose, minHeight}: Props) {
                 getAssetRenditions(data.id),
                 getRenditionDefinitions({
                     workspaceIds: [data.workspace.id],
+                    assetId: data.id,
                     target: data.storyCollection
                         ? AssetType.Story
                         : AssetType.Asset,

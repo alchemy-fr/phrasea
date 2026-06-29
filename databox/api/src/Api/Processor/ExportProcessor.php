@@ -45,7 +45,7 @@ class ExportProcessor implements ProcessorInterface
         foreach ($data->assets as $assetId) {
             $renditions = $this->em->getRepository(AssetRendition::class)->findAssetRenditions($assetId, [
                 AssetRenditionRepository::OPT_DEFINITION_IDS => $renditionIds,
-                AssetRenditionRepository::WITH_FILE => true,
+                AssetRenditionRepository::OPT_WITH_FILE => true,
             ]);
 
             /** @var AssetRendition[] $renditions */

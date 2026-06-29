@@ -3,6 +3,8 @@ import {FormRow, RSelectWidget} from '@alchemy/react-form';
 import {Control, FieldValues, UseFormRegister, useWatch} from 'react-hook-form';
 import {useTranslation} from 'react-i18next';
 import RenditionDefinitionSelect from '../RenditionDefinitionSelect.tsx';
+import AttributeDefinitionSelect from '../AttributeDefinitionSelect.tsx';
+import {AssetPolicyActionName} from '../../../types.ts';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
@@ -23,14 +25,26 @@ export default function AssetPolicyActionWidget<
 
     let form;
     switch (watchedAction) {
-        case 'hide_rendition':
+        case AssetPolicyActionName.HideRendition:
             form = (
                 <>
                     <RenditionDefinitionSelect
                         useIRI={false}
                         workspaceId={workspaceId}
                         control={control}
-                        name={`${path}.renditionId` as any}
+                        name={`${path}.definitionId` as any}
+                    />
+                </>
+            );
+            break;
+        case AssetPolicyActionName.HideAttribute:
+            form = (
+                <>
+                    <AttributeDefinitionSelect
+                        useIRI={false}
+                        workspaceId={workspaceId}
+                        control={control}
+                        name={`${path}.definitionId` as any}
                     />
                 </>
             );
@@ -56,7 +70,14 @@ export default function AssetPolicyActionWidget<
                                     'form.asset_policy.actions.action.hide_rendition',
                                     'Hide Rendition'
                                 ),
-                                value: 'hide_rendition',
+                                value: AssetPolicyActionName.HideRendition,
+                            },
+                            {
+                                label: t(
+                                    'form.asset_policy.actions.action.hide_attribute',
+                                    'Hide Attribute'
+                                ),
+                                value: AssetPolicyActionName.HideAttribute,
                             },
                         ]}
                     />

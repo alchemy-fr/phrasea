@@ -13,7 +13,8 @@ class AssetRenditionRepository extends ServiceEntityRepository
 {
     final public const string OPT_DEFINITION_IDS = 'definitionIds';
     final public const string OPT_USED_AS = 'usedAs';
-    final public const string WITH_FILE = 'withFile';
+    final public const string OPT_EXCLUDE_DEFINITIONS = 'excludeDefinitions';
+    final public const string OPT_WITH_FILE = 'withFile';
 
     public function __construct(
         ManagerRegistry $registry,
@@ -48,8 +49,14 @@ class AssetRenditionRepository extends ServiceEntityRepository
                 )));
         }
 
-        if (null !== ($options[self::WITH_FILE] ?? null)) {
-            if ($options[self::WITH_FILE]) {
+        if ($options[self::OPT_EXCLUDE_DEFINITIONS] ?? false) {
+            $queryBuilder
+                ->andWhere('s.id NOT IN (:exclude_def_ids)')
+                ->setParameter('exclude_def_ids', $options[self::OPT_EXCLUDE_DEFINITIONS]);
+        }
+
+        if (null !== ($options[self::OPT_WITH_FILE] ?? null)) {
+            if ($options[self::OPT_WITH_FILE]) {
                 $queryBuilder->andWhere('t.file IS NOT NULL');
             } else {
                 $queryBuilder->andWhere('t.file IS NULL');

@@ -234,6 +234,11 @@ export enum AssetPolicyConditionOperator {
     Equals = '=',
 }
 
+export enum AssetPolicyActionName {
+    HideRendition = 'hide_rendition',
+    HideAttribute = 'hide_attribute',
+}
+
 export type AssetPolicyCondition = {
     field?: string;
     operator: string;
@@ -241,7 +246,7 @@ export type AssetPolicyCondition = {
 };
 
 export type AssetPolicyAction = {
-    action: string;
+    action: AssetPolicyActionName;
 } & Record<string, any>;
 
 export interface AssetPolicy extends ApiHydraObjectResponse, Entity {
