@@ -10,14 +10,14 @@ import {
 } from '@alchemy/react-form';
 import {useEntitiesStore} from '../../store/entitiesStore.ts';
 
-type Props<TFieldValues extends FieldValues> = {
+type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     data?: Promise<User[]> | undefined;
-} & AsyncRSelectProps<TFieldValues, false>;
+} & AsyncRSelectProps<TFieldValues, IsMulti>;
 
-export default function UserSelect<TFieldValues extends FieldValues>({
-    data,
-    ...props
-}: Props<TFieldValues>) {
+export default function UserSelect<
+    TFieldValues extends FieldValues,
+    IsMulti extends boolean,
+>({data, ...props}: Props<TFieldValues, IsMulti>) {
     const [notAllowed, setNotAllowed] = React.useState(false);
     const store = useEntitiesStore(s => s.store);
 
@@ -63,9 +63,10 @@ export default function UserSelect<TFieldValues extends FieldValues>({
     );
 }
 
-export function NotAllowSelect<TFieldValues extends FieldValues>(
-    props: AsyncRSelectProps<TFieldValues, false>
-) {
+export function NotAllowSelect<
+    TFieldValues extends FieldValues,
+    IsMulti extends boolean,
+>(props: AsyncRSelectProps<TFieldValues, IsMulti>) {
     return (
         <AsyncRSelectWidget
             {...props}

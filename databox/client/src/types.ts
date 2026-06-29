@@ -230,6 +230,27 @@ export interface RenditionPolicy extends ApiHydraObjectResponse, Entity {
     workspace: Workspace | string;
 }
 
+export type AssetPolicyCondition = {
+    field?: string;
+    operator: string;
+    value: AssetPolicyCondition[] | string | number | boolean;
+};
+
+export type AssetPolicyAction = {
+    name: string;
+} & Record<string, any>;
+
+export interface AssetPolicy extends ApiHydraObjectResponse, Entity {
+    name: string;
+    enabled: boolean;
+    workspace: Workspace | string;
+    conditions: AssetPolicyCondition[];
+    actions: AssetPolicyAction[];
+    owner: User;
+    users: User[] | string[];
+    groups: Group[] | string[];
+}
+
 export interface FieldType extends ApiHydraObjectResponse {
     name: string;
     displayName: string;

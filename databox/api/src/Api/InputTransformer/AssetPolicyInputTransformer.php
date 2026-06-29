@@ -82,6 +82,9 @@ class AssetPolicyInputTransformer extends AbstractInputTransformer
         if (null !== $data->actions) {
             $entity->setActions($data->actions);
         }
+        if (null !== $data->enabled) {
+            $entity->setEnabled($data->enabled);
+        }
 
         return $entity;
     }

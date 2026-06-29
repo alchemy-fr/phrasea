@@ -43,6 +43,7 @@ export type DefinitionItemManageProps<D extends DefinitionBase> = {
 } & DefinitionItemProps<D>;
 export type ListState<D extends DefinitionBase> = {
     list: D[] | undefined;
+    total?: number;
     loading: boolean;
     loadingMore: boolean;
     next: string | undefined;

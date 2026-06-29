@@ -66,6 +66,9 @@ class AssetPolicy extends AbstractUuidEntity implements OwnerPersistableInterfac
     #[Column(type: Types::STRING, length: 255, nullable: false)]
     private ?string $name = null;
 
+    #[Column(type: Types::BOOLEAN, nullable: false)]
+    private bool $enabled = true;
+
     #[Column(type: Types::INTEGER, nullable: false)]
     private int $priority = 0;
 
@@ -149,5 +152,15 @@ class AssetPolicy extends AbstractUuidEntity implements OwnerPersistableInterfac
     public function setDependencies(?Collection $dependencies): void
     {
         $this->dependencies = $dependencies;
+    }
+
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    public function setEnabled(bool $enabled): void
+    {
+        $this->enabled = $enabled;
     }
 }

@@ -34,12 +34,14 @@ class AssetPolicyOutputTransformer implements OutputTransformerInterface
         $output->setId($data->getId());
         $output->workspace = $data->getWorkspace();
         $output->name = $data->getName();
+        $output->enabled = $data->isEnabled();
         $output->users = array_map(function (string $userId): UserOutput {
             return $this->transformUser($userId);
         }, $data->getUserIdsOfType(AssetPolicyUser::TYPE_USER));
         $output->groups = array_map(function (string $groupId): GroupOutput {
             return $this->transformGroup($groupId);
         }, $data->getUserIdsOfType(AssetPolicyUser::TYPE_GROUP));
+        $output->owner = $this->transformUser($data->getOwnerId());
 
         $output->conditions = $data->getConditions();
         $output->actions = $data->getActions();

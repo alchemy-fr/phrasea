@@ -16,6 +16,9 @@ final class AssetPolicyInput
     public ?string $name = null;
 
     #[Groups([AssetPolicy::GROUP_WRITE])]
+    public ?bool $enabled = null;
+
+    #[Groups([AssetPolicy::GROUP_WRITE])]
     #[Assert\Count(max: 30)]
     public ?array $users = null;
 

@@ -38,7 +38,7 @@ class DashboardController extends AbstractAdminDashboardController
     #[\Override]
     public function configureMenuItems(): iterable
     {
-        $submenu1 = [
+        $submenuPerms = [
             MenuItem::linkToRoute('Asset permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Asset::OBJECT_TYPE]),
             MenuItem::linkToRoute('Collection permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Collection::OBJECT_TYPE]),
             MenuItem::linkToRoute('Workspace permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => Workspace::OBJECT_TYPE]),
@@ -46,7 +46,7 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkTo(AccessControlEntryCrudController::class, 'All permissions (advanced)'),
         ];
 
-        $submenu2 = [
+        $submenuCore = [
             MenuItem::linkTo(WorkspaceCrudController::class, 'Workspace'),
             MenuItem::linkTo(CollectionCrudController::class, 'Collection'),
             MenuItem::linkTo(CollectionAccessCrudController::class, 'Collection Access'),
@@ -58,6 +58,7 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkTo(AttributeEntityCrudController::class, 'Attribute Entity'),
             MenuItem::linkTo(EntityListCrudController::class, 'Entity List'),
             MenuItem::linkTo(AttributeDefinitionCrudController::class, 'Attribute Definition'),
+            MenuItem::linkTo(AssetPolicyCrudController::class, 'Asset Policy'),
             MenuItem::linkTo(AttributePolicyCrudController::class, 'Attribute Policy'),
             MenuItem::linkTo(TagCrudController::class, 'Tag'),
             MenuItem::linkTo(TagFilterRuleCrudController::class, 'Tag Filter Rule'),
@@ -89,13 +90,13 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkTo(WorkspaceTemplateCrudController::class, 'Workspace Templates'),
         ];
 
-        $submenu3 = [
+        $submenuAdmin = [
             MenuItem::linkTo(OperationTaskCrudController::class, 'Operation Task'),
             MenuItem::linkTo(PopulatePassCrudController::class, 'Populate Pass'),
             MenuItem::linkTo(ESIndexStateCrudController::class, 'ES Index State'),
         ];
 
-        $submenu4 = [
+        $submenuIntegration = [
             MenuItem::linkTo(WorkspaceIntegrationCrudController::class, 'Integration', 'fa fa-gear'),
             MenuItem::linkTo(IntegrationDataCrudController::class, 'Integration Data', 'fa fa-database'),
             MenuItem::linkTo(IntegrationTokenCrudController::class, 'Integration Token', 'fa fa-fingerprint'),
@@ -123,14 +124,14 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkTo(ChangeLogCrudController::class, 'Change Log'),
         ];
 
-        yield MenuItem::subMenu('Permission', 'fas fa-lock')->setSubItems($submenu1);
-        yield MenuItem::subMenu('Core', 'fas fa-database')->setSubItems($submenu2);
+        yield MenuItem::subMenu('Permission', 'fas fa-lock')->setSubItems($submenuPerms);
+        yield MenuItem::subMenu('Core', 'fas fa-database')->setSubItems($submenuCore);
         yield MenuItem::subMenu('Page', 'fas fa-file')->setSubItems($pages);
         yield MenuItem::subMenu('Basket', 'fas fa-basket-shopping')->setSubItems($basket);
         yield MenuItem::subMenu('Lists', 'fas fa-list')->setSubItems($lists);
-        yield MenuItem::subMenu('Admin', 'fas fa-folder-open')->setSubItems($submenu3);
+        yield MenuItem::subMenu('Admin', 'fas fa-folder-open')->setSubItems($submenuAdmin);
         yield MenuItem::subMenu('Template', 'fas fa-align-justify')->setSubItems($submenuTemplates);
-        yield MenuItem::subMenu('Integration', 'fas fa-gear')->setSubItems($submenu4);
+        yield MenuItem::subMenu('Integration', 'fas fa-gear')->setSubItems($submenuIntegration);
         yield MenuItem::subMenu('Workflow', 'fas fa-gears')->setSubItems($workflows);
         yield MenuItem::subMenu('Webhook', 'fas fa-network-wired')->setSubItems($webhookSubMenu);
         yield MenuItem::subMenu('Discussions', 'fas fa-message')->setSubItems($discussions);

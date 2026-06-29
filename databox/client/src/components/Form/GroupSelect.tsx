@@ -10,14 +10,14 @@ import {
     AsyncRSelectProps,
 } from '@alchemy/react-form';
 
-type Props<TFieldValues extends FieldValues> = {
+type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     data?: Promise<Group[]> | undefined;
-} & AsyncRSelectProps<TFieldValues, false>;
+} & AsyncRSelectProps<TFieldValues, IsMulti>;
 
-export default function GroupSelect<TFieldValues extends FieldValues>({
-    data,
-    ...props
-}: Props<TFieldValues>) {
+export default function GroupSelect<
+    TFieldValues extends FieldValues,
+    IsMulti extends boolean,
+>({data, ...props}: Props<TFieldValues, IsMulti>) {
     const [notAllowed, setNotAllowed] = React.useState(false);
 
     const load = async (
