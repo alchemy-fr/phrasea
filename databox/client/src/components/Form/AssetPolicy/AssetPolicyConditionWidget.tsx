@@ -29,7 +29,7 @@ export default function AssetPolicyConditionWidget<
                     <CollectionTreeWidget
                         workspaceId={workspaceId}
                         control={control}
-                        name={`${path}.collection` as any}
+                        name={`${path}.value` as any}
                     />
                 </>
             );

@@ -12,6 +12,7 @@ use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Entity\Core\AssetPolicy\AssetPolicy;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -68,10 +69,14 @@ class AssetPolicyCrudController extends AbstractAdminCrudController
         yield $this->userChoiceField->create('ownerId', 'Owner');
         yield IntegerField::new('priority');
         yield TextField::new('name');
+        yield ArrayField::new('userIds')
+            ->onlyOnDetail();
+        yield ArrayField::new('groupIds')
+            ->onlyOnDetail();
         yield BooleanField::new('enabled');
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
-        yield JsonField::new('conditions');
-        yield JsonField::new('actions');
+        yield JsonField::new('conditions')->hideOnIndex();
+        yield JsonField::new('actions')->hideOnIndex();
     }
 }

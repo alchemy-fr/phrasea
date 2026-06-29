@@ -26,6 +26,7 @@ use App\Security\ClientUrlHelper;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
 use App\Service\Asset\Attribute\AssetNameResolver;
+use App\Service\Asset\Attribute\AssetPolicyManager;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Discussion\DiscussionManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -49,6 +50,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         #[Autowire(env: 'API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE')]
         private readonly string $ownerPropertyRequiredRole,
         private readonly ClientUrlHelper $clientUrlHelper,
+        private readonly AssetPolicyManager $assetPolicyManager,
     ) {
     }
 
@@ -182,6 +184,8 @@ class AssetOutputTransformer implements OutputTransformerInterface
             $output->thread = $this->discussionManager->getThreadOfObject($data);
             $output->attachments = array_filter($data->getAttachments()->getValues(), fn (AssetAttachment $attachment): bool => !$attachment->getAsset()->isDeleted() && $this->isGranted(AbstractVoter::READ, $attachment->getAsset()));
         }
+
+        $this->assetPolicyManager->applyPolicy($data, $output);
 
         return $output;
     }

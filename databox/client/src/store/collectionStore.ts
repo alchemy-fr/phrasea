@@ -4,6 +4,7 @@ import {
     collectionChildrenLimit,
     CollectionOptions,
     collectionSecondLimit,
+    getCollectionAscendants,
     getCollections,
 } from '../api/collection';
 import {logError} from '@alchemy/core';
@@ -12,6 +13,7 @@ export type CollectionPager = {
     items: CollectionExtended[];
     loadingMore: boolean;
     expanding: boolean;
+    partial: boolean;
     total?: number;
 };
 
@@ -37,6 +39,7 @@ type State = {
         parentId?: string,
         force?: boolean
     ) => Promise<void>;
+    loadCollectionAscendants: (collectionId: string) => Promise<Collection>;
     loadMore: (workspaceId: string, parentId?: string) => Promise<void>;
     addCollection: (
         collection: Collection,
@@ -57,7 +60,8 @@ export const useCollectionStore = create<State>((set, getState) => ({
 
     load: async (workspaceId, parentId, force) => {
         const pagerId = parentId ?? workspaceId;
-        if (!force && getState().tree[pagerId]) {
+        const treeElement = getState().tree[pagerId];
+        if (!force && treeElement && !treeElement.partial) {
             return;
         }
 
@@ -76,11 +80,11 @@ export const useCollectionStore = create<State>((set, getState) => ({
 
         set(state => {
             const tree = {...state.tree};
-            const newCollections = {...state.collections};
+            const collections = {...state.collections};
 
             const items = data.result.map(c => {
                 return updateCollectionByReference(
-                    newCollections,
+                    collections,
                     c,
                     workspaceId,
                     parentId
@@ -105,11 +109,12 @@ export const useCollectionStore = create<State>((set, getState) => ({
                 total: data.total,
                 expanding: false,
                 loadingMore: false,
+                partial: false,
             };
 
             return {
                 tree,
-                collections: newCollections,
+                collections: collections,
             };
         });
     },
@@ -176,6 +181,7 @@ export const useCollectionStore = create<State>((set, getState) => ({
                     total: data.total,
                     expanding: false,
                     loadingMore: false,
+                    partial: false,
                 };
 
                 return {
@@ -187,6 +193,51 @@ export const useCollectionStore = create<State>((set, getState) => ({
             logError(e);
             setLoading(false);
         }
+    },
+
+    loadCollectionAscendants: async id => {
+        const collection = await getCollectionAscendants(id);
+        const workspaceId = collection.workspace.id;
+
+        set(state => {
+            const collections = {...state.collections};
+            const tree = {...state.tree};
+
+            let pointer: Collection | undefined = collection;
+            while (pointer) {
+                const extCollection = updateCollectionByReference(
+                    collections,
+                    pointer,
+                    workspaceId,
+                    pointer.parentId
+                );
+
+                const pagerId = pointer.parentId ?? workspaceId;
+
+                tree[pagerId] ??= {
+                    items: [],
+                    expanding: false,
+                    loadingMore: false,
+                    partial: true,
+                };
+
+                if (!tree[pagerId].items.some(c => c.id === extCollection.id)) {
+                    tree[pagerId] = {
+                        ...tree[pagerId],
+                        items: tree[pagerId].items.concat(extCollection),
+                    };
+                }
+
+                pointer = pointer.parent;
+            }
+
+            return {
+                tree,
+                collections,
+            };
+        });
+
+        return collection;
     },
 
     updateCollection: collection => {

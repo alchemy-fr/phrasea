@@ -54,6 +54,10 @@ export async function getCollection(id: string): Promise<Collection> {
     return (await apiClient.get(`/collections/${id}`)).data;
 }
 
+export async function getCollectionAscendants(id: string): Promise<Collection> {
+    return (await apiClient.get(`/collections/${id}/ascendants`)).data;
+}
+
 export async function getCollectionPrivacyInfo(
     id: string
 ): Promise<CollectionPrivacyInfo> {

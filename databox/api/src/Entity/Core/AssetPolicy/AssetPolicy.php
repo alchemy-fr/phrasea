@@ -18,6 +18,7 @@ use App\Api\Provider\AssetPolicyCollectionProvider;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Listener\OwnerPersistableInterface;
+use App\Repository\Core\AssetPolicyRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -53,7 +54,7 @@ use Ramsey\Uuid\UuidInterface;
     provider: AssetPolicyCollectionProvider::class,
 )]
 #[ORM\Table]
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: AssetPolicyRepository::class)]
 class AssetPolicy extends AbstractUuidEntity implements OwnerPersistableInterface
 {
     use CreatedAtTrait;
@@ -164,5 +165,15 @@ class AssetPolicy extends AbstractUuidEntity implements OwnerPersistableInterfac
     public function setEnabled(bool $enabled): void
     {
         $this->enabled = $enabled;
+    }
+
+    public function getUserIds(): array
+    {
+        return $this->getUserIdsOfType(AssetPolicyUser::TYPE_USER);
+    }
+
+    public function getGroupIds(): array
+    {
+        return $this->getUserIdsOfType(AssetPolicyUser::TYPE_GROUP);
     }
 }

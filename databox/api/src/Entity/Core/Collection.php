@@ -68,6 +68,20 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(
             security: 'is_granted("'.AbstractVoter::READ.'", object)'
         ),
+        new Get(
+            uriTemplate: '/collections/{id}/ascendants',
+            normalizationContext: [
+                AbstractObjectNormalizer::ENABLE_MAX_DEPTH => true,
+                'groups' => [
+                    self::GROUP_LIST,
+                    self::GROUP_READ,
+                    self::GROUP_ABSOLUTE_NAME,
+                    self::GROUP_ASCENDANTS,
+                ],
+            ],
+            security: 'is_granted("'.AbstractVoter::READ.'", object)',
+            name: 'collection_ascendants',
+        ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(
             security: 'is_granted("EDIT", object)',
@@ -201,6 +215,7 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
     final public const string GROUP_LIST = 'coll:i';
     final public const string GROUP_CHILDREN = 'coll:ic';
     final public const string GROUP_ABSOLUTE_NAME = 'coll:absName';
+    final public const string GROUP_ASCENDANTS = 'coll:ascendants';
 
     final public const string EVENT_ASSET_ADD = 'asset_add';
     final public const string EVENT_ASSET_UPDATE = 'asset_update';

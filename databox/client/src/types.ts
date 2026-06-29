@@ -230,6 +230,10 @@ export interface RenditionPolicy extends ApiHydraObjectResponse, Entity {
     workspace: Workspace | string;
 }
 
+export enum AssetPolicyConditionOperator {
+    Equals = '=',
+}
+
 export type AssetPolicyCondition = {
     field?: string;
     operator: string;
@@ -400,6 +404,7 @@ export interface Collection
         Entity,
         ApiHydraObjectResponse {
     parentId?: string;
+    parent?: Collection;
     name: string;
     displayName: string;
     nameHighlight?: string;

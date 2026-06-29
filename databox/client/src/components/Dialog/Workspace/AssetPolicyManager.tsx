@@ -1,6 +1,8 @@
 import {
     AssetPolicy,
     AssetPolicyCondition,
+    AssetPolicyConditionOperator,
+    Collection,
     Group,
     User,
     Workspace,
@@ -26,7 +28,7 @@ import {
     DefinitionItemProps,
 } from './DefinitionManager/managerTypes.ts';
 import {EntityName} from '../../../api/types.ts';
-import {createIriFromId} from '@alchemy/api';
+import {createIriFromId, extractIdFromIri} from '@alchemy/api';
 import UserSelect from '../../Form/UserSelect.tsx';
 import GroupSelect from '../../Form/GroupSelect.tsx';
 import IconFormLabel from '../../Form/IconFormLabel.tsx';
@@ -35,6 +37,7 @@ import AssetPolicyActionWidget from '../../Form/AssetPolicy/AssetPolicyActionWid
 import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import AssetPolicyConditionWidget from '../../Form/AssetPolicy/AssetPolicyConditionWidget.tsx';
+import {TreeNode} from '@alchemy/phrasea-framework';
 
 function Item({
     workspace,
@@ -270,7 +273,39 @@ function denormalizeUser<T extends User | Group>(user: T | string): string {
 function denormalizeCondition(
     condition: AssetPolicyCondition
 ): AssetPolicyCondition {
-    return condition; // TODO
+    if (condition.operator === AssetPolicyConditionOperator.Equals) {
+        if (condition.value) {
+            if (typeof condition.value !== 'string') {
+                condition.value = (
+                    condition.value as unknown as TreeNode<Collection>
+                ).data.id;
+            }
+            if (condition.value.includes('/')) {
+                condition.value = extractIdFromIri(condition.value);
+            }
+        }
+    }
+
+    return condition;
+}
+
+function normalizeCondition(
+    condition: AssetPolicyCondition
+): AssetPolicyCondition {
+    if (condition.operator === AssetPolicyConditionOperator.Equals) {
+        if (
+            condition.value &&
+            typeof condition.value === 'string' &&
+            !condition.value.startsWith(`/${EntityName.Collection}`)
+        ) {
+            condition.value = createIriFromId(
+                EntityName.Collection,
+                condition.value
+            );
+        }
+    }
+
+    return condition;
 }
 
 function normalizeUser<T extends User | Group>(user: T | string): string {
@@ -284,7 +319,10 @@ function normalizeUser<T extends User | Group>(user: T | string): string {
 function normalizeData(data: AssetPolicy): AssetPolicy {
     return {
         ...data,
-        users: data.users?.map(normalizeUser) as AssetPolicy['users'],
-        groups: data.groups?.map(normalizeUser) as AssetPolicy['groups'],
+        users: data.users.map(normalizeUser) as AssetPolicy['users'],
+        groups: data.groups.map(normalizeUser) as AssetPolicy['groups'],
+        conditions: data.conditions.map(
+            normalizeCondition
+        ) as AssetPolicy['conditions'],
     };
 }
