@@ -40,7 +40,7 @@ export async function dumpConfFromStructure(
         dm
     );
 
-    // Build ordered output: workspaceSlug -> collections -> phraseanetCollectionsInventory -> searchQuery -> rest
+    // Build ordered output: databox -> workspaceSlug -> collections -> phraseanetCollectionsInventory -> searchQuery -> rest
     const {
         databox,
         workspaceSlug,
