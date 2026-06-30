@@ -60,7 +60,7 @@ final readonly class JwtExtractor
 
         if (empty($username)) {
             $this->logger->error('Missing "preferred_username" from Keycloak, using sub as username instead', [
-                'claims' => $claims->all(),
+                'sub' => $sub,
             ]);
             $username = $sub;
         }
