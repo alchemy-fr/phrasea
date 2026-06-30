@@ -414,6 +414,7 @@ export interface Basket
     assetCount?: number;
     createdAt: string;
     updatedAt: string;
+    archivedAt?: string | undefined;
     owner?: User;
 }
 
