@@ -55,12 +55,14 @@ final readonly class JwtExtractor
             );
         }
 
-        $username = $preferredUsername = $claims->get('preferred_username');
-        if (empty($preferredUsername)) {
+        $username = $claims->get('preferred_username');
+        $sub = $claims->get('sub');
+
+        if (empty($username)) {
             $this->logger->error('Missing "preferred_username" from Keycloak, using sub as username instead', [
                 'claims' => $claims->all(),
             ]);
-            $username = $claims->get('sub');
+            $username = $sub;
         }
 
         $idpRoles = $claims->get('roles', []);
@@ -74,7 +76,7 @@ final readonly class JwtExtractor
 
         return new JwtUser(
             $token->toString(),
-            $claims->get('sub'),
+            $sub,
             $username,
             $this->roleMapper->getRoles($idpRoles),
             $claims->get('groups', []),
