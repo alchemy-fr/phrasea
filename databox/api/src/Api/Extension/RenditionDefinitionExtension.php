@@ -20,7 +20,7 @@ use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-class RenditionDefinitionExtension implements QueryCollectionExtensionInterface
+final class RenditionDefinitionExtension implements QueryCollectionExtensionInterface
 {
     use SecurityAwareTrait;
 
