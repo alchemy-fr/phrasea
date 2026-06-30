@@ -91,7 +91,7 @@ class AssetPolicyTest extends AbstractSearchTestCase
             'json' => [
                 'users' => [],
                 'name' => 'Foo',
-                'workspaceId' => $workspace->getId(),
+                'workspace' => '/workspaces/'.$workspace->getId(),
                 'conditions' => [],
                 'actions' => [],
             ],
@@ -114,7 +114,7 @@ actions: This collection should contain 1 element or more.', $response->toArray(
                     KeycloakClientTestMock::USER_UID,
                 ],
                 'name' => 'Foo',
-                'workspaceId' => $workspace->getId(),
+                'workspace' => '/workspaces/'.$workspace->getId(),
                 'conditions' => [],
                 'actions' => [
                     [
