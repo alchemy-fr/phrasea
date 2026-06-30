@@ -40,6 +40,7 @@ export type ConfigPhraseanetSubdef = {
 export type ConfigDataboxMapping = {
     databox: string;
     collections?: string;
+    phraseanetCollectionsInventory?: string[];
     searchQuery?: string;
     workspaceSlug: string;
     recordsCollectionPath: string;
@@ -144,6 +145,7 @@ export type PhraseanetCollection = {
     base_id: string;
     collection_id: number;
     name: string;
+    record_amount?: number;
 };
 
 type PhraseanetMetadata = {
