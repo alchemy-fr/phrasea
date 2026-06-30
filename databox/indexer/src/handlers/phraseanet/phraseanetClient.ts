@@ -103,6 +103,15 @@ export default class PhraseanetClient {
         return res.data.response.collections;
     }
 
+    async getCollectionsForDatabox(
+        databoxId: string
+    ): Promise<PhraseanetCollection[]> {
+        const res = await this.client.get(
+            `/api/v1/databoxes/${databoxId}/collections/`
+        );
+        return Object.values(res.data.response.collections);
+    }
+
     async searchRecords(
         params: Record<string, any>,
         offset: number = 0,

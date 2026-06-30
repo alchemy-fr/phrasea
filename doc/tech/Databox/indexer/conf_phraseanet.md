@@ -89,6 +89,13 @@ The name or id of the Phraseanet databox to import.
 ## `collections`
 A list/filter of Phraseanet collections (id or name, delimited by `,`) to import/search on. If unset or empty, will query all collections.
 
+## `phraseanetCollectionsInventory`
+Optional helper field generated when the indexer dumps a Phraseanet mapping template.
+
+- Purpose: memo/debug only, to keep a human-readable inventory (`<name> id: <id> count: <n>`).
+- Runtime behavior: **ignored by the indexer** during import.
+- Recommendation: keep it for reference or remove it once the `collections` filter is validated.
+
 ## `searchQuery`
 The Phraseanet query to search for records to import. If empty: import all.
 
@@ -299,6 +306,34 @@ _note:_
   **and** `"renditions": false`
 
 - It is possible to declare a rendition with no `from`: not imported from Phraseanet, but created in Phrasea.
+
+## Generate a Mapping Model (Template)
+
+If `fieldMap` or `renditions` is missing in a databox mapping, the indexer logs a full generated model you can copy/paste and adapt.
+
+### Procedure
+
+1. In your location config, keep at least `databox` and `workspaceSlug` in the target `databoxMapping` item.
+2. Remove (or do not set) `fieldMap` and/or `renditions`.
+3. Build the indexer:
+
+```bash
+dc run --rm databox-indexer pnpm build
+```
+
+4. Run indexing for the location:
+
+```bash
+dc run --rm databox-indexer index <location-name>
+```
+
+5. In logs, find the block starting with:
+    `**** Missing 'renditions' or 'fieldMap' configuration ****`
+6. Copy the generated JSON block (`Phraseanet full configuration equivalent`) into your config file, then adapt it.
+
+Notes:
+- The generated block contain `collections` and `phraseanetCollectionsInventory`.
+- `phraseanetCollectionsInventory` is informational only and is not used by indexing logic.
 
 ### `parent`
 One can declare a `parent` relation between renditions, the parent rendition **must** be declared before the child.
