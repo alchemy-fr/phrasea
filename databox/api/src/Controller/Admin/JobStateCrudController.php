@@ -64,6 +64,7 @@ class JobStateCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[AdminRoute(path: 'job-state/retry')]
     public function retryJob(AdminContext $context): RedirectResponse
     {
         /** @var JobState $jobState */

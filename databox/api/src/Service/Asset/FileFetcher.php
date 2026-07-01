@@ -21,6 +21,10 @@ readonly class FileFetcher
             throw new \InvalidArgumentException(sprintf('File "%s" has a private path', $file->getId()));
         }
 
-        return $this->fileDownloader->download($this->fileUrlResolver->resolveUrl($file), $headers);
+        if ($file->localTmpPath && file_exists($file->localTmpPath)) {
+            return $file->localTmpPath;
+        }
+
+        return $file->localTmpPath = $this->fileDownloader->download($this->fileUrlResolver->resolveUrl($file), $headers);
     }
 }

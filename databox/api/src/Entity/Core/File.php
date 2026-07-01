@@ -77,6 +77,8 @@ class File extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     private ?string $path = null;
 
+    public ?string $localTmpPath = null;
+
     /**
      * Is path accessible from browser or worker.
      */

@@ -7,6 +7,7 @@ namespace App\Validator;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\IntegrationManager;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
@@ -28,10 +29,10 @@ class ValidIntegrationOptionsConstraintValidator extends ConstraintValidator
 
         try {
             $this->integrationManager->validateIntegration($value);
-        } catch (InvalidConfigurationException $e) {
+        } catch (InvalidConfigurationException|\InvalidArgumentException|BadRequestHttpException $e) {
             $this->context
                 ->buildViolation($e->getMessage())
-                ->atPath('optionsJson')
+                ->atPath('config')
                 ->addViolation();
         }
     }

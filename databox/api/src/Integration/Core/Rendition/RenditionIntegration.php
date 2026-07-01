@@ -11,6 +11,7 @@ use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use App\Service\Storage\RenditionManager;
+use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 class RenditionIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
@@ -19,14 +20,29 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
     ) {
     }
 
+    public function buildConfiguration(NodeBuilder $builder): void
+    {
+        // @formatter:off
+        $builder
+            ->arrayNode('renditions')
+                ->info('Renditions to build explicitly. If omitted, all renditions are built.')
+                ->scalarPrototype()
+                ->end()
+            ->end()
+        ;
+    }
+
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
         /** @var RenditionDefinition[] $definitions */
         $definitions = $this->renditionManager->getRenditionDefinitions($config->getWorkspaceId());
 
+        $renditions = $config['renditions'] ?? null;
+
         $jobs = [];
 
         foreach ($definitions as $definition) {
+
             $j = WorkflowHelper::createIntegrationJob(
                 $config,
                 RenditionBuildAction::class,
@@ -37,13 +53,23 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
             $jobs[$definition->getId()] = $j;
         }
 
+        $neededDefinitions = [];
         foreach ($definitions as $definition) {
             if (null !== $parent = $definition->getParent()) {
                 $jobs[$definition->getId()]->getNeeds()->append($jobs[$parent->getId()]->getId());
+                $neededDefinitions[$parent->getId()] = true;
             }
         }
 
-        return $jobs;
+        if (null !== $renditions) {
+            foreach ($definitions as $definition) {
+                if (!in_array($definition->getName(), $renditions, true) && !isset($neededDefinitions[$definition->getId()])) {
+                    unset($jobs[$definition->getId()]);
+                }
+            }
+        }
+
+        return array_values($jobs);
     }
 
     private static function getJobIdSuffix(string $renditionDefinitionId): string

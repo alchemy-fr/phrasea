@@ -4,25 +4,18 @@ declare(strict_types=1);
 
 namespace App\Border;
 
-use App\Border\Analyzer\AnalyzerInterface;
 use App\Entity\Core\File;
 use App\Service\Asset\FileFetcher;
-use Psr\Container\ContainerInterface;
-use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-use Symfony\Component\Config\Definition\Processor;
-use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
-use Symfony\Component\Yaml\Yaml;
 
 final readonly class FileAnalyzer
 {
     public function __construct(
-        #[AutowireLocator(services: AnalyzerInterface::TAG, defaultIndexMethod: 'getName')]
-        private ContainerInterface $analyzers,
+        private FileAnalyzerRegistry $fileAnalyzerRegistry,
         private FileFetcher $fileFetcher,
     ) {
     }
 
-    public function analyzeFile(File $file, bool $force = false): void
+    public function analyzeFile(File $file, array $config, bool $force = false): void
     {
         if ($file->isAnalyzed() && !$force) {
             return;
@@ -39,18 +32,18 @@ final readonly class FileAnalyzer
 
         $filePath = $this->fileFetcher->getFile($file);
         try {
-            $this->analyzeFileSource($filePath, $file);
+            $this->analyzeFileSource($filePath, $file, $config);
         } finally {
             @unlink($filePath);
         }
     }
 
-    public function analyzeFileSource(string $filePath, File $file): void
+    public function analyzeFileSource(string $filePath, File $file, array $config): void
     {
         $outputs = [];
-        foreach ($this->getAnalyzers($file) as $analyzerConfig) {
-            $analyzer = $this->getAnalyzer($analyzerConfig);
-            $analyzerConfig = $this->processConfiguration(
+        foreach ($config['analyzers'] ?? [] as $analyzerConfig) {
+            $analyzer = $this->fileAnalyzerRegistry->getAnalyzer($analyzerConfig['name']);
+            $analyzerConfig = $this->fileAnalyzerRegistry->processConfiguration(
                 $analyzer,
                 $analyzerConfig,
             );
@@ -79,7 +72,7 @@ final readonly class FileAnalyzer
     /**
      * @return bool Whether to proceed File analysis
      */
-    public function preAnalyzeFile(File $file, bool $force = false): bool
+    public function preAnalyzeFile(File $file, array $config, bool $force = false): bool
     {
         if ($file->isAnalyzed() && !$force) {
             return false;
@@ -88,8 +81,8 @@ final readonly class FileAnalyzer
         $outputs = [];
         $fileContentsRequired = false;
 
-        foreach ($this->getAnalyzers($file) as $analyzerConfig) {
-            $analyzer = $this->getAnalyzer($analyzerConfig);
+        foreach ($config['analyzers'] ?? [] as $analyzerConfig) {
+            $analyzer = $this->fileAnalyzerRegistry->getAnalyzer($analyzerConfig['name']);
 
             if ($analyzer->requiresFileContent($file, $analyzerConfig)) {
                 $fileContentsRequired = true;
@@ -117,63 +110,5 @@ final readonly class FileAnalyzer
         }
 
         return $fileContentsRequired;
-    }
-
-    private function getAnalyzer(array $config): AnalyzerInterface
-    {
-        if (!isset($config['name'])) {
-            throw new \InvalidArgumentException('Analyzer configuration error: "name" is not set.');
-        }
-
-        if (!$this->analyzers->has($config['name'])) {
-            throw new \InvalidArgumentException(sprintf('Analyzer "%s" not found.', $config['name']));
-        }
-
-        /* @var AnalyzerInterface $analyzer */
-        return $this->analyzers->get($config['name']);
-    }
-
-    private function getAnalyzers(File $file): array
-    {
-        $fileAnalyzers = $file->getWorkspace()->getFileAnalyzers();
-        if (empty($fileAnalyzers)) {
-            return [];
-        }
-
-        $data = Yaml::parse($fileAnalyzers);
-
-        return $data['analyzers'] ?? [];
-    }
-
-    private function processConfiguration(AnalyzerInterface $analyzer, array $config): array
-    {
-        $treeBuilder = new TreeBuilder('root');
-        $children = $treeBuilder->getRootNode()->children();
-        $children
-            ->scalarNode('name')
-                ->cannotBeEmpty()
-                ->isRequired()
-            ->end();
-        $analyzer->buildConfiguration($children);
-
-        $node = $treeBuilder->buildTree();
-
-        $processor = new Processor();
-
-        return $processor->process($node, ['root' => $config]);
-    }
-
-    public function validateAnalyzersConfiguration(array $analyzers): void
-    {
-        foreach ($analyzers['analyzers'] ?? [] as $config) {
-            $analyzer = $this->getAnalyzer($config);
-
-            $config = $this->processConfiguration(
-                $analyzer,
-                $config
-            );
-
-            $analyzer->validateConfiguration($config);
-        }
     }
 }

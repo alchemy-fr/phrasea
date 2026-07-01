@@ -9,8 +9,6 @@ use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Alchemy\StorageBundle\Util\FileUtil;
 use App\Api\Model\Input\FileSourceInput;
-use App\Border\FileAnalyzer;
-use App\Consumer\Handler\File\AnalyzeFile;
 use App\Consumer\Handler\File\ImportFile;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
@@ -28,7 +26,6 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
     private UploadManager $uploadManager;
     private FileUploadManager $fileUploadManager;
     private RequestStack $requestStack;
-    protected FileAnalyzer $fileAnalyzer;
 
     protected function handleFromFile(?string $fileId, Workspace $workspace): ?File
     {
@@ -40,8 +37,6 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
         if ($file->getWorkspaceId() !== $workspace->getId()) {
             throw new BadRequestHttpException(sprintf('Copy error: File "%s" does not belong to workspace "%s"', $fileId, $workspace->getId()));
         }
-
-        $this->normalizeFile($file);
 
         return $file;
     }
@@ -59,7 +54,6 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
             $file->setSize($multipartUpload->getSize());
             $file->setOriginalName($multipartUpload->getFilename());
             $file->setPath($multipartUpload->getPath());
-            $this->normalizeFile($file);
 
             return $file;
         }
@@ -92,7 +86,6 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
         $file->setPathPublic(!$source->isPrivate);
         $file->setStorage(File::STORAGE_URL);
         $file->setWorkspace($workspace);
-        $this->normalizeFile($file);
 
         if (null !== $source->alternateUrls) {
             foreach ($source->alternateUrls as $altUrl) {
@@ -103,17 +96,11 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
         $this->em->persist($file);
 
         if ($source->importFile) {
+            // TODO Should be integrated to the asset:ingest workflow
             $this->postFlushStackListener->addBusMessage(new ImportFile($file->getId()));
         }
 
         return $file;
-    }
-
-    private function normalizeFile(File $file): void
-    {
-        if ($this->fileAnalyzer->preAnalyzeFile($file)) {
-            $this->postFlushStackListener->addBusMessage(new AnalyzeFile($file->getId()));
-        }
     }
 
     #[Required]
@@ -144,11 +131,5 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
     public function setRequestStack(RequestStack $requestStack): void
     {
         $this->requestStack = $requestStack;
-    }
-
-    #[Required]
-    public function setFileAnalyzer(FileAnalyzer $fileAnalyzer): void
-    {
-        $this->fileAnalyzer = $fileAnalyzer;
     }
 }
