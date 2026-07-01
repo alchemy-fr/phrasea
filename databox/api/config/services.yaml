@@ -24,6 +24,7 @@ services:
             ApiPlatform\State\ProviderInterface $collectionProvider: '@api_platform.doctrine.orm.state.collection_provider'
             bool $useAlias: '%elastica.use_alias%'
             string $kernelEnv: '%kernel.environment%'
+            int $elasticsearchIndexReplicas: '%env(int:ELASTICSEARCH_INDEX_REPLICAS)%'
             Elastica\Index $assetIndex: '@fos_elastica.index.asset'
             Elastica\Index $collectionIndex: '@fos_elastica.index.collection'
             Elastica\Index $attributeIndex: '@fos_elastica.index.attribute'
