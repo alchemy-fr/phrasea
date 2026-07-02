@@ -2,7 +2,8 @@ import React, {useMemo} from 'react';
 import {RSelectProps, RSelectWidget} from '@alchemy/react-form';
 import {AssetStatus} from '../../types.ts';
 import {FieldValues} from 'react-hook-form';
-import {useAssetStatusLabels} from '../../hooks/useAssetStatusLabels.ts';
+import {getAssetStatusTranslations} from '../../translations/assetStatusTranslations.ts';
+import {useTranslation} from 'react-i18next';
 
 type Props<TFieldValues extends FieldValues> = Omit<
     RSelectProps<TFieldValues, false>,
@@ -12,20 +13,19 @@ type Props<TFieldValues extends FieldValues> = Omit<
 export default function AssetStatusSelect<TFieldValues extends FieldValues>({
     ...props
 }: Props<TFieldValues>) {
-    const labels = useAssetStatusLabels();
+    const {t} = useTranslation();
+    const options = useMemo(() => {
+        const labels = getAssetStatusTranslations(t);
 
-    const options = useMemo(
-        () =>
-            [
-                AssetStatus.Accepted,
-                AssetStatus.Pending,
-                AssetStatus.Quarantined,
-            ].map(s => ({
-                label: labels[s],
-                value: s.toString(),
-            })),
-        [labels]
-    );
+        return [
+            AssetStatus.Accepted,
+            AssetStatus.Pending,
+            AssetStatus.Quarantined,
+        ].map(s => ({
+            label: labels[s],
+            value: s.toString(),
+        }));
+    }, [t]);
 
     return (
         // @ts-expect-error TS error control/name

@@ -8,6 +8,8 @@ import BaseType from './BaseType.tsx';
 import {AssetStatus} from '../../../../../types.ts';
 import AssetStatusSelect from '../../../../Form/AssetStatusSelect.tsx';
 import AssetStatusChip from '../../../../Ui/AssetStatusChip.tsx';
+import {getAssetStatusTranslations} from '../../../../../translations/assetStatusTranslations.ts';
+import {isNotNull} from '@alchemy/core';
 
 export default class AssetStatusType
     extends BaseType
@@ -37,7 +39,14 @@ export default class AssetStatusType
         return <AssetStatusChip status={value} />;
     }
 
-    formatValueAsString({value}: AttributeFormatterProps): string | undefined {
-        return value?.toString();
+    formatValueAsString({
+        value,
+        t,
+    }: AttributeFormatterProps): string | undefined {
+        const labels = getAssetStatusTranslations(t);
+
+        if (isNotNull(value)) {
+            return labels[value.toString() as AssetStatus];
+        }
     }
 }

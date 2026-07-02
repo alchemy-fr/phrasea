@@ -1,14 +1,17 @@
 import {Chip, ChipProps} from '@mui/material';
 import {grey} from '@mui/material/colors';
 import {AssetStatus} from '../../types.ts';
-import {useAssetStatusLabels} from '../../hooks/useAssetStatusLabels.ts';
+import {useTranslation} from 'react-i18next';
+import {getAssetStatusTranslations} from '../../translations/assetStatusTranslations.ts';
+import {useMemo} from 'react';
 
 type Props = {
     status: AssetStatus;
 };
 
 export default function AssetStatusChip({status, ...props}: Props & ChipProps) {
-    const labels = useAssetStatusLabels();
+    const {t} = useTranslation();
+    const labels = useMemo(() => getAssetStatusTranslations(t), [t]);
 
     return (
         <Chip
