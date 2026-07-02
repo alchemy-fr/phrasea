@@ -75,9 +75,11 @@ export function CommonAppTopMenu({
                 </Button>
             ) : (
                 <UserMenu
-                    username={user?.username || ''}
+                    username={user.username}
+                    user={user}
                     accountUrl={getAccountUrl()}
                     onLogout={logout}
+                    debugUser={config.devMode}
                 />
             )}
 

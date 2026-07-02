@@ -14,6 +14,8 @@ type Props = {
     accountUrl?: string;
     onLogout?: () => void;
     username: string;
+    user: object;
+    debugUser?: boolean;
 };
 
 export default function UserMenu({
@@ -22,6 +24,8 @@ export default function UserMenu({
     accountUrl,
     onLogout,
     username,
+    debugUser,
+    user,
 }: Props) {
     const {t} = useTranslation();
 
@@ -76,6 +80,35 @@ export default function UserMenu({
                             />
                         </MenuItem>
                     ) : null,
+
+                    ...(debugUser
+                        ? [
+                              <MenuItem
+                                  key={'debug-jwt'}
+                                  onClick={() => {
+                                      closeMenu();
+                                      alert(
+                                          `User info (also dumped to console):\n\n${JSON.stringify(user, null, 2)}`
+                                      );
+                                      // eslint-disable-next-line no-console
+                                      console.info(
+                                          'Current authenticated User',
+                                          user
+                                      );
+                                  }}
+                              >
+                                  <ListItemIcon>
+                                      <AccountBoxIcon />
+                                  </ListItemIcon>
+                                  <ListItemText
+                                      primary={t(
+                                          'lib.ui.menu.debug_user',
+                                          'Debug User'
+                                      )}
+                                  />
+                              </MenuItem>,
+                          ]
+                        : []),
 
                     ...(actions ? actions({closeMenu}) : []),
 
