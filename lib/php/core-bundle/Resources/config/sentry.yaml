@@ -9,7 +9,6 @@ services:
         autoconfigure: true
 
     Alchemy\CoreBundle\Controller\SentryTestController: ~
-    Alchemy\CoreBundle\Message\Debug\SentryDebugHandler: ~
 
     Sentry\Monolog\Handler:
         arguments:

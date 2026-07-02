@@ -6,8 +6,9 @@ namespace Alchemy\AdminBundle\Controller;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
+#[Route(name: 'alchemy_admin_')]
 class PhpInfoController extends AbstractAdminController
 {
     #[Route(path: '/php-info', name: 'phpinfo')]

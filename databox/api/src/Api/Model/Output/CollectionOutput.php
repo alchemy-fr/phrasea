@@ -74,6 +74,9 @@ class CollectionOutput extends AbstractUuidOutput
     public bool $public;
 
     #[Groups([Collection::GROUP_ABSOLUTE_NAME])]
+    public ?string $absolutePath = null;
+
+    #[Groups([Collection::GROUP_ABSOLUTE_NAME])]
     public ?string $absoluteName = null;
 
     #[Groups([Collection::GROUP_ABSOLUTE_NAME])]
@@ -84,6 +87,11 @@ class CollectionOutput extends AbstractUuidOutput
         Asset::GROUP_LIST,
     ])]
     public ?string $parentId = null;
+
+    #[Groups([
+        Collection::GROUP_ASCENDANTS,
+    ])]
+    public ?Collection $parent = null;
 
     #[MaxDepth(2)]
     #[Groups([Collection::GROUP_LIST, Collection::GROUP_CHILDREN, Workspace::GROUP_LIST])]

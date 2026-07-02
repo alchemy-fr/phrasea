@@ -10,7 +10,6 @@ class WorkspaceInput extends AbstractOwnerIdInput
 {
     public ?string $name = null;
     public ?string $slug = null;
-    public ?string $fileAnalyzers = null;
 
     #[Assert\Range(min: 0, max: 365 * 2)]
     public int|string|null $trashRetentionDelay = null;

@@ -41,9 +41,6 @@ class WorkspaceInputTransformer extends AbstractInputTransformer
         if (null !== $data->translations) {
             $object->setTranslations($data->translations);
         }
-        if (null !== $data->fileAnalyzers) {
-            $object->setFileAnalyzers($data->fileAnalyzers);
-        }
         if (null !== $data->trashRetentionDelay) {
             $object->setTrashRetentionDelay((int) $data->trashRetentionDelay);
         }

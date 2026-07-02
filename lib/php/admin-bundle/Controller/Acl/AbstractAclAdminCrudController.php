@@ -7,6 +7,7 @@ namespace Alchemy\AdminBundle\Controller\Acl;
 use Alchemy\AclBundle\Admin\PermissionView;
 use Alchemy\AclBundle\Mapping\ObjectMapping;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -40,6 +41,7 @@ abstract class AbstractAclAdminCrudController extends AbstractAdminCrudControlle
             ->add(Crud::PAGE_INDEX, $permissionsAction);
     }
 
+    #[AdminRoute('/permissions', name: 'permissions')]
     public function permissions(AdminContext $adminContext, AdminUrlGenerator $adminUrlGenerator): Response
     {
         /** @var object $entity */

@@ -26,6 +26,7 @@ use App\Controller\Core\RenditionDefinitionSortAction;
 use App\Entity\Traits\AssetTypeTargetTrait;
 use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
+use App\Repository\Core\RenditionDefinitionRepository;
 use App\Validator as CustomAssert;
 use App\Validator\SameWorkspaceConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -111,10 +112,10 @@ use Symfony\Component\Validator\Constraints as Assert;
     order: ['priority' => 'DESC'],
     paginationClientItemsPerPage: true,
 )]
-#[ORM\Table]
 #[ORM\Index(columns: ['workspace_id', 'name'], name: 'rend_def_ws_name')]
 #[ORM\UniqueConstraint(name: 'uniq_rend_def_ws_key', columns: ['workspace_id', 'key'])]
-#[ORM\Entity]
+#[ORM\Table]
+#[ORM\Entity(repositoryClass: RenditionDefinitionRepository::class)]
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'policy.workspace', 'parent.workspace'],
 )]

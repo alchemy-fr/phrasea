@@ -12,6 +12,7 @@ use Alchemy\Workflow\Doctrine\Entity\JobState;
 use Alchemy\Workflow\State\JobState as JobStateModel;
 use Alchemy\Workflow\State\JobState as ModelJobState;
 use Alchemy\Workflow\WorkflowOrchestrator;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -63,6 +64,7 @@ class JobStateCrudController extends AbstractAdminCrudController
         ;
     }
 
+    #[AdminRoute(path: 'job-state/retry')]
     public function retryJob(AdminContext $context): RedirectResponse
     {
         /** @var JobState $jobState */
@@ -81,11 +83,14 @@ class JobStateCrudController extends AbstractAdminCrudController
         return $this->returnToReferer($context);
     }
 
+    #[AdminRoute(path: 'job-state/rerun')]
     public function rerunJob(AdminContext $context): RedirectResponse
     {
         /** @var JobState $jobState */
         $jobState = $context->getEntity()->getInstance();
         $this->workflowOrchestrator->rerunJobs($jobState->getWorkflow()->getId(), $jobState->getJobState()->getJobId());
+
+        $this->addFlash('info', sprintf('Job %s has been triggered successfully.', $jobState->getJobState()->getJobId()));
 
         return $this->returnToReferer($context);
     }

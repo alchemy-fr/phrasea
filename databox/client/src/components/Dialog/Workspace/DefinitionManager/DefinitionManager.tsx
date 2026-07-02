@@ -141,6 +141,7 @@ export default function DefinitionManager<
     const hasPaginationRef = useRef<boolean>(true);
     const [listState, setListState] = useState<ListState<D>>({
         list: undefined,
+        total: undefined,
         loading: false,
         loadingMore: false,
         next: undefined,
@@ -195,6 +196,7 @@ export default function DefinitionManager<
         const query = searchTerm;
         setListState({
             list: undefined,
+            total: undefined,
             next: undefined,
             loading: true,
             loadingMore: false,
@@ -209,6 +211,7 @@ export default function DefinitionManager<
             });
             setListState(p => ({
                 ...p,
+                total: r.total,
                 list: normalizeData ? r.result.map(normalizeData) : r.result,
                 next: r.next || undefined,
                 loading: false,
@@ -688,19 +691,22 @@ export default function DefinitionManager<
                             </ListItem>
                         ))
                     )}
-                    <Box
-                        sx={theme => ({
-                            borderTop: `1px solid ${theme.palette.divider}`,
-                            color: theme.palette.divider,
-                            fontSize: 12,
-                        })}
-                    >
-                        {t('definition_manager.count', {
-                            defaultValue: '{{count}} item',
-                            defaultValue_other: `{{count}} items`,
-                            count: list?.length ?? 0,
-                        })}
-                    </Box>
+                    {listState.total !== undefined && (
+                        <Box
+                            sx={theme => ({
+                                borderTop: `1px solid ${theme.palette.divider}`,
+                                color: theme.palette.secondary.main,
+                                fontSize: 12,
+                                p: 1,
+                            })}
+                        >
+                            {t('definition_manager.count', {
+                                defaultValue: '{{count}} item',
+                                defaultValue_other: `{{count}} items`,
+                                count: listState.total,
+                            })}
+                        </Box>
+                    )}
                 </List>
             </Box>
             <Box

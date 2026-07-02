@@ -1,16 +1,27 @@
 import {TreeDefaultState, UseTreeStateReturn} from './types';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 
-type Props = {} & TreeDefaultState;
+type Props = {
+    resolveExpandedNodes?: (selectedNodes: string[]) => Promise<string[]>;
+} & TreeDefaultState;
 
 export function useTreeState({
     defaultExpandedNodes = [],
     defaultSelectedNodes = [],
+    resolveExpandedNodes,
 }: Props): UseTreeStateReturn {
     const [expandedNodes, setExpandedNodes] =
         useState<string[]>(defaultExpandedNodes);
     const [selectedNodes, setSelectedNodes] =
         useState<string[]>(defaultSelectedNodes);
+
+    useEffect(() => {
+        if (resolveExpandedNodes && defaultSelectedNodes) {
+            resolveExpandedNodes(defaultSelectedNodes).then(expanded => {
+                setExpandedNodes(expanded);
+            });
+        }
+    }, []);
 
     return {
         expandedNodes,

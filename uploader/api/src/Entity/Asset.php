@@ -22,7 +22,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     shortName: 'asset',
     operations: [
-
         new Get(security: 'is_granted("READ_META", object)'),
         new Post(
             uriTemplate: '/assets/{id}/ack',
@@ -139,6 +138,9 @@ class Asset extends AbstractUuidEntity
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
     #[Groups(self::GROUP_READ)]
+    /**
+     * @var array<string, mixed>
+     */
     private ?array $data = [];
 
     /**
@@ -209,7 +211,7 @@ class Asset extends AbstractUuidEntity
         return (int) $this->size;
     }
 
-    public function setSize($size): void
+    public function setSize(string|float|int $size): void
     {
         $this->size = (string) $size;
     }

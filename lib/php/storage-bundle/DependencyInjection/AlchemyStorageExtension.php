@@ -55,7 +55,7 @@ class AlchemyStorageExtension extends Extension implements PrependExtensionInter
         $container->prependExtensionConfig('framework', [
             'validation' => [
                 'enabled' => true,
-                'enable_annotations' => false,
+                'enable_attributes' => false,
                 'mapping' => [
                     'paths' => [
                         __DIR__.'/../Resources/config/validator/validation.yaml',

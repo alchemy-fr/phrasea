@@ -27,7 +27,6 @@ use App\Entity\Traits\TranslationsTrait;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\WorkspaceRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Validator\ValidAnalyzersOptionsConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
@@ -82,7 +81,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(fields: [
     'slug',
 ], message: 'Slug is already taken')]
-#[ValidAnalyzersOptionsConstraint]
 class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable, LoggableChangeSetInterface
 {
     use CreatedAtTrait;
@@ -96,7 +94,6 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     final public const string GROUP_READ = 'workspace:r';
     final public const string GROUP_LIST = 'workspace:i';
     private const int DEFAULT_TRASH_RETENTION_DELAY = 30;
-    private const string CONFIG_ANALYZERS = 'analyzers';
     private const string TRASH_RETENTION_DELAY = 'trashRetentionDelay';
 
     final public const string TR_FIELD_NAME = 'name';
@@ -214,16 +211,6 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     public function setConfig(array $config): void
     {
         $this->config = $config;
-    }
-
-    public function getFileAnalyzers(): ?string
-    {
-        return $this->config[self::CONFIG_ANALYZERS] ?? null;
-    }
-
-    public function setFileAnalyzers(?string $analyzers): void
-    {
-        $this->config[self::CONFIG_ANALYZERS] = $analyzers;
     }
 
     public function getTrashRetentionDelay(): int

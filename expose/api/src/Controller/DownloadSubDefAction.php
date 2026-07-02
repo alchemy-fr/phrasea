@@ -7,7 +7,7 @@ namespace App\Controller;
 use App\Report\ExposeLogActionInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route(path: '/publications/{publicationId}/subdef/{subDefId}/download', name: 'download_subdef', methods: ['GET'])]
 final class DownloadSubDefAction extends AbstractAssetAction

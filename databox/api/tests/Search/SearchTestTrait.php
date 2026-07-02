@@ -32,7 +32,6 @@ trait SearchTestTrait
         foreach ($indexes as $indexName) {
             /* @var Index $documentIndices */
             self::$documentIndices[$indexName] = $container->get('fos_elastica.index.'.$indexName);
-            self::$documentIndices[$indexName]->deleteByQuery('*:*');
         }
 
         $application = new Application($kernel);

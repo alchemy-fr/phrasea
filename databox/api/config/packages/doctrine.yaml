@@ -8,7 +8,7 @@ doctrine:
         charset: utf8
         url: '%env(resolve:DATABASE_URL)%'
         types:
-            !php/const:MartinGeorgiev\Doctrine\DBAL\Type::LTREE: MartinGeorgiev\Doctrine\DBAL\Types\Ltree
+            !php/const MartinGeorgiev\Doctrine\DBAL\Type::LTREE: MartinGeorgiev\Doctrine\DBAL\Types\Ltree
         mapping_types:
             ltree: !php/const MartinGeorgiev\Doctrine\DBAL\Type::LTREE
     orm:

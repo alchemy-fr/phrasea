@@ -32,7 +32,7 @@ abstract class AbstractAdminCrudController extends AbstractCrudController
 
     protected function returnToReferer(AdminContext $context): RedirectResponse
     {
-        return $this->redirect($context->getReferrer()
+        return $this->redirect($context->getRequest()->headers->get('referrer')
             ?? $this->container->get(AdminUrlGenerator::class)->setAction(Action::INDEX)->generateUrl());
     }
 }

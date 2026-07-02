@@ -25,6 +25,7 @@ use App\Repository\Core\AssetRenditionRepository;
 use App\Security\ClientUrlHelper;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
+use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Discussion\DiscussionManager;
@@ -49,6 +50,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         #[Autowire(env: 'API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE')]
         private readonly string $ownerPropertyRequiredRole,
         private readonly ClientUrlHelper $clientUrlHelper,
+        private readonly AssetPolicyManager $assetPolicyManager,
     ) {
     }
 
@@ -85,7 +87,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
         $output->setSource($data->getSource());
 
-        $highlights = $data->getElasticHighlights();
+        $assetPolicyFilter = $this->assetPolicyManager->getPolicyApplicationFilter($data);
 
         if ($this->hasGroup([
             Asset::GROUP_LIST,
@@ -95,8 +97,9 @@ class AssetOutputTransformer implements OutputTransformerInterface
             ResolveEntitiesOutput::GROUP_READ,
         ], $context)) {
             $attributesIndex = $data->attributesIndex ?? $this->attributesResolver->resolveAssetAttributes($data, true);
-            $attributes = $attributesIndex->getFlattenAttributes();
+            $attributes = array_values(array_filter($attributesIndex->getFlattenAttributes(), fn (Attribute $attribute): bool => !in_array($attribute->getDefinition()->getId(), $assetPolicyFilter->getFilteredAttributes(), true)));
 
+            $highlights = $data->getElasticHighlights();
             if (!empty($highlights)) {
                 $this->attributesResolver->assignHighlight($attributes, $highlights);
             }
@@ -122,6 +125,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
                 ->getRepository(AssetRendition::class)
                 ->findAssetRenditions($data->getId(), [
                     AssetRenditionRepository::OPT_USED_AS => true,
+                    AssetRenditionRepository::OPT_EXCLUDE_DEFINITIONS => $assetPolicyFilter->getFilteredRenditions(),
                 ]);
 
             foreach (RenditionDefinition::BUILT_IN_RENDITIONS as $type) {

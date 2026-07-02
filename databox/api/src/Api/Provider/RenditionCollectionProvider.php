@@ -7,9 +7,15 @@ namespace App\Api\Provider;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\AssetRendition;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 
 class RenditionCollectionProvider extends AbstractAssetFilteredCollectionProvider
 {
+    public function __construct(
+        private readonly AssetPolicyManager $assetPolicyManager,
+    ) {
+    }
+
     public function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array
     {
         $asset = $this->getAsset($context);
@@ -23,6 +29,8 @@ class RenditionCollectionProvider extends AbstractAssetFilteredCollectionProvide
             ->getQuery()
             ->getResult();
 
-        return array_filter($renditions, fn (AssetRendition $rendition): bool => $this->security->isGranted(AbstractVoter::READ, $rendition));
+        $assetPolicyFilter = $this->assetPolicyManager->getPolicyApplicationFilter($asset);
+
+        return array_filter($renditions, fn (AssetRendition $rendition): bool => $this->security->isGranted(AbstractVoter::READ, $rendition) && !in_array($rendition->getDefinition()->getId(), $assetPolicyFilter->getFilteredRenditions(), true));
     }
 }

@@ -10,6 +10,8 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 final readonly class ChecksumAnalyzer extends AbstractAnalyzer
 {
+    private const string SHA_256 = 'sha256';
+
     public function __construct(
         private EntityManagerInterface $em,
     ) {
@@ -24,7 +26,7 @@ final readonly class ChecksumAnalyzer extends AbstractAnalyzer
     {
         $builder
             ->scalarNode('algorithm')
-                ->defaultValue('sha256')
+                ->defaultValue(self::SHA_256)
                 ->info('The hashing algorithm to use.')
             ->end()
             ->booleanNode('checkUnique')
@@ -40,7 +42,7 @@ final readonly class ChecksumAnalyzer extends AbstractAnalyzer
 
     public function analyzeFile(File $file, ?string $path, array $config): AnalysisOutput
     {
-        $algorithm = $config['algorithm'] ?? 'sha256';
+        $algorithm = $config['algorithm'] ?? self::SHA_256;
         if (empty($path)) {
             return new AnalysisOutput(
                 errors: ['File path is required for checksum analysis.']
@@ -51,7 +53,7 @@ final readonly class ChecksumAnalyzer extends AbstractAnalyzer
         }
         $checksum = hash_file($algorithm, $path);
 
-        if ('sha256' === $algorithm) {
+        if (self::SHA_256 === $algorithm) {
             $file->setChecksum($checksum);
         }
 
@@ -90,5 +92,13 @@ final readonly class ChecksumAnalyzer extends AbstractAnalyzer
     public function requiresFileContent(File $file, array $config): bool
     {
         return true;
+    }
+
+    public function validateConfiguration(array $config): void
+    {
+        $algorithm = $config['algorithm'] ?? self::SHA_256;
+        if ($config['checkUnique'] && self::SHA_256 !== $algorithm) {
+            throw new \InvalidArgumentException(sprintf('The checkUnique option is only supported with the "%s" algorithm.', self::SHA_256));
+        }
     }
 }

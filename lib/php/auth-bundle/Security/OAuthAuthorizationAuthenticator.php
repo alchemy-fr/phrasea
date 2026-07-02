@@ -120,7 +120,7 @@ class OAuthAuthorizationAuthenticator extends AbstractAuthenticator implements A
         return new JsonResponse($data, Response::HTTP_UNAUTHORIZED);
     }
 
-    public function start(Request $request, ?AuthenticationException $authException = null)
+    public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
         $redirectUrl = $request->getUri();
         if ($request->get('code')) {

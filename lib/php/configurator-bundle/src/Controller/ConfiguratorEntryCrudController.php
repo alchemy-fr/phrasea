@@ -11,6 +11,7 @@ use Alchemy\ConfiguratorBundle\Field\FileField;
 use Alchemy\ConfiguratorBundle\Form\Type\ConfigurationKeyType;
 use Alchemy\ConfiguratorBundle\Message\DeployConfig;
 use Alchemy\ConfiguratorBundle\Service\ConfigurationReference;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -67,6 +68,7 @@ class ConfiguratorEntryCrudController extends AbstractAdminCrudController
             );
     }
 
+    #[AdminRoute('/configurator-push', name: 'configurator_push')]
     public function configuratorPush(AdminContext $context): Response
     {
         $this->bus->dispatch(new DeployConfig());

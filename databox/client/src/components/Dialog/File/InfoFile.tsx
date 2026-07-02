@@ -7,13 +7,18 @@ import {Divider, MenuList} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import InfoIcon from '@mui/icons-material/Info';
 import YesNoChip from '../../Ui/YesNoChip.tsx';
+import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
+import DescriptionIcon from '@mui/icons-material/Description';
+import LinkIcon from '@mui/icons-material/Link';
+import {formatFilesize} from '../../../lib/filesizeFormatter.ts';
 
 type Props = {
     data: ApiFile;
 } & DialogTabProps;
 
 export default function InfoFile({data, onClose, minHeight}: Props) {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     return (
         <ContentTab onClose={onClose} minHeight={minHeight}>
             <MenuList>
@@ -28,17 +33,21 @@ export default function InfoFile({data, onClose, minHeight}: Props) {
                     label={t('file.info.url', `URL`)}
                     value={data.url || t('file.info.url_none', `N/A`)}
                     copyValue={data.url}
-                    icon={<InfoIcon />}
+                    icon={<LinkIcon />}
                 />
                 <InfoRow
                     label={t('file.info.type', `Type`)}
                     value={data.type}
                     copyValue={data.type}
-                    icon={<InfoIcon />}
+                    icon={<DescriptionIcon />}
                 />
                 <InfoRow
                     label={t('file.info.size', `Size`)}
-                    value={data.size || t('file.info.size_unknown', `Unknown`)}
+                    value={
+                        data.size
+                            ? formatFilesize(t, data.size, true, i18n.language)
+                            : t('file.info.size_unknown', `Unknown`)
+                    }
                     copyValue={data.size ? data.size?.toString() : undefined}
                     icon={<InfoIcon />}
                 />
@@ -49,7 +58,7 @@ export default function InfoFile({data, onClose, minHeight}: Props) {
                             `Analysis Pending`
                         )}
                         value={t('common.yes', 'Yes')}
-                        icon={<InfoIcon />}
+                        icon={<FactCheckIcon />}
                     />
                 ) : (
                     <>
@@ -60,7 +69,7 @@ export default function InfoFile({data, onClose, minHeight}: Props) {
                                     <YesNoChip value={data.accepted} />
                                 ) : null
                             }
-                            icon={<InfoIcon />}
+                            icon={<FactCheckIcon />}
                         />
                         {data.analysis ? (
                             <InfoRow
@@ -75,7 +84,7 @@ export default function InfoFile({data, onClose, minHeight}: Props) {
                                         {JSON.stringify(data.analysis, null, 2)}
                                     </pre>
                                 }
-                                icon={<InfoIcon />}
+                                icon={<TroubleshootIcon />}
                             />
                         ) : null}
                     </>

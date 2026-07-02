@@ -88,7 +88,7 @@ final class KeycloakManager
         return $response->toArray();
     }
 
-    protected function getClients(?string $realm = null): array
+    private function getClients(?string $realm = null): array
     {
         return $this->getAuthenticatedClient()->request('GET', UriTemplate::resolve('{realm}/clients', [
             'realm' => $realm ?? $this->keycloakRealm,
@@ -248,7 +248,7 @@ final class KeycloakManager
             ])->getHeaders(), 409, []);
     }
 
-    protected function getScopes(): array
+    private function getScopes(): array
     {
         $response = $this->getAuthenticatedClient()->request('GET', UriTemplate::resolve('{realm}/client-scopes', [
             'realm' => $this->keycloakRealm,
@@ -671,9 +671,9 @@ final class KeycloakManager
                 if ($roleName === $r['name']) {
                     if (!in_array($r['id'], $userRoles, true)) {
                         return $r;
-                    } else {
-                        return null;
                     }
+
+                    return null;
                 }
             }
 
@@ -701,9 +701,9 @@ final class KeycloakManager
                 if ($roleName === $r['name']) {
                     if (!in_array($r['id'], $userRoles, true)) {
                         return $r;
-                    } else {
-                        return null;
                     }
+
+                    return null;
                 }
             }
 

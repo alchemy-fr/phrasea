@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use Elastic\Elasticsearch\Response\Elasticsearch;
+use Elastic\Elasticsearch\Traits\EndpointTrait;
 use Elastica\Index;
-use Elastica\Request;
-use Elastica\Response;
 use FOS\ElasticaBundle\Elastica\Client;
 
 final readonly class ElasticSearchClient
 {
+    use EndpointTrait;
+
     public function __construct(
         private Client $client,
         private Index $assetIndex,
@@ -46,8 +48,17 @@ final readonly class ElasticSearchClient
         return $this->{$key.'Index'}->getName();
     }
 
-    public function request(string $path, array $data = [], string $method = Request::POST): Response
+    public function request(string $path, array $data = [], string $method = 'POST'): Elasticsearch
     {
-        return $this->client->request($path, $method, $data);
+        $request = $this->createRequest(
+            $method,
+            $path,
+            [
+                'Content-Type' => 'application/json',
+            ],
+            $data
+        );
+
+        return $this->client->sendRequest($request);
     }
 }

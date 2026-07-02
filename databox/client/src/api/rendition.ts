@@ -14,6 +14,7 @@ import {EntityName} from './types.ts';
 
 type GetOptions = {
     workspaceIds?: string[];
+    assetId?: string | undefined;
     target?: AssetType | undefined;
     [key: string]: any;
 };

@@ -1,7 +1,7 @@
 import {useWorkspaceStore} from '../../../../store/workspaceStore.ts';
 import React, {useCallback} from 'react';
 import {CircularProgress} from '@mui/material';
-import {CollectionOptionalWorkspace} from '../../../../types.ts';
+import {Collection, CollectionOptionalWorkspace} from '../../../../types.ts';
 import {useCollectionStore} from '../../../../store/collectionStore.ts';
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce.ts';
 import {
@@ -19,7 +19,7 @@ import CollectionTreeNode from './CollectionTreeNode.tsx';
 import {useTranslation} from 'react-i18next';
 import CollectionEdit from './CollectionEdit.tsx';
 import {EntityName} from '../../../../api/types.ts';
-import {createIriFromId} from '@alchemy/api';
+import {createIriFromId, extractIdFromIri} from '@alchemy/api';
 
 export type CollectionTreeData = WorkspaceOrCollectionTreeItem;
 
@@ -48,6 +48,9 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
     const {t} = useTranslation();
     const loadWorkspaces = useWorkspaceStore(state => state.load);
     const loadWorkspaceCollections = useCollectionStore(state => state.load);
+    const loadCollectionAscendants = useCollectionStore(
+        state => state.loadCollectionAscendants
+    );
     const loading = useWorkspaceStore(state => state.loading);
     const allWorkspaces = useWorkspaceStore(state => state.workspaces);
 
@@ -96,7 +99,9 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
                     workspaceId,
                 },
                 hasChildren: children ? children.length > 0 : false,
-                childrenLoaded: !!collectionsTree[collection.id],
+                childrenLoaded:
+                    !!collectionsTree[collection.id] &&
+                    !collectionsTree[collection.id].partial,
                 children: children?.map(c => mapCollection(c, workspaceId)),
                 canAddChildren: collection.capabilities.createCollection,
             };
@@ -118,6 +123,8 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
                 children: collectionsTree[w.id]?.items.map(c =>
                     mapCollection(c, w.id)
                 ),
+                childrenLoaded:
+                    !!collectionsTree[w.id] && !collectionsTree[w.id].partial,
                 canAddChildren: w.capabilities.createCollection,
             };
         });
@@ -126,6 +133,32 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
     const treeStateProps = useTreeState({
         defaultSelectedNodes,
         defaultExpandedNodes,
+        resolveExpandedNodes: async selectedNodes => {
+            return await Promise.all(
+                selectedNodes.map(iri => {
+                    return loadCollectionAscendants(extractIdFromIri(iri));
+                })
+            ).then(collections => {
+                return collections
+                    .map(c => {
+                        const s = [
+                            createIriFromId(
+                                EntityName.Workspace,
+                                c.workspace.id
+                            ),
+                        ];
+                        let ptr: Collection | undefined = c;
+                        while ((ptr = ptr.parent)) {
+                            s.push(
+                                createIriFromId(EntityName.Collection, ptr.id)
+                            );
+                        }
+
+                        return s;
+                    })
+                    .flat();
+            });
+        },
     });
     const {selectedNodes} = treeStateProps;
 

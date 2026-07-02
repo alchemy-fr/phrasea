@@ -6,6 +6,7 @@ namespace App\Elasticsearch\Listener;
 
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Elasticsearch\AssetPermissionComputer;
+use Elastic\Elasticsearch\Traits\EndpointTrait;
 use Elastica\Index\Settings;
 use FOS\ElasticaBundle\Event\PostIndexPopulateEvent;
 use FOS\ElasticaBundle\Event\PreIndexPopulateEvent;
@@ -18,6 +19,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 readonly class PopulateListener implements EventSubscriberInterface
 {
+    use EndpointTrait;
+
     public function __construct(
         private IndexManager $indexManager,
         private CacheInterface $fosPopulateCache,
@@ -49,7 +52,13 @@ readonly class PopulateListener implements EventSubscriberInterface
         $this->assetPermissionComputer->disableAssetCache();
 
         $index = $this->indexManager->getIndex($event->getIndex());
-        $index->getClient()->request('_forcemerge?max_num_segments=5', 'POST');
+
+        $request = $this->createRequest(
+            'POST',
+            '_forcemerge?max_num_segments=5',
+            [],
+        );
+        $index->getClient()->sendRequest($request);
         $index->getSettings()->setRefreshInterval(Settings::DEFAULT_REFRESH_INTERVAL);
     }
 

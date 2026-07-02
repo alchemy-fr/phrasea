@@ -2,14 +2,16 @@
 
 namespace Alchemy\ESBundle\Service;
 
+use Elastic\Elasticsearch\Traits\EndpointTrait;
 use Elastica\Exception\ExceptionInterface;
-use Elastica\Request;
 use FOS\ElasticaBundle\Elastica\Client;
 use FOS\ElasticaBundle\Index\IndexManager;
 use Symfony\Component\Console\Output\OutputInterface;
 
 final readonly class IndexRemover
 {
+    use EndpointTrait;
+
     public function __construct(
         private IndexManager $indexManager,
         private Client $client,
@@ -25,8 +27,13 @@ final readonly class IndexRemover
     ): void {
         $indices = null === $indexArg ? array_keys($this->indexManager->getAllIndexes()) : [$indexArg];
 
-        $response = $this->client->request('_aliases');
-        $aliasesData = $response->getData();
+        $request = $this->createRequest(
+            'GET',
+            '_aliases',
+            [],
+        );
+        $response = $this->client->sendRequest($request);
+        $aliasesData = $response->asArray();
 
         foreach ($indices as $i) {
             $output?->writeln(sprintf('Delete index <comment>%s</comment>', $i));
@@ -68,7 +75,7 @@ final readonly class IndexRemover
     private function deleteIndex(string $indexName): void
     {
         try {
-            $this->client->request($indexName, Request::DELETE);
+            $this->client->sendRequest($indexName, 'DELETE');
         } catch (ExceptionInterface $deleteOldIndexException) {
             throw new \RuntimeException(\sprintf('Failed to delete index "%s" with message: "%s"', $indexName, $deleteOldIndexException->getMessage()), 0, $deleteOldIndexException);
         }

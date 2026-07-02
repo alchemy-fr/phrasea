@@ -64,9 +64,6 @@ class WorkspaceOutput extends AbstractUuidOutput
     private ?array $localeFallbacks = null;
 
     #[Groups([Workspace::GROUP_READ])]
-    public ?string $fileAnalyzers = null;
-
-    #[Groups([Workspace::GROUP_READ])]
     public ?int $trashRetentionDelay = null;
 
     #[Groups([Workspace::GROUP_READ])]

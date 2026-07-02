@@ -12,6 +12,8 @@ class CommitAckTest extends AbstractUploaderTestCase
 {
     public function testCommitAck(): void
     {
+        $client = self::createClient();
+
         $commit = $this->createCommit();
         $asset1 = $this->createAsset($commit);
         $asset2 = $this->createAsset($commit);
@@ -21,11 +23,11 @@ class CommitAckTest extends AbstractUploaderTestCase
         $this->assertAssetAcknowledgement($asset1->getId(), false);
         $this->assertAssetAcknowledgement($asset2->getId(), false);
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
-            'POST',
-            '/commits/'.$commit->getId().'/ack'
-        );
+        $response = $client->request('POST', '/commits/'.$commit->getId().'/ack', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+        ]);
         $this->assertEquals(200, $response->getStatusCode());
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
@@ -36,6 +38,8 @@ class CommitAckTest extends AbstractUploaderTestCase
 
     public function testAssetAck(): void
     {
+        $client = self::createClient();
+
         $commit = $this->createCommit();
         $asset1 = $this->createAsset($commit);
         $asset2 = $this->createAsset($commit);
@@ -45,25 +49,23 @@ class CommitAckTest extends AbstractUploaderTestCase
         $this->assertAssetAcknowledgement($asset1->getId(), false);
         $this->assertAssetAcknowledgement($asset2->getId(), false);
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
-            'POST',
-            '/assets/'.$asset1->getId().'/ack',
-            [],
-        );
-        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $response = $client->request('POST', '/assets/'.$asset1->getId().'/ack', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+        ]);
         $this->assertEquals(200, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertTrue($json);
         $this->assertCommitAcknowledgement($commit->getId(), false);
         $this->assertAssetAcknowledgement($asset1->getId(), true);
         $this->assertAssetAcknowledgement($asset2->getId(), false);
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
-            'POST',
-            '/assets/'.$asset2->getId().'/ack',
-            [],
-        );
+        $response = $client->request('POST', '/assets/'.$asset2->getId().'/ack', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+        ]);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertTrue($json);

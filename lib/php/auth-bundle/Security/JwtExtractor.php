@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Security;
 
+use Lcobucci\JWT\Encoding\CannotDecodeContent;
 use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
 use Lcobucci\JWT\Token\Parser;
@@ -28,7 +29,7 @@ final readonly class JwtExtractor
     {
         try {
             $token = $this->parser->parse($jwt);
-        } catch (InvalidTokenStructure) {
+        } catch (InvalidTokenStructure|CannotDecodeContent) {
             throw new UnauthorizedHttpException('Invalid token');
         }
 

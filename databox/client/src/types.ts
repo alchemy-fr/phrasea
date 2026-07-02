@@ -230,6 +230,36 @@ export interface RenditionPolicy extends ApiHydraObjectResponse, Entity {
     workspace: Workspace | string;
 }
 
+export enum AssetPolicyConditionOperator {
+    Equals = '=',
+}
+
+export enum AssetPolicyActionName {
+    HideRendition = 'hide_rendition',
+    HideAttribute = 'hide_attribute',
+}
+
+export type AssetPolicyCondition = {
+    field?: string;
+    operator: string;
+    value: AssetPolicyCondition[] | string | number | boolean;
+};
+
+export type AssetPolicyAction = {
+    action: AssetPolicyActionName;
+} & Record<string, any>;
+
+export interface AssetPolicy extends ApiHydraObjectResponse, Entity {
+    name: string;
+    enabled: boolean;
+    workspace: Workspace | string;
+    conditions: AssetPolicyCondition[];
+    actions: AssetPolicyAction[];
+    owner: User;
+    users: User[] | string[];
+    groups: Group[] | string[];
+}
+
 export interface FieldType extends ApiHydraObjectResponse {
     name: string;
     displayName: string;
@@ -379,6 +409,7 @@ export interface Collection
         Entity,
         ApiHydraObjectResponse {
     parentId?: string;
+    parent?: Collection;
     name: string;
     displayName: string;
     nameHighlight?: string;

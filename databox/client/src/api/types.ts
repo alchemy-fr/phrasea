@@ -76,6 +76,7 @@ export enum AttributeType {
 
 export enum EntityName {
     Asset = 'assets',
+    AssetPolicy = 'asset-policies',
     Attachment = 'attachments',
     Collection = 'collections',
     Workspace = 'workspaces',
