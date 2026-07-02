@@ -2,6 +2,7 @@ import {create} from 'zustand';
 import {Basket} from '../types';
 import {
     addToBasket,
+    archiveBasket,
     BasketAssetInput,
     deleteBasket,
     getBasket,
@@ -24,6 +25,7 @@ type State = {
     loadMore: () => Promise<void>;
     addBasket: (basket: Basket) => void;
     updateBasket: (data: Basket) => void;
+    archiveBasket: (id: string) => void;
     deleteBasket: (id: string) => void;
     addToCurrent: (assets: BasketAssetInput[]) => void;
     removeFromBasket: (basketId: string, itemIds: string[]) => void;
@@ -158,6 +160,24 @@ export const useBasketStore = create<State>((set, getState) => ({
     addBasket(basket) {
         set(state => ({
             baskets: [basket].concat(state.baskets),
+        }));
+    },
+
+    archiveBasket: async id => {
+        const basket = await archiveBasket(id);
+
+        set(state => ({
+            baskets: state.baskets.map(b => {
+                if (b.id === basket.id) {
+                    return {
+                        ...b,
+                        ...basket,
+                    };
+                }
+
+                return b;
+            }),
+            current: state.current?.id === basket.id ? basket : state.current,
         }));
     },
 

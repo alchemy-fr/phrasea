@@ -25,6 +25,7 @@ export function useBasketList({onBasketCreate}: Props = {}) {
     const hasMore = useBasketStore(state => state.hasMore);
     const load = useBasketStore(state => state.load);
     const deleteBasket = useBasketStore(state => state.deleteBasket);
+    const archiveBasket = useBasketStore(state => state.archiveBasket);
     const {openModal} = useModals();
     const navigateToModal = useNavigateToModal();
 
@@ -63,6 +64,27 @@ export function useBasketList({onBasketCreate}: Props = {}) {
         });
     };
 
+    const onArchive = (data: Basket): void => {
+        onContextMenuClose();
+        openModal(ConfirmDialog, {
+            textToType: data.name,
+
+            title: t(
+                'basket_archive.confirm',
+                'Are you sure you want to archive this basket?'
+            ),
+            onConfirm: async () => {
+                await archiveBasket(data.id);
+                toast.success(
+                    t(
+                        'archive.basket.confirmed',
+                        'Basket has been archived!'
+                    ) as string
+                );
+            },
+        });
+    };
+
     const {
         searchQuery,
         setSearchQuery,
@@ -81,6 +103,7 @@ export function useBasketList({onBasketCreate}: Props = {}) {
 
     return {
         onEdit,
+        onArchive,
         onDelete,
         searchQuery,
         setSearchQuery,

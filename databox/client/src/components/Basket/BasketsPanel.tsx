@@ -24,6 +24,7 @@ function BasketsPanel({selected}: Props) {
         onContextMenuOpen,
         onContextMenuClose,
         onEdit,
+        onArchive,
         onDelete,
         createBasket,
         loading,
@@ -55,6 +56,7 @@ function BasketsPanel({selected}: Props) {
                     contextMenu={contextMenu}
                     onContextMenuClose={onContextMenuClose}
                     onEdit={onEdit}
+                    onArchive={onArchive}
                     onDelete={onDelete}
                     onContextMenuOpen={onContextMenuOpen}
                 />

@@ -58,6 +58,12 @@ export async function postBasket(data: Partial<Basket>): Promise<Basket> {
     return res.data;
 }
 
+export async function archiveBasket(id: string): Promise<Basket> {
+    const res = await apiClient.post(`/baskets/${id}/archive`);
+
+    return res.data;
+}
+
 export async function getBasket(id: string): Promise<Basket> {
     return (await apiClient.get(`/baskets/${id}`)).data;
 }
