@@ -364,10 +364,11 @@ export function replaceIdFromEntities(
                 if (def) {
                     const type = getAttributeType(def.type);
                     return {
-                        literal: type.formatValueAsString({
-                            ...formatterOptions,
-                            value: v,
-                        }),
+                        literal:
+                            type.formatValueAsString({
+                                ...formatterOptions,
+                                value: v,
+                            }) ?? '',
                     };
                 }
             }
