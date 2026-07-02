@@ -1,5 +1,6 @@
 import {AttributeFormat} from '../Format/AttributeFormatContext';
 import React, {ReactNode} from 'react';
+import {EntityName} from '../../../../../api/types.ts';
 
 export type AttributeWidgetOptions = Record<string, any>;
 
@@ -8,7 +9,7 @@ export type AttributeWidgetProps<T> = {
     label: string;
     labelAlreadyRendered?: boolean;
     value: any;
-    onChange: (value: T | undefined) => void;
+    onChange: (value: T | null | undefined) => void;
     readOnly?: boolean;
     required?: boolean;
     autoFocus?: boolean;
@@ -50,7 +51,9 @@ export type AttributeTypeWidget<T> = {
     normalize(value: any): any;
 };
 
-export type AttributeTypeInstance<T> = AttributeTypeFormatter &
+export type AttributeTypeInstance<T> = {
+    entityIri?: EntityName | undefined;
+} & AttributeTypeFormatter &
     AttributeTypeWidget<T>;
 
-export type AttributeTypeClass = {new (): AttributeTypeInstance<T>};
+export type AttributeTypeClass<T> = {new (): AttributeTypeInstance<T>};

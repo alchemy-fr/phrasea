@@ -23,6 +23,7 @@ export enum BuiltInFieldEnum {
     Story = '@story',
     Workspace = '@workspace',
     Deleted = '@deleted',
+    AssetStatus = '@assetStatus',
 }
 
 function encodeSortBy(sortBy: SortBy): string {

@@ -5,15 +5,19 @@ import {
 } from './types';
 import {FormLabel} from '@mui/material';
 import React from 'react';
-import TagSelect, {TagOptions} from '../../../../Form/TagSelect.tsx';
+import TagSelect from '../../../../Form/TagSelect.tsx';
 import BaseType from './BaseType.tsx';
 import TagNode from '../../../../Ui/TagNode.tsx';
 import {Tag} from '../../../../../types.ts';
+import {EntityName} from '../../../../../api/types.ts';
+import {SelectOption} from '@alchemy/react-form';
 
 export default class TagsType
     extends BaseType
-    implements AttributeTypeInstance<Tag>
+    implements AttributeTypeInstance<string>
 {
+    public entityIri = EntityName.Tag;
+
     renderWidget({
         labelAlreadyRendered,
         value,
@@ -22,19 +26,21 @@ export default class TagsType
         id,
         readOnly,
         disabled,
-    }: AttributeWidgetProps<Tag>): React.ReactNode {
+    }: AttributeWidgetProps<string>): React.ReactNode {
         return (
             <>
                 {!labelAlreadyRendered && <FormLabel>{label}</FormLabel>}
                 <TagSelect
                     id={id}
                     multiple={false}
+                    useIRI={false}
                     disabled={readOnly || disabled}
-                    value={value?.['@id']}
+                    value={value}
                     onChange={newValue => {
                         onChange(
-                            ((newValue || undefined) as TagOptions | undefined)
-                                ?.item
+                            newValue && typeof newValue === 'object'
+                                ? (newValue as SelectOption).value
+                                : (newValue as unknown as string | undefined)
                         );
                     }}
                 />

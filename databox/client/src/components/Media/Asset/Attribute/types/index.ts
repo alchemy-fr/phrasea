@@ -25,9 +25,11 @@ import NumberType from './NumberType.tsx';
 import StoryType from './StoryType.tsx';
 import DurationType from './DurationType.tsx';
 import FileSizeType from './FileSizeType.tsx';
+import AssetStatusType from './AssetStatusType.tsx';
+import RenditionDefinitionType from './RenditionDefinitionType.tsx';
 
 export const types: {
-    [key in AttributeType]?: AttributeTypeClass;
+    [key in AttributeType]?: AttributeTypeClass<any>;
 } = {
     [AttributeType.Boolean]: BooleanType,
     [AttributeType.Code]: CodeType,
@@ -36,7 +38,7 @@ export const types: {
     [AttributeType.Color]: ColorType,
     [AttributeType.DateTime]: DateTimeType,
     [AttributeType.Date]: DateType,
-    [AttributeType.Entity]: AttributeEntityType,
+    [AttributeType.AttributeEntity]: AttributeEntityType,
     [AttributeType.GeoPoint]: GeoPointType,
     [AttributeType.Html]: HtmlType,
     [AttributeType.Json]: JsonType,
@@ -45,7 +47,9 @@ export const types: {
     [AttributeType.Textarea]: TextareaType,
     [AttributeType.WebVtt]: CodeType,
     [AttributeType.Workspace]: WorkspaceType,
+    [AttributeType.Rendition]: RenditionDefinitionType,
     [AttributeType.Privacy]: PrivacyType,
+    [AttributeType.AssetStatus]: AssetStatusType,
     [AttributeType.User]: UserType,
     [AttributeType.Number]: NumberType,
     [AttributeType.Duration]: DurationType,

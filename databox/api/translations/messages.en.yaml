@@ -26,6 +26,11 @@ privacy:
     public_for_users: 'Public for users'
     public: Public
 
+asset_status:
+    accepted: Accepted
+    pending: Pending
+    quarantined: Quarantined
+
 facet:
     collections:
         name: Collections
@@ -55,6 +60,8 @@ facet:
         name: File Extension
     has_source_file:
         name: Has Source File
+    assetStatus:
+        name: Asset Status
 
 built_in_attribute:
     _score:
@@ -97,6 +104,8 @@ built_in_attribute:
         name: Has Source File
     deleted:
         name: Deleted
+    assetStatus:
+        name: Asset Status
 
 search:
     suggestion:

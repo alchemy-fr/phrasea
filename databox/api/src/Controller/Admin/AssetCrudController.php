@@ -13,6 +13,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Admin\Field\PrivacyField;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Workflow\WorkflowState;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
@@ -23,6 +24,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -110,6 +112,8 @@ class AssetCrudController extends AbstractAclAdminCrudController
         yield AssociationField::new('storyCollection')
             ->autocomplete()
             ->hideOnForm();
+        yield ChoiceField::new('status')
+            ->setChoices(AssetStatusEnum::cases());
         yield $this->userChoiceField->create('ownerId', 'Owner')
             ->hideOnIndex();
         yield $this->privacyField->create('privacy');

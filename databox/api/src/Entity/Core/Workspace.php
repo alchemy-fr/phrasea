@@ -93,8 +93,10 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
 
     final public const string GROUP_READ = 'workspace:r';
     final public const string GROUP_LIST = 'workspace:i';
-    private const int DEFAULT_TRASH_RETENTION_DELAY = 30;
-    private const string TRASH_RETENTION_DELAY = 'trashRetentionDelay';
+
+    private const int CONFIG_DEFAULT_TRASH_RETENTION_DELAY = 30;
+    private const string CONFIG_TRASH_RETENTION_DELAY = 'trashRetentionDelay';
+    private const string CONFIG_ASSET_DEFAULT_STATUS = 'assetDefaultStatus';
 
     final public const string TR_FIELD_NAME = 'name';
 
@@ -215,12 +217,32 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
 
     public function getTrashRetentionDelay(): int
     {
-        return $this->config[self::TRASH_RETENTION_DELAY] ?? self::DEFAULT_TRASH_RETENTION_DELAY;
+        return $this->config[self::CONFIG_TRASH_RETENTION_DELAY] ?? self::CONFIG_DEFAULT_TRASH_RETENTION_DELAY;
     }
 
     public function setTrashRetentionDelay(int $days): void
     {
-        $this->config[self::TRASH_RETENTION_DELAY] = $days;
+        $this->config[self::CONFIG_TRASH_RETENTION_DELAY] = $days;
+    }
+
+    public function setAssetDefaultStatus(?AssetStatusEnum $status): void
+    {
+        if (AssetStatusEnum::Accepted === $status) {
+            unset($this->config[self::CONFIG_ASSET_DEFAULT_STATUS]);
+
+            return;
+        }
+
+        $this->config[self::CONFIG_ASSET_DEFAULT_STATUS] = $status->value;
+    }
+
+    public function getAssetDefaultStatus(): AssetStatusEnum
+    {
+        if (isset($this->config[self::CONFIG_ASSET_DEFAULT_STATUS])) {
+            return AssetStatusEnum::tryFrom($this->config[self::CONFIG_ASSET_DEFAULT_STATUS]) ?? AssetStatusEnum::Accepted;
+        }
+
+        return AssetStatusEnum::Accepted;
     }
 
     public function getEnabledLocales(): array

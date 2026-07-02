@@ -14,6 +14,7 @@ import {useDebounce} from '@alchemy/react-hooks/src/useDebounce.ts';
 import {useTranslation} from 'react-i18next';
 import {NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
 import {createWidgetOptionsFromDefinition} from '../Media/Asset/Attribute/attributeUtils';
+import {nullToUndefined} from '@alchemy/core';
 
 type Props<T> = {
     definition: AttributeDefinition;
@@ -64,10 +65,11 @@ export default function EditorPanel<T>({
     }, [definition, subSelection, inputValueInc, locale]);
 
     const changeHandler = React.useCallback(
-        (v: T | undefined) => {
-            setValue(v);
+        (v: T | null | undefined) => {
+            const n = nullToUndefined(v);
+            setValue(n);
             debounce(() => {
-                setAttributeValue(v);
+                setAttributeValue(n);
             }, 500);
         },
         [setAttributeValue]

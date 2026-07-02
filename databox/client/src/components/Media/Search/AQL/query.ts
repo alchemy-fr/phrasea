@@ -23,6 +23,8 @@ import {writeEntity} from './entities.tsx';
 import {GetOrRequestEntity} from '../../../../store/entitiesStore.ts';
 import {TFunction} from '@alchemy/i18n';
 import {createIriFromId} from '@alchemy/api';
+import {getAttributeType} from '../../Asset/Attribute/types';
+import {AttributeFormatterOptions} from '../../Asset/Attribute/types/types';
 
 export type AQLQuery = {
     id: string;
@@ -259,16 +261,21 @@ function searchInEntities(
     field: string,
     id: string,
     definitionsIndex: AttributeDefinitionIndex,
-    getEntity: GetOrRequestEntity
+    getEntity: GetOrRequestEntity,
+    formatterOptions: AttributeFormatterOptions
 ): string | undefined {
     for (const def of Object.values(definitionsIndex)) {
-        if (def.slug === field && def.entityIri && def.resolveLabel) {
-            const iri = createIriFromId(def.entityIri, id);
+        const type = getAttributeType(def.type);
+
+        if (def.slug === field && type.entityIri) {
+            const iri = createIriFromId(type.entityIri, id);
             if (iri) {
                 const entity = getEntity(iri);
-                if (typeof entity === 'object') {
-                    return def.resolveLabel(entity);
-                }
+
+                return type.formatValueAsString({
+                    ...formatterOptions,
+                    value: entity,
+                });
             }
         }
     }
@@ -314,7 +321,8 @@ export function replaceConstants(ast: AQLQueryAST, t: TFunction): void {
 export function replaceIdFromEntities(
     ast: AQLQueryAST,
     definitionsIndex: AttributeDefinitionIndex,
-    getEntity: GetOrRequestEntity
+    getEntity: GetOrRequestEntity,
+    formatterOptions: AttributeFormatterOptions
 ): void {
     const replace = (expression: any, field?: string): any => {
         if (Array.isArray(expression)) {
@@ -327,7 +335,8 @@ export function replaceIdFromEntities(
                         field,
                         v,
                         definitionsIndex,
-                        getEntity
+                        getEntity,
+                        formatterOptions
                     );
                     if (label) {
                         return {

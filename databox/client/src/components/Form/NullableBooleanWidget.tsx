@@ -1,7 +1,7 @@
 import React, {ReactNode, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {RSelectWidget} from '@alchemy/react-form';
-import {AQLConstant} from '../Media/Search/AQL/aqlTypes.ts';
+import {NullableBooleanValue} from './types.ts';
 
 type Props = {
     onChange: (newValue: boolean | null | undefined) => void;
@@ -9,12 +9,6 @@ type Props = {
     disabled?: boolean;
     label?: ReactNode;
 };
-
-export enum NullableBooleanValue {
-    True = 'true',
-    False = 'false',
-    Unset = `=${AQLConstant.Null}`,
-}
 
 export default function NullableBooleanWidget({
     onChange,
@@ -37,7 +31,7 @@ export default function NullableBooleanWidget({
                 value: NullableBooleanValue.False,
             },
             {
-                label: t('aql.constant.null', 'Null'),
+                label: t('aql.constant.na', 'N/A'),
                 value: NullableBooleanValue.Unset,
             },
         ],

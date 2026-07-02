@@ -6,8 +6,10 @@ namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeInterface;
+use App\Elasticsearch\BuiltInField\AssetStatusBuiltInField;
 use App\Elasticsearch\BuiltInField\DeletedBuiltInField;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Entity\SavedSearch\SavedSearch;
@@ -35,6 +37,7 @@ class AssetSearch extends AbstractSearch
         private readonly QueryStringParser $queryStringParser,
         private readonly FacetHandler $facetHandler,
         private readonly DeletedBuiltInField $deletedBuiltInField,
+        private readonly AssetStatusBuiltInField $assetStatusBuiltInField,
         private readonly CollectionRepository $collectionRepository,
         private readonly SavedSearchRepository $savedSearchRepository,
         private readonly AssetSortGroupMapper $assetSortGroupMapper,
@@ -114,6 +117,7 @@ class AssetSearch extends AbstractSearch
         }
 
         $hasDeletedFilter = false;
+        $hasStatusFilter = false;
         if (null !== $conditions = ($options['conditions'] ?? null)) {
             foreach ($conditions as $condition) {
                 if (is_array($condition)) {
@@ -126,6 +130,9 @@ class AssetSearch extends AbstractSearch
                 if (str_starts_with((string) $condition, DeletedBuiltInField::getKey())) {
                     $hasDeletedFilter = true;
                 }
+                if (str_starts_with((string) $condition, AssetStatusBuiltInField::getKey())) {
+                    $hasStatusFilter = true;
+                }
                 $filterQueries[] = $this->attributeSearch->buildConditionQuery(
                     $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds),
                     $condition,
@@ -136,6 +143,10 @@ class AssetSearch extends AbstractSearch
 
         if (!$hasDeletedFilter) {
             $filterQueries[] = $this->deletedBuiltInField->createFilterQuery(false, $options);
+        }
+
+        if (!$hasStatusFilter) {
+            $filterQueries[] = $this->assetStatusBuiltInField->createFilterQuery(AssetStatusEnum::Accepted, $options);
         }
 
         $filterQuery = new Query\BoolQuery();

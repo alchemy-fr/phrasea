@@ -8,6 +8,7 @@ use Alchemy\WebhookBundle\Normalizer\WebhookSerializationInterface;
 use App\Api\Model\Output\Traits\CapabilitiesDTOTrait;
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Collection;
 use App\Entity\Core\RenditionDefinition;
@@ -65,6 +66,9 @@ class WorkspaceOutput extends AbstractUuidOutput
 
     #[Groups([Workspace::GROUP_READ])]
     public ?int $trashRetentionDelay = null;
+
+    #[Groups([Workspace::GROUP_READ])]
+    public ?AssetStatusEnum $assetDefaultStatus = null;
 
     #[Groups([Workspace::GROUP_READ])]
     public ?array $translations = null;

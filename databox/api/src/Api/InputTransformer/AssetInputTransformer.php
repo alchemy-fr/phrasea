@@ -89,6 +89,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
 
         if ($isNew) {
             $object->setWorkspace($workspace);
+            $object->setStatus($workspace->getAssetDefaultStatus());
             if ($data->getOwnerId()) {
                 $object->setOwnerId($data->getOwnerId());
             }

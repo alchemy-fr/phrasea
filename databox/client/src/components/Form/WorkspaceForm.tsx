@@ -14,6 +14,7 @@ import {useCreateSaveTranslations} from '../../hooks/useCreateSaveTranslations.t
 import {putWorkspace} from '../../api/collection.ts';
 import {getLocaleOptions} from '../../api/locale.ts';
 import {LocaleSelectWidget} from '@alchemy/react-form';
+import AssetStatusSelect from './AssetStatusSelect.tsx';
 
 const emptyLocaleItem = '';
 
@@ -188,6 +189,21 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                     />
                     <FormFieldErrors
                         field={'trashRetentionDelay'}
+                        errors={errors}
+                    />
+                </FormRow>
+                <FormRow>
+                    <AssetStatusSelect
+                        control={control}
+                        name={'assetDefaultStatus'}
+                        label={t(
+                            'form.workspace.assetDefaultStatus.label',
+                            'Asset Default Status'
+                        )}
+                        disabled={submitting}
+                    />
+                    <FormFieldErrors
+                        field={'assetDefaultStatus'}
                         errors={errors}
                     />
                 </FormRow>

@@ -5,8 +5,6 @@ import {
 } from './types';
 import React from 'react';
 import BaseType from './BaseType.tsx';
-import {Workspace} from '../../../../../types.ts';
-
 import PrivacyWidget from '../../../../Form/PrivacyWidget.tsx';
 import PrivacyChip from '../../../../Ui/PrivacyChip.tsx';
 import {Privacy} from '../../../../../api/privacy.ts';
@@ -29,8 +27,8 @@ export default class PrivacyType
         );
     }
 
-    normalize(value: Workspace | undefined): string | undefined {
-        return value?.id;
+    normalize(value: Privacy | undefined): string | undefined {
+        return value?.toString();
     }
 
     formatValue({value}: AttributeFormatterProps): React.ReactNode {
@@ -38,6 +36,6 @@ export default class PrivacyType
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {
-        return value?.displayName;
+        return value?.toString();
     }
 }

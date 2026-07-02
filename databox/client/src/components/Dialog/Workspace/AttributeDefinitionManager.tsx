@@ -179,7 +179,7 @@ function Item({
                     disabled={submitting}
                 />
             </FormRow>
-            {type === AttributeType.Entity ? (
+            {type === AttributeType.AttributeEntity ? (
                 <FormRow>
                     <FormLabel>
                         {t(
@@ -293,7 +293,11 @@ function Item({
                     )}
                     control={control}
                     name={'translatable'}
-                    disabled={type === AttributeType.Entity ? true : submitting}
+                    disabled={
+                        type === AttributeType.AttributeEntity
+                            ? true
+                            : submitting
+                    }
                 />
                 <FormFieldErrors field={'translatable'} errors={errors} />
             </FormRow>

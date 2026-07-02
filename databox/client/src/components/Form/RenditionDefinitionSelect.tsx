@@ -12,7 +12,7 @@ import {createIriFromId} from '@alchemy/api';
 import {EntityName} from '../../api/types.ts';
 
 type Props<TFieldValues extends FieldValues> = {
-    workspaceId: string;
+    workspaceId?: string;
     useIRI?: boolean;
 } & AsyncRSelectProps<TFieldValues, false>;
 
@@ -24,7 +24,7 @@ export default function RenditionDefinitionSelect<
     const load = useCallback(
         async (inputValue: string): Promise<SelectOption[]> => {
             const data = await getRenditionDefinitions({
-                workspaceIds: [workspaceId],
+                workspaceIds: workspaceId ? [workspaceId] : undefined,
             });
 
             return data.result

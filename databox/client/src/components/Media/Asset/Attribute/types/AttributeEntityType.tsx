@@ -6,11 +6,11 @@ import {
 import React from 'react';
 import {Box, InputLabel} from '@mui/material';
 import {AttributeEntity, AttributeEntityStatus} from '../../../../../types.ts';
-import AttributeEntitySelect, {
-    AttributeEntityOption,
-} from '../../../../Form/AttributeEntitySelect.tsx';
+import AttributeEntitySelect from '../../../../Form/AttributeEntitySelect.tsx';
 import BaseType from './BaseType.tsx';
 import AttributeEntityListText from '../AttributeEntityListText.tsx';
+import {getBestTranslatedValue} from '@alchemy/i18n/src/Locale/localeHelper.ts';
+import {EntityName} from '../../../../../api/types.ts';
 
 type EntityValue = {
     id: string;
@@ -23,8 +23,10 @@ type EntityValue = {
 
 export default class AttributeEntityType
     extends BaseType
-    implements AttributeTypeInstance<AttributeEntity>
+    implements AttributeTypeInstance<string>
 {
+    public entityIri = EntityName.Entity;
+
     renderWidget({
         labelAlreadyRendered,
         value,
@@ -34,7 +36,7 @@ export default class AttributeEntityType
         readOnly,
         disabled,
         options,
-    }: AttributeWidgetProps<AttributeEntity>): React.ReactNode {
+    }: AttributeWidgetProps<string>): React.ReactNode {
         return (
             <>
                 {!labelAlreadyRendered && <InputLabel>{label}</InputLabel>}
@@ -43,15 +45,13 @@ export default class AttributeEntityType
                     multiple={false}
                     list={options.list}
                     disabled={readOnly || disabled}
-                    value={value?.id}
+                    value={value}
                     workspaceId={options.workspaceId}
                     onChange={newValue => {
                         onChange(
-                            (
-                                (newValue || undefined) as
-                                    | AttributeEntityOption
-                                    | undefined
-                            )?.item
+                            newValue && typeof newValue === 'object'
+                                ? newValue.value
+                                : (newValue as unknown as string | undefined)
                         );
                     }}
                 />
@@ -97,6 +97,10 @@ export default class AttributeEntityType
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {
-        return value?.value;
+        if (!value) {
+            return;
+        }
+
+        return getBestTranslatedValue(value.translations, value.value);
     }
 }

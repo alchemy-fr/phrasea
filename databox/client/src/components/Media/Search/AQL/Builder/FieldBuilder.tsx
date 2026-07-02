@@ -1,11 +1,13 @@
 import {RawType} from '../aqlTypes.ts';
 import {TextField, TextFieldProps} from '@mui/material';
 import React from 'react';
-import {FieldWidget} from '../../../../../types.ts';
-import {hasProp} from '../../../../../lib/utils.ts';
+import {AttributeType} from '../../../../../api/types.ts';
+import {getAttributeType} from '../../../Asset/Attribute/types';
+import {AttributeWidgetOptions} from '../../../Asset/Attribute/types/types';
 
 type Props = {
-    widget?: FieldWidget;
+    type?: AttributeType;
+    widgetOptions?: AttributeWidgetOptions;
     rawType: RawType | undefined;
     value: string;
     name: string;
@@ -16,7 +18,8 @@ type Props = {
 export type {Props as FieldBuilderProps};
 
 export default function FieldBuilder({
-    widget,
+    type,
+    widgetOptions,
     rawType,
     value: initialValue,
     onChange,
@@ -29,23 +32,19 @@ export default function FieldBuilder({
         setValue(initialValue);
     }, [initialValue]);
 
-    if (widget) {
-        return React.createElement(widget.component, {
-            ...(widget.props ?? {}),
-            name,
+    if (type) {
+        const attributeType = getAttributeType(type ?? AttributeType.Text);
+
+        return attributeType.renderWidget({
+            id: 'f-' + name,
             value,
+            label,
+            labelAlreadyRendered: true,
             onChange: (v: any) => {
                 setValue(v);
-                if (
-                    typeof v === 'object' &&
-                    hasProp<{value: string}>(v, 'value')
-                ) {
-                    onChange(v.value);
-                } else {
-                    onChange(v);
-                }
+                onChange(v);
             },
-            placeholder: label,
+            options: widgetOptions ?? {},
         });
     }
 

@@ -132,6 +132,8 @@ fos_elastica:
                     type: integer
                 sequence:
                     type: integer
+                status:
+                    type: integer
                 deleted:
                     property_path: isAssetDeleted
                     type: boolean

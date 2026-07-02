@@ -40,7 +40,7 @@ export default function TaskDetailsDialog({}: Props) {
                 <AppDialog
                     title={
                         taskDef
-                            ? t('tasks_list.title', {
+                            ? t('tasks_details.title', {
                                   defaultValue: 'Task {{name}}',
                                   name: taskDef.displayName,
                               })

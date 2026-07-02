@@ -403,6 +403,9 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     protected ?\DateTimeImmutable $tagsEditedAt = null;
 
+    #[ORM\Column(type: Types::SMALLINT, nullable: false, enumType: AssetStatusEnum::class)]
+    private ?AssetStatusEnum $status = null;
+
     public ?GroupValue $groupValue = null;
     public ?AttributeIndex $attributesIndex = null;
 
@@ -792,5 +795,15 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     public function setTrackingId(?string $trackingId): void
     {
         $this->trackingId = $trackingId;
+    }
+
+    public function getStatus(): AssetStatusEnum
+    {
+        return $this->status;
+    }
+
+    public function setStatus(AssetStatusEnum $status): void
+    {
+        $this->status = $status;
     }
 }
