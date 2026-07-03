@@ -3,11 +3,11 @@ import {Box, Button, IconButton} from '@mui/material';
 import React from 'react';
 import {useTranslation} from 'react-i18next';
 import {Notifications} from '@alchemy/notification';
-import {UserMenu} from '@alchemy/phrasea-ui';
 import {useAuth, useKeycloakUrls} from '@alchemy/react-auth';
 import LoginIcon from '@mui/icons-material/Login';
 import {CommonMenuProps} from './types';
 import SettingDropdown from './SettingDropdown';
+import UserMenu from './UserMenu';
 
 export function CommonAppTopMenu({
     notificationUriHandler,
@@ -76,10 +76,10 @@ export function CommonAppTopMenu({
             ) : (
                 <UserMenu
                     username={user.username}
-                    user={user}
                     accountUrl={getAccountUrl()}
                     onLogout={logout}
                     debugUser={config.devMode}
+                    keycloakClient={keycloakClient}
                 />
             )}
 

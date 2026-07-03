@@ -49,7 +49,7 @@ export class OAuthClient<UIR extends UserInfoResponse> {
     private autoRefreshTimeout: ReturnType<typeof setTimeout> | undefined;
     private readonly refreshTokenStorageKey: string;
     public readonly httpClient: HttpClient;
-    private readonly scope?: string;
+    public readonly scope?: string;
     public sessionHasExpired: boolean = false;
     public autoRefreshToken: boolean = true;
     public tokenValidityOffset: number = 5;
@@ -325,6 +325,10 @@ export class OAuthClient<UIR extends UserInfoResponse> {
                 )!,
             }),
         });
+
+        if (this.scope) {
+            searchParams.set(AuthConstant.Scope, this.scope);
+        }
 
         if (connectTo) {
             searchParams.set(AuthConstant.KcIdpHintParam, connectTo);

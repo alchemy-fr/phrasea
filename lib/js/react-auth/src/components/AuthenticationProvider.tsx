@@ -57,12 +57,17 @@ export default function AuthenticationProvider<
     }, [tokens]);
 
     useEffect(() => {
-        if (keycloakClient && silentConnect) {
+        const location = document.location;
+        if (
+            keycloakClient &&
+            silentConnect &&
+            !location.search.includes('code=')
+        ) {
             (async () => {
                 await keycloakClient!.initKeycloakSession();
             })();
         }
-    }, [silentConnect, keycloakClient]);
+    }, [silentConnect, keycloakClient, location]);
 
     React.useEffect(() => {
         const loginListener: AuthEventHandler<LoginEvent> = async event => {

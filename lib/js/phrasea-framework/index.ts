@@ -38,6 +38,7 @@ import DarkModeSwitch from './src/Theme/ThemeEditor/DarkModeSwitch';
 import ListItemLoadingIcon from './src/Ui/ListItemLoadingIcon';
 import {getContrastText} from './src/Ui/colorUtil';
 import {useTreeState} from './src/Tree/useTreeState';
+import UserMenu from './src/Menu/UserMenu';
 
 export {
     AppProvider,
@@ -82,6 +83,7 @@ export {
     useTracking,
     LoadMoreButton,
     lazyWithRetry,
+    UserMenu,
 };
 export * from './src/Theme/types';
 export * from './src/Dialog/types';

@@ -5,8 +5,10 @@ import {Divider, ListItemIcon, ListItemText} from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import {useTranslation} from 'react-i18next';
-import UserAvatar from './UserAvatar';
-import DropdownActions from './DropdownActions';
+import UserAvatar from '../../../phrasea-ui/src/components/UserAvatar';
+import DropdownActions from '../../../phrasea-ui/src/components/DropdownActions';
+import {useAuth} from '@alchemy/react-auth';
+import {KeycloakClient} from '@alchemy/auth';
 
 type Props = {
     variant?: 'menu' | 'icon-button';
@@ -14,8 +16,8 @@ type Props = {
     accountUrl?: string;
     onLogout?: () => void;
     username: string;
-    user: object;
     debugUser?: boolean;
+    keycloakClient?: KeycloakClient;
 };
 
 export default function UserMenu({
@@ -25,9 +27,10 @@ export default function UserMenu({
     onLogout,
     username,
     debugUser,
-    user,
+    keycloakClient,
 }: Props) {
     const {t} = useTranslation();
+    const {user, tokens} = useAuth();
 
     const isMenu = variant === 'menu';
 
@@ -87,13 +90,27 @@ export default function UserMenu({
                                   key={'debug-jwt'}
                                   onClick={() => {
                                       closeMenu();
-                                      alert(
-                                          `User info (also dumped to console):\n\n${JSON.stringify(user, null, 2)}`
-                                      );
                                       // eslint-disable-next-line no-console
                                       console.info(
                                           'Current authenticated User',
                                           user
+                                      );
+
+                                      // eslint-disable-next-line no-console
+                                      console.info('Token', tokens);
+
+                                      // eslint-disable-next-line no-console
+                                      console.info(
+                                          'Access Token',
+                                          keycloakClient?.client.getDecodedToken()
+                                      );
+                                      // eslint-disable-next-line no-console
+                                      console.info(
+                                          'ID Token',
+                                          keycloakClient?.client.getDecodedIdToken()
+                                      );
+                                      alert(
+                                          `User info (also dumped to console):\n\n${JSON.stringify(user, null, 2)}`
                                       );
                                   }}
                               >
