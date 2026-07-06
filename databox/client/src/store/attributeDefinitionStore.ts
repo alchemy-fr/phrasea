@@ -189,14 +189,16 @@ function useIndexByKey<BI extends boolean>(
         }
 
         for (const def of definitions) {
-            if (
-                filters.workspaceId &&
-                (def.workspace as Workspace | undefined)?.id !==
-                    filters.workspaceId
-            ) {
+            if (!def.enabled) {
                 continue;
             }
-            if (filters.target && (def.target & filters.target) === 0) {
+            if (
+                !def.enabled ||
+                (filters.workspaceId &&
+                    (def.workspace as Workspace | undefined)?.id !==
+                        filters.workspaceId) ||
+                (filters.target && (def.target & filters.target) === 0)
+            ) {
                 continue;
             }
             // @ts-expect-error unknown key type
