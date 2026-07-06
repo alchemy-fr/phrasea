@@ -7,9 +7,10 @@ import BusinessIcon from '@mui/icons-material/Business';
 import {modalRoutes} from '../../../routes.ts';
 import FolderIcon from '@mui/icons-material/Folder';
 import {useTranslation} from 'react-i18next';
-import {Asset} from '../../../types.ts';
+import {Asset, EntityList} from '../../../types.ts';
 import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import AttributeEntitySelect from '../../Form/AttributeEntitySelect.tsx';
 
 type Props = {
     data: Asset;
@@ -22,6 +23,15 @@ export default function AssetInfoList({data}: Props) {
     return (
         <>
             <MenuList>
+                <AttributeEntitySelect
+                    workspaceId={'40'}
+                    list={
+                        {
+                            allowNewValues: false,
+                            id: '01611ac6-14e6-45d2-a002-a3e36ed8467e',
+                        } as EntityList
+                    }
+                />
                 <InfoRow
                     label={t('asset.info.id', `ID`)}
                     value={data.id}

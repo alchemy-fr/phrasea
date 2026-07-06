@@ -1,57 +1,29 @@
-import {Controller} from 'react-hook-form';
-import {FieldValues} from 'react-hook-form';
-import {Control} from 'react-hook-form';
-import {FieldPath} from 'react-hook-form';
-import AsyncSelect from 'react-select/async';
+import {Control, Controller, FieldPath, FieldValues} from 'react-hook-form';
 import {ReactNode, useEffect, useMemo, useState} from 'react';
 import {InputLabel, useTheme} from '@mui/material';
-import {AsyncProps} from 'react-select/async';
-import {OnChangeValue} from 'react-select';
+import Select, {OnChangeValue} from 'react-select';
 import {createSelectStyles} from './selectStyles';
-import AsyncCreatableSelect from 'react-select/async-creatable';
-import {GroupBase, ImageOption, RSelectStyle} from './RSelectWidget';
-import {SelectOption} from './types';
+import {ImageOption, RSelectStyle} from './RSelectWidget';
+import {
+    AsyncPaginateCreatableProps,
+    AsyncPaginateCreatableType,
+    AsyncPaginateType,
+    CompositeValue,
+    GroupBase,
+    RSelectOnCreate,
+    SelectOption,
+} from '../types';
+import {valueToOption} from './funcs';
+import Creatable from 'react-select/creatable';
+import {withAsyncPaginate} from 'react-select-async-paginate';
 
-type CompositeValue<IsMulti extends boolean> = IsMulti extends true
-    ? string[]
-    : string | undefined;
+const CreatableAsyncPaginate = withAsyncPaginate(
+    Creatable
+) as AsyncPaginateCreatableType;
 
-type CompositeOption<
-    IsMulti extends boolean,
-    Opt extends SelectOption,
-> = IsMulti extends true ? Opt[] : Opt | null;
-
-export function valueToOption<
-    IsMulti extends boolean,
-    Opt extends SelectOption,
->(
-    isMulti: IsMulti,
-    value: CompositeValue<IsMulti>,
-    lastOptions: Record<string, Opt> = {}
-): CompositeOption<IsMulti, Opt> {
-    if (isMulti) {
-        if (!value) {
-            return [] as any;
-        }
-        return (value as string[]).map(v =>
-            valueToOption(false, v, lastOptions)
-        ) as CompositeOption<IsMulti, Opt>;
-    } else if (value) {
-        return (lastOptions[value as string] ?? null) as CompositeOption<
-            IsMulti,
-            Opt
-        >;
-    }
-
-    return null as CompositeOption<IsMulti, Opt>;
-}
+const AsyncPaginate = withAsyncPaginate(Select) as AsyncPaginateType;
 
 const cache: Record<string, Record<string, any>> = {};
-
-export type RSelectOnCreate<Opt extends SelectOption> = (
-    inputValue: string,
-    onCreate: (option: Opt) => void
-) => void;
 
 type Props<
     TFieldValues extends FieldValues,
@@ -77,7 +49,7 @@ type Props<
     label?: ReactNode;
     inputHeight?: number;
     menuWidth?: number;
-} & AsyncProps<Opt, IsMulti, GroupBase<Opt>>;
+} & AsyncPaginateCreatableProps<Opt, IsMulti, GroupBase<Opt>>;
 
 export type {Props as AsyncRSelectProps};
 
@@ -104,6 +76,7 @@ export default function AsyncRSelectWidget<
     inputHeight,
     menuWidth = 300,
     isDisabled,
+    components,
     ...rest
 }: Props<TFieldValues, IsMulti, Opt>) {
     const [value, setValue] = useState(initialValue);
@@ -112,10 +85,13 @@ export default function AsyncRSelectWidget<
     );
     const theme = useTheme();
 
-    const componentsProp = {
-        Option: ImageOption,
-        ...(rest.components ?? {}),
-    };
+    const componentsProp = useMemo(
+        () => ({
+            Option: ImageOption,
+            ...(components ?? {}),
+        }),
+        [components]
+    );
 
     const computedStyles = useMemo(() => {
         return createSelectStyles(theme, error, styles, inputHeight, menuWidth);
@@ -152,20 +128,26 @@ export default function AsyncRSelectWidget<
     }, [initialValue]);
 
     const loadOptionsWrapper: typeof loadOptions =
-        loadOptions && !isDisabled
-            ? async (inputValue: string) => {
-                  const options = (await loadOptions!(
+        !isDisabled && loadOptions
+            ? async (inputValue: string, loadedOptions, additional) => {
+                  const result = await loadOptions(
                       inputValue,
-                      () => {}
-                  )) as Opt[];
+                      loadedOptions,
+                      additional
+                  );
 
-                  updateLastOptions(options);
+                  updateLastOptions(result.options as Opt[]);
 
-                  return options;
+                  return result;
               }
-            : undefined;
+            : () => {
+                  return {
+                      options: [],
+                      hasMore: false,
+                  };
+              };
 
-    const SelectComponent = onCreate ? AsyncCreatableSelect : AsyncSelect;
+    const SelectComponent = onCreate ? CreatableAsyncPaginate : AsyncPaginate;
 
     if (control) {
         return (
@@ -202,7 +184,7 @@ export default function AsyncRSelectWidget<
                             <RSelectStyle />
                             <SelectComponent<Opt, any>
                                 {...rest}
-                                ref={ref}
+                                selectRef={ref}
                                 required={required}
                                 components={componentsProp}
                                 value={valueToOption(

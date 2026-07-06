@@ -1,6 +1,8 @@
 import React from 'react';
 import {FieldValues} from 'react-hook-form';
-import AsyncRSelectWidget, {AsyncRSelectProps} from '../AsyncRSelectWidget';
+import AsyncRSelectWidget, {
+    AsyncRSelectProps,
+} from '../RSelect/AsyncRSelectWidget';
 import {SelectOption} from '../types';
 
 export type GetLocales = () => Promise<SelectOption[]>;

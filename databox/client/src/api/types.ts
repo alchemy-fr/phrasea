@@ -8,7 +8,7 @@ export enum AttributeBatchActionEnum {
 }
 
 export type PaginationParams = {
-    nextUrl?: string;
+    nextUrl?: string | null | undefined;
 };
 
 export enum OperationTaskStatus {

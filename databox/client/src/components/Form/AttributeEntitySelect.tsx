@@ -4,6 +4,7 @@ import {
     AsyncRSelectProps,
     AsyncRSelectWidget,
     RSelectOnCreate,
+    SelectLoadOptions,
     SelectOption,
 } from '@alchemy/react-form';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
@@ -60,25 +61,30 @@ export default function AttributeEntitySelect<
               }
             : undefined;
 
-    const load = async (
-        inputValue: string
-    ): Promise<AttributeEntityOption[]> => {
-        const data = (
-            await getAttributeEntities({
-                list: list.id,
-                value: inputValue,
-            })
-        ).result;
-
-        return data.map((t: AttributeEntity) => {
-            store(t['@id'], t);
-
-            return {
-                value: t.id,
-                label: formatAttributeEntityLabel(t),
-                item: t,
-            };
+    const load: SelectLoadOptions<AttributeEntityOption> = async (
+        inputValue,
+        _loaded,
+        additional
+    ) => {
+        const data = await getAttributeEntities({
+            nextUrl: additional?.nextUrl,
+            list: list.id,
+            value: inputValue,
         });
+
+        return {
+            options: data.result.map((t: AttributeEntity) => {
+                store(t['@id'], t);
+
+                return {
+                    value: t.id,
+                    label: formatAttributeEntityLabel(t),
+                    item: t,
+                };
+            }),
+            hasMore: !!data.next,
+            additional: {nextUrl: data.next},
+        };
     };
 
     const entityStyle = (data: AttributeEntityOption): CSSObjectWithLabel => {

@@ -3,27 +3,21 @@ import React, {useEffect, useState} from 'react';
 import {GlobalStyles, InputLabel, useTheme} from '@mui/material';
 import Select, {components, OptionProps} from 'react-select';
 import {createSelectStyles} from './selectStyles';
-import {valueToOption} from './AsyncRSelectWidget';
 import CreatableSelect from 'react-select/creatable';
 import {
+    ClassName,
     ResolvedChangedValue,
     RSelectProps,
     SelectDenormalizeValue,
     SelectOption,
-} from './types';
-
-export interface GroupBase<Option> {
-    readonly options: readonly Option[];
-    readonly label?: string;
-}
-
-export const rSelectClassName = 'rselect-img';
+} from '../types';
+import {valueToOption} from './funcs';
 
 export function ImageOption<Opt extends SelectOption>(props: OptionProps<Opt>) {
     return (
         <components.Option {...props}>
             {props.data.image && (
-                <span className={rSelectClassName}>
+                <span className={ClassName.OptionImage}>
                     {React.createElement(props.data.image, {
                         fontSize: 'small',
                     })}
@@ -264,7 +258,7 @@ export function RSelectStyle() {
     return (
         <GlobalStyles
             styles={{
-                [`.${rSelectClassName}`]: {
+                [`.${ClassName.OptionImage}`]: {
                     verticalAlign: 'middle',
                     paddingRight: 10,
                 },

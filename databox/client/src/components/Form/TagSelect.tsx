@@ -5,6 +5,7 @@ import {
     AsyncRSelectWidget,
     AsyncRSelectProps,
     SelectOption,
+    LoadPaginated,
 } from '@alchemy/react-form';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
 import React from 'react';
@@ -39,27 +40,34 @@ export default function TagSelect<
 
     const workspaceId = wsId ?? workspaceContext?.workspaceId;
 
-    const load = async (inputValue: string): Promise<SelectOption[]> => {
-        const data = (
-            await getTags({
-                workspace: workspaceId,
-                query: inputValue,
-            })
-        ).result;
+    const load: LoadPaginated<TagOption> = async (
+        inputValue: string,
+        nextUrl?: string
+    ) => {
+        const data = await getTags({
+            nextUrl,
+            workspace: workspaceId,
+            query: inputValue,
+        });
 
-        return data
-            .map((t: Tag) => {
-                store(t['@id'], t);
+        return {
+            result: data.result
+                .map((t: Tag) => {
+                    store(t['@id'], t);
 
-                return {
-                    value: useIRI ? `${tagNS}/${t.id}` : t.id,
-                    label: t.displayName,
-                    item: t,
-                } as TagOptions;
-            })
-            .filter(i =>
-                i.label.toLowerCase().includes((inputValue || '').toLowerCase())
-            );
+                    return {
+                        value: useIRI ? `${tagNS}/${t.id}` : t.id,
+                        label: t.displayName,
+                        item: t,
+                    } as TagOptions;
+                })
+                .filter(i =>
+                    i.label
+                        .toLowerCase()
+                        .includes((inputValue || '').toLowerCase())
+                ),
+            next: data.next,
+        };
     };
 
     const tagStyle = (_base: any, state: any) => {
@@ -83,7 +91,7 @@ export default function TagSelect<
         <AsyncRSelectWidget
             cacheId={'tags'}
             {...rest}
-            loadOptions={load}
+            loadPaginated={load}
             isMulti={multiple}
             key={workspaceId}
             styles={{

@@ -1,15 +1,24 @@
 import type {Translations} from '@alchemy/i18n';
 import {DatePickerProps as DatePickerPropsBase} from 'react-datepicker';
-import React, {ReactNode} from 'react';
+import React, {ReactElement, ReactNode} from 'react';
 import {Control, FieldPath, FieldValues} from 'react-hook-form';
 import {ActionMeta, CommonProps, OnChangeValue} from 'react-select';
 import {CreatableProps} from 'react-select/creatable';
-import {GroupBase} from './RSelectWidget';
+import {
+    ComponentProps,
+    LoadOptions,
+    UseAsyncPaginateParams,
+} from 'react-select-async-paginate';
+import {AsyncProps} from 'react-select/async';
 
 export type Translation = {
     locale: string;
     value: string;
 };
+
+export enum ClassName {
+    OptionImage = 'rselect-img',
+}
 
 export type WithTranslations = {
     id: string;
@@ -44,6 +53,11 @@ export type SelectOption = Readonly<{
     image?: React.ElementType | React.FC;
     item?: object | undefined;
 }>;
+
+export interface GroupBase<Option> {
+    readonly options: readonly Option[];
+    readonly label?: string;
+}
 
 export type RSelectProps<
     TFieldValues extends FieldValues,
@@ -105,3 +119,63 @@ export type SelectNormalizeValue<
     Opt extends SelectOption = SelectOption,
     Normalized = any,
 > = (value: Normalized | null) => Opt['value'] | null;
+
+export type RSelectOnCreate<Opt extends SelectOption> = (
+    inputValue: string,
+    onCreate: (option: Opt) => void
+) => void;
+
+type PaginatedResults<Opt extends SelectOption> = {
+    next?: string;
+    last?: string;
+    result: Opt[];
+};
+
+export type LoadPaginated<Opt extends SelectOption = SelectOption> = (
+    inputValue: string,
+    nextUrl?: string
+) => Promise<PaginatedResults<Opt>>;
+
+export type SelectLoadOptions<Opt extends SelectOption = SelectOption> =
+    LoadOptions<Opt, GroupBase<Opt>, SelectPaginationData>;
+
+export type CompositeOption<
+    IsMulti extends boolean,
+    Opt extends SelectOption,
+> = IsMulti extends true ? Opt[] : Opt | null;
+
+export type CompositeValue<IsMulti extends boolean> = IsMulti extends true
+    ? string[]
+    : string | undefined;
+
+export type SelectPaginationData = {
+    nextUrl?: string | null | undefined;
+};
+export type AsyncPaginateCreatableProps<
+    OptionType,
+    IsMulti extends boolean,
+    Group extends GroupBase<OptionType> = GroupBase<OptionType>,
+> = Omit<CreatableProps<OptionType, IsMulti, Group>, 'loadOptions'> &
+    UseAsyncPaginateParams<OptionType, Group, SelectPaginationData> &
+    ComponentProps<OptionType, Group, IsMulti>;
+export type AsyncPaginateCreatableType = <
+    OptionType,
+    IsMulti extends boolean = false,
+    Group extends GroupBase<OptionType> = GroupBase<OptionType>,
+>(
+    props: AsyncPaginateCreatableProps<OptionType, IsMulti, Group>
+) => ReactElement;
+type AsyncPaginateProps<
+    OptionType,
+    IsMulti extends boolean,
+    Group extends GroupBase<OptionType> = GroupBase<OptionType>,
+> = Omit<AsyncProps<OptionType, IsMulti, Group>, 'loadOptions'> &
+    UseAsyncPaginateParams<OptionType, Group, SelectPaginationData> &
+    ComponentProps<OptionType, Group, IsMulti>;
+export type AsyncPaginateType = <
+    OptionType,
+    IsMulti extends boolean = false,
+    Group extends GroupBase<OptionType> = GroupBase<OptionType>,
+>(
+    props: AsyncPaginateProps<OptionType, IsMulti, Group>
+) => ReactElement;

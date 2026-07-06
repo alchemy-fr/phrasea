@@ -3,7 +3,7 @@ import {StylesConfig} from 'react-select';
 import {alpha} from '@mui/material/styles';
 import {GroupBase} from 'react-select';
 
-import {SelectOption} from './types';
+import {SelectOption} from '../types';
 
 export function createSelectStyles<
     Option extends SelectOption = SelectOption,
