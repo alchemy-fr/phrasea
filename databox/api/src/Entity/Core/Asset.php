@@ -440,7 +440,7 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     public function setWorkspace(?Workspace $workspace): void
     {
         if ($workspace && null === $this->status) {
-            $this->status = $workspace->getAssetDefaultStatus();
+            $this->setStatus($workspace->getAssetDefaultStatus());
         }
 
         $this->workspace = $workspace;
