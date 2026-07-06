@@ -23,6 +23,7 @@ use App\Api\Model\Output\BasketOutput;
 use App\Api\Processor\AddToBasketProcessor;
 use App\Api\Processor\ArchiveBasketProcessor;
 use App\Api\Processor\RemoveFromBasketProcessor;
+use App\Api\Processor\UnarchiveBasketProcessor;
 use App\Api\Provider\BasketCollectionProvider;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
@@ -60,6 +61,15 @@ use Symfony\Component\Validator\Constraints as Assert;
             deserialize: false,
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
             processor: ArchiveBasketProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/baskets/{id}/unarchive',
+            normalizationContext: [
+                'groups' => [self::GROUP_READ],
+            ],
+            deserialize: false,
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            processor: UnarchiveBasketProcessor::class,
         ),
         new Post(
             normalizationContext: [
@@ -204,8 +214,13 @@ class Basket extends AbstractUuidEntity implements WithOwnerIdInterface, AclObje
         $this->archivedAt = new \DateTimeImmutable();
     }
 
-    public function getArchivedAt(): ?\DateTimeImmutable
+    public function unarchive(): void
     {
-        return $this->archivedAt;
+        $this->archivedAt = null;
+    }
+
+    public function isArchived(): bool
+    {
+        return null !== $this->archivedAt;
     }
 }

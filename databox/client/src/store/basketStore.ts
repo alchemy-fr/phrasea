@@ -3,6 +3,7 @@ import {Basket} from '../types';
 import {
     addToBasket,
     archiveBasket,
+    unarchiveBasket,
     BasketAssetInput,
     deleteBasket,
     getBasket,
@@ -25,7 +26,8 @@ type State = {
     loadMore: () => Promise<void>;
     addBasket: (basket: Basket) => void;
     updateBasket: (data: Basket) => void;
-    archiveBasket: (id: string) => void;
+    archiveBasket: (id: string, display: boolean) => void;
+    unarchiveBasket: (id: string) => void;
     deleteBasket: (id: string) => void;
     addToCurrent: (assets: BasketAssetInput[]) => void;
     removeFromBasket: (basketId: string, itemIds: string[]) => void;
@@ -163,8 +165,20 @@ export const useBasketStore = create<State>((set, getState) => ({
         }));
     },
 
-    archiveBasket: async id => {
+    archiveBasket: async (id, display) => {
         const basket = await archiveBasket(id);
+
+        if (!display) {
+            set(state => ({
+                baskets: state.baskets.filter(b => b.id !== id),
+                current:
+                    state.current?.id === basket.id ? undefined : state.current,
+            }));
+        }
+    },
+
+    unarchiveBasket: async id => {
+        const basket = await unarchiveBasket(id);
 
         set(state => ({
             baskets: state.baskets.map(b => {

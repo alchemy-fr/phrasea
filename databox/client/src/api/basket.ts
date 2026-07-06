@@ -6,6 +6,7 @@ import {PaginationParams} from './types.ts';
 
 export type GetBasketOptions = {
     query?: string;
+    displayArchived?: boolean;
     page?: number;
 } & PaginationParams;
 
@@ -60,6 +61,12 @@ export async function postBasket(data: Partial<Basket>): Promise<Basket> {
 
 export async function archiveBasket(id: string): Promise<Basket> {
     const res = await apiClient.post(`/baskets/${id}/archive`);
+
+    return res.data;
+}
+
+export async function unarchiveBasket(id: string): Promise<Basket> {
+    const res = await apiClient.post(`/baskets/${id}/unarchive`);
 
     return res.data;
 }

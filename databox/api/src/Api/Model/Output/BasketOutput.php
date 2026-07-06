@@ -54,6 +54,9 @@ class BasketOutput extends AbstractUuidOutput
     #[Groups([Basket::GROUP_READ])]
     public ?UserOutput $owner = null;
 
+    #[Groups([Basket::GROUP_LIST, Basket::GROUP_READ])]
+    public bool $isArchived = false;
+
     public function getCapabilities(): array
     {
         return $this->capabilities;
@@ -102,5 +105,10 @@ class BasketOutput extends AbstractUuidOutput
     public function setOwner(?UserOutput $owner): void
     {
         $this->owner = $owner;
+    }
+
+    public function isArchived(): bool
+    {
+        return $this->isArchived;
     }
 }

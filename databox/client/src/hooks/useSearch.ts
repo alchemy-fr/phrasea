@@ -10,12 +10,13 @@ import {NormalizedCollectionResponse} from '@alchemy/api';
 
 type Props<T extends Entity, I extends Entity = T> = {
     items: I[];
-    loadItems: () => Promise<void>;
+    loadItems: (options?: Record<string, any>) => Promise<void>;
     hasMore?: boolean;
     loadMore?: () => Promise<void>;
     search: (
         query?: string,
-        next?: string
+        next?: string,
+        options?: Record<string, any>
     ) => Promise<NormalizedCollectionResponse<T>>;
 };
 
@@ -27,6 +28,9 @@ export function useSearch<T extends Entity, I extends Entity = T>({
     search,
 }: Props<T, I>) {
     const [searchQuery, setSearchQuery] = React.useState<string>('');
+    const [searchQueryOptions, setSearchQueryOptions] = React.useState<
+        Record<string, any>
+    >({});
     const [searchResult, setSearchResult] = React.useState<Pagination<T>>({
         ...createDefaultPagination<T>(),
         loading: false,
@@ -36,18 +40,19 @@ export function useSearch<T extends Entity, I extends Entity = T>({
     >();
 
     useEffectOnce(() => {
-        loadItems();
+        loadItems(searchQueryOptions);
     }, []);
 
     const searchHandler = useCallback(
         // eslint-disable-next-line react-hooks/use-memo
         createPaginatedLoader<T>(async next => {
-            const r = await search(searchQuery, next);
+            const r = await search(searchQuery, next, searchQueryOptions);
             setLoadedSearchQuery(searchQuery);
 
             return r;
         }, setSearchResult),
-        [searchQuery]
+
+        [searchQuery, searchQueryOptions]
     );
 
     useEffect(() => {
@@ -66,6 +71,8 @@ export function useSearch<T extends Entity, I extends Entity = T>({
     return {
         searchQuery,
         setSearchQuery,
+        searchQueryOptions,
+        setSearchQueryOptions,
         searchResult,
         results,
         loading: searchResult.loading,

@@ -33,6 +33,10 @@ class BasketSearch extends AbstractSearch
             $filterQueries[] = $aclBoolQuery;
         }
 
+        if (isset($options['displayArchived']) && 'false' === $options['displayArchived']) {
+            $filterQueries[] = new Query\Term(['isArchived' => false]);
+        }
+
         $maxLimit = 30;
         $limit = $options['limit'] ?? $maxLimit;
         if ($limit > $maxLimit) {
