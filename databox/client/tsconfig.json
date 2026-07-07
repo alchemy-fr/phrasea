@@ -25,7 +25,7 @@
         "types": [
             "vite-plugin-svgr/client",
             "node",
-            "@testing-library/jest-dom"
+            "vitest/globals"
         ]
     },
     "include": ["src"],
