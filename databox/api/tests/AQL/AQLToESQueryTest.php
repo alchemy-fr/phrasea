@@ -9,6 +9,7 @@ use App\Attribute\Type\DateAttributeType;
 use App\Attribute\Type\GeoPointAttributeType;
 use App\Attribute\Type\NumberAttributeType;
 use App\Attribute\Type\TextAttributeType;
+use App\Elasticsearch\AbstractSearch;
 use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\AQL\DateNormalizer;
@@ -16,6 +17,7 @@ use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\BuiltInField\AssetStatusBuiltInField;
 use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use App\Elasticsearch\BuiltInField\CreatedAtBuiltInField;
+use App\Elasticsearch\BuiltInField\DeletedBuiltInField;
 use App\Elasticsearch\BuiltInField\WorkspaceBuiltInField;
 use App\Tests\Attribute\Type\AttributeTypeRegistryTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -41,7 +43,7 @@ class AQLToESQueryTest extends TestCase
 
         $attributeTypeRegistry = AttributeTypeRegistryTestFactory::create();
 
-        $container = new class([WorkspaceBuiltInField::getKey() => fn () => new WorkspaceBuiltInField($em), AssetStatusBuiltInField::getKey() => fn () => new AssetStatusBuiltInField($translator), CreatedAtBuiltInField::getKey() => fn () => new CreatedAtBuiltInField()]) implements ServiceProviderInterface {
+        $container = new class([WorkspaceBuiltInField::getKey() => fn () => new WorkspaceBuiltInField($em), AssetStatusBuiltInField::getKey() => fn () => new AssetStatusBuiltInField($translator), DeletedBuiltInField::getKey() => fn () => new DeletedBuiltInField(), CreatedAtBuiltInField::getKey() => fn () => new CreatedAtBuiltInField()]) implements ServiceProviderInterface {
             use ServiceLocatorTrait;
         };
         $builtInFieldRegistry = new BuiltInAttributeRegistry($container);
@@ -258,6 +260,55 @@ class AQLToESQueryTest extends TestCase
             ['@workspace= null', [
                 'term' => ['workspaceId' => null],
             ]],
+            ['@deleted = true', [
+                'bool' => [
+                    'must' => [
+                        [
+                            'bool' => [
+                                'minimum_should_match' => 1,
+                                'should' => [
+                                    ['term' => ['ownerId' => AbstractSearch::NO_AUTH]],
+                                ],
+                            ],
+                        ],
+                        ['bool' => [
+                            'should' => [
+                                ['term' => ['deleted' => true]],
+                                ['term' => ['collectionDeleted' => true]],
+                            ],
+                        ]],
+                    ],
+                ],
+            ]],
+            ['@deleted = false', [
+                'bool' => [
+                    'must' => [
+                        ['term' => ['deleted' => false]],
+                        ['term' => ['collectionDeleted' => false]],
+                    ],
+                ],
+            ]],
+            ['@assetStatus IN (0, 1)', [
+                'bool' => [
+                    'minimum_should_match' => 1,
+                    'should' => [
+                        [
+                            'bool' => [
+                                'must' => [
+                                    ['term' => ['status' => 0]],
+                                ],
+                            ],
+                        ], [
+                            'bool' => [
+                                'must' => [
+                                    ['term' => ['status' => 1]],
+                                    ['term' => ['ownerId' => AbstractSearch::NO_AUTH]],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ]],
             ['bool = null', [
                 'bool' => [
                     'must_not' => [
@@ -341,9 +392,6 @@ class AQLToESQueryTest extends TestCase
                 'range' => ['createdAt' => [
                     'gt' => (MockNowFunction::VALUE * 8 - 3) * 1000,
                 ]],
-            ]],
-            ['@assetStatus IN (0, 1)', [
-                'terms' => ['status' => [0, 1]],
             ]],
             ['foo MATCHES SUBSTRING("hello", 1, 2)', [
                 'multi_match' => [

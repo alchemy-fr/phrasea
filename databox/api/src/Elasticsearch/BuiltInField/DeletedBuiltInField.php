@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch\BuiltInField;
 
 use App\Attribute\Type\BooleanAttributeType;
+use App\Elasticsearch\AbstractSearch;
 use App\Elasticsearch\AQL\ConditionOperatorEnum;
 use App\Entity\Core\Asset;
 use Elastica\Query;
@@ -107,6 +108,8 @@ final class DeletedBuiltInField extends AbstractBuiltInAttribute implements Cust
         if (null !== $userId) {
             $deletePermissionQuery->addShould(new Query\Term(['ownerId' => $userId]));
             $deletePermissionQuery->addShould(new Query\Term(['deleteUsers' => $userId]));
+        } else {
+            $deletePermissionQuery->addShould(new Query\Term(['ownerId' => AbstractSearch::NO_AUTH]));
         }
         if (!empty($groupIds)) {
             $deletePermissionQuery->addShould(new Query\Terms('deleteGroups', $groupIds));

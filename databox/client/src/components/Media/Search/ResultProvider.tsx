@@ -40,7 +40,7 @@ async function search({
     facets: TFacets;
     total: number;
     next?: string | null;
-    debug: ESDebug;
+    debug?: ESDebug;
 }> {
     if (lastController) {
         lastController.abort();

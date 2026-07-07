@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch\BuiltInField;
 
 use App\Attribute\Type\AssetStatusAttributeType;
+use App\Elasticsearch\AbstractSearch;
 use App\Elasticsearch\AQL\ConditionOperatorEnum;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
@@ -72,7 +73,7 @@ final class AssetStatusBuiltInField extends AbstractLabelledBuiltInField impleme
 
                 $userId = $options['userId'] ?? false;
                 if (empty($userId)) {
-                    $boolQuery->addMust(new Query\Term(['ownerId' => 'nobody']));
+                    $boolQuery->addMust(new Query\Term(['ownerId' => AbstractSearch::NO_AUTH]));
                 } else {
                     $boolQuarantineAccess->addShould(new Query\Term(['ownerId' => $userId]));
                     $boolQuarantineAccess->addShould(new Query\Term(['quarantineUsers' => $userId]));
@@ -88,12 +89,12 @@ final class AssetStatusBuiltInField extends AbstractLabelledBuiltInField impleme
         switch ($operator) {
             case ConditionOperatorEnum::EQUALS:
                 $value = AssetStatusAttributeType::normalizeInput($value);
-                $boolQuery->addMust(new Query\Term(['status' => $value]));
+                $boolQuery->addMust(new Query\Term(['status' => $value?->value]));
                 $filterQuarantine(in_array($value, [AssetStatusEnum::Quarantined, AssetStatusEnum::Pending]));
                 break;
             case ConditionOperatorEnum::NOT_EQUALS:
                 $value = AssetStatusAttributeType::normalizeInput($value);
-                $boolQuery->addMustNot(new Query\Term(['status' => $value]));
+                $boolQuery->addMustNot(new Query\Term(['status' => $value?->value]));
                 $filterQuarantine(in_array($value, [AssetStatusEnum::Accepted]));
                 break;
             case ConditionOperatorEnum::IN:

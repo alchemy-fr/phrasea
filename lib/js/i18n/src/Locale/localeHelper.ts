@@ -1,17 +1,9 @@
-function getLanguages(): readonly string[] {
-    if (typeof window === 'undefined') {
-        return [];
-    }
-
-    return window.navigator?.languages || [];
-}
-
-let currentLanguages: string[] = [...getLanguages()];
+let currentLanguages: string[] = [...window.navigator.languages];
 
 export function setCurrentLocale(locale: string | undefined) {
     currentLanguages = [
         ...(locale ? [locale] : []),
-        ...getLanguages().filter(l => l !== locale),
+        ...window.navigator.languages.filter(l => l !== locale),
     ];
 }
 
