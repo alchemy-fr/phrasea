@@ -4,7 +4,6 @@ import {
     AsyncRSelectProps,
     AsyncRSelectWidget,
     RSelectOnCreate,
-    SelectLoadOptions,
     SelectOption,
 } from '@alchemy/react-form';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
@@ -19,10 +18,11 @@ import {useEntitiesStore} from '../../store/entitiesStore.ts';
 import {useTheme} from '@mui/material';
 import {CSSObjectWithLabel} from 'react-select';
 import {getTagColorStyle} from '../Media/Asset/Facets/TagColor.tsx';
+import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;
-    multiple: IsMulti;
+    multiple?: IsMulti;
     allowNew?: boolean;
     list: EntityList;
 } & AsyncRSelectProps<TFieldValues, IsMulti, AttributeEntityOption>;
@@ -61,31 +61,26 @@ export default function AttributeEntitySelect<
               }
             : undefined;
 
-    const load: SelectLoadOptions<AttributeEntityOption> = async (
-        inputValue,
-        _loaded,
-        additional
-    ) => {
-        const data = await getAttributeEntities({
-            nextUrl: additional?.nextUrl,
-            list: list.id,
-            value: inputValue,
-        });
-
-        return {
-            options: data.result.map((t: AttributeEntity) => {
-                store(t['@id'], t);
-
-                return {
-                    value: t.id,
-                    label: formatAttributeEntityLabel(t),
-                    item: t,
-                };
+    const {loadOptions} = usePaginatedSelectLoader<
+        AttributeEntity,
+        AttributeEntityOption
+    >({
+        load: props =>
+            getAttributeEntities({
+                ...props,
+                list: list.id,
             }),
-            hasMore: !!data.next,
-            additional: {nextUrl: data.next},
-        };
-    };
+        map: t => {
+            store(t['@id'], t);
+
+            return {
+                value: t.id,
+                label: formatAttributeEntityLabel(t),
+                item: t,
+            };
+        },
+        filterLabels: true,
+    });
 
     const entityStyle = (data: AttributeEntityOption): CSSObjectWithLabel => {
         const item = data.item;
@@ -120,7 +115,7 @@ export default function AttributeEntitySelect<
         <AsyncRSelectWidget<TFieldValues, IsMulti, AttributeEntityOption>
             cacheId={'attribute-items'}
             {...rest}
-            loadOptions={load}
+            loadOptions={loadOptions}
             isMulti={multiple}
             key={workspaceId}
             onCreate={onCreate}

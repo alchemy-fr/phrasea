@@ -1,16 +1,14 @@
-import {Control, Controller, FieldPath, FieldValues} from 'react-hook-form';
-import {ReactNode, useEffect, useMemo, useState} from 'react';
+import {Controller, FieldValues} from 'react-hook-form';
+import {useEffect, useMemo, useState} from 'react';
 import {InputLabel, useTheme} from '@mui/material';
 import Select, {OnChangeValue} from 'react-select';
 import {createSelectStyles} from './selectStyles';
 import {ImageOption, RSelectStyle} from './RSelectWidget';
 import {
-    AsyncPaginateCreatableProps,
     AsyncPaginateCreatableType,
     AsyncPaginateType,
+    AsyncRSelectProps,
     CompositeValue,
-    GroupBase,
-    RSelectOnCreate,
     SelectOption,
 } from '../types';
 import {valueToOption} from './funcs';
@@ -24,34 +22,6 @@ const CreatableAsyncPaginate = withAsyncPaginate(
 const AsyncPaginate = withAsyncPaginate(Select) as AsyncPaginateType;
 
 const cache: Record<string, Record<string, any>> = {};
-
-type Props<
-    TFieldValues extends FieldValues,
-    IsMulti extends boolean,
-    Opt extends SelectOption = SelectOption,
-> = (
-    | {
-          control: Control<TFieldValues>;
-          name: FieldPath<TFieldValues>;
-      }
-    | {
-          control?: undefined;
-          name?: string;
-      }
-) & {
-    error?: boolean | undefined;
-    cacheId?: string;
-    disabledValues?: string[];
-    clearOnSelect?: boolean;
-    disabled?: boolean | undefined;
-    cacheOptions?: any;
-    onCreate?: RSelectOnCreate<Opt>;
-    label?: ReactNode;
-    inputHeight?: number;
-    menuWidth?: number;
-} & AsyncPaginateCreatableProps<Opt, IsMulti, GroupBase<Opt>>;
-
-export type {Props as AsyncRSelectProps};
 
 export default function AsyncRSelectWidget<
     TFieldValues extends FieldValues,
@@ -78,7 +48,7 @@ export default function AsyncRSelectWidget<
     isDisabled,
     components,
     ...rest
-}: Props<TFieldValues, IsMulti, Opt>) {
+}: AsyncRSelectProps<TFieldValues, IsMulti, Opt>) {
     const [value, setValue] = useState(initialValue);
     const [lastOptions, setLastOptions] = useState<Record<string, Opt>>(
         cacheId ? (cache[cacheId] ?? {}) : {}
@@ -129,7 +99,11 @@ export default function AsyncRSelectWidget<
 
     const loadOptionsWrapper: typeof loadOptions =
         !isDisabled && loadOptions
-            ? async (inputValue: string, loadedOptions, additional) => {
+            ? async (
+                  inputValue: string,
+                  loadedOptions: any,
+                  additional: any
+              ) => {
                   const result = await loadOptions(
                       inputValue,
                       loadedOptions,

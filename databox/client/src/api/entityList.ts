@@ -1,27 +1,36 @@
 import {apiClient} from '../init.ts';
 import {EntityList} from '../types';
-import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
+import {
+    NormalizedCollectionResponse,
+    getHydraCollection,
+    createIriFromId,
+} from '@alchemy/api';
 import {SortWay} from './common.ts';
-import {PaginationParams} from './types.ts';
+import {EntityName, QueryAndPaginationParams} from './types.ts';
 
-export const entityTypeNS = '/entity-lists';
+export const entityTypeNS = EntityName.EntityList;
 
 type EntityListOptions = {
-    query?: string;
     workspace?: string;
     workspaceId: string;
-} & PaginationParams;
+} & QueryAndPaginationParams;
 
 export async function getEntityLists({
     workspaceId,
     nextUrl,
+    query,
     ...options
 }: EntityListOptions): Promise<NormalizedCollectionResponse<EntityList>> {
-    const res = await apiClient.get(nextUrl ?? entityTypeNS, {
+    const res = await apiClient.get(nextUrl ?? EntityName.EntityList, {
         params: {
             ...(options ?? {}),
+            ...(query
+                ? {
+                      name: query,
+                  }
+                : {}),
             workspace: workspaceId,
-            [`order[value]`]: SortWay.ASC,
+            [`order[name]`]: SortWay.ASC,
         },
     });
 
@@ -32,9 +41,9 @@ export async function postEntityList(
     workspaceId: string,
     data: Partial<EntityList>
 ): Promise<EntityList> {
-    const res = await apiClient.post(entityTypeNS, {
+    const res = await apiClient.post(EntityName.EntityList, {
         ...data,
-        workspace: `/workspaces/${workspaceId}`,
+        workspace: createIriFromId(EntityName.Workspace, workspaceId),
     });
 
     return res.data;
@@ -44,13 +53,13 @@ export async function putEntityList(
     id: string,
     data: Partial<EntityList>
 ): Promise<EntityList> {
-    const res = await apiClient.put(`${entityTypeNS}/${id}`, data);
+    const res = await apiClient.put(`${EntityName.EntityList}/${id}`, data);
 
     return res.data;
 }
 
 export async function deleteEntityList(id: string): Promise<void> {
-    await apiClient.delete(`${entityTypeNS}/${id}`);
+    await apiClient.delete(`${EntityName.EntityList}/${id}`);
 }
 
 export async function exportEntities(
@@ -61,7 +70,7 @@ export async function exportEntities(
     }
 ): Promise<void> {
     const response = await apiClient.post(
-        `${entityTypeNS}/${listId}/export`,
+        `${EntityName.EntityList}/${listId}/export`,
         options,
         {
             responseType: 'blob',
@@ -88,7 +97,7 @@ export async function importEntities(
     format: string,
     data: string
 ): Promise<void> {
-    await apiClient.post(`${entityTypeNS}/${listId}/import`, {
+    await apiClient.post(`${EntityName.EntityList}/${listId}/import`, {
         format,
         data,
     });

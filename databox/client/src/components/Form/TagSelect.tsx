@@ -1,17 +1,19 @@
 import {Tag} from '../../types';
-import {getTags, tagNS} from '../../api/tag';
+import {getTags} from '../../api/tag';
 import {FieldValues} from 'react-hook-form';
 import {
     AsyncRSelectWidget,
     AsyncRSelectProps,
     SelectOption,
-    LoadPaginated,
 } from '@alchemy/react-form';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
 import React from 'react';
 import {useEntitiesStore} from '../../store/entitiesStore.ts';
 import {getTagColorStyle} from '../Media/Asset/Facets/TagColor.tsx';
 import {useTheme} from '@mui/material';
+import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
+import {EntityName} from '../../api/types.ts';
+import {createIriFromId} from '@alchemy/api';
 
 type TagOption = Readonly<{
     item: Tag;
@@ -22,7 +24,7 @@ type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;
     useIRI?: boolean;
     multiple: IsMulti;
-} & AsyncRSelectProps<TFieldValues, IsMulti>;
+} & AsyncRSelectProps<TFieldValues, IsMulti, TagOption>;
 
 export default function TagSelect<
     TFieldValues extends FieldValues,
@@ -40,35 +42,22 @@ export default function TagSelect<
 
     const workspaceId = wsId ?? workspaceContext?.workspaceId;
 
-    const load: LoadPaginated<TagOption> = async (
-        inputValue: string,
-        nextUrl?: string
-    ) => {
-        const data = await getTags({
-            nextUrl,
-            workspace: workspaceId,
-            query: inputValue,
-        });
+    const {loadOptions} = usePaginatedSelectLoader({
+        load: props =>
+            getTags({
+                ...props,
+                workspace: workspaceId,
+            }),
+        map: t => {
+            store(t['@id'], t);
 
-        return {
-            result: data.result
-                .map((t: Tag) => {
-                    store(t['@id'], t);
-
-                    return {
-                        value: useIRI ? `${tagNS}/${t.id}` : t.id,
-                        label: t.displayName,
-                        item: t,
-                    } as TagOptions;
-                })
-                .filter(i =>
-                    i.label
-                        .toLowerCase()
-                        .includes((inputValue || '').toLowerCase())
-                ),
-            next: data.next,
-        };
-    };
+            return {
+                value: useIRI ? createIriFromId(EntityName.Tag, t.id) : t.id,
+                label: t.displayName,
+                item: t,
+            } as TagOption;
+        },
+    });
 
     const tagStyle = (_base: any, state: any) => {
         return (state.data as TagOption).item?.color
@@ -88,18 +77,20 @@ export default function TagSelect<
     };
 
     return (
-        <AsyncRSelectWidget
+        <AsyncRSelectWidget<TFieldValues, IsMulti, TagOption>
             cacheId={'tags'}
             {...rest}
-            loadPaginated={load}
+            loadOptions={loadOptions}
             isMulti={multiple}
             key={workspaceId}
-            styles={{
-                singleValue: tagStyle,
-                multiValueLabel: tagStyle,
-                option: tagStyle,
-                ...(styles ?? {}),
-            }}
+            styles={
+                {
+                    singleValue: tagStyle as any,
+                    multiValueLabel: tagStyle as any,
+                    option: tagStyle as any,
+                    ...(styles ?? {}),
+                } as any
+            }
         />
     );
 }

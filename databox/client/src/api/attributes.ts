@@ -7,7 +7,11 @@ import {
 } from '../types';
 import {apiClient} from '../init.ts';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
-import {EntityName, PaginationParams} from './types.ts';
+import {
+    EntityName,
+    PaginationParams,
+    QueryAndPaginationParams,
+} from './types.ts';
 
 export async function putAttributeDefinition(
     id: string | undefined,
@@ -42,10 +46,15 @@ export async function postAttributePolicy(
     return (await apiClient.post(EntityName.AttributePolicy, data)).data;
 }
 
-export async function getAttributePolicies(
-    workspaceId: string
-): Promise<NormalizedCollectionResponse<AttributePolicy>> {
-    const res = await apiClient.get(EntityName.AttributePolicy, {
+export async function getAttributePolicies({
+    workspaceId,
+    nextUrl,
+}: {
+    workspaceId: string;
+} & QueryAndPaginationParams): Promise<
+    NormalizedCollectionResponse<AttributePolicy>
+> {
+    const res = await apiClient.get(nextUrl ?? EntityName.AttributePolicy, {
         params: {
             workspaceId,
         },

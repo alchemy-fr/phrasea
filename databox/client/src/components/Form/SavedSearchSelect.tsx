@@ -1,14 +1,9 @@
-import {useCallback} from 'react';
 import {FieldValues} from 'react-hook-form';
-import {
-    AsyncRSelectProps,
-    AsyncRSelectWidget,
-    SelectOption,
-} from '@alchemy/react-form';
-import {SavedSearch} from '../../types.ts';
+import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
 import {getSavedSearches} from '../../api/savedSearch.ts';
 import {EntityName} from '../../api/types.ts';
 import {createIriFromId} from '@alchemy/api';
+import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
 
 type Props<TFieldValues extends FieldValues> = {
     useIRI?: boolean;
@@ -18,35 +13,27 @@ export default function SavedSearchSelect<TFieldValues extends FieldValues>({
     useIRI,
     ...rest
 }: Props<TFieldValues>) {
-    const load = useCallback(
-        async (inputValue: string): Promise<SelectOption[]> => {
-            const data = await getSavedSearches({
-                query: inputValue,
-            });
-
-            return data.result
-                .map((t: SavedSearch) => {
-                    return {
-                        value: useIRI
-                            ? createIriFromId(EntityName.SavedSearch, t.id)
-                            : t.id,
-                        label: t.name,
-                    };
-                })
-                .filter(i =>
-                    i.label
-                        .toLowerCase()
-                        .includes((inputValue || '').toLowerCase())
-                );
+    const {loadOptions} = usePaginatedSelectLoader({
+        load: props =>
+            getSavedSearches({
+                ...props,
+            }),
+        map: t => {
+            return {
+                value: useIRI
+                    ? createIriFromId(EntityName.SavedSearch, t.id)
+                    : t.id,
+                label: t.name,
+            };
         },
-        []
-    );
+        filterLabels: true,
+    });
 
     return (
         <AsyncRSelectWidget<TFieldValues>
             cacheId={'saved-searches'}
             {...rest}
-            loadOptions={load}
+            loadOptions={loadOptions}
         />
     );
 }

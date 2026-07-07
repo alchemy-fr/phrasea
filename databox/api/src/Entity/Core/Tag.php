@@ -65,6 +65,9 @@ use Symfony\Component\Validator\Constraints\Length;
     ]],
     input: TagInput::class,
     output: TagOutput::class,
+    order: [
+        'name' => 'ASC',
+    ],
     provider: TagCollectionProvider::class,
 )]
 #[ORM\Table]

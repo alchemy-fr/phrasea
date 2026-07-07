@@ -59,4 +59,9 @@ class AssetStatusAttributeType extends KeywordAttributeType
     {
         return true;
     }
+
+    public function isListed(): bool
+    {
+        return false;
+    }
 }

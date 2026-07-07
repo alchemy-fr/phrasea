@@ -359,7 +359,12 @@ export default function IntegrationManager({
             }
             itemComponent={Item}
             listComponent={ListItem}
-            load={() => getWorkspaceIntegrations(workspace.id)}
+            load={({filters: _f, ...qapParams}) =>
+                getWorkspaceIntegrations({
+                    ...qapParams,
+                    workspaceId: workspace.id,
+                })
+            }
             workspace={workspace}
             minHeight={minHeight}
             onClose={onClose}

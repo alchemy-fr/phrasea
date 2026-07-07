@@ -1,15 +1,10 @@
-import {useCallback} from 'react';
 import {FieldValues} from 'react-hook-form';
 import {getRenditionDefinitions} from '../../api/rendition';
-import {RenditionDefinition} from '../../types';
-import {
-    AsyncRSelectWidget,
-    SelectOption,
-    AsyncRSelectProps,
-} from '@alchemy/react-form';
+import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
 import {useEntitiesStore} from '../../store/entitiesStore.ts';
 import {createIriFromId} from '@alchemy/api';
 import {EntityName} from '../../api/types.ts';
+import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId?: string;
@@ -21,40 +16,30 @@ export default function RenditionDefinitionSelect<
 >({workspaceId, useIRI, ...rest}: Props<TFieldValues>) {
     const store = useEntitiesStore(s => s.store);
 
-    const load = useCallback(
-        async (inputValue: string): Promise<SelectOption[]> => {
-            const data = await getRenditionDefinitions({
+    const {loadOptions} = usePaginatedSelectLoader({
+        load: props =>
+            getRenditionDefinitions({
+                ...props,
                 workspaceIds: workspaceId ? [workspaceId] : undefined,
-            });
+            }),
+        map: t => {
+            store(t['@id'], t);
 
-            return data.result
-                .map((t: RenditionDefinition) => {
-                    store(t['@id'], t);
-
-                    return {
-                        value: useIRI
-                            ? createIriFromId(
-                                  EntityName.RenditionDefinition,
-                                  t.id
-                              )
-                            : t.id,
-                        label: t.displayName,
-                    };
-                })
-                .filter(i =>
-                    i.label
-                        .toLowerCase()
-                        .includes((inputValue || '').toLowerCase())
-                );
+            return {
+                value: useIRI
+                    ? createIriFromId(EntityName.RenditionDefinition, t.id)
+                    : t.id,
+                label: t.displayName,
+            };
         },
-        []
-    );
+        filterLabels: true,
+    });
 
     return (
         <AsyncRSelectWidget<TFieldValues>
             cacheId={'rend-definitions'}
             {...rest}
-            loadOptions={load}
+            loadOptions={loadOptions}
         />
     );
 }

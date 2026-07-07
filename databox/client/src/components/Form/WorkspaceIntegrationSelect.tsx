@@ -1,12 +1,9 @@
-import {useCallback} from 'react';
-import {WorkspaceIntegration} from '../../types';
 import {FieldValues} from 'react-hook-form';
-import {
-    AsyncRSelectProps,
-    AsyncRSelectWidget,
-    SelectOption,
-} from '@alchemy/react-form';
+import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
 import {getWorkspaceIntegrations} from '../../api/integrations.ts';
+import {EntityName} from '../../api/types.ts';
+import {createIriFromId} from '@alchemy/api';
+import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId: string;
@@ -16,29 +13,23 @@ export default function WorkspaceIntegrationSelect<
     TFieldValues extends FieldValues,
     IsMulti extends boolean = false,
 >({workspaceId, ...rest}: Props<TFieldValues, IsMulti>) {
-    const load = useCallback(
-        async (inputValue: string): Promise<SelectOption[]> => {
-            const data = await getWorkspaceIntegrations(workspaceId);
-
-            return data.result
-                .map((t: WorkspaceIntegration) => ({
-                    value: `/integrations/${t.id}`,
-                    label: t.name || t.integrationName,
-                }))
-                .filter(i =>
-                    i.label
-                        .toLowerCase()
-                        .includes((inputValue || '').toLowerCase())
-                );
-        },
-        []
-    );
+    const {loadOptions} = usePaginatedSelectLoader({
+        load: props =>
+            getWorkspaceIntegrations({
+                ...props,
+                workspaceId,
+            }),
+        map: t => ({
+            value: createIriFromId(EntityName.Integration, t.id),
+            label: t.name || t.integrationName,
+        }),
+    });
 
     return (
         <AsyncRSelectWidget<TFieldValues, IsMulti>
             cacheId={'wk-integrations'}
             {...rest}
-            loadOptions={load}
+            loadOptions={loadOptions}
         />
     );
 }

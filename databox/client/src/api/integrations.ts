@@ -7,9 +7,11 @@ import {
 } from '../types';
 import {apiClient} from '../init.ts';
 import {AxiosRequestConfig} from 'axios';
-
-export const integrationNS = '/integrations';
-export const integrationTypeNS = '/integration-types';
+import {
+    EntityName,
+    PaginationParams,
+    QueryAndPaginationParams,
+} from './types.ts';
 
 export enum IntegrationContext {
     AssetView = 'asset-view',
@@ -26,7 +28,7 @@ export async function getIntegrationsOfContext(
     workspaceId?: string | undefined,
     data: Record<string, any> = {}
 ): Promise<NormalizedCollectionResponse<WorkspaceIntegration>> {
-    const res = await apiClient.get(integrationNS, {
+    const res = await apiClient.get(EntityName.Integration, {
         params: {
             context,
             enabled: true,
@@ -44,7 +46,7 @@ export async function getWorkspaceIntegrationData(
     config?: AxiosRequestConfig
 ): Promise<NormalizedCollectionResponse<IntegrationData>> {
     const res = await apiClient.get(
-        next || `${integrationNS}/${integrationId}/data`,
+        next || `${EntityName.Integration}/${integrationId}/data`,
         config
     );
 
@@ -57,7 +59,7 @@ export async function getIntegrationTokens(
     config?: AxiosRequestConfig
 ): Promise<NormalizedCollectionResponse<IntegrationToken>> {
     const res = await apiClient.get(
-        next || `${integrationNS}/${integrationId}/tokens`,
+        next || `${EntityName.Integration}/${integrationId}/tokens`,
         config
     );
 
@@ -80,12 +82,14 @@ export async function runIntegrationAction(
     ).data;
 }
 
-export async function getWorkspaceIntegrations(
-    workspaceId: string
-): Promise<NormalizedCollectionResponse<WorkspaceIntegration>> {
+export async function getWorkspaceIntegrations({
+    workspaceId,
+}: {workspaceId: string} & PaginationParams): Promise<
+    NormalizedCollectionResponse<WorkspaceIntegration>
+> {
     return getHydraCollection(
         (
-            await apiClient.get(integrationNS, {
+            await apiClient.get(EntityName.Integration, {
                 params: {
                     workspace: workspaceId,
                     limit: 100,
@@ -97,15 +101,19 @@ export async function getWorkspaceIntegrations(
 
 export async function getIntegrationType(id: string): Promise<IntegrationType> {
     return (
-        await apiClient.get(`${integrationTypeNS}/${id.replace(/\./g, '--')}`)
+        await apiClient.get(
+            `${EntityName.IntegrationType}/${id.replace(/\./g, '--')}`
+        )
     ).data;
 }
 
-export async function getIntegrationTypes(): Promise<
+export async function getIntegrationTypes({
+    nextUrl,
+}: QueryAndPaginationParams): Promise<
     NormalizedCollectionResponse<IntegrationType>
 > {
     return getHydraCollection(
-        (await apiClient.get(`${integrationTypeNS}`)).data
+        (await apiClient.get(nextUrl ?? EntityName.IntegrationType)).data
     );
 }
 
@@ -115,15 +123,15 @@ export async function putIntegration(
 ): Promise<WorkspaceIntegration> {
     delete data.workspace;
 
-    return (await apiClient.put(`${integrationNS}/${id}`, data)).data;
+    return (await apiClient.put(`${EntityName.Integration}/${id}`, data)).data;
 }
 
 export async function postIntegration(
     data: WorkspaceIntegration
 ): Promise<WorkspaceIntegration> {
-    return (await apiClient.post(integrationNS, data)).data;
+    return (await apiClient.post(EntityName.Integration, data)).data;
 }
 
 export async function deleteIntegration(id: string): Promise<void> {
-    await apiClient.delete(`${integrationNS}/${id}`);
+    await apiClient.delete(`${EntityName.Integration}/${id}`);
 }

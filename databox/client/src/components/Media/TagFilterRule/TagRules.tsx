@@ -14,10 +14,11 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
-import {tagNS} from '../../../api/tag';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import GroupIcon from '@mui/icons-material/Group';
 import {useTranslation} from 'react-i18next';
+import {EntityName} from '../../../api/types.ts';
+import {createIriFromId} from '@alchemy/api';
 
 type Props = {
     id: string;
@@ -107,11 +108,17 @@ export default function TagRules({type, workspaceId, id}: Props) {
                                     <FilterRule
                                         data={{
                                             ...r,
-                                            include: r.include.map(
-                                                i => `${tagNS}/${i.id}`
+                                            include: r.include.map(i =>
+                                                createIriFromId(
+                                                    EntityName.Tag,
+                                                    i.id
+                                                )
                                             ),
-                                            exclude: r.exclude.map(
-                                                i => `${tagNS}/${i.id}`
+                                            exclude: r.exclude.map(i =>
+                                                createIriFromId(
+                                                    EntityName.Tag,
+                                                    i.id
+                                                )
                                             ),
                                         }}
                                         type={type}

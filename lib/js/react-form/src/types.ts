@@ -125,17 +125,6 @@ export type RSelectOnCreate<Opt extends SelectOption> = (
     onCreate: (option: Opt) => void
 ) => void;
 
-type PaginatedResults<Opt extends SelectOption> = {
-    next?: string;
-    last?: string;
-    result: Opt[];
-};
-
-export type LoadPaginated<Opt extends SelectOption = SelectOption> = (
-    inputValue: string,
-    nextUrl?: string
-) => Promise<PaginatedResults<Opt>>;
-
 export type SelectLoadOptions<Opt extends SelectOption = SelectOption> =
     LoadOptions<Opt, GroupBase<Opt>, SelectPaginationData>;
 
@@ -149,7 +138,7 @@ export type CompositeValue<IsMulti extends boolean> = IsMulti extends true
     : string | undefined;
 
 export type SelectPaginationData = {
-    nextUrl?: string | null | undefined;
+    nextUrl?: string;
 };
 export type AsyncPaginateCreatableProps<
     OptionType,
@@ -179,3 +168,37 @@ export type AsyncPaginateType = <
 >(
     props: AsyncPaginateProps<OptionType, IsMulti, Group>
 ) => ReactElement;
+
+export type AsyncRSelectProps<
+    TFieldValues extends FieldValues,
+    IsMulti extends boolean,
+    Opt extends SelectOption = SelectOption,
+> = (
+    | {
+          control: Control<TFieldValues>;
+          name: FieldPath<TFieldValues>;
+      }
+    | {
+          control?: never;
+          name?: string;
+      }
+) & {
+    error?: boolean | undefined;
+    cacheId?: string;
+    disabledValues?: string[];
+    clearOnSelect?: boolean;
+    disabled?: boolean | undefined;
+    cacheOptions?: any;
+    onCreate?: RSelectOnCreate<Opt>;
+    label?: ReactNode;
+    inputHeight?: number;
+    menuWidth?: number;
+    loadOptions?: AsyncPaginateCreatableProps<
+        Opt,
+        IsMulti,
+        GroupBase<Opt>
+    >['loadOptions'];
+} & Omit<
+        AsyncPaginateCreatableProps<Opt, IsMulti, GroupBase<Opt>>,
+        'loadOptions'
+    >;

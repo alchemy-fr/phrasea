@@ -1,16 +1,15 @@
 import {apiClient} from '../init.ts';
 import {AttributeEntity} from '../types';
-import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
+import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 import {SortWay} from './common.ts';
-import {PaginationParams} from './types.ts';
+import {QueryAndPaginationParams} from './types.ts';
 import {getBestTranslatedValue} from '@alchemy/i18n/src/Locale/localeHelper.ts';
 
 const attributeEntityNS = '/attribute-entities';
 
 type AttributeEntityOptions = {
-    value?: string;
     list?: string;
-} & PaginationParams;
+} & QueryAndPaginationParams;
 
 export type FormatAttributeEntityLabelOptions = {
     noTranslate?: boolean;

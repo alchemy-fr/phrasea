@@ -18,6 +18,7 @@ field_type:
         textarea: Textarea
         id: ID
         privacy: Privacy
+        asset_status: Asset status
 privacy:
     secret: Secret
     private_in_workspace: 'Private in workspace'

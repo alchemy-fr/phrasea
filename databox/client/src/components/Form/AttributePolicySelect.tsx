@@ -1,14 +1,10 @@
-import {useCallback} from 'react';
 import {AttributePolicy} from '../../types';
 import {FieldValues} from 'react-hook-form';
 import {getAttributePolicies} from '../../api/attributes';
-import {
-    AsyncRSelectWidget,
-    SelectOption,
-    AsyncRSelectProps,
-} from '@alchemy/react-form';
+import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
 import {EntityName} from '../../api/types.ts';
 import {createIriFromId} from '@alchemy/api';
+import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
@@ -17,29 +13,24 @@ type Props<TFieldValues extends FieldValues> = {
 export default function AttributePolicySelect<
     TFieldValues extends FieldValues,
 >({workspaceId, ...rest}: Props<TFieldValues>) {
-    const load = useCallback(
-        async (inputValue: string): Promise<SelectOption[]> => {
-            const data = (await getAttributePolicies(workspaceId)).result;
-
-            return data
-                .map((t: AttributePolicy) => ({
-                    value: createIriFromId(EntityName.AttributePolicy, t.id),
-                    label: t.name,
-                }))
-                .filter(i =>
-                    i.label
-                        .toLowerCase()
-                        .includes((inputValue || '').toLowerCase())
-                );
-        },
-        []
-    );
+    const {loadOptions} = usePaginatedSelectLoader({
+        load: props =>
+            getAttributePolicies({
+                ...props,
+                workspaceId,
+            }),
+        map: (t: AttributePolicy) => ({
+            value: createIriFromId(EntityName.AttributePolicy, t.id),
+            label: t.name,
+        }),
+        filterLabels: true,
+    });
 
     return (
-        <AsyncRSelectWidget<TFieldValues>
+        <AsyncRSelectWidget
             cacheId={'attr-classes'}
             {...rest}
-            loadOptions={load}
+            loadOptions={loadOptions}
         />
     );
 }

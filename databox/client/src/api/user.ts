@@ -2,13 +2,10 @@ import {apiClient} from '../init.ts';
 import {Group, User} from '../types';
 import {AxiosRequestConfig} from 'axios';
 import {UserPreferences} from '../store/userPreferencesStore.ts';
-
-type QueryOptions = {
-    query?: string;
-};
+import {QueryAndPaginationParams} from './types.ts';
 
 export async function getUsers(
-    options: QueryOptions = {},
+    options: QueryAndPaginationParams = {},
     config: AxiosRequestConfig = {}
 ): Promise<User[]> {
     const res = await apiClient.get(`/permissions/users`, {
@@ -19,7 +16,9 @@ export async function getUsers(
     return res.data;
 }
 
-export async function getGroups(options: QueryOptions = {}): Promise<Group[]> {
+export async function getGroups(
+    options: QueryAndPaginationParams = {}
+): Promise<Group[]> {
     const res = await apiClient.get(`/permissions/groups`, {
         params: options.query ? {query: options.query} : undefined,
     });

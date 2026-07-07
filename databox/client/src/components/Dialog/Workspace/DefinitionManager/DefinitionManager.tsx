@@ -60,17 +60,18 @@ import {
 import {SortableListItem} from './SortableListItem.tsx';
 import ListItemContainer from './ListItemContainer.tsx';
 import {isEmpty, logError} from '@alchemy/core';
+import {QueryAndPaginationParams} from '../../../../api/types.ts';
 
 type Props<
     D extends DefinitionBase,
     F extends Filters,
     EP extends DefinitionManagerExtraProps,
 > = {
-    load: (props: {
-        nextUrl?: string;
-        query?: string;
-        filters: F;
-    }) => Promise<NormalizedCollectionResponse<D>>;
+    load: (
+        props: {
+            filters: F;
+        } & QueryAndPaginationParams
+    ) => Promise<NormalizedCollectionResponse<D>>;
     loadItem?: (id: string) => Promise<D>;
     listComponent: FunctionComponent<DefinitionListItemProps<D>>;
     itemComponent: FunctionComponent<DefinitionItemFormProps<D, EP>>;

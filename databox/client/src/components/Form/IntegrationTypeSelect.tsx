@@ -1,12 +1,8 @@
-import {useCallback} from 'react';
 import {IntegrationType} from '../../types';
 import {FieldValues} from 'react-hook-form';
-import {
-    AsyncRSelectProps,
-    AsyncRSelectWidget,
-    SelectOption,
-} from '@alchemy/react-form';
+import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
 import {getIntegrationTypes} from '../../api/integrations.ts';
+import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
 
 type Props<TFieldValues extends FieldValues> = {} & AsyncRSelectProps<
     TFieldValues,
@@ -16,29 +12,20 @@ type Props<TFieldValues extends FieldValues> = {} & AsyncRSelectProps<
 export default function IntegrationTypeSelect<
     TFieldValues extends FieldValues,
 >({...rest}: Props<TFieldValues>) {
-    const load = useCallback(
-        async (inputValue: string): Promise<SelectOption[]> => {
-            const data = await getIntegrationTypes();
-
-            return data.result
-                .map((t: IntegrationType) => ({
-                    value: t.id,
-                    label: t.displayName,
-                }))
-                .filter(i =>
-                    i.label
-                        .toLowerCase()
-                        .includes((inputValue || '').toLowerCase())
-                );
-        },
-        []
-    );
+    const {loadOptions} = usePaginatedSelectLoader({
+        load: props => getIntegrationTypes(props),
+        map: (t: IntegrationType) => ({
+            value: t.id,
+            label: t.displayName,
+        }),
+        filterLabels: true,
+    });
 
     return (
         <AsyncRSelectWidget<TFieldValues>
             cacheId={'integration-types'}
             {...rest}
-            loadOptions={load}
+            loadOptions={loadOptions}
         />
     );
 }

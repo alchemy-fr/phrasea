@@ -1,14 +1,10 @@
 import {FieldValues} from 'react-hook-form';
-import {
-    AsyncRSelectProps,
-    AsyncRSelectWidget,
-    SelectOption,
-} from '@alchemy/react-form';
+import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
 import {useAttributeDefinitionStore} from '../../store/attributeDefinitionStore.ts';
-import {useCallback} from 'react';
 import {AttributeDefinition, Workspace} from '../../types.ts';
 import {EntityName} from '../../api/types.ts';
 import {createIriFromId} from '@alchemy/api';
+import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;
@@ -21,33 +17,31 @@ export default function AttributeDefinitionSelect<
     const definitions = useAttributeDefinitionStore(s => s.definitions);
     const loadWorkspace = useAttributeDefinitionStore(s => s.loadWorkspace);
 
-    const load = useCallback(
-        async (inputValue: string): Promise<SelectOption[]> => {
+    const {loadOptions} = usePaginatedSelectLoader<AttributeDefinition>({
+        load: async () => {
             if (workspaceId) {
                 loadWorkspace(workspaceId);
             }
 
-            return definitions
-                .filter(d => (d.workspace as Workspace)?.id === workspaceId)
-                .map((t: AttributeDefinition) => {
-                    return {
-                        value: useIRI
-                            ? createIriFromId(
-                                  EntityName.AttributeDefinition,
-                                  t.id
-                              )
-                            : t.id,
-                        label: t.displayName,
-                    };
-                })
-                .filter(i =>
-                    i.label
-                        .toLowerCase()
-                        .includes((inputValue || '').toLowerCase())
-                );
-        },
-        [workspaceId, useIRI]
-    );
+            const result = definitions.filter(
+                d => (d.workspace as Workspace)?.id === workspaceId
+            );
 
-    return <AsyncRSelectWidget<TFieldValues> {...rest} loadOptions={load} />;
+            return {
+                result,
+                total: result.length,
+            };
+        },
+        map: t => ({
+            value: useIRI
+                ? createIriFromId(EntityName.AttributeDefinition, t.id)
+                : t.id,
+            label: t.displayName,
+        }),
+        filterLabels: true,
+    });
+
+    return (
+        <AsyncRSelectWidget<TFieldValues> {...rest} loadOptions={loadOptions} />
+    );
 }
