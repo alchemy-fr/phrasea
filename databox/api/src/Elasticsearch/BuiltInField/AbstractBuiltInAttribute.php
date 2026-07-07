@@ -151,11 +151,6 @@ abstract class AbstractBuiltInAttribute implements BuiltInAttributeInterface
         return $value;
     }
 
-    public function createFilterQuery(mixed $value, array $options): ?Query\AbstractQuery
-    {
-        return null;
-    }
-
     public function isEnabled(): bool
     {
         return true;

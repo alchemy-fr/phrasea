@@ -14,6 +14,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use App\Security\Voter\DataboxExtraPermissionInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
 final class AssetPermissionComputer
@@ -84,6 +85,8 @@ final class AssetPermissionComputer
         $groups = [];
         $deleteUsers = [];
         $deleteGroups = [];
+        $quarantineUsers = [];
+        $quarantineGroups = [];
 
         $aces = $this->permissionManager->getObjectAces($asset);
         foreach ($aces as $access) {
@@ -104,6 +107,14 @@ final class AssetPermissionComputer
                     $deleteGroups[] = $userId;
                 }
             }
+
+            if ($access->hasPermission(DataboxExtraPermissionInterface::PERM_QUARANTINE)) {
+                if ($isUser) {
+                    $quarantineUsers[] = $userId;
+                } else {
+                    $quarantineGroups[] = $userId;
+                }
+            }
         }
 
         if (null !== $asset->getOwnerId()) {
@@ -118,6 +129,8 @@ final class AssetPermissionComputer
         $groups = array_merge($groups, $workspaceInfo->groups);
         $deleteUsers = array_merge($deleteUsers, $workspaceInfo->deleteUsers);
         $deleteGroups = array_merge($deleteGroups, $workspaceInfo->deleteGroups);
+        $quarantineUsers = array_merge($quarantineUsers, $workspaceInfo->quarantineUsers);
+        $quarantineGroups = array_merge($quarantineGroups, $workspaceInfo->quarantineGroups);
 
         foreach ($asset->getCollections() as $collectionAsset) {
             $collection = $collectionAsset->getCollection();
@@ -155,6 +168,8 @@ final class AssetPermissionComputer
                 $groups = array_merge($groups, $storyPermissions->groups);
                 $deleteUsers = array_merge($deleteUsers, $storyPermissions->deleteUsers);
                 $deleteGroups = array_merge($deleteGroups, $storyPermissions->deleteGroups);
+                $quarantineUsers = array_merge($quarantineUsers, $storyPermissions->quarantineUsers);
+                $quarantineGroups = array_merge($quarantineGroups, $storyPermissions->quarantineGroups);
                 $collectionsPaths = array_merge($collectionsPaths, $storyPermissions->collectionPaths);
             } else {
                 $collectionsPaths[] = $collectionInfo->absolutePath;
@@ -167,6 +182,8 @@ final class AssetPermissionComputer
             array_values(array_unique($groups)),
             array_values(array_unique($deleteUsers)),
             array_values(array_unique($deleteGroups)),
+            array_values(array_unique($quarantineUsers)),
+            array_values(array_unique($quarantineGroups)),
             array_values(array_unique($collectionsPaths)),
             array_values(array_unique($stories)),
         );
@@ -187,6 +204,8 @@ final class AssetPermissionComputer
         $groups = [];
         $deleteUsers = [];
         $deleteGroups = [];
+        $quarantineUsers = [];
+        $quarantineGroups = [];
 
         if (null !== $workspace->getOwnerId()) {
             $users[] = $workspace->getOwnerId();
@@ -214,6 +233,15 @@ final class AssetPermissionComputer
                     $deleteGroups[] = $userId;
                 }
             }
+
+            if ($access->hasPermission(DataboxExtraPermissionInterface::PERM_QUARANTINE)
+                || $access->hasPermission(PermissionInterface::OWNER)) {
+                if ($isUser) {
+                    $quarantineUsers[] = $userId;
+                } else {
+                    $quarantineGroups[] = $userId;
+                }
+            }
         }
 
         return new WorkspacePermissionsDTO(
@@ -221,6 +249,8 @@ final class AssetPermissionComputer
             array_values(array_unique($groups)),
             array_values(array_unique($deleteUsers)),
             array_values(array_unique($deleteGroups)),
+            array_values(array_unique($quarantineUsers)),
+            array_values(array_unique($quarantineGroups)),
         );
     }
 
@@ -240,6 +270,8 @@ final class AssetPermissionComputer
         $groups = [];
         $deleteUsers = [];
         $deleteGroups = [];
+        $quarantineUsers = [];
+        $quarantineGroups = [];
 
         if ($bestPrivacyInParentHierarchy < WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS) {
             if (!$collection->isStory() && null !== $collection->getOwnerId()) {
@@ -268,6 +300,14 @@ final class AssetPermissionComputer
                         $deleteGroups[] = $userId;
                     }
                 }
+
+                if ($access->hasPermission(DataboxExtraPermissionInterface::PERM_QUARANTINE)) {
+                    if ($isUser) {
+                        $quarantineUsers[] = $userId;
+                    } else {
+                        $quarantineGroups[] = $userId;
+                    }
+                }
             }
 
             if (null !== $parent = $collection->getParent()) {
@@ -276,6 +316,8 @@ final class AssetPermissionComputer
                 $groups = array_merge($groups, $parentInfo->groups);
                 $deleteUsers = array_merge($deleteUsers, $parentInfo->deleteUsers);
                 $deleteGroups = array_merge($deleteGroups, $parentInfo->deleteGroups);
+                $quarantineUsers = array_merge($quarantineUsers, $parentInfo->quarantineUsers);
+                $quarantineGroups = array_merge($quarantineGroups, $parentInfo->quarantineGroups);
             }
         }
 
@@ -286,6 +328,8 @@ final class AssetPermissionComputer
             array_values(array_unique($groups)),
             array_values(array_unique($deleteUsers)),
             array_values(array_unique($deleteGroups)),
+            array_values(array_unique($quarantineUsers)),
+            array_values(array_unique($quarantineGroups)),
         );
     }
 }

@@ -12,6 +12,8 @@ final readonly class AssetPermissionsDTO
         public array $groups,
         public array $deleteUsers,
         public array $deleteGroups,
+        public array $quarantineUsers,
+        public array $quarantineGroups,
         public array $collectionPaths,
         public array $stories,
     ) {
@@ -25,6 +27,8 @@ final readonly class AssetPermissionsDTO
             'groups' => $this->groups,
             'deleteGroups' => $this->deleteGroups,
             'deleteUsers' => $this->deleteUsers,
+            'quarantineGroups' => $this->quarantineGroups,
+            'quarantineUsers' => $this->quarantineUsers,
             'collectionPaths' => $this->collectionPaths,
             'stories' => $this->stories,
         ];

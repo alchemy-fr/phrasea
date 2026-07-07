@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Attribute\Type;
 
 use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\Type\AssetStatusAttributeType;
 use App\Attribute\Type\BooleanAttributeType;
 use App\Attribute\Type\DateAttributeType;
 use App\Attribute\Type\DateTimeAttributeType;
@@ -26,6 +27,7 @@ class AttributeTypeRegistryTestFactory
             new DateTimeAttributeType(),
             new DateAttributeType(),
             new BooleanAttributeType(),
+            new AssetStatusAttributeType(),
         ] as $service) {
             $iterator[$service::getName()] = $service;
         }

@@ -19,6 +19,7 @@ use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\AQL\Function\Argument;
 use App\Elasticsearch\BuiltInField\BuiltInAttributeInterface;
 use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
+use App\Elasticsearch\BuiltInField\CustomFilterQueryBuiltInAttributeInterface;
 use Elastica\Query;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -109,6 +110,7 @@ final readonly class AQLToESQuery
     private function createCriteria(array $field, array $data, array $options): Query\AbstractQuery
     {
         $locale = $options['locale'] ?? '*';
+        /** @var BuiltInAttributeInterface $builtInField */
         $builtInField = $field['builtInField'] ?? null;
 
         $fieldName = str_replace('{l}', $locale, $field['field']);
@@ -144,8 +146,8 @@ final readonly class AQLToESQuery
             $value = null;
         }
 
-        if (null !== $builtInField && null !== $filterQuery = $builtInField->createFilterQuery($value, $options)) {
-            return $filterQuery;
+        if ($builtInField instanceof CustomFilterQueryBuiltInAttributeInterface) {
+            return $builtInField->createFilterQuery($value, $operator, $options);
         }
 
         if ($type instanceof DateTimeAttributeType && null !== $value) {

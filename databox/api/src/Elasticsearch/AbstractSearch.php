@@ -73,7 +73,7 @@ abstract class AbstractSearch
 
         $permittedWorkspaces = array_values(array_unique($permittedWorkspaces));
         if (empty($permittedWorkspaces)) {
-            $workspacesQuery->addMust(new Query\Term(['_id' => '__no_such_id__']));
+            $workspacesQuery->addMust(new Query\Term(['_id' => '__no_allowed_workspace__']));
 
             return $workspacesQuery;
         }

@@ -6,6 +6,7 @@ namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeInterface;
+use App\Elasticsearch\AQL\ConditionOperatorEnum;
 use App\Elasticsearch\BuiltInField\AssetStatusBuiltInField;
 use App\Elasticsearch\BuiltInField\DeletedBuiltInField;
 use App\Entity\Core\Asset;
@@ -142,11 +143,11 @@ class AssetSearch extends AbstractSearch
         }
 
         if (!$hasDeletedFilter) {
-            $filterQueries[] = $this->deletedBuiltInField->createFilterQuery(false, $options);
+            $filterQueries[] = $this->deletedBuiltInField->createFilterQuery(false, ConditionOperatorEnum::EQUALS, $options);
         }
 
         if (!$hasStatusFilter) {
-            $filterQueries[] = $this->assetStatusBuiltInField->createFilterQuery(AssetStatusEnum::Accepted, $options);
+            $filterQueries[] = $this->assetStatusBuiltInField->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options);
         }
 
         $filterQuery = new Query\BoolQuery();

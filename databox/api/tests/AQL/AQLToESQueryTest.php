@@ -13,6 +13,7 @@ use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\AQL\DateNormalizer;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
+use App\Elasticsearch\BuiltInField\AssetStatusBuiltInField;
 use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use App\Elasticsearch\BuiltInField\CreatedAtBuiltInField;
 use App\Elasticsearch\BuiltInField\WorkspaceBuiltInField;
@@ -21,6 +22,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\Service\ServiceLocatorTrait;
 use Symfony\Contracts\Service\ServiceProviderInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AQLToESQueryTest extends TestCase
 {
@@ -32,13 +34,14 @@ class AQLToESQueryTest extends TestCase
         $parser = new AQLParser();
         $result = $parser->parse($expression);
         $em = $this->createMock(EntityManagerInterface::class);
+        $translator = $this->createMock(TranslatorInterface::class);
 
         $functionRegistry = new AQLFunctionRegistry();
         $functionRegistry->register(new MockNowFunction());
 
         $attributeTypeRegistry = AttributeTypeRegistryTestFactory::create();
 
-        $container = new class([WorkspaceBuiltInField::getKey() => fn () => new WorkspaceBuiltInField($em), CreatedAtBuiltInField::getKey() => fn () => new CreatedAtBuiltInField()]) implements ServiceProviderInterface {
+        $container = new class([WorkspaceBuiltInField::getKey() => fn () => new WorkspaceBuiltInField($em), AssetStatusBuiltInField::getKey() => fn () => new AssetStatusBuiltInField($translator), CreatedAtBuiltInField::getKey() => fn () => new CreatedAtBuiltInField()]) implements ServiceProviderInterface {
             use ServiceLocatorTrait;
         };
         $builtInFieldRegistry = new BuiltInAttributeRegistry($container);
@@ -338,6 +341,9 @@ class AQLToESQueryTest extends TestCase
                 'range' => ['createdAt' => [
                     'gt' => (MockNowFunction::VALUE * 8 - 3) * 1000,
                 ]],
+            ]],
+            ['@assetStatus IN (0, 1)', [
+                'terms' => ['status' => [0, 1]],
             ]],
             ['foo MATCHES SUBSTRING("hello", 1, 2)', [
                 'multi_match' => [

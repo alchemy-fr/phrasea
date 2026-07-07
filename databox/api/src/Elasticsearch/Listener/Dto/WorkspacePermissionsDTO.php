@@ -11,6 +11,8 @@ final readonly class WorkspacePermissionsDTO
         public array $groups,
         public array $deleteUsers,
         public array $deleteGroups,
+        public array $quarantineUsers,
+        public array $quarantineGroups,
     ) {
     }
 }
