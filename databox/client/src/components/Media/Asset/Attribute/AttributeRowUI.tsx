@@ -1,7 +1,6 @@
 import {TAttributeFormatContext} from './Format/AttributeFormatContext';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import {IconButton} from '@mui/material';
-import {getAttributeType} from './types';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import CopyAttribute, {copyToClipBoardContainerClass} from './CopyAttribute';
 import {useTranslation} from 'react-i18next';
@@ -18,6 +17,7 @@ import {
 } from './types/types';
 import InvalidAttributeIcon from './InvalidAttributeIcon.tsx';
 import {AttributeType} from '../../../../api/types.ts';
+import {getAttributeType} from './types/getAttributeType.ts';
 
 export type BaseAttributeRowUIProps = {
     assetAnnotationsRef?: AssetAnnotationRef;

@@ -7,7 +7,6 @@ import {
     RegisterOptions,
 } from 'react-hook-form';
 import {InputLabel} from '@mui/material';
-import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from './DatePicker';
 import {DatePickerProps} from '../types';
 

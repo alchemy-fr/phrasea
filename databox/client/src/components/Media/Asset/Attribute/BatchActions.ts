@@ -1,11 +1,11 @@
 import {isSame} from '../../../../utils/comparison';
 import {AttributeIndex, AttrValue, DefinitionIndex} from './AttributesEditor';
-import {getAttributeType} from './types';
 import {NO_LOCALE} from './constants.ts';
 import {
     AttributeBatchAction,
     AttributeBatchActionEnum,
 } from '../../../../api/types.ts';
+import {getAttributeType} from './types/getAttributeType.ts';
 
 export function getBatchActions(
     attributes: AttributeIndex<string | number>,

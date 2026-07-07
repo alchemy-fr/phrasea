@@ -25,7 +25,6 @@
         "types": [
             "vite-plugin-svgr/client",
             "node",
-            "jest",
             "@testing-library/jest-dom"
         ]
     },

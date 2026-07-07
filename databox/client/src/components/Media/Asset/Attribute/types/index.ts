@@ -1,10 +1,6 @@
 import TextType from './TextType';
 import DateType from './DateType';
-import {
-    AttributeFormatterProps,
-    AttributeTypeClass,
-    AttributeTypeInstance,
-} from './types';
+import {AttributeTypeClass} from './types';
 import TextareaType from './TextareaType';
 import JsonType from './JsonType';
 import CodeType from './CodeType';
@@ -15,7 +11,6 @@ import GeoPointType from './GeoPointType';
 import DateTimeType from './DateTimeType';
 import TagsType from './TagsType.tsx';
 import AttributeEntityType from './AttributeEntityType.tsx';
-import {ReactNode} from 'react';
 import WorkspaceType from './WorkspaceType.tsx';
 import CollectionType from './CollectionType.tsx';
 import PrivacyType from './PrivacyType.tsx';
@@ -55,19 +50,3 @@ export const types: {
     [AttributeType.Duration]: DurationType,
     [AttributeType.FileSize]: FileSizeType,
 };
-
-export function getAttributeType(
-    type: AttributeType
-): AttributeTypeInstance<any> {
-    const t = types[type] ?? types[AttributeType.Text]!;
-
-    return new t();
-}
-
-export function formatValue(
-    type: AttributeType,
-    props: AttributeFormatterProps
-): ReactNode | undefined {
-    const attributeType = getAttributeType(type);
-    return attributeType.formatValue(props);
-}

@@ -10,9 +10,9 @@ import {
     AttributeFormat,
     AttributeFormatterOptions,
 } from '../../Media/Asset/Attribute/types/types';
-import {getAttributeType} from '../../Media/Asset/Attribute/types';
 import {useTranslation} from 'react-i18next';
 import {AttributeType} from '../../../api/types.ts';
+import {getAttributeType} from '../../Media/Asset/Attribute/types/getAttributeType.ts';
 
 type Props = PropsWithChildren<{
     groupValue: GroupValue;

@@ -2,8 +2,8 @@ import {RawType} from '../aqlTypes.ts';
 import {TextField, TextFieldProps} from '@mui/material';
 import React from 'react';
 import {AttributeType} from '../../../../../api/types.ts';
-import {getAttributeType} from '../../../Asset/Attribute/types';
 import {AttributeWidgetOptions} from '../../../Asset/Attribute/types/types';
+import {getAttributeType} from '../../../Asset/Attribute/types/getAttributeType.ts';
 
 type Props = {
     type?: AttributeType;

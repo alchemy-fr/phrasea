@@ -12,7 +12,6 @@ import {
     CreateToKeyFunc,
     Values,
 } from './types.ts';
-import {getAttributeType} from '../Media/Asset/Attribute/types';
 import {
     AttributeFormatterOptions,
     AttributeFormatterProps,
@@ -24,6 +23,7 @@ import {AttributeDefinition, StateSetter} from '../../types.ts';
 
 import {createWidgetOptionsFromDefinition} from '../Media/Asset/Attribute/attributeUtils';
 import {nullToUndefined} from '@alchemy/core';
+import {getAttributeType} from '../Media/Asset/Attribute/types/getAttributeType.ts';
 
 type Props<T> = {
     attributeDefinition: AttributeDefinition;

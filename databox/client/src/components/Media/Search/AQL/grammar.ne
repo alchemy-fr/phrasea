@@ -152,7 +152,7 @@ value_sum -> value_product ( _ ("+" | "-") _ value_product):* {% (data) => {
             type: 'value_expression',
             operator,
             leftOperand: l,
-            rightOperand: r
+            rightOperand: r,
         };
     }
 
@@ -194,7 +194,17 @@ identifier -> [a-zA-Z_] [a-zA-Z0-9_-]:* {% d => d[0]+d[1].join('') %}
 builtin_field -> "@" identifier {% d => ({field: "@"+d[1]}) %}
 
 field -> builtin_field {% id %}
-    | identifier {% d => ({field: d[0]}) %}
+    | identifier {% d => {
+    if ('true' === d[0]) {
+        return true;
+    } else if ('false' === d[0]) {
+        return false;
+    } else if ('null' === d[0]) {
+        return null;
+    }
+
+    return {field: d[0]};
+} %}
 
 escape_double -> "\\" ["] {% () => '"' %}
     | escape_backslash {% id %}

@@ -20,11 +20,12 @@ import {hasProp} from '../../../../lib/utils.ts';
 import {AttributeDefinitionIndex} from '../../../AttributeEditor/types.ts';
 import {AttributeDefinitionOrBuiltIn} from '../../../../types.ts';
 import {writeEntity} from './entities.tsx';
-import {GetOrRequestEntity} from '../../../../store/entitiesStore.ts';
 import {TFunction} from '@alchemy/i18n';
 import {createIriFromId} from '@alchemy/api';
-import {getAttributeType} from '../../Asset/Attribute/types';
 import {AttributeFormatterOptions} from '../../Asset/Attribute/types/types';
+
+import {GetOrRequestEntity} from '../../../../store/entitiesStore.ts';
+import {getAttributeType} from '../../Asset/Attribute/types/getAttributeType.ts';
 
 export type AQLQuery = {
     id: string;

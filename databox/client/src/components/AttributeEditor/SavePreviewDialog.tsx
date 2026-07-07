@@ -8,7 +8,7 @@ import React from 'react';
 import {Button} from '@mui/material';
 import {FormError} from '@alchemy/react-form';
 import {getApiResponseError} from '@alchemy/api';
-import {getAttributeType} from '../Media/Asset/Attribute/types';
+import {getAttributeType} from '../Media/Asset/Attribute/types/getAttributeType.ts';
 
 type Props = {
     workspaceId: string;

@@ -4,10 +4,10 @@ import {
     AttributeFormats,
     TAttributeFormatContext,
 } from './AttributeFormatContext';
-import {getAttributeType} from '../types';
 
 import {AttributeType} from '../../../../../api/types.ts';
 import {useTranslation} from 'react-i18next';
+import {getAttributeType} from '../types/getAttributeType.ts';
 
 type Props = PropsWithChildren<{}>;
 
