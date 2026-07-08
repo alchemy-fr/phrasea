@@ -32,6 +32,8 @@ abstract class AbstractBuiltInAttribute implements BuiltInAttributeInterface
                 $values[] = $this->resolveItem($item) ?? $this->resolveLabel($item);
             }
 
+            sort($keys);
+
             return new GroupValue($name, $this->getType(), implode(',', $keys), $values);
         }
 

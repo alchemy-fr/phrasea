@@ -118,7 +118,9 @@ final class CollectionBuiltInField extends AbstractBuiltInAttribute
 
     public function getValueFromAsset(Asset $asset): mixed
     {
-        return $asset->getCollections();
+        return $asset->getCollections()->filter(fn (CollectionAsset $collectionAsset) => !$collectionAsset->getCollection()->isStory()
+            && $this->security->isGranted(AbstractVoter::READ, $collectionAsset->getCollection())
+        );
     }
 
     #[\Override]

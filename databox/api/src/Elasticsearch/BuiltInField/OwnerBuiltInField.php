@@ -23,24 +23,6 @@ final class OwnerBuiltInField extends AbstractBuiltInAttribute
     }
 
     #[\Override]
-    public function denormalizeValue(?string $value): mixed
-    {
-        if (empty($value)) {
-            return null;
-        }
-
-        $users = $this->userRepository->getUsersByIds([$value]);
-        if (empty($users)) {
-            return null;
-        }
-
-        return [
-            'id' => $value,
-            'username' => $this->resolveLabel($users[$value]),
-        ];
-    }
-
-    #[\Override]
     public function normalizeBuckets(array $buckets): array
     {
         $users = $this->userRepository->getUsersByIds(array_map(fn (array $bucket): string => $bucket['key'], $buckets));
@@ -68,6 +50,10 @@ final class OwnerBuiltInField extends AbstractBuiltInAttribute
     #[\Override]
     public function resolveLabel($value): string
     {
+        if (null === $value) {
+            return 'User not found';
+        }
+
         return $value['username'] ?? $value['id'];
     }
 
@@ -75,6 +61,19 @@ final class OwnerBuiltInField extends AbstractBuiltInAttribute
     public function getType(): string
     {
         return KeywordAttributeType::NAME;
+    }
+
+    protected function resolveCollectionItem($item): ?array
+    {
+        if (empty($item)) {
+            return null;
+        }
+        $users = $this->userRepository->getUsersByIds([$item]);
+
+        return [
+            'id' => $item,
+            'username' => $this->resolveLabel($users[$item] ?? null),
+        ];
     }
 
     #[\Override]
