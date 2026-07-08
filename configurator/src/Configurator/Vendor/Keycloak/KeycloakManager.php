@@ -7,6 +7,7 @@ namespace App\Configurator\Vendor\Keycloak;
 use App\Util\EnvHelper;
 use App\Util\HttpClientUtil;
 use App\Util\UriTemplate;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -18,6 +19,7 @@ final class KeycloakManager
     public function __construct(
         private readonly HttpClientInterface $keycloakClient,
         private readonly string $keycloakRealm,
+        private readonly LoggerInterface $logger,
     ) {
         if ('master' === $this->keycloakRealm) {
             throw new \LogicException('Your Keycloak Realm cannot be named "master".');
@@ -229,6 +231,35 @@ final class KeycloakManager
                     'realm' => $this->keycloakRealm,
                     'id' => $scope['id'],
                 ]))->getHeaders(), 409, []);
+        }
+    }
+
+    // @see https://github.com/keycloak/keycloak/discussions/34765
+    public function removeCompositeRolesAssignedToScope(string $scopeName): void
+    {
+        $scope = $this->getScopeByName($scopeName);
+
+        $assignedRoles = $this->getAuthenticatedClient()
+            ->request('GET', UriTemplate::resolve('{realm}/client-scopes/{scopeId}/scope-mappings/realm', [
+                'realm' => $this->keycloakRealm,
+                'scopeId' => $scope['id'],
+            ]))->toArray();
+
+        $compositeRoles = array_values(array_filter($assignedRoles, fn (array $role): bool => $role['composite']));
+
+        if (!empty($compositeRoles)) {
+            $compositeRoleNames = array_map(fn (array $role): string => $role['name'], $compositeRoles);
+            $this->logger->alert(sprintf('Scope "%s" has composite role(s) assigned (%s). Auto removing them.', $scope['name'], implode(', ', $compositeRoleNames)));
+
+            foreach ($compositeRoles as $compositeRole) {
+                $this->getAuthenticatedClient()
+                    ->request('DELETE', UriTemplate::resolve('{realm}/client-scopes/{scopeId}/scope-mappings/realm', [
+                        'realm' => $this->keycloakRealm,
+                        'scopeId' => $scope['id'],
+                    ]), [
+                        'json' => [$compositeRole],
+                    ])->getHeaders();
+            }
         }
     }
 
