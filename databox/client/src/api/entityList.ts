@@ -6,7 +6,8 @@ import {
     createIriFromId,
 } from '@alchemy/api';
 import {SortWay} from './common.ts';
-import {EntityName, QueryAndPaginationParams} from './types.ts';
+import {EntityName} from './types.ts';
+import {QueryAndPaginationParams} from '@alchemy/phrasea-framework';
 
 export const entityTypeNS = EntityName.EntityList;
 

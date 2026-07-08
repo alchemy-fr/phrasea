@@ -60,7 +60,7 @@ import {
 import {SortableListItem} from './SortableListItem.tsx';
 import ListItemContainer from './ListItemContainer.tsx';
 import {isEmpty, logError} from '@alchemy/core';
-import {QueryAndPaginationParams} from '../../../../api/types.ts';
+import {QueryAndPaginationParams} from '@alchemy/phrasea-framework';
 
 type Props<
     D extends DefinitionBase,

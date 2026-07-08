@@ -2,7 +2,7 @@ import {apiClient} from '../init.ts';
 import {Group, User} from '../types';
 import {AxiosRequestConfig} from 'axios';
 import {UserPreferences} from '../store/userPreferencesStore.ts';
-import {QueryAndPaginationParams} from './types.ts';
+import {QueryAndPaginationParams} from '@alchemy/phrasea-framework';
 
 export async function getUsers(
     options: QueryAndPaginationParams = {},

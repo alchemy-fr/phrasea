@@ -2,7 +2,7 @@ import {apiClient} from '../init.ts';
 import {SavedSearch, SavedSearchData} from '../types';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {TSearchContext} from '../components/Media/Search/SearchContext.tsx';
-import {PaginationParams} from './types.ts';
+import {PaginationParams} from '@alchemy/phrasea-framework';
 import {EntityName} from './types.ts';
 
 export type GetSavedSearchOptions = {

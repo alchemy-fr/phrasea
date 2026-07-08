@@ -18,7 +18,7 @@ import {useEntitiesStore} from '../../store/entitiesStore.ts';
 import {useTheme} from '@mui/material';
 import {CSSObjectWithLabel} from 'react-select';
 import {getTagColorStyle} from '../Media/Asset/Facets/TagColor.tsx';
-import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;

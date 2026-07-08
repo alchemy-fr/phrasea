@@ -11,7 +11,7 @@ import React from 'react';
 import {useEntitiesStore} from '../../store/entitiesStore.ts';
 import {getTagColorStyle} from '../Media/Asset/Facets/TagColor.tsx';
 import {useTheme} from '@mui/material';
-import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
 import {EntityName} from '../../api/types.ts';
 import {createIriFromId} from '@alchemy/api';
 

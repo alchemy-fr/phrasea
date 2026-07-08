@@ -1,7 +1,7 @@
 import {FieldValues} from 'react-hook-form';
 import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
 import {getEntityLists} from '../../api/entityList.ts';
-import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
 import {EntityName} from '../../api/types.ts';
 import {createIriFromId} from '@alchemy/api';
 

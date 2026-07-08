@@ -2,7 +2,7 @@ import {apiClient} from '../init.ts';
 import {AttributeEntity} from '../types';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 import {SortWay} from './common.ts';
-import {QueryAndPaginationParams} from './types.ts';
+import {QueryAndPaginationParams} from '@alchemy/phrasea-framework';
 import {getBestTranslatedValue} from '@alchemy/i18n/src/Locale/localeHelper.ts';
 
 const attributeEntityNS = '/attribute-entities';

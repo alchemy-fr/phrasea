@@ -9,7 +9,10 @@ import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {apiClient} from '../init.ts';
 import type {MultipartUpload} from '@alchemy/api';
 import {SourceFileInput} from './file.ts';
-import {PaginationParams, QueryAndPaginationParams} from './types.ts';
+import {
+    PaginationParams,
+    QueryAndPaginationParams,
+} from '@alchemy/phrasea-framework';
 import {EntityName} from './types.ts';
 
 type GetOptions = {

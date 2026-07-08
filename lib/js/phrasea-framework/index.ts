@@ -39,6 +39,7 @@ import ListItemLoadingIcon from './src/Ui/ListItemLoadingIcon';
 import {getContrastText} from './src/Ui/colorUtil';
 import {useTreeState} from './src/Tree/useTreeState';
 import UserMenu from './src/Menu/UserMenu';
+import {usePaginatedSelectLoader} from './src/hooks/usePaginatedSelectLoader';
 
 export {
     AppProvider,
@@ -84,12 +85,15 @@ export {
     LoadMoreButton,
     lazyWithRetry,
     UserMenu,
+    usePaginatedSelectLoader,
 };
+
 export * from './src/Theme/types';
 export * from './src/Dialog/types';
 export * from './src/Locale/types';
 export * from './src/FilePlayer/types';
 export * from './src/Tree/types';
 export * from './src/Menu/types';
+export * from './src/types';
 export * from './src/apiCache';
 export * as translations from './translations';

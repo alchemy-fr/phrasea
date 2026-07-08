@@ -1,6 +1,6 @@
 import {NormalizedCollectionResponse} from '@alchemy/api';
 import {GroupBase, SelectLoadOptions, SelectOption} from '@alchemy/react-form';
-import {QueryAndPaginationParams} from '../api/types.ts';
+import {QueryAndPaginationParams} from '../types';
 import {useCallback} from 'react';
 
 type Props<D extends object, Opt extends SelectOption> = {

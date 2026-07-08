@@ -6,7 +6,7 @@ import React from 'react';
 import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
 import {useEntitiesStore} from '../../store/entitiesStore.ts';
 import {NotAllowedSelect} from './NotAllowedSelect.tsx';
-import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
 import {EntityName} from '../../api/types.ts';
 import {createIriFromId} from '@alchemy/api';
 

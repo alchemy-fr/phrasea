@@ -2,7 +2,7 @@ import {FieldValues} from 'react-hook-form';
 import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
 import {getWorkspaces} from '../../api/workspace.ts';
 import {useEntitiesStore} from '../../store/entitiesStore.ts';
-import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
 
 type Props<TFieldValues extends FieldValues> = {} & AsyncRSelectProps<
     TFieldValues,

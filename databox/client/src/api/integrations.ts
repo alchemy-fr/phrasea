@@ -7,11 +7,11 @@ import {
 } from '../types';
 import {apiClient} from '../init.ts';
 import {AxiosRequestConfig} from 'axios';
+import {EntityName} from './types.ts';
 import {
-    EntityName,
     PaginationParams,
     QueryAndPaginationParams,
-} from './types.ts';
+} from '@alchemy/phrasea-framework';
 
 export enum IntegrationContext {
     AssetView = 'asset-view',

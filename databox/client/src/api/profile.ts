@@ -1,7 +1,7 @@
 import {apiClient} from '../init.ts';
 import {Profile, ProfileItem} from '../types';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
-import {PaginationParams} from './types.ts';
+import {PaginationParams} from '@alchemy/phrasea-framework';
 import {useProfileStore} from '../store/profileStore.ts';
 
 const entityType = 'profiles';

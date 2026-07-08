@@ -2,7 +2,7 @@ import {FieldValues} from 'react-hook-form';
 import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
 import {ExposeEntityName} from './exposeType.ts';
 import {createIriFromId} from '@alchemy/api';
-import {usePaginatedSelectLoader} from '../../../../hooks/usePaginatedSelectLoader.ts';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
 import {getExposePublications} from './exposeApi.ts';
 
 type Props<TFieldValues extends FieldValues> = {

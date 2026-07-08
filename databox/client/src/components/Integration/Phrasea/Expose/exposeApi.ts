@@ -1,5 +1,5 @@
 import {getHydraCollection} from '@alchemy/api';
-import {QueryAndPaginationParams} from '../../../../api/types.ts';
+import {QueryAndPaginationParams} from '@alchemy/phrasea-framework';
 import {apiClient} from '../../../../init.ts';
 import {ExposeProfile, ExposePublication} from './exposeType.ts';
 

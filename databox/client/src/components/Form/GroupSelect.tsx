@@ -5,7 +5,7 @@ import React from 'react';
 import {isAxiosError} from 'axios';
 import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
 import {NotAllowedSelect} from './NotAllowedSelect.tsx';
-import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     data?: Promise<Group[]> | undefined;

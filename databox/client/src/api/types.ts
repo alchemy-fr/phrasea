@@ -7,16 +7,6 @@ export enum AttributeBatchActionEnum {
     Delete = 'delete',
 }
 
-export type QueryParams = {
-    query?: string;
-};
-
-export type PaginationParams = {
-    nextUrl?: string;
-};
-
-export type QueryAndPaginationParams = QueryParams & PaginationParams;
-
 export enum OperationTaskStatus {
     Pending = 0,
     InProgress = 1,

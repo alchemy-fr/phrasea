@@ -1,11 +1,8 @@
 import {apiClient} from '../init.ts';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 import {Attribute, Entity, Tag} from '../types';
-import {
-    AttributeBatchAction,
-    EntityName,
-    QueryAndPaginationParams,
-} from './types.ts';
+import {AttributeBatchAction, EntityName} from './types.ts';
+import {QueryAndPaginationParams} from '@alchemy/phrasea-framework';
 
 export type AssetDataTemplate = {
     name: string;

@@ -3,7 +3,7 @@ import {getRenditionPolicies} from '../../api/rendition';
 import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
 import {EntityName} from '../../api/types.ts';
 import {createIriFromId} from '@alchemy/api';
-import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
 
 type Props<TFieldValues extends FieldValues> = {
     workspaceId: string;

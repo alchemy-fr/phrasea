@@ -1,4 +1,4 @@
-import {useFormSubmit} from '@alchemy/api';
+import {createIriFromId, useFormSubmit} from '@alchemy/api';
 import {TargetParam, TargetParamData} from '../../types.ts';
 import {toast} from 'react-toastify';
 import {useTranslation} from 'react-i18next';
@@ -13,8 +13,8 @@ import 'ace-builds/src-noconflict/mode-json';
 import {getPath, useNavigate} from '@alchemy/navigation';
 import {postTargetParam, putTargetParam} from '../../api/targetParamApi.ts';
 import {routes} from '../../routes.ts';
-import {targetEntity} from '../../api/targetApi.ts';
 import TargetSelectWidget from '../TargetSelectWidget.tsx';
+import {EntityName} from '../../api/entities.ts';
 
 type Props = {
     data: Partial<TargetParam>;
@@ -34,7 +34,7 @@ export default function TargetParamForm({data}: Props) {
         defaultValues: {
             ...data,
             target: data.target
-                ? `/${targetEntity}/${data.target.id}`
+                ? createIriFromId(EntityName.Target, data.target.id)
                 : undefined,
             data: JSON.stringify(data.data, null, 2),
         },

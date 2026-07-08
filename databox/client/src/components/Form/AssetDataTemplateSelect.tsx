@@ -8,7 +8,7 @@ import {
     SelectOption,
 } from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
-import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
 
 const Option = (props: OptionProps<SelectOption>) => {
     return (

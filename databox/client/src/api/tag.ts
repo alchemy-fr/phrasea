@@ -1,7 +1,8 @@
 import {apiClient} from '../init.ts';
 import {Tag} from '../types';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
-import {EntityName, QueryAndPaginationParams} from './types.ts';
+import {EntityName} from './types.ts';
+import {QueryAndPaginationParams} from '@alchemy/phrasea-framework';
 
 type TagOptions = {
     workspace?: string;

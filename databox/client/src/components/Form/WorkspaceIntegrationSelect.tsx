@@ -3,7 +3,7 @@ import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
 import {getWorkspaceIntegrations} from '../../api/integrations.ts';
 import {EntityName} from '../../api/types.ts';
 import {createIriFromId} from '@alchemy/api';
-import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId: string;

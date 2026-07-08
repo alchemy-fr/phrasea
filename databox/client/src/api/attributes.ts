@@ -7,11 +7,8 @@ import {
 } from '../types';
 import {apiClient} from '../init.ts';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
-import {
-    EntityName,
-    PaginationParams,
-    QueryAndPaginationParams,
-} from './types.ts';
+import {EntityName} from './types.ts';
+import {QueryAndPaginationParams} from '@alchemy/phrasea-framework';
 
 export async function putAttributeDefinition(
     id: string | undefined,
@@ -91,10 +88,9 @@ export async function getWorkspaceAttributeDefinitions({
     type,
 }: {
     workspaceId: string;
-    query?: string | null;
     type?: string | null;
     target: AssetTypeFilter;
-} & PaginationParams): Promise<
+} & QueryAndPaginationParams): Promise<
     NormalizedCollectionResponse<AttributeDefinition>
 > {
     const res = await apiClient.get(nextUrl ?? EntityName.AttributeDefinition, {

@@ -7,7 +7,7 @@ import {
     SelectOption,
 } from '@alchemy/react-form';
 import {AttributeType} from '../../api/types.ts';
-import {usePaginatedSelectLoader} from '../../hooks/usePaginatedSelectLoader.ts';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
 
 type Props<TFieldValues extends FieldValues> = AsyncRSelectProps<
     TFieldValues,

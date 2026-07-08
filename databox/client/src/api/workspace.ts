@@ -1,7 +1,8 @@
 import {apiClient} from '../init.ts';
 import {Workspace} from '../types';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
-import {EntityName, QueryAndPaginationParams} from './types.ts';
+import {EntityName} from './types.ts';
+import {QueryAndPaginationParams} from '@alchemy/phrasea-framework';
 
 export async function getWorkspace(id: string): Promise<Workspace> {
     const res = await apiClient.get(`/${EntityName.Workspace}/${id}`);

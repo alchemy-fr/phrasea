@@ -18,7 +18,8 @@ import {
     WorkspaceOrCollectionTreeItem,
 } from '../components/Media/Collection/CollectionTree/types.ts';
 import {TreeNode} from '@alchemy/phrasea-framework';
-import {EntityName, PaginationParams} from './types.ts';
+import {EntityName} from './types.ts';
+import {PaginationParams} from '@alchemy/phrasea-framework';
 
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;

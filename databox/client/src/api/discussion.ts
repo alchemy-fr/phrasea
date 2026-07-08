@@ -1,7 +1,7 @@
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 import {ThreadMessage} from '../types.ts';
 import {apiClient} from '../init.ts';
-import {PaginationParams} from './types.ts';
+import {PaginationParams} from '@alchemy/phrasea-framework';
 
 export async function getThreadMessages({
     threadId,

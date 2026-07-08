@@ -1,6 +1,7 @@
 import {AssetPolicy} from '../types.ts';
 import {apiClient} from '../init.ts';
-import {EntityName, PaginationParams} from './types.ts';
+import {EntityName} from './types.ts';
+import {PaginationParams} from '@alchemy/phrasea-framework';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 
 export async function putAssetPolicy(
