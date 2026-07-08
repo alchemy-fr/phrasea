@@ -6,13 +6,13 @@ import {FullPageLoader} from '@alchemy/phrasea-ui';
 import Acl from './Acl';
 import {modalRoutes} from '../../../routes';
 import {useCloseModal} from '../../Routing/ModalLink';
-import EditProfile from './EditProfile.tsx';
+import EditDisplayProfile from './EditDisplayProfile.tsx';
 import OrganizeProfile from './OrganizeProfile.tsx';
 import {useProfileStore} from '../../../store/profileStore.ts';
 
 type Props = {};
 
-export default function ProfileDialog({}: Props) {
+export default function DisplayProfileDialog({}: Props) {
     const {t} = useTranslation();
     const {id} = useParams();
     const closeModal = useCloseModal();
@@ -36,12 +36,19 @@ export default function ProfileDialog({}: Props) {
             route={modalRoutes.profiles.routes.manage}
             routeParams={{id}}
             maxWidth={'md'}
-            title={t('profile.manage.title', 'Manage Profile {{name}}', {
-                name: data.name,
-            })}
+            title={t(
+                'display_profile.manage.title',
+                'Manage Display Profile {{name}}',
+                {
+                    name: data.name,
+                }
+            )}
             tabs={[
                 {
-                    title: t('profile.manage.organize.title', 'Organize'),
+                    title: t(
+                        'display_profile.manage.organize.title',
+                        'Organize'
+                    ),
                     component: OrganizeProfile,
                     id: 'organize',
                     props: {
@@ -50,8 +57,8 @@ export default function ProfileDialog({}: Props) {
                     enabled: data.capabilities.edit,
                 },
                 {
-                    title: t('profile.manage.edit.title', 'Edit'),
-                    component: EditProfile,
+                    title: t('display_profile.manage.edit.title', 'Edit'),
+                    component: EditDisplayProfile,
                     id: 'edit',
                     props: {
                         data,
@@ -59,7 +66,7 @@ export default function ProfileDialog({}: Props) {
                     enabled: data.capabilities.edit,
                 },
                 {
-                    title: t('profile.manage.acl.title', 'Permissions'),
+                    title: t('display_profile.manage.acl.title', 'Permissions'),
                     component: Acl,
                     id: 'permissions',
                     props: {

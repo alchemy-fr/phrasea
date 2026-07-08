@@ -1,4 +1,4 @@
-import {Profile} from '../../../types';
+import {DisplayProfile} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {useProfileStore} from '../../../store/profileStore.ts';
 import React from 'react';
@@ -15,7 +15,7 @@ import DialogActions from '@mui/material/DialogActions';
 
 type Props = {
     id: string;
-    data: Profile;
+    data: DisplayProfile;
 } & DialogTabProps;
 
 export default function OrganizeProfile({data, onClose, minHeight}: Props) {

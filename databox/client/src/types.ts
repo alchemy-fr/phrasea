@@ -471,7 +471,7 @@ export type ProfileItem = {
     format?: string;
 };
 
-export interface Profile
+export interface DisplayProfile
     extends
         IPermissions<{
             edit: boolean;

@@ -10,7 +10,7 @@ import {
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useProfileStore} from '../../store/profileStore.ts';
 import {AppDialog} from '@alchemy/phrasea-ui';
-import {Profile} from '../../types';
+import {DisplayProfile} from '../../types';
 import {useTranslation} from 'react-i18next';
 import ProfileMenuItem from './ProfileMenuItem.tsx';
 import CreateProfileDialog from './CreateProfileDialog.tsx';
@@ -23,7 +23,7 @@ import {Classes} from '../../classes.ts';
 
 type Props = {} & StackedModalProps;
 
-export default function SelectProfileDialog({modalIndex, open}: Props) {
+export default function SelectDisplayProfileDialog({modalIndex, open}: Props) {
     const {t} = useTranslation();
     const {isAuthenticated} = useAuth();
     const {openModal, closeModal} = useModals();
@@ -47,7 +47,9 @@ export default function SelectProfileDialog({modalIndex, open}: Props) {
         load();
     }, [load]);
 
-    const onSelect = async (data: Profile | undefined): Promise<void> => {
+    const onSelect = async (
+        data: DisplayProfile | undefined
+    ): Promise<void> => {
         const profile = data ? await loadProfile(data.id) : undefined;
         setCurrent(profile);
         closeModal();
@@ -83,7 +85,10 @@ export default function SelectProfileDialog({modalIndex, open}: Props) {
             open={open}
             loading={loading}
             onClose={closeModal}
-            title={t('profile.choose_modal.title', 'Select current Profile')}
+            title={t(
+                'display_profile.choose_modal.title',
+                'Select current Display Profile'
+            )}
             actions={({onClose}) => (
                 <>
                     {current ? (
@@ -96,7 +101,7 @@ export default function SelectProfileDialog({modalIndex, open}: Props) {
                                     />
                                 }
                                 label={t(
-                                    'profile.auto_sync.label',
+                                    'display_profile.auto_sync.label',
                                     'Auto-sync preferences'
                                 )}
                             />
@@ -108,7 +113,10 @@ export default function SelectProfileDialog({modalIndex, open}: Props) {
                         startIcon={<AddIcon />}
                         disabled={!isAuthenticated}
                     >
-                        {t('profile.create_button.label', 'Create new Profile')}
+                        {t(
+                            'display_profile.create_button.label',
+                            'Create new Display Profile'
+                        )}
                     </Button>
                     <Button
                         onClick={onClose}
@@ -128,7 +136,10 @@ export default function SelectProfileDialog({modalIndex, open}: Props) {
                 >
                     <ListItemText
                         className={Classes.ellipsisText}
-                        primary={t('profile.default.title', 'Default Profile')}
+                        primary={t(
+                            'display_profile.default.title',
+                            'Default Display Profile'
+                        )}
                     />
                 </ListItemButton>
             </ListItem>

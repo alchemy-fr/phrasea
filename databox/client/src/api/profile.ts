@@ -1,5 +1,5 @@
 import {apiClient} from '../init.ts';
-import {Profile, ProfileItem} from '../types';
+import {DisplayProfile, ProfileItem} from '../types';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {PaginationParams} from '@alchemy/phrasea-framework';
 import {useProfileStore} from '../store/profileStore.ts';
@@ -14,7 +14,9 @@ export type GetProfileOptions = {
 export async function getProfiles({
     nextUrl,
     ...params
-}: GetProfileOptions = {}): Promise<NormalizedCollectionResponse<Profile>> {
+}: GetProfileOptions = {}): Promise<
+    NormalizedCollectionResponse<DisplayProfile>
+> {
     const res = await apiClient.get(nextUrl ?? `/${entityType}`, {
         params,
     });
@@ -24,8 +26,8 @@ export async function getProfiles({
 
 export async function putProfile(
     id: string,
-    data: Partial<Profile>
-): Promise<Profile> {
+    data: Partial<DisplayProfile>
+): Promise<DisplayProfile> {
     const res = await apiClient.put(`/${entityType}/${id}`, data);
 
     return res.data;
@@ -51,7 +53,9 @@ export async function sortProfileItems(
     await apiClient.post(`/${entityType}/${id}/sort`, data);
 }
 
-export async function postProfile(data: Partial<Profile>): Promise<Profile> {
+export async function postProfile(
+    data: Partial<DisplayProfile>
+): Promise<DisplayProfile> {
     const res = await apiClient.post(`/${entityType}`, data);
 
     useProfileStore.getState().storeProfile(res.data);
@@ -59,7 +63,7 @@ export async function postProfile(data: Partial<Profile>): Promise<Profile> {
     return res.data;
 }
 
-export async function getProfile(id: string): Promise<Profile> {
+export async function getProfile(id: string): Promise<DisplayProfile> {
     return (await apiClient.get(`/${entityType}/${id}`)).data;
 }
 
@@ -74,7 +78,7 @@ type AddToProfileInput = {
 export async function addToProfile(
     listId: string | undefined,
     data: AddToProfileInput
-): Promise<Profile> {
+): Promise<DisplayProfile> {
     return (
         await apiClient.post(
             `/${entityType}/${listId ?? 'default'}/items`,
@@ -86,7 +90,7 @@ export async function addToProfile(
 export async function removeFromProfile(
     listId: string,
     itemIds: string[]
-): Promise<Profile> {
+): Promise<DisplayProfile> {
     return (
         await apiClient.post(`/${entityType}/${listId}/remove`, {
             items: itemIds,

@@ -1,11 +1,11 @@
 import {TextField} from '@mui/material';
 import {FC} from 'react';
 import {useTranslation} from 'react-i18next';
-import {Profile} from '../../types';
+import {DisplayProfile} from '../../types';
 import {FormFieldErrors, FormRow, SwitchWidget} from '@alchemy/react-form';
 import {FormProps} from './types';
 
-export const ProfileForm: FC<FormProps<Profile>> = function ({
+export const DisplayProfileForm: FC<FormProps<DisplayProfile>> = function ({
     formId,
     usedFormSubmit: {
         handleSubmit,
@@ -23,7 +23,7 @@ export const ProfileForm: FC<FormProps<Profile>> = function ({
                 <TextField
                     autoFocus
                     required={true}
-                    label={t('form.profile.name.label', 'Name')}
+                    label={t('form.display_profile.name.label', 'Name')}
                     disabled={submitting}
                     {...register('name', {
                         required: true,
@@ -36,7 +36,10 @@ export const ProfileForm: FC<FormProps<Profile>> = function ({
                     rows={5}
                     fullWidth={true}
                     multiline={true}
-                    label={t('form.profile.description.label', 'Description')}
+                    label={t(
+                        'form.display_profile.description.label',
+                        'Description'
+                    )}
                     disabled={submitting}
                     {...register('description')}
                 />
@@ -46,7 +49,7 @@ export const ProfileForm: FC<FormProps<Profile>> = function ({
                 <SwitchWidget
                     control={control}
                     name={'public'}
-                    label={t('form.profile.public.label', 'Public')}
+                    label={t('form.display_profile.public.label', 'Public')}
                 />
             </FormRow>
         </form>

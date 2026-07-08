@@ -10,7 +10,7 @@ import BasketDialog from './components/Dialog/Basket/BasketDialog';
 import BasketViewDialog from './components/Basket/BasketViewDialog';
 import AttributeEditorView from './components/AttributeEditor/AttributeEditorView.tsx';
 import SharePage from './pages/SharePage.tsx';
-import ProfileDialog from './components/Dialog/Profile/ProfileDialog.tsx';
+import DisplayProfileDialog from './components/Dialog/Profile/DisplayProfileDialog.tsx';
 import FileDialog from './components/Dialog/File/FileDialog.tsx';
 import SavedSearchDialog from './components/Dialog/SavedSearch/SavedSearchDialog.tsx';
 import HomePage from './pages/HomePage.tsx';
@@ -78,7 +78,7 @@ const modalRoutes = {
         routes: {
             manage: {
                 path: 'manage/:tab',
-                component: ProfileDialog,
+                component: DisplayProfileDialog,
             },
         },
     },

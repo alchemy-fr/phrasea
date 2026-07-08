@@ -274,7 +274,10 @@ export default function AttributeDefinitionTransferList({
                         sx={{my: 1}}
                         onClick={handleAddDivider}
                         variant={'outlined'}
-                        title={t('profile.organize.add_divider', 'Add Divider')}
+                        title={t(
+                            'display_profile.organize.add_divider',
+                            'Add Divider'
+                        )}
                     >
                         <HorizontalRuleIcon />
                     </Button>
@@ -282,7 +285,10 @@ export default function AttributeDefinitionTransferList({
                         sx={{my: 1}}
                         onClick={handleAddSpacer}
                         variant={'outlined'}
-                        title={t('profile.organize.add_spacer', 'Add Spacer')}
+                        title={t(
+                            'display_profile.organize.add_spacer',
+                            'Add Spacer'
+                        )}
                     >
                         <HeightIcon />
                     </Button>

@@ -1,6 +1,6 @@
 import FormDialog from '../Dialog/FormDialog';
-import {ProfileForm} from '../Form/ProfileForm.tsx';
-import {Profile} from '../../types';
+import {DisplayProfileForm} from '../Form/DisplayProfileForm.tsx';
+import {DisplayProfile} from '../../types';
 import {useFormSubmit} from '@alchemy/api';
 import {postProfile} from '../../api/profile.ts';
 import {toast} from 'react-toastify';
@@ -10,7 +10,7 @@ import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {useUserPreferencesStore} from '../../store/userPreferencesStore.ts';
 
 type Props = {
-    onCreate?: (data: Profile) => void;
+    onCreate?: (data: DisplayProfile) => void;
 } & StackedModalProps;
 
 export default function CreateProfileDialog({onCreate, ...modalProps}: Props) {
@@ -20,11 +20,11 @@ export default function CreateProfileDialog({onCreate, ...modalProps}: Props) {
         state => state.preferences
     );
 
-    const usedFormSubmit = useFormSubmit<Profile>({
+    const usedFormSubmit = useFormSubmit<DisplayProfile>({
         defaultValues: {
             name: '',
         },
-        onSubmit: async (data: Profile) => {
+        onSubmit: async (data: DisplayProfile) => {
             return await postProfile({
                 ...data,
                 data: preferences,
@@ -32,7 +32,10 @@ export default function CreateProfileDialog({onCreate, ...modalProps}: Props) {
         },
         onSuccess: data => {
             toast.success(
-                t('form.profile_create.success', 'Profile created!') as string
+                t(
+                    'form.display_profile.create_success',
+                    'Display Profile created!'
+                ) as string
             );
             closeModal();
             onCreate?.(data);
@@ -46,12 +49,18 @@ export default function CreateProfileDialog({onCreate, ...modalProps}: Props) {
     return (
         <FormDialog
             {...modalProps}
-            title={t('form.profile_create.title', 'Create Profile')}
+            title={t(
+                'form.display_profile.create.title',
+                'Create Display Profile'
+            )}
             formId={formId}
             loading={submitting}
             errors={remoteErrors}
         >
-            <ProfileForm formId={formId} usedFormSubmit={usedFormSubmit} />
+            <DisplayProfileForm
+                formId={formId}
+                usedFormSubmit={usedFormSubmit}
+            />
         </FormDialog>
     );
 }

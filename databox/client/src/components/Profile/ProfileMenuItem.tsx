@@ -6,7 +6,7 @@ import {
     ListItemSecondaryAction,
     ListItemText,
 } from '@mui/material';
-import {Profile} from '../../types';
+import {DisplayProfile} from '../../types';
 import {useTranslation} from 'react-i18next';
 import {Classes} from '../../classes.ts';
 import EditIcon from '@mui/icons-material/Edit';
@@ -14,7 +14,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SyncIcon from '@mui/icons-material/Sync';
 
 type Props = {
-    data: Profile;
+    data: DisplayProfile;
     selected?: boolean;
     syncData?: () => void;
     onClick?: () => void;
@@ -91,8 +91,8 @@ export default function ProfileMenuItem({
                                     if (
                                         window.confirm(
                                             t(
-                                                'profile.delete.confirm',
-                                                'Are you sure you want to delete this profile?'
+                                                'display_profile.delete.confirm',
+                                                'Are you sure you want to delete this Display Profile?'
                                             )
                                         )
                                     ) {

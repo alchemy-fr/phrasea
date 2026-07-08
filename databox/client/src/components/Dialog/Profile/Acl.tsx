@@ -1,11 +1,11 @@
-import {Profile} from '../../../types';
+import {DisplayProfile} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import AclForm from '../../Permissions/AclForm.tsx';
 import ContentTab from '../Tabbed/ContentTab';
 import {PermissionObject} from '../../Permissions/permissionsTypes.ts';
 
 type Props = {
-    data: Profile;
+    data: DisplayProfile;
 } & DialogTabProps;
 
 export default function Acl({data, onClose, minHeight}: Props) {

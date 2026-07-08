@@ -3,12 +3,13 @@ import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import {Divider, ListItemIcon, ListItemText} from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
-import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import {useTranslation} from 'react-i18next';
 import UserAvatar from '../../../phrasea-ui/src/components/UserAvatar';
 import DropdownActions from '../../../phrasea-ui/src/components/DropdownActions';
 import {useAuth} from '@alchemy/react-auth';
 import {KeycloakClient} from '@alchemy/auth';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import AttributionIcon from '@mui/icons-material/Attribution';
 
 type Props = {
     variant?: 'menu' | 'icon-button';
@@ -75,7 +76,7 @@ export default function UserMenu({
                             href={accountUrl}
                         >
                             <ListItemIcon>
-                                <AccountBoxIcon />
+                                <AccountCircleIcon />
                             </ListItemIcon>
                             <ListItemText
                                 primary={t('lib.ui.menu.account', 'My account')}
@@ -115,7 +116,7 @@ export default function UserMenu({
                                   }}
                               >
                                   <ListItemIcon>
-                                      <AccountBoxIcon />
+                                      <AttributionIcon />
                                   </ListItemIcon>
                                   <ListItemText
                                       primary={t(
