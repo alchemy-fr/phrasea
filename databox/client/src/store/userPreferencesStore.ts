@@ -121,7 +121,7 @@ export const useUserPreferencesStore = create<UserPreferencesStore>(
                 return;
             }
 
-            if (newPrefs.profile) {
+            if (name !== 'profile' && newPrefs.profile) {
                 useProfileStore.getState().autoSync();
 
                 return;
