@@ -24,6 +24,7 @@ use App\Consumer\Handler\Search\IndexCollectionBranch;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
+use App\Security\Voter\DataboxExtraPermissionInterface;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
@@ -40,22 +41,12 @@ readonly class AclListener
     ) {
     }
 
-    private function hasPermission(int $permissions, int $permissionToCheck): bool
-    {
-        return ($permissions & $permissionToCheck) === $permissionToCheck;
-    }
-
-    private function hasOneOfPermissions(int $permissions, array $permissionsToCheck): bool
-    {
-        return array_any($permissionsToCheck, fn ($permission) => $this->hasPermission($permissions, $permission));
-    }
-
     public function onAclUpsert(AclUpsertEvent $event): void
     {
         $this->handleChange(
             $event,
             $event->getPermissions(),
-            $event->getPreviousPermissions() ?? 0
+            $event->getMetadata(),
         );
     }
 
@@ -68,12 +59,24 @@ readonly class AclListener
         $this->handleChange(
             $event,
             0,
-            $event->getPreviousPermissions()
+            [],
         );
     }
 
-    private function handleChange(AclEvent $event, int $newPermissions, int $previousPermissions): void
+    private function hasPermission(int $permissions, int $permissionToCheck): bool
     {
+        return ($permissions & $permissionToCheck) === $permissionToCheck;
+    }
+
+    private function hasOneOfPermissions(int $permissions, array $permissionsToCheck): bool
+    {
+        return array_any($permissionsToCheck, fn ($permission) => $this->hasPermission($permissions, $permission));
+    }
+
+    private function handleChange(AclEvent $event, int $newPermissions, array $newMetadata): void
+    {
+        $previousPermissions = $event->getPreviousPermissions() ?? 0;
+
         $objectClass = $this->objectMapping->getClassName($event->getObjectType());
         $assetsHandled = false;
         $collectionsHandled = false;
@@ -95,6 +98,10 @@ readonly class AclListener
                     $assetsHandled = true;
                 } elseif ($this->hasOneOfPermissions($newPermissions, $assetDiscriminantPerms)) {
                     $assetsHandled = true;
+                }
+
+                if ($this->shouldStillReindexAssets($assetsHandled, $event, $newPermissions, $newMetadata)) {
+                    $assetsHandled = false;
                 }
 
                 $collectionDiscriminantPerms = [
@@ -135,6 +142,10 @@ readonly class AclListener
                     $assetsHandled = true;
                 }
 
+                if ($this->shouldStillReindexAssets($assetsHandled, $event, $newPermissions, $newMetadata)) {
+                    $assetsHandled = false;
+                }
+
                 $collectionDiscriminantPerms = [
                     PermissionInterface::VIEW,
                     PermissionInterface::OWNER,
@@ -159,6 +170,40 @@ readonly class AclListener
         }
 
         $this->indexObject($event->getObjectType(), $event->getObjectId(), $assetsHandled, $collectionsHandled, $computeCollectionBranch);
+    }
+
+    private function shouldStillReindexAssets(bool $assetHandled, AclEvent $event, int $newPermissions, array $newMetadata): bool
+    {
+        if (!$assetHandled) {
+            return false;
+        }
+
+        $assetDiscriminantPerms = [PermissionInterface::CHILD_DELETE];
+        $previousPermissions = $event->getPreviousPermissions() ?? 0;
+        foreach ($assetDiscriminantPerms as $perm) {
+            if (!$this->hasPermission($previousPermissions, $perm)) {
+                if ($this->hasPermission($newPermissions, $perm)) {
+                    return true;
+                }
+            } elseif (!$this->hasPermission($newPermissions, $perm)) {
+                return true;
+            }
+        }
+
+        $assetDiscriminantMetadata = [DataboxExtraPermissionInterface::PERM_QUARANTINE];
+        $previousMetadata = $event->getPreviousMetadata() ?? [];
+
+        foreach ($assetDiscriminantMetadata as $metadata) {
+            if (!in_array($metadata, $previousMetadata, true)) {
+                if (in_array($metadata, $newMetadata, true)) {
+                    return true;
+                }
+            } elseif (!in_array($metadata, $newMetadata, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function indexObject(string $objectType, ?string $objectId, bool $assetsHandled, bool $collectionsHandled, bool $computeCollectionBranch): void
@@ -205,7 +250,7 @@ readonly class AclListener
                 $this->searchIndexer->scheduleObjectsIndex($objectClass, [$objectId], Operation::Upsert);
                 break;
             case Collection::class:
-                if (!$collectionsHandled) {
+                if (!$collectionsHandled || !$assetsHandled) {
                     $this->bus->dispatch(new IndexCollectionBranch($objectId, !$assetsHandled));
                 }
                 if ($computeCollectionBranch) {
