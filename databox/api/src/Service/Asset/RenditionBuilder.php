@@ -74,7 +74,7 @@ final readonly class RenditionBuilder
             return;
         }
 
-        if (!$source->isAnalyzed()) {
+        if (!$source->isAnalyzed() && $source->getWorkspace()->isFileAnalysisRequired()) {
             throw new RenditionBuildException(false, 'Source file is not analyzed yet');
         }
 

@@ -9,6 +9,7 @@ use Alchemy\Workflow\Executor\RunContext;
 use Alchemy\Workflow\State\JobState;
 use App\Border\FileAnalyzer;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\AssetStatusEnum;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
 
@@ -44,16 +45,46 @@ final class FileAnalyzerAction extends AbstractIntegrationAction implements IfAc
             }
         }
 
-        if ($this->fileAnalyzer->preAnalyzeFile($file, (array) $config, force: $force)) {
-            $this->fileAnalyzer->analyzeFile($file, (array) $config, force: $force);
+        $analyzersConfig = [
+            'analyzers' => $config['analyzers'] ?? [],
+        ];
+
+        if ($this->fileAnalyzer->preAnalyzeFile($file, $analyzersConfig, force: $force)) {
+            $this->fileAnalyzer->analyzeFile($file, $analyzersConfig, force: $force);
         }
+
         $this->em->persist($file);
-        $this->em->flush();
 
         $context->setOutput('analysis', $file->getAnalysis());
 
-        if (!$file->isAccepted()) {
+        if ($file->isAccepted()) {
+            if (AssetStatusEnum::Pending === $asset->getStatus()) {
+                $asset->setStatus(AssetStatusEnum::Accepted);
+                $this->em->persist($asset);
+            }
+        } else {
             $context->setEndStatus(JobState::STATUS_FAILURE);
+
+            foreach ($config['actions_on_reject'] ?? [] as $action) {
+                $action = FileAnalyzerAssetActionEnum::from($action);
+
+                switch ($action) {
+                    case FileAnalyzerAssetActionEnum::QUARANTINE:
+                        $asset->setStatus(AssetStatusEnum::Quarantined);
+                        $this->em->persist($asset);
+                        break;
+                    case FileAnalyzerAssetActionEnum::DELETE:
+                        $this->em->remove($file);
+                        $this->em->remove($asset);
+                        break;
+                    case FileAnalyzerAssetActionEnum::MOVE_TO_TRASH:
+                        $asset->delete();
+                        $this->em->persist($asset);
+                        break;
+                }
+            }
         }
+
+        $this->em->flush();
     }
 }

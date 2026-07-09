@@ -9,6 +9,9 @@ use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Workspace;
+use App\Entity\Integration\WorkspaceIntegration;
+use App\Integration\Core\FileAnalyzer\FileAnalyzerIntegration;
+use App\Integration\Core\Rendition\RenditionIntegration;
 use App\Model\AssetTypeEnum;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -49,6 +52,18 @@ final readonly class WorkspaceCreator
         $nameAttribute->setEditable(true);
         $nameAttribute->setEditableInGui(true);
         $nameAttribute->setMultiple(false);
+
+        if ($workspace->isFileAnalysisRequired()) {
+            $fileAnalyzerIntegration = new WorkspaceIntegration();
+            $fileAnalyzerIntegration->setIntegration(FileAnalyzerIntegration::getName());
+            $fileAnalyzerIntegration->setWorkspace($workspace);
+            $this->em->persist($fileAnalyzerIntegration);
+        }
+
+        $renditionIntegration = new WorkspaceIntegration();
+        $renditionIntegration->setWorkspace($workspace);
+        $renditionIntegration->setIntegration(RenditionIntegration::getName());
+        $this->em->persist($renditionIntegration);
 
         $this->em->persist($nameAttribute);
         $this->em->persist($workspace);

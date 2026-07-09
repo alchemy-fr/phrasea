@@ -22,6 +22,11 @@ trait DeletedAtTrait
         $this->deletedAt = $deletedAt;
     }
 
+    public function delete(): void
+    {
+        $this->deletedAt ??= new \DateTimeImmutable();
+    }
+
     /**
      * Used by ES.
      */

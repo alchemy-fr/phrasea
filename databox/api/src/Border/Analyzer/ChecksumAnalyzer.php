@@ -24,6 +24,7 @@ final readonly class ChecksumAnalyzer extends AbstractAnalyzer
 
     public function buildConfiguration(NodeBuilder $builder): void
     {
+        // @formatter:off
         $builder
             ->scalarNode('algorithm')
                 ->defaultValue(self::SHA_256)
