@@ -56,6 +56,7 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
             $output->setLocaleFallbacks($data->getLocaleFallbacks());
             $output->trashRetentionDelay = $data->getTrashRetentionDelay();
             $output->assetDefaultStatus = $data->getAssetDefaultStatus();
+            $output->fileAnalysisRequired = $data->isFileAnalysisRequired();
             $output->translations = $data->getTranslations();
             $output->owner = $this->transformUser($data->getOwnerId());
         }

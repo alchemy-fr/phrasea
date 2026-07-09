@@ -588,6 +588,7 @@ export interface Workspace
     fileAnalyzers?: string;
     trashRetentionDelay?: number;
     assetDefaultStatus?: AssetStatus;
+    fileAnalysisRequired?: boolean;
     enabledLocales?: string[] | undefined;
     localeFallbacks?: string[] | undefined;
     owner?: User;

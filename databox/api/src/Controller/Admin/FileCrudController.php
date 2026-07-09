@@ -43,7 +43,7 @@ class FileCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('File')
             ->setEntityLabelInPlural('Files')
-            ->setSearchFields(['id', 'type', 'size', 'checksum', 'path', 'storage', 'originalName', 'extension', 'alternateUrls', 'metadata']);
+            ->setSearchFields(['id', 'type', 'checksum', 'path', 'originalName', 'extension']);
     }
 
     #[\Override]

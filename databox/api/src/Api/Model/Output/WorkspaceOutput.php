@@ -71,6 +71,9 @@ class WorkspaceOutput extends AbstractUuidOutput
     public ?AssetStatusEnum $assetDefaultStatus = null;
 
     #[Groups([Workspace::GROUP_READ])]
+    public ?bool $fileAnalysisRequired = null;
+
+    #[Groups([Workspace::GROUP_READ])]
     public ?array $translations = null;
 
     #[Groups([Workspace::GROUP_LIST])]

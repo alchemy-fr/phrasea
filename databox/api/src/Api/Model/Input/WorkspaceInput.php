@@ -18,5 +18,6 @@ class WorkspaceInput extends AbstractOwnerIdInput
     public ?array $enabledLocales = null;
     public ?array $localeFallbacks = null;
     public ?int $assetDefaultStatus = null;
+    public ?bool $fileAnalysisRequired = null;
     public ?array $translations = null;
 }

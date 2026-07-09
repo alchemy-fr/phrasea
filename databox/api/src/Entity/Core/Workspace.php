@@ -97,6 +97,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     private const int CONFIG_DEFAULT_TRASH_RETENTION_DELAY = 30;
     private const string CONFIG_TRASH_RETENTION_DELAY = 'trashRetentionDelay';
     private const string CONFIG_ASSET_DEFAULT_STATUS = 'assetDefaultStatus';
+    private const string CONFIG_FILE_ANALYSIS_REQUIRED = 'fileAnalysisRequired';
 
     final public const string TR_FIELD_NAME = 'name';
 
@@ -243,6 +244,22 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
         }
 
         return AssetStatusEnum::Accepted;
+    }
+
+    public function isFileAnalysisRequired(): bool
+    {
+        return $this->config[self::CONFIG_FILE_ANALYSIS_REQUIRED] ?? false;
+    }
+
+    public function setFileAnalysisRequired(?bool $required): void
+    {
+        if (false === $required) {
+            unset($this->config[self::CONFIG_FILE_ANALYSIS_REQUIRED]);
+
+            return;
+        }
+
+        $this->config[self::CONFIG_FILE_ANALYSIS_REQUIRED] = $required;
     }
 
     public function getEnabledLocales(): array

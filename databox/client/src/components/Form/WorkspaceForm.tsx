@@ -207,6 +207,21 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                         errors={errors}
                     />
                 </FormRow>
+                <FormRow>
+                    <CheckboxWidget
+                        label={t(
+                            'form.workspace.fileAnalysisRequired.label',
+                            'Requires File Analysis'
+                        )}
+                        control={control}
+                        name={'fileAnalysisRequired'}
+                        disabled={submitting}
+                    />
+                    <FormFieldErrors
+                        field={'fileAnalysisRequired'}
+                        errors={errors}
+                    />
+                </FormRow>
             </form>
         </>
     );

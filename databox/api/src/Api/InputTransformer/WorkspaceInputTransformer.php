@@ -42,6 +42,9 @@ class WorkspaceInputTransformer extends AbstractInputTransformer
         if (null !== $data->assetDefaultStatus) {
             $object->setAssetDefaultStatus(AssetStatusEnum::tryFrom($data->assetDefaultStatus) ?? AssetStatusEnum::Accepted);
         }
+        if (null !== $data->fileAnalysisRequired) {
+            $object->setFileAnalysisRequired($data->fileAnalysisRequired);
+        }
         if (null !== $data->translations) {
             $object->setTranslations($data->translations);
         }

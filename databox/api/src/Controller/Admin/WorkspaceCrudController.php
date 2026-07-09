@@ -54,7 +54,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('Workspace')
             ->setEntityLabelInPlural('Workspaces')
-            ->setSearchFields(['id', 'name', 'slug', 'ownerId', 'config', 'enabledLocales', 'localeFallbacks'])
+            ->setSearchFields(['id', 'name', 'slug', 'config'])
             ->setPaginatorPageSize(100)
             ->setDefaultSort(['name' => 'ASC']);
     }
@@ -114,6 +114,8 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         yield ArrayField::new('localeFallbacks');
         yield BooleanField::new('public')
             ->setHelp('If you need to expose a collection publicly, then its workspace has to be public.');
+        yield BooleanField::new('fileAnalysisRequired')
+            ->hideOnIndex();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')

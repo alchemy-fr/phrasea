@@ -247,11 +247,6 @@ class File extends AbstractUuidEntity implements \Stringable
         $this->analysis = $analysis;
     }
 
-    public function isAnalysisPending(): bool
-    {
-        return null === $this->analysis;
-    }
-
     public function isAnalyzed(): bool
     {
         return null !== $this->analysis;

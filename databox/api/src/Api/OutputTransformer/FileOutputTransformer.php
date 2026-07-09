@@ -49,9 +49,14 @@ class FileOutputTransformer implements OutputTransformerInterface
         $output->setSize((int) $data->getSize());
         $output->analysis = $data->getAnalysis();
 
-        if ($data->isAnalyzed()) {
-            $output->accepted = $data->isAccepted();
+        if ($data->getWorkspace()->isFileAnalysisRequired()) {
+            if ($data->isAnalyzed()) {
+                $output->accepted = $data->isAccepted();
+            }
+        } else {
+            $output->accepted = true;
         }
+
         if (!$data->isAccepted()) {
             $output->analysis = $data->getAnalysis();
         }
