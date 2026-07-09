@@ -55,12 +55,16 @@ final readonly class WorkspaceCreator
 
         if ($workspace->isFileAnalysisRequired()) {
             $fileAnalyzerIntegration = new WorkspaceIntegration();
+            $fileAnalyzerIntegration->setOwnerId($workspace->getOwnerId());
+            $fileAnalyzerIntegration->setPublic(true);
             $fileAnalyzerIntegration->setIntegration(FileAnalyzerIntegration::getName());
             $fileAnalyzerIntegration->setWorkspace($workspace);
             $this->em->persist($fileAnalyzerIntegration);
         }
 
         $renditionIntegration = new WorkspaceIntegration();
+        $renditionIntegration->setOwnerId($workspace->getOwnerId());
+        $renditionIntegration->setPublic(true);
         $renditionIntegration->setWorkspace($workspace);
         $renditionIntegration->setIntegration(RenditionIntegration::getName());
         $this->em->persist($renditionIntegration);
