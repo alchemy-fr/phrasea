@@ -8,12 +8,7 @@ final readonly class AssetPermissionsDTO
 {
     public function __construct(
         public int $privacy,
-        public array $users,
-        public array $groups,
-        public array $deleteUsers,
-        public array $deleteGroups,
-        public array $quarantineUsers,
-        public array $quarantineGroups,
+        public PermissionsDTO $permissions,
         public array $collectionPaths,
         public array $stories,
     ) {
@@ -23,12 +18,12 @@ final readonly class AssetPermissionsDTO
     {
         return [
             'privacy' => $this->privacy,
-            'users' => $this->users,
-            'groups' => $this->groups,
-            'deleteGroups' => $this->deleteGroups,
-            'deleteUsers' => $this->deleteUsers,
-            'quarantineGroups' => $this->quarantineGroups,
-            'quarantineUsers' => $this->quarantineUsers,
+            'users' => $this->permissions->users,
+            'groups' => $this->permissions->groups,
+            'deleteGroups' => $this->permissions->deleteGroups,
+            'deleteUsers' => $this->permissions->deleteUsers,
+            'quarantineGroups' => $this->permissions->quarantineGroups,
+            'quarantineUsers' => $this->permissions->quarantineUsers,
             'collectionPaths' => $this->collectionPaths,
             'stories' => $this->stories,
         ];

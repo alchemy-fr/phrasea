@@ -108,6 +108,18 @@ fos_elastica:
                 groups:
                     property_path: false
                     type: keyword
+                deleteUsers:
+                    property_path: false
+                    type: keyword
+                deleteGroups:
+                    property_path: false
+                    type: keyword
+                quarantineUsers:
+                    property_path: false
+                    type: keyword
+                quarantineGroups:
+                    property_path: false
+                    type: keyword
                 tags:
                     property_path: tagIds
                     type: keyword

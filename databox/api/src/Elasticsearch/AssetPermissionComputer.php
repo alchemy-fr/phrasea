@@ -9,7 +9,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use App\Elasticsearch\Listener\Dto\AssetPermissionsDTO;
 use App\Elasticsearch\Listener\Dto\CollectionPermissionsDTO;
-use App\Elasticsearch\Listener\Dto\WorkspacePermissionsDTO;
+use App\Elasticsearch\Listener\Dto\PermissionsDTO;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
@@ -81,12 +81,7 @@ final class AssetPermissionComputer
     {
         $bestPrivacy = $asset->getPrivacy();
 
-        $users = [];
-        $groups = [];
-        $deleteUsers = [];
-        $deleteGroups = [];
-        $quarantineUsers = [];
-        $quarantineGroups = [];
+        $permissions = new PermissionsDTO();
 
         $aces = $this->permissionManager->getObjectAces($asset);
         foreach ($aces as $access) {
@@ -94,46 +89,43 @@ final class AssetPermissionComputer
             $isUser = AccessControlEntryInterface::TYPE_USER_VALUE === $access->getUserType();
             if ($access->hasPermission(PermissionInterface::VIEW)) {
                 if ($isUser) {
-                    $users[] = $userId;
+                    $permissions->users[] = $userId;
                 } else {
-                    $groups[] = $userId;
+                    $permissions->groups[] = $userId;
                 }
             }
 
             if ($access->hasPermission(PermissionInterface::DELETE)) {
                 if ($isUser) {
-                    $deleteUsers[] = $userId;
+                    $permissions->deleteUsers[] = $userId;
                 } else {
-                    $deleteGroups[] = $userId;
+                    $permissions->deleteGroups[] = $userId;
                 }
             }
 
             if ($access->hasPermission(DataboxExtraPermissionInterface::PERM_QUARANTINE)) {
                 if ($isUser) {
-                    $quarantineUsers[] = $userId;
+                    $permissions->quarantineUsers[] = $userId;
                 } else {
-                    $quarantineGroups[] = $userId;
+                    $permissions->quarantineGroups[] = $userId;
                 }
             }
         }
 
         if (null !== $asset->getOwnerId()) {
-            $users[] = $asset->getOwnerId();
+            $permissions->users[] = $asset->getOwnerId();
         }
 
         $collectionsPaths = [];
         $stories = [];
 
         $workspaceInfo = $this->getWorkspaceHierarchyInfo($asset->getWorkspace());
-        $users = array_merge($users, $workspaceInfo->users);
-        $groups = array_merge($groups, $workspaceInfo->groups);
-        $deleteUsers = array_merge($deleteUsers, $workspaceInfo->deleteUsers);
-        $deleteGroups = array_merge($deleteGroups, $workspaceInfo->deleteGroups);
-        $quarantineUsers = array_merge($quarantineUsers, $workspaceInfo->quarantineUsers);
-        $quarantineGroups = array_merge($quarantineGroups, $workspaceInfo->quarantineGroups);
+
+        $permissions->mergeWith($workspaceInfo)->unique();
 
         foreach ($asset->getCollections() as $collectionAsset) {
             $collection = $collectionAsset->getCollection();
+            $isReferenceCollection = $collection->getId() === $asset->getReferenceCollectionId();
 
             $collectionInfo = $this->getCollectionHierarchyInfo($collection);
             $collectionBestPrivacy = $collectionInfo->bestPrivacy;
@@ -146,8 +138,7 @@ final class AssetPermissionComputer
             }
             $bestPrivacy = max($bestPrivacy, $collectionBestPrivacy);
 
-            $users = array_merge($users, $collectionInfo->users);
-            $groups = array_merge($groups, $collectionInfo->groups);
+            $permissions->mergeWith($collectionInfo->permissions, !$isReferenceCollection)->unique();
 
             if (null !== $storyAsset = $collection->getStoryAsset()) {
                 $stories[] = $storyAsset->getId();
@@ -164,12 +155,9 @@ final class AssetPermissionComputer
                 }
 
                 $bestPrivacy = max($bestPrivacy, $storyBestPrivacy);
-                $users = array_merge($users, $storyPermissions->users);
-                $groups = array_merge($groups, $storyPermissions->groups);
-                $deleteUsers = array_merge($deleteUsers, $storyPermissions->deleteUsers);
-                $deleteGroups = array_merge($deleteGroups, $storyPermissions->deleteGroups);
-                $quarantineUsers = array_merge($quarantineUsers, $storyPermissions->quarantineUsers);
-                $quarantineGroups = array_merge($quarantineGroups, $storyPermissions->quarantineGroups);
+
+                $permissions->mergeWith($storyPermissions->permissions, !$isReferenceCollection)->unique();
+
                 $collectionsPaths = array_merge($collectionsPaths, $storyPermissions->collectionPaths);
             } else {
                 $collectionsPaths[] = $collectionInfo->absolutePath;
@@ -178,37 +166,27 @@ final class AssetPermissionComputer
 
         return new AssetPermissionsDTO(
             $bestPrivacy,
-            array_values(array_unique($users)),
-            array_values(array_unique($groups)),
-            array_values(array_unique($deleteUsers)),
-            array_values(array_unique($deleteGroups)),
-            array_values(array_unique($quarantineUsers)),
-            array_values(array_unique($quarantineGroups)),
+            $permissions->unique(),
             array_values(array_unique($collectionsPaths)),
             array_values(array_unique($stories)),
         );
     }
 
-    public function getWorkspaceHierarchyInfo(Workspace $workspace): WorkspacePermissionsDTO
+    public function getWorkspaceHierarchyInfo(Workspace $workspace): PermissionsDTO
     {
         if (null === $this->workspaceCache) {
             return $this->doGetWorkspaceHierarchyInfo($workspace);
         }
 
-        return $this->workspaceCache->get($workspace->getId(), fn (): WorkspacePermissionsDTO => $this->doGetWorkspaceHierarchyInfo($workspace));
+        return $this->workspaceCache->get($workspace->getId(), fn (): PermissionsDTO => $this->doGetWorkspaceHierarchyInfo($workspace));
     }
 
-    private function doGetWorkspaceHierarchyInfo(Workspace $workspace): WorkspacePermissionsDTO
+    private function doGetWorkspaceHierarchyInfo(Workspace $workspace): PermissionsDTO
     {
-        $users = [];
-        $groups = [];
-        $deleteUsers = [];
-        $deleteGroups = [];
-        $quarantineUsers = [];
-        $quarantineGroups = [];
+        $permissions = new PermissionsDTO();
 
         if (null !== $workspace->getOwnerId()) {
-            $users[] = $workspace->getOwnerId();
+            $permissions->users[] = $workspace->getOwnerId();
         }
 
         $aces = $this->permissionManager->getObjectAces($workspace);
@@ -220,38 +198,31 @@ final class AssetPermissionComputer
                 || $access->hasPermission(PermissionInterface::OWNER)
             ) {
                 if ($isUser) {
-                    $users[] = $userId;
+                    $permissions->users[] = $userId;
                 } else {
-                    $groups[] = $userId;
+                    $permissions->groups[] = $userId;
                 }
             }
 
             if ($access->hasPermission(PermissionInterface::CHILD_DELETE)) {
                 if ($isUser) {
-                    $deleteUsers[] = $userId;
+                    $permissions->deleteUsers[] = $userId;
                 } else {
-                    $deleteGroups[] = $userId;
+                    $permissions->deleteGroups[] = $userId;
                 }
             }
 
             if ($access->hasPermission(DataboxExtraPermissionInterface::PERM_QUARANTINE)
                 || $access->hasPermission(PermissionInterface::OWNER)) {
                 if ($isUser) {
-                    $quarantineUsers[] = $userId;
+                    $permissions->quarantineUsers[] = $userId;
                 } else {
-                    $quarantineGroups[] = $userId;
+                    $permissions->quarantineGroups[] = $userId;
                 }
             }
         }
 
-        return new WorkspacePermissionsDTO(
-            array_values(array_unique($users)),
-            array_values(array_unique($groups)),
-            array_values(array_unique($deleteUsers)),
-            array_values(array_unique($deleteGroups)),
-            array_values(array_unique($quarantineUsers)),
-            array_values(array_unique($quarantineGroups)),
-        );
+        return $permissions->unique();
     }
 
     private function getCollectionHierarchyInfo(Collection $collection): CollectionPermissionsDTO
@@ -266,70 +237,55 @@ final class AssetPermissionComputer
     private function doGetCollectionHierarchyInfo(Collection $collection): CollectionPermissionsDTO
     {
         $bestPrivacyInParentHierarchy = $collection->getBestPrivacyInParentHierarchy();
-        $users = [];
-        $groups = [];
-        $deleteUsers = [];
-        $deleteGroups = [];
-        $quarantineUsers = [];
-        $quarantineGroups = [];
 
-        if ($bestPrivacyInParentHierarchy < WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS) {
-            if (!$collection->isStory() && null !== $collection->getOwnerId()) {
-                $users[] = $collection->getOwnerId();
-            }
+        $permissions = new PermissionsDTO();
 
-            $aces = $this->permissionManager->getObjectAces($collection);
-            foreach ($aces as $access) {
-                $userId = $access->getUserId() ?? AccessControlEntryInterface::USER_WILDCARD;
-                $isUser = AccessControlEntryInterface::TYPE_USER_VALUE === $access->getUserType();
-                if ($access->hasPermission(PermissionInterface::VIEW)
-                    || $access->hasPermission(PermissionInterface::CHILD_VIEW)) {
-                    if ($isUser) {
-                        $users[] = $userId;
-                    } else {
-                        $groups[] = $userId;
-                    }
-                }
+        if (!$collection->isStory() && null !== $collection->getOwnerId()) {
+            $permissions->users[] = $collection->getOwnerId();
+        }
 
-                if ($access->hasPermission(PermissionInterface::EDIT)
-                    || $access->hasPermission(PermissionInterface::DELETE)
-                    || $access->hasPermission(PermissionInterface::CHILD_DELETE)) {
-                    if ($isUser) {
-                        $deleteUsers[] = $userId;
-                    } else {
-                        $deleteGroups[] = $userId;
-                    }
-                }
-
-                if ($access->hasPermission(DataboxExtraPermissionInterface::PERM_QUARANTINE)) {
-                    if ($isUser) {
-                        $quarantineUsers[] = $userId;
-                    } else {
-                        $quarantineGroups[] = $userId;
-                    }
+        $aces = $this->permissionManager->getObjectAces($collection);
+        foreach ($aces as $access) {
+            $userId = $access->getUserId() ?? AccessControlEntryInterface::USER_WILDCARD;
+            $isUser = AccessControlEntryInterface::TYPE_USER_VALUE === $access->getUserType();
+            if ($access->hasPermission(PermissionInterface::VIEW)
+                || $access->hasPermission(PermissionInterface::CHILD_VIEW)) {
+                if ($isUser) {
+                    $permissions->users[] = $userId;
+                } else {
+                    $permissions->groups[] = $userId;
                 }
             }
 
-            if (null !== $parent = $collection->getParent()) {
-                $parentInfo = $this->getCollectionHierarchyInfo($parent);
-                $users = array_merge($users, $parentInfo->users);
-                $groups = array_merge($groups, $parentInfo->groups);
-                $deleteUsers = array_merge($deleteUsers, $parentInfo->deleteUsers);
-                $deleteGroups = array_merge($deleteGroups, $parentInfo->deleteGroups);
-                $quarantineUsers = array_merge($quarantineUsers, $parentInfo->quarantineUsers);
-                $quarantineGroups = array_merge($quarantineGroups, $parentInfo->quarantineGroups);
+            if ($access->hasPermission(PermissionInterface::EDIT)
+                || $access->hasPermission(PermissionInterface::DELETE)
+                || $access->hasPermission(PermissionInterface::CHILD_DELETE)) {
+                if ($isUser) {
+                    $permissions->deleteUsers[] = $userId;
+                } else {
+                    $permissions->deleteGroups[] = $userId;
+                }
             }
+
+            if (in_array(DataboxExtraPermissionInterface::PERM_QUARANTINE, $access->getMetadata(), true)) {
+                if ($isUser) {
+                    $permissions->quarantineUsers[] = $userId;
+                } else {
+                    $permissions->quarantineGroups[] = $userId;
+                }
+            }
+        }
+
+        if (null !== $parent = $collection->getParent()) {
+            $parentInfo = $this->getCollectionHierarchyInfo($parent);
+
+            $permissions->mergeWith($parentInfo->permissions, false)->unique();
         }
 
         return new CollectionPermissionsDTO(
             $bestPrivacyInParentHierarchy,
             $collection->getAbsolutePath(),
-            array_values(array_unique($users)),
-            array_values(array_unique($groups)),
-            array_values(array_unique($deleteUsers)),
-            array_values(array_unique($deleteGroups)),
-            array_values(array_unique($quarantineUsers)),
-            array_values(array_unique($quarantineGroups)),
+            $permissions->unique(),
         );
     }
 }
