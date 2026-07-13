@@ -35,9 +35,11 @@ final readonly class WorkspaceCreator
         $this->em->persist($renditionPolicy);
 
         $previousRendition = null;
+        $renditionDefs = [];
         foreach (['main', 'preview', 'thumbnail'] as $renditionName) {
             $rendition = new RenditionDefinition();
             $rendition->setParent($previousRendition);
+            $renditionDefs[$renditionName] = $rendition;
             $previousRendition = $rendition;
             $rendition->setName(ucfirst($renditionName));
             $rendition->setPolicy($renditionPolicy);
@@ -87,6 +89,12 @@ final readonly class WorkspaceCreator
         $readMetadataIntegration->setWorkspace($workspace);
         $this->em->persist($readMetadataIntegration);
 
+        $renditionIntegration = new WorkspaceIntegration();
+        $renditionIntegration->setOwnerId($workspace->getOwnerId());
+        $renditionIntegration->setPublic(true);
+        $renditionIntegration->setWorkspace($workspace);
+        $renditionIntegration->setIntegration(RenditionIntegration::getName());
+
         if ($workspace->isFileAnalysisRequired()) {
             $fileAnalyzerIntegration = new WorkspaceIntegration();
             $fileAnalyzerIntegration->setOwnerId($workspace->getOwnerId());
@@ -95,18 +103,19 @@ final readonly class WorkspaceCreator
             $fileAnalyzerIntegration->setWorkspace($workspace);
             $fileAnalyzerIntegration->setConfig(Yaml::parse(file_get_contents(__DIR__.'/fileAnalyzers.yaml')));
             $fileAnalyzerIntegration->getNeeds()->add($readMetadataIntegration);
-
             $this->em->persist($fileAnalyzerIntegration);
-        }
 
-        $renditionIntegration = new WorkspaceIntegration();
-        $renditionIntegration->setOwnerId($workspace->getOwnerId());
-        $renditionIntegration->setPublic(true);
-        $renditionIntegration->setWorkspace($workspace);
-        $renditionIntegration->setIntegration(RenditionIntegration::getName());
+            $renditionBaseIntegration = new WorkspaceIntegration();
+            $renditionBaseIntegration->setName('Base Renditions');
+            $renditionBaseIntegration->setConfig(['renditions' => [$renditionDefs['thumbnail']->getId()]]);
+            $renditionBaseIntegration->setOwnerId($workspace->getOwnerId());
+            $renditionBaseIntegration->setPublic(true);
+            $renditionBaseIntegration->setWorkspace($workspace);
+            $renditionBaseIntegration->setIntegration(RenditionIntegration::getName());
+            $this->em->persist($renditionBaseIntegration);
 
-        if (isset($fileAnalyzerIntegration)) {
             $renditionIntegration->getNeeds()->add($fileAnalyzerIntegration);
+            $renditionIntegration->getNeeds()->add($renditionBaseIntegration);
         }
 
         $this->em->persist($renditionIntegration);

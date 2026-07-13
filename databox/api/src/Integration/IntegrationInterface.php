@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
+use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
@@ -21,8 +22,16 @@ interface IntegrationInterface
 
     public function validateConfiguration(IntegrationConfig $config): void;
 
+    // Normalize configuration to be persisted to database
+    public function normalizeConfiguration(array $config, Workspace $workspace): array;
+
+    public function denormalizeConfiguration(array $config, Workspace $workspace): array;
+
     public function getConfigurationInfo(IntegrationConfig $config): array;
 
+    /**
+     * @return array The exposed configuration through API
+     */
     public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationConfig $config): array;
 
     /**

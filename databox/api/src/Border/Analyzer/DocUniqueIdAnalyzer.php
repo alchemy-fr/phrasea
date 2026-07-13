@@ -116,14 +116,16 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
 
         if ($config['generate'] && null === $duid) {
             $data['new'] = true;
-            $duid = Uuid::uuid4();
+            $duid = Uuid::uuid4()->toString();
         }
 
         $data['duid'] = $duid;
 
+        $file->setDocUniqueId($duid);
+
         if ($config['write'] && null !== $duid) {
             foreach ($config['write_to'] as $key) {
-                $metadata[$key] = (string) $duid;
+                $metadata[$key] = $duid;
             }
 
             $file->setMetadata($metadata);

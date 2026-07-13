@@ -56,6 +56,8 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
             if ($integration instanceof IntegrationInterface) {
                 $object->setConfig($integration->generateConfigurationDefaults($object->getConfig()));
             }
+        } else {
+            $integration = $this->integrationRegistry->getIntegration($object->getIntegration());
         }
 
         if (null !== $data->enabled) {
@@ -76,6 +78,10 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
         if (null !== $data->if) {
             $object->setIf($data->if ?: null);
         }
+
+        $this->validator->validate($object, $context); // Validate before normalization
+
+        $object->setConfig($integration->normalizeConfiguration($object->getConfig(), $object->getWorkspace()));
 
         return $this->processOwnerId($object);
     }
