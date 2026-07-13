@@ -80,17 +80,18 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
         $filteredRenditions = $config['renditions'] ?? [];
-        if (!empty($filteredRenditions)) {
-            $definitions = $this->renditionManager->getRenditionDefinitionByIds($config->getWorkspaceId(), $filteredRenditions);
-        } else {
+        if (empty($filteredRenditions)) {
             $definitions = $this->renditionManager->getRenditionDefinitions($config->getWorkspaceId());
+        } else {
+            $definitions = $this->renditionManager->getRenditionDefinitionByIds($config->getWorkspaceId(), $filteredRenditions);
             $definitionsIndex = [];
             foreach ($definitions as $definition) {
                 if (isset($definitionsIndex[$definition->getId()])) {
                     continue;
                 }
                 $definitionsIndex[$definition->getId()] = $definition;
-                while ($parent = $definition->getParent()) {
+                $parent = $definition;
+                while ($parent = $parent->getParent()) {
                     if (isset($definitionsIndex[$parent->getId()])) {
                         break;
                     }
