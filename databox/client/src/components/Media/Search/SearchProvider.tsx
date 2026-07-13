@@ -124,6 +124,7 @@ export default function SearchProvider({children}: Props) {
                     const newConditions = removeConditionsHelper(p, [
                         BuiltInFieldEnum.Collection,
                         BuiltInFieldEnum.Deleted,
+                        BuiltInFieldEnum.AssetStatus,
                     ]);
 
                     if (!id) {
@@ -155,6 +156,7 @@ export default function SearchProvider({children}: Props) {
                     const newConditions = removeConditionsHelper(p, [
                         BuiltInFieldEnum.Workspace,
                         BuiltInFieldEnum.Deleted,
+                        BuiltInFieldEnum.AssetStatus,
                     ]);
 
                     if (!id) {

@@ -68,6 +68,15 @@ function CollectionsPanel({}: Props) {
         },
     });
 
+    const isConditionOfId = (id: string) => {
+        return (
+            searchContext.workspaces.length === 0 &&
+            searchContext.collections.length === 0 &&
+            searchContext.conditions.length === 1 &&
+            searchContext.conditions[0].id === id
+        );
+    };
+
     return (
         <>
             <SearchBar
@@ -164,14 +173,9 @@ function CollectionsPanel({}: Props) {
                         >
                             <ListItem disablePadding>
                                 <ListItemButton
-                                    selected={
-                                        searchContext.workspaces.length === 0 &&
-                                        searchContext.collections.length ===
-                                            0 &&
-                                        searchContext.conditions.length === 1 &&
-                                        searchContext.conditions[0].id ===
-                                            BuiltInFieldEnum.Deleted
-                                    }
+                                    selected={isConditionOfId(
+                                        BuiltInFieldEnum.Deleted
+                                    )}
                                     onClick={() => {
                                         searchContext.resetWithCondition({
                                             id: BuiltInFieldEnum.Deleted,
@@ -192,16 +196,9 @@ function CollectionsPanel({}: Props) {
                             </ListItem>
                             <ListItem disablePadding>
                                 <ListItemButton
-                                    selected={
-                                        searchContext.workspaces.length === 0 &&
-                                        searchContext.collections.length ===
-                                            0 &&
-                                        searchContext.conditions.length === 1 &&
-                                        searchContext.conditions[0].id ===
-                                            BuiltInFieldEnum.AssetStatus &&
-                                        searchContext.conditions[0].query ===
-                                            `${BuiltInFieldEnum.AssetStatus} = ${AssetStatus.Quarantined}`
-                                    }
+                                    selected={isConditionOfId(
+                                        BuiltInFieldEnum.AssetStatus
+                                    )}
                                     onClick={() => {
                                         searchContext.resetWithCondition({
                                             id: BuiltInFieldEnum.AssetStatus,
