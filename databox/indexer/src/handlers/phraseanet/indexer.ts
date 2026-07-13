@@ -9,6 +9,7 @@ import {CPhraseanetRecord, CPhraseanetStory} from './CPhraseanetRecord';
 import PhraseanetClient, {ORDER_ASC} from './phraseanetClient';
 import {AttrPolicyIndex, createAsset, TagIndex} from './shared';
 import {getConfig, getStrict} from '../../configLoader';
+import {getEnv} from '../../env';
 import {
     concatPath,
     escapePath,
@@ -199,7 +200,14 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 }
             }
 
-            const lockFile = `${process.cwd()}/config/${location.name}_${phraseanetDatabox.name}_${dm.workspaceSlug}.lock`;
+            const lockDir = getEnv(
+                'INDEXER_LOCK_DIR',
+                p.resolve('config')
+            ) as string;
+            const lockFile = p.join(
+                lockDir,
+                `${location.name}_${phraseanetDatabox.name}_${dm.workspaceSlug}.lock`
+            );
             let wip: {last_story: null | string; last_record: null | string} = {
                 last_story: null,
                 last_record: null,
