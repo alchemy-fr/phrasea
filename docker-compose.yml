@@ -753,7 +753,7 @@ services:
       - AMQP_DSN=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/s3events
       - IMPORT_FILES=${INDEXER_IMPORT_FILES}
       - CONFIG_FILE=${INDEXER_CONFIG_FILE}
-      - INDEXER_LOCK_DIR=/srv/workspace/phrasea/databox/indexer/config
+      - INDEXER_LOCK_DIR
       - DATABOX_API_URL
       - DATABOX_VERIFY_SSL=${VERIFY_SSL}
       - DATABOX_CLIENT_ID=${INDEXER_DATABOX_CLIENT_ID}
