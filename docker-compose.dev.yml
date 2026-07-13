@@ -283,6 +283,8 @@ services:
     extends:
       service: a_client
     entrypoint: ''
+    environment:
+      - INDEXER_LOCK_DIR=/srv/workspace/phrasea/databox/indexer/config
     volumes:
       - ./:/srv/workspace/phrasea
 
