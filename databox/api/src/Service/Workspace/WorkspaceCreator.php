@@ -7,6 +7,7 @@ namespace App\Service\Workspace;
 use App\Attribute\Type\TextAttributeType;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributePolicy;
+use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
@@ -30,6 +31,31 @@ final readonly class WorkspaceCreator
         $renditionPolicy->setPublic(true);
         $renditionPolicy->setEditable(true);
         $this->em->persist($renditionPolicy);
+
+        $previousRendition = null;
+        foreach (['main', 'preview', 'thumbnail'] as $renditionName) {
+            $rendition = new RenditionDefinition();
+            $rendition->setParent($previousRendition);
+            $previousRendition = $rendition;
+            $rendition->setName(ucfirst($renditionName));
+            $rendition->setPolicy($renditionPolicy);
+            $rendition->setWorkspace($workspace);
+            $rendition->setUseAsMain('main' === $renditionName);
+            $rendition->setUseAsPreview('preview' === $renditionName);
+            $rendition->setUseAsThumbnail('thumbnail' === $renditionName);
+            $buildFile = __DIR__.'/renditions/'.$renditionName.'.yaml';
+            if (file_exists($buildFile)) {
+                $rendition->setBuildMode(RenditionDefinition::BUILD_MODE_CUSTOM);
+                $rendition->setDefinition(file_get_contents($buildFile));
+            } else {
+                $rendition->setBuildMode(RenditionDefinition::BUILD_MODE_PICK_SOURCE);
+            }
+            $rendition->setTarget(AssetTypeEnum::Both);
+            $rendition->setKey($renditionName);
+            $rendition->setSubstitutable(true);
+            $rendition->setParent(null);
+            $this->em->persist($rendition);
+        }
 
         $attributePolicy = new AttributePolicy();
         $attributePolicy->setWorkspace($workspace);
