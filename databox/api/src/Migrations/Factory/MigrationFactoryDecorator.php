@@ -6,11 +6,19 @@ namespace App\Migrations\Factory;
 
 use Doctrine\Migrations\AbstractMigration;
 use Doctrine\Migrations\Version\MigrationFactory;
+use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+
+#[AsDecorator('doctrine.migrations.migrations_factory')]
 class MigrationFactoryDecorator implements MigrationFactory
 {
-    public function __construct(private readonly MigrationFactory $migrationFactory, private readonly ContainerInterface $container)
+    public function __construct(
+        private readonly MigrationFactory $migrationFactory,
+        #[Autowire(service: 'service_container')]
+        private readonly ContainerInterface $container
+    )
     {
     }
 

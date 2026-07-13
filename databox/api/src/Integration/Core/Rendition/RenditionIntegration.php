@@ -30,6 +30,7 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
                 ->end()
             ->end()
         ;
+        // @formatter:on
     }
 
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
@@ -37,7 +38,7 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
         /** @var RenditionDefinition[] $definitions */
         $definitions = $this->renditionManager->getRenditionDefinitions($config->getWorkspaceId());
 
-        $renditions = $config['renditions'] ?? null;
+        $renditions = $config['renditions'] ?? [];
 
         $jobs = [];
 
@@ -61,7 +62,7 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
             }
         }
 
-        if (null !== $renditions) {
+        if (!empty($renditions)) {
             foreach ($definitions as $definition) {
                 if (!in_array($definition->getName(), $renditions, true) && !isset($neededDefinitions[$definition->getId()])) {
                     unset($jobs[$definition->getId()]);

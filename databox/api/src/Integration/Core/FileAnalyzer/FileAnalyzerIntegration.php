@@ -37,6 +37,7 @@ class FileAnalyzerIntegration extends AbstractIntegration implements WorkflowInt
                     ->values($actions)
                 ->end()
             ->end();
+        // @formatter:on
     }
 
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable

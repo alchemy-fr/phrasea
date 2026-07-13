@@ -43,7 +43,7 @@ class FileCrudController extends AbstractAdminCrudController
         return parent::configureCrud($crud)
             ->setEntityLabelInSingular('File')
             ->setEntityLabelInPlural('Files')
-            ->setSearchFields(['id', 'type', 'checksum', 'path', 'originalName', 'extension']);
+            ->setSearchFields(['id', 'type', 'checksum', 'docUniqueId', 'path', 'originalName', 'extension']);
     }
 
     #[\Override]
@@ -52,6 +52,8 @@ class FileCrudController extends AbstractAdminCrudController
         return $filters
             ->add(EntityFilter::new('workspace'))
             ->add(TextFilter::new('storage'))
+            ->add(TextFilter::new('checksum'))
+            ->add(TextFilter::new('docUniqueId'))
             ->add(BooleanFilter::new('pathPublic'))
             ->add(DateTimeFilter::new('createdAt'))
         ;
@@ -75,6 +77,8 @@ class FileCrudController extends AbstractAdminCrudController
         yield IntegerField::new('size')
             ->hideOnIndex();
         yield TextField::new('checksum')
+            ->hideOnIndex();
+        yield TextField::new('docUniqueId')
             ->hideOnIndex();
         yield TextField::new('extension')
             ->hideOnIndex();

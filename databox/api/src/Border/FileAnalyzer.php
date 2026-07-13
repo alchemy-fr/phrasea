@@ -84,6 +84,11 @@ final readonly class FileAnalyzer
         foreach ($config['analyzers'] ?? [] as $analyzerConfig) {
             $analyzer = $this->fileAnalyzerRegistry->getAnalyzer($analyzerConfig['name']);
 
+            $analyzerConfig = $this->fileAnalyzerRegistry->processConfiguration(
+                $analyzer,
+                $analyzerConfig,
+            );
+
             if ($analyzer->requiresFileContent($file, $analyzerConfig)) {
                 $fileContentsRequired = true;
 

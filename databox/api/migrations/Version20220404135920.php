@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
-use App\Elasticsearch\Listener\DeferredIndexListener;
+use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use App\Entity\Core\AttributeDefinition;
 use App\Migrations\AbstractServiceContainerMigration;
 use Doctrine\DBAL\Schema\Schema;

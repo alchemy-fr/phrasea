@@ -135,9 +135,11 @@ export default function CollectionsTreeView<IsMulti extends boolean = false>({
         defaultExpandedNodes,
         resolveExpandedNodes: async selectedNodes => {
             return await Promise.all(
-                selectedNodes.map(iri => {
-                    return loadCollectionAscendants(extractIdFromIri(iri));
-                })
+                selectedNodes
+                    .filter(iri => iri.startsWith(`/${EntityName.Collection}`))
+                    .map(iri => {
+                        return loadCollectionAscendants(extractIdFromIri(iri));
+                    })
             ).then(collections => {
                 return collections
                     .map(c => {

@@ -12,9 +12,11 @@ use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Core\FileAnalyzer\FileAnalyzerIntegration;
+use App\Integration\Core\ReadMetadata\ReadMetadataIntegration;
 use App\Integration\Core\Rendition\RenditionIntegration;
 use App\Model\AssetTypeEnum;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Yaml\Yaml;
 
 final readonly class WorkspaceCreator
 {
@@ -53,7 +55,6 @@ final readonly class WorkspaceCreator
             $rendition->setTarget(AssetTypeEnum::Both);
             $rendition->setKey($renditionName);
             $rendition->setSubstitutable(true);
-            $rendition->setParent(null);
             $this->em->persist($rendition);
         }
 
@@ -79,12 +80,22 @@ final readonly class WorkspaceCreator
         $nameAttribute->setEditableInGui(true);
         $nameAttribute->setMultiple(false);
 
+        $readMetadataIntegration = new WorkspaceIntegration();
+        $readMetadataIntegration->setOwnerId($workspace->getOwnerId());
+        $readMetadataIntegration->setPublic(false);
+        $readMetadataIntegration->setIntegration(ReadMetadataIntegration::getName());
+        $readMetadataIntegration->setWorkspace($workspace);
+        $this->em->persist($readMetadataIntegration);
+
         if ($workspace->isFileAnalysisRequired()) {
             $fileAnalyzerIntegration = new WorkspaceIntegration();
             $fileAnalyzerIntegration->setOwnerId($workspace->getOwnerId());
-            $fileAnalyzerIntegration->setPublic(true);
+            $fileAnalyzerIntegration->setPublic(false);
             $fileAnalyzerIntegration->setIntegration(FileAnalyzerIntegration::getName());
             $fileAnalyzerIntegration->setWorkspace($workspace);
+            $fileAnalyzerIntegration->setConfig(Yaml::parse(file_get_contents(__DIR__.'/fileAnalyzers.yaml')));
+            $fileAnalyzerIntegration->getNeeds()->add($readMetadataIntegration);
+
             $this->em->persist($fileAnalyzerIntegration);
         }
 
@@ -93,6 +104,11 @@ final readonly class WorkspaceCreator
         $renditionIntegration->setPublic(true);
         $renditionIntegration->setWorkspace($workspace);
         $renditionIntegration->setIntegration(RenditionIntegration::getName());
+
+        if (isset($fileAnalyzerIntegration)) {
+            $renditionIntegration->getNeeds()->add($fileAnalyzerIntegration);
+        }
+
         $this->em->persist($renditionIntegration);
 
         $this->em->persist($nameAttribute);

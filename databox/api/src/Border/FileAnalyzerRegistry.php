@@ -35,7 +35,13 @@ final readonly class FileAnalyzerRegistry
             ->scalarNode('name')
                 ->cannotBeEmpty()
                 ->isRequired()
+            ->end()
+            ->enumNode('severity')
+                ->defaultValue('error')
+                ->values(['warning', 'error', 'critical'])
             ->end();
+        // @formatter:on
+
         $analyzer->buildConfiguration($children);
 
         $node = $treeBuilder->buildTree();

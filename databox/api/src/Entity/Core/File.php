@@ -11,9 +11,11 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use App\Api\Model\Output\FileOutput;
 use App\Entity\Traits\WorkspaceTrait;
+use App\Repository\Core\FileRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidType;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource(
@@ -37,7 +39,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     output: FileOutput::class
 )]
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: FileRepository::class)]
+#[ORM\Index(columns: ['workspace_id', 'checksum'])]
+#[ORM\Index(columns: ['workspace_id', 'doc_unique_id'])]
 class File extends AbstractUuidEntity implements \Stringable
 {
     use CreatedAtTrait;
@@ -73,6 +77,9 @@ class File extends AbstractUuidEntity implements \Stringable
 
     #[ORM\Column(type: Types::STRING, length: 64, nullable: true)]
     private ?string $checksum = null;
+
+    #[ORM\Column(type: UuidType::NAME, nullable: true)]
+    private ?string $docUniqueId = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
     private ?string $path = null;
@@ -186,6 +193,16 @@ class File extends AbstractUuidEntity implements \Stringable
     public function setChecksum(?string $checksum): void
     {
         $this->checksum = $checksum;
+    }
+
+    public function getDocUniqueId(): ?string
+    {
+        return $this->docUniqueId;
+    }
+
+    public function setDocUniqueId(?string $docUniqueId): void
+    {
+        $this->docUniqueId = $docUniqueId;
     }
 
     public function getFileName(): string

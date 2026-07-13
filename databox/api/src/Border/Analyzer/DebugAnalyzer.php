@@ -32,6 +32,7 @@ final readonly class DebugAnalyzer extends AbstractAnalyzer
                 ->end()
             ->end()
         ;
+        // @formatter:on
     }
 
     public function analyzeFile(File $file, ?string $path, array $config): AnalysisOutput
@@ -50,5 +51,10 @@ final readonly class DebugAnalyzer extends AbstractAnalyzer
 
     public function validateConfiguration(array $config): void
     {
+    }
+
+    protected function getDocumentationHeader(): string
+    {
+        return 'This analyzer is used for debugging purposes. It allows you to specify errors, warnings, and additional data to be returned during the analysis of a file.';
     }
 }
