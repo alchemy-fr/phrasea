@@ -10,6 +10,7 @@ import {useAuth} from '@alchemy/react-auth';
 import AssetSearch from './AssetSearch/AssetSearch';
 import PendingUploads from './Upload/PendingUploads.tsx';
 import AppLayout from './Layout/AppLayout.tsx';
+import PendingExports from './Upload/PendingExports.tsx';
 
 function isDrawer(locationSearch: string): boolean {
     return locationSearch.includes('_m=');
@@ -42,6 +43,7 @@ const AppProxy = React.memo(
             <>
                 <style>{'body { overflow: hidden; }'}</style>
                 <PendingUploads />
+                <PendingExports />
                 <SearchProvider>
                     <ResultProvider>
                         <AssetDropzone>

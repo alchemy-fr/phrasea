@@ -60,3 +60,20 @@ export function validateUrl(value: string): boolean {
         return false;
     }
 }
+
+export function downloadUrl(url: string, filename?: string): void {
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    if (filename) {
+        a.download = filename;
+    }
+    a.style.display = 'none';
+    document.body.append(a);
+    a.click();
+
+    setTimeout(() => {
+        a.remove();
+        URL.revokeObjectURL(url);
+    }, 100);
+}

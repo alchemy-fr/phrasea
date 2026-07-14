@@ -7,6 +7,7 @@ import {isObject, mergeDeep} from './src/merge';
 import {resolveSx, sumSpacing} from './src/sxUtils';
 import {
     dataURLtoFile,
+    downloadUrl,
     getFileTypeFromMIMEType,
     validateUrl,
 } from './src/fileUtils';
@@ -24,6 +25,7 @@ export {
     initSentry,
     logError,
     ErrorBoundary,
+    downloadUrl,
     setSentryUser,
     registerPusherWs,
     createPusher,

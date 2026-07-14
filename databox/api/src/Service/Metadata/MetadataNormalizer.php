@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace App\Service\Metadata;
 
+use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use PHPExiftool\Driver\Metadata\Metadata;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Driver\Value\Binary;
 
-class MetadataNormalizer
+final readonly class MetadataNormalizer
 {
+    public function __construct(
+        private MetadataManipulator $metadataManipulator,
+    ) {
+    }
+
     /**
      * normalize metadata from metadataManipulator bundle (for File.metadata).
      */
@@ -40,5 +46,33 @@ class MetadataNormalizer
         }
 
         return $a;
+    }
+
+    public function denormalize(array $data): MetadataBag
+    {
+        dump($data);
+        $bag = new MetadataBag();
+
+        foreach ($data as $groupId => $groupData) {
+            $meta = $this->metadataManipulator->createMetadata($groupId);
+            if (!$meta->getTagGroup()->isWritable() || str_starts_with($groupId, 'System:')) {
+                continue;
+            }
+
+            $values = $groupData['values'] ?? [];
+            if (!is_array($values)) {
+                continue;
+            }
+
+            if ($meta->getTagGroup()->isMulti()) {
+                $meta->setValue($values);
+            } else {
+                $meta->setValue(reset($values));
+            }
+
+            $bag->add($meta);
+        }
+
+        return $bag;
     }
 }

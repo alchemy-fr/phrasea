@@ -166,6 +166,7 @@
         "alchemy/track-bundle": "@dev",
         "alchemy/webhook-bundle": "@dev",
         "alchemy/workflow-bundle": "@dev",
+        "alchemy/zippy": "v0.5.x-dev",
         "api-platform/core": "^3.2.7",
         "arthem/object-reference-bundle": "^1.0.0",
         "beberlei/doctrineextensions": "dev-regex-replace-flags",

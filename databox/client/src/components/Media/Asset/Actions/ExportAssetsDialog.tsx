@@ -13,6 +13,8 @@ import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {RemoteErrors} from '@alchemy/react-form';
+import {downloadUrl} from '@alchemy/core';
+import {useAssetExportStore} from '../../../../store/assetExportStore.ts';
 
 type Props = {
     assets: Asset[];
@@ -34,6 +36,7 @@ export default function ExportAssetsDialog({assets, ...modalProps}: Props) {
     const [definitions, setDefinitions] = useState<IndexedDefinition>();
     const [loading, setLoading] = useState(false);
     const {closeModal} = useModals();
+    const addExport = useAssetExportStore(state => state.addExport);
 
     const count = assets.length;
 
@@ -76,22 +79,19 @@ export default function ExportAssetsDialog({assets, ...modalProps}: Props) {
         },
         onSubmit: async (data: FormData) => {
             setLoading(true);
-            const downloadUrl = await exportAssets({
-                assets: assets.map(a => a.id),
-                renditions: data.renditions,
-            });
+            try {
+                const assetExport = await exportAssets({
+                    assets: assets.map(a => a.id),
+                    renditions: data.renditions,
+                });
 
-            const a = document.createElement('a');
-            a.href = downloadUrl;
-            a.target = '_blank';
-            a.style.display = 'none';
-            document.body.append(a);
-            a.click();
-
-            setTimeout(() => {
-                a.remove();
-            }, 100);
-            setLoading(false);
+                addExport(assetExport);
+                if (assetExport.downloadUrl) {
+                    downloadUrl(assetExport.downloadUrl);
+                }
+            } finally {
+                setLoading(false);
+            }
         },
         onSuccess: () => {
             closeModal();

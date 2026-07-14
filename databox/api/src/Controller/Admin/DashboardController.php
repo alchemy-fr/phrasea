@@ -69,6 +69,10 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkTo(ShareCrudController::class, 'Share'),
         ];
 
+        $exports = [
+            MenuItem::linkTo(AssetExportCrudController::class, 'Asset Export', 'fa fa-file'),
+        ];
+
         $pages = [
             MenuItem::linkTo(PageCrudController::class, 'Page', 'fa fa-file'),
         ];
@@ -126,6 +130,7 @@ class DashboardController extends AbstractAdminDashboardController
 
         yield MenuItem::subMenu('Permission', 'fas fa-lock')->setSubItems($submenuPerms);
         yield MenuItem::subMenu('Core', 'fas fa-database')->setSubItems($submenuCore);
+        yield MenuItem::subMenu('Export', 'fas fa-file')->setSubItems($exports);
         yield MenuItem::subMenu('Page', 'fas fa-file')->setSubItems($pages);
         yield MenuItem::subMenu('Basket', 'fas fa-basket-shopping')->setSubItems($basket);
         yield MenuItem::subMenu('Lists', 'fas fa-list')->setSubItems($lists);

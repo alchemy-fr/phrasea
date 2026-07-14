@@ -697,3 +697,16 @@ export interface Entity {
 }
 
 export type TopicSubscriptions<T extends string = string> = Record<T, boolean>;
+
+export enum ExportStatusEnum {
+    Pending = 0,
+    InProgress = 1,
+    Ready = 2,
+}
+
+export type AssetExport = {
+    id: string;
+    status: ExportStatusEnum;
+    progress?: number;
+    downloadUrl?: string;
+};
