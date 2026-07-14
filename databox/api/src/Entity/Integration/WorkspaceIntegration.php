@@ -107,6 +107,9 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
     #[ORM\OneToMany(mappedBy: 'integration', targetEntity: IntegrationData::class, cascade: ['remove'])]
     private ?Collection $data = null;
 
+    #[ORM\OneToMany(mappedBy: 'integration', targetEntity: IntegrationToken::class, cascade: ['remove'])]
+    private ?Collection $tokens = null;
+
     private ?string $optionsJson = null;
     private ?string $optionsYaml = null;
 
