@@ -10,6 +10,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
+#[ORM\Index(columns: ['date'])]
+#[ORM\Index(columns: ['user_id'])]
+#[ORM\Index(columns: ['impersonator_id'])]
+#[ORM\Index(columns: ['action'])]
+#[ORM\Index(columns: ['object_type', 'object_id'])]
 class ActionLog extends AbstractLog
 {
     #[ORM\Column(type: Types::INTEGER, nullable: false, enumType: ActionLogTypeEnum::class)]
@@ -21,10 +26,7 @@ class ActionLog extends AbstractLog
     #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
     private ?string $objectId = null;
 
-    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
-    private ?string $userId = null;
-
-    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $impersonatorId = null;
 
     #[ORM\Column(type: Types::JSON, nullable: false)]
@@ -58,16 +60,6 @@ class ActionLog extends AbstractLog
     public function setObjectId(?string $objectId): void
     {
         $this->objectId = $objectId;
-    }
-
-    public function getUserId(): ?string
-    {
-        return $this->userId;
-    }
-
-    public function setUserId(?string $userId): void
-    {
-        $this->userId = $userId;
     }
 
     public function getImpersonatorId(): ?string

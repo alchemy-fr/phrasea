@@ -15,6 +15,7 @@ use App\Repository\Template\WorkspaceTemplateRepository;
 use App\Service\Workspace\WorkspaceCreator;
 use App\Service\Workspace\WorkspaceTemplater;
 use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -71,6 +72,7 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         );
     }
 
+    #[AdminRoute(path: 'save-as-template')]
     public function saveAsTemplate(AdminContext $context): Response
     {
         /** @var Workspace $workspace */
@@ -125,24 +127,9 @@ class WorkspaceCrudController extends AbstractAclAdminCrudController
         yield AssociationField::new('collections')
             ->autocomplete()
             ->onlyOnDetail();
-        yield AssociationField::new('tags')
-            ->autocomplete()
-            ->onlyOnDetail();
-        yield AssociationField::new('renditionPolicies')
-            ->autocomplete()
-            ->onlyOnDetail();
-        yield AssociationField::new('renditionDefinitions')
-            ->autocomplete()
-            ->onlyOnDetail();
         yield ChoiceField::new('applyWorkspaceTemplate')
             ->setFormTypeOption('mapped', false)
             ->setChoices($this->getTemplateChoice());
-        yield AssociationField::new('attributeDefinitions')
-            ->autocomplete()
-            ->onlyOnDetail();
-        yield AssociationField::new('files')
-            ->autocomplete()
-            ->onlyOnDetail();
         yield DateTimeField::new('deletedAt')
             ->hideOnIndex();
     }

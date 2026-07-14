@@ -99,16 +99,12 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                 return a.indexOf(value) === index;
             });
 
-            let workspaceId =
-                await databoxClient.getOrCreateWorkspaceIdWithSlug(
-                    dm.workspaceSlug,
-                    locales
-                );
-
-            if (options.createNewWorkspace) {
-                logger.info(`Flushing databox workspace "${dm.workspaceSlug}"`);
-                workspaceId = await databoxClient.flushWorkspace(workspaceId);
-            }
+            const workspaceId = await databoxClient.initWorkspace({
+                slug: dm.workspaceSlug,
+                flushExisting: options.createNewWorkspace,
+                locales,
+                logger,
+            });
 
             const attrPolicyIndex: AttrPolicyIndex = {};
             const defaultPublicPolicy = 'public';

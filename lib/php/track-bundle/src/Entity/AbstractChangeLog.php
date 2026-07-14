@@ -9,6 +9,10 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\MappedSuperclass]
+#[ORM\Index(columns: ['date'])]
+#[ORM\Index(columns: ['user_id'])]
+#[ORM\Index(columns: ['action'])]
+#[ORM\Index(columns: ['object_type', 'object_id'])]
 abstract class AbstractChangeLog extends AbstractLog
 {
     #[ORM\Column(type: Types::SMALLINT, nullable: false, enumType: TrackActionTypeEnum::class)]
@@ -19,9 +23,6 @@ abstract class AbstractChangeLog extends AbstractLog
 
     #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
     private ?string $objectId = null;
-
-    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
-    private ?string $userId = null;
 
     #[ORM\Column(type: Types::JSON, nullable: false)]
     protected array $changes = [];
@@ -54,16 +55,6 @@ abstract class AbstractChangeLog extends AbstractLog
     public function setAction(?TrackActionTypeEnum $action): void
     {
         $this->action = $action;
-    }
-
-    public function getUserId(): ?string
-    {
-        return $this->userId;
-    }
-
-    public function setUserId(?string $userId): void
-    {
-        $this->userId = $userId;
     }
 
     public function getChanges(): array

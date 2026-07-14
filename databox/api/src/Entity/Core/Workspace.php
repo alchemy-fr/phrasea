@@ -110,7 +110,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     #[Assert\Length(min: 2, max: 50)]
     #[Assert\Regex(
         pattern: '/^[a-z0-9][a-z0-9-]*[a-z0-9]$/',
-        message: 'Invalid slug. Should match: my-workspace01'
+        message: 'Invalid slug {{ value }}. Should match: my-workspace01'
     )]
     private ?string $slug = null;
 
