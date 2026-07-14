@@ -147,7 +147,7 @@
         "sass-embedded": "^1.97.3",
         "ts-node": "^10.9.2",
         "typescript": "^5.9.2",
-        "vite": "^7.3.2",
+        "vite": "^6.4.3",
         "vite-plugin-checker": "^0.13.0",
         "vite-plugin-svgr": "^5.2.0",
         "vitest": "^4.1.10"
