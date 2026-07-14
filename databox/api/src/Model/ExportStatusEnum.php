@@ -9,6 +9,7 @@ enum ExportStatusEnum: int
     case Pending = 0;
     case InProgress = 1;
     case Ready = 2;
+    case Failed = 3;
 
     public static function getChoices(): array
     {

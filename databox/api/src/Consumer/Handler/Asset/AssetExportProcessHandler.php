@@ -55,12 +55,13 @@ class AssetExportProcessHandler
         $renditionIds = $export->getRenditions();
         $userData = $export->getUserData();
 
-        $archiveDir = sys_get_temp_dir().'/'.uniqid('archive-file');
+        $archiveDir = sys_get_temp_dir().'/'.uniqid('archive-dir');
         mkdir($archiveDir, 0755, true);
 
         $assets = $export->getAssets();
         $total = count($assets);
         $i = 0;
+        $fileCount = 0;
         try {
             foreach ($assets as $assetId) {
                 $renditions = $this->em->getRepository(AssetRendition::class)->findAssetRenditions($assetId, [
@@ -91,6 +92,8 @@ class AssetExportProcessHandler
                         $metadata = $this->metadataNormalizer->denormalize($file->getMetadata());
                         $writer->write($path, $metadata);
                     }
+
+                    ++$fileCount;
                 }
 
                 $this->em->clear();
@@ -98,17 +101,39 @@ class AssetExportProcessHandler
                 $this->triggerExportPush($export->getId(), 'progress', [
                     'progress' => ++$i / $total,
                 ]);
+
+                //                sleep(1); // TODO
             }
 
             $export = DoctrineUtil::findStrict($this->em, AssetExport::class, $export->getId());
 
+            if (0 === $fileCount) {
+                $export->setStatus(ExportStatusEnum::Failed);
+                $this->em->persist($export);
+                $this->em->flush();
+
+                $this->triggerExportPush($export->getId(), 'failed', []);
+
+                return;
+            }
+
             $archivePath = $this->pathGenerator->generatePath('zip', 'exports/');
+            $archiveSrc = sys_get_temp_dir().'/'.uniqid('archive-file');
+
+            touch($archiveSrc);
             $zippy = Zippy::load();
-            $zippy->create($archivePath, [
+            $zippy->create($archiveSrc, [
                 'content' => $archiveDir,
             ]);
 
+            $fd = fopen($archiveSrc, 'r');
+            if (false === $fd) {
+                throw new \RuntimeException(sprintf('Unable to open file %s', $archiveSrc));
+            }
+            $this->fileStorageManager->storeStream($archivePath, $fd);
+            fclose($fd);
             $export->setPath($archivePath);
+
             $export->setStatus(ExportStatusEnum::Ready);
             $this->em->persist($export);
             $this->em->flush();
@@ -116,7 +141,6 @@ class AssetExportProcessHandler
             $this->triggerExportPush($export->getId(), 'ready', [
                 'downloadUrl' => $this->urlSigner->getSignedUrl($archivePath),
             ]);
-            sleep(5); // TODO
         } finally {
             FilesystemUtils::rrmdir($archiveDir);
         }

@@ -25,7 +25,7 @@ export default function PendingExports({}: Props) {
                 <Trans
                     i18nKey={'asset_export.pending.toast.message'}
                     values={{progress: Math.round((exp.progress ?? 0) * 100)}}
-                    defaults={`Export {{progress}}%`}
+                    defaults={`Preparing Export… {{progress}}%`}
                 />,
                 {
                     progress: exp.progress,
