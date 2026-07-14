@@ -84,12 +84,13 @@ export default function ItemForm<
         ...formSubmitProps,
     });
 
-    const {remoteErrors, forbidNavigation, reset, getValues} = usedFormSubmit;
+    const {remoteErrors, forbidNavigation, reset, getValues, handleSubmit} =
+        usedFormSubmit;
 
     useDirtyFormPrompt(Boolean(item) && forbidNavigation);
 
     return (
-        <form id={formId} onSubmit={usedFormSubmit.handleSubmit}>
+        <form id={formId} onSubmit={handleSubmit}>
             {React.createElement(itemComponent, {
                 data: item,
                 onSave,

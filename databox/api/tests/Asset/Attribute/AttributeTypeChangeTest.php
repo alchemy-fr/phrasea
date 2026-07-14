@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Asset\Attribute;
 
 use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\Type\AssetStatusAttributeType;
 use App\Attribute\Type\AttributeTypeChangeService;
 use App\Attribute\Type\BooleanAttributeType;
 use App\Attribute\Type\CodeAttributeType;
@@ -49,6 +50,7 @@ class AttributeTypeChangeTest extends AbstractDataboxTestCase
             IpAttributeType::NAME,
             NumberAttributeType::NAME,
             PrivacyAttributeType::NAME,
+            AssetStatusAttributeType::NAME,
         ];
 
         $disallowedTranslations = [
@@ -93,6 +95,9 @@ class AttributeTypeChangeTest extends AbstractDataboxTestCase
                 DateAttributeType::NAME,
             ]),
             EntityAttributeType::NAME => [
+                ...$strictFormats,
+            ],
+            AssetStatusAttributeType::NAME => [
                 ...$strictFormats,
             ],
             GeoPointAttributeType::NAME => [

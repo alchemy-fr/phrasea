@@ -8,7 +8,12 @@ export default function IndexAssetsTask({usedFormSubmit}: TaskComponentProps) {
     return (
         <>
             <FormRow>
-                <WorkspaceSelect control={control} name={'workspaceId'} />
+                <WorkspaceSelect
+                    label={'Workspace'}
+                    placeholder={'All Workspaces'}
+                    control={control}
+                    name={'workspaceId'}
+                />
             </FormRow>
         </>
     );

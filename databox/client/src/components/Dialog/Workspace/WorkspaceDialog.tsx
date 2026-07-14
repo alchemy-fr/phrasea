@@ -19,6 +19,7 @@ import {useCloseModal} from '../../Routing/ModalLink';
 import IntegrationManager from './IntegrationManager.tsx';
 import EntityListManager from './EntityListManager.tsx';
 import {useWorkspaceStore} from '../../../store/workspaceStore.ts';
+import AssetPolicyManager from './AssetPolicyManager.tsx';
 
 type Props = {};
 
@@ -142,6 +143,18 @@ export default function WorkspaceDialog({}: Props) {
                     ),
                     component: RenditionPolicyManager,
                     id: 'rendition-policies',
+                    props: {
+                        data,
+                    },
+                    enabled: data.capabilities.edit,
+                },
+                {
+                    title: t(
+                        'workspace.manage.asset_policy.title',
+                        'Asset Policies'
+                    ),
+                    component: AssetPolicyManager,
+                    id: 'asset-policies',
                     props: {
                         data,
                     },

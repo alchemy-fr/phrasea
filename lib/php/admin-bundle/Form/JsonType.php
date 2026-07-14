@@ -19,12 +19,12 @@ class JsonType extends AbstractType implements DataTransformerInterface
         $builder->addModelTransformer($this);
     }
 
-    public function transform(mixed $value)
+    public function transform(mixed $value): mixed
     {
         return json_encode($value, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
     }
 
-    public function reverseTransform(mixed $value)
+    public function reverseTransform(mixed $value): mixed
     {
         if (null === $value) {
             return null;

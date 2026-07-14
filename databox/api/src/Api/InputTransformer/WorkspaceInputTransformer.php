@@ -6,6 +6,7 @@ namespace App\Api\InputTransformer;
 
 use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
+use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Workspace;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
@@ -38,11 +39,14 @@ class WorkspaceInputTransformer extends AbstractInputTransformer
         if (null !== $data->localeFallbacks) {
             $object->setLocaleFallbacks(array_values($data->localeFallbacks));
         }
+        if (null !== $data->assetDefaultStatus) {
+            $object->setAssetDefaultStatus(AssetStatusEnum::tryFrom($data->assetDefaultStatus) ?? AssetStatusEnum::Accepted);
+        }
+        if (null !== $data->fileAnalysisRequired) {
+            $object->setFileAnalysisRequired($data->fileAnalysisRequired);
+        }
         if (null !== $data->translations) {
             $object->setTranslations($data->translations);
-        }
-        if (null !== $data->fileAnalyzers) {
-            $object->setFileAnalyzers($data->fileAnalyzers);
         }
         if (null !== $data->trashRetentionDelay) {
             $object->setTrashRetentionDelay((int) $data->trashRetentionDelay);

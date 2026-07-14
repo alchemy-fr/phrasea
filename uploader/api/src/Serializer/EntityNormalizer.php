@@ -7,21 +7,18 @@ namespace App\Serializer;
 use App\Serializer\Normalizer\EntityNormalizerInterface;
 use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
 
-class EntityNormalizer
+final readonly class EntityNormalizer
 {
     /**
-     * @var EntityNormalizerInterface[]
+     * @param EntityNormalizerInterface[] $normalizers
      */
-    private iterable $normalizers;
-
     public function __construct(
         #[TaggedIterator(EntityNormalizerInterface::TAG)]
-        iterable $normalizers,
+        private iterable $normalizers,
     ) {
-        $this->normalizers = $normalizers;
     }
 
-    public function normalize($object, array &$context = []): void
+    public function normalize(object $object, array &$context = []): void
     {
         foreach ($this->normalizers as $normalizer) {
             if ($normalizer->support($object)) {

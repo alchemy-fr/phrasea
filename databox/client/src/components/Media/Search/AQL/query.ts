@@ -20,9 +20,12 @@ import {hasProp} from '../../../../lib/utils.ts';
 import {AttributeDefinitionIndex} from '../../../AttributeEditor/types.ts';
 import {AttributeDefinitionOrBuiltIn} from '../../../../types.ts';
 import {writeEntity} from './entities.tsx';
-import {GetOrRequestEntity} from '../../../../store/entitiesStore.ts';
 import {TFunction} from '@alchemy/i18n';
 import {createIriFromId} from '@alchemy/api';
+import {AttributeFormatterOptions} from '../../Asset/Attribute/types/types';
+
+import {GetOrRequestEntity} from '../../../../store/entitiesStore.ts';
+import {getAttributeType} from '../../Asset/Attribute/types/getAttributeType.ts';
 
 export type AQLQuery = {
     id: string;
@@ -255,19 +258,37 @@ export function getFieldDefinition(
     }
 }
 
+function getDefintionByField(
+    field: string,
+    definitionsIndex: AttributeDefinitionIndex
+): AttributeDefinitionOrBuiltIn | undefined {
+    for (const def of Object.values(definitionsIndex)) {
+        if (def.slug === field) {
+            return def;
+        }
+    }
+}
+
 function searchInEntities(
     field: string,
     id: string,
     definitionsIndex: AttributeDefinitionIndex,
-    getEntity: GetOrRequestEntity
+    getEntity: GetOrRequestEntity,
+    formatterOptions: AttributeFormatterOptions
 ): string | undefined {
-    for (const def of Object.values(definitionsIndex)) {
-        if (def.slug === field && def.entityIri && def.resolveLabel) {
-            const iri = createIriFromId(def.entityIri, id);
-            if (iri) {
-                const entity = getEntity(iri);
-                if (typeof entity === 'object') {
-                    return def.resolveLabel(entity);
+    const def = getDefintionByField(field, definitionsIndex);
+    if (def) {
+        const type = getAttributeType(def.type);
+        if (def.slug === field) {
+            if (type.entityIri) {
+                const iri = createIriFromId(type.entityIri, id);
+                if (iri) {
+                    const entity = getEntity(iri);
+
+                    return type.formatValueAsString({
+                        ...formatterOptions,
+                        value: entity,
+                    });
                 }
             }
         }
@@ -314,7 +335,8 @@ export function replaceConstants(ast: AQLQueryAST, t: TFunction): void {
 export function replaceIdFromEntities(
     ast: AQLQueryAST,
     definitionsIndex: AttributeDefinitionIndex,
-    getEntity: GetOrRequestEntity
+    getEntity: GetOrRequestEntity,
+    formatterOptions: AttributeFormatterOptions
 ): void {
     const replace = (expression: any, field?: string): any => {
         if (Array.isArray(expression)) {
@@ -327,7 +349,8 @@ export function replaceIdFromEntities(
                         field,
                         v,
                         definitionsIndex,
-                        getEntity
+                        getEntity,
+                        formatterOptions
                     );
                     if (label) {
                         return {
@@ -336,6 +359,18 @@ export function replaceIdFromEntities(
                             label,
                         } as AQLEntity;
                     }
+                }
+
+                const def = getDefintionByField(field, definitionsIndex);
+                if (def) {
+                    const type = getAttributeType(def.type);
+                    return {
+                        literal:
+                            type.formatValueAsString({
+                                ...formatterOptions,
+                                value: v,
+                            }) ?? '',
+                    };
                 }
             }
 
@@ -360,6 +395,16 @@ export function replaceIdFromEntities(
             expression.arguments = expression.arguments.map(arg =>
                 replace(arg)
             );
+        } else if (typeof expression === 'number' && field) {
+            const def = getDefintionByField(field, definitionsIndex);
+            if (def) {
+                const type = getAttributeType(def.type);
+
+                return type.formatValueAsString({
+                    ...formatterOptions,
+                    value: expression,
+                });
+            }
         }
 
         return expression;

@@ -1,6 +1,7 @@
 import {apiClient} from '../init.ts';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
-import {EntityName, OperationTask, PaginationParams} from './types.ts';
+import {EntityName, OperationTask} from './types.ts';
+import {PaginationParams} from '@alchemy/phrasea-framework';
 
 export type GetTasksOptions = {
     query?: string;

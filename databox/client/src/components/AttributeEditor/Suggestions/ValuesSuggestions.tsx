@@ -12,11 +12,11 @@ import {
 import React, {MouseEventHandler} from 'react';
 import {useTranslation} from 'react-i18next';
 import PartPercentage, {partPercentageClassName} from '../PartPercentage.tsx';
-import {getAttributeType} from '../../Media/Asset/Attribute/types';
 import MenuItem from '@mui/material/MenuItem';
 import EditIcon from '@mui/icons-material/Edit';
 import HighlightAltIcon from '@mui/icons-material/HighlightAlt';
 import {NO_LOCALE} from '../../Media/Asset/Attribute/constants.ts';
+import {getAttributeType} from '../../Media/Asset/Attribute/types/getAttributeType.ts';
 
 type Stats = Record<string, number>;
 

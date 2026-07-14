@@ -5,6 +5,7 @@ import {useCallback, useMemo, useState} from 'react';
 import ClearIcon from '@mui/icons-material/Clear';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import {format, parse} from 'date-fns';
+import 'react-datepicker/dist/react-datepicker.css';
 
 export default function DatePicker({
     time,

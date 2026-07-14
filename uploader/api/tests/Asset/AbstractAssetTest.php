@@ -11,10 +11,10 @@ use App\Tests\AbstractUploaderTestCase;
 
 abstract class AbstractAssetTest extends AbstractUploaderTestCase
 {
-    final public const SAMPLE_FILE = __DIR__.'/../fixtures/32x32.jpg';
+    final public const string SAMPLE_FILE = __DIR__.'/../fixtures/32x32.jpg';
     protected $assetId;
 
-    protected function commitAsset(string $token = 'secret_token')
+    protected function commitAsset(string $token = 'secret_token'): void
     {
         $target = $this->getOrCreateDefaultTarget();
 

@@ -226,10 +226,12 @@
     },
     "appbar": {
         "assets": "Assets",
+        "operationTasks": "Operation Tasks",
         "pages": "Pages"
     },
     "aql": {
         "constant": {
+            "na": "N/A",
             "no": "No",
             "null": "Null",
             "yes": "Yes"
@@ -326,7 +328,7 @@
                 "title": "Workflow"
             }
         },
-        "not_found": "Asset not found",
+        "not_found_or_no_access": "Asset not found or you do not have access to view it.",
         "operations": {
             "last_asset_workflows": "Last asset workflows",
             "trigger_workflow_again": "Trigger workflow again",
@@ -414,6 +416,11 @@
     "asset_file_versions": {
         "current": "Current"
     },
+    "asset_policy": {
+        "new": {
+            "label": "New Asset Policy"
+        }
+    },
     "asset_restore": {
         "confirm": "Are you sure you want to restore this asset?",
         "title": "Restore Asset"
@@ -423,6 +430,13 @@
         "x_item_other": "<strong>{{total}}</strong> assets",
         "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> asset",
         "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> assets"
+    },
+    "asset_status": {
+        "choice": {
+            "accepted": "Accepted",
+            "pending": "Pending",
+            "quarantined": "Quarantined"
+        }
     },
     "asset_type": {
         "choice": {
@@ -454,6 +468,8 @@
     },
     "attribute": {
         "editor": {
+            "correct_invalid": "Correct",
+            "invalid_valid": "Invalid value. Please correct it!",
             "tabs": {
                 "preview": {
                     "no_asset": "No asset selected",
@@ -464,7 +480,12 @@
                 }
             }
         },
+        "entity": {
+            "pending": "[Value Pending for approval]"
+        },
+        "invalidValue": "Invalid value",
         "type": {
+            "duration": {},
             "size": {
                 "unit": {
                     "bytes": "{{value}} Bytes",
@@ -488,28 +509,12 @@
             }
         }
     },
-    "profile": {
-        "manage": {
-            "acl": {
-                "title": "Permissions"
-            },
-            "edit": {
-                "title": "Edit"
-            },
-            "organize": {
-                "title": "Organize"
-            },
-            "title": "Manage Profile {{name}}"
-        },
-        "organize": {
-            "add_divider": "Add Divider",
-            "add_spacer": "Add Spacer"
-        }
-    },
     "attribute_definitions": {
         "filter": {
             "asset_type": "Filter by Asset Type",
-            "type": "Filter by Type"
+            "fillFromName": "Fill from Name",
+            "type": "Filter by Type",
+            "useAsName": "Use as Name"
         },
         "new": {
             "label": "New attribute"
@@ -549,6 +554,18 @@
         }
     },
     "attribute_entity": {
+        "batch_delete": {
+            "confirm": "Are you sure you want to delete these entities?",
+            "label": "Delete"
+        },
+        "batch_merge": {
+            "dialog": {
+                "keep": "Select the entity you want to keep. The others will be merged into it and deleted.",
+                "submit": "Merge",
+                "title": "Merge entities"
+            },
+            "label": "Merge"
+        },
         "delete": {
             "confirm": {
                 "assertion": {
@@ -565,13 +582,41 @@
         "form": {
             "created": "Item created!"
         },
+        "import": {
+            "format": {
+                "csv": "CSV",
+                "raw": "Raw (One value per line)"
+            }
+        },
         "new": {
             "label": "New Entity"
+        },
+        "pending": {
+            "approve": "Approve",
+            "reject": "Reject"
+        },
+        "status": {
+            "approved": "Approved",
+            "pending": "Pending",
+            "rejected": "Rejected"
         }
+    },
+    "attribute_entity_select": {
+        "manage_list": "Manage list"
     },
     "attribute_policy": {
         "new": {
             "label": "New Policy"
+        }
+    },
+    "attribute_type": {
+        "boolean": {
+            "no": {
+                "label": "No"
+            },
+            "yes": {
+                "label": "Yes"
+            }
         }
     },
     "attributes": {
@@ -606,6 +651,7 @@
             "label": "Create new Basket"
         },
         "default": {
+            "name": "My Basket",
             "title": "My Basket"
         },
         "disabled": {
@@ -650,31 +696,17 @@
         "x_item_with_selection_one": "<strong>{{selection}} / {{total}}</strong> item",
         "x_item_with_selection_other": "<strong>{{selection}} / {{total}}</strong> items"
     },
-    "built_in_attr": {
-        "collections": "Collections",
-        "createdAt": "Created At",
-        "deleted": "Deleted",
-        "editedAt": "Edited At",
-        "fileExtension": "File Extension",
-        "fileMimeType": "File MIME Type",
-        "fileSize": "File Size",
-        "fileType": "File Type",
-        "filename": "File Name",
-        "has_source": "Has Source File",
-        "id": "ID",
-        "isStory": "Is Story",
-        "owner": "Owner",
-        "privacy": "Privacy",
-        "rendition": "Rendition",
-        "score": "Score",
-        "stories": "Stories",
-        "tag": "Tag",
-        "workspace": "Workspace"
+    "boolean_filter": {
+        "choice": {
+            "false": "No",
+            "true": "Yes"
+        }
     },
     "change_theme": {
         "title": "Choose a theme"
     },
     "chip": {
+        "disabled": "Disabled",
         "editable": "Editable",
         "private": "Private",
         "public": "Public",
@@ -750,6 +782,7 @@
         "title": "Move collection"
     },
     "collection_panel": {
+        "quarantine": "Quarantine",
         "trash": "Trash"
     },
     "collection_restore": {
@@ -758,12 +791,16 @@
     },
     "common": {
         "cancel": "Cancel",
+        "clear": "Clear",
         "close": "Close",
         "confirm": "Confirm",
         "copy": "Copy",
         "databox": "Databox",
         "delete": "Delete",
         "edit": "Edit",
+        "filter": {
+            "placeholder": "Filter…"
+        },
         "id": "ID",
         "item_sorted": "Order saved!",
         "loading": "Loading…",
@@ -812,13 +849,13 @@
                 "helper": "Optional. If set, the share link will only be active until this time",
                 "label": "Expires At"
             },
+            "name": {
+                "helper": "You can name the audience of this share link",
+                "label": "Name"
+            },
             "startsAt": {
                 "helper": "Optional. If set, the share link will only be active after this time",
                 "label": "Starts At"
-            },
-            "title": {
-                "helper": "You can name the audience of this share link",
-                "label": "Title"
             }
         }
     },
@@ -833,6 +870,8 @@
     },
     "definition_manager": {
         "confirm_delete": "Are you sure you want to delete this item?",
+        "count_one": "{{count}} item",
+        "count_other": "{{count}} items",
         "saved": "Saved!"
     },
     "delete": {
@@ -846,16 +885,15 @@
         "close": "Close",
         "export_attribute_entities": {
             "all_locales": "All Locales",
-            "copy_code": "Copy Code",
+            "data": {
+                "label": "Data"
+            },
+            "export": "Export",
             "format": "Format",
             "locale": "Locale",
             "select_format": "Select Format",
             "select_locale": "Select Locale",
-            "title": "Export Attribute Entities",
-            "values": {
-                "helper_text": "Enter one attribute entity value per line.",
-                "label": "Values"
-            }
+            "title": "Export {{list}}"
         },
         "import_attribute_entities": {
             "import_button": "Import",
@@ -867,6 +905,39 @@
         "reset": "Reset",
         "save": "Save",
         "search": "Search"
+    },
+    "display_profile": {
+        "auto_sync": {
+            "label": "Auto-sync preferences"
+        },
+        "choose_modal": {
+            "title": "Select current Display Profile"
+        },
+        "create_button": {
+            "label": "Create new Display Profile"
+        },
+        "default": {
+            "title": "Default Display Profile"
+        },
+        "delete": {
+            "confirm": "Are you sure you want to delete this Display Profile?"
+        },
+        "manage": {
+            "acl": {
+                "title": "Permissions"
+            },
+            "edit": {
+                "title": "Edit"
+            },
+            "organize": {
+                "title": "Organize"
+            },
+            "title": "Manage Display Profile {{name}}"
+        },
+        "organize": {
+            "add_divider": "Add Divider",
+            "add_spacer": "Add Spacer"
+        }
     },
     "edit_sort_by": {
         "add_group_separators_between_results": "Add group separators between results",
@@ -1191,7 +1262,23 @@
         }
     },
     "facets": {
-        "missing_with_total": "Missing ({{total}})"
+        "action": {
+            "collapseAll": "Collapse All",
+            "expandAll": "Expand All",
+            "hidden": {
+                "success": "{{facetName}} facet has been hidden",
+                "undo": "{{facetName}} facet restored"
+            },
+            "undo": "Undo"
+        },
+        "missing_with_total": "Missing ({{total}})",
+        "settings": {
+            "hidden": "Hidden facets",
+            "reset": "Reset to default",
+            "reset_confirm": "Are you sure you want to reset facet settings?",
+            "title": "Facet Settings",
+            "visible": "Visible facets"
+        }
     },
     "file": {
         "analysis_pending": "Analysis in progress…",
@@ -1263,9 +1350,6 @@
             "templates": {
                 "label": "Fill with template",
                 "no_options": "No template available"
-            },
-            "title": {
-                "label": "Title"
             }
         },
         "asset_create": {
@@ -1274,6 +1358,43 @@
         },
         "asset_edit": {
             "success": "Asset edited!"
+        },
+        "asset_policy": {
+            "actions": {
+                "action": {
+                    "hide_attribute": "Hide Attribute",
+                    "hide_rendition": "Hide Rendition",
+                    "label": "Action"
+                },
+                "add": "Add Action",
+                "label": "Actions",
+                "remove": "Remove <1>this Action</1>"
+            },
+            "conditions": {
+                "add": "Add Condition",
+                "field": {
+                    "collection": "Collection",
+                    "label": "Field"
+                },
+                "label": "Conditions",
+                "operator": {
+                    "equals": "Equals",
+                    "label": "Operator"
+                },
+                "remove": "Remove <1>this Condition</1>"
+            },
+            "enabled": {
+                "label": "Enabled"
+            },
+            "groups": {
+                "label": "Groups"
+            },
+            "name": {
+                "label": "Name"
+            },
+            "users": {
+                "label": "Users"
+            }
         },
         "attribute": {
             "collection": {
@@ -1309,6 +1430,10 @@
             "field_type": {
                 "label": "Field type"
             },
+            "fillFromName": {
+                "helper": "Automatically fill this attribute with the value of the name field. Only applies to text attributes.",
+                "label": "Fill From name"
+            },
             "initialValues": {
                 "label": "Initial Values"
             },
@@ -1320,6 +1445,10 @@
                 "translate": {
                     "title": "Translate Name"
                 }
+            },
+            "namePriority": {
+                "helper": "Use this attribute as name when displaying the asset. Only applies to text attributes.",
+                "label": "Name priority"
             },
             "policy": {
                 "label": "Policy"
@@ -1338,9 +1467,21 @@
             },
             "translatable": {
                 "label": "Translatable"
+            },
+            "useAsName": {
+                "label": "Use as Asset Name"
             }
         },
         "attribute_entity": {
+            "color": {
+                "label": "Color"
+            },
+            "emoji": {
+                "label": "Emoji"
+            },
+            "status": {
+                "label": "Status"
+            },
             "synonym": {
                 "label": "Synonym"
             },
@@ -1350,34 +1491,6 @@
             "value": {
                 "label": "Value"
             }
-        },
-        "profile": {
-            "description": {
-                "label": "Description"
-            },
-            "public": {
-                "label": "Public"
-            },
-            "title": {
-                "label": "Title"
-            }
-        },
-        "profile_edit": {
-            "success": "Profile edited!"
-        },
-        "profile_item": {
-            "display_empty": {
-                "label": "Display even if empty"
-            },
-            "format": {
-                "label": "Default Format",
-                "none": "None"
-            },
-            "key": {
-                "label": "Value"
-            },
-            "save": "Save",
-            "success": "Item saved!"
         },
         "attribute_policy": {
             "editable": {
@@ -1390,16 +1503,12 @@
                 "label": "Public"
             }
         },
-        "profile_create": {
-            "success": "Profile created!",
-            "title": "Create Profile"
-        },
         "basket": {
             "description": {
                 "label": "Description"
             },
-            "title": {
-                "label": "Title"
+            "name": {
+                "label": "Name"
             }
         },
         "basket_create": {
@@ -1410,13 +1519,15 @@
             "success": "Basket edited!"
         },
         "collection": {
+            "name": {
+                "label": "Name"
+            },
             "privacy": {
                 "inherited": "This collection cannot be more restricted than its parent collection."
             },
             "title": {
-                "label": "Title",
                 "translate": {
-                    "title": "Translate Title"
+                    "name": "Translate Name"
                 }
             }
         },
@@ -1441,9 +1552,43 @@
                 "label": "Destination"
             }
         },
+        "display_profile": {
+            "create": {
+                "title": "Create Display Profile"
+            },
+            "create_success": "Display Profile created!",
+            "description": {
+                "label": "Description"
+            },
+            "edit_success": "Display Profile edited!",
+            "name": {
+                "label": "Name"
+            },
+            "public": {
+                "label": "Public"
+            }
+        },
         "entity_type": {
+            "allowNewValues": {
+                "label": "Accept new values"
+            },
+            "approveNewValues": {
+                "label": "Automatically approve new values"
+            },
             "name": {
                 "label": "Type"
+            },
+            "withColors": {
+                "label": "Use colors"
+            },
+            "withEmojis": {
+                "label": "Use emojis as icon"
+            },
+            "withSynonyms": {
+                "label": "Use synonyms"
+            },
+            "withTranslations": {
+                "label": "Use translations"
             }
         },
         "integration": {
@@ -1469,6 +1614,9 @@
             "integration": {
                 "label": "Integration"
             },
+            "name": {
+                "label": "Name"
+            },
             "needs": {
                 "helper": "These integrations are required to be completed before this integration is run.",
                 "label": "Needs",
@@ -1476,9 +1624,6 @@
             },
             "public": {
                 "label": "Public"
-            },
-            "title": {
-                "label": "Title"
             }
         },
         "move_assets": {
@@ -1494,12 +1639,27 @@
                 "helpers": {
                     "private": "Users can request access"
                 },
+                "not_set": "Not set",
                 "private": "Private",
                 "public": "Public",
                 "secret": "Secret"
             },
             "inherited_from_parent": "Privacy is inherited from parent: <strong>{{privacy}}</strong>",
             "label": "Privacy"
+        },
+        "profile_item": {
+            "display_empty": {
+                "label": "Display even if empty"
+            },
+            "format": {
+                "label": "Default Format",
+                "none": "None"
+            },
+            "key": {
+                "label": "Value"
+            },
+            "save": "Save",
+            "success": "Item saved!"
         },
         "rendition_definition": {
             "buildMode": {
@@ -1553,11 +1713,11 @@
             }
         },
         "saved_search": {
+            "name": {
+                "label": "Name"
+            },
             "public": {
                 "label": "Public"
-            },
-            "title": {
-                "label": "Title"
             }
         },
         "saved_search_edit": {
@@ -1604,14 +1764,14 @@
             "title": "Upload"
         },
         "workspace": {
+            "assetDefaultStatus": {
+                "label": "Asset Default Status"
+            },
             "fallback_locales": {
                 "add": "Add fallback locale",
                 "label": "Locale",
                 "remove": "Remove <1>this locale</1>",
                 "title": "Fallbacks locales"
-            },
-            "fileAnalyzers": {
-                "label": "File Analyzers"
             },
             "locales": {
                 "add": "Add locale",
@@ -1696,14 +1856,17 @@
             "display_collections": {
                 "label": "Display collections"
             },
+            "display_name": {
+                "label": "Display Name"
+            },
             "display_previews_hover": {
                 "label": "Display preview on hover"
             },
             "display_tags": {
                 "label": "Display tags"
             },
-            "display_title": {
-                "label": "Display title"
+            "name_rows": {
+                "label": "rows"
             },
             "play_preview_videos": {
                 "label": "Auto play video previews"
@@ -1730,15 +1893,11 @@
             },
             "thumb_size": {
                 "label": "Thumbnail size"
-            },
-            "title_rows": {
-                "label": "rows"
             }
         },
         "view": {
             "grid": "Grid View",
-            "list": "List View",
-            "masonry": "Masonry View"
+            "list": "List View"
         }
     },
     "left_panel": {
@@ -1858,6 +2017,19 @@
                 "not_authenticated": "You are not authenticated to follow this collection"
             }
         }
+    },
+    "operation_task": {
+        "index_assets": {
+            "desc": "ReIndex Assets and their Attributes",
+            "name": "Index assets"
+        },
+        "switch_attribute_locales": {
+            "desc": "Switch the locales of attributes. This is useful when you want to change the locale of an attribute without having to delete and recreate it.",
+            "name": "Switch attribute locales"
+        }
+    },
+    "operation_tasks": {
+        "title": "Operation Tasks"
     },
     "operations_asset": {
         "workflow_is_starting": "Workflow is starting!"
@@ -1990,6 +2162,12 @@
         "please_confirm_replacing_asset": "Please confirm replacing asset.",
         "replace_asset_with_file": "Replace asset with file"
     },
+    "run_task": {
+        "initiated": "Task was initiated successfully",
+        "not_found": "No task found",
+        "submit": "Run",
+        "title": "Run Task: {{name}}"
+    },
     "save_as_button": {
         "new_asset": "New asset",
         "rendition": "Rendition",
@@ -2010,11 +2188,11 @@
     },
     "save_file_as_new_asset_dialog": {
         "file_is_saved": "File is saved",
+        "name": {
+            "label": "Name"
+        },
         "save": "Save",
-        "save_file_as_new_asset": "Save file as new asset",
-        "title": {
-            "label": "Title"
-        }
+        "save_file_as_new_asset": "Save file as new asset"
     },
     "save_file_as_rendition_dialog": {
         "rendition_has_been_saved": "Rendition has been saved",
@@ -2234,6 +2412,36 @@
             "label": "New tag"
         }
     },
+    "task": {
+        "card": {
+            "remaining": "Remaining:"
+        },
+        "details": {
+            "info": {
+                "createdAt": "Initiated At",
+                "duration": "Duration",
+                "endedAt": "Ended At",
+                "itemTotal": "Item Total",
+                "output": "Output",
+                "owner": "Owner",
+                "payload": "Payload",
+                "progress": "Item processed",
+                "startedAt": "Started At",
+                "task": "Task"
+            }
+        }
+    },
+    "taskCard": {
+        "runBy": "<strong>{{task}}</strong> run by <strong>{{owner}}</strong>"
+    },
+    "tasks_details": {
+        "title": "Task {{name}}"
+    },
+    "tasks_list": {
+        "create": "New Task",
+        "refresh": "Refresh",
+        "title": "Task History"
+    },
     "thread": {
         "message": {
             "delete": {
@@ -2297,6 +2505,9 @@
         "manage": {
             "acl": {
                 "title": "Permissions"
+            },
+            "asset_policy": {
+                "title": "Asset Policies"
             },
             "attribute_definitions": {
                 "title": "Attributes"

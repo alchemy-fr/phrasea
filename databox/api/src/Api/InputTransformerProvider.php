@@ -51,6 +51,8 @@ final readonly class InputTransformerProvider implements ProviderInterface
                     $context[AbstractNormalizer::OBJECT_TO_POPULATE] = $previousData;
                 }
 
+                $context['operation'] = $operation;
+
                 return $transformer->transform($data, $resourceClass, $context);
             }
         }

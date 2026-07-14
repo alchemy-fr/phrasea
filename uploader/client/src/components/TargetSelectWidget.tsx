@@ -1,12 +1,7 @@
-import {useCallback} from 'react';
-import {Target} from '../types.ts';
 import {FieldValues} from 'react-hook-form';
-import {
-    AsyncRSelectProps,
-    AsyncRSelectWidget,
-    SelectOption,
-} from '@alchemy/react-form';
+import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
 import {listTargets} from '../api/targetApi.ts';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
 
 type Props<TFieldValues extends FieldValues> = AsyncRSelectProps<
     TFieldValues,
@@ -16,29 +11,25 @@ type Props<TFieldValues extends FieldValues> = AsyncRSelectProps<
 export default function TargetSelectWidget<TFieldValues extends FieldValues>(
     props: Props<TFieldValues>
 ) {
-    const load = useCallback(
-        async (inputValue: string): Promise<SelectOption[]> => {
-            const data = (await listTargets()).result;
-
-            return data
-                .map((t: Target) => ({
-                    value: `/targets/${t.id}`,
-                    label: t.name,
-                }))
-                .filter(i =>
-                    i.label
-                        .toLowerCase()
-                        .includes((inputValue || '').toLowerCase())
-                );
+    const {loadOptions} = usePaginatedSelectLoader({
+        load: props =>
+            listTargets({
+                ...props,
+            }),
+        map: t => {
+            return {
+                value: t['@id'],
+                label: t.name,
+            };
         },
-        []
-    );
+        filterLabels: true,
+    });
 
     return (
         <AsyncRSelectWidget<TFieldValues>
             cacheId={'target'}
             {...props}
-            loadOptions={load}
+            loadOptions={loadOptions}
         />
     );
 }

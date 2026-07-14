@@ -75,37 +75,45 @@ export default function AndOrOrExpressionBuilder({
                 </IconButton>
             </FlexRow>
 
-            {expression.conditions.map((c, index) => {
-                return (
-                    <ExpressionBuilder
-                        key={index}
-                        operators={operators}
-                        definitionsIndex={definitionsIndex}
-                        expression={c}
-                        setExpression={handler => {
-                            setExpression(p => ({
-                                ...p,
-                                conditions: p.conditions
-                                    .map((c2, i2) => {
-                                        if (i2 === index) {
-                                            return handler(c);
-                                        }
-                                        return c2;
-                                    })
-                                    .filter(c => null !== c),
-                            }));
-                        }}
-                        onRemove={expr => {
-                            setExpression(
-                                p =>
-                                    (removeExpression(p, expr) || {
-                                        ...emptyCondition,
-                                    }) as any
-                            );
-                        }}
-                    />
-                );
-            })}
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                }}
+            >
+                {expression.conditions.map((c, index) => {
+                    return (
+                        <ExpressionBuilder
+                            key={index}
+                            operators={operators}
+                            definitionsIndex={definitionsIndex}
+                            expression={c}
+                            setExpression={handler => {
+                                setExpression(p => ({
+                                    ...p,
+                                    conditions: p.conditions
+                                        .map((c2, i2) => {
+                                            if (i2 === index) {
+                                                return handler(c);
+                                            }
+                                            return c2;
+                                        })
+                                        .filter(c => null !== c),
+                                }));
+                            }}
+                            onRemove={expr => {
+                                setExpression(
+                                    p =>
+                                        (removeExpression(p, expr) || {
+                                            ...emptyCondition,
+                                        }) as any
+                                );
+                            }}
+                        />
+                    );
+                })}
+            </Box>
 
             <AddExpressionRow
                 setExpression={

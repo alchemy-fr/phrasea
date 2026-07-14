@@ -131,3 +131,8 @@ export type StoryAssetOutput = {
     id: string;
     storyCollection: CollectionOutput;
 };
+
+export type CreateWorkspaceInput = {
+    slug: string;
+    locales?: string[];
+};

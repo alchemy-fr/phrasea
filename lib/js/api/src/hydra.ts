@@ -6,10 +6,6 @@ export function getHydraCollection<T, E extends {} = {}>(
     const res: NormalizedCollectionResponse<T, {}> = {
         total: response['hydra:totalItems'],
         result: response['hydra:member'],
-        first: null,
-        previous: null,
-        next: null,
-        last: null,
     };
 
     const hydraView = response['hydra:view'];

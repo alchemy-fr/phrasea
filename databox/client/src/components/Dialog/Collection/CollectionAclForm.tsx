@@ -203,6 +203,32 @@ export default function CollectionAclForm({
                     'Full control over assets within the collection and child collections, except for permissions and privacy settings.'
                 ),
             },
+            {
+                type: PermissionType.Extra,
+                key: AclExtraPermission.QUARANTINE,
+                value: AclExtraPermission.QUARANTINE,
+                label: t(
+                    'acl.permission.collection.quarantine.label',
+                    'View Quarantined'
+                ),
+                description: t(
+                    'acl.permission.collection.quarantine.desc',
+                    'Allows viewing quarantined assets in this collection.'
+                ),
+            },
+            {
+                type: PermissionType.Extra,
+                key: AclExtraPermission.QUARANTINE_BY_PASS,
+                value: AclExtraPermission.QUARANTINE_BY_PASS,
+                label: t(
+                    'acl.permission.collection.quarantine_by_pass.label',
+                    'Bypass Quarantine'
+                ),
+                description: t(
+                    'acl.permission.collection.quarantine_by_pass.desc',
+                    'Allows bypassing quarantine for assets in this collection.'
+                ),
+            },
         ];
     }, [t]);
 

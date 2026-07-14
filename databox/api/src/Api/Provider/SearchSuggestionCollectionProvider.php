@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Api\Model\Output\ApiMetaWrapperOutput;
+use App\Elasticsearch\NoWorkspaceAllowedException;
 use App\Elasticsearch\SuggestionSearch;
 
 class SearchSuggestionCollectionProvider implements ProviderInterface
@@ -24,7 +25,11 @@ class SearchSuggestionCollectionProvider implements ProviderInterface
         $userId = $user?->getId();
         $groupIds = $user?->getGroups() ?? [];
 
-        [$result, $queryJson, $searchTime] = $this->suggestionSearch->search($userId, $groupIds, $context['filters'] ?? []);
+        try {
+            [$result, $queryJson, $searchTime] = $this->suggestionSearch->search($userId, $groupIds, $context['filters'] ?? []);
+        } catch (NoWorkspaceAllowedException) {
+            return [];
+        }
 
         $response = new ApiMetaWrapperOutput(new PagerFantaApiPlatformPaginator($result));
         $response->setMeta('debug:es', [

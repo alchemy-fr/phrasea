@@ -63,6 +63,11 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         $parent = $data->getParent();
         if (null !== $parent && $this->isGranted(AbstractVoter::READ, $parent)) {
             $output->parentId = $parent->getId();
+            if ($this->hasGroup([
+                Collection::GROUP_ASCENDANTS,
+            ], $context)) {
+                $output->parent = $parent;
+            }
         }
 
         $storyAsset = $data->getStoryAsset();
@@ -89,6 +94,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         $output->translations = $data->getTranslations();
 
         if ($this->hasGroup([Collection::GROUP_ABSOLUTE_NAME], $context)) {
+            $output->absolutePath = $data->getAbsolutePath();
             $output->absoluteName = $data->getAbsoluteName();
             $output->absoluteDisplayName = $this->getAbsoluteDisplayName($data, $preferredLocales);
         }

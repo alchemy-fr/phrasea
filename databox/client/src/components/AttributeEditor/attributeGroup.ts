@@ -22,10 +22,10 @@ import {useModals} from '@alchemy/navigation';
 import SavePreviewDialog from './SavePreviewDialog.tsx';
 import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {useTranslation} from 'react-i18next';
-import {getAttributeType} from '../Media/Asset/Attribute/types';
 import {NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
 import {AttributeType, EntityName} from '../../api/types.ts';
 import {isAssetEligibleForAttributeDefinition} from '../../api/asset.ts';
+import {getAttributeType} from '../Media/Asset/Attribute/types/getAttributeType.ts';
 
 type Props = {
     attributeDefinitions: AttributeDefinition[];

@@ -3,11 +3,14 @@ import React from 'react';
 import BaseType from './BaseType.tsx';
 import {Collection} from '../../../../../types.ts';
 import {CollectionChip} from '../../../../Ui/CollectionChip.tsx';
+import {EntityName} from '../../../../../api/types.ts';
 
 export default class CollectionType
     extends BaseType
     implements AttributeTypeInstance<Collection>
 {
+    public entityIri = EntityName.Collection;
+
     renderWidget() {
         return null;
     }
@@ -21,6 +24,6 @@ export default class CollectionType
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {
-        return value?.titleTranslated || value.title;
+        return value?.displayName;
     }
 }

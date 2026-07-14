@@ -2,7 +2,6 @@ import {AttributeDefinition, StateSetter} from '../../types';
 import {List, ListItem, ListItemButton, ListItemIcon} from '@mui/material';
 import {DefinitionValuesIndex} from './types';
 import {useTranslation} from 'react-i18next';
-import {getAttributeType} from '../Media/Asset/Attribute/types';
 import {useContext} from 'react';
 import {AttributeFormatContext} from '../Media/Asset/Attribute/Format/AttributeFormatContext.ts';
 import {
@@ -11,6 +10,7 @@ import {
 } from '../Media/Asset/Attribute/types/types';
 import LockIcon from '@mui/icons-material/Lock';
 import {NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
+import {getAttributeType} from '../Media/Asset/Attribute/types/getAttributeType.ts';
 
 type Props = {
     definitionValues: DefinitionValuesIndex<any>;

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Api\Extension;
 
-use Alchemy\AclBundle\Mapping\ObjectMapping;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
@@ -13,15 +12,14 @@ use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Security\Voter\AssetDataTemplateVoter;
+use App\Security\Voter\AttributeDefinitionVoter;
 use Doctrine\ORM\QueryBuilder;
 
-class AttributeDefinitionExtension implements QueryCollectionExtensionInterface
+final class AttributeDefinitionExtension implements QueryCollectionExtensionInterface
 {
     use SecurityAwareTrait;
 
     public function __construct(
-        private readonly ObjectMapping $objectMapping,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
     ) {
     }
@@ -43,7 +41,7 @@ class AttributeDefinitionExtension implements QueryCollectionExtensionInterface
         }
 
         if (
-            !$this->hasScope(AbstractVoter::LIST, AssetDataTemplateVoter::SCOPE_PREFIX)
+            !$this->hasScope(AbstractVoter::LIST, AttributeDefinitionVoter::SCOPE_PREFIX)
             && !$this->isAdmin()
         ) {
             $user = $this->security->getUser();

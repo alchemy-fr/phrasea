@@ -7,7 +7,6 @@ namespace App\Elasticsearch;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Api\Model\Output\ESDocumentStateOutput;
 use App\Util\ArrayUtil;
-use Elastica\Request;
 use FOS\ElasticaBundle\Persister\ObjectPersister;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
@@ -29,9 +28,9 @@ final readonly class ESDocumentStateManager
     {
         $document = $this->getObjectPersister($object)->transformToElasticaDocument($object);
         $indexName = $this->elasticSearchClient->getIndexName($document->getIndex());
-        $response = $this->elasticSearchClient->request($indexName.'/_doc/'.$object->getId(), [], Request::GET);
+        $response = $this->elasticSearchClient->request($indexName.'/_doc/'.$object->getId(), [], 'GET');
 
-        $data = $response->getData();
+        $data = $response->asArray();
         $synced = $this->documentAreSame($document->getData(), $data['_source'] ?? []);
 
         return new ESDocumentStateOutput($data, $synced);

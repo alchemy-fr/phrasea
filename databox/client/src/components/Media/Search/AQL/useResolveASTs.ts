@@ -16,6 +16,7 @@ import {AQLQueryAST} from './aqlTypes.ts';
 import deepmerge from 'deepmerge';
 import {replaceEntities} from './entities.tsx';
 import {useTranslation} from 'react-i18next';
+import {AttributeFormatterOptions} from '../../Asset/Attribute/types/types';
 
 type ResolvedASTs = {
     condition: AQLQuery;
@@ -32,6 +33,7 @@ type Props = {
     loaded: boolean;
     definitionsIndexBySlug: AttributeDefinitionsIndex | undefined;
     definitionsIndexBySearchSlug: AttributeDefinitionsIndex | undefined;
+    formatterOptions: AttributeFormatterOptions;
 };
 
 export function useResolveASTs({
@@ -39,6 +41,7 @@ export function useResolveASTs({
     loaded,
     definitionsIndexBySlug,
     definitionsIndexBySearchSlug,
+    formatterOptions,
 }: Props): ResolvedASTs[] {
     const {t} = useTranslation();
     const index = useEntitiesStore(s => s.index);
@@ -81,7 +84,8 @@ export function useResolveASTs({
                     } else if (typeof entity === 'object') {
                         return entity as EntityCached;
                     }
-                }
+                },
+                formatterOptions
             );
 
             replaceFieldFromDefinitions(newAst, definitionsIndexBySlug!);

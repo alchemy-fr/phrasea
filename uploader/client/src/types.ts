@@ -1,3 +1,5 @@
+import {ApiHydraObjectResponse} from '@alchemy/api';
+
 export type UploaderUser = {
     user_id: string;
     email: string;
@@ -16,7 +18,7 @@ export type Target = {
         edit: boolean;
         delete: boolean;
     };
-};
+} & ApiHydraObjectResponse;
 
 export type StateSetter<T> = (handler: T | ((prev: T) => T)) => void;
 
@@ -53,7 +55,7 @@ export type FormSchema = {
     data: LiFormSchema;
     target: Target;
     locale?: string;
-};
+} & ApiHydraObjectResponse;
 
 export type TargetParamData = Record<string, any>;
 
@@ -61,7 +63,7 @@ export type TargetParam = {
     id: string;
     data: TargetParamData;
     target: Target;
-};
+} & ApiHydraObjectResponse;
 
 export type UploadFormData = Record<string, any>;
 

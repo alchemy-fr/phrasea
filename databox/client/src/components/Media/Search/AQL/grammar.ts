@@ -1128,7 +1128,17 @@ const grammar: Grammar = {
         {
             name: 'field',
             symbols: ['identifier'],
-            postprocess: d => ({field: d[0]}),
+            postprocess: d => {
+                if ('true' === d[0]) {
+                    return true;
+                } else if ('false' === d[0]) {
+                    return false;
+                } else if ('null' === d[0]) {
+                    return null;
+                }
+
+                return {field: d[0]};
+            },
         },
         {
             name: 'escape_double',

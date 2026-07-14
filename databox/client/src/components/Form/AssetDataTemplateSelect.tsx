@@ -1,13 +1,14 @@
 import {FieldValues} from 'react-hook-form';
 import {AssetDataTemplate, getAssetDataTemplates} from '../../api/templates';
-import {OptionProps, components} from 'react-select';
+import {components, OptionProps} from 'react-select';
 import {Checkbox} from '@mui/material';
 import {
-    AsyncRSelectWidget,
     AsyncRSelectProps,
+    AsyncRSelectWidget,
     SelectOption,
 } from '@alchemy/react-form';
 import {useTranslation} from 'react-i18next';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
 
 const Option = (props: OptionProps<SelectOption>) => {
     return (
@@ -31,23 +32,19 @@ type Props<TFieldValues extends FieldValues> = {
 export default function AssetDataTemplateSelect<
     TFieldValues extends FieldValues,
 >({workspaceId, collectionId, ...rest}: Props<TFieldValues>) {
-    const load = async (inputValue: string): Promise<SelectOption[]> => {
-        const data = (
-            await getAssetDataTemplates({
+    const {loadOptions} = usePaginatedSelectLoader({
+        load: props =>
+            getAssetDataTemplates({
+                ...props,
                 workspace: workspaceId,
                 collection: collectionId,
-            })
-        ).result;
-
-        return data
-            .map((t: AssetDataTemplate) => ({
-                value: t.id,
-                label: t.name,
-            }))
-            .filter(i =>
-                i.label.toLowerCase().includes((inputValue || '').toLowerCase())
-            );
-    };
+            }),
+        map: (t: AssetDataTemplate) => ({
+            value: t.id,
+            label: t.name,
+        }),
+        filterLabels: true,
+    });
 
     const {t} = useTranslation();
 
@@ -57,7 +54,7 @@ export default function AssetDataTemplateSelect<
             cacheId={'asset-data-templates'}
             {...rest}
             components={{Option}}
-            loadOptions={load}
+            loadOptions={loadOptions}
             isMulti={true as any}
             closeMenuOnSelect={false}
             hideSelectedOptions={false}

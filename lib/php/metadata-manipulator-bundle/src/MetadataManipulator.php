@@ -6,6 +6,7 @@ use PHPExiftool\Driver\Metadata\Metadata;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Driver\TagGroupInterface;
 use PHPExiftool\PHPExiftool;
+use PHPExiftool\Writer;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -51,6 +52,11 @@ class MetadataManipulator
         $reader->files($file->getRealPath());
 
         return $reader->first()->getMetadatas();
+    }
+
+    public function createWriter(): Writer
+    {
+        return $this->phpExifTool->getFactory()->createWriter();
     }
 
     /**

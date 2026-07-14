@@ -1,7 +1,7 @@
 import {create} from 'zustand';
 import {
     BaseAttributeDefinition,
-    Profile,
+    DisplayProfile,
     ProfileItem,
     ProfileItemSection,
     ProfileItemType,
@@ -24,8 +24,8 @@ import {
 import {deepEquals, logError} from '@alchemy/core';
 
 type State = {
-    profiles: Profile[];
-    current: Profile | undefined;
+    profiles: DisplayProfile[];
+    current: DisplayProfile | undefined;
     nextUrl?: string | undefined;
     loaded: boolean;
     currentLoaded: boolean;
@@ -36,13 +36,13 @@ type State = {
     hasMore: () => boolean;
     load: (params?: GetProfileOptions, force?: boolean) => Promise<void>;
     loadMore: () => Promise<void>;
-    storeProfile: (profile: Profile) => void;
-    loadProfile: (id: string) => Promise<Profile>;
-    updateProfile: (profile: Profile) => void;
+    storeProfile: (profile: DisplayProfile) => void;
+    loadProfile: (id: string) => Promise<DisplayProfile>;
+    updateProfile: (profile: DisplayProfile) => void;
     autoSync: () => Promise<void>;
     toggleAutoSync: () => void;
     syncData: () => Promise<void>;
-    arePreferencesSynced: (profile: Profile) => Promise<boolean>;
+    arePreferencesSynced: (profile: DisplayProfile) => Promise<boolean>;
     updateProfileItem: (profileId: string, data: ProfileItem) => void;
     deleteProfile: (id: string) => void;
     addToCurrent: (items: ProfileItem[]) => void;
@@ -50,8 +50,8 @@ type State = {
     sortList: (profileId: string, items: string[]) => void;
     toggleDefinition: (definition: BaseAttributeDefinition) => void;
     removeFromProfile: (profileId: string, ids: string[]) => void;
-    setCurrent: (Profile: Profile | undefined) => Promise<void>;
-    loadCurrent: (id: string) => Promise<Profile | undefined>;
+    setCurrent: (Profile: DisplayProfile | undefined) => Promise<void>;
+    loadCurrent: (id: string) => Promise<DisplayProfile | undefined>;
     shouldSelectProfile: () => boolean;
 };
 
@@ -122,7 +122,7 @@ export const useProfileStore = create<State>((set, get) => ({
     },
 
     setCurrent: async profile => {
-        const applyProfile = (profile: Profile | null) => {
+        const applyProfile = (profile: DisplayProfile | null) => {
             return useUserPreferencesStore.getState().applyProfile(profile);
         };
 
@@ -301,7 +301,10 @@ export const useProfileStore = create<State>((set, get) => ({
     },
 
     updateProfileItem: (profileId, item) => {
-        const replaceItemInList = (l: Profile, item: ProfileItem): Profile => {
+        const replaceItemInList = (
+            l: DisplayProfile,
+            item: ProfileItem
+        ): DisplayProfile => {
             return {
                 ...l,
                 items: l.items?.map(i => {
@@ -470,7 +473,7 @@ export const useProfileStore = create<State>((set, get) => ({
     },
 
     removeFromProfile: async (profileId, items) => {
-        let current: Profile | undefined = get().current;
+        let current: DisplayProfile | undefined = get().current;
         if (current && current.id !== profileId) {
             current = undefined;
         }
@@ -546,7 +549,10 @@ export function hasDefinitionInItems(
     return items.some(i => i.definition === id || i.key === id);
 }
 
-function getReorderedListItems(profile: Profile, order: string[]): Profile {
+function getReorderedListItems(
+    profile: DisplayProfile,
+    order: string[]
+): DisplayProfile {
     if (!profile.items) {
         return profile;
     }
@@ -559,7 +565,10 @@ function getReorderedListItems(profile: Profile, order: string[]): Profile {
     };
 }
 
-function preserveListItems(prev: Profile[], list: Profile[]): Profile[] {
+function preserveListItems(
+    prev: DisplayProfile[],
+    list: DisplayProfile[]
+): DisplayProfile[] {
     return list.map(i => {
         const prevItem = prev.find(p => p.id === i.id);
         if (prevItem) {

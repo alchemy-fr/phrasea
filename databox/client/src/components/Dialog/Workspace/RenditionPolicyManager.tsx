@@ -17,6 +17,8 @@ import {
     DefinitionItemFormProps,
     DefinitionItemProps,
 } from './DefinitionManager/managerTypes.ts';
+import {EntityName} from '../../../api/types.ts';
+import {createIriFromId} from '@alchemy/api';
 
 function Item({
     data,
@@ -146,7 +148,7 @@ export default function RenditionPolicyManager({
         } else {
             return await postRenditionPolicy({
                 ...data,
-                workspace: `/workspaces/${workspace.id}`,
+                workspace: createIriFromId(EntityName.Workspace, workspace.id),
             });
         }
     };

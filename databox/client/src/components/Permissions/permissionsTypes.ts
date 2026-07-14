@@ -27,6 +27,8 @@ export enum AclPermission {
 export enum AclExtraPermission {
     EDIT_PERMISSIONS = 1,
     MANAGE_USERS = 2,
+    QUARANTINE = 3,
+    QUARANTINE_BY_PASS = 4,
 }
 
 export type AclPermissionButAll = Exclude<AclPermission, AclPermission.ALL>;

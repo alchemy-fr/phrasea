@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\Operation;
 use App\Api\Model\Output\ApiMetaWrapperOutput;
 use App\Elasticsearch\AssetSearch;
+use App\Elasticsearch\NoWorkspaceAllowedException;
 use Symfony\Bundle\SecurityBundle\Security;
 
 class AssetCollectionProvider extends AbstractCollectionProvider
@@ -22,7 +23,11 @@ class AssetCollectionProvider extends AbstractCollectionProvider
         $userId = $user instanceof JwtUser ? $user->getId() : null;
         $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
 
-        [$result, $facets, $queryJson, $searchTime] = $this->assetSearch->search($userId, $groupIds, $context['filters'] ?? []);
+        try {
+            [$result, $facets, $queryJson, $searchTime] = $this->assetSearch->search($userId, $groupIds, $context['filters'] ?? []);
+        } catch (NoWorkspaceAllowedException) {
+            return [];
+        }
 
         $response = new ApiMetaWrapperOutput(new PagerFantaApiPlatformPaginator($result));
         $response->setMeta('facets', $facets);

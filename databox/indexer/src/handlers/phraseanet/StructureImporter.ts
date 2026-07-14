@@ -78,8 +78,7 @@ export async function addCollectionsConf(
 
     dm.collections = filtered.map(c => c.base_id).join(',');
     dm.phraseanetCollectionsInventory = filtered.map(
-        c =>
-            `${c.name} id: ${c.base_id} count: ${c.record_amount ?? 0}`
+        c => `${c.name} id: ${c.base_id} count: ${c.record_amount ?? 0}`
     );
 }
 

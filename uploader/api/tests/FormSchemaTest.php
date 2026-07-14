@@ -12,7 +12,7 @@ class FormSchemaTest extends AbstractUploaderTestCase
     {
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/form-schemas');
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('[]', $response->getContent());
+        $this->assertEquals([], $response->toArray()['hydra:member']);
 
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/form-schemas', [
             'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
@@ -21,17 +21,17 @@ class FormSchemaTest extends AbstractUploaderTestCase
             ],
         ]);
         $this->assertEquals(201, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        $this->assertArrayHasKey('id', $json);
-        $this->assertArrayHasKey('data', $json);
+        $data = $response->toArray();
+        $this->assertArrayHasKey('id', $data);
+        $this->assertArrayHasKey('data', $data);
 
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/form-schemas');
         $this->assertEquals(200, $response->getStatusCode());
-        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
-        $this->assertCount(1, $json);
+        $data = $response->toArray();
+        $this->assertCount(1, $data['hydra:member']);
         $this->assertEquals([
             'foo' => 'bar',
-        ], $json[0]['data']);
+        ], $data['hydra:member'][0]['data']);
     }
 
     public function testFormSchemaPostWithANonAdminUser(): void

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration;
 
+use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
@@ -25,6 +26,16 @@ abstract class AbstractIntegration implements IntegrationInterface
 
     public function validateConfiguration(IntegrationConfig $config): void
     {
+    }
+
+    public function normalizeConfiguration(array $config, Workspace $workspace): array
+    {
+        return $config;
+    }
+
+    public function denormalizeConfiguration(array $config, Workspace $workspace): array
+    {
+        return $config;
     }
 
     public function buildConfiguration(NodeBuilder $builder): void

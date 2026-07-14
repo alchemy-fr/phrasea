@@ -30,7 +30,7 @@ class FlushWorkspaceAction extends AbstractController
         $this->em->beginTransaction();
         try {
             $slug = $workspace->getSlug();
-            $workspace->setSlug('_DEL_'.$workspace->getId());
+            $workspace->setSlug('del-'.$workspace->getId());
             $this->em->persist($workspace);
             $this->em->flush();
 

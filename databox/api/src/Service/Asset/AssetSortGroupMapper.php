@@ -66,12 +66,13 @@ final class AssetSortGroupMapper
         if (null !== $builtInField) {
             $value = $builtInField->getValueFromAsset($object);
 
-            return $builtInField->resolveGroupValue($groupBy, $builtInField->denormalizeValue($value));
+            return $builtInField->resolveGroupValue($groupBy, $value);
         }
 
         $type = $this->fieldNameResolver->getFieldFromName($groupBy)->type;
         $key = $value = $indexValue ?? null;
         if (is_array($key)) {
+            sort($key);
             $key = implode(',', $key);
         }
         $value = $type->getGroupValueLabel($type->denormalizeValue($value));

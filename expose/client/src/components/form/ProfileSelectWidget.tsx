@@ -1,12 +1,7 @@
-import {
-    AsyncRSelectProps,
-    AsyncRSelectWidget,
-    SelectOption,
-} from '@alchemy/react-form';
-import {useCallback} from 'react';
-import {PublicationProfile} from '../../types.ts';
+import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
 import {FieldValues} from 'react-hook-form';
 import {getProfiles} from '../../api/profileApi.ts';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
 
 type Props<TFieldValues extends FieldValues> = {} & AsyncRSelectProps<
     TFieldValues,
@@ -16,35 +11,25 @@ type Props<TFieldValues extends FieldValues> = {} & AsyncRSelectProps<
 export default function ProfileSelectWidget<TFieldValues extends FieldValues>({
     ...rest
 }: Props<TFieldValues>) {
-    const load = useCallback(
-        async (inputValue: string): Promise<SelectOption[]> => {
-            const data = (
-                await getProfiles({
-                    query: inputValue,
-                })
-            ).result;
-
-            return data
-                .map((t: PublicationProfile) => {
-                    return {
-                        value: t['@id'],
-                        label: t.name,
-                    };
-                })
-                .filter(i =>
-                    i.label
-                        .toLowerCase()
-                        .includes((inputValue || '').toLowerCase())
-                );
+    const {loadOptions} = usePaginatedSelectLoader({
+        load: props =>
+            getProfiles({
+                ...props,
+            }),
+        map: t => {
+            return {
+                value: t['@id'],
+                label: t.name,
+            };
         },
-        []
-    );
+        filterLabels: true,
+    });
 
     return (
         <AsyncRSelectWidget<TFieldValues>
             cacheId={'profiles'}
             {...rest}
-            loadOptions={load}
+            loadOptions={loadOptions}
         />
     );
 }

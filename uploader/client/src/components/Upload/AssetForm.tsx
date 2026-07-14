@@ -4,10 +4,11 @@ import {FullPageLoader} from '@alchemy/phrasea-ui';
 import AssetLiForm from './AssetLiForm.tsx';
 import {apiClient} from '../../init.ts';
 import {OnSubmitForm} from './UploadStepper.tsx';
-import {getAxiosError} from '@alchemy/api';
+import {createIriFromId, getAxiosError} from '@alchemy/api';
 import {toast} from 'react-toastify';
 import {RemoteErrors} from '@alchemy/react-form';
 import {getFormSchemaByTarget} from '../../api/formSchemaApi.ts';
+import {EntityName} from '../../api/entities.ts';
 
 type Props = {
     targetId: string;
@@ -83,7 +84,7 @@ export default function AssetForm({
         const formData = {...submittedData};
 
         const data: Record<string, any> = {
-            target: `/targets/${targetId}`,
+            target: createIriFromId(EntityName.Target, targetId),
         };
         if (baseSchema?.properties) {
             Object.keys(baseSchema.properties).forEach(key => {

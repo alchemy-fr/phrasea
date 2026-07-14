@@ -19,8 +19,8 @@
     "require": {
         "php": "^8.5",
         "alchemy/auth-bundle": "@dev",
-        "symfony/notifier": "^6.4.13",
-        "symfony/framework-bundle": "^6.4"
+        "symfony/notifier": "^7.4",
+        "symfony/framework-bundle": "^7.4"
     },
     "config": {
         "sort-packages": true

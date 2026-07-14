@@ -1,0 +1,60 @@
+image:
+    transformations: &image_transformations
+        -
+            module: extract_embedded_preview
+            options:
+                eligible_types:
+                    - application/illustrator
+                    - application/postscript
+        -
+            module: imagine
+            options:
+                format: jpeg
+                filters:
+                    auto_rotate: ~
+                    background_fill:
+                        color: '#FFFFFF'
+                        opacity: 100
+                    thumbnail:
+                        size: [ 2500, 2500 ]
+                        mode: inset
+
+audio:
+    transformations: &image_transformations
+        -
+            module: album_artwork
+            description:  'extract album artwork from audio files'
+            enabled: true
+            options:
+                format: image-jpeg
+                extension: jpg
+
+animation:
+    transformations: *image_transformations
+
+document:
+    normalization: ~
+    transformations:
+        -
+            description: document to pdf
+            module: document_to_pdf
+
+video:
+    normalization: ~
+    transformations:
+        -
+            module: ffmpeg
+            options:
+                filters:
+                    -
+                        name: resize
+                        width: 1200
+                        height: 1200
+                        mode: inset
+                    -
+                        name: synchronize
+                format: video-mpeg4
+                timeout: 14400
+                threads: 4
+                passes: 2
+                video_kilobitrate: 1500

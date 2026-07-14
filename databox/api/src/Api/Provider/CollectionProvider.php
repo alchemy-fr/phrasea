@@ -7,6 +7,7 @@ namespace App\Api\Provider;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use App\Elasticsearch\CollectionSearch;
+use App\Elasticsearch\NoWorkspaceAllowedException;
 use App\Repository\Core\CollectionRepository;
 use App\Repository\Core\WorkspaceRepository;
 use App\Security\Voter\AbstractVoter;
@@ -49,7 +50,11 @@ class CollectionProvider extends AbstractCollectionProvider
             return $this->collectionRepository->getRootCollections($allowedWorkspaces, $context['userId'], $context['groupIds']);
         }
 
-        $result = $this->search->search($context['userId'], $context['groupIds'], $filters);
+        try {
+            $result = $this->search->search($context['userId'], $context['groupIds'], $filters);
+        } catch (NoWorkspaceAllowedException) {
+            return [];
+        }
 
         return new PagerFantaApiPlatformPaginator($result);
     }

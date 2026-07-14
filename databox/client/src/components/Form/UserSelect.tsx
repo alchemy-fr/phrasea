@@ -3,76 +3,66 @@ import {getUsers} from '../../api/user';
 import {FieldValues} from 'react-hook-form';
 import {isAxiosError} from 'axios';
 import React from 'react';
-import {
-    AsyncRSelectProps,
-    AsyncRSelectWidget,
-    SelectOption,
-} from '@alchemy/react-form';
+import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
 import {useEntitiesStore} from '../../store/entitiesStore.ts';
+import {NotAllowedSelect} from './NotAllowedSelect.tsx';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
+import {EntityName} from '../../api/types.ts';
+import {createIriFromId} from '@alchemy/api';
 
-type Props<TFieldValues extends FieldValues> = {
+type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     data?: Promise<User[]> | undefined;
-} & AsyncRSelectProps<TFieldValues, false>;
+} & AsyncRSelectProps<TFieldValues, IsMulti>;
 
-export default function UserSelect<TFieldValues extends FieldValues>({
-    data,
-    ...props
-}: Props<TFieldValues>) {
+export default function UserSelect<
+    TFieldValues extends FieldValues,
+    IsMulti extends boolean,
+>({data, ...props}: Props<TFieldValues, IsMulti>) {
     const [notAllowed, setNotAllowed] = React.useState(false);
     const store = useEntitiesStore(s => s.store);
 
-    const load = async (
-        inputValue?: string | undefined
-    ): Promise<SelectOption[]> => {
-        try {
-            const result = await (!inputValue && data
-                ? data
-                : getUsers({
-                      query: inputValue,
-                  }));
+    const {loadOptions} = usePaginatedSelectLoader({
+        load: async qap => {
+            try {
+                const users = await (!qap.query && !qap.nextUrl && data
+                    ? data
+                    : getUsers(qap));
 
-            return result
-                .map((t: User) => {
-                    store(`/users/${t.id}`, t);
+                return {
+                    result: users,
+                    total: users.length,
+                };
+            } catch (e) {
+                if (isAxiosError(e) && e.response?.status === 403) {
+                    setNotAllowed(true);
+                }
 
-                    return {
-                        value: t.id,
-                        label: t.username,
-                    };
-                })
-                .filter(i =>
-                    i.label
-                        .toLowerCase()
-                        .includes((inputValue || '').toLowerCase())
-                );
-        } catch (e) {
-            if (isAxiosError(e) && e.response?.status === 403) {
-                setNotAllowed(true);
+                return {
+                    result: [],
+                    total: 0,
+                };
             }
+        },
+        map: t => {
+            store(createIriFromId(EntityName.User, t.id), t);
 
-            return [];
-        }
-    };
+            return {
+                value: t.id,
+                label: t.username,
+            };
+        },
+        filterLabels: true,
+    });
 
     if (notAllowed) {
-        return <NotAllowSelect {...props} />;
+        return <NotAllowedSelect {...props} />;
     }
 
     return (
-        <AsyncRSelectWidget cacheId={'users'} loadOptions={load} {...props} />
-    );
-}
-
-export function NotAllowSelect<TFieldValues extends FieldValues>(
-    props: AsyncRSelectProps<TFieldValues, false>
-) {
-    return (
         <AsyncRSelectWidget
+            cacheId={'users'}
+            loadOptions={loadOptions}
             {...props}
-            placeholder={`${
-                props.placeholder ? `${props.placeholder} ` : ''
-            }: 🚫 Not allowed`}
-            isDisabled={true}
         />
     );
 }

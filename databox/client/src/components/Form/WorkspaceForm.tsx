@@ -14,7 +14,7 @@ import {useCreateSaveTranslations} from '../../hooks/useCreateSaveTranslations.t
 import {putWorkspace} from '../../api/collection.ts';
 import {getLocaleOptions} from '../../api/locale.ts';
 import {LocaleSelectWidget} from '@alchemy/react-form';
-import CodeEditorWidget from './CodeEditor/CodeEditorWidget.tsx';
+import AssetStatusSelect from './AssetStatusSelect.tsx';
 
 const emptyLocaleItem = '';
 
@@ -193,18 +193,34 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                     />
                 </FormRow>
                 <FormRow>
-                    <CodeEditorWidget
+                    <AssetStatusSelect
                         control={control}
+                        name={'assetDefaultStatus'}
                         label={t(
-                            'form.workspace.fileAnalyzers.label',
-                            'File Analyzers'
+                            'form.workspace.assetDefaultStatus.label',
+                            'Asset Default Status'
                         )}
-                        name={'fileAnalyzers'}
                         disabled={submitting}
-                        mode={'yaml'}
-                        height={'500px'}
                     />
-                    <FormFieldErrors field={'fileAnalyzers'} errors={errors} />
+                    <FormFieldErrors
+                        field={'assetDefaultStatus'}
+                        errors={errors}
+                    />
+                </FormRow>
+                <FormRow>
+                    <CheckboxWidget
+                        label={t(
+                            'form.workspace.fileAnalysisRequired.label',
+                            'Requires File Analysis'
+                        )}
+                        control={control}
+                        name={'fileAnalysisRequired'}
+                        disabled={submitting}
+                    />
+                    <FormFieldErrors
+                        field={'fileAnalysisRequired'}
+                        errors={errors}
+                    />
                 </FormRow>
             </form>
         </>

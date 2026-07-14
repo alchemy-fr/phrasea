@@ -1,13 +1,8 @@
-import {useCallback} from 'react';
-import {Workspace} from '../../types';
 import {FieldValues} from 'react-hook-form';
-import {
-    AsyncRSelectProps,
-    AsyncRSelectWidget,
-    SelectOption,
-} from '@alchemy/react-form';
+import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
 import {getWorkspaces} from '../../api/workspace.ts';
 import {useEntitiesStore} from '../../store/entitiesStore.ts';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
 
 type Props<TFieldValues extends FieldValues> = {} & AsyncRSelectProps<
     TFieldValues,
@@ -19,33 +14,27 @@ export default function WorkspaceSelect<TFieldValues extends FieldValues>({
 }: Props<TFieldValues>) {
     const store = useEntitiesStore(s => s.store);
 
-    const load = useCallback(
-        async (inputValue: string): Promise<SelectOption[]> => {
-            const data = (await getWorkspaces()).result;
+    const {loadOptions} = usePaginatedSelectLoader({
+        load: props =>
+            getWorkspaces({
+                ...props,
+            }),
+        map: t => {
+            store(t['@id'], t);
 
-            return data
-                .map((t: Workspace) => {
-                    store(t['@id'], t);
-
-                    return {
-                        value: t.id,
-                        label: t.displayName ?? t.name,
-                    };
-                })
-                .filter(i =>
-                    i.label
-                        .toLowerCase()
-                        .includes((inputValue || '').toLowerCase())
-                );
+            return {
+                value: t.id,
+                label: t.displayName ?? t.name,
+            };
         },
-        []
-    );
+        filterLabels: true,
+    });
 
     return (
         <AsyncRSelectWidget<TFieldValues>
             cacheId={'workspaces'}
             {...rest}
-            loadOptions={load}
+            loadOptions={loadOptions}
         />
     );
 }

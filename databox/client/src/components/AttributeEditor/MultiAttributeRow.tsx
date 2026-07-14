@@ -12,7 +12,6 @@ import {
     CreateToKeyFunc,
     Values,
 } from './types.ts';
-import {getAttributeType} from '../Media/Asset/Attribute/types';
 import {
     AttributeFormatterOptions,
     AttributeFormatterProps,
@@ -23,6 +22,8 @@ import classNames from 'classnames';
 import {AttributeDefinition, StateSetter} from '../../types.ts';
 
 import {createWidgetOptionsFromDefinition} from '../Media/Asset/Attribute/attributeUtils';
+import {nullToUndefined} from '@alchemy/core';
+import {getAttributeType} from '../Media/Asset/Attribute/types/getAttributeType.ts';
 
 type Props<T> = {
     attributeDefinition: AttributeDefinition;
@@ -94,8 +95,8 @@ export default function MultiAttributeRow<T>({
     );
 
     const changeNewItemHandler = React.useCallback(
-        (v: T | undefined) => {
-            setNewValue(v);
+        (v: T | null | undefined) => {
+            setNewValue(nullToUndefined(v));
         },
         [setNewValue]
     );

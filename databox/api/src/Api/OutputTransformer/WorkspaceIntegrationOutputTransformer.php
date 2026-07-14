@@ -105,8 +105,8 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
             ];
         }
 
-        if ($this->isGranted(AbstractVoter::EDIT, $data)) {
-            $output->configYaml = Yaml::dump($data->getConfig(), 4);
+        if ($this->isGranted(AbstractVoter::EDIT, $data) && isset($integration)) {
+            $output->configYaml = Yaml::dump($integration->denormalizeConfiguration($data->getConfig(), $data->getWorkspace()), 4);
         }
 
         $tokens = $this->integrationTokenRepository->getValidUserTokens($data->getId(), $this->getStrictUserOrOAuthClient()->getUserIdentifier());

@@ -11,9 +11,9 @@
         "php": "^8.5",
         "alchemy/acl-bundle": "*",
         "lcobucci/jwt": "^5.0",
-        "symfony/framework-bundle": "^6",
-        "symfony/http-client": "^6",
-        "symfony/security-bundle": "^6"
+        "symfony/framework-bundle": "^7",
+        "symfony/http-client": "^7",
+        "symfony/security-bundle": "^7"
     },
     "config": {
         "sort-packages": true

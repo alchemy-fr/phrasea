@@ -7,6 +7,7 @@ namespace App\Configurator\Vendor\Keycloak;
 use App\Util\EnvHelper;
 use App\Util\HttpClientUtil;
 use App\Util\UriTemplate;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -18,6 +19,7 @@ final class KeycloakManager
     public function __construct(
         private readonly HttpClientInterface $keycloakClient,
         private readonly string $keycloakRealm,
+        private readonly LoggerInterface $logger,
     ) {
         if ('master' === $this->keycloakRealm) {
             throw new \LogicException('Your Keycloak Realm cannot be named "master".');
@@ -88,7 +90,7 @@ final class KeycloakManager
         return $response->toArray();
     }
 
-    protected function getClients(?string $realm = null): array
+    private function getClients(?string $realm = null): array
     {
         return $this->getAuthenticatedClient()->request('GET', UriTemplate::resolve('{realm}/clients', [
             'realm' => $realm ?? $this->keycloakRealm,
@@ -232,6 +234,35 @@ final class KeycloakManager
         }
     }
 
+    // @see https://github.com/keycloak/keycloak/discussions/34765
+    public function removeCompositeRolesAssignedToScope(string $scopeName): void
+    {
+        $scope = $this->getScopeByName($scopeName);
+
+        $assignedRoles = $this->getAuthenticatedClient()
+            ->request('GET', UriTemplate::resolve('{realm}/client-scopes/{scopeId}/scope-mappings/realm', [
+                'realm' => $this->keycloakRealm,
+                'scopeId' => $scope['id'],
+            ]))->toArray();
+
+        $compositeRoles = array_values(array_filter($assignedRoles, fn (array $role): bool => $role['composite']));
+
+        if (!empty($compositeRoles)) {
+            $compositeRoleNames = array_map(fn (array $role): string => $role['name'], $compositeRoles);
+            $this->logger->alert(sprintf('Scope "%s" has composite role(s) assigned (%s). Auto removing them.', $scope['name'], implode(', ', $compositeRoleNames)));
+
+            foreach ($compositeRoles as $compositeRole) {
+                $this->getAuthenticatedClient()
+                    ->request('DELETE', UriTemplate::resolve('{realm}/client-scopes/{scopeId}/scope-mappings/realm', [
+                        'realm' => $this->keycloakRealm,
+                        'scopeId' => $scope['id'],
+                    ]), [
+                        'json' => [$compositeRole],
+                    ])->getHeaders();
+            }
+        }
+    }
+
     public function assignRoleToScope(string $scopeName, string $roleName): void
     {
         $scope = $this->getScopeByName($scopeName);
@@ -248,7 +279,7 @@ final class KeycloakManager
             ])->getHeaders(), 409, []);
     }
 
-    protected function getScopes(): array
+    private function getScopes(): array
     {
         $response = $this->getAuthenticatedClient()->request('GET', UriTemplate::resolve('{realm}/client-scopes', [
             'realm' => $this->keycloakRealm,
@@ -671,9 +702,9 @@ final class KeycloakManager
                 if ($roleName === $r['name']) {
                     if (!in_array($r['id'], $userRoles, true)) {
                         return $r;
-                    } else {
-                        return null;
                     }
+
+                    return null;
                 }
             }
 
@@ -701,9 +732,9 @@ final class KeycloakManager
                 if ($roleName === $r['name']) {
                     if (!in_array($r['id'], $userRoles, true)) {
                         return $r;
-                    } else {
-                        return null;
                     }
+
+                    return null;
                 }
             }
 

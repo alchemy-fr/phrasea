@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Border\Analyzer;
 
+use Alchemy\RenditionFactory\Transformer\Documentation;
 use App\Entity\Core\File;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
@@ -25,4 +26,6 @@ interface AnalyzerInterface
     public function buildConfiguration(NodeBuilder $builder): void;
 
     public function validateConfiguration(array $config): void;
+
+    public function getDocumentation(): Documentation;
 }

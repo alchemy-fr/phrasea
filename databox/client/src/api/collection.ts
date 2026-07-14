@@ -18,7 +18,8 @@ import {
     WorkspaceOrCollectionTreeItem,
 } from '../components/Media/Collection/CollectionTree/types.ts';
 import {TreeNode} from '@alchemy/phrasea-framework';
-import {EntityName, PaginationParams} from './types.ts';
+import {EntityName} from './types.ts';
+import {PaginationParams} from '@alchemy/phrasea-framework';
 
 export const collectionChildrenLimit = 20;
 export const collectionSecondLimit = 30;
@@ -52,6 +53,10 @@ export function clearWorkspaceCache(): void {
 
 export async function getCollection(id: string): Promise<Collection> {
     return (await apiClient.get(`/collections/${id}`)).data;
+}
+
+export async function getCollectionAscendants(id: string): Promise<Collection> {
+    return (await apiClient.get(`/collections/${id}/ascendants`)).data;
 }
 
 export async function getCollectionPrivacyInfo(

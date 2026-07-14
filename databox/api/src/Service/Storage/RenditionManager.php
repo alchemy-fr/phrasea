@@ -228,8 +228,8 @@ final class RenditionManager
             ->em
             ->getRepository(RenditionDefinition::class)
             ->findOneBy([
-                'name' => $name,
                 'workspace' => $workspaceId,
+                'name' => $name,
             ]);
 
         if (!$definition instanceof RenditionDefinition) {
@@ -239,6 +239,9 @@ final class RenditionManager
         return $definition;
     }
 
+    /**
+     * @return RenditionDefinition[]
+     */
     public function getRenditionDefinitions(string $workspaceId): array
     {
         return $this
@@ -264,6 +267,20 @@ final class RenditionManager
         }
 
         return $definition;
+    }
+
+    /**
+     * @return RenditionDefinition[]
+     */
+    public function getRenditionDefinitionByIds(string $workspaceId, array $ids): array
+    {
+        return $this
+            ->em
+            ->getRepository(RenditionDefinition::class)
+            ->findBy([
+                'id' => $ids,
+                'workspace' => $workspaceId,
+            ]);
     }
 
     public function resetAssetRenditions(Asset $asset): void

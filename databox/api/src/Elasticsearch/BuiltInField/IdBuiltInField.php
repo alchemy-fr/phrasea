@@ -6,7 +6,6 @@ namespace App\Elasticsearch\BuiltInField;
 
 use App\Attribute\Type\IdAttributeType;
 use App\Entity\Core\Asset;
-use Elastica\Query;
 
 final class IdBuiltInField extends AbstractBuiltInAttribute
 {
@@ -34,11 +33,6 @@ final class IdBuiltInField extends AbstractBuiltInAttribute
     public function getType(): string
     {
         return IdAttributeType::getName();
-    }
-
-    public function createFilterQuery(mixed $value, array $options): Query\AbstractQuery
-    {
-        return new Query\Term(['_id' => $value]);
     }
 
     #[\Override]

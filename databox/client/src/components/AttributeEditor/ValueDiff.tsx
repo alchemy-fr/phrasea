@@ -11,7 +11,6 @@ import {styled} from '@mui/material/styles';
 import NotesIcon from '@mui/icons-material/Notes';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {getAttributeType} from '../Media/Asset/Attribute/types';
 import {
     AttributeFormatterOptions,
     AttributeFormatterProps,
@@ -26,6 +25,7 @@ import {useTranslation} from 'react-i18next';
 import {isNoLocale, NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
 import Flag from '../Ui/Flag.tsx';
 import {FlexRow} from '@alchemy/phrasea-ui';
+import {getAttributeType} from '../Media/Asset/Attribute/types/getAttributeType.ts';
 
 type Props = {
     actions: AttributeBatchAction[];

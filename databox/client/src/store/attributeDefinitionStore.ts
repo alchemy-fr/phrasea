@@ -4,13 +4,8 @@ import {
     AssetTypeFilter,
     AttributeDefinition,
     AttributeDefinitionOrBuiltIn,
-    AttributeEntity,
     BaseAttributeDefinition,
     BuiltInAttribute,
-    Collection,
-    RenditionDefinition,
-    Tag,
-    User,
     Workspace,
 } from '../types';
 import {
@@ -19,16 +14,8 @@ import {
     getWorkspaceAttributeDefinitions,
 } from '../api/attributes.ts';
 import {BuiltInFieldEnum} from '../components/Media/Search/search.ts';
-import AttributeEntitySelect from '../components/Form/AttributeEntitySelect.tsx';
-import {AttributeType, EntityName} from '../api/types.ts';
+import {AttributeType} from '../api/types.ts';
 import React from 'react';
-import WorkspaceSelect from '../components/Form/WorkspaceSelect.tsx';
-import UserSelect from '../components/Form/UserSelect.tsx';
-import NullableBooleanWidget from '../components/Form/NullableBooleanWidget.tsx';
-import TagSelect from '../components/Form/TagSelect.tsx';
-import PrivacyWidget from '../components/Form/PrivacyWidget.tsx';
-import RenditionDefinitionSelect from '../components/Form/RenditionDefinitionSelect.tsx';
-import {getBestTranslatedValue} from '@alchemy/i18n/src/Locale/localeHelper.ts';
 
 export type AttributeDefinitionsIndex<
     T extends BaseAttributeDefinition = AttributeDefinitionOrBuiltIn,
@@ -202,14 +189,16 @@ function useIndexByKey<BI extends boolean>(
         }
 
         for (const def of definitions) {
-            if (
-                filters.workspaceId &&
-                (def.workspace as Workspace | undefined)?.id !==
-                    filters.workspaceId
-            ) {
+            if (!def.enabled) {
                 continue;
             }
-            if (filters.target && (def.target & filters.target) === 0) {
+            if (
+                !def.enabled ||
+                (filters.workspaceId &&
+                    (def.workspace as Workspace | undefined)?.id !==
+                        filters.workspaceId) ||
+                (filters.target && (def.target & filters.target) === 0)
+            ) {
                 continue;
             }
             // @ts-expect-error unknown key type
@@ -231,6 +220,7 @@ export function getBuiltInFieldValueResolver(
         [BuiltInFieldEnum.Workspace]: asset => asset.workspace,
         [BuiltInFieldEnum.Owner]: asset => asset.owner,
         [BuiltInFieldEnum.Privacy]: asset => asset.privacy,
+        [BuiltInFieldEnum.AssetStatus]: asset => asset.status,
         [BuiltInFieldEnum.IsStory]: asset => !!asset.storyCollection,
         [BuiltInFieldEnum.Story]: asset =>
             asset.collections?.filter(c => !!c.storyAsset) ?? [],
@@ -266,98 +256,11 @@ function normalizeDefinition<T extends BaseAttributeDefinition>(
     });
 
     switch (d.type) {
-        case AttributeType.Boolean:
+        case AttributeType.AttributeEntity:
             return {
                 ...d,
-                widget: {
-                    component: NullableBooleanWidget,
-                },
-            };
-        case AttributeType.Entity:
-            return {
-                ...d,
-                entityIri: EntityName.Entity,
-                resolveLabel: (entity: AttributeEntity) => {
-                    return getBestTranslatedValue(
-                        entity.translations,
-                        entity.value
-                    );
-                },
-                widget: {
-                    component: AttributeEntitySelect,
-                    props: {
-                        list: d.entityList,
-                    },
-                },
-            };
-        case AttributeType.CollectionPath:
-            return {
-                ...d,
-                entityIri: EntityName.Collection,
-                resolveLabel: (entity: Collection) => entity.displayName,
-            };
-        case AttributeType.Workspace:
-            return {
-                ...d,
-                entityIri: EntityName.Workspace,
-                resolveLabel: (entity: Workspace) => entity.displayName,
-                widget: {
-                    component: WorkspaceSelect,
-                },
-            };
-        case AttributeType.User:
-            return {
-                ...d,
-                entityIri: EntityName.User,
-                resolveLabel: (entity: User) =>
-                    entity.username ?? entity.id ?? '',
-                widget: {
-                    component: UserSelect,
-                },
-            };
-        case AttributeType.Tag:
-            return {
-                ...d,
-                entityIri: EntityName.Tag,
-                resolveLabel: (entity: Tag) =>
-                    entity.displayName ?? entity.name ?? '',
-                widget: {
-                    component: TagSelect,
-                    props: {
-                        useIRI: false,
-                    },
-                },
-            };
-        case AttributeType.Privacy:
-            return {
-                ...d,
-                widget: {
-                    component: PrivacyWidget,
-                },
-            };
-        case AttributeType.Story:
-            return {
-                ...d,
-                entityIri: EntityName.Asset,
-                resolveLabel: (entity: Asset) => entity.name ?? '',
-                widget: {
-                    component: TagSelect,
-                    props: {
-                        useIRI: false,
-                    },
-                },
-            };
-        case AttributeType.Rendition:
-            return {
-                ...d,
-                entityIri: EntityName.RenditionDefinition,
-                resolveLabel: (entity: RenditionDefinition) =>
-                    entity.displayName ?? entity.name ?? '',
-                widget: {
-                    component: RenditionDefinitionSelect,
-                    props: {
-                        useIRI: false,
-                    },
+                widgetOptions: {
+                    list: d.entityList,
                 },
             };
         default:
@@ -371,6 +274,11 @@ function normalizeDefinitionFromId<T extends BaseAttributeDefinition>(d: T): T {
             return {
                 ...d,
                 type: AttributeType.Privacy,
+            };
+        case BuiltInFieldEnum.AssetStatus:
+            return {
+                ...d,
+                type: AttributeType.AssetStatus,
             };
         case BuiltInFieldEnum.Tag:
             return {

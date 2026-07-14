@@ -1,7 +1,4 @@
 services:
-    _defaults:
-        public: false
-
     # Register nyholm/psr7 services for autowiring with PSR-17 (HTTP factories)
     Psr\Http\Message\RequestFactoryInterface: '@nyholm.psr7.psr17_factory'
     Psr\Http\Message\ResponseFactoryInterface: '@nyholm.psr7.psr17_factory'

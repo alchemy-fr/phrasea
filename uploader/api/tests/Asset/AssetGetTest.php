@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Asset;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class AssetGetTest extends AbstractAssetTest
 {
@@ -14,10 +14,9 @@ class AssetGetTest extends AbstractAssetTest
         $this->commitAsset();
         $response = $this->requestGet('secret_token');
 
-        $contents = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
-
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $contents = $response->toArray();
+        $this->assertEquals('application/ld+json; charset=utf-8', $response->getHeaders()['content-type'][0]);
         $this->assertEquals('foo.jpg', $contents['originalName']);
         $this->assertEquals(['foo' => 'bar'], $contents['formData']);
         $this->assertEquals(846, $contents['size']);
@@ -67,13 +66,14 @@ class AssetGetTest extends AbstractAssetTest
         $this->assertEquals(403, $response->getStatusCode());
     }
 
-    private function requestGet(?string $accessToken, $authType = 'AssetToken'): Response
+    private function requestGet(?string $accessToken, $authType = 'AssetToken'): ResponseInterface
     {
-        $token = null;
-        if (null !== $accessToken) {
-            $token = [$authType, $accessToken];
-        }
+        $client = static::createClient();
 
-        return $this->request($token, 'GET', sprintf('/assets/%s', $this->assetId));
+        return $client->request('GET', sprintf('/assets/%s', $this->assetId), [
+            'headers' => $accessToken ? [
+                'Authorization' => sprintf('%s %s', $authType, $accessToken),
+            ] : [],
+        ]);
     }
 }

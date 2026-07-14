@@ -50,6 +50,12 @@ App\Entity\Core\AttributeDefinition:
         type: geo_point
         policy: '@n_ap_public'
         position: 1
+    ad_boolean (extends attribute_definition_n):
+        name: Boolean
+        facetEnabled: true
+        type: boolean
+        policy: '@n_ap_public'
+        position: 1
     ad_author (extends attribute_definition_n):
         name: Author
         multiple: false

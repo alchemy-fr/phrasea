@@ -98,6 +98,11 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
                     PermissionInterface::CHILD_OWNER,
                     PermissionInterface::OWNER,
                 ], $subject, $token),
+            AssetContainerVoterInterface::ASSET_QUARANTINE => $isCreator()
+                || $this->hasAcl([
+                    PermissionInterface::OWNER,
+                ], $subject, $token)
+                || $this->hasMetadata(DataboxExtraPermissionInterface::PERM_QUARANTINE, $subject, $token),
             AssetContainerVoterInterface::ASSET_CREATE => $isCreator()
                 || $this->hasAcl([
                     PermissionInterface::CHILD_CREATE,
