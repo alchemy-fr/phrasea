@@ -702,6 +702,7 @@ export enum ExportStatusEnum {
     Pending = 0,
     InProgress = 1,
     Ready = 2,
+    Failed = 3,
 }
 
 export type AssetExport = {

@@ -48,6 +48,7 @@ class AssetExport extends AbstractUuidEntity
     final public const string GROUP_WRITE = self::GROUP_PREFIX.'w';
     final public const string GROUP_ALL = self::GROUP_PREFIX.'a';
 
+    #[Groups(self::GROUP_READ)]
     #[ORM\Column(type: Types::SMALLINT, nullable: false, enumType: ExportStatusEnum::class)]
     private ExportStatusEnum $status = ExportStatusEnum::Pending;
 

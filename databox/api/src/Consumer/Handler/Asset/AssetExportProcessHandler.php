@@ -101,8 +101,6 @@ class AssetExportProcessHandler
                 $this->triggerExportPush($export->getId(), 'progress', [
                     'progress' => ++$i / $total,
                 ]);
-
-                //                sleep(1); // TODO
             }
 
             $export = DoctrineUtil::findStrict($this->em, AssetExport::class, $export->getId());

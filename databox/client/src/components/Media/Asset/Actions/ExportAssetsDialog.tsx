@@ -142,6 +142,7 @@ export default function ExportAssetsDialog({assets, ...modalProps}: Props) {
                                                             required: true,
                                                         }
                                                     )}
+                                                    defaultChecked={true}
                                                     value={rd.id}
                                                 />
                                             }
