@@ -21,32 +21,32 @@ export function upsertProgressiveToast(
 
     const isLoading = status === ToastProgressStatus.InProgress;
 
-    const common = {
+    const common: ToastOptions = {
+        ...rest,
         // https://github.com/fkhadra/react-toastify/issues/1116
         progress: isLoading ? (progress === 1 ? 0.99 : progress) : undefined,
         isLoading,
         closeButton: !isLoading,
         autoClose: isLoading ? false : autoClose,
+        type:
+            status === ToastProgressStatus.Error
+                ? 'error'
+                : status === ToastProgressStatus.Done
+                  ? 'success'
+                  : 'info',
     };
 
     if (id) {
         toast.update(id, {
-            type:
-                status === ToastProgressStatus.Error
-                    ? 'error'
-                    : status === ToastProgressStatus.Done
-                      ? 'success'
-                      : 'info',
-            render,
             ...common,
+            render,
         });
 
         return id;
     } else {
         return toast.info(render, {
-            ...rest,
-            onClose,
             ...common,
+            onClose,
         });
     }
 }

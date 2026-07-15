@@ -72,7 +72,7 @@ export function usePendingExports() {
                                 defaults={`Preparing Export… {{progress}}%`}
                             />
                         ),
-                    autoClose: 10000,
+                    autoClose: false,
                     onClose: () => {
                         delete toastIds.current[exp.id];
                         removeExport(exp.id);

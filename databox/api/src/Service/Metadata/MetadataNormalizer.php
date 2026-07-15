@@ -50,7 +50,6 @@ final readonly class MetadataNormalizer
 
     public function denormalize(array $data): MetadataBag
     {
-        dump($data);
         $bag = new MetadataBag();
 
         foreach ($data as $groupId => $groupData) {

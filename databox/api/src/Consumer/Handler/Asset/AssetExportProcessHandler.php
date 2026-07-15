@@ -72,6 +72,7 @@ class AssetExportProcessHandler
                 /** @var AssetRendition[] $renditions */
                 foreach ($renditions as $rendition) {
                     $asset = $rendition->getAsset();
+                    $sourceFile = $asset->getSource();
 
                     if (!$this->isGrantedForUser($userData, AbstractVoter::READ, $rendition)) {
                         continue;
@@ -87,10 +88,14 @@ class AssetExportProcessHandler
                     $path = sprintf('%s/%s-%s-%s%s', $archiveDir, StringUtil::slugify($renditionName), StringUtil::slugify($assetName ?? ''), $assetId, $ext);
                     $this->fileFetcher->getFile($file, path: $path);
 
-                    if ($file->metadataHasChanged()) {
+                    if ($sourceFile?->getType() === $file->getType() && $file->metadataHasChanged()) {
                         $writer = $this->metadataManipulator->createWriter();
                         $metadata = $this->metadataNormalizer->denormalize($file->getMetadata());
-                        $writer->write($path, $metadata);
+
+                        $tmpFile = sys_get_temp_dir().'/'.uniqid('metadata-file');
+                        $writer->write($path, $metadata, destination: $tmpFile);
+                        unlink($path);
+                        rename($tmpFile, $path);
                     }
 
                     ++$fileCount;
@@ -116,9 +121,8 @@ class AssetExportProcessHandler
             }
 
             $archivePath = $this->pathGenerator->generatePath('zip', 'exports/');
-            $archiveSrc = sys_get_temp_dir().'/'.uniqid('archive-file');
+            $archiveSrc = $archiveDir.'/'.uniqid('archive-file').'.zip';
 
-            touch($archiveSrc);
             $zippy = Zippy::load();
             $zippy->create($archiveSrc, [
                 'content' => $archiveDir,

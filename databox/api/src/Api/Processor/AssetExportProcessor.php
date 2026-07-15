@@ -48,6 +48,6 @@ class AssetExportProcessor implements ProcessorInterface
 
         $this->bus->dispatch(new AssetExportProcess($data->getId()));
 
-        return $data;
+        return $this->em->find($data::class, $data->getId());
     }
 }
