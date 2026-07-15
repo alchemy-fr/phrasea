@@ -86,7 +86,7 @@ export async function exportEntities(
 
     const url = URL.createObjectURL(response.data);
 
-    downloadUrl(url, filename);
+    downloadUrl(url, filename, true);
 }
 
 export async function importEntities(

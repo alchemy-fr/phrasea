@@ -129,7 +129,7 @@ class AssetExportProcessHandler
                 }
 
                 $archivePath = $this->pathGenerator->generatePath('zip', 'exports/');
-                $archiveSrc = $archiveDir.'/'.uniqid('archive-file').'.zip';
+                $archiveSrc = sys_get_temp_dir().'/'.uniqid('archive-file').'.zip';
 
                 $zippy = Zippy::load();
                 $zippy->create($archiveSrc, [
@@ -161,6 +161,7 @@ class AssetExportProcessHandler
             $this->em->flush();
 
             $this->triggerExportPush($export->getId(), 'error', [
+                'error' => 'Unexpected error while preparing export.',
             ]);
         }
     }

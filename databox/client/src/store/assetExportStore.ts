@@ -17,7 +17,6 @@ type State = {
 
 export const useAssetExportStore = create<State>(set => ({
     data: [],
-    listeners: {},
 
     removeExport: (exportId: string): void => {
         set(state => ({

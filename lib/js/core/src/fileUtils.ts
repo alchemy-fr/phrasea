@@ -61,10 +61,15 @@ export function validateUrl(value: string): boolean {
     }
 }
 
-export function downloadUrl(url: string, filename?: string): void {
+export function downloadUrl(
+    url: string,
+    filename?: string,
+    isBlob: boolean = false
+): void {
     const a = document.createElement('a');
     a.href = url;
     a.target = '_blank';
+    a.rel = 'noopener noreferrer';
     if (filename) {
         a.download = filename;
     }
@@ -74,5 +79,8 @@ export function downloadUrl(url: string, filename?: string): void {
 
     setTimeout(() => {
         a.remove();
+        if (isBlob) {
+            URL.revokeObjectURL(url);
+        }
     }, 100);
 }
