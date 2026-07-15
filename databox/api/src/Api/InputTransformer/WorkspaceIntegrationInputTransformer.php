@@ -45,6 +45,8 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
             $object->setIntegration($integrationTypeName);
         }
 
+        $integration = $this->integrationRegistry->getIntegration($object->getIntegration());
+
         if (null !== $data->configYaml) {
             $object->setConfig(Yaml::parse($data->configYaml) ?? []);
         } elseif (null !== $data->config) {
@@ -52,7 +54,6 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
         }
 
         if ($isNew) {
-            $integration = $this->integrationRegistry->getIntegration($integrationTypeName);
             if ($integration instanceof IntegrationInterface) {
                 $object->setConfig($integration->generateConfigurationDefaults($object->getConfig()));
             }
@@ -75,6 +76,12 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
         }
         if (null !== $data->if) {
             $object->setIf($data->if ?: null);
+        }
+
+        $this->validator->validate($object, $context); // Validate before normalization
+
+        if ($integration instanceof IntegrationInterface) {
+            $object->setConfig($integration->normalizeConfiguration($object->getConfig(), $object->getWorkspace()));
         }
 
         return $this->processOwnerId($object);

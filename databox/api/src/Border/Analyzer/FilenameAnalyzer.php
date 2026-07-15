@@ -104,4 +104,9 @@ final readonly class FilenameAnalyzer extends AbstractAnalyzer
     {
         return false;
     }
+
+    protected function getDocumentationHeader(): string
+    {
+        return 'Analyzes the filename of the file and checks it against allowed/disallowed patterns, extensions, and MIME types.';
+    }
 }

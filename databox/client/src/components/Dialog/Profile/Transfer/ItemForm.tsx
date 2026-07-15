@@ -15,7 +15,6 @@ import {FormFieldErrors, FormRow, SwitchWidget} from '@alchemy/react-form';
 import {putProfileItem} from '../../../../api/profile.ts';
 
 import {RemoteErrors} from '@alchemy/react-form';
-import {getAttributeType} from '../../../Media/Asset/Attribute/types';
 import {
     useIndexById,
     useIndexBySlug,
@@ -23,6 +22,7 @@ import {
 import {useProfileStore} from '../../../../store/profileStore.ts';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
+import {getAttributeType} from '../../../Media/Asset/Attribute/types/getAttributeType.ts';
 
 type Props = {
     item: ProfileItem;

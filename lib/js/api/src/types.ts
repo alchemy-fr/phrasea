@@ -97,10 +97,10 @@ export interface ApiHydraObjectResponse {
 
 export type NormalizedCollectionResponse<T, E extends {} = {}> = {
     total: number;
-    first?: string | null;
-    previous?: string | null;
-    next?: string | null;
-    last?: string | null;
+    first?: string;
+    previous?: string;
+    next?: string;
+    last?: string;
     result: T[];
 } & E;
 

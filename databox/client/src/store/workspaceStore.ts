@@ -33,7 +33,7 @@ export const useWorkspaceStore = create<State>((set, getState) => ({
 
         set({loading: true});
         try {
-            const data = await getWorkspaces();
+            const data = await getWorkspaces({});
 
             set(state => {
                 const tree = {...state.tree};

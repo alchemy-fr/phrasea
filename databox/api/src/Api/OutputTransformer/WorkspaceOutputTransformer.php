@@ -54,8 +54,9 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
             Workspace::GROUP_READ,
         ], $context)) {
             $output->setLocaleFallbacks($data->getLocaleFallbacks());
-            $output->fileAnalyzers = $data->getFileAnalyzers();
             $output->trashRetentionDelay = $data->getTrashRetentionDelay();
+            $output->assetDefaultStatus = $data->getAssetDefaultStatus();
+            $output->fileAnalysisRequired = $data->isFileAnalysisRequired();
             $output->translations = $data->getTranslations();
             $output->owner = $this->transformUser($data->getOwnerId());
         }

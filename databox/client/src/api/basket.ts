@@ -2,7 +2,7 @@ import {apiClient} from '../init.ts';
 import {Basket, BasketAsset, Entity} from '../types';
 import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {clearAssociationIds} from './clearAssociation';
-import {PaginationParams} from './types.ts';
+import {PaginationParams} from '@alchemy/phrasea-framework';
 
 export type GetBasketOptions = {
     query?: string;

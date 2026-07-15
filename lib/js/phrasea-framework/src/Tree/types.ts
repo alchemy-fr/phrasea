@@ -12,7 +12,7 @@ type BaseTreeNode<D extends TreeBaseItem> = {
     childrenLoaded?: boolean;
     loadingChildren?: boolean;
     loadingMoreChildren?: boolean;
-    nextCursor?: string; // If partially loaded, the cursor for loading more children
+    nextCursor?: string; // the cursor for loading more children
     canEdit?: boolean;
     editing?: boolean;
     editedOnce?: boolean; // State to know if the node was added and confirmed

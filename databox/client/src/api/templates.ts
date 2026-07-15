@@ -2,6 +2,7 @@ import {apiClient} from '../init.ts';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
 import {Attribute, Entity, Tag} from '../types';
 import {AttributeBatchAction, EntityName} from './types.ts';
+import {QueryAndPaginationParams} from '@alchemy/phrasea-framework';
 
 export type AssetDataTemplate = {
     name: string;
@@ -29,17 +30,19 @@ export async function putAssetDataTemplate(
 }
 
 type GetAssetDataTemplatesOptions = {
-    query?: string;
     workspace: string;
     collection?: string | undefined;
-};
+} & QueryAndPaginationParams;
 
-export async function getAssetDataTemplates(
-    options?: GetAssetDataTemplatesOptions
-): Promise<NormalizedCollectionResponse<AssetDataTemplate>> {
-    const res = await apiClient.get(EntityName.AssetDataTemplate, {
+export async function getAssetDataTemplates({
+    nextUrl,
+    ...options
+}: GetAssetDataTemplatesOptions): Promise<
+    NormalizedCollectionResponse<AssetDataTemplate>
+> {
+    const res = await apiClient.get(nextUrl ?? EntityName.AssetDataTemplate, {
         params: {
-            ...(options ?? {}),
+            ...options,
         },
     });
 

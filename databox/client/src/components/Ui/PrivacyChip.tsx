@@ -5,33 +5,18 @@ import LockIcon from '@mui/icons-material/Lock';
 import {Privacy} from '../../api/privacy';
 import FastTooltip from './FastTooltip';
 import assetClasses from '../AssetList/classes';
+import {useMemo} from 'react';
+import {getPrivacyTranslations} from '../../translations/privacyTranslations.ts';
 
 function usePrivacyLabel(privacy: Privacy, noAccess: boolean | undefined) {
     const {t} = useTranslation();
+    const labels = useMemo(() => getPrivacyTranslations(t), [t]);
 
     if (noAccess) {
         return t('privacy.no_access', 'No Access');
     }
 
-    const privacyIndices: Record<Privacy, string> = {
-        [Privacy.Secret]: t('privacy.secret', 'Secret'),
-        [Privacy.PrivateInWorkspace]: t(
-            'privacy.private_in_workspace',
-            'Private in workspace'
-        ),
-        [Privacy.PublicInWorkspace]: t(
-            'privacy.public_in_workspace',
-            'Public in workspace'
-        ),
-        [Privacy.Private]: t('privacy.private', 'Private'),
-        [Privacy.PublicForUsers]: t(
-            'privacy.public_for_users',
-            'Public for users'
-        ),
-        [Privacy.Public]: t('privacy.public', 'Public'),
-    };
-
-    return privacyIndices[privacy];
+    return labels[privacy];
 }
 
 type Props = {

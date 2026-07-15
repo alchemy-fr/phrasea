@@ -9,7 +9,7 @@ use Symfony\Component\Form\DataTransformerInterface;
 
 class EventsDataTransformer implements DataTransformerInterface
 {
-    public function transform($value)
+    public function transform(mixed $value): array
     {
         if (null === $value) {
             return [Webhook::ALL_EVENTS => true];
@@ -18,7 +18,7 @@ class EventsDataTransformer implements DataTransformerInterface
         return array_fill_keys($value, true);
     }
 
-    public function reverseTransform($value)
+    public function reverseTransform(mixed $value): ?array
     {
         if ($value[Webhook::ALL_EVENTS] ?? false) {
             return null;

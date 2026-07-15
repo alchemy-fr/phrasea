@@ -13,14 +13,14 @@ final class AppNormalizer implements NormalizerInterface, NormalizerAwareInterfa
 {
     use NormalizerAwareTrait;
 
-    private const string ALREADY_CALLED = self::class.'_ACD';
+    private const string ALREADY_CALLED = '::ACD';
 
     public function __construct(
         private readonly EntityNormalizer $entityNormalizer,
     ) {
     }
 
-    public function supportsNormalization($data, ?string $format = null, array $context = []): bool
+    public function supportsNormalization(mixed $data, ?string $format = null, array $context = []): bool
     {
         if (
             !is_object($data)
@@ -32,12 +32,20 @@ final class AppNormalizer implements NormalizerInterface, NormalizerAwareInterfa
         return !isset($context[$this->getObjectKey($data)]);
     }
 
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize(mixed $data, $format = null, array $context = []): \ArrayObject|array|string|int|float|bool|null
     {
-        $context[$this->getObjectKey($object)] = true;
-        $this->entityNormalizer->normalize($object, $context);
+        $context[$this->getObjectKey($data)] = true;
+        $this->entityNormalizer->normalize($data, $context);
 
-        return $this->normalizer->normalize($object, $format, $context);
+        return $this->normalizer->normalize($data, $format, $context);
+    }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            'object' => false,
+            PaginatorInterface::class => null,
+        ];
     }
 
     private function getObjectKey(object $object): string

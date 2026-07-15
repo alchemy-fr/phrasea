@@ -1,4 +1,4 @@
-import axios, {AxiosError} from 'axios';
+import axios from 'axios';
 
 process.on('uncaughtException', (err, _origin) => {
     // eslint-disable-next-line no-console

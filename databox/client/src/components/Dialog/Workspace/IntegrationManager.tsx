@@ -241,6 +241,7 @@ function Item({
                     mode={'yaml'}
                     height={'200px'}
                 />
+                <FormFieldErrors field={'config'} errors={errors} />
                 {integrationHelp ? (
                     <FormHelperText>
                         <Typography variant={'body1'}>
@@ -267,7 +268,6 @@ function Item({
                         </Button>
                     </FormHelperText>
                 ) : null}
-                <FormFieldErrors field={'config'} errors={errors} />
             </FormRow>
 
             <FormRow>
@@ -359,7 +359,12 @@ export default function IntegrationManager({
             }
             itemComponent={Item}
             listComponent={ListItem}
-            load={() => getWorkspaceIntegrations(workspace.id)}
+            load={({filters: _f, ...qapParams}) =>
+                getWorkspaceIntegrations({
+                    ...qapParams,
+                    workspaceId: workspace.id,
+                })
+            }
             workspace={workspace}
             minHeight={minHeight}
             onClose={onClose}

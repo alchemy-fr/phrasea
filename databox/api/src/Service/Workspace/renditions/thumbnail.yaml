@@ -1,0 +1,37 @@
+image:
+    transformations: &image_transformations
+        -
+            module: imagine
+            options:
+                format: webp
+                filters:
+                    thumbnail:
+                        size: [ 400, 400 ]
+                        mode: inset
+
+animation:
+    transformations: *image_transformations
+
+video:
+    normalization: ~
+    transformations:
+        -
+            module: video_to_frame
+            enabled: true
+            options:
+                timeout: 3600
+                threads: 2
+                format: image-jpeg
+                start: "{{ input.duration/2}}"
+                extension: jpeg
+
+document:
+    normalization: ~
+    transformations:
+        -
+            description: pdf to image
+            module: pdf_to_image
+            options:
+                extension: png
+                resolution: 72
+                quality: 90

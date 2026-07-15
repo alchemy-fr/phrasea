@@ -19,8 +19,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FieldBuilder, {FieldBuilderProps} from './FieldBuilder.tsx';
 import {parseAQLQuery} from '../AQL.ts';
 import {valueToString} from '../query.ts';
-import {FieldWidget} from '../../../../../types.ts';
 import DateType from '../../../Asset/Attribute/types/DateType.tsx';
+import {AttributeType} from '../../../../../api/types.ts';
+import {AttributeWidgetOptions} from '../../../Asset/Attribute/types/types';
 
 type Props = {
     expression: BaseBuilderProps<QBCondition>['expression'];
@@ -28,16 +29,18 @@ type Props = {
     manyArgs: ManyArgs;
     argNames: ArgNames;
     rawType: RawType | undefined;
-    widget?: FieldWidget;
+    type?: AttributeType;
+    widgetOptions?: AttributeWidgetOptions;
 };
 
 export default function ValueBuilder({
-    widget,
+    type,
     manyArgs,
     argNames,
     expression,
     setExpression,
     rawType,
+    widgetOptions,
 }: Props) {
     const {t} = useTranslation();
 
@@ -169,7 +172,12 @@ export default function ValueBuilder({
                         alignItems: 'center',
                     }}
                 >
-                    <FieldBuilder {...f} widget={widget} rawType={rawType} />
+                    <FieldBuilder
+                        {...f}
+                        type={type}
+                        rawType={rawType}
+                        widgetOptions={widgetOptions}
+                    />
                     {manyArgs === true && (
                         <div>
                             <IconButton onClick={() => removeValue(index)}>
@@ -212,9 +220,5 @@ function resolveValue(
         return value ? AQLConstant.True : AQLConstant.False;
     }
 
-    if (!value) {
-        return '';
-    }
-
-    return value.toString();
+    return value?.toString() ?? '';
 }

@@ -1,6 +1,6 @@
 import {getPage} from './page.ts';
 
-test('getPage', () => {
+it('getPage', () => {
     const pages: {id: string}[][] = [
         [{id: '1.1'}, {id: '1.2'}],
         [{id: '2.1'}, {id: '2.2'}, {id: '2.3'}],

@@ -97,8 +97,7 @@ export function createHttpClient({
                         JSON.stringify(error.response.headers, undefined, 2)
                 );
                 if (error.request) {
-                    const request =
-                        error.config as InternalAxiosRequestConfig<any>;
+                    const request = error.config as InternalAxiosRequestConfig;
 
                     let data;
                     try {
@@ -112,7 +111,7 @@ export function createHttpClient({
                     }
 
                     logger.info(
-                        `Request (${error.config?.url}): ` +
+                        `Request (${error.config?.method?.toUpperCase()} ${error.config?.url}): ` +
                             JSON.stringify(
                                 {
                                     url: request.url,
@@ -128,12 +127,12 @@ export function createHttpClient({
                     );
                 }
                 logger.error(
-                    `Error response (${error.config?.url}): ` +
+                    `Error response (${error.config?.method?.toUpperCase()} ${error.config?.url}): ` +
                         JSON.stringify(filtered, undefined, 2)
                 );
             }
 
-            return Promise.reject(new Error(error.message));
+            return Promise.reject(error);
         }
     );
 

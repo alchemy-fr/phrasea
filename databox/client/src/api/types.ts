@@ -7,10 +7,6 @@ export enum AttributeBatchActionEnum {
     Delete = 'delete',
 }
 
-export type PaginationParams = {
-    nextUrl?: string;
-};
-
 export enum OperationTaskStatus {
     Pending = 0,
     InProgress = 1,
@@ -54,7 +50,7 @@ export enum AttributeType {
     Date = 'date',
     DateTime = 'date_time',
     Duration = 'duration',
-    Entity = 'entity',
+    AttributeEntity = 'entity',
     GeoPoint = 'geo_point',
     Html = 'html',
     Id = 'id',
@@ -63,6 +59,7 @@ export enum AttributeType {
     Keyword = 'keyword',
     Number = 'number',
     Privacy = 'privacy',
+    AssetStatus = 'assetStatus',
     Rendition = 'rendition',
     FileSize = 'filesize',
     Story = 'story',
@@ -76,6 +73,7 @@ export enum AttributeType {
 
 export enum EntityName {
     Asset = 'assets',
+    AssetPolicy = 'asset-policies',
     Attachment = 'attachments',
     Collection = 'collections',
     Workspace = 'workspaces',
@@ -92,4 +90,7 @@ export enum EntityName {
     Tag = 'tags',
     AssetDataTemplate = 'asset-data-templates',
     OperationTask = 'operation-tasks',
+    EntityList = 'entity-lists',
+    Integration = 'integrations',
+    IntegrationType = 'integration-types',
 }

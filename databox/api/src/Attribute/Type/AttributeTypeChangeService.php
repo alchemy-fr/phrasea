@@ -92,6 +92,9 @@ readonly class AttributeTypeChangeService
             PrivacyAttributeType::NAME => [
                 ...$text,
             ],
+            AssetStatusAttributeType::NAME => [
+                ...$text,
+            ],
         ];
 
         if (isset($allowedTranslations[$previousType])) {

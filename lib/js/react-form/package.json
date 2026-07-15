@@ -37,7 +37,8 @@
         "react-colorful": "^5.6.1",
         "react-datepicker": "^9.1.0",
         "react-nl2br": "^1.0.4",
-        "react-select": "^5.10.2"
+        "react-select": "^5.10.2",
+        "react-select-async-paginate": "^0.7.11"
     },
     "devDependencies": {
         "@4rthem/i18next-scanner": "^0.0.3",

@@ -10,7 +10,7 @@ import {DisplayPreferences} from '../components/Media/DisplayContext.tsx';
 import {deepEquals} from '@alchemy/core';
 import {oauthClient} from '../init.ts';
 import {FacetPreference} from '../components/Media/Asset/Facets/facetTypes.ts';
-import {Profile} from '../types.ts';
+import {DisplayProfile} from '../types.ts';
 import {useProfileStore} from './profileStore.ts';
 
 export type UserPreferences = {
@@ -49,7 +49,7 @@ export type UpdatePreference = <T extends keyof UserPreferences>(
     options?: PutPreferenceOptions
 ) => Promise<void>;
 
-type ApplyProfile = (profile: Profile | null) => Promise<void>;
+type ApplyProfile = (profile: DisplayProfile | null) => Promise<void>;
 
 type UserPreferencesStore = {
     preferences: UserPreferences;
@@ -121,7 +121,7 @@ export const useUserPreferencesStore = create<UserPreferencesStore>(
                 return;
             }
 
-            if (newPrefs.profile) {
+            if (name !== 'profile' && newPrefs.profile) {
                 useProfileStore.getState().autoSync();
 
                 return;

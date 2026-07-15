@@ -96,7 +96,7 @@ export async function getAssets(
         Asset,
         {
             facets: TFacets;
-            debug: ESDebug;
+            debug?: ESDebug;
         }
     >
 > {
@@ -107,14 +107,20 @@ export async function getAssets(
               ...requestConfig,
           });
 
-    return {
-        ...getAssetsHydraCollection(res.data),
-        debug: {
-            query: res.data['debug:es'].query,
-            esQueryTime: res.data['debug:es'].time,
-            totalResponseTime: res.config.meta!.responseTime!,
-        },
-    };
+    const r = getAssetsHydraCollection(res.data);
+
+    if (res.data['debug:es']) {
+        return {
+            ...r,
+            debug: {
+                query: res.data['debug:es'].query,
+                esQueryTime: res.data['debug:es'].time,
+                totalResponseTime: res.config.meta!.responseTime!,
+            },
+        };
+    } else {
+        return r;
+    }
 }
 
 export type SearchSuggestion = {

@@ -29,7 +29,7 @@ final class SyncMatomoPhraseanetCommand extends Command
         parent::__construct();
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $limit = 500;
         $offset = 0;

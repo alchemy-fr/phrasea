@@ -51,9 +51,9 @@ use Symfony\Component\Serializer\Attribute\Groups;
 class IntegrationToken extends AbstractUuidEntity
 {
     use CreatedAtTrait;
-    final public const string GROUP_LIST = 'int-token:index';
+    final public const string GROUP_LIST = 'int-token:i';
 
-    #[ORM\ManyToOne(targetEntity: WorkspaceIntegration::class)]
+    #[ORM\ManyToOne(targetEntity: WorkspaceIntegration::class, inversedBy: 'tokens')]
     #[ORM\JoinColumn(nullable: false)]
     private ?WorkspaceIntegration $integration = null;
 

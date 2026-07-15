@@ -20,15 +20,15 @@ class OperationTaskNormalizer implements NormalizerInterface, NormalizerAwareInt
     private const string ALREADY_CALLED = self::class.'_AC';
 
     /**
-     * @param OperationTask $object
+     * @param OperationTask $data
      */
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize(mixed $data, $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
     {
         $context[self::ALREADY_CALLED] = true;
 
-        $object->owner = $this->transformUser($object->getOwnerId());
+        $data->owner = $this->transformUser($data->getOwnerId());
 
-        return $this->normalizer->normalize($object, $format, $context);
+        return $this->normalizer->normalize($data, $format, $context);
     }
 
     public function supportsNormalization($data, $format = null, array $context = []): bool

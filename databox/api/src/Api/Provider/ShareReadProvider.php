@@ -44,7 +44,7 @@ final class ShareReadProvider implements ProviderInterface
         $asset = $item->getAsset();
 
         $options = [
-            AssetRenditionRepository::WITH_FILE => true,
+            AssetRenditionRepository::OPT_WITH_FILE => true,
         ];
 
         /** @var AssetRendition[] $renditions */

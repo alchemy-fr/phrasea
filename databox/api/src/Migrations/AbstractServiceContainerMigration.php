@@ -6,12 +6,18 @@ namespace App\Migrations;
 
 use Doctrine\Migrations\AbstractMigration;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerAwareTrait;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Contracts\Service\Attribute\Required;
 
-abstract class AbstractServiceContainerMigration extends AbstractMigration implements ContainerAwareInterface
+abstract class AbstractServiceContainerMigration extends AbstractMigration
 {
-    use ContainerAwareTrait;
+    protected ?ContainerInterface $container;
+
+    #[Required]
+    public function setContainer(?ContainerInterface $container = null): void
+    {
+        $this->container = $container;
+    }
 
     private array $services = [];
 

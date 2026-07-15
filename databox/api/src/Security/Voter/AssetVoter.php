@@ -7,6 +7,7 @@ namespace App\Security\Voter;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
@@ -14,6 +15,7 @@ class AssetVoter extends AbstractVoter
 {
     final public const string EDIT_ATTRIBUTES = 'EDIT_ATTRIBUTES';
     final public const string SHARE = 'SHARE';
+    final public const string QUARANTINE = 'QUARANTINE';
 
     final public const string SCOPE_PREFIX = 'asset:';
 
@@ -40,7 +42,7 @@ class AssetVoter extends AbstractVoter
     /**
      * @param Asset $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;
@@ -62,6 +64,7 @@ class AssetVoter extends AbstractVoter
                 || $this->voteOnContainer($subject, AssetContainerVoterInterface::ASSET_CREATE)
                 || $isWorkspaceOwnerSlow(),
             AbstractVoter::READ => (!$subject->isDeleted() || $this->security->isGranted(self::DELETE, $subject))
+                && (AssetStatusEnum::Accepted === $subject->getStatus() || $this->security->isGranted(self::QUARANTINE, $subject))
                 && (
                     $isOwner()
                     || $isWorkspaceOwnerFast()
@@ -104,6 +107,13 @@ class AssetVoter extends AbstractVoter
                 ], $subject, $token)
                 || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_DELETE)
                 || $isWorkspaceOwnerSlow(),
+            self::QUARANTINE => $isOwner()
+                || $isWorkspaceOwnerFast()
+                || $this->hasAcl([
+                    PermissionInterface::OWNER,
+                ], $subject, $token)
+                || $this->hasMetadata(DataboxExtraPermissionInterface::PERM_QUARANTINE, $subject, $token)
+                || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_QUARANTINE),
             AbstractVoter::OWNER => $isOwner()
                 || $isWorkspaceOwnerFast()
                 || $this->hasAcl([

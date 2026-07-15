@@ -1,12 +1,9 @@
 import {FieldValues} from 'react-hook-form';
-import {
-    AsyncRSelectWidget,
-    AsyncRSelectProps,
-    SelectOption,
-} from '@alchemy/react-form';
-import {ExposePublication} from './exposeType.ts';
-import {getHydraCollection} from '@alchemy/api';
-import {apiClient} from '../../../../init.ts';
+import {AsyncRSelectProps, AsyncRSelectWidget} from '@alchemy/react-form';
+import {ExposeEntityName} from './exposeType.ts';
+import {createIriFromId} from '@alchemy/api';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
+import {getExposePublications} from './exposeApi.ts';
 
 type Props<TFieldValues extends FieldValues> = {
     integrationId: string;
@@ -15,35 +12,26 @@ type Props<TFieldValues extends FieldValues> = {
 export default function ExposePublicationSelect<
     TFieldValues extends FieldValues,
 >({integrationId, ...rest}: Props<TFieldValues>) {
-    const load = async (inputValue: string): Promise<SelectOption[]> => {
-        const data = getHydraCollection<ExposePublication>(
-            (
-                await apiClient.get(
-                    `/integrations/expose/${integrationId}/proxy/publications`,
-                    {
-                        params: {
-                            query: inputValue || '',
-                        },
-                    }
-                )
-            ).data
-        );
-
-        return data.result
-            .map((t: ExposePublication) => ({
-                value: `/publications/${t.id}`,
+    const {loadOptions} = usePaginatedSelectLoader({
+        load: props =>
+            getExposePublications({
+                ...props,
+                integrationId,
+            }),
+        map: t => {
+            return {
+                value: createIriFromId(ExposeEntityName.Publication, t.id),
                 label: t.title,
-            }))
-            .filter((i: SelectOption) =>
-                i.label.toLowerCase().includes((inputValue || '').toLowerCase())
-            );
-    };
+            };
+        },
+        filterLabels: true,
+    });
 
     return (
         <AsyncRSelectWidget<TFieldValues, false>
-            cacheId={'exposeProfiles'}
+            cacheId={'exposePublications'}
             {...rest}
-            loadOptions={load}
+            loadOptions={loadOptions}
         />
     );
 }

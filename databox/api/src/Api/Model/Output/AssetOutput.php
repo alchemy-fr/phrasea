@@ -14,6 +14,7 @@ use App\Api\Model\Output\Traits\UpdatedAtDTOTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetAttachment;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Entity\Core\Share;
@@ -152,6 +153,9 @@ class AssetOutput extends AbstractUuidOutput
 
     #[Groups([Asset::GROUP_LIST])]
     public ?string $resolvedTrackingId = null;
+
+    #[Groups([Asset::GROUP_LIST])]
+    public ?AssetStatusEnum $status = null;
 
     /**
      * Used for result grouping.

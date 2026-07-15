@@ -20,7 +20,7 @@ import {dropdownActionsOpenClassName, FlexRow} from '@alchemy/phrasea-ui';
 import SearchBar from '../Ui/SearchBar.tsx';
 import {useSearch} from '../../hooks/useSearch.ts';
 import {getCollections} from '../../api/collection.ts';
-import {Collection, Workspace} from '../../types.ts';
+import {AssetStatus, Collection, Workspace} from '../../types.ts';
 import {useCollectionStore} from '../../store/collectionStore.ts';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {useTranslation} from 'react-i18next';
@@ -28,6 +28,7 @@ import {SearchContext} from './Search/SearchContext.tsx';
 import {BuiltInFieldEnum} from './Search/search.ts';
 import SavedSearchList from './Search/SavedSearch/SavedSearchList.tsx';
 import {useAuth} from '@alchemy/react-auth';
+import GppMaybeIcon from '@mui/icons-material/GppMaybe';
 
 type Props = {};
 
@@ -66,6 +67,15 @@ function CollectionsPanel({}: Props) {
             return collections;
         },
     });
+
+    const isConditionOfId = (id: string) => {
+        return (
+            searchContext.workspaces.length === 0 &&
+            searchContext.collections.length === 0 &&
+            searchContext.conditions.length === 1 &&
+            searchContext.conditions[0].id === id
+        );
+    };
 
     return (
         <>
@@ -163,14 +173,9 @@ function CollectionsPanel({}: Props) {
                         >
                             <ListItem disablePadding>
                                 <ListItemButton
-                                    selected={
-                                        searchContext.workspaces.length === 0 &&
-                                        searchContext.collections.length ===
-                                            0 &&
-                                        searchContext.conditions.length === 1 &&
-                                        searchContext.conditions[0].id ===
-                                            BuiltInFieldEnum.Deleted
-                                    }
+                                    selected={isConditionOfId(
+                                        BuiltInFieldEnum.Deleted
+                                    )}
                                     onClick={() => {
                                         searchContext.resetWithCondition({
                                             id: BuiltInFieldEnum.Deleted,
@@ -185,6 +190,29 @@ function CollectionsPanel({}: Props) {
                                         primary={t(
                                             'collection_panel.trash',
                                             'Trash'
+                                        )}
+                                    />
+                                </ListItemButton>
+                            </ListItem>
+                            <ListItem disablePadding>
+                                <ListItemButton
+                                    selected={isConditionOfId(
+                                        BuiltInFieldEnum.AssetStatus
+                                    )}
+                                    onClick={() => {
+                                        searchContext.resetWithCondition({
+                                            id: BuiltInFieldEnum.AssetStatus,
+                                            query: `${BuiltInFieldEnum.AssetStatus} = ${AssetStatus.Quarantined}`,
+                                        });
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <GppMaybeIcon />
+                                    </ListItemIcon>
+                                    <ListItemText
+                                        primary={t(
+                                            'collection_panel.quarantine',
+                                            'Quarantine'
                                         )}
                                     />
                                 </ListItemButton>

@@ -8,7 +8,7 @@ use App\Model\LayoutOptions;
 use App\Model\MapOptions;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 /**
  * Configuration of a publication or a profile.

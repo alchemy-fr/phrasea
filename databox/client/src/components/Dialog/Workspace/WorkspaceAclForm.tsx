@@ -171,6 +171,32 @@ export default function WorkspaceAclForm({data, helper}: Props) {
                     'Full control over all the assets of this workspace, except for permissions and privacy settings.'
                 ),
             },
+            {
+                type: PermissionType.Extra,
+                key: AclExtraPermission.QUARANTINE,
+                value: AclExtraPermission.QUARANTINE,
+                label: t(
+                    'acl.permission.workspace.quarantine.label',
+                    'View Quarantined'
+                ),
+                description: t(
+                    'acl.permission.workspace.quarantine.desc',
+                    'Allows viewing quarantined assets in this workspace.'
+                ),
+            },
+            {
+                type: PermissionType.Extra,
+                key: AclExtraPermission.QUARANTINE_BY_PASS,
+                value: AclExtraPermission.QUARANTINE_BY_PASS,
+                label: t(
+                    'acl.permission.workspace.quarantine_by_pass.label',
+                    'Bypass Quarantine'
+                ),
+                description: t(
+                    'acl.permission.workspace.quarantine_by_pass.desc',
+                    'Allows bypassing quarantine for assets in this workspace.'
+                ),
+            },
         ];
     }, [t]);
 

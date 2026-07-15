@@ -1,4 +1,4 @@
-import {AxiosInstance} from 'axios';
+import {AxiosInstance, isAxiosError} from 'axios';
 import {
     AssetCopyInput,
     AssetInput,
@@ -9,6 +9,7 @@ import {
     CollectionInput,
     RenditionPolicy,
     Tag,
+    CreateWorkspaceInput,
 } from './types';
 import {lockPromise} from '../lib/promise';
 import {getConfig, getStrict} from '../configLoader';
@@ -269,29 +270,59 @@ export class DataboxClient {
         return res.data.id;
     }
 
-    async getOrCreateWorkspaceIdWithSlug(
-        slug: string,
-        locales: string[]
-    ): Promise<string> {
-        try {
-            return (
-                await this.client.post(`/workspaces`, {
-                    name: slug,
-                    slug: slug,
-                    enabledLocales: locales,
-                    localeFallbacks: [],
-                    ownerId: getStrict('databox.ownerId'),
-                })
-            ).data.id;
-        } catch (e) {
-            return this.getWorkspaceIdFromSlug(slug);
-        }
+    async createWorkspace({
+        slug,
+        locales,
+    }: CreateWorkspaceInput): Promise<string> {
+        return (
+            await this.client.post(`/workspaces`, {
+                name: slug,
+                slug,
+                enabledLocales: locales ?? [],
+                localeFallbacks: [],
+                ownerId: getStrict('databox.ownerId'),
+            })
+        ).data.id;
     }
 
     async getWorkspaceIdFromSlug(slug: string): Promise<string> {
         const res = await this.client.get(`/workspaces-by-slug/${slug}`);
 
         return res.data.id;
+    }
+
+    async initWorkspace({
+        slug,
+        flushExisting,
+        locales,
+        logger,
+    }: {
+        flushExisting?: boolean;
+        logger: Logger;
+    } & CreateWorkspaceInput): Promise<string> {
+        let workspaceId: string | undefined;
+        try {
+            workspaceId = await this.getWorkspaceIdFromSlug(slug);
+        } catch (e) {
+            if (!isAxiosError(e) || e.response?.status !== 404) {
+                throw e;
+            }
+        }
+
+        if (workspaceId) {
+            if (flushExisting) {
+                logger.info(`Flushing databox workspace "${slug}"`);
+                workspaceId = await this.flushWorkspace(workspaceId);
+            }
+        } else {
+            logger.info(`Creating databox workspace "${slug}"`);
+            workspaceId = await this.createWorkspace({
+                slug: slug,
+                locales,
+            });
+        }
+
+        return workspaceId;
     }
 }
 

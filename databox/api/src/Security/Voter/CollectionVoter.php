@@ -132,6 +132,11 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 || $this->parentIsGranted($attribute, $subject)
                 || $isWorkspaceOwnerSlow()
             ,
+            AssetContainerVoterInterface::ASSET_QUARANTINE => $isWorkspaceOwnerFast()
+                || $this->hasMetadata(DataboxExtraPermissionInterface::PERM_QUARANTINE, $subject, $token)
+                || $this->parentIsGranted($attribute, $subject)
+                || $isWorkspaceOwnerSlow()
+            ,
             AssetContainerVoterInterface::ASSET_CREATE => $isWorkspaceOwnerFast()
                 || $this->hasAcl(PermissionInterface::CHILD_CREATE, $subject, $token, ownershipGrants: false)
                 || $this->parentIsGranted($attribute, $subject)

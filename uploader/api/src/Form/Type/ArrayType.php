@@ -24,7 +24,7 @@ class ArrayType extends AbstractType implements DataTransformerInterface
         $builder->addEventSubscriber($resizeListener);
     }
 
-    public function transform(mixed $value)
+    public function transform(mixed $value): mixed
     {
         if (null === $value) {
             return [];
@@ -37,7 +37,7 @@ class ArrayType extends AbstractType implements DataTransformerInterface
         return $value;
     }
 
-    public function reverseTransform(mixed $value)
+    public function reverseTransform(mixed $value): mixed
     {
         if (null === $value) {
             return [];

@@ -1,0 +1,7 @@
+analyzers:
+    -
+        name: checksum
+    -
+        name: doc_unique_id
+actions_on_reject:
+    - quarantine

@@ -32,6 +32,8 @@ abstract class AbstractBuiltInAttribute implements BuiltInAttributeInterface
                 $values[] = $this->resolveItem($item) ?? $this->resolveLabel($item);
             }
 
+            sort($keys);
+
             return new GroupValue($name, $this->getType(), implode(',', $keys), $values);
         }
 
@@ -149,11 +151,6 @@ abstract class AbstractBuiltInAttribute implements BuiltInAttributeInterface
     public function normalizeValueForSearch(mixed $value): mixed
     {
         return $value;
-    }
-
-    public function createFilterQuery(mixed $value, array $options): ?Query\AbstractQuery
-    {
-        return null;
     }
 
     public function isEnabled(): bool

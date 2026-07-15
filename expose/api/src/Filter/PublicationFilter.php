@@ -30,7 +30,6 @@ class PublicationFilter extends AbstractFilter
         ?Operation $operation = null,
         array $context = [],
     ): void {
-
     }
 
     public function apply(

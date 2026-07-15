@@ -13,9 +13,13 @@ use Symfony\Contracts\Service\Attribute\Required;
 abstract class AbstractSearch
 {
     use SecurityAwareTrait;
+    final public const string NO_AUTH = '__no_auth__';
 
     protected WorkspaceRepository $workspaceRepository;
 
+    /**
+     * @throws NoWorkspaceAllowedException
+     */
     protected function createACLBoolQuery(?string $userId, array $groupIds): ?Query\BoolQuery
     {
         if ($this->isAdmin()) {
@@ -73,9 +77,7 @@ abstract class AbstractSearch
 
         $permittedWorkspaces = array_values(array_unique($permittedWorkspaces));
         if (empty($permittedWorkspaces)) {
-            $workspacesQuery->addMust(new Query\Term(['_id' => '__no_such_id__']));
-
-            return $workspacesQuery;
+            throw new NoWorkspaceAllowedException();
         }
 
         $workspacesQuery->addMust(new Query\Terms('workspaceId', $permittedWorkspaces));

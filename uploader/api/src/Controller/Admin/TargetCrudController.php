@@ -70,6 +70,5 @@ class TargetCrudController extends AbstractAdminCrudController
             ->setHelp('Hide this target from the list of available targets');
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
-
     }
 }

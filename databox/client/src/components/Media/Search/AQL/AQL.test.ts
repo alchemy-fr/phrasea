@@ -193,12 +193,12 @@ it('parse AQL', function () {
             },
         },
         {
-            query: '@tag IN (3, 2, 1)',
+            query: '@tag IN (33, 22)',
             result: {
                 expression: {
                     leftOperand: {field: '@tag'},
                     operator: 'IN',
-                    rightOperand: [3, 2, 1],
+                    rightOperand: [33, 22],
                 },
             },
         },
@@ -389,6 +389,16 @@ it('parse AQL', function () {
                     leftOperand: {field: 'location'},
                     operator: 'WITHIN_CIRCLE',
                     rightOperand: [48.8, 2.32, {literal: '10km'}],
+                },
+            },
+        },
+        {
+            query: 'b IN (true, false)',
+            result: {
+                expression: {
+                    leftOperand: {field: 'b'},
+                    operator: 'IN',
+                    rightOperand: [true, false],
                 },
             },
         },

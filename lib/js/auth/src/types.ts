@@ -135,6 +135,7 @@ export enum AuthConstant {
     StateParam = 'state',
     KcIdpHintParam = 'kc_idp_hint',
     ResponseTypeParam = 'response_type',
+    Scope = 'scope',
     ResponseCodeParam = 'code',
     LoggedOutParam = 'logout',
     StateRedirectParam = 'r',

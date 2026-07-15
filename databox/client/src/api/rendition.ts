@@ -9,14 +9,18 @@ import {NormalizedCollectionResponse, getHydraCollection} from '@alchemy/api';
 import {apiClient} from '../init.ts';
 import type {MultipartUpload} from '@alchemy/api';
 import {SourceFileInput} from './file.ts';
-import {PaginationParams} from './types.ts';
+import {
+    PaginationParams,
+    QueryAndPaginationParams,
+} from '@alchemy/phrasea-framework';
 import {EntityName} from './types.ts';
 
 type GetOptions = {
     workspaceIds?: string[];
+    assetId?: string | undefined;
     target?: AssetType | undefined;
     [key: string]: any;
-};
+} & QueryAndPaginationParams;
 
 export enum RenditionBuildMode {
     NONE = 0,
@@ -53,10 +57,11 @@ export async function postRendition(
     return (await apiClient.post(`/${EntityName.Rendition}`, data)).data;
 }
 
-export async function getRenditionDefinitions(
-    options: GetOptions = {}
-): Promise<NormalizedCollectionResponse<RenditionDefinition>> {
-    const res = await apiClient.get(`/${EntityName.RenditionDefinition}`, {
+export async function getRenditionDefinitions({
+    nextUrl,
+    ...options
+}: GetOptions): Promise<NormalizedCollectionResponse<RenditionDefinition>> {
+    const res = await apiClient.get(nextUrl ?? EntityName.RenditionDefinition, {
         params: options,
     });
 

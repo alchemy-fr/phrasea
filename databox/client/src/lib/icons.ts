@@ -22,6 +22,7 @@ import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import SmartDisplayIcon from '@mui/icons-material/SmartDisplay';
 import SecurityIcon from '@mui/icons-material/Security';
+import PausePresentationIcon from '@mui/icons-material/PausePresentation';
 
 export const typesIcons: Record<AttributeType, SvgIconComponent> = {
     [AttributeType.Boolean]: CheckBoxIcon,
@@ -31,7 +32,7 @@ export const typesIcons: Record<AttributeType, SvgIconComponent> = {
     [AttributeType.DateTime]: CalendarTodayIcon,
     [AttributeType.Date]: CalendarTodayIcon,
     [AttributeType.Duration]: AccessTimeIcon,
-    [AttributeType.Entity]: FormatListBulletedIcon,
+    [AttributeType.AttributeEntity]: FormatListBulletedIcon,
     [AttributeType.GeoPoint]: LocationOnIcon,
     [AttributeType.Html]: HtmlIcon,
     [AttributeType.Id]: KeyIcon,
@@ -40,6 +41,7 @@ export const typesIcons: Record<AttributeType, SvgIconComponent> = {
     [AttributeType.Keyword]: AbcIcon,
     [AttributeType.Number]: LooksOneIcon,
     [AttributeType.Privacy]: SecurityIcon,
+    [AttributeType.AssetStatus]: PausePresentationIcon,
     [AttributeType.Rendition]: SmartDisplayIcon,
     [AttributeType.FileSize]: LooksOneIcon,
     [AttributeType.Story]: MenuBookIcon,

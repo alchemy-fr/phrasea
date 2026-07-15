@@ -20,7 +20,6 @@ export default function AttributeEntityStatusSelect<
                 label: t('attribute_entity.status.approved', 'Approved'),
                 value: AttributeEntityStatus.Approved.toString(),
             },
-
             {
                 label: t('attribute_entity.status.rejected', 'Rejected'),
                 value: AttributeEntityStatus.Rejected.toString(),

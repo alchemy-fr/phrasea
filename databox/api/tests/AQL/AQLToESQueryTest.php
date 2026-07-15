@@ -9,18 +9,22 @@ use App\Attribute\Type\DateAttributeType;
 use App\Attribute\Type\GeoPointAttributeType;
 use App\Attribute\Type\NumberAttributeType;
 use App\Attribute\Type\TextAttributeType;
+use App\Elasticsearch\AbstractSearch;
 use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\AQL\DateNormalizer;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
+use App\Elasticsearch\BuiltInField\AssetStatusBuiltInField;
 use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
 use App\Elasticsearch\BuiltInField\CreatedAtBuiltInField;
+use App\Elasticsearch\BuiltInField\DeletedBuiltInField;
 use App\Elasticsearch\BuiltInField\WorkspaceBuiltInField;
 use App\Tests\Attribute\Type\AttributeTypeRegistryTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\Service\ServiceLocatorTrait;
 use Symfony\Contracts\Service\ServiceProviderInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AQLToESQueryTest extends TestCase
 {
@@ -32,13 +36,14 @@ class AQLToESQueryTest extends TestCase
         $parser = new AQLParser();
         $result = $parser->parse($expression);
         $em = $this->createMock(EntityManagerInterface::class);
+        $translator = $this->createMock(TranslatorInterface::class);
 
         $functionRegistry = new AQLFunctionRegistry();
         $functionRegistry->register(new MockNowFunction());
 
         $attributeTypeRegistry = AttributeTypeRegistryTestFactory::create();
 
-        $container = new class([WorkspaceBuiltInField::getKey() => fn () => new WorkspaceBuiltInField($em), CreatedAtBuiltInField::getKey() => fn () => new CreatedAtBuiltInField()]) implements ServiceProviderInterface {
+        $container = new class([WorkspaceBuiltInField::getKey() => fn () => new WorkspaceBuiltInField($em), AssetStatusBuiltInField::getKey() => fn () => new AssetStatusBuiltInField($translator), DeletedBuiltInField::getKey() => fn () => new DeletedBuiltInField(), CreatedAtBuiltInField::getKey() => fn () => new CreatedAtBuiltInField()]) implements ServiceProviderInterface {
             use ServiceLocatorTrait;
         };
         $builtInFieldRegistry = new BuiltInAttributeRegistry($container);
@@ -254,6 +259,55 @@ class AQLToESQueryTest extends TestCase
             ]],
             ['@workspace= null', [
                 'term' => ['workspaceId' => null],
+            ]],
+            ['@deleted = true', [
+                'bool' => [
+                    'must' => [
+                        [
+                            'bool' => [
+                                'minimum_should_match' => 1,
+                                'should' => [
+                                    ['term' => ['ownerId' => AbstractSearch::NO_AUTH]],
+                                ],
+                            ],
+                        ],
+                        ['bool' => [
+                            'should' => [
+                                ['term' => ['deleted' => true]],
+                                ['term' => ['collectionDeleted' => true]],
+                            ],
+                        ]],
+                    ],
+                ],
+            ]],
+            ['@deleted = false', [
+                'bool' => [
+                    'must' => [
+                        ['term' => ['deleted' => false]],
+                        ['term' => ['collectionDeleted' => false]],
+                    ],
+                ],
+            ]],
+            ['@assetStatus IN (0, 1)', [
+                'bool' => [
+                    'minimum_should_match' => 1,
+                    'should' => [
+                        [
+                            'bool' => [
+                                'must' => [
+                                    ['term' => ['status' => 0]],
+                                ],
+                            ],
+                        ], [
+                            'bool' => [
+                                'must' => [
+                                    ['term' => ['status' => 1]],
+                                    ['term' => ['ownerId' => AbstractSearch::NO_AUTH]],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
             ]],
             ['bool = null', [
                 'bool' => [

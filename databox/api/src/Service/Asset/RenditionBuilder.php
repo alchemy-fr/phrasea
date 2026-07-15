@@ -74,10 +74,6 @@ final readonly class RenditionBuilder
             return;
         }
 
-        if (!$source->isAnalyzed()) {
-            throw new RenditionBuildException(false, 'Source file is not analyzed yet');
-        }
-
         if (RenditionDefinition::BUILD_MODE_PICK_SOURCE === $renditionDefinition->getBuildMode()) {
             $this->renditionManager->createOrReplaceRenditionFile(
                 $asset,

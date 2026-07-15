@@ -30,8 +30,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Serializer\Annotation\MaxDepth;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\MaxDepth;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
@@ -630,7 +630,6 @@ class Publication implements AclObjectInterface, \Stringable
         }
 
         return $this->profile?->getConfig()->getBeginsAt();
-
     }
 
     public function getExpiresAt(): ?\DateTimeImmutable
@@ -640,7 +639,6 @@ class Publication implements AclObjectInterface, \Stringable
         }
 
         return $this->profile?->getConfig()->getExpiresAt();
-
     }
 
     public function getDate(): ?\DateTimeImmutable

@@ -6,7 +6,7 @@ namespace App\Model;
 
 use App\Entity\Publication;
 use App\Entity\PublicationProfile;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class LayoutOptions extends AbstractOptions
 {

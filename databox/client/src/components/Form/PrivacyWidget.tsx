@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import {SelectChangeEvent} from '@mui/material/Select/SelectInput';
 import {Trans, useTranslation} from 'react-i18next';
+import {isNotNull} from '@alchemy/core';
 
 const choices: {[key: string]: {label: string; helper?: string}} = {
     secret: {label: 'Secret'},
@@ -87,20 +88,21 @@ function getFields(value: number): [string, boolean, boolean] {
 
 type Props = {
     onChange: (newPrivacy: number) => void;
-    value?: number;
+    value?: string | number | null;
     inheritedPrivacy?: number;
     disabled?: boolean;
 };
 
 export default function PrivacyWidget({
     onChange,
-    value = 0,
+    value: inputValue,
     inheritedPrivacy,
     disabled,
 }: Props) {
     const {t} = useTranslation();
-
-    const [p, w, a] = getFields(value!);
+    const wasNull = !isNotNull(inputValue) || inputValue === '';
+    const value = normalizeInputValue(inputValue);
+    const [p, w, a] = getFields(value);
     const [privacy, setPrivacy] = useState<string>(p);
     const [workspaceOnly, setWorkspaceOnly] = useState(w);
     const [auth, setAuth] = useState(a);
@@ -173,10 +175,24 @@ export default function PrivacyWidget({
                 <InputLabel>{label}</InputLabel>
                 <Select<string>
                     label={label}
-                    value={privacy}
+                    value={wasNull ? 'null' : privacy}
                     onChange={handlePChange}
                     disabled={disabled}
                 >
+                    {wasNull && (
+                        <MenuItem
+                            key={'null'}
+                            value={'null'}
+                            disabled={disabled}
+                        >
+                            <ListItemText
+                                primary={t(
+                                    'form.privacy.choices.not_set',
+                                    'Not set'
+                                )}
+                            />
+                        </MenuItem>
+                    )}
                     {Object.keys(choices).map(k => {
                         const choice = getChoicesTranslated(t, k);
                         const label = choice.label;
@@ -236,4 +252,16 @@ export default function PrivacyWidget({
             </FormControl>
         </>
     );
+}
+
+function normalizeInputValue(
+    value: string | number | null | undefined
+): number {
+    if (typeof value === 'number') {
+        return value;
+    } else if (typeof value === 'string' && value !== '') {
+        return parseInt(value) || 0;
+    }
+
+    return 0;
 }

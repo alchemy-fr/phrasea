@@ -18,10 +18,11 @@ import {useEntitiesStore} from '../../store/entitiesStore.ts';
 import {useTheme} from '@mui/material';
 import {CSSObjectWithLabel} from 'react-select';
 import {getTagColorStyle} from '../Media/Asset/Facets/TagColor.tsx';
+import {usePaginatedSelectLoader} from '@alchemy/phrasea-framework';
 
 type Props<TFieldValues extends FieldValues, IsMulti extends boolean> = {
     workspaceId?: string;
-    multiple: IsMulti;
+    multiple?: IsMulti;
     allowNew?: boolean;
     list: EntityList;
 } & AsyncRSelectProps<TFieldValues, IsMulti, AttributeEntityOption>;
@@ -60,17 +61,16 @@ export default function AttributeEntitySelect<
               }
             : undefined;
 
-    const load = async (
-        inputValue: string
-    ): Promise<AttributeEntityOption[]> => {
-        const data = (
-            await getAttributeEntities({
+    const {loadOptions} = usePaginatedSelectLoader<
+        AttributeEntity,
+        AttributeEntityOption
+    >({
+        load: props =>
+            getAttributeEntities({
+                ...props,
                 list: list.id,
-                value: inputValue,
-            })
-        ).result;
-
-        return data.map((t: AttributeEntity) => {
+            }),
+        map: t => {
             store(t['@id'], t);
 
             return {
@@ -78,8 +78,9 @@ export default function AttributeEntitySelect<
                 label: formatAttributeEntityLabel(t),
                 item: t,
             };
-        });
-    };
+        },
+        filterLabels: true,
+    });
 
     const entityStyle = (data: AttributeEntityOption): CSSObjectWithLabel => {
         const item = data.item;
@@ -114,7 +115,7 @@ export default function AttributeEntitySelect<
         <AsyncRSelectWidget<TFieldValues, IsMulti, AttributeEntityOption>
             cacheId={'attribute-items'}
             {...rest}
-            loadOptions={load}
+            loadOptions={loadOptions}
             isMulti={multiple}
             key={workspaceId}
             onCreate={onCreate}

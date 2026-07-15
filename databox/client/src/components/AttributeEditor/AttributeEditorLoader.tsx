@@ -1,7 +1,7 @@
 import {Asset, Workspace} from '../../types.ts';
 import {getAssets} from '../../api/asset.ts';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
-import React from 'react';
+import React, {useMemo} from 'react';
 import AttributeEditor from './AttributeEditor.tsx';
 import useEffectOnce from '@alchemy/react-hooks/src/useEffectOnce';
 import {WorkspaceContext} from '../../context/WorkspaceContext.tsx';
@@ -27,9 +27,12 @@ export default function AttributeEditorLoader({
     const loadWorkspaceDefinitions = useAttributeDefinitionStore(
         s => s.loadWorkspace
     );
-    const attributeDefinitions = useAttributeDefinitionStore(
+    const storeAttributeDefinitions = useAttributeDefinitionStore(
         s => s.definitions
     )?.filter(d => (d.workspace as Workspace).id === workspaceId);
+    const attributeDefinitions = useMemo(() => {
+        return storeAttributeDefinitions.filter(d => d.enabled);
+    }, [storeAttributeDefinitions]);
 
     useEffectOnce(() => {
         getAssets({

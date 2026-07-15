@@ -1,5 +1,5 @@
 {% extends '@EasyAdmin/crud/index.html.twig' %}
-{% trans_default_domain ea.i18n.translationDomain %}
+{% trans_default_domain ea().i18n.translationDomain %}
 
 {% block head_javascript %}
     {{ parent() }}
@@ -7,12 +7,10 @@
 {% endblock %}
 
 {% block content_title %}
-    {%- apply spaceless -%}
-        {% set custom_page_title = ea.crud.customPageTitle('index', null, ea.i18n.translationParameters) %}
-        {{ custom_page_title is null
-        ? ea.crud.defaultPageTitle('index', null, ea.i18n.translationParameters)|trans|raw
-        : custom_page_title|trans|raw }}
-    {%- endapply -%}
+        {% set custom_page_title = ea().crud.customPageTitle('index', null, ea().i18n.translationParameters) %}
+        {{- custom_page_title is null
+        ? ea().crud.defaultPageTitle('index', null, ea().i18n.translationParameters)|trans|raw
+        : custom_page_title|trans|raw -}}
     {{ ' ' }}
     <small>({{ paginator.numResults }})</small>
 {% endblock %}

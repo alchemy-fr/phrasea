@@ -19,7 +19,7 @@ type Props = {
 };
 
 export default function SearchConditions({search}: Props) {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const {openModal} = useModals();
     const {load, loaded} = useAttributeDefinitionStore();
     const definitionsIndexBySlug = useIndexBySlug(true);
@@ -36,6 +36,10 @@ export default function SearchConditions({search}: Props) {
         loaded,
         definitionsIndexBySlug,
         definitionsIndexBySearchSlug,
+        formatterOptions: {
+            t,
+            uiLocale: i18n.language,
+        },
     });
 
     return (

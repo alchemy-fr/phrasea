@@ -1,7 +1,7 @@
 import {AttributeType} from '../../../../api/types.ts';
 import {FilterType} from '../../Search/Filter';
 import {AttributeFormatterOptions} from '../Attribute/types/types';
-import {getAttributeType} from '../Attribute/types';
+import {getAttributeType} from '../Attribute/types/getAttributeType.ts';
 
 export enum FacetType {
     Text = 'text',

@@ -2,23 +2,18 @@
 
 namespace App\Controller\Admin;
 
-use Alchemy\AclBundle\Entity\AccessControlEntry;
 use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
-use Alchemy\ConfiguratorBundle\Entity\ConfiguratorEntry;
-use Alchemy\StorageBundle\Entity\MultipartUpload;
-use App\Entity\Asset;
-use App\Entity\EnvVar;
-use App\Entity\Publication;
-use App\Entity\PublicationProfile;
-use App\Entity\SubDefinition;
+use Alchemy\AdminBundle\Controller\Acl\AccessControlEntryCrudController;
+use Alchemy\AdminBundle\Controller\MultipartUploadCrudController;
+use Alchemy\ConfiguratorBundle\Controller\ConfiguratorEntryCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
+#[AdminDashboard(routePath: '/admin', routeName: 'easyadmin')]
 class DashboardController extends AbstractAdminDashboardController
 {
-    #[Route(path: '/admin', name: 'easyadmin')]
     public function index(): Response
     {
         $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
@@ -31,22 +26,22 @@ class DashboardController extends AbstractAdminDashboardController
         $submenu1 = [
             MenuItem::linktoRoute('Publication permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'publication']),
             MenuItem::linktoRoute('Profile permissions', '', 'alchemy_admin_acl_global_permissions', ['type' => 'profile']),
-            MenuItem::linkToCrud('All permissions (advanced)', '', AccessControlEntry::class),
+            MenuItem::linkTo(AccessControlEntryCrudController::class, 'All permissions (advanced)', ''),
         ];
 
         $submenu2 = [
-            MenuItem::linkToCrud('Publication', '', Publication::class),
-            MenuItem::linkToCrud('Profile', '', PublicationProfile::class),
-            MenuItem::linkToCrud('Asset', '', Asset::class),
-            MenuItem::linkToCrud('SubDefinition', '', SubDefinition::class),
-            MenuItem::linkToCrud('MultipartUpload', '', MultipartUpload::class),
+            MenuItem::linkTo(PublicationCrudController::class, 'Publication', ''),
+            MenuItem::linkTo(PublicationProfileCrudController::class, 'Profile', ''),
+            MenuItem::linkTo(AssetCrudController::class, 'Asset', ''),
+            MenuItem::linkTo(SubDefinitionCrudController::class, 'SubDefinition', ''),
+            MenuItem::linkTo(MultipartUploadCrudController::class, 'MultipartUpload', ''),
         ];
 
         yield MenuItem::subMenu('Permissions', 'fas fa-folder-open')->setSubItems($submenu1);
         yield MenuItem::subMenu('Publications', 'fas fa-folder-open')->setSubItems($submenu2);
-        yield MenuItem::linkToCrud('EnvVar', 'fas fa-folder-open', EnvVar::class);
+        yield MenuItem::linkTo(EnvVarCrudController::class, 'EnvVar', 'fas fa-folder-open');
         yield MenuItem::linkToRoute('Notification', 'fas fa-bell', 'alchemy_notify_admin_index');
-        yield MenuItem::linkToCrud('Global Config', 'fa fa-gear', ConfiguratorEntry::class);
+        yield MenuItem::linkTo(ConfiguratorEntryCrudController::class, 'Global Config', 'fa fa-gear');
         yield $this->createDevMenu();
     }
 }

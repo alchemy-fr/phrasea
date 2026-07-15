@@ -58,6 +58,7 @@ export default function WorkspaceMenuItem({
             items: [],
             expanding: false,
             loadingMore: false,
+            partial: false,
         } as CollectionPager);
 
     const expand = (force?: boolean) => {

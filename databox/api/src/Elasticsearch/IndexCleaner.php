@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use Elastic\Elasticsearch\Traits\EndpointTrait;
 use Elastica\Index;
 use FOS\ElasticaBundle\Elastica\Client;
 
 readonly class IndexCleaner
 {
+    use EndpointTrait;
+
     public function __construct(
         private Client $client,
         private Index $assetIndex,
@@ -20,8 +23,13 @@ readonly class IndexCleaner
     {
         foreach ([$this->assetIndex, $this->collectionIndex] as $index) {
             $indexName = $index->getName();
-            $this->client->request($indexName.'/_delete_by_query',
+
+            $request = $this->createRequest(
                 'POST',
+                $indexName.'/_delete_by_query',
+                [
+                    'Content-Type' => 'application/json',
+                ],
                 [
                     'query' => [
                         'term' => [
@@ -30,13 +38,17 @@ readonly class IndexCleaner
                     ],
                 ]
             );
+
+            $this->client->sendRequest($request);
         }
     }
 
     public function removeCollectionFromIndex(string $collectionId): void
     {
-        $this->client->request($this->assetIndex->getName().'/_delete_by_query',
-            'POST',
+        $request = $this->createRequest('POST', $this->assetIndex->getName().'/_delete_by_query',
+            [
+                'Content-Type' => 'application/json',
+            ],
             [
                 'query' => [
                     'term' => [
@@ -45,5 +57,6 @@ readonly class IndexCleaner
                 ],
             ]
         );
+        $this->client->sendRequest($request);
     }
 }

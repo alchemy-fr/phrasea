@@ -75,7 +75,7 @@ export function createHttpClient(
 
             if (error.response) {
                 if (
-                    [500, 400, 422, 404, 403, 401].includes(
+                    [500, 400, 422, 404, 405, 403, 401].includes(
                         error.response.status
                     )
                 ) {

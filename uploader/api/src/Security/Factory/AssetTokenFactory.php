@@ -43,7 +43,7 @@ class AssetTokenFactory implements AuthenticatorFactoryInterface
         return 'asset';
     }
 
-    public function addConfiguration(NodeDefinition $node)
+    public function addConfiguration(NodeDefinition $node): void
     {
     }
 

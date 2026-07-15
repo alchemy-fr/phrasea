@@ -4,56 +4,50 @@ declare(strict_types=1);
 
 namespace App\Serializer;
 
-use Symfony\Component\Serializer\Normalizer\CacheableSupportsMethodInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerAwareInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class NormalizerDecorator implements NormalizerInterface, DenormalizerInterface, SerializerAwareInterface, CacheableSupportsMethodInterface
+final readonly class NormalizerDecorator implements NormalizerInterface, DenormalizerInterface, SerializerAwareInterface
 {
-    private readonly NormalizerInterface $decorated;
-
-    public function __construct(NormalizerInterface $decorated, private readonly EntityNormalizer $entityNormalizer)
-    {
-        if (!$decorated instanceof DenormalizerInterface) {
-            throw new \InvalidArgumentException(sprintf('The decorated normalizer must implement the %s.', DenormalizerInterface::class));
-        }
-
-        $this->decorated = $decorated;
+    public function __construct(
+        private DenormalizerInterface&NormalizerInterface $decorated,
+        private EntityNormalizer $entityNormalizer,
+    ) {
     }
 
-    public function normalize($object, $format = null, array $context = [])
+    public function normalize(mixed $data, $format = null, array $context = []): array|string|int|float|bool|\ArrayObject|null
     {
-        $this->entityNormalizer->normalize($object, $context);
+        $this->entityNormalizer->normalize($data, $context);
 
-        return $this->decorated->normalize($object, $format, $context);
+        return $this->decorated->normalize($data, $format, $context);
     }
 
-    public function supportsNormalization($data, $format = null): bool
+    public function supportsNormalization($data, $format = null, array $context = []): bool
     {
-        return $this->decorated->supportsNormalization($data, $format);
+        return $this->decorated->supportsNormalization($data, $format, $context);
     }
 
-    public function supportsDenormalization($data, $type, $format = null)
+    public function supportsDenormalization($data, $type, $format = null, array $context = []): bool
     {
-        return $this->decorated->supportsDenormalization($data, $type, $format);
+        return $this->decorated->supportsDenormalization($data, $type, $format, $context);
     }
 
-    public function denormalize($data, $class, $format = null, array $context = [])
+    public function denormalize($data, $type, $format = null, array $context = []): mixed
     {
-        return $this->decorated->denormalize($data, $class, $format, $context);
+        return $this->decorated->denormalize($data, $type, $format, $context);
     }
 
-    public function setSerializer(SerializerInterface $serializer)
+    public function setSerializer(SerializerInterface $serializer): void
     {
         if ($this->decorated instanceof SerializerAwareInterface) {
             $this->decorated->setSerializer($serializer);
         }
     }
 
-    public function hasCacheableSupportsMethod(): bool
+    public function getSupportedTypes(?string $format): array
     {
-        return $this->decorated->hasCacheableSupportsMethod();
+        return $this->decorated->getSupportedTypes($format);
     }
 }

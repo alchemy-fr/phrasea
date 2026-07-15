@@ -14,4 +14,5 @@ interface AssetContainerVoterInterface
     final public const string ASSET_SHARE = 'ASSET_SHARE';
     final public const string ASSET_OWNER = 'ASSET_OWNER';
     final public const string ASSET_EDIT_PERMISSIONS = 'ASSET_EDIT_PERMISSIONS';
+    final public const string ASSET_QUARANTINE = 'ASSET_QUARANTINE';
 }

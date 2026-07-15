@@ -24,6 +24,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 class AlchemyConfiguratorBundle extends AbstractBundle
 {
@@ -130,7 +131,10 @@ class AlchemyConfiguratorBundle extends AbstractBundle
             ->tag(DocumentationGeneratorInterface::TAG);
         $services->set(BucketPusher::class);
         $services->set(Deployer::class);
-        $services->set(DeployConfigHandler::class);
+
+        if (class_exists(AsMessageHandler::class)) {
+            $services->set(DeployConfigHandler::class);
+        }
 
         $services->set($s3ClientId, S3Client::class)
             ->arg(0, [

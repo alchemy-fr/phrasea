@@ -1,7 +1,7 @@
 import {RSelectWidget, SelectOption} from '@alchemy/react-form';
 import React from 'react';
 import {useTranslation} from 'react-i18next';
-import {IconButton, useTheme} from '@mui/material';
+import {Grid2 as Grid, IconButton, useTheme} from '@mui/material';
 import {
     AQLField,
     AQLOperator,
@@ -13,7 +13,6 @@ import {
 import {BaseBuilderProps, OperatorChoice, QBCondition} from './builderTypes.ts';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ValueBuilder from './ValueBuilder.tsx';
-import {Grid2 as Grid} from '@mui/material';
 import {alpha} from '@mui/material/styles';
 import {StylesConfig} from 'react-select';
 import {typeMap} from '../validation.ts';
@@ -65,12 +64,15 @@ export default function ConditionBuilder({
                     name={'field'}
                     styles={fieldStyles}
                     onChange={newValue => {
-                        setExpression(p => ({
-                            ...p,
-                            leftOperand: {
-                                field: newValue?.value ?? '',
-                            },
-                        }));
+                        setExpression(p => {
+                            return {
+                                ...p,
+                                leftOperand: {
+                                    field: newValue?.value ?? '',
+                                },
+                                rightOperand: {literal: ''},
+                            };
+                        });
                     }}
                     value={(expression.leftOperand as AQLField).field as any}
                     options={Object.entries(definitionsIndex)
@@ -162,7 +164,8 @@ export default function ConditionBuilder({
             </Grid>
             <Grid size={4}>
                 <ValueBuilder
-                    widget={field?.widget}
+                    type={field?.type}
+                    widgetOptions={field?.widgetOptions}
                     rawType={rawType}
                     manyArgs={manyArgs}
                     argNames={argNames}

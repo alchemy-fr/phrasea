@@ -37,7 +37,7 @@ export default function useFormSubmit<
 
     const useFormResponse = useForm<FormData>(useFormProps);
 
-    const {handleSubmit, setError, getValues} = useFormResponse;
+    const {handleSubmit, setError, getValues, clearErrors} = useFormResponse;
 
     const doSubmit = async (data: FormData): Promise<void> => {
         try {
@@ -126,7 +126,10 @@ export default function useFormSubmit<
 
     return {
         ...useFormResponse,
-        handleSubmit: handleSubmit(submitHandler),
+        handleSubmit: async e => {
+            clearErrors();
+            return await handleSubmit(submitHandler)(e);
+        },
         setOnSubmit,
         remoteErrors,
         submitting,

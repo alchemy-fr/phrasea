@@ -27,7 +27,6 @@ use App\Entity\Traits\TranslationsTrait;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Core\WorkspaceRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Validator\ValidAnalyzersOptionsConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
@@ -82,7 +81,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[UniqueEntity(fields: [
     'slug',
 ], message: 'Slug is already taken')]
-#[ValidAnalyzersOptionsConstraint]
 class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, AclObjectInterface, WithOwnerIdInterface, \Stringable, LoggableChangeSetInterface
 {
     use CreatedAtTrait;
@@ -95,9 +93,11 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
 
     final public const string GROUP_READ = 'workspace:r';
     final public const string GROUP_LIST = 'workspace:i';
-    private const int DEFAULT_TRASH_RETENTION_DELAY = 30;
-    private const string CONFIG_ANALYZERS = 'analyzers';
-    private const string TRASH_RETENTION_DELAY = 'trashRetentionDelay';
+
+    private const int CONFIG_DEFAULT_TRASH_RETENTION_DELAY = 30;
+    private const string CONFIG_TRASH_RETENTION_DELAY = 'trashRetentionDelay';
+    private const string CONFIG_ASSET_DEFAULT_STATUS = 'assetDefaultStatus';
+    private const string CONFIG_FILE_ANALYSIS_REQUIRED = 'fileAnalysisRequired';
 
     final public const string TR_FIELD_NAME = 'name';
 
@@ -110,7 +110,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     #[Assert\Length(min: 2, max: 50)]
     #[Assert\Regex(
         pattern: '/^[a-z0-9][a-z0-9-]*[a-z0-9]$/',
-        message: 'Invalid slug. Should match: my-workspace01'
+        message: 'Invalid slug {{ value }}. Should match: my-workspace01'
     )]
     private ?string $slug = null;
 
@@ -216,24 +216,50 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
         $this->config = $config;
     }
 
-    public function getFileAnalyzers(): ?string
-    {
-        return $this->config[self::CONFIG_ANALYZERS] ?? null;
-    }
-
-    public function setFileAnalyzers(?string $analyzers): void
-    {
-        $this->config[self::CONFIG_ANALYZERS] = $analyzers;
-    }
-
     public function getTrashRetentionDelay(): int
     {
-        return $this->config[self::TRASH_RETENTION_DELAY] ?? self::DEFAULT_TRASH_RETENTION_DELAY;
+        return $this->config[self::CONFIG_TRASH_RETENTION_DELAY] ?? self::CONFIG_DEFAULT_TRASH_RETENTION_DELAY;
     }
 
     public function setTrashRetentionDelay(int $days): void
     {
-        $this->config[self::TRASH_RETENTION_DELAY] = $days;
+        $this->config[self::CONFIG_TRASH_RETENTION_DELAY] = $days;
+    }
+
+    public function setAssetDefaultStatus(?AssetStatusEnum $status): void
+    {
+        if (AssetStatusEnum::Accepted === $status) {
+            unset($this->config[self::CONFIG_ASSET_DEFAULT_STATUS]);
+
+            return;
+        }
+
+        $this->config[self::CONFIG_ASSET_DEFAULT_STATUS] = $status->value;
+    }
+
+    public function getAssetDefaultStatus(): AssetStatusEnum
+    {
+        if (isset($this->config[self::CONFIG_ASSET_DEFAULT_STATUS])) {
+            return AssetStatusEnum::tryFrom($this->config[self::CONFIG_ASSET_DEFAULT_STATUS]) ?? AssetStatusEnum::Accepted;
+        }
+
+        return AssetStatusEnum::Accepted;
+    }
+
+    public function isFileAnalysisRequired(): bool
+    {
+        return $this->config[self::CONFIG_FILE_ANALYSIS_REQUIRED] ?? false;
+    }
+
+    public function setFileAnalysisRequired(?bool $required): void
+    {
+        if (false === $required) {
+            unset($this->config[self::CONFIG_FILE_ANALYSIS_REQUIRED]);
+
+            return;
+        }
+
+        $this->config[self::CONFIG_FILE_ANALYSIS_REQUIRED] = $required;
     }
 
     public function getEnabledLocales(): array

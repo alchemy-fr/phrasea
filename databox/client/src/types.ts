@@ -2,7 +2,6 @@ import type {WithTranslations} from '@alchemy/react-form';
 import {Integration} from './components/Integration/types.ts';
 import {AssetAnnotation} from './components/Media/Asset/Annotations/annotationTypes.ts';
 import {RenditionBuildMode} from './api/rendition.ts';
-import React from 'react';
 import {AttributeType} from './api/types.ts';
 import {SortBy} from './components/Media/Search/Filter';
 import {AQLQueries} from './components/Media/Search/AQL/query.ts';
@@ -13,6 +12,7 @@ import {Privacy} from './api/privacy.ts';
 import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/managerTypes.ts';
 import {UserPreferences} from './store/userPreferencesStore.ts';
 import {BuiltInFieldEnum} from './components/Media/Search/search.ts';
+import {AttributeWidgetOptions} from './components/Media/Asset/Attribute/types/types';
 
 export type AlternateUrl = {
     type: string;
@@ -136,7 +136,14 @@ export interface Asset
     storyCollection?: Collection | undefined;
     deleted?: boolean;
     trackingId?: string;
+    status: AssetStatus;
     resolvedTrackingId: string;
+}
+
+export enum AssetStatus {
+    Accepted = 0,
+    Pending = 1,
+    Quarantined = 2,
 }
 
 type AttrValue = any;
@@ -177,8 +184,7 @@ export interface BaseAttributeDefinition extends Entity {
     entityIri?: string;
     slug: string;
     searchSlug: string;
-    resolveLabel?: (entity: object, locale?: string) => string;
-    widget?: FieldWidget;
+    widgetOptions?: AttributeWidgetOptions;
     builtIn?: true;
 }
 
@@ -211,11 +217,6 @@ export type AttributeDefinitionOrBuiltIn =
     | AttributeDefinition
     | BuiltInAttribute;
 
-export type FieldWidget<P extends {} = any> = {
-    component: React.FC<P>;
-    props?: Partial<P>;
-};
-
 export interface AttributePolicy extends ApiHydraObjectResponse, Entity {
     name: string;
     public: boolean;
@@ -228,6 +229,36 @@ export interface RenditionPolicy extends ApiHydraObjectResponse, Entity {
     public: boolean;
     editable: boolean;
     workspace: Workspace | string;
+}
+
+export enum AssetPolicyConditionOperator {
+    Equals = '=',
+}
+
+export enum AssetPolicyActionName {
+    HideRendition = 'hide_rendition',
+    HideAttribute = 'hide_attribute',
+}
+
+export type AssetPolicyCondition = {
+    field?: string;
+    operator: string;
+    value: AssetPolicyCondition[] | string | number | boolean;
+};
+
+export type AssetPolicyAction = {
+    action: AssetPolicyActionName;
+} & Record<string, any>;
+
+export interface AssetPolicy extends ApiHydraObjectResponse, Entity {
+    name: string;
+    enabled: boolean;
+    workspace: Workspace | string;
+    conditions: AssetPolicyCondition[];
+    actions: AssetPolicyAction[];
+    owner: User;
+    users: User[] | string[];
+    groups: Group[] | string[];
 }
 
 export interface FieldType extends ApiHydraObjectResponse {
@@ -379,6 +410,7 @@ export interface Collection
         Entity,
         ApiHydraObjectResponse {
     parentId?: string;
+    parent?: Collection;
     name: string;
     displayName: string;
     nameHighlight?: string;
@@ -440,7 +472,7 @@ export type ProfileItem = {
     format?: string;
 };
 
-export interface Profile
+export interface DisplayProfile
     extends
         IPermissions<{
             edit: boolean;
@@ -556,6 +588,8 @@ export interface Workspace
     displayName: string;
     fileAnalyzers?: string;
     trashRetentionDelay?: number;
+    assetDefaultStatus?: AssetStatus;
+    fileAnalysisRequired?: boolean;
     enabledLocales?: string[] | undefined;
     localeFallbacks?: string[] | undefined;
     owner?: User;

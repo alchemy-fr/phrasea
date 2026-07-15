@@ -1,37 +1,40 @@
 import {TargetParam} from '../types.ts';
 import {apiClient} from '../init.ts';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
-
-const targetParamEntity = `target-params`;
+import {EntityName} from './entities.ts';
 
 export async function listTargetParams(): Promise<
     NormalizedCollectionResponse<TargetParam>
 > {
-    return getHydraCollection((await apiClient.get(targetParamEntity)).data);
+    return getHydraCollection(
+        (await apiClient.get(EntityName.TargetParam)).data
+    );
 }
 export async function getTargetParamByTarget(
     targetId: string
 ): Promise<TargetParam> {
-    return (await apiClient.get(`/targets/${targetId}/target-param`)).data;
+    return (
+        await apiClient.get(`/${EntityName.Target}/${targetId}/target-param`)
+    ).data;
 }
 
 export async function getTargetParam(id: string): Promise<TargetParam> {
-    return (await apiClient.get(`/${targetParamEntity}/${id}`)).data;
+    return (await apiClient.get(`/${EntityName.TargetParam}/${id}`)).data;
 }
 
 export async function putTargetParam(
     id: string,
     data: Partial<TargetParam>
 ): Promise<TargetParam> {
-    return (await apiClient.put(`/${targetParamEntity}/${id}`, data)).data;
+    return (await apiClient.put(`/${EntityName.TargetParam}/${id}`, data)).data;
 }
 
 export async function postTargetParam(
     data: Partial<TargetParam>
 ): Promise<TargetParam> {
-    return (await apiClient.post(`/${targetParamEntity}`, data)).data;
+    return (await apiClient.post(`/${EntityName.TargetParam}`, data)).data;
 }
 
 export async function deleteTargetParam(id: string): Promise<void> {
-    await apiClient.delete(`/${targetParamEntity}/${id}`);
+    await apiClient.delete(`/${EntityName.TargetParam}/${id}`);
 }

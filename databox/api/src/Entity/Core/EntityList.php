@@ -65,9 +65,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 
 #[ORM\Entity]
-#[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: [
-    'workspace',
-    'name',
+#[ApiFilter(filterClass: SearchFilter::class, properties: [
+    'workspace' => 'exact',
+    'name' => 'ipartial',
 ])]
 #[ApiFilter(filterClass: OrderFilter::class, properties: [
     'name',

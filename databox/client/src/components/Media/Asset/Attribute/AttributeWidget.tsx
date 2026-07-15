@@ -1,12 +1,12 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {AttrValue} from './AttributesEditor';
-import {getAttributeType} from './types';
 import {AttributeWidgetProps} from './attributeTypes.ts';
 import {createNewValue} from './values.ts';
 import {AttributeType} from '../../../../api/types.ts';
 import {FormHelperText} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import Button from '@mui/material/Button';
+import {getAttributeType} from './types/getAttributeType.ts';
 
 export default function AttributeWidget({
     id,

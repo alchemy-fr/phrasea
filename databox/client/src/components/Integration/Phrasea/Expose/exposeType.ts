@@ -12,3 +12,8 @@ export type ExposePublication = {
 export type ExposeProfile = {
     name: string;
 } & Entity;
+
+export enum ExposeEntityName {
+    Publication = 'publications',
+    PublicationProfile = 'publication-profiles',
+}

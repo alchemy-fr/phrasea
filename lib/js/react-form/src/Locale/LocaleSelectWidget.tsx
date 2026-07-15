@@ -1,7 +1,7 @@
 import React from 'react';
 import {FieldValues} from 'react-hook-form';
-import AsyncRSelectWidget, {AsyncRSelectProps} from '../AsyncRSelectWidget';
-import {SelectOption} from '../types';
+import AsyncRSelectWidget from '../RSelect/AsyncRSelectWidget';
+import {AsyncRSelectProps, SelectOption} from '../types';
 
 export type GetLocales = () => Promise<SelectOption[]>;
 
@@ -15,16 +15,20 @@ export default function LocaleSelectWidget<TFieldValues extends FieldValues>({
     filteredValues,
     ...props
 }: Props<TFieldValues>) {
-    const load = async (
-        inputValue?: string | undefined
-    ): Promise<SelectOption[]> => {
+    const loadOptions = async (inputValue?: string | undefined) => {
         const result = await getLocales();
         const searchString = (inputValue || '').toLowerCase();
 
-        return result
+        const options: SelectOption[] = result
             .filter(i => i.label.toLowerCase().includes(searchString))
             .filter(i => !filteredValues || filteredValues.includes(i.value));
+
+        return {
+            options,
+            hasMore: false,
+            additional: {},
+        };
     };
 
-    return <AsyncRSelectWidget {...props} loadOptions={load} />;
+    return <AsyncRSelectWidget {...props} loadOptions={loadOptions} />;
 }

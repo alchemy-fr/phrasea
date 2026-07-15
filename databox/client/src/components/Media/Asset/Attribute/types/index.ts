@@ -1,10 +1,6 @@
 import TextType from './TextType';
 import DateType from './DateType';
-import {
-    AttributeFormatterProps,
-    AttributeTypeClass,
-    AttributeTypeInstance,
-} from './types';
+import {AttributeTypeClass} from './types';
 import TextareaType from './TextareaType';
 import JsonType from './JsonType';
 import CodeType from './CodeType';
@@ -15,7 +11,6 @@ import GeoPointType from './GeoPointType';
 import DateTimeType from './DateTimeType';
 import TagsType from './TagsType.tsx';
 import AttributeEntityType from './AttributeEntityType.tsx';
-import {ReactNode} from 'react';
 import WorkspaceType from './WorkspaceType.tsx';
 import CollectionType from './CollectionType.tsx';
 import PrivacyType from './PrivacyType.tsx';
@@ -25,9 +20,11 @@ import NumberType from './NumberType.tsx';
 import StoryType from './StoryType.tsx';
 import DurationType from './DurationType.tsx';
 import FileSizeType from './FileSizeType.tsx';
+import AssetStatusType from './AssetStatusType.tsx';
+import RenditionDefinitionType from './RenditionDefinitionType.tsx';
 
 export const types: {
-    [key in AttributeType]?: AttributeTypeClass;
+    [key in AttributeType]?: AttributeTypeClass<any>;
 } = {
     [AttributeType.Boolean]: BooleanType,
     [AttributeType.Code]: CodeType,
@@ -36,7 +33,7 @@ export const types: {
     [AttributeType.Color]: ColorType,
     [AttributeType.DateTime]: DateTimeType,
     [AttributeType.Date]: DateType,
-    [AttributeType.Entity]: AttributeEntityType,
+    [AttributeType.AttributeEntity]: AttributeEntityType,
     [AttributeType.GeoPoint]: GeoPointType,
     [AttributeType.Html]: HtmlType,
     [AttributeType.Json]: JsonType,
@@ -45,25 +42,11 @@ export const types: {
     [AttributeType.Textarea]: TextareaType,
     [AttributeType.WebVtt]: CodeType,
     [AttributeType.Workspace]: WorkspaceType,
+    [AttributeType.Rendition]: RenditionDefinitionType,
     [AttributeType.Privacy]: PrivacyType,
+    [AttributeType.AssetStatus]: AssetStatusType,
     [AttributeType.User]: UserType,
     [AttributeType.Number]: NumberType,
     [AttributeType.Duration]: DurationType,
     [AttributeType.FileSize]: FileSizeType,
 };
-
-export function getAttributeType(
-    type: AttributeType
-): AttributeTypeInstance<any> {
-    const t = types[type] ?? types[AttributeType.Text]!;
-
-    return new t();
-}
-
-export function formatValue(
-    type: AttributeType,
-    props: AttributeFormatterProps
-): ReactNode | undefined {
-    const attributeType = getAttributeType(type);
-    return attributeType.formatValue(props);
-}

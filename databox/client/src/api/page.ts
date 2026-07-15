@@ -1,7 +1,8 @@
 import {apiClient} from '../init.ts';
 import {Page} from '../types';
 import {getHydraCollection, NormalizedCollectionResponse} from '@alchemy/api';
-import {EntityName, PaginationParams} from './types.ts';
+import {EntityName} from './types.ts';
+import {PaginationParams} from '@alchemy/phrasea-framework';
 import {AxiosRequestConfig} from 'axios';
 
 export type GetPageOptions = {

@@ -160,6 +160,7 @@ export default function PermissionList({
                                 'acl.form.user_select.placeholder',
                                 `Select group`
                             )}
+                            isMulti={false}
                             clearOnSelect={true}
                             onChange={option => {
                                 if (option) {
@@ -182,6 +183,7 @@ export default function PermissionList({
                                 'acl.form.group_select.placeholder',
                                 `Select user`
                             )}
+                            isMulti={false}
                             clearOnSelect={true}
                             onChange={option => {
                                 if (option) {

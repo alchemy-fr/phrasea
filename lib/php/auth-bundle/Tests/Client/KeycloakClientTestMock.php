@@ -23,7 +23,7 @@ class KeycloakClientTestMock implements HttpClientInterface
     final public const string OTHER_USER_UID = '99999999-fc1a-492b-9e76-c2e8e6979786';
     final public const string ADMIN_UID = '42424242-fc1a-492b-9e76-c2e8e6979786';
 
-    private const USERS = [
+    final public const array USERS = [
         self::ADMIN_UID => [
             'username' => 'admin',
             'roles' => ['admin', 'databox', 'expose', 'uploader'],
@@ -37,10 +37,6 @@ class KeycloakClientTestMock implements HttpClientInterface
             'roles' => ['databox', 'expose', 'uploader'],
         ],
     ];
-
-    public function __construct()
-    {
-    }
 
     public static function getJwtFor(string $userId): string
     {

@@ -50,7 +50,7 @@ abstract class AbstractAdminTest extends WebTestCase
             ->filter('nav#main-menu ul.submenu a')
             ->each(function (Crawler $node): void {
                 if ('#' !== $href = $node->attr('href')) {
-                    $this->assertMatchesRegularExpression('#^http://localhost/admin\?.+$#', $href);
+                    $this->assertMatchesRegularExpression('#^http://localhost/admin/?.+$#', $href);
                     $this->explore($href);
                 }
             });

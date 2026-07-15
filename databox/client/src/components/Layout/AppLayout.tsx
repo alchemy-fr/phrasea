@@ -11,7 +11,7 @@ import LeftPanel from '../Media/LeftPanel.tsx';
 import {useNotificationUriHandler} from '../../hooks/useNotificationUriHandler.ts';
 import AppNav from './AppNav.tsx';
 import {Divider, ListItemIcon, ListItemText, MenuItem} from '@mui/material';
-import ProfileSwitcher from '../Profile/ProfileSwitcher.tsx';
+import DisplayProfileSwitcher from '../Profile/DisplayProfileSwitcher.tsx';
 import {useAuth} from '@alchemy/react-auth';
 import {UserRole} from '../../constants.ts';
 import {useNavigateToModal} from '../Routing/ModalLink.tsx';
@@ -48,7 +48,7 @@ export default function AppLayout({children}: Props) {
                 topChildren: <AppNav orientation={MenuOrientation.Vertical} />,
                 settingsTopActions: closeWrapper => {
                     const actions = [
-                        <ProfileSwitcher
+                        <DisplayProfileSwitcher
                             key={'profile'}
                             closeWrapper={closeWrapper}
                         />,

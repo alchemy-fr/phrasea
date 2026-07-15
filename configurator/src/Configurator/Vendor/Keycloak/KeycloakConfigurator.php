@@ -154,6 +154,18 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             ]);
         }
 
+        $adminScopesRoleName = 'admin-scopes';
+        $this->keycloakManager->createRole($adminScopesRoleName, 'Allows to get privileged scopes on clients (never turn this role to composite)');
+
+        $globalScopes = $this->getGlobalsScopes();
+        foreach ($globalScopes as $scope => $description) {
+            $this->keycloakManager->createScope($scope, [
+                'description' => $description,
+            ]);
+            $this->keycloakManager->removeCompositeRolesAssignedToScope($scope);
+            $this->keycloakManager->assignRoleToScope($scope, $adminScopesRoleName);
+        }
+
         $appScopes = $this->getAppScopes();
         foreach ($appScopes as $app => $scopes) {
             foreach ($scopes as $scope) {
@@ -161,8 +173,8 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                     'description' => sprintf('%s in %s', $scope, ucwords($app)),
                 ]);
 
-                $roleName = sprintf('%s-admin', $app);
-                $this->keycloakManager->assignRoleToScope($scope, $roleName);
+                $this->keycloakManager->removeCompositeRolesAssignedToScope($scope);
+                $this->keycloakManager->assignRoleToScope($scope, $adminScopesRoleName);
             }
         }
 
@@ -191,6 +203,10 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 $this->keycloakManager->addServiceAccountClientRole($clientData, $role, 'realm-management');
             }
 
+            $globalScopes = $this->getGlobalsScopes();
+            foreach ($globalScopes as $scope => $desc) {
+                $this->keycloakManager->addScopeToClient($scope, $clientData['id'], false);
+            }
             foreach ($appScopes[$app] ?? [] as $scope) {
                 $this->keycloakManager->addScopeToClient($scope, $clientData['id'], false);
             }
@@ -219,19 +235,29 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                     'serviceAccountsEnabled' => true,
                 ],
             );
-            $this->keycloakManager->addServiceAccountRealmRole($clientData, 'databox-admin');
+            $this->keycloakManager->addServiceAccountRealmRole($clientData, $adminScopesRoleName);
 
+            $globalScopes = $this->getGlobalsScopes();
+            foreach ($globalScopes as $scope => $desc) {
+                $this->keycloakManager->addScopeToClient($scope, $clientData['id'], false);
+            }
             foreach ($appScopes['databox'] as $scope) {
-                $this->keycloakManager->addScopeToClient($scope, $clientData['id'], true);
+                $this->keycloakManager->addScopeToClient($scope, $clientData['id'], false);
             }
         }
+    }
+
+    private function getGlobalsScopes(): array
+    {
+        return [
+            'admin' => 'Authorizes to do anything',
+        ];
     }
 
     private function getAppScopes(): array
     {
         return [
             'databox' => array_merge([
-                'admin',
             ], ...array_map(fn (string $ns): array => array_map(fn (string $p): string => $ns.':'.$p, [
                 'create',
                 'list',
@@ -257,11 +283,9 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 'workspace',
             ])),
             'expose' => [
-                'admin',
                 'publish',
             ],
             'uploader' => [
-                'admin',
                 'commit:list',
             ],
         ];

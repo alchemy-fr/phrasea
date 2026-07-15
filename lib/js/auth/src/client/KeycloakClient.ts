@@ -51,6 +51,7 @@ export class KeycloakClient {
         const authenticated = await this.keycloak.init({
             onLoad: 'check-sso',
             silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
+            scope: this.client.scope,
         });
 
         if (authenticated) {

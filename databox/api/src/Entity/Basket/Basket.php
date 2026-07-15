@@ -192,11 +192,9 @@ class Basket extends AbstractUuidEntity implements WithOwnerIdInterface, AclObje
         return true;
     }
 
-    public function setElasticHighlights(array $highlights)
+    public function setElasticHighlights(array $highlights): void
     {
         $this->highlights = $highlights;
-
-        return $this;
     }
 
     public function getElasticHighlights(): ?array

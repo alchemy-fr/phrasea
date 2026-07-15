@@ -1,4 +1,4 @@
-import {useFormSubmit} from '@alchemy/api';
+import {createIriFromId, useFormSubmit} from '@alchemy/api';
 import {FormSchema, LiFormSchema} from '../../types.ts';
 import {toast} from 'react-toastify';
 import {Trans, useTranslation} from 'react-i18next';
@@ -16,7 +16,7 @@ import {AlertDialog} from '@alchemy/phrasea-framework';
 import {postFormSchema, putFormSchema} from '../../api/formSchemaApi.ts';
 import {routes} from '../../routes.ts';
 import TargetSelectWidget from '../TargetSelectWidget.tsx';
-import {targetEntity} from '../../api/targetApi.ts';
+import {EntityName} from '../../api/entities.ts';
 
 type Props = {
     formSchema: Partial<FormSchema>;
@@ -43,7 +43,7 @@ export default function FormSchemaForm({formSchema}: Props) {
         defaultValues: {
             ...formSchema,
             target: formSchema.target
-                ? `/${targetEntity}/${formSchema.target.id}`
+                ? createIriFromId(EntityName.Target, formSchema.target.id)
                 : '',
             data: JSON.stringify(formSchema.data, null, 2),
         },

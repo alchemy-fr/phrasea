@@ -15,7 +15,7 @@ export default function TargetListPage() {
     const {t} = useTranslation();
 
     useEffect(() => {
-        listTargets().then(r => setTargets(r.result));
+        listTargets({}).then(r => setTargets(r.result));
     }, []);
 
     useEffect(() => {

@@ -17,6 +17,9 @@ abstract class AbstractLog extends AbstractUuidEntity
     #[ORM\Column(type: Types::STRING, length: 32, nullable: true)]
     private ?string $ip = null;
 
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $userId = null;
+
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $meta = [];
 
@@ -39,6 +42,16 @@ abstract class AbstractLog extends AbstractUuidEntity
     public function setIp(?string $ip): void
     {
         $this->ip = $ip;
+    }
+
+    public function getUserId(): ?string
+    {
+        return $this->userId;
+    }
+
+    public function setUserId(?string $userId): void
+    {
+        $this->userId = $userId;
     }
 
     public function getMeta(): array

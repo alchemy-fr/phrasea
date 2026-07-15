@@ -9,9 +9,10 @@ import {
     UploadFormData,
 } from './types.ts';
 import {uploadMultipartFile} from './multiPartUpload.ts';
-import {getAxiosError} from '@alchemy/api';
+import {createIriFromId, getAxiosError} from '@alchemy/api';
 import {TFunction} from '@alchemy/i18n';
 import {toast} from 'react-toastify';
+import {EntityName} from './api/entities.ts';
 
 type OnProgressListener = (e: {
     totalLoaded: number;
@@ -175,7 +176,7 @@ export default class UploadBatch {
             files: idCollection,
             formData: this.formData,
             schemaId: this.schemaId,
-            target: `/targets/${this.targetId}`,
+            target: createIriFromId(EntityName.Target, this.targetId),
         };
 
         this.reset();

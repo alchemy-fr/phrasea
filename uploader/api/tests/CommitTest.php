@@ -14,42 +14,63 @@ class CommitTest extends AbstractUploaderTestCase
     {
         [$commitId, $assetId] = $this->createCommit();
 
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+        $client = static::createClient();
+        $response = $client->request(
             'GET',
-            '/commits/'.$commitId
+            '/commits/'.$commitId,
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+                ],
+            ]
         );
-        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
-
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
-        $this->assertEquals($assetId, $json['assets'][0]['id']);
+        $data = $response->toArray();
+
+        $this->assertEquals('application/ld+json; charset=utf-8', $response->getHeaders()['content-type'][0]);
+        $this->assertEquals($assetId, $data['assets'][0]['id']);
     }
 
     public function testGetCommitListOK(): void
     {
-        $response = $this->request(
-            KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+        $client = static::createClient();
+        $response = $client->request(
             'GET',
-            '/commits'
+            '/commits',
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+                ],
+            ]
         );
-        $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
-
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
-        $this->assertTrue(is_array($json), 'Not an array');
-        $this->assertEmpty($json);
+        $data = $response->toArray();
+        $this->assertEquals('application/ld+json; charset=utf-8', $response->getHeaders()['content-type'][0]);
+        $this->assertEmpty($data['hydra:member']);
     }
 
-    public function testGetCommittListWithAnonymousUser(): void
+    public function testGetCommitListWithAnonymousUser(): void
     {
-        $response = $this->request(null, 'GET', '/commits');
+        $client = static::createClient();
+        $response = $client->request(
+            'GET',
+            '/commits',
+        );
         $this->assertEquals(401, $response->getStatusCode());
     }
 
-    public function testGetCommittListWithInvalidToken(): void
+    public function testGetCommitListWithInvalidToken(): void
     {
-        $response = $this->request('invalid_token', 'GET', '/commits');
+        $client = static::createClient();
+        $response = $client->request(
+            'GET',
+            '/commits',
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer invalid_token',
+                ],
+            ]
+        );
         $this->assertEquals(401, $response->getStatusCode());
     }
 

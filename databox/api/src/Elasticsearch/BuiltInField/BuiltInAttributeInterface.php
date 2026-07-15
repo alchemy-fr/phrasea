@@ -46,7 +46,5 @@ interface BuiltInAttributeInterface
 
     public function normalizeValueForSearch(mixed $value): mixed;
 
-    public function createFilterQuery(mixed $value, array $options): ?Query\AbstractQuery;
-
     public function isEnabled(): bool;
 }
