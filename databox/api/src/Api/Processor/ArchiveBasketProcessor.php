@@ -10,11 +10,11 @@ use App\Entity\Basket\Basket;
 use App\Repository\Basket\BasketRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class ArchiveBasketProcessor implements ProcessorInterface
+final readonly class ArchiveBasketProcessor implements ProcessorInterface
 {
     public function __construct(
-        private readonly EntityManagerInterface $em,
-        private readonly BasketRepository $basketRepository,
+        private EntityManagerInterface $em,
+        private BasketRepository $basketRepository,
     ) {
     }
 

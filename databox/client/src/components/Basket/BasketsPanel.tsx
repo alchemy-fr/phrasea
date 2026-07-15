@@ -17,7 +17,6 @@ import {useNavigateToModal} from '../Routing/ModalLink.tsx';
 import BasketSkeleton from './BasketSkeleton.tsx';
 import BasketContextMenu from './BasketContextMenu.tsx';
 import {LoadMoreRow, MoreActionsButton} from '@alchemy/phrasea-ui';
-import {useBasketStore} from '../../store/basketStore.ts';
 
 type Props = {
     selected?: string;
@@ -26,7 +25,6 @@ type Props = {
 function BasketsPanel({selected}: Props) {
     const {t} = useTranslation();
     const navigateToModal = useNavigateToModal();
-    const load = useBasketStore(state => state.load);
 
     const {
         contextMenu,
@@ -40,7 +38,6 @@ function BasketsPanel({selected}: Props) {
         loading,
         searchQuery,
         setSearchQuery,
-        searchQueryOptions,
         setSearchQueryOptions,
         baskets,
         searchResult,
@@ -55,12 +52,6 @@ function BasketsPanel({selected}: Props) {
         setDisplayArchive(value);
         setSearchQueryOptions({displayArchived: value});
     };
-
-    React.useEffect(() => {
-        if (Object.keys(searchQueryOptions).length > 0) {
-            load({displayArchived: displayArchive});
-        }
-    }, [displayArchive]);
 
     return (
         <div

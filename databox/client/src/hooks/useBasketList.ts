@@ -96,7 +96,7 @@ export function useBasketList({onBasketCreate}: Props = {}) {
         searchHandler,
     } = useSearch({
         items: baskets,
-        loadItems: options => load({...options, displayArchived: false}),
+        loadItems: options => load(options),
         hasMore: hasMore(),
         loadMore: loadMore,
         search: (q, nextUrl, options) =>

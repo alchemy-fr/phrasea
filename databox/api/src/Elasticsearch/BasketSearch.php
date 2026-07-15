@@ -33,7 +33,7 @@ class BasketSearch extends AbstractSearch
             $filterQueries[] = $aclBoolQuery;
         }
 
-        if (isset($options['displayArchived']) && 'false' === $options['displayArchived']) {
+        if (false === filter_var($options['displayArchived'] ?? null, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) {
             $filterQueries[] = new Query\Term(['isArchived' => false]);
         }
 

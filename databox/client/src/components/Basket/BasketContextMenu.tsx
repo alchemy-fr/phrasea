@@ -48,7 +48,7 @@ export default function BasketContextMenu({
                 </MenuItem>
                 {!contextMenu.data.isArchived ? (
                     <MenuItem
-                        disabled={!contextMenu.data.capabilities.edit}
+                        disabled={!contextMenu.data.capabilities.delete}
                         onClick={() => onArchive(contextMenu.data)}
                     >
                         <ListItemIcon>
@@ -58,7 +58,7 @@ export default function BasketContextMenu({
                     </MenuItem>
                 ) : (
                     <MenuItem
-                        disabled={!contextMenu.data.capabilities.edit}
+                        disabled={!contextMenu.data.capabilities.delete}
                         onClick={() => onUnarchive(contextMenu.data)}
                     >
                         <ListItemIcon>
