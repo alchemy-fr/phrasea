@@ -10,7 +10,7 @@ use Alchemy\CoreBundle\Util\FilesystemUtils;
 use Alchemy\CoreBundle\Util\StringUtil;
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
-use Alchemy\StorageBundle\Storage\PathGenerator;
+use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use Alchemy\StorageBundle\Storage\UrlSigner;
 use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Zippy\Zippy;
@@ -39,7 +39,7 @@ class AssetExportProcessHandler
         private readonly MetadataManipulator $metadataManipulator,
         private readonly MetadataNormalizer $metadataNormalizer,
         private readonly FileStorageManager $fileStorageManager,
-        private readonly PathGenerator $pathGenerator,
+        private readonly PathGeneratorInterface $pathGenerator,
         private readonly UrlSigner $urlSigner,
     ) {
     }

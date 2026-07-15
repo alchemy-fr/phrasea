@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\StorageBundle\Doctrine;
 
 use Alchemy\StorageBundle\Entity\MultipartUpload;
-use Alchemy\StorageBundle\Storage\PathGenerator;
+use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Aws\S3\Exception\S3Exception;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
@@ -18,8 +18,10 @@ use Doctrine\ORM\Events;
 #[AsDoctrineListener(Events::prePersist)]
 final readonly class MultipartUploadListener implements EventSubscriber
 {
-    public function __construct(private UploadManager $uploadManager, private PathGenerator $pathGenerator)
-    {
+    public function __construct(
+        private UploadManager $uploadManager,
+        private PathGeneratorInterface $pathGenerator,
+    ) {
     }
 
     public function postRemove(PostRemoveEventArgs $args): void

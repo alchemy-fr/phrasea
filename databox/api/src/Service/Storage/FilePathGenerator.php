@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Service\Storage;
 
-use Alchemy\StorageBundle\Storage\PathGenerator;
+use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 
 final readonly class FilePathGenerator
 {
-    public function __construct(private PathGenerator $pathGenerator)
+    public function __construct(private PathGeneratorInterface $pathGenerator)
     {
     }
 

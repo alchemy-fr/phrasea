@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Consumer;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
-use Alchemy\StorageBundle\Storage\PathGenerator;
+use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use App\Consumer\Handler\Download;
 use App\Consumer\Handler\DownloadHandler;
 use App\Entity\Asset;
@@ -42,8 +42,8 @@ class DownloadHandlerTest extends TestCase
 
         /** @var FileStorageManager|MockObject $storageStub */
         $storageStub = $this->createMock(FileStorageManager::class);
-        /** @var PathGenerator|MockObject $pathGeneratorStub */
-        $pathGeneratorStub = $this->createMock(PathGenerator::class);
+        /** @var PathGeneratorInterface|MockObject $pathGeneratorStub */
+        $pathGeneratorStub = $this->createMock(PathGeneratorInterface::class);
         /** @var AssetManager|MockObject $assetManagerStub */
         $assetManagerStub = $this->createMock(AssetManager::class);
         $assetManagerStub

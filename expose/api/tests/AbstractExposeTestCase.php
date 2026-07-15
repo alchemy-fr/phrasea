@@ -6,7 +6,7 @@ namespace App\Tests;
 
 use Alchemy\ApiTest\ApiTestCase;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
-use Alchemy\StorageBundle\Storage\PathGenerator;
+use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Entity\PublicationConfig;
@@ -214,9 +214,9 @@ abstract class AbstractExposeTestCase extends ApiTestCase
         return self::getService(FileStorageManager::class);
     }
 
-    protected static function getPathGenerator(): PathGenerator
+    protected static function getPathGenerator(): PathGeneratorInterface
     {
-        return self::getService(PathGenerator::class);
+        return self::getService(PathGeneratorInterface::class);
     }
 
     protected function createAsset(Publication $publication, array $options = []): string
