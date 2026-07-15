@@ -11,6 +11,7 @@ use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
+use App\Api\Model\Output\UserOutput;
 use App\Api\Processor\AssetExportProcessor;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Model\ExportStatusEnum;
@@ -77,10 +78,14 @@ class AssetExport extends AbstractUuidEntity
     #[Groups(self::GROUP_WRITE)]
     #[Assert\NotNull]
     #[Assert\Count(min: 1)]
+    #[ORM\Column(type: Types::JSON, nullable: false)]
     private ?array $renditions = null;
 
     #[Groups(self::GROUP_READ)]
     public ?string $downloadUrl = null;
+
+    #[Groups([Collection::GROUP_READ])]
+    public ?UserOutput $owner = null;
 
     public function getStatus(): ExportStatusEnum
     {

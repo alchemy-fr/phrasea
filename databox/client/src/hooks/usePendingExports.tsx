@@ -38,7 +38,9 @@ export function usePendingExports() {
                     status: statusMap[exp.status],
                     progress,
                     render:
-                        exp.status === ExportStatusEnum.Ready ? (
+                        exp.status === ExportStatusEnum.Failed && exp.error ? (
+                            exp.error
+                        ) : exp.status === ExportStatusEnum.Ready ? (
                             <Trans
                                 i18nKey={'asset_export.pending.toast.done'}
                                 values={{

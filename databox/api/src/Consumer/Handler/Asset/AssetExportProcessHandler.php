@@ -52,99 +52,121 @@ class AssetExportProcessHandler
         $this->em->persist($export);
         $this->em->flush();
 
-        $renditionIds = $export->getRenditions();
-        $userData = $export->getUserData();
+        $this->triggerExportPush($export->getId(), 'progress', [
+            'progress' => 0,
+        ]);
 
-        $archiveDir = sys_get_temp_dir().'/'.uniqid('archive-dir');
-        mkdir($archiveDir, 0755, true);
-
-        $assets = $export->getAssets();
-        $total = count($assets);
-        $i = 0;
-        $fileCount = 0;
         try {
-            foreach ($assets as $assetId) {
-                $renditions = $this->em->getRepository(AssetRendition::class)->findAssetRenditions($assetId, [
-                    AssetRenditionRepository::OPT_DEFINITION_IDS => $renditionIds,
-                    AssetRenditionRepository::OPT_WITH_FILE => true,
-                ]);
+            $renditionIds = $export->getRenditions();
+            $userData = $export->getUserData();
 
-                /** @var AssetRendition[] $renditions */
-                foreach ($renditions as $rendition) {
-                    $asset = $rendition->getAsset();
-                    $sourceFile = $asset->getSource();
+            $assets = $export->getAssets();
+            $total = count($assets);
+            $i = 0;
+            $fileCount = 0;
 
-                    if (!$this->isGrantedForUser($userData, AbstractVoter::READ, $rendition)) {
-                        continue;
+            $archiveDir = sys_get_temp_dir().'/'.uniqid('archive-dir');
+            mkdir($archiveDir, 0755, true);
+
+            try {
+                foreach ($assets as $assetId) {
+                    $renditions = $this->em->getRepository(AssetRendition::class)->findAssetRenditions($assetId, [
+                        AssetRenditionRepository::OPT_DEFINITION_IDS => $renditionIds,
+                        AssetRenditionRepository::OPT_WITH_FILE => true,
+                    ]);
+
+                    /** @var AssetRendition[] $renditions */
+                    foreach ($renditions as $rendition) {
+                        $asset = $rendition->getAsset();
+                        $sourceFile = $asset->getSource();
+
+                        if (!$this->isGrantedForUser($userData, AbstractVoter::READ, $rendition)) {
+                            continue;
+                        }
+
+                        $file = $rendition->getFile();
+                        $extension = FileUtil::getExtensionFromType($file->getType());
+                        $ext = $extension ? '.'.$extension : '';
+
+                        $assetName = $this->assetNameResolver->resolveNameAsString($asset);
+                        $renditionName = $rendition->getName();
+
+                        $path = sprintf('%s/%s-%s-%s%s', $archiveDir, StringUtil::slugify($renditionName), StringUtil::slugify($assetName ?? ''), $assetId, $ext);
+                        $this->fileFetcher->getFile($file, path: $path);
+
+                        if ($sourceFile?->getType() === $file->getType() && $file->metadataHasChanged()) {
+                            $writer = $this->metadataManipulator->createWriter();
+                            $metadata = $this->metadataNormalizer->denormalize($file->getMetadata());
+
+                            $tmpFile = sys_get_temp_dir().'/'.uniqid('metadata-file');
+                            $writer->write($path, $metadata, destination: $tmpFile);
+                            unlink($path);
+                            rename($tmpFile, $path);
+                        }
+
+                        ++$fileCount;
                     }
 
-                    $file = $rendition->getFile();
-                    $extension = FileUtil::getExtensionFromType($file->getType());
-                    $ext = $extension ? '.'.$extension : '';
+                    $this->em->clear();
 
-                    $assetName = $this->assetNameResolver->resolveNameAsString($asset);
-                    $renditionName = $rendition->getName();
-
-                    $path = sprintf('%s/%s-%s-%s%s', $archiveDir, StringUtil::slugify($renditionName), StringUtil::slugify($assetName ?? ''), $assetId, $ext);
-                    $this->fileFetcher->getFile($file, path: $path);
-
-                    if ($sourceFile?->getType() === $file->getType() && $file->metadataHasChanged()) {
-                        $writer = $this->metadataManipulator->createWriter();
-                        $metadata = $this->metadataNormalizer->denormalize($file->getMetadata());
-
-                        $tmpFile = sys_get_temp_dir().'/'.uniqid('metadata-file');
-                        $writer->write($path, $metadata, destination: $tmpFile);
-                        unlink($path);
-                        rename($tmpFile, $path);
-                    }
-
-                    ++$fileCount;
+                    $this->triggerExportPush($export->getId(), 'progress', [
+                        'progress' => ++$i / $total,
+                    ]);
                 }
 
-                $this->em->clear();
+                $export = $this->refresh($export);
 
-                $this->triggerExportPush($export->getId(), 'progress', [
-                    'progress' => ++$i / $total,
+                if (0 === $fileCount) {
+                    $export->setStatus(ExportStatusEnum::Failed);
+                    $this->em->persist($export);
+                    $this->em->flush();
+
+                    $this->triggerExportPush($export->getId(), 'error', [
+                        'error' => 'No files to export (insufficient permissions).',
+                    ]);
+
+                    return;
+                }
+
+                $archivePath = $this->pathGenerator->generatePath('zip', 'exports/');
+                $archiveSrc = $archiveDir.'/'.uniqid('archive-file').'.zip';
+
+                $zippy = Zippy::load();
+                $zippy->create($archiveSrc, [
+                    'content' => $archiveDir,
                 ]);
-            }
 
-            $export = DoctrineUtil::findStrict($this->em, AssetExport::class, $export->getId());
+                $fd = fopen($archiveSrc, 'r');
+                if (false === $fd) {
+                    throw new \RuntimeException(sprintf('Unable to open file %s', $archiveSrc));
+                }
+                $this->fileStorageManager->storeStream($archivePath, $fd);
+                fclose($fd);
+                $export->setPath($archivePath);
 
-            if (0 === $fileCount) {
-                $export->setStatus(ExportStatusEnum::Failed);
+                $export->setStatus(ExportStatusEnum::Ready);
                 $this->em->persist($export);
                 $this->em->flush();
 
-                $this->triggerExportPush($export->getId(), 'failed', []);
-
-                return;
+                $this->triggerExportPush($export->getId(), 'ready', [
+                    'downloadUrl' => $this->urlSigner->getSignedUrl($archivePath),
+                ]);
+            } finally {
+                FilesystemUtils::rrmdir($archiveDir);
             }
-
-            $archivePath = $this->pathGenerator->generatePath('zip', 'exports/');
-            $archiveSrc = $archiveDir.'/'.uniqid('archive-file').'.zip';
-
-            $zippy = Zippy::load();
-            $zippy->create($archiveSrc, [
-                'content' => $archiveDir,
-            ]);
-
-            $fd = fopen($archiveSrc, 'r');
-            if (false === $fd) {
-                throw new \RuntimeException(sprintf('Unable to open file %s', $archiveSrc));
-            }
-            $this->fileStorageManager->storeStream($archivePath, $fd);
-            fclose($fd);
-            $export->setPath($archivePath);
-
-            $export->setStatus(ExportStatusEnum::Ready);
+        } catch (\Throwable $e) {
+            $export = $this->refresh($export);
+            $export->setStatus(ExportStatusEnum::Failed);
             $this->em->persist($export);
             $this->em->flush();
 
-            $this->triggerExportPush($export->getId(), 'ready', [
-                'downloadUrl' => $this->urlSigner->getSignedUrl($archivePath),
+            $this->triggerExportPush($export->getId(), 'error', [
             ]);
-        } finally {
-            FilesystemUtils::rrmdir($archiveDir);
         }
+    }
+
+    private function refresh(AssetExport $export): AssetExport
+    {
+        return DoctrineUtil::findStrict($this->em, AssetExport::class, $export->getId());
     }
 }

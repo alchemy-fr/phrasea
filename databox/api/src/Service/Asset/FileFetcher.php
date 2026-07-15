@@ -29,7 +29,9 @@ readonly class FileFetcher
 
         if (File::STORAGE_S3_MAIN === $file->getStorage()) {
             $path ??= sys_get_temp_dir().'/'.uniqid('fetch-file');
-            file_put_contents($path, $this->fileStorageManager->getStream($file->getPath()));
+            $stream = $this->fileStorageManager->getStream($file->getPath());
+            file_put_contents($path, $stream);
+            fclose($stream);
 
             return $file->localTmpPath = $path;
         }
@@ -44,7 +46,7 @@ readonly class FileFetcher
         }
 
         if (File::STORAGE_URL !== $file->getStorage()) {
-            throw new \LogicException(sprintf('File "%s" a not a remote URL', $file->getId()));
+            throw new \LogicException(sprintf('File "%s" is not a remote URL', $file->getId()));
         }
 
         return $file->localTmpPath = $this->fileDownloader->download($this->fileUrlResolver->resolveUrl($file), $headers);

@@ -708,6 +708,8 @@ export enum ExportStatusEnum {
 export type AssetExport = {
     id: string;
     status: ExportStatusEnum;
+    error?: string;
     progress?: number;
     downloadUrl?: string;
+    unregister?: () => void;
 };

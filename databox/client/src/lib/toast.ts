@@ -1,3 +1,4 @@
+import {isNotNull} from '@alchemy/core';
 import {Id, toast, ToastOptions, UpdateOptions} from 'react-toastify';
 
 export enum ToastProgressStatus {
@@ -36,13 +37,13 @@ export function upsertProgressiveToast(
                   : 'info',
     };
 
-    if (id) {
-        toast.update(id, {
+    if (isNotNull(id)) {
+        toast.update(id!, {
             ...common,
             render,
         });
 
-        return id;
+        return id!;
     } else {
         return toast.info(render, {
             ...common,

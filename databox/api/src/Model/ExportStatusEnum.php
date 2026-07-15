@@ -17,6 +17,7 @@ enum ExportStatusEnum: int
             'Pending' => self::Pending,
             'InProgress' => self::InProgress,
             'Ready' => self::Ready,
+            'Failed' => self::Failed,
         ];
     }
 }

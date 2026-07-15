@@ -74,6 +74,5 @@ export function downloadUrl(url: string, filename?: string): void {
 
     setTimeout(() => {
         a.remove();
-        URL.revokeObjectURL(url);
     }, 100);
 }

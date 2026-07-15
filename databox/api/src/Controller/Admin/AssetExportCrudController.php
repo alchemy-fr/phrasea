@@ -68,9 +68,12 @@ class AssetExportCrudController extends AbstractAdminCrudController
         yield ChoiceField::new('status')
             ->setChoices(ExportStatusEnum::getChoices())
         ;
-        yield JsonField::new('groupsId');
-        yield JsonField::new('assets');
-        yield JsonField::new('renditions');
+        yield JsonField::new('userData')
+            ->hideOnIndex();
+        yield JsonField::new('assets')
+            ->hideOnIndex();
+        yield JsonField::new('renditions')
+            ->hideOnIndex();
         yield DateTimeField::new('createdAt')
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')
