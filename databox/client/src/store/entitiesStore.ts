@@ -9,11 +9,14 @@ export type EntityCached = {
 export enum ResolveStatus {
     Unresolved = 0,
     NotFound = 1,
+    NotAllowed = 2,
 }
 
 export type EntitiesIndex = Record<string, EntityCached | ResolveStatus>;
 export type RequestEntities = (entities: string[]) => void;
-export type GetOrRequestEntity = (iri: string) => EntityCached | undefined;
+export type GetOrRequestEntity = (
+    iri: string
+) => ResolveStatus | EntityCached | undefined;
 
 type State = {
     stack: string[];
@@ -35,7 +38,10 @@ export const useEntitiesStore = create<State>((set, getState) => ({
         const entity = index[iri];
         if (entity === ResolveStatus.Unresolved) {
             return undefined;
-        } else if (entity === ResolveStatus.NotFound) {
+        } else if (
+            typeof entity === 'number' &&
+            [ResolveStatus.NotFound, ResolveStatus.NotAllowed].includes(entity)
+        ) {
             return null;
         }
 
@@ -90,7 +96,9 @@ export const useEntitiesStore = create<State>((set, getState) => ({
                     newIndex[iri] = ResolveStatus.NotFound;
                 });
                 Object.entries(result.entities).map(([iri, value]) => {
-                    if (value) {
+                    if (value && value.notAllowed) {
+                        newIndex[iri] = ResolveStatus.NotAllowed;
+                    } else if (value) {
                         newIndex[iri] = value as EntityCached;
                     }
                 });
@@ -100,7 +108,7 @@ export const useEntitiesStore = create<State>((set, getState) => ({
                     loading: false,
                 };
             });
-        } catch (_e: any) {
+        } finally {
             set({loading: false});
         }
     },

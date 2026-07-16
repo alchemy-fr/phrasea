@@ -24,7 +24,10 @@ import {TFunction} from '@alchemy/i18n';
 import {createIriFromId} from '@alchemy/api';
 import {AttributeFormatterOptions} from '../../Asset/Attribute/types/types';
 
-import {GetOrRequestEntity} from '../../../../store/entitiesStore.ts';
+import {
+    GetOrRequestEntity,
+    ResolveStatus,
+} from '../../../../store/entitiesStore.ts';
 import {getAttributeType} from '../../Asset/Attribute/types/getAttributeType.ts';
 
 export type AQLQuery = {
@@ -284,6 +287,20 @@ function searchInEntities(
                 const iri = createIriFromId(type.entityIri, id);
                 if (iri) {
                     const entity = getEntity(iri);
+
+                    if (entity === ResolveStatus.NotAllowed) {
+                        return formatterOptions.t(
+                            'entity.not_allowed',
+                            'Not allowed'
+                        );
+                    } else if (entity === ResolveStatus.NotFound) {
+                        return formatterOptions.t(
+                            'entity.not_found',
+                            'Not found'
+                        );
+                    } else if (entity === ResolveStatus.Unresolved) {
+                        return formatterOptions.t('entity.unresolved', '…');
+                    }
 
                     return type.formatValueAsString({
                         ...formatterOptions,

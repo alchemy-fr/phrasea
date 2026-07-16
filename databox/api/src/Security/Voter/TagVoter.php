@@ -26,6 +26,7 @@ class TagVoter extends AbstractVoter
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         return match ($attribute) {
+            self::READ => $this->isGranted(self::READ, $subject->getWorkspace()),
             self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(self::EDIT, $subject->getWorkspace()),
         };
     }
