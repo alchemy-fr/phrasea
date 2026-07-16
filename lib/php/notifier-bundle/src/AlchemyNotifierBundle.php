@@ -23,8 +23,8 @@ class AlchemyNotifierBundle extends AbstractBundle
 
         $definition->rootNode()
             ->children()
-                ->booleanNode('enabled')
-                    ->info('Globally enable/disable notification delivery')
+                ->scalarNode('enabled')
+                    ->info('Globally enable/disable notification delivery (bool or env placeholder)')
                     ->defaultValue('%env(bool:NOTIFICATIONS_ENABLED)%')
                 ->end()
                 ->scalarNode('template_namespace')
