@@ -10,7 +10,7 @@ interface FollowableInterface
 
     public function getTopicKeys(): array;
 
-    public static function getTopicKey(string $event, string $id): string;
+    public static function getTopicKey(string $event): string;
 
     public function isAutoSubscribeOwner(): bool;
 

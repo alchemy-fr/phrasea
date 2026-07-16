@@ -17,30 +17,30 @@ class SubscriptionManager
     ) {
     }
 
-    public function subscribe(string $userId, string $objectType, string $objectId): Subscription
+    public function subscribe(string $userId, string $topic, ?string $objectType = null, ?string $objectId = null): Subscription
     {
         $subscriber = $this->subscriberManager->getOrCreate($userId);
 
-        $subscription = $this->repository->findOneForObject($subscriber, $objectType, $objectId);
+        $subscription = $this->repository->findOneForObject($subscriber, $topic, $objectType, $objectId);
         if (null !== $subscription) {
             return $subscription;
         }
 
-        $subscription = new Subscription($subscriber, $objectType, $objectId);
+        $subscription = new Subscription($subscriber, $topic, $objectType, $objectId);
         $this->em->persist($subscription);
         $this->em->flush();
 
         return $subscription;
     }
 
-    public function unsubscribe(string $userId, string $objectType, string $objectId): void
+    public function unsubscribe(string $userId, string $topic, ?string $objectType = null, ?string $objectId = null): void
     {
         $subscriber = $this->subscriberManager->find($userId);
         if (null === $subscriber) {
             return;
         }
 
-        $subscription = $this->repository->findOneForObject($subscriber, $objectType, $objectId);
+        $subscription = $this->repository->findOneForObject($subscriber, $topic, $objectType, $objectId);
         if (null === $subscription) {
             return;
         }
@@ -62,7 +62,7 @@ class SubscriptionManager
     /**
      * @return array<int, string>
      */
-    public function getSubscriberUserIds(string $objectType, string $objectId): array
+    public function getSubscriberUserIds(string $topic, string $objectType, string $objectId): array
     {
         return $this->repository->findSubscriberUserIds($objectType, $objectId);
     }

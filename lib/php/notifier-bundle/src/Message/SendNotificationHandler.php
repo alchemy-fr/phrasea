@@ -19,23 +19,27 @@ final readonly class SendNotificationHandler
 
     public function __invoke(SendNotification $message): void
     {
-        $userIds = $message->userIds;
+        $sent = [];
 
-        if (null !== $message->objectType && null !== $message->objectId) {
-            $userIds = array_merge(
-                $userIds,
-                $this->subscriptionManager->getSubscriberUserIds($message->objectType, $message->objectId),
-            );
-        }
+        foreach ($message->topics as $topic) {
+            $userIds = $topic->userIds;
 
-        $userIds = array_values(array_unique($userIds));
+            if (null !== $topic->objectType && null !== $topic->objectId) {
+                $userIds = array_merge(
+                    $userIds,
+                    $this->subscriptionManager->getSubscriberUserIds($topic->topic, $topic->objectType, $topic->objectId),
+                );
+            }
 
-        if (null !== $message->excludeUserId) {
-            $userIds = array_values(array_filter($userIds, static fn (string $id): bool => $id !== $message->excludeUserId));
-        }
+            $userIds = array_values(array_unique($userIds));
 
-        foreach ($userIds as $userId) {
-            $this->deliverer->deliver($userId, $message->topic, $message->params, $message->options);
+            if (null !== $message->excludeUserId) {
+                $userIds = array_values(array_filter($userIds, static fn (string $id): bool => $id !== $message->excludeUserId));
+            }
+
+            foreach ($userIds as $userId) {
+                $this->deliverer->deliver($userId, $topic->topic, $message->params, $message->options);
+            }
         }
     }
 }
