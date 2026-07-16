@@ -2,12 +2,11 @@ alchemy_notifier:
     enabled: '%env(bool:NOTIFICATIONS_ENABLED)%'
     template_namespace: '@notifications'
     default_channels: [email, in_app]
-    # Declare the application notification topics here, e.g.:
-    #   topics:
-    #     asset.comment:
-    #       channels: [email, in_app]
-    #       user_configurable: true
-    topics: {}
+    topics:
+        # Sent to the followers of a collection when an asset is added to it
+        asset_added:
+            channels: [email, in_app]
+            user_configurable: true
 
 twig:
     paths:
