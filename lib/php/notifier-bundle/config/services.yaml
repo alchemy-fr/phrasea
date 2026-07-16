@@ -1,0 +1,44 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    _instanceof:
+        Alchemy\NotifierBundle\Channel\ChannelInterface:
+            tags: ['alchemy_notifier.channel']
+
+    Alchemy\NotifierBundle\:
+        resource: '../src/{Channel,Delivery,Manager,Notification,Repository,Subscriber,Topic,Security,Message}/'
+        exclude:
+            - '../src/Notification/RenderedContent.php'
+            - '../src/Subscriber/SubscriberInfo.php'
+            - '../src/Topic/TopicDefinition.php'
+            - '../src/Message/SendNotification.php'
+
+    Alchemy\NotifierBundle\Controller\:
+        resource: '../src/Controller/'
+        tags: ['controller.service_arguments']
+
+    Alchemy\NotifierBundle\Channel\ChannelRegistry:
+        arguments:
+            $channels: !tagged_iterator alchemy_notifier.channel
+
+    Alchemy\NotifierBundle\Topic\TopicRegistry:
+        arguments:
+            $topics: '%alchemy_notifier.topics%'
+
+    Alchemy\NotifierBundle\Notification\NotificationRenderer:
+        arguments:
+            $templateNamespace: '%alchemy_notifier.template_namespace%'
+
+    Alchemy\NotifierBundle\Channel\InAppChannel:
+        arguments:
+            $channelPrefix: '%alchemy_notifier.in_app.channel_prefix%'
+            $event: '%alchemy_notifier.in_app.event%'
+
+    Alchemy\NotifierBundle\Manager\NotifierManager:
+        arguments:
+            $enabled: '%alchemy_notifier.enabled%'
+
+    Alchemy\NotifierBundle\Subscriber\SubscriberInfoProviderInterface:
+        alias: Alchemy\NotifierBundle\Subscriber\KeycloakSubscriberInfoProvider
