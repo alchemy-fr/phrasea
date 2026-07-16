@@ -46,8 +46,12 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
         }
     }
 
-    public function normalizeConfiguration(array $config, Workspace $workspace): array
+    public function normalizeConfiguration(array $config, ?Workspace $workspace): array
     {
+        if (null === $workspace) {
+            throw new \LogicException(sprintf('%s must have a workspace defined', __CLASS__));
+        }
+
         if (!empty($config['renditions'])) {
             $config['renditions'] = array_map(function (string $rendition) use ($workspace): string {
                 if (!Uuid::isValid($rendition)) {
@@ -61,8 +65,12 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
         return $config;
     }
 
-    public function denormalizeConfiguration(array $config, Workspace $workspace): array
+    public function denormalizeConfiguration(array $config, ?Workspace $workspace): array
     {
+        if (null === $workspace) {
+            throw new \LogicException(sprintf('%s must have a workspace defined', __CLASS__));
+        }
+
         if (!empty($config['renditions'])) {
             $config['renditions'] = array_map(function (string $rendition) use ($workspace): string {
                 if (Uuid::isValid($rendition)) {
