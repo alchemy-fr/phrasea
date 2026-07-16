@@ -36,6 +36,7 @@ return [
     Alchemy\ConfiguratorBundle\AlchemyConfiguratorBundle::class => ['all' => true],
     Symfony\UX\TwigComponent\TwigComponentBundle::class => ['all' => true],
     Alchemy\NotifyBundle\AlchemyNotifyBundle::class => ['all' => true],
+    Alchemy\NotifierBundle\AlchemyNotifierBundle::class => ['all' => true],
     Alchemy\TrackBundle\AlchemyTrackBundle::class => ['all' => true],
     Twig\Extra\TwigExtraBundle\TwigExtraBundle::class => ['all' => true],
 ];

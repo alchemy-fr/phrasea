@@ -17,7 +17,7 @@ use Psr\Log\NullLogger;
  * channel of the topic. Channel failures are logged and do not abort delivery
  * on the other channels.
  */
-final class NotificationDeliverer
+class NotificationDeliverer
 {
     private LoggerInterface $logger;
 
