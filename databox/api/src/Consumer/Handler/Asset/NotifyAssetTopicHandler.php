@@ -27,9 +27,9 @@ readonly class NotifyAssetTopicHandler
         $asset = $this->em->find(Asset::class, $assetId);
 
         $notificationId = match ($message->getEvent()) {
-            Asset::EVENT_UPDATE => 'databox-asset-update',
-            Asset::EVENT_DELETE => 'databox-asset-delete',
-            Asset::EVENT_NEW_COMMENT => 'databox-asset-new-comment',
+            Asset::EVENT_UPDATE => 'asset:update',
+            Asset::EVENT_DELETE => 'asset:delete',
+            Asset::EVENT_NEW_COMMENT => 'asset:new-comment',
             default => throw new \InvalidArgumentException(sprintf('Invalid asset event "%s"', $message->getEvent())),
         };
 
