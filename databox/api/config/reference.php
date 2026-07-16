@@ -2337,6 +2337,18 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     notifier_service?: scalar|Param|null, // Default: null
  *     notify_author?: scalar|Param|null, // Default: "%env(bool:NOTIFY_AUTHOR)%"
  * }
+ * @psalm-type AlchemyNotifierConfig = array{
+ *     enabled?: scalar|Param|null, // Globally enable/disable notification delivery (bool or env placeholder) // Default: "%env(bool:NOTIFICATIONS_ENABLED)%"
+ *     template_namespace?: scalar|Param|null, // Twig namespace under which the application exposes notification templates // Default: "@notifications"
+ *     default_channels?: list<"email"|"sms"|"in_app"|Param>,
+ *     in_app_channel_prefix?: scalar|Param|null, // Pusher channel prefix used for in-app notifications (suffixed with the userId) // Default: "private-user-"
+ *     in_app_event?: scalar|Param|null, // Pusher event name triggered for in-app notifications // Default: "notification"
+ *     topics?: array<string, array{ // Default: []
+ *         channels?: list<"email"|"sms"|"in_app"|Param>,
+ *         importance?: scalar|Param|null, // Default: "normal"
+ *         user_configurable?: bool|Param, // Whether users may toggle this topic in their preferences // Default: true
+ *     }>,
+ * }
  * @psalm-type AlchemyTrackConfig = array{
  *     entities_map?: array<string, scalar|Param|null>,
  * }
@@ -2420,6 +2432,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     alchemy_configurator?: AlchemyConfiguratorConfig,
  *     twig_component?: TwigComponentConfig,
  *     alchemy_notify?: AlchemyNotifyConfig,
+ *     alchemy_notifier?: AlchemyNotifierConfig,
  *     alchemy_track?: AlchemyTrackConfig,
  *     twig_extra?: TwigExtraConfig,
  *     "when@dev"?: array{
@@ -2457,6 +2470,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         alchemy_configurator?: AlchemyConfiguratorConfig,
  *         twig_component?: TwigComponentConfig,
  *         alchemy_notify?: AlchemyNotifyConfig,
+ *         alchemy_notifier?: AlchemyNotifierConfig,
  *         alchemy_track?: AlchemyTrackConfig,
  *         twig_extra?: TwigExtraConfig,
  *     },
@@ -2493,6 +2507,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         alchemy_configurator?: AlchemyConfiguratorConfig,
  *         twig_component?: TwigComponentConfig,
  *         alchemy_notify?: AlchemyNotifyConfig,
+ *         alchemy_notifier?: AlchemyNotifierConfig,
  *         alchemy_track?: AlchemyTrackConfig,
  *         twig_extra?: TwigExtraConfig,
  *     },
@@ -2531,6 +2546,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         alchemy_configurator?: AlchemyConfiguratorConfig,
  *         twig_component?: TwigComponentConfig,
  *         alchemy_notify?: AlchemyNotifyConfig,
+ *         alchemy_notifier?: AlchemyNotifierConfig,
  *         alchemy_track?: AlchemyTrackConfig,
  *         twig_extra?: TwigExtraConfig,
  *     },
