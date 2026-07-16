@@ -19,25 +19,28 @@ class SubscriptionRepository extends ServiceEntityRepository
         parent::__construct($registry, Subscription::class);
     }
 
-    public function findOneForObject(Subscriber $subscriber, string $objectType, string $objectId): ?Subscription
+    public function findOneForObject(Subscriber $subscriber, string $topic, string $objectType, string $objectId): ?Subscription
     {
         return $this->findOneBy([
             'subscriber' => $subscriber,
+            'topic' => $topic,
             'objectType' => $objectType,
             'objectId' => $objectId,
         ]);
     }
 
     /**
-     * @return array<int, string> The userIds of all subscribers following the object
+     * @return array<int, string> The userIds of all subscribers following the topic + object
      */
-    public function findSubscriberUserIds(string $objectType, string $objectId): array
+    public function findSubscriberUserIds(string $topic, string $objectType, string $objectId): array
     {
         $rows = $this->createQueryBuilder('s')
             ->select('DISTINCT sub.userId AS userId')
             ->innerJoin('s.subscriber', 'sub')
+            ->andWhere('s.topic = :topic')
             ->andWhere('s.objectType = :type')
             ->andWhere('s.objectId = :id')
+            ->setParameter('topic', $topic)
             ->setParameter('type', $objectType)
             ->setParameter('id', $objectId)
             ->getQuery()

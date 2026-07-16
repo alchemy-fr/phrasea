@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Asset;
 
+use Alchemy\NotifierBundle\Manager\NotifierManager;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Entity\FollowableInterface;
 use Doctrine\DBAL\LockMode;
@@ -14,6 +15,7 @@ final readonly class ObjectNotifier
     public function __construct(
         private EntityManagerInterface $em,
         private NotifierInterface $notifier,
+        private NotifierManager $notifierManager,
     ) {
     }
 
@@ -25,10 +27,6 @@ final readonly class ObjectNotifier
         array $notificationParams,
         array $notificationOptions = [],
     ): void {
-        if (!$this->isEnabled()) {
-            return;
-        }
-
         $notificationParams['author'] ??= $this->notifier->getUsername($authorId);
         $notificationParams['authorId'] ??= $authorId;
 
@@ -59,12 +57,12 @@ final readonly class ObjectNotifier
         }
 
         if ($shouldNotify) {
+            $this->notifierManager->notifyObject(
+                $object::OBJECT_TYPE,
+                $object->getId(),
+                $topic,
+            );
             $this->notifier->notifyTopic($topicKey, $authorId, $notificationId, $notificationParams, $notificationOptions);
         }
-    }
-
-    public function isEnabled(): bool
-    {
-        return $this->notifier->isEnabled();
     }
 }

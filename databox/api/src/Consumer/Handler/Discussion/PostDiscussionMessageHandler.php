@@ -31,10 +31,6 @@ readonly class PostDiscussionMessageHandler
 
     public function __invoke(PostDiscussionMessage $message): void
     {
-        if (!$this->objectNotifier->isEnabled()) {
-            return;
-        }
-
         /** @var Message $message */
         $message = $this->messageRepository->find($message->getId());
         if (!$message) {
@@ -46,7 +42,7 @@ readonly class PostDiscussionMessageHandler
         $object = $this->discussionManager->getThreadObject($message->getThread());
         $authorId = $message->getAuthorId();
 
-        $notificationId = 'databox-discussion-new-comment';
+        $notificationId = 'discussion:new-comment';
 
         if ($object instanceof Asset) {
             $objectName = $this->assetNameResolver->resolveNameAsString($object);

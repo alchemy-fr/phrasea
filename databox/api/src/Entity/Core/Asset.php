@@ -729,18 +729,16 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
 
     public function getTopicKeys(): array
     {
-        $id = $this->getId();
-
         return [
-            self::getTopicKey(self::EVENT_UPDATE, $id),
-            self::getTopicKey(self::EVENT_DELETE, $id),
-            self::getTopicKey(self::EVENT_NEW_COMMENT, $id),
+            self::getTopicKey(self::EVENT_UPDATE),
+            self::getTopicKey(self::EVENT_DELETE),
+            self::getTopicKey(self::EVENT_NEW_COMMENT),
         ];
     }
 
-    public static function getTopicKey(string $event, string $id): string
+    public static function getTopicKey(string $event): string
     {
-        return 'asset:'.$id.':'.$event;
+        return 'asset:'.$event;
     }
 
     /**
