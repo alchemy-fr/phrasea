@@ -33,12 +33,18 @@ class DeleteAssetByKeysAction extends AbstractController
             throw new BadRequestHttpException('Missing "workspace"');
         }
 
-        $assets = $this->em->getRepository(Asset::class)
-            ->findByKeys($keys, $workspaceId);
+        foreach (array_chunk($keys, 50) as $chunk) {
+            $assets = $this->em->getRepository(Asset::class)
+                ->findByKeys($chunk, $workspaceId);
 
-        foreach ($assets as $asset) {
-            $this->denyAccessUnlessGranted(AbstractVoter::DELETE, $asset);
-            $this->bus->dispatch(new AssetsDelete($asset->getId()));
+            $ids = [];
+            foreach ($assets as $asset) {
+                $this->denyAccessUnlessGranted(AbstractVoter::DELETE, $asset);
+                $ids[] = $asset->getId();
+            }
+            $this->bus->dispatch(new AssetsDelete($ids));
+
+            $this->em->clear();
         }
 
         return new Response('', 204);
