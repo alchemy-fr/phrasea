@@ -12,7 +12,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * A recipient of notifications, uniquely identified by its Keycloak userId.
+ * A recipient of notifications, uniquely identified by its userId.
  */
 #[ORM\Entity(repositoryClass: SubscriberRepository::class)]
 #[ORM\Table(name: 'notifier_subscriber')]
@@ -37,9 +37,9 @@ class Subscriber extends AbstractUuidEntity
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $displayName = null;
 
-    public function __construct(string $userId, ?string $id = null)
+    public function __construct(string $userId)
     {
-        parent::__construct($id);
+        parent::__construct();
         $this->userId = $userId;
     }
 
