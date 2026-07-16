@@ -8,7 +8,7 @@ use Alchemy\NotifierBundle\Entity\Subscription;
 use Alchemy\NotifierBundle\Repository\SubscriptionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class SubscriptionManager
+class SubscriptionManager
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
