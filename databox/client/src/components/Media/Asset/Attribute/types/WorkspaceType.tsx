@@ -39,6 +39,10 @@ export default class WorkspaceType
     }
 
     normalize(value: Workspace | undefined): string | undefined {
+        if (value && typeof value === 'string') {
+            return value;
+        }
+
         return value?.id;
     }
 

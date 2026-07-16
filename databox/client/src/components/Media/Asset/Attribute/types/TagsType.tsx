@@ -49,6 +49,10 @@ export default class TagsType
     }
 
     normalize(value: Tag | undefined): string | undefined {
+        if (value && typeof value === 'string') {
+            return value;
+        }
+
         return value?.id;
     }
 

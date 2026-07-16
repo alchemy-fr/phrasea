@@ -13,7 +13,7 @@ export default class RenditionDefinitionType
     extends BaseType
     implements AttributeTypeInstance<string>
 {
-    public entityIri = EntityName.Entity;
+    public entityIri = EntityName.RenditionDefinition;
 
     renderWidget({
         value,
@@ -33,6 +33,10 @@ export default class RenditionDefinitionType
     }
 
     normalize(value: RenditionDefinition | undefined): string | undefined {
+        if (value && typeof value === 'string') {
+            return value;
+        }
+
         return value?.id;
     }
 

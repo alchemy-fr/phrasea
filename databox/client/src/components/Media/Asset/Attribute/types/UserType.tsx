@@ -39,6 +39,10 @@ export default class UserType
     }
 
     normalize(value: User | undefined): string | undefined {
+        if (value && typeof value === 'string') {
+            return value;
+        }
+
         return value?.id;
     }
 
