@@ -7,6 +7,7 @@ namespace Alchemy\NotifierBundle\Entity;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\NotifierBundle\Repository\SubscriptionRepository;
+use Arthem\ObjectReferenceBundle\Mapping\Attribute\ObjectReference;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -25,18 +26,20 @@ class Subscription extends AbstractUuidEntity
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Subscriber $subscriber;
 
-    #[ORM\Column(type: Types::STRING, length: 255)]
-    private string $objectType;
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
+    private string $topic;
 
-    #[ORM\Column(type: Types::STRING, length: 255)]
-    private string $objectId;
+    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
+    #[ObjectReference(keyLength: 30)]
+    private \Closure|AbstractUuidEntity|null $object = null;
+    private ?string $objectType = null;
+    private ?string $objectId = null;
 
-    public function __construct(Subscriber $subscriber, string $objectType, string $objectId)
+    public function __construct(Subscriber $subscriber, AbstractUuidEntity $object)
     {
         parent::__construct();
         $this->subscriber = $subscriber;
-        $this->objectType = $objectType;
-        $this->objectId = $objectId;
+        $this->object = $object;
     }
 
     public function getSubscriber(): Subscriber
@@ -44,13 +47,17 @@ class Subscription extends AbstractUuidEntity
         return $this->subscriber;
     }
 
-    public function getObjectType(): string
+    public function getObject(): ?AbstractUuidEntity
     {
-        return $this->objectType;
+        if ($this->object instanceof \Closure) {
+            $this->object = $this->object->call($this);
+        }
+
+        return $this->object;
     }
 
-    public function getObjectId(): string
+    public function setObject(?AbstractUuidEntity $object): void
     {
-        return $this->objectId;
+        $this->object = $object;
     }
 }

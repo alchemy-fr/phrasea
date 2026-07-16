@@ -132,6 +132,7 @@ services:
       - TRUSTED_PROXIES
       - VERIFY_SSL
       - VERIFY_HOST
+      - MAILER_DSN
       - POSTGRES_HOST
       - POSTGRES_USER
       - POSTGRES_PASSWORD
