@@ -7,6 +7,9 @@ namespace Alchemy\NotifierBundle\Tests\Manager;
 use Alchemy\NotifierBundle\Delivery\NotificationDeliverer;
 use Alchemy\NotifierBundle\Manager\NotifierManager;
 use Alchemy\NotifierBundle\Message\SendNotification;
+use Alchemy\NotifierBundle\Model\NotifyOptions;
+use Alchemy\NotifierBundle\Model\NotifySelectorDto;
+use Alchemy\NotifierBundle\Model\TopicDto;
 use Alchemy\NotifierBundle\Topic\TopicRegistry;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Envelope;
@@ -14,93 +17,119 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 final class NotifierManagerTest extends TestCase
 {
-    public function testDisabledManagerDoesNothing(): void
+    public function testDisabledManagerDoesNotDispatch(): void
     {
         $bus = $this->createMock(MessageBusInterface::class);
         $bus->expects(self::never())->method('dispatch');
-        $deliverer = $this->createMock(NotificationDeliverer::class);
-        $deliverer->expects(self::never())->method('deliver');
 
-        $manager = new NotifierManager($bus, $deliverer, $this->registry(), false);
-        $manager->notifyUser('u1', 'asset.comment', ['a' => 1]);
+        $manager = $this->manager($bus, false);
+        $manager->notifyUser('u1', 'asset_added', ['a' => 1]);
+        $manager->notify([new NotifySelectorDto(event: 'asset_added', topic: new TopicDto('asset_added'))]);
 
         self::assertFalse($manager->isEnabled());
     }
 
-    public function testEmptyRecipientsDoesNotDispatch(): void
+    public function testEmptySelectorsDoesNotDispatch(): void
     {
         $bus = $this->createMock(MessageBusInterface::class);
         $bus->expects(self::never())->method('dispatch');
 
-        $manager = new NotifierManager($bus, $this->createMock(NotificationDeliverer::class), $this->registry());
-        $manager->notifyUsers([], 'asset.comment');
+        $this->manager($bus)->notify([]);
     }
 
-    public function testNotifyUsersDispatchesDeduplicatedMessage(): void
+    public function testNotifyUserBuildsAUserSelector(): void
     {
         $captured = null;
-        $bus = $this->createMock(MessageBusInterface::class);
-        $bus->expects(self::once())->method('dispatch')->willReturnCallback(
-            function (object $message) use (&$captured): Envelope {
-                $captured = $message;
+        $manager = $this->manager($this->capturingBus($captured));
 
-                return new Envelope($message);
-            }
-        );
-
-        $manager = new NotifierManager($bus, $this->createMock(NotificationDeliverer::class), $this->registry());
-        $manager->notifyUsers(['u1', 'u2', 'u1'], 'asset.comment', ['x' => 1]);
+        $manager->notifyUser('u1', 'asset_added', ['x' => 1]);
 
         self::assertInstanceOf(SendNotification::class, $captured);
-        self::assertSame('asset.comment', $captured->topic);
-        self::assertSame(['u1', 'u2'], $captured->userIds);
-        self::assertSame(['x' => 1], $captured->params);
+        self::assertCount(1, $captured->selectors);
+
+        $selector = $captured->selectors[0];
+        self::assertSame(['u1'], $selector->userIds);
+        self::assertNull($selector->event);
+        self::assertSame('asset_added', $selector->topic->topic);
+        self::assertSame(['x' => 1], $selector->topic->params);
+        self::assertNull($captured->excludeUserId);
     }
 
-    public function testSyncOptionDeliversInline(): void
-    {
-        $bus = $this->createMock(MessageBusInterface::class);
-        $bus->expects(self::never())->method('dispatch');
-
-        $deliverer = $this->createMock(NotificationDeliverer::class);
-        $calls = [];
-        $deliverer->expects(self::exactly(2))->method('deliver')->willReturnCallback(
-            function (string $userId) use (&$calls): void {
-                $calls[] = $userId;
-            }
-        );
-
-        $manager = new NotifierManager($bus, $deliverer, $this->registry());
-        $manager->notifyUsers(['u1', 'u2'], 'asset.comment', [], ['sync' => true]);
-
-        self::assertSame(['u1', 'u2'], $calls);
-    }
-
-    public function testNotifyObjectDispatchesWithTargetAndExclusion(): void
+    public function testNotifyUsersCarriesEveryRecipient(): void
     {
         $captured = null;
-        $bus = $this->createMock(MessageBusInterface::class);
-        $bus->expects(self::once())->method('dispatch')->willReturnCallback(
-            function (object $message) use (&$captured): Envelope {
-                $captured = $message;
+        $manager = $this->manager($this->capturingBus($captured));
 
-                return new Envelope($message);
-            }
-        );
-
-        $manager = new NotifierManager($bus, $this->createMock(NotificationDeliverer::class), $this->registry());
-        $manager->notify('asset', '42', 'asset.comment', ['x' => 1], ['exclude_user_id' => 'author']);
+        $manager->notifyUsers(['u1', 'u2'], 'asset_added');
 
         self::assertInstanceOf(SendNotification::class, $captured);
-        self::assertSame('asset', $captured->objectType);
-        self::assertSame('42', $captured->objectId);
+        self::assertSame(['u1', 'u2'], $captured->selectors[0]->userIds);
+    }
+
+    public function testNotifyDispatchesSelectorsAndExclusion(): void
+    {
+        $captured = null;
+        $manager = $this->manager($this->capturingBus($captured));
+
+        $selector = new NotifySelectorDto(
+            event: 'asset_added',
+            objectType: 'collection',
+            objectId: '42',
+            topic: new TopicDto('asset_added', ['x' => 1]),
+        );
+        $manager->notify([$selector], new NotifyOptions(excludeUserId: 'author'));
+
+        self::assertInstanceOf(SendNotification::class, $captured);
+        self::assertSame([$selector], $captured->selectors);
         self::assertSame('author', $captured->excludeUserId);
     }
 
-    private function registry(): TopicRegistry
+    public function testUnknownTopicThrowsBeforeDispatch(): void
     {
-        return new TopicRegistry([
-            'asset.comment' => ['channels' => ['email', 'in_app'], 'importance' => 'normal', 'user_configurable' => true],
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects(self::never())->method('dispatch');
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $this->manager($bus)->notify([
+            new NotifySelectorDto(event: 'whatever', topic: new TopicDto('not_declared')),
         ]);
+    }
+
+    public function testNotifyOptionsAreOptional(): void
+    {
+        $captured = null;
+        $manager = $this->manager($this->capturingBus($captured));
+
+        $manager->notify([new NotifySelectorDto(event: 'asset_added', topic: new TopicDto('asset_added'))]);
+
+        self::assertInstanceOf(SendNotification::class, $captured);
+        self::assertNull($captured->excludeUserId);
+    }
+
+    private function capturingBus(?object &$captured): MessageBusInterface
+    {
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects(self::once())->method('dispatch')->willReturnCallback(
+            function (object $message) use (&$captured): Envelope {
+                $captured = $message;
+
+                return new Envelope($message);
+            }
+        );
+
+        return $bus;
+    }
+
+    private function manager(MessageBusInterface $bus, bool $enabled = true): NotifierManager
+    {
+        return new NotifierManager(
+            $bus,
+            $this->createMock(NotificationDeliverer::class),
+            new TopicRegistry([
+                'asset_added' => ['channels' => ['email', 'in_app'], 'importance' => 'normal', 'user_configurable' => true],
+            ]),
+            $enabled,
+        );
     }
 }

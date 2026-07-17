@@ -43,6 +43,11 @@ final readonly class SendNotificationHandler
             }
 
             foreach ($userIds as $userId) {
+                // A user matched by several selectors is only notified once
+                if (isset($sent[$userId])) {
+                    continue;
+                }
+
                 $this->deliverer->deliver($userId, $topic->topic, $topic->params, $message->options);
                 $sent[$userId] = true;
             }
