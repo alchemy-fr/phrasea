@@ -467,19 +467,17 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
 
     public function getTopicKeys(): array
     {
-        $id = $this->getId();
-
         return [
-            self::getTopicKey(self::EVENT_ASSET_ADD, $id),
-            self::getTopicKey(self::EVENT_ASSET_REMOVE, $id),
-            self::getTopicKey(self::EVENT_ASSET_NEW_COMMENT, $id),
-            self::getTopicKey(self::EVENT_ASSET_UPDATE, $id),
+            self::getTopicKey(self::EVENT_ASSET_ADD),
+            self::getTopicKey(self::EVENT_ASSET_REMOVE),
+            self::getTopicKey(self::EVENT_ASSET_NEW_COMMENT),
+            self::getTopicKey(self::EVENT_ASSET_UPDATE),
         ];
     }
 
-    public static function getTopicKey(string $event, string $id): string
+    public static function getTopicKey(string $event): string
     {
-        return 'collection:'.$id.':'.$event;
+        return 'collection:'.$event;
     }
 
     public function getObjectDisplayName(): string

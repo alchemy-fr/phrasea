@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\NotifierBundle\Manager;
 
 use Alchemy\NotifierBundle\Entity\Subscription;
+use Alchemy\NotifierBundle\Model\NotifySelectorDto;
 use Alchemy\NotifierBundle\Repository\SubscriptionRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -17,30 +18,30 @@ class SubscriptionManager
     ) {
     }
 
-    public function subscribe(string $userId, string $topic, ?string $objectType = null, ?string $objectId = null): Subscription
+    public function subscribe(string $userId, NotifySelectorDto $selector): Subscription
     {
         $subscriber = $this->subscriberManager->getOrCreate($userId);
 
-        $subscription = $this->repository->findOneForObject($subscriber, $topic, $objectType, $objectId);
+        $subscription = $this->repository->findOneForObject($subscriber, $selector);
         if (null !== $subscription) {
             return $subscription;
         }
 
-        $subscription = new Subscription($subscriber, $topic, $objectType, $objectId);
+        $subscription = new Subscription($subscriber, $selector->event, $selector->objectType, $selector->objectId);
         $this->em->persist($subscription);
         $this->em->flush();
 
         return $subscription;
     }
 
-    public function unsubscribe(string $userId, string $topic, ?string $objectType = null, ?string $objectId = null): void
+    public function unsubscribe(string $userId, NotifySelectorDto $selector): void
     {
         $subscriber = $this->subscriberManager->find($userId);
         if (null === $subscriber) {
             return;
         }
 
-        $subscription = $this->repository->findOneForObject($subscriber, $topic, $objectType, $objectId);
+        $subscription = $this->repository->findOneForObject($subscriber, $selector);
         if (null === $subscription) {
             return;
         }
@@ -49,21 +50,21 @@ class SubscriptionManager
         $this->em->flush();
     }
 
-    public function isSubscribed(string $userId, string $objectType, string $objectId): bool
+    public function isSubscribed(string $userId, NotifySelectorDto $selector): bool
     {
         $subscriber = $this->subscriberManager->find($userId);
         if (null === $subscriber) {
             return false;
         }
 
-        return null !== $this->repository->findOneForObject($subscriber, $objectType, $objectId);
+        return null !== $this->repository->findOneForObject($subscriber, $selector);
     }
 
     /**
      * @return array<int, string>
      */
-    public function getSubscriberUserIds(string $topic, string $objectType, string $objectId): array
+    public function getSubscriberUserIds(NotifySelectorDto $selector): array
     {
-        return $this->repository->findSubscriberUserIds($objectType, $objectId);
+        return $this->repository->findSubscriberUserIds($selector);
     }
 }

@@ -57,7 +57,7 @@ final readonly class ObjectNotifier
         }
 
         if ($shouldNotify) {
-            $this->notifierManager->notifyObject(
+            $this->notifierManager->notify(
                 $object::OBJECT_TYPE,
                 $object->getId(),
                 $topic,

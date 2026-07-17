@@ -27,7 +27,7 @@
         }
     ],
     "require": {
-        "php": "^8.5",
+        "php": "^8.4",
         "alchemy/auth-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
         "doctrine/doctrine-bundle": "^2.11",

@@ -6,6 +6,7 @@ namespace Alchemy\NotifierBundle\Repository;
 
 use Alchemy\NotifierBundle\Entity\Subscriber;
 use Alchemy\NotifierBundle\Entity\Subscription;
+use Alchemy\NotifierBundle\Model\NotifySelectorDto;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,30 +20,30 @@ class SubscriptionRepository extends ServiceEntityRepository
         parent::__construct($registry, Subscription::class);
     }
 
-    public function findOneForObject(Subscriber $subscriber, string $topic, string $objectType, string $objectId): ?Subscription
+    public function findOneForObject(Subscriber $subscriber, NotifySelectorDto $selector): ?Subscription
     {
         return $this->findOneBy([
             'subscriber' => $subscriber,
-            'topic' => $topic,
-            'objectType' => $objectType,
-            'objectId' => $objectId,
+            'event' => $selector->event,
+            'objectType' => $selector->objectType,
+            'objectId' => $selector->objectId,
         ]);
     }
 
     /**
      * @return array<int, string> The userIds of all subscribers following the topic + object
      */
-    public function findSubscriberUserIds(string $topic, string $objectType, string $objectId): array
+    public function findSubscriberUserIds(NotifySelectorDto $selector): array
     {
         $rows = $this->createQueryBuilder('s')
             ->select('DISTINCT sub.userId AS userId')
             ->innerJoin('s.subscriber', 'sub')
-            ->andWhere('s.topic = :topic')
+            ->andWhere('s.event = :event')
             ->andWhere('s.objectType = :type')
             ->andWhere('s.objectId = :id')
-            ->setParameter('topic', $topic)
-            ->setParameter('type', $objectType)
-            ->setParameter('id', $objectId)
+            ->setParameter('event', $selector->event)
+            ->setParameter('type', $selector->objectType)
+            ->setParameter('id', $selector->objectId)
             ->getQuery()
             ->getScalarResult()
         ;
