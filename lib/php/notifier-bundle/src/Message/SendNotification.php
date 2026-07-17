@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Alchemy\NotifierBundle\Message;
 
-use Alchemy\NotifierBundle\Model\NotifyTopicDto;
+use Alchemy\NotifierBundle\Model\NotifySelectorDto;
+use Alchemy\NotifierBundle\Model\TopicDto;
 
 /**
  * Asynchronous request to deliver a topic notification.
@@ -17,13 +18,12 @@ use Alchemy\NotifierBundle\Model\NotifyTopicDto;
 final readonly class SendNotification
 {
     /**
-     * @param array<int, NotifyTopicDto> $topics
-     * @param array<string, mixed>       $params
-     * @param array<string, mixed>       $options
+     * @param array<int, NotifySelectorDto> $selectors
+     * @param array<string, mixed>          $options
      */
     public function __construct(
-        public array $topics,
-        public array $params = [],
+        public array $selectors,
+        public ?TopicDto $topic = null,
         public array $options = [],
         public ?string $excludeUserId = null,
     ) {

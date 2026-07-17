@@ -89,7 +89,7 @@ final class NotifierManagerTest extends TestCase
         );
 
         $manager = new NotifierManager($bus, $this->createMock(NotificationDeliverer::class), $this->registry());
-        $manager->notifyObject('asset', '42', 'asset.comment', ['x' => 1], ['exclude_user_id' => 'author']);
+        $manager->notify('asset', '42', 'asset.comment', ['x' => 1], ['exclude_user_id' => 'author']);
 
         self::assertInstanceOf(SendNotification::class, $captured);
         self::assertSame('asset', $captured->objectType);

@@ -6,7 +6,8 @@ namespace Alchemy\NotifierBundle\Manager;
 
 use Alchemy\NotifierBundle\Delivery\NotificationDeliverer;
 use Alchemy\NotifierBundle\Message\SendNotification;
-use Alchemy\NotifierBundle\Model\NotifyTopicDto;
+use Alchemy\NotifierBundle\Model\NotifySelectorDto;
+use Alchemy\NotifierBundle\Model\TopicDto;
 use Alchemy\NotifierBundle\Topic\TopicRegistry;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -43,75 +44,35 @@ final readonly class NotifierManager
      * @param array<string, mixed> $params
      * @param array<string, mixed> $options
      */
-    public function notifyUsers(array $userIds, string $topic, array $params = [], array $options = []): void
+    public function notifyUsers(array $userIds, string $topic, array $params = [], ?NotifyOptions $options = null): void
     {
-        if (!$this->enabled || [] === $userIds) {
-            return;
-        }
-
-        $this->topicRegistry->get($topic);
-
-        if ($options['sync'] ?? false) {
-            foreach (array_values(array_unique($userIds)) as $userId) {
-                $this->deliverer->deliver($userId, $topic, $params, $options);
-            }
-
-            return;
-        }
-
-        $this->bus->dispatch(new SendNotification(
-            topic: $topic,
-            userIds: array_values(array_unique($userIds)),
-            params: $params,
-            options: $options,
-        ));
+        $this->notify(
+            [
+                new NotifySelectorDto(
+                    userIds: $userIds,
+                    topic: new TopicDto(
+                        $topic,
+                        $params,
+                    ),
+                ),
+            ],
+            $options,
+        );
     }
 
     /**
-     * Notify every subscriber following the given object.
-     *
-     * @param array<string, mixed> $params
-     * @param array<string, mixed> $options `exclude_user_id` skips a user (e.g. the author)
+     * Notify by selectors.
      */
-    public function notifyObject(string $objectType, string $objectId, string $topic, array $params = [], array $options = []): void
+    public function notify(array $selectors, ?NotifyOptions $options = null): void
     {
         if (!$this->enabled) {
             return;
         }
 
-        $this->topicRegistry->get($topic);
-
         $this->bus->dispatch(new SendNotification(
-            topic: $topic,
-            objectType: $objectType,
-            objectId: $objectId,
-            params: $params,
+            selectors: $selectors,
             options: $options,
-            excludeUserId: $options['exclude_user_id'] ?? null,
-        ));
-    }
-
-    /**
-     * Notify every subscriber following the first met topic.
-     *
-     * @param NotifyTopicDto[]     $topics
-     * @param array<string, mixed> $options `exclude_user_id` skips a user (e.g. the author)
-     */
-    public function notifyObjects(array $topics, array $params = [], array $options = []): void
-    {
-        if (!$this->enabled) {
-            return;
-        }
-
-        $this->topicRegistry->get($topic);
-
-        $this->bus->dispatch(new SendNotification(
-            topic: $topic,
-            objectType: $objectType,
-            objectId: $objectId,
-            params: $params,
-            options: $options,
-            excludeUserId: $options['exclude_user_id'] ?? null,
+            excludeUserId: $options?->excludeUserId,
         ));
     }
 }

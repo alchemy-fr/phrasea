@@ -20,25 +20,31 @@ final readonly class SendNotificationHandler
     public function __invoke(SendNotification $message): void
     {
         $sent = [];
+        foreach ($message->selectors as $selector) {
+            $userIds = $selector->userIds;
 
-        foreach ($message->topics as $topic) {
-            $userIds = $topic->userIds;
+            $topic = $selector->topic ?? $message->topic;
+            if (null === $topic) {
+                throw new \InvalidArgumentException('No subscription topic');
+            }
 
-            if (null !== $topic->objectType && null !== $topic->objectId) {
+            if ($selector->event) {
                 $userIds = array_merge(
                     $userIds,
-                    $this->subscriptionManager->getSubscriberUserIds($topic->topic, $topic->objectType, $topic->objectId),
+                    $this->subscriptionManager->getSubscriberUserIds($selector),
                 );
             }
 
             $userIds = array_values(array_unique($userIds));
 
             if (null !== $message->excludeUserId) {
-                $userIds = array_values(array_filter($userIds, static fn (string $id): bool => $id !== $message->excludeUserId));
+                $userIds = array_values(array_filter($userIds, static fn (string $id,
+                ): bool => $id !== $message->excludeUserId));
             }
 
             foreach ($userIds as $userId) {
-                $this->deliverer->deliver($userId, $topic->topic, $message->params, $message->options);
+                $this->deliverer->deliver($userId, $topic->topic, $topic->params, $message->options);
+                $sent[$userId] = true;
             }
         }
     }

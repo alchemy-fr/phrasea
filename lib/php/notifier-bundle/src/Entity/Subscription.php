@@ -15,9 +15,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 #[ORM\Entity(repositoryClass: SubscriptionRepository::class)]
 #[ORM\Table(name: 'notifier_subscription')]
-#[ORM\UniqueConstraint(name: 'uniq_notifier_subscription', fields: ['subscriber', 'topic', 'objectType', 'objectId'])]
-#[ORM\Index(name: 'idx_notifier_subscription_topic', fields: ['topic'])]
-#[ORM\Index(name: 'idx_notifier_subscription_topic_object', fields: ['topic', 'objectType', 'objectId'])]
+#[ORM\UniqueConstraint(name: 'uniq_notifier_subscription', fields: ['subscriber', 'event', 'objectType', 'objectId'])]
+#[ORM\Index(name: 'idx_notifier_subscription_event', fields: ['event'])]
+#[ORM\Index(name: 'idx_notifier_subscription_event_object', fields: ['event', 'objectType', 'objectId'])]
 #[ORM\Index(name: 'idx_notifier_subscription_object', fields: ['objectType', 'objectId'])]
 class Subscription extends AbstractUuidEntity
 {
@@ -28,7 +28,7 @@ class Subscription extends AbstractUuidEntity
     private Subscriber $subscriber;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
-    private string $topic;
+    private string $event;
 
     #[ORM\Column(type: Types::STRING, length: 30, nullable: true)]
     private ?string $objectType = null;
@@ -36,10 +36,13 @@ class Subscription extends AbstractUuidEntity
     #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
     private ?string $objectId = null;
 
-    public function __construct(Subscriber $subscriber, string $topic, ?string $objectType = null, ?string $objectId = null)
+    public function __construct(Subscriber $subscriber, string $event, ?string $objectType = null, ?string $objectId = null)
     {
+        if (empty($event)) {
+            throw new \InvalidArgumentException('$event cannot be empty');
+        }
         parent::__construct();
-        $this->topic = $topic;
+        $this->event = $event;
         $this->subscriber = $subscriber;
         $this->objectType = $objectType;
         $this->objectId = $objectId;
