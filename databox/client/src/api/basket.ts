@@ -6,7 +6,7 @@ import {PaginationParams} from '@alchemy/phrasea-framework';
 
 export type GetBasketOptions = {
     query?: string;
-    displayArchived?: boolean;
+    includeArchived?: boolean;
     page?: number;
 } & PaginationParams;
 

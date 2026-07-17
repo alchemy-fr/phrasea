@@ -33,8 +33,14 @@ class BasketSearch extends AbstractSearch
             $filterQueries[] = $aclBoolQuery;
         }
 
-        if (false === filter_var($options['displayArchived'] ?? null, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) {
-            $filterQueries[] = new Query\Term(['isArchived' => false]);
+        $isArchived = filter_var($options['archived'] ?? null, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
+
+        if (filter_var($options['includeArchived'] ?? null, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false) {
+            $isArchived = null;
+        }
+
+        if (null !== $isArchived) {
+            $filterQueries[] = new Query\Term(['isArchived' => $isArchived]);
         }
 
         $maxLimit = 30;

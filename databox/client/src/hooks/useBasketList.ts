@@ -67,7 +67,7 @@ export function useBasketList({onBasketCreate}: Props = {}) {
 
     const onArchive = (data: Basket): void => {
         onContextMenuClose();
-        archiveBasket(data.id, searchQueryOptions.displayArchived || false);
+        archiveBasket(data.id, searchQueryOptions.includeArchived || false);
         toast.success(
             t('archive.basket.confirmed', 'Basket has been archived!') as string
         );

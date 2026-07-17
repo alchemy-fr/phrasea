@@ -50,7 +50,7 @@ function BasketsPanel({selected}: Props) {
 
     const setDisplayArchiveHandler = (value: boolean) => {
         setDisplayArchive(value);
-        setSearchQueryOptions({displayArchived: value});
+        setSearchQueryOptions({includeArchived: value});
     };
 
     return (
