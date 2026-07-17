@@ -60,6 +60,10 @@ export default class AttributeEntityType
     }
 
     normalize(value: AttributeEntity | undefined): string | undefined {
+        if (value && typeof value === 'string') {
+            return value;
+        }
+
         return value?.id;
     }
 
