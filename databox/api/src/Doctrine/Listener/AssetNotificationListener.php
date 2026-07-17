@@ -48,7 +48,7 @@ final readonly class AssetNotificationListener
         $ownerId = $asset->getOwnerId();
 
         $this->postFlushStack->addCallback(function () use ($collectionId, $params, $ownerId): void {
-            $this->notifier->notifyObject('collection', $collectionId, 'asset_added', $params, [
+            $this->notifier->notify('collection', $collectionId, 'asset_added', $params, [
                 'exclude_user_id' => $ownerId,
             ]);
         });
