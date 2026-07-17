@@ -6,6 +6,7 @@ namespace Alchemy\NotifierBundle\Manager;
 
 use Alchemy\NotifierBundle\Delivery\NotificationDeliverer;
 use Alchemy\NotifierBundle\Message\SendNotification;
+use Alchemy\NotifierBundle\Model\NotifyOptions;
 use Alchemy\NotifierBundle\Model\NotifySelectorDto;
 use Alchemy\NotifierBundle\Model\TopicDto;
 use Alchemy\NotifierBundle\Topic\TopicRegistry;
@@ -32,9 +33,8 @@ final readonly class NotifierManager
 
     /**
      * @param array<string, mixed> $params
-     * @param array<string, mixed> $options
      */
-    public function notifyUser(string $userId, string $topic, array $params = [], array $options = []): void
+    public function notifyUser(string $userId, string $topic, array $params = [], ?NotifyOptions $options = null): void
     {
         $this->notifyUsers([$userId], $topic, $params, $options);
     }
@@ -42,7 +42,6 @@ final readonly class NotifierManager
     /**
      * @param array<int, string>   $userIds
      * @param array<string, mixed> $params
-     * @param array<string, mixed> $options
      */
     public function notifyUsers(array $userIds, string $topic, array $params = [], ?NotifyOptions $options = null): void
     {
@@ -62,16 +61,24 @@ final readonly class NotifierManager
 
     /**
      * Notify by selectors.
+     *
+     * @param array<int, NotifySelectorDto> $selectors
      */
     public function notify(array $selectors, ?NotifyOptions $options = null): void
     {
-        if (!$this->enabled) {
+        if (!$this->enabled || [] === $selectors) {
             return;
+        }
+
+        // Fail fast on an unknown topic, rather than in the worker
+        foreach ($selectors as $selector) {
+            if (null !== $selector->topic) {
+                $this->topicRegistry->get($selector->topic->topic);
+            }
         }
 
         $this->bus->dispatch(new SendNotification(
             selectors: $selectors,
-            options: $options,
             excludeUserId: $options?->excludeUserId,
         ));
     }

@@ -348,9 +348,9 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     final public const string GROUP_LIST = 'asset:i';
     final public const string GROUP_WRITE = 'asset:w';
 
-    final public const string EVENT_UPDATE = 'update';
-    final public const string EVENT_DELETE = 'delete';
-    final public const string EVENT_NEW_COMMENT = 'new_comment';
+    final public const string EVENT_UPDATE = 'asset:update';
+    final public const string EVENT_DELETE = 'asset:delete';
+    final public const string EVENT_NEW_COMMENT = 'asset:new_comment';
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $microseconds = 0;

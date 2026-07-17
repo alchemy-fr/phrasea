@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service\Asset;
 
 use Alchemy\NotifierBundle\Manager\NotifierManager;
+use Alchemy\NotifierBundle\Model\NotifySelectorDto;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Entity\FollowableInterface;
 use Doctrine\DBAL\LockMode;
@@ -57,7 +58,12 @@ final readonly class ObjectNotifier
         }
 
         if ($shouldNotify) {
-            $this->notifierManager->notify(
+            $this->notifierManager->notify([
+                new NotifySelectorDto(
+                    $event,
+
+                )
+            ]
                 $object::OBJECT_TYPE,
                 $object->getId(),
                 $topic,

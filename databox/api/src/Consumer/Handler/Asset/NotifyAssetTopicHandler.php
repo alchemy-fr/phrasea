@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Asset;
 
+use Alchemy\NotifierBundle\Manager\NotifierManager;
+use Alchemy\NotifierBundle\Model\NotifyOptions;
+use Alchemy\NotifierBundle\Model\NotifySelectorDto;
+use Alchemy\NotifierBundle\Model\TopicDto;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Service\Asset\Attribute\AssetNameResolver;
-use App\Service\Asset\ObjectNotifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -16,8 +19,8 @@ readonly class NotifyAssetTopicHandler
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private ObjectNotifier $objectNotifier,
         private AssetNameResolver $assetNameResolver,
+        private NotifierManager $notifierManager,
     ) {
     }
 
@@ -25,12 +28,13 @@ readonly class NotifyAssetTopicHandler
     {
         $assetId = $message->getAssetId();
         $asset = $this->em->find(Asset::class, $assetId);
+        $event = $message->getEvent();
 
-        $notificationId = match ($message->getEvent()) {
-            Asset::EVENT_UPDATE => 'asset:update',
-            Asset::EVENT_DELETE => 'asset:delete',
-            Asset::EVENT_NEW_COMMENT => 'asset:new-comment',
-            default => throw new \InvalidArgumentException(sprintf('Invalid asset event "%s"', $message->getEvent())),
+        $topic = match ($event) {
+            Asset::EVENT_UPDATE => 'asset_update',
+            Asset::EVENT_DELETE => 'asset_delete',
+            Asset::EVENT_NEW_COMMENT => 'asset_new_comment',
+            default => throw new \InvalidArgumentException(sprintf('Invalid asset event "%s"', $event)),
         };
 
         $assetName = $asset ? $this->assetNameResolver->resolveNameAsString($asset) : null;
@@ -40,26 +44,34 @@ readonly class NotifyAssetTopicHandler
             'url' => '/assets/'.$assetId,
         ];
 
-        $this->objectNotifier->notifyObject(
-            $asset,
-            $message->getEvent(),
-            $notificationId,
-            $message->getAuthorId(),
-            $notificationParams,
-        );
+        $selectors = [
+            new NotifySelectorDto(
+                $event,
+                objectType: $asset::OBJECT_TYPE,
+                objectId: $asset->getId(),
+                topic: new TopicDto(
+                    $topic,
+                    $notificationParams,
+                )
+            ),
+        ];
 
-        if (Asset::EVENT_UPDATE === $message->getEvent()) {
+        if (Asset::EVENT_UPDATE === $event) {
             foreach ($asset->getCollections() as $assetCollection) {
                 $notificationParams['collection'] = $assetCollection->getCollection()->getAbsoluteName();
 
-                $this->objectNotifier->notifyObject(
-                    $assetCollection->getCollection(),
-                    Collection::EVENT_ASSET_UPDATE,
-                    $notificationId,
-                    $message->getAuthorId(),
-                    $notificationParams
+                $selectors[] = new NotifySelectorDto(
+                    $event,
+                    objectType: Collection::OBJECT_TYPE,
+                    objectId: $assetCollection->getCollection()->getId(),
+                    topic: new TopicDto(
+                        $topic,
+                        $notificationParams,
+                    )
                 );
             }
         }
+
+        $this->notifierManager->notify($selectors, new NotifyOptions(excludeUserId: $message->getAuthorId()));
     }
 }

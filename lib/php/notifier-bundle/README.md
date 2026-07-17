@@ -15,7 +15,7 @@ API.
 | Concept | Description |
 |---|---|
 | **Subscriber** | A notifiable user, keyed by `userId`. Contact info (email, phone, locale, name) is resolved from Keycloak on first use. |
-| **Subscription** | A link between a subscriber and an object it follows, identified by `(objectType, objectId)`. |
+| **Subscription** | A subscriber's interest in an `event`, optionally scoped to an object `(objectType, objectId)`. Without an object, it is global to the event. |
 | **Topic** | A notification kind (e.g. `asset.comment`), declared in config, delivered through one or more channels. |
 | **Channel** | `email`, `sms` or `in_app`. |
 | **Preference** | A per-subscriber opt-out for a `(topic, channel)` pair. Enabled by default. |
@@ -113,24 +113,50 @@ channel, that channel is skipped.
 ```php
 use Alchemy\NotifierBundle\Manager\NotifierManager;
 use Alchemy\NotifierBundle\Manager\SubscriptionManager;
+use Alchemy\NotifierBundle\Model\NotifyOptions;
+use Alchemy\NotifierBundle\Model\NotifySelectorDto;
+use Alchemy\NotifierBundle\Model\TopicDto;
 
-// Notify a single user
+// Notify a single user directly
 $notifier->notifyUser($userId, 'asset.comment', [
     'assetTitle' => $asset->getTitle(),
-    'author' => $author->getName(),
     'comment' => $message,
-]);
-
-// Subscribe a user to an object, then notify all its followers
-$subscriptions->subscribe($userId, 'asset', $asset->getId());
-$notifier->notifyObject('asset', $asset->getId(), 'asset.comment', $params, [
-    'exclude_user_id' => $authorId, // don't notify the author
 ]);
 ```
 
-By default sending is dispatched asynchronously through Messenger
+Recipients are described by **selectors** (`NotifySelectorDto`). A selector targets
+users explicitly (`userIds`), and/or everyone subscribed to an `event` — optionally
+scoped to an object (`objectType` + `objectId`). Each selector carries the `TopicDto`
+(topic + template params) to send:
+
+```php
+// Subscribe a user to an event on a given object
+$subscriptions->subscribe($userId, new NotifySelectorDto(
+    event: 'asset.comment',
+    objectType: 'asset',
+    objectId: $asset->getId(),
+));
+
+// Notify every subscriber of that event on that object
+$notifier->notify(
+    [
+        new NotifySelectorDto(
+            event: 'asset.comment',
+            objectType: 'asset',
+            objectId: $asset->getId(),
+            topic: new TopicDto('asset.comment', $params),
+        ),
+    ],
+    new NotifyOptions(excludeUserId: $authorId), // don't notify the author
+);
+```
+
+A selector must provide at least an `event` or some `userIds`. An `event` subscription
+without `objectType`/`objectId` is global to that event; object-scoped notifications are
+matched exactly (an object-scoped selector does not reach global subscribers).
+
+Sending is dispatched asynchronously through Messenger
 (`Alchemy\NotifierBundle\Message\SendNotification`); route it to a transport as usual.
-Pass `['sync' => true]` in `$options` to deliver inline.
 
 ## REST API
 
