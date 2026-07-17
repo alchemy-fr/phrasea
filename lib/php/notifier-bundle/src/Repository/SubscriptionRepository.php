@@ -35,18 +35,28 @@ class SubscriptionRepository extends ServiceEntityRepository
      */
     public function findSubscriberUserIds(NotifySelectorDto $selector): array
     {
-        $rows = $this->createQueryBuilder('s')
+        $qb = $this->createQueryBuilder('s')
             ->select('DISTINCT sub.userId AS userId')
             ->innerJoin('s.subscriber', 'sub')
             ->andWhere('s.event = :event')
-            ->andWhere('s.objectType = :type')
-            ->andWhere('s.objectId = :id')
             ->setParameter('event', $selector->event)
-            ->setParameter('type', $selector->objectType)
-            ->setParameter('id', $selector->objectId)
-            ->getQuery()
-            ->getScalarResult()
         ;
+
+        // A null object means the subscription is not scoped to an object:
+        // it must be matched with IS NULL, as "= NULL" is never true.
+        if (null === $selector->objectType) {
+            $qb->andWhere('s.objectType IS NULL');
+        } else {
+            $qb->andWhere('s.objectType = :type')->setParameter('type', $selector->objectType);
+        }
+
+        if (null === $selector->objectId) {
+            $qb->andWhere('s.objectId IS NULL');
+        } else {
+            $qb->andWhere('s.objectId = :id')->setParameter('id', $selector->objectId);
+        }
+
+        $rows = $qb->getQuery()->getScalarResult();
 
         return array_map(static fn (array $r): string => (string) $r['userId'], $rows);
     }

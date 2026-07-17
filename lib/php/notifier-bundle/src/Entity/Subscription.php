@@ -53,6 +53,11 @@ class Subscription extends AbstractUuidEntity
         return $this->subscriber;
     }
 
+    public function getEvent(): string
+    {
+        return $this->event;
+    }
+
     public function getObjectType(): ?string
     {
         return $this->objectType;
