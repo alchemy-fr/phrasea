@@ -7,7 +7,7 @@ import {
 } from './types';
 import {CPhraseanetRecord, CPhraseanetStory} from './CPhraseanetRecord';
 import PhraseanetClient, {ORDER_ASC} from './phraseanetClient';
-import {AttrPolicyIndex, createAsset, TagIndex} from './shared';
+import {AttrPolicyIndex, createAsset, TagIndex, getStorySourceRecord, extractRenditionsFromRecord} from './shared';
 import {getConfig, getStrict} from '../../configLoader';
 import {getEnv} from '../../env';
 import {
@@ -588,6 +588,21 @@ async function importStory(
             throw e;
         }
 
+        // Extract source record for story renditions (Priority: cover_record_id > first child)
+        const sourceRecord = getStorySourceRecord(story);
+        let renditionsFromSource: any[] = [];
+        if (sourceRecord) {
+            logger.info(
+                `Extracting story renditions from source record ${sourceRecord.record_id}`
+            );
+            renditionsFromSource = extractRenditionsFromRecord(
+                sourceRecord,
+                subdefToRendition,
+                importFiles,
+                logger
+            );
+        }
+
         const storyAsset = await createAsset(
             workspaceId,
             importFiles,
@@ -606,6 +621,11 @@ async function importStory(
             subdefToRendition,
             logger
         );
+
+        // Replace story asset renditions with those from source record if available
+        if (renditionsFromSource.length > 0) {
+            storyAsset.renditions = renditionsFromSource;
+        }
 
         const alternateUrls = getAlternateUrls(storyAsset, location);
 

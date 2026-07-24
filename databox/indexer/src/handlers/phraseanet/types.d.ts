@@ -191,6 +191,7 @@ export type PhraseanetStory = {
     created_on: string;
     updated_on: string;
     children_total: number;
+    cover_record_id?: number | null;
     subdefs: PhraseanetSubdef[];
     status: PhraseanetStatusBit[];
     metadata: PhraseanetMetadata[];

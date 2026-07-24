@@ -116,10 +116,18 @@ export class CPhraseanetStory extends CPhraseanetRecordBase {
     story_id: string = '';
     phrasea_type: string = 'story';
     children_total: number = 0;
+    cover_record_id?: number | null;
+    children: CPhraseanetRecord[] = [];
+
     constructor(s: PhraseanetStory, client: PhraseanetClient) {
         super(s, client);
         this.story_id = s.story_id;
         this.children_total = s.children_total;
+        this.cover_record_id = s.cover_record_id;
+        // Convert PhraseanetRecord children to CPhraseanetRecord instances
+        this.children = (s.children ?? []).map(
+            child => new CPhraseanetRecord(child, client)
+        );
     }
 
     async getChildren() {

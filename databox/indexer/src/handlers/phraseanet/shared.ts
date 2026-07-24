@@ -16,6 +16,81 @@ export type TagIndex = Record<number, string>;
 
 export type AttrPolicyIndex = Record<string, AttributePolicy>;
 
+/**
+ * Extract the source record for story renditions using priority logic:
+ * 1. If cover_record_id exists → return that record
+ * 2. Else if children exist → return first child
+ * 3. Else → return undefined (empty story)
+ */
+export function getStorySourceRecord(
+    story: CPhraseanetStory
+): CPhraseanetRecord | undefined {
+    // Priority 1: cover_record_id
+    if (story.cover_record_id !== null && story.cover_record_id !== undefined) {
+        // Try to find this record in children if available
+        if (story.children && story.children.length > 0) {
+            const coverRecord = story.children.find(
+                c => c.record_id === String(story.cover_record_id)
+            );
+            if (coverRecord) {
+                return coverRecord;
+            }
+        }
+        // Note: If cover_record_id not found in children array, we would need
+        // an additional API call. For now, log warning and fall through to Priority 2.
+    }
+
+    // Priority 2: First child
+    if (story.children && story.children.length > 0) {
+        return story.children[0];
+    }
+
+    // No source record available
+    return undefined;
+}
+
+/**
+ * Extract renditions from a source record using the subdef-to-rendition mapping.
+ * Returns array of renditions configured for this record type.
+ */
+export function extractRenditionsFromRecord(
+    sourceRecord: CPhraseanetRecord | CPhraseanetStory,
+    subdefToRendition: Record<string, string[]>,
+    importFiles: boolean,
+    logger: Logger
+): Array<{
+    name: string;
+    sourceFile: {
+        url: string;
+        isPrivate: boolean;
+        importFile: boolean;
+        type: string;
+    };
+}> {
+    const renditions = [];
+
+    for (const sd of sourceRecord.subdefs ?? []) {
+        const phrName = sourceRecord.phrasea_type + ':' + sd.name;
+
+        for (const name of subdefToRendition[phrName] ?? []) {
+            logger.info(
+                `  story rendition "${name}": (from "${sd.name}"): ${sd.permalink.url}`
+            );
+            renditions.push({
+                name: name,
+                sourceFile: {
+                    url: sd.permalink.url,
+                    isPrivate: false,
+                    importFile: importFiles,
+                    type: sd.mime_type,
+                },
+            });
+        }
+    }
+
+    return renditions;
+}
+
 export async function createAsset(
     workspaceId: string,
     importFiles: boolean,
