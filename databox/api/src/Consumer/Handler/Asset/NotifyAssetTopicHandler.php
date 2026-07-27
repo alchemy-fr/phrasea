@@ -4,26 +4,16 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Asset;
 
-use Alchemy\NotifierBundle\Manager\NotifierManager;
 use Alchemy\NotifierBundle\Model\NotifyOptions;
 use Alchemy\NotifierBundle\Model\NotifySelectorDto;
 use Alchemy\NotifierBundle\Model\TopicDto;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
-use App\Service\Asset\Attribute\AssetNameResolver;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-readonly class NotifyAssetTopicHandler
+readonly class NotifyAssetTopicHandler extends AbstractNotifyHandler
 {
-    public function __construct(
-        private EntityManagerInterface $em,
-        private AssetNameResolver $assetNameResolver,
-        private NotifierManager $notifierManager,
-    ) {
-    }
-
     public function __invoke(NotifyAssetTopic $message): void
     {
         $assetId = $message->getAssetId();
@@ -37,11 +27,14 @@ readonly class NotifyAssetTopicHandler
             default => throw new \InvalidArgumentException(sprintf('Invalid asset event "%s"', $event)),
         };
 
+        $authorId = $message->getAuthorId();
         $assetName = $asset ? $this->assetNameResolver->resolveNameAsString($asset) : null;
 
         $notificationParams = [
             'name' => $assetName ?? $asset?->getId() ?? $message->getAssetName() ?? 'Undefined',
             'url' => '/assets/'.$assetId,
+            'author' => $this->getUsername($authorId),
+            'authorId' => $authorId,
         ];
 
         $selectors = [
@@ -72,6 +65,6 @@ readonly class NotifyAssetTopicHandler
             }
         }
 
-        $this->notifierManager->notify($selectors, new NotifyOptions(excludeUserId: $message->getAuthorId()));
+        $this->notifierManager->notify($selectors, new NotifyOptions(excludeUserId: $authorId));
     }
 }
