@@ -52,6 +52,9 @@ class BlurhashAction extends AbstractIntegrationAction implements IfActionInterf
             $input,
             null
         );
+
+        // For dev flow
+        $this->em->getUnitOfWork()->removeFromIdentityMap($asset);
     }
 
     private function getRenditionFile(string $assetId, string $renditionName): File
