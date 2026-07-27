@@ -150,6 +150,19 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
         if ($selected) {
             $this->logger->info(sprintf('Embedded preview found for file %s, returning extracted preview size=%s', $inputFile->getPath(), $size));
 
+            $copyOrientationCmd = [
+                '-TagsFromFile',
+                $pathFile,
+                '-Orientation',
+                $selected,
+            ];
+
+            try {
+                $exiftool->executeCommand($copyOrientationCmd);
+            } catch (\Exception $e) {
+                $this->logger->warning(sprintf('Failed copying orientation for file %s: %s', $inputFile->getPath(), $e->getMessage()));
+            }
+
             return new OutputFile(
                 $selected,
                 'image/jpeg',
