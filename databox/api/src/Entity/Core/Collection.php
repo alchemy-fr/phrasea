@@ -217,10 +217,10 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
     final public const string GROUP_ABSOLUTE_NAME = 'coll:absName';
     final public const string GROUP_ASCENDANTS = 'coll:ascendants';
 
-    final public const string EVENT_ASSET_ADD = 'asset_add';
-    final public const string EVENT_ASSET_UPDATE = 'asset_update';
-    final public const string EVENT_ASSET_NEW_COMMENT = 'asset_new_comment';
-    final public const string EVENT_ASSET_REMOVE = 'asset_remove';
+    final public const string EVENT_ASSET_ADD = 'asset:add';
+    final public const string EVENT_ASSET_UPDATE = 'asset:update';
+    final public const string EVENT_ASSET_NEW_COMMENT = 'asset:new_comment';
+    final public const string EVENT_ASSET_REMOVE = 'asset:remove';
 
     final public const string TR_FIELD_NAME = 'name';
 
