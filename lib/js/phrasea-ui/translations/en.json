@@ -3,10 +3,6 @@
         "ui": {
             "load_more": {
                 "label": "Load more"
-            },
-            "menu": {
-                "account": "My account",
-                "logout": "Logout"
             }
         }
     }
