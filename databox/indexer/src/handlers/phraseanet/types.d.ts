@@ -197,3 +197,26 @@ export type PhraseanetStory = {
     metadata: PhraseanetMetadata[];
     children: PhraseanetRecord[];
 };
+
+export type PhraseanetEmbed = {
+    name: string;
+    substituted: boolean;
+    created_on: string;
+    updated_on: string;
+    permalink: {
+        created_on: string;
+        id: number;
+        is_activated: boolean;
+        label: string;
+        updated_on: string;
+        page_url: string;
+        url: string;
+        download_url: string;
+    };
+    height: number;
+    width: number;
+    filesize: number;
+    devices: string[];
+    player_type: string;
+    mime_type: string;
+};

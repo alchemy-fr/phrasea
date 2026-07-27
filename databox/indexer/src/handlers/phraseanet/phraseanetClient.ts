@@ -326,4 +326,31 @@ export default class PhraseanetClient {
 
         return subdefs;
     }
+
+    async getRecordEmbeds(
+        databoxId: string | number,
+        recordId: string | number
+    ): Promise<any> {
+        let last_error: any = null;
+        for (let ttry = 1; ttry <= 3; ttry++) {
+            try {
+                this.logger.info(
+                    `Fetching embeds for record ${databoxId}/${recordId}`
+                );
+                const res = await this.client.get(
+                    `/api/v1/records/${databoxId}/${recordId}/embed/`
+                );
+                return res.data;
+            } catch (e: any) {
+                last_error = e;
+                this.logger.warn(
+                    `Failed ${ttry}/3 to fetch record embeds (${e.message})`
+                );
+                await new Promise(resolve =>
+                    setTimeout(resolve, 1000 * ttry)
+                );
+            }
+        }
+        throw last_error;
+    }
 }

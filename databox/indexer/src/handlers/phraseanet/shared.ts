@@ -91,6 +91,53 @@ export function extractRenditionsFromRecord(
     return renditions;
 }
 
+/**
+ * Extract renditions from embeds (V1 API response) using the subdef-to-rendition mapping.
+ * Used for story cover_record_id embeds extraction.
+ */
+export function extractRenditionsFromEmbeds(
+    embeds: Array<{
+        name: string;
+        permalink: { url: string };
+        mime_type: string;
+    }>,
+    phrasea_type: string,
+    subdefToRendition: Record<string, string[]>,
+    importFiles: boolean,
+    logger: Logger
+): Array<{
+    name: string;
+    sourceFile: {
+        url: string;
+        isPrivate: boolean;
+        importFile: boolean;
+        type: string;
+    };
+}> {
+    const renditions = [];
+
+    for (const embed of embeds) {
+        const phrName = phrasea_type + ':' + embed.name;
+
+        for (const name of subdefToRendition[phrName] ?? []) {
+            logger.info(
+                `  story rendition "${name}": (from cover_record embed "${embed.name}"): ${embed.permalink.url}`
+            );
+            renditions.push({
+                name: name,
+                sourceFile: {
+                    url: embed.permalink.url,
+                    isPrivate: false,
+                    importFile: importFiles,
+                    type: embed.mime_type,
+                },
+            });
+        }
+    }
+
+    return renditions;
+}
+
 export async function createAsset(
     workspaceId: string,
     importFiles: boolean,
