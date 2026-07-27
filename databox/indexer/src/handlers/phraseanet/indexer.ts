@@ -7,7 +7,7 @@ import {
 } from './types';
 import {CPhraseanetRecord, CPhraseanetStory} from './CPhraseanetRecord';
 import PhraseanetClient, {ORDER_ASC} from './phraseanetClient';
-import {AttrPolicyIndex, createAsset, TagIndex, getStorySourceRecord, extractRenditionsFromRecord} from './shared';
+import {AttrPolicyIndex, createAsset, TagIndex, getStorySourceRecord, extractRenditionsFromRecord, extractRenditionsFromEmbeds} from './shared';
 import {getConfig, getStrict} from '../../configLoader';
 import {getEnv} from '../../env';
 import {
@@ -258,6 +258,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                     storiesCollectionPath,
                                     collectionKeyPrefix,
                                     idempotencePrefixes,
+                                    phraseanetClient,
                                     logger
                                 );
                             logger.info(
@@ -350,6 +351,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                     storiesCollectionPath,
                                     collectionKeyPrefix,
                                     idempotencePrefixes,
+                                    phraseanetClient,
                                     logger
                                 );
 
@@ -492,6 +494,7 @@ async function importStory(
     storiesCollectionPath: string,
     collectionKeyPrefix: string,
     idempotencePrefixes: Record<string, string>,
+    phraseanetClient: PhraseanetClient,
     logger: Logger
 ) {
     const storyName = escapeSlashes(
@@ -591,7 +594,35 @@ async function importStory(
         // Extract source record for story renditions (Priority: cover_record_id > first child)
         const sourceRecord = getStorySourceRecord(story);
         let renditionsFromSource: any[] = [];
-        if (sourceRecord) {
+        
+        // If cover_record_id is set and sourceRecord is found, fetch embeds from V1 API
+        if (story.cover_record_id !== null && story.cover_record_id !== undefined && sourceRecord) {
+            try {
+                logger.info(
+                    `Fetching embeds for story cover_record ${story.databox_id}/${story.cover_record_id}`
+                );
+                const embedResponse = await phraseanetClient.getRecordEmbeds(
+                    story.databox_id,
+                    story.cover_record_id
+                );
+                
+                if (embedResponse.response && embedResponse.response.embed) {
+                    renditionsFromSource = extractRenditionsFromEmbeds(
+                        embedResponse.response.embed,
+                        sourceRecord.phrasea_type,
+                        subdefToRendition,
+                        importFiles,
+                        logger
+                    );
+                }
+            } catch (e: any) {
+                logger.warn(
+                    `Failed to fetch embeds for cover_record ${story.databox_id}/${story.cover_record_id}: ${e.message}`
+                );
+                // Fall through to use regular renditions extraction if available
+            }
+        } else if (sourceRecord) {
+            // Fallback to regular subdefs extraction from source record if no cover_record_id
             logger.info(
                 `Extracting story renditions from source record ${sourceRecord.record_id}`
             );
