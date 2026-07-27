@@ -108,8 +108,11 @@ export const useEntitiesStore = create<State>((set, getState) => ({
                     loading: false,
                 };
             });
-        } finally {
-            set({loading: false});
+        } catch (_e: any) {
+            set({
+                stack,
+                loading: false,
+            });
         }
     },
 }));

@@ -84,7 +84,7 @@ class AssetExport extends AbstractUuidEntity
     #[Groups(self::GROUP_READ)]
     public ?string $downloadUrl = null;
 
-    #[Groups([Collection::GROUP_READ])]
+    #[Groups([self::GROUP_READ])]
     public ?UserOutput $owner = null;
 
     public function getStatus(): ExportStatusEnum
