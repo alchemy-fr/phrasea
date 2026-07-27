@@ -8,6 +8,7 @@ import {
     AsyncPaginateCreatableType,
     AsyncPaginateType,
     AsyncRSelectProps,
+    CompositeOption,
     CompositeValue,
     SelectOption,
 } from '../types';
@@ -91,7 +92,7 @@ export default function AsyncRSelectWidget<
             Object.prototype.hasOwnProperty.call(initialValue, 'value')
         ) {
             updateLastOptions([initialValue as Opt]);
-            setValue((initialValue as Opt).value as any);
+            setValue(initialValue as Opt as any);
         } else {
             setValue(initialValue);
         }
@@ -163,7 +164,9 @@ export default function AsyncRSelectWidget<
                                 components={componentsProp}
                                 value={valueToOption(
                                     isMulti || false,
-                                    value as CompositeValue<IsMulti>,
+                                    value as
+                                        | CompositeValue<IsMulti>
+                                        | CompositeOption<IsMulti, Opt>,
                                     lastOptions
                                 )}
                                 onChange={(newValue, meta) => {

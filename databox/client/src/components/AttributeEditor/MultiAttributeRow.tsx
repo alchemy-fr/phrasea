@@ -24,6 +24,7 @@ import {AttributeDefinition, StateSetter} from '../../types.ts';
 import {createWidgetOptionsFromDefinition} from '../Media/Asset/Attribute/attributeUtils';
 import {nullToUndefined} from '@alchemy/core';
 import {getAttributeType} from '../Media/Asset/Attribute/types/getAttributeType.ts';
+import {useNormalizeEntity} from '../../hooks/useNormalizeEntity.ts';
 
 type Props<T> = {
     attributeDefinition: AttributeDefinition;
@@ -55,6 +56,7 @@ export default function MultiAttributeRow<T>({
     const formatContext = useContext(AttributeFormatContext);
     const [newValue, setNewValue] = React.useState<T | undefined>();
     const definitionRef = React.useRef<string>(id);
+    const normalizeEntity = useNormalizeEntity();
 
     const addValueHandler = React.useCallback(
         (v: T) => {
@@ -207,9 +209,11 @@ export default function MultiAttributeRow<T>({
             </Button>
 
             {finalValues.map((v: MultiValueValue<T>, i: number) => {
+                const value = normalizeEntity(formatter, v.value);
+
                 const valueFormatterProps: AttributeFormatterProps = {
                     ...formatterOptions,
-                    value: v.value,
+                    value,
                     locale,
                     format: formatContext.getFormat(type, id),
                 };

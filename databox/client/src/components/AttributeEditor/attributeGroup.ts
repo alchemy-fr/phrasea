@@ -109,6 +109,7 @@ export function useAttributeValues<T>({
 
         assets.forEach(a => {
             a.attributes.forEach(attribute => {
+                const toKey = createToKey(attribute.definition.type);
                 const definitionId = attribute.definition.id;
 
                 // Can be undefined due to pagination
@@ -124,10 +125,15 @@ export function useAttributeValues<T>({
                 const locale = attribute.locale ?? NO_LOCALE;
 
                 if (definition.multiple) {
-                    (assetIndex[locale] as T[]) ??= [];
-                    (assetIndex[locale] as T[]).push(attribute.value);
+                    (assetIndex as LocalizedAttributeIndex<string[]>)[
+                        locale
+                    ] ??= [];
+                    (assetIndex as LocalizedAttributeIndex<string[]>)[
+                        locale
+                    ]!.push(toKey(attribute.value));
                 } else {
-                    assetIndex[locale] = attribute.value;
+                    (assetIndex as LocalizedAttributeIndex<string>)[locale] =
+                        toKey(attribute.value);
                 }
             });
 
