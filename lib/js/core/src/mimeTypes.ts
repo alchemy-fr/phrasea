@@ -1,3 +1,5 @@
+import {getExtensionFromFilename} from './fileUtils';
+
 type MimeType = string;
 type Extension = string;
 
@@ -772,6 +774,13 @@ export function getMimeTypesMap(): MimeTypesMap {
         'application/x-abiword': ['abw', 'abw.CRASHED', 'abw.gz', 'zabw'],
         'application/x-ace': ['ace'],
         'application/x-ace-compressed': ['ace'],
+        'application/x-adobe-aftereffects-project': ['aep'],
+        'application/x-adobe-aftereffects-template': ['aet'],
+        'application/x-adobe-incopy-interchange': ['incx'],
+        'application/x-adobe-indesign': ['indd'],
+        'application/x-adobe-indesign-interchange': ['inx'],
+        'application/x-adobe-premiere-project': ['prproj'],
+        'application/x-adobe-premiere-title': ['prtl'],
         'application/x-alpine-package-keeper-package': ['apk'],
         'application/x-alz': ['alz'],
         'application/x-amf': ['amf'],
@@ -2048,6 +2057,30 @@ export function getMimeTypesMap(): MimeTypesMap {
             'xld',
         ],
     };
+}
+
+export function getMIMETypeFromFile(file: File): string | undefined {
+    if (file.type) {
+        return file.type;
+    }
+
+    const extension = getExtensionFromFilename(file.name);
+
+    return getMIMETypeFromExtension(extension);
+}
+
+export function getMIMETypeFromExtension(
+    extension: string | undefined
+): string | undefined {
+    if (!extension) {
+        return;
+    }
+    const mimeTypes = getMimeTypesMap();
+    for (const [type, extensions] of Object.entries(mimeTypes)) {
+        if (extensions.includes(extension)) {
+            return type;
+        }
+    }
 }
 
 export function getExtensionFromMIMEType(

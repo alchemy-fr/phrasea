@@ -52,6 +52,15 @@ export function dataURLtoFile(dataurl: string, filename: string): File {
     return new File([u8arr], filename, {type: mime});
 }
 
+export function getExtensionFromFilename(filename: string): string | undefined {
+    const parts = filename.split('.');
+    if (parts.length > 1) {
+        return parts.pop()?.toLowerCase();
+    }
+
+    return undefined;
+}
+
 export function validateUrl(value: string): boolean {
     try {
         new URL(value);

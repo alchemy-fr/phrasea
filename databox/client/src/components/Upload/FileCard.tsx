@@ -7,6 +7,7 @@ import AssetFileIcon from '../Media/Asset/AssetFileIcon.tsx';
 import {ReactNode} from 'react';
 import assetClasses from '../AssetList/classes.ts';
 import {FileBlobThumb} from './FileBlobThumb.tsx';
+import {getMIMETypeFromFile} from '@alchemy/core';
 
 type Props = {
     file: File;
@@ -25,6 +26,8 @@ export default function FileCard({
     actions,
     size = 100,
 }: Props) {
+    const mimeType = getMIMETypeFromFile(file) ?? 'unknown';
+
     return (
         <Paper
             sx={theme => ({
@@ -46,7 +49,7 @@ export default function FileCard({
                         'image/gif',
                         'image/webp',
                         'image/svg+xml',
-                    ].includes(file.type) ? (
+                    ].includes(mimeType) ? (
                         <FileBlobThumb file={file} size={size} />
                     ) : (
                         <div
@@ -56,7 +59,7 @@ export default function FileCard({
                                 objectFit: 'contain',
                             }}
                         >
-                            <AssetFileIcon mimeType={file.type} />
+                            <AssetFileIcon mimeType={mimeType} />
                         </div>
                     )}
                 </div>
@@ -87,7 +90,7 @@ export default function FileCard({
                         </Typography>
                     ) : null}
                     <Typography variant="body2" gutterBottom>
-                        {byteSize(file.size).toString()} • {file.type}
+                        {byteSize(file.size).toString()} • {mimeType}
                     </Typography>
                     {actions}
                 </Box>
