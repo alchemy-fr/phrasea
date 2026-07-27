@@ -78,13 +78,15 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
             $object->setIf($data->if ?: null);
         }
 
+        $object = $this->processOwnerId($object);
+
         $this->validator->validate($object, $context); // Validate before normalization
 
         if ($integration instanceof IntegrationInterface) {
             $object->setConfig($integration->normalizeConfiguration($object->getConfig(), $object->getWorkspace()));
         }
 
-        return $this->processOwnerId($object);
+        return $object;
     }
 
     public function supports(string $resourceClass, object $data): bool
