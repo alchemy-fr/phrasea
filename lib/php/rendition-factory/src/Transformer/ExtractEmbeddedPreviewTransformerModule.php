@@ -160,7 +160,7 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
             try {
                 $exiftool->executeCommand($copyOrientationCmd);
             } catch (\Exception $e) {
-                $this->logger->warning(sprintf('Copying orientation for file %s: %s', $inputFile->getPath(), $e->getMessage()));
+                $this->logger->warning(sprintf('Failed copying orientation for file %s: %s', $inputFile->getPath(), $e->getMessage()));
             }
 
             return new OutputFile(
