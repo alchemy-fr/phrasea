@@ -17,6 +17,7 @@ export type FieldMap = {
     readonly?: boolean;
     translatable?: boolean;
     allowInvalid?: boolean;
+    target?: number;
     labels: Record<string, string>;
     values: FieldMapValue[];
     attributeDefinition: AttributeDefinition;
@@ -34,6 +35,7 @@ export type ConfigPhraseanetSubdef = {
     buildMode?: number;
     policy?: string;
     parent?: string | null;
+    target?: number;
     builders: Record<string, ConfigRenditionBuilder>;
 };
 
