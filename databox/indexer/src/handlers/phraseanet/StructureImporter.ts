@@ -227,6 +227,7 @@ export async function importSubdefsStructure(
             types: Record<string, PhraseanetSubdefStruct>;
             policy: string | null;
             labels: Record<string, string>;
+            target?: number;
         }
     > = {};
 
@@ -259,6 +260,7 @@ export async function importSubdefsStructure(
                 types: {} as Record<string, PhraseanetSubdefStruct>,
                 policy: rendition['policy'] ?? null,
                 labels: {},
+                ...(rendition.target !== undefined ? {target: Number(rendition.target)} : {}),
             };
         }
 
@@ -380,6 +382,7 @@ export async function importSubdefsStructure(
                     phraseanetDefinition: sd.labels,
                 },
                 definition: Yaml.dump(jsConf, {lineWidth: 100}).trim(),
+                ...(sd.target !== undefined ? {target: Number(sd.target)} : {}),
             });
     }
 
@@ -463,6 +466,7 @@ export async function importMetadataStructure({
                 labels: fm.labels,
                 translatable: fm.translatable,
                 allowInvalid: fm.allowInvalid,
+                ...(fm.target !== undefined ? {target: Number(fm.target)} : {}),
             };
             logger.info(`  Creating "${name}" attribute definition`);
             attributeDefinitionIndex[name] =
