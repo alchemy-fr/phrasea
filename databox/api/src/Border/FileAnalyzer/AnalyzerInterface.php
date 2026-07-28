@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Border\Analyzer;
+namespace App\Border\FileAnalyzer;
 
 use Alchemy\RenditionFactory\Transformer\Documentation;
+use App\Border\FileAnalyzer\Dto\AnalysisOutput;
 use App\Entity\Core\File;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;

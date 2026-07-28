@@ -16,6 +16,9 @@ class FileRepository extends ServiceEntityRepository
         parent::__construct($registry, File::class);
     }
 
+    /**
+     * @return File[]
+     */
     public function findDuplicatesByChecksum(File $file, int $limit = 1): array
     {
         return $this->createQueryBuilder('f')

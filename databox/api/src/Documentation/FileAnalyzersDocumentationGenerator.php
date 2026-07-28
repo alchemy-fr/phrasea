@@ -6,12 +6,12 @@ namespace App\Documentation;
 
 use Alchemy\CoreBundle\Documentation\DocumentationGenerator;
 use Alchemy\RenditionFactory\Transformer\Documentation;
-use App\Border\Analyzer\AnalyzerInterface;
+use App\Border\FileAnalyzer\AnalyzerInterface;
 use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
-final class FileAnalyzersGenerator extends DocumentationGenerator
+final class FileAnalyzersDocumentationGenerator extends DocumentationGenerator
 {
     public function __construct(
         #[AutowireLocator(AnalyzerInterface::TAG, defaultIndexMethod: 'getName')]

@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Border\Analyzer;
+namespace App\Border\FileAnalyzer;
 
 use Alchemy\RenditionFactory\Transformer\Documentation;
-use Alchemy\RenditionFactory\Transformer\TransformerConfigHelper;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 abstract readonly class AbstractAnalyzer implements AnalyzerInterface
@@ -20,7 +19,7 @@ abstract readonly class AbstractAnalyzer implements AnalyzerInterface
 
     public function getDocumentation(): Documentation
     {
-        $treeBuilder = TransformerConfigHelper::createBaseTree(static::getName());
+        $treeBuilder = FileAnalyzerConfigHelper::createBaseTree(static::getName());
         $this->buildConfiguration($treeBuilder->getRootNode()->children());
 
         return new Documentation(

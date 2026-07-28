@@ -2,13 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Border\Analyzer;
+namespace App\Border\FileAnalyzer\Analyzer;
 
+use App\Border\FileAnalyzer\AbstractAnalyzer;
+use App\Border\FileAnalyzer\Dto\AnalysisOutput;
+use App\Border\FileAnalyzer\Dto\LogLevelEnum;
 use App\Entity\Core\File;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 final readonly class FilenameAnalyzer extends AbstractAnalyzer
 {
+    private const string TYPE_PATTERN_IS_NOT_ALLOWED = 'pattern_is_not_allowed';
+    private const string TYPE_PATTERN_IS_DISALLOWED = 'pattern_is_disallowed';
+    private const string TYPE_MIME_TYPE_IS_NOT_ALLOWED = 'mime_type_is_not_allowed';
+    private const string TYPE_MIME_TYPE_IS_DISALLOWED = 'mime_type_is_disallowed';
+    private const string TYPE_EXTENSION_IS_NOT_ALLOWED = 'extension_is_not_allowed';
+    private const string TYPE_EXTENSION_IS_DISALLOWED = 'extension_is_disallowed';
+
     public static function getName(): string
     {
         return 'filename';
@@ -46,38 +56,38 @@ final readonly class FilenameAnalyzer extends AbstractAnalyzer
 
     public function analyzeFile(File $file, ?string $path, array $config): AnalysisOutput
     {
+        $output = new AnalysisOutput();
+
         $filename = $file->getOriginalName();
         $extension = strtolower(pathinfo((string) $filename, PATHINFO_EXTENSION));
+        $data = ['extension' => $extension];
+
         if (!empty($config['disallowed_extensions']) && in_array($extension, $config['disallowed_extensions'], true)) {
-            return new AnalysisOutput(
-                errors: [sprintf('File extension "%s" is disallowed.', $extension)]
-            );
+            $output->addMessage(LogLevelEnum::Critical, self::TYPE_EXTENSION_IS_DISALLOWED);
         }
 
         if (!empty($config['allowed_extensions']) && !in_array($extension, $config['allowed_extensions'], true)) {
-            return new AnalysisOutput(
-                errors: [sprintf('File extension "%s" is not allowed.', $extension)]
-            );
+            $output->addMessage(LogLevelEnum::Critical, self::TYPE_EXTENSION_IS_NOT_ALLOWED, [
+                'allowed' => $config['allowed_extensions'],
+            ]);
         }
 
         $mimeType = $file->getType();
         if (!empty($config['disallowed_mime_types']) && in_array($mimeType, $config['disallowed_mime_types'], true)) {
-            return new AnalysisOutput(
-                errors: [sprintf('MIME type "%s" is disallowed.', $mimeType)]
-            );
+            $output->addMessage(LogLevelEnum::Critical, self::TYPE_MIME_TYPE_IS_DISALLOWED);
         }
         if (!empty($config['allowed_mime_types']) && !in_array($mimeType, $config['allowed_mime_types'], true)) {
-            return new AnalysisOutput(
-                errors: [sprintf('MIME type "%s" is not allowed.', $mimeType)]
-            );
+            $output->addMessage(LogLevelEnum::Critical, self::TYPE_MIME_TYPE_IS_NOT_ALLOWED, [
+                'allowed' => $config['allowed_mime_types'],
+            ]);
         }
 
         if (!empty($config['disallowed_patterns'])) {
             foreach ($config['disallowed_patterns'] as $disallowedPattern) {
                 if (preg_match($disallowedPattern, (string) $filename)) {
-                    return new AnalysisOutput(
-                        errors: [sprintf('Filename "%s" matches a disallowed pattern.', $filename)]
-                    );
+                    $output->addMessage(LogLevelEnum::Critical, self::TYPE_PATTERN_IS_DISALLOWED, [
+                        'disallowed_pattern' => $disallowedPattern,
+                    ]);
                 }
             }
         }
@@ -91,13 +101,15 @@ final readonly class FilenameAnalyzer extends AbstractAnalyzer
                 }
             }
             if (!$matchesAllowed) {
-                return new AnalysisOutput(
-                    errors: [sprintf('Filename "%s" does not match any allowed patterns.', $filename)]
-                );
+                $output->addMessage(LogLevelEnum::Critical, self::TYPE_PATTERN_IS_NOT_ALLOWED, [
+                    'allowed' => $config['allowed_patterns'],
+                ]);
             }
         }
 
-        return new AnalysisOutput();
+        $output->setData($data);
+
+        return $output;
     }
 
     public function requiresFileContent(File $file, array $config): bool

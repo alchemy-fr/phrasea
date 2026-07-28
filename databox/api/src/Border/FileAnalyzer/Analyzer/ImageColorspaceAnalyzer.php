@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Border\Analyzer;
+namespace App\Border\FileAnalyzer\Analyzer;
 
 use Alchemy\RenditionFactory\Image\ColorspaceDetector;
+use App\Border\FileAnalyzer\AbstractAnalyzer;
+use App\Border\FileAnalyzer\Dto\AnalysisOutput;
+use App\Border\FileAnalyzer\Dto\LogLevelEnum;
 use App\Entity\Core\File;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
@@ -21,6 +24,11 @@ final readonly class ImageColorspaceAnalyzer extends AbstractAnalyzer
         ColorspaceDetector::CS_LAB,
         ColorspaceDetector::CS_UNKNOWN,
     ];
+
+    private const string TYPE_DISALLOWED_COLORSPACE = 'disallowed_colorspace';
+    private const string TYPE_NOT_IN_ALLOWED_COLORSPACES = 'not_in_allowed_colorspaces';
+    private const string TYPE_UNKNOWN_COLORSPACE = 'unknown_colorspace';
+    private const string TYPE_NOT_AN_IMAGE = 'not_an_image';
 
     public static function getName(): string
     {
@@ -67,12 +75,13 @@ final readonly class ImageColorspaceAnalyzer extends AbstractAnalyzer
 
     public function analyzeFile(File $file, ?string $path, array $config): AnalysisOutput
     {
+        $output = new AnalysisOutput();
         $mimeType = $file->getType();
 
         if (!str_starts_with((string) $mimeType, 'image/')) {
-            return new AnalysisOutput(
-                logs: [sprintf('File with MIME type "%s" is not an image; skipping colorspace analysis.', $mimeType)]
-            );
+            $output->addMessage(LogLevelEnum::Debug, self::TYPE_NOT_AN_IMAGE);
+
+            return $output;
         }
 
         if (empty($path) || !file_exists($path)) {
@@ -82,35 +91,33 @@ final readonly class ImageColorspaceAnalyzer extends AbstractAnalyzer
         $colorspaceDetector = new ColorspaceDetector();
         $colorspace = $colorspaceDetector->detect($path);
 
-        $errors = [];
+        $data = ['colorspace' => $colorspace];
+
         if (ColorspaceDetector::CS_UNKNOWN === $colorspace) {
-            $errors[] = 'Could not reliably detect colorspace from file.';
+            $output->addMessage(LogLevelEnum::Error, self::TYPE_UNKNOWN_COLORSPACE);
         } else {
             if (!empty($config['disallowed_colorspaces'])) {
                 $disallowedSpaces = array_map('strtolower', $config['disallowed_colorspaces']);
                 if (in_array($colorspace, $disallowedSpaces, true)) {
-                    $errors[] = sprintf(
-                        'Image colorspace "%s" is not allowed.',
-                        $colorspace
-                    );
+                    $output->addMessage(LogLevelEnum::Critical, self::TYPE_DISALLOWED_COLORSPACE, [
+                        'disallowed' => $disallowedSpaces,
+                    ]);
                 }
             }
 
             if (!empty($config['allowed_colorspaces'])) {
                 $allowedSpaces = array_map('strtolower', $config['allowed_colorspaces']);
                 if (!in_array($colorspace, $allowedSpaces, true)) {
-                    $errors[] = sprintf(
-                        'Image colorspace "%s" is not in the list of allowed colorspaces.',
-                        $colorspace
-                    );
+                    $output->addMessage(LogLevelEnum::Critical, self::TYPE_NOT_IN_ALLOWED_COLORSPACES, [
+                        'allowed' => $allowedSpaces,
+                    ]);
                 }
             }
         }
 
-        return new AnalysisOutput(
-            errors: $errors,
-            data: ['colorspace' => $colorspace]
-        );
+        $output->setData($data);
+
+        return $output;
     }
 
     public function requiresFileContent(File $file, array $config): bool

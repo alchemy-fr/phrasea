@@ -23,7 +23,7 @@ class FileAnalyzerIntegration extends AbstractIntegration implements WorkflowInt
 
     public function buildConfiguration(NodeBuilder $builder): void
     {
-        $actions = array_map(fn (FileAnalyzerAssetActionEnum $e): string => $e->value, FileAnalyzerAssetActionEnum::cases());
+        $actions = FileAnalyzerAssetActionEnum::getValues();
 
         // @formatter:off
         $builder

@@ -49,23 +49,39 @@ final class FileAnalyzerAction extends AbstractIntegrationAction implements IfAc
             'analyzers' => $config['analyzers'] ?? [],
         ];
 
+        $actions = [];
+
         if ($this->fileAnalyzer->preAnalyzeFile($file, $analyzersConfig, force: $force)) {
             $this->fileAnalyzer->analyzeFile($file, $analyzersConfig, force: $force);
         }
 
         $this->em->persist($file);
 
-        $context->setOutput('analysis', $file->getAnalysis());
+        $analysis = $file->getAnalysis();
+        foreach ($analysis['results'] as $analyzerOutput) {
+            if (!empty($analyzerOutput['actions'])) {
+                $actions = array_merge(array_map(fn (string $a): FileAnalyzerAssetActionEnum => FileAnalyzerAssetActionEnum::from($a), $actions), $analyzerOutput['actions']);
+                break;
+            }
+        }
+
+        $context->setOutput('analysis', $analysis);
 
         if ($file->isAccepted()) {
-            if (AssetStatusEnum::Pending === $asset->getStatus()) {
+            if (AssetStatusEnum::Accepted !== $asset->getStatus()) {
                 $asset->setStatus(AssetStatusEnum::Accepted);
                 $this->em->persist($asset);
             }
         } else {
             $context->setEndStatus(JobState::STATUS_FAILURE);
 
-            foreach ($config['actions_on_reject'] ?? [] as $action) {
+            $actionsOnReject = array_merge($actions, $config['actions_on_reject'] ?? []);
+
+            if (in_array(FileAnalyzerAssetActionEnum::DELETE->value, $actionsOnReject, true)) {
+                $actionsOnReject = [FileAnalyzerAssetActionEnum::DELETE];
+            }
+
+            foreach ($actionsOnReject as $action) {
                 $action = FileAnalyzerAssetActionEnum::from($action);
 
                 switch ($action) {

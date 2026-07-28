@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Border\Analyzer;
+namespace App\Border\FileAnalyzer\Analyzer;
 
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
+use App\Border\FileAnalyzer\AbstractAnalyzer;
+use App\Border\FileAnalyzer\Dto\AnalysisOutput;
+use App\Border\FileAnalyzer\Dto\LogLevelEnum;
 use App\Entity\Core\File;
 use App\Repository\Core\FileRepository;
 use PHPExiftool\Driver\Metadata\MetadataBag;
@@ -14,6 +17,8 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 final readonly class ChecksumAnalyzer extends AbstractAnalyzer
 {
     private const string SHA_256 = 'sha256';
+
+    private const string TYPE_DUPLICATE_CHECKSUM = 'duplicate_checksum';
 
     public function __construct(
         private MetadataManipulator $metadataManipulator,
@@ -56,11 +61,11 @@ final readonly class ChecksumAnalyzer extends AbstractAnalyzer
 
     public function analyzeFile(File $file, ?string $path, array $config): AnalysisOutput
     {
+        $output = new AnalysisOutput();
+
         $algorithm = $config['algorithm'] ?? self::SHA_256;
         if (empty($path)) {
-            return new AnalysisOutput(
-                errors: ['File path is required for checksum analysis.']
-            );
+            throw new \InvalidArgumentException('File path is required for checksum analysis.');
         }
         if (!file_exists($path)) {
             throw new \InvalidArgumentException(sprintf('File path "%s" does not exist.', $path));
@@ -83,37 +88,27 @@ final readonly class ChecksumAnalyzer extends AbstractAnalyzer
             $file->setChecksum($checksum);
         }
 
-        $errors = [];
-        $warnings = [];
-        $data = [];
-
         if ($config['findDuplicates'] && $config['stripMetadata']) {
             $existingFiles = $this->fileRepository->findDuplicatesByChecksum($file, $config['duplicatesLimit']);
             if (!empty($existingFiles)) {
-                $message = sprintf('%d file(s) with checksum "%s" already exist.', count($existingFiles), $checksum);
-                if (count($existingFiles) > $config['duplicatesLimit']) {
-                    $message = 'At least '.$message;
+                foreach ($existingFiles as $file) {
+                    $output->addDuplicate($file->getId());
                 }
 
-                $data['duplicates'] = array_map(static fn (File $file): string => $file->getId(), $existingFiles);
-
-                if ($config['treatDuplicateAsError']) {
-                    $errors[] = $message;
-                } else {
-                    $warnings[] = $message;
-                }
+                $output->addMessage(LogLevelEnum::Critical, self::TYPE_DUPLICATE_CHECKSUM, [
+                    'count' => count($existingFiles),
+                    'limit' => $config['duplicatesLimit'],
+                ]);
             }
         }
 
-        $data['stripped'] = $config['stripMetadata'];
-        $data['checksum'] = $checksum;
-        $data['algorithm'] = $algorithm;
+        $output->setData([
+            'stripped' => $config['stripMetadata'],
+            'checksum' => $checksum,
+            'algorithm' => $algorithm,
+        ]);
 
-        return new AnalysisOutput(
-            errors: $errors,
-            warnings: $warnings,
-            data: $data
-        );
+        return $output;
     }
 
     private function generateStrippedMetadataFile(string $path): string

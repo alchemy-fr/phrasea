@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Border\Analyzer;
+namespace App\Border\FileAnalyzer\Analyzer;
 
+use App\Border\FileAnalyzer\AbstractAnalyzer;
+use App\Border\FileAnalyzer\Dto\AnalysisOutput;
+use App\Border\FileAnalyzer\Dto\LogLevelEnum;
 use App\Entity\Core\File;
 use App\Repository\Core\FileRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,6 +15,8 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
 {
+    private const string TYPE_DUPLICATE_DOC_UNIQUE_ID = 'duplicate_doc_unique_id';
+
     public function __construct(
         private EntityManagerInterface $em,
         private FileRepository $fileRepository,
@@ -74,6 +79,8 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
 
     public function analyzeFile(File $file, ?string $path, array $config): AnalysisOutput
     {
+        $output = new AnalysisOutput();
+
         $metadata = $file->getMetadata();
         if (null === $metadata) {
             throw new \InvalidArgumentException(sprintf('File %s has no metadata. Please ensure a Readmeta integration is processed before File Analyzer.', $file->getId()));
@@ -93,24 +100,17 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
             }
         }
 
-        $errors = [];
-        $warnings = [];
-
         if ($config['findDuplicates'] && null !== $duid) {
             $existingFiles = $this->fileRepository->findDuplicatesByChecksum($file, $config['duplicatesLimit']);
             if (!empty($existingFiles)) {
-                $message = sprintf('%d file(s) with DocUniqueID "%s" already exist.', count($existingFiles), $duid);
-                if (count($existingFiles) > $config['duplicatesLimit']) {
-                    $message = 'At least '.$message;
+                foreach ($existingFiles as $file) {
+                    $output->addDuplicate($file->getId());
                 }
 
-                $data['duplicates'] = array_map(static fn (File $file): string => $file->getId(), $existingFiles);
-
-                if ($config['treatDuplicateAsError']) {
-                    $errors[] = $message;
-                } else {
-                    $warnings[] = $message;
-                }
+                $output->addMessage(LogLevelEnum::Critical, self::TYPE_DUPLICATE_DOC_UNIQUE_ID, [
+                    'count' => count($existingFiles),
+                    'limit' => $config['duplicatesLimit'],
+                ]);
             }
         }
 
@@ -132,11 +132,9 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
             $this->em->persist($file);
         }
 
-        return new AnalysisOutput(
-            errors: $errors,
-            warnings: $warnings,
-            data: $data
-        );
+        $output->setData($data);
+
+        return $output;
     }
 
     private function sanitizeXmpUuid(string $uuid): string

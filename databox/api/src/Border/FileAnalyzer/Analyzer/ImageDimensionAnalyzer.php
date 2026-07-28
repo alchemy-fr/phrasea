@@ -2,13 +2,22 @@
 
 declare(strict_types=1);
 
-namespace App\Border\Analyzer;
+namespace App\Border\FileAnalyzer\Analyzer;
 
+use App\Border\FileAnalyzer\AbstractAnalyzer;
+use App\Border\FileAnalyzer\Dto\AnalysisOutput;
+use App\Border\FileAnalyzer\Dto\LogLevelEnum;
 use App\Entity\Core\File;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 final readonly class ImageDimensionAnalyzer extends AbstractAnalyzer
 {
+    private const string TYPE_NOT_AN_IMAGE = 'not_an_image';
+    public const string TYPE_MIN_WIDTH = 'min_width';
+    public const string TYPE_MAX_WIDTH = 'max_width';
+    public const string TYPE_MIN_HEIGHT = 'min_height';
+    public const string TYPE_MAX_HEIGHT = 'max_height';
+
     public static function getName(): string
     {
         return 'image_dimension';
@@ -51,71 +60,68 @@ final readonly class ImageDimensionAnalyzer extends AbstractAnalyzer
 
     public function analyzeFile(File $file, ?string $path, array $config): AnalysisOutput
     {
+        $output = new AnalysisOutput();
         $mimeType = $file->getType();
 
-        // Skip non-image files
         if (!str_starts_with((string) $mimeType, 'image/')) {
-            return new AnalysisOutput(
-                logs: [sprintf('File with MIME type "%s" is not an image; skipping dimension analysis.', $mimeType)]
-            );
+            $output->addMessage(LogLevelEnum::Debug, self::TYPE_NOT_AN_IMAGE);
+
+            return $output;
         }
 
         if (empty($path) || !file_exists($path)) {
-            return new AnalysisOutput(
-                errors: ['File path is required for image dimension analysis.']
-            );
+            throw new \RuntimeException(sprintf('File "%s" with MIME type "%s" does not exist', $path, $mimeType));
         }
 
         $imageSize = @getimagesize($path);
         if (false === $imageSize) {
-            return new AnalysisOutput(
-                errors: ['Could not read image dimensions from file.']
-            );
+            $output->addMessage(LogLevelEnum::Critical, 'unreadable_image');
+
+            return $output;
         }
 
         [$width, $height] = $imageSize;
 
         $errors = [];
 
-        if (isset($config['min_width']) && $width < $config['min_width']) {
-            $errors[] = sprintf(
-                'Image width %dpx is below the minimum allowed width of %dpx.',
-                $width,
-                $config['min_width']
-            );
-        }
-
-        if (isset($config['max_width']) && $width > $config['max_width']) {
-            $errors[] = sprintf(
-                'Image width %dpx exceeds the maximum allowed width of %dpx.',
-                $width,
-                $config['max_width']
-            );
-        }
-
-        if (isset($config['min_height']) && $height < $config['min_height']) {
-            $errors[] = sprintf(
-                'Image height %dpx is below the minimum allowed height of %dpx.',
-                $height,
-                $config['min_height']
-            );
-        }
-
-        if (isset($config['max_height']) && $height > $config['max_height']) {
-            $errors[] = sprintf(
-                'Image height %dpx exceeds the maximum allowed height of %dpx.',
-                $height,
-                $config['max_height']
-            );
-        }
-
-        return new AnalysisOutput(
-            errors: $errors,
-            data: [
+        $minWidth = $config['min_width'] ?? null;
+        if (null !== $minWidth && $width < $minWidth) {
+            $output->addMessage(LogLevelEnum::Critical, self::TYPE_MIN_WIDTH, [
+                'min_width' => $minWidth,
                 'width' => $width,
+            ]);
+        }
+
+        $maxWidth = $config['max_width'] ?? null;
+        if (null !== $maxWidth && $width > $maxWidth) {
+            $output->addMessage(LogLevelEnum::Critical, self::TYPE_MAX_WIDTH, [
+                'max_width' => $maxWidth,
+                'width' => $width,
+            ]);
+        }
+
+        $minHeight = $config['min_height'] ?? null;
+        if (null !== $minHeight && $height < $minHeight) {
+            $output->addMessage(LogLevelEnum::Critical, self::TYPE_MIN_HEIGHT, [
+                'min_height' => $minHeight,
                 'height' => $height,
-            ]
-        );
+            ]);
+        }
+
+        $maxHeight = $config['max_height'] ?? null;
+        if (null !== $maxHeight && $height > $maxHeight) {
+            $output->addMessage(LogLevelEnum::Critical, self::TYPE_MAX_HEIGHT, [
+                'max_height' => $maxHeight,
+                'height' => $height,
+            ]);
+        }
+
+        $output->setData([
+            'width' => $width,
+            'height' => $height,
+        ]);
+
+        return $output;
     }
 
     public function requiresFileContent(File $file, array $config): bool
