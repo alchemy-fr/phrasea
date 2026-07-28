@@ -60,6 +60,23 @@ export type FileAnalysis = {
     results?: AnalyzerResult[];
 };
 
+/**
+ * Collects the unique duplicate file IDs reported across all analyzers of an
+ * analysis (checksum, doc_unique_id, ...).
+ */
+export function collectDuplicateFileIds(
+    analysis: FileAnalysis | null | undefined
+): string[] {
+    const ids = new Set<string>();
+    for (const result of analysis?.results ?? []) {
+        for (const id of result.output?.duplicates ?? []) {
+            ids.add(id);
+        }
+    }
+
+    return Array.from(ids);
+}
+
 export function getMessageLevel(message: AnalysisMessage): AnalysisLogLevel {
     return message[0];
 }

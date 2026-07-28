@@ -73,6 +73,24 @@ class AssetRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @param string[] $fileIds
+     *
+     * @return Asset[]
+     */
+    public function findBySourceFileIds(array $fileIds): array
+    {
+        if (empty($fileIds)) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.source IN (:fileIds)')
+            ->setParameter('fileIds', $fileIds)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function getESQueryBuilder(string $alias = 't'): QueryBuilder
     {
         return $this

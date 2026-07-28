@@ -1,10 +1,9 @@
 import {Asset} from '../../../types.ts';
-import {Alert, Box, Button, Stack, Typography} from '@mui/material';
+import {Alert, Box, Stack, Typography} from '@mui/material';
 import {useTranslation} from 'react-i18next';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ApprovalIcon from '@mui/icons-material/Approval';
 import {AnalysisStatus, FileAnalysis} from './Quarantine/analysisTypes.ts';
 import AnalyzerResult from './Quarantine/AnalyzerResult.tsx';
+import QuarantineActionBar from './Quarantine/QuarantineActionBar.tsx';
 
 type Props = {
     asset: Asset;
@@ -46,18 +45,7 @@ export default function QuarantineActions({asset}: Props) {
                 </Stack>
             ) : null}
 
-            <Stack direction={'row'} gap={1} sx={{flexWrap: 'wrap'}}>
-                <Button
-                    variant={'contained'}
-                    color={'error'}
-                    startIcon={<ApprovalIcon />}
-                >
-                    {t('quarantine.actions.bypass', 'By pass (accept)')}
-                </Button>
-                <Button variant={'outlined'} startIcon={<DeleteIcon />}>
-                    {t('quarantine.actions.move_to_trash', 'Move to trash')}
-                </Button>
-            </Stack>
+            <QuarantineActionBar asset={asset} analysis={analysis} />
         </Box>
     );
 }

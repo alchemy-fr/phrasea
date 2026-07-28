@@ -179,6 +179,27 @@ export async function getAsset(id: string): Promise<Asset> {
     return (await apiClient.get(`/${EntityName.Asset}/${id}`)).data;
 }
 
+export async function bypassQuarantine(id: string): Promise<Asset> {
+    return (
+        await apiClient.post(`/${EntityName.Asset}/${id}/quarantine-bypass`, {})
+    ).data;
+}
+
+export type DuplicateAsset = {
+    id: string;
+    title: string | null;
+    thumbnailUrl: string | null;
+    createdAt: string | null;
+};
+
+export async function getAssetDuplicates(
+    id: string
+): Promise<DuplicateAsset[]> {
+    const res = await apiClient.get(`/${EntityName.Asset}/${id}/duplicates`);
+
+    return res.data.duplicates ?? [];
+}
+
 export async function getAssetMetrics(
     assetId: string
 ): Promise<MatomoMediaMetrics> {

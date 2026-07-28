@@ -16,6 +16,7 @@ use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetAttachment;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
@@ -162,6 +163,10 @@ class AssetOutputTransformer implements OutputTransformerInterface
                 'share' => $this->isGranted(AssetVoter::SHARE, $data),
                 'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
             ];
+
+            if (AssetStatusEnum::Quarantined === $data->getStatus()) {
+                $capabilities['bypassQuarantine'] = $this->isGranted(AssetVoter::QUARANTINE_BYPASS, $data);
+            }
 
             if ($this->hasGroup([Asset::GROUP_READ], $context)) {
                 $capabilities['editPermissions'] = $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data);
