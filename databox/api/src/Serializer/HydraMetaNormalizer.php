@@ -6,10 +6,12 @@ namespace App\Serializer;
 
 use ApiPlatform\Hydra\Serializer\CollectionNormalizer;
 use App\Api\Model\Output\ApiMetaWrapperOutput;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerAwareTrait;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
+#[Autoconfigure(public: true)]
 class HydraMetaNormalizer implements NormalizerInterface, NormalizerAwareInterface
 {
     use NormalizerAwareTrait;

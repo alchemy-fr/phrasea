@@ -17,6 +17,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import HighlightAltIcon from '@mui/icons-material/HighlightAlt';
 import {NO_LOCALE} from '../../Media/Asset/Attribute/constants.ts';
 import {getAttributeType} from '../../Media/Asset/Attribute/types/getAttributeType.ts';
+import {useNormalizeEntity} from '../../../hooks/useNormalizeEntity.ts';
 
 type Stats = Record<string, number>;
 
@@ -38,6 +39,7 @@ export default function ValuesSuggestions<T>({
     setSubSelection,
 }: Props<T>) {
     const {t, i18n} = useTranslation();
+    const normalizeEntity = useNormalizeEntity();
     const [useOriginal, setUseOriginal] = React.useState(false);
     const [displayPercents, setDisplayPercents] = React.useState(false);
     const [anchorEl, setAnchorEl] = React.useState<null | {
@@ -234,6 +236,8 @@ export default function ValuesSuggestions<T>({
                 </MenuItem>
             </Menu>
             {distinctValues.map((v: Value<T>, index: number) => {
+                const value = normalizeEntity(widget, v.value);
+
                 return (
                     <ListItem key={index} disablePadding>
                         <ListItemButton
@@ -248,9 +252,9 @@ export default function ValuesSuggestions<T>({
                                 <div
                                     className={`${labelClassName} ${!v.label ? emptyValueClassName : ''}`}
                                 >
-                                    {v.value
+                                    {value
                                         ? widget.formatValue({
-                                              value: v.value,
+                                              value,
                                               uiLocale: i18n.language,
                                               t,
                                           })

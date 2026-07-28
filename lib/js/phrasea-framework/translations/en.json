@@ -13,12 +13,6 @@
         "locale": {
             "current": "English",
             "switcher": {
-                "change_data_locale": {
-                    "modal": {
-                        "confirm": "Continue",
-                        "title": "Page will be reloaded"
-                    }
-                },
                 "title": "Change Language"
             }
         },
@@ -32,6 +26,19 @@
         "notification": {
             "menu": {
                 "label": "Notifications"
+            }
+        }
+    },
+    "lib": {
+        "ui": {
+            "beta": {
+                "label": "Beta",
+                "tooltip": "This feature is in beta and may change without notice"
+            },
+            "menu": {
+                "account": "My account",
+                "debug_user": "Debug User",
+                "logout": "Logout"
             }
         }
     }

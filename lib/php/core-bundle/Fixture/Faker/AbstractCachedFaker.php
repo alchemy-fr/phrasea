@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\CoreBundle\Fixture\Faker;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
-use Alchemy\StorageBundle\Storage\PathGenerator;
+use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use Faker\Generator;
 use Faker\Provider\Base as BaseProvider;
 use Psr\Log\LoggerInterface;
@@ -15,7 +15,7 @@ abstract class AbstractCachedFaker extends BaseProvider
     public function __construct(
         private readonly ?string $fixturesCacheDir,
         protected readonly FileStorageManager $fileStorageManager,
-        protected readonly PathGenerator $pathGenerator,
+        protected readonly PathGeneratorInterface $pathGenerator,
         Generator $generator,
         private readonly LoggerInterface $logger,
     ) {

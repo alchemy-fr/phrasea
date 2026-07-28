@@ -26,6 +26,7 @@ import {isNoLocale, NO_LOCALE} from '../Media/Asset/Attribute/constants.ts';
 import Flag from '../Ui/Flag.tsx';
 import {FlexRow} from '@alchemy/phrasea-ui';
 import {getAttributeType} from '../Media/Asset/Attribute/types/getAttributeType.ts';
+import {useNormalizeEntity} from '../../hooks/useNormalizeEntity.ts';
 
 type Props = {
     actions: AttributeBatchAction[];
@@ -37,6 +38,8 @@ export type {Props as ValueDiffProps};
 export default function ValueDiff({actions, definitionIndex}: Props) {
     const formatContext = useContext(AttributeFormatContext);
     const {t, i18n} = useTranslation();
+
+    const normalizeEntity = useNormalizeEntity();
 
     const actionIcons = {
         [AttributeBatchActionEnum.Delete]: <DeleteIcon />,
@@ -76,10 +79,15 @@ export default function ValueDiff({actions, definitionIndex}: Props) {
                             secondary={
                                 <List>
                                     {defActions.map((a, i) => {
+                                        const value = normalizeEntity(
+                                            formatter,
+                                            a.value
+                                        );
+
                                         const valueFormatterProps: AttributeFormatterProps =
                                             {
                                                 ...formatterOptions,
-                                                value: a.value,
+                                                value,
                                                 locale: a.locale,
                                                 format: formatContext.getFormat(
                                                     definition.type,

@@ -110,7 +110,9 @@ export default function EditorPanel<T>({
     const readOnly = !definition.canEdit;
 
     const currentLocale =
-        locale && locales?.includes(locale) ? locale : (locales?.[0] ?? '');
+        locale && locales?.includes(locale)
+            ? locale
+            : (locales?.[0] ?? NO_LOCALE);
 
     return (
         <Box

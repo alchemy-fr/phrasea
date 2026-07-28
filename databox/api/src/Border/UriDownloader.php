@@ -15,12 +15,12 @@ readonly class UriDownloader
     /**
      * @return string The temporary file path
      */
-    public function download(string $uri, array &$headers = []): string
+    public function download(string $uri, array &$headers = [], ?string $path = null): string
     {
         $response = $this->client->request('GET', $uri);
 
-        $tmpFile = sys_get_temp_dir().'/'.uniqid('incoming-file');
-        $fileHandler = fopen($tmpFile, 'w');
+        $path ??= sys_get_temp_dir().'/'.uniqid('download-file');
+        $fileHandler = fopen($path, 'w');
         foreach ($this->client->stream($response) as $chunk) {
             fwrite($fileHandler, $chunk->getContent());
         }
@@ -28,6 +28,6 @@ readonly class UriDownloader
 
         $headers = $response->getHeaders();
 
-        return $tmpFile;
+        return $path;
     }
 }

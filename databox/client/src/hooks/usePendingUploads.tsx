@@ -1,13 +1,12 @@
-import {useUploadStore} from '../../store/uploadStore.ts';
-import {useEffect, useRef} from 'react';
 import {Id, toast} from 'react-toastify';
-import {Trans} from 'react-i18next';
-import PendingUploadsDialog from './PendingUploadsDialog.tsx';
+import {useUploadStore} from '../store/uploadStore.ts';
+import {useEffect, useRef} from 'react';
 import {useModals} from '@alchemy/navigation';
+import {Trans} from 'react-i18next';
+import PendingUploadsDialog from '../components/Upload/PendingUploadsDialog.tsx';
+import {ToastProgressStatus, upsertProgressiveToast} from '../lib/toast.ts';
 
-type Props = {};
-
-export default function PendingUploads({}: Props) {
+export function usePendingUploads() {
     const uploads = useUploadStore(state => state.uploads);
     const toastId = useRef<Id | null>(null);
     const {openModal} = useModals();
@@ -46,31 +45,23 @@ export default function PendingUploads({}: Props) {
             />
         );
 
-        if (toastId.current === null) {
-            toastId.current = toast.info(message, {
-                progress,
-                isLoading: true,
-                closeButton: false,
-                autoClose: false,
-                onClose: () => {
-                    toastId.current = null;
-                },
-                onClick: () => {
-                    openModal(PendingUploadsDialog);
-                },
-            });
-        } else {
-            const isLoading = progress < 1;
-            toast.update(toastId.current, {
-                progress: isLoading ? progress : undefined,
-                type: errored ? 'error' : !isLoading ? 'success' : 'info',
-                isLoading,
-                autoClose: isLoading ? false : null,
-                closeButton: !isLoading,
-                render: message,
-            });
-        }
-    }, [uploads, toastId]);
+        const isLoading = progress < 1;
 
-    return null;
+        toastId.current = upsertProgressiveToast(toastId.current, {
+            render: message,
+            onClose: () => {
+                toastId.current = null;
+            },
+            autoClose: false,
+            status: errored
+                ? ToastProgressStatus.Error
+                : isLoading
+                  ? ToastProgressStatus.InProgress
+                  : ToastProgressStatus.Done,
+            progress,
+            onClick: () => {
+                openModal(PendingUploadsDialog);
+            },
+        });
+    }, [uploads, toastId]);
 }

@@ -118,6 +118,7 @@
                 "label": "Date"
             },
             "edit": {
+                "cover": "Set Cover Image",
                 "submit": "Save Publication",
                 "success": "Publication saved!",
                 "title": "Edit Publication"
@@ -147,15 +148,12 @@
             }
         }
     },
-    "order": {
-        "last_post_added": "Recents",
-        "publication_name": "Name"
-    },
     "profile": {
         "delete_confirm": "Delete Profile",
         "delete_title": "Delete Profile \"{{title}}\"",
         "list": {
             "create_button": "Create Profile",
+            "no_result": "No profile",
             "title": "Profiles",
             "using_publications_one": "{{count}} publication using this profile",
             "using_publications_other": "{{count}} publications using this profile"
@@ -169,14 +167,28 @@
             "sign_in": "Sign In",
             "title": "This publication requires authentication."
         },
-        "delete_confirm": "Delete publication",
-        "delete_title": "Delete publication \"{{title}}\"",
         "disabled": "This publication is currently disabled. Only administrators can see it.",
+        "edit": {
+            "cover": {
+                "set": "Set Cover",
+                "title": "Set Cover"
+            }
+        },
         "layout": {
             "download": {
                 "download_original": "Download original",
                 "download_subdef": "Download {{name}}"
             }
+        },
+        "list": {
+            "delete_confirm": "Delete publication",
+            "delete_title": "Delete publication \"{{title}}\"",
+            "no_result": "No publication",
+            "order": {
+                "last_post_added": "Recents",
+                "publication_name": "Name"
+            },
+            "sort_by": "Sort by {{order}}"
         },
         "noAssetAvailable": "No asset available",
         "not_allowed": "Sorry! You are not allowed to access this publication.",
@@ -192,12 +204,12 @@
                 },
                 "intro": "This publication is protected by a password. Please enter the password to access it."
             }
-        },
-        "sort_by": "Sort by {{order}}"
+        }
     },
     "publicationHeader": {
         "editButton": "Edit",
-        "homeLink": "Home"
+        "homeLink": "Home",
+        "openMenuTooltip": "Open navigation menu"
     },
     "publication_card": {
         "delete": "Delete",

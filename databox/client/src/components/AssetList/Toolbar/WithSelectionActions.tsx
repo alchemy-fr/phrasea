@@ -26,6 +26,7 @@ import {
     ParentSelectionContext,
     SelectionActionsProps,
 } from './SelectionActions.tsx';
+import {AlertDialog} from '@alchemy/phrasea-framework';
 
 type Props<Item extends AssetOrAssetContainer> = {
     selectionContext: ParentSelectionContext<Item>;
@@ -140,6 +141,18 @@ export default function WithSelectionActions<
                     id: selectedAssets[0].id,
                 });
             } else {
+                const workspaceId = selectedAssets[0].workspace.id;
+
+                if (selectedAssets.some(a => a.workspace?.id !== workspaceId)) {
+                    openModal(AlertDialog, {
+                        children: t(
+                            'asset_actions.batch_edit.different_workspaces.message',
+                            'You cannot edit attributes for assets from different workspaces at the same time.'
+                        ),
+                    });
+                    return;
+                }
+
                 navigateToModal(
                     modalRoutes.attributesBatchEdit,
                     {},
@@ -148,7 +161,7 @@ export default function WithSelectionActions<
                             selection: selectedAssets
                                 .filter(filterEditableAttributes)
                                 .map(a => a.id),
-                            workspaceId: selectedAssets[0].workspace.id,
+                            workspaceId,
                         },
                     }
                 );

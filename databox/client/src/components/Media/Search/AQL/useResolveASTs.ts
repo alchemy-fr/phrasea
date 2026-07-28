@@ -1,6 +1,7 @@
 import {useEffect, useMemo} from 'react';
 import {
     EntityCached,
+    ResolveStatus,
     useEntitiesStore,
 } from '../../../../store/entitiesStore.ts';
 import {parseAQLQuery} from './AQL.ts';
@@ -83,6 +84,8 @@ export function useResolveASTs({
                         requestEntities([iri]);
                     } else if (typeof entity === 'object') {
                         return entity as EntityCached;
+                    } else {
+                        return entity as ResolveStatus;
                     }
                 },
                 formatterOptions

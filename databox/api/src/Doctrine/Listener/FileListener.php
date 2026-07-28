@@ -47,7 +47,7 @@ readonly class FileListener implements EventSubscriber
 
     private function addFileToDelete(?File $file): void
     {
-        if (!$file) {
+        if (!$file || File::STORAGE_S3_MAIN !== $file->getStorage()) {
             return;
         }
 

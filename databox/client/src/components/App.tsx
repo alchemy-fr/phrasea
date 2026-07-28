@@ -8,8 +8,8 @@ import {useLocation} from '@alchemy/navigation';
 import {setSentryUser} from '@alchemy/core';
 import {useAuth} from '@alchemy/react-auth';
 import AssetSearch from './AssetSearch/AssetSearch';
-import PendingUploads from './Upload/PendingUploads.tsx';
 import AppLayout from './Layout/AppLayout.tsx';
+import StateFullToasts from './StateFullToasts.tsx';
 
 function isDrawer(locationSearch: string): boolean {
     return locationSearch.includes('_m=');
@@ -41,7 +41,7 @@ const AppProxy = React.memo(
         return (
             <>
                 <style>{'body { overflow: hidden; }'}</style>
-                <PendingUploads />
+                <StateFullToasts />
                 <SearchProvider>
                     <ResultProvider>
                         <AssetDropzone>

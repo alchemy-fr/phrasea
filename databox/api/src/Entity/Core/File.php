@@ -254,6 +254,11 @@ class File extends AbstractUuidEntity implements \Stringable
         }
     }
 
+    public function metadataHasChanged(): bool
+    {
+        return $this->metadata?->metadataHasChanged() ?? false;
+    }
+
     public function getAnalysis(): ?array
     {
         return $this->analysis;

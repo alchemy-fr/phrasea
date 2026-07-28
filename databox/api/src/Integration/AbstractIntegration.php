@@ -28,12 +28,12 @@ abstract class AbstractIntegration implements IntegrationInterface
     {
     }
 
-    public function normalizeConfiguration(array $config, Workspace $workspace): array
+    public function normalizeConfiguration(array $config, ?Workspace $workspace): array
     {
         return $config;
     }
 
-    public function denormalizeConfiguration(array $config, Workspace $workspace): array
+    public function denormalizeConfiguration(array $config, ?Workspace $workspace): array
     {
         return $config;
     }

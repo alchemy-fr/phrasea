@@ -95,6 +95,7 @@ export default function Preview<T>({
                                 'p': 1,
                                 'position': 'absolute',
                                 'zIndex': theme.zIndex.speedDial,
+                                'background': theme.palette.background.paper,
                                 'bottom': 0,
                                 'width': '100%',
                                 'display': 'flex',

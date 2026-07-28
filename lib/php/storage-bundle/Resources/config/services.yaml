@@ -51,6 +51,7 @@ services:
     Alchemy\StorageBundle\Doctrine\MultipartUploadListener: ~
 
     Alchemy\StorageBundle\Storage\PathGenerator: ~
+    Alchemy\StorageBundle\Storage\PathGeneratorInterface: '@Alchemy\StorageBundle\Storage\PathGenerator'
 
     Alchemy\StorageBundle\Storage\FileStorageManager:
         arguments:

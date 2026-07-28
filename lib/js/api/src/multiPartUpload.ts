@@ -1,5 +1,6 @@
 import {AxiosProgressEvent} from 'axios';
 import {HttpClient, MultipartUpload, UploadPart} from './types';
+import {getMIMETypeFromFile} from '@alchemy/core';
 
 export type OnRetry = (retryCount: number, retryDelay: number) => void;
 
@@ -116,11 +117,18 @@ export async function multipartUpload(
         const abortControllerInit = new AbortController();
         receiveAbortController?.(abortControllerInit);
 
+        const type = getMIMETypeFromFile(file);
+        if (!type) {
+            throw new Error(
+                `Unable to determine MIME type for file: ${file.name}`
+            );
+        }
+
         const res = await apiClient.post(
             uploadPath,
             {
                 filename: file.name,
-                type: file.type,
+                type,
                 size,
             },
             {

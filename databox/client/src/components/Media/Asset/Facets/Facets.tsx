@@ -179,32 +179,34 @@ const Facets = React.memo(function ({facets}: {facets: TFacets}) {
                     },
                 })}
             >
-                {list.map(([k, v]) => {
-                    const pref = find(k);
-                    const hidden = Boolean(pref?.hidden);
+                {list
+                    .filter(([_k, v]) => v.buckets.length > 0)
+                    .map(([k, v]) => {
+                        const pref = find(k);
+                        const hidden = Boolean(pref?.hidden);
 
-                    return (
-                        <FacetGroup
-                            key={k}
-                            name={k}
-                            facet={v}
-                            hidden={hidden}
-                            onPinToggle={onPinToggle}
-                            pinned={Boolean(pref && !pref.hidden)}
-                            toggleHide={hidden ? onUnhide : onHide}
-                            open={!closedNodes.includes(k)}
-                            toggleOpen={name => {
-                                setClosedNodes(prev => {
-                                    if (prev.includes(name)) {
-                                        return prev.filter(n => n !== name);
-                                    } else {
-                                        return [...prev, name];
-                                    }
-                                });
-                            }}
-                        />
-                    );
-                })}
+                        return (
+                            <FacetGroup
+                                key={k}
+                                name={k}
+                                facet={v}
+                                hidden={hidden}
+                                onPinToggle={onPinToggle}
+                                pinned={Boolean(pref && !pref.hidden)}
+                                toggleHide={hidden ? onUnhide : onHide}
+                                open={!closedNodes.includes(k)}
+                                toggleOpen={name => {
+                                    setClosedNodes(prev => {
+                                        if (prev.includes(name)) {
+                                            return prev.filter(n => n !== name);
+                                        } else {
+                                            return [...prev, name];
+                                        }
+                                    });
+                                }}
+                            />
+                        );
+                    })}
             </List>
         </>
     );
