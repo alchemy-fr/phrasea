@@ -17,6 +17,9 @@
         "translations/*.json",
         "src/multiPartUpload.ts"
     ],
+    "dependencies": {
+        "@alchemy/core": "workspace:*"
+    },
     "peerDependencies": {
         "axios": "^1.18.1",
         "axios-retry": "^4.5.0",

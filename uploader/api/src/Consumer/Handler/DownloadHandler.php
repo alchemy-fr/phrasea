@@ -6,7 +6,7 @@ namespace App\Consumer\Handler;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
-use Alchemy\StorageBundle\Storage\PathGenerator;
+use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use App\Entity\Commit;
 use App\Entity\Target;
 use App\Storage\AssetManager;
@@ -24,7 +24,7 @@ readonly class DownloadHandler
         private HttpClientInterface $client,
         private AssetManager $assetManager,
         private MessageBusInterface $bus,
-        private PathGenerator $pathGenerator,
+        private PathGeneratorInterface $pathGenerator,
         private EntityManagerInterface $em,
     ) {
     }

@@ -8,6 +8,7 @@ import {
 import {SortWay} from './common.ts';
 import {EntityName} from './types.ts';
 import {QueryAndPaginationParams} from '@alchemy/phrasea-framework';
+import {downloadUrl} from '@alchemy/core';
 
 export const entityTypeNS = EntityName.EntityList;
 
@@ -85,12 +86,7 @@ export async function exportEntities(
 
     const url = URL.createObjectURL(response.data);
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-
-    URL.revokeObjectURL(url);
+    downloadUrl(url, filename, true);
 }
 
 export async function importEntities(

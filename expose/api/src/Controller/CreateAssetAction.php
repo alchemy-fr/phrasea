@@ -6,7 +6,7 @@ namespace App\Controller;
 
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
-use Alchemy\StorageBundle\Storage\PathGenerator;
+use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use App\Entity\Asset;
 use App\Entity\Publication;
@@ -23,7 +23,7 @@ final class CreateAssetAction extends AbstractController
         private readonly FileStorageManager $storageManager,
         private readonly AssetManager $assetManager,
         private readonly UploadManager $uploadManager,
-        private readonly PathGenerator $pathGenerator,
+        private readonly PathGeneratorInterface $pathGenerator,
     ) {
     }
 

@@ -50,7 +50,7 @@ class AssetRepository extends ServiceEntityRepository
     /**
      * @return Asset[]
      */
-    public function findByKeys(array $keys, string $workspaceId): array
+    public function findByKeys(array $keys, string $workspaceId): iterable
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.workspace = :ws')
@@ -58,7 +58,7 @@ class AssetRepository extends ServiceEntityRepository
             ->andWhere('t.key IN (:keys)')
             ->setParameter('keys', $keys)
             ->getQuery()
-            ->getResult();
+            ->toIterable();
     }
 
     /**

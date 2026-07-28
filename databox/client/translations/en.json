@@ -90,6 +90,14 @@
                     "desc": "Full control over this collection and child collections, except for permissions and privacy settings.",
                     "label": "Owner"
                 },
+                "quarantine": {
+                    "desc": "Allows viewing quarantined assets in this collection.",
+                    "label": "View Quarantined"
+                },
+                "quarantine_by_pass": {
+                    "desc": "Allows bypassing quarantine for assets in this collection.",
+                    "label": "Bypass Quarantine"
+                },
                 "share_assets": {
                     "desc": "Allows sharing assets of the collection and child collections.",
                     "label": "Share Assets"
@@ -185,6 +193,14 @@
                 "owner": {
                     "desc": "Full control over the workspace, its collections, and assets.",
                     "label": "Owner"
+                },
+                "quarantine": {
+                    "desc": "Allows viewing quarantined assets in this workspace.",
+                    "label": "View Quarantined"
+                },
+                "quarantine_by_pass": {
+                    "desc": "Allows bypassing quarantine for assets in this workspace.",
+                    "label": "Bypass Quarantine"
                 },
                 "share_assets": {
                     "desc": "Allows sharing assets at the root level of this workspace.",
@@ -383,6 +399,11 @@
         }
     },
     "asset_actions": {
+        "batch_edit": {
+            "different_workspaces": {
+                "message": "You cannot edit attributes for assets from different workspaces at the same time."
+            }
+        },
         "copy": "Copy",
         "delete": "Delete",
         "delete_permanently": "Delete Permanently",
@@ -412,6 +433,14 @@
     "asset_dropzone": {
         "drop_the_files_here": "Drop the files here…",
         "you_must_be_authenticated_in_order_to_upload_new_files": "You must be authenticated in order to upload new files"
+    },
+    "asset_export": {
+        "pending": {
+            "toast": {
+                "done": "Export Ready! <a>Download</a>",
+                "in_progress": "Preparing Export… {{progress}}%"
+            }
+        }
     },
     "asset_file_versions": {
         "current": "Current"
@@ -1197,6 +1226,11 @@
     "editor_panel": {
         "untranslated": "Untranslated"
     },
+    "entity": {
+        "not_allowed": "Not allowed",
+        "not_found": "Not found",
+        "unresolved": "…"
+    },
     "entity_type": {
         "definitions": {
             "count_one": "Used on {{ count }} attribute definition",
@@ -1773,6 +1807,9 @@
                 "remove": "Remove <1>this locale</1>",
                 "title": "Fallbacks locales"
             },
+            "fileAnalysisRequired": {
+                "label": "Requires File Analysis"
+            },
             "locales": {
                 "add": "Add locale",
                 "label": "Locale",
@@ -2243,7 +2280,8 @@
     "search": {
         "error": "Oops, an error occurred:",
         "more_options": {
-            "clear_search": "Clear search"
+            "clear_search": "Clear search",
+            "save_as_new": "Save as new search"
         },
         "no_results_message": "We are sorry, but your search did not return <strong>any assets</strong>!",
         "save_search": "Save Search",

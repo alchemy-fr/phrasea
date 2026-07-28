@@ -24,6 +24,11 @@ trait PusherTrait
         $this->pusherManager->trigger($channel, $event, $payload, $direct);
     }
 
+    public function triggerExportPush(string $exportId, string $event, array $payload): void
+    {
+        $this->pusherManager->trigger('export-'.$exportId, $event, $payload, direct: true);
+    }
+
     public function triggerFilePush(string $integrationName, File $file, array $payload, bool $direct = false): void
     {
         $this->pusherManager->trigger('file-'.$file->getId(), 'integration:'.$integrationName, $payload, $direct);

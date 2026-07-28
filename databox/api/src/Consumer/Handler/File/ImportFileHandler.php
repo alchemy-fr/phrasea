@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\File;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
-use App\Border\FileAnalyzer;
 use App\Entity\Core\File;
 use App\Service\Asset\FileFetcher;
 use App\Service\Storage\FileManager;
@@ -23,7 +22,6 @@ readonly class ImportFileHandler
         private FileFetcher $fileFetcher,
         private EntityManagerInterface $em,
         private LoggerInterface $logger,
-        private FileAnalyzer $fileAnalyzer,
     ) {
     }
 
@@ -45,7 +43,7 @@ readonly class ImportFileHandler
         $headers = [];
 
         try {
-            $src = $this->fileFetcher->getFile($file, $headers);
+            $src = $this->fileFetcher->downloadFile($file, $headers);
         } catch (ClientException $e) {
             if (404 === $e->getResponse()->getStatusCode()) {
                 $this->logger->error($e->getMessage());
@@ -62,12 +60,11 @@ readonly class ImportFileHandler
                 $type = Header::parse($headers['Content-Type']);
                 if (null === $file->getType() && !empty($type)) {
                     $mimeType = $type[0][0];
+                    $file->setType($mimeType);
                 }
             }
 
             $file->setSize(filesize($src));
-
-            $this->fileAnalyzer->analyzeFileSource($src, $file);
 
             $finalPath = $this->fileManager->storeFile(
                 $file->getWorkspace(),

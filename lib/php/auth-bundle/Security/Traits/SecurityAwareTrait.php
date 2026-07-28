@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\JwtInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\RoleMapper;
 use Alchemy\AuthBundle\Security\Token\JwtToken;
+use App\Model\UserData;
 use App\Security\Voter\AbstractVoter;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -40,6 +41,32 @@ trait SecurityAwareTrait
     protected function isGranted(mixed $attributes, mixed $subject = null): bool
     {
         return $this->security->isGranted($attributes, $subject);
+    }
+
+    protected function isGrantedForUser(UserData $userData, mixed $attributes, mixed $subject = null): bool
+    {
+        $user = new JwtUser(
+            'JWT',
+            $userData->id,
+            $userData->id,
+            $userData->roles,
+            $userData->groupsId,
+            $userData->scopes,
+        );
+
+        return $this->security->isGrantedForUser($user, $attributes, $subject);
+    }
+
+    public function extractUserData(): UserData
+    {
+        $user = $this->getStrictUser();
+
+        return new UserData(
+            $user->getUserIdentifier(),
+            $user->getGroups(),
+            $user->getRoles(),
+            $user->getScopes(),
+        );
     }
 
     protected function getTokenId(): string

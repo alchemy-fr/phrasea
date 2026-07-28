@@ -53,7 +53,6 @@ services:
             - '../src/Kernel.php'
             - '../src/Tests/'
             - '../src/Api/Model/'
-            - '../src/Serializer/' # Should be explicitly declared
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
@@ -80,12 +79,6 @@ services:
             - ~ # options
         calls:
             - [setPropertyAccessor, ['@fos_elastica.property_accessor']]
-
-    hydra_meta.normalizer:
-        class:  App\Serializer\HydraMetaNormalizer
-        public: true
-
-    App\Serializer\Normalizer\OperationTaskNormalizer: ~
 
     App\Api\Serializer\GroupNormalizerContextBuilder:
         decorates: 'alchemy_webhook.normalizer.context_builder'

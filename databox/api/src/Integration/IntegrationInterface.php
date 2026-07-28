@@ -23,9 +23,9 @@ interface IntegrationInterface
     public function validateConfiguration(IntegrationConfig $config): void;
 
     // Normalize configuration to be persisted to database
-    public function normalizeConfiguration(array $config, Workspace $workspace): array;
+    public function normalizeConfiguration(array $config, ?Workspace $workspace): array;
 
-    public function denormalizeConfiguration(array $config, Workspace $workspace): array;
+    public function denormalizeConfiguration(array $config, ?Workspace $workspace): array;
 
     public function getConfigurationInfo(IntegrationConfig $config): array;
 
