@@ -61,7 +61,7 @@ class AssetExportProcessHandler
             $userData = $export->getUserData();
 
             $assets = $export->getAssets();
-            $total = count($assets);
+            $total = count($assets) + 2;
             $i = 0;
             $fileCount = 0;
 
@@ -135,6 +135,9 @@ class AssetExportProcessHandler
                 $zippy->create($archiveSrc, [
                     'content' => $archiveDir,
                 ]);
+                $this->triggerExportPush($export->getId(), 'progress', [
+                    'progress' => ++$i / $total,
+                ]);
 
                 $fd = fopen($archiveSrc, 'r');
                 if (false === $fd) {
@@ -143,6 +146,10 @@ class AssetExportProcessHandler
                 $this->fileStorageManager->storeStream($archivePath, $fd);
                 fclose($fd);
                 $export->setPath($archivePath);
+
+                $this->triggerExportPush($export->getId(), 'progress', [
+                    'progress' => ++$i / $total,
+                ]);
 
                 $export->setStatus(ExportStatusEnum::Ready);
                 $this->em->persist($export);
