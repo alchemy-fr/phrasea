@@ -44,6 +44,27 @@ class FileMetadata extends AbstractUuidEntity
         }
     }
 
+    public function getMetadataValues(string $name): ?array
+    {
+        return $this->metadata[$name]['values'] ?? null;
+    }
+
+    public function setMetadataValue(string $name, mixed $value, bool $append = false): void
+    {
+        $parts = explode(':', $name);
+
+        $this->metadata[$name] ??= [
+            'name' => array_last($parts),
+            'values' => [],
+        ];
+
+        if ($append) {
+            $this->metadata[$name]['values'][] = $value;
+        } else {
+            $this->metadata[$name]['values'] = [$value];
+        }
+    }
+
     public function getChecksum(): ?string
     {
         return $this->checksum;

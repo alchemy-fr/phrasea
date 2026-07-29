@@ -81,8 +81,7 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
     {
         $output = new AnalysisOutput();
 
-        $metadata = $file->getMetadata();
-        if (null === $metadata) {
+        if (null === $file->getMetadata()) {
             throw new \InvalidArgumentException(sprintf('File %s has no metadata. Please ensure a Readmeta integration is processed before File Analyzer.', $file->getId()));
         }
 
@@ -90,12 +89,14 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
 
         $duid = null;
         foreach ($config['read_from'] as $key) {
-            if (isset($metadata[$key])) {
-                $candidate = $this->sanitizeXmpUuid((string) $metadata[$key]);
-                if (Uuid::isValid($candidate)) {
-                    $duid = $candidate;
-                    $data['found_in'] = $key;
-                    break;
+            if (!empty($values = $file->getMetadataValues($key))) {
+                if (1 === count($values)) {
+                    $candidate = $this->sanitizeXmpUuid((string) array_first($values));
+                    if (Uuid::isValid($candidate)) {
+                        $duid = $candidate;
+                        $data['found_in'] = $key;
+                        break;
+                    }
                 }
             }
         }
@@ -125,10 +126,9 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
 
         if (null !== $duid && $config['write']) {
             foreach ($config['write_to'] as $key) {
-                $metadata[$key] = $duid;
+                $file->setMetadataValue($key, $duid);
             }
 
-            $file->setMetadata($metadata);
             $this->em->persist($file);
         }
 

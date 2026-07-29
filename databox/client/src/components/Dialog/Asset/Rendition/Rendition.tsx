@@ -194,6 +194,7 @@ export function Rendition({
                                     component="a"
                                     key={'download'}
                                     href={file.url}
+                                    disabled={!file.url}
                                     target={'_blank'}
                                     rel={'noreferrer'}
                                 >

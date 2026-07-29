@@ -255,6 +255,17 @@ class File extends AbstractUuidEntity implements \Stringable
         }
     }
 
+    public function setMetadataValue(string $name, mixed $value): void
+    {
+        $this->metadata ??= new FileMetadata();
+        $this->metadata->setMetadataValue($name, $value);
+    }
+
+    public function getMetadataValues(string $name): ?array
+    {
+        return $this->metadata?->getMetadataValues($name);
+    }
+
     public function metadataHasChanged(): bool
     {
         return $this->metadata?->metadataHasChanged() ?? false;
