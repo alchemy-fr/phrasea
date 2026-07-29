@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\BuiltInField;
+namespace App\Elasticsearch\BuiltInAttribute;
 
 use App\Api\Filter\Group\GroupValue;
 use App\Attribute\Type\BooleanAttributeType;

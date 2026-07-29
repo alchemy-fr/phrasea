@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\BuiltInField;
+namespace App\Elasticsearch\BuiltInAttribute;
 
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Tag;
 
-final class TagBuiltInField extends AbstractEntityBuiltInField
+final class TagBuiltInAttribute extends AbstractEntityBuiltInAttribute
 {
     use UserLocaleTrait;
 

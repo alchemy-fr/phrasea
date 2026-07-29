@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\BuiltInField;
+namespace App\Elasticsearch\BuiltInAttribute;
 
 use App\Attribute\Type\BooleanAttributeType;
 use App\Elasticsearch\AbstractSearch;
@@ -10,7 +10,7 @@ use App\Elasticsearch\AQL\ConditionOperatorEnum;
 use App\Entity\Core\Asset;
 use Elastica\Query;
 
-final class DeletedBuiltInField extends AbstractBuiltInAttribute implements CustomFilterQueryBuiltInAttributeInterface
+final class DeletedBuiltInAttribute extends AbstractBuiltInAttribute implements CustomFilterQueryBuiltInAttributeInterface
 {
     protected function getAggregationTranslationKey(): string
     {

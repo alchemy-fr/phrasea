@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\BuiltInField;
+namespace App\Elasticsearch\BuiltInAttribute;
 
 use App\Entity\Core\Asset;
 use App\Entity\Core\CollectionAsset;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use Doctrine\ORM\EntityManagerInterface;
 
-final class StoryBuiltInField extends AbstractEntityBuiltInField
+final class StoryBuiltInAttribute extends AbstractEntityBuiltInAttribute
 {
     public function __construct(
         private readonly AssetNameResolver $assetNameResolver,

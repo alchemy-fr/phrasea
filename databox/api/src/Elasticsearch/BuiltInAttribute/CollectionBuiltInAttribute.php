@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\BuiltInField;
+namespace App\Elasticsearch\BuiltInAttribute;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Api\Traits\UserLocaleTrait;
@@ -16,7 +16,7 @@ use Ramsey\Uuid\Nonstandard\Uuid;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-final class CollectionBuiltInField extends AbstractBuiltInAttribute
+final class CollectionBuiltInAttribute extends AbstractBuiltInAttribute
 {
     use UserLocaleTrait;
 

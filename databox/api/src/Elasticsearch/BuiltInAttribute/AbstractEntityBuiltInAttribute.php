@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\BuiltInField;
+namespace App\Elasticsearch\BuiltInAttribute;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\Type\KeywordAttributeType;
 use Doctrine\ORM\EntityManagerInterface;
 
-abstract class AbstractEntityBuiltInField extends AbstractBuiltInAttribute
+abstract class AbstractEntityBuiltInAttribute extends AbstractBuiltInAttribute
 {
     public function __construct(private readonly EntityManagerInterface $em)
     {

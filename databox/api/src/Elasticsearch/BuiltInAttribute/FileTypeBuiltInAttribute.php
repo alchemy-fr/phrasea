@@ -2,31 +2,31 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\BuiltInField;
+namespace App\Elasticsearch\BuiltInAttribute;
 
 use App\Attribute\Type\KeywordAttributeType;
 use App\Entity\Core\Asset;
 
-final class FileExtensionBuiltInField extends AbstractBuiltInAttribute
+final class FileTypeBuiltInAttribute extends AbstractBuiltInAttribute
 {
     protected function getAggregationTranslationKey(): string
     {
-        return 'file_extension';
+        return 'file_type';
     }
 
     public static function getName(): string
     {
-        return 'fileExtension';
+        return 'fileType';
     }
 
     public static function getKey(): string
     {
-        return '@extension';
+        return '@type';
     }
 
     public function getValueFromAsset(Asset $asset): mixed
     {
-        return $asset->getSourceFileExtension();
+        return $asset->getSourceFileType();
     }
 
     #[\Override]

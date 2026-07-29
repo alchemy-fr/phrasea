@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\BuiltInField;
+namespace App\Elasticsearch\BuiltInAttribute;
 
 use App\Attribute\Type\IdAttributeType;
 use App\Entity\Core\Asset;
 
-final class IdBuiltInField extends AbstractBuiltInAttribute
+final class IdBuiltInAttribute extends AbstractBuiltInAttribute
 {
     protected function getAggregationTranslationKey(): string
     {

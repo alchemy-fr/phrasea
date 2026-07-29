@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\BuiltInField;
+namespace App\Elasticsearch\BuiltInAttribute;
 
 use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
 use Symfony\Contracts\Service\ServiceProviderInterface;
@@ -15,7 +15,7 @@ final readonly class BuiltInAttributeRegistry
     ) {
     }
 
-    public function getBuiltInField(string $key): ?BuiltInAttributeInterface
+    public function getBuiltInAttribute(string $key): ?BuiltInAttributeInterface
     {
         if (!str_starts_with($key, '@')) {
             return null;

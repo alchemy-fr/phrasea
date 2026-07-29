@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\BuiltInField;
+namespace App\Elasticsearch\BuiltInAttribute;
 
-abstract class AbstractLabelledBuiltInField extends AbstractBuiltInAttribute
+abstract class AbstractLabelledBuiltInAttribute extends AbstractBuiltInAttribute
 {
     #[\Override]
     public function normalizeBuckets(array $buckets): array

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\BuiltInField;
+namespace App\Elasticsearch\BuiltInAttribute;
 
 use App\Attribute\Type\TextAttributeType;
 use App\Entity\Core\Asset;
 
-final class FileNameBuiltInField extends AbstractBuiltInAttribute
+final class FileNameBuiltInAttribute extends AbstractBuiltInAttribute
 {
     protected function getAggregationTranslationKey(): string
     {

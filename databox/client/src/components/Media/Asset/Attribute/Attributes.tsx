@@ -23,14 +23,14 @@ import {
 } from '../../../../store/profileStore.ts';
 import {useTranslation} from 'react-i18next';
 import {
-    getBuiltInFieldValueResolver,
+    getBuiltInAttributeValueResolver,
     useIndexById,
 } from '../../../../store/attributeDefinitionStore.ts';
 import Separator from '../../../Ui/Separator.tsx';
 import {Spacer} from '../../../Ui/VerticalSpacer.tsx';
 import {AttributeFormat} from './types/types';
 import {NO_LOCALE} from './constants.ts';
-import {BuiltInFieldEnum} from '../../Search/search.ts';
+import {BuiltInAttributeEnum} from '../../Search/search.ts';
 
 type AttributeItem = {
     id: string;
@@ -102,8 +102,8 @@ function Attributes({
                     });
                 }
             } else if (item.type === ProfileItemType.BuiltIn) {
-                const getValueFromAsset = getBuiltInFieldValueResolver(
-                    item.key as BuiltInFieldEnum
+                const getValueFromAsset = getBuiltInAttributeValueResolver(
+                    item.key as BuiltInAttributeEnum
                 );
 
                 if (getValueFromAsset) {
@@ -187,8 +187,8 @@ function Attributes({
                 } else if (ai.type === ProfileItemType.BuiltIn) {
                     const definition = ai.definition!;
 
-                    const getValueFromAsset = getBuiltInFieldValueResolver(
-                        ai.definition!.id as BuiltInFieldEnum
+                    const getValueFromAsset = getBuiltInAttributeValueResolver(
+                        ai.definition!.id as BuiltInAttributeEnum
                     );
 
                     if (getValueFromAsset) {

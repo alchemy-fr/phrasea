@@ -11,7 +11,7 @@ import {AclExtraPermission} from './components/Permissions/permissionsTypes.ts';
 import {Privacy} from './api/privacy.ts';
 import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/managerTypes.ts';
 import {UserPreferences} from './store/userPreferencesStore.ts';
-import {BuiltInFieldEnum} from './components/Media/Search/search.ts';
+import {BuiltInAttributeEnum} from './components/Media/Search/search.ts';
 import {AttributeWidgetOptions} from './components/Media/Asset/Attribute/types/types';
 
 export type AlternateUrl = {
@@ -465,7 +465,7 @@ export type ProfileItem = {
     id: string;
     section: ProfileItemSection;
     type: ProfileItemType;
-    key?: BuiltInFieldEnum | string;
+    key?: BuiltInAttributeEnum | string;
     definition?: string;
     displayEmpty?: boolean;
     format?: string;

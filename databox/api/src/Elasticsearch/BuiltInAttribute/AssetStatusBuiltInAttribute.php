@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\BuiltInField;
+namespace App\Elasticsearch\BuiltInAttribute;
 
 use App\Attribute\Type\AssetStatusAttributeType;
 use App\Elasticsearch\AbstractSearch;
@@ -13,7 +13,7 @@ use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-final class AssetStatusBuiltInField extends AbstractLabelledBuiltInField implements CustomFilterQueryBuiltInAttributeInterface
+final class AssetStatusBuiltInAttribute extends AbstractLabelledBuiltInAttribute implements CustomFilterQueryBuiltInAttributeInterface
 {
     public function __construct(private readonly TranslatorInterface $translator)
     {

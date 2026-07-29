@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\BuiltInField;
+namespace App\Elasticsearch\BuiltInAttribute;
 
 use App\Entity\Core\Asset;
 use App\Entity\Core\RenditionDefinition;
 
-final class RenditionBuiltInField extends AbstractEntityBuiltInField
+final class RenditionBuiltInAttribute extends AbstractEntityBuiltInAttribute
 {
     protected function getEntityClass(): string
     {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\BuiltInField;
+namespace App\Elasticsearch\BuiltInAttribute;
 
 use App\Attribute\Type\DateTimeAttributeType;
 use App\Elasticsearch\ESFacetInterface;
@@ -10,7 +10,7 @@ use Elastica\Aggregation;
 use Elastica\Query;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-abstract class AbstractDateTimeBuiltInField extends AbstractBuiltInAttribute
+abstract class AbstractDateTimeBuiltInAttribute extends AbstractBuiltInAttribute
 {
     #[\Override]
     protected function resolveLabel($value): string

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Elasticsearch\BuiltInField;
+namespace App\Elasticsearch\BuiltInAttribute;
 
 use Alchemy\AuthBundle\Repository\UserRepositoryInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
@@ -10,7 +10,7 @@ use App\Attribute\Type\KeywordAttributeType;
 use App\Entity\Core\Asset;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-final class OwnerBuiltInField extends AbstractBuiltInAttribute
+final class OwnerBuiltInAttribute extends AbstractBuiltInAttribute
 {
     use SecurityAwareTrait;
 

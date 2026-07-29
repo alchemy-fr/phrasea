@@ -10,7 +10,7 @@ use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Attribute\AttributeTypeRegistry;
-use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
+use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
@@ -44,7 +44,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         private readonly AttributesResolver $attributesResolver,
         private readonly AssetNameResolver $assetNameResolver,
         private readonly FieldNameResolver $fieldNameResolver,
-        private readonly BuiltInAttributeRegistry $builtInFieldRegistry,
+        private readonly BuiltInAttributeRegistry $builtInAttributeRegistry,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
         private readonly DiscussionManager $discussionManager,
         private readonly NotifierInterface $notifier,

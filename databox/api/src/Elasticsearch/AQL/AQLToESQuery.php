@@ -17,9 +17,9 @@ use App\Attribute\Type\TextAttributeType;
 use App\Elasticsearch\AQL\Function\AQLFunctionInterface;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\AQL\Function\Argument;
-use App\Elasticsearch\BuiltInField\BuiltInAttributeInterface;
-use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
-use App\Elasticsearch\BuiltInField\CustomFilterQueryBuiltInAttributeInterface;
+use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeInterface;
+use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
+use App\Elasticsearch\BuiltInAttribute\CustomFilterQueryBuiltInAttributeInterface;
 use Elastica\Query;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -27,7 +27,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 final readonly class AQLToESQuery
 {
     public function __construct(
-        private BuiltInAttributeRegistry $builtInFieldRegistry,
+        private BuiltInAttributeRegistry $builtInAttributeRegistry,
         private AQLFunctionRegistry $functionRegistry,
         private AttributeTypeRegistry $attributeTypeRegistry,
         private DateNormalizer $dateNormalizer,
@@ -110,8 +110,8 @@ final readonly class AQLToESQuery
     private function createCriteria(array $field, array $data, array $options): Query\AbstractQuery
     {
         $locale = $options['locale'] ?? '*';
-        /** @var BuiltInAttributeInterface $builtInField */
-        $builtInField = $field['builtInField'] ?? null;
+        /** @var BuiltInAttributeInterface $builtInAttribute */
+        $builtInAttribute = $field['builtInAttribute'] ?? null;
 
         $fieldName = str_replace('{l}', $locale, $field['field']);
         /** @var AttributeTypeInterface $type */
@@ -141,13 +141,13 @@ final readonly class AQLToESQuery
         }
 
         if (isset($data['rightOperand'])) {
-            $value = $this->resolveValue($data['rightOperand'], $builtInField);
+            $value = $this->resolveValue($data['rightOperand'], $builtInAttribute);
         } else {
             $value = null;
         }
 
-        if ($builtInField instanceof CustomFilterQueryBuiltInAttributeInterface) {
-            return $builtInField->createFilterQuery($value, $operator, $options);
+        if ($builtInAttribute instanceof CustomFilterQueryBuiltInAttributeInterface) {
+            return $builtInAttribute->createFilterQuery($value, $operator, $options);
         }
 
         if ($type instanceof DateTimeAttributeType && null !== $value) {
@@ -517,7 +517,7 @@ final readonly class AQLToESQuery
         return $scripts;
     }
 
-    private function resolveValue(mixed $data, ?BuiltInAttributeInterface $builtInField = null): mixed
+    private function resolveValue(mixed $data, ?BuiltInAttributeInterface $builtInAttribute = null): mixed
     {
         if (is_array($data)) {
             $type = $data['type'] ?? null;
@@ -529,7 +529,7 @@ final readonly class AQLToESQuery
             } elseif ('value_expression' === $type) {
                 $data = $this->resolveValueExpression($data);
             } elseif (isset($data[0])) {
-                return array_map(fn (mixed $data) => $this->resolveValue($data, $builtInField), $data);
+                return array_map(fn (mixed $data) => $this->resolveValue($data, $builtInAttribute), $data);
             }
         }
 
@@ -539,11 +539,11 @@ final readonly class AQLToESQuery
 
         $v = $data['literal'] ?? $data;
 
-        if (null !== $builtInField) {
+        if (null !== $builtInAttribute) {
             try {
-                $v = $builtInField->normalizeValueForSearch($v);
+                $v = $builtInAttribute->normalizeValueForSearch($v);
             } catch (NotFoundHttpException $e) {
-                throw new BadRequestHttpException(sprintf('Invalid value for built-in field "%s": %s', $builtInField::getName(), $e->getMessage()), $e);
+                throw new BadRequestHttpException(sprintf('Invalid value for built-in field "%s": %s', $builtInAttribute::getName(), $e->getMessage()), $e);
             }
         }
 
@@ -556,13 +556,13 @@ final readonly class AQLToESQuery
     private function getFieldNames(array $fieldClusters, string $fieldSlug): array
     {
         if (str_starts_with($fieldSlug, '@')) {
-            $builtInField = $this->builtInFieldRegistry->getBuiltInField($fieldSlug);
-            if (null !== $builtInField) {
+            $builtInAttribute = $this->builtInAttributeRegistry->getBuiltInAttribute($fieldSlug);
+            if (null !== $builtInAttribute) {
                 return [
                     new ClusterGroup([
-                        'field' => $builtInField::getName(),
-                        'builtInField' => $builtInField,
-                        'type' => $this->attributeTypeRegistry->getStrictType($builtInField->getType()),
+                        'field' => $builtInAttribute::getName(),
+                        'builtInAttribute' => $builtInAttribute,
+                        'type' => $this->attributeTypeRegistry->getStrictType($builtInAttribute->getType()),
                         'locales' => [],
                     ], true),
                 ];
