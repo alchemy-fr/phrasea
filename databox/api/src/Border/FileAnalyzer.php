@@ -18,12 +18,24 @@ final readonly class FileAnalyzer
     ) {
     }
 
-    public function analyzeFile(File $file, array $config, bool $force = false): void
+    public function shouldAnalyze(File $file, array $config, bool $force = false): bool
     {
-        if ($file->isAnalyzed() && !$force) {
-            return;
+        if ($force || !$file->isAnalyzed()) {
+            return true;
         }
 
+        $hash = $file->getAnalysis()['hash'] ?? null;
+        if (null === $hash) {
+            return true;
+        }
+
+        $newHash = md5(serialize($config));
+
+        return $hash !== $newHash;
+    }
+
+    public function analyzeFile(File $file, array $config): void
+    {
         if (File::STORAGE_S3_MAIN !== $file->getStorage()) {
             $file->setAnalysis([
                 'status' => File::ANALYSIS_SKIPPED,
@@ -59,9 +71,15 @@ final readonly class FileAnalyzer
             }
         }
 
+        $this->assignAnalysis($file, $status, $outputs, $config);
+    }
+
+    private function assignAnalysis(File $file, string $status, array $outputs, array $config): void
+    {
         $file->setAnalysis([
             'status' => $status,
             'results' => $outputs,
+            'hash' => md5(serialize($config)),
         ]);
     }
 
@@ -73,12 +91,8 @@ final readonly class FileAnalyzer
     /**
      * @return bool Whether to proceed File analysis
      */
-    public function preAnalyzeFile(File $file, array $config, bool $force = false): bool
+    public function preAnalyzeFile(File $file, array $config): bool
     {
-        if ($file->isAnalyzed() && !$force) {
-            return false;
-        }
-
         $outputs = [];
         $status = File::ANALYSIS_SUCCESS;
 
@@ -101,10 +115,7 @@ final readonly class FileAnalyzer
             }
         }
 
-        $file->setAnalysis([
-            'status' => $status,
-            'results' => $outputs,
-        ]);
+        $this->assignAnalysis($file, $status, $outputs, $config);
 
         return false;
     }

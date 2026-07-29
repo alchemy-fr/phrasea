@@ -53,6 +53,7 @@ class FileAnalyzerIntegration extends AbstractIntegration implements WorkflowInt
         );
         $job->setOutputs([
             'analysis' => '${{ steps._.outputs.analysis }}',
+            'analyzed' => '${{ steps._.outputs.analyzed }}',
         ]);
 
         return [$job];

@@ -51,21 +51,25 @@ final class FileAnalyzerAction extends AbstractIntegrationAction implements IfAc
 
         $actions = [];
 
-        if ($this->fileAnalyzer->preAnalyzeFile($file, $analyzersConfig, force: $force)) {
-            $this->fileAnalyzer->analyzeFile($file, $analyzersConfig, force: $force);
-        }
-
-        $this->em->persist($file);
-
-        $analysis = $file->getAnalysis();
-        foreach ($analysis['results'] as $analyzerOutput) {
-            if (!empty($analyzerOutput['actions'])) {
-                $actions = array_merge(array_map(fn (string $a): FileAnalyzerAssetActionEnum => FileAnalyzerAssetActionEnum::from($a), $actions), $analyzerOutput['actions']);
-                break;
+        $shouldAnalyze = $this->fileAnalyzer->shouldAnalyze($file, $analyzersConfig, force: $force);
+        if ($shouldAnalyze) {
+            if ($this->fileAnalyzer->preAnalyzeFile($file, $analyzersConfig)) {
+                $this->fileAnalyzer->analyzeFile($file, $analyzersConfig);
             }
-        }
 
-        $context->setOutput('analysis', $analysis);
+            $this->em->persist($file);
+
+            $analysis = $file->getAnalysis();
+            foreach ($analysis['results'] as $analyzerOutput) {
+                if (!empty($analyzerOutput['actions'])) {
+                    $actions = array_merge(array_map(fn (string $a): FileAnalyzerAssetActionEnum => FileAnalyzerAssetActionEnum::from($a), $actions), $analyzerOutput['actions']);
+                    break;
+                }
+            }
+
+            $context->setOutput('analysis', $analysis);
+        }
+        $context->setOutput('analyzed', $shouldAnalyze);
 
         if ($file->isAccepted()) {
             if (AssetStatusEnum::Accepted !== $asset->getStatus()) {
