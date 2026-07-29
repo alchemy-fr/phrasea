@@ -2,7 +2,6 @@ import SwitchAttributeLocaleTask from './SwitchAttributeLocaleTask.tsx';
 import {useTranslation} from 'react-i18next';
 import {TaskComponentProps} from './taskTypes.ts';
 import IndexAssetsTask from './IndexAssetsTask.tsx';
-import ReanalyzeWorkspaceFilesTask from './ReanalyzeWorkspaceFilesTask.tsx';
 import IngestWorkspaceAssetsTask from './IngestWorkspaceAssetsTask.tsx';
 
 type Task = {
@@ -40,21 +39,6 @@ export function useTasks(): Task[] {
             description: t(
                 'operation_task.index_assets.desc',
                 `ReIndex Assets and their Attributes`
-            ),
-            defaultValues: {
-                workspaceId: null,
-            },
-        },
-        {
-            component: ReanalyzeWorkspaceFilesTask,
-            name: 'reanalyze_workspace_files',
-            displayName: t(
-                'operation_task.reanalyze_workspace_files.name',
-                'Re-analyze workspace files'
-            ),
-            description: t(
-                'operation_task.reanalyze_workspace_files.desc',
-                `Force re-run of the file analysis on all files of a workspace`
             ),
             defaultValues: {
                 workspaceId: null,
