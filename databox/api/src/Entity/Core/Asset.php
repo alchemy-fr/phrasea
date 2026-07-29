@@ -780,6 +780,22 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         return $this->source?->getExtension();
     }
 
+    /**
+     * Used by ES.
+     */
+    public function getSourceChecksum(): ?string
+    {
+        return $this->source?->getChecksum();
+    }
+
+    /**
+     * Used by ES.
+     */
+    public function getSourceDocUniqueId(): ?string
+    {
+        return $this->source?->getDocUniqueId();
+    }
+
     public function isDeleted(): bool
     {
         return null !== $this->deletedAt

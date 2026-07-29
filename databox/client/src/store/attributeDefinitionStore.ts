@@ -230,6 +230,8 @@ export function getBuiltInAttributeValueResolver(
         [BuiltInAttributeEnum.FileType]: asset => asset.source?.type,
         [BuiltInAttributeEnum.FileExtension]: asset => asset.source?.extension,
         [BuiltInAttributeEnum.FileSize]: asset => asset.source?.size,
+        [BuiltInAttributeEnum.Checksum]: asset => asset.source?.checksum,
+        [BuiltInAttributeEnum.DocUniqueId]: asset => asset.source?.docUniqueId,
         [BuiltInAttributeEnum.FileName]: asset => asset.source?.fileName,
         [BuiltInAttributeEnum.HasSource]: asset => !!asset.source,
         [BuiltInAttributeEnum.Deleted]: asset =>

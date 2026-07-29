@@ -140,6 +140,12 @@ fos_elastica:
                 fileExtension:
                     type: keyword
                     property_path: getSourceFileExtension
+                checksum:
+                    type: keyword
+                    property_path: getSourceChecksum
+                docUniqueId:
+                    type: keyword
+                    property_path: getSourceDocUniqueId
                 microseconds:
                     type: integer
                 sequence:

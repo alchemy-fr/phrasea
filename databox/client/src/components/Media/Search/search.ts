@@ -5,8 +5,10 @@ const specSep = ';';
 const arraySep = ',';
 
 export enum BuiltInAttributeEnum {
+    Checksum = '@checksum',
     Collection = '@collection',
     CreatedAt = '@createdAt',
+    DocUniqueId = '@docUniqueId',
     EditedAt = '@editedAt',
     FileExtension = '@extension',
     FileName = '@filename',

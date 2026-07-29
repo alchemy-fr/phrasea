@@ -101,6 +101,10 @@ built_in_attribute:
         name: File Size
     fileName:
         name: File Name
+    checksum:
+        name: Checksum
+    docUniqueId:
+        name: Document Unique ID
     hasSourceFile:
         name: Has Source File
     deleted:
