@@ -40,24 +40,29 @@ final class AssetDuplicatesProvider implements ProviderInterface
 
         $analysis = $asset->getSource()?->getAnalysis() ?? [];
 
-        $fileIds = [];
+        // Map each duplicate source file ID to the analyzers that flagged it.
+        $fileIdAnalyzers = [];
         foreach ($analysis['results'] ?? [] as $result) {
+            $analyzerName = $result['name'] ?? null;
             foreach ($result['output']['duplicates'] ?? [] as $fileId) {
-                $fileIds[$fileId] = true;
+                $fileIdAnalyzers[$fileId][$analyzerName] = true;
             }
         }
 
         $duplicates = [];
-        foreach ($this->assetRepository->findBySourceFileIds(array_keys($fileIds)) as $duplicate) {
+        foreach ($this->assetRepository->findBySourceFileIds(array_keys($fileIdAnalyzers)) as $duplicate) {
             if ($duplicate->getId() === $asset->getId() || !$this->isGranted(AbstractVoter::READ, $duplicate)) {
                 continue;
             }
+
+            $sourceId = $duplicate->getSource()?->getId();
 
             $duplicates[] = [
                 'id' => $duplicate->getId(),
                 'title' => $duplicate->getSource()?->getFileName(),
                 'thumbnailUrl' => $this->resolveThumbnailUrl($duplicate),
                 'createdAt' => $duplicate->getCreatedAt()?->format(\DateTimeInterface::ATOM),
+                'analyzers' => array_keys($fileIdAnalyzers[$sourceId] ?? []),
             ];
         }
 

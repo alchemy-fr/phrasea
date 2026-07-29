@@ -77,6 +77,30 @@ export function collectDuplicateFileIds(
     return Array.from(ids);
 }
 
+// Analyzer names (AnalyzerInterface::getName())
+export enum AnalyzerName {
+    Checksum = 'checksum',
+    DocUniqueId = 'doc_unique_id',
+    Filename = 'filename',
+    ImageColorspace = 'image_colorspace',
+    ImageDimension = 'image_dimension',
+    Debug = 'debug',
+}
+
+/**
+ * Whether a specific analyzer reported at least one duplicate in the analysis.
+ */
+export function hasAnalyzerDuplicates(
+    analysis: FileAnalysis | null | undefined,
+    analyzerName: AnalyzerName
+): boolean {
+    return (analysis?.results ?? []).some(
+        result =>
+            result.name === analyzerName &&
+            (result.output?.duplicates?.length ?? 0) > 0
+    );
+}
+
 export function getMessageLevel(message: AnalysisMessage): AnalysisLogLevel {
     return message[0];
 }

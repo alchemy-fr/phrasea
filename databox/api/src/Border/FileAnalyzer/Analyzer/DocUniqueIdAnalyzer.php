@@ -100,11 +100,11 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
             }
         }
 
-        if ($config['findDuplicates'] && null !== $duid) {
+        if (null !== $duid && $config['findDuplicates']) {
             $existingFiles = $this->fileRepository->findDuplicatesByChecksum($file, $config['duplicatesLimit']);
             if (!empty($existingFiles)) {
-                foreach ($existingFiles as $file) {
-                    $output->addDuplicate($file->getId());
+                foreach ($existingFiles as $f) {
+                    $output->addDuplicate($f->getId());
                 }
 
                 $output->addMessage(LogLevelEnum::Critical, self::TYPE_DUPLICATE_DOC_UNIQUE_ID, [
@@ -123,7 +123,7 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
 
         $file->setDocUniqueId($duid);
 
-        if ($config['write'] && null !== $duid) {
+        if (null !== $duid && $config['write']) {
             foreach ($config['write_to'] as $key) {
                 $metadata[$key] = $duid;
             }

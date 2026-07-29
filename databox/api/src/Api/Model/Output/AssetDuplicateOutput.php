@@ -14,7 +14,7 @@ final readonly class AssetDuplicateOutput
 {
     public function __construct(
         /**
-         * @var array<int, array{id: string, title: ?string, thumbnailUrl: ?string, createdAt: ?string}>
+         * @var array<int, array{id: string, title: ?string, thumbnailUrl: ?string, createdAt: ?string, analyzers: string[]}>
          */
         #[Groups(['_'])]
         public array $duplicates,

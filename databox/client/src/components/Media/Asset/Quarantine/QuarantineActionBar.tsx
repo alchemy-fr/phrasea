@@ -5,13 +5,20 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import ApprovalIcon from '@mui/icons-material/Approval';
 import CallMergeIcon from '@mui/icons-material/CallMerge';
+import LayersIcon from '@mui/icons-material/Layers';
 import {useModals} from '@alchemy/navigation';
 import {toast} from 'react-toastify';
 import {Asset} from '../../../../types.ts';
 import {bypassQuarantine} from '../../../../api/asset.ts';
 import {useAssetStore} from '../../../../store/assetStore.ts';
-import {collectDuplicateFileIds, FileAnalysis} from './analysisTypes.ts';
+import {
+    AnalyzerName,
+    collectDuplicateFileIds,
+    FileAnalysis,
+    hasAnalyzerDuplicates,
+} from './analysisTypes.ts';
 import MergeDuplicatesDialog from './MergeDuplicatesDialog.tsx';
+import AddAsVersionDialog from './AddAsVersionDialog.tsx';
 import DeleteAssetsConfirmDialog from '../Actions/DeleteAssetsConfirmDialog.tsx';
 
 type Props = {
@@ -29,6 +36,10 @@ export default function QuarantineActionBar({asset, analysis}: Props) {
         (asset.capabilities as {bypassQuarantine?: boolean}).bypassQuarantine ??
         false;
     const hasDuplicates = collectDuplicateFileIds(analysis).length > 0;
+    const canAddAsVersion = hasAnalyzerDuplicates(
+        analysis,
+        AnalyzerName.DocUniqueId
+    );
 
     const onBypass = async () => {
         setBypassing(true);
@@ -56,6 +67,10 @@ export default function QuarantineActionBar({asset, analysis}: Props) {
 
     const onMerge = () => {
         openModal(MergeDuplicatesDialog, {asset});
+    };
+
+    const onAddAsVersion = () => {
+        openModal(AddAsVersionDialog, {asset});
     };
 
     const onMoveToTrash = () => {
@@ -108,6 +123,20 @@ export default function QuarantineActionBar({asset, analysis}: Props) {
                     onMouseDown={onMouseDown}
                 >
                     {t('quarantine.actions.merge', 'Merge duplicates')}
+                </Button>
+            ) : null}
+
+            {canAddAsVersion ? (
+                <Button
+                    variant={'outlined'}
+                    startIcon={<LayersIcon />}
+                    onClick={onAddAsVersion}
+                    onMouseDown={onMouseDown}
+                >
+                    {t(
+                        'quarantine.actions.add_as_version',
+                        'Add as new version'
+                    )}
                 </Button>
             ) : null}
 

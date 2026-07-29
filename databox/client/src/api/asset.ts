@@ -190,6 +190,7 @@ export type DuplicateAsset = {
     title: string | null;
     thumbnailUrl: string | null;
     createdAt: string | null;
+    analyzers: string[];
 };
 
 export async function getAssetDuplicates(
@@ -198,6 +199,18 @@ export async function getAssetDuplicates(
     const res = await apiClient.get(`/${EntityName.Asset}/${id}/duplicates`);
 
     return res.data.duplicates ?? [];
+}
+
+export async function addAsAssetVersion(
+    quarantinedAssetId: string,
+    targetAssetId: string
+): Promise<Asset> {
+    return (
+        await apiClient.post(
+            `/${EntityName.Asset}/${quarantinedAssetId}/add-as-version`,
+            {targetAssetId}
+        )
+    ).data;
 }
 
 export async function getAssetMetrics(

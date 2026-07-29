@@ -21,6 +21,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\Group\GroupValue;
+use App\Api\Model\Input\AssetAddAsVersionInput;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetsDeleteInput;
 use App\Api\Model\Input\AssetsRestoreInput;
@@ -38,6 +39,7 @@ use App\Api\Model\Output\MultipleAssetOutput;
 use App\Api\Model\Output\PrepareDeleteAssetsOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Model\Output\StoryThumbnailsOutput;
+use App\Api\Processor\AddAsAssetVersionProcessor;
 use App\Api\Processor\AssetAttributeBatchUpdateProcessor;
 use App\Api\Processor\AssetsDeleteProcessor;
 use App\Api\Processor\AssetsRestoreProcessor;
@@ -164,6 +166,12 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: false,
             name: 'quarantine_bypass',
             processor: BypassQuarantineProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/{id}/add-as-version',
+            input: AssetAddAsVersionInput::class,
+            name: 'add_as_version',
+            processor: AddAsAssetVersionProcessor::class,
         ),
         new Get(
             uriTemplate: '/assets/{id}/duplicates',
