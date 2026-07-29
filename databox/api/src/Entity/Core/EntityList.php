@@ -20,6 +20,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\ExportEntitiesInput;
 use App\Api\Model\Input\ImportEntitiesInput;
+use App\Api\Processor\ClearEntitiesProcessor;
 use App\Api\Processor\ExportEntitiesProcessor;
 use App\Api\Processor\ImportEntitiesProcessor;
 use App\Entity\Traits\WorkspaceTrait;
@@ -55,6 +56,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: ExportEntitiesInput::class,
             name: 'export_entities',
             processor: ExportEntitiesProcessor::class
+        ),
+        new Post(
+            uriTemplate: '/entity-lists/{id}/clear',
+            security: 'is_granted("EDIT", object)',
+            input: false,
+            name: 'clear_entities',
+            processor: ClearEntitiesProcessor::class
         ),
     ],
     normalizationContext: [

@@ -27,6 +27,7 @@ services:
             Elastica\Index $assetIndex: '@fos_elastica.index.asset'
             Elastica\Index $collectionIndex: '@fos_elastica.index.collection'
             Elastica\Index $attributeIndex: '@fos_elastica.index.attribute'
+            Elastica\Index $attributeEntityIndex: '@fos_elastica.index.attribute_entity'
 
     _instanceof:
         Alchemy\Workflow\Executor\Action\ActionInterface:

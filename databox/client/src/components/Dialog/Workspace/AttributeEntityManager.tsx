@@ -27,8 +27,11 @@ import {useModals} from '@alchemy/navigation';
 import {search} from '../../../lib/search.ts';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
 import ImportAttributeEntitiesDialog from '../AttributeEntity/ImportAttributeEntitiesDialog.tsx';
+import {clearEntityList} from '../../../api/entityList.ts';
+import {ConfirmDialog} from '@alchemy/phrasea-framework';
 import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import CallMergeIcon from '@mui/icons-material/CallMerge';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {DropdownActions} from '@alchemy/phrasea-ui';
@@ -291,6 +294,38 @@ export default function AttributeEntityManager({
                                     primary={t(
                                         'entity_type.list.import',
                                         'Import'
+                                    )}
+                                />
+                            </ListItemButton>
+                        </ListItem>,
+                        <ListItem disablePadding key={'clear'}>
+                            <ListItemButton
+                                onClick={closeWrapper(() => {
+                                    if (items) {
+                                        openModal(ConfirmDialog, {
+                                            textToType: list.name,
+                                            title: t(
+                                                'entity_type.list.clear.confirm',
+                                                'Are you sure you want to delete all the entities of this list?'
+                                            ),
+                                            onConfirm: async () => {
+                                                await clearEntityList(list.id);
+                                            },
+                                            onConfirmed: () => {
+                                                reload();
+                                            },
+                                        });
+                                    }
+                                })}
+                                disabled={!items}
+                            >
+                                <ListItemIcon>
+                                    <DeleteSweepIcon color={'error'} />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary={t(
+                                        'entity_type.list.clear',
+                                        'Clear list'
                                     )}
                                 />
                             </ListItemButton>

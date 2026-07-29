@@ -289,10 +289,10 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->createQueryBuilder('d')
             ->andWhere('d.workspace = :workspace')
             ->andWhere('d.type = :t')
-            ->andWhere('d.entityList = :etype')
+            ->andWhere('d.entityList = :listId')
             ->setParameter('workspace', $workspaceId)
             ->setParameter('t', EntityAttributeType::getName())
-            ->setParameter('etype', $entityListId)
+            ->setParameter('listId', $entityListId)
             ->getQuery()
             ->getResult();
     }

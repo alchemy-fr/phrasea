@@ -7,18 +7,12 @@ namespace App\Consumer\Handler\Search;
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
 #[MessengerMessage('p1')]
-final readonly class AttributeEntityDelete
+final readonly class AttributeEntityListClear
 {
     public function __construct(
-        private string $id,
         private string $listId,
         private string $workspaceId,
     ) {
-    }
-
-    public function getId(): string
-    {
-        return $this->id;
     }
 
     public function getListId(): string
