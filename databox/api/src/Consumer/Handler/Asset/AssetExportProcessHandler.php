@@ -94,7 +94,7 @@ class AssetExportProcessHandler
                         $path = sprintf('%s/%s-%s-%s%s', $archiveDir, StringUtil::slugify($renditionName), StringUtil::slugify($assetName ?? ''), $assetId, $ext);
                         $this->fileFetcher->getFile($file, path: $path);
 
-                        if ($sourceFile?->getType() === $file->getType() && $file->metadataHasChanged()) {
+                        if ($rendition->getDefinition()->isWriteMetadata() && $sourceFile?->getType() === $file->getType() && $file->metadataHasChanged()) {
                             $writer = $this->metadataManipulator->createWriter();
                             $metadata = $this->metadataNormalizer->denormalize($file->getMetadata());
 
