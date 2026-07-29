@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Asset\Attribute\AttributeEntity\Importer;
 
+use Alchemy\CoreBundle\Doctrine\DoctrineBatch;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
 use App\Repository\Core\AttributeEntityRepository;
@@ -70,6 +71,10 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
         $addError = function (int $row, string $property, string $error) use (&$errors): void {
             $errors[] = sprintf('Line %d: %s: %s', $row + 2, $property, $error);
         };
+
+        $batch = new DoctrineBatch($this->em, [
+            &$entityList,
+        ], batchSize: 300);
 
         foreach ($rows as $r => $row) {
             if ($v = $getValue($row, 'id')) {
@@ -152,15 +157,14 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
                 }
             }
 
-            if (empty($errors)) {
-                $this->em->persist($entity);
+            if (!empty($errors)) {
+                throw new BadRequestHttpException(sprintf("CSV data contains validation errors:\n%s", implode("\n", $errors)));
             }
+
+            $this->em->persist($entity);
+            $batch->iterate();
         }
 
-        if (!empty($errors)) {
-            throw new BadRequestHttpException(sprintf("CSV data contains validation errors:\n%s", implode("\n", $errors)));
-        }
-
-        $this->em->flush();
+        $batch->terminate();
     }
 }
