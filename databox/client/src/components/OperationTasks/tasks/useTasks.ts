@@ -3,6 +3,7 @@ import {useTranslation} from 'react-i18next';
 import {TaskComponentProps} from './taskTypes.ts';
 import IndexAssetsTask from './IndexAssetsTask.tsx';
 import ReanalyzeWorkspaceFilesTask from './ReanalyzeWorkspaceFilesTask.tsx';
+import IngestWorkspaceAssetsTask from './IngestWorkspaceAssetsTask.tsx';
 
 type Task = {
     name: string;
@@ -54,6 +55,21 @@ export function useTasks(): Task[] {
             description: t(
                 'operation_task.reanalyze_workspace_files.desc',
                 `Force re-run of the file analysis on all files of a workspace`
+            ),
+            defaultValues: {
+                workspaceId: null,
+            },
+        },
+        {
+            component: IngestWorkspaceAssetsTask,
+            name: 'ingest_workspace_assets',
+            displayName: t(
+                'operation_task.ingest_workspace_assets.name',
+                'Ingest workspace assets'
+            ),
+            description: t(
+                'operation_task.ingest_workspace_assets.desc',
+                `Re-run the ingest workflow on every asset of a workspace`
             ),
             defaultValues: {
                 workspaceId: null,

@@ -4,26 +4,34 @@ declare(strict_types=1);
 
 namespace App\Border;
 
+use App\Consumer\Handler\ReanalyzeWorkspaceFile;
 use App\Entity\Core\File;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Core\FileAnalyzer\FileAnalyzerIntegration;
 use App\Integration\IntegrationManager;
+use App\OperationTask\OperationTaskProgress;
 use App\OperationTask\RunContext;
 use App\Repository\Core\FileRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 final readonly class WorkspaceFileReanalyzer
 {
-    private const int BATCH_SIZE = 100;
-
     public function __construct(
         private FileAnalyzer $fileAnalyzer,
         private IntegrationManager $integrationManager,
         private FileRepository $fileRepository,
         private EntityManagerInterface $em,
+        private MessageBusInterface $bus,
+        private OperationTaskProgress $taskProgress,
     ) {
     }
 
+    /**
+     * Fan out the re-analysis: dispatch one message per file so the main task
+     * worker is released immediately. Each message re-analyzes its file and
+     * updates the task progress; the last one completes the task.
+     */
     public function reanalyzeWorkspaceFiles(string $workspaceId, RunContext $context): void
     {
         $analyzersConfig = $this->resolveAnalyzersConfig($workspaceId);
@@ -36,51 +44,44 @@ final readonly class WorkspaceFileReanalyzer
             return;
         }
 
-        $total = $this->fileRepository->countByWorkspace($workspaceId);
-        if (0 === $total) {
+        $taskId = $context->getTaskId();
+        $this->taskProgress->init($taskId);
+
+        $dispatched = 0;
+        foreach ($this->fileRepository->iterateIdsByWorkspace($workspaceId) as $fileId) {
+            $this->bus->dispatch(new ReanalyzeWorkspaceFile($taskId, $fileId));
+            ++$dispatched;
+        }
+
+        if (0 === $dispatched) {
             return;
         }
 
-        $context->start($total);
+        $context->getOutput()->writeln(sprintf('<info>Dispatched %d file(s) for re-analysis.</info>', $dispatched));
 
-        $offset = 0;
-        while (true) {
-            $count = 0;
-            foreach ($this->fileRepository->iterateByWorkspace($workspaceId, self::BATCH_SIZE, $offset) as $file) {
-                $this->reanalyzeFile($file, $analyzersConfig, $context);
-                ++$count;
-            }
+        // Publish the authoritative total, then complete the task in case
+        // every dispatched message was already processed.
+        $this->taskProgress->setItemTotal($taskId, $dispatched);
+        $this->taskProgress->finalizeIfComplete($taskId);
 
-            $this->em->flush();
-            $this->em->clear();
-            $context->advance($count);
-            $offset += $count;
-
-            if ($count < self::BATCH_SIZE) {
-                break;
-            }
-        }
-
-        $context->finish();
+        $context->deferCompletion();
     }
 
     /**
-     * @param array{analyzers: array<mixed>} $analyzersConfig
+     * Force a re-run of the file analysis on a single file.
      */
-    private function reanalyzeFile(File $file, array $analyzersConfig, RunContext $context): void
+    public function reanalyzeFile(File $file): void
     {
-        try {
-            if ($this->fileAnalyzer->preAnalyzeFile($file, $analyzersConfig, force: true)) {
-                $this->fileAnalyzer->analyzeFile($file, $analyzersConfig, force: true);
-            }
-            $this->em->persist($file);
-        } catch (\Throwable $e) {
-            $context->getOutput()->writeln(sprintf(
-                '<error>Failed to analyze file %s: %s</error>',
-                $file->getId(),
-                $e->getMessage(),
-            ));
+        $analyzersConfig = $this->resolveAnalyzersConfig($file->getWorkspaceId());
+        if (empty($analyzersConfig['analyzers'])) {
+            return;
         }
+
+        if ($this->fileAnalyzer->preAnalyzeFile($file, $analyzersConfig, force: true)) {
+            $this->fileAnalyzer->analyzeFile($file, $analyzersConfig, force: true);
+        }
+
+        $this->em->persist($file);
     }
 
     /**

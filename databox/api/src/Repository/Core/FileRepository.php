@@ -6,6 +6,7 @@ namespace App\Repository\Core;
 
 use App\Entity\Core\File;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\AbstractQuery;
 use Doctrine\Persistence\ManagerRegistry;
 
 class FileRepository extends ServiceEntityRepository
@@ -47,28 +48,22 @@ class FileRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function countByWorkspace(string $workspaceId): int
-    {
-        return (int) $this->createQueryBuilder('f')
-            ->select('COUNT(f.id)')
-            ->andWhere('f.workspace = :ws')
-            ->setParameter('ws', $workspaceId)
-            ->getQuery()
-            ->getSingleScalarResult();
-    }
-
     /**
-     * @return iterable<File>
+     * Stream the ids of every file of a workspace without hydrating entities.
+     *
+     * @return iterable<string>
      */
-    public function iterateByWorkspace(string $workspaceId, int $limit, int $offset): iterable
+    public function iterateIdsByWorkspace(string $workspaceId): iterable
     {
-        return $this->createQueryBuilder('f')
+        $result = $this->createQueryBuilder('f')
+            ->select('f.id AS fileId')
             ->andWhere('f.workspace = :ws')
             ->setParameter('ws', $workspaceId)
-            ->orderBy('f.id', 'ASC')
-            ->setMaxResults($limit)
-            ->setFirstResult($offset)
             ->getQuery()
-            ->toIterable();
+            ->toIterable([], AbstractQuery::HYDRATE_SCALAR);
+
+        foreach ($result as $row) {
+            yield $row['fileId'];
+        }
     }
 }

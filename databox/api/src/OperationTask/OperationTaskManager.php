@@ -61,23 +61,38 @@ final readonly class OperationTaskManager
 
         try {
             $taskHandler->handle($task->getPayload(), $context);
-
-            $task = $this->reload($task);
-            $task->setStatus(OperationTask::STATUS_COMPLETED);
         } catch (\Throwable $e) {
             $task = $this->reload($task);
             $task->setStatus(OperationTask::STATUS_FAILED);
+            $task->setEndedAt(new \DateTimeImmutable());
             $output->writeln($e->getMessage());
+            $task->appendOutput($output->fetch());
+            $this->em->persist($task);
+            $this->em->flush();
 
             $this->logger->error(sprintf('Failed running task "%s" (%s): %s', $task->getTask(), $task->getId(), $e->getMessage()), [
                 'exception' => $e,
             ]);
-        } finally {
-            $task->setEndedAt(new \DateTimeImmutable());
-            $task->appendOutput($output->fetch());
+
+            return;
+        }
+
+        $task = $this->reload($task);
+        $task->appendOutput($output->fetch());
+
+        if ($context->isCompletionDeferred()) {
+            // The task fans out its work over asynchronous sub-messages that
+            // will complete it once every item has been processed.
             $this->em->persist($task);
             $this->em->flush();
+
+            return;
         }
+
+        $task->setStatus(OperationTask::STATUS_COMPLETED);
+        $task->setEndedAt(new \DateTimeImmutable());
+        $this->em->persist($task);
+        $this->em->flush();
     }
 
     private function reload(OperationTask $task): OperationTask
