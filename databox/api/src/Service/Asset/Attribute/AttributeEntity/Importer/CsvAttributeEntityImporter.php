@@ -158,6 +158,7 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
             }
 
             if (!empty($errors)) {
+                $this->em->clear();
                 throw new BadRequestHttpException(sprintf("CSV data contains validation errors:\n%s", implode("\n", $errors)));
             }
 
