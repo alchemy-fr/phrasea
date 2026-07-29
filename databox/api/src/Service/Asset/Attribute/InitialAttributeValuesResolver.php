@@ -6,6 +6,7 @@ namespace App\Service\Asset\Attribute;
 
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Attribute\AttributeAssigner;
+use App\Attribute\AttributeInterface;
 use App\Attribute\InvalidAttributeValueException;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
@@ -39,6 +40,12 @@ readonly class InitialAttributeValuesResolver
         $fileMetadataAccessorWrapper = new FileMetadataAccessorWrapper($asset->getSource());
 
         foreach ($definitions as $definition) {
+            $readFromMetadata = $definition->getReadFromMetadata();
+            if (null !== $readFromMetadata) {
+                $initialValues = $this->resolveFromMetadata($fileMetadataAccessorWrapper, $readFromMetadata, $definition);
+                $this->createAttributes($asset, $definition, AttributeInterface::NO_LOCALE, $initialValues, $attributes);
+            }
+
             $initializers = $definition->getInitialValues();
 
             if (null !== $initializers) {
@@ -51,45 +58,85 @@ readonly class InitialAttributeValuesResolver
                         $definition
                     );
 
-                    $position = 0;
-                    $now = new \DateTimeImmutable();
-                    foreach ($initialValues as $initialValue) {
-                        try {
-                            $normalizedValue = $this->attributeAssigner->normalizeValue($definition, $initialValue);
-                        } catch (InvalidAttributeValueException) {
-                            // this can happen for e.g. if a date is invalid and cannot be normalized
-                            continue;
-                        }
-
-                        if (null === $normalizedValue) {
-                            continue;
-                        }
-
-                        $input = new AttributeInput();
-                        $input->value = $initialValue;
-                        $input->locale = $locale;
-                        $input->asset = $asset;
-                        $input->origin = Attribute::ORIGIN_LABELS[Attribute::ORIGIN_INITIAL];
-                        $input->definitionId = $definition->getId();
-                        $input->position = $position++;
-                        $input->status = Attribute::STATUS_VALID;
-
-                        $attribute = new Attribute();
-                        $attribute->setDefinition($definition);
-                        $attribute->setCreatedAt($now);
-                        $attribute->setUpdatedAt($now);
-                        $attribute->setAsset($asset);
-
-                        $this->attributeAssigner->assignAttributeFromInput($attribute, $input, $normalizedValue);
-                        $this->attributeAssigner->resetAssetAttributesCache($asset);
-
-                        $attributes[] = $attribute;
-                    }
+                    $this->createAttributes($asset, $definition, $locale, $initialValues, $attributes);
                 }
             }
         }
 
         return $attributes;
+    }
+
+    /**
+     * @param string[]    $initialValues
+     * @param Attribute[] $attributes
+     */
+    private function createAttributes(
+        Asset $asset,
+        AttributeDefinition $definition,
+        string $locale,
+        array $initialValues,
+        array &$attributes,
+    ): void {
+        $position = 0;
+        $now = new \DateTimeImmutable();
+        foreach ($initialValues as $initialValue) {
+            try {
+                $normalizedValue = $this->attributeAssigner->normalizeValue($definition, $initialValue);
+            } catch (InvalidAttributeValueException) {
+                // this can happen for e.g. if a date is invalid and cannot be normalized
+                continue;
+            }
+
+            if (null === $normalizedValue) {
+                continue;
+            }
+
+            $input = new AttributeInput();
+            $input->value = $initialValue;
+            $input->locale = $locale;
+            $input->asset = $asset;
+            $input->origin = Attribute::ORIGIN_LABELS[Attribute::ORIGIN_INITIAL];
+            $input->definitionId = $definition->getId();
+            $input->position = $position++;
+            $input->status = Attribute::STATUS_VALID;
+
+            $attribute = new Attribute();
+            $attribute->setDefinition($definition);
+            $attribute->setCreatedAt($now);
+            $attribute->setUpdatedAt($now);
+            $attribute->setAsset($asset);
+
+            $this->attributeAssigner->assignAttributeFromInput($attribute, $input, $normalizedValue);
+            $this->attributeAssigner->resetAssetAttributesCache($asset);
+
+            $attributes[] = $attribute;
+        }
+    }
+
+    /**
+     * Return the values of the first metadata tag found in the file, among the given list.
+     *
+     * @param string[] $tags
+     *
+     * @return string[]
+     */
+    private function resolveFromMetadata(
+        FileMetadataAccessorWrapper $fileMetadataAccessorWrapper,
+        array $tags,
+        AttributeDefinition $definition,
+    ): array {
+        foreach ($tags as $tag) {
+            $m = $fileMetadataAccessorWrapper->getMetadata($tag);
+            if (null === $m) {
+                continue;
+            }
+
+            $initialValues = $definition->isMultiple() ? $m['values'] : [$m['value']];
+
+            return $this->filterEmptyValues($initialValues);
+        }
+
+        return [];
     }
 
     private function resolveInitial(
@@ -124,9 +171,18 @@ readonly class InitialAttributeValuesResolver
                 throw new \InvalidArgumentException(sprintf('"%s" is not a valid initialization type for attribute "%s"', $initializeFormula['type'], $definition->getName()));
         }
 
-        // remove empty values
+        return $this->filterEmptyValues($initialValues);
+    }
+
+    /**
+     * @param array<?string> $values
+     *
+     * @return string[]
+     */
+    private function filterEmptyValues(array $values): array
+    {
         return array_filter(
-            $initialValues,
+            $values,
             function (?string $s): bool {
                 if (null === $s) {
                     return false;

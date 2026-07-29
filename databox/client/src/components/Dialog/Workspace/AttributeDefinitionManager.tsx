@@ -62,6 +62,7 @@ import {
 import {isNotNull} from '@alchemy/core';
 import BooleanFilterSelect from '../../Form/BooleanFilterSelect.tsx';
 import TwigEditorWidget from '../../Form/CodeEditor/TwigEditorWidget.tsx';
+import MetadataTagsWidget from '../../Form/MetadataTagsWidget.tsx';
 
 function Item({
     usedFormSubmit,
@@ -385,6 +386,44 @@ function Item({
                     }}
                 />
                 <FormFieldErrors field={'initialValues'} errors={errors} />
+            </FormRow>
+
+            <FormRow>
+                <MetadataTagsWidget
+                    control={control}
+                    name={'readFromMetadata'}
+                    label={t(
+                        'form.attribute_definition.readFromMetadata.label',
+                        'Read from metadata'
+                    )}
+                    disabled={submitting}
+                />
+                <FormHelperText>
+                    {t(
+                        'form.attribute_definition.readFromMetadata.helper',
+                        'Metadata tag names to read from the source file to initialize this attribute. The first tag found is used.'
+                    )}
+                </FormHelperText>
+                <FormFieldErrors field={'readFromMetadata'} errors={errors} />
+            </FormRow>
+
+            <FormRow>
+                <MetadataTagsWidget
+                    control={control}
+                    name={'writeMetadata'}
+                    label={t(
+                        'form.attribute_definition.writeMetadata.label',
+                        'Write to metadata'
+                    )}
+                    disabled={submitting}
+                />
+                <FormHelperText>
+                    {t(
+                        'form.attribute_definition.writeMetadata.helper',
+                        'Metadata tag names into which this attribute value is written when the asset (or its rendition) is exported.'
+                    )}
+                </FormHelperText>
+                <FormFieldErrors field={'writeMetadata'} errors={errors} />
             </FormRow>
 
             <FormRow>

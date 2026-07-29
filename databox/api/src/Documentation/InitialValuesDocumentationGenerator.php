@@ -62,6 +62,12 @@ final class InitialValuesDocumentationGenerator extends DocumentationGenerator
                     $this->codeBlockIndented($output, $code, 'json', 0);
                 }
 
+                if (!empty($definition['readFromMetadata'])) {
+                    $output .= "  - read from metadata (first found wins):\n";
+                    $code = json_encode($definition['readFromMetadata'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                    $this->codeBlockIndented($output, $code, 'json', 1);
+                }
+
                 $output .= "\n";
 
                 $output .= "### ... with file metadata ...\n";

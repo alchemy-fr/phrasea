@@ -122,6 +122,20 @@ class AttributeDefinitionInput
     public $initialValues;
 
     /**
+     * Ordered list of metadata tag names to read to initialize the attribute (first found wins).
+     *
+     * @var string[]|null
+     */
+    public ?array $readFromMetadata = null;
+
+    /**
+     * List of metadata tag names into which the attribute value is written on export.
+     *
+     * @var string[]|null
+     */
+    public ?array $writeMetadata = null;
+
+    /**
      * @var string|null
      */
     public $key;

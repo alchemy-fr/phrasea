@@ -209,6 +209,8 @@ export interface AttributeDefinition
     searchBoost: number;
     fallback: Record<string, string>;
     initialValues: Record<string, string>;
+    readFromMetadata?: string[];
+    writeMetadata?: string[];
     workspace: Workspace | string;
     policy: AttributePolicy | string | null;
     lastErrors?: LastErrors;

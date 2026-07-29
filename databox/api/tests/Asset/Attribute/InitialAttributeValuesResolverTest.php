@@ -64,6 +64,8 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
                 ->willReturn($definition['isTranslatable'] ?? false);
             $ad->expects($this->any())->method('getInitialValues')
                 ->willReturn($initialValues);
+            $ad->expects($this->any())->method('getReadFromMetadata')
+                ->willReturn($definition['readFromMetadata'] ?? null);
             $ad->expects($this->any())->method('getType')
                 ->willReturn($definition['type'] ?? TextAttributeType::NAME);
             $attributeDefinitions[] = $ad;

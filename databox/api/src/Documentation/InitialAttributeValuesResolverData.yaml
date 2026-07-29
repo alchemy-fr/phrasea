@@ -230,3 +230,39 @@ code_to_string_2:
     expected:
         ExposureProgram: 'z'
 
+read_from_metadata_first_found:
+    documentation:
+        title: 'Read from metadata: first tag found wins'
+        description:
+            'The `readFromMetadata` list is evaluated in order; the first tag present in the file
+            metadata is used. Here `XMP-iptcCore:CreatorCity` is absent, so `IPTC:City` is used.'
+    definitions:
+        City:
+            readFromMetadata: ['XMP-iptcCore:CreatorCity', 'IPTC:City']
+    metadata:
+        'IPTC:City': 'Paris'
+    expected:
+        City: 'Paris'
+
+read_from_metadata_multi:
+    documentation:
+        title: 'Read from metadata into a multi-values attribute'
+    definitions:
+        Keywords:
+            isMultiple: true
+            readFromMetadata: ['XMP-dc:Subject', 'IPTC:Keywords']
+    metadata:
+        'IPTC:Keywords': ['dog', 'cat', 'bird']
+    expected:
+        Keywords: ['dog', 'cat', 'bird']
+
+read_from_metadata_none:
+    documentation:
+        title: 'Read from metadata: no tag found'
+        description: 'When none of the listed tags is present, no attribute is created.'
+    definitions:
+        City:
+            readFromMetadata: ['XMP-iptcCore:CreatorCity', 'IPTC:City']
+    metadata: ~
+    expected: {}
+

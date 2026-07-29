@@ -56,6 +56,8 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         $output->searchBoost = $data->getSearchBoost();
         $output->fallback = $data->getFallback() ?: null;
         $output->initialValues = $data->getInitialValues();
+        $output->readFromMetadata = $data->getReadFromMetadata();
+        $output->writeMetadata = $data->getWriteMetadata();
         $output->translations = $data->getTranslations();
         $output->target = $data->getTarget()->value;
         $output->key = $data->getKey();

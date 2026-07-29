@@ -80,6 +80,12 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->initialValues) {
             $object->setInitialValues($data->initialValues);
         }
+        if (null !== $data->readFromMetadata) {
+            $object->setReadFromMetadata($data->readFromMetadata);
+        }
+        if (null !== $data->writeMetadata) {
+            $object->setWriteMetadata($data->writeMetadata);
+        }
         if (null !== $newType = $data->type) {
             $previousType = $object->getType();
             $object->setType($newType);

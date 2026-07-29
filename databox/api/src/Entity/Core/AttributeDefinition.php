@@ -247,6 +247,24 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     private ?array $initialValues = null;
 
     /**
+     * Ordered list of metadata tag names to read from the source file to initialize
+     * the attribute. The first tag found in the file metadata is used.
+     *
+     * @var string[]|null
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $readFromMetadata = null;
+
+    /**
+     * List of metadata tag names into which the attribute value is written when the
+     * asset (or its rendition) is exported.
+     *
+     * @var string[]|null
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $writeMetadata = null;
+
+    /**
      * Resolve this template (TWIG syntax) if no user value provided.
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
@@ -481,6 +499,57 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         if (is_array($this->initialValues) && empty(array_filter($this->initialValues))) {
             $this->initialValues = null;
         }
+    }
+
+    /**
+     * @return string[]|null
+     */
+    public function getReadFromMetadata(): ?array
+    {
+        return $this->readFromMetadata;
+    }
+
+    /**
+     * @param string[]|null $readFromMetadata
+     */
+    public function setReadFromMetadata(?array $readFromMetadata): void
+    {
+        $this->readFromMetadata = self::normalizeMetadataList($readFromMetadata);
+    }
+
+    /**
+     * @return string[]|null
+     */
+    public function getWriteMetadata(): ?array
+    {
+        return $this->writeMetadata;
+    }
+
+    /**
+     * @param string[]|null $writeMetadata
+     */
+    public function setWriteMetadata(?array $writeMetadata): void
+    {
+        $this->writeMetadata = self::normalizeMetadataList($writeMetadata);
+    }
+
+    /**
+     * @param string[]|null $list
+     *
+     * @return string[]|null
+     */
+    private static function normalizeMetadataList(?array $list): ?array
+    {
+        if (null === $list) {
+            return null;
+        }
+
+        $list = array_values(array_filter(
+            array_map('trim', $list),
+            static fn (string $s): bool => '' !== $s,
+        ));
+
+        return [] === $list ? null : $list;
     }
 
     public function isSortable(): bool
