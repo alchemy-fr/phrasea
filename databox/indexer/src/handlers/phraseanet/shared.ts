@@ -98,7 +98,7 @@ export function extractRenditionsFromRecord(
 export function extractRenditionsFromEmbeds(
     embeds: Array<{
         name: string;
-        permalink: { url: string };
+        permalink: {url: string};
         mime_type: string;
     }>,
     phrasea_type: string,
@@ -155,46 +155,7 @@ export async function createAsset(
 ): Promise<Asset> {
     const attributes: AttributeInput[] = [];
 
-    // Handle special system fields
-    if (fieldMap['phr_record_id']) {
-        const idValue = record instanceof CPhraseanetStory 
-            ? record.story_id 
-            : record.record_id;
-        const fm = fieldMap['phr_record_id'];
-        const d = {
-            definition: fm.attributeDefinition.id,
-            origin: 'machine',
-            originVendor: 'indexer-import',
-            locale: '',
-            position: fm.position ?? 0,
-        } as Partial<AttributeInput>;
-        attributes.push({
-            ...d,
-            value: idValue,
-        } as AttributeInput);
-    }
-
-    if (fieldMap['phr_created_on']) {
-        const fm = fieldMap['phr_created_on'];
-        const d = {
-            definition: fm.attributeDefinition.id,
-            origin: 'machine',
-            originVendor: 'indexer-import',
-            locale: '',
-            position: fm.position ?? 0,
-        } as Partial<AttributeInput>;
-        attributes.push({
-            ...d,
-            value: record.created_on,
-        } as AttributeInput);
-    }
-
     for (const name in fieldMap) {
-        // Skip system fields as they're already handled above
-        if (name === 'phr_record_id' || name === 'phr_created_on') {
-            continue;
-        }
-
         const fm = fieldMap[name];
         const ad = fm.attributeDefinition;
 
