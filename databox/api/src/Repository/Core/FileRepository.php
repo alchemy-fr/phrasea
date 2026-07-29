@@ -46,4 +46,29 @@ class FileRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function countByWorkspace(string $workspaceId): int
+    {
+        return (int) $this->createQueryBuilder('f')
+            ->select('COUNT(f.id)')
+            ->andWhere('f.workspace = :ws')
+            ->setParameter('ws', $workspaceId)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * @return iterable<File>
+     */
+    public function iterateByWorkspace(string $workspaceId, int $limit, int $offset): iterable
+    {
+        return $this->createQueryBuilder('f')
+            ->andWhere('f.workspace = :ws')
+            ->setParameter('ws', $workspaceId)
+            ->orderBy('f.id', 'ASC')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->toIterable();
+    }
 }
