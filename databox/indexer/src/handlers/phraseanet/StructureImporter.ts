@@ -90,6 +90,8 @@ export async function addMissingRenditionsConf(
     const subdefs =
         await phraseanetClient.getSubdefsStruct(phraseanetDataboxId);
 
+    const target = dm.importStories === true ? 3 : 1;
+
     dm.sourceFile = 'document';
 
     // import all subdefs from phraseanet
@@ -98,6 +100,7 @@ export async function addMissingRenditionsConf(
             useAsMain: true,
             buildMode: RenditionBuildMode.COPY_ASSET_FILE,
             policy: 'main',
+            target,
         } as ConfigPhraseanetSubdef,
     };
 
@@ -111,6 +114,7 @@ export async function addMissingRenditionsConf(
                 useAsThumbnail: sd.name === 'thumbnail' ? true : undefined,
                 useAsAnimatedThumbnail:
                     sd.name === 'thumbnailgif' ? true : undefined,
+                target,
                 builders: {},
             };
         }
@@ -127,6 +131,8 @@ export async function addMissingAttributeDefinitionsConf(
 ) {
     const metaStructure =
         await phraseanetClient.getMetaStruct(phraseanetDataboxId);
+
+    const target = dm.importStories === true ? 3 : 1;
 
     if (!dm.fieldMap) {
         dm.fieldMap = {}; //Record<string, FieldMap>
@@ -150,6 +156,7 @@ export async function addMissingAttributeDefinitionsConf(
                     DataboxAttributeType.GeoPoint,
                     DataboxAttributeType.Ip,
                 ].includes(databoxType),
+                target,
                 labels: metaStructure[name].labels,
                 values: [
                     {
@@ -169,6 +176,7 @@ export async function addMissingAttributeDefinitionsConf(
         readonly: true,
         translatable: false,
         allowInvalid: false,
+        target,
         labels: {},
         values: [
             {
@@ -187,6 +195,7 @@ export async function addMissingAttributeDefinitionsConf(
         readonly: true,
         translatable: false,
         allowInvalid: false,
+        target,
         labels: {},
         values: [
             {
@@ -260,7 +269,9 @@ export async function importSubdefsStructure(
                 types: {} as Record<string, PhraseanetSubdefStruct>,
                 policy: rendition['policy'] ?? null,
                 labels: {},
-                ...(rendition.target !== undefined ? {target: Number(rendition.target)} : {}),
+                ...(rendition.target !== undefined
+                    ? {target: Number(rendition.target)}
+                    : {}),
             };
         }
 
