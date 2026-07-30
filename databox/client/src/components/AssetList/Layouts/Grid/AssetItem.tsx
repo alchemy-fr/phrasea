@@ -1,6 +1,8 @@
 import React from 'react';
-import {AssetOrAssetContainer} from '../../../../types';
+import {AssetOrAssetContainer, ProfileItemSection} from '../../../../types';
 import assetClasses from '../../classes';
+import {useProfileStore} from '../../../../store/profileStore.ts';
+import GridCardZone from './GridCardZone.tsx';
 import {PrivacyTooltip} from '../../../Ui/PrivacyChip';
 import IconButton from '@mui/material/IconButton';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -36,6 +38,16 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
     itemOverlay,
     onOpen,
 }: Props<Item>) {
+    const profileItems = useProfileStore(s => s.current?.items);
+    const gridItems = React.useMemo(
+        () =>
+            (profileItems ?? []).filter(
+                i => i.section === ProfileItemSection.Grid
+            ),
+        [profileItems]
+    );
+    const hasGrid = gridItems.length > 0;
+
     return (
         <AssetItemWrapper
             item={item}
@@ -99,7 +111,22 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                     )}
                 </div>
             </div>
-            <AssetThumb asset={asset} onPreviewToggle={onPreviewToggle} />
+            {hasGrid && (
+                <GridCardZone asset={asset} items={gridItems} region="above" />
+            )}
+            <AssetThumb
+                asset={asset}
+                onPreviewToggle={onPreviewToggle}
+                overlay={
+                    hasGrid ? (
+                        <GridCardZone
+                            asset={asset}
+                            items={gridItems}
+                            region="over"
+                        />
+                    ) : undefined
+                }
+            />
             <div className={assetClasses.legend}>
                 <div className={assetClasses.name}>
                     {asset.nameHighlight
@@ -114,6 +141,13 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                         asset={asset}
                         onOpenAsset={onOpen}
                         collections={asset.collections!}
+                    />
+                )}
+                {hasGrid && (
+                    <GridCardZone
+                        asset={asset}
+                        items={gridItems}
+                        region="below"
                     />
                 )}
             </div>

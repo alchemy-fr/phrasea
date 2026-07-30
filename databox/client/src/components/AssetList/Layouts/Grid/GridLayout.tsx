@@ -16,6 +16,9 @@ import {
     createSizeTransition,
     thumbSx,
 } from '../../../Media/Asset/AssetThumb.tsx';
+import {useProfileStore} from '../../../../store/profileStore.ts';
+import {ProfileItemSection} from '../../../../types';
+import {gridCardZoneSx} from './GridCardZone.tsx';
 
 export default function GridLayout<Item extends AssetOrAssetContainer>({
     toolbarHeight,
@@ -36,6 +39,26 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
     const d = useContext(DisplayContext)!.state;
     const listRef = React.useRef<HTMLDivElement | null>(null);
 
+    // Reserve vertical space for the profile's above/below grid bands so the
+    // fixed item height stays consistent (the "over" overlay adds no height).
+    const gridBandRows = useProfileStore(s => {
+        const items = (s.current?.items ?? []).filter(
+            i => i.section === ProfileItemSection.Grid
+        );
+        const maxStack = (region: 'above' | 'below') => {
+            const counts: Record<string, number> = {};
+            for (const i of items) {
+                if (i.placement?.region !== region) continue;
+                const a = i.placement.anchor;
+                counts[a] = (counts[a] ?? 0) + 1;
+            }
+            const values = Object.values(counts);
+            return values.length ? Math.max(...values) : 0;
+        };
+        return maxStack('above') + maxStack('below');
+    });
+    const bandLineHeight = 28;
+
     useScrollTopPages(
         listRef.current?.closest(`.${assetClasses.scrollable}`),
         pages
@@ -55,11 +78,13 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
             if (d.displayTags) {
                 totalHeight += tagLineHeight * d.tagsLimit;
             }
+            totalHeight += gridBandRows * bandLineHeight;
 
             return {
                 ...tagListSx(),
                 ...collectionListSx(),
                 ...thumbSx(d.thumbSize, theme),
+                ...gridCardZoneSx(theme),
                 p: 2,
                 backgroundColor: theme.palette.background.default,
                 [`.${sectionDividerClassname}`]: {
@@ -142,7 +167,7 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                 },
             };
         },
-        [d]
+        [d, gridBandRows]
     );
 
     const {previewAnchorEl, onPreviewToggle, onPreviewHide} = usePreview([

@@ -32,6 +32,10 @@ class ProfileItemOutputTransformer implements OutputTransformerInterface
             type: $data->getType(),
             displayEmpty: $data->isDisplayEmpty(),
             format: $data->getFormat(),
+            placement: $data->getPlacement(),
+            variant: $data->getVariant(),
+            showLabel: $data->isShowLabel(),
+            showIcon: $data->isShowIcon(),
         );
     }
 }

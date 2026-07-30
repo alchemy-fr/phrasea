@@ -47,6 +47,18 @@ class PutProfileItemProcessor implements ProcessorInterface
         if (null !== $data->format) {
             $item->setFormat($data->format);
         }
+        if (null !== $data->placement) {
+            $item->setPlacement($data->placement);
+        }
+        if (null !== $data->variant) {
+            $item->setVariant($data->variant);
+        }
+        if (null !== $data->showLabel) {
+            $item->setShowLabel($data->showLabel);
+        }
+        if (null !== $data->showIcon) {
+            $item->setShowIcon($data->showIcon);
+        }
 
         $this->em->persist($item);
         $this->em->flush();

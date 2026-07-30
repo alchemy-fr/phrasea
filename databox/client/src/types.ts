@@ -457,6 +457,7 @@ export interface Basket
 export enum ProfileItemSection {
     Attributes = 0,
     Facets = 1,
+    Grid = 2,
 }
 
 export enum ProfileItemType {
@@ -466,6 +467,31 @@ export enum ProfileItemType {
     Spacer = 3,
 }
 
+export type GridRegion = 'above' | 'over' | 'below';
+
+// above/below bands: l | c | r ; over (3x3 grid): tl..br
+export type GridAnchor =
+    | 'l'
+    | 'c'
+    | 'r'
+    | 'tl'
+    | 'tc'
+    | 'tr'
+    | 'ml'
+    | 'cc'
+    | 'mr'
+    | 'bl'
+    | 'bc'
+    | 'br';
+
+export type ItemPlacement = {
+    region: GridRegion;
+    anchor: GridAnchor;
+    order?: number;
+};
+
+export type ProfileItemVariant = 'chip' | 'text' | 'icon';
+
 export type ProfileItem = {
     id: string;
     section: ProfileItemSection;
@@ -474,6 +500,11 @@ export type ProfileItem = {
     definition?: string;
     displayEmpty?: boolean;
     format?: string;
+    // Grid section only:
+    placement?: ItemPlacement;
+    variant?: ProfileItemVariant;
+    showLabel?: boolean;
+    showIcon?: boolean;
 };
 
 export interface DisplayProfile
