@@ -139,37 +139,24 @@ readonly class InitialAttributeValuesResolver
         return [];
     }
 
+    /**
+     * @return string[]
+     */
     private function resolveInitial(
         Asset $asset,
         FileMetadataAccessorWrapper $fileMetadataAccessorWrapper,
-        string $initializeFormula,
+        string $twigTemplate,
         AttributeDefinition $definition,
     ): array {
-        $initializeFormula = json_decode($initializeFormula, true, 512, JSON_THROW_ON_ERROR);
+        $template = $this->twig->createTemplate($twigTemplate);
+        $context = [
+            'file' => $fileMetadataAccessorWrapper,
+            'asset' => $asset,
+        ];
+        $twigOutput = $this->twig->render($template, $context);
 
-        switch ($initializeFormula['type']) {
-            case 'metadata':
-                // the value is a simple metadata tag name, fetch data directly
-                $m = $fileMetadataAccessorWrapper->getMetadata($initializeFormula['value']);
-                $initialValues = $m ? ($definition->isMultiple() ? $m['values'] : [$m['value']]) : [];
-                break;
-
-            case 'template':
-                // the value is twig code
-                $template = $this->twig->createTemplate($initializeFormula['value']);
-                $context = [
-                    'file' => $fileMetadataAccessorWrapper,
-                    'asset' => $asset,
-                ];
-                $twigOutput = $this->twig->render($template, $context);
-
-                // to return multiple values via twig : one per line
-                $initialValues = $definition->isMultiple() ? explode("\n", $twigOutput) : [$twigOutput];
-                break;
-
-            default:
-                throw new \InvalidArgumentException(sprintf('"%s" is not a valid initialization type for attribute "%s"', $initializeFormula['type'], $definition->getName()));
-        }
+        // to return multiple values via twig : one per line
+        $initialValues = $definition->isMultiple() ? explode("\n", $twigOutput) : [$twigOutput];
 
         return $this->filterEmptyValues($initialValues);
     }

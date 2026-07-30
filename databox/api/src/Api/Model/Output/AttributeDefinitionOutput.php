@@ -82,7 +82,7 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public ?array $fallback = null;
 
     /**
-     * To create initial attribute value(s) (tag name or twig template).
+     * Language-indexed Twig templates resolved to create initial attribute value(s).
      */
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?array $initialValues = null;

@@ -348,6 +348,8 @@ final readonly class WorkspaceTemplater
                 'type' => $item->getType(),
                 'fileType' => $item->getFileType(),
                 'initialValues' => $item->getInitialValues(),
+                'readFromMetadata' => $item->getReadFromMetadata(),
+                'writeMetadata' => $item->getWriteMetadata(),
                 'position' => $item->getPosition(),
                 'searchBoost' => $item->getSearchBoost(),
                 'allowInvalid' => $item->isAllowInvalid(),
@@ -397,6 +399,8 @@ final readonly class WorkspaceTemplater
             $o->setType($item['fieldType'] ?? $item['type']);
             $o->setFileType($item['fileType']);
             $o->setInitialValues($item['initialValues']);
+            $o->setReadFromMetadata($item['readFromMetadata'] ?? null);
+            $o->setWriteMetadata($item['writeMetadata'] ?? null);
             $o->setPosition($item['position']);
             $o->setSearchBoost($item['searchBoost']);
             $o->setAllowInvalid($item['allowInvalid']);

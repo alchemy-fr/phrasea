@@ -42,7 +42,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ApiResource(
     shortName: 'attribute-definition',
@@ -241,7 +240,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     private ?int $searchBoost = null;
 
     /**
-     * Initialize attributes after asset creation; key=locale.
+     * Initialize attributes after asset creation from a Twig template; key=locale, value=Twig code.
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $initialValues = null;
@@ -673,46 +672,6 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         }
 
         $this->options[self::OPT_REQUIRED] = true;
-    }
-
-    #[Assert\Callback]
-    public function validateInitialValues(ExecutionContextInterface $context): void
-    {
-        if (empty($this->initialValues)) {
-            return;
-        }
-
-        foreach ($this->initialValues as $locale => $value) {
-            $data = json_decode((string) $value, true);
-            if (JSON_ERROR_NONE !== json_last_error()) {
-                $context->buildViolation('The initial value for locale "%locale%" is not valid JSON.')
-                    ->setParameter('%locale%', $locale)
-                    ->atPath('initialValues')
-                    ->addViolation();
-                continue;
-            }
-
-            if (!is_array($data)) {
-                $context->buildViolation('The initial value for locale "%locale%" must be an array.')
-                    ->setParameter('%locale%', $locale)
-                    ->atPath('initialValues')
-                    ->addViolation();
-                continue;
-            }
-
-            foreach ([
-                'type',
-                'value',
-            ] as $key) {
-                if (!isset($data[$key])) {
-                    $context->buildViolation('The initial value for locale "%locale%" must contain a "%key%" key.')
-                        ->setParameter('%locale%', $locale)
-                        ->setParameter('%key%', $key)
-                        ->atPath('initialValues')
-                        ->addViolation();
-                }
-            }
-        }
     }
 
     public function isUseAsName(): bool

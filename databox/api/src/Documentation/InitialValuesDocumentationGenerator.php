@@ -53,13 +53,10 @@ final class InitialValuesDocumentationGenerator extends DocumentationGenerator
                 if (is_array($definition['initialValues'] ?? null)) {
                     foreach ($definition['initialValues'] as $locale => $initializer) {
                         $output .= sprintf("  - locale `%s`\n", $locale);
-                        $code = json_encode(json_decode((string) $initializer), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-                        $this->codeBlockIndented($output, $code, 'json', 1);
+                        $this->codeBlockIndented($output, trim((string) $initializer), 'twig', 1);
                     }
                 } elseif (null !== ($definition['initialValues'] ?? null)) {
-                    $initializer = $definition['initialValues'];
-                    $code = json_encode(json_decode((string) $initializer), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-                    $this->codeBlockIndented($output, $code, 'json', 0);
+                    $this->codeBlockIndented($output, trim((string) $definition['initialValues']), 'twig', 0);
                 }
 
                 if (!empty($definition['readFromMetadata'])) {

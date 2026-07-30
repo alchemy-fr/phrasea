@@ -117,8 +117,13 @@ class AttributeDefinitionInput
     public $fallback;
 
     /**
+     * Language-indexed Twig templates resolved to initialize the attribute.
+     *
      * @var string[]
      */
+    #[Assert\All([
+        new TwigConstraint(),
+    ])]
     public $initialValues;
 
     /**
