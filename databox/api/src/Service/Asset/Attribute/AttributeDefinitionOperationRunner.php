@@ -15,7 +15,6 @@ use App\OperationTask\RunContext;
 use App\Repository\Core\AssetRepository;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeRepository;
-use App\Service\Asset\Attribute\Index\AttributeIndex;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -41,6 +40,7 @@ final readonly class AttributeDefinitionOperationRunner
         private FallbackResolver $fallbackResolver,
         private InitialAttributeValuesResolver $initialValueResolver,
         private AttributeAssigner $attributeAssigner,
+        private AttributesResolver $attributesResolver,
     ) {
     }
 
@@ -93,12 +93,7 @@ final readonly class AttributeDefinitionOperationRunner
             return;
         }
 
-        // Build an index of the currently persisted attributes only (resolveAssetAttributes
-        // would also inject computed fallbacks, which would mask the value we want to create).
-        $index = new AttributeIndex();
-        foreach ($this->attributeRepository->getCachedAssetAttributes($asset->getId()) as $attribute) {
-            $index->addAttribute($attribute);
-        }
+        $index = $this->attributesResolver->buildIndex($this->attributeRepository->getCachedAssetAttributes($asset->getId()));
 
         $created = 0;
         foreach ($fallbacks as $locale => $template) {
@@ -108,6 +103,7 @@ final readonly class AttributeDefinitionOperationRunner
 
             $attribute = $this->fallbackResolver->resolveAttrFallback($asset, (string) $locale, $definition, $index);
             if (null !== $attribute) {
+                $attribute->setOrigin(Attribute::ORIGIN_FALLBACK_PERSISTED);
                 $this->em->persist($attribute);
                 ++$created;
             }
@@ -125,21 +121,25 @@ final readonly class AttributeDefinitionOperationRunner
      */
     private function recomputeInitial(Asset $asset, AttributeDefinition $definition): void
     {
-        $this->em->createQuery(
-            sprintf('DELETE FROM %s a WHERE a.asset = :asset AND a.definition = :definition', Attribute::class)
-        )
-            ->setParameter('asset', $asset->getId())
-            ->setParameter('definition', $definition->getId())
-            ->execute();
+        $this->em->wrapInTransaction(function () use ($asset, $definition): void {
+            $attributes = $this->attributeRepository->findBy([
+                'asset' => $asset->getId(),
+                'definition' => $definition->getId(),
+            ]);
+            foreach ($attributes as $attribute) {
+                $this->em->remove($attribute);
+            }
+            $this->em->flush();
 
-        $this->attributeAssigner->resetAssetAttributesCache($asset);
+            $this->attributeAssigner->resetAssetAttributesCache($asset);
 
-        $attributes = $this->initialValueResolver->resolveInitialAttributes($asset, $definition);
-        foreach ($attributes as $attribute) {
-            $this->em->persist($attribute);
-        }
+            $attributes = $this->initialValueResolver->resolveInitialAttributes($asset, $definition);
+            foreach ($attributes as $attribute) {
+                $this->em->persist($attribute);
+            }
 
-        $this->em->flush();
-        $this->attributeAssigner->resetAssetAttributesCache($asset);
+            $this->em->flush();
+            $this->attributeAssigner->resetAssetAttributesCache($asset);
+        });
     }
 }

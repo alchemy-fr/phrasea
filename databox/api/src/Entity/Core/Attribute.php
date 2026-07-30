@@ -72,6 +72,7 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     final public const int ORIGIN_HUMAN = 1;
     final public const int ORIGIN_FALLBACK = 2;
     final public const int ORIGIN_INITIAL = 3;
+    final public const int ORIGIN_FALLBACK_PERSISTED = 4;
 
     final public const array ORIGIN_LABELS = [
         self::ORIGIN_MACHINE => 'machine',
