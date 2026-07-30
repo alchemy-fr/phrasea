@@ -59,6 +59,12 @@ class PutProfileItemProcessor implements ProcessorInterface
         if (null !== $data->showIcon) {
             $item->setShowIcon($data->showIcon);
         }
+        if (null !== $data->booleanIcon) {
+            $item->setBooleanIcon($data->booleanIcon);
+        }
+        if (null !== $data->entityDisplay) {
+            $item->setEntityDisplay($data->entityDisplay);
+        }
 
         $this->em->persist($item);
         $this->em->flush();

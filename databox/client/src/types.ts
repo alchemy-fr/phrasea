@@ -490,7 +490,11 @@ export type ItemPlacement = {
     order?: number;
 };
 
-export type ProfileItemVariant = 'chip' | 'text' | 'icon';
+// How a grid value is rendered: its rich ReactNode, a plain-text chip, or raw text.
+export type ProfileItemVariant = 'rich' | 'chip' | 'text';
+
+// AttributeEntity display mode on the grid card.
+export type EntityDisplay = 'full' | 'emoji' | 'color';
 
 export type ProfileItem = {
     id: string;
@@ -505,6 +509,10 @@ export type ProfileItem = {
     variant?: ProfileItemVariant;
     showLabel?: boolean;
     showIcon?: boolean;
+    // Boolean type: render a true/false icon instead of text.
+    booleanIcon?: boolean;
+    // AttributeEntity type: show full value, only the emoji, or only the color.
+    entityDisplay?: EntityDisplay;
 };
 
 export interface DisplayProfile

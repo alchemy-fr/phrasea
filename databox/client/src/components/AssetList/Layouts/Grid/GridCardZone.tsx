@@ -1,6 +1,9 @@
 import React, {useMemo} from 'react';
 import {Box, Chip, CSSObject, SxProps, Theme} from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import {Asset, GridAnchor, GridRegion, ProfileItem} from '../../../../types';
+import {AttributeType} from '../../../../api/types.ts';
 import assetClasses from '../../classes';
 import {ResolvedGridItem, useResolvedGridItems} from './resolveGridItem.ts';
 
@@ -69,22 +72,81 @@ const bandAlign: Record<string, string> = {
     r: 'flex-end',
 };
 
+type EntityRaw = {emoji?: string; color?: string};
+
 function GridItemValue({resolved}: {resolved: ResolvedGridItem}) {
-    const {item, definition, value, nodes, rich} = resolved;
-    const variant = item.variant ?? 'chip';
+    const {item, definition, value, nodes, raws, richCapable} = resolved;
+    const type = definition.type;
     const showLabel = item.showLabel ?? false;
     const label = definition.displayName ?? definition.name;
 
-    // Rich / multi-valued attributes (tags, entities, colors, ...) render their
-    // own ReactNode(s) and must never be flattened into a Chip.
-    if (rich) {
+    const labelPrefix = showLabel ? (
+        <Box component="span" className={gridZoneClasses.label}>
+            {label}:
+        </Box>
+    ) : null;
+
+    // Boolean type: optional true/false icon instead of text.
+    if (type === AttributeType.Boolean && item.booleanIcon) {
+        const bools = raws.filter(r => typeof r === 'boolean') as boolean[];
         return (
             <Box className={gridZoneClasses.rich} title={value || undefined}>
-                {showLabel && (
-                    <Box component="span" className={gridZoneClasses.label}>
-                        {label}:
-                    </Box>
+                {labelPrefix}
+                {bools.length > 0
+                    ? bools.map((b, i) =>
+                          b ? (
+                              <CheckCircleIcon
+                                  key={i}
+                                  color="success"
+                                  fontSize="small"
+                              />
+                          ) : (
+                              <CancelIcon
+                                  key={i}
+                                  color="error"
+                                  fontSize="small"
+                              />
+                          )
+                      )
+                    : '—'}
+            </Box>
+        );
+    }
+
+    // AttributeEntity type: optionally show only the emoji or only the color.
+    if (
+        type === AttributeType.AttributeEntity &&
+        item.entityDisplay &&
+        item.entityDisplay !== 'full'
+    ) {
+        const entities = raws as (EntityRaw | undefined)[];
+        return (
+            <Box className={gridZoneClasses.rich} title={value || undefined}>
+                {labelPrefix}
+                {entities.map((e, i) =>
+                    item.entityDisplay === 'emoji' ? (
+                        <Box component="span" key={i}>
+                            {e?.emoji ?? '—'}
+                        </Box>
+                    ) : (
+                        <Box
+                            key={i}
+                            className={gridZoneClasses.swatch}
+                            sx={{backgroundColor: e?.color || 'transparent'}}
+                        />
+                    )
                 )}
+            </Box>
+        );
+    }
+
+    const variant = item.variant ?? (richCapable ? 'rich' : 'chip');
+
+    // Rich: render the type formatter's ReactNode(s) (tag pills, entity chips…).
+    if (variant === 'rich') {
+        return (
+            <Box className={gridZoneClasses.rich} title={value || undefined}>
+                {labelPrefix}
                 {nodes.length > 0
                     ? nodes.map((n, i) => (
                           <React.Fragment key={i}>{n}</React.Fragment>
@@ -108,7 +170,7 @@ function GridItemValue({resolved}: {resolved: ResolvedGridItem}) {
         );
     }
 
-    // 'chip' (and 'icon' until dedicated icons land) render as a compact chip.
+    // 'chip': a compact chip wrapping the plain-text value.
     return (
         <Chip
             className={gridZoneClasses.chip}
@@ -206,6 +268,7 @@ export const gridZoneClasses = {
     text: 'gcz-text',
     rich: 'gcz-rich',
     label: 'gcz-label',
+    swatch: 'gcz-swatch',
 };
 
 export function gridCardZoneSx(theme: Theme) {
@@ -217,7 +280,7 @@ export function gridCardZoneSx(theme: Theme) {
         [`.${assetClasses.thumbWrapper} > .${gridZoneClasses.over}`]: {
             position: 'absolute',
             inset: 0,
-            zIndex: 2,
+            zIndex: 1,
             display: 'block',
             pointerEvents: 'none',
         },
@@ -263,6 +326,13 @@ export function gridCardZoneSx(theme: Theme) {
             fontSize: 12,
             opacity: 0.7,
             whiteSpace: 'nowrap',
+        },
+        [`.${gridZoneClasses.swatch}`]: {
+            width: 14,
+            height: 14,
+            borderRadius: '50%',
+            border: '1px solid rgba(0,0,0,0.25)',
+            flex: '0 0 auto',
         },
     };
 }

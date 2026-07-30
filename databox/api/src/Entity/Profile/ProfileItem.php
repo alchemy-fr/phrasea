@@ -276,6 +276,38 @@ class ProfileItem extends AbstractUuidEntity
         $this->options['showIcon'] = $showIcon;
     }
 
+    public function isBooleanIcon(): ?bool
+    {
+        return $this->options['booleanIcon'] ?? null;
+    }
+
+    public function setBooleanIcon(?bool $booleanIcon): void
+    {
+        if (null === $booleanIcon) {
+            unset($this->options['booleanIcon']);
+
+            return;
+        }
+
+        $this->options['booleanIcon'] = $booleanIcon;
+    }
+
+    public function getEntityDisplay(): ?string
+    {
+        return $this->options['entityDisplay'] ?? null;
+    }
+
+    public function setEntityDisplay(?string $entityDisplay): void
+    {
+        if (null === $entityDisplay) {
+            unset($this->options['entityDisplay']);
+
+            return;
+        }
+
+        $this->options['entityDisplay'] = $entityDisplay;
+    }
+
     #[Assert\Callback]
     public function validate(ExecutionContextInterface $context): void
     {

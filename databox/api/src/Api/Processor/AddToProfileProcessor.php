@@ -103,6 +103,8 @@ class AddToProfileProcessor implements ProcessorInterface
                 $item->setVariant($i->variant);
                 $item->setShowLabel($i->showLabel);
                 $item->setShowIcon($i->showIcon);
+                $item->setBooleanIcon($i->booleanIcon);
+                $item->setEntityDisplay($i->entityDisplay);
             }
 
             $this->em->persist($item);

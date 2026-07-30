@@ -23,8 +23,10 @@ export type ResolvedGridItem = {
     value: string;
     /** Rich per-value ReactNodes (e.g. tag pills) from the type formatter. */
     nodes: ReactNode[];
-    /** When true, the value must be rendered as its ReactNode(s), never chipped. */
-    rich: boolean;
+    /** Raw per-value values (for boolean icon / entity emoji|color rendering). */
+    raws: unknown[];
+    /** When true, the value defaults to rich rendering (tags, entities, ...). */
+    richCapable: boolean;
 };
 
 type RawValue = {value: unknown; locale?: string};
@@ -42,6 +44,11 @@ const RICH_TYPES = new Set<AttributeType>([
     AttributeType.Html,
     AttributeType.Rendition,
 ]);
+
+/** Whether a value defaults to rich (ReactNode) rendering on the grid card. */
+export function isRichCapable(def: AttributeDefinitionOrBuiltIn): boolean {
+    return !!def.multiple || RICH_TYPES.has(def.type);
+}
 
 /**
  * Resolves the displayable value of grid ProfileItems for a given asset,
@@ -108,7 +115,8 @@ export function useResolvedGridItems(
                 nodes: parts
                     .map(p => p.node)
                     .filter(n => n !== undefined && n !== null),
-                rich: !!definition.multiple || RICH_TYPES.has(definition.type),
+                raws: values.map(v => v.value),
+                richCapable: isRichCapable(definition),
             });
         };
 

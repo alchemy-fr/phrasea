@@ -36,6 +36,8 @@ class ProfileItemOutputTransformer implements OutputTransformerInterface
             variant: $data->getVariant(),
             showLabel: $data->isShowLabel(),
             showIcon: $data->isShowIcon(),
+            booleanIcon: $data->isBooleanIcon(),
+            entityDisplay: $data->getEntityDisplay(),
         );
     }
 }

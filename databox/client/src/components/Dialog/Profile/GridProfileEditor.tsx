@@ -34,12 +34,15 @@ import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {logError} from '@alchemy/core';
 import {
     DisplayProfile,
+    EntityDisplay,
     GridAnchor,
     GridRegion,
     ProfileItem,
     ProfileItemSection,
     ProfileItemVariant,
 } from '../../../types';
+import {AttributeType} from '../../../api/types.ts';
+import {isRichCapable} from '../../AssetList/Layouts/Grid/resolveGridItem.ts';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {
     attributeDefinitionToItem,
@@ -167,7 +170,6 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
                 ...attributeDefinitionToItem(def),
                 section: ProfileItemSection.Grid,
                 placement,
-                variant: 'chip',
             };
             addToList(data.id, [item]);
             return;
@@ -329,17 +331,33 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
                         </Box>
 
                         {/* Config panel */}
-                        {selected && (
-                            <ConfigPanel
-                                key={selected.id}
-                                item={selected}
-                                label={getItemLabel(selected, definitionsIndex)}
-                                onChange={changes =>
-                                    persistPatch(selected, changes)
-                                }
-                                onClose={() => setSelectedId(undefined)}
-                            />
-                        )}
+                        {selected &&
+                            (() => {
+                                const def =
+                                    definitionsIndex[
+                                        selected.definition ??
+                                            selected.key ??
+                                            ''
+                                    ];
+                                const rich = def ? isRichCapable(def) : false;
+                                return (
+                                    <ConfigPanel
+                                        key={selected.id}
+                                        item={selected}
+                                        label={getItemLabel(
+                                            selected,
+                                            definitionsIndex
+                                        )}
+                                        type={def?.type}
+                                        richCapable={rich}
+                                        defaultVariant={rich ? 'rich' : 'chip'}
+                                        onChange={changes =>
+                                            persistPatch(selected, changes)
+                                        }
+                                        onClose={() => setSelectedId(undefined)}
+                                    />
+                                );
+                            })()}
                     </Stack>
 
                     <DragOverlay>
@@ -486,11 +504,17 @@ function PlacedChip({
 function ConfigPanel({
     item,
     label,
+    type,
+    richCapable,
+    defaultVariant,
     onChange,
     onClose,
 }: {
     item: ProfileItem;
     label: string;
+    type?: AttributeType;
+    richCapable: boolean;
+    defaultVariant: ProfileItemVariant;
     onChange: (changes: Partial<ProfileItem>) => void;
     onClose: () => void;
 }) {
@@ -520,12 +544,17 @@ function ConfigPanel({
                 size="small"
                 exclusive
                 fullWidth
-                value={item.variant ?? 'chip'}
+                value={item.variant ?? defaultVariant}
                 onChange={(_e, v: ProfileItemVariant | null) =>
                     v && onChange({variant: v})
                 }
                 sx={{my: 1}}
             >
+                {richCapable && (
+                    <ToggleButton value="rich">
+                        {t('grid_editor.config.variant.rich', 'Rich')}
+                    </ToggleButton>
+                )}
                 <ToggleButton value="chip">
                     {t('grid_editor.config.variant.chip', 'Chip')}
                 </ToggleButton>
@@ -533,6 +562,54 @@ function ConfigPanel({
                     {t('grid_editor.config.variant.text', 'Text')}
                 </ToggleButton>
             </ToggleButtonGroup>
+
+            {type === AttributeType.Boolean && (
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={item.booleanIcon ?? false}
+                            onChange={(_e, checked) =>
+                                onChange({booleanIcon: checked})
+                            }
+                        />
+                    }
+                    label={t(
+                        'grid_editor.config.boolean_icon',
+                        'Show as icon (✓ / ✗)'
+                    )}
+                />
+            )}
+
+            {type === AttributeType.AttributeEntity && (
+                <>
+                    <Typography variant="caption" color="text.secondary">
+                        {t(
+                            'grid_editor.config.entity_display',
+                            'Entity display'
+                        )}
+                    </Typography>
+                    <ToggleButtonGroup
+                        size="small"
+                        exclusive
+                        fullWidth
+                        value={item.entityDisplay ?? 'full'}
+                        onChange={(_e, v: EntityDisplay | null) =>
+                            v && onChange({entityDisplay: v})
+                        }
+                        sx={{my: 1}}
+                    >
+                        <ToggleButton value="full">
+                            {t('grid_editor.config.entity.full', 'Full')}
+                        </ToggleButton>
+                        <ToggleButton value="emoji">
+                            {t('grid_editor.config.entity.emoji', 'Emoji')}
+                        </ToggleButton>
+                        <ToggleButton value="color">
+                            {t('grid_editor.config.entity.color', 'Color')}
+                        </ToggleButton>
+                    </ToggleButtonGroup>
+                </>
+            )}
 
             <FormControlLabel
                 control={

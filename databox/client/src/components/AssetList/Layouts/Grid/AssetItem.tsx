@@ -128,20 +128,24 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                 }
             />
             <div className={assetClasses.legend}>
-                <div className={assetClasses.name}>
-                    {asset.nameHighlight
-                        ? replaceHighlight(asset.nameHighlight)
-                        : asset.name}
-                </div>
-                {asset.tags && asset.tags.length > 0 && (
-                    <AssetTagList tags={asset.tags!} />
-                )}
-                {asset.collections && asset.collections.length > 0 && (
-                    <AssetCollectionList
-                        asset={asset}
-                        onOpenAsset={onOpen}
-                        collections={asset.collections!}
-                    />
+                {!hasGrid && (
+                    <>
+                        <div className={assetClasses.name}>
+                            {asset.nameHighlight
+                                ? replaceHighlight(asset.nameHighlight)
+                                : asset.name}
+                        </div>
+                        {asset.tags && asset.tags.length > 0 && (
+                            <AssetTagList tags={asset.tags!} />
+                        )}
+                        {asset.collections && asset.collections.length > 0 && (
+                            <AssetCollectionList
+                                asset={asset}
+                                onOpenAsset={onOpen}
+                                collections={asset.collections!}
+                            />
+                        )}
+                    </>
                 )}
                 {hasGrid && (
                     <GridCardZone
