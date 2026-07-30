@@ -24,6 +24,10 @@ import {
     Divider,
     FormControlLabel,
     IconButton,
+    List,
+    ListItemButton,
+    ListItemText,
+    ListSubheader,
     Paper,
     Stack,
     Switch,
@@ -40,6 +44,7 @@ import {useTranslation} from 'react-i18next';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {logError} from '@alchemy/core';
 import {
+    AttributeDefinitionOrBuiltIn,
     DisplayProfile,
     EntityDisplay,
     GridAnchor,
@@ -47,10 +52,12 @@ import {
     ProfileItem,
     ProfileItemSection,
     ProfileItemVariant,
+    Workspace,
 } from '../../../types';
 import {AttributeType} from '../../../api/types.ts';
 import {isRichCapable} from '../../AssetList/Layouts/Grid/resolveGridItem.ts';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
+import AttributeDefinitionLabel from './AttributeDefinitionLabel.tsx';
 import {
     attributeDefinitionToItem,
     hasDefinitionInItems,
@@ -123,6 +130,31 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
             allDefinitions.filter(d => !hasDefinitionInItems(gridItems, d.id)),
         [allDefinitions, gridItems]
     );
+
+    // Same presentation as the Organize tab: built-ins first, remaining
+    // definitions grouped under their workspace subheader.
+    const paletteRows = useMemo(() => {
+        const rows: (
+            | {kind: 'header'; id: string; label: string}
+            | {kind: 'field'; def: AttributeDefinitionOrBuiltIn}
+        )[] = [];
+        let lastWorkspace: string | undefined;
+        for (const def of availableDefinitions) {
+            if (!def.builtIn && def.workspace) {
+                const ws = def.workspace as Workspace;
+                if (ws.id !== lastWorkspace) {
+                    lastWorkspace = ws.id;
+                    rows.push({
+                        kind: 'header',
+                        id: `ws-${ws.id}`,
+                        label: ws.displayName,
+                    });
+                }
+            }
+            rows.push({kind: 'field', def});
+        }
+        return rows;
+    }, [availableDefinitions]);
 
     const anchorItems = (region: GridRegion, anchor: GridAnchor) =>
         gridItems
@@ -298,28 +330,26 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
                                     'Drag a field onto the card'
                                 )}
                             </Typography>
-                            <Box
-                                sx={{
-                                    mt: 1,
-                                    display: 'flex',
-                                    flexWrap: 'wrap',
-                                    gap: 0.5,
-                                    maxHeight: 340,
-                                    overflow: 'auto',
-                                }}
+                            <List
+                                dense
+                                sx={{mt: 1, maxHeight: 360, overflow: 'auto'}}
                             >
-                                {availableDefinitions.map(def => (
-                                    <PaletteField
-                                        key={def.id}
-                                        id={def.id}
-                                        label={
-                                            def.displayName ??
-                                            def.name ??
-                                            def.id
-                                        }
-                                    />
-                                ))}
-                                {availableDefinitions.length === 0 && (
+                                {paletteRows.map(row =>
+                                    row.kind === 'header' ? (
+                                        <ListSubheader
+                                            key={row.id}
+                                            disableSticky
+                                        >
+                                            {row.label}
+                                        </ListSubheader>
+                                    ) : (
+                                        <PaletteField
+                                            key={row.def.id}
+                                            def={row.def}
+                                        />
+                                    )
+                                )}
+                                {paletteRows.length === 0 && (
                                     <Typography
                                         variant="caption"
                                         color="text.secondary"
@@ -331,7 +361,7 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
                                         )}
                                     </Typography>
                                 )}
-                            </Box>
+                            </List>
                         </Paper>
 
                         {/* Card canvas */}
@@ -442,20 +472,20 @@ function dragOverlayLabel(
     return item ? getItemLabel(item, definitionsIndex) : '';
 }
 
-function PaletteField({id, label}: {id: string; label: string}) {
+function PaletteField({def}: {def: AttributeDefinitionOrBuiltIn}) {
     const {attributes, listeners, setNodeRef, isDragging} = useDraggable({
-        id: `${DRAG_PALETTE}${id}`,
+        id: `${DRAG_PALETTE}${def.id}`,
     });
     return (
-        <Chip
+        <ListItemButton
             ref={setNodeRef}
-            size="small"
-            label={label}
-            variant="outlined"
+            dense
             sx={{cursor: 'grab', opacity: isDragging ? 0.4 : 1}}
             {...listeners}
             {...attributes}
-        />
+        >
+            <ListItemText primary={<AttributeDefinitionLabel data={def} />} />
+        </ListItemButton>
     );
 }
 
