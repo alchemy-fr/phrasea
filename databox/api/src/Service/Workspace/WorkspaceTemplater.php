@@ -212,6 +212,7 @@ final readonly class WorkspaceTemplater
                 'priority' => $item->getPriority(),
                 'download' => $item->isDownload(),
                 'substituable' => $item->isSubstitutable(),
+                'writeMetadata' => $item->isWriteMetadata(),
                 'useAsMain' => $item->isUseAsMain(),
                 'useAsPreview' => $item->isUseAsPreview(),
                 'useAsThumbnail' => $item->isUseAsThumbnail(),
@@ -267,6 +268,7 @@ final readonly class WorkspaceTemplater
             $o->setPriority($item['priority']);
             $o->setDownload($item['download']);
             $o->setSubstitutable($item['substituable']);
+            $o->setWriteMetadata($item['writeMetadata'] ?? false);
             $o->setUseAsMain($item['useAsMain']);
             $o->setUseAsPreview($item['useAsPreview']);
             $o->setUseAsThumbnail($item['useAsThumbnail']);
