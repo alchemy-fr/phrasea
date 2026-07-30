@@ -58,12 +58,10 @@ class ProfileItem extends AbstractUuidEntity
     /**
      * Grid card regions (stored in options.placement.region).
      */
-    final public const string REGION_ABOVE = 'above';
     final public const string REGION_OVER = 'over';
     final public const string REGION_BELOW = 'below';
 
     final public const array REGIONS = [
-        self::REGION_ABOVE,
         self::REGION_OVER,
         self::REGION_BELOW,
     ];
@@ -72,7 +70,6 @@ class ProfileItem extends AbstractUuidEntity
      * Valid anchors per region (stored in options.placement.anchor).
      */
     final public const array ANCHORS = [
-        self::REGION_ABOVE => ['l', 'c', 'r'],
         self::REGION_OVER => ['tl', 'tc', 'tr', 'ml', 'cc', 'mr', 'bl', 'bc', 'br'],
         self::REGION_BELOW => ['l', 'c', 'r'],
     ];

@@ -16,8 +16,6 @@ import {
     createSizeTransition,
     thumbSx,
 } from '../../../Media/Asset/AssetThumb.tsx';
-import {useProfileStore} from '../../../../store/profileStore.ts';
-import {ProfileItemSection} from '../../../../types';
 import {gridCardZoneSx} from './GridCardZone.tsx';
 
 export default function GridLayout<Item extends AssetOrAssetContainer>({
@@ -33,31 +31,8 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
     previewZIndex,
     ...layoutProps
 }: LayoutProps<Item>) {
-    const lineHeight = 26;
-    const collLineHeight = 32;
-    const tagLineHeight = 32;
     const d = useContext(DisplayContext)!.state;
     const listRef = React.useRef<HTMLDivElement | null>(null);
-
-    // Reserve vertical space for the profile's above/below grid bands so the
-    // fixed item height stays consistent (the "over" overlay adds no height).
-    const gridBandRows = useProfileStore(s => {
-        const items = (s.current?.items ?? []).filter(
-            i => i.section === ProfileItemSection.Grid
-        );
-        const maxStack = (region: 'above' | 'below') => {
-            const counts: Record<string, number> = {};
-            for (const i of items) {
-                if (i.placement?.region !== region) continue;
-                const a = i.placement.anchor;
-                counts[a] = (counts[a] ?? 0) + 1;
-            }
-            const values = Object.values(counts);
-            return values.length ? Math.max(...values) : 0;
-        };
-        return maxStack('above') + maxStack('below');
-    });
-    const bandLineHeight = 28;
 
     useScrollTopPages(
         listRef.current?.closest(`.${assetClasses.scrollable}`),
@@ -66,20 +41,6 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
 
     const gridSx = React.useCallback(
         (theme: Theme) => {
-            const spacing = Number(theme.spacing(1).slice(0, -2));
-
-            const nameHeight = d.displayName
-                ? spacing * 1.8 + lineHeight * d.nameRows
-                : 0;
-            let totalHeight = d.thumbSize + nameHeight;
-            if (d.displayCollections) {
-                totalHeight += collLineHeight * d.collectionsLimit;
-            }
-            if (d.displayTags) {
-                totalHeight += tagLineHeight * d.tagsLimit;
-            }
-            totalHeight += gridBandRows * bandLineHeight;
-
             return {
                 ...tagListSx(),
                 ...collectionListSx(),
@@ -93,7 +54,6 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                 },
                 [`.${assetClasses.item}`]: {
                     'width': d.thumbSize,
-                    'height': totalHeight,
                     'transition': createSizeTransition(theme),
                     'position': 'relative',
                     [`.${assetClasses.controls}`]: {
@@ -145,19 +105,9 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                 },
                 [`.${assetClasses.name}`]: {
                     fontSize: 14,
-                    lineHeight: `${lineHeight}px`,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                    ...(d.nameRows > 1
-                        ? {
-                              'display': d.displayName ? '-webkit-box' : 'none',
-                              '-webkit-line-clamp': `${d.nameRows}`,
-                              '-webkit-box-orient': 'vertical',
-                          }
-                        : {
-                              display: d.displayName ? 'block' : 'none',
-                              whiteSpace: 'nowrap',
-                          }),
+                    whiteSpace: 'nowrap',
                 },
                 [`.${assetClasses.legend}`]: {
                     p: 1,
@@ -167,7 +117,7 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                 },
             };
         },
-        [d, gridBandRows]
+        [d]
     );
 
     const {previewAnchorEl, onPreviewToggle, onPreviewHide} = usePreview([

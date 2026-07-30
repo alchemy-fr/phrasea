@@ -1,5 +1,6 @@
 import React, {useMemo, useState} from 'react';
 import {
+    closestCenter,
     DndContext,
     DragEndEvent,
     DragOverlay,
@@ -11,6 +12,12 @@ import {
     useSensor,
     useSensors,
 } from '@dnd-kit/core';
+import {
+    SortableContext,
+    useSortable,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {CSS} from '@dnd-kit/utilities';
 import {
     Box,
     Chip,
@@ -70,7 +77,6 @@ const OVER_GRID: GridAnchor[][] = [
 const BAND: GridAnchor[] = ['l', 'c', 'r'];
 
 const DRAG_PALETTE = 'palette:';
-const DRAG_ITEM = 'item:';
 const DROP_CELL = 'cell:';
 
 const cellId = (region: GridRegion, anchor: GridAnchor) =>
@@ -151,42 +157,78 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
         setActiveDrag(active.id as string);
     };
 
+    // Reinsert `item` at `index` inside a cell and persist the (re)ordering of
+    // every item whose placement actually changed.
+    const moveItem = (
+        item: ProfileItem,
+        region: GridRegion,
+        anchor: GridAnchor,
+        index: number
+    ) => {
+        const list = anchorItems(region, anchor).filter(i => i.id !== item.id);
+        list.splice(index, 0, item);
+        list.forEach((it, order) => {
+            const p = it.placement;
+            if (
+                p?.region !== region ||
+                p?.anchor !== anchor ||
+                p?.order !== order
+            ) {
+                persistPatch(it, {placement: {region, anchor, order}});
+            }
+        });
+    };
+
+    // Resolve the target cell + insertion index from the drop target, which is
+    // either a cell (append) or another placed item (insert at its position).
+    const resolveTarget = (overId: string, excludeId?: string) => {
+        const cell = parseCell(overId);
+        if (cell) {
+            const index = anchorItems(cell.region, cell.anchor).filter(
+                i => i.id !== excludeId
+            ).length;
+            return {region: cell.region, anchor: cell.anchor, index};
+        }
+        const overItem = gridItems.find(i => i.id === overId);
+        if (!overItem?.placement) return null;
+        const {region, anchor} = overItem.placement;
+        const list = anchorItems(region, anchor).filter(
+            i => i.id !== excludeId
+        );
+        const idx = list.findIndex(i => i.id === overId);
+        return {region, anchor, index: idx < 0 ? list.length : idx};
+    };
+
     const handleDragEnd = ({active, over}: DragEndEvent) => {
         setActiveDrag(null);
         if (!over) return;
-
-        const target = parseCell(over.id as string);
-        if (!target) return;
-
-        const order = anchorItems(target.region, target.anchor).length;
-        const placement = {...target, order};
         const activeId = active.id as string;
+        const overId = over.id as string;
 
         if (activeId.startsWith(DRAG_PALETTE)) {
-            const defId = activeId.slice(DRAG_PALETTE.length);
-            const def = definitionsIndex[defId];
+            const target = resolveTarget(overId);
+            if (!target) return;
+            const def = definitionsIndex[activeId.slice(DRAG_PALETTE.length)];
             if (!def) return;
             const item: ProfileItem = {
                 ...attributeDefinitionToItem(def),
                 section: ProfileItemSection.Grid,
-                placement,
+                placement: {
+                    region: target.region,
+                    anchor: target.anchor,
+                    order: target.index,
+                },
             };
             addToList(data.id, [item]);
             return;
         }
 
-        if (activeId.startsWith(DRAG_ITEM)) {
-            const itemId = activeId.slice(DRAG_ITEM.length);
-            const item = gridItems.find(i => i.id === itemId);
-            if (!item) return;
-            if (
-                item.placement?.region === target.region &&
-                item.placement?.anchor === target.anchor
-            ) {
-                return; // dropped on same cell
-            }
-            persistPatch(item, {placement});
-        }
+        if (activeId === overId) return;
+        const item = gridItems.find(i => i.id === activeId);
+        if (!item) return;
+        const target = resolveTarget(overId, item.id);
+        if (!target) return;
+        moveItem(item, target.region, target.anchor, target.index);
     };
 
     const selected = gridItems.find(i => i.id === selectedId);
@@ -195,29 +237,39 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
         return <FullPageLoader />;
     }
 
-    const renderCell = (region: GridRegion, anchor: GridAnchor) => (
-        <AnchorCell key={anchor} region={region} anchor={anchor}>
-            {anchorItems(region, anchor).map(item => (
-                <PlacedChip
-                    key={item.id}
-                    item={item}
-                    label={getItemLabel(item, definitionsIndex)}
-                    selected={item.id === selectedId}
-                    onSelect={() => setSelectedId(item.id)}
-                    onRemove={() => {
-                        if (item.id === selectedId) setSelectedId(undefined);
-                        removeFromProfile(data.id, [item.id]);
-                    }}
-                />
-            ))}
-        </AnchorCell>
-    );
+    const renderCell = (region: GridRegion, anchor: GridAnchor) => {
+        const cellItems = anchorItems(region, anchor);
+        return (
+            <AnchorCell
+                key={anchor}
+                region={region}
+                anchor={anchor}
+                itemIds={cellItems.map(i => i.id)}
+            >
+                {cellItems.map(item => (
+                    <PlacedChip
+                        key={item.id}
+                        item={item}
+                        label={getItemLabel(item, definitionsIndex)}
+                        selected={item.id === selectedId}
+                        onSelect={() => setSelectedId(item.id)}
+                        onRemove={() => {
+                            if (item.id === selectedId)
+                                setSelectedId(undefined);
+                            removeFromProfile(data.id, [item.id]);
+                        }}
+                    />
+                ))}
+            </AnchorCell>
+        );
+    };
 
     return (
         <>
             <DialogContent sx={{minHeight}}>
                 <DndContext
                     sensors={sensors}
+                    collisionDetection={closestCenter}
                     onDragStart={handleDragStart}
                     onDragEnd={handleDragEnd}
                 >
@@ -285,10 +337,6 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
                         {/* Card canvas */}
                         <Box sx={{flexGrow: 1, minWidth: 260}}>
                             <Box sx={{maxWidth: 320, mx: 'auto'}}>
-                                <BandZone>
-                                    {BAND.map(a => renderCell('above', a))}
-                                </BandZone>
-
                                 <Box
                                     sx={{
                                         position: 'relative',
@@ -390,7 +438,7 @@ function dragOverlayLabel(
         const def = definitionsIndex[activeId.slice(DRAG_PALETTE.length)];
         return def?.displayName ?? def?.name ?? '';
     }
-    const item = gridItems.find(i => i.id === activeId.slice(DRAG_ITEM.length));
+    const item = gridItems.find(i => i.id === activeId);
     return item ? getItemLabel(item, definitionsIndex) : '';
 }
 
@@ -430,10 +478,12 @@ function BandZone({children}: {children: React.ReactNode}) {
 function AnchorCell({
     region,
     anchor,
+    itemIds,
     children,
 }: {
     region: GridRegion;
     anchor: GridAnchor;
+    itemIds: string[];
     children: React.ReactNode;
 }) {
     const {setNodeRef, isOver} = useDroppable({id: cellId(region, anchor)});
@@ -459,7 +509,12 @@ function AnchorCell({
                           : 'flex-start',
             }}
         >
-            {children}
+            <SortableContext
+                items={itemIds}
+                strategy={verticalListSortingStrategy}
+            >
+                {children}
+            </SortableContext>
         </Box>
     );
 }
@@ -477,9 +532,14 @@ function PlacedChip({
     onSelect: () => void;
     onRemove: () => void;
 }) {
-    const {attributes, listeners, setNodeRef, isDragging} = useDraggable({
-        id: `${DRAG_ITEM}${item.id}`,
-    });
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({id: item.id});
     return (
         <Chip
             ref={setNodeRef}
@@ -494,6 +554,8 @@ function PlacedChip({
                 cursor: 'grab',
                 maxWidth: '100%',
                 opacity: isDragging ? 0.4 : 1,
+                transform: CSS.Transform.toString(transform),
+                transition,
             }}
             {...listeners}
             {...attributes}

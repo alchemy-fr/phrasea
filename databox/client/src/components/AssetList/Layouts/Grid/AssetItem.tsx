@@ -111,9 +111,6 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                     )}
                 </div>
             </div>
-            {hasGrid && (
-                <GridCardZone asset={asset} items={gridItems} region="above" />
-            )}
             <AssetThumb
                 asset={asset}
                 onPreviewToggle={onPreviewToggle}

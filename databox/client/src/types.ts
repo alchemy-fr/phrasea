@@ -467,7 +467,7 @@ export enum ProfileItemType {
     Spacer = 3,
 }
 
-export type GridRegion = 'above' | 'over' | 'below';
+export type GridRegion = 'over' | 'below';
 
 // above/below bands: l | c | r ; over (3x3 grid): tl..br
 export type GridAnchor =

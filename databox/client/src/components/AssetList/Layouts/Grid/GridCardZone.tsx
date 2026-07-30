@@ -66,11 +66,21 @@ const overPos: Record<string, CSSObject> = {
     br: {bottom: 0, right: 0, alignItems: 'flex-end'},
 };
 
-const bandAlign: Record<string, string> = {
-    l: 'flex-start',
-    c: 'center',
-    r: 'flex-end',
+// below band anchors: absolutely positioned like `over` (top-aligned row) so a
+// value can overflow its 1/3 cell instead of being clamped to a grid track.
+const belowPos: Record<string, CSSObject> = {
+    l: {top: 0, left: 0, alignItems: 'flex-start'},
+    c: {
+        top: 0,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        alignItems: 'center',
+    },
+    r: {top: 0, right: 0, alignItems: 'flex-end'},
 };
+
+// Approximate height reserved per stacked row in a band (chip + gap).
+const BAND_ROW_HEIGHT = 28;
 
 type EntityRaw = {emoji?: string; color?: string};
 
@@ -210,13 +220,18 @@ function GridCardZone({asset, items, region}: Props) {
         return null;
     }
 
-    const anchors = region === 'over' ? OVER_ANCHORS : BAND_ANCHORS;
+    const isOver = region === 'over';
+    const anchors = isOver ? OVER_ANCHORS : BAND_ANCHORS;
+    // Reserve vertical room for the tallest anchor stack so the absolutely
+    // positioned band cells stay visible.
+    const bandRows = isOver
+        ? 0
+        : Math.max(0, ...[...byAnchor.values()].map(a => a.length));
 
     return (
         <Box
-            className={
-                region === 'over' ? gridZoneClasses.over : gridZoneClasses.band
-            }
+            className={isOver ? gridZoneClasses.over : gridZoneClasses.band}
+            sx={isOver ? undefined : {minHeight: bandRows * BAND_ROW_HEIGHT}}
         >
             {anchors.map(anchor => {
                 const cellItems = byAnchor.get(anchor);
@@ -224,23 +239,15 @@ function GridCardZone({asset, items, region}: Props) {
                     return null;
                 }
 
-                const cellSx: SxProps<Theme> =
-                    region === 'over'
-                        ? ([
-                              {
-                                  position: 'absolute',
-                                  width: 'max-content',
-                                  maxWidth: '100%',
-                                  overflow: 'visible',
-                              },
-                              overPos[anchor],
-                          ] as SxProps<Theme>)
-                        : {
-                              gridColumn:
-                                  anchor === 'l' ? 1 : anchor === 'c' ? 2 : 3,
-                              alignItems: bandAlign[anchor],
-                              overflow: 'hidden',
-                          };
+                const cellSx = [
+                    {
+                        position: 'absolute',
+                        width: 'max-content',
+                        maxWidth: '100%',
+                        overflow: 'visible',
+                    },
+                    isOver ? overPos[anchor] : belowPos[anchor],
+                ] as SxProps<Theme>;
 
                 return (
                     <Box
@@ -284,13 +291,12 @@ export function gridCardZoneSx(theme: Theme) {
             display: 'block',
             pointerEvents: 'none',
         },
-        // above / below band: 3 columns in normal flow.
+        // below band: positioning context for absolutely-anchored cells; values
+        // may overflow their 1/3 cell but are clipped to the card width.
         [`.${gridZoneClasses.band}`]: {
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            alignItems: 'center',
-            gap: theme.spacing(0.5),
-            minWidth: 0,
+            position: 'relative',
+            overflow: 'hidden',
+            width: '100%',
         },
         [`.${gridZoneClasses.cell}`]: {
             display: 'flex',
