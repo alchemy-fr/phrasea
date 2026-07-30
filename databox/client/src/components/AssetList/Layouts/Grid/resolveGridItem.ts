@@ -1,4 +1,4 @@
-import {useContext, useMemo} from 'react';
+import {ReactNode, useContext, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
     Asset,
@@ -6,6 +6,7 @@ import {
     ProfileItem,
     ProfileItemType,
 } from '../../../../types';
+import {AttributeType} from '../../../../api/types.ts';
 import {
     getBuiltInAttributeValueResolver,
     useIndexById,
@@ -18,9 +19,29 @@ import {BuiltInAttributeEnum} from '../../../Media/Search/search.ts';
 export type ResolvedGridItem = {
     item: ProfileItem;
     definition: AttributeDefinitionOrBuiltIn;
-    /** Formatted, human-readable value; empty string when no value. */
+    /** Stringified value; used for the label prefix, tooltip and empty check. */
     value: string;
+    /** Rich per-value ReactNodes (e.g. tag pills) from the type formatter. */
+    nodes: ReactNode[];
+    /** When true, the value must be rendered as its ReactNode(s), never chipped. */
+    rich: boolean;
 };
+
+type RawValue = {value: unknown; locale?: string};
+
+// Types whose formatter renders a non-textual ReactNode that must not be
+// flattened into a plain Chip. Multi-valued attributes are always treated as
+// rich too (see resolution below).
+const RICH_TYPES = new Set<AttributeType>([
+    AttributeType.Tag,
+    AttributeType.AttributeEntity,
+    AttributeType.User,
+    AttributeType.Story,
+    AttributeType.Color,
+    AttributeType.GeoPoint,
+    AttributeType.Html,
+    AttributeType.Rendition,
+]);
 
 /**
  * Resolves the displayable value of grid ProfileItems for a given asset,
@@ -44,21 +65,52 @@ export function useResolvedGridItems(
             asset.attributes
         );
 
-        const formatValue = (
+        const format = (
             definition: AttributeDefinitionOrBuiltIn,
-            value: unknown,
-            override?: string,
-            locale?: string
-        ): string =>
-            getAttributeType(definition.type).formatValueAsString({
-                uiLocale: i18n.language,
-                t,
-                value,
-                locale,
-                format:
-                    override ??
-                    formatContext.getFormat(definition.type, definition.id),
-            }) ?? '';
+            item: ProfileItem
+        ) =>
+            item.format ??
+            formatContext.getFormat(definition.type, definition.id);
+
+        const push = (
+            resolved: ResolvedGridItem[],
+            item: ProfileItem,
+            definition: AttributeDefinitionOrBuiltIn,
+            values: RawValue[]
+        ) => {
+            const at = getAttributeType(definition.type);
+            const fmt = format(definition, item);
+            const parts = values.map(v => ({
+                str:
+                    at.formatValueAsString({
+                        uiLocale: i18n.language,
+                        t,
+                        value: v.value,
+                        locale: v.locale,
+                        format: fmt,
+                    }) ?? '',
+                node: at.formatValue({
+                    uiLocale: i18n.language,
+                    t,
+                    value: v.value,
+                    locale: v.locale,
+                    format: fmt,
+                }),
+            }));
+
+            resolved.push({
+                item,
+                definition,
+                value: parts
+                    .map(p => p.str)
+                    .filter(Boolean)
+                    .join(', '),
+                nodes: parts
+                    .map(p => p.node)
+                    .filter(n => n !== undefined && n !== null),
+                rich: !!definition.multiple || RICH_TYPES.has(definition.type),
+            });
+        };
 
         const resolved: ResolvedGridItem[] = [];
 
@@ -74,32 +126,30 @@ export function useResolvedGridItems(
                 }
 
                 const attribute = group?.attribute;
-                const hasValue = definition.multiple
-                    ? Array.isArray(attribute) && attribute.length > 0
-                    : !!attribute;
+                const values: RawValue[] = definition.multiple
+                    ? Array.isArray(attribute)
+                        ? (
+                              attribute as {value: unknown; locale?: string}[]
+                          ).map(a => ({value: a.value, locale: a.locale}))
+                        : []
+                    : attribute
+                      ? [
+                            {
+                                value: (
+                                    attribute as {
+                                        value: unknown;
+                                        locale?: string;
+                                    }
+                                ).value,
+                                locale: (attribute as {locale?: string}).locale,
+                            },
+                        ]
+                      : [];
 
-                if (!hasValue && !item.displayEmpty) {
+                if (values.length === 0 && !item.displayEmpty) {
                     continue;
                 }
-
-                const value = hasValue
-                    ? definition.multiple
-                        ? (attribute as {value: unknown}[])
-                              .map(a =>
-                                  formatValue(definition, a.value, item.format)
-                              )
-                              .filter(Boolean)
-                              .join(', ')
-                        : formatValue(
-                              definition,
-                              (attribute as {value: unknown; locale?: string})
-                                  .value,
-                              item.format,
-                              (attribute as {locale?: string}).locale
-                          )
-                    : '';
-
-                resolved.push({item, definition, value});
+                push(resolved, item, definition, values);
             } else if (item.type === ProfileItemType.BuiltIn) {
                 const getValueFromAsset = getBuiltInAttributeValueResolver(
                     item.key as BuiltInAttributeEnum
@@ -110,24 +160,18 @@ export function useResolvedGridItems(
                 }
 
                 const raw = getValueFromAsset(asset);
-                const hasValue = definition.multiple
-                    ? Array.isArray(raw) && raw.length > 0
-                    : raw !== undefined && raw !== null && raw !== '';
+                const values: RawValue[] = definition.multiple
+                    ? Array.isArray(raw)
+                        ? (raw as unknown[]).map(v => ({value: v}))
+                        : []
+                    : raw !== undefined && raw !== null && raw !== ''
+                      ? [{value: raw}]
+                      : [];
 
-                if (!hasValue && !item.displayEmpty) {
+                if (values.length === 0 && !item.displayEmpty) {
                     continue;
                 }
-
-                const value = hasValue
-                    ? definition.multiple
-                        ? (raw as unknown[])
-                              .map(v => formatValue(definition, v, item.format))
-                              .filter(Boolean)
-                              .join(', ')
-                        : formatValue(definition, raw, item.format)
-                    : '';
-
-                resolved.push({item, definition, value});
+                push(resolved, item, definition, values);
             }
             // Dividers/Spacers are not rendered on the grid card.
         }

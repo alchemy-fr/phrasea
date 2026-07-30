@@ -70,10 +70,29 @@ const bandAlign: Record<string, string> = {
 };
 
 function GridItemValue({resolved}: {resolved: ResolvedGridItem}) {
-    const {item, definition, value} = resolved;
+    const {item, definition, value, nodes, rich} = resolved;
     const variant = item.variant ?? 'chip';
     const showLabel = item.showLabel ?? false;
     const label = definition.displayName ?? definition.name;
+
+    // Rich / multi-valued attributes (tags, entities, colors, ...) render their
+    // own ReactNode(s) and must never be flattened into a Chip.
+    if (rich) {
+        return (
+            <Box className={gridZoneClasses.rich} title={value || undefined}>
+                {showLabel && (
+                    <Box component="span" className={gridZoneClasses.label}>
+                        {label}:
+                    </Box>
+                )}
+                {nodes.length > 0
+                    ? nodes.map((n, i) => (
+                          <React.Fragment key={i}>{n}</React.Fragment>
+                      ))
+                    : '—'}
+            </Box>
+        );
+    }
 
     const text = showLabel
         ? value
@@ -185,6 +204,8 @@ export const gridZoneClasses = {
     cell: 'gcz-cell',
     chip: 'gcz-chip',
     text: 'gcz-text',
+    rich: 'gcz-rich',
+    label: 'gcz-label',
 };
 
 export function gridCardZoneSx(theme: Theme) {
@@ -226,6 +247,22 @@ export function gridCardZoneSx(theme: Theme) {
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
             maxWidth: '100%',
+        },
+        // Rich values (tag pills, etc.): let the type formatter's nodes flow.
+        [`.${gridZoneClasses.rich}`]: {
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            gap: theme.spacing(0.25),
+            maxWidth: '100%',
+            minWidth: 0,
+            fontSize: 12,
+            pointerEvents: 'auto',
+        },
+        [`.${gridZoneClasses.label}`]: {
+            fontSize: 12,
+            opacity: 0.7,
+            whiteSpace: 'nowrap',
         },
     };
 }
