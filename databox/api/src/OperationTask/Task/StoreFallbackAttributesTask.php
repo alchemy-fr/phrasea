@@ -34,7 +34,7 @@ final readonly class StoreFallbackAttributesTask implements OperationTaskInterfa
 
     public function handle(array $payload, RunContext $context): void
     {
-        $this->runner->dispatch(
+        $this->runner->run(
             AttributeDefinitionOperationRunner::OP_STORE_FALLBACK,
             $payload['definitionId'],
             $context,

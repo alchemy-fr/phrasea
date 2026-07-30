@@ -35,7 +35,7 @@ final readonly class RecomputeInitialValuesTask implements OperationTaskInterfac
 
     public function handle(array $payload, RunContext $context): void
     {
-        $this->runner->dispatch(
+        $this->runner->run(
             AttributeDefinitionOperationRunner::OP_RECOMPUTE_INITIAL,
             $payload['definitionId'],
             $context,

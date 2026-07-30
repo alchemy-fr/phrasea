@@ -6,24 +6,21 @@ namespace App\Service\Asset\Attribute;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeAssigner;
-use App\Consumer\Handler\ApplyAttributeDefinitionOperation;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
-use App\OperationTask\OperationTaskProgress;
 use App\OperationTask\RunContext;
 use App\Repository\Core\AssetRepository;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Applies an attribute-definition-wide operation (materialize the fallback value,
  * or recompute the initial value) to every asset of the definition's workspace.
  *
- * The work is fanned out over one asynchronous message per asset so the main task
- * worker is released immediately; the last processed message completes the task.
+ * The work runs synchronously within the task worker, streaming over the workspace
+ * assets and reporting progress through the RunContext.
  */
 final readonly class AttributeDefinitionOperationRunner
 {
@@ -34,8 +31,6 @@ final readonly class AttributeDefinitionOperationRunner
         private EntityManagerInterface $em,
         private AssetRepository $assetRepository,
         private AttributeDefinitionRepository $attributeDefinitionRepository,
-        private MessageBusInterface $bus,
-        private OperationTaskProgress $taskProgress,
         private AttributeRepository $attributeRepository,
         private FallbackResolver $fallbackResolver,
         private InitialAttributeValuesResolver $initialValueResolver,
@@ -44,32 +39,26 @@ final readonly class AttributeDefinitionOperationRunner
     ) {
     }
 
-    public function dispatch(string $operation, string $definitionId, RunContext $context): void
+    public function run(string $operation, string $definitionId, RunContext $context): void
     {
         $definition = DoctrineUtil::findStrictByRepo($this->attributeDefinitionRepository, $definitionId);
+        $workspace = $definition->getWorkspace();
 
-        $taskId = $context->getTaskId();
-        $this->taskProgress->init($taskId);
+        $context->start($this->assetRepository->count(['workspace' => $workspace]));
 
-        $dispatched = 0;
-        foreach ($this->assetRepository->iterateIdsByWorkspace($definition->getWorkspaceId()) as $assetId) {
-            $this->bus->dispatch(new ApplyAttributeDefinitionOperation($taskId, $operation, $definitionId, $assetId));
-            ++$dispatched;
+        foreach ($this->assetRepository->iterateIdsByWorkspace($workspace->getId()) as $assetId) {
+            $asset = $this->em->find(Asset::class, $assetId);
+            if (null !== $asset) {
+                $this->applyToAsset($operation, $asset, $definition);
+            }
+
+            $context->advance();
         }
 
-        if (0 === $dispatched) {
-            return;
-        }
-
-        $context->getOutput()->writeln(sprintf('<info>Dispatched %d asset(s).</info>', $dispatched));
-
-        $this->taskProgress->setItemTotal($taskId, $dispatched);
-        $this->taskProgress->finalizeIfComplete($taskId);
-
-        $context->deferCompletion();
+        $context->finish();
     }
 
-    public function applyToAsset(string $operation, Asset $asset, AttributeDefinition $definition): void
+    private function applyToAsset(string $operation, Asset $asset, AttributeDefinition $definition): void
     {
         match ($operation) {
             self::OP_STORE_FALLBACK => $this->storeFallback($asset, $definition),
