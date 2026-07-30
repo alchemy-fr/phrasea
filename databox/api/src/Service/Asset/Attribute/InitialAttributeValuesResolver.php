@@ -30,9 +30,9 @@ readonly class InitialAttributeValuesResolver
     }
 
     /**
-     * @return Attribute
+     * @return Attribute[]
      */
-    public function resolveInitialAttributes(Asset $asset): array
+    public function resolveInitialAttributes(Asset $asset, ?AttributeDefinition $onlyDefinition = null): array
     {
         $attributes = [];
 
@@ -40,6 +40,10 @@ readonly class InitialAttributeValuesResolver
         $fileMetadataAccessorWrapper = new FileMetadataAccessorWrapper($asset->getSource());
 
         foreach ($definitions as $definition) {
+            if (null !== $onlyDefinition && $definition->getId() !== $onlyDefinition->getId()) {
+                continue;
+            }
+
             $readFromMetadata = $definition->getReadFromMetadata();
             if (null !== $readFromMetadata) {
                 $initialValues = $this->resolveFromMetadata($fileMetadataAccessorWrapper, $readFromMetadata, $definition);

@@ -3,6 +3,7 @@ import {useTranslation} from 'react-i18next';
 import {TaskComponentProps} from './taskTypes.ts';
 import IndexAssetsTask from './IndexAssetsTask.tsx';
 import IngestWorkspaceAssetsTask from './IngestWorkspaceAssetsTask.tsx';
+import AttributeDefinitionTask from './AttributeDefinitionTask.tsx';
 
 type Task = {
     name: string;
@@ -57,6 +58,38 @@ export function useTasks(): Task[] {
             ),
             defaultValues: {
                 workspaceId: null,
+            },
+        },
+        {
+            component: AttributeDefinitionTask,
+            name: 'store_fallback_attributes',
+            displayName: t(
+                'operation_task.store_fallback_attributes.name',
+                'Store fallback as attribute'
+            ),
+            description: t(
+                'operation_task.store_fallback_attributes.desc',
+                `Resolve the fallback of an attribute and persist it as a real attribute value on every asset of the workspace that has no value yet for that attribute.`
+            ),
+            defaultValues: {
+                workspaceId: null,
+                definitionId: null,
+            },
+        },
+        {
+            component: AttributeDefinitionTask,
+            name: 'recompute_initial_values',
+            displayName: t(
+                'operation_task.recompute_initial_values.name',
+                'Recompute initial values'
+            ),
+            description: t(
+                'operation_task.recompute_initial_values.desc',
+                `Recompute the initial value of an attribute on every asset of the workspace. This overwrites the attributes currently stored for that definition.`
+            ),
+            defaultValues: {
+                workspaceId: null,
+                definitionId: null,
             },
         },
     ];
