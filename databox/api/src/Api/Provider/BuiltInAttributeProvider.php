@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Api\Provider;
 
 use ApiPlatform\Metadata\Operation;
-use App\Elasticsearch\BuiltInField\BuiltInAttributeInterface;
-use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
+use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeInterface;
+use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use App\Model\BuiltInAttribute;
 use Symfony\Contracts\Translation\TranslatorInterface;
 

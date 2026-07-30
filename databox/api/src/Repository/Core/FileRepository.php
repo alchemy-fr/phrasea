@@ -6,6 +6,7 @@ namespace App\Repository\Core;
 
 use App\Entity\Core\File;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\AbstractQuery;
 use Doctrine\Persistence\ManagerRegistry;
 
 class FileRepository extends ServiceEntityRepository
@@ -16,6 +17,9 @@ class FileRepository extends ServiceEntityRepository
         parent::__construct($registry, File::class);
     }
 
+    /**
+     * @return File[]
+     */
     public function findDuplicatesByChecksum(File $file, int $limit = 1): array
     {
         return $this->createQueryBuilder('f')
@@ -42,5 +46,24 @@ class FileRepository extends ServiceEntityRepository
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * Stream the ids of every file of a workspace without hydrating entities.
+     *
+     * @return iterable<string>
+     */
+    public function iterateIdsByWorkspace(string $workspaceId): iterable
+    {
+        $result = $this->createQueryBuilder('f')
+            ->select('f.id AS fileId')
+            ->andWhere('f.workspace = :ws')
+            ->setParameter('ws', $workspaceId)
+            ->getQuery()
+            ->toIterable([], AbstractQuery::HYDRATE_SCALAR);
+
+        foreach ($result as $row) {
+            yield $row['fileId'];
+        }
     }
 }

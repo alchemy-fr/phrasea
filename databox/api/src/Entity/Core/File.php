@@ -57,6 +57,7 @@ class File extends AbstractUuidEntity implements \Stringable
     final public const string ANALYSIS_SUCCESS = 'success';
     final public const string ANALYSIS_FAILED = 'failed';
     final public const string ANALYSIS_SKIPPED = 'skipped';
+    final public const string ANALYSIS_BYPASSED = 'bypassed';
 
     /**
      * Override trait for annotation.
@@ -254,6 +255,17 @@ class File extends AbstractUuidEntity implements \Stringable
         }
     }
 
+    public function setMetadataValue(string $name, mixed $value): void
+    {
+        $this->metadata ??= new FileMetadata();
+        $this->metadata->setMetadataValue($name, $value);
+    }
+
+    public function getMetadataValues(string $name): ?array
+    {
+        return $this->metadata?->getMetadataValues($name);
+    }
+
     public function metadataHasChanged(): bool
     {
         return $this->metadata?->metadataHasChanged() ?? false;
@@ -280,7 +292,14 @@ class File extends AbstractUuidEntity implements \Stringable
             || in_array($this->analysis['status'] ?? null, [
                 self::ANALYSIS_SUCCESS,
                 self::ANALYSIS_SKIPPED,
+                self::ANALYSIS_BYPASSED,
             ], true);
+    }
+
+    public function bypassAnalysis(): void
+    {
+        $this->analysis ??= [];
+        $this->analysis['status'] = self::ANALYSIS_BYPASSED;
     }
 
     public function setNoAnalysisNeeded(): void

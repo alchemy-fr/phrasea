@@ -82,10 +82,22 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public ?array $fallback = null;
 
     /**
-     * To create initial attribute value(s) (tag name or twig template).
+     * Language-indexed Twig templates resolved to create initial attribute value(s).
      */
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public ?array $initialValues = null;
+
+    /**
+     * Ordered list of metadata tag names read to initialize the attribute (first found wins).
+     */
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    public ?array $readFromMetadata = null;
+
+    /**
+     * List of metadata tag names into which the attribute value is written on export.
+     */
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    public ?array $writeMetadata = null;
 
     /**
      * Unique key by workspace. Used to prevent duplicates.

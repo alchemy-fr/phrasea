@@ -7,4 +7,9 @@ enum FileAnalyzerAssetActionEnum: string
     case QUARANTINE = 'quarantine';
     case MOVE_TO_TRASH = 'move_to_trash';
     case DELETE = 'delete';
+
+    public static function getValues(): array
+    {
+        return array_map(fn (FileAnalyzerAssetActionEnum $e): string => $e->value, self::cases());
+    }
 }

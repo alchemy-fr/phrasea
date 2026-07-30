@@ -21,6 +21,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\Group\GroupValue;
+use App\Api\Model\Input\AssetAddAsVersionInput;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetsDeleteInput;
 use App\Api\Model\Input\AssetsRestoreInput;
@@ -31,15 +32,18 @@ use App\Api\Model\Input\MoveAssetInput;
 use App\Api\Model\Input\MultipleAssetInput;
 use App\Api\Model\Input\PrepareDeleteAssetsInput;
 use App\Api\Model\Input\ResolveEntitiesInput;
+use App\Api\Model\Output\AssetDuplicateOutput;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\ESDocumentStateOutput;
 use App\Api\Model\Output\MultipleAssetOutput;
 use App\Api\Model\Output\PrepareDeleteAssetsOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Model\Output\StoryThumbnailsOutput;
+use App\Api\Processor\AddAsAssetVersionProcessor;
 use App\Api\Processor\AssetAttributeBatchUpdateProcessor;
 use App\Api\Processor\AssetsDeleteProcessor;
 use App\Api\Processor\AssetsRestoreProcessor;
+use App\Api\Processor\BypassQuarantineProcessor;
 use App\Api\Processor\CopyAssetProcessor;
 use App\Api\Processor\DeleteAssetProcessor;
 use App\Api\Processor\FollowProcessor;
@@ -52,6 +56,7 @@ use App\Api\Processor\ResolveEntitiesProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Processor\UnfollowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
+use App\Api\Provider\AssetDuplicatesProvider;
 use App\Api\Provider\AssetMetricsProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
@@ -142,15 +147,40 @@ use Symfony\Component\Validator\Constraints as Assert;
             processor: RemoveAssetFromCollectionProcessor::class,
         ),
         new Delete(
-            security: 'is_granted("DELETE", object)',
+            security: 'is_granted("'.AbstractVoter::DELETE.'", object)',
             processor: DeleteAssetProcessor::class,
         ),
-        new Put(security: 'is_granted("EDIT", object)'),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        new Put(
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+        ),
+        new Patch(
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+        ),
         new Put(
             uriTemplate: '/assets/{id}/trigger-workflow',
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
             processor: TriggerAssetWorkflowProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/{id}/quarantine-bypass',
+            input: false,
+            name: 'quarantine_bypass',
+            processor: BypassQuarantineProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/{id}/add-as-version',
+            input: AssetAddAsVersionInput::class,
+            name: 'add_as_version',
+            processor: AddAsAssetVersionProcessor::class,
+        ),
+        new Get(
+            uriTemplate: '/assets/{id}/duplicates',
+            normalizationContext: [
+                'groups' => [self::GROUP_LIST],
+            ],
+            output: AssetDuplicateOutput::class,
+            name: 'duplicates',
+            provider: AssetDuplicatesProvider::class,
         ),
         new Post(
             uriTemplate: '/assets/{id}/attributes',
@@ -756,6 +786,22 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     public function getSourceFileExtension(): ?string
     {
         return $this->source?->getExtension();
+    }
+
+    /**
+     * Used by ES.
+     */
+    public function getSourceChecksum(): ?string
+    {
+        return $this->source?->getChecksum();
+    }
+
+    /**
+     * Used by ES.
+     */
+    public function getSourceDocUniqueId(): ?string
+    {
+        return $this->source?->getDocUniqueId();
     }
 
     public function isDeleted(): bool

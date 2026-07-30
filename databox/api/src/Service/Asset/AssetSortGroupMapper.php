@@ -6,7 +6,7 @@ namespace App\Service\Asset;
 
 use App\Api\Filter\Group\GroupValue;
 use App\Api\Traits\UserLocaleTrait;
-use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
+use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\Asset;
 use App\Service\Asset\Attribute\AttributesResolver;
@@ -61,12 +61,12 @@ final class AssetSortGroupMapper
 
     private function getGroupValue($groupBy, Asset $object, $indexValue): GroupValue
     {
-        $builtInField = $this->builtInAttributeRegistry->getBuiltInField($groupBy);
+        $builtInAttribute = $this->builtInAttributeRegistry->getBuiltInAttribute($groupBy);
 
-        if (null !== $builtInField) {
-            $value = $builtInField->getValueFromAsset($object);
+        if (null !== $builtInAttribute) {
+            $value = $builtInAttribute->getValueFromAsset($object);
 
-            return $builtInField->resolveGroupValue($groupBy, $value);
+            return $builtInAttribute->resolveGroupValue($groupBy, $value);
         }
 
         $type = $this->fieldNameResolver->getFieldFromName($groupBy)->type;

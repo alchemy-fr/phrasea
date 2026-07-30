@@ -261,7 +261,21 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
         return $this
             ->createQueryBuilder('d')
             ->andWhere('d.workspace = :workspace')
-            ->andWhere('d.initialValues IS NOT NULL')
+            ->andWhere('d.initialValues IS NOT NULL OR d.readFromMetadata IS NOT NULL')
+            ->setParameter('workspace', $workspaceId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return AttributeDefinition[]
+     */
+    public function getWorkspaceWriteMetadataDefinitions(string $workspaceId): array
+    {
+        return $this
+            ->createQueryBuilder('d')
+            ->andWhere('d.workspace = :workspace')
+            ->andWhere('d.writeMetadata IS NOT NULL')
             ->setParameter('workspace', $workspaceId)
             ->getQuery()
             ->getResult();
@@ -289,10 +303,10 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             ->createQueryBuilder('d')
             ->andWhere('d.workspace = :workspace')
             ->andWhere('d.type = :t')
-            ->andWhere('d.entityList = :etype')
+            ->andWhere('d.entityList = :listId')
             ->setParameter('workspace', $workspaceId)
             ->setParameter('t', EntityAttributeType::getName())
-            ->setParameter('etype', $entityListId)
+            ->setParameter('listId', $entityListId)
             ->getQuery()
             ->getResult();
     }

@@ -46,6 +46,12 @@ class FileOutput extends AbstractUuidOutput
     #[Groups(self::COMMON_GROUPS)]
     private ?int $size = null;
 
+    #[Groups(self::COMMON_GROUPS)]
+    public ?string $checksum = null;
+
+    #[Groups(self::COMMON_GROUPS)]
+    public ?string $docUniqueId = null;
+
     /**
      * Signed URL.
      */
