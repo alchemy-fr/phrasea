@@ -46,22 +46,27 @@ class FileMetadata extends AbstractUuidEntity
 
     public function getMetadataValues(string $name): ?array
     {
-        return $this->metadata[$name]['values'] ?? null;
+        [$group, $tag] = array_pad(explode(':', $name, 2), 2, null);
+        if (null === $tag) {
+            return null;
+        }
+
+        return $this->metadata[$group][$tag] ?? null;
     }
 
     public function setMetadataValue(string $name, mixed $value, bool $append = false): void
     {
-        $parts = explode(':', $name);
+        [$group, $tag] = array_pad(explode(':', $name, 2), 2, null);
+        if (null === $tag) {
+            throw new \InvalidArgumentException(sprintf('Metadata name "%s" must be a namespaced tag id (e.g. "IPTC:Keywords").', $name));
+        }
 
-        $this->metadata[$name] ??= [
-            'name' => array_last($parts),
-            'values' => [],
-        ];
+        $this->metadata[$group][$tag] ??= [];
 
         if ($append) {
-            $this->metadata[$name]['values'][] = $value;
+            $this->metadata[$group][$tag][] = $value;
         } else {
-            $this->metadata[$name]['values'] = [$value];
+            $this->metadata[$group][$tag] = [$value];
         }
     }
 
