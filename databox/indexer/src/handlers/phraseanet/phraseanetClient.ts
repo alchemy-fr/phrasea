@@ -170,6 +170,8 @@ export default class PhraseanetClient {
                             'results.records.stories',
                             'results.stories.metadata',
                             'results.stories.status',
+                            'results.stories.children',
+                            'results.stories.children.subdefs',
                         ],
                         sort: this.sortField,
                         ord: this.sortOrder,
@@ -346,9 +348,7 @@ export default class PhraseanetClient {
                 this.logger.warn(
                     `Failed ${ttry}/3 to fetch record embeds (${e.message})`
                 );
-                await new Promise(resolve =>
-                    setTimeout(resolve, 1000 * ttry)
-                );
+                await new Promise(resolve => setTimeout(resolve, 1000 * ttry));
             }
         }
         throw last_error;

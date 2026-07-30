@@ -7,7 +7,14 @@ import {
 } from './types';
 import {CPhraseanetRecord, CPhraseanetStory} from './CPhraseanetRecord';
 import PhraseanetClient, {ORDER_ASC} from './phraseanetClient';
-import {AttrPolicyIndex, createAsset, TagIndex, getStorySourceRecord, extractRenditionsFromRecord, extractRenditionsFromEmbeds} from './shared';
+import {
+    AttrPolicyIndex,
+    createAsset,
+    TagIndex,
+    getStorySourceRecord,
+    extractRenditionsFromRecord,
+    extractRenditionsFromEmbeds,
+} from './shared';
 import {getConfig, getStrict} from '../../configLoader';
 import {getEnv} from '../../env';
 import {
@@ -327,7 +334,7 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                             .join(' OR ');
 
                         for (const story of await phraseanetClient.searchStories(
-                            [],
+                            searchParams,
                             0, // offset
                             20,
                             searchStoriesQuery
@@ -355,10 +362,12 @@ export const phraseanetIndexer: IndexIterator<PhraseanetConfig> =
                                     logger
                                 );
 
-                            copyTo.push({
-                                id: storyCollectionId,
-                                path: storyCollectionFullPath,
-                            });
+                            if (storyCollectionId !== undefined) {
+                                copyTo.push({
+                                    id: storyCollectionId,
+                                    path: storyCollectionFullPath,
+                                });
+                            }
                         }
                     }
 
@@ -497,6 +506,19 @@ async function importStory(
     phraseanetClient: PhraseanetClient,
     logger: Logger
 ) {
+    if (!phraseanetDatabox.collections[story.base_id]) {
+        logger.warn(
+            `Skipping story "${story.title}" (#${story.story_id}): base_id=${story.base_id} not found in known collections [${Object.keys(
+                phraseanetDatabox.collections
+            )
+                .filter(k => !isNaN(Number(k)))
+                .join(
+                    ','
+                )}]. Story may belong to a collection outside configured scope.`
+        );
+        return {storyCollectionId: undefined, storyCollectionFullPath: ''};
+    }
+
     const storyName = escapeSlashes(
         (
             story.title ?? 'story_' + story.databox_id + '_' + story.story_id
@@ -559,6 +581,12 @@ async function importStory(
         let storyAssetBasePath: string = '';
         // eslint-disable-next-line no-useless-assignment
         let storyAssetFullPath: string = '';
+        logger.debug(
+            `DEBUG importStory: story.base_id=${story.base_id} (type: ${typeof story.base_id}), collections keys=[${Object.keys(phraseanetDatabox.collections).join(',')}]`
+        );
+        logger.debug(
+            `DEBUG importStory: collection lookup result: ${JSON.stringify(phraseanetDatabox.collections[story.base_id])}`
+        );
         if (recordsCollectionPathTwig !== null) {
             storyAssetBasePath = await recordsCollectionPathTwig.renderAsync({
                 record: story,
@@ -566,7 +594,17 @@ async function importStory(
             });
         } else {
             // bc: dispatch in original phraseanet collection.name
-            storyAssetBasePath = `${recordsCollectionPath}/${escapeSlashes(phraseanetDatabox.collections[story.base_id].name)}`;
+            const storyCollection =
+                phraseanetDatabox.collections[story.base_id];
+            if (!storyCollection) {
+                logger.error(
+                    `DEBUG ERROR: collection not found for story.base_id=${story.base_id} (type: ${typeof story.base_id})`
+                );
+                throw new Error(
+                    `Collection not found for story base_id=${story.base_id}`
+                );
+            }
+            storyAssetBasePath = `${recordsCollectionPath}/${escapeSlashes(storyCollection.name)}`;
         }
         storyAssetFullPath = concatPath(
             storyAssetBasePath,
@@ -594,9 +632,12 @@ async function importStory(
         // Extract source record for story renditions (Priority: cover_record_id > first child)
         const sourceRecord = getStorySourceRecord(story);
         let renditionsFromSource: any[] = [];
-        
-        // If cover_record_id is set and sourceRecord is found, fetch embeds from V1 API
-        if (story.cover_record_id !== null && story.cover_record_id !== undefined && sourceRecord) {
+
+        // If cover_record_id is set, fetch embeds from V1 API (sourceRecord used only for phrasea_type fallback)
+        if (
+            story.cover_record_id !== null &&
+            story.cover_record_id !== undefined
+        ) {
             try {
                 logger.info(
                     `Fetching embeds for story cover_record ${story.databox_id}/${story.cover_record_id}`
@@ -605,11 +646,13 @@ async function importStory(
                     story.databox_id,
                     story.cover_record_id
                 );
-                
+
                 if (embedResponse.response && embedResponse.response.embed) {
+                    // Use sourceRecord phrasea_type if available, default to 'image'
+                    const phrasea_type = sourceRecord?.phrasea_type ?? 'image';
                     renditionsFromSource = extractRenditionsFromEmbeds(
                         embedResponse.response.embed,
-                        sourceRecord.phrasea_type,
+                        phrasea_type,
                         subdefToRendition,
                         importFiles,
                         logger
@@ -680,7 +723,17 @@ async function importStory(
             isStory: storyAsset.isStory,
         });
         logger.info(`Story asset "${story.story_id}" created.`);
-
+        logger.debug(
+            `DEBUG storyAssetOutput: ${JSON.stringify({storyCollection: storyAssetOutput?.storyCollection})}`
+        );
+        if (!storyAssetOutput?.storyCollection) {
+            logger.error(
+                `DEBUG ERROR: storyAssetOutput.storyCollection is undefined/null`
+            );
+            throw new Error(
+                `storyAssetOutput.storyCollection is undefined for story ${story.story_id}`
+            );
+        }
         storyCollectionId = storyAssetOutput.storyCollection.id;
         storyCollectionFullPath = '';
     }
