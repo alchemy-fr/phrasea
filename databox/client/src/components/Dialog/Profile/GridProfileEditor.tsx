@@ -13,6 +13,7 @@ import {
     useSensors,
 } from '@dnd-kit/core';
 import {
+    arrayMove,
     SortableContext,
     useSortable,
     verticalListSortingStrategy,
@@ -31,6 +32,7 @@ import {
     Paper,
     Stack,
     Switch,
+    TextField,
     ToggleButton,
     ToggleButtonGroup,
     Typography,
@@ -116,6 +118,7 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
 
     const [selectedId, setSelectedId] = useState<string | undefined>();
     const [activeDrag, setActiveDrag] = useState<string | null>(null);
+    const [query, setQuery] = useState('');
 
     const gridItems = useMemo(
         () =>
@@ -132,14 +135,24 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
     );
 
     // Same presentation as the Organize tab: built-ins first, remaining
-    // definitions grouped under their workspace subheader.
+    // definitions grouped under their workspace subheader, filtered by search.
     const paletteRows = useMemo(() => {
+        const q = query.trim().toLowerCase();
         const rows: (
             | {kind: 'header'; id: string; label: string}
             | {kind: 'field'; def: AttributeDefinitionOrBuiltIn}
         )[] = [];
         let lastWorkspace: string | undefined;
         for (const def of availableDefinitions) {
+            if (
+                q &&
+                !(def.displayName ?? def.name ?? '')
+                    .toLowerCase()
+                    .includes(q) &&
+                !(def.name ?? '').toLowerCase().includes(q)
+            ) {
+                continue;
+            }
             if (!def.builtIn && def.workspace) {
                 const ws = def.workspace as Workspace;
                 if (ws.id !== lastWorkspace) {
@@ -154,7 +167,7 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
             rows.push({kind: 'field', def});
         }
         return rows;
-    }, [availableDefinitions]);
+    }, [availableDefinitions, query]);
 
     const anchorItems = (region: GridRegion, anchor: GridAnchor) =>
         gridItems
@@ -189,16 +202,12 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
         setActiveDrag(active.id as string);
     };
 
-    // Reinsert `item` at `index` inside a cell and persist the (re)ordering of
-    // every item whose placement actually changed.
-    const moveItem = (
-        item: ProfileItem,
+    // Persist the (re)ordering of every item whose placement actually changed.
+    const persistOrder = (
+        list: ProfileItem[],
         region: GridRegion,
-        anchor: GridAnchor,
-        index: number
+        anchor: GridAnchor
     ) => {
-        const list = anchorItems(region, anchor).filter(i => i.id !== item.id);
-        list.splice(index, 0, item);
         list.forEach((it, order) => {
             const p = it.placement;
             if (
@@ -211,24 +220,17 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
         });
     };
 
-    // Resolve the target cell + insertion index from the drop target, which is
-    // either a cell (append) or another placed item (insert at its position).
-    const resolveTarget = (overId: string, excludeId?: string) => {
+    // The cell the drop landed on (a cell background, or another placed item).
+    const targetCell = (overId: string) => {
         const cell = parseCell(overId);
-        if (cell) {
-            const index = anchorItems(cell.region, cell.anchor).filter(
-                i => i.id !== excludeId
-            ).length;
-            return {region: cell.region, anchor: cell.anchor, index};
-        }
+        if (cell) return {region: cell.region, anchor: cell.anchor};
         const overItem = gridItems.find(i => i.id === overId);
-        if (!overItem?.placement) return null;
-        const {region, anchor} = overItem.placement;
-        const list = anchorItems(region, anchor).filter(
-            i => i.id !== excludeId
-        );
-        const idx = list.findIndex(i => i.id === overId);
-        return {region, anchor, index: idx < 0 ? list.length : idx};
+        return overItem?.placement
+            ? {
+                  region: overItem.placement.region,
+                  anchor: overItem.placement.anchor,
+              }
+            : null;
     };
 
     const handleDragEnd = ({active, over}: DragEndEvent) => {
@@ -237,18 +239,21 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
         const activeId = active.id as string;
         const overId = over.id as string;
 
+        const target = targetCell(overId);
+        if (!target) return;
+        const {region, anchor} = target;
+        const overItem = gridItems.find(i => i.id === overId);
+
         if (activeId.startsWith(DRAG_PALETTE)) {
-            const target = resolveTarget(overId);
-            if (!target) return;
             const def = definitionsIndex[activeId.slice(DRAG_PALETTE.length)];
             if (!def) return;
             const item: ProfileItem = {
                 ...attributeDefinitionToItem(def),
                 section: ProfileItemSection.Grid,
                 placement: {
-                    region: target.region,
-                    anchor: target.anchor,
-                    order: target.index,
+                    region,
+                    anchor,
+                    order: anchorItems(region, anchor).length,
                 },
             };
             addToList(data.id, [item]);
@@ -257,10 +262,33 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
 
         if (activeId === overId) return;
         const item = gridItems.find(i => i.id === activeId);
-        if (!item) return;
-        const target = resolveTarget(overId, item.id);
-        if (!target) return;
-        moveItem(item, target.region, target.anchor, target.index);
+        if (!item?.placement) return;
+
+        const sameCell =
+            item.placement.region === region &&
+            item.placement.anchor === anchor;
+
+        if (sameCell && overItem) {
+            // Reorder within the cell: arrayMove on the full list keeps the drag
+            // direction correct (dropping below an item lands below it).
+            const full = anchorItems(region, anchor);
+            const oldIndex = full.findIndex(i => i.id === item.id);
+            const newIndex = full.findIndex(i => i.id === overItem.id);
+            if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) {
+                return;
+            }
+            persistOrder(arrayMove(full, oldIndex, newIndex), region, anchor);
+            return;
+        }
+
+        // Cross-cell move (or drop on a cell background): insert before the
+        // hovered item, else append.
+        const list = anchorItems(region, anchor).filter(i => i.id !== item.id);
+        const index = overItem
+            ? list.findIndex(i => i.id === overItem.id)
+            : list.length;
+        list.splice(index < 0 ? list.length : index, 0, item);
+        persistOrder(list, region, anchor);
     };
 
     const selected = gridItems.find(i => i.id === selectedId);
@@ -330,6 +358,15 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
                                     'Drag a field onto the card'
                                 )}
                             </Typography>
+                            <TextField
+                                type="search"
+                                variant="standard"
+                                fullWidth
+                                placeholder={t('dialog.search', 'Search')}
+                                value={query}
+                                onChange={e => setQuery(e.target.value)}
+                                sx={{px: 1, mt: 1}}
+                            />
                             <List
                                 dense
                                 sx={{mt: 1, maxHeight: 360, overflow: 'auto'}}
@@ -355,10 +392,15 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
                                         color="text.secondary"
                                         sx={{p: 1}}
                                     >
-                                        {t(
-                                            'grid_editor.palette.empty',
-                                            'All fields are placed'
-                                        )}
+                                        {query.trim()
+                                            ? t(
+                                                  'grid_editor.palette.no_match',
+                                                  'No matching field'
+                                              )
+                                            : t(
+                                                  'grid_editor.palette.empty',
+                                                  'All fields are placed'
+                                              )}
                                     </Typography>
                                 )}
                             </List>
