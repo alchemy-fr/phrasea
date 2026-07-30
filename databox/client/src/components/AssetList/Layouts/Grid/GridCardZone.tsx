@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {Box, Chip, SxProps, Theme} from '@mui/material';
+import {Box, Chip, CSSObject, SxProps, Theme} from '@mui/material';
 import {Asset, GridAnchor, GridRegion, ProfileItem} from '../../../../types';
 import assetClasses from '../../classes';
 import {ResolvedGridItem, useResolvedGridItems} from './resolveGridItem.ts';
@@ -23,23 +23,47 @@ const OVER_ANCHORS: GridAnchor[] = [
 ];
 const BAND_ANCHORS: GridAnchor[] = ['l', 'c', 'r'];
 
-// anchor -> CSS grid cell + inner alignment (over = 3x3 grid over the thumb).
-const overCell: Record<
-    string,
-    {row: number; col: number; align: string; justify: string}
-> = {
-    tl: {row: 1, col: 1, align: 'flex-start', justify: 'flex-start'},
-    tc: {row: 1, col: 2, align: 'flex-start', justify: 'center'},
-    tr: {row: 1, col: 3, align: 'flex-start', justify: 'flex-end'},
-    ml: {row: 2, col: 1, align: 'center', justify: 'flex-start'},
-    cc: {row: 2, col: 2, align: 'center', justify: 'center'},
-    mr: {row: 2, col: 3, align: 'center', justify: 'flex-end'},
-    bl: {row: 3, col: 1, align: 'flex-end', justify: 'flex-start'},
-    bc: {row: 3, col: 2, align: 'flex-end', justify: 'center'},
-    br: {row: 3, col: 3, align: 'flex-end', justify: 'flex-end'},
+// anchor -> absolute position over the thumb. Each anchor is content-sized
+// (flexbox) and absolutely positioned, so items can overflow their cell instead
+// of being clamped to a 3x3 grid track.
+const overPos: Record<string, CSSObject> = {
+    tl: {top: 0, left: 0, alignItems: 'flex-start'},
+    tc: {
+        top: 0,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        alignItems: 'center',
+    },
+    tr: {top: 0, right: 0, alignItems: 'flex-end'},
+    ml: {
+        top: '50%',
+        left: 0,
+        transform: 'translateY(-50%)',
+        alignItems: 'flex-start',
+    },
+    cc: {
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        alignItems: 'center',
+    },
+    mr: {
+        top: '50%',
+        right: 0,
+        transform: 'translateY(-50%)',
+        alignItems: 'flex-end',
+    },
+    bl: {bottom: 0, left: 0, alignItems: 'flex-start'},
+    bc: {
+        bottom: 0,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        alignItems: 'center',
+    },
+    br: {bottom: 0, right: 0, alignItems: 'flex-end'},
 };
 
-const bandJustify: Record<string, string> = {
+const bandAlign: Record<string, string> = {
     l: 'flex-start',
     c: 'center',
     r: 'flex-end',
@@ -121,16 +145,20 @@ function GridCardZone({asset, items, region}: Props) {
 
                 const cellSx: SxProps<Theme> =
                     region === 'over'
-                        ? {
-                              gridRow: overCell[anchor].row,
-                              gridColumn: overCell[anchor].col,
-                              alignItems: overCell[anchor].align,
-                              justifyContent: overCell[anchor].justify,
-                          }
+                        ? ([
+                              {
+                                  position: 'absolute',
+                                  width: 'max-content',
+                                  maxWidth: '100%',
+                                  overflow: 'visible',
+                              },
+                              overPos[anchor],
+                          ] as SxProps<Theme>)
                         : {
                               gridColumn:
                                   anchor === 'l' ? 1 : anchor === 'c' ? 2 : 3,
-                              justifyContent: bandJustify[anchor],
+                              alignItems: bandAlign[anchor],
+                              overflow: 'hidden',
                           };
 
                 return (
@@ -161,18 +189,16 @@ export const gridZoneClasses = {
 
 export function gridCardZoneSx(theme: Theme) {
     return {
-        // Overlay covering the whole thumbnail; a 3x3 grid of anchor cells.
+        // Overlay covering the whole thumbnail; positioning context for the
+        // absolutely-anchored cells. `display: block` (not contents) so the
+        // absolute children resolve against this padded box.
         // Scoped under .thumbWrapper to beat its `> div { display: contents }`.
         [`.${assetClasses.thumbWrapper} > .${gridZoneClasses.over}`]: {
             position: 'absolute',
             inset: 0,
             zIndex: 2,
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gridTemplateRows: 'repeat(3, 1fr)',
+            display: 'block',
             pointerEvents: 'none',
-            padding: theme.spacing(0.5),
-            gap: theme.spacing(0.5),
         },
         // above / below band: 3 columns in normal flow.
         [`.${gridZoneClasses.band}`]: {
@@ -187,7 +213,7 @@ export function gridCardZoneSx(theme: Theme) {
             flexDirection: 'column',
             gap: theme.spacing(0.25),
             minWidth: 0,
-            overflow: 'hidden',
+            padding: theme.spacing(0.5),
         },
         [`.${gridZoneClasses.chip}`]: {
             maxWidth: '100%',
