@@ -13,6 +13,9 @@ framework:
             p2:
                 dsn: '%alchemy_messenger.amqp_transport_dsn%/p2'
                 options: '%alchemy_messenger.amqp_transport_options%'
+            task:
+                dsn: '%alchemy_messenger.amqp_transport_dsn%/task'
+                options: '%alchemy_messenger.amqp_transport_options%'
 
         routing:
             Alchemy\ESBundle\Message\ESIndex: p1
@@ -29,6 +32,7 @@ when@dev:
             transports:
                 p1: 'sync://'
                 p2: 'sync://'
+                task: 'sync://'
 
 when@test:
     framework:
@@ -36,3 +40,4 @@ when@test:
             transports:
                 p1: 'test://'
                 p2: 'test://'
+                task: 'test://'

@@ -6,7 +6,7 @@ namespace App\Consumer\Handler;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
-#[MessengerMessage('p2')]
+#[MessengerMessage('task')]
 final readonly class IngestWorkspaceAsset
 {
     public function __construct(
