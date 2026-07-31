@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use Alchemy\NotifyBundle\Notification\NotifierInterface;
+use Alchemy\NotifierBundle\Manager\SubscriptionManager;
+use Alchemy\NotifierBundle\Model\NotifySelectorDto;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\FollowInput;
@@ -14,10 +15,11 @@ use App\Security\Voter\AbstractVoter;
 
 class UnfollowProcessor implements ProcessorInterface
 {
+    use FollowEventResolverTrait;
     use SecurityAwareTrait;
 
     public function __construct(
-        private readonly NotifierInterface $notifier,
+        private readonly SubscriptionManager $subscriptionManager,
     ) {
     }
 
@@ -31,19 +33,12 @@ class UnfollowProcessor implements ProcessorInterface
         assert($object instanceof FollowableInterface);
         $this->denyAccessUnlessGranted(AbstractVoter::READ, $object);
 
-        $topicKeys = $object->getTopicKeys();
-        $key = $data->key;
-
-        if (null === $key) {
-            foreach ($topicKeys as $topicKey) {
-                $this->notifier->removeTopicSubscribers($topicKey, [$user->getId()]);
-            }
-        } else {
-            if (!in_array($key, $topicKeys, true)) {
-                throw new \InvalidArgumentException(sprintf('Invalid topic key "%s"', $key));
-            }
-
-            $this->notifier->removeTopicSubscribers($key, [$user->getId()]);
+        foreach ($this->resolveEvents($object, $data->key) as $event) {
+            $this->subscriptionManager->unsubscribe($user->getId(), new NotifySelectorDto(
+                event: $event,
+                objectType: $object->getObjectType(),
+                objectId: $object->getId(),
+            ));
         }
 
         return $object;

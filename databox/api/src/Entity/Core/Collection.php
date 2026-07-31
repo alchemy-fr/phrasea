@@ -465,6 +465,21 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
         return null === $this->workspace->getDeletedAt() && !$this->isStory();
     }
 
+    public function getFollowEvents(): array
+    {
+        return [
+            self::EVENT_ASSET_ADD,
+            self::EVENT_ASSET_REMOVE,
+            self::EVENT_ASSET_NEW_COMMENT,
+            self::EVENT_ASSET_UPDATE,
+        ];
+    }
+
+    public function getObjectType(): string
+    {
+        return self::OBJECT_TYPE;
+    }
+
     public function getTopicKeys(): array
     {
         return [

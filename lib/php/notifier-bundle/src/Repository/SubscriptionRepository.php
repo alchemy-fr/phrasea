@@ -60,4 +60,24 @@ class SubscriptionRepository extends ServiceEntityRepository
 
         return array_map(static fn (array $r): string => (string) $r['userId'], $rows);
     }
+
+    /**
+     * @return array<int, string> The events the subscriber follows for the given object
+     */
+    public function findSubscribedEvents(Subscriber $subscriber, string $objectType, string $objectId): array
+    {
+        $rows = $this->createQueryBuilder('s')
+            ->select('DISTINCT s.event AS event')
+            ->andWhere('s.subscriber = :subscriber')
+            ->andWhere('s.objectType = :type')
+            ->andWhere('s.objectId = :id')
+            ->setParameter('subscriber', $subscriber)
+            ->setParameter('type', $objectType)
+            ->setParameter('id', $objectId)
+            ->getQuery()
+            ->getScalarResult()
+        ;
+
+        return array_map(static fn (array $r): string => (string) $r['event'], $rows);
+    }
 }

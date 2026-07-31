@@ -1,0 +1,6 @@
+{% block subject %}Asset updated: {{ name }}{% endblock %}
+
+{% block body %}
+    <p>Hi {{ recipient.displayName|default(recipient.email) }},</p>
+    <p><strong>{{ author }}</strong> updated <a href="{{ url }}">{{ name }}</a>{% if collection is defined and collection %} in <em>{{ collection }}</em>{% endif %}.</p>
+{% endblock %}

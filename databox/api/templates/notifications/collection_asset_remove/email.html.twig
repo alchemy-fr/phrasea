@@ -1,0 +1,6 @@
+{% block subject %}Asset removed from {{ collectionName }}{% endblock %}
+
+{% block body %}
+    <p>Hi {{ recipient.displayName|default(recipient.email) }},</p>
+    <p><strong>{{ author }}</strong> removed <em>{{ assetName }}</em> from <em>{{ collectionName }}</em>.</p>
+{% endblock %}
