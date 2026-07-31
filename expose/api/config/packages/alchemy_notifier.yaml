@@ -1,0 +1,14 @@
+alchemy_notifier:
+    enabled: '%env(bool:NOTIFICATIONS_ENABLED)%'
+    template_namespace: '@notifications'
+    default_channels: [email]
+    topics:
+        # Transactional emails sent to anonymous download requesters
+        expose-download-link:
+            channels: [email]
+        expose-zippy-download-link:
+            channels: [email]
+
+twig:
+    paths:
+        '%kernel.project_dir%/templates/notifications': notifications

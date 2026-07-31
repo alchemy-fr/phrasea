@@ -33,16 +33,30 @@ final readonly class EmailChannel implements ChannelInterface
         array $context = [],
         array $options = [],
     ): void {
-        $email = (new Email())
-            ->to($subscriber->getEmail())
+        $this->sendTo($subscriber->getEmail(), $topic, $content, $options);
+    }
+
+    /**
+     * Sends a rendered notification to a raw email address (no subscriber).
+     *
+     * @param array<string, mixed> $options
+     */
+    public function sendTo(?string $email, string $topic, RenderedContent $content, array $options = []): void
+    {
+        if (null === $email || '' === $email) {
+            return;
+        }
+
+        $message = (new Email())
+            ->to($email)
             ->subject($content->subject ?? ($options['subject'] ?? $topic))
             ->html($content->body)
         ;
 
         if (isset($options['from'])) {
-            $email->from($options['from']);
+            $message->from($options['from']);
         }
 
-        $this->mailer->send($email);
+        $this->mailer->send($message);
     }
 }
