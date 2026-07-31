@@ -4,23 +4,29 @@
     "public": true,
     "main": "index.ts",
     "dependencies": {
-        "@novu/react": "^3.14.1"
+        "@alchemy/api": "workspace:*"
     },
     "scripts": {
         "lint": "eslint src",
         "lint:fix": "eslint --fix src",
         "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+        "translate": "i18next-scanner --config ../i18n/i18next-scanner.config.js",
         "cs": "pnpm lint:fix && pnpm format"
     },
     "peerDependencies": {
         "@mui/icons-material": "^6.5.0",
         "@mui/material": "^6.5.0",
-        "react": "^18.2.0"
+        "axios": "^1.18.1",
+        "react": "^18.2.0",
+        "react-i18next": "^14.1.1"
     },
     "devDependencies": {
+        "@4rthem/i18next-scanner": "^0.0.3",
         "@mui/icons-material": "^6.5.0",
         "@mui/material": "^6.5.0",
         "@types/react": "^18.3.24",
-        "react": "^18.3.1"
+        "axios": "^1.18.1",
+        "react": "^18.3.1",
+        "react-i18next": "^14.1.3"
     }
 }

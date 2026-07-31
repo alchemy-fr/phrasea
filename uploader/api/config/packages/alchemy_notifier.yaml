@@ -1,0 +1,12 @@
+alchemy_notifier:
+    enabled: '%env(bool:NOTIFICATIONS_ENABLED)%'
+    template_namespace: '@notifications'
+    default_channels: [email, in_app]
+    topics:
+        # Sent to the uploader once their commit has been acknowledged
+        uploader-commit-acknowledged:
+            channels: [email, in_app]
+
+twig:
+    paths:
+        '%kernel.project_dir%/templates/notifications': notifications

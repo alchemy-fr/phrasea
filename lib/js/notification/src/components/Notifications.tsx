@@ -1,18 +1,30 @@
-import {Inbox, InboxContent} from '@novu/react';
-import {Popover, PopoverProps, useTheme} from '@mui/material';
 import React from 'react';
-import {NotificationUriHandler} from '../types';
+import {Badge, Popover, PopoverProps} from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import {inboxDarkTheme} from '@novu/react/themes';
+import type {HttpClient} from '@alchemy/api';
+import {NotificationUriHandler, RegisterNotificationRealtime} from '../types';
+import {useNotifications} from '../useNotifications';
+import NotificationList from './NotificationList';
 
 type Props = {
-    appIdentifier: string;
-    socketUrl: string;
-    apiUrl: string;
+    /**
+     * Authenticated HTTP client pointing at the backend that serves the
+     * notifier API (`/notifications`, `/notifications/unread-count`, ...).
+     */
+    apiClient: HttpClient;
     userId: string;
     uriHandler?: NotificationUriHandler;
+    /**
+     * Subscribes to the real-time channel to receive live notifications.
+     * When omitted, the component still works but only refreshes on open.
+     */
+    registerRealtime?: RegisterNotificationRealtime;
+    realtimeChannelPrefix?: string;
+    realtimeEvent?: string;
+    locale?: string;
     children: (props: {
         open: boolean;
+        unreadCount: number;
         bellIcon: React.ReactNode;
         onClick: (event: React.MouseEvent<HTMLElement>) => void;
     }) => React.ReactNode;
@@ -21,78 +33,84 @@ type Props = {
 };
 
 export default function Notifications({
-    appIdentifier,
-    socketUrl,
-    apiUrl,
+    apiClient,
     userId,
     uriHandler,
+    registerRealtime,
+    realtimeChannelPrefix,
+    realtimeEvent,
+    locale,
     children,
     popoverId = 'notifications-popover',
     popoverProps,
 }: Props) {
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+    const open = Boolean(anchorEl);
 
-    const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
+    const notifications = useNotifications({
+        apiClient,
+        userId,
+        registerRealtime,
+        realtimeChannelPrefix,
+        realtimeEvent,
+        active: open,
+    });
+
+    const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
 
-    const handlePopoverClose = () => {
+    const handleClose = () => {
         setAnchorEl(null);
     };
-    const open = Boolean(anchorEl);
 
-    const theme = useTheme();
-    const isDarkMode = theme.palette.mode === 'dark';
+    const bellIcon = (
+        <Badge badgeContent={notifications.unreadCount} color="error" max={99}>
+            <NotificationsIcon />
+        </Badge>
+    );
 
     return (
         <>
-            <Inbox
-                applicationIdentifier={appIdentifier}
-                subscriber={userId}
-                socketUrl={socketUrl}
-                backendUrl={apiUrl}
-                routerPush={uriHandler}
-                appearance={{
-                    baseTheme: isDarkMode ? inboxDarkTheme : undefined,
-                }}
-            >
-                {children({
-                    open,
-                    bellIcon: <NotificationsIcon />,
-                    onClick: handlePopoverOpen,
-                })}
+            {children({
+                open,
+                unreadCount: notifications.unreadCount,
+                bellIcon,
+                onClick: handleOpen,
+            })}
 
-                <Popover
-                    id={popoverId}
-                    open={open}
-                    anchorEl={anchorEl}
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'right',
-                    }}
-                    transformOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'left',
-                    }}
-                    onClose={handlePopoverClose}
-                    slotProps={{
-                        paper: {
-                            sx: {
-                                'minWidth': {
-                                    xs: '100vw',
-                                    sm: 500,
-                                },
-                                '.novu': {
-                                    width: '100%',
-                                },
+            <Popover
+                id={popoverId}
+                open={open}
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                }}
+                onClose={handleClose}
+                slotProps={{
+                    paper: {
+                        sx: {
+                            minWidth: {
+                                xs: '100vw',
+                                sm: 420,
                             },
+                            maxWidth: '100vw',
                         },
-                    }}
-                    {...popoverProps}
-                >
-                    <InboxContent />
-                </Popover>
-            </Inbox>
+                    },
+                }}
+                {...popoverProps}
+            >
+                <NotificationList
+                    state={notifications}
+                    uriHandler={uriHandler}
+                    locale={locale}
+                />
+            </Popover>
         </>
     );
 }

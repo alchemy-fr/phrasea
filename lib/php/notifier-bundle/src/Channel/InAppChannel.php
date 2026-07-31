@@ -11,13 +11,18 @@ use Alchemy\NotifierBundle\Notification\RenderedContent;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Persists an in-app notification and pushes a real-time event through Pusher.
+ * Persists an in-app notification and, when a Pusher integration is available,
+ * pushes a real-time event.
  */
 final readonly class InAppChannel implements ChannelInterface
 {
+    /**
+     * The Pusher manager is optional: without it, notifications are still
+     * persisted (in-app list / unread badge) but no real-time push is emitted.
+     */
     public function __construct(
         private EntityManagerInterface $em,
-        private PusherManager $pusherManager,
+        private ?PusherManager $pusherManager = null,
         private string $channelPrefix = 'private-user-',
         private string $event = 'notification',
     ) {
@@ -48,7 +53,7 @@ final readonly class InAppChannel implements ChannelInterface
         $this->em->persist($notification);
         $this->em->flush();
 
-        $this->pusherManager->trigger(
+        $this->pusherManager?->trigger(
             $this->channelPrefix.$subscriber->getUserId(),
             $this->event,
             [

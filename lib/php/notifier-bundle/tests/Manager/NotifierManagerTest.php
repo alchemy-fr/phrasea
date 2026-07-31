@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\NotifierBundle\Tests\Manager;
 
 use Alchemy\NotifierBundle\Manager\NotifierManager;
+use Alchemy\NotifierBundle\Message\SendEmailNotification;
 use Alchemy\NotifierBundle\Message\SendNotification;
 use Alchemy\NotifierBundle\Model\NotifyOptions;
 use Alchemy\NotifierBundle\Model\NotifySelectorDto;
@@ -82,6 +83,37 @@ final class NotifierManagerTest extends TestCase
         self::assertInstanceOf(SendNotification::class, $captured);
         self::assertSame([$selector], $captured->selectors);
         self::assertSame('author', $captured->excludeUserId);
+    }
+
+    public function testNotifyEmailDispatchesTransactionalEmail(): void
+    {
+        $captured = null;
+        $manager = $this->manager($this->capturingBus($captured));
+
+        $manager->notifyEmail('bob@example.com', 'asset_added', ['downloadUrl' => 'https://x'], 'fr');
+
+        self::assertInstanceOf(SendEmailNotification::class, $captured);
+        self::assertSame('bob@example.com', $captured->email);
+        self::assertSame('asset_added', $captured->topic);
+        self::assertSame(['downloadUrl' => 'https://x'], $captured->params);
+        self::assertSame('fr', $captured->locale);
+    }
+
+    public function testNotifyEmailUnknownTopicThrowsBeforeDispatch(): void
+    {
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects(self::never())->method('dispatch');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->manager($bus)->notifyEmail('bob@example.com', 'not_declared');
+    }
+
+    public function testNotifyEmailDisabledManagerDoesNothing(): void
+    {
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects(self::never())->method('dispatch');
+
+        $this->manager($bus, false)->notifyEmail('bob@example.com', 'asset_added');
     }
 
     public function testUnknownTopicThrowsBeforeDispatch(): void

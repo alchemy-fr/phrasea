@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\NotifierBundle\Manager;
 
+use Alchemy\NotifierBundle\Message\SendEmailNotification;
 use Alchemy\NotifierBundle\Message\SendNotification;
 use Alchemy\NotifierBundle\Model\NotifyOptions;
 use Alchemy\NotifierBundle\Model\NotifySelectorDto;
@@ -56,6 +57,23 @@ final readonly class NotifierManager
             ],
             $options,
         );
+    }
+
+    /**
+     * Send a transactional email to a raw address (no subscriber/preferences).
+     *
+     * @param array<string, mixed> $params
+     */
+    public function notifyEmail(string $email, string $topic, array $params = [], ?string $locale = null): void
+    {
+        if (!$this->state->isEnabled()) {
+            return;
+        }
+
+        // Fail fast on an unknown topic, rather than in the worker
+        $this->topicRegistry->get($topic);
+
+        $this->bus->dispatch(new SendEmailNotification($email, $topic, $params, $locale));
     }
 
     /**

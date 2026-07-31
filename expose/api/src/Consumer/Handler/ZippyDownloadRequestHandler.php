@@ -6,7 +6,7 @@ namespace App\Consumer\Handler;
 
 use Alchemy\AuthBundle\Security\UriJwtManager;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
-use Alchemy\NotifyBundle\Notification\NotifierInterface;
+use Alchemy\NotifierBundle\Manager\NotifierManager;
 use App\Entity\DownloadRequest;
 use App\ZippyManager;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,7 +17,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 final readonly class ZippyDownloadRequestHandler
 {
     public function __construct(
-        private NotifierInterface $notifier,
+        private NotifierManager $notifier,
         private ZippyManager $zippyManager,
         private UriJwtManager $uriJwtManager,
         private UrlGeneratorInterface $urlGenerator,
@@ -41,14 +41,14 @@ final readonly class ZippyDownloadRequestHandler
             $daysAvailable * 3600 * 24,
         );
 
-        $this->notifier->sendEmail(
+        $this->notifier->notifyEmail(
             $downloadRequest->getEmail(),
             'expose-zippy-download-link',
             [
-                'locale' => $downloadRequest->getLocale(),
                 'downloadUrl' => $downloadUrl,
                 'daysAvailable' => $daysAvailable,
-            ]
+            ],
+            $downloadRequest->getLocale(),
         );
     }
 }
