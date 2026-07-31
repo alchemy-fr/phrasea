@@ -1,0 +1,6 @@
+{% block subject %}Your upload has been processed{% endblock %}
+
+{% block body %}
+    <p>Hi {{ recipient.displayName|default(recipient.email) }},</p>
+    <p>Your upload of {{ assetCount }} file(s) has been acknowledged and processed.</p>
+{% endblock %}
