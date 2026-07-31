@@ -18,6 +18,9 @@ alchemy_notifier:
         # Discussion comments (PostDiscussionMessageHandler)
         discussion_new_comment:
             channels: [email, in_app]
+        # User-facing exceptions (ExceptionNotifier)
+        databox-user-exception:
+            channels: [email, in_app]
 
 twig:
     paths:

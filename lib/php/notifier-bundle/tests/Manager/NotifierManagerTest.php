@@ -10,6 +10,7 @@ use Alchemy\NotifierBundle\Message\SendNotification;
 use Alchemy\NotifierBundle\Model\NotifyOptions;
 use Alchemy\NotifierBundle\Model\NotifySelectorDto;
 use Alchemy\NotifierBundle\Model\TopicDto;
+use Alchemy\NotifierBundle\NotifierState;
 use Alchemy\NotifierBundle\Topic\TopicRegistry;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Messenger\Envelope;
@@ -129,7 +130,7 @@ final class NotifierManagerTest extends TestCase
             new TopicRegistry([
                 'asset_added' => ['channels' => ['email', 'in_app'], 'importance' => 'normal', 'user_configurable' => true],
             ]),
-            $enabled,
+            new NotifierState($enabled),
         );
     }
 }

@@ -1,0 +1,7 @@
+{% block subject %}{{ subject|default('An error occurred') }}{% endblock %}
+
+{% block body %}
+    <p>Hi {{ recipient.displayName|default(recipient.email) }},</p>
+    <p>{{ subject }}</p>
+    {% if message is defined and message %}<pre>{{ message }}</pre>{% endif %}
+{% endblock %}

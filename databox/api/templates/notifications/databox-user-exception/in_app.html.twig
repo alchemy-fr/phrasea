@@ -1,0 +1,3 @@
+{% block subject %}{{ subject|default('An error occurred') }}{% endblock %}
+
+{% block body %}{{ subject }}{% if message is defined and message %} — {{ message }}{% endif %}{% endblock %}

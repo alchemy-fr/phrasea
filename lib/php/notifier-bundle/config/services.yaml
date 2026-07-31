@@ -36,7 +36,7 @@ services:
             $channelPrefix: '%alchemy_notifier.in_app.channel_prefix%'
             $event: '%alchemy_notifier.in_app.event%'
 
-    Alchemy\NotifierBundle\Manager\NotifierManager:
+    Alchemy\NotifierBundle\NotifierState:
         arguments:
             $enabled: '%alchemy_notifier.enabled%'
 
