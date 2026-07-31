@@ -480,21 +480,6 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
         return self::OBJECT_TYPE;
     }
 
-    public function getTopicKeys(): array
-    {
-        return [
-            self::getTopicKey(self::EVENT_ASSET_ADD),
-            self::getTopicKey(self::EVENT_ASSET_REMOVE),
-            self::getTopicKey(self::EVENT_ASSET_NEW_COMMENT),
-            self::getTopicKey(self::EVENT_ASSET_UPDATE),
-        ];
-    }
-
-    public static function getTopicKey(string $event): string
-    {
-        return 'collection:'.$event;
-    }
-
     public function getObjectDisplayName(): string
     {
         return sprintf('Collection %s', $this->getName() ?: $this->getId());
