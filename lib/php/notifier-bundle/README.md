@@ -16,7 +16,7 @@ API.
 |---|---|
 | **Subscriber** | A notifiable user, keyed by `userId`. Contact info (email, phone, locale, name) is resolved from Keycloak on first use. |
 | **Subscription** | A subscriber's interest in an `event`, optionally scoped to an object `(objectType, objectId)`. Without an object, it is global to the event. |
-| **Topic** | A notification kind (e.g. `asset.comment`), declared in config, delivered through one or more channels. |
+| **Topic** | A notification kind (e.g. `asset:comment`), declared in config, delivered through one or more channels. |
 | **Channel** | `email`, `sms` or `in_app`. |
 | **Preference** | A per-subscriber opt-out for a `(topic, channel)` pair. Enabled by default. |
 | **Notification** | A persisted in-app notification (history + unread badge). |
@@ -65,14 +65,28 @@ alchemy_notifier:
     in_app_channel_prefix: 'private-user-'
     in_app_event: 'notification'
     topics:
-        asset.comment:
+        # Keys containing a colon must be quoted (YAML reserves `:`)
+        'asset:comment':
             channels: [email, in_app]
             user_configurable: true
-        account.security:
+        'account:security':
             channels: [email, sms, in_app]
             # not shown in the preferences UI (cannot be opted out)
             user_configurable: false
 ```
+
+### Topic naming convention
+
+Topic keys follow **`object:action`** (e.g. `asset:update`, `collection:asset_add`,
+`discussion:new_comment`). The segment before the colon is the object/domain, the
+segment after is the action. Alchemy apps use the colon form; it keeps topic keys
+aligned with the subscription **event** keys shared with the frontend
+(`asset:update`, `asset:add`, …).
+
+Because `:` is a reserved indicator in YAML, **topic keys must be quoted** in
+`alchemy_notifier.topics` (`'asset:update':`), otherwise the file fails to parse.
+The key is turned into the template path by replacing `.` and `:` with `/`, so
+`asset:update` resolves to `asset/update/`.
 
 Register the template namespace in Twig:
 
@@ -118,7 +132,7 @@ use Alchemy\NotifierBundle\Model\NotifySelectorDto;
 use Alchemy\NotifierBundle\Model\TopicDto;
 
 // Notify a single user directly
-$notifier->notifyUser($userId, 'asset.comment', [
+$notifier->notifyUser($userId, 'asset:comment', [
     'assetTitle' => $asset->getTitle(),
     'comment' => $message,
 ]);
@@ -132,7 +146,7 @@ scoped to an object (`objectType` + `objectId`). Each selector carries the `Topi
 ```php
 // Subscribe a user to an event on a given object
 $subscriptions->subscribe($userId, new NotifySelectorDto(
-    event: 'asset.comment',
+    event: 'asset:comment',
     objectType: 'asset',
     objectId: $asset->getId(),
 ));
@@ -141,10 +155,10 @@ $subscriptions->subscribe($userId, new NotifySelectorDto(
 $notifier->notify(
     [
         new NotifySelectorDto(
-            event: 'asset.comment',
+            event: 'asset:comment',
             objectType: 'asset',
             objectId: $asset->getId(),
-            topic: new TopicDto('asset.comment', $params),
+            topic: new TopicDto('asset:comment', $params),
         ),
     ],
     new NotifyOptions(excludeUserId: $authorId), // don't notify the author
