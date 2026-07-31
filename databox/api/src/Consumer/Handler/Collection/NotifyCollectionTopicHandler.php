@@ -19,6 +19,9 @@ readonly class NotifyCollectionTopicHandler extends AbstractNotifyHandler
     {
         $collectionId = $message->getCollectionId();
         $collection = $this->em->find(Collection::class, $collectionId);
+        if (null === $collection) {
+            return;
+        }
 
         $event = $message->getEvent();
         $topic = match ($event) {
@@ -42,26 +45,28 @@ readonly class NotifyCollectionTopicHandler extends AbstractNotifyHandler
         $authorId = $message->getAuthorId();
 
         $notificationParams = [
-            'collectionName' => $collection?->getName() ?? $collection?->getId() ?? $message->getAssetName() ?? 'Undefined',
+            'collectionName' => $collection->getName() ?? $collection->getId(),
             'assetName' => $assetName,
             'url' => $uri,
             'author' => $this->getUsername($authorId),
             'authorId' => $authorId,
         ];
 
-        $this->notifierManager->notify([
-            new NotifySelectorDto(
-                event: $event,
-                objectType: $collection::OBJECT_TYPE,
-                objectId: $collection->getId(),
-                topic: new TopicDto(
-                    $topic,
-                    $notificationParams
+        $this->notifierManager->notify(
+            [
+                new NotifySelectorDto(
+                    event: $event,
+                    objectType: Collection::OBJECT_TYPE,
+                    objectId: $collection->getId(),
+                    topic: new TopicDto(
+                        $topic,
+                        $notificationParams
+                    ),
                 ),
-            ),
+            ],
             new NotifyOptions(
-                excludeUserId: $message->getAuthorId()
+                excludeUserId: $authorId
             ),
-        ]);
+        );
     }
 }

@@ -727,6 +727,20 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         return $this->microseconds;
     }
 
+    public function getFollowEvents(): array
+    {
+        return [
+            self::EVENT_UPDATE,
+            self::EVENT_DELETE,
+            self::EVENT_NEW_COMMENT,
+        ];
+    }
+
+    public function getObjectType(): string
+    {
+        return self::OBJECT_TYPE;
+    }
+
     public function getTopicKeys(): array
     {
         return [

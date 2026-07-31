@@ -67,4 +67,19 @@ class SubscriptionManager
     {
         return $this->repository->findSubscriberUserIds($selector);
     }
+
+    /**
+     * Events a user follows for a given object (read side of subscriptions).
+     *
+     * @return array<int, string>
+     */
+    public function getSubscribedEvents(string $userId, string $objectType, string $objectId): array
+    {
+        $subscriber = $this->subscriberManager->find($userId);
+        if (null === $subscriber) {
+            return [];
+        }
+
+        return $this->repository->findSubscribedEvents($subscriber, $objectType, $objectId);
+    }
 }

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Service\Asset;
 
 use Alchemy\NotifierBundle\Manager\NotifierManager;
+use Alchemy\NotifierBundle\Model\NotifyOptions;
 use Alchemy\NotifierBundle\Model\NotifySelectorDto;
+use Alchemy\NotifierBundle\Model\TopicDto;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Entity\FollowableInterface;
 use Doctrine\DBAL\LockMode;
@@ -33,7 +35,7 @@ final readonly class ObjectNotifier
 
         $shouldNotify = true;
 
-        $topicKey = $object::getTopicKey($event, $object->getId());
+        $topicKey = $object::getTopicKey($event);
 
         if (!$object->novuTopicExists($topicKey)) {
             $shouldNotify = $this->em->wrapInTransaction(function () use ($object, $topicKey): bool {
@@ -58,15 +60,16 @@ final readonly class ObjectNotifier
         }
 
         if ($shouldNotify) {
-            $this->notifierManager->notify([
-                new NotifySelectorDto(
-                    $event,
-
-                )
-            ]
-                $object::OBJECT_TYPE,
-                $object->getId(),
-                $topic,
+            $this->notifierManager->notify(
+                [
+                    new NotifySelectorDto(
+                        event: $event,
+                        objectType: $object::OBJECT_TYPE,
+                        objectId: $object->getId(),
+                        topic: new TopicDto($notificationId, $notificationParams),
+                    ),
+                ],
+                new NotifyOptions(excludeUserId: $authorId),
             );
             $this->notifier->notifyTopic($topicKey, $authorId, $notificationId, $notificationParams, $notificationOptions);
         }

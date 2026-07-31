@@ -1,0 +1,6 @@
+{% block subject %}New asset in {{ collectionName }}{% endblock %}
+
+{% block body %}
+    <p>Hi {{ recipient.displayName|default(recipient.email) }},</p>
+    <p><strong>{{ author }}</strong> added <a href="{{ url }}">{{ assetName }}</a> to <em>{{ collectionName }}</em>.</p>
+{% endblock %}

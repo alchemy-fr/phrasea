@@ -8,7 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use Alchemy\NotifyBundle\Notification\NotifierInterface;
+use Alchemy\NotifierBundle\Manager\SubscriptionManager;
 use App\Api\Model\Output\CollectionOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Elasticsearch\CollectionSearch;
@@ -36,7 +36,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         private readonly CollectionSearch $collectionSearch,
         private readonly TagAwareCacheInterface $collectionCache,
         private readonly PermissionManager $permissionManager,
-        private readonly NotifierInterface $notifier,
+        private readonly SubscriptionManager $subscriptionManager,
         #[Autowire(env: 'API_COLLECTION_OWNER_PROPERTY_REQUIRED_ROLE')]
         private readonly string $ownerPropertyRequiredRole,
     ) {
@@ -184,9 +184,10 @@ class CollectionOutputTransformer implements OutputTransformerInterface
 
             $user = $this->getUser();
             if ($user instanceof JwtUser) {
-                $output->topicSubscriptions = $this->notifier->getTopicSubscriptions(
-                    $data->getTopicKeys(),
+                $output->topicSubscriptions = $this->subscriptionManager->getSubscribedEvents(
                     $user->getId(),
+                    $data->getObjectType(),
+                    $data->getId(),
                 );
             }
         }
