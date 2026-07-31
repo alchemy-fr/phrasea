@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\NotifierBundle\Manager;
 
+use Alchemy\NotifierBundle\Message\BroadcastNotification;
 use Alchemy\NotifierBundle\Message\SendEmailNotification;
 use Alchemy\NotifierBundle\Message\SendNotification;
 use Alchemy\NotifierBundle\Model\NotifyOptions;
@@ -57,6 +58,23 @@ final readonly class NotifierManager
             ],
             $options,
         );
+    }
+
+    /**
+     * Deliver a topic notification to every subscriber.
+     *
+     * @param array<string, mixed> $params
+     */
+    public function broadcast(string $topic, array $params = []): void
+    {
+        if (!$this->state->isEnabled()) {
+            return;
+        }
+
+        // Fail fast on an unknown topic, rather than in the worker
+        $this->topicRegistry->get($topic);
+
+        $this->bus->dispatch(new BroadcastNotification($topic, $params));
     }
 
     /**
