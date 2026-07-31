@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\NotifierBundle\Tests\Manager;
 
 use Alchemy\NotifierBundle\Manager\NotifierManager;
+use Alchemy\NotifierBundle\Message\BroadcastNotification;
 use Alchemy\NotifierBundle\Message\SendEmailNotification;
 use Alchemy\NotifierBundle\Message\SendNotification;
 use Alchemy\NotifierBundle\Model\NotifyOptions;
@@ -114,6 +115,35 @@ final class NotifierManagerTest extends TestCase
         $bus->expects(self::never())->method('dispatch');
 
         $this->manager($bus, false)->notifyEmail('bob@example.com', 'asset_added');
+    }
+
+    public function testBroadcastDispatchesToAllSubscribers(): void
+    {
+        $captured = null;
+        $manager = $this->manager($this->capturingBus($captured));
+
+        $manager->broadcast('asset_added', ['x' => 1]);
+
+        self::assertInstanceOf(BroadcastNotification::class, $captured);
+        self::assertSame('asset_added', $captured->topic);
+        self::assertSame(['x' => 1], $captured->params);
+    }
+
+    public function testBroadcastUnknownTopicThrowsBeforeDispatch(): void
+    {
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects(self::never())->method('dispatch');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->manager($bus)->broadcast('not_declared');
+    }
+
+    public function testBroadcastDisabledManagerDoesNothing(): void
+    {
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects(self::never())->method('dispatch');
+
+        $this->manager($bus, false)->broadcast('asset_added');
     }
 
     public function testUnknownTopicThrowsBeforeDispatch(): void

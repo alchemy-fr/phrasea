@@ -22,4 +22,22 @@ class SubscriberRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['userId' => $userId]);
     }
+
+    /**
+     * Memory-efficient iterator over every subscriber userId (for broadcasts).
+     *
+     * @return iterable<int, string>
+     */
+    public function iterateUserIds(): iterable
+    {
+        $result = $this->createQueryBuilder('s')
+            ->select('s.userId')
+            ->getQuery()
+            ->toIterable()
+        ;
+
+        foreach ($result as $row) {
+            yield (string) $row['userId'];
+        }
+    }
 }
