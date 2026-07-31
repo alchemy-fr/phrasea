@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Alchemy\NotifierBundle\Manager;
 
-use Alchemy\NotifierBundle\Delivery\NotificationDeliverer;
 use Alchemy\NotifierBundle\Message\SendNotification;
 use Alchemy\NotifierBundle\Model\NotifyOptions;
 use Alchemy\NotifierBundle\Model\NotifySelectorDto;
 use Alchemy\NotifierBundle\Model\TopicDto;
+use Alchemy\NotifierBundle\NotifierState;
 use Alchemy\NotifierBundle\Topic\TopicRegistry;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -20,15 +20,14 @@ final readonly class NotifierManager
 {
     public function __construct(
         private MessageBusInterface $bus,
-        private NotificationDeliverer $deliverer,
         private TopicRegistry $topicRegistry,
-        private bool $enabled = true,
+        private NotifierState $state,
     ) {
     }
 
     public function isEnabled(): bool
     {
-        return $this->enabled;
+        return $this->state->isEnabled();
     }
 
     /**
@@ -66,7 +65,7 @@ final readonly class NotifierManager
      */
     public function notify(array $selectors, ?NotifyOptions $options = null): void
     {
-        if (!$this->enabled || [] === $selectors) {
+        if (!$this->state->isEnabled() || [] === $selectors) {
             return;
         }
 
