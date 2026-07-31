@@ -4,22 +4,22 @@ alchemy_notifier:
     default_channels: [email, in_app]
     topics:
         # Asset events (NotifyAssetTopicHandler)
-        asset_update:
+        'asset:update':
             channels: [email, in_app]
-        asset_delete:
+        'asset:delete':
             channels: [email, in_app]
-        asset_new_comment:
+        'asset:new_comment':
             channels: [email, in_app]
         # Collection events (NotifyCollectionTopicHandler)
-        collection_asset_add:
+        'collection:asset_add':
             channels: [email, in_app]
-        collection_asset_remove:
+        'collection:asset_remove':
             channels: [email, in_app]
         # Discussion comments (PostDiscussionMessageHandler)
-        discussion_new_comment:
+        'discussion:new_comment':
             channels: [email, in_app]
         # User-facing exceptions (ExceptionNotifier)
-        databox-user-exception:
+        'user:exception':
             channels: [email, in_app]
 
 twig:

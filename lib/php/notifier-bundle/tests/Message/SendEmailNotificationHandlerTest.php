@@ -27,10 +27,10 @@ final class SendEmailNotificationHandlerTest extends TestCase
         );
 
         $handler = $this->handler($mailer, [
-            '@notifications/expose-download-link/email.html.twig' => '{% block subject %}Your download{% endblock %}{% block body %}<a href="{{ downloadUrl }}">dl</a> {{ recipient.locale }}{% endblock %}',
+            '@notifications/download/link/email.html.twig' => '{% block subject %}Your download{% endblock %}{% block body %}<a href="{{ downloadUrl }}">dl</a> {{ recipient.locale }}{% endblock %}',
         ]);
 
-        $handler(new SendEmailNotification('bob@example.com', 'expose-download-link', ['downloadUrl' => 'https://x'], 'fr'));
+        $handler(new SendEmailNotification('bob@example.com', 'download:link', ['downloadUrl' => 'https://x'], 'fr'));
 
         self::assertInstanceOf(Email::class, $sent);
         self::assertSame('bob@example.com', $sent->getTo()[0]->getAddress());

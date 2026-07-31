@@ -4,9 +4,9 @@ alchemy_notifier:
     default_channels: [email]
     topics:
         # Transactional emails sent to anonymous download requesters
-        expose-download-link:
+        'download:link':
             channels: [email]
-        expose-zippy-download-link:
+        'download:zippy_link':
             channels: [email]
 
 twig:

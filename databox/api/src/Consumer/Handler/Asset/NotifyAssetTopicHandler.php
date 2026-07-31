@@ -21,9 +21,9 @@ readonly class NotifyAssetTopicHandler extends AbstractNotifyHandler
         $event = $message->getEvent();
 
         $topic = match ($event) {
-            Asset::EVENT_UPDATE => 'asset_update',
-            Asset::EVENT_DELETE => 'asset_delete',
-            Asset::EVENT_NEW_COMMENT => 'asset_new_comment',
+            Asset::EVENT_UPDATE => 'asset:update',
+            Asset::EVENT_DELETE => 'asset:delete',
+            Asset::EVENT_NEW_COMMENT => 'asset:new_comment',
             default => throw new \InvalidArgumentException(sprintf('Invalid asset event "%s"', $event)),
         };
 
