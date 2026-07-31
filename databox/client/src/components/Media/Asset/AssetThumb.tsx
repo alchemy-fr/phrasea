@@ -18,12 +18,15 @@ type Props = {
     asset: Asset;
     noStoryCarousel?: boolean;
     onPreviewToggle?: OnPreviewToggle;
+    /** Rendered inside the (relatively-positioned) thumbnail wrapper, e.g. the grid "over" zone. */
+    overlay?: ReactNode;
 } & HTMLAttributes<HTMLDivElement>;
 
 function AssetThumb({
     asset,
     noStoryCarousel,
     onPreviewToggle,
+    overlay,
     ...domAttrs
 }: Props) {
     const {t} = useTranslation();
@@ -155,6 +158,7 @@ function AssetThumb({
                     )}
                 </div>
             ) : null}
+            {overlay}
         </div>
     );
 }

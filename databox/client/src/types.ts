@@ -458,6 +458,7 @@ export interface Basket
 export enum ProfileItemSection {
     Attributes = 0,
     Facets = 1,
+    Grid = 2,
 }
 
 export enum ProfileItemType {
@@ -467,6 +468,35 @@ export enum ProfileItemType {
     Spacer = 3,
 }
 
+export type GridRegion = 'over' | 'below';
+
+// above/below bands: l | c | r ; over (3x3 grid): tl..br
+export type GridAnchor =
+    | 'l'
+    | 'c'
+    | 'r'
+    | 'tl'
+    | 'tc'
+    | 'tr'
+    | 'ml'
+    | 'cc'
+    | 'mr'
+    | 'bl'
+    | 'bc'
+    | 'br';
+
+export type ItemPlacement = {
+    region: GridRegion;
+    anchor: GridAnchor;
+    order?: number;
+};
+
+// How a grid value is rendered: its rich ReactNode, a plain-text chip, or raw text.
+export type ProfileItemVariant = 'rich' | 'chip' | 'text';
+
+// AttributeEntity display mode on the grid card.
+export type EntityDisplay = 'full' | 'emoji' | 'color';
+
 export type ProfileItem = {
     id: string;
     section: ProfileItemSection;
@@ -475,6 +505,15 @@ export type ProfileItem = {
     definition?: string;
     displayEmpty?: boolean;
     format?: string;
+    // Grid section only:
+    placement?: ItemPlacement;
+    variant?: ProfileItemVariant;
+    showLabel?: boolean;
+    showIcon?: boolean;
+    // Boolean type: render a true/false icon instead of text.
+    booleanIcon?: boolean;
+    // AttributeEntity type: show full value, only the emoji, or only the color.
+    entityDisplay?: EntityDisplay;
 };
 
 export interface DisplayProfile

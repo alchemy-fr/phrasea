@@ -2,6 +2,7 @@ import {
     Asset,
     AttributeDefinitionOrBuiltIn,
     BaseAttributeDefinition,
+    ProfileItemSection,
     ProfileItemType,
 } from '../../../../types';
 import React, {useContext, useMemo} from 'react';
@@ -58,7 +59,13 @@ function Attributes({
     const definitionsIndex = useIndexById(true);
     const toggleDefinition = useProfileStore(s => s.toggleDefinition);
     const current = useProfileStore(s => s.current);
-    const pinnedAttributes = useMemo(() => current?.items ?? [], [current]);
+    const pinnedAttributes = useMemo(
+        () =>
+            (current?.items ?? []).filter(
+                i => i.section === ProfileItemSection.Attributes
+            ),
+        [current]
+    );
 
     const attributeItems = useMemo<AttributeItem[]>(() => {
         const attributeGroups = buildAttributesGroupedByDefinition(

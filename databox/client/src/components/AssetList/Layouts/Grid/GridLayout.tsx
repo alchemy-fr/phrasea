@@ -16,6 +16,7 @@ import {
     createSizeTransition,
     thumbSx,
 } from '../../../Media/Asset/AssetThumb.tsx';
+import {gridCardZoneSx} from './GridCardZone.tsx';
 
 export default function GridLayout<Item extends AssetOrAssetContainer>({
     toolbarHeight,
@@ -30,9 +31,6 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
     previewZIndex,
     ...layoutProps
 }: LayoutProps<Item>) {
-    const lineHeight = 26;
-    const collLineHeight = 32;
-    const tagLineHeight = 32;
     const d = useContext(DisplayContext)!.state;
     const listRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -43,23 +41,11 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
 
     const gridSx = React.useCallback(
         (theme: Theme) => {
-            const spacing = Number(theme.spacing(1).slice(0, -2));
-
-            const nameHeight = d.displayName
-                ? spacing * 1.8 + lineHeight * d.nameRows
-                : 0;
-            let totalHeight = d.thumbSize + nameHeight;
-            if (d.displayCollections) {
-                totalHeight += collLineHeight * d.collectionsLimit;
-            }
-            if (d.displayTags) {
-                totalHeight += tagLineHeight * d.tagsLimit;
-            }
-
             return {
                 ...tagListSx(),
                 ...collectionListSx(),
                 ...thumbSx(d.thumbSize, theme),
+                ...gridCardZoneSx(theme),
                 p: 2,
                 backgroundColor: theme.palette.background.default,
                 [`.${sectionDividerClassname}`]: {
@@ -68,7 +54,6 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                 },
                 [`.${assetClasses.item}`]: {
                     'width': d.thumbSize,
-                    'height': totalHeight,
                     'transition': createSizeTransition(theme),
                     'position': 'relative',
                     [`.${assetClasses.controls}`]: {
@@ -120,19 +105,9 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                 },
                 [`.${assetClasses.name}`]: {
                     fontSize: 14,
-                    lineHeight: `${lineHeight}px`,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                    ...(d.nameRows > 1
-                        ? {
-                              'display': d.displayName ? '-webkit-box' : 'none',
-                              '-webkit-line-clamp': `${d.nameRows}`,
-                              '-webkit-box-orient': 'vertical',
-                          }
-                        : {
-                              display: d.displayName ? 'block' : 'none',
-                              whiteSpace: 'nowrap',
-                          }),
+                    whiteSpace: 'nowrap',
                 },
                 [`.${assetClasses.legend}`]: {
                     p: 1,

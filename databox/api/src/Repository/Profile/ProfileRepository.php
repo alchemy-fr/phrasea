@@ -46,18 +46,23 @@ class ProfileRepository extends ServiceEntityRepository
             ->getSingleScalarResult() ?? 0;
     }
 
-    public function hasDefinition(string $profileId, string $definitionId): bool
+    public function hasDefinition(string $profileId, string $definitionId, ?int $section = null): bool
     {
-        return null !== $this->_em->createQueryBuilder()
+        $qb = $this->_em->createQueryBuilder()
             ->select('1')
             ->setMaxResults(1)
             ->from(ProfileItem::class, 't')
             ->andWhere('t.profile = :l')
             ->andWhere('t.definition = :d')
             ->setParameter('l', $profileId)
-            ->setParameter('d', $definitionId)
-            ->getQuery()
-            ->getOneOrNullResult();
+            ->setParameter('d', $definitionId);
+
+        if (null !== $section) {
+            $qb->andWhere('t.section = :s')
+                ->setParameter('s', $section);
+        }
+
+        return null !== $qb->getQuery()->getOneOrNullResult();
     }
 
     public function getItemsIterator(string $profileId): iterable

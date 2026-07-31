@@ -14,17 +14,11 @@ export type PreviewOptions = {
 };
 
 export type DisplayPreferences = {
-    collectionsLimit: number;
-    displayCollections: boolean;
     displayPreview: boolean;
     previewOptions: PreviewOptions;
-    displayTags: boolean;
-    displayName: boolean;
     playVideos: boolean;
     previewLocked: boolean;
-    tagsLimit: number;
     thumbSize: number;
-    nameRows: number;
     layout: Layout;
 };
 
