@@ -21,7 +21,7 @@ export default function CollectionNotifications({
                     id={data.id}
                     topics={[
                         {
-                            key: `collection:${data.id}:asset_add`,
+                            key: 'asset:add',
                             label: t(
                                 'notification.topics.collection.asset_add.label',
                                 'Asset added'
@@ -32,7 +32,7 @@ export default function CollectionNotifications({
                             ),
                         },
                         {
-                            key: `collection:${data.id}:asset_remove`,
+                            key: 'asset:remove',
                             label: t(
                                 'notification.topics.collection.asset_remove.label',
                                 'Asset removed'
@@ -43,7 +43,7 @@ export default function CollectionNotifications({
                             ),
                         },
                         {
-                            key: `collection:${data.id}:asset_new_comment`,
+                            key: 'asset:new_comment',
                             label: t(
                                 'notification.topics.collection.asset_new_comment.label',
                                 'Discussion'
@@ -54,7 +54,7 @@ export default function CollectionNotifications({
                             ),
                         },
                         {
-                            key: `collection:${data.id}:asset_update`,
+                            key: 'asset:update',
                             label: t(
                                 'notification.topics.collection.asset_update.label',
                                 'Asset updated'

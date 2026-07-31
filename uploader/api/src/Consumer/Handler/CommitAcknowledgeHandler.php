@@ -57,7 +57,7 @@ final readonly class CommitAcknowledgeHandler
         if ($commit->isNotify()) {
             $this->notifier->notifyUser(
                 $commit->getUserId(),
-                'uploader-commit-acknowledged',
+                'commit:acknowledged',
                 [
                     'assetCount' => $commit->getAssets()->count(),
                 ]

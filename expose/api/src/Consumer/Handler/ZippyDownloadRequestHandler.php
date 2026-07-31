@@ -43,7 +43,7 @@ final readonly class ZippyDownloadRequestHandler
 
         $this->notifier->notifyEmail(
             $downloadRequest->getEmail(),
-            'expose-zippy-download-link',
+            'download:zippy_link',
             [
                 'downloadUrl' => $downloadUrl,
                 'daysAvailable' => $daysAvailable,

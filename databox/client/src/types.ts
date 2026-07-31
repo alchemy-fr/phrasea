@@ -756,7 +756,8 @@ export interface Entity {
     id: string;
 }
 
-export type TopicSubscriptions<T extends string = string> = Record<T, boolean>;
+// List of events the current user is subscribed to for the object
+export type TopicSubscriptions<T extends string = string> = T[];
 
 export enum ExportStatusEnum {
     Pending = 0,

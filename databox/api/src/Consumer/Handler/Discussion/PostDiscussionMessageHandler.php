@@ -24,7 +24,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 readonly class PostDiscussionMessageHandler
 {
-    private const string TOPIC = 'discussion_new_comment';
+    private const string TOPIC = 'discussion:new_comment';
     private const string THREAD_OBJECT_TYPE = 'thread';
     private const string THREAD_EVENT = 'discussion:new-comment';
 

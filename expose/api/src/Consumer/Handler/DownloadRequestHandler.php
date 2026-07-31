@@ -44,7 +44,7 @@ final readonly class DownloadRequestHandler
 
         $this->notifier->notifyEmail(
             $downloadRequest->getEmail(),
-            'expose-download-link',
+            'download:link',
             [
                 'downloadUrl' => $downloadUrl,
             ],
