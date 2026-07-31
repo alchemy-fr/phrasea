@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Alchemy\NotifierBundle\Tests\Manager;
 
-use Alchemy\NotifierBundle\Delivery\NotificationDeliverer;
 use Alchemy\NotifierBundle\Manager\NotifierManager;
 use Alchemy\NotifierBundle\Message\SendNotification;
 use Alchemy\NotifierBundle\Model\NotifyOptions;
@@ -126,7 +125,6 @@ final class NotifierManagerTest extends TestCase
     {
         return new NotifierManager(
             $bus,
-            $this->createMock(NotificationDeliverer::class),
             new TopicRegistry([
                 'asset_added' => ['channels' => ['email', 'in_app'], 'importance' => 'normal', 'user_configurable' => true],
             ]),

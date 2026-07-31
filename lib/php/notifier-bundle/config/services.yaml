@@ -36,6 +36,12 @@ services:
             $channelPrefix: '%alchemy_notifier.in_app.channel_prefix%'
             $event: '%alchemy_notifier.in_app.event%'
 
+    # The SMS texter is optional: inject it only when a symfony/notifier
+    # texter transport is configured, otherwise the channel stays inactive.
+    Alchemy\NotifierBundle\Channel\SmsChannel:
+        arguments:
+            $texter: '@?Symfony\Component\Notifier\TexterInterface'
+
     Alchemy\NotifierBundle\NotifierState:
         arguments:
             $enabled: '%alchemy_notifier.enabled%'
