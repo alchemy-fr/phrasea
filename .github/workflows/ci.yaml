@@ -28,14 +28,6 @@ jobs:
       target: keycloak
     secrets: inherit
 
-  build_novu-bridge:
-    name: 'Build novu-bridge'
-    uses: ./.github/workflows/build_base.yaml
-    with:
-      image: novu-bridge
-      context: ./novu/bridge
-    secrets: inherit
-
   build_php-fpm-base:
     name: 'Build php-fpm-base'
     uses: ./.github/workflows/build_base.yaml
@@ -205,7 +197,6 @@ jobs:
       - build_report_api
       - build_uploader_api
       - build_uploader_client
-      - build_novu-bridge
 
     steps:
       - name: Install mkcert
@@ -230,7 +221,7 @@ jobs:
       - name: Pull images
         run: |
             docker compose pull
-            docker compose pull configurator novu-bridge
+            docker compose pull configurator
 
       - name: Setup
         if: "!contains(github.event.head_commit.message, '[skip test]')"
@@ -318,7 +309,7 @@ jobs:
             fi
           done
 
-          export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,novu,indexer"
+          export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,indexer"
           REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=${{ github.ref_name }} docker compose push
 
           # If latest, also push latest tag
@@ -356,7 +347,7 @@ jobs:
             ecr_repo="${ECR_REGISTRY}/ps-${image_name}"
             docker tag "$repo:${{ env.DOCKER_TAG }}" "$ecr_repo:${{ github.ref_name }}"
           done
-          export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,novu,indexer"
+          export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,indexer"
           REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ github.ref_name }} docker compose push
 
       - name: Generate GitHub App token for documentation dispatch

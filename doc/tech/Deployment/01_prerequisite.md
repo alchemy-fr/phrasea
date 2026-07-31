@@ -93,17 +93,10 @@ It is strongly recommended to delegate **primary datastores**—such as **Postgr
   Zippy is dedicated to exporting files to several destinations, e.g., downloadable archive files.
   Zippy [GitHub source repository](https://github.com/alchemy-fr/zippy-svc).  
 
-* **Novu Notification Service**
+* **Email delivery (SMTP)**
 
-  - [Novu-bridge](https://hub.docker.com/r/alchemyfr/ps-novu-bridge/tags) 
-
-  For notifications sent by the application, Phrasea uses the Novu Notification service. This service is divided into two distinct parts: the backend infrastructure and the Novu bridge, which communicates with the Novu backend.
-
-  - The Novu-bridge container must be deployed in the stack.
-  - For the backend service, you can use Novu's SaaS offering  
-  - or deploy your own Novu backend stack (no Helm deployment provided, only Docker Compose for development and testing).
-
-   More information about Novu and its implementation in Phrasea [here](../../user/Databox/02_%20novu_in_phrasea.md)
+  Notifications sent by the application are delivered as emails through Symfony Mailer.
+  Configure a `MAILER_DSN` (SMTP or another transport) for each API that sends notifications.
 
 * **Report Service**  
   - [Report API](https://hub.docker.com/r/alchemyfr/ps-report-api/tags)
@@ -150,7 +143,6 @@ For the **Kubernetes** context, refer to [values.yaml](https://github.com/alchem
 - **Mendhak** – HTTP/HTTPS echo service for testing.
 - **Jwilder** – Dockerize, utility for orchestrating Docker services.
 - **MinIO-MC** – MinIO Client, management utility for MinIO.
-- **Novu** – Novu Notification framework backend infrastructure.
 
 ## Technologies Used
 

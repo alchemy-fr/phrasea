@@ -741,20 +741,6 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         return self::OBJECT_TYPE;
     }
 
-    public function getTopicKeys(): array
-    {
-        return [
-            self::getTopicKey(self::EVENT_UPDATE),
-            self::getTopicKey(self::EVENT_DELETE),
-            self::getTopicKey(self::EVENT_NEW_COMMENT),
-        ];
-    }
-
-    public static function getTopicKey(string $event): string
-    {
-        return 'asset:'.$event;
-    }
-
     /**
      * Used by ES.
      */
