@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Notification;
 
-use Alchemy\NotifyBundle\Notification\NotifierInterface;
+use Alchemy\NotifierBundle\Manager\NotifierManager;
 use App\Service\ErrorDisableHandler;
 
 final readonly class ExceptionNotifier
 {
     public function __construct(
-        private NotifierInterface $notifier,
+        private NotifierManager $notifier,
         private ErrorDisableHandler $errorDisableHandler,
     ) {
     }

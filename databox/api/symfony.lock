@@ -29,9 +29,6 @@
     "alchemy/notifier-bundle": {
         "version": "dev-notifier"
     },
-    "alchemy/notify-bundle": {
-        "version": "dev-PS-706-discussions"
-    },
     "alchemy/oauth-server-bundle": {
         "version": "dev-ps-248-databox"
     },
