@@ -17,9 +17,17 @@ services:
             - '../src/Message/SendEmailNotification.php'
             - '../src/Message/BroadcastNotification.php'
 
+    # REST controllers
     Alchemy\NotifierBundle\Controller\:
         resource: '../src/Controller/'
+        exclude: '../src/Controller/Admin/'
         tags: ['controller.service_arguments']
+
+    # EasyAdmin CRUD controllers (autoconfigured, must be public).
+    # Requires easycorp/easyadmin-bundle + alchemy/admin-bundle in the app.
+    Alchemy\NotifierBundle\Controller\Admin\:
+        resource: '../src/Controller/Admin/'
+        public: true
 
     Alchemy\NotifierBundle\Channel\ChannelRegistry:
         arguments:
