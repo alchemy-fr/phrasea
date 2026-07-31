@@ -15,8 +15,8 @@ alchemy_notifier:
             channels: [email, in_app]
         collection_asset_remove:
             channels: [email, in_app]
-        # Discussion comments (ObjectNotifier) — WIP, see notes
-        'discussion:new-comment':
+        # Discussion comments (PostDiscussionMessageHandler)
+        discussion_new_comment:
             channels: [email, in_app]
 
 twig:
