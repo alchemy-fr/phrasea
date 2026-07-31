@@ -8,13 +8,14 @@ services:
             tags: ['alchemy_notifier.channel']
 
     Alchemy\NotifierBundle\:
-        resource: '../src/{Channel,Delivery,Manager,Notification,Repository,Subscriber,Topic,Security,Message}/'
+        resource: '../src/{Channel,Command,Delivery,Manager,Notification,Repository,Subscriber,Topic,Security,Message}/'
         exclude:
             - '../src/Notification/RenderedContent.php'
             - '../src/Subscriber/SubscriberInfo.php'
             - '../src/Topic/TopicDefinition.php'
             - '../src/Message/SendNotification.php'
             - '../src/Message/SendEmailNotification.php'
+            - '../src/Message/BroadcastNotification.php'
 
     Alchemy\NotifierBundle\Controller\:
         resource: '../src/Controller/'
