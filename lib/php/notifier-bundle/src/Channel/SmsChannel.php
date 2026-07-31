@@ -11,8 +11,12 @@ use Symfony\Component\Notifier\TexterInterface;
 
 final readonly class SmsChannel implements ChannelInterface
 {
+    /**
+     * The texter is optional: without a configured symfony/notifier texter
+     * transport, the SMS channel stays inactive instead of breaking the container.
+     */
     public function __construct(
-        private TexterInterface $texter,
+        private ?TexterInterface $texter = null,
     ) {
     }
 
@@ -23,7 +27,9 @@ final readonly class SmsChannel implements ChannelInterface
 
     public function supports(Subscriber $subscriber): bool
     {
-        return null !== $subscriber->getPhoneNumber() && '' !== $subscriber->getPhoneNumber();
+        return null !== $this->texter
+            && null !== $subscriber->getPhoneNumber()
+            && '' !== $subscriber->getPhoneNumber();
     }
 
     public function send(
@@ -33,6 +39,6 @@ final readonly class SmsChannel implements ChannelInterface
         array $context = [],
         array $options = [],
     ): void {
-        $this->texter->send(new SmsMessage($subscriber->getPhoneNumber(), $content->body));
+        $this->texter?->send(new SmsMessage($subscriber->getPhoneNumber(), $content->body));
     }
 }
