@@ -8,7 +8,7 @@ key throughout the bundle. The application owns the Twig templates (one per topi
 channel); the bundle provides the Doctrine entities, the delivery pipeline and a REST
 API.
 
-> This bundle supersedes the deprecated `alchemy/notify-bundle` (Novu based).
+> This bundle supersedes the deprecated `alchemy/notify-bundle`.
 
 ## Concepts
 

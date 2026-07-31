@@ -67,7 +67,6 @@
         "lodash.throttle": "^4.1.1",
         "moment": "^2.30.1",
         "nearley": "^2.20.1",
-        "novu": "2.2.1",
         "pusher-js": "^8.4.0",
         "re-resizable": "^6.11.2",
         "react": "^18.3.1",
