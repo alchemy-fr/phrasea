@@ -37,11 +37,13 @@ readonly class NotifyAssetTopicHandler extends AbstractNotifyHandler
             'authorId' => $authorId,
         ];
 
+        // The asset itself may already be gone (e.g. delete event); the selector
+        // only needs its id, which comes from the message.
         $selectors = [
             new NotifySelectorDto(
                 $event,
-                objectType: $asset::OBJECT_TYPE,
-                objectId: $asset->getId(),
+                objectType: Asset::OBJECT_TYPE,
+                objectId: $assetId,
                 topic: new TopicDto(
                     $topic,
                     $notificationParams,
@@ -49,7 +51,7 @@ readonly class NotifyAssetTopicHandler extends AbstractNotifyHandler
             ),
         ];
 
-        if (Asset::EVENT_UPDATE === $event) {
+        if (Asset::EVENT_UPDATE === $event && null !== $asset) {
             foreach ($asset->getCollections() as $assetCollection) {
                 $notificationParams['collection'] = $assetCollection->getCollection()->getAbsoluteName();
 

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Discussion;
 
-use Alchemy\NotifierBundle\Model\NotifySelectorDto;
-use Alchemy\NotifierBundle\Model\TopicDto;
 use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
@@ -61,16 +59,12 @@ readonly class PostDiscussionMessageHandler
             'author' => $this->notifier->getUsername($authorId),
         ];
 
-        $selectors = [];
-
         if ($object instanceof Asset) {
             $params['url'] = '/assets/'.$object->getId().'#discussion-'.$message->getId();
 
-            $selectors[] = new NotifySelectorDto(
-                topic: new TopicDto(
-                    'asset_comment'
-                )
-            ); // TODO
+            // TODO migrate this path to NotifierManager selectors.
+            // A NotifySelectorDto requires an event or explicit userIds, so it
+            // cannot be built from a topic alone.
             $this->objectNotifier->notifyObject(
                 $object,
                 Asset::EVENT_NEW_COMMENT,

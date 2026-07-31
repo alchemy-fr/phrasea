@@ -3,10 +3,21 @@ alchemy_notifier:
     template_namespace: '@notifications'
     default_channels: [email, in_app]
     topics:
-        # Sent to the followers of a collection when an asset is added to it
-        asset_added:
+        # Asset events (NotifyAssetTopicHandler)
+        asset_update:
             channels: [email, in_app]
-            user_configurable: true
+        asset_delete:
+            channels: [email, in_app]
+        asset_new_comment:
+            channels: [email, in_app]
+        # Collection events (NotifyCollectionTopicHandler)
+        collection_asset_add:
+            channels: [email, in_app]
+        collection_asset_remove:
+            channels: [email, in_app]
+        # Discussion comments (ObjectNotifier) — WIP, see notes
+        'discussion:new-comment':
+            channels: [email, in_app]
 
 twig:
     paths:

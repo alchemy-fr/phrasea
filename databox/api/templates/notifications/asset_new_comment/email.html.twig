@@ -1,0 +1,6 @@
+{% block subject %}New comment on {{ name }}{% endblock %}
+
+{% block body %}
+    <p>Hi {{ recipient.displayName|default(recipient.email) }},</p>
+    <p><strong>{{ author }}</strong> commented on <a href="{{ url }}">{{ name }}</a>.</p>
+{% endblock %}
