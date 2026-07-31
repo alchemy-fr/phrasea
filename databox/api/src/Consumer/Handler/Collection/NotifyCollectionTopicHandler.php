@@ -25,8 +25,8 @@ readonly class NotifyCollectionTopicHandler extends AbstractNotifyHandler
 
         $event = $message->getEvent();
         $topic = match ($event) {
-            Collection::EVENT_ASSET_ADD => 'collection_asset_add',
-            Collection::EVENT_ASSET_REMOVE => 'collection_asset_remove',
+            Collection::EVENT_ASSET_ADD => 'collection:asset_add',
+            Collection::EVENT_ASSET_REMOVE => 'collection:asset_remove',
             default => throw new \InvalidArgumentException(sprintf('Invalid collection event "%s"', $event)),
         };
 
