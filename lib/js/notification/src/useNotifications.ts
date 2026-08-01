@@ -39,7 +39,9 @@ export type UseNotificationsResult = {
     loadMore: () => void;
     refresh: () => void;
     markRead: (id: string) => void;
+    markUnread: (id: string) => void;
     markAllRead: () => void;
+    remove: (id: string) => void;
 };
 
 function realtimeToNotification(data: RealtimeNotification): Notification {
@@ -225,6 +227,37 @@ export function useNotifications({
         [api]
     );
 
+    const markUnread = React.useCallback(
+        (id: string) => {
+            const target = stateRef.current.items.find(i => i.id === id);
+            if (!target || !target.read) {
+                return;
+            }
+
+            // Optimistic update.
+            setState(s => ({
+                ...s,
+                items: s.items.map(i =>
+                    i.id === id ? {...i, read: false, readAt: null} : i
+                ),
+                unreadCount: s.unreadCount + 1,
+            }));
+
+            api.markUnread(id).catch(() => {
+                // Roll back on failure.
+                const readAt = target.readAt ?? new Date().toISOString();
+                setState(s => ({
+                    ...s,
+                    items: s.items.map(i =>
+                        i.id === id ? {...i, read: true, readAt} : i
+                    ),
+                    unreadCount: Math.max(0, s.unreadCount - 1),
+                }));
+            });
+        },
+        [api]
+    );
+
     const markAllRead = React.useCallback(() => {
         const previous = stateRef.current;
         if (previous.unreadCount === 0) {
@@ -249,6 +282,48 @@ export function useNotifications({
         });
     }, [api]);
 
+    const remove = React.useCallback(
+        (id: string) => {
+            const previous = stateRef.current;
+            const index = previous.items.findIndex(i => i.id === id);
+            if (index === -1) {
+                return;
+            }
+            const target = previous.items[index];
+
+            // Optimistic removal.
+            setState(s => ({
+                ...s,
+                items: s.items.filter(i => i.id !== id),
+                total: Math.max(0, s.total - 1),
+                unreadCount: target.read
+                    ? s.unreadCount
+                    : Math.max(0, s.unreadCount - 1),
+            }));
+
+            api.remove(id).catch(() => {
+                // Roll back on failure, restoring the item at its position.
+                setState(s => {
+                    if (s.items.some(i => i.id === id)) {
+                        return s;
+                    }
+                    const items = [...s.items];
+                    items.splice(Math.min(index, items.length), 0, target);
+
+                    return {
+                        ...s,
+                        items,
+                        total: s.total + 1,
+                        unreadCount: target.read
+                            ? s.unreadCount
+                            : s.unreadCount + 1,
+                    };
+                });
+            });
+        },
+        [api]
+    );
+
     const hasMore = state.items.length < state.total;
 
     return {
@@ -260,6 +335,8 @@ export function useNotifications({
         loadMore,
         refresh,
         markRead,
+        markUnread,
         markAllRead,
+        remove,
     };
 }

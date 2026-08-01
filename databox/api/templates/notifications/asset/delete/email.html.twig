@@ -1,6 +1,7 @@
-{% block subject %}Asset deleted: {{ name }}{% endblock %}
+{% block subject %}{{ 'asset.delete.email.subject'|trans({'%name%': name}, 'notifications')|raw }}{% endblock %}
 
-{% block body %}
-    <p>Hi {{ recipient.displayName|default(recipient.email) }},</p>
-    <p><strong>{{ author }}</strong> deleted <em>{{ name }}</em>.</p>
-{% endblock %}
+{% block body %}{{ 'asset.delete.email.body'|trans({
+    '%recipient%': (recipient.displayName|default(recipient.email))|e,
+    '%author%': author|e,
+    '%name%': name|e,
+}, 'notifications')|raw }}{% endblock %}

@@ -52,6 +52,18 @@ export function createNotificationApi(client: HttpClient) {
             return res.data;
         },
 
+        async markUnread(id: string): Promise<Notification> {
+            const res = await client.post<Notification>(
+                `/notifications/${id}/unread`
+            );
+
+            return res.data;
+        },
+
+        async remove(id: string): Promise<void> {
+            await client.delete(`/notifications/${id}`);
+        },
+
         async markAllRead(): Promise<number> {
             const res = await client.post<{markedAsRead: number}>(
                 '/notifications/read-all'

@@ -1,7 +1,3 @@
-{% block subject %}Your download is ready{% endblock %}
+{% block subject %}{{ 'download.link.email.subject'|trans({}, 'notifications')|raw }}{% endblock %}
 
-{% block body %}
-    <p>Your download is ready.</p>
-    <p><a href="{{ downloadUrl }}">Download</a></p>
-    <p>This link is valid for a limited time.</p>
-{% endblock %}
+{% block body %}{{ 'download.link.email.body'|trans({'%url%': downloadUrl|e('html_attr')}, 'notifications')|raw }}{% endblock %}

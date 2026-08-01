@@ -1,7 +1,7 @@
-{% block subject %}{{ subject|default('An error occurred') }}{% endblock %}
+{% block subject %}{{ subject|default('user.exception.email.subject'|trans({}, 'notifications')) }}{% endblock %}
 
 {% block body %}
-    <p>Hi {{ recipient.displayName|default(recipient.email) }},</p>
+    <p>{{ 'user.exception.email.greeting'|trans({'%recipient%': (recipient.displayName|default(recipient.email))|e}, 'notifications')|raw }}</p>
     <p>{{ subject }}</p>
     {% if message is defined and message %}<pre>{{ message }}</pre>{% endif %}
 {% endblock %}

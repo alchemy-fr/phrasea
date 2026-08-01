@@ -1,6 +1,8 @@
-{% block subject %}New comment on {{ object }}{% endblock %}
+{% block subject %}{{ 'discussion.new_comment.email.subject'|trans({'%object%': object}, 'notifications')|raw }}{% endblock %}
 
-{% block body %}
-    <p>Hi {{ recipient.displayName|default(recipient.email) }},</p>
-    <p><strong>{{ author }}</strong> commented on <a href="{{ url|default('#') }}">{{ object }}</a>.</p>
-{% endblock %}
+{% block body %}{{ 'discussion.new_comment.email.body'|trans({
+    '%recipient%': (recipient.displayName|default(recipient.email))|e,
+    '%author%': author|e,
+    '%object%': object|e,
+    '%url%': (url|default('#'))|e('html_attr'),
+}, 'notifications')|raw }}{% endblock %}

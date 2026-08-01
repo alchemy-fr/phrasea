@@ -122,6 +122,44 @@ Every template receives the `params` you pass plus a `recipient` variable
 (`userId`, `displayName`, `email`, `locale`). If a template does not exist for a
 channel, that channel is skipped.
 
+### Translations
+
+Templates are rendered under the recipient's locale, so keep the literal strings
+in translation catalogs rather than hard-coded in the template. Use the `trans`
+filter with the `notifications` domain and store the messages in
+`translations/notifications.<locale>.yaml`:
+
+```twig
+{# templates/notifications/asset/comment/email.html.twig #}
+{% block subject %}{{ 'asset.comment.email.subject'|trans({'%name%': name}, 'notifications')|raw }}{% endblock %}
+{% block body %}{{ 'asset.comment.email.body'|trans({
+    '%recipient%': (recipient.displayName|default(recipient.email))|e,
+    '%author%': author|e,
+    '%name%': name|e,
+    '%url%': url|e('html_attr'),
+}, 'notifications')|raw }}{% endblock %}
+```
+
+```yaml
+# translations/notifications.en.yaml
+asset:
+    comment:
+        email:
+            subject: 'New comment on %name%'
+            body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> commented on <a href="%url%">%name%</a>.</p>'
+```
+
+Because HTML bodies use `|raw` on the translated string, **escape every dynamic
+value** yourself (`|e` for text, `|e('html_attr')` for URLs) to avoid XSS — the
+catalog message is trusted, the interpolated values are not.
+
+The locale is resolved per recipient: `email` / `sms` render under the
+subscriber's `locale` at send time, and the in-app history renders under the
+recipient subscriber's `locale` at read time. When no locale is available the
+translator's default locale (and its fallbacks) is used. Switching the active
+locale requires `symfony/translation`; without it templates still render in the
+default language.
+
 ## Usage
 
 ```php

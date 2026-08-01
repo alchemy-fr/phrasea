@@ -1,6 +1,9 @@
-{% block subject %}New asset in {{ collectionName }}{% endblock %}
+{% block subject %}{{ 'collection.asset_add.email.subject'|trans({'%collectionName%': collectionName}, 'notifications')|raw }}{% endblock %}
 
-{% block body %}
-    <p>Hi {{ recipient.displayName|default(recipient.email) }},</p>
-    <p><strong>{{ author }}</strong> added <a href="{{ url }}">{{ assetName }}</a> to <em>{{ collectionName }}</em>.</p>
-{% endblock %}
+{% block body %}{{ 'collection.asset_add.email.body'|trans({
+    '%recipient%': (recipient.displayName|default(recipient.email))|e,
+    '%author%': author|e,
+    '%assetName%': assetName|e,
+    '%collectionName%': collectionName|e,
+    '%url%': url|e('html_attr'),
+}, 'notifications')|raw }}{% endblock %}

@@ -92,4 +92,9 @@ class Notification extends AbstractUuidEntity
     {
         $this->readAt ??= new \DateTimeImmutable();
     }
+
+    public function markAsUnread(): void
+    {
+        $this->readAt = null;
+    }
 }
