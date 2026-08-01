@@ -14,8 +14,9 @@ use Twig\Environment;
  * convention: {namespace}/{topic-with-slashes}/{channel}.{ext}
  * e.g. `@notifications/asset/comment/email.html.twig`.
  *
- * A template may define a `subject` block and a `body` block; when no `body`
- * block is present the whole template output is used as the body.
+ * A template may define a `subject` block, a `body` block and a `uri` block
+ * (the main click-through target); when no `body` block is present the whole
+ * template output is used as the body.
  */
 final readonly class NotificationRenderer
 {
@@ -53,7 +54,11 @@ final readonly class NotificationRenderer
             ? $template->renderBlock('body', $context)
             : $template->render($context);
 
-        return new RenderedContent($subject, trim($body));
+        $uri = $template->hasBlock('uri', $context)
+            ? trim($template->renderBlock('uri', $context))
+            : null;
+
+        return new RenderedContent($subject, trim($body), '' !== $uri ? $uri : null);
     }
 
     private function templateName(string $topic, ChannelType $channel): string

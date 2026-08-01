@@ -12,6 +12,7 @@ final readonly class RenderedContent
     public function __construct(
         public ?string $subject,
         public string $body,
+        public ?string $uri = null,
     ) {
     }
 }
