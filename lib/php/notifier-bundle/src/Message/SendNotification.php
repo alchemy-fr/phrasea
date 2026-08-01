@@ -12,8 +12,6 @@ use Alchemy\NotifierBundle\Model\TopicDto;
  *
  * Recipients are given either explicitly (userIds) and/or through a followed
  * object (topic + objectType + objectId); resolution happens in the handler.
- *
- * $topics is an array and will prevent sending two different topics to the same subscriber.
  */
 final readonly class SendNotification
 {
