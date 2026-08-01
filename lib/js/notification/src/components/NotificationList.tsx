@@ -1,14 +1,18 @@
 import React from 'react';
 import {
+    Badge,
     Box,
     Button,
     CircularProgress,
     Divider,
+    IconButton,
     List,
+    Tooltip,
     Typography,
 } from '@mui/material';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import {useTranslation} from 'react-i18next';
 import type {NotificationUriHandler} from '../types';
 import type {UseNotificationsResult} from '../useNotifications';
@@ -29,6 +33,7 @@ export default function NotificationList({state, uriHandler, locale}: Props) {
         hasMore,
         unreadCount,
         loadMore,
+        refresh,
         markRead,
         markAllRead,
     } = state;
@@ -44,17 +49,44 @@ export default function NotificationList({state, uriHandler, locale}: Props) {
                     py: 1.5,
                 }}
             >
-                <Typography variant="h6" component="div">
-                    {t('notification.list.title', 'Notifications')}
-                </Typography>
-                <Button
-                    size="small"
-                    startIcon={<DoneAllIcon />}
-                    onClick={markAllRead}
-                    disabled={unreadCount === 0}
+                <Badge
+                    badgeContent={unreadCount}
+                    color="error"
+                    max={99}
+                    sx={{'& .MuiBadge-badge': {right: -10, top: 2}}}
                 >
-                    {t('notification.list.mark_all_read', 'Mark all as read')}
-                </Button>
+                    <Typography variant="h6" component="div">
+                        {t('notification.list.title', 'Notifications')}
+                    </Typography>
+                </Badge>
+                <Box sx={{display: 'flex', alignItems: 'center', gap: 0.5}}>
+                    <Tooltip title={t('notification.list.refresh', 'Refresh')}>
+                        <span>
+                            <IconButton
+                                size="small"
+                                onClick={refresh}
+                                disabled={loading}
+                                aria-label={t(
+                                    'notification.list.refresh',
+                                    'Refresh'
+                                )}
+                            >
+                                <RefreshIcon fontSize="small" />
+                            </IconButton>
+                        </span>
+                    </Tooltip>
+                    <Button
+                        size="small"
+                        startIcon={<DoneAllIcon />}
+                        onClick={markAllRead}
+                        disabled={unreadCount === 0}
+                    >
+                        {t(
+                            'notification.list.mark_all_read',
+                            'Mark all as read'
+                        )}
+                    </Button>
+                </Box>
             </Box>
             <Divider />
 

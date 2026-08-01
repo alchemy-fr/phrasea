@@ -471,7 +471,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notifier-bundle",
-                "reference": "efdd52b1ef325a77dd76b6b7e7caafcbe1f98871"
+                "reference": "fab88fb8b3ea1b6ac9255bedf83219d84f343a64"
             },
             "require": {
                 "alchemy/auth-bundle": "@dev",
@@ -490,6 +490,7 @@
                 "friendsofphp/php-cs-fixer": "^3.17",
                 "php-parallel-lint/php-var-dump-check": "v0.5",
                 "phpunit/phpunit": "^11.3.2",
+                "pusher/pusher-php-server": "^7.2.4",
                 "rector/rector": "^2.3.0"
             },
             "type": "symfony-bundle",
@@ -1459,16 +1460,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.390.1",
+            "version": "3.390.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "c75d5f489113e3c140d5a37602375e4359b66a75"
+                "reference": "a09e95bf062e15b7343f9c1362fd45c7a0dec39b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c75d5f489113e3c140d5a37602375e4359b66a75",
-                "reference": "c75d5f489113e3c140d5a37602375e4359b66a75",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/a09e95bf062e15b7343f9c1362fd45c7a0dec39b",
+                "reference": "a09e95bf062e15b7343f9c1362fd45c7a0dec39b",
                 "shasum": ""
             },
             "require": {
@@ -1550,9 +1551,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.390.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.390.2"
             },
-            "time": "2026-07-31T02:53:14+00:00"
+            "time": "2026-07-31T18:06:07+00:00"
         },
         {
             "name": "beberlei/doctrineextensions",
@@ -3950,16 +3951,16 @@
         },
         {
             "name": "gedmo/doctrine-extensions",
-            "version": "v3.22.0",
+            "version": "v3.22.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine-extensions/DoctrineExtensions.git",
-                "reference": "e4350ee2daa7f34aa5806f2e1ea11fa4b5800e57"
+                "reference": "a973a68a990392b96f5ccbd4d713ae33e4bde95f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine-extensions/DoctrineExtensions/zipball/e4350ee2daa7f34aa5806f2e1ea11fa4b5800e57",
-                "reference": "e4350ee2daa7f34aa5806f2e1ea11fa4b5800e57",
+                "url": "https://api.github.com/repos/doctrine-extensions/DoctrineExtensions/zipball/a973a68a990392b96f5ccbd4d713ae33e4bde95f",
+                "reference": "a973a68a990392b96f5ccbd4d713ae33e4bde95f",
                 "shasum": ""
             },
             "require": {
@@ -4058,7 +4059,7 @@
             "support": {
                 "docs": "https://github.com/doctrine-extensions/DoctrineExtensions/tree/main/doc",
                 "issues": "https://github.com/doctrine-extensions/DoctrineExtensions/issues",
-                "source": "https://github.com/doctrine-extensions/DoctrineExtensions/tree/v3.22.0"
+                "source": "https://github.com/doctrine-extensions/DoctrineExtensions/tree/v3.22.1"
             },
             "funding": [
                 {
@@ -4078,7 +4079,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-12-13T19:37:35+00:00"
+            "time": "2026-08-01T13:57:40+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",

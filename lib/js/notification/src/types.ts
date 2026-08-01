@@ -31,12 +31,14 @@ export type NotificationListResponse = {
 
 /**
  * Real-time payload pushed on the subscriber channel when a new in-app
- * notification is emitted. Matches the InApp channel backend event: only the
- * id + click-through uri are carried; the rendered content is fetched from the
- * API.
+ * notification is emitted. Matches the InApp channel backend event: the
+ * rendered subject/content and click-through uri are carried so the client can
+ * display it immediately, without an extra API round-trip.
  */
 export type RealtimeNotification = {
     id: string;
+    subject?: string | null;
+    content?: string | null;
     data?: NotificationData;
     createdAt?: string | null;
 };

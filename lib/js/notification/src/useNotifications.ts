@@ -37,6 +37,7 @@ export type UseNotificationsResult = {
     loaded: boolean;
     hasMore: boolean;
     loadMore: () => void;
+    refresh: () => void;
     markRead: (id: string) => void;
     markAllRead: () => void;
 };
@@ -44,8 +45,8 @@ export type UseNotificationsResult = {
 function realtimeToNotification(data: RealtimeNotification): Notification {
     return {
         id: data.id,
-        subject: null,
-        content: null,
+        subject: data.subject ?? null,
+        content: data.content ?? null,
         data: data.data ?? {},
         read: false,
         readAt: null,
@@ -187,6 +188,11 @@ export function useNotifications({
         loadPage(stateRef.current.page + 1).catch(() => {});
     }, [loadPage]);
 
+    // Reload the list from the first page (resets pagination).
+    const refresh = React.useCallback(() => {
+        loadPage(1);
+    }, [loadPage]);
+
     const markRead = React.useCallback(
         (id: string) => {
             const target = stateRef.current.items.find(i => i.id === id);
@@ -252,6 +258,7 @@ export function useNotifications({
         loaded: state.loaded,
         hasMore,
         loadMore,
+        refresh,
         markRead,
         markAllRead,
     };
