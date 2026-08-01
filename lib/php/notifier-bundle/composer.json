@@ -64,6 +64,7 @@
         "friendsofphp/php-cs-fixer": "^3.17",
         "php-parallel-lint/php-var-dump-check": "v0.5",
         "phpunit/phpunit": "^11.3.2",
+        "pusher/pusher-php-server": "^7.2.4",
         "rector/rector": "^2.3.0"
     }
 }

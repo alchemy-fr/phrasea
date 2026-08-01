@@ -7,23 +7,28 @@ namespace Alchemy\NotifierBundle\Channel;
 use Alchemy\CoreBundle\Pusher\PusherManager;
 use Alchemy\NotifierBundle\Entity\Notification;
 use Alchemy\NotifierBundle\Entity\Subscriber;
+use Alchemy\NotifierBundle\Notification\NotificationRenderer;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Persists an in-app notification (raw topic + payload, rendered lazily at read
- * time) and, when a Pusher integration is available, pushes a real-time event.
+ * Persists an in-app notification (raw topic + payload) and, when a Pusher
+ * integration is available, pushes a real-time event carrying the rendered
+ * content so the client can display it without an extra round-trip.
  */
 final readonly class InAppChannel implements ChannelInterface
 {
     /**
      * The Pusher manager is optional: without it, notifications are still
      * persisted (in-app list / unread badge) but no real-time push is emitted.
+     * The renderer is optional too: without it the push omits the rendered
+     * subject/content (the client then falls back to the REST API).
      */
     public function __construct(
         private EntityManagerInterface $em,
         private ?PusherManager $pusherManager = null,
         private string $channelPrefix = 'private-user-',
         private string $event = 'notification',
+        private ?NotificationRenderer $renderer = null,
     ) {
     }
 
@@ -48,14 +53,24 @@ final readonly class InAppChannel implements ChannelInterface
         $this->em->persist($notification);
         $this->em->flush();
 
-        // Only the id + click-through uri are pushed; the raw topic/payload are
-        // never exposed to the client. Rendered content comes from the API.
-        $this->pusherManager?->trigger(
+        if (null === $this->pusherManager) {
+            return;
+        }
+
+        // Render the notification now so the pushed payload mirrors what the
+        // REST API returns (subject + content + click-through uri). The raw
+        // topic/payload are never exposed to the client.
+        $rendered = $this->renderer?->render($topic, ChannelType::InApp, $context);
+        $uri = $rendered?->uri ?? ($context['url'] ?? null);
+
+        $this->pusherManager->trigger(
             $this->channelPrefix.$subscriber->getUserId(),
             $this->event,
             [
                 'id' => $notification->getId(),
-                'data' => ['uri' => $context['url'] ?? null],
+                'subject' => $rendered?->subject,
+                'content' => $rendered?->body,
+                'data' => ['uri' => $uri],
                 'createdAt' => $notification->getCreatedAt()?->format(\DateTimeInterface::ATOM),
             ],
         );
