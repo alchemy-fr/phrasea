@@ -20,6 +20,9 @@
     "alchemy/messenger-bundle": {
         "version": "dev-PS-585-new-perms"
     },
+    "alchemy/notifier-bundle": {
+        "version": "dev-notifier"
+    },
     "alchemy/notify-bundle": {
         "version": "dev-main"
     },
@@ -540,6 +543,18 @@
     "symfony/inflector": {
         "version": "v4.3.4"
     },
+    "symfony/mailer": {
+        "version": "7.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "4.3",
+            "ref": "09051cfde49476e3c12cd3a0e44289ace1c75a4f"
+        },
+        "files": [
+            "config/packages/mailer.yaml"
+        ]
+    },
     "symfony/messenger": {
         "version": "6.4",
         "recipe": {
@@ -581,15 +596,6 @@
         "files": [
             "config/packages/notifier.yaml"
         ]
-    },
-    "symfony/novu-notifier": {
-        "version": "6.4",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "6.4",
-            "ref": "fec78b082c512ab8ddd97d26dfb48f8a6080d099"
-        }
     },
     "symfony/options-resolver": {
         "version": "v4.3.5"

@@ -7,12 +7,11 @@ namespace Alchemy\NotifierBundle\Channel;
 use Alchemy\CoreBundle\Pusher\PusherManager;
 use Alchemy\NotifierBundle\Entity\Notification;
 use Alchemy\NotifierBundle\Entity\Subscriber;
-use Alchemy\NotifierBundle\Notification\RenderedContent;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Persists an in-app notification and, when a Pusher integration is available,
- * pushes a real-time event.
+ * Persists an in-app notification (raw topic + payload, rendered lazily at read
+ * time) and, when a Pusher integration is available, pushes a real-time event.
  */
 final readonly class InAppChannel implements ChannelInterface
 {
@@ -41,14 +40,10 @@ final readonly class InAppChannel implements ChannelInterface
     public function send(
         Subscriber $subscriber,
         string $topic,
-        RenderedContent $content,
         array $context = [],
         array $options = [],
     ): void {
-        $notification = new Notification($subscriber, $topic);
-        $notification->setSubject($content->subject);
-        $notification->setContent($content->body);
-        $notification->setData($context);
+        $notification = new Notification($subscriber, $topic, $context);
 
         $this->em->persist($notification);
         $this->em->flush();
@@ -59,9 +54,8 @@ final readonly class InAppChannel implements ChannelInterface
             [
                 'id' => $notification->getId(),
                 'topic' => $topic,
-                'subject' => $content->subject,
-                'content' => $content->body,
-                'data' => $context,
+                'payload' => $context,
+                'createdAt' => $notification->getCreatedAt()?->format(\DateTimeInterface::ATOM),
             ],
         );
     }

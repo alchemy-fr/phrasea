@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Alchemy\NotifierBundle\Controller;
 
+use Alchemy\NotifierBundle\Channel\ChannelType;
 use Alchemy\NotifierBundle\Entity\Notification;
+use Alchemy\NotifierBundle\Notification\NotificationRenderer;
 use Alchemy\NotifierBundle\Repository\NotificationRepository;
 use Alchemy\NotifierBundle\Security\CurrentSubscriberResolver;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,6 +22,7 @@ final class NotificationController
     public function __construct(
         private readonly CurrentSubscriberResolver $currentSubscriber,
         private readonly NotificationRepository $repository,
+        private readonly NotificationRenderer $renderer,
         private readonly EntityManagerInterface $em,
     ) {
     }
@@ -93,12 +96,19 @@ final class NotificationController
 
     private function normalize(Notification $notification): array
     {
+        // Rendered lazily, at read time, from the stored topic + payload.
+        $rendered = $this->renderer->render(
+            $notification->getTopic(),
+            ChannelType::InApp,
+            $notification->getPayload(),
+        );
+
         return [
             'id' => $notification->getId(),
             'topic' => $notification->getTopic(),
-            'subject' => $notification->getSubject(),
-            'content' => $notification->getContent(),
-            'data' => $notification->getData(),
+            'subject' => $rendered?->subject,
+            'content' => $rendered?->body,
+            'payload' => $notification->getPayload(),
             'read' => $notification->isRead(),
             'readAt' => $notification->getReadAt()?->format(\DateTimeInterface::ATOM),
             'createdAt' => $notification->getCreatedAt()?->format(\DateTimeInterface::ATOM),
