@@ -267,6 +267,7 @@ services:
       - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - soketi.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   report-api:
     volumes:
