@@ -28,6 +28,30 @@ final class NotificationRendererTest extends TestCase
         self::assertSame('<p>Jane</p>', $rendered->body);
     }
 
+    public function testRendersUriBlock(): void
+    {
+        $renderer = $this->renderer([
+            '@notifications/asset/comment/in_app.html.twig' => '{% block body %}New comment{% endblock %}{% block uri %}/assets/{{ assetId }}{% endblock %}',
+        ]);
+
+        $rendered = $renderer->render('asset.comment', ChannelType::InApp, ['assetId' => '42']);
+
+        self::assertNotNull($rendered);
+        self::assertSame('/assets/42', $rendered->uri);
+    }
+
+    public function testUriIsNullWhenNoUriBlock(): void
+    {
+        $renderer = $this->renderer([
+            '@notifications/asset/comment/in_app.html.twig' => '{% block body %}New comment{% endblock %}',
+        ]);
+
+        $rendered = $renderer->render('asset.comment', ChannelType::InApp);
+
+        self::assertNotNull($rendered);
+        self::assertNull($rendered->uri);
+    }
+
     public function testBodyOnlyTemplateHasNoSubject(): void
     {
         $renderer = $this->renderer([

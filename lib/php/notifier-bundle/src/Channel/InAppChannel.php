@@ -54,7 +54,7 @@ final readonly class InAppChannel implements ChannelInterface
             [
                 'id' => $notification->getId(),
                 'topic' => $topic,
-                'payload' => $context,
+                'data' => ['uri' => $context['url'] ?? null] + $context,
                 'createdAt' => $notification->getCreatedAt()?->format(\DateTimeInterface::ATOM),
             ],
         );

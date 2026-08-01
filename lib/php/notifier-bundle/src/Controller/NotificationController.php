@@ -96,18 +96,27 @@ final class NotificationController
 
     private function normalize(Notification $notification): array
     {
+        $payload = $notification->getPayload();
+
         // Rendered lazily, at read time, from the stored topic + payload.
         $rendered = $this->renderer->render(
             $notification->getTopic(),
             ChannelType::InApp,
-            $notification->getPayload(),
+            $payload,
         );
+
+        // Main click-through target: an explicit `uri` template block, or the
+        // `url` carried by the payload. Handled client-side by the uriHandler.
+        $uri = $rendered?->uri ?? ($payload['url'] ?? null);
 
         return [
             'id' => $notification->getId(),
+            'topic' => $notification->getTopic(),
             'subject' => $rendered?->subject,
             'content' => $rendered?->body,
+            'data' => ['uri' => $uri] + $payload,
             'read' => $notification->isRead(),
+            'readAt' => $notification->getReadAt()?->format(\DateTimeInterface::ATOM),
             'createdAt' => $notification->getCreatedAt()?->format(\DateTimeInterface::ATOM),
         ];
     }
