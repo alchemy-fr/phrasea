@@ -56,6 +56,6 @@ final class SendEmailNotificationHandlerTest extends TestCase
     {
         $renderer = new NotificationRenderer(new Environment(new ArrayLoader($templates)), '@notifications');
 
-        return new SendEmailNotificationHandler($renderer, new EmailChannel($mailer));
+        return new SendEmailNotificationHandler($renderer, new EmailChannel($mailer, $renderer));
     }
 }

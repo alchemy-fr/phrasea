@@ -8,7 +8,6 @@ use Alchemy\NotifierBundle\Channel\ChannelInterface;
 use Alchemy\NotifierBundle\Channel\ChannelRegistry;
 use Alchemy\NotifierBundle\Channel\ChannelType;
 use Alchemy\NotifierBundle\Entity\Subscriber;
-use Alchemy\NotifierBundle\Notification\RenderedContent;
 use PHPUnit\Framework\TestCase;
 
 final class ChannelRegistryTest extends TestCase
@@ -51,7 +50,7 @@ final class ChannelRegistryTest extends TestCase
                 return true;
             }
 
-            public function send(Subscriber $subscriber, string $topic, RenderedContent $content, array $context = [], array $options = []): void
+            public function send(Subscriber $subscriber, string $topic, array $context = [], array $options = []): void
             {
             }
         };

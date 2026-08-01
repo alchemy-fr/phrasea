@@ -6,13 +6,14 @@ namespace Alchemy\NotifierBundle\Controller\Admin;
 
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
+use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\NotifierBundle\Entity\Notification;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -45,10 +46,9 @@ class NotificationCrudController extends AbstractAdminCrudController
     {
         return [
             IdField::new(),
-            TextField::new('subscriber.userId', 'Recipient'),
+            AssociationField::new('subscriber', 'Recipient'),
             TextField::new('topic'),
-            TextField::new('subject'),
-            TextareaField::new('content')->onlyOnDetail(),
+            JsonField::new('payload')->hideOnIndex(),
             BooleanField::new('read')->renderAsSwitch(false),
             DateTimeField::new('readAt')->onlyOnDetail(),
             DateTimeField::new('createdAt'),
