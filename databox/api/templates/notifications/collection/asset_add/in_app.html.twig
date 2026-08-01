@@ -1,3 +1,3 @@
 {% block subject %}New asset in {{ collectionName }}{% endblock %}
 
-{% block body %}{{ author }} added {{ assetName }} to {{ collectionName }}.{% endblock %}
+{% block body %}{{ author }} added <a href="/assets/{{ assetId ?? '42' }}">{{ assetName }}</a> to {{ collectionName }}.{% endblock %}
