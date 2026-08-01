@@ -26,7 +26,7 @@ lib/php/core-bundle
 lib/php/es-bundle
 lib/php/messenger-bundle
 lib/php/metadata-manipulator-bundle
-lib/php/notify-bundle
+lib/php/notifier-bundle
 lib/php/rendition-factory
 lib/php/rendition-factory-bundle
 lib/php/report-bundle
