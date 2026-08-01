@@ -35,7 +35,9 @@ export default function NotificationList({state, uriHandler, locale}: Props) {
         loadMore,
         refresh,
         markRead,
+        markUnread,
         markAllRead,
+        remove,
     } = state;
 
     return (
@@ -98,6 +100,8 @@ export default function NotificationList({state, uriHandler, locale}: Props) {
                                 key={notification.id}
                                 notification={notification}
                                 onRead={markRead}
+                                onUnread={markUnread}
+                                onDelete={remove}
                                 uriHandler={uriHandler}
                                 locale={locale}
                             />

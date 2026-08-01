@@ -43,7 +43,7 @@ final readonly class SmsChannel implements ChannelInterface
             return;
         }
 
-        $content = $this->renderer->render($topic, ChannelType::Sms, $context);
+        $content = $this->renderer->render($topic, ChannelType::Sms, $context, $subscriber->getLocale());
         if (null === $content) {
             return;
         }

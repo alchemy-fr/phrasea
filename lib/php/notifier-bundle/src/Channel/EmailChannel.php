@@ -34,7 +34,7 @@ final readonly class EmailChannel implements ChannelInterface
         array $context = [],
         array $options = [],
     ): void {
-        $content = $this->renderer->render($topic, ChannelType::Email, $context);
+        $content = $this->renderer->render($topic, ChannelType::Email, $context, $subscriber->getLocale());
         if (null === $content) {
             return;
         }

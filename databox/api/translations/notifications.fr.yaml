@@ -1,0 +1,65 @@
+asset:
+    new_comment:
+        email:
+            subject: 'Nouveau commentaire sur %name%'
+            body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a commenté <a href="%url%">%name%</a>.</p>'
+        in_app:
+            subject: 'Nouveau commentaire'
+            body: '%author% a commenté %name%.'
+        sms:
+            body: '%author% a commenté %name%.'
+    delete:
+        email:
+            subject: 'Asset supprimé : %name%'
+            body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a supprimé <em>%name%</em>.</p>'
+        in_app:
+            subject: 'Asset supprimé'
+            body: '%author% a supprimé %name%.'
+        sms:
+            body: '%author% a supprimé %name%.'
+    update:
+        email:
+            subject: 'Asset mis à jour : %name%'
+            body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a mis à jour <a href="%url%">%name%</a>.</p>'
+            body_with_collection: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a mis à jour <a href="%url%">%name%</a> dans <em>%collection%</em>.</p>'
+        in_app:
+            subject: 'Asset mis à jour'
+            body: '%author% a mis à jour %name%.'
+        sms:
+            body: '%author% a mis à jour %name%.'
+collection:
+    asset_add:
+        email:
+            subject: 'Nouvel asset dans %collectionName%'
+            body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a ajouté <a href="%url%">%assetName%</a> à <em>%collectionName%</em>.</p>'
+        in_app:
+            subject: 'Nouvel asset dans %collectionName%'
+            body: '%author% a ajouté <strong>%assetName%</strong> à %collectionName%.'
+        sms:
+            body: '%author% a ajouté %assetName% à %collectionName%.'
+    asset_remove:
+        email:
+            subject: 'Asset retiré de %collectionName%'
+            body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a retiré <em>%assetName%</em> de <em>%collectionName%</em>.</p>'
+        in_app:
+            subject: 'Asset retiré'
+            body: '%author% a retiré %assetName% de %collectionName%.'
+        sms:
+            body: '%author% a retiré %assetName% de %collectionName%.'
+discussion:
+    new_comment:
+        email:
+            subject: 'Nouveau commentaire sur %object%'
+            body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a commenté <a href="%url%">%object%</a>.</p>'
+        in_app:
+            subject: 'Nouveau commentaire'
+            body: '%author% a commenté %object%.'
+        sms:
+            body: '%author% a commenté %object%.'
+user:
+    exception:
+        email:
+            subject: 'Une erreur est survenue'
+            greeting: 'Bonjour %recipient%,'
+        in_app:
+            subject: 'Une erreur est survenue'

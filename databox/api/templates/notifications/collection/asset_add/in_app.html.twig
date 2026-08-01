@@ -1,5 +1,9 @@
-{% block subject %}New asset in {{ collectionName }}{% endblock %}
+{% block subject %}{{ 'collection.asset_add.in_app.subject'|trans({'%collectionName%': collectionName}, 'notifications')|raw }}{% endblock %}
 
-{% block body %}{{ author }} added <strong>{{ assetName }}</strong> to {{ collectionName }}.{% endblock %}
+{% block body %}{{ 'collection.asset_add.in_app.body'|trans({
+    '%author%': author|e,
+    '%assetName%': assetName|e,
+    '%collectionName%': collectionName|e,
+}, 'notifications')|raw }}{% endblock %}
 
 {% block uri %}/assets/{{ assetId ?? '' }}{% endblock %}
