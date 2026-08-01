@@ -91,6 +91,8 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
             $def = $container->getDefinition(PusherManager::class);
             $def->setArgument('$disabled', $config['pusher']['disabled']);
 
+            $container->setParameter('alchemy_core.pusher.channel_prefix', $config['pusher']['channel_prefix']);
+
             $this->loadPusher($container, $config['pusher']);
         }
 
