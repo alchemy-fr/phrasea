@@ -130,6 +130,8 @@ services:
       - VERIFY_SSL
       - VERIFY_HOST
       - MAILER_DSN
+      - MAIL_FROM
+      - MAIL_FROM_DISPLAY_NAME
       - POSTGRES_HOST
       - POSTGRES_USER
       - POSTGRES_PASSWORD
