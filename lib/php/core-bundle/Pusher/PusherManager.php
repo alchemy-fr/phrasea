@@ -28,7 +28,17 @@ final readonly class PusherManager
         $this->bus->dispatch($this->createBusMessage($channel, $event, $payload));
     }
 
-    private function normalizeChannel(string $channel): string
+    /**
+     * Returns the Pusher/Soketi authorization signature for a private (or
+     * presence) channel subscription. The caller is responsible for verifying
+     * that the current user is actually allowed to subscribe to $channel.
+     */
+    public function authorizeChannel(string $channel, string $socketId): string
+    {
+        return $this->pusher->authorizeChannel($channel, $socketId);
+    }
+
+    public function normalizeChannel(string $channel): string
     {
         return preg_replace('/[^a-z0-9_\-=@,.;]/i', '.', $channel);
     }
