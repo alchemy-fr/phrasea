@@ -7,15 +7,14 @@ namespace Alchemy\NotifierBundle\Delivery;
 use Alchemy\NotifierBundle\Channel\ChannelRegistry;
 use Alchemy\NotifierBundle\Manager\PreferenceManager;
 use Alchemy\NotifierBundle\Manager\SubscriberManager;
-use Alchemy\NotifierBundle\Notification\NotificationRenderer;
 use Alchemy\NotifierBundle\Topic\TopicRegistry;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 /**
  * Delivers a single topic notification to one subscriber across every enabled
- * channel of the topic. Channel failures are logged and do not abort delivery
- * on the other channels.
+ * channel of the topic. Each channel renders (or stores) the raw context on its
+ * own. Channel failures are logged and do not abort delivery on the others.
  */
 class NotificationDeliverer
 {
@@ -25,7 +24,6 @@ class NotificationDeliverer
         private readonly SubscriberManager $subscriberManager,
         private readonly PreferenceManager $preferenceManager,
         private readonly ChannelRegistry $channelRegistry,
-        private readonly NotificationRenderer $renderer,
         private readonly TopicRegistry $topicRegistry,
         ?LoggerInterface $logger = null,
     ) {
@@ -65,14 +63,8 @@ class NotificationDeliverer
                 continue;
             }
 
-            $rendered = $this->renderer->render($topic, $channelType, $context);
-            if (null === $rendered) {
-                $this->logger->debug(sprintf('No template for topic "%s" on channel "%s", skipping.', $topic, $channelType->value));
-                continue;
-            }
-
             try {
-                $channel->send($subscriber, $topic, $rendered, $context, $options);
+                $channel->send($subscriber, $topic, $context, $options);
             } catch (\Throwable $e) {
                 $this->logger->error(sprintf('Failed to send topic "%s" on channel "%s" to user "%s": %s', $topic, $channelType->value, $userId, $e->getMessage()), [
                     'exception' => $e,

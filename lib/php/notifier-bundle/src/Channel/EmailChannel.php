@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\NotifierBundle\Channel;
 
 use Alchemy\NotifierBundle\Entity\Subscriber;
+use Alchemy\NotifierBundle\Notification\NotificationRenderer;
 use Alchemy\NotifierBundle\Notification\RenderedContent;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -13,6 +14,7 @@ final readonly class EmailChannel implements ChannelInterface
 {
     public function __construct(
         private MailerInterface $mailer,
+        private NotificationRenderer $renderer,
     ) {
     }
 
@@ -29,10 +31,14 @@ final readonly class EmailChannel implements ChannelInterface
     public function send(
         Subscriber $subscriber,
         string $topic,
-        RenderedContent $content,
         array $context = [],
         array $options = [],
     ): void {
+        $content = $this->renderer->render($topic, ChannelType::Email, $context);
+        if (null === $content) {
+            return;
+        }
+
         $this->sendTo($subscriber->getEmail(), $topic, $content, $options);
     }
 

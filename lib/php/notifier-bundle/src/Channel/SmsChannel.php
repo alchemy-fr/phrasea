@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\NotifierBundle\Channel;
 
 use Alchemy\NotifierBundle\Entity\Subscriber;
-use Alchemy\NotifierBundle\Notification\RenderedContent;
+use Alchemy\NotifierBundle\Notification\NotificationRenderer;
 use Symfony\Component\Notifier\Message\SmsMessage;
 use Symfony\Component\Notifier\TexterInterface;
 
@@ -16,6 +16,7 @@ final readonly class SmsChannel implements ChannelInterface
      * transport, the SMS channel stays inactive instead of breaking the container.
      */
     public function __construct(
+        private NotificationRenderer $renderer,
         private ?TexterInterface $texter = null,
     ) {
     }
@@ -35,10 +36,18 @@ final readonly class SmsChannel implements ChannelInterface
     public function send(
         Subscriber $subscriber,
         string $topic,
-        RenderedContent $content,
         array $context = [],
         array $options = [],
     ): void {
-        $this->texter?->send(new SmsMessage($subscriber->getPhoneNumber(), $content->body));
+        if (null === $this->texter) {
+            return;
+        }
+
+        $content = $this->renderer->render($topic, ChannelType::Sms, $context);
+        if (null === $content) {
+            return;
+        }
+
+        $this->texter->send(new SmsMessage($subscriber->getPhoneNumber(), $content->body));
     }
 }

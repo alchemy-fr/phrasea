@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Alchemy\NotifierBundle\Channel;
 
 use Alchemy\NotifierBundle\Entity\Subscriber;
-use Alchemy\NotifierBundle\Notification\RenderedContent;
 
 interface ChannelInterface
 {
@@ -18,13 +17,16 @@ interface ChannelInterface
     public function supports(Subscriber $subscriber): bool;
 
     /**
+     * Delivers the notification. Each channel renders (or stores) the raw
+     * context on its own — the in-app channel, for instance, persists the
+     * topic + payload and defers rendering to read time.
+     *
      * @param array<string, mixed> $context The template parameters
      * @param array<string, mixed> $options Per-send options
      */
     public function send(
         Subscriber $subscriber,
         string $topic,
-        RenderedContent $content,
         array $context = [],
         array $options = [],
     ): void;

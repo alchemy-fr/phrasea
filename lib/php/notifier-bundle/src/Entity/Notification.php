@@ -12,6 +12,9 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Persisted in-app notification (history + unread badge for the InApp channel).
+ *
+ * Only the raw `topic` + `payload` are stored; the human-readable content is
+ * rendered (Twig) lazily, at read time.
  */
 #[ORM\Entity(repositoryClass: NotificationRepository::class)]
 #[ORM\Table(name: 'notifier_notification')]
@@ -27,23 +30,26 @@ class Notification extends AbstractUuidEntity
     #[ORM\Column(type: Types::STRING, length: 255)]
     private string $topic;
 
-    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    private ?string $subject = null;
-
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $content = null;
-
+    /**
+     * Template parameters used to render the notification at read time.
+     *
+     * @var array<string, mixed>
+     */
     #[ORM\Column(type: Types::JSON)]
-    private array $data = [];
+    private array $payload = [];
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     private ?\DateTimeImmutable $readAt = null;
 
-    public function __construct(Subscriber $subscriber, string $topic)
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function __construct(Subscriber $subscriber, string $topic, array $payload = [])
     {
         parent::__construct();
         $this->subscriber = $subscriber;
         $this->topic = $topic;
+        $this->payload = $payload;
     }
 
     public function getSubscriber(): Subscriber
@@ -56,34 +62,20 @@ class Notification extends AbstractUuidEntity
         return $this->topic;
     }
 
-    public function getSubject(): ?string
+    /**
+     * @return array<string, mixed>
+     */
+    public function getPayload(): array
     {
-        return $this->subject;
+        return $this->payload;
     }
 
-    public function setSubject(?string $subject): void
+    /**
+     * @param array<string, mixed> $payload
+     */
+    public function setPayload(array $payload): void
     {
-        $this->subject = $subject;
-    }
-
-    public function getContent(): ?string
-    {
-        return $this->content;
-    }
-
-    public function setContent(?string $content): void
-    {
-        $this->content = $content;
-    }
-
-    public function getData(): array
-    {
-        return $this->data;
-    }
-
-    public function setData(array $data): void
-    {
-        $this->data = $data;
+        $this->payload = $payload;
     }
 
     public function getReadAt(): ?\DateTimeImmutable
