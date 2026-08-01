@@ -1,6 +1,8 @@
-{% block subject %}Asset removed from {{ collectionName }}{% endblock %}
+{% block subject %}{{ 'collection.asset_remove.email.subject'|trans({'%collectionName%': collectionName}, 'notifications')|raw }}{% endblock %}
 
-{% block body %}
-    <p>Hi {{ recipient.displayName|default(recipient.email) }},</p>
-    <p><strong>{{ author }}</strong> removed <em>{{ assetName }}</em> from <em>{{ collectionName }}</em>.</p>
-{% endblock %}
+{% block body %}{{ 'collection.asset_remove.email.body'|trans({
+    '%recipient%': (recipient.displayName|default(recipient.email))|e,
+    '%author%': author|e,
+    '%assetName%': assetName|e,
+    '%collectionName%': collectionName|e,
+}, 'notifications')|raw }}{% endblock %}

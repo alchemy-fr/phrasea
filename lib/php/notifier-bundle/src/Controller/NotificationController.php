@@ -13,6 +13,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,6 +26,7 @@ final class NotificationController
         private readonly NotificationRepository $repository,
         private readonly NotificationRenderer $renderer,
         private readonly EntityManagerInterface $em,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -85,6 +88,44 @@ final class NotificationController
         return new JsonResponse($this->normalize($notification));
     }
 
+    #[Route('/notifications/{id}/unread', name: 'alchemy_notifier_unread', methods: ['POST'])]
+    public function markUnread(string $id): JsonResponse
+    {
+        $subscriber = $this->currentSubscriber->getSubscriber();
+
+        $notification = $this->repository->find($id);
+        if (null === $notification) {
+            throw new NotFoundHttpException();
+        }
+        if ($notification->getSubscriber()->getId() !== $subscriber->getId()) {
+            throw new AccessDeniedHttpException();
+        }
+
+        $notification->markAsUnread();
+        $this->em->flush();
+
+        return new JsonResponse($this->normalize($notification));
+    }
+
+    #[Route('/notifications/{id}', name: 'alchemy_notifier_delete', methods: ['DELETE'])]
+    public function delete(string $id): Response
+    {
+        $subscriber = $this->currentSubscriber->getSubscriber();
+
+        $notification = $this->repository->find($id);
+        if (null === $notification) {
+            throw new NotFoundHttpException();
+        }
+        if ($notification->getSubscriber()->getId() !== $subscriber->getId()) {
+            throw new AccessDeniedHttpException();
+        }
+
+        $this->em->remove($notification);
+        $this->em->flush();
+
+        return new Response(null, Response::HTTP_NO_CONTENT);
+    }
+
     #[Route('/notifications/read-all', name: 'alchemy_notifier_read_all', methods: ['POST'])]
     public function markAllRead(): JsonResponse
     {
@@ -99,10 +140,14 @@ final class NotificationController
         $payload = $notification->getPayload();
 
         // Rendered lazily, at read time, from the stored topic + payload.
+        // The in-app list renders in the *current client* locale (sent as the
+        // `Accept-Language` header) so the history follows the language the user
+        // is currently browsing in, not the one frozen on the subscriber.
         $rendered = $this->renderer->render(
             $notification->getTopic(),
             ChannelType::InApp,
             $payload,
+            $this->requestStack->getCurrentRequest()?->getPreferredLanguage(),
         );
 
         // Main click-through target: an explicit `uri` template block, or the

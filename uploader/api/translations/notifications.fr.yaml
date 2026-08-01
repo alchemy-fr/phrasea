@@ -1,0 +1,11 @@
+commit:
+    acknowledged:
+        email:
+            subject: 'Votre import a été traité'
+            greeting: 'Bonjour %recipient%,'
+            body: 'Votre import de %count% fichier a été pris en compte et traité.|Votre import de %count% fichiers a été pris en compte et traité.'
+        in_app:
+            subject: 'Import traité'
+            body: 'Votre import de %count% fichier a été traité.|Votre import de %count% fichiers a été traité.'
+        sms:
+            body: 'Votre import de %count% fichier a été traité.|Votre import de %count% fichiers a été traité.'

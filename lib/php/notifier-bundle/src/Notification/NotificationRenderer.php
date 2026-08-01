@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\NotifierBundle\Notification;
 
 use Alchemy\NotifierBundle\Channel\ChannelType;
+use Symfony\Component\Translation\LocaleSwitcher;
 use Twig\Environment;
 
 /**
@@ -17,6 +18,11 @@ use Twig\Environment;
  * A template may define a `subject` block, a `body` block and a `uri` block
  * (the main click-through target); when no `body` block is present the whole
  * template output is used as the body.
+ *
+ * Templates translate their literal strings through the Twig `trans` filter
+ * (domain `notifications`). When a `$locale` is passed to {@see render()} the
+ * whole rendering runs under that locale so the catalog is resolved in the
+ * recipient's language.
  */
 final readonly class NotificationRenderer
 {
@@ -26,9 +32,14 @@ final readonly class NotificationRenderer
         ChannelType::InApp->value => 'in_app.html.twig',
     ];
 
+    /**
+     * The LocaleSwitcher is optional: without symfony/translation installed the
+     * renderer still works, it just cannot switch the active locale.
+     */
     public function __construct(
         private Environment $twig,
         private string $templateNamespace = '@notifications',
+        private ?LocaleSwitcher $localeSwitcher = null,
     ) {
     }
 
@@ -37,13 +48,27 @@ final readonly class NotificationRenderer
         return $this->twig->getLoader()->exists($this->templateName($topic, $channel));
     }
 
-    public function render(string $topic, ChannelType $channel, array $context = []): ?RenderedContent
+    public function render(string $topic, ChannelType $channel, array $context = [], ?string $locale = null): ?RenderedContent
     {
         $name = $this->templateName($topic, $channel);
         if (!$this->twig->getLoader()->exists($name)) {
             return null;
         }
 
+        $render = fn (): RenderedContent => $this->doRender($name, $context);
+
+        if (null !== $locale && '' !== $locale && null !== $this->localeSwitcher) {
+            return $this->localeSwitcher->runWithLocale($locale, $render);
+        }
+
+        return $render();
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    private function doRender(string $name, array $context): RenderedContent
+    {
         $template = $this->twig->load($name);
 
         $subject = $template->hasBlock('subject', $context)

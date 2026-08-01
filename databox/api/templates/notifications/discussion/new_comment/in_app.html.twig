@@ -1,3 +1,3 @@
-{% block subject %}New comment{% endblock %}
+{% block subject %}{{ 'discussion.new_comment.in_app.subject'|trans({}, 'notifications')|raw }}{% endblock %}
 
-{% block body %}{{ author }} commented on {{ object }}.{% endblock %}
+{% block body %}{{ 'discussion.new_comment.in_app.body'|trans({'%author%': author|e, '%object%': object|e}, 'notifications')|raw }}{% endblock %}

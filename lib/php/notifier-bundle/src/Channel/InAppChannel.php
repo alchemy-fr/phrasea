@@ -60,7 +60,7 @@ final readonly class InAppChannel implements ChannelInterface
         // Render the notification now so the pushed payload mirrors what the
         // REST API returns (subject + content + click-through uri). The raw
         // topic/payload are never exposed to the client.
-        $rendered = $this->renderer?->render($topic, ChannelType::InApp, $context);
+        $rendered = $this->renderer?->render($topic, ChannelType::InApp, $context, $subscriber->getLocale());
         $uri = $rendered?->uri ?? ($context['url'] ?? null);
 
         $this->pusherManager->trigger(

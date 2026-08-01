@@ -1,3 +1,3 @@
-{% block subject %}Upload processed{% endblock %}
+{% block subject %}{{ 'commit.acknowledged.in_app.subject'|trans({}, 'notifications')|raw }}{% endblock %}
 
-{% block body %}Your upload of {{ assetCount }} file(s) has been processed.{% endblock %}
+{% block body %}{{ 'commit.acknowledged.in_app.body'|trans({'%count%': assetCount}, 'notifications')|raw }}{% endblock %}

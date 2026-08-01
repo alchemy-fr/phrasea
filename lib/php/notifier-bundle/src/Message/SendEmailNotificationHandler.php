@@ -27,7 +27,7 @@ final readonly class SendEmailNotificationHandler
             ],
         ];
 
-        $rendered = $this->renderer->render($message->topic, ChannelType::Email, $context);
+        $rendered = $this->renderer->render($message->topic, ChannelType::Email, $context, $message->locale);
         if (null === $rendered) {
             return;
         }

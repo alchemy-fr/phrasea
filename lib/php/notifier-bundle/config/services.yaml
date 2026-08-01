@@ -40,6 +40,9 @@ services:
     Alchemy\NotifierBundle\Notification\NotificationRenderer:
         arguments:
             $templateNamespace: '%alchemy_notifier.template_namespace%'
+            # Optional: without symfony/translation the renderer cannot switch
+            # locale but templates still render in the default language.
+            $localeSwitcher: '@?Symfony\Component\Translation\LocaleSwitcher'
 
     Alchemy\NotifierBundle\Channel\InAppChannel:
         arguments:
