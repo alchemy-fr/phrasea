@@ -105,12 +105,9 @@ final class NotificationController
 
         return [
             'id' => $notification->getId(),
-            'topic' => $notification->getTopic(),
             'subject' => $rendered?->subject,
             'content' => $rendered?->body,
-            'payload' => $notification->getPayload(),
             'read' => $notification->isRead(),
-            'readAt' => $notification->getReadAt()?->format(\DateTimeInterface::ATOM),
             'createdAt' => $notification->getCreatedAt()?->format(\DateTimeInterface::ATOM),
         ];
     }
