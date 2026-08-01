@@ -44,13 +44,12 @@ export type UseNotificationsResult = {
 function realtimeToNotification(data: RealtimeNotification): Notification {
     return {
         id: data.id,
-        topic: data.topic,
-        subject: data.subject ?? null,
-        content: data.content ?? null,
+        subject: null,
+        content: null,
         data: data.data ?? {},
         read: false,
         readAt: null,
-        createdAt: new Date().toISOString(),
+        createdAt: data.createdAt ?? new Date().toISOString(),
     };
 }
 

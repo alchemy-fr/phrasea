@@ -48,13 +48,14 @@ final readonly class InAppChannel implements ChannelInterface
         $this->em->persist($notification);
         $this->em->flush();
 
+        // Only the id + click-through uri are pushed; the raw topic/payload are
+        // never exposed to the client. Rendered content comes from the API.
         $this->pusherManager?->trigger(
             $this->channelPrefix.$subscriber->getUserId(),
             $this->event,
             [
                 'id' => $notification->getId(),
-                'topic' => $topic,
-                'data' => ['uri' => $context['url'] ?? null] + $context,
+                'data' => ['uri' => $context['url'] ?? null],
                 'createdAt' => $notification->getCreatedAt()?->format(\DateTimeInterface::ATOM),
             ],
         );

@@ -5,7 +5,6 @@ export type NotificationUriHandler = (uri: string) => void;
  */
 export type Notification = {
     id: string;
-    topic: string;
     subject?: string | null;
     content?: string | null;
     data: NotificationData;
@@ -32,14 +31,14 @@ export type NotificationListResponse = {
 
 /**
  * Real-time payload pushed on the subscriber channel when a new in-app
- * notification is emitted. Matches the InApp channel backend event.
+ * notification is emitted. Matches the InApp channel backend event: only the
+ * id + click-through uri are carried; the rendered content is fetched from the
+ * API.
  */
 export type RealtimeNotification = {
     id: string;
-    topic: string;
-    subject?: string | null;
-    content?: string | null;
     data?: NotificationData;
+    createdAt?: string | null;
 };
 
 /**

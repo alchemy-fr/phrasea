@@ -107,14 +107,14 @@ final class NotificationController
 
         // Main click-through target: an explicit `uri` template block, or the
         // `url` carried by the payload. Handled client-side by the uriHandler.
+        // The raw topic/payload are never exposed to the client.
         $uri = $rendered?->uri ?? ($payload['url'] ?? null);
 
         return [
             'id' => $notification->getId(),
-            'topic' => $notification->getTopic(),
             'subject' => $rendered?->subject,
             'content' => $rendered?->body,
-            'data' => ['uri' => $uri] + $payload,
+            'data' => ['uri' => $uri],
             'read' => $notification->isRead(),
             'readAt' => $notification->getReadAt()?->format(\DateTimeInterface::ATOM),
             'createdAt' => $notification->getCreatedAt()?->format(\DateTimeInterface::ATOM),
