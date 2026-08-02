@@ -1,0 +1,220 @@
+import React from 'react';
+import {
+    Alert,
+    Box,
+    CircularProgress,
+    Divider,
+    FormControlLabel,
+    IconButton,
+    Stack,
+    Switch,
+    Tooltip,
+    Typography,
+} from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import {useTranslation} from 'react-i18next';
+import type {HttpClient} from '@alchemy/api';
+import type {NotificationChannel} from '../types';
+import {useNotificationPreferences} from '../useNotificationPreferences';
+
+type LabelResolver = (key: string) => string;
+
+type Props = {
+    apiClient: HttpClient;
+    /**
+     * Whether the panel is visible. Preferences load lazily the first time
+     * this is `true`. Defaults to `true` for standalone (e.g. settings-page)
+     * usage; pass the popover-open state when embedded.
+     */
+    active?: boolean;
+    /**
+     * Optional overrides for topic/channel display names. When omitted, labels
+     * are resolved via i18n (`notification.topic.<key>` /
+     * `notification.channel.<channel>`) with a humanized fallback.
+     */
+    topicLabel?: LabelResolver;
+    channelLabel?: (channel: NotificationChannel) => string;
+    /**
+     * When provided, a back arrow is shown in the header (used when the panel
+     * is embedded next to the notification list, e.g. inside a popover).
+     */
+    onBack?: () => void;
+};
+
+function humanize(key: string): string {
+    return key
+        .replace(/[:._-]+/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .replace(/^\w/, c => c.toUpperCase());
+}
+
+export default function NotificationPreferences({
+    apiClient,
+    active = true,
+    topicLabel,
+    channelLabel,
+    onBack,
+}: Props) {
+    const {t} = useTranslation();
+    const {topics, loading, loaded, saving, error, setPreference, reload} =
+        useNotificationPreferences({apiClient, active});
+
+    const resolveTopic = React.useCallback(
+        (topic: string): string =>
+            topicLabel?.(topic) ??
+            t(`notification.topic.${topic}`, humanize(topic)),
+        [t, topicLabel]
+    );
+
+    const resolveChannel = React.useCallback(
+        (channel: NotificationChannel): string =>
+            channelLabel?.(channel) ??
+            t(`notification.channel.${channel}`, humanize(channel)),
+        [t, channelLabel]
+    );
+
+    return (
+        <Box sx={{display: 'flex', flexDirection: 'column', maxHeight: '70vh'}}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    px: 2,
+                    py: 1.5,
+                }}
+            >
+                <Stack direction="row" alignItems="center" spacing={0.5}>
+                    {onBack ? (
+                        <Tooltip
+                            title={t('notification.preferences.back', 'Back')}
+                        >
+                            <IconButton
+                                size="small"
+                                onClick={onBack}
+                                edge="start"
+                                aria-label={t(
+                                    'notification.preferences.back',
+                                    'Back'
+                                )}
+                            >
+                                <ArrowBackIcon fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                    ) : null}
+                    <Typography variant="h6" component="div">
+                        {t(
+                            'notification.preferences.title',
+                            'Notification settings'
+                        )}
+                    </Typography>
+                </Stack>
+                <Stack direction="row" alignItems="center" spacing={0.5}>
+                    {saving ? <CircularProgress size={16} /> : null}
+                    <Tooltip
+                        title={t('notification.preferences.refresh', 'Refresh')}
+                    >
+                        <span>
+                            <IconButton
+                                size="small"
+                                onClick={reload}
+                                disabled={loading}
+                                aria-label={t(
+                                    'notification.preferences.refresh',
+                                    'Refresh'
+                                )}
+                            >
+                                <RefreshIcon fontSize="small" />
+                            </IconButton>
+                        </span>
+                    </Tooltip>
+                </Stack>
+            </Box>
+            <Divider />
+
+            <Box sx={{overflowY: 'auto', flexGrow: 1, px: 2, py: 1}}>
+                {error ? (
+                    <Alert severity="error" sx={{my: 1}}>
+                        {t(
+                            'notification.preferences.error',
+                            'Could not update your notification settings.'
+                        )}
+                    </Alert>
+                ) : null}
+
+                {topics.map(({topic, channels}) => (
+                    <Box key={topic} sx={{py: 1.5}}>
+                        <Typography
+                            variant="subtitle2"
+                            sx={{mb: 0.5, fontWeight: 600}}
+                        >
+                            {resolveTopic(topic)}
+                        </Typography>
+                        <Stack>
+                            {channels.map(({channel, enabled}) => (
+                                <FormControlLabel
+                                    key={channel}
+                                    control={
+                                        <Switch
+                                            size="small"
+                                            checked={enabled}
+                                            onChange={(_e, checked) =>
+                                                setPreference(
+                                                    topic,
+                                                    channel,
+                                                    checked
+                                                )
+                                            }
+                                        />
+                                    }
+                                    label={
+                                        <Typography variant="body2">
+                                            {resolveChannel(channel)}
+                                        </Typography>
+                                    }
+                                />
+                            ))}
+                        </Stack>
+                        <Divider sx={{mt: 1}} />
+                    </Box>
+                ))}
+
+                {loaded && topics.length === 0 && !loading ? (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: 1,
+                            color: 'text.secondary',
+                            py: 5,
+                        }}
+                    >
+                        <NotificationsOffIcon fontSize="large" />
+                        <Typography variant="body2">
+                            {t(
+                                'notification.preferences.empty',
+                                'No configurable notifications'
+                            )}
+                        </Typography>
+                    </Box>
+                ) : null}
+
+                {loading && !loaded ? (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            py: 3,
+                        }}
+                    >
+                        <CircularProgress size={24} />
+                    </Box>
+                ) : null}
+            </Box>
+        </Box>
+    );
+}
