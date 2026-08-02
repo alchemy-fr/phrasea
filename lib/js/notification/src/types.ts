@@ -30,6 +30,27 @@ export type NotificationListResponse = {
 };
 
 /**
+ * Delivery channel a notification can be routed through. Mirrors the backend
+ * `ChannelType` enum.
+ */
+export type NotificationChannel = 'email' | 'sms' | 'in_app';
+
+/**
+ * A single (topic, channel) opt-in/opt-out as returned by the preferences API.
+ * `enabled` reflects the *effective* value: `true` unless the subscriber has
+ * explicitly opted out.
+ */
+export type NotificationPreference = {
+    topic: string;
+    channel: NotificationChannel;
+    enabled: boolean;
+};
+
+export type NotificationPreferencesResponse = {
+    items: NotificationPreference[];
+};
+
+/**
  * Real-time payload pushed on the subscriber channel when a new in-app
  * notification is emitted. Matches the InApp channel backend event: the
  * rendered subject/content and click-through uri are carried so the client can
