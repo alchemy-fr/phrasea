@@ -2,9 +2,14 @@ import React from 'react';
 import {Badge, Popover, PopoverProps} from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import type {HttpClient} from '@alchemy/api';
-import {NotificationUriHandler, RegisterNotificationRealtime} from '../types';
+import {
+    NotificationChannel,
+    NotificationUriHandler,
+    RegisterNotificationRealtime,
+} from '../types';
 import {useNotifications} from '../useNotifications';
 import NotificationList from './NotificationList';
+import NotificationPreferences from './NotificationPreferences';
 
 type Props = {
     /**
@@ -22,6 +27,15 @@ type Props = {
     realtimeChannelPrefix?: string;
     realtimeEvent?: string;
     locale?: string;
+    /**
+     * When `true` (default), a settings icon in the list header lets the user
+     * open the notification preferences panel inside the popover. Set to
+     * `false` to hide it (e.g. when preferences live on a dedicated page).
+     */
+    preferences?: boolean;
+    /** Optional display-name overrides for the preferences panel. */
+    topicLabel?: (topic: string) => string;
+    channelLabel?: (channel: NotificationChannel) => string;
     children: (props: {
         open: boolean;
         unreadCount: number;
@@ -40,12 +54,16 @@ export default function Notifications({
     realtimeChannelPrefix,
     realtimeEvent,
     locale,
+    preferences = true,
+    topicLabel,
+    channelLabel,
     children,
     popoverId = 'notifications-popover',
     popoverProps,
 }: Props) {
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
     const open = Boolean(anchorEl);
+    const [showPreferences, setShowPreferences] = React.useState(false);
 
     const notifications = useNotifications({
         apiClient,
@@ -62,6 +80,8 @@ export default function Notifications({
 
     const handleClose = () => {
         setAnchorEl(null);
+        // Reset to the list view for the next time the popover opens.
+        setShowPreferences(false);
     };
 
     const bellIcon = (
@@ -105,11 +125,26 @@ export default function Notifications({
                 }}
                 {...popoverProps}
             >
-                <NotificationList
-                    state={notifications}
-                    uriHandler={uriHandler}
-                    locale={locale}
-                />
+                {preferences && showPreferences ? (
+                    <NotificationPreferences
+                        apiClient={apiClient}
+                        active={open}
+                        topicLabel={topicLabel}
+                        channelLabel={channelLabel}
+                        onBack={() => setShowPreferences(false)}
+                    />
+                ) : (
+                    <NotificationList
+                        state={notifications}
+                        uriHandler={uriHandler}
+                        locale={locale}
+                        onOpenPreferences={
+                            preferences
+                                ? () => setShowPreferences(true)
+                                : undefined
+                        }
+                    />
+                )}
             </Popover>
         </>
     );

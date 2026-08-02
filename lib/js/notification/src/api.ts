@@ -1,5 +1,10 @@
 import type {HttpClient} from '@alchemy/api';
-import type {Notification, NotificationListResponse} from './types';
+import type {
+    Notification,
+    NotificationListResponse,
+    NotificationPreference,
+    NotificationPreferencesResponse,
+} from './types';
 
 export type ListParams = {
     page?: number;
@@ -70,6 +75,32 @@ export function createNotificationApi(client: HttpClient) {
             );
 
             return res.data.markedAsRead;
+        },
+
+        async listPreferences(
+            signal?: AbortSignal
+        ): Promise<NotificationPreference[]> {
+            const res = await client.get<NotificationPreferencesResponse>(
+                '/notification-preferences',
+                {signal}
+            );
+
+            return res.data.items;
+        },
+
+        /**
+         * Persists one or more preference changes and returns the full,
+         * refreshed set of effective preferences.
+         */
+        async updatePreferences(
+            items: NotificationPreference[]
+        ): Promise<NotificationPreference[]> {
+            const res = await client.put<NotificationPreferencesResponse>(
+                '/notification-preferences',
+                {items}
+            );
+
+            return res.data.items;
         },
     };
 }

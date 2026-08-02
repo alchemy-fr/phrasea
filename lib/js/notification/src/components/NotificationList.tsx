@@ -13,6 +13,7 @@ import {
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import SettingsIcon from '@mui/icons-material/Settings';
 import {useTranslation} from 'react-i18next';
 import type {NotificationUriHandler} from '../types';
 import type {UseNotificationsResult} from '../useNotifications';
@@ -22,9 +23,19 @@ type Props = {
     state: UseNotificationsResult;
     uriHandler?: NotificationUriHandler;
     locale?: string;
+    /**
+     * When provided, a settings icon is shown that opens the notification
+     * preferences panel.
+     */
+    onOpenPreferences?: () => void;
 };
 
-export default function NotificationList({state, uriHandler, locale}: Props) {
+export default function NotificationList({
+    state,
+    uriHandler,
+    locale,
+    onOpenPreferences,
+}: Props) {
     const {t} = useTranslation();
     const {
         items,
@@ -88,6 +99,25 @@ export default function NotificationList({state, uriHandler, locale}: Props) {
                             'Mark all as read'
                         )}
                     </Button>
+                    {onOpenPreferences ? (
+                        <Tooltip
+                            title={t(
+                                'notification.list.settings',
+                                'Notification settings'
+                            )}
+                        >
+                            <IconButton
+                                size="small"
+                                onClick={onOpenPreferences}
+                                aria-label={t(
+                                    'notification.list.settings',
+                                    'Notification settings'
+                                )}
+                            >
+                                <SettingsIcon fontSize="small" />
+                            </IconButton>
+                        </Tooltip>
+                    ) : null}
                 </Box>
             </Box>
             <Divider />
