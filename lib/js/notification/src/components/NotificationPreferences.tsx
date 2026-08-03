@@ -4,20 +4,28 @@ import {
     Box,
     CircularProgress,
     Divider,
-    FormControlLabel,
     IconButton,
     Stack,
-    Switch,
+    ToggleButton,
     Tooltip,
     Typography,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import EmailIcon from '@mui/icons-material/Email';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import SmsIcon from '@mui/icons-material/Sms';
 import {useTranslation} from 'react-i18next';
 import type {HttpClient} from '@alchemy/api';
 import type {NotificationChannel} from '../types';
 import {useNotificationPreferences} from '../useNotificationPreferences';
+
+const CHANNEL_ICONS: Record<NotificationChannel, React.ReactNode> = {
+    email: <EmailIcon fontSize="small" />,
+    in_app: <NotificationsIcon fontSize="small" />,
+    sms: <SmsIcon fontSize="small" />,
+};
 
 type LabelResolver = (key: string) => string;
 
@@ -159,39 +167,47 @@ export default function NotificationPreferences({
                 ) : null}
 
                 {topics.map(({topic, channels}) => (
-                    <Box key={topic} sx={{py: 1.5}}>
-                        <Typography
-                            variant="subtitle2"
-                            sx={{mb: 0.5, fontWeight: 600}}
+                    <Box key={topic}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                gap: 2,
+                                py: 1.5,
+                            }}
                         >
-                            {resolveTopic(topic)}
-                        </Typography>
-                        <Stack>
-                            {channels.map(({channel, enabled}) => (
-                                <FormControlLabel
-                                    key={channel}
-                                    control={
-                                        <Switch
-                                            size="small"
-                                            checked={enabled}
-                                            onChange={(_e, checked) =>
-                                                setPreference(
-                                                    topic,
-                                                    channel,
-                                                    checked
-                                                )
-                                            }
-                                        />
-                                    }
-                                    label={
-                                        <Typography variant="body2">
-                                            {resolveChannel(channel)}
-                                        </Typography>
-                                    }
-                                />
-                            ))}
-                        </Stack>
-                        <Divider sx={{mt: 1}} />
+                            <Typography variant="body2" sx={{fontWeight: 500}}>
+                                {resolveTopic(topic)}
+                            </Typography>
+                            <Stack direction="row" spacing={1}>
+                                {channels.map(({channel, enabled}) => {
+                                    const label = resolveChannel(channel);
+
+                                    return (
+                                        <Tooltip title={label} key={channel}>
+                                            <ToggleButton
+                                                value={channel}
+                                                selected={enabled}
+                                                onChange={() =>
+                                                    setPreference(
+                                                        topic,
+                                                        channel,
+                                                        !enabled
+                                                    )
+                                                }
+                                                size="small"
+                                                aria-label={label}
+                                            >
+                                                {CHANNEL_ICONS[channel] ??
+                                                    label}
+                                            </ToggleButton>
+                                        </Tooltip>
+                                    );
+                                })}
+                            </Stack>
+                        </Box>
+                        <Divider />
                     </Box>
                 ))}
 
