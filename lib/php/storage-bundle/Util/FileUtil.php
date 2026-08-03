@@ -39,7 +39,7 @@ final class FileUtil
 
         if (null === $ext) {
             if (null !== $path) {
-                return self::getExtensionFromPath($path) ?: null;
+                return self::getExtensionFromPath($path);
             }
 
             return null;
@@ -48,7 +48,7 @@ final class FileUtil
         return $ext;
     }
 
-    public static function getExtensionFromPath(string $path): string
+    public static function getExtensionFromPath(string $path): ?string
     {
         $path = preg_replace('#\?.*$#', '', $path);
 
@@ -61,10 +61,10 @@ final class FileUtil
 
         $extension = pathinfo($path, PATHINFO_EXTENSION) ?? '';
         if (!preg_match('#^[a-z0-9]{2,5}$#i', $extension)) {
-            return '';
+            return null;
         }
 
-        return $extension;
+        return self::normalizeExtension($extension);
     }
 
     public static function getExtensionFromType(?string $type): ?string
@@ -81,7 +81,7 @@ final class FileUtil
             return null;
         }
 
-        return $extensions[0];
+        return self::normalizeExtension($extensions[0]);
     }
 
     public static function getTypeFromExtension(?string $extension): ?string
@@ -107,11 +107,22 @@ final class FileUtil
 
     public static function stripExtension(string $filename): string
     {
-        $extension = self::getExtensionFromPath($filename);
-        if ('' === $extension || !str_ends_with(strtolower($filename), '.'.strtolower($extension))) {
+        $extension = self::normalizeExtension(self::getExtensionFromPath($filename));
+        if (null === $extension || !str_ends_with(strtolower($filename), '.'.strtolower($extension))) {
             return $filename;
         }
 
         return substr($filename, 0, -(strlen($extension) + 1));
+    }
+
+    public static function normalizeExtension(?string $extension): ?string
+    {
+        if (null === $extension) {
+            return null;
+        }
+
+        $extension = trim(strtolower($extension));
+
+        return $extension ?: null;
     }
 }

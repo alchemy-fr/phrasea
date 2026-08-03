@@ -84,7 +84,7 @@ final readonly class FileManager
             }
         }
 
-        if (null === $type) {
+        if (null === $type || null !== $extension) {
             $type = FileUtil::getTypeFromExtension($extension);
         }
 

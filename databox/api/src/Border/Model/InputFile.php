@@ -23,7 +23,7 @@ class InputFile
 
     public function getExtension(): string
     {
-        return FileUtil::getExtensionFromPath($this->name);
+        return FileUtil::getExtensionFromPath($this->name) ?? '';
     }
 
     public function getExtensionWithDot(): string
