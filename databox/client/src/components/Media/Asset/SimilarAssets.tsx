@@ -67,7 +67,12 @@ function SimilarAssets({asset}: Props) {
                     </Typography>
                 ) : null}
                 <MenuList
-                    sx={theme => thumbSx(50, theme)}
+                    sx={theme => ({
+                        ...thumbSx(200, theme),
+                        '.MuiListItemText-root': {
+                            pl: 1,
+                        },
+                    })}
                     disablePadding={true}
                 >
                     {result?.assets.map(a => (

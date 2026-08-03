@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Integration\Similarity;
+namespace App\Integration\Core\Similarity;
 
 use Alchemy\Workflow\Executor\RunContext;
 use App\Entity\Core\Asset;
@@ -21,8 +21,9 @@ class SimilarityEmbedAction extends AbstractIntegrationAction implements IfActio
     {
         $asset = $this->getAsset($context);
         $config = $this->getIntegrationConfig($context);
+        $force = $context->getInputs()['rerun'] ?? false;
 
-        $this->assetEmbeddingManager->embedAsset($asset, $config['rendition']);
+        $this->assetEmbeddingManager->embedAsset($asset, $config['rendition'], $force);
     }
 
     #[\Override]

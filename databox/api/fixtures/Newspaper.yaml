@@ -524,6 +524,11 @@ App\Entity\Integration\WorkspaceIntegration:
         integration: tui.photo-editor
         workspace: '@w_newspaper'
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+    wi_similarity:
+        integration: core.similarity
+        public: true
+        workspace: '@w_newspaper'
+        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
     wi_watermark:
         integration: core.watermark
         public: true

@@ -23,7 +23,7 @@ final readonly class AssetEmbeddingManager
     ) {
     }
 
-    public function embedAsset(Asset $asset, string $renditionName = self::DEFAULT_RENDITION): bool
+    public function embedAsset(Asset $asset, string $renditionName = self::DEFAULT_RENDITION, bool $force = false): bool
     {
         $rendition = $this->renditionManager->getAssetRenditionByName($asset->getId(), $renditionName);
         $file = $rendition?->getFile();
@@ -34,8 +34,13 @@ final readonly class AssetEmbeddingManager
         $path = $this->fileFetcher->getFile($file);
         $result = $this->embedderClient->embedImageFile($path);
 
-        $embedding = $this->em->getRepository(AssetEmbedding::class)
-            ->findOneBy(['asset' => $asset->getId()]) ?? new AssetEmbedding();
+        $existingEmbedding = $this->em->getRepository(AssetEmbedding::class)
+            ->findOneBy(['asset' => $asset->getId()]);
+        if (null !== $existingEmbedding && !$force) {
+            return false;
+        }
+
+        $embedding = $existingEmbedding ?? new AssetEmbedding();
         $embedding->setAsset($asset);
         $embedding->setVector($result['vector']);
         $embedding->setModel($result['model']);
