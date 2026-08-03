@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use App\Elasticsearch\AQL\ConditionOperatorEnum;
-use App\Elasticsearch\BuiltInField\AssetStatusBuiltInField;
-use App\Elasticsearch\BuiltInField\DeletedBuiltInField;
+use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\DeletedBuiltInAttribute;
 use App\Elasticsearch\Query\Knn;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
@@ -22,8 +22,8 @@ class SimilarAssetSearch extends AbstractSearch
         #[Autowire(service: 'fos_elastica.finder.asset')]
         private readonly TransformedFinder $finder,
         private readonly AssetEmbeddingManager $assetEmbeddingManager,
-        private readonly DeletedBuiltInField $deletedBuiltInField,
-        private readonly AssetStatusBuiltInField $assetStatusBuiltInField,
+        private readonly DeletedBuiltInAttribute $deletedBuiltInAttribute,
+        private readonly AssetStatusBuiltInAttribute $assetStatusBuiltInAttribute,
     ) {
     }
 
@@ -53,8 +53,8 @@ class SimilarAssetSearch extends AbstractSearch
             $filter->addFilter($aclBoolQuery);
         }
 
-        $filter->addFilter($this->deletedBuiltInField->createFilterQuery(false, ConditionOperatorEnum::EQUALS, $options));
-        $filter->addFilter($this->assetStatusBuiltInField->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options));
+        $filter->addFilter($this->deletedBuiltInAttribute->createFilterQuery(false, ConditionOperatorEnum::EQUALS, $options));
+        $filter->addFilter($this->assetStatusBuiltInAttribute->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options));
         $filter->addMustNot(new Query\Terms('_id', [$asset->getId()]));
 
         $knn = new Knn('embedding', $vector, max(100, $limit * 10));
