@@ -7,6 +7,7 @@ use Alchemy\AdminBundle\Controller\Acl\AccessControlEntryCrudController;
 use Alchemy\AdminBundle\Controller\MultipartUploadCrudController;
 use Alchemy\ConfiguratorBundle\Controller\ConfiguratorEntryCrudController;
 use Alchemy\NotifierBundle\Controller\Admin\NotificationCrudController;
+use Alchemy\NotifierBundle\Controller\Admin\NotificationPreferenceCrudController;
 use Alchemy\NotifierBundle\Controller\Admin\SubscriberCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -45,6 +46,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Notification', 'fas fa-bell')->setSubItems([
             MenuItem::linkTo(SubscriberCrudController::class, 'Subscribers'),
             MenuItem::linkTo(NotificationCrudController::class, 'In-app notifications'),
+            MenuItem::linkTo(NotificationPreferenceCrudController::class, 'Preferences'),
         ]);
         yield MenuItem::linkTo(ConfiguratorEntryCrudController::class, 'Global Config', 'fa fa-gear');
         yield $this->createDevMenu();
