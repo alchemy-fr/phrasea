@@ -8,6 +8,16 @@ use Symfony\Component\Mime\MimeTypes;
 
 final class FileUtil
 {
+    private const array COMPOUND_EXTENSIONS = [
+        'tar.gz',
+        'tar.bz2',
+        'tar.xz',
+        'tar.zst',
+        'tar.lz',
+        'tar.lzma',
+        'tar.br',
+    ];
+
     public static function isImageType(?string $mimeType): bool
     {
         return 1 === preg_match('#^image/#', $mimeType ?? '');
@@ -42,7 +52,19 @@ final class FileUtil
     {
         $path = preg_replace('#\?.*$#', '', $path);
 
-        return pathinfo($path, PATHINFO_EXTENSION) ?? '';
+        $basename = pathinfo($path, PATHINFO_BASENAME);
+        foreach (self::COMPOUND_EXTENSIONS as $compoundExtension) {
+            if (preg_match('#[^.]\.'.preg_quote($compoundExtension, '#').'$#i', $basename)) {
+                return substr($basename, -strlen($compoundExtension));
+            }
+        }
+
+        $extension = pathinfo($path, PATHINFO_EXTENSION) ?? '';
+        if (!preg_match('#^[a-z0-9]{2,5}$#i', $extension)) {
+            return '';
+        }
+
+        return $extension;
     }
 
     public static function getExtensionFromType(?string $type): ?string
@@ -73,6 +95,10 @@ final class FileUtil
         $types = $mimeTypes->getMimeTypes($extension);
 
         if (empty($types)) {
+            if (false !== ($pos = strrpos($extension, '.'))) {
+                return self::getTypeFromExtension(substr($extension, $pos + 1));
+            }
+
             return null;
         }
 
@@ -81,6 +107,11 @@ final class FileUtil
 
     public static function stripExtension(string $filename): string
     {
-        return preg_replace($filename, '#\.[a-z0-9]{2,5}$#i', '');
+        $extension = self::getExtensionFromPath($filename);
+        if ('' === $extension || !str_ends_with(strtolower($filename), '.'.strtolower($extension))) {
+            return $filename;
+        }
+
+        return substr($filename, 0, -(strlen($extension) + 1));
     }
 }
