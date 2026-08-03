@@ -1,5 +1,5 @@
 import React from 'react';
-import {Badge, Popover, PopoverProps} from '@mui/material';
+import {Badge, Popover, PopoverActions, PopoverProps} from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import type {HttpClient} from '@alchemy/api';
 import {
@@ -65,6 +65,20 @@ export default function Notifications({
     const open = Boolean(anchorEl);
     const [showPreferences, setShowPreferences] = React.useState(false);
 
+    // The popover computes its position from the content size at open time.
+    // When the view is swapped (list <-> preferences) or the preferences panel
+    // grows after its data loads, the content can extend past the bottom of the
+    // viewport. Repositioning re-clamps the popover back inside the viewport
+    // (moving it up when needed).
+    const popoverActionRef = React.useRef<PopoverActions | null>(null);
+    const repositionPopover = React.useCallback(() => {
+        popoverActionRef.current?.updatePosition();
+    }, []);
+
+    React.useEffect(() => {
+        repositionPopover();
+    }, [showPreferences, repositionPopover]);
+
     const notifications = useNotifications({
         apiClient,
         userId,
@@ -101,6 +115,7 @@ export default function Notifications({
 
             <Popover
                 id={popoverId}
+                action={popoverActionRef}
                 open={open}
                 anchorEl={anchorEl}
                 anchorOrigin={{
@@ -132,6 +147,7 @@ export default function Notifications({
                         topicLabel={topicLabel}
                         channelLabel={channelLabel}
                         onBack={() => setShowPreferences(false)}
+                        onResize={repositionPopover}
                     />
                 ) : (
                     <NotificationList

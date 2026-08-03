@@ -109,15 +109,26 @@ export function useNotificationPreferences({
     );
 
     // Lazily load the first time the panel becomes visible.
+    //
+    // Unlike the notification list (which mounts with `active=false` and only
+    // loads later, on the false->true transition), this panel is mounted with
+    // `active` already `true` — the popover is open when the user clicks the
+    // settings icon. Under React 18 StrictMode the mount effect runs
+    // mount -> cleanup -> mount; aborting the sole in-flight request on that
+    // cleanup would leave the panel empty until a manual refresh. So we guard
+    // with a ref that survives the StrictMode remount and deliberately do not
+    // abort, letting the single request complete.
+    const startedRef = React.useRef(false);
     React.useEffect(() => {
-        if (!active || loaded || loadingRef.current) {
+        if (!active || startedRef.current) {
             return;
         }
-        const controller = new AbortController();
-        load(controller.signal).catch(() => {});
-
-        return () => controller.abort();
-    }, [active, loaded, load]);
+        startedRef.current = true;
+        load().catch(() => {
+            // Allow a retry (refresh button) after a failed initial load.
+            startedRef.current = false;
+        });
+    }, [active, load]);
 
     const setPreference = React.useCallback(
         (
