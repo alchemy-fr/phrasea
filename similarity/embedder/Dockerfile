@@ -4,8 +4,11 @@ WORKDIR /srv/app
 
 COPY requirements.txt .
 
+# Prefer the lean CPU-only wheels; fall back to PyPI when the PyTorch index
+# has no wheel for the build platform (e.g. linux/arm64) or is unreachable
 RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu torch==2.6.0 torchvision==0.21.0 \
-    && pip install --no-cache-dir -r requirements.txt
+    || pip install --no-cache-dir torch==2.6.0 torchvision==0.21.0
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Download model weights at build time so the container never fetches anything at runtime
 ENV CLIP_MODEL=ViT-B-32 \
