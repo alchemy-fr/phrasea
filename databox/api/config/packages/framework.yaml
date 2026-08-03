@@ -23,6 +23,8 @@ framework:
             remove_bg.client:
                 base_uri: https://api.remove.bg
                 verify_peer: true
+            similarity_embedder.client:
+                base_uri: '%env(SIMILARITY_EMBEDDER_URL)%'
             zippy.client:
                 base_uri: '%env(ZIPPY_URL)%'
                 headers:

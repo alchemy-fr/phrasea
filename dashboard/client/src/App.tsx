@@ -29,7 +29,6 @@ export default function App({}: Props) {
         DEV_MODE,
         STACK_VERSION,
         PGADMIN_URL,
-        ELASTICHQ_URL,
         MAILHOG_URL,
         MATOMO_URL,
         PHPMYADMIN_URL,
@@ -174,17 +173,6 @@ export default function App({}: Props) {
                                 rel={'noreferrer noopener'}
                             >
                                 PhpMyAdmin
-                            </Link>
-                        </Grid>
-                    )}
-                    {ELASTICHQ_URL && (
-                        <Grid>
-                            <Link
-                                href={ELASTICHQ_URL}
-                                target={'_blank'}
-                                rel={'noreferrer noopener'}
-                            >
-                                ElasticHQ
                             </Link>
                         </Grid>
                     )}

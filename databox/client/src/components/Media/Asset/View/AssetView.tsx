@@ -32,6 +32,7 @@ import {useBindAnnotationMessage} from './useBindAnnotationMessage.ts';
 import AssetViewInfo from '../AssetViewInfo.tsx';
 import StoryCarousel, {storyCarouselHeight} from './StoryCarousel.tsx';
 import AssetAppearsIn from '../AssetAppearsIn.tsx';
+import SimilarAssets from '../SimilarAssets.tsx';
 import AssetAttachments from '../AssetAttachments.tsx';
 import {Routing} from '../../../../routes.ts';
 import {getMediaBackgroundColor, scrollbarWidth} from '../../../uiVars.ts';
@@ -347,6 +348,7 @@ export default function AssetView({}: Props) {
 
                                     <AssetViewInfo asset={displayedAsset} />
                                     <AssetAppearsIn asset={displayedAsset} />
+                                    <SimilarAssets asset={displayedAsset} />
                                     <AssetMatomoMetricsView
                                         asset={displayedAsset}
                                     />

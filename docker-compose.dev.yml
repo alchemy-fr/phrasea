@@ -120,6 +120,10 @@ services:
     ports:
       - ${DEV_ELASTICSEARCH_PORT}:9200
 
+  similarity-embedder:
+    ports:
+      - ${DEV_SIMILARITY_EMBEDDER_PORT}:8000
+
   dev:
     build:
       context: infra/docker/dev
