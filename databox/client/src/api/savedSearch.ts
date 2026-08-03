@@ -23,11 +23,25 @@ export async function getSavedSearches(
     return getHydraCollection(res.data);
 }
 
+function normalizeSavedSearch(
+    data: Partial<SavedSearch>
+): Partial<SavedSearch> {
+    if (data.privacy !== undefined) {
+        // Radio inputs yield string values while the API expects an integer
+        return {...data, privacy: Number(data.privacy)};
+    }
+
+    return data;
+}
+
 export async function putSavedSearch(
     id: string,
     data: Partial<SavedSearch>
 ): Promise<SavedSearch> {
-    const res = await apiClient.put(`/${EntityName.SavedSearch}/${id}`, data);
+    const res = await apiClient.put(
+        `/${EntityName.SavedSearch}/${id}`,
+        normalizeSavedSearch(data)
+    );
 
     return res.data;
 }
@@ -35,7 +49,10 @@ export async function putSavedSearch(
 export async function postSavedSearch(
     data: Partial<SavedSearch>
 ): Promise<SavedSearch> {
-    const res = await apiClient.post(`/${EntityName.SavedSearch}`, data);
+    const res = await apiClient.post(
+        `/${EntityName.SavedSearch}`,
+        normalizeSavedSearch(data)
+    );
 
     return res.data;
 }

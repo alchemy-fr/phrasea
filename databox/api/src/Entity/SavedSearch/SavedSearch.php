@@ -19,6 +19,7 @@ use App\Api\Model\Output\SavedSearchOutput;
 use App\Api\Provider\SavedSearchCollectionProvider;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
+use App\Model\SavedSearchPrivacyEnum;
 use App\Repository\SavedSearch\SavedSearchRepository;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
@@ -33,7 +34,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: [
                 'groups' => [self::GROUP_LIST],
             ]),
-        new Get(),
+        new Get(security: 'is_granted("'.AbstractVoter::READ.'", object)'),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
         new Put(
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
@@ -66,8 +67,8 @@ class SavedSearch extends AbstractUuidEntity implements WithOwnerIdInterface, Ac
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $name = null;
 
-    #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
-    private bool $public = false;
+    #[ORM\Column(type: Types::SMALLINT, nullable: false, enumType: SavedSearchPrivacyEnum::class, options: ['default' => SavedSearchPrivacyEnum::Secret->value])]
+    private SavedSearchPrivacyEnum $privacy = SavedSearchPrivacyEnum::Secret;
 
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $data = [];
@@ -107,13 +108,13 @@ class SavedSearch extends AbstractUuidEntity implements WithOwnerIdInterface, Ac
         return $this->getName() ?? 'SavedSearch - '.$this->getId();
     }
 
-    public function isPublic(): bool
+    public function getPrivacy(): SavedSearchPrivacyEnum
     {
-        return $this->public;
+        return $this->privacy;
     }
 
-    public function setPublic(bool $public): void
+    public function setPrivacy(SavedSearchPrivacyEnum $privacy): void
     {
-        $this->public = $public;
+        $this->privacy = $privacy;
     }
 }

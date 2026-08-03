@@ -1750,8 +1750,20 @@
             "name": {
                 "label": "Name"
             },
-            "public": {
-                "label": "Public"
+            "privacy": {
+                "label": "Privacy",
+                "private": {
+                    "helper": "Accessible by link, not listed",
+                    "label": "Private"
+                },
+                "public": {
+                    "helper": "Listed to every user",
+                    "label": "Public"
+                },
+                "secret": {
+                    "helper": "Only you and granted users",
+                    "label": "Secret"
+                }
             }
         },
         "saved_search_edit": {
