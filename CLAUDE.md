@@ -9,8 +9,8 @@ The host machine has **no PHP, no Composer, no Node/pnpm, no database, no Elasti
 Every command runs inside a Docker Compose service container. Use `dc` (see [Tooling](#tooling)) or `docker compose`:
 
 ```bash
-dc run --rm databox-api-php composer test          # PHP / Symfony
-dc run --rm databox-api-php bin/console <cmd>
+dc run --rm databox-api-php su app -c "composer test"          # PHP / Symfony
+dc run --rm databox-api-php su app -c "bin/console <cmd>"
 dc run --rm dev pnpm install                        # JS / pnpm (via the `dev` container)
 dc run --rm dev pnpm --filter databox-client build
 ```
