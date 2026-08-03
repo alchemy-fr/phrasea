@@ -55,7 +55,7 @@ final class FileUtil
         $basename = pathinfo($path, PATHINFO_BASENAME);
         foreach (self::COMPOUND_EXTENSIONS as $compoundExtension) {
             if (preg_match('#[^.]\.'.preg_quote($compoundExtension, '#').'$#i', $basename)) {
-                return substr($basename, -strlen($compoundExtension));
+                return self::normalizeExtension(substr($basename, -strlen($compoundExtension)));
             }
         }
 

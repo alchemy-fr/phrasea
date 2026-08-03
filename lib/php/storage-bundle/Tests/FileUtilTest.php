@@ -12,7 +12,7 @@ class FileUtilTest extends TestCase
     /**
      * @dataProvider getCases
      */
-    public function testGetExtensionFromPath(string $expectedExtension, string $path): void
+    public function testGetExtensionFromPath(?string $expectedExtension, string $path): void
     {
         $this->assertEquals($expectedExtension, FileUtil::getExtensionFromPath($path));
     }
@@ -69,15 +69,15 @@ class FileUtilTest extends TestCase
             ['jpg', 'foo.jpg'],
             ['jpeg', '/path/to/foo.jpeg'],
             ['jpg', 'https://foo.bar/baz.jpg?token=secret.value'],
-            ['', 'foo'],
-            ['', '/path/to/foo'],
-            ['', 'foo.'],
-            ['', 'foo.thisistoolong'],
-            ['', 'foo.tar.gz.thisistoolong'],
+            [null, 'foo'],
+            [null, '/path/to/foo'],
+            [null, 'foo.'],
+            [null, 'foo.thisistoolong'],
+            [null, 'foo.tar.gz.thisistoolong'],
             ['tar.gz', 'foo.tar.gz'],
             ['tar.gz', '/path/to/foo.tar.gz'],
             ['tar.gz', 'https://foo.bar/baz.tar.gz?token=secret.value'],
-            ['TAR.GZ', 'FOO.TAR.GZ'],
+            ['tar.gz', 'FOO.TAR.GZ'],
             ['tar.bz2', 'foo.tar.bz2'],
             ['tar.xz', 'foo.tar.xz'],
             ['tar.zst', 'foo.tar.zst'],
