@@ -801,7 +801,7 @@ services:
     networks:
       - internal
     volumes:
-      - elasticsearch:/usr/share/elasticsearch/data
+      - elasticsearch9:/usr/share/elasticsearch/data
     ulimits:
       memlock:
         soft: -1
@@ -819,6 +819,7 @@ services:
     image: ${REGISTRY_NAMESPACE}similarity-embedder:${DOCKER_TAG}
     build:
       context: ./similarity/embedder
+      network: host
     networks:
       - internal
 
@@ -1156,7 +1157,7 @@ volumes:
   matomodb:
   pgadmin:
   rabbitmq:
-  elasticsearch:
+  elasticsearch9:
   expose_nginx_cache:
   zippy:
   cypress_output:
