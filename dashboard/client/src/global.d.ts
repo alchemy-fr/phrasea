@@ -7,7 +7,6 @@ declare global {
             DATABOX_API_URL: Readonly<string>;
             DATABOX_CLIENT_URL: Readonly<string>;
             DISPLAY_SERVICES_MENU: Readonly<string>;
-            ELASTICHQ_URL: Readonly<string>;
             EXPOSE_API_URL: Readonly<string>;
             EXPOSE_CLIENT_URL: Readonly<string>;
             MAILPIT_URL: Readonly<string>;

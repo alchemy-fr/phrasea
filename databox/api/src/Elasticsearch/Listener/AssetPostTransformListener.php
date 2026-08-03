@@ -12,6 +12,7 @@ use App\Elasticsearch\BuiltInAttribute\PositionBuiltInAttribute;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Suggestion\SuggestionLocales;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetEmbedding;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\RenditionDefinition;
@@ -54,6 +55,11 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
 
         $document->set('renditions', $this->compileRenditions($asset));
         $document->set(PositionBuiltInAttribute::ES_FIELD, $this->compileCollectionPositions($asset));
+
+        $embedding = $this->em->getRepository(AssetEmbedding::class)->findOneBy(['asset' => $asset->getId()]);
+        if (null !== $embedding) {
+            $document->set('embedding', $embedding->getVector());
+        }
 
         $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
 
