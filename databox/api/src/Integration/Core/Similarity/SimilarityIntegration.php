@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Integration\Similarity;
+namespace App\Integration\Core\Similarity;
 
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
@@ -29,7 +29,7 @@ class SimilarityIntegration extends AbstractIntegration implements FilterNeedInt
 
     public static function getName(): string
     {
-        return 'similarity';
+        return 'core.similarity';
     }
 
     public function buildConfiguration(NodeBuilder $builder): void

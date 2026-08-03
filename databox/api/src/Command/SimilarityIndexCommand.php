@@ -7,8 +7,8 @@ namespace App\Command;
 use App\Consumer\Handler\Similarity\SimilarityEmbed;
 use App\Entity\Core\Asset;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Integration\Core\Similarity\SimilarityIntegration;
 use App\Integration\IntegrationManager;
-use App\Integration\Similarity\SimilarityIntegration;
 use App\Service\Vector\AssetEmbeddingManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
@@ -38,12 +38,14 @@ class SimilarityIndexCommand extends Command
             ->setDescription('Backfill asset embeddings for workspaces having the similarity integration enabled')
             ->addOption('workspace', 'w', InputOption::VALUE_REQUIRED, 'Limit to a workspace ID')
             ->addOption('sync', null, InputOption::VALUE_NONE, 'Compute embeddings synchronously instead of dispatching messages')
+            ->addOption('force', null, InputOption::VALUE_NONE, 'Force re-computation of embeddings even if they already exist')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        $force = $input->getOption('force');
 
         $criteria = [
             'integration' => SimilarityIntegration::getName(),
@@ -79,12 +81,13 @@ class SimilarityIndexCommand extends Command
                 ->andWhere('a.deletedAt IS NULL')
                 ->setParameter('ws', $workspace->getId())
                 ->getQuery()
-                ->toIterable([], \Doctrine\ORM\AbstractQuery::HYDRATE_SCALAR_COLUMN);
+                ->toIterable();
 
-            foreach ($assetIds as $assetId) {
+            foreach ($assetIds as $r) {
+                $assetId = (string) $r['id'];
                 if ($input->getOption('sync')) {
                     $asset = $this->em->find(Asset::class, $assetId);
-                    $done = $this->assetEmbeddingManager->embedAsset($asset, $rendition);
+                    $done = $this->assetEmbeddingManager->embedAsset($asset, $rendition, $force);
                     $io->writeln(sprintf('%s %s', $assetId, $done ? '<info>OK</info>' : '<comment>skipped</comment>'));
                     $this->em->clear();
                 } else {
