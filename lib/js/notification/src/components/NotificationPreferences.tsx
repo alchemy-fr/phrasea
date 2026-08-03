@@ -41,6 +41,12 @@ type Props = {
      * is embedded next to the notification list, e.g. inside a popover).
      */
     onBack?: () => void;
+    /**
+     * Called whenever the panel's content changes size (loading -> loaded,
+     * topics appearing, error banner). Lets an embedding container (e.g. a
+     * popover) reposition itself so the grown panel stays within the viewport.
+     */
+    onResize?: () => void;
 };
 
 function humanize(key: string): string {
@@ -57,10 +63,17 @@ export default function NotificationPreferences({
     topicLabel,
     channelLabel,
     onBack,
+    onResize,
 }: Props) {
     const {t} = useTranslation();
     const {topics, loading, loaded, saving, error, setPreference, reload} =
         useNotificationPreferences({apiClient, active});
+
+    // Notify the container after each content-affecting change so it can
+    // reposition (the panel grows once the preferences finish loading).
+    React.useEffect(() => {
+        onResize?.();
+    }, [loading, loaded, topics.length, error, onResize]);
 
     const resolveTopic = React.useCallback(
         (topic: string): string =>
