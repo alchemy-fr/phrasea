@@ -23,6 +23,7 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import SmartDisplayIcon from '@mui/icons-material/SmartDisplay';
 import SecurityIcon from '@mui/icons-material/Security';
 import PausePresentationIcon from '@mui/icons-material/PausePresentation';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 
 export const typesIcons: Record<AttributeType, SvgIconComponent> = {
     [AttributeType.Boolean]: CheckBoxIcon,
@@ -44,6 +45,7 @@ export const typesIcons: Record<AttributeType, SvgIconComponent> = {
     [AttributeType.AssetStatus]: PausePresentationIcon,
     [AttributeType.Rendition]: SmartDisplayIcon,
     [AttributeType.FileSize]: LooksOneIcon,
+    [AttributeType.FileType]: InsertDriveFileIcon,
     [AttributeType.Story]: MenuBookIcon,
     [AttributeType.Tag]: LocalOfferIcon,
     [AttributeType.Text]: TextFieldsIcon,

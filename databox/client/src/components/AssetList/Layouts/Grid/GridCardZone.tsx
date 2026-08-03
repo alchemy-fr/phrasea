@@ -1,8 +1,16 @@
 import React, {useMemo} from 'react';
-import {Box, Chip, CSSObject, SxProps, Theme} from '@mui/material';
+import {Box, Chip, CSSObject, Theme} from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-import {Asset, GridAnchor, GridRegion, ProfileItem} from '../../../../types';
+import {defaultChipColors} from '@alchemy/phrasea-framework';
+import {
+    Asset,
+    GridAnchor,
+    GridRegion,
+    ProfileItem,
+    ProfileItemSize,
+    ProfileItemVariant,
+} from '../../../../types';
 import {AttributeType} from '../../../../api/types.ts';
 import assetClasses from '../../classes';
 import {ResolvedGridItem, useResolvedGridItems} from './resolveGridItem.ts';
@@ -13,82 +21,43 @@ type Props = {
     region: GridRegion;
 };
 
-const OVER_ANCHORS: GridAnchor[] = [
-    'tl',
-    'tc',
-    'tr',
-    'ml',
-    'cc',
-    'mr',
-    'bl',
-    'bc',
-    'br',
+const OVER_ROWS: GridAnchor[][] = [
+    ['tl', 'tc', 'tr'],
+    ['ml', 'cc', 'mr'],
+    ['bl', 'bc', 'br'],
 ];
-const BAND_ANCHORS: GridAnchor[] = ['l', 'c', 'r'];
+const BAND_ROWS: GridAnchor[][] = [['l', 'c', 'r']];
 
-// anchor -> absolute position over the thumb. Each anchor is content-sized
-// (flexbox) and absolutely positioned, so items can overflow their cell instead
-// of being clamped to a 3x3 grid track.
-const overPos: Record<string, CSSObject> = {
-    tl: {top: 0, left: 0, alignItems: 'flex-start'},
-    tc: {
-        top: 0,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        alignItems: 'center',
-    },
-    tr: {top: 0, right: 0, alignItems: 'flex-end'},
-    ml: {
-        top: '50%',
-        left: 0,
-        transform: 'translateY(-50%)',
-        alignItems: 'flex-start',
-    },
-    cc: {
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        alignItems: 'center',
-    },
-    mr: {
-        top: '50%',
-        right: 0,
-        transform: 'translateY(-50%)',
-        alignItems: 'flex-end',
-    },
-    bl: {bottom: 0, left: 0, alignItems: 'flex-start'},
-    bc: {
-        bottom: 0,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        alignItems: 'center',
-    },
-    br: {bottom: 0, right: 0, alignItems: 'flex-end'},
-};
+// Vertical alignment of the cells within each `over` row (top/middle/bottom).
+const OVER_ROW_ALIGN = ['flex-start', 'center', 'flex-end'];
 
-// below band anchors: absolutely positioned like `over` (top-aligned row) so a
-// value can overflow its 1/3 cell instead of being clamped to a grid track.
-const belowPos: Record<string, CSSObject> = {
-    l: {top: 0, left: 0, alignItems: 'flex-start'},
-    c: {
-        top: 0,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        alignItems: 'center',
-    },
-    r: {top: 0, right: 0, alignItems: 'flex-end'},
-};
-
-// Approximate height reserved per stacked row in a band (chip + gap).
-const BAND_ROW_HEIGHT = 28;
+// Horizontal alignment of the values stacked in a cell, from the anchor's
+// last letter (l/c/r).
+const cellAlign = (anchor: GridAnchor) =>
+    anchor.endsWith('r')
+        ? 'flex-end'
+        : anchor.endsWith('c')
+          ? 'center'
+          : 'flex-start';
 
 type EntityRaw = {emoji?: string; color?: string};
+
+// Modifier classes (size + chip color) appended to each value's root node;
+// the matching rules live in gridCardZoneSx.
+function itemModifiers(item: ProfileItem): string {
+    const parts = [gridZoneClasses.sizes[item.size ?? ProfileItemSize.Medium]];
+    if (item.color) {
+        parts.push(`${gridZoneClasses.colorPrefix}${item.color}`);
+    }
+    return parts.join(' ');
+}
 
 function GridItemValue({resolved}: {resolved: ResolvedGridItem}) {
     const {item, definition, value, nodes, raws, richCapable} = resolved;
     const type = definition.type;
     const showLabel = item.showLabel ?? false;
     const label = definition.displayName ?? definition.name;
+    const withMods = (base: string) => `${base} ${itemModifiers(item)}`;
 
     const labelPrefix = showLabel ? (
         <Box component="span" className={gridZoneClasses.label}>
@@ -100,7 +69,10 @@ function GridItemValue({resolved}: {resolved: ResolvedGridItem}) {
     if (type === AttributeType.Boolean && item.booleanIcon) {
         const bools = raws.filter(r => typeof r === 'boolean') as boolean[];
         return (
-            <Box className={gridZoneClasses.rich} title={value || undefined}>
+            <Box
+                className={withMods(gridZoneClasses.rich)}
+                title={value || undefined}
+            >
                 {labelPrefix}
                 {bools.length > 0
                     ? bools.map((b, i) =>
@@ -123,15 +95,24 @@ function GridItemValue({resolved}: {resolved: ResolvedGridItem}) {
         );
     }
 
-    // AttributeEntity type: optionally show only the emoji or only the color.
+    const variant =
+        item.variant ??
+        (richCapable ? ProfileItemVariant.Rich : ProfileItemVariant.Chip);
+
+    // AttributeEntity type (rich only): optionally show only the emoji or
+    // only the color.
     if (
+        variant === ProfileItemVariant.Rich &&
         type === AttributeType.AttributeEntity &&
         item.entityDisplay &&
         item.entityDisplay !== 'full'
     ) {
         const entities = raws as (EntityRaw | undefined)[];
         return (
-            <Box className={gridZoneClasses.rich} title={value || undefined}>
+            <Box
+                className={withMods(gridZoneClasses.rich)}
+                title={value || undefined}
+            >
                 {labelPrefix}
                 {entities.map((e, i) =>
                     item.entityDisplay === 'emoji' ? (
@@ -150,12 +131,14 @@ function GridItemValue({resolved}: {resolved: ResolvedGridItem}) {
         );
     }
 
-    const variant = item.variant ?? (richCapable ? 'rich' : 'chip');
-
-    // Rich: render the type formatter's ReactNode(s) (tag pills, entity chips…).
-    if (variant === 'rich') {
+    // Rich: render the type formatter's ReactNode(s) (tag pills, entity
+    // chips…), shaped by the item's format (e.g. Privacy's "short" format).
+    if (variant === ProfileItemVariant.Rich) {
         return (
-            <Box className={gridZoneClasses.rich} title={value || undefined}>
+            <Box
+                className={withMods(gridZoneClasses.rich)}
+                title={value || undefined}
+            >
                 {labelPrefix}
                 {nodes.length > 0
                     ? nodes.map((n, i) => (
@@ -172,9 +155,13 @@ function GridItemValue({resolved}: {resolved: ResolvedGridItem}) {
             : label
         : value || '—';
 
-    if (variant === 'text') {
+    if (variant === ProfileItemVariant.Text) {
         return (
-            <Box component="span" className={gridZoneClasses.text} title={text}>
+            <Box
+                component="span"
+                className={withMods(gridZoneClasses.text)}
+                title={text}
+            >
                 {text}
             </Box>
         );
@@ -183,7 +170,7 @@ function GridItemValue({resolved}: {resolved: ResolvedGridItem}) {
     // 'chip': a compact chip wrapping the plain-text value.
     return (
         <Chip
-            className={gridZoneClasses.chip}
+            className={withMods(gridZoneClasses.chip)}
             size="small"
             label={text}
             title={text}
@@ -221,46 +208,35 @@ function GridCardZone({asset, items, region}: Props) {
     }
 
     const isOver = region === 'over';
-    const anchors = isOver ? OVER_ANCHORS : BAND_ANCHORS;
-    // Reserve vertical room for the tallest anchor stack so the absolutely
-    // positioned band cells stay visible.
-    const bandRows = isOver
-        ? 0
-        : Math.max(0, ...[...byAnchor.values()].map(a => a.length));
+    const rows = isOver ? OVER_ROWS : BAND_ROWS;
 
+    // Every row/cell is rendered (even empty) so that `space-between` keeps
+    // left/center/right and top/middle/bottom anchored to their position.
     return (
-        <Box
-            className={isOver ? gridZoneClasses.over : gridZoneClasses.band}
-            sx={isOver ? undefined : {minHeight: bandRows * BAND_ROW_HEIGHT}}
-        >
-            {anchors.map(anchor => {
-                const cellItems = byAnchor.get(anchor);
-                if (!cellItems || cellItems.length === 0) {
-                    return null;
-                }
-
-                const cellSx = [
-                    {
-                        position: 'absolute',
-                        width: 'max-content',
-                        maxWidth: '100%',
-                        overflow: 'visible',
-                    },
-                    isOver ? overPos[anchor] : belowPos[anchor],
-                ] as SxProps<Theme>;
-
-                return (
-                    <Box
-                        key={anchor}
-                        className={gridZoneClasses.cell}
-                        sx={cellSx}
-                    >
-                        {cellItems.map(r => (
-                            <GridItemValue key={r.item.id} resolved={r} />
-                        ))}
-                    </Box>
-                );
-            })}
+        <Box className={isOver ? gridZoneClasses.over : gridZoneClasses.band}>
+            {rows.map((anchors, rowIndex) => (
+                <Box
+                    key={rowIndex}
+                    className={gridZoneClasses.row}
+                    sx={{
+                        alignItems: isOver
+                            ? OVER_ROW_ALIGN[rowIndex]
+                            : 'flex-start',
+                    }}
+                >
+                    {anchors.map(anchor => (
+                        <Box
+                            key={anchor}
+                            className={gridZoneClasses.cell}
+                            sx={{alignItems: cellAlign(anchor)}}
+                        >
+                            {(byAnchor.get(anchor) ?? []).map(r => (
+                                <GridItemValue key={r.item.id} resolved={r} />
+                            ))}
+                        </Box>
+                    ))}
+                </Box>
+            ))}
         </Box>
     );
 }
@@ -270,40 +246,119 @@ export default React.memo(GridCardZone) as typeof GridCardZone;
 export const gridZoneClasses = {
     over: 'gcz-over',
     band: 'gcz-band',
+    row: 'gcz-row',
     cell: 'gcz-cell',
     chip: 'gcz-chip',
     text: 'gcz-text',
     rich: 'gcz-rich',
     label: 'gcz-label',
     swatch: 'gcz-swatch',
+    sizes: {
+        small: 'gcz-sz-sm',
+        medium: 'gcz-sz-md',
+        large: 'gcz-sz-lg',
+    } satisfies Record<ProfileItemSize, string>,
+    colorPrefix: 'gcz-c-',
 };
 
 export function gridCardZoneSx(theme: Theme) {
+    const {cell, sizes, colorPrefix} = gridZoneClasses;
+
+    // One rule per theme chip color, targeting both a chip root carrying the
+    // modifier (chip variant) and chips rendered inside a value (rich variant).
+    const chipColors = {...defaultChipColors, ...(theme.palette.chips ?? {})};
+    const colorRules: Record<string, CSSObject> = {};
+    for (const [name, color] of Object.entries(chipColors)) {
+        colorRules[
+            [
+                `.${cell} .${colorPrefix}${name} .MuiChip-root`,
+                `.${cell} .MuiChip-root.${colorPrefix}${name}`,
+            ].join(', ')
+        ] = {
+            'backgroundColor': color.main,
+            'color': color.contrastText,
+            '.MuiChip-icon': {
+                color: 'inherit',
+            },
+        };
+    }
+
     return {
-        // Overlay covering the whole thumbnail; positioning context for the
-        // absolutely-anchored cells. `display: block` (not contents) so the
-        // absolute children resolve against this padded box.
+        // Overlay covering the whole thumbnail: a column of 3 flex rows
+        // (top/middle/bottom) spread with space-between.
         // Scoped under .thumbWrapper to beat its `> div { display: contents }`.
         [`.${assetClasses.thumbWrapper} > .${gridZoneClasses.over}`]: {
             position: 'absolute',
             inset: 0,
             zIndex: 1,
-            display: 'block',
-            pointerEvents: 'none',
-        },
-        // below band: positioning context for absolutely-anchored cells; values
-        // may overflow their 1/3 cell but are clipped to the card width.
-        [`.${gridZoneClasses.band}`]: {
-            position: 'relative',
-            overflow: 'hidden',
-            width: '100%',
-        },
-        [`.${gridZoneClasses.cell}`]: {
             display: 'flex',
             flexDirection: 'column',
-            gap: theme.spacing(0.25),
+            justifyContent: 'space-between',
+            pointerEvents: 'none',
+        },
+        [`.${gridZoneClasses.band}`]: {
+            width: '100%',
+        },
+        // A row of 3 cells (left/center/right): flexbox shares the width so
+        // cells on the same row never overlap; they shrink instead and their
+        // values are rendered with an ellipsis.
+        [`.${gridZoneClasses.row}`]: {
+            display: 'flex',
+            justifyContent: 'space-between',
             minWidth: 0,
-            padding: theme.spacing(0.5),
+            maxWidth: '100%',
+        },
+        [`.${gridZoneClasses.cell}`]: {
+            'display': 'flex',
+            'flexDirection': 'column',
+            'gap': theme.spacing(0.25),
+            'minWidth': 0,
+            'padding': theme.spacing(0.5),
+            '&:empty': {
+                padding: 0,
+            },
+        },
+        // Chips over the image must be fully opaque (MUI's default chip
+        // background is translucent) and flush with their cell.
+        [`.${gridZoneClasses.cell} .MuiChip-root`]: {
+            'marginLeft': 0,
+            '.MuiChip-label:empty': {
+                paddingLeft: 0,
+            },
+        },
+        [`.${gridZoneClasses.cell} .MuiChip-filled.MuiChip-colorDefault`]: {
+            backgroundColor: theme.palette.grey[300],
+            color: theme.palette.text.primary,
+            ...theme.applyStyles('dark', {
+                backgroundColor: theme.palette.grey[700],
+            }),
+        },
+        ...colorRules,
+        // Value sizes: text and chips scale together (any variant).
+        [`.${cell} .${sizes.small}`]: {
+            fontSize: 11,
+        },
+        [`.${cell} .${sizes.large}`]: {
+            fontSize: 14,
+        },
+        [`.${cell} .${sizes.small} .MuiChip-root, .${cell} .MuiChip-root.${sizes.small}`]:
+            {
+                height: 20,
+                fontSize: 11,
+            },
+        [`.${cell} .${sizes.large} .MuiChip-root, .${cell} .MuiChip-root.${sizes.large}`]:
+            {
+                height: 32,
+                fontSize: 13,
+            },
+        [`.${cell} .${sizes.small} .MuiSvgIcon-root`]: {
+            fontSize: 16,
+        },
+        [`.${cell} .${sizes.medium} .MuiSvgIcon-root`]: {
+            fontSize: 20,
+        },
+        [`.${cell} .${sizes.large} .MuiSvgIcon-root`]: {
+            fontSize: 24,
         },
         [`.${gridZoneClasses.chip}`]: {
             maxWidth: '100%',

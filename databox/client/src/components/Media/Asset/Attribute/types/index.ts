@@ -22,6 +22,7 @@ import DurationType from './DurationType.tsx';
 import FileSizeType from './FileSizeType.tsx';
 import AssetStatusType from './AssetStatusType.tsx';
 import RenditionDefinitionType from './RenditionDefinitionType.tsx';
+import FileTypeType from './FileTypeType.tsx';
 
 export const types: {
     [key in AttributeType]?: AttributeTypeClass<any>;
@@ -49,4 +50,5 @@ export const types: {
     [AttributeType.Number]: NumberType,
     [AttributeType.Duration]: DurationType,
     [AttributeType.FileSize]: FileSizeType,
+    [AttributeType.FileType]: FileTypeType,
 };

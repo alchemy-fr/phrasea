@@ -23,6 +23,12 @@ final class ProfileItemInput
      */
     public ?array $placement = null;
     public ?string $variant = null;
+    // One of the theme chip colors; empty string clears it.
+    #[Assert\Length(max: 30)]
+    public ?string $color = null;
+    // 'small' | 'medium' | 'large'; empty string clears it.
+    #[Assert\Choice(choices: ['small', 'medium', 'large', ''])]
+    public ?string $size = null;
     public ?bool $showLabel = null;
     public ?bool $showIcon = null;
     // Boolean type: render a true/false icon instead of text.

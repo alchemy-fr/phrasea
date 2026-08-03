@@ -32,6 +32,10 @@ final readonly class ProfileItemOutput
         #[Groups([Profile::GROUP_READ])]
         public ?string $variant = null,
         #[Groups([Profile::GROUP_READ])]
+        public ?string $color = null,
+        #[Groups([Profile::GROUP_READ])]
+        public ?string $size = null,
+        #[Groups([Profile::GROUP_READ])]
         public ?bool $showLabel = null,
         #[Groups([Profile::GROUP_READ])]
         public ?bool $showIcon = null,

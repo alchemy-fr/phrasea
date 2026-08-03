@@ -490,8 +490,21 @@ export type ItemPlacement = {
     order?: number;
 };
 
-// How a grid value is rendered: its rich ReactNode, a plain-text chip, or raw text.
-export type ProfileItemVariant = 'rich' | 'chip' | 'text';
+// How a grid value is rendered: its rich ReactNode, a plain-text chip, or raw
+// text. The rich rendering may be tuned through the item's format
+// (AttributeFormat, e.g. Privacy's "short" icon-only format).
+export enum ProfileItemVariant {
+    Rich = 'rich',
+    Chip = 'chip',
+    Text = 'text',
+}
+
+// Rendered size of a grid value (any variant).
+export enum ProfileItemSize {
+    Small = 'small',
+    Medium = 'medium',
+    Large = 'large',
+}
 
 // AttributeEntity display mode on the grid card.
 export type EntityDisplay = 'full' | 'emoji' | 'color';
@@ -507,6 +520,9 @@ export type ProfileItem = {
     // Grid section only:
     placement?: ItemPlacement;
     variant?: ProfileItemVariant;
+    // One of the 12 theme chip colors (theme.palette.chips); empty for default.
+    color?: string;
+    size?: ProfileItemSize;
     showLabel?: boolean;
     showIcon?: boolean;
     // Boolean type: render a true/false icon instead of text.

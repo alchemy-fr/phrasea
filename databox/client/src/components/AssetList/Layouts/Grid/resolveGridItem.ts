@@ -43,6 +43,8 @@ const RICH_TYPES = new Set<AttributeType>([
     AttributeType.GeoPoint,
     AttributeType.Html,
     AttributeType.Rendition,
+    AttributeType.Privacy,
+    AttributeType.FileType,
 ]);
 
 /** Whether a value defaults to rich (ReactNode) rendering on the grid card. */
@@ -76,7 +78,7 @@ export function useResolvedGridItems(
             definition: AttributeDefinitionOrBuiltIn,
             item: ProfileItem
         ) =>
-            item.format ??
+            item.format ||
             formatContext.getFormat(definition.type, definition.id);
 
         const push = (

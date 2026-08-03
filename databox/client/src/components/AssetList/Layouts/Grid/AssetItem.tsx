@@ -3,7 +3,6 @@ import {AssetOrAssetContainer, ProfileItemSection} from '../../../../types';
 import assetClasses from '../../classes';
 import {useProfileStore} from '../../../../store/profileStore.ts';
 import GridCardZone from './GridCardZone.tsx';
-import {PrivacyTooltip} from '../../../Ui/PrivacyChip';
 import IconButton from '@mui/material/IconButton';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -71,12 +70,6 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                     }
                 />
                 <div>
-                    <PrivacyTooltip
-                        iconProps={{
-                            fontSize: 'small',
-                        }}
-                        privacy={asset.privacy}
-                    />
                     {!disabled ? (
                         <>
                             {onAddToBasket ? (
@@ -114,6 +107,7 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
             <AssetThumb
                 asset={asset}
                 onPreviewToggle={onPreviewToggle}
+                hideTypeChip={hasGrid}
                 overlay={
                     hasGrid ? (
                         <GridCardZone

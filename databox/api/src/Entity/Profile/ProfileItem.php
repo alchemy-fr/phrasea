@@ -194,7 +194,7 @@ class ProfileItem extends AbstractUuidEntity
 
     public function setFormat(?string $format): void
     {
-        if (null === $format) {
+        if (null === $format || '' === $format) {
             unset($this->options['format']);
 
             return;
@@ -239,6 +239,38 @@ class ProfileItem extends AbstractUuidEntity
         }
 
         $this->options['variant'] = $variant;
+    }
+
+    public function getColor(): ?string
+    {
+        return $this->options['color'] ?? null;
+    }
+
+    public function setColor(?string $color): void
+    {
+        if (null === $color || '' === $color) {
+            unset($this->options['color']);
+
+            return;
+        }
+
+        $this->options['color'] = $color;
+    }
+
+    public function getSize(): ?string
+    {
+        return $this->options['size'] ?? null;
+    }
+
+    public function setSize(?string $size): void
+    {
+        if (null === $size || '' === $size) {
+            unset($this->options['size']);
+
+            return;
+        }
+
+        $this->options['size'] = $size;
     }
 
     public function isShowLabel(): ?bool

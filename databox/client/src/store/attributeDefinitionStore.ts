@@ -282,6 +282,11 @@ function normalizeDefinitionFromId<T extends BaseAttributeDefinition>(d: T): T {
                 ...d,
                 type: AttributeType.AssetStatus,
             };
+        case BuiltInAttributeEnum.FileType:
+            return {
+                ...d,
+                type: AttributeType.FileType,
+            };
         case BuiltInAttributeEnum.Tag:
             return {
                 ...d,

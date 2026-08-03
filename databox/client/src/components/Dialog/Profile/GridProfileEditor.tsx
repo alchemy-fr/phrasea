@@ -29,13 +29,16 @@ import {
     ListItemButton,
     ListItemText,
     ListSubheader,
+    MenuItem,
     Paper,
     Stack,
     Switch,
     TextField,
     ToggleButton,
     ToggleButtonGroup,
+    Tooltip,
     Typography,
+    useTheme,
 } from '@mui/material';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
@@ -45,6 +48,7 @@ import ImageIcon from '@mui/icons-material/Image';
 import {useTranslation} from 'react-i18next';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {logError} from '@alchemy/core';
+import {chipColorNames, defaultChipColors} from '@alchemy/phrasea-framework';
 import {
     AttributeDefinitionOrBuiltIn,
     DisplayProfile,
@@ -53,11 +57,13 @@ import {
     GridRegion,
     ProfileItem,
     ProfileItemSection,
+    ProfileItemSize,
     ProfileItemVariant,
     Workspace,
 } from '../../../types';
 import {AttributeType} from '../../../api/types.ts';
 import {isRichCapable} from '../../AssetList/Layouts/Grid/resolveGridItem.ts';
+import {getAttributeType} from '../../Media/Asset/Attribute/types/getAttributeType.ts';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import AttributeDefinitionLabel from './AttributeDefinitionLabel.tsx';
 import {
@@ -470,7 +476,11 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
                                         )}
                                         type={def?.type}
                                         richCapable={rich}
-                                        defaultVariant={rich ? 'rich' : 'chip'}
+                                        defaultVariant={
+                                            rich
+                                                ? ProfileItemVariant.Rich
+                                                : ProfileItemVariant.Chip
+                                        }
                                         onChange={changes =>
                                             persistPatch(selected, changes)
                                         }
@@ -618,7 +628,9 @@ function PlacedChip({
             size="small"
             label={label}
             color={selected ? 'primary' : 'default'}
-            variant={item.variant === 'text' ? 'outlined' : 'filled'}
+            variant={
+                item.variant === ProfileItemVariant.Text ? 'outlined' : 'filled'
+            }
             onClick={onSelect}
             onDelete={onRemove}
             deleteIcon={<CloseIcon />}
@@ -632,6 +644,58 @@ function PlacedChip({
             {...listeners}
             {...attributes}
         />
+    );
+}
+
+function ColorPicker({
+    value,
+    onChange,
+}: {
+    value: string | undefined;
+    onChange: (color: string) => void;
+}) {
+    const {t} = useTranslation();
+    const theme = useTheme();
+    const chipColors = {...defaultChipColors, ...(theme.palette.chips ?? {})};
+
+    const swatchSx = (selected: boolean) => ({
+        width: 22,
+        height: 22,
+        borderRadius: '50%',
+        cursor: 'pointer',
+        border: '2px solid',
+        borderColor: selected ? 'primary.main' : 'divider',
+        flex: '0 0 auto',
+    });
+
+    return (
+        <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 0.75, my: 1}}>
+            <Tooltip title={t('grid_editor.config.color.default', 'Default')}>
+                <Box
+                    role="button"
+                    onClick={() => onChange('')}
+                    sx={{
+                        ...swatchSx(!value),
+                        // Diagonal strike marking the "no color" swatch.
+                        background:
+                            'linear-gradient(to top right, transparent 45%, currentColor 45%, currentColor 55%, transparent 55%)',
+                        color: 'divider',
+                    }}
+                />
+            </Tooltip>
+            {chipColorNames.map(name => (
+                <Tooltip key={name} title={name}>
+                    <Box
+                        role="button"
+                        onClick={() => onChange(name)}
+                        sx={{
+                            ...swatchSx(value === name),
+                            backgroundColor: chipColors[name].main,
+                        }}
+                    />
+                </Tooltip>
+            ))}
+        </Box>
     );
 }
 
@@ -652,7 +716,15 @@ function ConfigPanel({
     onChange: (changes: Partial<ProfileItem>) => void;
     onClose: () => void;
 }) {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
+    const variant = item.variant ?? defaultVariant;
+    const availableFormats = type
+        ? getAttributeType(type).getAvailableFormats({
+              uiLocale: i18n.language,
+              t,
+          })
+        : [];
+
     return (
         <Paper
             variant="outlined"
@@ -685,17 +757,82 @@ function ConfigPanel({
                 sx={{my: 1}}
             >
                 {richCapable && (
-                    <ToggleButton value="rich">
+                    <ToggleButton value={ProfileItemVariant.Rich}>
                         {t('grid_editor.config.variant.rich', 'Rich')}
                     </ToggleButton>
                 )}
-                <ToggleButton value="chip">
+                <ToggleButton value={ProfileItemVariant.Chip}>
                     {t('grid_editor.config.variant.chip', 'Chip')}
                 </ToggleButton>
-                <ToggleButton value="text">
+                <ToggleButton value={ProfileItemVariant.Text}>
                     {t('grid_editor.config.variant.text', 'Text')}
                 </ToggleButton>
             </ToggleButtonGroup>
+
+            {variant === ProfileItemVariant.Rich &&
+                availableFormats.length > 0 && (
+                    <>
+                        <Typography variant="caption" color="text.secondary">
+                            {t('grid_editor.config.format', 'Format')}
+                        </Typography>
+                        <TextField
+                            select
+                            size="small"
+                            fullWidth
+                            value={item.format ?? ''}
+                            onChange={e => onChange({format: e.target.value})}
+                            sx={{my: 1}}
+                        >
+                            <MenuItem value="">
+                                {t(
+                                    'grid_editor.config.format.default',
+                                    'Default'
+                                )}
+                            </MenuItem>
+                            {availableFormats.map(f => (
+                                <MenuItem key={f.name} value={f.name}>
+                                    {f.title}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    </>
+                )}
+
+            <Typography variant="caption" color="text.secondary">
+                {t('grid_editor.config.size', 'Size')}
+            </Typography>
+            <ToggleButtonGroup
+                size="small"
+                exclusive
+                fullWidth
+                value={item.size ?? ProfileItemSize.Medium}
+                onChange={(_e, v: ProfileItemSize | null) =>
+                    v && onChange({size: v})
+                }
+                sx={{my: 1}}
+            >
+                <ToggleButton value={ProfileItemSize.Small}>
+                    {t('grid_editor.config.size.small', 'S')}
+                </ToggleButton>
+                <ToggleButton value={ProfileItemSize.Medium}>
+                    {t('grid_editor.config.size.medium', 'M')}
+                </ToggleButton>
+                <ToggleButton value={ProfileItemSize.Large}>
+                    {t('grid_editor.config.size.large', 'L')}
+                </ToggleButton>
+            </ToggleButtonGroup>
+
+            {variant === ProfileItemVariant.Chip && (
+                <>
+                    <Typography variant="caption" color="text.secondary">
+                        {t('grid_editor.config.color', 'Chip color')}
+                    </Typography>
+                    <ColorPicker
+                        value={item.color}
+                        onChange={color => onChange({color})}
+                    />
+                </>
+            )}
 
             {type === AttributeType.Boolean && (
                 <FormControlLabel
@@ -714,36 +851,37 @@ function ConfigPanel({
                 />
             )}
 
-            {type === AttributeType.AttributeEntity && (
-                <>
-                    <Typography variant="caption" color="text.secondary">
-                        {t(
-                            'grid_editor.config.entity_display',
-                            'Entity display'
-                        )}
-                    </Typography>
-                    <ToggleButtonGroup
-                        size="small"
-                        exclusive
-                        fullWidth
-                        value={item.entityDisplay ?? 'full'}
-                        onChange={(_e, v: EntityDisplay | null) =>
-                            v && onChange({entityDisplay: v})
-                        }
-                        sx={{my: 1}}
-                    >
-                        <ToggleButton value="full">
-                            {t('grid_editor.config.entity.full', 'Full')}
-                        </ToggleButton>
-                        <ToggleButton value="emoji">
-                            {t('grid_editor.config.entity.emoji', 'Emoji')}
-                        </ToggleButton>
-                        <ToggleButton value="color">
-                            {t('grid_editor.config.entity.color', 'Color')}
-                        </ToggleButton>
-                    </ToggleButtonGroup>
-                </>
-            )}
+            {variant === ProfileItemVariant.Rich &&
+                type === AttributeType.AttributeEntity && (
+                    <>
+                        <Typography variant="caption" color="text.secondary">
+                            {t(
+                                'grid_editor.config.entity_display',
+                                'Entity display'
+                            )}
+                        </Typography>
+                        <ToggleButtonGroup
+                            size="small"
+                            exclusive
+                            fullWidth
+                            value={item.entityDisplay ?? 'full'}
+                            onChange={(_e, v: EntityDisplay | null) =>
+                                v && onChange({entityDisplay: v})
+                            }
+                            sx={{my: 1}}
+                        >
+                            <ToggleButton value="full">
+                                {t('grid_editor.config.entity.full', 'Full')}
+                            </ToggleButton>
+                            <ToggleButton value="emoji">
+                                {t('grid_editor.config.entity.emoji', 'Emoji')}
+                            </ToggleButton>
+                            <ToggleButton value="color">
+                                {t('grid_editor.config.entity.color', 'Color')}
+                            </ToggleButton>
+                        </ToggleButtonGroup>
+                    </>
+                )}
 
             <FormControlLabel
                 control={
