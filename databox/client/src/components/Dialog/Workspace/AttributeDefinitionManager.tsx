@@ -38,7 +38,6 @@ import AttributePolicySelect from '../../Form/AttributePolicySelect';
 import FieldTypeSelect from '../../Form/FieldTypeSelect';
 import {typesIcons} from '../../../lib/icons';
 import {toast} from 'react-toastify';
-import CodeEditorWidget from '../../Form/CodeEditor/CodeEditorWidget.tsx';
 import ObjectTranslationField from '../../Form/ObjectTranslationField.tsx';
 import LastErrorsList from './LastErrorsList.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
@@ -62,6 +61,7 @@ import {
 import {isNotNull} from '@alchemy/core';
 import BooleanFilterSelect from '../../Form/BooleanFilterSelect.tsx';
 import TwigEditorWidget from '../../Form/CodeEditor/TwigEditorWidget.tsx';
+import MetadataTagsWidget from '../../Form/MetadataTagsWidget.tsx';
 
 function Item({
     usedFormSubmit,
@@ -374,17 +374,60 @@ function Item({
                     locales={workspace.enabledLocales ?? []}
                     field={({locale}) => {
                         return (
-                            <CodeEditorWidget
+                            <TwigEditorWidget
                                 control={control}
                                 name={`initialValues.${locale ?? NO_LOCALE}`}
                                 disabled={submitting}
-                                mode={'twig'}
                                 height={'200px'}
                             />
                         );
                     }}
                 />
+                <FormHelperText>
+                    {t(
+                        'form.attribute_definition.initialValues.helper',
+                        'Twig template resolved to initialize this attribute when the asset is created.'
+                    )}
+                </FormHelperText>
                 <FormFieldErrors field={'initialValues'} errors={errors} />
+            </FormRow>
+
+            <FormRow>
+                <MetadataTagsWidget
+                    control={control}
+                    name={'readFromMetadata'}
+                    label={t(
+                        'form.attribute_definition.readFromMetadata.label',
+                        'Read from metadata'
+                    )}
+                    disabled={submitting}
+                />
+                <FormHelperText>
+                    {t(
+                        'form.attribute_definition.readFromMetadata.helper',
+                        'Metadata tag names to read from the source file to initialize this attribute. The first tag found is used.'
+                    )}
+                </FormHelperText>
+                <FormFieldErrors field={'readFromMetadata'} errors={errors} />
+            </FormRow>
+
+            <FormRow>
+                <MetadataTagsWidget
+                    control={control}
+                    name={'writeMetadata'}
+                    label={t(
+                        'form.attribute_definition.writeMetadata.label',
+                        'Write to metadata'
+                    )}
+                    disabled={submitting}
+                />
+                <FormHelperText>
+                    {t(
+                        'form.attribute_definition.writeMetadata.helper',
+                        'Metadata tag names into which this attribute value is written when the asset (or its rendition) is exported.'
+                    )}
+                </FormHelperText>
+                <FormFieldErrors field={'writeMetadata'} errors={errors} />
             </FormRow>
 
             <FormRow>

@@ -1,5 +1,5 @@
 import {MouseEvent} from 'react';
-import {AssetOrAssetContainer} from '../../../../types';
+import {AssetOrAssetContainer, AssetStatus} from '../../../../types';
 import assetClasses from '../../classes';
 import IconButton from '@mui/material/IconButton';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -10,6 +10,7 @@ import {AssetItemProps, OnPreviewToggle} from '../../types';
 import {Checkbox} from '@mui/material';
 import {stopPropagation} from '../../../../lib/stdFuncs';
 import AssetItemWrapper from '../AssetItemWrapper';
+import QuarantineActions from '../../../Media/Asset/QuarantineActions.tsx';
 
 type Props<Item extends AssetOrAssetContainer> = {
     onPreviewToggle?: OnPreviewToggle;
@@ -80,6 +81,9 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                 <AssetThumb onPreviewToggle={onPreviewToggle} asset={asset} />
             </div>
             <div className={assetClasses.attributes}>
+                {asset.status === AssetStatus.Quarantined && (
+                    <QuarantineActions asset={asset} />
+                )}
                 <Attributes asset={asset} displayControls={true} />
             </div>
         </AssetItemWrapper>

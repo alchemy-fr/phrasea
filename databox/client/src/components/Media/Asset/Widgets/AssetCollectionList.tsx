@@ -1,6 +1,4 @@
-import {useContext} from 'react';
 import {Asset, Collection, Workspace} from '../../../../types';
-import {DisplayContext} from '../../DisplayContext';
 import assetClasses from '../../../AssetList/classes';
 import {useTranslation} from 'react-i18next';
 import {WorkspaceChip} from '../../../Ui/WorkspaceChip.tsx';
@@ -8,6 +6,9 @@ import {CollectionChip} from '../../../Ui/CollectionChip.tsx';
 import CollectionStoryChip from '../../../Ui/CollectionStoryChip.tsx';
 import {OnOpen} from '../../../AssetList/types.ts';
 import CollectionOrStoryChip from '../../../Ui/CollectionOrStoryChip.tsx';
+
+// Number of collections shown before collapsing the rest into a "+N" chip.
+const collectionsLimit = 2;
 
 type Props = {
     asset: Asset;
@@ -23,13 +24,6 @@ export default function AssetCollectionList({
     onOpenAsset,
 }: Props) {
     const {t} = useTranslation();
-    const {
-        state: {collectionsLimit, displayCollections},
-    } = useContext(DisplayContext)!;
-
-    if (!displayCollections) {
-        return <></>;
-    }
 
     const r = (c: Collection) => {
         if (c.storyAsset) {

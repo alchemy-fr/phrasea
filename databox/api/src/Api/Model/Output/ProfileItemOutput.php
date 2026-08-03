@@ -24,6 +24,21 @@ final readonly class ProfileItemOutput
         public ?bool $displayEmpty = null,
         #[Groups([Profile::GROUP_READ])]
         public ?string $format = null,
+        /**
+         * @var array{region: string, anchor: string, order?: int}|null
+         */
+        #[Groups([Profile::GROUP_READ])]
+        public ?array $placement = null,
+        #[Groups([Profile::GROUP_READ])]
+        public ?string $variant = null,
+        #[Groups([Profile::GROUP_READ])]
+        public ?bool $showLabel = null,
+        #[Groups([Profile::GROUP_READ])]
+        public ?bool $showIcon = null,
+        #[Groups([Profile::GROUP_READ])]
+        public ?bool $booleanIcon = null,
+        #[Groups([Profile::GROUP_READ])]
+        public ?string $entityDisplay = null,
     ) {
     }
 }

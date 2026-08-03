@@ -3,7 +3,7 @@ import {modalRoutes, routes, Routing} from '../routes.ts';
 import type {NotificationUriHandler} from '@alchemy/notification';
 import {getPath, useNavigate} from '@alchemy/navigation';
 import {
-    BuiltInFieldEnum,
+    BuiltInAttributeEnum,
     queryToHash,
 } from '../components/Media/Search/search.ts';
 
@@ -37,7 +37,7 @@ export function useNotificationUriHandler(): NotificationUriHandler {
                     [
                         {
                             id: 'collection',
-                            query: `${BuiltInFieldEnum.Collection} = "${id}"`,
+                            query: `${BuiltInAttributeEnum.Collection} = "${id}"`,
                         },
                     ],
                     [],

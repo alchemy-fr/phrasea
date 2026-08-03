@@ -42,7 +42,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ApiResource(
     shortName: 'attribute-definition',
@@ -241,10 +240,28 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     private ?int $searchBoost = null;
 
     /**
-     * Initialize attributes after asset creation; key=locale.
+     * Initialize attributes after asset creation from a Twig template; key=locale, value=Twig code.
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $initialValues = null;
+
+    /**
+     * Ordered list of metadata tag names to read from the source file to initialize
+     * the attribute. The first tag found in the file metadata is used.
+     *
+     * @var string[]|null
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $readFromMetadata = null;
+
+    /**
+     * List of metadata tag names into which the attribute value is written when the
+     * asset (or its rendition) is exported.
+     *
+     * @var string[]|null
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $writeMetadata = null;
 
     /**
      * Resolve this template (TWIG syntax) if no user value provided.
@@ -483,6 +500,57 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         }
     }
 
+    /**
+     * @return string[]|null
+     */
+    public function getReadFromMetadata(): ?array
+    {
+        return $this->readFromMetadata;
+    }
+
+    /**
+     * @param string[]|null $readFromMetadata
+     */
+    public function setReadFromMetadata(?array $readFromMetadata): void
+    {
+        $this->readFromMetadata = self::normalizeMetadataList($readFromMetadata);
+    }
+
+    /**
+     * @return string[]|null
+     */
+    public function getWriteMetadata(): ?array
+    {
+        return $this->writeMetadata;
+    }
+
+    /**
+     * @param string[]|null $writeMetadata
+     */
+    public function setWriteMetadata(?array $writeMetadata): void
+    {
+        $this->writeMetadata = self::normalizeMetadataList($writeMetadata);
+    }
+
+    /**
+     * @param string[]|null $list
+     *
+     * @return string[]|null
+     */
+    private static function normalizeMetadataList(?array $list): ?array
+    {
+        if (null === $list) {
+            return null;
+        }
+
+        $list = array_values(array_filter(
+            array_map('trim', $list),
+            static fn (string $s): bool => '' !== $s,
+        ));
+
+        return [] === $list ? null : $list;
+    }
+
     public function isSortable(): bool
     {
         return $this->sortable;
@@ -604,46 +672,6 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
         }
 
         $this->options[self::OPT_REQUIRED] = true;
-    }
-
-    #[Assert\Callback]
-    public function validateInitialValues(ExecutionContextInterface $context): void
-    {
-        if (empty($this->initialValues)) {
-            return;
-        }
-
-        foreach ($this->initialValues as $locale => $value) {
-            $data = json_decode((string) $value, true);
-            if (JSON_ERROR_NONE !== json_last_error()) {
-                $context->buildViolation('The initial value for locale "%locale%" is not valid JSON.')
-                    ->setParameter('%locale%', $locale)
-                    ->atPath('initialValues')
-                    ->addViolation();
-                continue;
-            }
-
-            if (!is_array($data)) {
-                $context->buildViolation('The initial value for locale "%locale%" must be an array.')
-                    ->setParameter('%locale%', $locale)
-                    ->atPath('initialValues')
-                    ->addViolation();
-                continue;
-            }
-
-            foreach ([
-                'type',
-                'value',
-            ] as $key) {
-                if (!isset($data[$key])) {
-                    $context->buildViolation('The initial value for locale "%locale%" must contain a "%key%" key.')
-                        ->setParameter('%locale%', $locale)
-                        ->setParameter('%key%', $key)
-                        ->atPath('initialValues')
-                        ->addViolation();
-                }
-            }
-        }
     }
 
     public function isUseAsName(): bool

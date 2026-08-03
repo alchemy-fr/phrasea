@@ -6,7 +6,7 @@ namespace App\Consumer\Handler;
 
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
-#[MessengerMessage('p1')]
+#[MessengerMessage('task')]
 final readonly class RunOperationTask
 {
     public function __construct(

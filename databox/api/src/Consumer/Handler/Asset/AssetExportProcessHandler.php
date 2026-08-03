@@ -21,9 +21,12 @@ use App\Model\ExportStatusEnum;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\Attribute\AssetNameResolver;
+use App\Service\Asset\Attribute\AttributeMetadataEmbedder;
 use App\Service\Asset\FileFetcher;
 use App\Service\Metadata\MetadataNormalizer;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPExiftool\Driver\Metadata\MetadataBag;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
@@ -41,6 +44,8 @@ class AssetExportProcessHandler
         private readonly FileStorageManager $fileStorageManager,
         private readonly PathGeneratorInterface $pathGenerator,
         private readonly UrlSigner $urlSigner,
+        private readonly AttributeMetadataEmbedder $attributeMetadataEmbedder,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -61,7 +66,7 @@ class AssetExportProcessHandler
             $userData = $export->getUserData();
 
             $assets = $export->getAssets();
-            $total = count($assets);
+            $total = count($assets) + 2;
             $i = 0;
             $fileCount = 0;
 
@@ -75,6 +80,9 @@ class AssetExportProcessHandler
                         AssetRenditionRepository::OPT_WITH_FILE => true,
                     ]);
 
+                    // Attribute values to embed depend only on the asset: resolve once for all its renditions.
+                    $attributeMetadata = false;
+
                     /** @var AssetRendition[] $renditions */
                     foreach ($renditions as $rendition) {
                         $asset = $rendition->getAsset();
@@ -82,6 +90,10 @@ class AssetExportProcessHandler
 
                         if (!$this->isGrantedForUser($userData, AbstractVoter::READ, $rendition)) {
                             continue;
+                        }
+
+                        if (false === $attributeMetadata) {
+                            $attributeMetadata = $this->attributeMetadataEmbedder->buildMetadataBag($asset);
                         }
 
                         $file = $rendition->getFile();
@@ -94,14 +106,38 @@ class AssetExportProcessHandler
                         $path = sprintf('%s/%s-%s-%s%s', $archiveDir, StringUtil::slugify($renditionName), StringUtil::slugify($assetName ?? ''), $assetId, $ext);
                         $this->fileFetcher->getFile($file, path: $path);
 
-                        if ($sourceFile?->getType() === $file->getType() && $file->metadataHasChanged()) {
-                            $writer = $this->metadataManipulator->createWriter();
-                            $metadata = $this->metadataNormalizer->denormalize($file->getMetadata());
+                        $metadata = new MetadataBag();
 
-                            $tmpFile = sys_get_temp_dir().'/'.uniqid('metadata-file');
-                            $writer->write($path, $metadata, destination: $tmpFile);
-                            unlink($path);
-                            rename($tmpFile, $path);
+                        // Write back the (changed) asset metadata into the rendition when the definition allows it.
+                        if ($rendition->getDefinition()->isWriteMetadata() && $sourceFile?->getType() === $file->getType() && $file->metadataHasChanged()) {
+                            foreach ($this->metadataNormalizer->denormalize($file->getMetadata()) as $meta) {
+                                $metadata->set($meta->getTagGroup()->getId(), $meta);
+                            }
+                        }
+
+                        // Embed attribute values into the metadata according to attribute definitions "writeMetadata".
+                        if ($attributeMetadata instanceof MetadataBag) {
+                            foreach ($attributeMetadata as $meta) {
+                                $metadata->set($meta->getTagGroup()->getId(), $meta);
+                            }
+                        }
+
+                        if (count($metadata) > 0) {
+                            try {
+                                $writer = $this->metadataManipulator->createWriter();
+
+                                $tmpFile = sys_get_temp_dir().'/'.uniqid('metadata-file');
+                                $writer->write($path, $metadata, destination: $tmpFile);
+                                unlink($path);
+                                rename($tmpFile, $path);
+                            } catch (\Throwable $e) {
+                                // The rendition file format may not support metadata writing; skip embedding for this file.
+                                $this->logger->warning('Failed to write metadata into exported file', [
+                                    'exception' => $e,
+                                    'assetId' => $assetId,
+                                    'rendition' => $renditionName,
+                                ]);
+                            }
                         }
 
                         ++$fileCount;
@@ -135,6 +171,9 @@ class AssetExportProcessHandler
                 $zippy->create($archiveSrc, [
                     'content' => $archiveDir,
                 ]);
+                $this->triggerExportPush($export->getId(), 'progress', [
+                    'progress' => ++$i / $total,
+                ]);
 
                 $fd = fopen($archiveSrc, 'r');
                 if (false === $fd) {
@@ -143,6 +182,10 @@ class AssetExportProcessHandler
                 $this->fileStorageManager->storeStream($archivePath, $fd);
                 fclose($fd);
                 $export->setPath($archivePath);
+
+                $this->triggerExportPush($export->getId(), 'progress', [
+                    'progress' => ++$i / $total,
+                ]);
 
                 $export->setStatus(ExportStatusEnum::Ready);
                 $this->em->persist($export);

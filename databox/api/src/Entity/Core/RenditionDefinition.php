@@ -148,6 +148,11 @@ class RenditionDefinition extends AbstractUuidEntity implements LoggableChangeSe
     final public const string GROUP_LIST = 'renddef:i';
     final public const string GROUP_WRITE = 'renddef:w';
 
+    /**
+     * Config key: whether the (changed) asset metadata should be embedded into the rendition file on export.
+     */
+    final public const string CONFIG_WRITE_METADATA = 'write_metadata';
+
     final public const string TR_FIELD_NAME = 'name';
 
     /**
@@ -182,6 +187,12 @@ class RenditionDefinition extends AbstractUuidEntity implements LoggableChangeSe
 
     #[ORM\Column(type: Types::BOOLEAN)]
     private bool $substitutable = true;
+
+    /**
+     * Arbitrary configuration for the rendition definition (e.g. write_metadata).
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $config = null;
 
     #[ORM\Column(type: Types::SMALLINT)]
     private int $buildMode = self::BUILD_MODE_NONE;
@@ -359,6 +370,16 @@ class RenditionDefinition extends AbstractUuidEntity implements LoggableChangeSe
     public function setSubstitutable(bool $substitutable): void
     {
         $this->substitutable = $substitutable;
+    }
+
+    public function isWriteMetadata(): bool
+    {
+        return $this->config[self::CONFIG_WRITE_METADATA] ?? false;
+    }
+
+    public function setWriteMetadata(bool $writeMetadata): void
+    {
+        $this->config[self::CONFIG_WRITE_METADATA] = $writeMetadata;
     }
 
     public function getParent(): ?self

@@ -99,3 +99,7 @@ export async function importEntities(
         data,
     });
 }
+
+export async function clearEntityList(listId: string): Promise<void> {
+    await apiClient.post(`${EntityName.EntityList}/${listId}/clear`, {});
+}

@@ -8,6 +8,7 @@ import {modalRoutes} from '../../../routes';
 import {useCloseModal} from '../../Routing/ModalLink';
 import EditDisplayProfile from './EditDisplayProfile.tsx';
 import OrganizeProfile from './OrganizeProfile.tsx';
+import GridProfileEditor from './GridProfileEditor.tsx';
 import {useProfileStore} from '../../../store/profileStore.ts';
 
 type Props = {};
@@ -51,6 +52,15 @@ export default function DisplayProfileDialog({}: Props) {
                     ),
                     component: OrganizeProfile,
                     id: 'organize',
+                    props: {
+                        data,
+                    },
+                    enabled: data.capabilities.edit,
+                },
+                {
+                    title: t('display_profile.manage.grid.title', 'Grid card'),
+                    component: GridProfileEditor,
+                    id: 'grid',
                     props: {
                         data,
                     },

@@ -7,8 +7,8 @@ namespace App\Elasticsearch;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeInterface;
 use App\Elasticsearch\AQL\ConditionOperatorEnum;
-use App\Elasticsearch\BuiltInField\AssetStatusBuiltInField;
-use App\Elasticsearch\BuiltInField\DeletedBuiltInField;
+use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\DeletedBuiltInAttribute;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Collection;
@@ -37,8 +37,8 @@ class AssetSearch extends AbstractSearch
         private readonly AttributeSearch $attributeSearch,
         private readonly QueryStringParser $queryStringParser,
         private readonly FacetHandler $facetHandler,
-        private readonly DeletedBuiltInField $deletedBuiltInField,
-        private readonly AssetStatusBuiltInField $assetStatusBuiltInField,
+        private readonly DeletedBuiltInAttribute $deletedBuiltInAttribute,
+        private readonly AssetStatusBuiltInAttribute $assetStatusBuiltInAttribute,
         private readonly CollectionRepository $collectionRepository,
         private readonly SavedSearchRepository $savedSearchRepository,
         private readonly AssetSortGroupMapper $assetSortGroupMapper,
@@ -128,10 +128,10 @@ class AssetSearch extends AbstractSearch
                     $condition = $condition['query'] ?? '';
                 }
 
-                if (str_starts_with((string) $condition, DeletedBuiltInField::getKey())) {
+                if (str_starts_with((string) $condition, DeletedBuiltInAttribute::getKey())) {
                     $hasDeletedFilter = true;
                 }
-                if (str_starts_with((string) $condition, AssetStatusBuiltInField::getKey())) {
+                if (str_starts_with((string) $condition, AssetStatusBuiltInAttribute::getKey())) {
                     $hasStatusFilter = true;
                 }
                 $filterQueries[] = $this->attributeSearch->buildConditionQuery(
@@ -143,11 +143,11 @@ class AssetSearch extends AbstractSearch
         }
 
         if (!$hasDeletedFilter) {
-            $filterQueries[] = $this->deletedBuiltInField->createFilterQuery(false, ConditionOperatorEnum::EQUALS, $options);
+            $filterQueries[] = $this->deletedBuiltInAttribute->createFilterQuery(false, ConditionOperatorEnum::EQUALS, $options);
         }
 
         if (!$hasStatusFilter) {
-            $filterQueries[] = $this->assetStatusBuiltInField->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options);
+            $filterQueries[] = $this->assetStatusBuiltInAttribute->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options);
         }
 
         $filterQuery = new Query\BoolQuery();

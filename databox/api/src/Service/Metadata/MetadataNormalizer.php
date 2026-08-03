@@ -18,6 +18,8 @@ final readonly class MetadataNormalizer
 
     /**
      * normalize metadata from metadataManipulator bundle (for File.metadata).
+     *
+     * The map is grouped by tag namespace: [ '<group>' => [ '<name>' => [values...] ] ].
      */
     public function normalize(MetadataBag $bag): array
     {
@@ -39,10 +41,8 @@ final readonly class MetadataNormalizer
                 continue;
             }
 
-            $a[$meta->getTagGroup()->getId()] = [
-                'name' => $meta->getTagGroup()->getName(),
-                'values' => $vMeta->asArray(),
-            ];
+            [$group, $name] = explode(':', $meta->getTagGroup()->getId(), 2);
+            $a[$group][$name] = $vMeta->asArray();
         }
 
         return $a;
@@ -52,24 +52,29 @@ final readonly class MetadataNormalizer
     {
         $bag = new MetadataBag();
 
-        foreach ($data as $groupId => $groupData) {
-            $meta = $this->metadataManipulator->createMetadata($groupId);
-            if (!$meta->getTagGroup()->isWritable() || str_starts_with($groupId, 'System:')) {
+        foreach ($data as $group => $tags) {
+            if ('System' === $group || !is_array($tags)) {
                 continue;
             }
 
-            $values = $groupData['values'] ?? [];
-            if (!is_array($values)) {
-                continue;
-            }
+            foreach ($tags as $name => $values) {
+                if (!is_array($values)) {
+                    continue;
+                }
 
-            if ($meta->getTagGroup()->isMulti()) {
-                $meta->setValue($values);
-            } else {
-                $meta->setValue(reset($values));
-            }
+                $meta = $this->metadataManipulator->createMetadata($group.':'.$name);
+                if (!$meta->getTagGroup()->isWritable()) {
+                    continue;
+                }
 
-            $bag->add($meta);
+                if ($meta->getTagGroup()->isMulti()) {
+                    $meta->setValue($values);
+                } else {
+                    $meta->setValue(reset($values));
+                }
+
+                $bag->add($meta);
+            }
         }
 
         return $bag;

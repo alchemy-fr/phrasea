@@ -25,7 +25,7 @@ import {useCollectionStore} from '../../store/collectionStore.ts';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {useTranslation} from 'react-i18next';
 import {SearchContext} from './Search/SearchContext.tsx';
-import {BuiltInFieldEnum} from './Search/search.ts';
+import {BuiltInAttributeEnum} from './Search/search.ts';
 import SavedSearchList from './Search/SavedSearch/SavedSearchList.tsx';
 import {useAuth} from '@alchemy/react-auth';
 import GppMaybeIcon from '@mui/icons-material/GppMaybe';
@@ -174,12 +174,12 @@ function CollectionsPanel({}: Props) {
                             <ListItem disablePadding>
                                 <ListItemButton
                                     selected={isConditionOfId(
-                                        BuiltInFieldEnum.Deleted
+                                        BuiltInAttributeEnum.Deleted
                                     )}
                                     onClick={() => {
                                         searchContext.resetWithCondition({
-                                            id: BuiltInFieldEnum.Deleted,
-                                            query: `${BuiltInFieldEnum.Deleted} = true`,
+                                            id: BuiltInAttributeEnum.Deleted,
+                                            query: `${BuiltInAttributeEnum.Deleted} = true`,
                                         });
                                     }}
                                 >
@@ -197,12 +197,12 @@ function CollectionsPanel({}: Props) {
                             <ListItem disablePadding>
                                 <ListItemButton
                                     selected={isConditionOfId(
-                                        BuiltInFieldEnum.AssetStatus
+                                        BuiltInAttributeEnum.AssetStatus
                                     )}
                                     onClick={() => {
                                         searchContext.resetWithCondition({
-                                            id: BuiltInFieldEnum.AssetStatus,
-                                            query: `${BuiltInFieldEnum.AssetStatus} = ${AssetStatus.Quarantined}`,
+                                            id: BuiltInAttributeEnum.AssetStatus,
+                                            query: `${BuiltInAttributeEnum.AssetStatus} = ${AssetStatus.Quarantined}`,
                                         });
                                     }}
                                 >

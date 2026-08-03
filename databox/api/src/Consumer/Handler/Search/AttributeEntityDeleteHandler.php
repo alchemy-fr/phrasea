@@ -28,7 +28,7 @@ final readonly class AttributeEntityDeleteHandler
 
         $definitions = $this->attributeDefinitionRepository->getWorkspaceDefinitionOfEntity(
             $message->getWorkspaceId(),
-            $message->getTypeId(),
+            $message->getListId(),
         );
 
         if (empty($definitions)) {
@@ -42,7 +42,7 @@ final readonly class AttributeEntityDeleteHandler
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
             $fields[sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, AttributeInterface::NO_LOCALE, $fieldName)] = true;
             $calls[] = sprintf(
-                'del(ctx._source.%2$s, \'%1$s\', params[\'_id\']);',
+                'del(ctx._source.%2$s[0], \'%1$s\', params[\'_id\']);',
                 $fieldName,
                 AttributeInterface::ATTRIBUTES_FIELD
             );
@@ -51,7 +51,7 @@ final readonly class AttributeEntityDeleteHandler
         $this->attributeRepository->deleteByAttributeEntity(
             $message->getId(),
             $message->getWorkspaceId(),
-            $message->getTypeId()
+            $message->getListId()
         );
 
         $this->elasticSearchClient->updateByQuery(
@@ -68,16 +68,13 @@ final readonly class AttributeEntityDeleteHandler
             [
                 'source' => <<<EOF
 void del(HashMap c, String name, String id) {
-    if (c instanceof Map) {
-        for (def entry : c.entrySet()) {
-            String locale = entry.getKey();
-
-            def field = c[locale].get(name);
-            if (field instanceof List) {
-                field.removeIf(item -> item['id'] == id);
-            } else if (field instanceof Map) {
-                c[locale].remove(name);
-            }
+    for (def entry : c.entrySet()) {
+        String locale = entry.getKey();
+        def field = c[locale].get(name);
+        if (field instanceof List) {
+            field.removeIf(item -> item['id'] == id);
+        } else if (field instanceof Map && field.id == id) {
+            c[locale].remove(name);
         }
     }
 }
