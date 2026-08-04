@@ -32,6 +32,59 @@ class RenditionDefinitionTest extends AbstractSearchTestCase
         ]);
     }
 
+    public function testUpdateRenditionDefinitionMetadata(): void
+    {
+        self::enableFixtures();
+        $client = static::createClient();
+        $iri = $this->findIriBy(RenditionDefinition::class, ['name' => 'preview']);
+
+        $client->request('PUT', $iri, [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+            'json' => [
+                'metadata' => [
+                    'IPTC:CopyrightNotice' => '© Alchemy',
+                ],
+            ],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@id' => $iri,
+            'metadata' => [
+                'IPTC:CopyrightNotice' => '© Alchemy',
+            ],
+        ]);
+
+        $client->request('PUT', $iri, [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+            'json' => [
+                'metadata' => [
+                    'NotANamespacedTag' => 'foo',
+                ],
+            ],
+        ]);
+
+        $this->assertResponseStatusCodeSame(422);
+
+        $response = $client->request('PUT', $iri, [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+            'json' => [
+                'metadata' => [
+                    'Unknown:Tag' => 'foo',
+                ],
+            ],
+        ]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertStringContainsString('Unknown metadata tag', $response->getContent(false));
+    }
+
     public function testGetRenditionDefinition(): void
     {
         self::enableFixtures();

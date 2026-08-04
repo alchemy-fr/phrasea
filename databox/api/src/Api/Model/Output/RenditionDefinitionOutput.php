@@ -54,6 +54,12 @@ class RenditionDefinitionOutput extends AbstractUuidOutput
     #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     public bool $writeMetadata;
 
+    /**
+     * @var array<string, string>|null
+     */
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
+    public ?array $metadata = null;
+
     #[Groups([RenditionDefinition::GROUP_READ])]
     public ?array $labels = null;
 

@@ -76,6 +76,9 @@ class RenditionDefinitionInputTransformer extends AbstractInputTransformer
         if (null !== $data->writeMetadata) {
             $object->setWriteMetadata($data->writeMetadata);
         }
+        if (null !== $data->metadata) {
+            $object->setMetadata($data->metadata);
+        }
         if (null !== $data->buildMode) {
             $object->setBuildMode($data->buildMode);
         }

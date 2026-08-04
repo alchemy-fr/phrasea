@@ -36,6 +36,7 @@ import React from 'react';
 import RenditionDefinitionSelect from '../../Form/RenditionDefinitionSelect.tsx';
 import CodeEditorWidget from '../../Form/CodeEditor/CodeEditorWidget.tsx';
 import UseAsWidget from '../../Form/UseAsWidget.tsx';
+import MetadataValuesWidget from '../../Form/MetadataValuesWidget.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import {useCreateSaveTranslations} from '../../../hooks/useCreateSaveTranslations.ts';
 import {getLocaleOptions} from '../../../api/locale.ts';
@@ -157,13 +158,33 @@ function Item({
                 <CheckboxWidget
                     label={t(
                         'form.rendition_definition.write_metadata.label',
-                        'Write metadata into rendition on export'
+                        'Write attributes into rendition metadata on export'
                     )}
                     control={control}
                     name={'writeMetadata'}
                     disabled={submitting}
                 />
                 <FormFieldErrors field={'writeMetadata'} errors={errors} />
+            </FormRow>
+            <FormRow>
+                <FormGroup>
+                    <MetadataValuesWidget
+                        label={t(
+                            'form.rendition_definition.metadata.label',
+                            'Metadata to write'
+                        )}
+                        control={control}
+                        name={'metadata'}
+                        disabled={submitting}
+                    />
+                    <FormHelperText>
+                        {t(
+                            'form.rendition_definition.metadata.helper',
+                            'Hardcoded metadata values written into the rendition file when it is exported.'
+                        )}
+                    </FormHelperText>
+                    <FormFieldErrors field={'metadata'} errors={errors} />
+                </FormGroup>
             </FormRow>
             <FormRow>
                 <FormGroup>
@@ -261,6 +282,7 @@ function createNewItem(): Partial<RenditionDefinition> {
         buildMode: RenditionBuildMode.PICK_SOURCE,
         substitutable: true,
         writeMetadata: true,
+        metadata: {},
         useAsMain: false,
         useAsPreview: false,
         useAsThumbnail: false,

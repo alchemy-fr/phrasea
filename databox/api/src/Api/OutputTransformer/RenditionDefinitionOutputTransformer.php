@@ -37,6 +37,7 @@ class RenditionDefinitionOutputTransformer implements OutputTransformerInterface
         $output->download = $data->isDownload();
         $output->substitutable = $data->isSubstitutable();
         $output->writeMetadata = $data->isWriteMetadata();
+        $output->metadata = $data->getMetadata() ?: null;
         $output->labels = $data->getLabels();
         $output->translations = $data->getTranslations();
         $output->target = $data->getTarget()->value;

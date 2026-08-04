@@ -1,0 +1,5 @@
+rendition_metadata:
+    invalid_tag: 'Der Metadaten-Schlüssel "{{ tag }}" muss ein Tag mit Namensraum sein (z. B. "IPTC:CopyrightNotice").'
+    unknown_tag: 'Unbekanntes Metadaten-Tag "{{ tag }}".'
+    not_writable_tag: 'Das Metadaten-Tag "{{ tag }}" ist nicht beschreibbar.'
+    invalid_value: 'Der Metadaten-Wert für "{{ tag }}" muss ein Skalar sein.'

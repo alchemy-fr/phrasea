@@ -1,0 +1,5 @@
+rendition_metadata:
+    invalid_tag: 'Metadata key "{{ tag }}" must be a namespaced tag id (e.g. "IPTC:CopyrightNotice").'
+    unknown_tag: 'Unknown metadata tag "{{ tag }}".'
+    not_writable_tag: 'Metadata tag "{{ tag }}" is not writable.'
+    invalid_value: 'Metadata value for "{{ tag }}" must be a scalar.'
