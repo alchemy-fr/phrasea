@@ -820,34 +820,30 @@ function ConfigPanel({
                 </ToggleButton>
             </ToggleButtonGroup>
 
-            {variant === ProfileItemVariant.Rich &&
-                availableFormats.length > 0 && (
-                    <>
-                        <Typography variant="caption" color="text.secondary">
-                            {t('grid_editor.config.format', 'Format')}
-                        </Typography>
-                        <TextField
-                            select
-                            size="small"
-                            fullWidth
-                            value={item.format ?? ''}
-                            onChange={e => onChange({format: e.target.value})}
-                            sx={{my: 1}}
-                        >
-                            <MenuItem value="">
-                                {t(
-                                    'grid_editor.config.format.default',
-                                    'Default'
-                                )}
+            {availableFormats.length > 0 && (
+                <>
+                    <Typography variant="caption" color="text.secondary">
+                        {t('grid_editor.config.format', 'Format')}
+                    </Typography>
+                    <TextField
+                        select
+                        size="small"
+                        fullWidth
+                        value={item.format ?? ''}
+                        onChange={e => onChange({format: e.target.value})}
+                        sx={{my: 1}}
+                    >
+                        <MenuItem value="">
+                            {t('grid_editor.config.format.default', 'Default')}
+                        </MenuItem>
+                        {availableFormats.map(f => (
+                            <MenuItem key={f.name} value={f.name}>
+                                {f.title}
                             </MenuItem>
-                            {availableFormats.map(f => (
-                                <MenuItem key={f.name} value={f.name}>
-                                    {f.title}
-                                </MenuItem>
-                            ))}
-                        </TextField>
-                    </>
-                )}
+                        ))}
+                    </TextField>
+                </>
+            )}
 
             <Typography variant="caption" color="text.secondary">
                 {t('grid_editor.config.size', 'Size')}

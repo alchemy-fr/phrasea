@@ -53,6 +53,6 @@ class ProfileOutput extends AbstractUuidOutput
     #[Groups([Profile::GROUP_LIST, WebhookSerializationInterface::DEFAULT_GROUP])]
     public ?bool $public = null;
 
-    #[Groups([Profile::GROUP_READ])]
+    #[Groups([Profile::GROUP_LIST, Profile::GROUP_READ])]
     public ?UserOutput $owner = null;
 }

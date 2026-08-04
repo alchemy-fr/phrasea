@@ -5,6 +5,7 @@ import {
     ProfileItem,
     ProfileItemSection,
     ProfileItemType,
+    User,
 } from '../types';
 import {
     addToProfile,
@@ -500,6 +501,25 @@ export const useProfileStore = create<State>((set, get) => ({
         }
     },
 }));
+
+/**
+ * The profile's owner, when the profile is shared: public, or owned by
+ * someone else than the current user.
+ */
+export function getSharedProfileOwner(
+    profile: DisplayProfile,
+    currentUserId: string | undefined
+): User | undefined {
+    if (!profile.owner) {
+        return undefined;
+    }
+
+    if (profile.public || profile.owner.id !== currentUserId) {
+        return profile.owner;
+    }
+
+    return undefined;
+}
 
 export function attributeDefinitionToItem(
     definition: BaseAttributeDefinition

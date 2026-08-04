@@ -9,6 +9,7 @@ import {useCloseModal} from '../../Routing/ModalLink';
 import EditDisplayProfile from './EditDisplayProfile.tsx';
 import OrganizeProfile from './OrganizeProfile.tsx';
 import GridProfileEditor from './GridProfileEditor.tsx';
+import ProfileInfo from './ProfileInfo.tsx';
 import {useProfileStore} from '../../../store/profileStore.ts';
 
 type Props = {};
@@ -83,6 +84,14 @@ export default function DisplayProfileDialog({}: Props) {
                         data,
                     },
                     enabled: data.capabilities.editPermissions,
+                },
+                {
+                    title: t('display_profile.manage.info.title', 'Info'),
+                    component: ProfileInfo,
+                    id: 'info',
+                    props: {
+                        data,
+                    },
                 },
             ]}
         />
