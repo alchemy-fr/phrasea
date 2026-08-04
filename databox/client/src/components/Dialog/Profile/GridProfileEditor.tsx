@@ -45,6 +45,8 @@ import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import CloseIcon from '@mui/icons-material/Close';
 import ImageIcon from '@mui/icons-material/Image';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {useTranslation} from 'react-i18next';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {logError} from '@alchemy/core';
@@ -84,8 +86,12 @@ type Props = {
     data: DisplayProfile;
 } & DialogTabProps;
 
-const OVER_GRID: GridAnchor[][] = [
-    ['tl', 'tc', 'tr'],
+// The top corners are not droppable: they are reserved for the item controls
+// (selection checkbox on the left, menu button on the right).
+type OverCell = GridAnchor | 'controls-left' | 'controls-right';
+
+const OVER_GRID: OverCell[][] = [
+    ['controls-left', 'tc', 'controls-right'],
     ['ml', 'cc', 'mr'],
     ['bl', 'bc', 'br'],
 ];
@@ -445,7 +451,17 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
                                         }}
                                     >
                                         {OVER_GRID.flatMap(row =>
-                                            row.map(a => renderCell('over', a))
+                                            row.map(a =>
+                                                a === 'controls-left' ||
+                                                a === 'controls-right' ? (
+                                                    <ReservedCell
+                                                        key={a}
+                                                        side={a}
+                                                    />
+                                                ) : (
+                                                    renderCell('over', a)
+                                                )
+                                            )
                                         )}
                                     </Box>
                                 </Box>
@@ -538,6 +554,41 @@ function PaletteField({def}: {def: AttributeDefinitionOrBuiltIn}) {
         >
             <ListItemText primary={<AttributeDefinitionLabel data={def} />} />
         </ListItemButton>
+    );
+}
+
+// Non-droppable top corner, occupied by the item controls on the real card.
+function ReservedCell({side}: {side: 'controls-left' | 'controls-right'}) {
+    const {t} = useTranslation();
+
+    return (
+        <Tooltip
+            title={t(
+                'grid_editor.reserved_cell',
+                'Reserved for asset controls'
+            )}
+        >
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent:
+                        side === 'controls-left' ? 'flex-start' : 'flex-end',
+                    minHeight: 28,
+                    p: 0.25,
+                    borderRadius: 0.5,
+                    border: '1px dashed',
+                    borderColor: 'divider',
+                    color: 'action.disabled',
+                }}
+            >
+                {side === 'controls-left' ? (
+                    <CheckBoxOutlineBlankIcon fontSize="small" />
+                ) : (
+                    <MoreVertIcon fontSize="small" />
+                )}
+            </Box>
+        </Tooltip>
     );
 }
 
@@ -822,7 +873,8 @@ function ConfigPanel({
                 </ToggleButton>
             </ToggleButtonGroup>
 
-            {variant === ProfileItemVariant.Chip && (
+            {(variant === ProfileItemVariant.Chip ||
+                variant === ProfileItemVariant.Rich) && (
                 <>
                     <Typography variant="caption" color="text.secondary">
                         {t('grid_editor.config.color', 'Chip color')}

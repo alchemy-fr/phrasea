@@ -68,9 +68,10 @@ class ProfileItem extends AbstractUuidEntity
 
     /**
      * Valid anchors per region (stored in options.placement.anchor).
+     * The over top corners (tl, tr) are reserved for the item controls.
      */
     final public const array ANCHORS = [
-        self::REGION_OVER => ['tl', 'tc', 'tr', 'ml', 'cc', 'mr', 'bl', 'bc', 'br'],
+        self::REGION_OVER => ['tc', 'ml', 'cc', 'mr', 'bl', 'bc', 'br'],
         self::REGION_BELOW => ['l', 'c', 'r'],
     ];
 

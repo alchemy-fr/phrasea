@@ -7,6 +7,7 @@ import FastTooltip from './FastTooltip';
 import assetClasses from '../AssetList/classes';
 import {useMemo} from 'react';
 import {getPrivacyTranslations} from '../../translations/privacyTranslations.ts';
+import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
 
 function usePrivacyLabel(privacy: Privacy, noAccess: boolean | undefined) {
     const {t} = useTranslation();
@@ -58,7 +59,7 @@ export function PrivacyIcon({
 
     return (
         <FastTooltip title={privacyLabel}>
-            <LockIcon color={'inherit'} {...iconProps} />
+            <PrivacyTipIcon color={'inherit'} {...iconProps} />
         </FastTooltip>
     );
 }

@@ -4,8 +4,7 @@ import assetClasses from '../../classes';
 import {useProfileStore} from '../../../../store/profileStore.ts';
 import GridCardZone from './GridCardZone.tsx';
 import IconButton from '@mui/material/IconButton';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import SettingsIcon from '@mui/icons-material/Settings';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AssetThumb from '../../../Media/Asset/AssetThumb';
 import {replaceHighlight} from '../../../Media/Asset/Attribute/AttributeHighlights';
 import AssetTagList from '../../../Media/Asset/Widgets/AssetTagList';
@@ -32,7 +31,6 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
     onToggle,
     onContextMenuOpen,
     onPreviewToggle,
-    onAddToBasket,
     itemComponent,
     itemOverlay,
     onOpen,
@@ -70,35 +68,17 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                     }
                 />
                 <div>
-                    {!disabled ? (
-                        <>
-                            {onAddToBasket ? (
-                                <IconButton
-                                    className={assetClasses.cartBtn}
-                                    onMouseDown={stopPropagation}
-                                    onDoubleClick={stopPropagation}
-                                    onClick={e => onAddToBasket(asset, e)}
-                                >
-                                    <ShoppingCartIcon fontSize={'small'} />
-                                </IconButton>
-                            ) : null}
-                            {onContextMenuOpen && (
-                                <IconButton
-                                    className={assetClasses.settingBtn}
-                                    onMouseDown={stopPropagation}
-                                    onDoubleClick={stopPropagation}
-                                    onClick={function (e) {
-                                        onContextMenuOpen(
-                                            e,
-                                            item,
-                                            e.currentTarget
-                                        );
-                                    }}
-                                >
-                                    <SettingsIcon fontSize={'small'} />
-                                </IconButton>
-                            )}
-                        </>
+                    {!disabled && onContextMenuOpen ? (
+                        <IconButton
+                            className={assetClasses.settingBtn}
+                            onMouseDown={stopPropagation}
+                            onDoubleClick={stopPropagation}
+                            onClick={function (e) {
+                                onContextMenuOpen(e, item, e.currentTarget);
+                            }}
+                        >
+                            <MoreVertIcon fontSize={'small'} />
+                        </IconButton>
                     ) : (
                         ''
                     )}

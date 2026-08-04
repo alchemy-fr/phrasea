@@ -19,7 +19,6 @@ function GridPage<Item extends AssetOrAssetContainer>({
     onToggle,
     selection,
     disabledAssets,
-    onAddToBasket,
     toolbarHeight,
     page,
     itemComponent,
@@ -60,7 +59,6 @@ function GridPage<Item extends AssetOrAssetContainer>({
                                 itemOverlay={itemOverlay}
                                 itemComponent={itemComponent}
                                 asset={asset}
-                                onAddToBasket={onAddToBasket}
                                 selected={selection.includes(item)}
                                 disabled={disabledAssets.includes(item)}
                                 onContextMenuOpen={onContextMenuOpen}

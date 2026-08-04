@@ -21,15 +21,22 @@ type Props = {
     region: GridRegion;
 };
 
-const OVER_ROWS: GridAnchor[][] = [
-    ['tl', 'tc', 'tr'],
+// 'reserved' slots hold the room of the item controls (checkbox on the
+// top-left, menu button on the top-right) so values never overlap them.
+type GridSlot = GridAnchor | 'reserved';
+
+const OVER_ROWS: GridSlot[][] = [
+    ['reserved', 'tc', 'reserved'],
     ['ml', 'cc', 'mr'],
     ['bl', 'bc', 'br'],
 ];
-const BAND_ROWS: GridAnchor[][] = [['l', 'c', 'r']];
+const BAND_ROWS: GridSlot[][] = [['l', 'c', 'r']];
 
 // Vertical alignment of the cells within each `over` row (top/middle/bottom).
 const OVER_ROW_ALIGN = ['flex-start', 'center', 'flex-end'];
+
+// Size of a reserved corner (checkbox / menu button hit area).
+const CONTROLS_CELL_SIZE = 42;
 
 // Horizontal alignment of the values stacked in a cell, from the anchor's
 // last letter (l/c/r).
@@ -224,17 +231,27 @@ function GridCardZone({asset, items, region}: Props) {
                             : 'flex-start',
                     }}
                 >
-                    {anchors.map(anchor => (
-                        <Box
-                            key={anchor}
-                            className={gridZoneClasses.cell}
-                            sx={{alignItems: cellAlign(anchor)}}
-                        >
-                            {(byAnchor.get(anchor) ?? []).map(r => (
-                                <GridItemValue key={r.item.id} resolved={r} />
-                            ))}
-                        </Box>
-                    ))}
+                    {anchors.map((slot, slotIndex) =>
+                        slot === 'reserved' ? (
+                            <Box
+                                key={`reserved-${slotIndex}`}
+                                className={gridZoneClasses.reserved}
+                            />
+                        ) : (
+                            <Box
+                                key={slot}
+                                className={gridZoneClasses.cell}
+                                sx={{alignItems: cellAlign(slot)}}
+                            >
+                                {(byAnchor.get(slot) ?? []).map(r => (
+                                    <GridItemValue
+                                        key={r.item.id}
+                                        resolved={r}
+                                    />
+                                ))}
+                            </Box>
+                        )
+                    )}
                 </Box>
             ))}
         </Box>
@@ -248,6 +265,7 @@ export const gridZoneClasses = {
     band: 'gcz-band',
     row: 'gcz-row',
     cell: 'gcz-cell',
+    reserved: 'gcz-reserved',
     chip: 'gcz-chip',
     text: 'gcz-text',
     rich: 'gcz-rich',
@@ -317,6 +335,12 @@ export function gridCardZoneSx(theme: Theme) {
             '&:empty': {
                 padding: 0,
             },
+        },
+        // Top corners kept free for the item controls (checkbox, menu button).
+        [`.${gridZoneClasses.reserved}`]: {
+            flex: '0 0 auto',
+            width: CONTROLS_CELL_SIZE,
+            height: CONTROLS_CELL_SIZE,
         },
         // Chips over the image must be fully opaque (MUI's default chip
         // background is translucent) and flush with their cell.

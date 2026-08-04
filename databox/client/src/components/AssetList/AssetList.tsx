@@ -18,7 +18,6 @@ import {
     LayoutCommonProps,
     LayoutProps,
     LoadMoreFunc,
-    OnAddToBasket,
     OnAssetContextMenuOpen,
     OnOpen,
     OnSelectionChange,
@@ -27,7 +26,6 @@ import {
 } from './types';
 import {getItemListFromEvent} from './selection';
 import createStateSetterProxy from '@alchemy/react-hooks/src/createStateSetterProxy';
-import {useBasketStore} from '../../store/basketStore';
 import assetClasses from './classes';
 import AssetContextMenu from './AssetContextMenu';
 import {SelectionActionConfigProps} from './Toolbar/SelectionActions';
@@ -194,17 +192,6 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
         [pages]
     );
 
-    const addToCurrent = useBasketStore(state => state.addToCurrent);
-
-    const onAddToBasket = React.useMemo<OnAddToBasket | undefined>(() => {
-        if (actionsContext.basket) {
-            return (asset, e): void => {
-                e?.preventDefault();
-                addToCurrent([asset]);
-            };
-        }
-    }, [addToCurrent, actionsContext.basket]);
-
     return (
         <div
             ref={listRef}
@@ -247,7 +234,6 @@ export default function AssetList<Item extends AssetOrAssetContainer>({
                               selection,
                               disabledAssets: disabledAssets ?? [],
                               onOpen,
-                              onAddToBasket,
                               itemToAsset,
                               onContextMenuOpen,
                               onToggle,

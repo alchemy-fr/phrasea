@@ -469,14 +469,13 @@ export enum ProfileItemType {
 
 export type GridRegion = 'over' | 'below';
 
-// above/below bands: l | c | r ; over (3x3 grid): tl..br
+// above/below bands: l | c | r ; over (3x3 grid): tc..br — the top-left and
+// top-right cells are reserved for the item controls (checkbox, menu button).
 export type GridAnchor =
     | 'l'
     | 'c'
     | 'r'
-    | 'tl'
     | 'tc'
-    | 'tr'
     | 'ml'
     | 'cc'
     | 'mr'
