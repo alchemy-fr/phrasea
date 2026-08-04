@@ -22,6 +22,8 @@ export default class PrivacyType
     extends BaseType
     implements AttributeTypeInstance<Privacy>
 {
+    public isRich = true;
+
     renderWidget({
         value,
         onChange,

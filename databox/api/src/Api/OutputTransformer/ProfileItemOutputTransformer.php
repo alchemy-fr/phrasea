@@ -38,8 +38,6 @@ class ProfileItemOutputTransformer implements OutputTransformerInterface
             size: $data->getSize(),
             showLabel: $data->isShowLabel(),
             showIcon: $data->isShowIcon(),
-            booleanIcon: $data->isBooleanIcon(),
-            entityDisplay: $data->getEntityDisplay(),
         );
     }
 }

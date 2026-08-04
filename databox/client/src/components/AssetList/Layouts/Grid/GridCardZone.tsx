@@ -1,7 +1,5 @@
 import React, {useMemo} from 'react';
 import {Box, Chip, CSSObject, Theme} from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
 import {defaultChipColors} from '@alchemy/phrasea-framework';
 import {
     Asset,
@@ -11,7 +9,6 @@ import {
     ProfileItemSize,
     ProfileItemVariant,
 } from '../../../../types';
-import {AttributeType} from '../../../../api/types.ts';
 import assetClasses from '../../classes';
 import {ResolvedGridItem, useResolvedGridItems} from './resolveGridItem.ts';
 
@@ -47,8 +44,6 @@ const cellAlign = (anchor: GridAnchor) =>
           ? 'center'
           : 'flex-start';
 
-type EntityRaw = {emoji?: string; color?: string};
-
 // Modifier classes (size + chip color) appended to each value's root node;
 // the matching rules live in gridCardZoneSx.
 function itemModifiers(item: ProfileItem): string {
@@ -60,8 +55,7 @@ function itemModifiers(item: ProfileItem): string {
 }
 
 function GridItemValue({resolved}: {resolved: ResolvedGridItem}) {
-    const {item, definition, value, nodes, raws, richCapable} = resolved;
-    const type = definition.type;
+    const {item, definition, value, nodes, richCapable} = resolved;
     const showLabel = item.showLabel ?? false;
     const label = definition.displayName ?? definition.name;
     const withMods = (base: string) => `${base} ${itemModifiers(item)}`;
@@ -72,74 +66,13 @@ function GridItemValue({resolved}: {resolved: ResolvedGridItem}) {
         </Box>
     ) : null;
 
-    // Boolean type: optional true/false icon instead of text.
-    if (type === AttributeType.Boolean && item.booleanIcon) {
-        const bools = raws.filter(r => typeof r === 'boolean') as boolean[];
-        return (
-            <Box
-                className={withMods(gridZoneClasses.rich)}
-                title={value || undefined}
-            >
-                {labelPrefix}
-                {bools.length > 0
-                    ? bools.map((b, i) =>
-                          b ? (
-                              <CheckCircleIcon
-                                  key={i}
-                                  color="success"
-                                  fontSize="small"
-                              />
-                          ) : (
-                              <CancelIcon
-                                  key={i}
-                                  color="error"
-                                  fontSize="small"
-                              />
-                          )
-                      )
-                    : '—'}
-            </Box>
-        );
-    }
-
     const variant =
         item.variant ??
         (richCapable ? ProfileItemVariant.Rich : ProfileItemVariant.Chip);
 
-    // AttributeEntity type (rich only): optionally show only the emoji or
-    // only the color.
-    if (
-        variant === ProfileItemVariant.Rich &&
-        type === AttributeType.AttributeEntity &&
-        item.entityDisplay &&
-        item.entityDisplay !== 'full'
-    ) {
-        const entities = raws as (EntityRaw | undefined)[];
-        return (
-            <Box
-                className={withMods(gridZoneClasses.rich)}
-                title={value || undefined}
-            >
-                {labelPrefix}
-                {entities.map((e, i) =>
-                    item.entityDisplay === 'emoji' ? (
-                        <Box component="span" key={i}>
-                            {e?.emoji ?? '—'}
-                        </Box>
-                    ) : (
-                        <Box
-                            key={i}
-                            className={gridZoneClasses.swatch}
-                            sx={{backgroundColor: e?.color || 'transparent'}}
-                        />
-                    )
-                )}
-            </Box>
-        );
-    }
-
     // Rich: render the type formatter's ReactNode(s) (tag pills, entity
-    // chips…), shaped by the item's format (e.g. Privacy's "short" format).
+    // chips…), shaped by the item's format (e.g. Privacy's "short" format,
+    // AttributeEntity's "emoji"/"color" formats).
     if (variant === ProfileItemVariant.Rich) {
         return (
             <Box
@@ -270,7 +203,6 @@ export const gridZoneClasses = {
     text: 'gcz-text',
     rich: 'gcz-rich',
     label: 'gcz-label',
-    swatch: 'gcz-swatch',
     sizes: {
         small: 'gcz-sz-sm',
         medium: 'gcz-sz-md',
@@ -411,13 +343,6 @@ export function gridCardZoneSx(theme: Theme) {
             fontSize: 12,
             opacity: 0.7,
             whiteSpace: 'nowrap',
-        },
-        [`.${gridZoneClasses.swatch}`]: {
-            width: 14,
-            height: 14,
-            borderRadius: '50%',
-            border: '1px solid rgba(0,0,0,0.25)',
-            flex: '0 0 auto',
         },
     };
 }

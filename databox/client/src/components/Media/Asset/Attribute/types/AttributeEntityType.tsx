@@ -2,6 +2,7 @@ import {
     AttributeFormatterProps,
     AttributeTypeInstance,
     AttributeWidgetProps,
+    AvailableFormat,
 } from './types';
 import React from 'react';
 import {Box, InputLabel} from '@mui/material';
@@ -21,11 +22,20 @@ type EntityValue = {
     createdAt: string;
 };
 
+export enum AttributeEntityFormats {
+    Full = 'full',
+    // Only the entity's emoji.
+    Emoji = 'emoji',
+    // Only the entity's color, as a swatch.
+    Color = 'color',
+}
+
 export default class AttributeEntityType
     extends BaseType
     implements AttributeTypeInstance<string>
 {
     public entityIri = EntityName.Entity;
+    public isRich = true;
 
     renderWidget({
         labelAlreadyRendered,
@@ -68,7 +78,7 @@ export default class AttributeEntityType
     }
 
     formatValue(props: AttributeFormatterProps): React.ReactNode {
-        const {value, t} = props;
+        const {value, format, t} = props;
 
         if (!value) {
             return null;
@@ -97,12 +107,59 @@ export default class AttributeEntityType
             }
         }
 
+        const entity = value as EntityValue;
+
+        if (AttributeEntityFormats.Emoji === format) {
+            return <Box component={'span'}>{entity.emoji ?? '—'}</Box>;
+        }
+
+        if (AttributeEntityFormats.Color === format) {
+            return (
+                <Box
+                    component={'span'}
+                    sx={{
+                        display: 'inline-block',
+                        width: 14,
+                        height: 14,
+                        borderRadius: '50%',
+                        border: '1px solid rgba(0,0,0,0.25)',
+                        backgroundColor: entity.color || 'transparent',
+                        flex: '0 0 auto',
+                    }}
+                />
+            );
+        }
+
         return <AttributeEntityListText data={value as AttributeEntity} />;
     }
 
-    formatValueAsString({value}: AttributeFormatterProps): string | undefined {
+    getAvailableFormats(): AvailableFormat[] {
+        return [
+            {
+                name: AttributeEntityFormats.Full,
+                title: 'Full',
+            },
+            {
+                name: AttributeEntityFormats.Emoji,
+                title: 'Emoji',
+            },
+            {
+                name: AttributeEntityFormats.Color,
+                title: 'Color',
+            },
+        ];
+    }
+
+    formatValueAsString({
+        value,
+        format,
+    }: AttributeFormatterProps): string | undefined {
         if (!value) {
             return;
+        }
+
+        if (AttributeEntityFormats.Emoji === format) {
+            return (value as EntityValue).emoji ?? undefined;
         }
 
         return getBestTranslatedValue(value.translations, value.value);

@@ -31,10 +31,6 @@ final class ProfileItemInput
     public ?string $size = null;
     public ?bool $showLabel = null;
     public ?bool $showIcon = null;
-    // Boolean type: render a true/false icon instead of text.
-    public ?bool $booleanIcon = null;
-    // AttributeEntity type: 'full' | 'emoji' | 'color'.
-    public ?string $entityDisplay = null;
 
     #[Assert\NotNull]
     #[Assert\Choice(choices: ProfileItem::SECTIONS)]

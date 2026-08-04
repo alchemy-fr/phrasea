@@ -505,9 +505,6 @@ export enum ProfileItemSize {
     Large = 'large',
 }
 
-// AttributeEntity display mode on the grid card.
-export type EntityDisplay = 'full' | 'emoji' | 'color';
-
 export type ProfileItem = {
     id: string;
     section: ProfileItemSection;
@@ -524,10 +521,6 @@ export type ProfileItem = {
     size?: ProfileItemSize;
     showLabel?: boolean;
     showIcon?: boolean;
-    // Boolean type: render a true/false icon instead of text.
-    booleanIcon?: boolean;
-    // AttributeEntity type: show full value, only the emoji, or only the color.
-    entityDisplay?: EntityDisplay;
 };
 
 export interface DisplayProfile

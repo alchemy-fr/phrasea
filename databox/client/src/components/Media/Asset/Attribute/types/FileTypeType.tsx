@@ -5,6 +5,8 @@ import TextType from './TextType';
 import AssetTypeIcon from '../../AssetTypeIcon.tsx';
 
 export default class FileTypeType extends TextType {
+    public isRich = true;
+
     formatValue({value}: AttributeFormatterProps): React.ReactNode {
         if (!value) {
             return null;

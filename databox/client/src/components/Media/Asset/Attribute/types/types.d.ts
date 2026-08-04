@@ -53,6 +53,7 @@ export type AttributeTypeWidget<T> = {
 
 export type AttributeTypeInstance<T> = {
     entityIri?: EntityName | undefined;
+    isRich?: boolean;
 } & AttributeTypeFormatter &
     AttributeTypeWidget<T>;
 

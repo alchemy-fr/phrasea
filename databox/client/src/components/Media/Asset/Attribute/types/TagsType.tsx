@@ -17,6 +17,7 @@ export default class TagsType
     implements AttributeTypeInstance<string>
 {
     public entityIri = EntityName.Tag;
+    public isRich = true;
 
     renderWidget({
         labelAlreadyRendered,

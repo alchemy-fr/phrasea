@@ -54,7 +54,6 @@ import {chipColorNames, defaultChipColors} from '@alchemy/phrasea-framework';
 import {
     AttributeDefinitionOrBuiltIn,
     DisplayProfile,
-    EntityDisplay,
     GridAnchor,
     GridRegion,
     ProfileItem,
@@ -881,55 +880,6 @@ function ConfigPanel({
                     />
                 </>
             )}
-
-            {type === AttributeType.Boolean && (
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={item.booleanIcon ?? false}
-                            onChange={(_e, checked) =>
-                                onChange({booleanIcon: checked})
-                            }
-                        />
-                    }
-                    label={t(
-                        'grid_editor.config.boolean_icon',
-                        'Show as icon (✓ / ✗)'
-                    )}
-                />
-            )}
-
-            {variant === ProfileItemVariant.Rich &&
-                type === AttributeType.AttributeEntity && (
-                    <>
-                        <Typography variant="caption" color="text.secondary">
-                            {t(
-                                'grid_editor.config.entity_display',
-                                'Entity display'
-                            )}
-                        </Typography>
-                        <ToggleButtonGroup
-                            size="small"
-                            exclusive
-                            fullWidth
-                            value={item.entityDisplay ?? 'full'}
-                            onChange={(_e, v: EntityDisplay | null) =>
-                                v && onChange({entityDisplay: v})
-                            }
-                            sx={{my: 1}}
-                        >
-                            <ToggleButton value="full">
-                                {t('grid_editor.config.entity.full', 'Full')}
-                            </ToggleButton>
-                            <ToggleButton value="emoji">
-                                {t('grid_editor.config.entity.emoji', 'Emoji')}
-                            </ToggleButton>
-                            <ToggleButton value="color">
-                                {t('grid_editor.config.entity.color', 'Color')}
-                            </ToggleButton>
-                        </ToggleButtonGroup>
-                    </>
-                )}
 
             <FormControlLabel
                 control={

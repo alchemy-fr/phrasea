@@ -6,7 +6,6 @@ import {
     ProfileItem,
     ProfileItemType,
 } from '../../../../types';
-import {AttributeType} from '../../../../api/types.ts';
 import {
     getBuiltInAttributeValueResolver,
     useIndexById,
@@ -23,33 +22,14 @@ export type ResolvedGridItem = {
     value: string;
     /** Rich per-value ReactNodes (e.g. tag pills) from the type formatter. */
     nodes: ReactNode[];
-    /** Raw per-value values (for boolean icon / entity emoji|color rendering). */
-    raws: unknown[];
     /** When true, the value defaults to rich rendering (tags, entities, ...). */
     richCapable: boolean;
 };
 
 type RawValue = {value: unknown; locale?: string};
 
-// Types whose formatter renders a non-textual ReactNode that must not be
-// flattened into a plain Chip. Multi-valued attributes are always treated as
-// rich too (see resolution below).
-const RICH_TYPES = new Set<AttributeType>([
-    AttributeType.Tag,
-    AttributeType.AttributeEntity,
-    AttributeType.User,
-    AttributeType.Story,
-    AttributeType.Color,
-    AttributeType.GeoPoint,
-    AttributeType.Html,
-    AttributeType.Rendition,
-    AttributeType.Privacy,
-    AttributeType.FileType,
-]);
-
-/** Whether a value defaults to rich (ReactNode) rendering on the grid card. */
 export function isRichCapable(def: AttributeDefinitionOrBuiltIn): boolean {
-    return !!def.multiple || RICH_TYPES.has(def.type);
+    return getAttributeType(def.type).isRich ?? false;
 }
 
 /**
@@ -89,23 +69,20 @@ export function useResolvedGridItems(
         ) => {
             const at = getAttributeType(definition.type);
             const fmt = format(definition, item);
-            const parts = values.map(v => ({
-                str:
-                    at.formatValueAsString({
-                        uiLocale: i18n.language,
-                        t,
-                        value: v.value,
-                        locale: v.locale,
-                        format: fmt,
-                    }) ?? '',
-                node: at.formatValue({
+            const parts = values.map(v => {
+                const props = {
                     uiLocale: i18n.language,
                     t,
                     value: v.value,
                     locale: v.locale,
                     format: fmt,
-                }),
-            }));
+                };
+
+                return {
+                    str: at.formatValueAsString(props) ?? '',
+                    node: at.formatValue(props),
+                };
+            });
 
             resolved.push({
                 item,
@@ -117,7 +94,6 @@ export function useResolvedGridItems(
                 nodes: parts
                     .map(p => p.node)
                     .filter(n => n !== undefined && n !== null),
-                raws: values.map(v => v.value),
                 richCapable: isRichCapable(definition),
             });
         };
