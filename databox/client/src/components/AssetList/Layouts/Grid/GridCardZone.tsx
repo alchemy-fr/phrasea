@@ -18,14 +18,15 @@ type Props = {
     region: GridRegion;
 };
 
-// 'reserved' slots hold the room of the item controls (checkbox on the
-// top-left, menu button on the top-right) so values never overlap them.
+// 'reserved' slots hold the room of the built-in card elements (checkbox on
+// the top-left, menu button on the top-right, file type chip on the
+// bottom-right) so values never overlap them.
 type GridSlot = GridAnchor | 'reserved';
 
 const OVER_ROWS: GridSlot[][] = [
     ['reserved', 'tc', 'reserved'],
     ['ml', 'cc', 'mr'],
-    ['bl', 'bc', 'br'],
+    ['bl', 'bc', 'reserved'],
 ];
 const BAND_ROWS: GridSlot[][] = [['l', 'c', 'r']];
 

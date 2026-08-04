@@ -47,6 +47,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import ImageIcon from '@mui/icons-material/Image';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import {useTranslation} from 'react-i18next';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {logError} from '@alchemy/core';
@@ -85,14 +86,21 @@ type Props = {
     data: DisplayProfile;
 } & DialogTabProps;
 
-// The top corners are not droppable: they are reserved for the item controls
-// (selection checkbox on the left, menu button on the right).
-type OverCell = GridAnchor | 'controls-left' | 'controls-right';
+// The top corners and the bottom-right one are not droppable: they are
+// reserved for the item controls (selection checkbox on the left, menu button
+// on the right) and the file type chip.
+type OverCell = GridAnchor | 'controls-left' | 'controls-right' | 'type-icon';
+
+const RESERVED_CELLS: OverCell[] = [
+    'controls-left',
+    'controls-right',
+    'type-icon',
+];
 
 const OVER_GRID: OverCell[][] = [
     ['controls-left', 'tc', 'controls-right'],
     ['ml', 'cc', 'mr'],
-    ['bl', 'bc', 'br'],
+    ['bl', 'bc', 'type-icon'],
 ];
 const BAND: GridAnchor[] = ['l', 'c', 'r'];
 
@@ -451,14 +459,18 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
                                     >
                                         {OVER_GRID.flatMap(row =>
                                             row.map(a =>
-                                                a === 'controls-left' ||
-                                                a === 'controls-right' ? (
+                                                RESERVED_CELLS.includes(a) ? (
                                                     <ReservedCell
                                                         key={a}
-                                                        side={a}
+                                                        kind={
+                                                            a as ReservedCellKind
+                                                        }
                                                     />
                                                 ) : (
-                                                    renderCell('over', a)
+                                                    renderCell(
+                                                        'over',
+                                                        a as GridAnchor
+                                                    )
                                                 )
                                             )
                                         )}
@@ -556,23 +568,29 @@ function PaletteField({def}: {def: AttributeDefinitionOrBuiltIn}) {
     );
 }
 
-// Non-droppable top corner, occupied by the item controls on the real card.
-function ReservedCell({side}: {side: 'controls-left' | 'controls-right'}) {
+type ReservedCellKind = 'controls-left' | 'controls-right' | 'type-icon';
+
+// Non-droppable corner, occupied by a built-in card element (item controls on
+// the top, file type chip on the bottom-right).
+function ReservedCell({kind}: {kind: ReservedCellKind}) {
     const {t} = useTranslation();
 
+    const title =
+        kind === 'type-icon'
+            ? t(
+                  'grid_editor.reserved_type_cell',
+                  'Reserved for the file type icon'
+              )
+            : t('grid_editor.reserved_cell', 'Reserved for asset controls');
+
     return (
-        <Tooltip
-            title={t(
-                'grid_editor.reserved_cell',
-                'Reserved for asset controls'
-            )}
-        >
+        <Tooltip title={title}>
             <Box
                 sx={{
                     display: 'flex',
-                    alignItems: 'center',
+                    alignItems: kind === 'type-icon' ? 'flex-end' : 'center',
                     justifyContent:
-                        side === 'controls-left' ? 'flex-start' : 'flex-end',
+                        kind === 'controls-left' ? 'flex-start' : 'flex-end',
                     minHeight: 28,
                     p: 0.25,
                     borderRadius: 0.5,
@@ -581,10 +599,12 @@ function ReservedCell({side}: {side: 'controls-left' | 'controls-right'}) {
                     color: 'action.disabled',
                 }}
             >
-                {side === 'controls-left' ? (
+                {kind === 'controls-left' ? (
                     <CheckBoxOutlineBlankIcon fontSize="small" />
-                ) : (
+                ) : kind === 'controls-right' ? (
                     <MoreVertIcon fontSize="small" />
+                ) : (
+                    <InsertDriveFileIcon fontSize="small" />
                 )}
             </Box>
         </Tooltip>
