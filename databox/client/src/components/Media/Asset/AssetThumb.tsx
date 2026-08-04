@@ -20,8 +20,6 @@ type Props = {
     onPreviewToggle?: OnPreviewToggle;
     /** Rendered inside the (relatively-positioned) thumbnail wrapper, e.g. the grid "over" zone. */
     overlay?: ReactNode;
-    /** Hide the file-type chip (e.g. when a custom grid places @type itself). */
-    hideTypeChip?: boolean;
 } & HTMLAttributes<HTMLDivElement>;
 
 function AssetThumb({
@@ -29,7 +27,6 @@ function AssetThumb({
     noStoryCarousel,
     onPreviewToggle,
     overlay,
-    hideTypeChip,
     ...domAttrs
 }: Props) {
     const {t} = useTranslation();
@@ -60,8 +57,7 @@ function AssetThumb({
         thumb = assetFileIcon;
     }
 
-    const displayAssetTypeChip =
-        Boolean(thumb && assetFileIcon) && !hideTypeChip;
+    const displayAssetTypeChip = Boolean(thumb && assetFileIcon);
 
     const chipProps: Pick<
         ChipProps,

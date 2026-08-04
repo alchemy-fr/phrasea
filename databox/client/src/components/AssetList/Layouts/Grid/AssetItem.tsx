@@ -87,7 +87,6 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
             <AssetThumb
                 asset={asset}
                 onPreviewToggle={onPreviewToggle}
-                hideTypeChip={hasGrid}
                 overlay={
                     hasGrid ? (
                         <GridCardZone
