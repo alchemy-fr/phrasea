@@ -23,7 +23,7 @@ export default function FileAnalysisReport({file}: Props) {
                         )}
                 </Alert>
             ) : analysis?.status === AnalysisStatus.Success ? (
-                <Alert severity={'error'} sx={{mb: 2}}>
+                <Alert severity={'success'} sx={{mb: 2}}>
                     {t(
                         'file_analyzer.result.status.success',
                         'This file was analyzed successfully'

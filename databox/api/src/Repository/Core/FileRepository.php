@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Repository\Core;
 
+use App\Entity\Core\Asset;
+use App\Entity\Core\AssetFileVersion;
 use App\Entity\Core\File;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
@@ -36,13 +38,30 @@ class FileRepository extends ServiceEntityRepository
 
     public function findDuplicatesByDocUniqueId(File $file, int $limit = 1): array
     {
-        return $this->createQueryBuilder('f')
+        $assetId = $this->_em->createQueryBuilder()
+            ->select('a.id')
+            ->from(Asset::class, 'a')
+            ->andWhere('a.source = :fileId')
+            ->setParameter('fileId', $file->getId())
+            ->getQuery()
+            ->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR);
+
+        $queryBuilder = $this->createQueryBuilder('f')
             ->andWhere('f.workspace = :ws')
             ->andWhere('f.docUniqueId = :duid')
             ->andWhere('f.id != :id')
             ->setParameter('id', $file->getId())
             ->setParameter('ws', $file->getWorkspaceId())
-            ->setParameter('duid', $file->getDocUniqueId())
+            ->setParameter('duid', $file->getDocUniqueId());
+
+        if (null !== $assetId) {
+            $queryBuilder
+                ->leftJoin(AssetFileVersion::class, 'afv', 'WITH', 'f.id = afv.file')
+                ->andWhere('afv.id IS NULL OR afv.asset != :assetId')
+                ->setParameter('assetId', $assetId);
+        }
+
+        return $queryBuilder
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();

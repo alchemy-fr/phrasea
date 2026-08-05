@@ -9,7 +9,12 @@ use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Api\Model\Output\AlternateUrlOutput;
 use App\Api\Model\Output\FileOutput;
 use App\Entity\Core\AlternateUrl;
+use App\Entity\Core\Asset;
+use App\Entity\Core\AssetFileVersion;
+use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
+use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\FileUrlResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -24,6 +29,7 @@ class FileOutputTransformer implements OutputTransformerInterface
     public function __construct(
         private readonly FileUrlResolver $fileUrlResolver,
         private readonly EntityManagerInterface $em,
+        private readonly AssetNameResolver $assetNameResolver,
         TemporaryCacheFactory $temporaryCacheFactory,
     ) {
         $this->cache = $temporaryCacheFactory->createCache();
@@ -68,25 +74,82 @@ class FileOutputTransformer implements OutputTransformerInterface
             $output->analysis = $data->getAnalysis();
         }
 
-        if ($data->isAccepted()) {
-            if ($data->isPathPublic()) {
-                $output->setUrl($this->fileUrlResolver->resolveUrl($data));
-            }
-
-            $urls = [];
-            if (null !== $data->getAlternateUrls()) {
-                foreach ($data->getAlternateUrls() as $type => $url) {
-                    $urls[] = new AlternateUrlOutput($type, $url, $this->resolveAlternateUrlLabel(
-                        $data->getWorkspaceId(),
-                        $type
-                    ));
-                }
-            }
-
-            $output->setAlternateUrls($urls);
+        // Only resolved when the file is the root resource (GET /files/{id}),
+        // not when embedded in asset/rendition outputs.
+        if ($this->hasGroup(File::GROUP_LIST, $context) || $this->hasGroup(File::GROUP_READ, $context)) {
+            $output->usages = $this->resolveUsages($data);
         }
 
+        if ($data->isPathPublic()) {
+            $output->setUrl($this->fileUrlResolver->resolveUrl($data));
+        }
+
+        $urls = [];
+        if (null !== $data->getAlternateUrls()) {
+            foreach ($data->getAlternateUrls() as $type => $url) {
+                $urls[] = new AlternateUrlOutput($type, $url, $this->resolveAlternateUrlLabel(
+                    $data->getWorkspaceId(),
+                    $type
+                ));
+            }
+        }
+
+        $output->setAlternateUrls($urls);
+
         return $output;
+    }
+
+    private function resolveUsages(File $file): array
+    {
+        $usages = [];
+
+        /** @var Asset[] $assets */
+        $assets = $this->em->getRepository(Asset::class)->findBy(['source' => $file->getId()]);
+        foreach ($assets as $asset) {
+            if (!$this->isGranted(AbstractVoter::READ, $asset)) {
+                continue;
+            }
+
+            $usages[] = [
+                'type' => 'source',
+                'assetId' => $asset->getId(),
+                'assetTitle' => $this->assetNameResolver->resolveNameAsString($asset),
+            ];
+        }
+
+        /** @var AssetFileVersion[] $versions */
+        $versions = $this->em->getRepository(AssetFileVersion::class)->findBy(['file' => $file->getId()]);
+        foreach ($versions as $version) {
+            $asset = $version->getAsset();
+            if (null === $asset || !$this->isGranted(AbstractVoter::READ, $asset)) {
+                continue;
+            }
+
+            $usages[] = [
+                'type' => 'version',
+                'assetId' => $asset->getId(),
+                'assetTitle' => $this->assetNameResolver->resolveNameAsString($asset),
+                'name' => $version->getName(),
+            ];
+        }
+
+        /** @var AssetRendition[] $renditions */
+        $renditions = $this->em->getRepository(AssetRendition::class)->findBy(['file' => $file->getId()]);
+        foreach ($renditions as $rendition) {
+            $asset = $rendition->getAsset();
+            if (!$this->isGranted(AbstractVoter::READ, $asset)) {
+                continue;
+            }
+
+            $usages[] = [
+                'type' => 'rendition',
+                'assetId' => $asset->getId(),
+                'assetTitle' => $this->assetNameResolver->resolveNameAsString($asset),
+                'name' => $rendition->getDefinition()->getName(),
+            ];
+        }
+
+        return $usages;
     }
 
     private function resolveAlternateUrlLabel(string $workspaceId, string $type): ?string
