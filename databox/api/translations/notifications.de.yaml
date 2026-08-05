@@ -60,7 +60,7 @@ entity_list:
     pending_value:
         email:
             subject: 'Neuer Wert wartet auf Freigabe in %listName%'
-            body: '<p>Hallo %recipient%,</p><p><strong>%author%</strong> hat den Wert <strong>%value%</strong> zu <em>%listName%</em> hinzugefügt. Er wartet auf Ihre Freigabe.</p>'
+            body: '<p>Hallo %recipient%,</p><p><strong>%author%</strong> hat den Wert <strong>%value%</strong> zu <a href="%url%"><em>%listName%</em></a> hinzugefügt. Er wartet auf Ihre Freigabe.</p>'
         in_app:
             subject: 'Neuer Wert wartet auf Freigabe in %listName%'
             body: '%author% hat <strong>%value%</strong> zu %listName% hinzugefügt. Er wartet auf Ihre Freigabe.'

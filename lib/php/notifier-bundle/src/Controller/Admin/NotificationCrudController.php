@@ -46,12 +46,13 @@ class NotificationCrudController extends AbstractAdminCrudController
     {
         return [
             IdField::new(),
-            AssociationField::new('subscriber', 'Recipient'),
+            AssociationField::new('subscriber', 'Recipient')->autocomplete(true),
             TextField::new('topic'),
             JsonField::new('payload')->hideOnIndex(),
             BooleanField::new('read')->renderAsSwitch(false),
             DateTimeField::new('readAt')->onlyOnDetail(),
-            DateTimeField::new('createdAt'),
+            DateTimeField::new('createdAt')
+            ->hideOnForm(),
         ];
     }
 }

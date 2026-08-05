@@ -60,7 +60,7 @@ entity_list:
     pending_value:
         email:
             subject: 'Nouvelle valeur en attente de validation dans %listName%'
-            body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a ajouté la valeur <strong>%value%</strong> à <em>%listName%</em>. Elle est en attente de votre validation.</p>'
+            body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a ajouté la valeur <strong>%value%</strong> à <a href="%url%"><em>%listName%</em></a>. Elle est en attente de votre validation.</p>'
         in_app:
             subject: 'Nouvelle valeur en attente de validation dans %listName%'
             body: '%author% a ajouté <strong>%value%</strong> à %listName%. Elle est en attente de votre validation.'
