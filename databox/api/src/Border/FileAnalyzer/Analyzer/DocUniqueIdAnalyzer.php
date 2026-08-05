@@ -94,6 +94,7 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
                     $candidate = $this->sanitizeXmpUuid((string) array_first($values));
                     if (Uuid::isValid($candidate)) {
                         $duid = $candidate;
+                        $file->setDocUniqueId($duid);
                         $data['found_in'] = $key;
                         break;
                     }
