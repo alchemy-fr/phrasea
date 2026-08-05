@@ -116,7 +116,7 @@ Operational notes:
 - Save and delete actions require valid user context and integration data identifiers.
 - Unsupported actions are rejected.
 
-## Similarity integration (similarity)
+## Similarity integration (core.similarity)
 
 Display name: Similarity
 
