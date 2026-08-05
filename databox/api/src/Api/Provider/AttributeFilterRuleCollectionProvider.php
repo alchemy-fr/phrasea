@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Api\Provider;
 
 use ApiPlatform\Metadata\Operation;
-use App\Entity\Core\TagFilterRule;
+use App\Entity\Core\AttributeFilterRule;
 
-class TagFilterRuleCollectionProvider extends AbstractCollectionProvider
+class AttributeFilterRuleCollectionProvider extends AbstractCollectionProvider
 {
     protected function provideCollection(
         Operation $operation,
@@ -20,6 +20,6 @@ class TagFilterRuleCollectionProvider extends AbstractCollectionProvider
             $criteria['workspace'] = $filters['workspaceId'];
         }
 
-        return $this->em->getRepository(TagFilterRule::class)->findBy($criteria);
+        return $this->em->getRepository(AttributeFilterRule::class)->findBy($criteria);
     }
 }
