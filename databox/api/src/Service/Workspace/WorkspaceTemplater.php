@@ -511,6 +511,7 @@ final readonly class WorkspaceTemplater
                 $this->logger->info(sprintf('Creating EntityList "%s"', $entityList['name']));
                 $o = new EntityList();
                 $o->setWorkspace($ws);
+                $o->setOwnerId($ws->getOwnerId());
                 $o->setName($entityList['name']);
                 $this->em->persist($o);
 

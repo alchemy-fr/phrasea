@@ -56,6 +56,16 @@ discussion:
             body: '%author% commented on %object%.'
         sms:
             body: '%author% commented on %object%.'
+entity_list:
+    pending_value:
+        email:
+            subject: 'New value awaiting approval in %listName%'
+            body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> added the value <strong>%value%</strong> to <em>%listName%</em>. It is awaiting your approval.</p>'
+        in_app:
+            subject: 'New value awaiting approval in %listName%'
+            body: '%author% added <strong>%value%</strong> to %listName%. It is awaiting your approval.'
+        sms:
+            body: '%author% added %value% to %listName%. It is awaiting your approval.'
 user:
     exception:
         email:
