@@ -64,6 +64,11 @@ final class SimilarBuiltInAttribute extends AbstractBuiltInAttribute implements 
         return false;
     }
 
+    public function isScoreBasedQuery(): bool
+    {
+        return true;
+    }
+
     public function createFilterQuery(mixed $value, ConditionOperatorEnum $operator, array $options): Query\AbstractQuery
     {
         if (ConditionOperatorEnum::EQUALS !== $operator) {
