@@ -7,6 +7,7 @@ namespace App\Api\InputTransformer;
 use App\Api\Model\Input\SavedSearchInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\SavedSearch\SavedSearch;
+use App\Model\SavedSearchPrivacyEnum;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class SavedSearchInputTransformer extends AbstractFileInputTransformer
@@ -26,8 +27,8 @@ class SavedSearchInputTransformer extends AbstractFileInputTransformer
         /** @var SavedSearch $object */
         $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new SavedSearch();
 
-        if (null !== $data->public) {
-            $object->setPublic($data->public);
+        if (null !== $data->privacy) {
+            $object->setPrivacy(SavedSearchPrivacyEnum::from($data->privacy));
         }
 
         if (null !== $data->name) {

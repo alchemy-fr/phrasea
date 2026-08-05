@@ -39,7 +39,7 @@ class SavedSearchOutputTransformer implements OutputTransformerInterface
         $output->setId($data->getId());
 
         $output->name = $data->getName();
-        $output->public = $data->isPublic();
+        $output->privacy = $data->getPrivacy()->value;
         $output->data = $data->getData();
 
         if ($this->hasGroup([
