@@ -133,8 +133,6 @@ services:
     stdin_open: true
     tty: true
     hostname: local
-    ports:
-      - "0.0.0.0:4000:4000"
     environment:
       - APP_ENV
       - SYMFONY_DEPRECATIONS_HELPER=disabled
