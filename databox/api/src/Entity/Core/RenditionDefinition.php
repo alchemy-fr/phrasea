@@ -149,9 +149,15 @@ class RenditionDefinition extends AbstractUuidEntity implements LoggableChangeSe
     final public const string GROUP_WRITE = 'renddef:w';
 
     /**
-     * Config key: whether the (changed) asset metadata should be embedded into the rendition file on export.
+     * Config key: whether the asset attribute values (attribute definitions "writeMetadata")
+     * should be embedded into the rendition file on export.
      */
     final public const string CONFIG_WRITE_METADATA = 'write_metadata';
+
+    /**
+     * Config key: hardcoded metadata (tag group id => value) written into the exported rendition file.
+     */
+    final public const string CONFIG_METADATA = 'metadata';
 
     final public const string TR_FIELD_NAME = 'name';
 
@@ -189,7 +195,7 @@ class RenditionDefinition extends AbstractUuidEntity implements LoggableChangeSe
     private bool $substitutable = true;
 
     /**
-     * Arbitrary configuration for the rendition definition (e.g. write_metadata).
+     * Arbitrary configuration for the rendition definition (e.g. metadata).
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $config = null;
@@ -380,6 +386,29 @@ class RenditionDefinition extends AbstractUuidEntity implements LoggableChangeSe
     public function setWriteMetadata(bool $writeMetadata): void
     {
         $this->config[self::CONFIG_WRITE_METADATA] = $writeMetadata;
+    }
+
+    /**
+     * @return array<string, string> Map of metadata tag group id (e.g. "IPTC:CopyrightNotice") to hardcoded value
+     */
+    #[CustomAssert\ValidRenditionMetadataConstraint]
+    public function getMetadata(): array
+    {
+        return $this->config[self::CONFIG_METADATA] ?? [];
+    }
+
+    /**
+     * @param array<string, string>|null $metadata
+     */
+    public function setMetadata(?array $metadata): void
+    {
+        if (empty($metadata)) {
+            unset($this->config[self::CONFIG_METADATA]);
+
+            return;
+        }
+
+        $this->config[self::CONFIG_METADATA] = $metadata;
     }
 
     public function getParent(): ?self

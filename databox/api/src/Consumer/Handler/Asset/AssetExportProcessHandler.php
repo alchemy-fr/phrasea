@@ -23,7 +23,7 @@ use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributeMetadataEmbedder;
 use App\Service\Asset\FileFetcher;
-use App\Service\Metadata\MetadataNormalizer;
+use App\Service\Metadata\RenditionDefinitionMetadataEmbedder;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use Psr\Log\LoggerInterface;
@@ -40,7 +40,7 @@ class AssetExportProcessHandler
         private readonly AssetNameResolver $assetNameResolver,
         private readonly FileFetcher $fileFetcher,
         private readonly MetadataManipulator $metadataManipulator,
-        private readonly MetadataNormalizer $metadataNormalizer,
+        private readonly RenditionDefinitionMetadataEmbedder $definitionMetadataEmbedder,
         private readonly FileStorageManager $fileStorageManager,
         private readonly PathGeneratorInterface $pathGenerator,
         private readonly UrlSigner $urlSigner,
@@ -73,6 +73,9 @@ class AssetExportProcessHandler
             $archiveDir = sys_get_temp_dir().'/'.uniqid('archive-dir');
             mkdir($archiveDir, 0755, true);
 
+            // Hardcoded metadata depends only on the rendition definition: resolve lazily, once per definition.
+            $definitionMetadataCache = [];
+
             try {
                 foreach ($assets as $assetId) {
                     $renditions = $this->em->getRepository(AssetRendition::class)->findAssetRenditions($assetId, [
@@ -86,14 +89,9 @@ class AssetExportProcessHandler
                     /** @var AssetRendition[] $renditions */
                     foreach ($renditions as $rendition) {
                         $asset = $rendition->getAsset();
-                        $sourceFile = $asset->getSource();
 
                         if (!$this->isGrantedForUser($userData, AbstractVoter::READ, $rendition)) {
                             continue;
-                        }
-
-                        if (false === $attributeMetadata) {
-                            $attributeMetadata = $this->attributeMetadataEmbedder->buildMetadataBag($asset);
                         }
 
                         $file = $rendition->getFile();
@@ -106,18 +104,32 @@ class AssetExportProcessHandler
                         $path = sprintf('%s/%s-%s-%s%s', $archiveDir, StringUtil::slugify($renditionName), StringUtil::slugify($assetName ?? ''), $assetId, $ext);
                         $this->fileFetcher->getFile($file, path: $path);
 
+                        // The exported file keeps the metadata already embedded in the rendition file:
+                        // the source file metadata is not copied anymore.
                         $metadata = new MetadataBag();
 
-                        // Write back the (changed) asset metadata into the rendition when the definition allows it.
-                        if ($rendition->getDefinition()->isWriteMetadata() && $sourceFile?->getType() === $file->getType() && $file->metadataHasChanged()) {
-                            foreach ($this->metadataNormalizer->denormalize($file->getMetadata()) as $meta) {
-                                $metadata->set($meta->getTagGroup()->getId(), $meta);
+                        // Embed attribute values into the metadata according to attribute definitions
+                        // "writeMetadata", when the rendition definition allows it.
+                        if ($rendition->getDefinition()->isWriteMetadata()) {
+                            if (false === $attributeMetadata) {
+                                $attributeMetadata = $this->attributeMetadataEmbedder->buildMetadataBag($asset);
+                            }
+
+                            if ($attributeMetadata instanceof MetadataBag) {
+                                foreach ($attributeMetadata as $meta) {
+                                    $metadata->set($meta->getTagGroup()->getId(), $meta);
+                                }
                             }
                         }
 
-                        // Embed attribute values into the metadata according to attribute definitions "writeMetadata".
-                        if ($attributeMetadata instanceof MetadataBag) {
-                            foreach ($attributeMetadata as $meta) {
+                        // Embed the hardcoded metadata configured on the rendition definition.
+                        $definition = $rendition->getDefinition();
+                        if (!array_key_exists($definition->getId(), $definitionMetadataCache)) {
+                            $definitionMetadataCache[$definition->getId()] = $this->definitionMetadataEmbedder->buildMetadataBag($definition);
+                        }
+                        $definitionMetadata = $definitionMetadataCache[$definition->getId()];
+                        if (null !== $definitionMetadata) {
+                            foreach ($definitionMetadata as $meta) {
                                 $metadata->set($meta->getTagGroup()->getId(), $meta);
                             }
                         }

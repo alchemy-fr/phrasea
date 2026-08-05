@@ -213,6 +213,7 @@ final readonly class WorkspaceTemplater
                 'download' => $item->isDownload(),
                 'substituable' => $item->isSubstitutable(),
                 'writeMetadata' => $item->isWriteMetadata(),
+                'metadata' => $item->getMetadata() ?: null,
                 'useAsMain' => $item->isUseAsMain(),
                 'useAsPreview' => $item->isUseAsPreview(),
                 'useAsThumbnail' => $item->isUseAsThumbnail(),
@@ -269,6 +270,7 @@ final readonly class WorkspaceTemplater
             $o->setDownload($item['download']);
             $o->setSubstitutable($item['substituable']);
             $o->setWriteMetadata($item['writeMetadata'] ?? false);
+            $o->setMetadata($item['metadata'] ?? null);
             $o->setUseAsMain($item['useAsMain']);
             $o->setUseAsPreview($item['useAsPreview']);
             $o->setUseAsThumbnail($item['useAsThumbnail']);

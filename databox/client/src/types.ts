@@ -280,6 +280,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
     buildMode?: RenditionBuildMode | string;
     substitutable: boolean;
     writeMetadata: boolean;
+    metadata?: Record<string, string> | null;
     useAsMain?: boolean;
     useAsPreview?: boolean;
     useAsThumbnail?: boolean;
