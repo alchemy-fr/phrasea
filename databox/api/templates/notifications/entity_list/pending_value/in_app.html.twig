@@ -1,0 +1,7 @@
+{% block subject %}{{ 'entity_list.pending_value.in_app.subject'|trans({'%listName%': listName}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}{{ 'entity_list.pending_value.in_app.body'|trans({
+    '%author%': author|e,
+    '%value%': value|e,
+    '%listName%': listName|e,
+}, 'notifications')|raw }}{% endblock %}

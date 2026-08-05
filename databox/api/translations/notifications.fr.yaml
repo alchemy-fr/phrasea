@@ -56,6 +56,16 @@ discussion:
             body: '%author% a commenté %object%.'
         sms:
             body: '%author% a commenté %object%.'
+entity_list:
+    pending_value:
+        email:
+            subject: 'Nouvelle valeur en attente de validation dans %listName%'
+            body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a ajouté la valeur <strong>%value%</strong> à <em>%listName%</em>. Elle est en attente de votre validation.</p>'
+        in_app:
+            subject: 'Nouvelle valeur en attente de validation dans %listName%'
+            body: '%author% a ajouté <strong>%value%</strong> à %listName%. Elle est en attente de votre validation.'
+        sms:
+            body: '%author% a ajouté %value% à %listName%. Elle est en attente de votre validation.'
 user:
     exception:
         email:
