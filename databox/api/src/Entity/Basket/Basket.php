@@ -21,7 +21,9 @@ use App\Api\Model\Input\BasketInput;
 use App\Api\Model\Input\RemoveFromBasketInput;
 use App\Api\Model\Output\BasketOutput;
 use App\Api\Processor\AddToBasketProcessor;
+use App\Api\Processor\ArchiveBasketProcessor;
 use App\Api\Processor\RemoveFromBasketProcessor;
+use App\Api\Processor\UnarchiveBasketProcessor;
 use App\Api\Provider\BasketCollectionProvider;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
@@ -50,6 +52,24 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'groups' => [self::GROUP_READ],
             ],
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+        ),
+        new Post(
+            uriTemplate: '/baskets/{id}/archive',
+            normalizationContext: [
+                'groups' => [self::GROUP_READ],
+            ],
+            deserialize: false,
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            processor: ArchiveBasketProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/baskets/{id}/unarchive',
+            normalizationContext: [
+                'groups' => [self::GROUP_READ],
+            ],
+            deserialize: false,
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            processor: UnarchiveBasketProcessor::class,
         ),
         new Post(
             normalizationContext: [
@@ -120,6 +140,9 @@ class Basket extends AbstractUuidEntity implements WithOwnerIdInterface, AclObje
 
     private ?array $highlights = null;
 
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    protected ?\DateTimeImmutable $archivedAt = null;
+
     public function __construct(UuidInterface|string|null $id = null)
     {
         parent::__construct($id);
@@ -182,5 +205,20 @@ class Basket extends AbstractUuidEntity implements WithOwnerIdInterface, AclObje
     public function __toString(): string
     {
         return $this->getName() ?? 'Basket - '.$this->getId();
+    }
+
+    public function archive(): void
+    {
+        $this->archivedAt = new \DateTimeImmutable();
+    }
+
+    public function unarchive(): void
+    {
+        $this->archivedAt = null;
+    }
+
+    public function isArchived(): bool
+    {
+        return null !== $this->archivedAt;
     }
 }

@@ -39,6 +39,7 @@ class BasketOutputTransformer implements OutputTransformerInterface
         $output->setCreatedAt($data->getCreatedAt());
         $output->setUpdatedAt($data->getUpdatedAt());
         $output->setId($data->getId());
+        $output->isArchived = $data->isArchived();
 
         $highlights = $data->getElasticHighlights();
         $output->setName($data->getName());

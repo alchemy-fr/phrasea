@@ -6,6 +6,7 @@ import {PaginationParams} from '@alchemy/phrasea-framework';
 
 export type GetBasketOptions = {
     query?: string;
+    includeArchived?: boolean;
     page?: number;
 } & PaginationParams;
 
@@ -54,6 +55,18 @@ export async function putBasket(
 
 export async function postBasket(data: Partial<Basket>): Promise<Basket> {
     const res = await apiClient.post(`/baskets`, data);
+
+    return res.data;
+}
+
+export async function archiveBasket(id: string): Promise<Basket> {
+    const res = await apiClient.post(`/baskets/${id}/archive`);
+
+    return res.data;
+}
+
+export async function unarchiveBasket(id: string): Promise<Basket> {
+    const res = await apiClient.post(`/baskets/${id}/unarchive`);
 
     return res.data;
 }

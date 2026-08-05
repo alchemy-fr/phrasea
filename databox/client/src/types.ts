@@ -452,6 +452,7 @@ export interface Basket
     assetCount?: number;
     createdAt: string;
     updatedAt: string;
+    isArchived: boolean;
     owner?: User;
 }
 

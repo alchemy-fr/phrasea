@@ -25,6 +25,8 @@ export function useBasketList({onBasketCreate}: Props = {}) {
     const hasMore = useBasketStore(state => state.hasMore);
     const load = useBasketStore(state => state.load);
     const deleteBasket = useBasketStore(state => state.deleteBasket);
+    const archiveBasket = useBasketStore(state => state.archiveBasket);
+    const unarchiveBasket = useBasketStore(state => state.unarchiveBasket);
     const {openModal} = useModals();
     const navigateToModal = useNavigateToModal();
 
@@ -63,9 +65,30 @@ export function useBasketList({onBasketCreate}: Props = {}) {
         });
     };
 
+    const onArchive = (data: Basket): void => {
+        onContextMenuClose();
+        archiveBasket(data.id, searchQueryOptions.includeArchived || false);
+        toast.success(
+            t('archive.basket.confirmed', 'Basket has been archived!') as string
+        );
+    };
+
+    const onUnarchive = (data: Basket): void => {
+        onContextMenuClose();
+        unarchiveBasket(data.id);
+        toast.success(
+            t(
+                'archive.basket.confirmed',
+                'Basket has been unarchived!'
+            ) as string
+        );
+    };
+
     const {
         searchQuery,
         setSearchQuery,
+        searchQueryOptions,
+        setSearchQueryOptions,
         results,
         searchResult,
         loadMoreHandler,
@@ -73,17 +96,22 @@ export function useBasketList({onBasketCreate}: Props = {}) {
         searchHandler,
     } = useSearch({
         items: baskets,
-        loadItems: load,
+        loadItems: options => load(options),
         hasMore: hasMore(),
         loadMore: loadMore,
-        search: (q, nextUrl) => getBaskets({nextUrl, query: q}),
+        search: (q, nextUrl, options) =>
+            getBaskets({nextUrl, query: q, ...options}),
     });
 
     return {
         onEdit,
+        onArchive,
+        onUnarchive,
         onDelete,
         searchQuery,
         setSearchQuery,
+        searchQueryOptions,
+        setSearchQueryOptions,
         searchHandler,
         baskets: results,
         searchResult,

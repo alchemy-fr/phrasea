@@ -1,4 +1,6 @@
 import {ListItemIcon, MenuItem} from '@mui/material';
+import ArchiveIcon from '@mui/icons-material/Archive';
+import UnarchiveIcon from '@mui/icons-material/Unarchive';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ContextMenu from '../Ui/ContextMenu.tsx';
@@ -12,7 +14,9 @@ import {useTranslation} from 'react-i18next';
 
 type Props = {
     onEdit: (data: Basket) => void;
+    onArchive: (data: Basket) => void;
     onDelete: (data: Basket) => void;
+    onUnarchive: (data: Basket) => void;
     contextMenu: ContextMenuContext<Basket>;
 } & ReturnType<typeof useContextMenu<Basket>>;
 
@@ -20,6 +24,8 @@ export default function BasketContextMenu({
     contextMenu,
     onContextMenuClose,
     onEdit,
+    onArchive,
+    onUnarchive,
     onDelete,
 }: Props) {
     const {t} = useTranslation();
@@ -40,6 +46,28 @@ export default function BasketContextMenu({
                     </ListItemIcon>
                     {t('basket.actions.edit', 'Edit Basket')}
                 </MenuItem>
+                {!contextMenu.data.isArchived ? (
+                    <MenuItem
+                        disabled={!contextMenu.data.capabilities.delete}
+                        onClick={() => onArchive(contextMenu.data)}
+                    >
+                        <ListItemIcon>
+                            <ArchiveIcon />
+                        </ListItemIcon>
+                        {t('basket.actions.archive', 'Archive Basket')}
+                    </MenuItem>
+                ) : (
+                    <MenuItem
+                        disabled={!contextMenu.data.capabilities.delete}
+                        onClick={() => onUnarchive(contextMenu.data)}
+                    >
+                        <ListItemIcon>
+                            <UnarchiveIcon />
+                        </ListItemIcon>
+                        {t('basket.actions.unarchive', 'Unarchive Basket')}
+                    </MenuItem>
+                )}
+
                 <MenuItem
                     disabled={!contextMenu.data.capabilities.delete}
                     onClick={() => onDelete(contextMenu.data)}

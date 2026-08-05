@@ -1,5 +1,12 @@
-import React from 'react';
-import {Button, List, Stack} from '@mui/material';
+import React, {useState} from 'react';
+import {
+    Button,
+    FormControlLabel,
+    List,
+    MenuItem,
+    Stack,
+    Switch,
+} from '@mui/material';
 import BasketMenuItem from './BasketMenuItem';
 import {useTranslation} from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
@@ -9,7 +16,7 @@ import {useBasketList} from '../../hooks/useBasketList.ts';
 import {useNavigateToModal} from '../Routing/ModalLink.tsx';
 import BasketSkeleton from './BasketSkeleton.tsx';
 import BasketContextMenu from './BasketContextMenu.tsx';
-import {LoadMoreRow} from '@alchemy/phrasea-ui';
+import {LoadMoreRow, MoreActionsButton} from '@alchemy/phrasea-ui';
 
 type Props = {
     selected?: string;
@@ -24,17 +31,27 @@ function BasketsPanel({selected}: Props) {
         onContextMenuOpen,
         onContextMenuClose,
         onEdit,
+        onArchive,
+        onUnarchive,
         onDelete,
         createBasket,
         loading,
         searchQuery,
         setSearchQuery,
+        setSearchQueryOptions,
         baskets,
         searchResult,
         loadMoreHandler,
         hasLoadMore,
         searchHandler,
     } = useBasketList();
+
+    const [displayArchive, setDisplayArchive] = useState(false);
+
+    const setDisplayArchiveHandler = (value: boolean) => {
+        setDisplayArchive(value);
+        setSearchQueryOptions({includeArchived: value});
+    };
 
     return (
         <div
@@ -49,13 +66,47 @@ function BasketsPanel({selected}: Props) {
                 setSearchQuery={setSearchQuery}
                 loading={searchResult.loading}
                 searchHandler={searchHandler}
+                settings={
+                    <MoreActionsButton
+                        vertical={true}
+                        iconButtonProps={{
+                            size: 'small',
+                        }}
+                    >
+                        {closeWrapper => [
+                            <MenuItem
+                                key={'display_archive'}
+                                onClick={closeWrapper()}
+                            >
+                                <FormControlLabel
+                                    control={
+                                        <Switch
+                                            checked={displayArchive}
+                                            onChange={() =>
+                                                setDisplayArchiveHandler(
+                                                    !displayArchive
+                                                )
+                                            }
+                                        />
+                                    }
+                                    label={t(
+                                        'basket.display_archive.label',
+                                        'Display Archive'
+                                    )}
+                                />
+                            </MenuItem>,
+                        ]}
+                    </MoreActionsButton>
+                }
             />
             {contextMenu ? (
                 <BasketContextMenu
                     contextMenu={contextMenu}
                     onContextMenuClose={onContextMenuClose}
                     onEdit={onEdit}
+                    onArchive={onArchive}
                     onDelete={onDelete}
+                    onUnarchive={onUnarchive}
                     onContextMenuOpen={onContextMenuOpen}
                 />
             ) : null}
@@ -75,22 +126,26 @@ function BasketsPanel({selected}: Props) {
                 })}
             >
                 {!loading ? (
-                    baskets.map(b => (
-                        <BasketMenuItem
-                            onContextMenu={e =>
-                                onContextMenuOpen(e, b, e.currentTarget)
-                            }
-                            key={b.id}
-                            data={b}
-                            selected={selected === b.id}
-                            onClick={() =>
-                                navigateToModal(
-                                    modalRoutes.baskets.routes.view,
-                                    {id: b.id}
-                                )
-                            }
-                        />
-                    ))
+                    baskets.map(b =>
+                        b.isArchived && !displayArchive ? (
+                            ''
+                        ) : (
+                            <BasketMenuItem
+                                onContextMenu={e =>
+                                    onContextMenuOpen(e, b, e.currentTarget)
+                                }
+                                key={b.id}
+                                data={b}
+                                selected={selected === b.id}
+                                onClick={() =>
+                                    navigateToModal(
+                                        modalRoutes.baskets.routes.view,
+                                        {id: b.id}
+                                    )
+                                }
+                            />
+                        )
+                    )
                 ) : (
                     <BasketSkeleton />
                 )}

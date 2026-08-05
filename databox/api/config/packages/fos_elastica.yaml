@@ -356,6 +356,8 @@ fos_elastica:
                 groups:
                     property_path: false
                     type: keyword
+                isArchived:
+                    type: boolean
             persistence:
                 driver: orm
                 model: App\Entity\Basket\Basket
