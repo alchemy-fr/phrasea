@@ -21,8 +21,13 @@ use App\Elasticsearch\BuiltInAttribute\CreatedAtBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\DeletedBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\DirectCollectionBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\FileFamilyBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\SimilarBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\WorkspaceBuiltInAttribute;
+use App\Elasticsearch\Query\Knn;
+use App\Elasticsearch\SimilarAssetSearch;
+use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
+use App\Repository\Core\AssetRepository;
 use App\Tests\Unit\Attribute\Type\AttributeTypeRegistryTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -64,7 +69,7 @@ class AQLToESQueryTest extends TestCase
 
         $attributeTypeRegistry = AttributeTypeRegistryTestFactory::create();
 
-        $container = new class([WorkspaceBuiltInAttribute::getKey() => fn () => new WorkspaceBuiltInAttribute($em), AssetStatusBuiltInAttribute::getKey() => fn () => new AssetStatusBuiltInAttribute($translator), DeletedBuiltInAttribute::getKey() => fn () => new DeletedBuiltInAttribute(), CreatedAtBuiltInAttribute::getKey() => fn () => new CreatedAtBuiltInAttribute(), CollectionBuiltInAttribute::getKey() => fn () => new CollectionBuiltInAttribute($em, $security), DirectCollectionBuiltInAttribute::getKey() => fn () => new DirectCollectionBuiltInAttribute($em, $security), FileFamilyBuiltInAttribute::getKey() => fn () => new FileFamilyBuiltInAttribute($translator)]) implements ServiceProviderInterface {
+        $container = new class([WorkspaceBuiltInAttribute::getKey() => fn () => new WorkspaceBuiltInAttribute($em), AssetStatusBuiltInAttribute::getKey() => fn () => new AssetStatusBuiltInAttribute($translator), DeletedBuiltInAttribute::getKey() => fn () => new DeletedBuiltInAttribute(), CreatedAtBuiltInAttribute::getKey() => fn () => new CreatedAtBuiltInAttribute(), CollectionBuiltInAttribute::getKey() => fn () => new CollectionBuiltInAttribute($em, $security), DirectCollectionBuiltInAttribute::getKey() => fn () => new DirectCollectionBuiltInAttribute($em, $security), FileFamilyBuiltInAttribute::getKey() => fn () => new FileFamilyBuiltInAttribute($translator), SimilarBuiltInAttribute::getKey() => fn () => $this->createSimilarBuiltInAttribute()]) implements ServiceProviderInterface {
             use ServiceLocatorTrait;
         };
         $builtInAttributeRegistry = new BuiltInAttributeRegistry($container);
@@ -143,6 +148,23 @@ class AQLToESQueryTest extends TestCase
         }
     }
 
+    private function createSimilarBuiltInAttribute(): SimilarBuiltInAttribute
+    {
+        $repository = $this->createMock(AssetRepository::class);
+        $repository->method('find')->willReturn(new Asset());
+
+        $similarAssetSearch = $this->createMock(SimilarAssetSearch::class);
+        $similarAssetSearch->method('createKnnQuery')->willReturn(new Knn('embedding', [0.1, 0.2], 500));
+
+        $security = $this->createMock(Security::class);
+        $security->method('isGranted')->willReturn(true);
+
+        $attribute = new SimilarBuiltInAttribute($repository, $similarAssetSearch);
+        $attribute->setSecurity($security);
+
+        return $attribute;
+    }
+
     private function createCollectionStub(string $class, mixed $id): ?Collection
     {
         if (Collection::class !== $class || !isset(self::COLLECTION_PATHS[$id])) {
@@ -202,6 +224,13 @@ class AQLToESQueryTest extends TestCase
             ['@directCollection = "not-an-uuid"', 'Invalid collection ID'],
             ['@directCollection = "2b2c8b1e-0000-4000-8000-0000000000ff"', 'Collection not found'],
             ['@directCollection CONTAINS "foo"', 'Operator "CONTAINS" not supported for field type "collection_path"'],
+            ['@similar = "fa2a50ea-ec37-45a1-8fbc-227344e25e9d"', [
+                'knn' => [
+                    'field' => 'embedding',
+                    'query_vector' => [0.1, 0.2],
+                    'num_candidates' => 500,
+                ],
+            ]],
             ['date < "YYYY-88-88"', 'Invalid date value "YYYY-88-88"'],
             ['date < "9999-88-88"', [
                 'range' => [

@@ -34,9 +34,39 @@ class SimilarAssetSearch extends AbstractSearch
      */
     public function findSimilar(?string $userId, array $groupIds, Asset $asset, int $limit): array
     {
+        $knn = $this->createKnnQuery($userId, $groupIds, $asset, max(100, $limit * 10));
+        if (null === $knn) {
+            return [[], []];
+        }
+
+        $query = new Query($knn);
+        $query->setSize($limit);
+        $query->setSource(false);
+
+        $assets = [];
+        $scores = [];
+        /** @var HybridResult[] $results */
+        $results = $this->finder->findHybrid($query, $limit);
+        foreach ($results as $result) {
+            /** @var Asset $transformed */
+            $transformed = $result->getTransformed();
+            $assets[] = $transformed;
+            $scores[$transformed->getId()] = $result->getResult()->getScore();
+        }
+
+        return [$assets, $scores];
+    }
+
+    /**
+     * Returns null if the asset has no embedding.
+     *
+     * @throws NoWorkspaceAllowedException
+     */
+    public function createKnnQuery(?string $userId, array $groupIds, Asset $asset, int $numCandidates = 100): ?Knn
+    {
         $vector = $this->assetEmbeddingManager->getAssetVector($asset);
         if (null === $vector) {
-            return [[], []];
+            return null;
         }
 
         $options = [
@@ -57,24 +87,9 @@ class SimilarAssetSearch extends AbstractSearch
         $filter->addFilter($this->assetStatusBuiltInAttribute->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options));
         $filter->addMustNot(new Query\Terms('_id', [$asset->getId()]));
 
-        $knn = new Knn('embedding', $vector, max(100, $limit * 10));
+        $knn = new Knn('embedding', $vector, $numCandidates);
         $knn->setFilter($filter);
 
-        $query = new Query($knn);
-        $query->setSize($limit);
-        $query->setSource(false);
-
-        $assets = [];
-        $scores = [];
-        /** @var HybridResult[] $results */
-        $results = $this->finder->findHybrid($query, $limit);
-        foreach ($results as $result) {
-            /** @var Asset $transformed */
-            $transformed = $result->getTransformed();
-            $assets[] = $transformed;
-            $scores[$transformed->getId()] = $result->getResult()->getScore();
-        }
-
-        return [$assets, $scores];
+        return $knn;
     }
 }
