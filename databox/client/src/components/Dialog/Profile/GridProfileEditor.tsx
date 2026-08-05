@@ -29,35 +29,43 @@ import {
     ListItemButton,
     ListItemText,
     ListSubheader,
+    MenuItem,
     Paper,
     Stack,
     Switch,
     TextField,
     ToggleButton,
     ToggleButtonGroup,
+    Tooltip,
     Typography,
+    useTheme,
 } from '@mui/material';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
 import CloseIcon from '@mui/icons-material/Close';
 import ImageIcon from '@mui/icons-material/Image';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import {useTranslation} from 'react-i18next';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {logError} from '@alchemy/core';
+import {chipColorNames, defaultChipColors} from '@alchemy/phrasea-framework';
 import {
     AttributeDefinitionOrBuiltIn,
     DisplayProfile,
-    EntityDisplay,
     GridAnchor,
     GridRegion,
     ProfileItem,
     ProfileItemSection,
+    ProfileItemSize,
     ProfileItemVariant,
     Workspace,
 } from '../../../types';
 import {AttributeType} from '../../../api/types.ts';
 import {isRichCapable} from '../../AssetList/Layouts/Grid/resolveGridItem.ts';
+import {getAttributeType} from '../../Media/Asset/Attribute/types/getAttributeType.ts';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import AttributeDefinitionLabel from './AttributeDefinitionLabel.tsx';
 import {
@@ -78,10 +86,21 @@ type Props = {
     data: DisplayProfile;
 } & DialogTabProps;
 
-const OVER_GRID: GridAnchor[][] = [
-    ['tl', 'tc', 'tr'],
+// The top corners and the bottom-right one are not droppable: they are
+// reserved for the item controls (selection checkbox on the left, menu button
+// on the right) and the file type chip.
+type OverCell = GridAnchor | 'controls-left' | 'controls-right' | 'type-icon';
+
+const RESERVED_CELLS: OverCell[] = [
+    'controls-left',
+    'controls-right',
+    'type-icon',
+];
+
+const OVER_GRID: OverCell[][] = [
+    ['controls-left', 'tc', 'controls-right'],
     ['ml', 'cc', 'mr'],
-    ['bl', 'bc', 'br'],
+    ['bl', 'bc', 'type-icon'],
 ];
 const BAND: GridAnchor[] = ['l', 'c', 'r'];
 
@@ -439,7 +458,21 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
                                         }}
                                     >
                                         {OVER_GRID.flatMap(row =>
-                                            row.map(a => renderCell('over', a))
+                                            row.map(a =>
+                                                RESERVED_CELLS.includes(a) ? (
+                                                    <ReservedCell
+                                                        key={a}
+                                                        kind={
+                                                            a as ReservedCellKind
+                                                        }
+                                                    />
+                                                ) : (
+                                                    renderCell(
+                                                        'over',
+                                                        a as GridAnchor
+                                                    )
+                                                )
+                                            )
                                         )}
                                     </Box>
                                 </Box>
@@ -470,7 +503,11 @@ export default function GridProfileEditor({data, onClose, minHeight}: Props) {
                                         )}
                                         type={def?.type}
                                         richCapable={rich}
-                                        defaultVariant={rich ? 'rich' : 'chip'}
+                                        defaultVariant={
+                                            rich
+                                                ? ProfileItemVariant.Rich
+                                                : ProfileItemVariant.Chip
+                                        }
                                         onChange={changes =>
                                             persistPatch(selected, changes)
                                         }
@@ -528,6 +565,49 @@ function PaletteField({def}: {def: AttributeDefinitionOrBuiltIn}) {
         >
             <ListItemText primary={<AttributeDefinitionLabel data={def} />} />
         </ListItemButton>
+    );
+}
+
+type ReservedCellKind = 'controls-left' | 'controls-right' | 'type-icon';
+
+// Non-droppable corner, occupied by a built-in card element (item controls on
+// the top, file type chip on the bottom-right).
+function ReservedCell({kind}: {kind: ReservedCellKind}) {
+    const {t} = useTranslation();
+
+    const title =
+        kind === 'type-icon'
+            ? t(
+                  'grid_editor.reserved_type_cell',
+                  'Reserved for the file type icon'
+              )
+            : t('grid_editor.reserved_cell', 'Reserved for asset controls');
+
+    return (
+        <Tooltip title={title}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: kind === 'type-icon' ? 'flex-end' : 'center',
+                    justifyContent:
+                        kind === 'controls-left' ? 'flex-start' : 'flex-end',
+                    minHeight: 28,
+                    p: 0.25,
+                    borderRadius: 0.5,
+                    border: '1px dashed',
+                    borderColor: 'divider',
+                    color: 'action.disabled',
+                }}
+            >
+                {kind === 'controls-left' ? (
+                    <CheckBoxOutlineBlankIcon fontSize="small" />
+                ) : kind === 'controls-right' ? (
+                    <MoreVertIcon fontSize="small" />
+                ) : (
+                    <InsertDriveFileIcon fontSize="small" />
+                )}
+            </Box>
+        </Tooltip>
     );
 }
 
@@ -618,7 +698,9 @@ function PlacedChip({
             size="small"
             label={label}
             color={selected ? 'primary' : 'default'}
-            variant={item.variant === 'text' ? 'outlined' : 'filled'}
+            variant={
+                item.variant === ProfileItemVariant.Text ? 'outlined' : 'filled'
+            }
             onClick={onSelect}
             onDelete={onRemove}
             deleteIcon={<CloseIcon />}
@@ -632,6 +714,58 @@ function PlacedChip({
             {...listeners}
             {...attributes}
         />
+    );
+}
+
+function ColorPicker({
+    value,
+    onChange,
+}: {
+    value: string | undefined;
+    onChange: (color: string) => void;
+}) {
+    const {t} = useTranslation();
+    const theme = useTheme();
+    const chipColors = {...defaultChipColors, ...(theme.palette.chips ?? {})};
+
+    const swatchSx = (selected: boolean) => ({
+        width: 22,
+        height: 22,
+        borderRadius: '50%',
+        cursor: 'pointer',
+        border: '2px solid',
+        borderColor: selected ? 'primary.main' : 'divider',
+        flex: '0 0 auto',
+    });
+
+    return (
+        <Box sx={{display: 'flex', flexWrap: 'wrap', gap: 0.75, my: 1}}>
+            <Tooltip title={t('grid_editor.config.color.default', 'Default')}>
+                <Box
+                    role="button"
+                    onClick={() => onChange('')}
+                    sx={{
+                        ...swatchSx(!value),
+                        // Diagonal strike marking the "no color" swatch.
+                        background:
+                            'linear-gradient(to top right, transparent 45%, currentColor 45%, currentColor 55%, transparent 55%)',
+                        color: 'divider',
+                    }}
+                />
+            </Tooltip>
+            {chipColorNames.map(name => (
+                <Tooltip key={name} title={name}>
+                    <Box
+                        role="button"
+                        onClick={() => onChange(name)}
+                        sx={{
+                            ...swatchSx(value === name),
+                            backgroundColor: chipColors[name].main,
+                        }}
+                    />
+                </Tooltip>
+            ))}
+        </Box>
     );
 }
 
@@ -652,7 +786,15 @@ function ConfigPanel({
     onChange: (changes: Partial<ProfileItem>) => void;
     onClose: () => void;
 }) {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
+    const variant = item.variant ?? defaultVariant;
+    const availableFormats = type
+        ? getAttributeType(type).getAvailableFormats({
+              uiLocale: i18n.language,
+              t,
+          })
+        : [];
+
     return (
         <Paper
             variant="outlined"
@@ -685,63 +827,77 @@ function ConfigPanel({
                 sx={{my: 1}}
             >
                 {richCapable && (
-                    <ToggleButton value="rich">
+                    <ToggleButton value={ProfileItemVariant.Rich}>
                         {t('grid_editor.config.variant.rich', 'Rich')}
                     </ToggleButton>
                 )}
-                <ToggleButton value="chip">
+                <ToggleButton value={ProfileItemVariant.Chip}>
                     {t('grid_editor.config.variant.chip', 'Chip')}
                 </ToggleButton>
-                <ToggleButton value="text">
+                <ToggleButton value={ProfileItemVariant.Text}>
                     {t('grid_editor.config.variant.text', 'Text')}
                 </ToggleButton>
             </ToggleButtonGroup>
 
-            {type === AttributeType.Boolean && (
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={item.booleanIcon ?? false}
-                            onChange={(_e, checked) =>
-                                onChange({booleanIcon: checked})
-                            }
-                        />
-                    }
-                    label={t(
-                        'grid_editor.config.boolean_icon',
-                        'Show as icon (✓ / ✗)'
-                    )}
-                />
-            )}
-
-            {type === AttributeType.AttributeEntity && (
+            {availableFormats.length > 0 && (
                 <>
                     <Typography variant="caption" color="text.secondary">
-                        {t(
-                            'grid_editor.config.entity_display',
-                            'Entity display'
-                        )}
+                        {t('grid_editor.config.format', 'Format')}
                     </Typography>
-                    <ToggleButtonGroup
+                    <TextField
+                        select
                         size="small"
-                        exclusive
                         fullWidth
-                        value={item.entityDisplay ?? 'full'}
-                        onChange={(_e, v: EntityDisplay | null) =>
-                            v && onChange({entityDisplay: v})
-                        }
+                        value={item.format ?? ''}
+                        onChange={e => onChange({format: e.target.value})}
                         sx={{my: 1}}
                     >
-                        <ToggleButton value="full">
-                            {t('grid_editor.config.entity.full', 'Full')}
-                        </ToggleButton>
-                        <ToggleButton value="emoji">
-                            {t('grid_editor.config.entity.emoji', 'Emoji')}
-                        </ToggleButton>
-                        <ToggleButton value="color">
-                            {t('grid_editor.config.entity.color', 'Color')}
-                        </ToggleButton>
-                    </ToggleButtonGroup>
+                        <MenuItem value="">
+                            {t('grid_editor.config.format.default', 'Default')}
+                        </MenuItem>
+                        {availableFormats.map(f => (
+                            <MenuItem key={f.name} value={f.name}>
+                                {f.title}
+                            </MenuItem>
+                        ))}
+                    </TextField>
+                </>
+            )}
+
+            <Typography variant="caption" color="text.secondary">
+                {t('grid_editor.config.size', 'Size')}
+            </Typography>
+            <ToggleButtonGroup
+                size="small"
+                exclusive
+                fullWidth
+                value={item.size ?? ProfileItemSize.Medium}
+                onChange={(_e, v: ProfileItemSize | null) =>
+                    v && onChange({size: v})
+                }
+                sx={{my: 1}}
+            >
+                <ToggleButton value={ProfileItemSize.Small}>
+                    {t('grid_editor.config.size.small', 'S')}
+                </ToggleButton>
+                <ToggleButton value={ProfileItemSize.Medium}>
+                    {t('grid_editor.config.size.medium', 'M')}
+                </ToggleButton>
+                <ToggleButton value={ProfileItemSize.Large}>
+                    {t('grid_editor.config.size.large', 'L')}
+                </ToggleButton>
+            </ToggleButtonGroup>
+
+            {(variant === ProfileItemVariant.Chip ||
+                variant === ProfileItemVariant.Rich) && (
+                <>
+                    <Typography variant="caption" color="text.secondary">
+                        {t('grid_editor.config.color', 'Chip color')}
+                    </Typography>
+                    <ColorPicker
+                        value={item.color}
+                        onChange={color => onChange({color})}
+                    />
                 </>
             )}
 

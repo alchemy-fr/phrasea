@@ -1,4 +1,5 @@
 import {
+    Box,
     IconButton,
     ListItem,
     ListItemButton,
@@ -8,10 +9,14 @@ import {
 } from '@mui/material';
 import {DisplayProfile} from '../../types';
 import {useTranslation} from 'react-i18next';
+import {useAuth} from '@alchemy/react-auth';
 import {Classes} from '../../classes.ts';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import SyncIcon from '@mui/icons-material/Sync';
+import PersonIcon from '@mui/icons-material/Person';
+import PublicIcon from '@mui/icons-material/Public';
+import {getSharedProfileOwner} from '../../store/profileStore.ts';
 
 type Props = {
     data: DisplayProfile;
@@ -32,9 +37,11 @@ export default function ProfileMenuItem({
     syncData,
 }: Props) {
     const {t} = useTranslation();
+    const {user} = useAuth();
 
     const canEdit = data.capabilities.edit;
     const canDelete = data.capabilities.delete;
+    const sharedOwner = getSharedProfileOwner(data, user?.id);
 
     const textSx = {
         pr: (canEdit ? 6 : 0) + (canDelete ? 6 : 0),
@@ -51,7 +58,41 @@ export default function ProfileMenuItem({
                     <ListItemText
                         className={Classes.ellipsisText}
                         primary={data.name}
-                        secondary={data.description}
+                        secondary={
+                            <>
+                                {data.description}
+                                {sharedOwner ? (
+                                    <Box
+                                        component="span"
+                                        sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 0.5,
+                                            mt: 0.25,
+                                        }}
+                                    >
+                                        {data.public ? (
+                                            <PublicIcon
+                                                sx={{fontSize: 14}}
+                                                titleAccess={t(
+                                                    'display_profile.public',
+                                                    'Public'
+                                                )}
+                                            />
+                                        ) : (
+                                            <PersonIcon sx={{fontSize: 14}} />
+                                        )}
+                                        {t(
+                                            'display_profile.shared_by',
+                                            'Shared by {{owner}}',
+                                            {
+                                                owner: sharedOwner.username,
+                                            }
+                                        )}
+                                    </Box>
+                                ) : null}
+                            </>
+                        }
                         secondaryTypographyProps={{
                             style: {whiteSpace: 'normal'},
                             sx: textSx,

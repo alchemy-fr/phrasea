@@ -14,6 +14,7 @@ export default class RenditionDefinitionType
     implements AttributeTypeInstance<string>
 {
     public entityIri = EntityName.RenditionDefinition;
+    public isRich = true;
 
     renderWidget({
         value,

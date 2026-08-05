@@ -133,7 +133,7 @@ function AssetThumb({
                     </div>
                 )}
 
-            {storyCollection || displayAssetTypeChip ? (
+            {storyCollection || displayAssetTypeChip || deleted ? (
                 <div className={assetClasses.assetChip}>
                     {deleted ? (
                         <Chip
@@ -149,13 +149,13 @@ function AssetThumb({
                             label={t('story.chip.label', 'Story')}
                             {...chipProps}
                         />
-                    ) : (
+                    ) : displayAssetTypeChip ? (
                         <Chip
                             color={'info'}
                             icon={<AssetTypeIcon mimeType={source!.type} />}
                             {...chipProps}
                         />
-                    )}
+                    ) : null}
                 </div>
             ) : null}
             {overlay}

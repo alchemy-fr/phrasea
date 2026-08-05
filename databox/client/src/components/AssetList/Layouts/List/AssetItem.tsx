@@ -2,8 +2,7 @@ import {MouseEvent} from 'react';
 import {AssetOrAssetContainer, AssetStatus} from '../../../../types';
 import assetClasses from '../../classes';
 import IconButton from '@mui/material/IconButton';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import SettingsIcon from '@mui/icons-material/Settings';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import AssetThumb from '../../../Media/Asset/AssetThumb';
 import Attributes from '../../../Media/Asset/Attribute/Attributes';
 import {AssetItemProps, OnPreviewToggle} from '../../types';
@@ -24,7 +23,6 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
     onToggle,
     onContextMenuOpen,
     onPreviewToggle,
-    onAddToBasket,
     itemComponent,
 }: Props<Item>) {
     return (
@@ -51,26 +49,15 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                 />
                 {!disabled ? (
                     <div className={assetClasses.controls}>
-                        {onAddToBasket ? (
-                            <IconButton
-                                className={assetClasses.cartBtn}
-                                onMouseDown={stopPropagation}
-                                onDoubleClick={stopPropagation}
-                                onClick={e => onAddToBasket(asset, e)}
-                            >
-                                <ShoppingCartIcon fontSize={'small'} />
-                            </IconButton>
-                        ) : null}
                         {onContextMenuOpen && (
                             <IconButton
                                 className={assetClasses.settingBtn}
                                 onClick={e => onContextMenuOpen(e, item)}
                                 color={'inherit'}
                             >
-                                <SettingsIcon
+                                <MoreVertIcon
                                     color={'inherit'}
                                     fontSize={'small'}
-                                    scale={0.45}
                                 />
                             </IconButton>
                         )}

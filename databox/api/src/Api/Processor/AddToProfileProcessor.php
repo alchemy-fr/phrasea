@@ -101,10 +101,10 @@ class AddToProfileProcessor implements ProcessorInterface
             if (ProfileItem::SECTION_GRID === $i->section) {
                 $item->setPlacement($i->placement);
                 $item->setVariant($i->variant);
+                $item->setColor($i->color);
+                $item->setSize($i->size);
                 $item->setShowLabel($i->showLabel);
                 $item->setShowIcon($i->showIcon);
-                $item->setBooleanIcon($i->booleanIcon);
-                $item->setEntityDisplay($i->entityDisplay);
             }
 
             $this->em->persist($item);

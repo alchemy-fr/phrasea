@@ -17,6 +17,7 @@ export default class UserType
     implements AttributeTypeInstance<string>
 {
     entityIri = EntityName.User;
+    public isRich = true;
 
     renderWidget({
         value,

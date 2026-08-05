@@ -44,11 +44,11 @@ class ProfileOutputTransformer implements OutputTransformerInterface
         $output->description = $data->getDescription();
         $output->public = $data->isPublic();
 
+        $output->owner = $this->transformUser($data->getOwnerId());
+
         if ($this->hasGroup([
             Profile::GROUP_READ,
         ], $context)) {
-            $output->owner = $this->transformUser($data->getOwnerId());
-
             $output->data = $data->getData()?->getData() ?? [];
 
             /** @var ProfileItem[] $profileItems */

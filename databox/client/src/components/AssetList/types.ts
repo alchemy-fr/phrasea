@@ -5,7 +5,6 @@ import {ButtonProps} from '@mui/material/Button';
 export type ItemToAssetFunc<Item extends AssetOrAssetContainer> = (
     item: Item
 ) => Asset;
-export type OnAddToBasket = (asset: Asset, e?: MouseEvent) => void;
 export type OnSelectionChange<Item extends AssetOrAssetContainer> = (
     items: Item[]
 ) => void;
@@ -38,7 +37,6 @@ export type OnAssetContextMenuOpen<Item extends AssetOrAssetContainer> = (
 ) => void;
 
 export type AssetActions<Item extends AssetOrAssetContainer> = {
-    onAddToBasket?: OnAddToBasket;
     onOpen?: OnOpen;
     onToggle: OnToggle<Item>;
     onContextMenuOpen?: OnAssetContextMenuOpen<Item>;

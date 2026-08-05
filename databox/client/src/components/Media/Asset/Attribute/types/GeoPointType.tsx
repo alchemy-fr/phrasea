@@ -21,6 +21,8 @@ type GeoPoint = {
 };
 
 export default class GeoPointType extends TextType {
+    public isRich = true;
+
     denormalizeValue(value: GeoPoint | string): string | undefined {
         if (!value) {
             return;

@@ -15,6 +15,8 @@ enum Formats {
 }
 
 export default class ColorType extends TextType {
+    public isRich = true;
+
     renderWidget({
         labelAlreadyRendered,
         value,

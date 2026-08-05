@@ -23,7 +23,6 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
     pages,
     onToggle,
     onContextMenuOpen,
-    onAddToBasket,
     onOpen,
     itemComponent,
     loadMore,
@@ -138,7 +137,6 @@ export default function GridLayout<Item extends AssetOrAssetContainer>({
                         onToggle={onToggle}
                         onPreviewToggle={onPreviewToggle}
                         onContextMenuOpen={onContextMenuOpen}
-                        onAddToBasket={onAddToBasket}
                         onOpen={onOpen}
                         {...layoutProps}
                     />

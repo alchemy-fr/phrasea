@@ -10,6 +10,7 @@ export default class StoryType
     implements AttributeTypeInstance<Asset>
 {
     public entityIri = EntityName.Asset;
+    public isRich = true;
 
     renderWidget() {
         return null;

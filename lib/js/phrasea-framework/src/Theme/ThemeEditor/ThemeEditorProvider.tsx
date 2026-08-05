@@ -4,6 +4,7 @@ import {createTheme, Theme, ThemeOptions, ThemeProvider} from '@mui/material';
 import {mergeDeep} from '@alchemy/core';
 
 import {TThemeEditorContext} from '../types';
+import {defaultChipColors} from '../chipColors';
 
 type Props = PropsWithChildren<{
     defaultTheme: ThemeOptions;
@@ -23,6 +24,9 @@ export default function ThemeEditorProvider({
                 {
                     colorSchemes: {
                         dark: true,
+                    },
+                    palette: {
+                        chips: defaultChipColors,
                     },
                 },
                 defaultTheme,

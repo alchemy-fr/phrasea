@@ -21,32 +21,7 @@ export default class BooleanType
     extends BaseType
     implements AttributeTypeInstance<boolean>
 {
-    formatValue({
-        value,
-        format,
-        ...formatterOptions
-    }: AttributeFormatterProps): React.ReactNode {
-        if (false !== value && true !== value) {
-            return;
-        }
-
-        switch (format ?? this.getDefaultFormat(formatterOptions)) {
-            default:
-            case Formats.Label:
-                return (
-                    <Chip
-                        color={value ? 'success' : 'error'}
-                        label={value ? 'Yes' : 'No'}
-                    />
-                );
-            case Formats.Binary:
-                return <>{value ? '1' : '0'}</>;
-            case Formats.Thumbs:
-                return <>{value ? '👍' : '👎'}</>;
-            case Formats.TrueFalse:
-                return <>{value ? 'true' : 'false'}</>;
-        }
-    }
+    public isRich = true;
 
     renderWidget({
         value,
@@ -83,17 +58,56 @@ export default class BooleanType
         );
     }
 
-    formatValueAsString({
-        value,
-        t,
-    }: AttributeFormatterProps): string | undefined {
-        if (true === value) {
-            return t('attribute_type.boolean.yes.label', 'Yes');
-        } else if (false === value) {
-            return t('attribute_type.boolean.no.label', 'No');
+    formatValue(props: AttributeFormatterProps): React.ReactNode {
+        const {value, format, ...formatterOptions} = props;
+        if (false !== value && true !== value) {
+            return;
         }
 
-        return '';
+        switch (format ?? this.getDefaultFormat(formatterOptions)) {
+            default:
+            case Formats.Label:
+                return (
+                    <Chip
+                        color={props.value ? 'success' : 'error'}
+                        label={this.formatValueAsString(props)}
+                    />
+                );
+            case Formats.Binary:
+            case Formats.Thumbs:
+            case Formats.TrueFalse:
+                return this.formatValueAsString(props);
+        }
+    }
+
+    formatValueAsString({
+        value,
+        format,
+        ...formatterOptions
+    }: AttributeFormatterProps): string | undefined {
+        if (false !== value && true !== value) {
+            return;
+        }
+
+        switch (format ?? this.getDefaultFormat(formatterOptions)) {
+            default:
+            case Formats.Label:
+                return value
+                    ? formatterOptions.t(
+                          'attribute_type.boolean.yes.label',
+                          'Yes'
+                      )
+                    : formatterOptions.t(
+                          'attribute_type.boolean.no.label',
+                          'No'
+                      );
+            case Formats.Binary:
+                return value ? '1' : '0';
+            case Formats.Thumbs:
+                return value ? '👍' : '👎';
+            case Formats.TrueFalse:
+                return value ? 'true' : 'false';
+        }
     }
 
     getAvailableFormats(options: AttributeFormatterOptions): AvailableFormat[] {

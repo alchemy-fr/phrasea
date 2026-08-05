@@ -2,19 +2,28 @@ import {
     AttributeFormatterProps,
     AttributeTypeInstance,
     AttributeWidgetProps,
+    AvailableFormat,
 } from './types';
 import React from 'react';
 import BaseType from './BaseType.tsx';
 import PrivacyWidget from '../../../../Form/PrivacyWidget.tsx';
-import PrivacyChip from '../../../../Ui/PrivacyChip.tsx';
+import PrivacyChip, {PrivacyIcon} from '../../../../Ui/PrivacyChip.tsx';
 import {Privacy} from '../../../../../api/privacy.ts';
 import {getPrivacyTranslations} from '../../../../../translations/privacyTranslations.ts';
 import {isNotNull} from '@alchemy/core';
+
+export enum PrivacyFormats {
+    Full = 'full',
+    // Icon-only rendering (lock icon with the label as tooltip).
+    Short = 'short',
+}
 
 export default class PrivacyType
     extends BaseType
     implements AttributeTypeInstance<Privacy>
 {
+    public isRich = true;
+
     renderWidget({
         value,
         onChange,
@@ -33,8 +42,25 @@ export default class PrivacyType
         return value?.toString();
     }
 
-    formatValue({value}: AttributeFormatterProps): React.ReactNode {
+    formatValue({value, format}: AttributeFormatterProps): React.ReactNode {
+        if (PrivacyFormats.Short === format) {
+            return <PrivacyIcon privacy={value} noAccess={false} />;
+        }
+
         return <PrivacyChip privacy={value} noAccess={false} />;
+    }
+
+    getAvailableFormats(): AvailableFormat[] {
+        return [
+            {
+                name: PrivacyFormats.Full,
+                title: 'Full',
+            },
+            {
+                name: PrivacyFormats.Short,
+                title: 'Short',
+            },
+        ];
     }
 
     formatValueAsString({

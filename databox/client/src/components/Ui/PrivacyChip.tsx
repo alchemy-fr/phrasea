@@ -7,6 +7,7 @@ import FastTooltip from './FastTooltip';
 import assetClasses from '../AssetList/classes';
 import {useMemo} from 'react';
 import {getPrivacyTranslations} from '../../translations/privacyTranslations.ts';
+import PrivacyTipIcon from '@mui/icons-material/PrivacyTip';
 
 function usePrivacyLabel(privacy: Privacy, noAccess: boolean | undefined) {
     const {t} = useTranslation();
@@ -45,7 +46,7 @@ export default function PrivacyChip({
     );
 }
 
-export function PrivacyTooltip({
+export function PrivacyIcon({
     privacy,
     iconProps = {},
     noAccess,
@@ -57,10 +58,28 @@ export function PrivacyTooltip({
     const privacyLabel = usePrivacyLabel(privacy, noAccess);
 
     return (
+        <FastTooltip title={privacyLabel}>
+            <PrivacyTipIcon color={'inherit'} {...iconProps} />
+        </FastTooltip>
+    );
+}
+
+export function PrivacyTooltip({
+    privacy,
+    iconProps = {},
+    noAccess,
+}: {
+    privacy: Privacy;
+    iconProps?: SvgIconProps;
+    noAccess?: boolean;
+}) {
+    return (
         <div className={assetClasses.privacy}>
-            <FastTooltip title={privacyLabel}>
-                <LockIcon color={'inherit'} {...iconProps} />
-            </FastTooltip>
+            <PrivacyIcon
+                privacy={privacy}
+                iconProps={iconProps}
+                noAccess={noAccess}
+            />
         </div>
     );
 }

@@ -68,9 +68,11 @@ class ProfileItem extends AbstractUuidEntity
 
     /**
      * Valid anchors per region (stored in options.placement.anchor).
+     * The over top corners (tl, tr) are reserved for the item controls and
+     * the bottom-right one (br) for the file type chip.
      */
     final public const array ANCHORS = [
-        self::REGION_OVER => ['tl', 'tc', 'tr', 'ml', 'cc', 'mr', 'bl', 'bc', 'br'],
+        self::REGION_OVER => ['tc', 'ml', 'cc', 'mr', 'bl', 'bc'],
         self::REGION_BELOW => ['l', 'c', 'r'],
     ];
 
@@ -194,7 +196,7 @@ class ProfileItem extends AbstractUuidEntity
 
     public function setFormat(?string $format): void
     {
-        if (null === $format) {
+        if (null === $format || '' === $format) {
             unset($this->options['format']);
 
             return;
@@ -241,6 +243,38 @@ class ProfileItem extends AbstractUuidEntity
         $this->options['variant'] = $variant;
     }
 
+    public function getColor(): ?string
+    {
+        return $this->options['color'] ?? null;
+    }
+
+    public function setColor(?string $color): void
+    {
+        if (null === $color || '' === $color) {
+            unset($this->options['color']);
+
+            return;
+        }
+
+        $this->options['color'] = $color;
+    }
+
+    public function getSize(): ?string
+    {
+        return $this->options['size'] ?? null;
+    }
+
+    public function setSize(?string $size): void
+    {
+        if (null === $size || '' === $size) {
+            unset($this->options['size']);
+
+            return;
+        }
+
+        $this->options['size'] = $size;
+    }
+
     public function isShowLabel(): ?bool
     {
         return $this->options['showLabel'] ?? null;
@@ -271,38 +305,6 @@ class ProfileItem extends AbstractUuidEntity
         }
 
         $this->options['showIcon'] = $showIcon;
-    }
-
-    public function isBooleanIcon(): ?bool
-    {
-        return $this->options['booleanIcon'] ?? null;
-    }
-
-    public function setBooleanIcon(?bool $booleanIcon): void
-    {
-        if (null === $booleanIcon) {
-            unset($this->options['booleanIcon']);
-
-            return;
-        }
-
-        $this->options['booleanIcon'] = $booleanIcon;
-    }
-
-    public function getEntityDisplay(): ?string
-    {
-        return $this->options['entityDisplay'] ?? null;
-    }
-
-    public function setEntityDisplay(?string $entityDisplay): void
-    {
-        if (null === $entityDisplay) {
-            unset($this->options['entityDisplay']);
-
-            return;
-        }
-
-        $this->options['entityDisplay'] = $entityDisplay;
     }
 
     #[Assert\Callback]

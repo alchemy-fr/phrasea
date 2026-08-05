@@ -51,6 +51,7 @@ export enum AttributeType {
     DateTime = 'date_time',
     Duration = 'duration',
     AttributeEntity = 'entity',
+    FileType = 'file_type',
     GeoPoint = 'geo_point',
     Html = 'html',
     Id = 'id',

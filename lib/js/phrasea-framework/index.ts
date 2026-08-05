@@ -89,6 +89,7 @@ export {
 };
 
 export * from './src/Theme/types';
+export * from './src/Theme/chipColors';
 export * from './src/Dialog/types';
 export * from './src/Locale/types';
 export * from './src/FilePlayer/types';

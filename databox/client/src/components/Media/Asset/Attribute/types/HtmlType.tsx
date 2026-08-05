@@ -4,6 +4,8 @@ import {AttributeFormatterProps} from './types';
 import React from 'react';
 
 export default class HtmlType extends CodeType {
+    public isRich = true;
+
     formatValue({value}: AttributeFormatterProps): React.ReactNode {
         return <div dangerouslySetInnerHTML={{__html: value}} />;
     }

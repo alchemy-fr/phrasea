@@ -34,10 +34,10 @@ class ProfileItemOutputTransformer implements OutputTransformerInterface
             format: $data->getFormat(),
             placement: $data->getPlacement(),
             variant: $data->getVariant(),
+            color: $data->getColor(),
+            size: $data->getSize(),
             showLabel: $data->isShowLabel(),
             showIcon: $data->isShowIcon(),
-            booleanIcon: $data->isBooleanIcon(),
-            entityDisplay: $data->getEntityDisplay(),
         );
     }
 }

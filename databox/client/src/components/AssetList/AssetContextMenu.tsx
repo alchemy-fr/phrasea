@@ -19,6 +19,8 @@ import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import ShareIcon from '@mui/icons-material/Share';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import {useBasketStore} from '../../store/basketStore';
 import React, {ReactNode} from 'react';
 
 type Props<Item extends AssetOrAssetContainer> = {
@@ -57,6 +59,8 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
         can,
     } = useAssetActions({asset, onAction: onClose, actionsContext, reload});
 
+    const addToCurrentBasket = useBasketStore(state => state.addToCurrent);
+
     const openUrl = (url: string) => {
         // eslint-disable-next-line react-hooks/immutability
         document.location.href = url;
@@ -71,6 +75,25 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
                     <FileOpenIcon />
                 </ListItemIcon>
                 <ListItemText primary={t('asset.actions.open', 'Open')} />
+            </MenuItem>
+        );
+    }
+
+    if (actionsContext.basket) {
+        children.push(
+            <MenuItem
+                key={'add-to-basket'}
+                onClick={() => {
+                    addToCurrentBasket([asset]);
+                    onClose();
+                }}
+            >
+                <ListItemIcon>
+                    <ShoppingCartIcon />
+                </ListItemIcon>
+                <ListItemText
+                    primary={t('asset.actions.add_to_basket', 'Add to basket')}
+                />
             </MenuItem>
         );
     }
