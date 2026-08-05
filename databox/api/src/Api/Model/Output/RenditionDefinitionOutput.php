@@ -51,6 +51,9 @@ class RenditionDefinitionOutput extends AbstractUuidOutput
     ])]
     public bool $substitutable;
 
+    #[Groups([RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
+    public bool $writeMetadata;
+
     #[Groups([RenditionDefinition::GROUP_READ])]
     public ?array $labels = null;
 

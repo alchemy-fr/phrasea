@@ -6,6 +6,7 @@ namespace App\Repository\Core;
 
 use App\Entity\Core\Asset;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -71,6 +72,43 @@ class AssetRepository extends ServiceEntityRepository
             ->setParameter('ids', $ids)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * @param string[] $fileIds
+     *
+     * @return Asset[]
+     */
+    public function findBySourceFileIds(array $fileIds): array
+    {
+        if (empty($fileIds)) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.source IN (:fileIds)')
+            ->setParameter('fileIds', $fileIds)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Stream the ids of every asset of a workspace without hydrating entities.
+     *
+     * @return iterable<string>
+     */
+    public function iterateIdsByWorkspace(string $workspaceId): iterable
+    {
+        $result = $this->createQueryBuilder('a')
+            ->select('a.id AS assetId')
+            ->andWhere('a.workspace = :ws')
+            ->setParameter('ws', $workspaceId)
+            ->getQuery()
+            ->toIterable([], AbstractQuery::HYDRATE_SCALAR);
+
+        foreach ($result as $row) {
+            yield $row['assetId'];
+        }
     }
 
     public function getESQueryBuilder(string $alias = 't'): QueryBuilder

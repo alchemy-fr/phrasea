@@ -154,6 +154,18 @@ function Item({
                 <FormFieldErrors field={'substitutable'} errors={errors} />
             </FormRow>
             <FormRow>
+                <CheckboxWidget
+                    label={t(
+                        'form.rendition_definition.write_metadata.label',
+                        'Write metadata into rendition on export'
+                    )}
+                    control={control}
+                    name={'writeMetadata'}
+                    disabled={submitting}
+                />
+                <FormFieldErrors field={'writeMetadata'} errors={errors} />
+            </FormRow>
+            <FormRow>
                 <FormGroup>
                     <FormLabel>
                         {t('form.rendition_definition.parent.label', 'Parent')}
@@ -247,6 +259,8 @@ function createNewItem(): Partial<RenditionDefinition> {
     return {
         name: '',
         buildMode: RenditionBuildMode.PICK_SOURCE,
+        substitutable: true,
+        writeMetadata: true,
         useAsMain: false,
         useAsPreview: false,
         useAsThumbnail: false,

@@ -33,7 +33,7 @@ import {
     SortableContext,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {BuiltInFieldEnum, getResolvedSortBy} from '../search';
+import {BuiltInAttributeEnum, getResolvedSortBy} from '../search';
 import {AttributeDefinitionOrBuiltIn} from '../../../../types.ts';
 import {AttributeDefinitionsIndex} from '../../../../store/attributeDefinitionStore.ts';
 
@@ -95,7 +95,7 @@ export default function EditSortBy({
     const enabledOrders = orders.filter(s => s.enabled);
     const groupDisabled =
         enabledOrders.length > 0 &&
-        enabledOrders[0].a === BuiltInFieldEnum.Score;
+        enabledOrders[0].a === BuiltInAttributeEnum.Score;
 
     useEffect(() => {
         setOrders(list);

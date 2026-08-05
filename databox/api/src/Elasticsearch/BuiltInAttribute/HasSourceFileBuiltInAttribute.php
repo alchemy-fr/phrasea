@@ -1,0 +1,43 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Elasticsearch\BuiltInAttribute;
+
+use App\Attribute\Type\BooleanAttributeType;
+use App\Entity\Core\Asset;
+
+final class HasSourceFileBuiltInAttribute extends AbstractBuiltInAttribute
+{
+    protected function getAggregationTranslationKey(): string
+    {
+        return 'has_source_file';
+    }
+
+    public static function getName(): string
+    {
+        return 'hasSourceFile';
+    }
+
+    public static function getKey(): string
+    {
+        return '@hasSource';
+    }
+
+    public function getValueFromAsset(Asset $asset): mixed
+    {
+        return null !== $asset->getSource();
+    }
+
+    #[\Override]
+    public function getType(): string
+    {
+        return BooleanAttributeType::getName();
+    }
+
+    #[\Override]
+    public function isFacet(): bool
+    {
+        return true;
+    }
+}

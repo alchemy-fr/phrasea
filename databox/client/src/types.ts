@@ -11,7 +11,7 @@ import {AclExtraPermission} from './components/Permissions/permissionsTypes.ts';
 import {Privacy} from './api/privacy.ts';
 import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/managerTypes.ts';
 import {UserPreferences} from './store/userPreferencesStore.ts';
-import {BuiltInFieldEnum} from './components/Media/Search/search.ts';
+import {BuiltInAttributeEnum} from './components/Media/Search/search.ts';
 import {AttributeWidgetOptions} from './components/Media/Asset/Attribute/types/types';
 
 export type AlternateUrl = {
@@ -28,6 +28,8 @@ export interface ApiFile extends Entity {
     extension: string;
     alternateUrls: AlternateUrl[];
     size: number;
+    docUniqueId: string;
+    checksum: string;
     fileName: string;
     metadata?: Record<string, any>;
     accepted?: boolean;
@@ -207,6 +209,8 @@ export interface AttributeDefinition
     searchBoost: number;
     fallback: Record<string, string>;
     initialValues: Record<string, string>;
+    readFromMetadata?: string[];
+    writeMetadata?: string[];
     workspace: Workspace | string;
     policy: AttributePolicy | string | null;
     lastErrors?: LastErrors;
@@ -275,6 +279,7 @@ export interface RenditionDefinition extends ApiHydraObjectResponse, Entity {
     definition: string;
     buildMode?: RenditionBuildMode | string;
     substitutable: boolean;
+    writeMetadata: boolean;
     useAsMain?: boolean;
     useAsPreview?: boolean;
     useAsThumbnail?: boolean;
@@ -453,6 +458,7 @@ export interface Basket
 export enum ProfileItemSection {
     Attributes = 0,
     Facets = 1,
+    Grid = 2,
 }
 
 export enum ProfileItemType {
@@ -462,14 +468,52 @@ export enum ProfileItemType {
     Spacer = 3,
 }
 
+export type GridRegion = 'over' | 'below';
+
+// above/below bands: l | c | r ; over (3x3 grid): tl..br
+export type GridAnchor =
+    | 'l'
+    | 'c'
+    | 'r'
+    | 'tl'
+    | 'tc'
+    | 'tr'
+    | 'ml'
+    | 'cc'
+    | 'mr'
+    | 'bl'
+    | 'bc'
+    | 'br';
+
+export type ItemPlacement = {
+    region: GridRegion;
+    anchor: GridAnchor;
+    order?: number;
+};
+
+// How a grid value is rendered: its rich ReactNode, a plain-text chip, or raw text.
+export type ProfileItemVariant = 'rich' | 'chip' | 'text';
+
+// AttributeEntity display mode on the grid card.
+export type EntityDisplay = 'full' | 'emoji' | 'color';
+
 export type ProfileItem = {
     id: string;
     section: ProfileItemSection;
     type: ProfileItemType;
-    key?: BuiltInFieldEnum | string;
+    key?: BuiltInAttributeEnum | string;
     definition?: string;
     displayEmpty?: boolean;
     format?: string;
+    // Grid section only:
+    placement?: ItemPlacement;
+    variant?: ProfileItemVariant;
+    showLabel?: boolean;
+    showIcon?: boolean;
+    // Boolean type: render a true/false icon instead of text.
+    booleanIcon?: boolean;
+    // AttributeEntity type: show full value, only the emoji, or only the color.
+    entityDisplay?: EntityDisplay;
 };
 
 export interface DisplayProfile

@@ -60,7 +60,13 @@ class AddToProfileProcessor implements ProcessorInterface
 
         foreach ($data->items as $i) {
             $item = new ProfileItem();
-            $item->setDisplayEmpty(true);
+            // Grid items default to hiding empty values (a "—" per empty field
+            // would clutter the thumbnail); other sections keep the legacy default.
+            $item->setDisplayEmpty(
+                ProfileItem::SECTION_GRID === $i->section
+                    ? ($i->displayEmpty ?? false)
+                    : true
+            );
             $item->setProfile($profile);
             $item->setSection($i->section);
             $item->setType($i->type);
@@ -78,7 +84,7 @@ class AddToProfileProcessor implements ProcessorInterface
                     $definition = DoctrineUtil::findStrictByRepo($this->attributeDefinitionRepository, $i->definition);
                     $this->denyAccessUnlessGranted(AbstractVoter::READ, $definition);
                     $item->setDefinition($definition);
-                    if ($this->profileRepository->hasDefinition($profile->getId(), $definition->getId())) {
+                    if ($this->profileRepository->hasDefinition($profile->getId(), $definition->getId(), $i->section)) {
                         continue 2;
                     }
                     break;
@@ -91,6 +97,16 @@ class AddToProfileProcessor implements ProcessorInterface
                 default:
                     throw new \InvalidArgumentException(sprintf('Unsupported type "%d"', $i->type));
             }
+
+            if (ProfileItem::SECTION_GRID === $i->section) {
+                $item->setPlacement($i->placement);
+                $item->setVariant($i->variant);
+                $item->setShowLabel($i->showLabel);
+                $item->setShowIcon($i->showIcon);
+                $item->setBooleanIcon($i->booleanIcon);
+                $item->setEntityDisplay($i->entityDisplay);
+            }
+
             $this->em->persist($item);
         }
 

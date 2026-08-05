@@ -13,7 +13,7 @@ import {
     getBuiltInAttributes,
     getWorkspaceAttributeDefinitions,
 } from '../api/attributes.ts';
-import {BuiltInFieldEnum} from '../components/Media/Search/search.ts';
+import {BuiltInAttributeEnum} from '../components/Media/Search/search.ts';
 import {AttributeType} from '../api/types.ts';
 import React from 'react';
 
@@ -210,29 +210,31 @@ function useIndexByKey<BI extends boolean>(
     }, [definitions, builtIn, ...Object.values(filters)]);
 }
 
-export function getBuiltInFieldValueResolver(
-    field: BuiltInFieldEnum
+export function getBuiltInAttributeValueResolver(
+    field: BuiltInAttributeEnum
 ): GetValueFromAsset | undefined {
-    const index: Partial<Record<BuiltInFieldEnum, GetValueFromAsset>> = {
-        [BuiltInFieldEnum.Id]: asset => asset.id,
-        [BuiltInFieldEnum.Collection]: asset =>
+    const index: Partial<Record<BuiltInAttributeEnum, GetValueFromAsset>> = {
+        [BuiltInAttributeEnum.Id]: asset => asset.id,
+        [BuiltInAttributeEnum.Collection]: asset =>
             asset.collections?.filter(c => !c.storyAsset) ?? [],
-        [BuiltInFieldEnum.Workspace]: asset => asset.workspace,
-        [BuiltInFieldEnum.Owner]: asset => asset.owner,
-        [BuiltInFieldEnum.Privacy]: asset => asset.privacy,
-        [BuiltInFieldEnum.AssetStatus]: asset => asset.status,
-        [BuiltInFieldEnum.IsStory]: asset => !!asset.storyCollection,
-        [BuiltInFieldEnum.Story]: asset =>
+        [BuiltInAttributeEnum.Workspace]: asset => asset.workspace,
+        [BuiltInAttributeEnum.Owner]: asset => asset.owner,
+        [BuiltInAttributeEnum.Privacy]: asset => asset.privacy,
+        [BuiltInAttributeEnum.AssetStatus]: asset => asset.status,
+        [BuiltInAttributeEnum.IsStory]: asset => !!asset.storyCollection,
+        [BuiltInAttributeEnum.Story]: asset =>
             asset.collections?.filter(c => !!c.storyAsset) ?? [],
-        [BuiltInFieldEnum.Tag]: asset => asset.tags,
-        [BuiltInFieldEnum.EditedAt]: asset => asset.editedAt,
-        [BuiltInFieldEnum.CreatedAt]: asset => asset.createdAt,
-        [BuiltInFieldEnum.FileType]: asset => asset.source?.type,
-        [BuiltInFieldEnum.FileExtension]: asset => asset.source?.extension,
-        [BuiltInFieldEnum.FileSize]: asset => asset.source?.size,
-        [BuiltInFieldEnum.FileName]: asset => asset.source?.fileName,
-        [BuiltInFieldEnum.HasSource]: asset => !!asset.source,
-        [BuiltInFieldEnum.Deleted]: asset =>
+        [BuiltInAttributeEnum.Tag]: asset => asset.tags,
+        [BuiltInAttributeEnum.EditedAt]: asset => asset.editedAt,
+        [BuiltInAttributeEnum.CreatedAt]: asset => asset.createdAt,
+        [BuiltInAttributeEnum.FileType]: asset => asset.source?.type,
+        [BuiltInAttributeEnum.FileExtension]: asset => asset.source?.extension,
+        [BuiltInAttributeEnum.FileSize]: asset => asset.source?.size,
+        [BuiltInAttributeEnum.Checksum]: asset => asset.source?.checksum,
+        [BuiltInAttributeEnum.DocUniqueId]: asset => asset.source?.docUniqueId,
+        [BuiltInAttributeEnum.FileName]: asset => asset.source?.fileName,
+        [BuiltInAttributeEnum.HasSource]: asset => !!asset.source,
+        [BuiltInAttributeEnum.Deleted]: asset =>
             asset.deleted || asset.referenceCollection?.deleted,
     };
 
@@ -270,37 +272,37 @@ function normalizeDefinition<T extends BaseAttributeDefinition>(
 
 function normalizeDefinitionFromId<T extends BaseAttributeDefinition>(d: T): T {
     switch (d.id) {
-        case BuiltInFieldEnum.Privacy:
+        case BuiltInAttributeEnum.Privacy:
             return {
                 ...d,
                 type: AttributeType.Privacy,
             };
-        case BuiltInFieldEnum.AssetStatus:
+        case BuiltInAttributeEnum.AssetStatus:
             return {
                 ...d,
                 type: AttributeType.AssetStatus,
             };
-        case BuiltInFieldEnum.Tag:
+        case BuiltInAttributeEnum.Tag:
             return {
                 ...d,
                 type: AttributeType.Tag,
             };
-        case BuiltInFieldEnum.Story:
+        case BuiltInAttributeEnum.Story:
             return {
                 ...d,
                 type: AttributeType.Story,
             };
-        case BuiltInFieldEnum.Rendition:
+        case BuiltInAttributeEnum.Rendition:
             return {
                 ...d,
                 type: AttributeType.Rendition,
             };
-        case BuiltInFieldEnum.Owner:
+        case BuiltInAttributeEnum.Owner:
             return {
                 ...d,
                 type: AttributeType.User,
             };
-        case BuiltInFieldEnum.Workspace:
+        case BuiltInAttributeEnum.Workspace:
             return {
                 ...d,
                 type: AttributeType.Workspace,

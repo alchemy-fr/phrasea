@@ -44,11 +44,15 @@ class FileMetadataAccessorWrapper
                 $this->meta = $this->file->getMetadata();   // array|null
             }
 
-            if (is_array($this->meta) && array_key_exists($id, $this->meta) && array_key_exists('values', $this->meta[$id])) {
-                // "value" is not included in persisted normalization (for smaller json)
-                $this->meta[$id]['value'] = implode(' ; ', $this->meta[$id]['values']);
-
-                return $this->meta[$id];
+            [$group, $name] = array_pad(explode(':', $id, 2), 2, null);
+            if (null !== $name && is_array($this->meta) && isset($this->meta[$group][$name]) && is_array($values = $this->meta[$group][$name])) {
+                // Rebuild the shape expected by Twig templates: "name", "values" and the
+                // imploded "value" (not persisted, computed on read).
+                return [
+                    'name' => $name,
+                    'values' => $values,
+                    'value' => implode(' ; ', $values),
+                ];
             }
         }
 

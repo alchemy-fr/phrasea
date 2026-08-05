@@ -2,9 +2,9 @@
 
 namespace App\Border;
 
-use App\Border\Analyzer\AnalyzerInterface;
+use App\Border\FileAnalyzer\AnalyzerInterface;
+use App\Border\FileAnalyzer\FileAnalyzerConfigHelper;
 use Psr\Container\ContainerInterface;
-use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 
@@ -28,19 +28,8 @@ final readonly class FileAnalyzerRegistry
 
     public function processConfiguration(AnalyzerInterface $analyzer, array $config): array
     {
-        $treeBuilder = new TreeBuilder('root');
+        $treeBuilder = FileAnalyzerConfigHelper::createBaseTree($analyzer::getName());
         $children = $treeBuilder->getRootNode()->children();
-        // @formatter:off
-        $children
-            ->scalarNode('name')
-                ->cannotBeEmpty()
-                ->isRequired()
-            ->end()
-            ->enumNode('severity')
-                ->defaultValue('error')
-                ->values(['warning', 'error', 'critical'])
-            ->end();
-        // @formatter:on
 
         $analyzer->buildConfiguration($children);
 

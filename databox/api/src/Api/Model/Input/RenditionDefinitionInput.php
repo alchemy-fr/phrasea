@@ -52,6 +52,12 @@ class RenditionDefinitionInput
     public $substitutable;
 
     /**
+     * @var bool
+     */
+    #[Groups([RenditionDefinition::GROUP_WRITE])]
+    public $writeMetadata;
+
+    /**
      * @var int
      */
     #[Groups([RenditionDefinition::GROUP_WRITE])]

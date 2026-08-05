@@ -104,6 +104,12 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
             ->hideOnIndex();
         yield TextareaField::new('initialValuesAll')
             ->hideOnIndex();
+        yield ArrayField::new('readFromMetadata')
+            ->hideOnIndex()
+            ->setHelp('Ordered list of metadata tag names to read to initialize the attribute (first found wins), e.g. IPTC:Keywords');
+        yield ArrayField::new('writeMetadata')
+            ->hideOnIndex()
+            ->setHelp('Metadata tag names into which the attribute value is written on export, e.g. IPTC:Keywords');
         yield TextareaField::new('fallbackAll')
             ->hideOnIndex()
             ->setHelp('e.g. twig variable: {{file.type}} {{file.size}} {{file.checksum}} {{file.originalName}} {{file.extension}} {{asset.name}} {{attr.photographer}}');

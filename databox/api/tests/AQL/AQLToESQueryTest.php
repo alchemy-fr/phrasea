@@ -14,11 +14,11 @@ use App\Elasticsearch\AQL\AQLParser;
 use App\Elasticsearch\AQL\AQLToESQuery;
 use App\Elasticsearch\AQL\DateNormalizer;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
-use App\Elasticsearch\BuiltInField\AssetStatusBuiltInField;
-use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
-use App\Elasticsearch\BuiltInField\CreatedAtBuiltInField;
-use App\Elasticsearch\BuiltInField\DeletedBuiltInField;
-use App\Elasticsearch\BuiltInField\WorkspaceBuiltInField;
+use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
+use App\Elasticsearch\BuiltInAttribute\CreatedAtBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\DeletedBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\WorkspaceBuiltInAttribute;
 use App\Tests\Attribute\Type\AttributeTypeRegistryTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
@@ -43,13 +43,13 @@ class AQLToESQueryTest extends TestCase
 
         $attributeTypeRegistry = AttributeTypeRegistryTestFactory::create();
 
-        $container = new class([WorkspaceBuiltInField::getKey() => fn () => new WorkspaceBuiltInField($em), AssetStatusBuiltInField::getKey() => fn () => new AssetStatusBuiltInField($translator), DeletedBuiltInField::getKey() => fn () => new DeletedBuiltInField(), CreatedAtBuiltInField::getKey() => fn () => new CreatedAtBuiltInField()]) implements ServiceProviderInterface {
+        $container = new class([WorkspaceBuiltInAttribute::getKey() => fn () => new WorkspaceBuiltInAttribute($em), AssetStatusBuiltInAttribute::getKey() => fn () => new AssetStatusBuiltInAttribute($translator), DeletedBuiltInAttribute::getKey() => fn () => new DeletedBuiltInAttribute(), CreatedAtBuiltInAttribute::getKey() => fn () => new CreatedAtBuiltInAttribute()]) implements ServiceProviderInterface {
             use ServiceLocatorTrait;
         };
-        $builtInFieldRegistry = new BuiltInAttributeRegistry($container);
+        $builtInAttributeRegistry = new BuiltInAttributeRegistry($container);
 
         $esQueryConverter = new AQLToESQuery(
-            $builtInFieldRegistry, $functionRegistry, $attributeTypeRegistry, new DateNormalizer());
+            $builtInAttributeRegistry, $functionRegistry, $attributeTypeRegistry, new DateNormalizer());
 
         $fieldClusters = [
             [

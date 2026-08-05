@@ -10,7 +10,6 @@ import {
 import {useTranslation} from 'react-i18next';
 import {DisplayContext, PreviewOptions} from '../../Media/DisplayContext';
 import {debounce} from '../../../lib/debounce';
-import ToggleWithLimit from '../../Media/Search/ToggleWithLimit';
 import ThumbSizeWidget from './ThumbSizeWidget';
 import SizeRatioWidget from './SizeRatioWidget.tsx';
 import {StateSetter} from '../../../types.ts';
@@ -24,19 +23,7 @@ type Props = {};
 export default function DisplayOptionsMenu({}: Props) {
     const {t} = useTranslation();
     const {
-        state: {
-            thumbSize,
-            displayName,
-            displayCollections,
-            nameRows,
-            collectionsLimit,
-            playVideos,
-            displayTags,
-            tagsLimit,
-            displayPreview,
-            previewOptions,
-            layout,
-        },
+        state: {thumbSize, playVideos, displayPreview, previewOptions, layout},
         setState: setDisplayPreferences,
     } = useContext(DisplayContext)!;
 
@@ -119,72 +106,6 @@ export default function DisplayOptionsMenu({}: Props) {
                     defaultValue={thumbSize}
                 />
 
-                <ToggleWithLimit
-                    label={t(
-                        'layout.options.display_name.label',
-                        'Display Name'
-                    )}
-                    unit={t('layout.options.name_rows.label', 'rows')}
-                    value={displayName}
-                    toggle={() => {
-                        setDisplayPreferences(p => ({
-                            ...p,
-                            displayName: !p.displayName,
-                        }));
-                    }}
-                    setLimit={v => {
-                        setDisplayPreferences(p => ({
-                            ...p,
-                            nameRows: v,
-                        }));
-                    }}
-                    limit={nameRows}
-                />
-                <ToggleWithLimit
-                    label={t(
-                        'layout.options.display_tags.label',
-                        'Display tags'
-                    )}
-                    unit={t('layout.options.tags_count.label', 'tags')}
-                    value={displayTags}
-                    toggle={() => {
-                        setDisplayPreferences(p => ({
-                            ...p,
-                            displayTags: !p.displayTags,
-                        }));
-                    }}
-                    setLimit={v => {
-                        setDisplayPreferences(p => ({
-                            ...p,
-                            tagsLimit: v,
-                        }));
-                    }}
-                    limit={tagsLimit}
-                />
-                <ToggleWithLimit
-                    label={t(
-                        'layout.options.display_collections.label',
-                        'Display collections'
-                    )}
-                    unit={t(
-                        'layout.options.collections_count.label',
-                        'collections'
-                    )}
-                    value={displayCollections}
-                    toggle={() => {
-                        setDisplayPreferences(p => ({
-                            ...p,
-                            displayCollections: !p.displayCollections,
-                        }));
-                    }}
-                    setLimit={v => {
-                        setDisplayPreferences(p => ({
-                            ...p,
-                            collectionsLimit: v,
-                        }));
-                    }}
-                    limit={collectionsLimit}
-                />
                 <FormGroup>
                     <FormControlLabel
                         control={

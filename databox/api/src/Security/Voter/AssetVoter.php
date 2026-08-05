@@ -16,6 +16,7 @@ class AssetVoter extends AbstractVoter
     final public const string EDIT_ATTRIBUTES = 'EDIT_ATTRIBUTES';
     final public const string SHARE = 'SHARE';
     final public const string QUARANTINE = 'QUARANTINE';
+    final public const string QUARANTINE_BYPASS = 'QUARANTINE_BYPASS';
 
     final public const string SCOPE_PREFIX = 'asset:';
 
@@ -114,6 +115,8 @@ class AssetVoter extends AbstractVoter
                 ], $subject, $token)
                 || $this->hasMetadata(DataboxExtraPermissionInterface::PERM_QUARANTINE, $subject, $token)
                 || $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_QUARANTINE),
+            self::QUARANTINE_BYPASS => $this->security->isGranted(self::QUARANTINE, $subject)
+                && $this->voteOnCollectionOrWorkspace($subject, AssetContainerVoterInterface::ASSET_QUARANTINE_BYPASS),
             AbstractVoter::OWNER => $isOwner()
                 || $isWorkspaceOwnerFast()
                 || $this->hasAcl([

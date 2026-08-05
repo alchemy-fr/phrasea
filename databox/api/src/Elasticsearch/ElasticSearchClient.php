@@ -18,6 +18,7 @@ final readonly class ElasticSearchClient
         private Index $assetIndex,
         private Index $collectionIndex,
         private Index $attributeIndex,
+        private Index $attributeEntityIndex,
     ) {
     }
 
