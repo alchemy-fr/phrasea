@@ -818,7 +818,7 @@ services:
       - similarity
     image: ${REGISTRY_NAMESPACE}similarity-embedder:${DOCKER_TAG}
     build:
-      context: ./similarity/embedder
+      context: ./infra/docker/similarity-embedder
       network: host
     networks:
       - internal
