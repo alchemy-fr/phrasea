@@ -44,10 +44,14 @@ final readonly class AttributeEntityPendingNotifyHandler
             $author = $user ? $user['username'] : 'Deleted User';
         }
 
+        $workspaceId = $list->getWorkspace()->getId();
+
         $this->notifierManager->notifyUser($ownerId, 'entity_list:pending_value', [
             'value' => $entity->getValue(),
             'listName' => $list->getName() ?? $list->getId(),
             'listId' => $list->getId(),
+            'workspaceId' => $workspaceId,
+            'url' => '/workspaces/'.$workspaceId.'/manage/entities',
             'author' => $author,
             'authorId' => $authorId,
         ]);

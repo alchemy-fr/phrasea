@@ -12,6 +12,18 @@ export function useNotificationUriHandler(): NotificationUriHandler {
     const navigate = useNavigate();
 
     return (uri: string) => {
+        const wsManage = uri.match(
+            /^\/workspaces\/([^/#]+)\/manage\/([^/#]+)$/
+        );
+        if (wsManage) {
+            navigateToModal(modalRoutes.workspaces.routes.manage, {
+                id: wsManage[1],
+                tab: wsManage[2],
+            });
+
+            return;
+        }
+
         const groups = uri.match(/^\/([^/#]+)\/([^/#]+)(?:#(.+))?$/);
         if (groups) {
             const entity = groups[1];

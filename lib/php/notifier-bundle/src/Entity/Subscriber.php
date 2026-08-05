@@ -87,4 +87,9 @@ class Subscriber extends AbstractUuidEntity
     {
         $this->displayName = $displayName;
     }
+
+    public function __toString(): string
+    {
+        return (string) $this->getDisplayName() ?: $this->getEmail() ?: $this->getPhoneNumber() ?: $this->getUserId();
+    }
 }
