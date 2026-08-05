@@ -8,8 +8,9 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeInterface;
 use App\Elasticsearch\AQL\ConditionOperatorEnum;
 use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
+use App\Elasticsearch\BuiltInAttribute\CustomFilterQueryBuiltInAttributeInterface;
 use App\Elasticsearch\BuiltInAttribute\DeletedBuiltInAttribute;
-use App\Elasticsearch\BuiltInAttribute\SimilarBuiltInAttribute;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Collection;
@@ -43,7 +44,22 @@ class AssetSearch extends AbstractSearch
         private readonly CollectionRepository $collectionRepository,
         private readonly SavedSearchRepository $savedSearchRepository,
         private readonly AssetSortGroupMapper $assetSortGroupMapper,
+        private readonly BuiltInAttributeRegistry $builtInAttributeRegistry,
     ) {
+    }
+
+    private function isScoreBasedCondition(string $condition): bool
+    {
+        foreach ($this->builtInAttributeRegistry->getAll() as $attribute) {
+            if ($attribute instanceof CustomFilterQueryBuiltInAttributeInterface
+                && $attribute->isScoreBasedQuery()
+                && str_starts_with($condition, $attribute::getKey())
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function search(
@@ -142,8 +158,8 @@ class AssetSearch extends AbstractSearch
                     $options
                 );
 
-                if (str_starts_with((string) $condition, SimilarBuiltInAttribute::getKey())) {
-                    // knn must run in a scoring context so results are ranked by similarity
+                if ($this->isScoreBasedCondition((string) $condition)) {
+                    // e.g. knn must run in a scoring context so results are ranked by similarity
                     $mustQueries[] = $conditionQuery;
                 } else {
                     $filterQueries[] = $conditionQuery;

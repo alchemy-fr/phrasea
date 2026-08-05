@@ -38,6 +38,11 @@ final class DeletedBuiltInAttribute extends AbstractBuiltInAttribute implements 
         return BooleanAttributeType::getName();
     }
 
+    public function isScoreBasedQuery(): bool
+    {
+        return false;
+    }
+
     public function createFilterQuery(mixed $value, ConditionOperatorEnum $operator, array $options): Query\AbstractQuery
     {
         $boolQuery = new Query\BoolQuery();
