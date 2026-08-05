@@ -1206,8 +1206,20 @@
             "title": "Créer un Profil"
         },
         "saved_search": {
-            "public": {
-                "label": "Public"
+            "privacy": {
+                "label": "Confidentialité",
+                "private": {
+                    "helper": "Accessible par lien, non listée",
+                    "label": "Privée"
+                },
+                "public": {
+                    "helper": "Listée pour tous les utilisateurs",
+                    "label": "Publique"
+                },
+                "secret": {
+                    "helper": "Seulement vous et les utilisateurs autorisés",
+                    "label": "Secrète"
+                }
             },
             "title": {
                 "label": "Titre"

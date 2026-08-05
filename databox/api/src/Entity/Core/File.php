@@ -47,6 +47,7 @@ class File extends AbstractUuidEntity implements \Stringable
     use CreatedAtTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
+    final public const int MAX_EXTENSION_SIZE = 20;
     final public const string GROUP_READ = 'file:r';
     final public const string GROUP_LIST = 'file:i';
     final public const string GROUP_METADATA = 'file:m';
@@ -99,7 +100,7 @@ class File extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $originalName = null;
 
-    #[ORM\Column(type: Types::STRING, length: 20, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: self::MAX_EXTENSION_SIZE, nullable: true)]
     private ?string $extension = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
@@ -233,6 +234,12 @@ class File extends AbstractUuidEntity implements \Stringable
 
     public function setExtension(?string $extension): void
     {
+        if (null !== $extension) {
+            if (strlen($extension) > self::MAX_EXTENSION_SIZE) {
+                throw new \InvalidArgumentException('Invalid extension (too long)');
+            }
+        }
+
         $this->extension = $extension;
     }
 

@@ -6,6 +6,12 @@ image:
                 eligible_types:
                     - application/illustrator
                     - application/postscript
+                    - image/x-canon-cr2
+                    - image/x-olympus-orf
+                    - image/x-sony-arw
+                    - image/x-panasonic-raw2
+                    - image/x-nikon-nef
+                    - image/x-adobe-dng
         -
             module: imagine
             options:

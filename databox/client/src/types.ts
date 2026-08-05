@@ -548,6 +548,12 @@ export type SavedSearchData = {
     sortBy: SortBy[];
 };
 
+export enum SavedSearchPrivacy {
+    Secret = 0,
+    Private = 1,
+    Public = 2,
+}
+
 export interface SavedSearch
     extends
         IPermissions<{
@@ -557,7 +563,7 @@ export interface SavedSearch
         }>,
         Entity {
     name: string;
-    public?: boolean;
+    privacy?: SavedSearchPrivacy;
     createdAt: string;
     updatedAt: string;
     data: SavedSearchData;

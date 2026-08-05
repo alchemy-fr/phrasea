@@ -10,12 +10,13 @@ use Alchemy\AdminBundle\Field\JsonField;
 use Alchemy\AdminBundle\Field\UserChoiceField;
 use Alchemy\AdminBundle\Filter\UserChoiceFilter;
 use App\Entity\SavedSearch\SavedSearch;
+use App\Model\SavedSearchPrivacyEnum;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
-use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
-use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 
@@ -48,7 +49,7 @@ class SavedSearchCrudController extends AbstractAclAdminCrudController
     {
         return $filters
             ->add(TextFilter::new('name'))
-            ->add(BooleanFilter::new('public'))
+            ->add(ChoiceFilter::new('privacy')->setChoices(SavedSearchPrivacyEnum::getChoices()))
             ->add(DateTimeFilter::new('createdAt'))
             ->add(DateTimeFilter::new('updatedAt'))
             ->add($this->userChoiceFilter->createFilter('ownerId'))
@@ -62,8 +63,9 @@ class SavedSearchCrudController extends AbstractAclAdminCrudController
             ->hideOnForm();
         yield $this->userChoiceField->create('ownerId', 'Owner');
         yield TextField::new('name');
-        yield BooleanField::new('public')
-            ->renderAsSwitch(false)
+        yield ChoiceField::new('privacy')
+            ->setChoices(SavedSearchPrivacyEnum::getChoices())
+            ->setHelp('Secret: only the owner and granted users. Private: accessible by direct link but not listed. Public: listed to every user.')
         ;
         yield DateTimeField::new('updatedAt')
             ->hideOnForm();

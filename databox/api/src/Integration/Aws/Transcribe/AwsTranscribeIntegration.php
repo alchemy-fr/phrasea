@@ -128,7 +128,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
                 'srt' => 'srt',
             ];
             foreach ($subtitles['SubtitleFileUris'] as $subtitleUri) {
-                $extension = FileUtil::getExtensionFromPath($subtitleUri);
+                $extension = FileUtil::getExtensionFromPath($subtitleUri) ?? '';
                 $format = $formatAttrs[$extension];
                 if (!empty($attributesConfig[$format])) {
                     $subtitleFile = $this->fileDownloader->download($subtitleUri);

@@ -7,6 +7,7 @@ namespace App\Security\Voter;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\SavedSearch\SavedSearch;
+use App\Model\SavedSearchPrivacyEnum;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class SavedSearchVoter extends AbstractVoter
@@ -39,7 +40,8 @@ class SavedSearchVoter extends AbstractVoter
 
         return match ($attribute) {
             self::CREATE => $this->isAuthenticated(),
-            self::READ => $isOwner()
+            self::READ => SavedSearchPrivacyEnum::Secret !== $subject->getPrivacy()
+                || $isOwner()
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),
             self::EDIT => $isOwner()
                 || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),

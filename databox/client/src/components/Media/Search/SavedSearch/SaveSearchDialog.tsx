@@ -4,7 +4,7 @@ import {StackedModalProps, useFormPrompt, useModals} from '@alchemy/navigation';
 import React from 'react';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {TSearchContext} from '../SearchContext.tsx';
-import {SavedSearch} from '../../../../types.ts';
+import {SavedSearch, SavedSearchPrivacy} from '../../../../types.ts';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
 import {getSearchData, postSavedSearch} from '../../../../api/savedSearch.ts';
@@ -29,7 +29,7 @@ export default function SaveSearchDialog({
     const usedFormSubmit = useFormSubmit<SavedSearch>({
         defaultValues: {
             name: search.query || '',
-            public: false,
+            privacy: SavedSearchPrivacy.Secret,
         },
         onSubmit: async data => {
             const d = {
