@@ -1395,19 +1395,23 @@
         "upload_from_url": "Upload from URL"
     },
     "filter_rule": {
+        "condition": {
+            "edit": "Edit condition",
+            "empty": "No condition defined yet",
+            "helper": "Assets in this workspace will only be visible if they match this condition.",
+            "label": "Condition"
+        },
         "confirm_delete_this_rule": "Confirm delete this rule?",
-        "exclude": {
-            "helper": "Assets in this {{type}} will only be visible if they DOES NOT contain these tags.",
-            "label": "Tags to <strong>exclude</strong>"
-        },
-        "group": "Group",
-        "include": {
-            "helper": "Assets in this {{type}} will only be visible if they contain these tags.",
-            "label": "Tags to <strong>include</strong>"
-        },
-        "or": "or",
+        "groups": "Groups",
         "rule_applies_for": "Rule applies for:",
-        "user": "User"
+        "targets_helper": "Leave both empty to apply this rule to every user.",
+        "users": "Users"
+    },
+    "filter_rules": {
+        "edit_this_rule": "Edit this rule",
+        "everyone": "Everyone",
+        "filter_rules": "Filter rules",
+        "new_rule": "New rule"
     },
     "form": {
         "annotation": {
@@ -2489,11 +2493,6 @@
             "label": "Story"
         }
     },
-    "tag_rules": {
-        "edit_this_rule": "Edit this rule",
-        "new_rule": "New rule",
-        "tag_rules": "Tag rules"
-    },
     "tags": {
         "label": "Tags",
         "new": {
@@ -2609,6 +2608,9 @@
             "edit": {
                 "title": "Edit"
             },
+            "filter_rules": {
+                "title": "Filter rules"
+            },
             "info": {
                 "title": "Info"
             },
@@ -2620,9 +2622,6 @@
             },
             "rendition_policy": {
                 "title": "Rendition Policies"
-            },
-            "tag_rules": {
-                "title": "Tag rules"
             },
             "tags": {
                 "title": "Tags"

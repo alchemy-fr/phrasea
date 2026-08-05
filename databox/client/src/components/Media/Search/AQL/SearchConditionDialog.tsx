@@ -30,6 +30,7 @@ import {logError} from '@alchemy/core';
 type Props = {
     condition: AQLQuery;
     onUpsert: (condition: AQLQuery) => void;
+    workspaceId?: string;
 } & StackedModalProps;
 
 export default function SearchConditionDialog({
@@ -37,6 +38,7 @@ export default function SearchConditionDialog({
     open,
     modalIndex,
     onUpsert,
+    workspaceId,
 }: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
@@ -89,12 +91,18 @@ export default function SearchConditionDialog({
 
     const isNew = !condition.query;
 
-    const {load, loaded} = useAttributeDefinitionStore();
-    const definitionsIndex = useIndexBySlug(true);
+    const {load, loadWorkspace, loaded} = useAttributeDefinitionStore();
+    const definitionsIndex = useIndexBySlug(
+        true,
+        workspaceId ? {workspaceId} : undefined
+    );
 
     useEffectOnce(() => {
         load();
-    }, [load]);
+        if (workspaceId) {
+            loadWorkspace(workspaceId);
+        }
+    }, [load, loadWorkspace, workspaceId]);
 
     const wrapValidate = (handler: () => void) => {
         try {

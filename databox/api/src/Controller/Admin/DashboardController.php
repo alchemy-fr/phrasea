@@ -62,7 +62,7 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkTo(AssetPolicyCrudController::class, 'Asset Policy'),
             MenuItem::linkTo(AttributePolicyCrudController::class, 'Attribute Policy'),
             MenuItem::linkTo(TagCrudController::class, 'Tag'),
-            MenuItem::linkTo(TagFilterRuleCrudController::class, 'Tag Filter Rule'),
+            MenuItem::linkTo(AttributeFilterRuleCrudController::class, 'Attribute Filter Rule'),
             MenuItem::linkTo(AssetRenditionCrudController::class, 'Asset Rendition'),
             MenuItem::linkTo(RenditionDefinitionCrudController::class, 'Rendition Definition'),
             MenuItem::linkTo(RenditionPolicyCrudController::class, 'Rendition Policy'),

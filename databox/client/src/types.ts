@@ -340,15 +340,11 @@ export interface IPermissions<
     capabilities: TPermission<E>;
 }
 
-export interface TagFilterRule extends ApiHydraObjectResponse, Entity {
-    userId?: string;
-    username?: string;
-    groupId?: string;
-    groupName?: string;
+export interface AttributeFilterRule extends ApiHydraObjectResponse, Entity {
+    users: {id: string; name: string}[];
+    groups: {id: string; name: string}[];
     workspaceId?: string;
-    collectionId?: string;
-    include: Tag[];
-    exclude: Tag[];
+    condition: string;
 }
 
 export type KeyTranslations = {
