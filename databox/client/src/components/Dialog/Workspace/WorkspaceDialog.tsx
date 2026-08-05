@@ -7,7 +7,7 @@ import {getWorkspace} from '../../../api/workspace';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {Workspace} from '../../../types';
 import Acl from './Acl';
-import TagRulesTab from './TagRulesTab';
+import FilterRulesTab from './FilterRulesTab';
 import AttributeDefinitionManager from './AttributeDefinitionManager';
 import AttributePolicyManager from './AttributePolicyManager';
 import TagManager from './TagManager';
@@ -185,9 +185,12 @@ export default function WorkspaceDialog({}: Props) {
                     enabled: data.capabilities.edit,
                 },
                 {
-                    title: t('workspace.manage.tag_rules.title', 'Tag rules'),
-                    component: TagRulesTab,
-                    id: 'tag-rules',
+                    title: t(
+                        'workspace.manage.filter_rules.title',
+                        'Filter rules'
+                    ),
+                    component: FilterRulesTab,
+                    id: 'filter-rules',
                     props: {
                         data,
                     },
