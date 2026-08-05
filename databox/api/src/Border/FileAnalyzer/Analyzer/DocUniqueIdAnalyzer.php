@@ -101,7 +101,6 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
             }
         }
 
-        $data['duid'] = $duid;
         $file->setDocUniqueId($duid);
 
         if (null !== $duid && $config['findDuplicates']) {
@@ -122,6 +121,8 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
             $data['new'] = true;
             $duid = Uuid::uuid4()->toString();
         }
+
+        $data['duid'] = $duid;
 
         if (null !== $duid && $config['write']) {
             foreach ($config['write_to'] as $key) {
