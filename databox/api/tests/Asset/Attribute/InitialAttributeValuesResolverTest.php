@@ -64,6 +64,8 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
                 ->willReturn($definition['isTranslatable'] ?? false);
             $ad->expects($this->any())->method('getInitialValues')
                 ->willReturn($initialValues);
+            $ad->expects($this->any())->method('getReadFromMetadata')
+                ->willReturn($definition['readFromMetadata'] ?? null);
             $ad->expects($this->any())->method('getType')
                 ->willReturn($definition['type'] ?? TextAttributeType::NAME);
             $attributeDefinitions[] = $ad;
@@ -147,17 +149,9 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
         $normalized = [];
         $data = is_array($data) ? $data : [$data];
         foreach ($data as $key => $value) {
-            if (is_array($value)) {
-                $normalized[$key] = [
-                    'value' => join(' ; ', $value),
-                    'values' => $value,
-                ];
-            } else {
-                $normalized[$key] = [
-                    'value' => $value,
-                    'values' => [$value],
-                ];
-            }
+            $values = is_array($value) ? array_values($value) : [$value];
+            [$group, $tag] = explode(':', (string) $key, 2);
+            $normalized[$group][$tag] = $values;
         }
 
         return $normalized;

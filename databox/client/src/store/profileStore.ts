@@ -380,7 +380,9 @@ export const useProfileStore = create<State>((set, get) => ({
 
         if (current) {
             const item = current.items!.find(
-                i => i.definition === defId || i.key === defId
+                i =>
+                    i.section === ProfileItemSection.Attributes &&
+                    (i.definition === defId || i.key === defId)
             );
             if (item?.id) {
                 state.removeFromProfile(current.id, [item.id]);

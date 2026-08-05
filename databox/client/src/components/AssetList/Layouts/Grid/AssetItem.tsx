@@ -1,6 +1,8 @@
 import React from 'react';
-import {AssetOrAssetContainer} from '../../../../types';
+import {AssetOrAssetContainer, ProfileItemSection} from '../../../../types';
 import assetClasses from '../../classes';
+import {useProfileStore} from '../../../../store/profileStore.ts';
+import GridCardZone from './GridCardZone.tsx';
 import {PrivacyTooltip} from '../../../Ui/PrivacyChip';
 import IconButton from '@mui/material/IconButton';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -36,6 +38,16 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
     itemOverlay,
     onOpen,
 }: Props<Item>) {
+    const profileItems = useProfileStore(s => s.current?.items);
+    const gridItems = React.useMemo(
+        () =>
+            (profileItems ?? []).filter(
+                i => i.section === ProfileItemSection.Grid
+            ),
+        [profileItems]
+    );
+    const hasGrid = gridItems.length > 0;
+
     return (
         <AssetItemWrapper
             item={item}
@@ -99,21 +111,44 @@ export default function AssetItem<Item extends AssetOrAssetContainer>({
                     )}
                 </div>
             </div>
-            <AssetThumb asset={asset} onPreviewToggle={onPreviewToggle} />
+            <AssetThumb
+                asset={asset}
+                onPreviewToggle={onPreviewToggle}
+                overlay={
+                    hasGrid ? (
+                        <GridCardZone
+                            asset={asset}
+                            items={gridItems}
+                            region="over"
+                        />
+                    ) : undefined
+                }
+            />
             <div className={assetClasses.legend}>
-                <div className={assetClasses.name}>
-                    {asset.nameHighlight
-                        ? replaceHighlight(asset.nameHighlight)
-                        : asset.name}
-                </div>
-                {asset.tags && asset.tags.length > 0 && (
-                    <AssetTagList tags={asset.tags!} />
+                {!hasGrid && (
+                    <>
+                        <div className={assetClasses.name}>
+                            {asset.nameHighlight
+                                ? replaceHighlight(asset.nameHighlight)
+                                : asset.name}
+                        </div>
+                        {asset.tags && asset.tags.length > 0 && (
+                            <AssetTagList tags={asset.tags!} />
+                        )}
+                        {asset.collections && asset.collections.length > 0 && (
+                            <AssetCollectionList
+                                asset={asset}
+                                onOpenAsset={onOpen}
+                                collections={asset.collections!}
+                            />
+                        )}
+                    </>
                 )}
-                {asset.collections && asset.collections.length > 0 && (
-                    <AssetCollectionList
+                {hasGrid && (
+                    <GridCardZone
                         asset={asset}
-                        onOpenAsset={onOpen}
-                        collections={asset.collections!}
+                        items={gridItems}
+                        region="below"
                     />
                 )}
             </div>

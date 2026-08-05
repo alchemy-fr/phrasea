@@ -4,12 +4,27 @@ declare(strict_types=1);
 
 namespace Alchemy\CoreBundle\Util;
 
+use Doctrine\DBAL\Logging\Middleware as LoggingMiddleware;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final readonly class DoctrineUtil
 {
+    public static function disableLogger(EntityManagerInterface $entityManager): \Closure
+    {
+        $conf = $entityManager->getConnection()->getConfiguration();
+        $previousMiddlewares = $conf->getMiddlewares();
+        $conf->setMiddlewares(array_filter(
+            $conf->getMiddlewares(),
+            fn ($mid) => !$mid instanceof LoggingMiddleware
+        ));
+
+        return function () use ($entityManager, $previousMiddlewares): void {
+            $entityManager->getConnection()->getConfiguration()->setMiddlewares($previousMiddlewares);
+        };
+    }
+
     /**
      * @template T
      *

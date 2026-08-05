@@ -1,9 +1,10 @@
-import {useContext} from 'react';
 import {Tag} from '../../../../types';
-import {DisplayContext} from '../../DisplayContext';
 import TagNode from '../../../Ui/TagNode';
 import assetClasses from '../../../AssetList/classes';
 import {useTranslation} from 'react-i18next';
+
+// Number of tags shown before collapsing the rest into a "+N" chip.
+const tagsLimit = 1;
 
 type Props = {
     tags: Tag[];
@@ -11,13 +12,6 @@ type Props = {
 
 export default function AssetTagList({tags}: Props) {
     const {t} = useTranslation();
-    const {
-        state: {tagsLimit, displayTags},
-    } = useContext(DisplayContext)!;
-
-    if (!displayTags) {
-        return <></>;
-    }
 
     const r = (c: Tag) => (
         <TagNode

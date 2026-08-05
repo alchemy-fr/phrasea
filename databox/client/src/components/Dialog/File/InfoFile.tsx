@@ -12,6 +12,7 @@ import FactCheckIcon from '@mui/icons-material/FactCheck';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LinkIcon from '@mui/icons-material/Link';
 import {formatFilesize} from '../../../lib/filesizeFormatter.ts';
+import FileAnalysisReport from './FileAnalysisReport.tsx';
 
 type Props = {
     data: ApiFile;
@@ -74,16 +75,7 @@ export default function InfoFile({data, onClose, minHeight}: Props) {
                         {data.analysis ? (
                             <InfoRow
                                 label={t('file.info.analysis', `Analysis`)}
-                                value={
-                                    <pre
-                                        style={{
-                                            whiteSpace: 'pre-wrap',
-                                            wordBreak: 'break-word',
-                                        }}
-                                    >
-                                        {JSON.stringify(data.analysis, null, 2)}
-                                    </pre>
-                                }
+                                value={<FileAnalysisReport file={data} />}
                                 icon={<TroubleshootIcon />}
                             />
                         ) : null}

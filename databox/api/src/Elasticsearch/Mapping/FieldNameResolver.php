@@ -6,14 +6,14 @@ namespace App\Elasticsearch\Mapping;
 
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
-use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
+use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use App\Entity\Core\AttributeDefinition;
 
 final readonly class FieldNameResolver
 {
     public function __construct(
         private AttributeTypeRegistry $attributeTypeRegistry,
-        private BuiltInAttributeRegistry $builtInFieldRegistry,
+        private BuiltInAttributeRegistry $builtInAttributeRegistry,
     ) {
     }
 
@@ -40,12 +40,12 @@ final readonly class FieldNameResolver
 
     public function getFieldFromName(string $name): FieldInfoDto
     {
-        $builtInField = $this->builtInFieldRegistry->getBuiltInField($name);
-        if (null !== $builtInField) {
+        $builtInAttribute = $this->builtInAttributeRegistry->getBuiltInAttribute($name);
+        if (null !== $builtInAttribute) {
             return new FieldInfoDto(
-                $builtInField::getName(),
-                $this->attributeTypeRegistry->getStrictType($builtInField->getType()),
-                $builtInField->isEnabled()
+                $builtInAttribute::getName(),
+                $this->attributeTypeRegistry->getStrictType($builtInAttribute->getType()),
+                $builtInAttribute->isEnabled()
             );
         }
         $info = $this->extractFieldFromAttributeKey($name);

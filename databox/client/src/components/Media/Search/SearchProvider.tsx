@@ -1,7 +1,7 @@
 import React, {PropsWithChildren, useCallback, useState} from 'react';
 import {SearchContext, TSearchContext} from './SearchContext';
 import {
-    BuiltInFieldEnum,
+    BuiltInAttributeEnum,
     getResolvedSortBy,
     hashToQuery,
     queryToHash,
@@ -122,20 +122,20 @@ export default function SearchProvider({children}: Props) {
             if (
                 !setConditions(p => {
                     const newConditions = removeConditionsHelper(p, [
-                        BuiltInFieldEnum.Collection,
-                        BuiltInFieldEnum.Deleted,
-                        BuiltInFieldEnum.AssetStatus,
+                        BuiltInAttributeEnum.Collection,
+                        BuiltInAttributeEnum.Deleted,
+                        BuiltInAttributeEnum.AssetStatus,
                     ]);
 
                     if (!id) {
                         return removeConditionsHelper(newConditions, [
-                            BuiltInFieldEnum.Workspace,
+                            BuiltInAttributeEnum.Workspace,
                         ]);
                     }
 
                     return replaceConditionHelper(newConditions, {
-                        id: BuiltInFieldEnum.Workspace,
-                        query: `${BuiltInFieldEnum.Workspace} = "${id}"`,
+                        id: BuiltInAttributeEnum.Workspace,
+                        query: `${BuiltInAttributeEnum.Workspace} = "${id}"`,
                     });
                 }) &&
                 forceReload
@@ -154,20 +154,20 @@ export default function SearchProvider({children}: Props) {
             if (
                 !setConditions(p => {
                     const newConditions = removeConditionsHelper(p, [
-                        BuiltInFieldEnum.Workspace,
-                        BuiltInFieldEnum.Deleted,
-                        BuiltInFieldEnum.AssetStatus,
+                        BuiltInAttributeEnum.Workspace,
+                        BuiltInAttributeEnum.Deleted,
+                        BuiltInAttributeEnum.AssetStatus,
                     ]);
 
                     if (!id) {
                         return removeConditionsHelper(newConditions, [
-                            BuiltInFieldEnum.Collection,
+                            BuiltInAttributeEnum.Collection,
                         ]);
                     }
 
                     return replaceConditionHelper(newConditions, {
-                        id: BuiltInFieldEnum.Collection,
-                        query: `${BuiltInFieldEnum.Collection} = "${id}"`,
+                        id: BuiltInAttributeEnum.Collection,
+                        query: `${BuiltInAttributeEnum.Collection} = "${id}"`,
                     });
                 }) &&
                 forceReload
@@ -249,7 +249,7 @@ export default function SearchProvider({children}: Props) {
             .filter(q => q && isAQLCondition(q.expression)) as AQLQueryAST[]
     ).map(q => q.expression) as AQLCondition[];
 
-    function filterOfType(type: BuiltInFieldEnum): string[] {
+    function filterOfType(type: BuiltInAttributeEnum): string[] {
         return conditionsAst
             .filter(
                 c =>
@@ -267,14 +267,14 @@ export default function SearchProvider({children}: Props) {
             .flat() as string[];
     }
 
-    const workspaces = filterOfType(BuiltInFieldEnum.Workspace);
-    const collections = filterOfType(BuiltInFieldEnum.Collection);
+    const workspaces = filterOfType(BuiltInAttributeEnum.Workspace);
+    const collections = filterOfType(BuiltInAttributeEnum.Collection);
     const hasSearch = Boolean(
         query ||
         conditions.length > 0 ||
         (sortBy.length > 0 &&
-            (sortBy[0].a !== BuiltInFieldEnum.Score ||
-                sortBy[1]?.a !== BuiltInFieldEnum.CreatedAt)) ||
+            (sortBy[0].a !== BuiltInAttributeEnum.Score ||
+                sortBy[1]?.a !== BuiltInAttributeEnum.CreatedAt)) ||
         geolocation
     );
 

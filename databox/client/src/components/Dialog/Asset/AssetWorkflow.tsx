@@ -70,12 +70,6 @@ export default function AssetWorkflow({data, onClose, minHeight}: Props) {
     return (
         <ContentTab onClose={onClose} minHeight={minHeight}>
             <Section>
-                <Intro>
-                    {t(
-                        'asset.operations.you_need_to_run_integrations_again',
-                        `You need to run integrations again?`
-                    )}
-                </Intro>
                 <Button
                     onClick={triggerWorkflow}
                     disabled={workflowTriggered}

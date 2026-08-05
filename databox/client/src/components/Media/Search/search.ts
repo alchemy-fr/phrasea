@@ -4,9 +4,11 @@ import {AQLQueries, AQLQuery} from './AQL/query.ts';
 const specSep = ';';
 const arraySep = ',';
 
-export enum BuiltInFieldEnum {
+export enum BuiltInAttributeEnum {
+    Checksum = '@checksum',
     Collection = '@collection',
     CreatedAt = '@createdAt',
+    DocUniqueId = '@docUniqueId',
     EditedAt = '@editedAt',
     FileExtension = '@extension',
     FileName = '@filename',
@@ -139,12 +141,12 @@ export function getResolvedSortBy(sortBy: SortBy[]): SortBy[] {
         ? sortBy
         : [
               {
-                  a: BuiltInFieldEnum.Score,
+                  a: BuiltInAttributeEnum.Score,
                   w: 1,
                   g: false,
               },
               {
-                  a: BuiltInFieldEnum.CreatedAt,
+                  a: BuiltInAttributeEnum.CreatedAt,
                   w: 1,
                   g: false,
               },

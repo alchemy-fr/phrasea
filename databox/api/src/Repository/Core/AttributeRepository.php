@@ -152,6 +152,30 @@ class AttributeRepository extends ServiceEntityRepository
             ->execute();
     }
 
+    public function deleteByAttributeEntityList(string $entityListId, string $workspaceId): void
+    {
+        $expr = $this->_em->getExpressionBuilder();
+        $this
+            ->createQueryBuilder('t')
+            ->delete()
+            ->andWhere($expr->in(
+                't.id',
+                $this
+                    ->createQueryBuilder('a')
+                    ->select('a.id')
+                    ->innerJoin('a.definition', 'd')
+                    ->andWhere('d.workspace = :w')
+                    ->andWhere('d.type = :t')
+                    ->andWhere('d.entityList = :listId')
+                    ->getDQL()
+            ))
+            ->setParameter('w', $workspaceId)
+            ->setParameter('t', EntityAttributeType::getName())
+            ->setParameter('listId', $entityListId)
+            ->getQuery()
+            ->execute();
+    }
+
     public function replaceAttributeEntity(string $workspaceId, string $entityListId, $newId, array $previousIds): void
     {
         $expr = $this->_em->getExpressionBuilder();

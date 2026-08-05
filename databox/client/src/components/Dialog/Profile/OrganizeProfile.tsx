@@ -1,4 +1,4 @@
-import {DisplayProfile} from '../../../types';
+import {DisplayProfile, ProfileItemSection} from '../../../types';
 import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import {useProfileStore} from '../../../store/profileStore.ts';
 import React from 'react';
@@ -44,6 +44,10 @@ export default function OrganizeProfile({data, onClose, minHeight}: Props) {
         return <FullPageLoader />;
     }
 
+    const attributeItems = data.items.filter(
+        i => i.section === ProfileItemSection.Attributes
+    );
+
     return (
         <>
             <DialogContent
@@ -55,7 +59,7 @@ export default function OrganizeProfile({data, onClose, minHeight}: Props) {
                     listId={data.id}
                     definitions={allDefinitions}
                     definitionsIndex={definitionsIndex}
-                    list={data.items!}
+                    list={attributeItems}
                     onSort={items => {
                         sortList(data.id, items);
                     }}

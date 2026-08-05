@@ -57,7 +57,7 @@ readonly class AttributesResolver
     /**
      * @param Attribute[] $attributes
      */
-    private function buildIndex(array $attributes): AttributeIndex
+    public function buildIndex(array $attributes): AttributeIndex
     {
         $index = new AttributeIndex();
         foreach ($attributes as $attribute) {

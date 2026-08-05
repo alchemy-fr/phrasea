@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Asset\Attribute\AttributeEntity\Importer;
 
+use Alchemy\CoreBundle\Doctrine\DoctrineBatch;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
 use App\Repository\Core\AttributeEntityRepository;
@@ -48,13 +49,19 @@ final readonly class RawAttributeEntityImporter implements AttributeEntityImport
             return;
         }
 
+        $batch = new DoctrineBatch($this->em, [
+            &$entityList,
+        ], batchSize: 300);
+
         foreach ($values as $value) {
             $entity = new AttributeEntity();
             $entity->setList($entityList);
             $entity->setValue($value);
             $this->em->persist($entity);
+
+            $batch->iterate();
         }
 
-        $this->em->flush();
+        $batch->terminate();
     }
 }

@@ -10,12 +10,13 @@ use Alchemy\NotifyBundle\Notification\NotifierInterface;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Attribute\AttributeTypeRegistry;
-use App\Elasticsearch\BuiltInField\BuiltInAttributeRegistry;
+use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Basket\BasketAsset;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetAttachment;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
@@ -43,7 +44,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         private readonly AttributesResolver $attributesResolver,
         private readonly AssetNameResolver $assetNameResolver,
         private readonly FieldNameResolver $fieldNameResolver,
-        private readonly BuiltInAttributeRegistry $builtInFieldRegistry,
+        private readonly BuiltInAttributeRegistry $builtInAttributeRegistry,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
         private readonly DiscussionManager $discussionManager,
         private readonly NotifierInterface $notifier,
@@ -162,6 +163,10 @@ class AssetOutputTransformer implements OutputTransformerInterface
                 'share' => $this->isGranted(AssetVoter::SHARE, $data),
                 'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
             ];
+
+            if (AssetStatusEnum::Quarantined === $data->getStatus()) {
+                $capabilities['bypassQuarantine'] = $this->isGranted(AssetVoter::QUARANTINE_BYPASS, $data);
+            }
 
             if ($this->hasGroup([Asset::GROUP_READ], $context)) {
                 $capabilities['editPermissions'] = $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data);
