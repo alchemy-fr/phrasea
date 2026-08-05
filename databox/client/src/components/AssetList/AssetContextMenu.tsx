@@ -18,8 +18,10 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import DriveFileMoveIcon from '@mui/icons-material/DriveFileMove';
 import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import ShareIcon from '@mui/icons-material/Share';
+import ImageSearchIcon from '@mui/icons-material/ImageSearch';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import React, {ReactNode} from 'react';
+import {useSimilarSearchCondition} from '../../hooks/useSimilarSearchCondition.ts';
 
 type Props<Item extends AssetOrAssetContainer> = {
     contextMenu: ContextMenuContext<{
@@ -56,6 +58,7 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
         onShare,
         can,
     } = useAssetActions({asset, onAction: onClose, actionsContext, reload});
+    const applySimilarCondition = useSimilarSearchCondition();
 
     const openUrl = (url: string) => {
         // eslint-disable-next-line react-hooks/immutability
@@ -143,6 +146,23 @@ export default function AssetContextMenu<Item extends AssetOrAssetContainer>({
             </MenuItem>
         );
     }
+
+    children.push(
+        <MenuItem
+            key={'search-similar'}
+            onClick={() => {
+                onClose();
+                applySimilarCondition(id);
+            }}
+        >
+            <ListItemIcon>
+                <ImageSearchIcon />
+            </ListItemIcon>
+            <ListItemText
+                primary={t('asset.actions.search_similar', 'Search similar')}
+            />
+        </MenuItem>
+    );
 
     if (actionsContext.edit) {
         const canGoEdit = Boolean(can.edit || can.editAttributes);

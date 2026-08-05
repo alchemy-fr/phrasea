@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react';
-import {Box, CircularProgress, Typography} from '@mui/material';
+import {Box, Button, CircularProgress, Typography} from '@mui/material';
+import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import {StackedModalProps, useModals} from '@alchemy/navigation';
 import {AppDialog} from '@alchemy/phrasea-ui';
 import {useTranslation} from 'react-i18next';
@@ -8,6 +9,7 @@ import {getSimilarAssets, SimilarAssetsResult} from '../../../../api/asset.ts';
 import AssetThumb, {thumbSx} from '../AssetThumb.tsx';
 import {useNavigateToModal} from '../../../Routing/ModalLink.tsx';
 import {modalRoutes, Routing} from '../../../../routes.ts';
+import {useSimilarSearchCondition} from '../../../../hooks/useSimilarSearchCondition.ts';
 
 type Props = {
     asset: Asset;
@@ -17,6 +19,7 @@ export default function SimilarAssetsDialog({asset, open, modalIndex}: Props) {
     const {t} = useTranslation();
     const {closeModal} = useModals();
     const navigateToModal = useNavigateToModal();
+    const applySimilarCondition = useSimilarSearchCondition();
     const [result, setResult] = useState<SimilarAssetsResult | undefined>();
 
     useEffect(() => {
@@ -34,6 +37,20 @@ export default function SimilarAssetsDialog({asset, open, modalIndex}: Props) {
                 defaultValue: `Assets similar to {{name}}`,
                 name: asset.name ?? '',
             })}
+            actions={({onClose}) => (
+                <Button
+                    startIcon={<ManageSearchIcon />}
+                    onClick={() => {
+                        onClose();
+                        applySimilarCondition(asset.id);
+                    }}
+                >
+                    {t(
+                        'similar_assets.dialog.search_condition',
+                        'Filter search by similarity'
+                    )}
+                </Button>
+            )}
         >
             {!result ? (
                 <Box sx={{p: 4, textAlign: 'center'}}>

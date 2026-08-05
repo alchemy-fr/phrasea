@@ -9,6 +9,7 @@ use App\Attribute\AttributeInterface;
 use App\Elasticsearch\AQL\ConditionOperatorEnum;
 use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\DeletedBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\SimilarBuiltInAttribute;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Collection;
@@ -119,6 +120,7 @@ class AssetSearch extends AbstractSearch
 
         $hasDeletedFilter = false;
         $hasStatusFilter = false;
+        $mustQueries = [];
         if (null !== $conditions = ($options['conditions'] ?? null)) {
             foreach ($conditions as $condition) {
                 if (is_array($condition)) {
@@ -134,11 +136,18 @@ class AssetSearch extends AbstractSearch
                 if (str_starts_with((string) $condition, AssetStatusBuiltInAttribute::getKey())) {
                     $hasStatusFilter = true;
                 }
-                $filterQueries[] = $this->attributeSearch->buildConditionQuery(
+                $conditionQuery = $this->attributeSearch->buildConditionQuery(
                     $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds),
                     $condition,
                     $options
                 );
+
+                if (str_starts_with((string) $condition, SimilarBuiltInAttribute::getKey())) {
+                    // knn must run in a scoring context so results are ranked by similarity
+                    $mustQueries[] = $conditionQuery;
+                } else {
+                    $filterQueries[] = $conditionQuery;
+                }
             }
         }
 
@@ -153,6 +162,9 @@ class AssetSearch extends AbstractSearch
         $filterQuery = new Query\BoolQuery();
         foreach ($filterQueries as $query) {
             $filterQuery->addFilter($query);
+        }
+        foreach ($mustQueries as $query) {
+            $filterQuery->addMust($query);
         }
 
         if (null !== $tagQuery = $this->buildTagFilterQuery($userId, $groupIds)) {

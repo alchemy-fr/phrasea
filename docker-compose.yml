@@ -820,6 +820,8 @@ services:
     build:
       context: ./infra/docker/similarity-embedder
       network: host
+    security_opt:
+      - no-new-privileges:true
     networks:
       - internal
 
