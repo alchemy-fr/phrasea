@@ -34,9 +34,9 @@ exiftoolVersion:
         exiftoolVersion:
             readFromMetadata: ['ExifTool:ExifToolVersion']
     metadata:
-        'ExifTool:ExifToolVersion': '12.42'
+        'ExifTool:ExifToolVersion': '13.59'
     expected:
-        exiftoolVersion: '12.42'
+        exiftoolVersion: '13.59'
 
 multi2mono:
     documentation:
