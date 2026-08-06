@@ -187,6 +187,27 @@ export async function addMissingAttributeDefinitionsConf(
         attributeDefinition: {} as AttributeDefinition,
     };
 
+    if (dm.importStories === true) {
+        dm.fieldMap['phr_story_id'] = {
+            id: 'phr_story_id',
+            position: 0,
+            type: DataboxAttributeType.Number,
+            multivalue: false,
+            readonly: true,
+            translatable: false,
+            allowInvalid: false,
+            target: 2, // story-only
+            labels: {},
+            values: [
+                {
+                    type: 'template',
+                    value: '{{record.story_id}}',
+                },
+            ],
+            attributeDefinition: {} as AttributeDefinition,
+        };
+    }
+
     dm.fieldMap['phr_created_on'] = {
         id: 'phr_created_on',
         position: 0,
