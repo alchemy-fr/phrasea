@@ -16,6 +16,7 @@ use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Zippy\Zippy;
 use App\Entity\Core\AssetExport;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\RenditionDefinition;
 use App\Integration\PusherTrait;
 use App\Model\ExportStatusEnum;
 use App\Repository\Core\AssetRenditionRepository;
@@ -104,51 +105,64 @@ class AssetExportProcessHandler
                         $path = sprintf('%s/%s-%s-%s%s', $archiveDir, StringUtil::slugify($renditionName), StringUtil::slugify($assetName ?? ''), $assetId, $ext);
                         $this->fileFetcher->getFile($file, path: $path);
 
-                        // The exported file keeps the metadata already embedded in the rendition file:
-                        // the source file metadata is not copied anymore.
-                        $metadata = new MetadataBag();
+                        $definition = $rendition->getDefinition();
 
-                        // Embed attribute values into the metadata according to attribute definitions
-                        // "writeMetadata", when the rendition definition allows it.
-                        if ($rendition->getDefinition()->isWriteMetadata()) {
+                        if ($definition->isWriteMetadata()) {
+                            $bag = new MetadataBag();
+
+                            if ($definition->getBuildMode() === RenditionDefinition::BUILD_MODE_PICK_SOURCE) {
+                                foreach ($file->getMetadataValues() as $tagGroupId => $values) {
+                                    $meta = $this->metadataManipulator->createMetadata($tagGroupId);
+                                    $tagGroup = $meta->getTagGroup();
+                                    if (!$tagGroup->isWritable() || str_starts_with($tagGroupId, 'System:')) {
+                                        continue;
+                                    }
+
+                                    if ($tagGroup->isMulti()) {
+                                        $meta->setValue($values);
+                                    } else {
+                                        $meta->setValue(reset($values));
+                                    }
+                                    $bag->set($tagGroup->getId(), $meta);
+                                }
+                            }
+
                             if (false === $attributeMetadata) {
                                 $attributeMetadata = $this->attributeMetadataEmbedder->buildMetadataBag($asset);
                             }
 
                             if ($attributeMetadata instanceof MetadataBag) {
                                 foreach ($attributeMetadata as $meta) {
-                                    $metadata->set($meta->getTagGroup()->getId(), $meta);
+                                    $bag->set($meta->getTagGroup()->getId(), $meta);
                                 }
                             }
-                        }
 
-                        // Embed the hardcoded metadata configured on the rendition definition.
-                        $definition = $rendition->getDefinition();
-                        if (!array_key_exists($definition->getId(), $definitionMetadataCache)) {
-                            $definitionMetadataCache[$definition->getId()] = $this->definitionMetadataEmbedder->buildMetadataBag($definition);
-                        }
-                        $definitionMetadata = $definitionMetadataCache[$definition->getId()];
-                        if (null !== $definitionMetadata) {
-                            foreach ($definitionMetadata as $meta) {
-                                $metadata->set($meta->getTagGroup()->getId(), $meta);
+                            if (!array_key_exists($definition->getId(), $definitionMetadataCache)) {
+                                $definitionMetadataCache[$definition->getId()] = $this->definitionMetadataEmbedder->buildMetadataBag($definition);
                             }
-                        }
+                            $definitionMetadata = $definitionMetadataCache[$definition->getId()];
+                            if (null !== $definitionMetadata) {
+                                foreach ($definitionMetadata as $meta) {
+                                    $bag->set($meta->getTagGroup()->getId(), $meta);
+                                }
+                            }
 
-                        if (count($metadata) > 0) {
-                            try {
-                                $writer = $this->metadataManipulator->createWriter();
+                            if ($bag->count() > 0) {
+                                try {
+                                    $writer = $this->metadataManipulator->createWriter();
 
-                                $tmpFile = sys_get_temp_dir().'/'.uniqid('metadata-file');
-                                $writer->write($path, $metadata, destination: $tmpFile);
-                                unlink($path);
-                                rename($tmpFile, $path);
-                            } catch (\Throwable $e) {
-                                // The rendition file format may not support metadata writing; skip embedding for this file.
-                                $this->logger->warning('Failed to write metadata into exported file', [
-                                    'exception' => $e,
-                                    'assetId' => $assetId,
-                                    'rendition' => $renditionName,
-                                ]);
+                                    $tmpFile = sys_get_temp_dir().'/'.uniqid('metadata-file');
+                                    $writer->write($path, $bag, destination: $tmpFile);
+                                    unlink($path);
+                                    rename($tmpFile, $path);
+                                } catch (\Throwable $e) {
+                                    // The rendition file format may not support metadata writing; skip embedding for this file.
+                                    $this->logger->error('Failed to write metadata into exported file', [
+                                        'exception' => $e,
+                                        'assetId' => $assetId,
+                                        'rendition' => $renditionName,
+                                    ]);
+                                }
                             }
                         }
 

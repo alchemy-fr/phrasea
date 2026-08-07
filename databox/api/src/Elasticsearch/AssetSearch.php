@@ -146,7 +146,7 @@ class AssetSearch extends AbstractSearch
             $filterQueries[] = $this->deletedBuiltInAttribute->createFilterQuery(false, ConditionOperatorEnum::EQUALS, $options);
         }
 
-        if (!$hasStatusFilter) {
+        if (!$hasStatusFilter && !$hasDeletedFilter) {
             $filterQueries[] = $this->assetStatusBuiltInAttribute->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options);
         }
 

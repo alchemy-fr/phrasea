@@ -29,7 +29,7 @@ readonly class AttributeMetadataEmbedder
     public function buildMetadataBag(Asset $asset): ?MetadataBag
     {
         $definitions = $this->attributeDefinitionRepository->getWorkspaceWriteMetadataDefinitions($asset->getWorkspaceId());
-        if ([] === $definitions) {
+        if (empty($definitions)) {
             return null;
         }
 
@@ -47,7 +47,7 @@ readonly class AttributeMetadataEmbedder
 
         foreach ($definitions as $definition) {
             $values = $valuesByDefinition[$definition->getId()] ?? [];
-            if ([] === $values) {
+            if (empty($values)) {
                 continue;
             }
 

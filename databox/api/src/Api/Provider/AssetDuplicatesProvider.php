@@ -11,6 +11,7 @@ use App\Api\Model\Output\AssetDuplicateOutput;
 use App\Entity\Core\Asset;
 use App\Repository\Core\AssetRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\FileUrlResolver;
 use App\Service\Storage\RenditionManager;
 
@@ -27,6 +28,7 @@ final class AssetDuplicatesProvider implements ProviderInterface
         private readonly AssetRepository $assetRepository,
         private readonly RenditionManager $renditionManager,
         private readonly FileUrlResolver $fileUrlResolver,
+        private readonly AssetNameResolver $assetNameResolver,
     ) {
     }
 
@@ -59,7 +61,7 @@ final class AssetDuplicatesProvider implements ProviderInterface
 
             $duplicates[] = [
                 'id' => $duplicate->getId(),
-                'title' => $duplicate->getSource()?->getFileName(),
+                'title' => $this->assetNameResolver->resolveNameAsString($duplicate),
                 'thumbnailUrl' => $this->resolveThumbnailUrl($duplicate),
                 'createdAt' => $duplicate->getCreatedAt()?->format(\DateTimeInterface::ATOM),
                 'analyzers' => array_keys($fileIdAnalyzers[$sourceId] ?? []),

@@ -29,9 +29,14 @@ final readonly class FileAnalyzer
             return true;
         }
 
-        $newHash = md5(serialize($config));
+        $newHash = $this->computeHash($file, $config);
 
         return $hash !== $newHash;
+    }
+
+    private function computeHash(File $file, array $config): string
+    {
+        return md5($file->getId().':'.serialize($config));
     }
 
     public function analyzeFile(File $file, array $config): void
@@ -79,7 +84,7 @@ final readonly class FileAnalyzer
         $file->setAnalysis([
             'status' => $status,
             'results' => $outputs,
-            'hash' => md5(serialize($config)),
+            'hash' => $this->computeHash($file, $config),
         ]);
     }
 
