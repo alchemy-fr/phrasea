@@ -90,6 +90,11 @@ export async function addMissingRenditionsConf(
     const subdefs =
         await phraseanetClient.getSubdefsStruct(phraseanetDataboxId);
 
+    const TARGET_ASSETS_ONLY = 1;
+    const TARGET_ASSETS_AND_STORIES = 3;
+    const target =
+        dm.importStories === true ? TARGET_ASSETS_AND_STORIES : TARGET_ASSETS_ONLY;
+
     dm.sourceFile = 'document';
 
     // import all subdefs from phraseanet
@@ -98,6 +103,7 @@ export async function addMissingRenditionsConf(
             useAsMain: true,
             buildMode: RenditionBuildMode.COPY_ASSET_FILE,
             policy: 'main',
+            target,
         } as ConfigPhraseanetSubdef,
     };
 
@@ -111,6 +117,7 @@ export async function addMissingRenditionsConf(
                 useAsThumbnail: sd.name === 'thumbnail' ? true : undefined,
                 useAsAnimatedThumbnail:
                     sd.name === 'thumbnailgif' ? true : undefined,
+                target,
                 builders: {},
             };
         }
@@ -127,6 +134,8 @@ export async function addMissingAttributeDefinitionsConf(
 ) {
     const metaStructure =
         await phraseanetClient.getMetaStruct(phraseanetDataboxId);
+
+    const target = dm.importStories === true ? 3 : 1;
 
     if (!dm.fieldMap) {
         dm.fieldMap = {}; //Record<string, FieldMap>
@@ -150,6 +159,7 @@ export async function addMissingAttributeDefinitionsConf(
                     DataboxAttributeType.GeoPoint,
                     DataboxAttributeType.Ip,
                 ].includes(databoxType),
+                target,
                 labels: metaStructure[name].labels,
                 values: [
                     {
@@ -169,6 +179,7 @@ export async function addMissingAttributeDefinitionsConf(
         readonly: true,
         translatable: false,
         allowInvalid: false,
+        target,
         labels: {},
         values: [
             {
@@ -179,6 +190,27 @@ export async function addMissingAttributeDefinitionsConf(
         attributeDefinition: {} as AttributeDefinition,
     };
 
+    if (dm.importStories === true) {
+        dm.fieldMap['phr_story_id'] = {
+            id: 'phr_story_id',
+            position: 0,
+            type: DataboxAttributeType.Number,
+            multivalue: false,
+            readonly: true,
+            translatable: false,
+            allowInvalid: false,
+            target: 2, // story-only
+            labels: {},
+            values: [
+                {
+                    type: 'template',
+                    value: '{{record.story_id}}',
+                },
+            ],
+            attributeDefinition: {} as AttributeDefinition,
+        };
+    }
+
     dm.fieldMap['phr_created_on'] = {
         id: 'phr_created_on',
         position: 0,
@@ -187,6 +219,7 @@ export async function addMissingAttributeDefinitionsConf(
         readonly: true,
         translatable: false,
         allowInvalid: false,
+        target,
         labels: {},
         values: [
             {
@@ -227,6 +260,7 @@ export async function importSubdefsStructure(
             types: Record<string, PhraseanetSubdefStruct>;
             policy: string | null;
             labels: Record<string, string>;
+            target?: number;
         }
     > = {};
 
@@ -259,6 +293,9 @@ export async function importSubdefsStructure(
                 types: {} as Record<string, PhraseanetSubdefStruct>,
                 policy: rendition['policy'] ?? null,
                 labels: {},
+                ...(rendition.target !== undefined
+                    ? {target: Number(rendition.target)}
+                    : {}),
             };
         }
 
@@ -380,6 +417,7 @@ export async function importSubdefsStructure(
                     phraseanetDefinition: sd.labels,
                 },
                 definition: Yaml.dump(jsConf, {lineWidth: 100}).trim(),
+                ...(sd.target !== undefined ? {target: Number(sd.target)} : {}),
             });
     }
 
@@ -463,6 +501,7 @@ export async function importMetadataStructure({
                 labels: fm.labels,
                 translatable: fm.translatable,
                 allowInvalid: fm.allowInvalid,
+                ...(fm.target !== undefined ? {target: Number(fm.target)} : {}),
             };
             logger.info(`  Creating "${name}" attribute definition`);
             attributeDefinitionIndex[name] =
