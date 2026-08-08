@@ -52,6 +52,8 @@ readonly class AssetManager
             );
         });
 
+        $file->resetAnalysis();
+
         $this->em->persist($asset);
         $this->em->persist($file);
     }

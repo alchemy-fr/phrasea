@@ -248,6 +248,11 @@ class File extends AbstractUuidEntity implements \Stringable
         return $this->metadata?->getMetadata();
     }
 
+    public function getMetadataValues(): array
+    {
+        return $this->metadata?->getMetadataValues() ?? [];
+    }
+
     public function setMetadata(?array $metadata): void
     {
         if (null === $metadata) {
@@ -268,9 +273,9 @@ class File extends AbstractUuidEntity implements \Stringable
         $this->metadata->setMetadataValue($name, $value);
     }
 
-    public function getMetadataValues(string $name): ?array
+    public function getMetadataNameValues(string $name): ?array
     {
-        return $this->metadata?->getMetadataValues($name);
+        return $this->metadata?->getMetadataNameValues($name);
     }
 
     public function metadataHasChanged(): bool
@@ -307,6 +312,11 @@ class File extends AbstractUuidEntity implements \Stringable
     {
         $this->analysis ??= [];
         $this->analysis['status'] = self::ANALYSIS_BYPASSED;
+    }
+
+    public function resetAnalysis(): void
+    {
+        $this->analysis = null;
     }
 
     public function setNoAnalysisNeeded(): void
