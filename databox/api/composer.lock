@@ -3634,7 +3634,7 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/exiftool/exiftool",
-                "reference": "12.42"
+                "reference": "13.59"
             },
             "type": "library"
         },
