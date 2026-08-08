@@ -44,7 +44,7 @@ class FileMetadata extends AbstractUuidEntity
         }
     }
 
-    public function getMetadataValues(string $name): ?array
+    public function getMetadataNameValues(string $name): ?array
     {
         [$group, $tag] = array_pad(explode(':', $name, 2), 2, null);
         if (null === $tag) {
@@ -52,6 +52,18 @@ class FileMetadata extends AbstractUuidEntity
         }
 
         return $this->metadata[$group][$tag] ?? null;
+    }
+
+    public function getMetadataValues(): array
+    {
+        $result = [];
+        foreach ($this->metadata as $group => $tags) {
+            foreach ($tags as $tag => $values) {
+                $result["$group:$tag"] = $values;
+            }
+        }
+
+        return $result;
     }
 
     public function setMetadataValue(string $name, mixed $value, bool $append = false): void

@@ -22,6 +22,15 @@ export type AlternateUrl = {
 
 export type FileAnalysis = Record<string, any>;
 
+export type FileUsageType = 'source' | 'version' | 'rendition';
+
+export type FileUsage = {
+    type: FileUsageType;
+    assetId: string;
+    assetTitle?: string | null;
+    name?: string | null;
+};
+
 export interface ApiFile extends Entity {
     url?: string;
     type: string;
@@ -35,6 +44,7 @@ export interface ApiFile extends Entity {
     accepted?: boolean;
     analysis?: FileAnalysis | null | undefined;
     analysisPending: boolean;
+    usages?: FileUsage[];
 }
 
 export type GroupValue = {

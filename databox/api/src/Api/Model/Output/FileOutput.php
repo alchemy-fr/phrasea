@@ -94,6 +94,14 @@ class FileOutput extends AbstractUuidOutput
     #[Groups([File::GROUP_METADATA])]
     public ?array $metadata = null;
 
+    /**
+     * Where this file is referenced: asset source, asset file version or asset rendition.
+     *
+     * @var array<int, array{type: string, assetId: string, assetTitle: ?string, name?: ?string}>|null
+     */
+    #[Groups([File::GROUP_LIST, File::GROUP_READ])]
+    public ?array $usages = null;
+
     public function getUrl(): ?string
     {
         return $this->url;

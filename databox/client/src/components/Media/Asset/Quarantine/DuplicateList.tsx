@@ -1,6 +1,8 @@
 import {Box, Chip, Stack, Typography} from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import {useTranslation} from 'react-i18next';
+import {modalRoutes} from '../../../../routes.ts';
+import {useNavigateToModal} from '../../../Routing/ModalLink.tsx';
 
 type Props = {
     duplicates: string[] | undefined;
@@ -12,6 +14,7 @@ type Props = {
  */
 export default function DuplicateList({duplicates}: Props) {
     const {t} = useTranslation();
+    const navigateToModal = useNavigateToModal();
 
     if (!duplicates || duplicates.length === 0) {
         return null;
@@ -41,6 +44,13 @@ export default function DuplicateList({duplicates}: Props) {
                         size={'small'}
                         variant={'outlined'}
                         label={id}
+                        clickable
+                        onClick={() => {
+                            navigateToModal(modalRoutes.files.routes.manage, {
+                                tab: 'info',
+                                id,
+                            });
+                        }}
                     />
                 ))}
             </Stack>

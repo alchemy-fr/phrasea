@@ -89,19 +89,18 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
 
         $duid = null;
         foreach ($config['read_from'] as $key) {
-            if (!empty($values = $file->getMetadataValues($key))) {
+            if (!empty($values = $file->getMetadataNameValues($key))) {
                 if (1 === count($values)) {
                     $candidate = $this->sanitizeXmpUuid((string) array_first($values));
                     if (Uuid::isValid($candidate)) {
                         $duid = $candidate;
+                        $file->setDocUniqueId($duid);
                         $data['found_in'] = $key;
                         break;
                     }
                 }
             }
         }
-
-        $file->setDocUniqueId($duid);
 
         if (null !== $duid && $config['findDuplicates']) {
             $existingFiles = $this->fileRepository->findDuplicatesByDocUniqueId($file, $config['duplicatesLimit']);
@@ -123,14 +122,15 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
         }
 
         $data['duid'] = $duid;
+        $file->setDocUniqueId($duid);
 
         if (null !== $duid && $config['write']) {
             foreach ($config['write_to'] as $key) {
                 $file->setMetadataValue($key, $duid);
             }
-
-            $this->em->persist($file);
         }
+
+        $this->em->persist($file);
 
         $output->setData($data);
 
