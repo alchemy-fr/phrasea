@@ -104,9 +104,8 @@ services:
       - S3_MULTIPART_MAX_PART_NUMBER
       - S3_MAX_OBJECT_SIZE
       - NOTIFICATIONS_ENABLED
-      - NOVU_APPLICATION_IDENTIFIER
-      - NOVU_WS_URL
-      - NOVU_API_URL
+      - SOKETI_KEY
+      - SOKETI_HOST=soketi.${PHRASEA_DOMAIN}
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -132,6 +131,9 @@ services:
       - TRUSTED_PROXIES
       - VERIFY_SSL
       - VERIFY_HOST
+      - MAILER_DSN
+      - MAIL_FROM
+      - MAIL_FROM_DISPLAY_NAME
       - POSTGRES_HOST
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -159,9 +161,6 @@ services:
       - CONFIGURATOR_S3_BUCKET_NAME
       - CONFIGURATOR_S3_USE_PATH_STYLE_ENDPOINT=${S3_USE_PATH_STYLE_ENDPOINT}
       - NOTIFICATIONS_ENABLED
-      - NOVU_API_HOST
-      - NOVU_SECRET_KEY
-      - NOTIFY_AUTHOR
       - MATOMO_URL
       - MATOMO_SITE_ID
       - MATOMO_MEDIA_PLUGIN_ENABLED
@@ -261,8 +260,6 @@ services:
       - DATABOX_CLIENT_URL
       - CLIENT_ID=${DATABOX_CLIENT_ID}
       - ALLOWED_FILE_TYPES=${DATABOX_ALLOWED_FILE_TYPES}
-      - SOKETI_KEY
-      - SOKETI_HOST=soketi.${PHRASEA_DOMAIN}
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -1149,35 +1146,6 @@ services:
       - "traefik.http.routers.soketi-usage.rule=Host(`soketi-usage.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.soketi-usage.service=soketi-usage"
       - "traefik.http.services.soketi-usage.loadbalancer.server.port=9601"
-
-  novu-bridge:
-    image: ${REGISTRY_NAMESPACE}novu-bridge:${DOCKER_TAG}
-    build:
-      context: ./novu/bridge
-      network: host
-    profiles:
-      - novu
-    networks:
-      - internal
-    environment:
-      - NOVU_SECRET_KEY
-      - NOVU_API_URL
-      - NOVU_BRIDGE_URL
-      - NEXT_PUBLIC_NOVU_APPLICATION_IDENTIFIER=${NOVU_APPLICATION_IDENTIFIER}
-      - NEXT_PUBLIC_NOVU_SUBSCRIBER_ID=${NOVU_SUBSCRIBER_ID}
-      - NEXT_PUBLIC_NOVU_API_URL=${NOVU_API_URL}
-      - DATABOX_CLIENT_URL=${DATABOX_CLIENT_URL}
-      - EXPOSE_CLIENT_URL=${EXPOSE_CLIENT_URL}
-      - UPLOADER_CLIENT_URL=${UPLOADER_CLIENT_URL}
-      - DASHBOARD_CLIENT_URL=${DASHBOARD_CLIENT_URL}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
-      - "traefik.http.routers.novu-bridge.rule=Host(`bridge-novu.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.services.novu-bridge.loadbalancer.server.port=3000"
-    extra_hosts:
-      - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - mailhog.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
 volumes:
   db:

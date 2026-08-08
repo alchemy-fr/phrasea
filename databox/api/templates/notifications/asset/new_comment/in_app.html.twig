@@ -1,0 +1,3 @@
+{% block subject %}{{ 'asset.new_comment.in_app.subject'|trans({}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}{{ 'asset.new_comment.in_app.body'|trans({'%author%': author|e, '%name%': name|e}, 'notifications')|raw }}{% endblock %}

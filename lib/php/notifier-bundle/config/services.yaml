@@ -1,0 +1,66 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    _instanceof:
+        Alchemy\NotifierBundle\Channel\ChannelInterface:
+            tags: ['alchemy_notifier.channel']
+
+    Alchemy\NotifierBundle\:
+        resource: '../src/{Channel,Command,Delivery,Manager,Notification,Repository,Subscriber,Topic,Security,Message}/'
+        exclude:
+            - '../src/Notification/RenderedContent.php'
+            - '../src/Subscriber/SubscriberInfo.php'
+            - '../src/Topic/TopicDefinition.php'
+            - '../src/Message/SendNotification.php'
+            - '../src/Message/SendEmailNotification.php'
+            - '../src/Message/BroadcastNotification.php'
+
+    # REST controllers
+    Alchemy\NotifierBundle\Controller\:
+        resource: '../src/Controller/'
+        exclude: '../src/Controller/Admin/'
+        tags: ['controller.service_arguments']
+
+    # EasyAdmin CRUD controllers (autoconfigured, must be public).
+    # Requires easycorp/easyadmin-bundle + alchemy/admin-bundle in the app.
+    Alchemy\NotifierBundle\Controller\Admin\:
+        resource: '../src/Controller/Admin/'
+        public: true
+
+    Alchemy\NotifierBundle\Channel\ChannelRegistry:
+        arguments:
+            $channels: !tagged_iterator alchemy_notifier.channel
+
+    Alchemy\NotifierBundle\Topic\TopicRegistry:
+        arguments:
+            $topics: '%alchemy_notifier.topics%'
+
+    Alchemy\NotifierBundle\Notification\NotificationRenderer:
+        arguments:
+            $templateNamespace: '%alchemy_notifier.template_namespace%'
+            # Optional: without symfony/translation the renderer cannot switch
+            # locale but templates still render in the default language.
+            $localeSwitcher: '@?Symfony\Component\Translation\LocaleSwitcher'
+
+    Alchemy\NotifierBundle\Channel\InAppChannel:
+        arguments:
+            # Optional: without core-bundle's Pusher, in-app notifications are
+            # still persisted but not pushed in real time.
+            $pusherManager: '@?Alchemy\CoreBundle\Pusher\PusherManager'
+            $channelPrefix: '%alchemy_notifier.in_app.channel_prefix%'
+            $event: '%alchemy_notifier.in_app.event%'
+
+    # The SMS texter is optional: inject it only when a symfony/notifier
+    # texter transport is configured, otherwise the channel stays inactive.
+    Alchemy\NotifierBundle\Channel\SmsChannel:
+        arguments:
+            $texter: '@?Symfony\Component\Notifier\TexterInterface'
+
+    Alchemy\NotifierBundle\NotifierState:
+        arguments:
+            $enabled: '%alchemy_notifier.enabled%'
+
+    Alchemy\NotifierBundle\Subscriber\SubscriberInfoProviderInterface:
+        alias: Alchemy\NotifierBundle\Subscriber\KeycloakSubscriberInfoProvider

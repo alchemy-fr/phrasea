@@ -1,0 +1,3 @@
+{% block subject %}{{ 'download.link.email.subject'|trans({}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}{{ 'download.link.email.body'|trans({'%url%': downloadUrl|e('html_attr')}, 'notifications')|raw }}{% endblock %}

@@ -1,0 +1,30 @@
+alchemy_notifier:
+    enabled: '%env(bool:NOTIFICATIONS_ENABLED)%'
+    template_namespace: '@notifications'
+    default_channels: [email, in_app]
+    topics:
+        # Asset events (NotifyAssetTopicHandler)
+        'asset:update':
+            channels: [email, in_app]
+        'asset:delete':
+            channels: [email, in_app]
+        'asset:new_comment':
+            channels: [email, in_app]
+        # Collection events (NotifyCollectionTopicHandler)
+        'collection:asset_add':
+            channels: [email, in_app]
+        'collection:asset_remove':
+            channels: [email, in_app]
+        # Discussion comments (PostDiscussionMessageHandler)
+        'discussion:new_comment':
+            channels: [email, in_app]
+        # Entity list value awaiting approval (AttributeEntityPendingNotifyHandler)
+        'entity_list:pending_value':
+            channels: [email, in_app]
+        # User-facing exceptions (ExceptionNotifier)
+        'user:exception':
+            channels: [email, in_app]
+
+twig:
+    paths:
+        '%kernel.project_dir%/templates/notifications': notifications

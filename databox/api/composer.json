@@ -31,7 +31,7 @@
         },
         {
             "type": "path",
-            "url": "../../lib/php/notify-bundle",
+            "url": "../../lib/php/notifier-bundle",
             "options": {
                 "symlink": true
             }
@@ -158,7 +158,7 @@
         "alchemy/es-bundle": "@dev",
         "alchemy/messenger-bundle": "@dev",
         "alchemy/metadata-manipulator-bundle": "@dev",
-        "alchemy/notify-bundle": "@dev",
+        "alchemy/notifier-bundle": "@dev",
         "alchemy/rendition-factory": "@dev",
         "alchemy/rendition-factory-bundle": "@dev",
         "alchemy/storage-bundle": "*",

@@ -1,0 +1,6 @@
+{% block subject %}{{ 'commit.acknowledged.email.subject'|trans({}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}
+    <p>{{ 'commit.acknowledged.email.greeting'|trans({'%recipient%': (recipient.displayName|default(recipient.email))|e}, 'notifications')|raw }}</p>
+    <p>{{ 'commit.acknowledged.email.body'|trans({'%count%': assetCount}, 'notifications') }}</p>
+{% endblock %}

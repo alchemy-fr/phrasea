@@ -68,7 +68,7 @@
         },
         {
             "type": "path",
-            "url": "../../lib/php/notify-bundle",
+            "url": "../../lib/php/notifier-bundle",
             "options": {
                 "symlink": true
             }
@@ -86,7 +86,7 @@
         "alchemy/configurator-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
         "alchemy/messenger-bundle": "@dev",
-        "alchemy/notify-bundle": "@dev",
+        "alchemy/notifier-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
         "alchemy/storage-bundle": "@dev",
         "api-platform/core": "^3.1",

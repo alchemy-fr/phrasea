@@ -39,13 +39,7 @@ export interface WindowConfigBase {
         src?: Readonly<string>;
         style?: Readonly<string>;
     };
-    notifications?:
-        | {
-              appIdentifier: Readonly<string>;
-              socketUrl: Readonly<string>;
-              apiUrl: Readonly<string>;
-          }
-        | undefined;
+    notifications?: Readonly<boolean> | undefined;
 }
 
 declare global {

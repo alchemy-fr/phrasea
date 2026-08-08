@@ -4,36 +4,30 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Collection;
 
+use Alchemy\NotifierBundle\Model\NotifyOptions;
+use Alchemy\NotifierBundle\Model\NotifySelectorDto;
+use Alchemy\NotifierBundle\Model\TopicDto;
+use App\Consumer\Handler\Asset\AbstractNotifyHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
-use App\Service\Asset\Attribute\AssetNameResolver;
-use App\Service\Asset\ObjectNotifier;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler]
-readonly class NotifyCollectionTopicHandler
+readonly class NotifyCollectionTopicHandler extends AbstractNotifyHandler
 {
-    public function __construct(
-        private EntityManagerInterface $em,
-        private ObjectNotifier $objectNotifier,
-        private AssetNameResolver $assetNameResolver,
-    ) {
-    }
-
     public function __invoke(NotifyCollectionTopic $message): void
     {
-        if (!$this->objectNotifier->isEnabled()) {
+        $collectionId = $message->getCollectionId();
+        $collection = $this->em->find(Collection::class, $collectionId);
+        if (null === $collection) {
             return;
         }
 
-        $collectionId = $message->getCollectionId();
-        $collection = $this->em->find(Collection::class, $collectionId);
-
-        $notificationId = match ($message->getEvent()) {
-            Collection::EVENT_ASSET_ADD => 'databox-collection-asset-add',
-            Collection::EVENT_ASSET_REMOVE => 'databox-collection-asset-remove',
-            default => throw new \InvalidArgumentException(sprintf('Invalid collection event "%s"', $message->getEvent())),
+        $event = $message->getEvent();
+        $topic = match ($event) {
+            Collection::EVENT_ASSET_ADD => 'collection:asset_add',
+            Collection::EVENT_ASSET_REMOVE => 'collection:asset_remove',
+            default => throw new \InvalidArgumentException(sprintf('Invalid collection event "%s"', $event)),
         };
 
         $asset = $message->getAssetId() ? $this->em->find(Asset::class, $message->getAssetId()) : null;
@@ -48,19 +42,31 @@ readonly class NotifyCollectionTopicHandler
             $assetName = $this->assetNameResolver->resolveNameAsString($asset) ?? $message->getAssetName() ?? $asset->getId();
         }
         $assetName ??= 'Undefined';
+        $authorId = $message->getAuthorId();
 
         $notificationParams = [
-            'collectionName' => $collection?->getName() ?? $collection?->getId() ?? $message->getAssetName() ?? 'Undefined',
+            'collectionName' => $collection->getName() ?? $collection->getId(),
             'assetName' => $assetName,
             'url' => $uri,
+            'author' => $this->getUsername($authorId),
+            'authorId' => $authorId,
         ];
 
-        $this->objectNotifier->notifyObject(
-            $collection,
-            $message->getEvent(),
-            $notificationId,
-            $message->getAuthorId(),
-            $notificationParams,
+        $this->notifierManager->notify(
+            [
+                new NotifySelectorDto(
+                    event: $event,
+                    objectType: Collection::OBJECT_TYPE,
+                    objectId: $collection->getId(),
+                    topic: new TopicDto(
+                        $topic,
+                        $notificationParams
+                    ),
+                ),
+            ],
+            new NotifyOptions(
+                excludeUserId: $authorId
+            ),
         );
     }
 }
