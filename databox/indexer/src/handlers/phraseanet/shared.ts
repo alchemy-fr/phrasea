@@ -18,7 +18,7 @@ export type AttrPolicyIndex = Record<string, AttributePolicy>;
 
 /**
  * Extract the source record for story renditions using priority logic:
- * 1. If cover_record_id exists → return that record
+ * 1. If cover_record_id is set and the corresponding record is present in story.children → return it
  * 2. Else if children exist → return first child
  * 3. Else → return undefined (empty story)
  */
@@ -36,8 +36,7 @@ export function getStorySourceRecord(
                 return coverRecord;
             }
         }
-        // Note: If cover_record_id not found in children array, we would need
-        // an additional API call. For now, log warning and fall through to Priority 2.
+        // cover_record_id is set but not present in children; fall back to Priority 2.
     }
 
     // Priority 2: First child
