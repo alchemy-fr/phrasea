@@ -60,6 +60,7 @@ use App\Api\Provider\AssetDuplicatesProvider;
 use App\Api\Provider\AssetMetricsProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
+use App\Api\Provider\SimilarAssetCollectionProvider;
 use App\Api\Provider\StoryThumbnailsProvider;
 use App\Controller\Core\DeleteAssetByKeysAction;
 use App\Entity\FollowableInterface;
@@ -115,6 +116,17 @@ use Symfony\Component\Validator\Constraints as Assert;
             output: StoryThumbnailsOutput::class,
             name: 'story-thumbnails',
             provider: StoryThumbnailsProvider::class,
+        ),
+        new GetCollection(
+            uriTemplate: '/assets/{id}/similar',
+            uriVariables: [
+                'id' => new Link(fromClass: Asset::class, identifiers: ['id']),
+            ],
+            normalizationContext: [
+                'groups' => [self::GROUP_LIST],
+            ],
+            name: 'similar_assets',
+            provider: SimilarAssetCollectionProvider::class,
         ),
         new Get(
             uriTemplate: '/assets/{id}/metrics',

@@ -116,6 +116,26 @@ Operational notes:
 - Save and delete actions require valid user context and integration data identifiers.
 - Unsupported actions are rejected.
 
+## Similarity integration (core.similarity)
+
+Display name: Similarity
+
+This integration computes a visual embedding (CLIP vector) for each ingested asset and stores it in the asset Elasticsearch document (dense_vector field).
+It powers the "Similar assets" panel and the "Find similar" action of the asset view, through a kNN search that enforces the same ACL filters as the regular search.
+
+Main behavior:
+
+- Adds a workflow job on asset ingest, depending on the configured rendition job (default: preview).
+- Sends the rendition image to the similarity-embedder service (self-hosted, CLIP) to compute the vector.
+- Stores the vector in database (asset_embedding table) and reindexes the asset in Elasticsearch.
+- Similar assets are served by `GET /assets/{id}/similar` using an Elasticsearch kNN query filtered by permissions.
+
+Operational notes:
+
+- Requires the `similarity-embedder` and `elasticsearch` (>= 8.12) services.
+- The rendition must be an image (documents are covered through their image preview rendition).
+- Backfill existing assets with `bin/console app:similarity:index`.
+
 ## Exhaustive integration list
 
 The table below is the exhaustive integration list currently available in Databox codebase.
@@ -138,6 +158,7 @@ The table below is the exhaustive integration list currently available in Databo
 | remove.bg | Remove BG | Asset view background removal | Yes |
 | phraseanet.renditions | Phraseanet Renditions | Workflow rendition synchronization with Phraseanet | No |
 | core.test_asset_operation | Test Asset Operation | Test-only workflow integration | No |
+| similarity | Similarity | Workflow embedding generation for similarity search | No |
 
 Note: for integrations marked Yes in the External service column, some assets, metadata, or derived content will necessarily be submitted to these external services for processing.
 

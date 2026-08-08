@@ -36,6 +36,14 @@ jobs:
       context: ./novu/bridge
     secrets: inherit
 
+  build_similarity-embedder:
+    name: 'Build similarity-embedder'
+    uses: ./.github/workflows/build_base.yaml
+    with:
+      image: similarity-embedder
+      context: ./infra/docker/similarity-embedder
+    secrets: inherit
+
   build_php-fpm-base:
     name: 'Build php-fpm-base'
     uses: ./.github/workflows/build_base.yaml
