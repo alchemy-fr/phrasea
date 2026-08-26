@@ -939,6 +939,7 @@ services:
       - KC_DB_PASSWORD=${POSTGRES_PASSWORD}
       - KC_DB=postgres
       - KC_DB_URL=jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${KEYCLOAK_DB_NAME}
+      - KC_PROXY_HEADERS
     extra_hosts:
       - keycloak2.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     labels:
