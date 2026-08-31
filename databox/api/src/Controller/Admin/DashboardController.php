@@ -8,10 +8,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\AdminBundle\Controller\Acl\AccessControlEntryCrudController;
 use Alchemy\AdminBundle\Controller\MultipartUploadCrudController;
 use Alchemy\ConfiguratorBundle\Controller\ConfiguratorEntryCrudController;
-use Alchemy\NotifierBundle\Controller\Admin\BroadcastCrudController;
-use Alchemy\NotifierBundle\Controller\Admin\NotificationCrudController;
-use Alchemy\NotifierBundle\Controller\Admin\NotificationPreferenceCrudController;
-use Alchemy\NotifierBundle\Controller\Admin\SubscriberCrudController;
+use Alchemy\NotifierBundle\Admin\NotifierAdminMenu;
 use Alchemy\TrackBundle\Controller\ChangeLogCrudController;
 use Alchemy\WebhookBundle\Controller\WebhookCrudController;
 use Alchemy\WebhookBundle\Controller\WebhookLogCrudController;
@@ -145,12 +142,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Webhook', 'fas fa-network-wired')->setSubItems($webhookSubMenu);
         yield MenuItem::subMenu('Discussions', 'fas fa-message')->setSubItems($discussions);
         yield MenuItem::subMenu('Logs', 'fa fa-history')->setSubItems($logs);
-        yield MenuItem::subMenu('Notification', 'fas fa-bell')->setSubItems([
-            MenuItem::linkTo(BroadcastCrudController::class, 'Broadcasts'),
-            MenuItem::linkTo(SubscriberCrudController::class, 'Subscribers'),
-            MenuItem::linkTo(NotificationCrudController::class, 'In-app notifications'),
-            MenuItem::linkTo(NotificationPreferenceCrudController::class, 'Preferences'),
-        ]);
+        yield NotifierAdminMenu::createMenuItem();
         yield MenuItem::linkTo(ConfiguratorEntryCrudController::class, 'Global Config', 'fa fa-gear');
         yield $this->createDevMenu();
     }
