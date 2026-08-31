@@ -46,7 +46,9 @@ readonly class NotifyCollectionTopicHandler extends AbstractNotifyHandler
 
         $notificationParams = [
             'collectionName' => $collection->getName() ?? $collection->getId(),
+            'collectionId' => $collectionId,
             'assetName' => $assetName,
+            'assetId' => $message->getAssetId(),
             'url' => $uri,
             'author' => $this->getUsername($authorId),
             'authorId' => $authorId,
