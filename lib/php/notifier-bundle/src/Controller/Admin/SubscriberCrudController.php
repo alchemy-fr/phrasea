@@ -36,6 +36,7 @@ class SubscriberCrudController extends AbstractAdminCrudController
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->disable(Action::NEW, Action::EDIT, Action::DELETE)
+            ->remove(Crud::PAGE_INDEX, Action::NEW)
         ;
     }
 
@@ -48,7 +49,7 @@ class SubscriberCrudController extends AbstractAdminCrudController
             TextField::new('email'),
             TextField::new('phoneNumber'),
             TextField::new('locale'),
-            DateTimeField::new('createdAt'),
+            DateTimeField::new('createdAt')->hideOnForm(),
             DateTimeField::new('updatedAt')->onlyOnDetail(),
         ];
     }
