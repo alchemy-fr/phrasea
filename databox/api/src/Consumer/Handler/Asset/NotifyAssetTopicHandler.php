@@ -31,7 +31,7 @@ readonly class NotifyAssetTopicHandler extends AbstractNotifyHandler
         $assetName = $asset ? $this->assetNameResolver->resolveNameAsString($asset) : null;
 
         $notificationParams = [
-            'name' => $assetName ?? $asset?->getId() ?? $message->getAssetName() ?? 'Undefined',
+            'name' => $assetName ?? $message->getAssetName() ?? $asset?->getId() ?? 'Undefined',
             'url' => '/assets/'.$assetId,
             'author' => $this->getUsername($authorId),
             'authorId' => $authorId,
