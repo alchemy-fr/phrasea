@@ -7,13 +7,16 @@ namespace Alchemy\NotifierBundle\Subscriber;
 use Alchemy\AuthBundle\Repository\UserRepositoryInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
+#[AsAlias(SubscriberInfoProviderInterface::class)]
 final class KeycloakSubscriberInfoProvider implements SubscriberInfoProviderInterface
 {
     private LoggerInterface $logger;
 
     public function __construct(
         private readonly UserRepositoryInterface $userRepository,
+        private readonly KeycloakUserMapper $mapper,
         ?LoggerInterface $logger = null,
     ) {
         $this->logger = $logger ?? new NullLogger();
@@ -33,31 +36,6 @@ final class KeycloakSubscriberInfoProvider implements SubscriberInfoProviderInte
             return null;
         }
 
-        return new SubscriberInfo(
-            email: $user['email'] ?? null,
-            phoneNumber: $this->firstAttribute($user, 'phoneNumber'),
-            locale: $this->firstAttribute($user, 'locale'),
-            displayName: $this->resolveDisplayName($user),
-        );
-    }
-
-    private function resolveDisplayName(array $user): ?string
-    {
-        $parts = array_filter([$user['firstName'] ?? null, $user['lastName'] ?? null]);
-        if ([] !== $parts) {
-            return implode(' ', $parts);
-        }
-
-        return $user['username'] ?? $user['email'] ?? null;
-    }
-
-    private function firstAttribute(array $user, string $key): ?string
-    {
-        $value = $user['attributes'][$key] ?? null;
-        if (is_array($value)) {
-            $value = $value[0] ?? null;
-        }
-
-        return null !== $value ? (string) $value : null;
+        return $this->mapper->map($user);
     }
 }

@@ -66,6 +66,10 @@ alchemy_notifier:
     # Pusher channel/event for in-app notifications
     in_app_channel_prefix: 'private-user-'
     in_app_event: 'notification'
+    # Default audience of a broadcast: `keycloak` or `subscribers`
+    user_directory: keycloak
+    # Page size used when listing the users of the identity provider
+    directory_batch_size: 100
     topics:
         # Keys containing a colon must be quoted (YAML reserves `:`)
         'asset:comment':
@@ -233,6 +237,67 @@ matched exactly (an object-scoped selector does not reach global subscribers).
 Sending is dispatched asynchronously through Messenger
 (`Alchemy\NotifierBundle\Message\SendNotification`); route it to a transport as usual.
 
+## Broadcasting
+
+`broadcast()` sends a topic to a whole **audience**, resolved in the worker by a
+**user directory**:
+
+| Directory | Reaches |
+|---|---|
+| `keycloak` *(default)* | Every enabled user of the realm, paginated |
+| `subscribers` | Only the users already known locally (i.e. notified at least once) |
+
+```php
+use Alchemy\NotifierBundle\Channel\ChannelType;
+use Alchemy\NotifierBundle\Model\BroadcastOptions;
+
+$notifier->broadcast('service:announcement', $params, new BroadcastOptions(
+    channels: [ChannelType::InApp],   // subset of the topic channels (default: all of them)
+    excludeUserId: $currentUserId,
+    directory: 'keycloak',
+));
+```
+
+Recipients are never materialized in the message: the directory is streamed at
+delivery time, contact info comes from the listing itself (no lookup per user),
+and one unreachable recipient does not abort the run. **Route
+`Alchemy\NotifierBundle\Message\BroadcastNotification` to a transport** — fanning
+out over a whole realm has no business running inside a web request.
+
+Register another audience by implementing `UserDirectoryInterface` (a Keycloak
+group, a tenant, …): it is auto-tagged, and its `getName()` becomes usable as a
+`directory`. Change the default with `alchemy_notifier.user_directory`.
+
+From the CLI:
+
+```
+bin/console alchemy:notifier:broadcast <topic> '<json-payload>' [--channel=email] [--audience=subscribers] [--exclude-user=<userId>]
+```
+
+## Announcements from the admin
+
+The bundle ships a built-in topic, **`admin:message`**, with its own templates:
+administrators compose a free-form announcement under
+`/admin/notifications/broadcast` (menu entry `MenuItem::linkToRoute('…', '…',
+'easyadmin_'.BroadcastNotificationController::ROUTE_NAME)`) and it is broadcast
+to the chosen audience.
+
+Nothing has to be declared for it to work: `admin:message` is registered
+automatically, and its templates are resolved from the bundle when the
+application does not define its own (any template the application declares under
+its own namespace wins).
+
+The announcement is sent as written — it is **not** translated per recipient,
+unlike the catalog-based templates of the application's own topics.
+
+```php
+$notifier->broadcast('admin:message', [
+    'subject' => 'Maintenance tonight',
+    'body' => '<p>…</p>',
+    'url' => '/assets/42',
+]);
+```
+
 ## REST API
 
 | Method & path | Description |
@@ -250,3 +315,5 @@ Sending is dispatched asynchronously through Messenger
   `KeycloakSubscriberInfoProvider`) to source contact info elsewhere.
 - **Channels**: implement `Alchemy\NotifierBundle\Channel\ChannelInterface`; it is
   auto-tagged and picked up by the registry.
+- **Audiences**: implement `Alchemy\NotifierBundle\Subscriber\UserDirectoryInterface`
+  (see [Broadcasting](#broadcasting)); it is auto-tagged and picked up by the registry.

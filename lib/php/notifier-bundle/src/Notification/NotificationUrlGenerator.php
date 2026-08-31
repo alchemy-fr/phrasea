@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Alchemy\NotifierBundle\Notification;
 
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+
 /**
  * Wraps a client-side URI (e.g. `/assets/{id}#discussion-{id}`) into an absolute
  * link pointing at the client's notification entry point:
@@ -16,7 +18,9 @@ namespace Alchemy\NotifierBundle\Notification;
 final readonly class NotificationUrlGenerator
 {
     public function __construct(
+        #[Autowire(param: 'alchemy_notifier.client_url')]
         private string $clientUrl = '',
+        #[Autowire(param: 'alchemy_notifier.notification_uri_path')]
         private string $notificationUriPath = '/notification-uri',
     ) {
     }

@@ -9,6 +9,7 @@ use Alchemy\NotifierBundle\Entity\Notification;
 use Alchemy\NotifierBundle\Entity\Subscriber;
 use Alchemy\NotifierBundle\Notification\NotificationRenderer;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Persists an in-app notification (raw topic + payload) and, when a Pusher
@@ -26,7 +27,9 @@ final readonly class InAppChannel implements ChannelInterface
     public function __construct(
         private EntityManagerInterface $em,
         private ?PusherManager $pusherManager = null,
+        #[Autowire(param: 'alchemy_notifier.in_app.channel_prefix')]
         private string $channelPrefix = 'private-user-',
+        #[Autowire(param: 'alchemy_notifier.in_app.event')]
         private string $event = 'notification',
         private ?NotificationRenderer $renderer = null,
     ) {

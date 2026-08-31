@@ -2342,6 +2342,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     default_channels?: list<"email"|"sms"|"in_app"|Param>,
  *     in_app_channel_prefix?: scalar|Param|null, // Pusher channel prefix used for in-app notifications (suffixed with the userId) // Default: "private-user-"
  *     in_app_event?: scalar|Param|null, // Pusher event name triggered for in-app notifications // Default: "notification"
+ *     user_directory?: scalar|Param|null, // Default audience of a broadcast: "keycloak" (every user of the realm) or "subscribers" (only the users already known locally) // Default: "keycloak"
+ *     directory_batch_size?: int|Param, // Page size used when listing the users of the identity provider // Default: 100
  *     topics?: array<string, array{ // Default: []
  *         channels?: list<"email"|"sms"|"in_app"|Param>,
  *         importance?: scalar|Param|null, // Default: "normal"

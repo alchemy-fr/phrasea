@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\NotifierBundle\Topic;
 
 use Alchemy\NotifierBundle\Channel\ChannelType;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 final class TopicRegistry
 {
@@ -16,8 +17,10 @@ final class TopicRegistry
     /**
      * @param array<string, array{channels: array<int, string>, importance: string, user_configurable: bool}> $topics
      */
-    public function __construct(array $topics = [])
-    {
+    public function __construct(
+        #[Autowire(param: 'alchemy_notifier.topics')]
+        array $topics = [],
+    ) {
         foreach ($topics as $key => $topic) {
             $this->topics[$key] = new TopicDefinition(
                 $key,

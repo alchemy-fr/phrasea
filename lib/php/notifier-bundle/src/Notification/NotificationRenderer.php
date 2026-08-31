@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\NotifierBundle\Notification;
 
 use Alchemy\NotifierBundle\Channel\ChannelType;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Translation\LocaleSwitcher;
 use Twig\Environment;
 
@@ -13,7 +14,9 @@ use Twig\Environment;
  *
  * Templates are resolved under the configured namespace following the
  * convention: {namespace}/{topic-with-slashes}/{channel}.{ext}
- * e.g. `@notifications/asset/comment/email.html.twig`.
+ * e.g. `@notifications/asset/comment/email.html.twig`. When the application
+ * defines none, the bundle's own templates are used as a fallback (built-in
+ * topics such as `admin:message`).
  *
  * A template may define a `subject` block, a `body` block and a `uri` block
  * (the main click-through target); when no `body` block is present the whole
@@ -26,6 +29,11 @@ use Twig\Environment;
  */
 final readonly class NotificationRenderer
 {
+    /**
+     * Namespace of the templates shipped by the bundle itself (built-in topics).
+     */
+    public const string BUILT_IN_NAMESPACE = '@AlchemyNotifier/notifications';
+
     private const array CHANNEL_TEMPLATES = [
         ChannelType::Email->value => 'email.html.twig',
         ChannelType::Sms->value => 'sms.txt.twig',
@@ -38,20 +46,22 @@ final readonly class NotificationRenderer
      */
     public function __construct(
         private Environment $twig,
+        #[Autowire(param: 'alchemy_notifier.template_namespace')]
         private string $templateNamespace = '@notifications',
         private ?LocaleSwitcher $localeSwitcher = null,
+        private string $fallbackNamespace = self::BUILT_IN_NAMESPACE,
     ) {
     }
 
     public function hasTemplate(string $topic, ChannelType $channel): bool
     {
-        return $this->twig->getLoader()->exists($this->templateName($topic, $channel));
+        return null !== $this->resolveTemplateName($topic, $channel);
     }
 
     public function render(string $topic, ChannelType $channel, array $context = [], ?string $locale = null): ?RenderedContent
     {
-        $name = $this->templateName($topic, $channel);
-        if (!$this->twig->getLoader()->exists($name)) {
+        $name = $this->resolveTemplateName($topic, $channel);
+        if (null === $name) {
             return null;
         }
 
@@ -86,10 +96,22 @@ final readonly class NotificationRenderer
         return new RenderedContent($subject, trim($body), '' !== $uri ? $uri : null);
     }
 
-    private function templateName(string $topic, ChannelType $channel): string
+    /**
+     * The application always wins: a template it defines under its own
+     * namespace overrides the one shipped by the bundle.
+     */
+    private function resolveTemplateName(string $topic, ChannelType $channel): ?string
     {
         $topicPath = str_replace(['.', ':'], '/', $topic);
+        $file = self::CHANNEL_TEMPLATES[$channel->value];
 
-        return sprintf('%s/%s/%s', $this->templateNamespace, $topicPath, self::CHANNEL_TEMPLATES[$channel->value]);
+        foreach (array_unique(array_filter([$this->templateNamespace, $this->fallbackNamespace])) as $namespace) {
+            $name = sprintf('%s/%s/%s', $namespace, $topicPath, $file);
+            if ($this->twig->getLoader()->exists($name)) {
+                return $name;
+            }
+        }
+
+        return null;
     }
 }

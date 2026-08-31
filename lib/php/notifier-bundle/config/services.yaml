@@ -3,19 +3,20 @@ services:
         autowire: true
         autoconfigure: true
 
-    _instanceof:
-        Alchemy\NotifierBundle\Channel\ChannelInterface:
-            tags: ['alchemy_notifier.channel']
-
     Alchemy\NotifierBundle\:
-        resource: '../src/{Channel,Command,Delivery,Manager,Notification,Repository,Subscriber,Topic,Security,Message,Twig}/'
+        resource: '../src/{Channel,Command,Delivery,Form,Manager,Notification,Repository,Subscriber,Topic,Security,Message,Twig}/'
         exclude:
             - '../src/Notification/RenderedContent.php'
+            - '../src/Subscriber/DirectoryUser.php'
             - '../src/Subscriber/SubscriberInfo.php'
+            - '../src/Topic/BuiltInTopic.php'
             - '../src/Topic/TopicDefinition.php'
             - '../src/Message/SendNotification.php'
             - '../src/Message/SendEmailNotification.php'
             - '../src/Message/BroadcastNotification.php'
+
+    # Not covered by the resource above (it sits at the root of src/)
+    Alchemy\NotifierBundle\NotifierState: ~
 
     # REST controllers
     Alchemy\NotifierBundle\Controller\:
@@ -29,43 +30,23 @@ services:
         resource: '../src/Controller/Admin/'
         public: true
 
-    Alchemy\NotifierBundle\Channel\ChannelRegistry:
-        arguments:
-            $channels: !tagged_iterator alchemy_notifier.channel
-
-    Alchemy\NotifierBundle\Topic\TopicRegistry:
-        arguments:
-            $topics: '%alchemy_notifier.topics%'
-
+    # Everything else is wired through PHP attributes on the classes
+    # themselves. Only optional services stay here: #[Autowire] cannot express
+    # the "inject it if it exists" semantics of `@?`.
     Alchemy\NotifierBundle\Notification\NotificationRenderer:
         arguments:
-            $templateNamespace: '%alchemy_notifier.template_namespace%'
-            # Optional: without symfony/translation the renderer cannot switch
-            # locale but templates still render in the default language.
+            # Without symfony/translation the renderer cannot switch locale but
+            # templates still render in the default language.
             $localeSwitcher: '@?Symfony\Component\Translation\LocaleSwitcher'
-
-    Alchemy\NotifierBundle\Notification\NotificationUrlGenerator:
-        arguments:
-            $clientUrl: '%alchemy_notifier.client_url%'
-            $notificationUriPath: '%alchemy_notifier.notification_uri_path%'
 
     Alchemy\NotifierBundle\Channel\InAppChannel:
         arguments:
-            # Optional: without core-bundle's Pusher, in-app notifications are
-            # still persisted but not pushed in real time.
+            # Without core-bundle's Pusher, in-app notifications are still
+            # persisted but not pushed in real time.
             $pusherManager: '@?Alchemy\CoreBundle\Pusher\PusherManager'
-            $channelPrefix: '%alchemy_notifier.in_app.channel_prefix%'
-            $event: '%alchemy_notifier.in_app.event%'
 
-    # The SMS texter is optional: inject it only when a symfony/notifier
-    # texter transport is configured, otherwise the channel stays inactive.
     Alchemy\NotifierBundle\Channel\SmsChannel:
         arguments:
+            # Inject the texter only when a symfony/notifier texter transport is
+            # configured, otherwise the channel stays inactive.
             $texter: '@?Symfony\Component\Notifier\TexterInterface'
-
-    Alchemy\NotifierBundle\NotifierState:
-        arguments:
-            $enabled: '%alchemy_notifier.enabled%'
-
-    Alchemy\NotifierBundle\Subscriber\SubscriberInfoProviderInterface:
-        alias: Alchemy\NotifierBundle\Subscriber\KeycloakSubscriberInfoProvider

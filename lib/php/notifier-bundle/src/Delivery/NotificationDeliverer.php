@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Alchemy\NotifierBundle\Delivery;
 
 use Alchemy\NotifierBundle\Channel\ChannelRegistry;
+use Alchemy\NotifierBundle\Channel\ChannelType;
+use Alchemy\NotifierBundle\Entity\Subscriber;
 use Alchemy\NotifierBundle\Manager\PreferenceManager;
 use Alchemy\NotifierBundle\Manager\SubscriberManager;
 use Alchemy\NotifierBundle\Topic\TopicRegistry;
@@ -31,13 +33,26 @@ class NotificationDeliverer
     }
 
     /**
-     * @param array<string, mixed> $params
-     * @param array<string, mixed> $options
+     * @param array<string, mixed>    $params
+     * @param array<string, mixed>    $options
+     * @param array<int, ChannelType> $channels Restricts delivery to those channels (null: every channel of the topic)
      */
-    public function deliver(string $userId, string $topic, array $params = [], array $options = []): void
+    public function deliver(string $userId, string $topic, array $params = [], array $options = [], ?array $channels = null): void
+    {
+        $this->deliverTo($this->subscriberManager->getOrCreate($userId), $topic, $params, $options, $channels);
+    }
+
+    /**
+     * Same as {@see deliver()} for an already resolved subscriber, so a bulk
+     * sender does not pay a lookup per recipient.
+     *
+     * @param array<string, mixed>    $params
+     * @param array<string, mixed>    $options
+     * @param array<int, ChannelType> $channels
+     */
+    public function deliverTo(Subscriber $subscriber, string $topic, array $params = [], array $options = [], ?array $channels = null): void
     {
         $definition = $this->topicRegistry->get($topic);
-        $subscriber = $this->subscriberManager->getOrCreate($userId);
 
         $context = $params + [
             'recipient' => [
@@ -49,6 +64,10 @@ class NotificationDeliverer
         ];
 
         foreach ($definition->channels as $channelType) {
+            if (null !== $channels && !in_array($channelType, $channels, true)) {
+                continue;
+            }
+
             if (!$this->channelRegistry->has($channelType)) {
                 $this->logger->warning(sprintf('No channel implementation for "%s" (topic "%s").', $channelType->value, $topic));
                 continue;
@@ -66,7 +85,7 @@ class NotificationDeliverer
             try {
                 $channel->send($subscriber, $topic, $context, $options);
             } catch (\Throwable $e) {
-                $this->logger->error(sprintf('Failed to send topic "%s" on channel "%s" to user "%s": %s', $topic, $channelType->value, $userId, $e->getMessage()), [
+                $this->logger->error(sprintf('Failed to send topic "%s" on channel "%s" to user "%s": %s', $topic, $channelType->value, $subscriber->getUserId(), $e->getMessage()), [
                     'exception' => $e,
                 ]);
             }
