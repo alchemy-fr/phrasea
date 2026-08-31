@@ -7,6 +7,7 @@ namespace Alchemy\NotifierBundle\Manager;
 use Alchemy\NotifierBundle\Message\BroadcastNotification;
 use Alchemy\NotifierBundle\Message\SendEmailNotification;
 use Alchemy\NotifierBundle\Message\SendNotification;
+use Alchemy\NotifierBundle\Model\BroadcastOptions;
 use Alchemy\NotifierBundle\Model\NotifyOptions;
 use Alchemy\NotifierBundle\Model\NotifySelectorDto;
 use Alchemy\NotifierBundle\Model\TopicDto;
@@ -61,11 +62,15 @@ final readonly class NotifierManager
     }
 
     /**
-     * Deliver a topic notification to every subscriber.
+     * Deliver a topic notification to a whole audience.
+     *
+     * The audience defaults to every user of the identity provider (Keycloak),
+     * not only the users already known locally; pass another directory through
+     * the options to narrow it down.
      *
      * @param array<string, mixed> $params
      */
-    public function broadcast(string $topic, array $params = []): void
+    public function broadcast(string $topic, array $params = [], ?BroadcastOptions $options = null): void
     {
         if (!$this->state->isEnabled()) {
             return;
@@ -74,7 +79,13 @@ final readonly class NotifierManager
         // Fail fast on an unknown topic, rather than in the worker
         $this->topicRegistry->get($topic);
 
-        $this->bus->dispatch(new BroadcastNotification($topic, $params));
+        $this->bus->dispatch(new BroadcastNotification(
+            topic: $topic,
+            params: $params,
+            channels: $options?->getChannelValues(),
+            excludeUserId: $options?->excludeUserId,
+            directory: $options?->directory,
+        ));
     }
 
     /**

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Alchemy\NotifierBundle;
 
 use Alchemy\NotifierBundle\Channel\ChannelType;
+use Alchemy\NotifierBundle\Subscriber\KeycloakUserDirectory;
+use Alchemy\NotifierBundle\Topic\BuiltInTopic;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -51,6 +53,15 @@ class AlchemyNotifierBundle extends AbstractBundle
                 ->scalarNode('in_app_event')
                     ->info('Pusher event name triggered for in-app notifications')
                     ->defaultValue('notification')
+                ->end()
+                ->scalarNode('user_directory')
+                    ->info('Default audience of a broadcast: "keycloak" (every user of the realm) or "subscribers" (only the users already known locally)')
+                    ->defaultValue(KeycloakUserDirectory::NAME)
+                ->end()
+                ->integerNode('directory_batch_size')
+                    ->info('Page size used when listing the users of the identity provider')
+                    ->min(1)
+                    ->defaultValue(100)
                 ->end()
                 ->arrayNode('topics')
                     ->info('Notification topics exposed by the application')
@@ -107,6 +118,8 @@ class AlchemyNotifierBundle extends AbstractBundle
             ->set('alchemy_notifier.notification_uri_path', $config['notification_uri_path'])
             ->set('alchemy_notifier.in_app.channel_prefix', $config['in_app_channel_prefix'])
             ->set('alchemy_notifier.in_app.event', $config['in_app_event'])
+            ->set('alchemy_notifier.user_directory', $config['user_directory'])
+            ->set('alchemy_notifier.directory_batch_size', $config['directory_batch_size'])
         ;
 
         $container->import('../config/services.yaml');
@@ -117,7 +130,16 @@ class AlchemyNotifierBundle extends AbstractBundle
      */
     private function normalizeTopics(array $config): array
     {
-        $topics = [];
+        // Built-in topics ship their own templates, so they work out of the box;
+        // an application may still redeclare them to change their channels.
+        $topics = [
+            BuiltInTopic::ADMIN_MESSAGE => [
+                'channels' => ChannelType::values(),
+                'importance' => 'normal',
+                'user_configurable' => true,
+            ],
+        ];
+
         foreach ($config['topics'] as $key => $topic) {
             $topics[$key] = [
                 'channels' => [] !== $topic['channels'] ? $topic['channels'] : $config['default_channels'],

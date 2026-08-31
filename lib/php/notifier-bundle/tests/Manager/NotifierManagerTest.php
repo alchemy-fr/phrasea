@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Alchemy\NotifierBundle\Tests\Manager;
 
+use Alchemy\NotifierBundle\Channel\ChannelType;
 use Alchemy\NotifierBundle\Manager\NotifierManager;
 use Alchemy\NotifierBundle\Message\BroadcastNotification;
 use Alchemy\NotifierBundle\Message\SendEmailNotification;
 use Alchemy\NotifierBundle\Message\SendNotification;
+use Alchemy\NotifierBundle\Model\BroadcastOptions;
 use Alchemy\NotifierBundle\Model\NotifyOptions;
 use Alchemy\NotifierBundle\Model\NotifySelectorDto;
 use Alchemy\NotifierBundle\Model\TopicDto;
@@ -127,6 +129,26 @@ final class NotifierManagerTest extends TestCase
         self::assertInstanceOf(BroadcastNotification::class, $captured);
         self::assertSame('asset_added', $captured->topic);
         self::assertSame(['x' => 1], $captured->params);
+        self::assertNull($captured->channels);
+        self::assertNull($captured->excludeUserId);
+        self::assertNull($captured->directory);
+    }
+
+    public function testBroadcastCarriesItsOptions(): void
+    {
+        $captured = null;
+        $manager = $this->manager($this->capturingBus($captured));
+
+        $manager->broadcast('asset_added', [], new BroadcastOptions(
+            channels: [ChannelType::Email, 'in_app'],
+            excludeUserId: 'u1',
+            directory: 'subscribers',
+        ));
+
+        self::assertInstanceOf(BroadcastNotification::class, $captured);
+        self::assertSame(['email', 'in_app'], $captured->channels);
+        self::assertSame('u1', $captured->excludeUserId);
+        self::assertSame('subscribers', $captured->directory);
     }
 
     public function testBroadcastUnknownTopicThrowsBeforeDispatch(): void

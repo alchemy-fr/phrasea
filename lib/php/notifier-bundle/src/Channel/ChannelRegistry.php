@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace Alchemy\NotifierBundle\Channel;
 
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
+
 final class ChannelRegistry
 {
+    public const string TAG = 'alchemy_notifier.channel';
+
     /**
      * @var array<string, ChannelInterface>
      */
@@ -14,8 +18,10 @@ final class ChannelRegistry
     /**
      * @param iterable<ChannelInterface> $channels
      */
-    public function __construct(iterable $channels)
-    {
+    public function __construct(
+        #[AutowireIterator(self::TAG)]
+        iterable $channels,
+    ) {
         foreach ($channels as $channel) {
             $this->channels[$channel->getType()->value] = $channel;
         }

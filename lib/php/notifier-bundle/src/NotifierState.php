@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Alchemy\NotifierBundle;
 
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+
 /**
  * Runtime on/off switch for notification delivery.
  *
@@ -13,6 +15,7 @@ namespace Alchemy\NotifierBundle;
 final class NotifierState
 {
     public function __construct(
+        #[Autowire(param: 'alchemy_notifier.enabled')]
         private bool $enabled = true,
     ) {
     }

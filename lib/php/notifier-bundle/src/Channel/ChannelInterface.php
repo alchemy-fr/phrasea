@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Alchemy\NotifierBundle\Channel;
 
 use Alchemy\NotifierBundle\Entity\Subscriber;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
+#[AutoconfigureTag(ChannelRegistry::TAG)]
 interface ChannelInterface
 {
     public function getType(): ChannelType;

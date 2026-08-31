@@ -13,6 +13,7 @@ framework:
 
         routing:
             Alchemy\ConfiguratorBundle\Message\DeployConfig: p3
+            Alchemy\NotifierBundle\Message\BroadcastNotification: p3
             Alchemy\CoreBundle\Message\Debug\SentryDebug: p1
 
 when@dev:

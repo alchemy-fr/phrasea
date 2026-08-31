@@ -6,6 +6,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\AdminBundle\Controller\Acl\AccessControlEntryCrudController;
 use Alchemy\AdminBundle\Controller\MultipartUploadCrudController;
 use Alchemy\ConfiguratorBundle\Controller\ConfiguratorEntryCrudController;
+use Alchemy\NotifierBundle\Controller\Admin\BroadcastNotificationController;
 use Alchemy\NotifierBundle\Controller\Admin\NotificationCrudController;
 use Alchemy\NotifierBundle\Controller\Admin\NotificationPreferenceCrudController;
 use Alchemy\NotifierBundle\Controller\Admin\SubscriberCrudController;
@@ -44,6 +45,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Publications', 'fas fa-folder-open')->setSubItems($submenu2);
         yield MenuItem::linkTo(EnvVarCrudController::class, 'EnvVar', 'fas fa-folder-open');
         yield MenuItem::subMenu('Notification', 'fas fa-bell')->setSubItems([
+            MenuItem::linkToRoute('Broadcast a message', 'fas fa-bullhorn', 'easyadmin_'.BroadcastNotificationController::ROUTE_NAME),
             MenuItem::linkTo(SubscriberCrudController::class, 'Subscribers'),
             MenuItem::linkTo(NotificationCrudController::class, 'In-app notifications'),
             MenuItem::linkTo(NotificationPreferenceCrudController::class, 'Preferences'),
