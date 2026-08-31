@@ -229,7 +229,7 @@ latest event is sent through the regular template (and an error is logged).
 
 Delayed messages rely on the transport honoring `DelayStamp` (AMQP does). As a
 safety net — and for dev environments running Messenger on `sync://`, where
-delays cannot be honored — flush overdue buffers from cron:
+delays cannot be honored — flush overdue buffers from an **hourly** cron:
 
 ```
 bin/console alchemy:notifier:digest:flush          # flush elapsed windows

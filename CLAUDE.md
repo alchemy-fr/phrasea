@@ -111,6 +111,11 @@ dc run --rm databox-api-php composer phpunit     # resets test DB + elastica, th
 the databox suite peaks above 512M and dies with an "Allowed memory size
 exhausted" fatal partway through.
 
+**`cache:clear` also needs 1G of memory.** The Twig template warmup blows the
+default 128M limit; run it as
+`bin/console cache:clear` → `php -d memory_limit=1G bin/console cache:clear`
+inside the API containers.
+
 Single PHP test (PHPUnit filter):
 
 ```bash
