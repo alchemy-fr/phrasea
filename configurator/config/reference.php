@@ -958,6 +958,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         secret?: scalar|Param|null, // Default: "%env(SOKETI_SECRET)%"
  *         appId?: scalar|Param|null, // Default: "%env(SOKETI_APP_ID)%"
  *         verifySsl?: bool|Param, // Default: "%env(bool:VERIFY_SSL)%"
+ *         channel_prefix?: scalar|Param|null, // Prefix of the per-user private channel a user may authorize (suffixed with the user identifier) // Default: "private-user-"
  *     },
  * }
  * @psalm-type SecurityConfig = array{

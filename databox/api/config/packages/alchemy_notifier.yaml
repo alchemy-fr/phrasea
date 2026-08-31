@@ -1,6 +1,7 @@
 alchemy_notifier:
     enabled: '%env(bool:NOTIFICATIONS_ENABLED)%'
     template_namespace: '@notifications'
+    client_url: '%env(DATABOX_CLIENT_URL)%'
     default_channels: [email, in_app]
     topics:
         # Asset events (NotifyAssetTopicHandler)

@@ -8,7 +8,7 @@ services:
             tags: ['alchemy_notifier.channel']
 
     Alchemy\NotifierBundle\:
-        resource: '../src/{Channel,Command,Delivery,Manager,Notification,Repository,Subscriber,Topic,Security,Message}/'
+        resource: '../src/{Channel,Command,Delivery,Manager,Notification,Repository,Subscriber,Topic,Security,Message,Twig}/'
         exclude:
             - '../src/Notification/RenderedContent.php'
             - '../src/Subscriber/SubscriberInfo.php'
@@ -43,6 +43,11 @@ services:
             # Optional: without symfony/translation the renderer cannot switch
             # locale but templates still render in the default language.
             $localeSwitcher: '@?Symfony\Component\Translation\LocaleSwitcher'
+
+    Alchemy\NotifierBundle\Notification\NotificationUrlGenerator:
+        arguments:
+            $clientUrl: '%alchemy_notifier.client_url%'
+            $notificationUriPath: '%alchemy_notifier.notification_uri_path%'
 
     Alchemy\NotifierBundle\Channel\InAppChannel:
         arguments:

@@ -4,11 +4,11 @@
     '%recipient%': (recipient.displayName|default(recipient.email))|e,
     '%author%': author|e,
     '%name%': name|e,
-    '%url%': url|e('html_attr'),
+    '%url%': notification_url(url)|e('html_attr'),
     '%collection%': collection|e,
 }, 'notifications')|raw }}{% else %}{{ 'asset.update.email.body'|trans({
     '%recipient%': (recipient.displayName|default(recipient.email))|e,
     '%author%': author|e,
     '%name%': name|e,
-    '%url%': url|e('html_attr'),
+    '%url%': notification_url(url)|e('html_attr'),
 }, 'notifications')|raw }}{% endif %}{% endblock %}

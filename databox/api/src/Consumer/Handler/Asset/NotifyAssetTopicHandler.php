@@ -32,7 +32,7 @@ readonly class NotifyAssetTopicHandler extends AbstractNotifyHandler
 
         $notificationParams = [
             'name' => $assetName ?? $asset?->getId() ?? $message->getAssetName() ?? 'Undefined',
-            'url' => '/assets/'.$assetId, // TODO generate client URL
+            'url' => '/assets/'.$assetId,
             'author' => $this->getUsername($authorId),
             'authorId' => $authorId,
         ];
