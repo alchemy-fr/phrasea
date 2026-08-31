@@ -18,6 +18,7 @@ API.
 | **Channel** | `email`, `sms` or `in_app`. |
 | **Preference** | A per-subscriber opt-out for a `(topic, channel)` pair. Enabled by default. |
 | **Notification** | A persisted in-app notification (history + unread badge). |
+| **Broadcast** | The trace of one broadcast: what was sent, to which audience, by which user, and how it went. |
 
 ## Installation
 
@@ -264,6 +265,16 @@ and one unreachable recipient does not abort the run. **Route
 `Alchemy\NotifierBundle\Message\BroadcastNotification` to a transport** — fanning
 out over a whole realm has no business running inside a web request.
 
+Every broadcast is recorded in **`notifier_broadcast`** (entity `Broadcast`):
+topic, payload, channels, audience, the **userId of whoever sent it**
+(`initiatorUserId`), the excluded userId, the delivered/failed counts and the
+start/completion timestamps. The row is written *before* dispatching, and
+`BroadcastNotification` carries nothing but its id — the worker reads everything
+back from that row, which stays the single source of truth for what was sent. A
+run the worker never picked up therefore stays visible, with `completedAt` still
+null. The initiator defaults to the authenticated user; pass `initiatorUserId`
+explicitly when broadcasting outside a request.
+
 Register another audience by implementing `UserDirectoryInterface` (a Keycloak
 group, a tenant, …): it is auto-tagged, and its `getName()` becomes usable as a
 `directory`. Change the default with `alchemy_notifier.user_directory`.
@@ -276,11 +287,12 @@ bin/console alchemy:notifier:broadcast <topic> '<json-payload>' [--channel=email
 
 ## Announcements from the admin
 
-The bundle ships a built-in topic, **`admin:message`**, with its own templates:
-administrators compose a free-form announcement under
-`/admin/notifications/broadcast` (menu entry `MenuItem::linkToRoute('…', '…',
-'easyadmin_'.BroadcastNotificationController::ROUTE_NAME)`) and it is broadcast
-to the chosen audience.
+The bundle ships a built-in topic, **`admin:message`**, with its own templates.
+Administrators compose a free-form announcement through the **Create** action of
+the `Broadcast` CRUD (`BroadcastCrudController`), which is also the history
+screen: sending one is just creating a `Broadcast` row. The controller does not
+persist it itself — it hands it to `NotifierManager::dispatchBroadcast()`, so
+the row and the dispatched message always agree. Existing rows are read-only.
 
 Nothing has to be declared for it to work: `admin:message` is registered
 automatically, and its templates are resolved from the bundle when the

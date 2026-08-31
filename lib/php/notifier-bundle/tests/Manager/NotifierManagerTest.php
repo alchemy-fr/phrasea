@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\NotifierBundle\Tests\Manager;
 
 use Alchemy\NotifierBundle\Channel\ChannelType;
+use Alchemy\NotifierBundle\Entity\Broadcast;
 use Alchemy\NotifierBundle\Manager\NotifierManager;
 use Alchemy\NotifierBundle\Message\BroadcastNotification;
 use Alchemy\NotifierBundle\Message\SendEmailNotification;
@@ -14,10 +15,17 @@ use Alchemy\NotifierBundle\Model\NotifyOptions;
 use Alchemy\NotifierBundle\Model\NotifySelectorDto;
 use Alchemy\NotifierBundle\Model\TopicDto;
 use Alchemy\NotifierBundle\NotifierState;
+use Alchemy\NotifierBundle\Subscriber\KeycloakUserDirectory;
+use Alchemy\NotifierBundle\Subscriber\SubscriberUserDirectory;
+use Alchemy\NotifierBundle\Subscriber\UserDirectoryInterface;
+use Alchemy\NotifierBundle\Subscriber\UserDirectoryRegistry;
 use Alchemy\NotifierBundle\Topic\TopicRegistry;
+use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 final class NotifierManagerTest extends TestCase
 {
@@ -127,28 +135,82 @@ final class NotifierManagerTest extends TestCase
         $manager->broadcast('asset_added', ['x' => 1]);
 
         self::assertInstanceOf(BroadcastNotification::class, $captured);
-        self::assertSame('asset_added', $captured->topic);
-        self::assertSame(['x' => 1], $captured->params);
-        self::assertNull($captured->channels);
-        self::assertNull($captured->excludeUserId);
-        self::assertNull($captured->directory);
+        self::assertNotSame('', $captured->broadcastId);
+    }
+
+    public function testBroadcastRecordsItsHistoryRow(): void
+    {
+        $persisted = [];
+        $captured = null;
+        $manager = $this->manager($this->capturingBus($captured), persisted: $persisted);
+
+        $manager->broadcast('asset_added', ['x' => 1], new BroadcastOptions(
+            channels: [ChannelType::Email],
+            excludeUserId: 'u9',
+            initiatorUserId: 'admin-1',
+        ));
+
+        $broadcast = $persisted[0];
+        self::assertInstanceOf(Broadcast::class, $broadcast);
+        self::assertSame('asset_added', $broadcast->getTopic());
+        self::assertSame(['x' => 1], $broadcast->getPayload());
+        self::assertSame(['email'], $broadcast->getChannels());
+        self::assertSame(KeycloakUserDirectory::NAME, $broadcast->getDirectory());
+        self::assertSame('admin-1', $broadcast->getInitiatorUserId());
+        self::assertSame('u9', $broadcast->getExcludeUserId());
+    }
+
+    public function testTheInitiatorDefaultsToTheAuthenticatedUser(): void
+    {
+        $persisted = [];
+        $captured = null;
+        $manager = $this->manager($this->capturingBus($captured), currentUserId: 'current-admin', persisted: $persisted);
+
+        $manager->broadcast('asset_added');
+
+        self::assertSame('current-admin', $persisted[0]->getInitiatorUserId());
+    }
+
+    public function testDispatchBroadcastReportsWhenNotificationsAreDisabled(): void
+    {
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects(self::never())->method('dispatch');
+
+        self::assertFalse(
+            $this->manager($bus, false)->dispatchBroadcast(new Broadcast('asset_added', KeycloakUserDirectory::NAME))
+        );
+    }
+
+    public function testDispatchBroadcastRejectsAnUnknownAudience(): void
+    {
+        $bus = $this->createMock(MessageBusInterface::class);
+        $bus->expects(self::never())->method('dispatch');
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->manager($bus)->dispatchBroadcast(new Broadcast('asset_added', 'nope'));
     }
 
     public function testBroadcastCarriesItsOptions(): void
     {
+        $persisted = [];
         $captured = null;
-        $manager = $this->manager($this->capturingBus($captured));
+        $manager = $this->manager($this->capturingBus($captured), persisted: $persisted);
 
         $manager->broadcast('asset_added', [], new BroadcastOptions(
             channels: [ChannelType::Email, 'in_app'],
             excludeUserId: 'u1',
-            directory: 'subscribers',
+            directory: SubscriberUserDirectory::NAME,
         ));
 
-        self::assertInstanceOf(BroadcastNotification::class, $captured);
-        self::assertSame(['email', 'in_app'], $captured->channels);
-        self::assertSame('u1', $captured->excludeUserId);
-        self::assertSame('subscribers', $captured->directory);
+        self::assertCount(1, $persisted);
+
+        $broadcast = $persisted[0];
+        self::assertSame(['email', 'in_app'], $broadcast->getChannels());
+        self::assertSame('u1', $broadcast->getExcludeUserId());
+        self::assertSame(SubscriberUserDirectory::NAME, $broadcast->getDirectory());
+
+        // The worker only gets the id: everything else is read back from the row
+        self::assertSame($broadcast->getId(), $captured->broadcastId);
     }
 
     public function testBroadcastUnknownTopicThrowsBeforeDispatch(): void
@@ -205,14 +267,59 @@ final class NotifierManagerTest extends TestCase
         return $bus;
     }
 
-    private function manager(MessageBusInterface $bus, bool $enabled = true): NotifierManager
+    /**
+     * @param array<int, object>|null $persisted collects the entities the manager persists
+     */
+    private function manager(MessageBusInterface $bus, bool $enabled = true, ?string $currentUserId = null, ?array &$persisted = null): NotifierManager
     {
+        $security = $this->createMock(Security::class);
+        if (null !== $currentUserId) {
+            $user = $this->createMock(UserInterface::class);
+            $user->method('getUserIdentifier')->willReturn($currentUserId);
+            $security->method('getUser')->willReturn($user);
+        }
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('persist')->willReturnCallback(function (object $entity) use (&$persisted): void {
+            $persisted[] = $entity;
+        });
+
         return new NotifierManager(
             $bus,
             new TopicRegistry([
                 'asset_added' => ['channels' => ['email', 'in_app'], 'importance' => 'normal', 'user_configurable' => true],
             ]),
             new NotifierState($enabled),
+            $em,
+            new UserDirectoryRegistry([
+                $this->directory(KeycloakUserDirectory::NAME),
+                $this->directory(SubscriberUserDirectory::NAME),
+            ], KeycloakUserDirectory::NAME),
+            $security,
         );
+    }
+
+    private function directory(string $name): UserDirectoryInterface
+    {
+        return new class($name) implements UserDirectoryInterface {
+            public function __construct(private readonly string $name)
+            {
+            }
+
+            public function getName(): string
+            {
+                return $this->name;
+            }
+
+            public function getLabel(): string
+            {
+                return $this->name;
+            }
+
+            public function iterate(): iterable
+            {
+                return [];
+            }
+        };
     }
 }
