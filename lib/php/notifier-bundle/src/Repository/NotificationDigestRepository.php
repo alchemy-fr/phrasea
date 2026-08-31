@@ -6,16 +6,20 @@ namespace Alchemy\NotifierBundle\Repository;
 
 use Alchemy\NotifierBundle\Entity\NotificationDigest;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\Persistence\ManagerRegistry;
 use Ramsey\Uuid\Uuid;
 
 /**
- * Raw-SQL access to the digest buffer (PostgreSQL).
+ * Raw-SQL access to the digest buffer.
  *
  * The buffer is written by concurrent workers, so both mutations are single
  * atomic statements: the append is an upsert on the bucket unique index, and
  * the flush claims the whole bucket with a conditional DELETE ... RETURNING —
  * exactly one caller gets the events, a retried flush finds nothing.
+ *
+ * Production runs on PostgreSQL; the JSON-append expression also has an SQLite
+ * variant because the applications run their test suites on SQLite.
  *
  * @extends ServiceEntityRepository<NotificationDigest>
  */
@@ -38,24 +42,32 @@ class NotificationDigestRepository extends ServiceEntityRepository
      */
     public function append(string $subscriberId, string $topic, string $channel, array $event, \DateTimeImmutable $now): array
     {
-        $sql = <<<'SQL'
+        $connection = $this->getEntityManager()->getConnection();
+
+        // The appended element only differs in how each platform grows the array
+        $appendExpression = $connection->getDatabasePlatform() instanceof PostgreSQLPlatform
+            ? '(notifier_digest.events::jsonb || jsonb_build_array(:event::jsonb))::json'
+            : "json_insert(notifier_digest.events, '$[#]', json(:event))";
+
+        $sql = <<<SQL
             INSERT INTO notifier_digest (id, subscriber_id, topic, channel, events, event_count, first_event_at, last_event_at, created_at)
             VALUES (:id, :subscriberId, :topic, :channel, :events, 1, :now, :now, :now)
             ON CONFLICT (subscriber_id, topic, channel) DO UPDATE SET
                 events = CASE WHEN notifier_digest.event_count < :cap
-                    THEN (notifier_digest.events::jsonb || excluded.events::jsonb)::json
+                    THEN {$appendExpression}
                     ELSE notifier_digest.events END,
                 event_count = notifier_digest.event_count + 1,
                 last_event_at = excluded.last_event_at
-            RETURNING id, (xmax = 0) AS inserted
+            RETURNING id, event_count
             SQL;
 
-        $row = $this->getEntityManager()->getConnection()->fetchAssociative($sql, [
+        $row = $connection->fetchAssociative($sql, [
             'id' => Uuid::uuid4()->toString(),
             'subscriberId' => $subscriberId,
             'topic' => $topic,
             'channel' => $channel,
             'events' => json_encode([$event], JSON_THROW_ON_ERROR),
+            'event' => json_encode($event, JSON_THROW_ON_ERROR),
             'now' => $now->format(self::DATE_FORMAT),
             'cap' => NotificationDigest::MAX_EVENTS,
         ]);
@@ -63,8 +75,8 @@ class NotificationDigestRepository extends ServiceEntityRepository
 
         return [
             'id' => (string) $row['id'],
-            // pdo_pgsql returns native booleans, but stringified drivers give 't'/'f'
-            'inserted' => \is_bool($row['inserted']) ? $row['inserted'] : 't' === $row['inserted'],
+            // The insert seeds the counter at 1; any conflicting append moves it past that
+            'inserted' => 1 === (int) $row['event_count'],
         ];
     }
 
@@ -97,19 +109,22 @@ class NotificationDigestRepository extends ServiceEntityRepository
      */
     public function claimIfDue(string $id, \DateTimeImmutable $now, int $inactivityDelay, int $maxDelay, bool $force = false): ?array
     {
-        $sql = <<<'SQL'
-            DELETE FROM notifier_digest
-            WHERE id = :id
-              AND (:force OR last_event_at <= :inactivityThreshold OR first_event_at <= :maxThreshold)
-            RETURNING *
-            SQL;
+        $sql = $force
+            ? 'DELETE FROM notifier_digest WHERE id = :id RETURNING *'
+            : <<<'SQL'
+                DELETE FROM notifier_digest
+                WHERE id = :id
+                  AND (last_event_at <= :inactivityThreshold OR first_event_at <= :maxThreshold)
+                RETURNING *
+                SQL;
 
-        $row = $this->getEntityManager()->getConnection()->fetchAssociative($sql, [
-            'id' => $id,
-            'force' => $force ? 'true' : 'false',
-            'inactivityThreshold' => $now->modify(sprintf('-%d seconds', $inactivityDelay))->format(self::DATE_FORMAT),
-            'maxThreshold' => $now->modify(sprintf('-%d seconds', $maxDelay))->format(self::DATE_FORMAT),
-        ]);
+        $params = ['id' => $id];
+        if (!$force) {
+            $params['inactivityThreshold'] = $now->modify(sprintf('-%d seconds', $inactivityDelay))->format(self::DATE_FORMAT);
+            $params['maxThreshold'] = $now->modify(sprintf('-%d seconds', $maxDelay))->format(self::DATE_FORMAT);
+        }
+
+        $row = $this->getEntityManager()->getConnection()->fetchAssociative($sql, $params);
 
         return false !== $row ? $row : null;
     }
