@@ -57,6 +57,10 @@ alchemy_notifier:
     enabled: '%env(bool:NOTIFICATIONS_ENABLED)%'
     # Twig namespace under which templates live
     template_namespace: '@notifications'
+    # Base URL of the front client, used by the `notification_url()` Twig function
+    client_url: '%env(DATABOX_CLIENT_URL)%'
+    # Client route intercepting notification links (see "Click-through links")
+    notification_uri_path: '/notification-uri'
     # Channels used by topics that don't declare their own
     default_channels: [email, in_app]
     # Pusher channel/event for in-app notifications
@@ -120,6 +124,27 @@ Every template receives the `params` you pass plus a `recipient` variable
 (`userId`, `displayName`, `email`, `locale`). If a template does not exist for a
 channel, that channel is skipped.
 
+### Click-through links
+
+A notification points at a client screen through a **client URI** — a path the
+front-end knows how to resolve, e.g. `/assets/42` or `/assets/42#discussion-7`.
+In-app templates expose it through the `uri` block; e-mail templates need an
+absolute link instead.
+
+Rather than teaching the backend how to build every client route, wrap the URI
+with the `notification_url()` Twig function: it produces a link to a single
+generic client entry point, which resolves the final destination itself.
+
+```twig
+{# /assets/42  ->  https://databox.example.com/notification-uri?uri=%2Fassets%2F42 #}
+<a href="{{ notification_url(url)|e('html_attr') }}">…</a>
+```
+
+The function returns the URI unchanged when it is already absolute (`http(s)://`)
+or when `client_url` is not configured, and `null` for an empty URI. The client
+route it points at is `{client_url}{notification_uri_path}?uri={uri}`; the front-end
+must intercept `notification_uri_path` and redirect to the target the URI describes.
+
 ### Translations
 
 Templates are rendered under the recipient's locale, so keep the literal strings
@@ -134,7 +159,7 @@ filter with the `notifications` domain and store the messages in
     '%recipient%': (recipient.displayName|default(recipient.email))|e,
     '%author%': author|e,
     '%name%': name|e,
-    '%url%': url|e('html_attr'),
+    '%url%': notification_url(url)|e('html_attr'),
 }, 'notifications')|raw }}{% endblock %}
 ```
 

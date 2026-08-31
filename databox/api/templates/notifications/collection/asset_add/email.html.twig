@@ -5,5 +5,5 @@
     '%author%': author|e,
     '%assetName%': assetName|e,
     '%collectionName%': collectionName|e,
-    '%url%': url|e('html_attr'),
+    '%url%': notification_url(url)|e('html_attr'),
 }, 'notifications')|raw }}{% endblock %}

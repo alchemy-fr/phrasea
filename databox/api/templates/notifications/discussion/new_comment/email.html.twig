@@ -4,5 +4,5 @@
     '%recipient%': (recipient.displayName|default(recipient.email))|e,
     '%author%': author|e,
     '%object%': object|e,
-    '%url%': (url|default('#'))|e('html_attr'),
+    '%url%': (notification_url(url|default(null))|default('#'))|e('html_attr'),
 }, 'notifications')|raw }}{% endblock %}

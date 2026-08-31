@@ -6,4 +6,4 @@
     '%collectionName%': collectionName|e,
 }, 'notifications')|raw }}{% endblock %}
 
-{% block uri %}/assets/{{ assetId ?? '' }}{% endblock %}
+{% block uri %}{{ url|default('') }}{% endblock %}
