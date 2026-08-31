@@ -103,12 +103,24 @@ export default function MessageField({
                                 ref(r);
                                 inputRef.current = r;
                             }}
+                            onKeyDown={e => {
+                                if (e.key === 'Enter' && e.ctrlKey) {
+                                    e.preventDefault();
+                                    inputRef.current?.form?.requestSubmit();
+                                } else if (e.key === 'Escape') {
+                                    e.preventDefault();
+                                    (e.target as HTMLInputElement)?.blur();
+                                } else if (
+                                    e.key === 'ArrowLeft' ||
+                                    e.key === 'ArrowRight'
+                                ) {
+                                    e.stopPropagation();
+                                }
+                            }}
                             onFocus={onFocus}
                             style={{
                                 '&multiLine': {
                                     control: {
-                                        backgroundColor:
-                                            theme.palette.background.default,
                                         fontSize:
                                             theme.typography.body1.fontSize,
                                         fontFamily:
