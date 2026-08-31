@@ -38,4 +38,43 @@ final class TopicRegistryTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $registry->get('nope');
     }
+
+    public function testTopicWithoutDigestHasNone(): void
+    {
+        $registry = new TopicRegistry([
+            'asset.comment' => [
+                'channels' => ['email'],
+                'importance' => 'normal',
+                'user_configurable' => true,
+            ],
+        ]);
+
+        self::assertNull($registry->get('asset.comment')->digest);
+    }
+
+    public function testDigestConfigIsParsed(): void
+    {
+        $registry = new TopicRegistry([
+            'asset.comment' => [
+                'channels' => ['email', 'in_app'],
+                'importance' => 'normal',
+                'user_configurable' => true,
+                'digest' => [
+                    'inactivity_delay' => 120,
+                    'max_delay' => 900,
+                    'channels' => ['email'],
+                    'group_by' => 'name',
+                ],
+            ],
+        ]);
+
+        $digest = $registry->get('asset.comment')->digest;
+        self::assertNotNull($digest);
+        self::assertSame(120, $digest->inactivityDelay);
+        self::assertSame(900, $digest->maxDelay);
+        self::assertSame([ChannelType::Email], $digest->channels);
+        self::assertSame('name', $digest->groupBy);
+        self::assertTrue($digest->applies(ChannelType::Email));
+        self::assertFalse($digest->applies(ChannelType::InApp));
+    }
 }

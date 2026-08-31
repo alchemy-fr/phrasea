@@ -6,6 +6,7 @@ namespace Alchemy\NotifierBundle\Delivery;
 
 use Alchemy\NotifierBundle\Channel\ChannelRegistry;
 use Alchemy\NotifierBundle\Channel\ChannelType;
+use Alchemy\NotifierBundle\Digest\DigestBuffer;
 use Alchemy\NotifierBundle\Entity\Subscriber;
 use Alchemy\NotifierBundle\Manager\PreferenceManager;
 use Alchemy\NotifierBundle\Manager\SubscriberManager;
@@ -28,6 +29,7 @@ class NotificationDeliverer
         private readonly ChannelRegistry $channelRegistry,
         private readonly TopicRegistry $topicRegistry,
         ?LoggerInterface $logger = null,
+        private readonly ?DigestBuffer $digestBuffer = null,
     ) {
         $this->logger = $logger ?? new NullLogger();
     }
@@ -79,6 +81,19 @@ class NotificationDeliverer
 
             $channel = $this->channelRegistry->get($channelType);
             if (!$channel->supports($subscriber)) {
+                continue;
+            }
+
+            // A digested channel buffers the event instead of delivering it;
+            // the flush sends one grouped notification per quiet period.
+            if (null !== $definition->digest && null !== $this->digestBuffer && $definition->digest->applies($channelType)) {
+                try {
+                    $this->digestBuffer->add($subscriber, $topic, $channelType, $params, $definition->digest);
+                } catch (\Throwable $e) {
+                    $this->logger->error(sprintf('Failed to buffer topic "%s" on channel "%s" for user "%s": %s', $topic, $channelType->value, $subscriber->getUserId(), $e->getMessage()), [
+                        'exception' => $e,
+                    ]);
+                }
                 continue;
             }
 

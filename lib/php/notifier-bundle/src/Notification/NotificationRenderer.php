@@ -41,6 +41,14 @@ final readonly class NotificationRenderer
     ];
 
     /**
+     * Templates rendering a whole digest bucket (multiple buffered events) on
+     * the channels that support digests.
+     */
+    private const array DIGEST_CHANNEL_TEMPLATES = [
+        ChannelType::Email->value => 'email_digest.html.twig',
+    ];
+
+    /**
      * The LocaleSwitcher is optional: without symfony/translation installed the
      * renderer still works, it just cannot switch the active locale.
      */
@@ -55,12 +63,41 @@ final readonly class NotificationRenderer
 
     public function hasTemplate(string $topic, ChannelType $channel): bool
     {
-        return null !== $this->resolveTemplateName($topic, $channel);
+        return null !== $this->resolveTemplateName($topic, self::CHANNEL_TEMPLATES[$channel->value]);
+    }
+
+    public function hasDigestTemplate(string $topic, ChannelType $channel): bool
+    {
+        $file = self::DIGEST_CHANNEL_TEMPLATES[$channel->value] ?? null;
+
+        return null !== $file && null !== $this->resolveTemplateName($topic, $file);
     }
 
     public function render(string $topic, ChannelType $channel, array $context = [], ?string $locale = null): ?RenderedContent
     {
-        $name = $this->resolveTemplateName($topic, $channel);
+        return $this->renderFile($topic, self::CHANNEL_TEMPLATES[$channel->value], $context, $locale);
+    }
+
+    /**
+     * Renders the digest template of the topic, with a context describing the
+     * whole bucket (`events`, `count`, `byObject`, ...) instead of one event.
+     */
+    public function renderDigest(string $topic, ChannelType $channel, array $context = [], ?string $locale = null): ?RenderedContent
+    {
+        $file = self::DIGEST_CHANNEL_TEMPLATES[$channel->value] ?? null;
+        if (null === $file) {
+            return null;
+        }
+
+        return $this->renderFile($topic, $file, $context, $locale);
+    }
+
+    /**
+     * @param array<string, mixed> $context
+     */
+    private function renderFile(string $topic, string $file, array $context, ?string $locale): ?RenderedContent
+    {
+        $name = $this->resolveTemplateName($topic, $file);
         if (null === $name) {
             return null;
         }
@@ -100,10 +137,9 @@ final readonly class NotificationRenderer
      * The application always wins: a template it defines under its own
      * namespace overrides the one shipped by the bundle.
      */
-    private function resolveTemplateName(string $topic, ChannelType $channel): ?string
+    private function resolveTemplateName(string $topic, string $file): ?string
     {
         $topicPath = str_replace(['.', ':'], '/', $topic);
-        $file = self::CHANNEL_TEMPLATES[$channel->value];
 
         foreach (array_unique(array_filter([$this->templateNamespace, $this->fallbackNamespace])) as $namespace) {
             $name = sprintf('%s/%s/%s', $namespace, $topicPath, $file);

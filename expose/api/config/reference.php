@@ -1789,6 +1789,13 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         channels?: list<"email"|"sms"|"in_app"|Param>,
  *         importance?: scalar|Param|null, // Default: "normal"
  *         user_configurable?: bool|Param, // Whether users may toggle this topic in their preferences // Default: true
+ *         digest?: bool|array{ // Buffer the digested channels and send one grouped notification after a period of inactivity instead of one per event
+ *             enabled?: bool|Param, // Default: false
+ *             inactivity_delay?: int|Param, // Seconds without a new event before the digest is sent (every event pushes the send back) // Default: 600
+ *             max_delay?: int|Param, // Send at most this many seconds after the first buffered event, even if activity never stops // Default: 3600
+ *             channels?: list<"email"|"sms"|"in_app"|Param>,
+ *             group_by?: scalar|Param|null, // Event param whose value groups the events into the byObject sections of the digest template // Default: "objectId"
+ *         },
  *     }>,
  * }
  * @psalm-type MonologConfig = array{

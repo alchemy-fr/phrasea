@@ -4,16 +4,18 @@ services:
         autoconfigure: true
 
     Alchemy\NotifierBundle\:
-        resource: '../src/{Channel,Command,Delivery,Manager,Notification,Repository,Subscriber,Topic,Security,Message,Twig}/'
+        resource: '../src/{Channel,Command,Delivery,Digest,Manager,Notification,Repository,Subscriber,Topic,Security,Message,Twig}/'
         exclude:
             - '../src/Notification/RenderedContent.php'
             - '../src/Subscriber/DirectoryUser.php'
             - '../src/Subscriber/SubscriberInfo.php'
             - '../src/Topic/BuiltInTopic.php'
             - '../src/Topic/TopicDefinition.php'
+            - '../src/Topic/DigestConfig.php'
             - '../src/Message/SendNotification.php'
             - '../src/Message/SendEmailNotification.php'
             - '../src/Message/BroadcastNotification.php'
+            - '../src/Message/FlushNotificationDigest.php'
 
     # Not covered by the resource above (it sits at the root of src/)
     Alchemy\NotifierBundle\NotifierState: ~

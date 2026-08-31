@@ -106,10 +106,15 @@ dc run --rm databox-api-php composer cs          # php-cs-fixer
 dc run --rm databox-api-php composer phpunit     # resets test DB + elastica, then PHPUnit
 ```
 
+**PHPUnit needs 1G of memory.** The `composer phpunit` scripts already pass
+`-d memory_limit=1024M`; when calling `bin/phpunit` directly, pass it yourself —
+the databox suite peaks above 512M and dies with an "Allowed memory size
+exhausted" fatal partway through.
+
 Single PHP test (PHPUnit filter):
 
 ```bash
-dc run --rm -e APP_ENV=test databox-api-php bin/phpunit --filter SomeTest tests/Path/SomeTest.php
+dc run --rm -e APP_ENV=test databox-api-php php -d memory_limit=1024M bin/phpunit --filter SomeTest tests/Path/SomeTest.php
 ```
 
 Symfony console: `dc run --rm databox-api-php bin/console <cmd>`.

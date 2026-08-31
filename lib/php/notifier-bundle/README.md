@@ -188,6 +188,54 @@ translator's default locale (and its fallbacks) is used. Switching the active
 locale requires `symfony/translation`; without it templates still render in the
 default language.
 
+## Digests (grouped emails)
+
+A high-volume topic (comments on an asset, assets added to a collection…) should
+not send one email per event. Declare a `digest` on the topic to buffer its
+emails and send **one grouped email per quiet period**:
+
+```yaml
+alchemy_notifier:
+    topics:
+        'discussion:new_comment':
+            channels: [email, in_app]
+            digest:
+                enabled: true
+                inactivity_delay: 600   # send after 10 min without a new event
+                max_delay: 3600         # …but at most 1h after the first one
+                channels: [email]       # in_app keeps delivering immediately
+                group_by: objectId      # param grouping events into email sections
+```
+
+Every new event pushes the send back (`inactivity_delay` is a sliding window);
+`max_delay` caps the wait so a never-quiet thread still gets its email. Only the
+channels listed under `digest.channels` are buffered — the others (in-app,
+typically) deliver immediately.
+
+Events are buffered per `(subscriber, topic, channel)` in the `notifier_digest`
+table and flushed by a delayed Messenger probe (`FlushNotificationDigest` — route
+it to a transport like the other messages). The flush renders the
+`email_digest.html.twig` template of the topic with:
+
+- `events`: the buffered events (`{params, at}`), capped at 100 (`overflowCount`
+  tells how many were dropped);
+- `count`: the true total of buffered events;
+- `byObject`: events grouped by their `group_by` param value;
+- `firstEventAt` / `lastEventAt`, and the usual `recipient`.
+
+A digest of **one** event renders the regular `email.html.twig` instead, so
+recipients never get a "digest of 1". If the digest template is missing, the
+latest event is sent through the regular template (and an error is logged).
+
+Delayed messages rely on the transport honoring `DelayStamp` (AMQP does). As a
+safety net — and for dev environments running Messenger on `sync://`, where
+delays cannot be honored — flush overdue buffers from cron:
+
+```
+bin/console alchemy:notifier:digest:flush          # flush elapsed windows
+bin/console alchemy:notifier:digest:flush --force  # flush everything (dev)
+```
+
 ## Usage
 
 ```php
