@@ -930,7 +930,7 @@ services:
       - KC_LOGIN_DISPLAY_DASHBOARD_LINK
       - KC_HEALTH_ENABLED=true
       - KC_HTTP_ENABLED=true
-      - KC_PROXY_HEADERS=xforwarded
+      - KC_PROXY_HEADERS
       - KC_PROXY_TRUSTED_ADDRESSES=${TRUSTED_PROXIES}
       - KC_BOOTSTRAP_ADMIN_USERNAME=${KEYCLOAK_ADMIN}
       - KC_BOOTSTRAP_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
@@ -939,7 +939,6 @@ services:
       - KC_DB_PASSWORD=${POSTGRES_PASSWORD}
       - KC_DB=postgres
       - KC_DB_URL=jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${KEYCLOAK_DB_NAME}
-      - KC_PROXY_HEADERS
     extra_hosts:
       - keycloak2.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
     labels:
