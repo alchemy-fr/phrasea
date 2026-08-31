@@ -135,7 +135,7 @@ For the **Kubernetes** context, refer to [values.yaml](https://github.com/alchem
 - **MariaDB** – relational database server used for local Matomo stack deployment.
 - **PgAdmin** – management tool for PostgreSQL.
 - **phpMyAdmin** – management tool for MySQL/MariaDB.
-- **Mailhog** – SMTP server and mail client interface for capturing emails in development.
+- **Mailpit** – SMTP server and mail client interface for capturing emails in development.
 - **Elasticsearch-HQ** – interface for querying Elasticsearch.
 - **k6** – performance load testing tool.
 - **InfluxDB** – time series database used by k6.

@@ -568,18 +568,21 @@ services:
       - "traefik.http.routers.phpmyadmin.rule=Host(`pma.${PHRASEA_DOMAIN}`)"
       - "traefik.http.routers.phpmyadmin.middlewares=admin-secured@docker"
 
-  mailhog:
+  mailpit:
     profiles:
-      - mailhog
-    image: mailhog/mailhog
+      - mailpit
+    image: ${MAILPIT_IMAGE}
     networks:
       - internal
+    environment:
+      - MP_SMTP_AUTH_ACCEPT_ANY=1
+      - MP_SMTP_AUTH_ALLOW_INSECURE=1
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
-      - "traefik.http.routers.mailhog.rule=Host(`mailhog.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.services.mailhog.loadbalancer.server.port=8025"
-      - "traefik.http.routers.mailhog.middlewares=admin-secured@docker"
+      - "traefik.http.routers.mailpit.rule=Host(`mailpit.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.mailpit.loadbalancer.server.port=8025"
+      - "traefik.http.routers.mailpit.middlewares=admin-secured@docker"
 
   dashboard-client:
     extends:
@@ -602,7 +605,7 @@ services:
       - EXPOSE_API_URL
       - EXPOSE_CLIENT_URL
       - KEYCLOAK_URL
-      - MAILHOG_URL
+      - MAILPIT_URL
       - PGADMIN_URL
       - PHPMYADMIN_URL
       - RABBITMQ_CONSOLE_URL
@@ -1108,7 +1111,7 @@ services:
       - cypress
     environment:
       - CYPRESS_BASE_URL=${DASHBOARD_CLIENT_URL}
-      - MAILHOG_URL
+      - MAILPIT_URL
       - CYPRESS_EXPOSE_CLIENT_URL=${EXPOSE_CLIENT_URL}
       - CYPRESS_EXPOSE_API_URL=${EXPOSE_API_URL}
       - CYPRESS_KEYCLOAK_URL=${KEYCLOAK_URL}

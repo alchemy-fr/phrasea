@@ -11,7 +11,7 @@ declare global {
             ELASTICHQ_URL: Readonly<string>;
             EXPOSE_API_URL: Readonly<string>;
             EXPOSE_CLIENT_URL: Readonly<string>;
-            MAILHOG_URL: Readonly<string>;
+            MAILPIT_URL: Readonly<string>;
             MATOMO_URL: Readonly<string>;
             MATOMO_SITE_ID: Readonly<string>;
             MATOMO_MEDIA_PLUGIN_ENABLED: Readonly<boolean>;

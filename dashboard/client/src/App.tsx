@@ -30,7 +30,7 @@ export default function App({}: Props) {
         STACK_VERSION,
         PGADMIN_URL,
         ELASTICHQ_URL,
-        MAILHOG_URL,
+        MAILPIT_URL,
         MATOMO_URL,
         PHPMYADMIN_URL,
         RABBITMQ_CONSOLE_URL,
@@ -188,14 +188,14 @@ export default function App({}: Props) {
                             </Link>
                         </Grid>
                     )}
-                    {MAILHOG_URL && (
+                    {MAILPIT_URL && (
                         <Grid>
                             <Link
-                                href={MAILHOG_URL}
+                                href={MAILPIT_URL}
                                 target={'_blank'}
                                 rel={'noreferrer noopener'}
                             >
-                                MailHog
+                                Mailpit
                             </Link>
                         </Grid>
                     )}

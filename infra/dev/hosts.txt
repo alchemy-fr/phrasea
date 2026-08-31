@@ -13,7 +13,7 @@ ${IP} api-databox.${PHRASEA_DOMAIN}
 ${IP} databox.${PHRASEA_DOMAIN}
 ${IP} saml-idp.${PHRASEA_DOMAIN}
 ${IP} pma.${PHRASEA_DOMAIN}
-${IP} mailhog.${PHRASEA_DOMAIN}
+${IP} mailpit.${PHRASEA_DOMAIN}
 ${IP} dashboard.${PHRASEA_DOMAIN}
 ${IP} databox.${PHRASEA_DOMAIN}
 ${IP} elastichq.${PHRASEA_DOMAIN}
