@@ -65,4 +65,31 @@ class NotificationDigestAdminTest extends AbstractAdminTest
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
         $this->assertStringContainsString('discussion:new_comment', $crawler->text());
     }
+
+    public function testReadingInAppNotificationsDiscardsTheBuckets(): void
+    {
+        $container = static::getContainer();
+        /** @var EntityManagerInterface $em */
+        $em = $container->get(EntityManagerInterface::class);
+
+        $subscriber = new Subscriber(Uuid::uuid4()->toString());
+        $em->persist($subscriber);
+        $em->flush();
+
+        /** @var NotificationDigestRepository $repository */
+        $repository = $container->get(NotificationDigestRepository::class);
+        $now = new \DateTimeImmutable();
+        $event = ['params' => ['objectId' => 'obj-1'], 'at' => $now->format(\DateTimeInterface::ATOM)];
+        $comment = $repository->append($subscriber->getId(), 'discussion:new_comment', 'email', $event, $now);
+        $update = $repository->append($subscriber->getId(), 'asset:update', 'email', $event, $now);
+
+        // Reading a notification of one topic only drops that topic's bucket
+        $this->assertSame(1, $repository->deleteBucketFor($subscriber->getId(), 'discussion:new_comment'));
+        $this->assertNull($repository->findRow($comment['id']));
+        $this->assertNotNull($repository->findRow($update['id']));
+
+        // Read-all drops everything left
+        $this->assertSame(1, $repository->deleteAllFor($subscriber->getId()));
+        $this->assertNull($repository->findRow($update['id']));
+    }
 }

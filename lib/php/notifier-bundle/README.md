@@ -227,6 +227,12 @@ A digest of **one** event renders the regular `email.html.twig` instead, so
 recipients never get a "digest of 1". If the digest template is missing, the
 latest event is sent through the regular template (and an error is logged).
 
+Reading the in-app notifications cancels the redundant email: marking a
+notification as read drops the pending digests of its topic for that
+subscriber, and "mark all as read" drops every pending digest of the
+subscriber. Only a real unread → read transition counts, and events arriving
+after the read simply open a fresh buffer.
+
 Delayed messages rely on the transport honoring `DelayStamp` (AMQP does). As a
 safety net — and for dev environments running Messenger on `sync://`, where
 delays cannot be honored — flush overdue buffers from an **hourly** cron:

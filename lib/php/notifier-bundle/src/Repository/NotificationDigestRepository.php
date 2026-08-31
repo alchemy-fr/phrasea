@@ -101,6 +101,32 @@ class NotificationDigestRepository extends ServiceEntityRepository
     }
 
     /**
+     * Drops the buckets of one topic for a subscriber (every channel).
+     *
+     * @return int number of buckets dropped
+     */
+    public function deleteBucketFor(string $subscriberId, string $topic): int
+    {
+        return (int) $this->getEntityManager()->getConnection()->executeStatement(
+            'DELETE FROM notifier_digest WHERE subscriber_id = :subscriberId AND topic = :topic',
+            ['subscriberId' => $subscriberId, 'topic' => $topic],
+        );
+    }
+
+    /**
+     * Drops every bucket of a subscriber.
+     *
+     * @return int number of buckets dropped
+     */
+    public function deleteAllFor(string $subscriberId): int
+    {
+        return (int) $this->getEntityManager()->getConnection()->executeStatement(
+            'DELETE FROM notifier_digest WHERE subscriber_id = :subscriberId',
+            ['subscriberId' => $subscriberId],
+        );
+    }
+
+    /**
      * Atomically claims the bucket when its window has elapsed (quiet for
      * $inactivityDelay seconds, or opened more than $maxDelay seconds ago),
      * removing the row and returning its content.

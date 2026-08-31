@@ -54,4 +54,23 @@ class DigestBuffer
             );
         }
     }
+
+    /**
+     * Drops the pending digests of one topic for a subscriber — used when the
+     * subscriber already saw the events (read the in-app notifications), so the
+     * grouped email would be redundant. The in-flight flush probe then finds no
+     * bucket and stops; a later event simply opens a fresh one.
+     */
+    public function discard(Subscriber $subscriber, string $topic): void
+    {
+        $this->repository->deleteBucketFor($subscriber->getId(), $topic);
+    }
+
+    /**
+     * Same as {@see discard()} for every topic of the subscriber (read-all).
+     */
+    public function discardAll(Subscriber $subscriber): void
+    {
+        $this->repository->deleteAllFor($subscriber->getId());
+    }
 }
