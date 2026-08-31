@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\NotifierBundle\Manager;
 
+use Alchemy\NotifierBundle\Entity\Broadcast;
 use Alchemy\NotifierBundle\Message\BroadcastNotification;
 use Alchemy\NotifierBundle\Message\SendEmailNotification;
 use Alchemy\NotifierBundle\Message\SendNotification;
@@ -12,7 +13,10 @@ use Alchemy\NotifierBundle\Model\NotifyOptions;
 use Alchemy\NotifierBundle\Model\NotifySelectorDto;
 use Alchemy\NotifierBundle\Model\TopicDto;
 use Alchemy\NotifierBundle\NotifierState;
+use Alchemy\NotifierBundle\Subscriber\UserDirectoryRegistry;
 use Alchemy\NotifierBundle\Topic\TopicRegistry;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
@@ -25,6 +29,9 @@ final readonly class NotifierManager
         private MessageBusInterface $bus,
         private TopicRegistry $topicRegistry,
         private NotifierState $state,
+        private EntityManagerInterface $em,
+        private UserDirectoryRegistry $directoryRegistry,
+        private Security $security,
     ) {
     }
 
@@ -79,13 +86,44 @@ final readonly class NotifierManager
         // Fail fast on an unknown topic, rather than in the worker
         $this->topicRegistry->get($topic);
 
-        $this->bus->dispatch(new BroadcastNotification(
+        $broadcast = new Broadcast(
             topic: $topic,
-            params: $params,
-            channels: $options?->getChannelValues(),
-            excludeUserId: $options?->excludeUserId,
-            directory: $options?->directory,
-        ));
+            directory: $this->directoryRegistry->get($options?->directory)->getName(),
+        );
+        $broadcast->setPayload($params);
+        $broadcast->setChannels($options?->getChannelValues());
+        $broadcast->setExcludeUserId($options?->excludeUserId);
+        $broadcast->setInitiatorUserId($options?->initiatorUserId);
+
+        $this->dispatchBroadcast($broadcast);
+    }
+
+    /**
+     * Records an already built broadcast and hands it to the worker.
+     *
+     * The row is written before dispatching, so a run the worker never picks up
+     * stays visible; the message then carries nothing but its id.
+     */
+    public function dispatchBroadcast(Broadcast $broadcast): bool
+    {
+        if (!$this->state->isEnabled()) {
+            return false;
+        }
+
+        // Fail fast on an unknown topic/audience, rather than in the worker
+        $this->topicRegistry->get($broadcast->getTopic());
+        $this->directoryRegistry->get($broadcast->getDirectory());
+
+        if (null === $broadcast->getInitiatorUserId()) {
+            $broadcast->setInitiatorUserId($this->security->getUser()?->getUserIdentifier());
+        }
+
+        $this->em->persist($broadcast);
+        $this->em->flush();
+
+        $this->bus->dispatch(new BroadcastNotification($broadcast->getId()));
+
+        return true;
     }
 
     /**

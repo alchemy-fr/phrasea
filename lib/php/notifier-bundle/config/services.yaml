@@ -4,7 +4,7 @@ services:
         autoconfigure: true
 
     Alchemy\NotifierBundle\:
-        resource: '../src/{Channel,Command,Delivery,Form,Manager,Notification,Repository,Subscriber,Topic,Security,Message,Twig}/'
+        resource: '../src/{Channel,Command,Delivery,Manager,Notification,Repository,Subscriber,Topic,Security,Message,Twig}/'
         exclude:
             - '../src/Notification/RenderedContent.php'
             - '../src/Subscriber/DirectoryUser.php'

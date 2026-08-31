@@ -5,24 +5,16 @@ declare(strict_types=1);
 namespace Alchemy\NotifierBundle\Message;
 
 /**
- * Asynchronous request to deliver a topic notification to a whole audience.
+ * Asynchronous request to run the broadcast recorded under `$broadcastId`.
  *
- * The audience is named (see `UserDirectoryInterface`) rather than materialized
- * here: the recipient list is resolved in the worker, so the message stays small
- * and reflects the directory at delivery time.
+ * The message carries nothing but that id: the topic, payload, channels and
+ * audience are read back from the `notifier_broadcast` row, which stays the
+ * single source of truth for what was sent.
  */
 final readonly class BroadcastNotification
 {
-    /**
-     * @param array<string, mixed>    $params
-     * @param array<int, string>|null $channels Channel values the delivery is restricted to (null: every channel of the topic)
-     */
     public function __construct(
-        public string $topic,
-        public array $params = [],
-        public ?array $channels = null,
-        public ?string $excludeUserId = null,
-        public ?string $directory = null,
+        public string $broadcastId,
     ) {
     }
 }
