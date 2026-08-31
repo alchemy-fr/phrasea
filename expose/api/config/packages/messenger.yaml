@@ -8,6 +8,7 @@ framework:
         routing:
             Alchemy\ConfiguratorBundle\Message\DeployConfig: p1
             Alchemy\NotifierBundle\Message\BroadcastNotification: p1
+            Alchemy\NotifierBundle\Message\FlushNotificationDigest: p1
             Alchemy\CoreBundle\Message\Debug\SentryDebug: p1
 
 when@dev:

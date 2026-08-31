@@ -25,6 +25,7 @@ framework:
             Alchemy\WebhookBundle\Consumer\WebhookEvent: p2
             Alchemy\ConfiguratorBundle\Message\DeployConfig: p2
             Alchemy\NotifierBundle\Message\BroadcastNotification: p2
+            Alchemy\NotifierBundle\Message\FlushNotificationDigest: p2
             Alchemy\CoreBundle\Message\Debug\SentryDebug: p1
 
 when@dev:

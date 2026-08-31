@@ -78,6 +78,32 @@ class AlchemyNotifierBundle extends AbstractBundle
                                 ->info('Whether users may toggle this topic in their preferences')
                                 ->defaultTrue()
                             ->end()
+                            ->arrayNode('digest')
+                                ->info('Buffer the digested channels and send one grouped notification after a period of inactivity instead of one per event')
+                                ->canBeEnabled()
+                                ->children()
+                                    ->integerNode('inactivity_delay')
+                                        ->info('Seconds without a new event before the digest is sent (every event pushes the send back)')
+                                        // Must stay above the flush probe's sync-transport grace (30s)
+                                        ->min(60)
+                                        ->defaultValue(600)
+                                    ->end()
+                                    ->integerNode('max_delay')
+                                        ->info('Send at most this many seconds after the first buffered event, even if activity never stops')
+                                        ->min(60)
+                                        ->defaultValue(3600)
+                                    ->end()
+                                    ->arrayNode('channels')
+                                        ->info('Channels the digest applies to; the others deliver immediately')
+                                        ->enumPrototype()->values($channelValues)->end()
+                                        ->defaultValue([ChannelType::Email->value])
+                                    ->end()
+                                    ->scalarNode('group_by')
+                                        ->info('Event param whose value groups the events into the byObject sections of the digest template')
+                                        ->defaultValue('objectId')
+                                    ->end()
+                                ->end()
+                            ->end()
                         ->end()
                     ->end()
                 ->end()
@@ -126,7 +152,7 @@ class AlchemyNotifierBundle extends AbstractBundle
     }
 
     /**
-     * @return array<string, array{channels: array<int, string>, importance: string, user_configurable: bool}>
+     * @return array<string, array{channels: array<int, string>, importance: string, user_configurable: bool, digest: array{inactivity_delay: int, max_delay: int, channels: array<int, string>}|null}>
      */
     private function normalizeTopics(array $config): array
     {
@@ -137,6 +163,7 @@ class AlchemyNotifierBundle extends AbstractBundle
                 'channels' => ChannelType::values(),
                 'importance' => 'normal',
                 'user_configurable' => true,
+                'digest' => null,
             ],
         ];
 
@@ -145,6 +172,12 @@ class AlchemyNotifierBundle extends AbstractBundle
                 'channels' => [] !== $topic['channels'] ? $topic['channels'] : $config['default_channels'],
                 'importance' => $topic['importance'],
                 'user_configurable' => $topic['user_configurable'],
+                'digest' => $topic['digest']['enabled'] ? [
+                    'inactivity_delay' => $topic['digest']['inactivity_delay'],
+                    'max_delay' => $topic['digest']['max_delay'],
+                    'channels' => $topic['digest']['channels'],
+                    'group_by' => $topic['digest']['group_by'],
+                ] : null,
             ];
         }
 

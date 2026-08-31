@@ -189,7 +189,7 @@
         ],
         "phpunit": [
             "@pre-phpunit",
-            "php -d memory_limit=512M ./bin/phpunit"
+            "php -d memory_limit=1024M ./bin/phpunit"
         ],
         "test": [
             "vendor/bin/var-dump-check --symfony src",

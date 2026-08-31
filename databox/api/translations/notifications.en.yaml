@@ -3,6 +3,9 @@ asset:
         email:
             subject: 'New comment on %name%'
             body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> commented on <a href="%url%">%name%</a>.</p>'
+        email_digest:
+            subject: '%count% new comments on your assets'
+            group: '<p><strong>%authors%</strong> commented on <a href="%url%">%name%</a>.</p>|<p><strong>%count%</strong> new comments on <a href="%url%">%name%</a> by %authors%.</p>'
         in_app:
             subject: 'New comment'
             body: '%author% commented on %name%.'
@@ -32,6 +35,10 @@ collection:
         email:
             subject: 'New asset in %collectionName%'
             body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> added <a href="%url%">%assetName%</a> to <em>%collectionName%</em>.</p>'
+        email_digest:
+            subject: '%count% assets added to your collections'
+            group: '<p>%count% asset added to <a href="%url%"><em>%collectionName%</em></a>:</p>|<p>%count% assets added to <a href="%url%"><em>%collectionName%</em></a>:</p>'
+            item: '<strong>%assetName%</strong> — added by %author%'
         in_app:
             subject: 'New asset in %collectionName%'
             body: '%author% added <strong>%assetName%</strong> to %collectionName%.'
@@ -41,6 +48,10 @@ collection:
         email:
             subject: 'Asset removed from %collectionName%'
             body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> removed <em>%assetName%</em> from <em>%collectionName%</em>.</p>'
+        email_digest:
+            subject: '%count% assets removed from your collections'
+            group: '<p>%count% asset removed from <a href="%url%"><em>%collectionName%</em></a>:</p>|<p>%count% assets removed from <a href="%url%"><em>%collectionName%</em></a>:</p>'
+            item: '<strong>%assetName%</strong> — removed by %author%'
         in_app:
             subject: 'Asset removed'
             body: '%author% removed %assetName% from %collectionName%.'
@@ -51,6 +62,9 @@ discussion:
         email:
             subject: 'New comment on %object%'
             body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> commented on <a href="%url%">%object%</a>.</p>'
+        email_digest:
+            subject: '%count% new comments'
+            group: '<p><strong>%authors%</strong> commented on <a href="%url%">%object%</a>.</p>|<p><strong>%count%</strong> new comments on <a href="%url%">%object%</a> by %authors%.</p>'
         in_app:
             subject: 'New comment'
             body: '%author% commented on %object%.'
@@ -66,6 +80,10 @@ entity_list:
             body: '%author% added <strong>%value%</strong> to %listName%. It is awaiting your approval.'
         sms:
             body: '%author% added %value% to %listName%. It is awaiting your approval.'
+notification_digest:
+    greeting: '<p>Hi %recipient%,</p>'
+    more: '<p>…and %count% more.</p>'
+    more_items: '…and %count% more'
 user:
     exception:
         email:

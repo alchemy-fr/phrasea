@@ -16,6 +16,7 @@ final readonly class TopicDefinition
         public array $channels,
         public string $importance = 'normal',
         public bool $userConfigurable = true,
+        public ?DigestConfig $digest = null,
     ) {
     }
 }

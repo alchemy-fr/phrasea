@@ -11,14 +11,18 @@ alchemy_notifier:
             channels: [email, in_app]
         'asset:new_comment':
             channels: [email, in_app]
+            digest: { enabled: true, inactivity_delay: 600, max_delay: 3600, group_by: name }
         # Collection events (NotifyCollectionTopicHandler)
         'collection:asset_add':
             channels: [email, in_app]
+            digest: { enabled: true, inactivity_delay: 600, max_delay: 3600, group_by: collectionName }
         'collection:asset_remove':
             channels: [email, in_app]
+            digest: { enabled: true, inactivity_delay: 600, max_delay: 3600, group_by: collectionName }
         # Discussion comments (PostDiscussionMessageHandler)
         'discussion:new_comment':
             channels: [email, in_app]
+            digest: { enabled: true, inactivity_delay: 600, max_delay: 3600 }
         # Entity list value awaiting approval (AttributeEntityPendingNotifyHandler)
         'entity_list:pending_value':
             channels: [email, in_app]
