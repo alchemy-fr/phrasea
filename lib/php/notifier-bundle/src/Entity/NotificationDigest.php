@@ -31,7 +31,7 @@ class NotificationDigest extends AbstractUuidEntity
      * Events kept beyond this count only bump `eventCount`/`lastEventAt`; the
      * digest then reports "and N more".
      */
-    public const int MAX_EVENTS = 100;
+    public const int MAX_EVENTS = 5;
 
     #[ORM\ManyToOne(targetEntity: Subscriber::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
