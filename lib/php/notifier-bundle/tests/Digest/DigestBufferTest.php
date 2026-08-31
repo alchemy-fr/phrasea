@@ -61,6 +61,32 @@ final class DigestBufferTest extends TestCase
         self::assertSame([], $dispatched);
     }
 
+    public function testDiscardDropsTheTopicBuckets(): void
+    {
+        $subscriber = new Subscriber('user-1');
+
+        $repository = $this->createMock(NotificationDigestRepository::class);
+        $repository->expects(self::once())->method('deleteBucketFor')
+            ->with($subscriber->getId(), 'discussion:new_comment');
+
+        $dispatched = [];
+        new DigestBuffer($repository, $this->bus($dispatched), new MockClock())
+            ->discard($subscriber, 'discussion:new_comment');
+    }
+
+    public function testDiscardAllDropsEveryBucketOfTheSubscriber(): void
+    {
+        $subscriber = new Subscriber('user-1');
+
+        $repository = $this->createMock(NotificationDigestRepository::class);
+        $repository->expects(self::once())->method('deleteAllFor')
+            ->with($subscriber->getId());
+
+        $dispatched = [];
+        new DigestBuffer($repository, $this->bus($dispatched), new MockClock())
+            ->discardAll($subscriber);
+    }
+
     /**
      * @param array<int, array{0: object, 1: array<int, object>}> $dispatched
      */

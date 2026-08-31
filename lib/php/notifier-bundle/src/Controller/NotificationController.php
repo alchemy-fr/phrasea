@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\NotifierBundle\Controller;
 
 use Alchemy\NotifierBundle\Channel\ChannelType;
+use Alchemy\NotifierBundle\Digest\DigestBuffer;
 use Alchemy\NotifierBundle\Entity\Notification;
 use Alchemy\NotifierBundle\Notification\NotificationRenderer;
 use Alchemy\NotifierBundle\Repository\NotificationRepository;
@@ -27,6 +28,7 @@ final class NotificationController
         private readonly NotificationRenderer $renderer,
         private readonly EntityManagerInterface $em,
         private readonly RequestStack $requestStack,
+        private readonly DigestBuffer $digestBuffer,
     ) {
     }
 
@@ -82,8 +84,16 @@ final class NotificationController
             throw new AccessDeniedHttpException();
         }
 
+        $wasUnread = !$notification->isRead();
         $notification->markAsRead();
         $this->em->flush();
+
+        // The subscriber just saw this topic in-app: the pending email digest
+        // would be redundant. Only a real unread->read transition counts, so
+        // re-marking an old notification cannot drop a fresh unseen buffer.
+        if ($wasUnread) {
+            $this->digestBuffer->discard($subscriber, $notification->getTopic());
+        }
 
         return new JsonResponse($this->normalize($notification));
     }
@@ -131,6 +141,11 @@ final class NotificationController
     {
         $subscriber = $this->currentSubscriber->getSubscriber();
         $count = $this->repository->markAllAsRead($subscriber);
+
+        // Everything was seen: no pending email digest is worth sending anymore
+        if ($count > 0) {
+            $this->digestBuffer->discardAll($subscriber);
+        }
 
         return new JsonResponse(['markedAsRead' => $count]);
     }
