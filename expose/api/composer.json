@@ -191,6 +191,10 @@
             "@pre-phpunit",
             "php -d memory_limit=1024M ./bin/phpunit"
         ],
+        "phpunit:compact": [
+            "@pre-phpunit",
+            "php -d memory_limit=1024M ./bin/phpunit --printer 'Alchemy\\ApiTest\\PHPUnit\\CompactResultPrinter'"
+        ],
         "test": [
             "vendor/bin/var-dump-check --symfony src",
             "@phpstan",
