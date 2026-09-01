@@ -104,7 +104,15 @@ dc run --rm databox-api-php composer test       # full check
 dc run --rm databox-api-php composer phpstan     # static analysis only
 dc run --rm databox-api-php composer cs          # php-cs-fixer
 dc run --rm databox-api-php composer phpunit     # resets test DB + elastica, then PHPUnit
+dc run --rm databox-api-php composer phpunit:compact   # same, agent-friendly output (PREFER THIS)
 ```
+
+**Prefer `composer phpunit:compact`** (databox, expose, uploader): same run as
+`composer phpunit` but with `Alchemy\ApiTest\PHPUnit\CompactResultPrinter` — no
+per-test dot progress, full error/failure traces, and a final one-line-per-defect
+recap, so even `| tail -50` shows the counts and every failing test name. For a
+direct `bin/phpunit` call, add
+`--printer 'Alchemy\ApiTest\PHPUnit\CompactResultPrinter'`.
 
 **PHPUnit needs 1G of memory.** The `composer phpunit` scripts already pass
 `-d memory_limit=1024M`; when calling `bin/phpunit` directly, pass it yourself —
