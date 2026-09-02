@@ -1,8 +1,8 @@
 App\Entity\Core\Workspace:
     w_newspaper:
+        __factory: { '@App\Fixture\WorkspaceFactory::create': ['<keycloakUser("phrasea-admin", ["phrasea-admin"])>'] }
         name: Newspaper
         slug: newspaper
-        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
         enabledLocales:
             - en
             - fr
@@ -11,10 +11,9 @@ App\Entity\Core\AttributePolicy:
     attribute_policy_n (template):
         workspace: '@w_newspaper'
 
-    n_ap_public (extends attribute_policy_n):
-        name: Public
-        public: true
-        editable: true
+    # "Public" policy created by WorkspaceFactory/WorkspaceCreator
+    n_ap_public:
+        __factory: { '@App\Fixture\WorkspaceFactory::getAttributePolicy': ['@w_newspaper'] }
     n_ap_business (extends attribute_policy_n):
         name: Business field
         public: false
@@ -175,71 +174,25 @@ App\Entity\Core\RenditionPolicy:
     rendition_policy_n (template):
         workspace: '@w_newspaper'
 
-    n_rc_public (extends rendition_policy_n):
-        name: Public
-        public: true
-        editable: true
+    # "Public" policy created by WorkspaceFactory/WorkspaceCreator
+    n_rc_public:
+        __factory: { '@App\Fixture\WorkspaceFactory::getRenditionPolicy': ['@w_newspaper'] }
     n_rc_restricted (extends rendition_policy_n):
         name: Restricted
         public: false
         editable: false
 
 App\Entity\Core\RenditionDefinition:
-    rendition_definition_n (template):
+    # Definitions created by WorkspaceFactory/WorkspaceCreator
+    n_rd_main:
+        __factory: { '@App\Fixture\WorkspaceFactory::getRenditionDefinition': ['@w_newspaper', 'main'] }
+    n_rd_preview:
+        __factory: { '@App\Fixture\WorkspaceFactory::getRenditionDefinition': ['@w_newspaper', 'preview'] }
+    n_rd_thumbnail:
+        __factory: { '@App\Fixture\WorkspaceFactory::getRenditionDefinition': ['@w_newspaper', 'thumbnail'] }
+
+    n_rd_animatedThumbnail:
         workspace: '@w_newspaper'
-
-    n_rd_main (extends rendition_definition_n):
-        name: main
-        policy: '@n_rc_public'
-        buildMode: 1
-        useAsMain: true
-    n_rd_preview (extends rendition_definition_n):
-        name: preview
-        policy: '@n_rc_public'
-        useAsPreview: true
-        parent: '@n_rd_main'
-        buildMode: 2
-        definition: |
-            image:
-                transformations: &image_transformations
-                    -
-                        module: imagine
-                        options:
-                            filters:
-                                auto_rotate: ~
-                                thumbnail:
-                                    size: \[ 600, 600 ]
-                                    mode: inset
-            animation:
-                transformations: *image_transformations
-            document:
-                transformations:
-                    - module: document_to_pdf
-
-    n_rd_thumbnail (extends rendition_definition_n):
-        name: thumbnail
-        policy: '@n_rc_public'
-        useAsThumbnail: true
-        parent: '@n_rd_preview'
-        buildMode: 2
-        definition: |
-            image:
-                transformations: &image_transformations
-                    -
-                        module: imagine
-                        options:
-                            filters:
-                                auto_rotate: ~
-                                thumbnail:
-                                    size: \[ 150, 150 ]
-                                    mode: inset
-            animation:
-                transformations: *image_transformations
-            document:
-                transformations:
-                    - module: pdf_to_image
-
-    n_rd_animatedThumbnail (extends rendition_definition_n):
         name: animatedThumbnail
         policy: '@n_rc_public'
         useAsAnimatedThumbnail: true
@@ -554,15 +507,13 @@ App\Entity\Core\Tag:
         workspace: '@w_newspaper'
 
 App\Entity\Integration\WorkspaceIntegration:
+    # Rendition integration created by WorkspaceFactory/WorkspaceCreator
+    wi_renditions:
+        __factory: { '@App\Fixture\WorkspaceFactory::getIntegration': ['@w_newspaper', 'rendition'] }
     wi_toast_ui:
         name: ToastUI
         public: true
         integration: tui.photo-editor
-        workspace: '@w_newspaper'
-        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
-    wi_renditions:
-        integration: core.rendition
-        public: true
         workspace: '@w_newspaper'
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
     wi_watermark:

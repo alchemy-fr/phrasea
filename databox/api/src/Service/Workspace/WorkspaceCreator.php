@@ -25,7 +25,7 @@ final readonly class WorkspaceCreator
     ) {
     }
 
-    public function createWorkspace(Workspace $workspace): void
+    public function createWorkspace(Workspace $workspace): WorkspaceDefaults
     {
         $renditionPolicy = new RenditionPolicy();
         $renditionPolicy->setWorkspace($workspace);
@@ -95,6 +95,11 @@ final readonly class WorkspaceCreator
         $renditionIntegration->setWorkspace($workspace);
         $renditionIntegration->setIntegration(RenditionIntegration::getName());
 
+        $integrations = [
+            'readMetadata' => $readMetadataIntegration,
+            'rendition' => $renditionIntegration,
+        ];
+
         if ($workspace->isFileAnalysisRequired()) {
             $fileAnalyzerIntegration = new WorkspaceIntegration();
             $fileAnalyzerIntegration->setOwnerId($workspace->getOwnerId());
@@ -116,11 +121,22 @@ final readonly class WorkspaceCreator
 
             $renditionIntegration->getNeeds()->add($fileAnalyzerIntegration);
             $renditionIntegration->getNeeds()->add($renditionBaseIntegration);
+
+            $integrations['fileAnalyzer'] = $fileAnalyzerIntegration;
+            $integrations['baseRenditions'] = $renditionBaseIntegration;
         }
 
         $this->em->persist($renditionIntegration);
 
         $this->em->persist($nameAttribute);
         $this->em->persist($workspace);
+
+        return new WorkspaceDefaults(
+            $renditionPolicy,
+            $renditionDefs,
+            $attributePolicy,
+            $nameAttribute,
+            $integrations,
+        );
     }
 }
