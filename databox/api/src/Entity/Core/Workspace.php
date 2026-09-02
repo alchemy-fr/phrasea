@@ -20,6 +20,7 @@ use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Model\Output\WorkspaceOutput;
 use App\Controller\Core\FlushWorkspaceAction;
 use App\Controller\Core\GetWorkspaceBySlugAction;
+use App\Controller\Core\SignWorkspaceTermsAction;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
@@ -51,6 +52,15 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("EDIT", object)',
             read: true,
             name: 'flush'
+        ),
+        new Post(
+            uriTemplate: '/workspaces/{id}/terms/sign',
+            controller: SignWorkspaceTermsAction::class,
+            security: 'is_granted("READ", object)',
+            read: true,
+            deserialize: false,
+            validate: false,
+            name: 'sign_terms'
         ),
         new GetCollection(
             normalizationContext: [
@@ -98,6 +108,8 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     private const string CONFIG_TRASH_RETENTION_DELAY = 'trashRetentionDelay';
     private const string CONFIG_ASSET_DEFAULT_STATUS = 'assetDefaultStatus';
     private const string CONFIG_FILE_ANALYSIS_REQUIRED = 'fileAnalysisRequired';
+    private const string CONFIG_ATTACH_TERMS_TO_EXPORTS = 'attachTermsToExports';
+    private const string CONFIG_LOGO = 'logo';
 
     final public const string TR_FIELD_NAME = 'name';
 
@@ -260,6 +272,39 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
         }
 
         $this->config[self::CONFIG_FILE_ANALYSIS_REQUIRED] = $required;
+    }
+
+    public function isAttachTermsToExports(): bool
+    {
+        return $this->config[self::CONFIG_ATTACH_TERMS_TO_EXPORTS] ?? false;
+    }
+
+    public function setAttachTermsToExports(?bool $attach): void
+    {
+        if (true !== $attach) {
+            unset($this->config[self::CONFIG_ATTACH_TERMS_TO_EXPORTS]);
+
+            return;
+        }
+
+        $this->config[self::CONFIG_ATTACH_TERMS_TO_EXPORTS] = true;
+    }
+
+    public function getLogo(): ?string
+    {
+        return $this->config[self::CONFIG_LOGO] ?? null;
+    }
+
+    public function setLogo(?string $logo): void
+    {
+        $logo = null !== $logo ? trim($logo) : null;
+        if (null === $logo || '' === $logo) {
+            unset($this->config[self::CONFIG_LOGO]);
+
+            return;
+        }
+
+        $this->config[self::CONFIG_LOGO] = $logo;
     }
 
     public function getEnabledLocales(): array

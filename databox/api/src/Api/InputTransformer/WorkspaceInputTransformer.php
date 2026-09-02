@@ -8,11 +8,17 @@ use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Workspace;
+use App\Service\Workspace\TermsManager;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class WorkspaceInputTransformer extends AbstractInputTransformer
 {
     use WithOwnerIdProcessorTrait;
+
+    public function __construct(
+        private readonly TermsManager $termsManager,
+    ) {
+    }
 
     /**
      * @param WorkspaceInput $data
@@ -50,6 +56,15 @@ class WorkspaceInputTransformer extends AbstractInputTransformer
         }
         if (null !== $data->trashRetentionDelay) {
             $object->setTrashRetentionDelay((int) $data->trashRetentionDelay);
+        }
+        if (null !== $data->attachTermsToExports) {
+            $object->setAttachTermsToExports($data->attachTermsToExports);
+        }
+        if (null !== $data->logo) {
+            $object->setLogo($data->logo);
+        }
+        if (null !== $data->terms || null !== $data->termsPdf) {
+            $this->termsManager->updateTerms($object, $data->terms, $data->termsPdf);
         }
 
         if ($isNew) {

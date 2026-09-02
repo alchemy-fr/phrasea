@@ -34,10 +34,19 @@ import {getShareUrl} from './shareUtils.ts';
 import ShareSocials from './ShareSocials.tsx';
 
 type Props = {
-    asset: Asset;
+    assets: Asset[];
 } & StackedModalProps;
 
-export default function ShareAssetDialog({asset, ...modalProps}: Props) {
+function sameAssetSet(share: Share, assetIds: string[]): boolean {
+    const shareAssetIds = (share.assets ?? []).map(a => a.id);
+    if (shareAssetIds.length !== assetIds.length) {
+        return false;
+    }
+
+    return assetIds.every(id => shareAssetIds.includes(id));
+}
+
+export default function ShareAssetDialog({assets, ...modalProps}: Props) {
     const {t} = useTranslation();
     const [checked, setChecked] = React.useState(false);
     const {closeModal} = useModals();
@@ -47,11 +56,15 @@ export default function ShareAssetDialog({asset, ...modalProps}: Props) {
     const [revoking, setRevoking] = React.useState<string[]>([]);
     const {openModal} = useModals();
 
-    const queryKey = ['share', asset.id];
+    const assetIds = assets.map(a => a.id);
+    const queryKey = ['share', [...assetIds].sort().join(',')];
 
     const {data, isSuccess} = useModalFetch<Share[]>({
         queryKey,
-        queryFn: () => getAssetShares(asset.id).then(r => r.result),
+        queryFn: () =>
+            getAssetShares(assetIds[0]).then(r =>
+                r.result.filter(s => sameAssetSet(s, assetIds))
+            ),
     });
     const publicShare: Share | undefined =
         data && data.length === 1 ? data[0] : undefined;
@@ -75,7 +88,7 @@ export default function ShareAssetDialog({asset, ...modalProps}: Props) {
     const createShare = useMutation({
         mutationFn: async () => {
             setChecked(true);
-            return await createAssetShare(asset.id);
+            return await createAssetShare(assetIds);
         },
         onSuccess: data => {
             queryClient.setQueryData(queryKey, (prev: Share[]) =>
@@ -105,7 +118,7 @@ export default function ShareAssetDialog({asset, ...modalProps}: Props) {
 
     const createNew = () => {
         openModal(CreateShareDialog, {
-            asset,
+            assets,
             onSuccess: (newShare: Share) => {
                 queryClient.setQueryData(queryKey, (prev: Share[]) =>
                     prev.concat([newShare])
@@ -134,7 +147,13 @@ export default function ShareAssetDialog({asset, ...modalProps}: Props) {
         <FormDialog
             {...modalProps}
             maxWidth={advancedMode ? 'md' : 'sm'}
-            title={t('share.dialog.title', 'Share Asset')}
+            title={
+                assets.length > 1
+                    ? t('share.dialog.title_multiple', 'Share {{count}} Assets', {
+                          count: assets.length,
+                      })
+                    : t('share.dialog.title', 'Share Asset')
+            }
             loading={loading}
             onSave={() => {
                 if (!advancedMode && !!publicUrl) {
