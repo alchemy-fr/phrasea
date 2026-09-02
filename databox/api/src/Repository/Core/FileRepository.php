@@ -27,7 +27,8 @@ class FileRepository extends ServiceEntityRepository
     public function findDuplicatesByChecksum(File $file, int $limit = 1): array
     {
         return $this->createQueryBuilder('f')
-            ->distinct()
+            // GROUP BY dedupes joined rows (DISTINCT would require an equality operator on the JSON columns)
+            ->groupBy('f.id')
             ->innerJoin(Asset::class, 'a', 'WITH', 'a.source = f.id')
             ->andWhere('a.deletedAt IS NULL')
             ->andWhere('f.workspace = :ws')
@@ -55,7 +56,8 @@ class FileRepository extends ServiceEntityRepository
             ->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR);
 
         $queryBuilder = $this->createQueryBuilder('f')
-            ->distinct()
+            // GROUP BY dedupes joined rows (DISTINCT would require an equality operator on the JSON columns)
+            ->groupBy('f.id')
             ->innerJoin(Asset::class, 'a', 'WITH', 'a.source = f.id')
             ->andWhere('a.deletedAt IS NULL')
             ->andWhere('f.workspace = :ws')
