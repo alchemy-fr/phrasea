@@ -11,6 +11,8 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Controller\CreateSubDefinitionAction;
 use App\Entity\Traits\ClientAnnotationsTrait;
 use App\Repository\SubDefinitionRepository;
@@ -45,9 +47,9 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new Post(
             defaults: ['_api_receive' => false],
             controller: CreateSubDefinitionAction::class,
-            openapiContext: [
-                'requestBody' => [
-                    'content' => [
+            openapi: new OpenApiOperation(
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
                         'application/json' => [
                             'examples' => [
                                 'Multipart upload' => [
@@ -160,9 +162,9 @@ use Symfony\Component\Serializer\Attribute\Groups;
                                 ],
                             ],
                         ],
-                    ],
-                ],
-            ]
+                    ]),
+                ),
+            )
         ),
     ],
     uriVariables: [

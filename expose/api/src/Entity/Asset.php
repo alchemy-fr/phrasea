@@ -14,6 +14,8 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Controller\CreateAssetAction;
 use App\Controller\DeleteAssetsAction;
 use App\Controller\GetAssetWithSlugAction;
@@ -51,17 +53,17 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriTemplate: '/assets/delete-by-asset-id/{assetId}',
             uriVariables: [],
             controller: DeleteAssetsAction::class,
-            openapiContext: [
-                'summary' => 'Delete all assets by the given assetId',
-                'description' => 'Delete all assets by the given assetId',
-            ],
+            openapi: new OpenApiOperation(
+                summary: 'Delete all assets by the given assetId',
+                description: 'Delete all assets by the given assetId',
+            ),
             read: false,
         ),
         new Post(
             controller: CreateAssetAction::class,
-            openapiContext: [
-                'requestBody' => [
-                    'content' => [
+            openapi: new OpenApiOperation(
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
                         'application/json' => [
                             'examples' => [
                                 'Multipart upload' => [
@@ -157,9 +159,9 @@ use Symfony\Component\Validator\Constraints as Assert;
                                 ],
                             ],
                         ],
-                    ],
-                ],
-            ],
+                    ]),
+                ),
+            ),
             deserialize: false
         ),
         new GetCollection(),
@@ -175,9 +177,9 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(),
         new Post(
             controller: CreateAssetAction::class,
-            openapiContext: [
-                'requestBody' => [
-                    'content' => [
+            openapi: new OpenApiOperation(
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
                         'application/json' => [
                             'examples' => [
                                 'Multipart upload' => [
@@ -273,9 +275,9 @@ use Symfony\Component\Validator\Constraints as Assert;
                                 ],
                             ],
                         ],
-                    ],
-                ],
-            ],
+                    ]),
+                ),
+            ),
             deserialize: false
         ),
     ],
