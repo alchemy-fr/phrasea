@@ -26,7 +26,8 @@ export async function putFormSchema(
     id: string,
     data: Partial<FormSchema>
 ): Promise<FormSchema> {
-    return (await apiClient.put(`/${EntityName.FormSchema}/${id}`, data)).data;
+    return (await apiClient.patch(`/${EntityName.FormSchema}/${id}`, data))
+        .data;
 }
 
 export async function postFormSchema(

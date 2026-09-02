@@ -8,7 +8,6 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\Put;
 use App\Api\InputTransformer\TemplateAttributeInputTransformer;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\AttributeOutput;
@@ -26,7 +25,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
     ],
     normalizationContext: [

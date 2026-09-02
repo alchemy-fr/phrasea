@@ -26,7 +26,7 @@ export async function putProfile(
     id: string,
     data: Partial<PublicationProfile>
 ): Promise<PublicationProfile> {
-    return (await apiClient.put(`/${profileEntity}/${id}`, data)).data;
+    return (await apiClient.patch(`/${profileEntity}/${id}`, data)).data;
 }
 
 export async function postProfile(

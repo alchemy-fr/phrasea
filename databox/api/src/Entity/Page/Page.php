@@ -12,8 +12,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use App\Api\Provider\PageBySlugProvider;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Listener\OwnerPersistableInterface;
@@ -47,7 +47,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             provider: PageBySlugProvider::class
         ),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
-        new Put(
+        new Patch(
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
         ),
         new Post(

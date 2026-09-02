@@ -14,8 +14,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\Template\AssetDataTemplateInput;
 use App\Api\Model\Output\Template\AssetDataTemplateOutput;
 use App\Api\Provider\AssetDataTemplateCollectionProvider;
@@ -47,7 +47,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
             security: 'is_granted("READ", object)'
         ),
-        new Put(
+        new Patch(
             normalizationContext: [
                 'groups' => [
                     AssetDataTemplate::GROUP_LIST,

@@ -26,7 +26,7 @@ class TargetParamsTest extends AbstractUploaderTestCase
         $this->assertArrayHasKey('data', $data);
         $this->assertEquals([], $data['data']);
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'PUT', '/target-params/'.$data['id'], [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'PATCH', '/target-params/'.$data['id'], [
             'data' => [
                 'foo' => 'bar',
             ],

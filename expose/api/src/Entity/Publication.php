@@ -13,8 +13,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
 use ApiPlatform\OpenApi\Model\Response as OpenApiResponse;
@@ -49,7 +49,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
             name: self::GET_PUBLICATION_ROUTE_NAME,
             provider: PublicationProvider::class,
         ),
-        new Put(security: 'is_granted("'.PublicationVoter::EDIT.'", object)'),
+        new Patch(security: 'is_granted("'.PublicationVoter::EDIT.'", object)'),
         new Delete(security: 'is_granted("'.PublicationVoter::DELETE.'", object)'),
         new Post(
             uriTemplate: '/publications/{id}/sort-assets',

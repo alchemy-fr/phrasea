@@ -33,7 +33,7 @@ export async function saveTagFilterRule(data: {
     if (data.id) {
         const d = {...data};
         delete d.id;
-        res = await apiClient.put(`/tag-filter-rules/${data.id}`, d);
+        res = await apiClient.patch(`/tag-filter-rules/${data.id}`, d);
     } else {
         res = await apiClient.post('/tag-filter-rules', data);
     }

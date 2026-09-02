@@ -123,7 +123,8 @@ export async function putIntegration(
 ): Promise<WorkspaceIntegration> {
     delete data.workspace;
 
-    return (await apiClient.put(`${EntityName.Integration}/${id}`, data)).data;
+    return (await apiClient.patch(`${EntityName.Integration}/${id}`, data))
+        .data;
 }
 
 export async function postIntegration(

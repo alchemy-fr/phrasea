@@ -62,7 +62,7 @@ export async function putAttributeEntity(
     id: string,
     data: Partial<AttributeEntity>
 ): Promise<AttributeEntity> {
-    const res = await apiClient.put(`${attributeEntityNS}/${id}`, data);
+    const res = await apiClient.patch(`${attributeEntityNS}/${id}`, data);
 
     return res.data;
 }

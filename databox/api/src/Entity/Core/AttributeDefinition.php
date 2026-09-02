@@ -17,7 +17,6 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\RequestBody;
@@ -52,9 +51,6 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(
-            security: 'is_granted("'.AbstractVoter::EDIT.'", object)'
-        ),
         new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
         new GetCollection(
             order: ['workspace' => 'ASC', 'position' => 'ASC', 'name' => 'ASC'],

@@ -13,7 +13,6 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Model\Input\AssetRenditionInput;
@@ -37,7 +36,6 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
             security: 'is_granted("'.AbstractVoter::DELETE.'", object)',
             processor: DeleteAssetRenditionProcessor::class,
         ),
-        new Put(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
         new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
         new GetCollection(
             order: ['definition.position' => 'ASC'],

@@ -38,7 +38,7 @@ export async function putSavedSearch(
     id: string,
     data: Partial<SavedSearch>
 ): Promise<SavedSearch> {
-    const res = await apiClient.put(
+    const res = await apiClient.patch(
         `/${EntityName.SavedSearch}/${id}`,
         normalizeSavedSearch(data)
     );
