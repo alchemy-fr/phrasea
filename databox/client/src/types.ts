@@ -308,7 +308,7 @@ export interface AssetRendition extends ApiHydraObjectResponse, Entity {
     projection?: boolean;
     locked: boolean;
     substituted: boolean;
-    definition: Pick<RenditionDefinition, 'id' | 'substitutable'>;
+    definition: Pick<RenditionDefinition, 'id' | 'substitutable'> | null;
 }
 
 export interface RenditionPolicy extends ApiHydraObjectResponse, Entity {

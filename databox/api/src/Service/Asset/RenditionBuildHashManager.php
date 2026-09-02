@@ -40,9 +40,22 @@ final readonly class RenditionBuildHashManager
         ]));
     }
 
+    public function getDynamicBuildHash(?File $source, AssetRendition $rendition): string
+    {
+        return md5(implode('|', [
+            $source?->getId() ?? 'no-source',
+            'dynamic',
+            $rendition->getBuildDefinition(),
+        ]));
+    }
+
     public function isRenditionDirty(AssetRendition $assetRendition): bool
     {
         $definition = $assetRendition->getDefinition();
+
+        if (null === $definition) {
+            return $this->isDynamicRenditionDirty($assetRendition);
+        }
 
         if (null !== $parentDefinition = $definition->getParent()) {
             $parentRendition = $this->renditionManager->getAssetRenditionByDefinition($assetRendition->getAsset(), $parentDefinition);
@@ -63,6 +76,42 @@ final readonly class RenditionBuildHashManager
             return $this->renditionCreator->buildHashesDiffer(
                 $moduleHashes,
                 $this->loader->parse($definition->getDefinition()),
+                new CreateRenditionOptions(
+                    metadataContainer: new AssetMetadataContainer($assetRendition->getAsset(), $this->attributesResolver, $this->assetNameResolver),
+                ),
+            );
+        }
+
+        return false;
+    }
+
+    private function isDynamicRenditionDirty(AssetRendition $assetRendition): bool
+    {
+        if (!$assetRendition->isReady()) {
+            // Build is still pending
+            return false;
+        }
+
+        if (null !== $sourceRenditionId = $assetRendition->getSourceRenditionId()) {
+            $source = null;
+            foreach ($assetRendition->getAsset()->getRenditions() as $rendition) {
+                if ($rendition->getId() === $sourceRenditionId) {
+                    $source = $rendition->getFile();
+                    break;
+                }
+            }
+        } else {
+            $source = $assetRendition->getAsset()->getSource();
+        }
+
+        if ($this->getDynamicBuildHash($source, $assetRendition) !== $assetRendition->getBuildHash()) {
+            return true;
+        }
+
+        if (!empty($moduleHashes = $assetRendition->getModuleHashes())) {
+            return $this->renditionCreator->buildHashesDiffer(
+                $moduleHashes,
+                $this->loader->parse($assetRendition->getBuildDefinition()),
                 new CreateRenditionOptions(
                     metadataContainer: new AssetMetadataContainer($assetRendition->getAsset(), $this->attributesResolver, $this->assetNameResolver),
                 ),

@@ -204,7 +204,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         string $type,
     ): ?AssetRendition {
         foreach ($assetRenditions as $rendition) {
-            if ($rendition->getDefinition()->{'isUseAs'.ucfirst($type)}()) {
+            if ($rendition->getDefinition()?->{'isUseAs'.ucfirst($type)}()) {
                 // Return the first viewable sub def for user
                 if ($this->isGranted(AbstractVoter::READ, $rendition)) {
                     return $rendition;

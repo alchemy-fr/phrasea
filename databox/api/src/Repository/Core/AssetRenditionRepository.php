@@ -67,4 +67,16 @@ class AssetRenditionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findDynamicRenditionByName(string $assetId, string $name): ?AssetRendition
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.asset = :asset')
+            ->andWhere('t.definition IS NULL')
+            ->andWhere('t.name = :name')
+            ->setParameter('asset', $assetId)
+            ->setParameter('name', $name)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

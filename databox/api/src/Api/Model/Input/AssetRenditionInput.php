@@ -19,6 +19,7 @@ class AssetRenditionInput
 
     /**
      * Rendition definition name. Or provide definitionId.
+     * When "buildDefinition" is provided, this is the custom name of the dynamic rendition.
      *
      * @var string|null
      */
@@ -27,4 +28,20 @@ class AssetRenditionInput
     public ?bool $substituted = null;
 
     public $force;
+
+    /**
+     * Inline build specification (same YAML format as a rendition definition).
+     * When provided, the rendition is built asynchronously from it (dynamic rendition, no stored definition).
+     */
+    public ?string $buildDefinition = null;
+
+    /**
+     * Whether to write the asset attribute metadata into the built file (dynamic renditions only).
+     */
+    public ?bool $writeMetadata = null;
+
+    /**
+     * Build from this rendition's file instead of the asset source file (dynamic renditions only).
+     */
+    public ?string $sourceRenditionId = null;
 }

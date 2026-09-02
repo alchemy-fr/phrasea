@@ -1742,7 +1742,9 @@
         "download": "Télécharger",
         "delete": "Supprimer",
         "replace": "Remplacer",
-        "upload": "Importer la Rendition"
+        "upload": "Importer la Rendition",
+        "create_custom": "Créer une rendition personnalisée",
+        "generating": "Génération en cours…"
     },
     "workspace": {
         "info": {
@@ -2680,6 +2682,42 @@
     "workspaces": {
         "list": {
             "title": "Workspaces"
+        }
+    },
+    "create_rendition_dialog": {
+        "bw": {
+            "label": "Noir & blanc"
+        },
+        "create_custom_rendition": "Créer une rendition personnalisée",
+        "crop": {
+            "aspect": "Ratio",
+            "aspect_custom": "Personnalisé",
+            "aspect_height": "Hauteur du ratio",
+            "aspect_original": "Original",
+            "aspect_width": "Largeur du ratio",
+            "label": "Recadrer",
+            "zoom": "Zoom"
+        },
+        "dimensions": {
+            "height": "Hauteur",
+            "label": "Dimensions maximales (px)",
+            "width": "Largeur"
+        },
+        "format": {
+            "keep": "Identique à la source",
+            "label": "Format de sortie"
+        },
+        "generate": "Générer",
+        "name": {
+            "label": "Nom"
+        },
+        "rendition_is_being_generated": "La rendition est en cours de génération…",
+        "source": {
+            "label": "Source",
+            "source_file": "Fichier source"
+        },
+        "write_metadata": {
+            "label": "Écrire les attributs dans les métadonnées du fichier"
         }
     }
 }

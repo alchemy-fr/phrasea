@@ -41,7 +41,18 @@ class AssetRenditionVoter extends AbstractVoter
 
     private function doVote(string $attribute, AssetRendition $subject, TokenInterface $token): bool
     {
-        $renditionPolicy = $subject->getDefinition()->getPolicy();
+        $definition = $subject->getDefinition();
+        if (null === $definition) {
+            return match ($attribute) {
+                self::READ => $this->security->isGranted(AbstractVoter::READ, $subject->getAsset()),
+                self::CREATE,
+                self::EDIT,
+                self::DELETE => $this->security->isGranted(AssetVoter::EDIT, $subject->getAsset()),
+                default => false,
+            };
+        }
+
+        $renditionPolicy = $definition->getPolicy();
         $isRead = fn (): bool => $renditionPolicy->isPublic() || $this->hasAcl(PermissionInterface::CHILD_VIEW, $renditionPolicy, $token);
         $isEditable = fn (): bool => $renditionPolicy->isEditable() || $this->hasAcl(PermissionInterface::CHILD_EDIT, $renditionPolicy, $token);
 

@@ -145,7 +145,7 @@ class FileOutputTransformer implements OutputTransformerInterface
                 'type' => 'rendition',
                 'assetId' => $asset->getId(),
                 'assetTitle' => $this->assetNameResolver->resolveNameAsString($asset),
-                'name' => $rendition->getDefinition()->getName(),
+                'name' => $rendition->getName(),
             ];
         }
 

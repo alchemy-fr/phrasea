@@ -20,9 +20,12 @@ use App\Api\Processor\DeleteAssetRenditionProcessor;
 use App\Api\Provider\RenditionCollectionProvider;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Validator as CustomAssert;
 use App\Validator\SameWorkspaceConstraint;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ApiResource(
     shortName: 'rendition',
@@ -43,6 +46,15 @@ use Doctrine\ORM\Mapping as ORM;
                     'content' => [
                         'application/json' => [
                             'examples' => [
+                                'Dynamic rendition (built from an inline specification)' => [
+                                    'value' => [
+                                        'assetId' => 'f30e1e4d-fef6-4870-9106-87167083e0f6',
+                                        'name' => 'my-custom-crop',
+                                        'buildDefinition' => '{"image": {"transformations": [{"module": "imagine", "options": {"filters": {"crop": {"start": [10, 10], "size": [300, 200]}}}}]}}',
+                                        'writeMetadata' => true,
+                                        'sourceRenditionId' => 'c30e1e4d-fef6-4870-9106-87167083e0f6',
+                                    ],
+                                ],
                                 'Multipart upload' => [
                                     'value' => [
                                         'assetId' => 'f30e1e4d-fef6-4870-9106-87167083e0f6',
@@ -85,7 +97,19 @@ use Doctrine\ORM\Mapping as ORM;
                                     'assetId' => ['type' => 'string'],
                                     'name' => [
                                         'type' => 'string',
-                                        'description' => 'The definition name',
+                                        'description' => 'The definition name, or the custom rendition name when "buildDefinition" is provided',
+                                    ],
+                                    'buildDefinition' => [
+                                        'type' => 'string',
+                                        'description' => 'Inline build specification (same YAML format as a rendition definition). The rendition is built asynchronously from it.',
+                                    ],
+                                    'writeMetadata' => [
+                                        'type' => 'boolean',
+                                        'description' => 'Write the asset attribute metadata into the built file (with "buildDefinition" only)',
+                                    ],
+                                    'sourceRenditionId' => [
+                                        'type' => 'string',
+                                        'description' => 'Build from this rendition\'s file instead of the asset source file (with "buildDefinition" only)',
                                     ],
                                 ],
                             ],
@@ -124,6 +148,7 @@ use Doctrine\ORM\Mapping as ORM;
 )]
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_representation', columns: ['definition_id', 'asset_id'])]
+#[ORM\UniqueConstraint(name: 'uniq_dynamic_rendition_name', columns: ['asset_id', 'name'], options: ['where' => '(definition_id IS NULL)'])]
 #[ORM\Entity(repositoryClass: AssetRenditionRepository::class)]
 #[SameWorkspaceConstraint(
     properties: ['asset.workspace', 'file.workspace', 'definition.workspace']
@@ -135,9 +160,28 @@ class AssetRendition extends AbstractUuidEntity
     final public const string GROUP_READ = 'assetrend:read';
     final public const string GROUP_LIST = 'assetrend:index';
 
+    final public const string OPTION_WRITE_METADATA = 'write_metadata';
+    final public const string OPTION_SOURCE_RENDITION_ID = 'source_rendition_id';
+
     #[ORM\ManyToOne(targetEntity: RenditionDefinition::class, inversedBy: 'renditions')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?RenditionDefinition $definition = null;
+
+    /**
+     * Custom name for dynamic renditions (built from an inline build definition, without a RenditionDefinition).
+     */
+    #[ORM\Column(type: Types::STRING, length: 100, nullable: true)]
+    private ?string $name = null;
+
+    /**
+     * Inline build specification (same YAML format as RenditionDefinition::$definition) for dynamic renditions.
+     */
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[CustomAssert\ValidRenditionDefinitionConstraint]
+    private ?string $buildDefinition = null;
+
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $buildOptions = null;
 
     #[ORM\ManyToOne(targetEntity: Asset::class, inversedBy: 'renditions')]
     #[ORM\JoinColumn(nullable: false)]
@@ -195,19 +239,78 @@ class AssetRendition extends AbstractUuidEntity
         $this->file = $file;
     }
 
-    public function getDefinition(): RenditionDefinition
+    public function getDefinition(): ?RenditionDefinition
     {
         return $this->definition;
     }
 
-    public function setDefinition(RenditionDefinition $definition): void
+    public function setDefinition(?RenditionDefinition $definition): void
     {
         $this->definition = $definition;
     }
 
     public function getName(): string
     {
-        return $this->definition->getName();
+        return $this->name ?? $this->definition->getName();
+    }
+
+    public function setName(?string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function isDynamic(): bool
+    {
+        return null === $this->definition;
+    }
+
+    public function getBuildDefinition(): ?string
+    {
+        return $this->buildDefinition;
+    }
+
+    public function setBuildDefinition(?string $buildDefinition): void
+    {
+        $this->buildDefinition = $buildDefinition;
+    }
+
+    public function getBuildOptions(): ?array
+    {
+        return $this->buildOptions;
+    }
+
+    public function setBuildOptions(?array $buildOptions): void
+    {
+        $this->buildOptions = $buildOptions;
+    }
+
+    public function isWriteMetadata(): bool
+    {
+        return $this->buildOptions[self::OPTION_WRITE_METADATA] ?? false;
+    }
+
+    public function getSourceRenditionId(): ?string
+    {
+        return $this->buildOptions[self::OPTION_SOURCE_RENDITION_ID] ?? null;
+    }
+
+    #[Assert\Callback]
+    public function validateDynamicInvariant(ExecutionContextInterface $context): void
+    {
+        if (null !== $this->definition) {
+            return;
+        }
+
+        if (null === $this->name || '' === $this->name) {
+            $context->buildViolation('A dynamic rendition (without definition) requires a name.')
+                ->atPath('name')
+                ->addViolation();
+        }
+        if (null === $this->buildDefinition || '' === $this->buildDefinition) {
+            $context->buildViolation('A dynamic rendition (without definition) requires a build definition.')
+                ->atPath('buildDefinition')
+                ->addViolation();
+        }
     }
 
     public function isReady(): bool

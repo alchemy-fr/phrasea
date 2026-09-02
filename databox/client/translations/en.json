@@ -868,6 +868,42 @@
     "copy_toclipboard": {
         "copied": "Copied to clipboard!"
     },
+    "create_rendition_dialog": {
+        "bw": {
+            "label": "Black & white"
+        },
+        "create_custom_rendition": "Create custom rendition",
+        "crop": {
+            "aspect": "Aspect ratio",
+            "aspect_custom": "Custom",
+            "aspect_height": "Ratio height",
+            "aspect_original": "Original",
+            "aspect_width": "Ratio width",
+            "label": "Crop",
+            "zoom": "Zoom"
+        },
+        "dimensions": {
+            "height": "Height",
+            "label": "Maximum dimensions (px)",
+            "width": "Width"
+        },
+        "format": {
+            "keep": "Same as source",
+            "label": "Output format"
+        },
+        "generate": "Generate",
+        "name": {
+            "label": "Name"
+        },
+        "rendition_is_being_generated": "Rendition is being generated…",
+        "source": {
+            "label": "Source",
+            "source_file": "Source file"
+        },
+        "write_metadata": {
+            "label": "Write attributes into file metadata"
+        }
+    },
     "create_share_link": {
         "dialog": {
             "submit": "Create Link",
@@ -2185,9 +2221,11 @@
         }
     },
     "renditions": {
+        "create_custom": "Create custom rendition",
         "delete": "Delete",
         "dirty": "Dirty",
         "download": "Download",
+        "generating": "Generating…",
         "replace": "Replace",
         "upload": "Upload Rendition"
     },
