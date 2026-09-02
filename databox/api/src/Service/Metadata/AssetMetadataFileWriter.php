@@ -31,10 +31,14 @@ final readonly class AssetMetadataFileWriter
         try {
             $writer = $this->metadataManipulator->createWriter();
 
-            $tmpFile = sys_get_temp_dir().'/'.uniqid('metadata-file');
+            $tmpFile = tempnam(\dirname($path), 'metadata-file-');
+            if (false === $tmpFile) {
+                throw new \RuntimeException('Failed to create a temporary file for metadata writing.');
+            }
             $writer->write($path, $bag, destination: $tmpFile);
-            unlink($path);
-            rename($tmpFile, $path);
+            if (false === rename($tmpFile, $path)) {
+                throw new \RuntimeException(sprintf('Failed to move temporary metadata file "%s" to "%s".', $tmpFile, $path));
+            }
         } catch (\Throwable $e) {
             // The file format may not support metadata writing; skip embedding for this file.
             $this->logger->error('Failed to write metadata into file', [
