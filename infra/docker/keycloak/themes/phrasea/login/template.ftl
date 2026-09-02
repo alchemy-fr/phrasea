@@ -13,6 +13,7 @@
                                 "header-right" | "form-center" (moves the
                                 logo into the card itself, above the title,
                                 instead of the page header)
+    paradeLoginLogoSize      - integer (px), logo height
     paradeLoginBackgroundUrl - absolute URL, replaces the page background
     paradeLoginBackgroundOverlay - "true" to darken the background image
                                     for legibility (ignored without a
@@ -61,6 +62,7 @@
     <#-- Parade: per-client login branding override, see file header for the attribute contract. -->
     <#assign paradeLogoUrl = (client.attributes.paradeLoginLogoUrl)!''>
     <#assign paradeLogoPosition = (client.attributes.paradeLoginLogoPosition)!'header-center'>
+    <#assign paradeLogoSize = (client.attributes.paradeLoginLogoSize)!''>
     <#assign paradeBackgroundUrl = (client.attributes.paradeLoginBackgroundUrl)!''>
     <#assign paradeBackgroundOverlay = (client.attributes.paradeLoginBackgroundOverlay)!''>
     <#assign paradeBackgroundColor = (client.attributes.paradeLoginBackgroundColor)!''>
@@ -112,6 +114,14 @@
             <#if paradeLogoUrl?has_content && paradeLogoPosition != 'form-center'>
             #kc-header-wrapper {
                 background: url('${paradeLogoUrl}') no-repeat <#if paradeLogoPosition == 'header-left'>left<#elseif paradeLogoPosition == 'header-right'>right<#else>center</#if> center;
+                <#if paradeLogoSize?has_content>
+                background-size: auto ${paradeLogoSize}px;
+                </#if>
+            }
+            </#if>
+            <#if paradeLogoUrl?has_content && paradeLogoPosition == 'form-center' && paradeLogoSize?has_content>
+            .parade-login-form-logo {
+                max-height: ${paradeLogoSize}px;
             }
             </#if>
             <#if paradeAccentColor?has_content>
