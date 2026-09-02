@@ -2,6 +2,7 @@ import {ReactNode} from 'react';
 import {Box, Stack, Typography} from '@mui/material';
 import {Asset} from '../../../../types.ts';
 import AssetThumb, {thumbSx} from '../AssetThumb.tsx';
+import {OnPreviewToggle} from '../../../AssetList/types.ts';
 
 type Props = {
     asset: Asset;
@@ -10,6 +11,7 @@ type Props = {
     selected?: boolean;
     onClick?: () => void;
     leading?: ReactNode;
+    onPreviewToggle?: OnPreviewToggle;
 };
 
 /**
@@ -23,6 +25,7 @@ export default function DuplicateAssetRow({
     selected,
     onClick,
     leading,
+    onPreviewToggle,
 }: Props) {
     const displayTitle = title ?? asset.name ?? asset.id;
 
@@ -41,12 +44,16 @@ export default function DuplicateAssetRow({
                 }`,
                 mb: 1,
                 cursor: onClick ? 'pointer' : undefined,
-                ...thumbSx(48, theme),
+                ...thumbSx(100, theme),
             })}
             onClick={onClick}
         >
             {leading}
-            <AssetThumb asset={asset} noStoryCarousel={true} />
+            <AssetThumb
+                asset={asset}
+                noStoryCarousel={true}
+                onPreviewToggle={onPreviewToggle}
+            />
             <Stack sx={{minWidth: 0}}>
                 <Typography noWrap sx={{fontWeight: 500}} title={displayTitle}>
                     {displayTitle}

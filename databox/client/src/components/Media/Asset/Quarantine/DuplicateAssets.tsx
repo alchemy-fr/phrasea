@@ -7,6 +7,10 @@ import {modalRoutes, Routing} from '../../../../routes.ts';
 import {useNavigateToModal} from '../../../Routing/ModalLink.tsx';
 import {AnalyzerName} from './analysisTypes.ts';
 import DuplicateAssetRow from './DuplicateAssetRow.tsx';
+import DisplayProvider from '../../DisplayProvider.tsx';
+import {usePreview} from '../../../AssetList/usePreview.ts';
+import PreviewPopover from '../../../AssetList/PreviewPopover.tsx';
+import {ZIndex} from '../../../../themes/zIndex.ts';
 
 type Props = {
     fileId: string;
@@ -17,7 +21,15 @@ type Props = {
  * Resolves the duplicates of the analyzed file into assets and lists them
  * with their thumbnail. Shared by the checksum and doc_unique_id analyzers.
  */
-export default function DuplicateAssets({fileId, analyzerName}: Props) {
+export default function DuplicateAssets(props: Props) {
+    return (
+        <DisplayProvider>
+            <DuplicateAssetList {...props} />
+        </DisplayProvider>
+    );
+}
+
+function DuplicateAssetList({fileId, analyzerName}: Props) {
     const {t} = useTranslation();
     const navigateToModal = useNavigateToModal();
 
@@ -31,6 +43,10 @@ export default function DuplicateAssets({fileId, analyzerName}: Props) {
         retry: false,
         staleTime: 2000,
     });
+
+    const {previewAnchorEl, onPreviewToggle, onPreviewHide} = usePreview([
+        duplicates,
+    ]);
 
     if (isError) {
         return null;
@@ -85,8 +101,17 @@ export default function DuplicateAssets({fileId, analyzerName}: Props) {
                             renditionId: Routing.UnknownRendition,
                         });
                     }}
+                    onPreviewToggle={onPreviewToggle}
                 />
             ))}
+            <PreviewPopover
+                onHide={onPreviewHide}
+                key={previewAnchorEl?.asset.id ?? 'none'}
+                asset={previewAnchorEl?.asset}
+                anchorEl={previewAnchorEl?.anchorEl}
+                displayAttributes={true}
+                zIndex={ZIndex.modal + 1}
+            />
         </Box>
     );
 }
