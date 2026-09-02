@@ -1,0 +1,54 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Alchemy\NotifierBundle\:
+        resource: '../src/{Channel,Command,Delivery,Digest,Manager,Notification,Repository,Subscriber,Topic,Security,Message,Twig}/'
+        exclude:
+            - '../src/Notification/RenderedContent.php'
+            - '../src/Subscriber/DirectoryUser.php'
+            - '../src/Subscriber/SubscriberInfo.php'
+            - '../src/Topic/BuiltInTopic.php'
+            - '../src/Topic/TopicDefinition.php'
+            - '../src/Topic/DigestConfig.php'
+            - '../src/Message/SendNotification.php'
+            - '../src/Message/SendEmailNotification.php'
+            - '../src/Message/BroadcastNotification.php'
+            - '../src/Message/FlushNotificationDigest.php'
+
+    # Not covered by the resource above (it sits at the root of src/)
+    Alchemy\NotifierBundle\NotifierState: ~
+
+    # REST controllers
+    Alchemy\NotifierBundle\Controller\:
+        resource: '../src/Controller/'
+        exclude: '../src/Controller/Admin/'
+        tags: ['controller.service_arguments']
+
+    # EasyAdmin CRUD controllers (autoconfigured, must be public).
+    # Requires easycorp/easyadmin-bundle + alchemy/admin-bundle in the app.
+    Alchemy\NotifierBundle\Controller\Admin\:
+        resource: '../src/Controller/Admin/'
+        public: true
+
+    # Everything else is wired through PHP attributes on the classes
+    # themselves. Only optional services stay here: #[Autowire] cannot express
+    # the "inject it if it exists" semantics of `@?`.
+    Alchemy\NotifierBundle\Notification\NotificationRenderer:
+        arguments:
+            # Without symfony/translation the renderer cannot switch locale but
+            # templates still render in the default language.
+            $localeSwitcher: '@?Symfony\Component\Translation\LocaleSwitcher'
+
+    Alchemy\NotifierBundle\Channel\InAppChannel:
+        arguments:
+            # Without core-bundle's Pusher, in-app notifications are still
+            # persisted but not pushed in real time.
+            $pusherManager: '@?Alchemy\CoreBundle\Pusher\PusherManager'
+
+    Alchemy\NotifierBundle\Channel\SmsChannel:
+        arguments:
+            # Inject the texter only when a symfony/notifier texter transport is
+            # configured, otherwise the channel stays inactive.
+            $texter: '@?Symfony\Component\Notifier\TexterInterface'

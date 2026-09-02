@@ -15,7 +15,7 @@ export TRAEFIK_HTTPS_PORT=4442
 export TRAEFIK_HTTP_PORT=8042
 export HTTPS_PORT_PREFIX=':4442'
 export VERIFY_SSL=false
-export COMPOSE_PROFILES=databox,expose,uploader,db,rabbitmq,redis,minio,report,mailhog,elasticsearch,dashboard
+export COMPOSE_PROFILES=databox,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard
 export FIXTURES_GENERATE_IMAGES=true
 export DOCKER_TAG=test
 

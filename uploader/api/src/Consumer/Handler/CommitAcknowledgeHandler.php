@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
-use Alchemy\NotifyBundle\Notification\NotifierInterface;
+use Alchemy\NotifierBundle\Manager\NotifierManager;
 use App\Entity\Asset;
 use App\Entity\Commit;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,7 +17,7 @@ final readonly class CommitAcknowledgeHandler
 {
     public function __construct(
         private MessageBusInterface $bus,
-        private NotifierInterface $notifier,
+        private NotifierManager $notifier,
         private EntityManagerInterface $em,
         private int $deleteAssetGracefulTime,
     ) {
@@ -57,7 +57,7 @@ final readonly class CommitAcknowledgeHandler
         if ($commit->isNotify()) {
             $this->notifier->notifyUser(
                 $commit->getUserId(),
-                'uploader-commit-acknowledged',
+                'commit:acknowledged',
                 [
                     'assetCount' => $commit->getAssets()->count(),
                 ]

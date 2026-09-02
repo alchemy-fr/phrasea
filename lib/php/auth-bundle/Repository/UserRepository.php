@@ -18,7 +18,7 @@ class UserRepository extends AbstractKeycloakRepository implements UserRepositor
             return $this->oauthClient->getUsers($accessToken, $options);
         }
 
-        return $this->keycloakRealmCache->get('users', function () use ($options): array {
+        return $this->keycloakRealmCache->get('users_'.md5(json_encode($options, JSON_THROW_ON_ERROR)), function () use ($options): array {
             return $this->executeWithAccessToken(fn (string $accessToken): array => $this->oauthClient->getUsers($accessToken, $options));
         });
     }

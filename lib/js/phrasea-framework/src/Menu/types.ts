@@ -1,7 +1,11 @@
 import {KeycloakClient} from '@alchemy/auth';
 import React, {PropsWithChildren, ReactNode} from 'react';
 import {LocaleDialogProps} from '../Locale/types';
-import {NotificationUriHandler} from '@alchemy/notification';
+import {
+    NotificationUriHandler,
+    RegisterNotificationRealtime,
+} from '@alchemy/notification';
+import {HttpClient} from '@alchemy/api';
 import {DropdownActionsProps} from '@alchemy/phrasea-ui';
 import {SxProps, Theme} from '@mui/material';
 import {RouteDefinition, RouteParameters} from '@alchemy/navigation';
@@ -11,6 +15,15 @@ export type CommonMenuProps = {
     config: WindowConfig;
     keycloakClient: KeycloakClient;
     notificationUriHandler?: NotificationUriHandler;
+    /**
+     * Authenticated API client used to reach the notifier endpoints. Required
+     * for the notification bell to be displayed.
+     */
+    apiClient?: HttpClient;
+    /**
+     * Subscribes to the real-time notification channel (e.g. Pusher).
+     */
+    registerNotificationRealtime?: RegisterNotificationRealtime;
     topChildren?: ReactNode;
     settingsTopActions?: SettingDropdownProps['topActions'];
 } & SettingDropdownBaseProps;

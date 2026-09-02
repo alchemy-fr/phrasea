@@ -1,0 +1,35 @@
+alchemy_notifier:
+    enabled: '%env(bool:NOTIFICATIONS_ENABLED)%'
+    template_namespace: '@notifications'
+    client_url: '%env(DATABOX_CLIENT_URL)%'
+    default_channels: [email, in_app]
+    topics:
+        # Asset events (NotifyAssetTopicHandler)
+        'asset:update':
+            channels: [email, in_app]
+        'asset:delete':
+            channels: [email, in_app]
+        'asset:new_comment':
+            channels: [email, in_app]
+            digest: { enabled: true, inactivity_delay: 600, max_delay: 3600, group_by: assetId }
+        # Collection events (NotifyCollectionTopicHandler)
+        'collection:asset_add':
+            channels: [email, in_app]
+            digest: { enabled: true, inactivity_delay: 600, max_delay: 3600, group_by: collectionId }
+        'collection:asset_remove':
+            channels: [email, in_app]
+            digest: { enabled: true, inactivity_delay: 600, max_delay: 3600, group_by: collectionId }
+        # Discussion comments (PostDiscussionMessageHandler)
+        'discussion:new_comment':
+            channels: [email, in_app]
+            digest: { enabled: true, inactivity_delay: 600, max_delay: 3600 }
+        # Entity list value awaiting approval (AttributeEntityPendingNotifyHandler)
+        'entity_list:pending_value':
+            channels: [email, in_app]
+        # User-facing exceptions (ExceptionNotifier)
+        'user:exception':
+            channels: [email, in_app]
+
+twig:
+    paths:
+        '%kernel.project_dir%/templates/notifications': notifications

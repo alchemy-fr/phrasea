@@ -1,0 +1,9 @@
+{% block subject %}{{ 'collection.asset_add.in_app.subject'|trans({'%collectionName%': collectionName}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}{{ 'collection.asset_add.in_app.body'|trans({
+    '%author%': author|e,
+    '%assetName%': assetName|e,
+    '%collectionName%': collectionName|e,
+}, 'notifications')|raw }}{% endblock %}
+
+{% block uri %}{{ url|default('') }}{% endblock %}

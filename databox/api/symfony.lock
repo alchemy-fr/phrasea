@@ -26,8 +26,8 @@
     "alchemy/metadata-manipulator-bundle": {
         "version": "dev-PS-478-3_attribute-initializers"
     },
-    "alchemy/notify-bundle": {
-        "version": "dev-PS-706-discussions"
+    "alchemy/notifier-bundle": {
+        "version": "dev-notifier"
     },
     "alchemy/oauth-server-bundle": {
         "version": "dev-ps-248-databox"
@@ -669,6 +669,18 @@
             "config/packages/lock.yaml"
         ]
     },
+    "symfony/mailer": {
+        "version": "7.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "4.3",
+            "ref": "09051cfde49476e3c12cd3a0e44289ace1c75a4f"
+        },
+        "files": [
+            "config/packages/mailer.yaml"
+        ]
+    },
     "symfony/messenger": {
         "version": "6.4",
         "recipe": {
@@ -713,15 +725,6 @@
         "files": [
             "config/packages/notifier.yaml"
         ]
-    },
-    "symfony/novu-notifier": {
-        "version": "6.4",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "6.4",
-            "ref": "fec78b082c512ab8ddd97d26dfb48f8a6080d099"
-        }
     },
     "symfony/options-resolver": {
         "version": "v5.1.6"

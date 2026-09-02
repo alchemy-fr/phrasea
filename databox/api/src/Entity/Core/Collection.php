@@ -217,10 +217,10 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
     final public const string GROUP_ABSOLUTE_NAME = 'coll:absName';
     final public const string GROUP_ASCENDANTS = 'coll:ascendants';
 
-    final public const string EVENT_ASSET_ADD = 'asset_add';
-    final public const string EVENT_ASSET_UPDATE = 'asset_update';
-    final public const string EVENT_ASSET_NEW_COMMENT = 'asset_new_comment';
-    final public const string EVENT_ASSET_REMOVE = 'asset_remove';
+    final public const string EVENT_ASSET_ADD = 'asset:add';
+    final public const string EVENT_ASSET_UPDATE = 'asset:update';
+    final public const string EVENT_ASSET_NEW_COMMENT = 'asset:new_comment';
+    final public const string EVENT_ASSET_REMOVE = 'asset:remove';
 
     final public const string TR_FIELD_NAME = 'name';
 
@@ -465,21 +465,19 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
         return null === $this->workspace->getDeletedAt() && !$this->isStory();
     }
 
-    public function getTopicKeys(): array
+    public function getFollowEvents(): array
     {
-        $id = $this->getId();
-
         return [
-            self::getTopicKey(self::EVENT_ASSET_ADD, $id),
-            self::getTopicKey(self::EVENT_ASSET_REMOVE, $id),
-            self::getTopicKey(self::EVENT_ASSET_NEW_COMMENT, $id),
-            self::getTopicKey(self::EVENT_ASSET_UPDATE, $id),
+            self::EVENT_ASSET_ADD,
+            self::EVENT_ASSET_REMOVE,
+            self::EVENT_ASSET_NEW_COMMENT,
+            self::EVENT_ASSET_UPDATE,
         ];
     }
 
-    public static function getTopicKey(string $event, string $id): string
+    public function getObjectType(): string
     {
-        return 'collection:'.$id.':'.$event;
+        return self::OBJECT_TYPE;
     }
 
     public function getObjectDisplayName(): string

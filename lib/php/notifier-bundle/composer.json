@@ -1,0 +1,72 @@
+{
+    "name": "alchemy/notifier-bundle",
+    "type": "symfony-bundle",
+    "description": "Symfony notifier bundle (subscribers, multi-channel notifications, user preferences)",
+    "keywords": [
+        "notification",
+        "email",
+        "sms",
+        "pusher"
+    ],
+    "homepage": "https://www.alchemy.fr/",
+    "license": "MIT",
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../core-bundle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "../auth-bundle",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "alchemy/auth-bundle": "@dev",
+        "alchemy/core-bundle": "@dev",
+        "doctrine/doctrine-bundle": "^2.11",
+        "doctrine/orm": "^2.7 || ^3",
+        "ramsey/uuid-doctrine": "^1.5",
+        "symfony/clock": "^7.4",
+        "symfony/framework-bundle": "^7.4",
+        "symfony/mailer": "^7.4",
+        "symfony/messenger": "^7.4",
+        "symfony/notifier": "^7.4",
+        "symfony/translation": "^7.4",
+        "symfony/twig-bundle": "^7.4"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "rector": "vendor/bin/rector",
+        "cs": "vendor/bin/php-cs-fixer fix",
+        "test": [
+            "vendor/bin/var-dump-check --symfony --exclude vendor .",
+            "vendor/bin/phpunit"
+        ]
+    },
+    "autoload": {
+        "psr-4": {
+            "Alchemy\\NotifierBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Alchemy\\NotifierBundle\\Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.17",
+        "php-parallel-lint/php-var-dump-check": "v0.5",
+        "phpunit/phpunit": "^11.3.2",
+        "pusher/pusher-php-server": "^7.2.4",
+        "rector/rector": "^2.3.0"
+    }
+}

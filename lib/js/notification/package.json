@@ -4,7 +4,7 @@
     "public": true,
     "main": "index.ts",
     "dependencies": {
-        "@novu/react": "^3.14.1"
+        "@alchemy/api": "workspace:*"
     },
     "scripts": {
         "lint": "eslint src",
@@ -15,12 +15,16 @@
     "peerDependencies": {
         "@mui/icons-material": "^6.5.0",
         "@mui/material": "^6.5.0",
-        "react": "^18.2.0"
+        "axios": "^1.18.1",
+        "react": "^18.2.0",
+        "react-i18next": "^14.1.1"
     },
     "devDependencies": {
         "@mui/icons-material": "^6.5.0",
         "@mui/material": "^6.5.0",
         "@types/react": "^18.3.24",
-        "react": "^18.3.1"
+        "axios": "^1.18.1",
+        "react": "^18.3.1",
+        "react-i18next": "^14.1.3"
     }
 }

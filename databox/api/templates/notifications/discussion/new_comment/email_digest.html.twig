@@ -1,0 +1,16 @@
+{% block subject %}{{ 'discussion.new_comment.email_digest.subject'|trans({'%count%': count}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}{{ 'notification_digest.greeting'|trans({'%recipient%': (recipient.displayName|default(recipient.email))|e}, 'notifications')|raw }}
+{%- for group in byObject %}
+{%- set authors = [] %}
+{%- for event in group %}{% if event.params.author not in authors %}{% set authors = authors|merge([event.params.author]) %}{% endif %}{% endfor %}
+{{ 'discussion.new_comment.email_digest.group'|trans({
+    '%count%': group|length,
+    '%object%': (group|first).params.object|e,
+    '%url%': (notification_url((group|last).params.url|default(null))|default('#'))|e('html_attr'),
+    '%authors%': authors|join(', ')|e,
+}, 'notifications')|raw }}
+{%- endfor %}
+{%- if overflowCount > 0 %}
+{{ 'notification_digest.more'|trans({'%count%': overflowCount}, 'notifications')|raw }}
+{%- endif %}{% endblock %}

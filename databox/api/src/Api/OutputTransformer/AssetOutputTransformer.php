@@ -6,7 +6,7 @@ namespace App\Api\OutputTransformer;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use Alchemy\NotifyBundle\Notification\NotifierInterface;
+use Alchemy\NotifierBundle\Manager\SubscriptionManager;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Attribute\AttributeTypeRegistry;
@@ -47,7 +47,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         private readonly BuiltInAttributeRegistry $builtInAttributeRegistry,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
         private readonly DiscussionManager $discussionManager,
-        private readonly NotifierInterface $notifier,
+        private readonly SubscriptionManager $subscriptionManager,
         #[Autowire(env: 'API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE')]
         private readonly string $ownerPropertyRequiredRole,
         private readonly ClientUrlHelper $clientUrlHelper,
@@ -183,9 +183,10 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
         if ($this->hasGroup([Asset::GROUP_READ], $context)) {
             if ($user instanceof JwtUser) {
-                $output->topicSubscriptions = $this->notifier->getTopicSubscriptions(
-                    $data->getTopicKeys(),
+                $output->topicSubscriptions = $this->subscriptionManager->getSubscribedEvents(
                     $user->getId(),
+                    $data->getObjectType(),
+                    $data->getId(),
                 );
             }
 

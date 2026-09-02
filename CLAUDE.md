@@ -104,12 +104,30 @@ dc run --rm databox-api-php composer test       # full check
 dc run --rm databox-api-php composer phpstan     # static analysis only
 dc run --rm databox-api-php composer cs          # php-cs-fixer
 dc run --rm databox-api-php composer phpunit     # resets test DB + elastica, then PHPUnit
+dc run --rm databox-api-php composer phpunit:compact   # same, agent-friendly output (PREFER THIS)
 ```
+
+**Prefer `composer phpunit:compact`** (databox, expose, uploader): same run as
+`composer phpunit` but with `Alchemy\ApiTest\PHPUnit\CompactResultPrinter` — no
+per-test dot progress, full error/failure traces, and a final one-line-per-defect
+recap, so even `| tail -50` shows the counts and every failing test name. For a
+direct `bin/phpunit` call, add
+`--printer 'Alchemy\ApiTest\PHPUnit\CompactResultPrinter'`.
+
+**PHPUnit needs 1G of memory.** The `composer phpunit` scripts already pass
+`-d memory_limit=1024M`; when calling `bin/phpunit` directly, pass it yourself —
+the databox suite peaks above 512M and dies with an "Allowed memory size
+exhausted" fatal partway through.
+
+**`cache:clear` also needs 1G of memory.** The Twig template warmup blows the
+default 128M limit; run it as
+`bin/console cache:clear` → `php -d memory_limit=1G bin/console cache:clear`
+inside the API containers.
 
 Single PHP test (PHPUnit filter):
 
 ```bash
-dc run --rm -e APP_ENV=test databox-api-php bin/phpunit --filter SomeTest tests/Path/SomeTest.php
+dc run --rm -e APP_ENV=test databox-api-php php -d memory_limit=1024M bin/phpunit --filter SomeTest tests/Path/SomeTest.php
 ```
 
 Symfony console: `dc run --rm databox-api-php bin/console <cmd>`.

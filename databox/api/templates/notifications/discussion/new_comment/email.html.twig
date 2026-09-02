@@ -1,0 +1,8 @@
+{% block subject %}{{ 'discussion.new_comment.email.subject'|trans({'%object%': object}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}{{ 'discussion.new_comment.email.body'|trans({
+    '%recipient%': (recipient.displayName|default(recipient.email))|e,
+    '%author%': author|e,
+    '%object%': object|e,
+    '%url%': (notification_url(url|default(null))|default('#'))|e('html_attr'),
+}, 'notifications')|raw }}{% endblock %}

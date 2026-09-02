@@ -1,0 +1,10 @@
+{# Built-in template of the `admin:message` topic: the content is composed in
+   the admin and delivered as-is. #}
+{% block subject %}{{ subject|default('') }}{% endblock %}
+
+{% block body %}
+{{ body|default('')|raw }}
+{% if url|default %}
+<p><a href="{{ notification_url(url)|e('html_attr') }}">{{ notification_url(url)|e }}</a></p>
+{% endif %}
+{% endblock %}

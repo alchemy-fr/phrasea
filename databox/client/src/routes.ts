@@ -17,6 +17,7 @@ import HomePage from './pages/HomePage.tsx';
 import PageEditPage from './pages/PageEditPage.tsx';
 import PagePage from './pages/PagePage.tsx';
 import PageIndexPage from './pages/PageIndexPage.tsx';
+import NotificationUriPage from './pages/NotificationUriPage.tsx';
 import {AuthConstant} from '@alchemy/auth';
 import OperationTasksDialog from './components/OperationTasks/OperationTasksDialog.tsx';
 import RunTaskDialog from './components/OperationTasks/RunTaskDialog.tsx';
@@ -171,6 +172,11 @@ const routes = {
         path: 'assets',
         component: App,
         public: true,
+    },
+    notificationUri: {
+        path: 'notification-uri',
+        component: NotificationUriPage,
+        public: false,
     },
     auth: {
         path: AuthConstant.DefaultCheckCodePath,

@@ -1,0 +1,9 @@
+{% block subject %}{{ 'collection.asset_add.email.subject'|trans({'%collectionName%': collectionName}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}{{ 'collection.asset_add.email.body'|trans({
+    '%recipient%': (recipient.displayName|default(recipient.email))|e,
+    '%author%': author|e,
+    '%assetName%': assetName|e,
+    '%collectionName%': collectionName|e,
+    '%url%': notification_url(url)|e('html_attr'),
+}, 'notifications')|raw }}{% endblock %}

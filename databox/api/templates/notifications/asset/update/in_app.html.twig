@@ -1,0 +1,5 @@
+{% block subject %}{{ 'asset.update.in_app.subject'|trans({}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}{{ 'asset.update.in_app.body'|trans({'%author%': author|e, '%name%': name|e}, 'notifications')|raw }}{% endblock %}
+
+{% block uri %}{{ url|default('') }}{% endblock %}

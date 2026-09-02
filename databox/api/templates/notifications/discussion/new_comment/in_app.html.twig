@@ -1,0 +1,5 @@
+{% block subject %}{{ 'discussion.new_comment.in_app.subject'|trans({}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}{{ 'discussion.new_comment.in_app.body'|trans({'%author%': author|e, '%object%': object|e}, 'notifications')|raw }}{% endblock %}
+
+{% block uri %}{{ url|default('') }}{% endblock %}
