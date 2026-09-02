@@ -2,7 +2,7 @@ import {
     AssetRendition,
     RenditionPolicy,
     RenditionDefinition,
-    RenditionBuildModule,
+    RenditionBuildReference,
     AssetType,
     AssetTypeFilter,
 } from '../types';
@@ -72,12 +72,8 @@ export async function getRenditionDefinitions({
     return getHydraCollection(res.data);
 }
 
-export async function getRenditionBuildModules(): Promise<
-    NormalizedCollectionResponse<RenditionBuildModule>
-> {
-    const res = await apiClient.get(`/${EntityName.RenditionBuildModule}`);
-
-    return getHydraCollection(res.data);
+export async function getRenditionBuildReference(): Promise<RenditionBuildReference> {
+    return (await apiClient.get(`/${EntityName.RenditionBuildReference}`)).data;
 }
 
 export async function putRenditionPolicy(

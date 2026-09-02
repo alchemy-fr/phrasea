@@ -717,8 +717,10 @@ export interface IntegrationType {
     references: ReferenceSection[];
 }
 
-export interface RenditionBuildModule extends ReferenceSection {
+export interface RenditionBuildReference {
     id: string;
+    reference: string;
+    references: ReferenceSection[];
 }
 
 export type IntegrationToken = {
