@@ -21,16 +21,17 @@ export function getBestErrorProp(data: any): string | undefined {
     }
 
     let error: string | undefined;
-    if (data[ApiConstant.HydraTitle] && data[ApiConstant.HydraDescription]) {
-        error = `${data[ApiConstant.HydraTitle]}: ${data[ApiConstant.HydraDescription]}`;
+    if (data[ApiConstant.ErrorTitle] && data[ApiConstant.ErrorDescription]) {
+        error = `${data[ApiConstant.ErrorTitle]}: ${data[ApiConstant.ErrorDescription]}`;
     } else {
         error =
             data['error_message'] ??
             data['detail'] ??
             data['message'] ??
-            data[ApiConstant.HydraDescription] ??
-            data[ApiConstant.HydraTitle] ??
-            data['title'];
+            data[ApiConstant.ErrorDescription] ??
+            data['hydra:description'] ??
+            data[ApiConstant.ErrorTitle] ??
+            data['hydra:title'];
     }
 
     if (error && data['trace']) {
