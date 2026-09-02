@@ -14,7 +14,7 @@ class TargetParamsTest extends AbstractUploaderTestCase
             KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/target-params');
         $this->assertEquals(200, $response->getStatusCode());
         $data = $response->toArray();
-        $this->assertEquals([], $data['hydra:member']);
+        $this->assertEquals([], $data['member']);
 
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/target-params', [
             'data' => [],

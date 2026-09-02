@@ -43,15 +43,15 @@ class TagTest extends AbstractSearchTestCase
         $this->assertJsonContains([
             '@context' => '/contexts/tag',
             '@id' => '/tags',
-            '@type' => 'hydra:Collection',
-            'hydra:totalItems' => $resultCount,
-            'hydra:view' => [
-                '@type' => 'hydra:PartialCollectionView',
+            '@type' => 'Collection',
+            'totalItems' => $resultCount,
+            'view' => [
+                '@type' => 'PartialCollectionView',
             ],
         ]);
 
         // Because test fixtures are automatically loaded between each test, you can assert on them
-        $this->assertCount($resultCount, $response->toArray()['hydra:member']);
+        $this->assertCount($resultCount, $response->toArray()['member']);
 
         // Asserts that the returned JSON is validated by the JSON Schema generated for this resource by API Platform
         // This generated JSON Schema is also used in the OpenAPI spec!
@@ -134,9 +134,9 @@ class TagTest extends AbstractSearchTestCase
         $this->assertResponseHeaderSame('content-type', 'application/problem+json; charset=utf-8');
 
         $this->assertJsonContains([
-            '@type' => 'hydra:Error',
-            'hydra:title' => 'An error occurred',
-            'hydra:description' => 'Missing workspace',
+            '@type' => 'Error',
+            'title' => 'An error occurred',
+            'description' => 'Missing workspace',
         ]);
     }
 

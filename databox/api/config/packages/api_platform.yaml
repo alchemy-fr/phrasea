@@ -1,6 +1,4 @@
 api_platform:
-    serializer:
-        hydra_prefix: true
     defaults:
         extra_properties:
             standard_put: false
