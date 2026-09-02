@@ -76,8 +76,8 @@ YAML;
         $names = array_column($response->toArray()['hydra:member'], 'name');
         $this->assertContains('my-custom-crop', $names);
 
-        // Re-creating with the same name replaces the pending rendition
-        $response = $client->request('POST', '/renditions', [
+        // Re-creating with the same name is rejected: the rendition must be deleted first
+        $client->request('POST', '/renditions', [
             'headers' => [
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
@@ -87,8 +87,7 @@ YAML;
                 'buildDefinition' => self::BUILD_DEFINITION,
             ],
         ]);
-        $this->assertResponseStatusCodeSame(201);
-        $this->assertSame($renditionId, $response->toArray()['id']);
+        $this->assertResponseStatusCodeSame(400);
 
         $client->request('DELETE', '/renditions/'.$renditionId, [
             'headers' => [

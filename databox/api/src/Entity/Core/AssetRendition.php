@@ -97,11 +97,11 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                                     'assetId' => ['type' => 'string'],
                                     'name' => [
                                         'type' => 'string',
-                                        'description' => 'The definition name, or the custom rendition name when "buildDefinition" is provided',
+                                        'description' => 'The definition name, or the custom rendition name when "buildDefinition" is provided (must be unique among the asset\'s dynamic renditions)',
                                     ],
                                     'buildDefinition' => [
                                         'type' => 'string',
-                                        'description' => 'Inline build specification (same YAML format as a rendition definition). The rendition is built asynchronously from it.',
+                                        'description' => 'Inline build specification (same YAML format as a rendition definition). The rendition is built asynchronously from it. If a dynamic rendition with the same name already exists for the asset, the request is rejected: delete it first to rebuild under the same name.',
                                     ],
                                     'writeMetadata' => [
                                         'type' => 'boolean',

@@ -19,7 +19,8 @@ class AssetRenditionInput
 
     /**
      * Rendition definition name. Or provide definitionId.
-     * When "buildDefinition" is provided, this is the custom name of the dynamic rendition.
+     * When "buildDefinition" is provided, this is the custom name of the dynamic rendition;
+     * it must be unique among the asset's dynamic renditions (creating with an existing name is rejected).
      *
      * @var string|null
      */
