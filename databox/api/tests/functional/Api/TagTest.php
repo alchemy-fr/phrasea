@@ -155,7 +155,7 @@ class TagTest extends AbstractSearchTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(400);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/problem+json; charset=utf-8');
 
         $this->assertJsonContains([
             '@type' => 'hydra:Error',

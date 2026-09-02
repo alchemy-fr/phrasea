@@ -1,4 +1,9 @@
 api_platform:
+    serializer:
+        hydra_prefix: true
+    defaults:
+        extra_properties:
+            standard_put: false
     formats:
         jsonld: [ 'application/ld+json', 'application/merge-patch+json' ]
         json: [ 'application/json', 'application/merge-patch+json' ]

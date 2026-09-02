@@ -26,7 +26,7 @@ class AssetUploadTest extends AbstractUploaderTestCase
         ]);
         $this->assertSame(400, $response->getStatusCode());
         $data = $response->toArray(false);
-        $this->assertStringContainsString('"targetId" or "targetSlug" is required', $data['hydra:description']);
+        $this->assertStringContainsString('"targetId" or "targetSlug" is required', $data['detail']);
 
         $target = $this->getOrCreateDefaultTarget();
         $response = $client->request('POST', '/assets', [
