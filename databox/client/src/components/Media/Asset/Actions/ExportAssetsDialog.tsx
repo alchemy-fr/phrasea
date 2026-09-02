@@ -51,9 +51,9 @@ export default function ExportAssetsDialog({assets, ...modalProps}: Props) {
     const {t} = useTranslation();
     const [definitions, setDefinitions] = useState<IndexedDefinition>();
     const [unsignedTerms, setUnsignedTerms] = useState<UnsignedTerms[]>();
-    const [acceptedTerms, setAcceptedTerms] = useState<
-        Record<string, boolean>
-    >({});
+    const [acceptedTerms, setAcceptedTerms] = useState<Record<string, boolean>>(
+        {}
+    );
     const [loading, setLoading] = useState(false);
     const {closeModal} = useModals();
     const addExport = useAssetExportStore(state => state.addExport);
