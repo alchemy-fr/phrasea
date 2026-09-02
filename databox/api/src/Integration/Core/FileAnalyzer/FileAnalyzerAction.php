@@ -10,6 +10,7 @@ use Alchemy\Workflow\State\JobState;
 use App\Border\FileAnalyzer;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\AssetStatusEnum;
+use App\Entity\Core\File;
 use App\Integration\AbstractIntegrationAction;
 use App\Integration\IfActionInterface;
 
@@ -43,6 +44,18 @@ final class FileAnalyzerAction extends AbstractIntegrationAction implements IfAc
             if (!$file) {
                 throw new \InvalidArgumentException(sprintf('Asset "%s" has no source file', $asset->getId()));
             }
+        }
+
+        if (($config['skipNonSourceFiles'] ?? false) && $file->getId() !== $asset->getSource()?->getId()) {
+            $file->setAnalysis([
+                'status' => File::ANALYSIS_SKIPPED,
+                'message' => 'File analysis skipped because the file is not the source file of the asset.',
+            ]);
+            $this->em->persist($file);
+            $this->em->flush();
+            $context->setOutput('analyzed', false);
+
+            return;
         }
 
         $analyzersConfig = [

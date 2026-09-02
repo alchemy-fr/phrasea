@@ -7,6 +7,7 @@ namespace App\Service\Asset;
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use Alchemy\Workflow\WorkflowOrchestrator;
 use App\Attribute\AttributeDataImporter;
+use App\Border\FileAnalyzer\FileDuplicateManager;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\File;
@@ -22,6 +23,7 @@ readonly class AssetManager
         private EntityManagerInterface $em,
         private WorkflowOrchestrator $workflowOrchestrator,
         private PostFlushStack $postFlushStack,
+        private FileDuplicateManager $fileDuplicateManager,
     ) {
     }
 
@@ -53,6 +55,7 @@ readonly class AssetManager
         });
 
         $file->resetAnalysis();
+        $this->fileDuplicateManager->removeAllForFile($file);
 
         $this->em->persist($asset);
         $this->em->persist($file);

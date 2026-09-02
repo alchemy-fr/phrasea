@@ -3,9 +3,11 @@
  * `App\Border\FileAnalyzer` and the individual analyzers under
  * `App\Border\FileAnalyzer\Analyzer`.
  *
- * Each analyzer emits an {@link AnalyzerOutput} (messages + data + duplicates).
+ * Each analyzer emits an {@link AnalyzerOutput} (messages + data).
  * The `FileAnalyzer` wraps every output into an {@link AnalyzerResult} and
  * aggregates them into the {@link FileAnalysis} stored on `File::$analysis`.
+ * The duplicate files themselves live in the `file_duplicate` table and are
+ * resolved as assets through `GET /files/{id}/duplicates`.
  */
 
 // Mirrors App\Border\FileAnalyzer\Dto\LogLevelEnum
@@ -44,7 +46,6 @@ export type AnalysisMessage = [
 export type AnalyzerOutput = {
     messages?: AnalysisMessage[];
     data?: Record<string, any>;
-    duplicates?: string[];
 };
 
 export type AnalyzerResult = {
@@ -60,21 +61,29 @@ export type FileAnalysis = {
     results?: AnalyzerResult[];
 };
 
-/**
- * Collects the unique duplicate file IDs reported across all analyzers of an
- * analysis (checksum, doc_unique_id, ...).
- */
-export function collectDuplicateFileIds(
-    analysis: FileAnalysis | null | undefined
-): string[] {
-    const ids = new Set<string>();
-    for (const result of analysis?.results ?? []) {
-        for (const id of result.output?.duplicates ?? []) {
-            ids.add(id);
-        }
-    }
+const duplicateMessagePrefix = 'duplicate_';
 
-    return Array.from(ids);
+/**
+ * Whether an analyzer output reported at least one duplicate
+ * (i.e. carries a `duplicate_*` message).
+ */
+export function outputHasDuplicates(
+    output: AnalyzerOutput | null | undefined
+): boolean {
+    return (output?.messages ?? []).some(m =>
+        getMessageType(m).startsWith(duplicateMessagePrefix)
+    );
+}
+
+/**
+ * Whether any analyzer of the analysis reported duplicates.
+ */
+export function hasAnalysisDuplicates(
+    analysis: FileAnalysis | null | undefined
+): boolean {
+    return (analysis?.results ?? []).some(result =>
+        outputHasDuplicates(result.output)
+    );
 }
 
 // Analyzer names (AnalyzerInterface::getName())
@@ -96,8 +105,7 @@ export function hasAnalyzerDuplicates(
 ): boolean {
     return (analysis?.results ?? []).some(
         result =>
-            result.name === analyzerName &&
-            (result.output?.duplicates?.length ?? 0) > 0
+            result.name === analyzerName && outputHasDuplicates(result.output)
     );
 }
 

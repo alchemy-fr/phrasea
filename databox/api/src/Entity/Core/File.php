@@ -9,7 +9,9 @@ use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use App\Api\Model\Output\AssetDuplicateOutput;
 use App\Api\Model\Output\FileOutput;
+use App\Api\Provider\FileDuplicatesProvider;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\FileRepository;
 use App\Security\Voter\AbstractVoter;
@@ -29,6 +31,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
             normalizationContext: ['groups' => [File::GROUP_METADATA]],
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
             name: 'file_metadata',
+        ),
+        new Get(
+            uriTemplate: '/files/{id}/duplicates',
+            output: AssetDuplicateOutput::class,
+            name: 'file_duplicates',
+            provider: FileDuplicatesProvider::class,
         ),
     ],
     normalizationContext: [

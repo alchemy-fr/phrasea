@@ -7,6 +7,7 @@ namespace App\Consumer\Handler\Asset;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use App\Consumer\Handler\Collection\CollectionsRestore;
+use App\Consumer\Handler\File\RestoreDuplicateLinks;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Entity\Core\Asset;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,11 +30,15 @@ readonly class AssetsRestoreHandler
         $assets = DoctrineUtil::iterateIds($this->em->getRepository(Asset::class), $message->getIds());
 
         $collections = [];
+        $sourceFileIds = [];
         DeferredIndexListener::disable();
         try {
             foreach ($assets as $asset) {
                 if ($asset->getStoryCollection()) {
                     $collections[$asset->getStoryCollection()->getId()] = true;
+                }
+                if (null !== $asset->getSource()) {
+                    $sourceFileIds[$asset->getSource()->getId()] = true;
                 }
                 $asset->setDeletedAt(null);
                 $this->em->persist($asset);
@@ -45,6 +50,11 @@ readonly class AssetsRestoreHandler
 
         if (!empty($collections)) {
             $this->bus->dispatch(new CollectionsRestore(array_keys($collections)));
+        }
+
+        // Restored assets' source files count as duplicates again: re-link matching analyzed files.
+        if (!empty($sourceFileIds)) {
+            $this->bus->dispatch(new RestoreDuplicateLinks(array_keys($sourceFileIds)));
         }
 
         $this->elasticSearchClient->updateByQuery(

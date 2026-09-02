@@ -13,8 +13,8 @@ import {bypassQuarantine} from '../../../../api/asset.ts';
 import {useAssetStore} from '../../../../store/assetStore.ts';
 import {
     AnalyzerName,
-    collectDuplicateFileIds,
     FileAnalysis,
+    hasAnalysisDuplicates,
     hasAnalyzerDuplicates,
 } from './analysisTypes.ts';
 import MergeDuplicatesDialog from './MergeDuplicatesDialog.tsx';
@@ -35,7 +35,7 @@ export default function QuarantineActionBar({asset, analysis}: Props) {
     const canBypass =
         (asset.capabilities as {bypassQuarantine?: boolean}).bypassQuarantine ??
         false;
-    const hasDuplicates = collectDuplicateFileIds(analysis).length > 0;
+    const hasDuplicates = hasAnalysisDuplicates(analysis);
     const canAddAsVersion = hasAnalyzerDuplicates(
         analysis,
         AnalyzerName.DocUniqueId

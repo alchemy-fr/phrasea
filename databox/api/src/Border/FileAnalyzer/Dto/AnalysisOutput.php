@@ -32,6 +32,14 @@ final class AnalysisOutput
         $this->duplicates[] = $fileId;
     }
 
+    /**
+     * @return string[]
+     */
+    public function getDuplicates(): array
+    {
+        return $this->duplicates;
+    }
+
     public function setData(array $data): void
     {
         $this->data = $data;
@@ -45,7 +53,6 @@ final class AnalysisOutput
         return array_filter([
             'messages' => $map($this->messages),
             'data' => $this->data,
-            'duplicates' => $this->duplicates,
         ], fn ($value) => !empty($value));
     }
 

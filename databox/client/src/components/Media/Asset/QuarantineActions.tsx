@@ -11,6 +11,7 @@ type Props = {
 
 export default function QuarantineActions({asset}: Props) {
     const {t} = useTranslation();
+    const sourceId = asset.source?.id;
     const analysis: FileAnalysis | null | undefined = asset.source?.analysis;
     const results = analysis?.results ?? [];
 
@@ -34,11 +35,12 @@ export default function QuarantineActions({asset}: Props) {
                 </Alert>
             )}
 
-            {results.length > 0 ? (
+            {sourceId && results.length > 0 ? (
                 <Stack spacing={2} sx={{mb: 2}}>
                     {results.map((result, index) => (
                         <AnalyzerResult
                             key={`${result.name}-${index}`}
+                            fileId={sourceId}
                             result={result}
                         />
                     ))}

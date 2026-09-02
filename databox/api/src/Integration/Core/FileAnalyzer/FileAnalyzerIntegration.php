@@ -36,6 +36,10 @@ class FileAnalyzerIntegration extends AbstractIntegration implements WorkflowInt
                 ->enumPrototype()
                     ->values($actions)
                 ->end()
+            ->end()
+            ->booleanNode('skipNonSourceFiles')
+                ->defaultFalse()
+                ->info('Skip the analysis of files that are not the source file of the asset (e.g. renditions).')
             ->end();
         // @formatter:on
     }

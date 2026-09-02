@@ -51,10 +51,6 @@ final readonly class ChecksumAnalyzer extends AbstractAnalyzer
                 ->info('The maximum number of duplicates to check for. If more than this number of duplicates are found, only the first N will be returned.')
                 ->defaultValue(10)
             ->end()
-            ->booleanNode('treatDuplicateAsError')
-                ->defaultFalse()
-                ->info('Whether to treat duplicate files as errors instead of warnings.')
-            ->end()
         ;
         // @formatter:on
     }
@@ -91,8 +87,8 @@ final readonly class ChecksumAnalyzer extends AbstractAnalyzer
         if ($config['findDuplicates'] && $config['stripMetadata']) {
             $existingFiles = $this->fileRepository->findDuplicatesByChecksum($file, $config['duplicatesLimit']);
             if (!empty($existingFiles)) {
-                foreach ($existingFiles as $file) {
-                    $output->addDuplicate($file->getId());
+                foreach ($existingFiles as $duplicateFile) {
+                    $output->addDuplicate($duplicateFile->getId());
                 }
 
                 $output->addMessage(LogLevelEnum::Critical, self::TYPE_DUPLICATE_CHECKSUM, [
