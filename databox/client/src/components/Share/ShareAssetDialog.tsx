@@ -149,9 +149,13 @@ export default function ShareAssetDialog({assets, ...modalProps}: Props) {
             maxWidth={advancedMode ? 'md' : 'sm'}
             title={
                 assets.length > 1
-                    ? t('share.dialog.title_multiple', 'Share {{count}} Assets', {
-                          count: assets.length,
-                      })
+                    ? t(
+                          'share.dialog.title_multiple',
+                          'Share {{count}} Assets',
+                          {
+                              count: assets.length,
+                          }
+                      )
                     : t('share.dialog.title', 'Share Asset')
             }
             loading={loading}

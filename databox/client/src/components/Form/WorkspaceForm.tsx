@@ -318,10 +318,7 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                             disabled={submitting}
                             startIcon={<UploadFileIcon />}
                         >
-                            {t(
-                                'form.workspace.termsPdf.upload',
-                                'Upload PDF'
-                            )}
+                            {t('form.workspace.termsPdf.upload', 'Upload PDF')}
                             <input
                                 type={'file'}
                                 accept={'application/pdf'}

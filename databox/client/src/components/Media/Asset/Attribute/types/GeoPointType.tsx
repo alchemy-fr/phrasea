@@ -5,9 +5,11 @@ import {
     AvailableFormat,
 } from './types';
 import TextType from './TextType';
-import {Marker, Popup} from 'react-leaflet';
-import OpenStreetMap from '../../../../Map/OpenStreetMap';
 import React from 'react';
+
+// Lazy so that leaflet (which touches `document` at import time)
+// stays out of the server-side rendering module graph
+const GeoPointMap = React.lazy(() => import('./GeoPointMap'));
 
 enum Formats {
     Map = 'map',
@@ -60,17 +62,12 @@ export default class GeoPointType extends TextType {
                 };
 
                 return (
-                    <OpenStreetMap
-                        width={300}
-                        height={200}
-                        center={position}
-                        zoom={13}
-                        scrollWheelZoom={false}
-                    >
-                        <Marker position={position}>
-                            <Popup>{this.formatValueAsString(props)}</Popup>
-                        </Marker>
-                    </OpenStreetMap>
+                    <React.Suspense fallback={null}>
+                        <GeoPointMap
+                            position={position}
+                            popup={this.formatValueAsString(props)}
+                        />
+                    </React.Suspense>
                 );
             }
             default:

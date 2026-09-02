@@ -1,9 +1,18 @@
-let currentLanguages: string[] = [...window.navigator.languages];
+// Server-side rendering has no window: fall back to a static language list
+function getNavigatorLanguages(): readonly string[] {
+    if (typeof window !== 'undefined' && window.navigator?.languages) {
+        return window.navigator.languages;
+    }
+
+    return ['en'];
+}
+
+let currentLanguages: string[] = [...getNavigatorLanguages()];
 
 export function setCurrentLocale(locale: string | undefined) {
     currentLanguages = [
         ...(locale ? [locale] : []),
-        ...window.navigator.languages.filter(l => l !== locale),
+        ...getNavigatorLanguages().filter(l => l !== locale),
     ];
 }
 

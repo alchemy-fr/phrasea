@@ -1,5 +1,7 @@
 import {Box, useTheme} from '@mui/material';
-import {AppLogo} from '@alchemy/phrasea-framework';
+// Deep import: the framework barrel pulls the whole app menu
+// (notifications, analytics…) which must stay out of the SSR graph
+import {AppLogo} from '@alchemy/phrasea-framework/src/Menu/AppLogo';
 import {config} from '../../init.ts';
 import {useTranslation} from 'react-i18next';
 

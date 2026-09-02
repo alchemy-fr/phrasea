@@ -1,7 +1,7 @@
 import {KeycloakClient} from '@alchemy/auth';
 import React, {PropsWithChildren, ReactNode} from 'react';
 import {LocaleDialogProps} from '../Locale/types';
-import {
+import type {
     NotificationUriHandler,
     RegisterNotificationRealtime,
 } from '@alchemy/notification';

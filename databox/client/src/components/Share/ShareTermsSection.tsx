@@ -32,10 +32,14 @@ export default function ShareTermsSection({terms}: Props) {
                     mb: 2,
                 }}
             >
-                {t('share.terms.subtitle', '{{workspace}} — version {{version}}', {
-                    workspace: terms.workspaceName,
-                    version: terms.version,
-                })}
+                {t(
+                    'share.terms.subtitle',
+                    '{{workspace}} — version {{version}}',
+                    {
+                        workspace: terms.workspaceName,
+                        version: terms.version,
+                    }
+                )}
             </Typography>
             {terms.pdfUrl ? (
                 <Button

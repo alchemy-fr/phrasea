@@ -6,8 +6,13 @@ import {FileWithUrl, PlayerProps} from './Players';
 import PDFPlayer from './Players/PDFPlayer';
 import ImagePlayer from './Players/ImagePlayer.tsx';
 import React from 'react';
-import FileAnalysisChipWrapper from './FileAnalysisChipWrapper.tsx';
 import AudioPlayer from './Players/AudioPlayer.tsx';
+
+// Lazy: the chip navigates to modal routes, and importing the route table
+// drags the whole application (leaflet included) into the SSR module graph
+const FileAnalysisChipWrapper = React.lazy(
+    () => import('./FileAnalysisChipWrapper.tsx')
+);
 
 type Props = {
     file: ApiFile;
@@ -25,9 +30,11 @@ export default function FilePlayer({
 
     if (file.analysisPending || false === file.accepted) {
         return (
-            <FileAnalysisChipWrapper file={file}>
-                <AssetFileIcon mimeType={file.type} />
-            </FileAnalysisChipWrapper>
+            <React.Suspense fallback={<AssetFileIcon mimeType={file.type} />}>
+                <FileAnalysisChipWrapper file={file}>
+                    <AssetFileIcon mimeType={file.type} />
+                </FileAnalysisChipWrapper>
+            </React.Suspense>
         );
     }
 
