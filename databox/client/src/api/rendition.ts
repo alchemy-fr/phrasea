@@ -49,6 +49,9 @@ type RenditionInput = {
     substituted?: boolean;
     force?: boolean;
     multipart?: MultipartUpload;
+    buildDefinition?: string;
+    writeMetadata?: boolean;
+    sourceRenditionId?: string;
 };
 
 export async function postRendition(

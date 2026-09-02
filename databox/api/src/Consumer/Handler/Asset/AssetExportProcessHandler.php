@@ -107,10 +107,10 @@ class AssetExportProcessHandler
 
                         $definition = $rendition->getDefinition();
 
-                        if ($definition->isWriteMetadata()) {
+                        if ($definition?->isWriteMetadata()) {
                             $bag = new MetadataBag();
 
-                            if ($definition->getBuildMode() === RenditionDefinition::BUILD_MODE_PICK_SOURCE) {
+                            if (RenditionDefinition::BUILD_MODE_PICK_SOURCE === $definition->getBuildMode()) {
                                 foreach ($file->getMetadataValues() as $tagGroupId => $values) {
                                     $meta = $this->metadataManipulator->createMetadata($tagGroupId);
                                     $tagGroup = $meta->getTagGroup();

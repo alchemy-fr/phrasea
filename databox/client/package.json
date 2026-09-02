@@ -80,6 +80,7 @@
         "react-dnd-html5-backend": "^16.0.1",
         "react-dom": "^18.3.1",
         "react-dropzone": "^14.3.8",
+        "react-easy-crop": "^6.2.3",
         "react-helmet": "^6.1.0",
         "react-hook-form": "^7.63.0",
         "react-hotkeys-hook": "^5.2.4",

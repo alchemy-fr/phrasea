@@ -52,6 +52,9 @@ final class ShareReadProvider implements ProviderInterface
 
         foreach ($renditions as $rendition) {
             $definition = $rendition->getDefinition();
+            if (null === $definition) {
+                continue;
+            }
             if ($this->isGranted(AbstractVoter::READ, $rendition)) {
                 $item->alternateUrls[] = new ShareAlternateUrlOutput(
                     $definition->getName(),
