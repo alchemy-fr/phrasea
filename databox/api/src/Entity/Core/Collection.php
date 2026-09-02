@@ -21,6 +21,8 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
 use App\Api\Model\Input\CollectionInput;
 use App\Api\Model\Input\CollectionsDeleteInput;
 use App\Api\Model\Input\CollectionsRestoreInput;
@@ -93,16 +95,16 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'dest' => new Link(fromClass: Collection::class, identifiers: ['id'], expandedValue: '{dest}'),
                 'id' => new Link(fromClass: Collection::class, identifiers: ['id']),
             ],
-            openapiContext: [
-                'parameters' => [
-                    [
-                        'name' => 'dest',
-                        'in' => 'path',
-                        'required' => true,
-                        'description' => 'The destination collection ID',
-                    ],
+            openapi: new OpenApiOperation(
+                parameters: [
+                    new OpenApiParameter(
+                        name: 'dest',
+                        in: 'path',
+                        description: 'The destination collection ID',
+                        required: true,
+                    ),
                 ],
-            ],
+            ),
             security: 'is_granted("EDIT", object)',
             deserialize: false,
             name: 'put_move',

@@ -6,8 +6,8 @@ namespace App\Api\Processor;
 
 use Alchemy\AclBundle\Repository\UserRepositoryInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use ApiPlatform\Api\IriConverterInterface;
 use ApiPlatform\Metadata\Exception\ItemNotFoundException;
+use ApiPlatform\Metadata\IriConverterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\ResolveEntitiesInput;

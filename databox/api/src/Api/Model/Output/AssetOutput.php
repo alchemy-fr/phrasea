@@ -52,11 +52,11 @@ class AssetOutput extends AbstractUuidOutput
     protected ?array $attributes = null;
 
     /**
-     * @var AssetAttachment[]
+     * @var AssetAttachment[]|null
      */
     #[Groups([Asset::GROUP_READ])]
     #[MaxDepth(1)]
-    public $attachments;
+    public ?array $attachments = null;
 
     #[Groups([
         Asset::GROUP_LIST,
