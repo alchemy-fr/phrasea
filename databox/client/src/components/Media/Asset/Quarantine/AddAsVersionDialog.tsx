@@ -15,9 +15,7 @@ import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {useAssetStore} from '../../../../store/assetStore.ts';
 import {toast} from 'react-toastify';
 import {AnalyzerName} from './analysisTypes.ts';
-import DuplicateAssetRow, {
-    duplicateToThumbAsset,
-} from './DuplicateAssetRow.tsx';
+import DuplicateAssetRow from './DuplicateAssetRow.tsx';
 
 type Props = {
     asset: Asset;
@@ -50,7 +48,7 @@ export default function AddAsVersionDialog({
 
     React.useEffect(() => {
         if (targets.length > 0) {
-            setTargetId(targets[0].id);
+            setTargetId(targets[0].asset.id);
         }
     }, [targets]);
 
@@ -113,11 +111,10 @@ export default function AddAsVersionDialog({
                         value={targetId ?? ''}
                         onChange={e => setTargetId(e.target.value)}
                     >
-                        {targets.map(target => (
+                        {targets.map(({asset: target}) => (
                             <DuplicateAssetRow
                                 key={target.id}
-                                asset={duplicateToThumbAsset(target)}
-                                title={target.title ?? target.id}
+                                asset={target}
                                 subtitle={
                                     target.createdAt
                                         ? new Date(

@@ -1,33 +1,16 @@
 import {ReactNode} from 'react';
 import {Box, Stack, Typography} from '@mui/material';
 import {Asset} from '../../../../types.ts';
-import {DuplicateAsset} from '../../../../api/asset.ts';
 import AssetThumb, {thumbSx} from '../AssetThumb.tsx';
 
 type Props = {
     asset: Asset;
-    title: string;
+    title?: string;
     subtitle?: ReactNode;
     selected?: boolean;
     onClick?: () => void;
     leading?: ReactNode;
 };
-
-/**
- * Builds the minimal Asset shape needed by AssetThumb from a duplicate
- * returned by the duplicates endpoints.
- */
-export function duplicateToThumbAsset(duplicate: DuplicateAsset): Asset {
-    return {
-        id: duplicate.id,
-        name: duplicate.title ?? undefined,
-        thumbnail: duplicate.thumbnail
-            ? {file: duplicate.thumbnail}
-            : undefined,
-        source: duplicate.sourceType ? {type: duplicate.sourceType} : undefined,
-        capabilities: {},
-    } as unknown as Asset;
-}
 
 /**
  * A duplicate asset displayed with its thumbnail: shared by the duplicates
@@ -41,6 +24,8 @@ export default function DuplicateAssetRow({
     onClick,
     leading,
 }: Props) {
+    const displayTitle = title ?? asset.name ?? asset.id;
+
     return (
         <Box
             sx={theme => ({
@@ -63,8 +48,8 @@ export default function DuplicateAssetRow({
             {leading}
             <AssetThumb asset={asset} noStoryCarousel={true} />
             <Stack sx={{minWidth: 0}}>
-                <Typography noWrap sx={{fontWeight: 500}} title={title}>
-                    {title}
+                <Typography noWrap sx={{fontWeight: 500}} title={displayTitle}>
+                    {displayTitle}
                 </Typography>
                 {subtitle ? (
                     <Typography

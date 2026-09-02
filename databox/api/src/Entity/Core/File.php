@@ -34,6 +34,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
         new Get(
             uriTemplate: '/files/{id}/duplicates',
+            normalizationContext: [
+                'groups' => [Asset::GROUP_LIST, 'dates'],
+            ],
             output: AssetDuplicateOutput::class,
             name: 'file_duplicates',
             provider: FileDuplicatesProvider::class,

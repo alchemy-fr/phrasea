@@ -15,9 +15,7 @@ import {useModalFetch} from '../../../../hooks/useModalFetch.ts';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {useAssetStore} from '../../../../store/assetStore.ts';
 import {toast} from 'react-toastify';
-import DuplicateAssetRow, {
-    duplicateToThumbAsset,
-} from './DuplicateAssetRow.tsx';
+import DuplicateAssetRow from './DuplicateAssetRow.tsx';
 
 type Props = {
     asset: Asset;
@@ -63,7 +61,7 @@ export default function MergeDuplicatesDialog({
     React.useEffect(() => {
         // Default to keeping the first existing duplicate once loaded
         if (isSuccess && duplicates && duplicates.length > 0) {
-            setKeptId(duplicates[0].id);
+            setKeptId(duplicates[0].asset.id);
         }
     }, [isSuccess, duplicates]);
 
@@ -74,15 +72,15 @@ export default function MergeDuplicatesDialog({
     const choices: Choice[] = [
         incomingChoice,
         ...duplicates.map(d => ({
-            id: d.id,
-            title: d.title ?? d.id,
-            subtitle: d.createdAt
+            id: d.asset.id,
+            title: d.asset.name ?? d.asset.id,
+            subtitle: d.asset.createdAt
                 ? t('quarantine.merge.existing_hint', {
                       defaultValue: 'Existing asset · {{date}}',
-                      date: new Date(d.createdAt).toLocaleString(),
+                      date: new Date(d.asset.createdAt).toLocaleString(),
                   })
                 : t('quarantine.merge.existing', 'Existing asset'),
-            thumbAsset: duplicateToThumbAsset(d),
+            thumbAsset: d.asset,
         })),
     ];
 
@@ -92,7 +90,7 @@ export default function MergeDuplicatesDialog({
                 // Keep the incoming (quarantined) asset: accept it and trash
                 // the existing duplicates it replaces.
                 const updated = await bypassQuarantine(asset.id);
-                const duplicateIds = duplicates.map(d => d.id);
+                const duplicateIds = duplicates.map(d => d.asset.id);
                 if (duplicateIds.length > 0) {
                     await deleteAssets(duplicateIds);
                     duplicateIds.forEach(storeDelete);

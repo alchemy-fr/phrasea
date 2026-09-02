@@ -6,9 +6,7 @@ import {getFileDuplicates} from '../../../../api/file.ts';
 import {modalRoutes, Routing} from '../../../../routes.ts';
 import {useNavigateToModal} from '../../../Routing/ModalLink.tsx';
 import {AnalyzerName} from './analysisTypes.ts';
-import DuplicateAssetRow, {
-    duplicateToThumbAsset,
-} from './DuplicateAssetRow.tsx';
+import DuplicateAssetRow from './DuplicateAssetRow.tsx';
 
 type Props = {
     fileId: string;
@@ -72,11 +70,10 @@ export default function DuplicateAssets({fileId, analyzerName}: Props) {
                     count: assets.length,
                 })}
             </Typography>
-            {assets.map(asset => (
+            {assets.map(({asset}) => (
                 <DuplicateAssetRow
                     key={asset.id}
-                    asset={duplicateToThumbAsset(asset)}
-                    title={asset.title ?? asset.id}
+                    asset={asset}
                     subtitle={
                         asset.createdAt
                             ? new Date(asset.createdAt).toLocaleString()
