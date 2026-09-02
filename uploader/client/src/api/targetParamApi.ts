@@ -26,7 +26,8 @@ export async function putTargetParam(
     id: string,
     data: Partial<TargetParam>
 ): Promise<TargetParam> {
-    return (await apiClient.put(`/${EntityName.TargetParam}/${id}`, data)).data;
+    return (await apiClient.patch(`/${EntityName.TargetParam}/${id}`, data))
+        .data;
 }
 
 export async function postTargetParam(

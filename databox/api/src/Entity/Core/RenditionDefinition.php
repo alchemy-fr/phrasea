@@ -14,7 +14,6 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\RequestBody;
@@ -47,14 +46,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("READ", object)'
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(
+        new Patch(
             normalizationContext: [
                 'groups' => [RenditionDefinition::GROUP_READ],
             ],
             security: 'is_granted("EDIT", object)',
             input: RenditionDefinitionInput::class,
         ),
-        new Patch(security: 'is_granted("EDIT", object)'),
         new GetCollection(
             parameters: [
                 'name' => new QueryParameter(

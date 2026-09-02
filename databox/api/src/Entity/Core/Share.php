@@ -11,8 +11,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use App\Api\Model\Output\ShareAlternateUrlOutput;
 use App\Api\Model\Output\ShareAttachmentOutput;
 use App\Api\Model\Output\ShareTermsOutput;
@@ -86,7 +86,7 @@ use Symfony\Component\String\ByteString;
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
             provider: ShareReadProvider::class,
         ),
-        new Put(
+        new Patch(
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
             provider: ShareReadProvider::class,
             processor: ShareProcessor::class,

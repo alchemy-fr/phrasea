@@ -262,7 +262,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals('2042-12-12T00:00:00+00:00', $json['config']['beginsAt']);
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'PUT', '/publications/'.$json['id'], [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'PATCH', '/publications/'.$json['id'], [
             'title' => 'Foo',
             'config' => [
                 'layout' => 'download',
@@ -663,7 +663,7 @@ class PublicationTest extends AbstractExposeTestCase
             'enabled' => false,
         ])->getId();
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'PUT', '/publications/'.$id, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'PATCH', '/publications/'.$id, [
             'title' => 'Foo',
             'config' => [
                 'enabled' => true,
@@ -683,7 +683,7 @@ class PublicationTest extends AbstractExposeTestCase
             'enabled' => false,
         ])->getId();
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PUT', '/publications/'.$id, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PATCH', '/publications/'.$id, [
             'title' => 'Foo',
             'config' => [
                 'enabled' => true,
@@ -700,7 +700,7 @@ class PublicationTest extends AbstractExposeTestCase
             'enabled' => false,
         ])->getId();
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PUT', '/publications/'.$id, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PATCH', '/publications/'.$id, [
             'title' => 'Foo',
             'config' => [
                 'enabled' => true,
@@ -728,7 +728,7 @@ class PublicationTest extends AbstractExposeTestCase
             'enabled' => false,
         ]);
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PUT', '/publications/'.$publicationId, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PATCH', '/publications/'.$publicationId, [
             'profile' => '/publication-profiles/'.$profileId,
         ]);
         // Cannot change profile of publication
@@ -743,7 +743,7 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
         $this->assertEquals(200, $aclRes->getStatusCode());
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PUT', '/publications/'.$publicationId, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PATCH', '/publications/'.$publicationId, [
             'profile' => '/publication-profiles/'.$profileId,
         ]);
         // Still cannot change profile of publication with EDIT permission (need OPERATOR)
@@ -758,7 +758,7 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
         $this->assertEquals(200, $aclRes->getStatusCode());
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PUT', '/publications/'.$publicationId, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PATCH', '/publications/'.$publicationId, [
             'profile' => '/publication-profiles/'.$profileId,
         ]);
         // Cannot read this profile
@@ -773,7 +773,7 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
         $this->assertEquals(200, $aclRes->getStatusCode());
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PUT', '/publications/'.$publicationId, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PATCH', '/publications/'.$publicationId, [
             'profile' => '/publication-profiles/'.$profileId,
         ]);
         $this->assertEquals(200, $response->getStatusCode());
@@ -807,7 +807,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(false, $json['config']['enabled']);
         $id = $json['id'];
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PUT', '/publications/'.$id, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PATCH', '/publications/'.$id, [
             'title' => 'Foo',
             'config' => [
                 'enabled' => true,
@@ -865,7 +865,7 @@ class PublicationTest extends AbstractExposeTestCase
         }
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PUT', '/publications/'.$id, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PATCH', '/publications/'.$id, [
             'title' => 'Foo',
             'config' => [
                 'enabled' => true,
