@@ -1,6 +1,7 @@
 import {
     RenditionPolicy,
     RenditionDefinition,
+    RenditionBuildModule,
     Workspace,
     AssetTypeFilter,
 } from '../../../types';
@@ -11,6 +12,7 @@ import {
     FormLabel,
     ListItemText,
     TextField,
+    Typography,
 } from '@mui/material';
 import {
     CheckboxWidget,
@@ -25,6 +27,7 @@ import DefinitionManager from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import {
     deleteRenditionDefinition,
+    getRenditionBuildModules,
     getWorkspaceRenditionDefinitions,
     postRenditionDefinition,
     putRenditionDefinition,
@@ -35,6 +38,7 @@ import {toast} from 'react-toastify';
 import React from 'react';
 import RenditionDefinitionSelect from '../../Form/RenditionDefinitionSelect.tsx';
 import CodeEditorWidget from '../../Form/CodeEditor/CodeEditorWidget.tsx';
+import ReferenceSections from './ReferenceSections.tsx';
 import UseAsWidget from '../../Form/UseAsWidget.tsx';
 import MetadataValuesWidget from '../../Form/MetadataValuesWidget.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
@@ -88,6 +92,21 @@ function Item({
     }, [data]);
 
     const buildMode = watch('buildMode');
+    const [buildModules, setBuildModules] = React.useState<
+        RenditionBuildModule[] | undefined
+    >();
+
+    React.useEffect(() => {
+        if (
+            buildMode === RenditionBuildMode.CUSTOM.toString() &&
+            !buildModules
+        ) {
+            (async () => {
+                const r = await getRenditionBuildModules();
+                setBuildModules(r.result);
+            })();
+        }
+    }, [buildMode, buildModules]);
 
     return (
         <>
@@ -263,6 +282,17 @@ function Item({
                             height={'700px'}
                         />
                         <FormFieldErrors field={'definition'} errors={errors} />
+                        {buildModules ? (
+                            <Box sx={{mt: 2}}>
+                                <Typography variant={'body1'} sx={{mb: 1}}>
+                                    {t(
+                                        'form.rendition_definition.help.modules_reference',
+                                        'Available modules reference:'
+                                    )}
+                                </Typography>
+                                <ReferenceSections sections={buildModules} />
+                            </Box>
+                        ) : null}
                     </FormRow>
                 </>
             ) : (

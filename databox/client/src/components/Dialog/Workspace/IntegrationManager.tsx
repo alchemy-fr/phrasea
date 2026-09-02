@@ -41,6 +41,7 @@ import {
     PermissionType,
 } from '../../Permissions/permissionsTypes.ts';
 import CodeEditor from '../../Form/CodeEditor/CodeEditor.tsx';
+import ReferenceSections from './ReferenceSections.tsx';
 
 function Item({
     usedFormSubmit,
@@ -239,34 +240,41 @@ function Item({
                     name={`configYaml`}
                     disabled={submitting}
                     mode={'yaml'}
-                    height={'200px'}
+                    height={'400px'}
                 />
                 <FormFieldErrors field={'config'} errors={errors} />
                 {integrationHelp ? (
-                    <FormHelperText>
-                        <Typography variant={'body1'}>
-                            {t(
-                                'form.integration.help.config_reference',
-                                'Configuration reference:'
-                            )}
-                        </Typography>
-                        <CodeEditor
-                            mode={'yaml'}
-                            theme={'github'}
-                            height={'200px'}
-                            value={integrationHelp.reference}
-                            readOnly={true}
-                        />
-                        <Button
-                            startIcon={<ContentCopyIcon />}
-                            onClick={copyReference}
-                        >
-                            {t(
-                                'form.integration.help.copy_reference',
-                                'Copy reference'
-                            )}
-                        </Button>
-                    </FormHelperText>
+                    <>
+                        <FormHelperText>
+                            <Typography variant={'body1'}>
+                                {t(
+                                    'form.integration.help.config_reference',
+                                    'Configuration reference:'
+                                )}
+                            </Typography>
+                            <CodeEditor
+                                mode={'yaml'}
+                                theme={'github'}
+                                height={'400px'}
+                                value={integrationHelp.reference}
+                                readOnly={true}
+                            />
+                            <Button
+                                startIcon={<ContentCopyIcon />}
+                                onClick={copyReference}
+                            >
+                                {t(
+                                    'form.integration.help.copy_reference',
+                                    'Copy reference'
+                                )}
+                            </Button>
+                        </FormHelperText>
+                        {integrationHelp.references.length > 0 ? (
+                            <ReferenceSections
+                                sections={integrationHelp.references}
+                            />
+                        ) : null}
+                    </>
                 ) : null}
             </FormRow>
 

@@ -94,4 +94,5 @@ export enum EntityName {
     EntityList = 'entity-lists',
     Integration = 'integrations',
     IntegrationType = 'integration-types',
+    RenditionBuildModule = 'rendition-build-modules',
 }

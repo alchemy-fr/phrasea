@@ -2,6 +2,7 @@ import {
     AssetRendition,
     RenditionPolicy,
     RenditionDefinition,
+    RenditionBuildModule,
     AssetType,
     AssetTypeFilter,
 } from '../types';
@@ -67,6 +68,14 @@ export async function getRenditionDefinitions({
     const res = await apiClient.get(nextUrl ?? EntityName.RenditionDefinition, {
         params: options,
     });
+
+    return getHydraCollection(res.data);
+}
+
+export async function getRenditionBuildModules(): Promise<
+    NormalizedCollectionResponse<RenditionBuildModule>
+> {
+    const res = await apiClient.get(`/${EntityName.RenditionBuildModule}`);
 
     return getHydraCollection(res.data);
 }

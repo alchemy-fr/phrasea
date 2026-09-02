@@ -6,7 +6,9 @@ namespace App\Integration\Core\FileAnalyzer;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Border\FileAnalyzerRegistry;
+use App\Documentation\ConfigurationReferenceDumper;
 use App\Integration\AbstractIntegration;
+use App\Integration\ExtraReferenceIntegrationInterface;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
@@ -14,10 +16,11 @@ use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
-class FileAnalyzerIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
+class FileAnalyzerIntegration extends AbstractIntegration implements WorkflowIntegrationInterface, ExtraReferenceIntegrationInterface
 {
     public function __construct(
         private readonly FileAnalyzerRegistry $fileAnalyzerRegistry,
+        private readonly ConfigurationReferenceDumper $referenceDumper,
     ) {
     }
 
@@ -71,6 +74,22 @@ class FileAnalyzerIntegration extends AbstractIntegration implements WorkflowInt
     public static function getDisplayName(): string
     {
         return 'File Analyzer';
+    }
+
+    public function getExtraReferenceSections(): array
+    {
+        $sections = [];
+        foreach ($this->fileAnalyzerRegistry->getAnalyzers() as $name => $analyzer) {
+            $documentation = $analyzer->getDocumentation();
+
+            $sections[] = [
+                'name' => $name,
+                'description' => trim($documentation->getHeader()) ?: null,
+                'reference' => $this->referenceDumper->dumpDocumentation($documentation),
+            ];
+        }
+
+        return $sections;
     }
 
     public function validateConfiguration(IntegrationConfig $config): void
