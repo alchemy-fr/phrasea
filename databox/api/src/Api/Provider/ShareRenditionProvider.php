@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\MessengerBundle\Listener\TerminateStackListener;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Share;
 use App\Repository\Core\ShareRepository;
@@ -18,6 +19,7 @@ use App\Service\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 final class ShareRenditionProvider implements ProviderInterface
@@ -31,6 +33,7 @@ final class ShareRenditionProvider implements ProviderInterface
         private readonly ShareRepository $shareRepository,
         private readonly TerminateStackListener $terminateStackListener,
         private readonly AssetNameResolver $assetNameResolver,
+        private readonly RequestStack $requestStack,
         private string $matomoSiteId,
         #[Autowire(env: 'MATOMO_URL')]
         private string $matomoUrl,
@@ -48,9 +51,14 @@ final class ShareRenditionProvider implements ProviderInterface
             return $this->createNotFoundResponse();
         }
 
+        $asset = $this->resolveAsset($item);
+        if (null === $asset) {
+            return $this->createNotFoundResponse();
+        }
+
         $defId = $uriVariables['rendition'];
         $rendition = $this->em->getRepository(AssetRendition::class)->findOneBy([
-            'asset' => $item->getAsset()->getId(),
+            'asset' => $asset->getId(),
             'definition' => $defId,
         ], [
             'createdAt' => 'DESC',
@@ -58,7 +66,6 @@ final class ShareRenditionProvider implements ProviderInterface
 
         if (null !== $file = $rendition?->getFile()) {
             $matomoTracker = new \MatomoTracker((int) $this->matomoSiteId, $this->matomoUrl);
-            $asset = $item->getAsset();
             $trackingId = $asset->getResolvedTrackingId();
             $name = $this->assetNameResolver->resolveNameAsString($asset);
 
@@ -70,6 +77,24 @@ final class ShareRenditionProvider implements ProviderInterface
         }
 
         return $this->createNotFoundResponse();
+    }
+
+    private function resolveAsset(Share $share): ?Asset
+    {
+        $assetId = $this->requestStack->getCurrentRequest()?->query->get('asset');
+        if (null === $assetId || '' === $assetId) {
+            $first = $share->getAssets()->first();
+
+            return $first instanceof Asset ? $first : null;
+        }
+
+        foreach ($share->getAssetsList() as $asset) {
+            if ($asset->getId() === $assetId) {
+                return $asset;
+            }
+        }
+
+        return null;
     }
 
     private function createNotFoundResponse(): Response

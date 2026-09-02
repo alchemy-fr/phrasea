@@ -1,4 +1,13 @@
-import {Hidden, TextField} from '@mui/material';
+import {
+    Button,
+    FormHelperText,
+    FormLabel,
+    Hidden,
+    Stack,
+    TextField,
+    Typography,
+} from '@mui/material';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import React, {FC} from 'react';
 import {Trans, useTranslation} from 'react-i18next';
 import {Workspace} from '../../types';
@@ -46,6 +55,7 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
     useDirtyFormPrompt(forbidNavigation);
 
     const enabledLocales = watch('enabledLocales');
+    const termsPdf = watch('termsPdf');
 
     return (
         <>
@@ -219,6 +229,165 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                     />
                     <FormFieldErrors
                         field={'fileAnalysisRequired'}
+                        errors={errors}
+                    />
+                </FormRow>
+                <FormRow>
+                    <TextField
+                        label={t('form.workspace.logo.label', 'Logo URL')}
+                        disabled={submitting}
+                        {...register('logo')}
+                        helperText={t(
+                            'form.workspace.logo.helper',
+                            'URL or base64 data URI of the workspace logo. Leave empty to use the default logo.'
+                        )}
+                    />
+                    <FormFieldErrors field={'logo'} errors={errors} />
+                </FormRow>
+                <FormRow>
+                    <TextField
+                        label={t(
+                            'form.workspace.terms.label',
+                            'Terms & Conditions'
+                        )}
+                        disabled={submitting}
+                        multiline={true}
+                        minRows={4}
+                        maxRows={20}
+                        {...register('termsText')}
+                        helperText={t(
+                            'form.workspace.terms.helper',
+                            'Changing this text creates a new version: users who signed a previous version will be asked to sign again.'
+                        )}
+                    />
+                    <FormFieldErrors field={'termsText'} errors={errors} />
+                </FormRow>
+                <FormRow>
+                    <FormLabel>
+                        {t(
+                            'form.workspace.termsPdf.label',
+                            'Terms & Conditions PDF'
+                        )}
+                    </FormLabel>
+                    <FormHelperText>
+                        {t(
+                            'form.workspace.termsPdf.helper',
+                            'You can provide the Terms & Conditions directly as a PDF; it takes precedence over the text above.'
+                        )}
+                    </FormHelperText>
+                    <Stack
+                        direction={'row'}
+                        spacing={2}
+                        alignItems={'center'}
+                        sx={{mt: 1}}
+                    >
+                        {termsPdf === undefined && data?.terms?.pdfUrl ? (
+                            <Button
+                                href={data.terms.pdfUrl}
+                                target={'_blank'}
+                                rel={'noreferrer'}
+                            >
+                                {t(
+                                    'form.workspace.termsPdf.view',
+                                    'View current PDF (v{{version}})',
+                                    {
+                                        version: data.terms.version,
+                                    }
+                                )}
+                            </Button>
+                        ) : null}
+                        {termsPdf ? (
+                            <Typography variant={'body2'}>
+                                {t(
+                                    'form.workspace.termsPdf.selected',
+                                    'New PDF selected (will create a new version)'
+                                )}
+                            </Typography>
+                        ) : null}
+                        {termsPdf === '' ? (
+                            <Typography variant={'body2'} color={'error'}>
+                                {t(
+                                    'form.workspace.termsPdf.removed',
+                                    'The PDF will be removed'
+                                )}
+                            </Typography>
+                        ) : null}
+                        <Button
+                            component={'label'}
+                            variant={'outlined'}
+                            disabled={submitting}
+                            startIcon={<UploadFileIcon />}
+                        >
+                            {t(
+                                'form.workspace.termsPdf.upload',
+                                'Upload PDF'
+                            )}
+                            <input
+                                type={'file'}
+                                accept={'application/pdf'}
+                                hidden
+                                onChange={e => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) {
+                                        return;
+                                    }
+                                    const reader = new FileReader();
+                                    reader.onload = () => {
+                                        setValue(
+                                            'termsPdf',
+                                            reader.result as string,
+                                            {
+                                                shouldDirty: true,
+                                            }
+                                        );
+                                    };
+                                    reader.readAsDataURL(file);
+                                    e.target.value = '';
+                                }}
+                            />
+                        </Button>
+                        {termsPdf !== undefined || data?.terms?.pdfUrl ? (
+                            <Button
+                                color={'error'}
+                                disabled={
+                                    submitting ||
+                                    (termsPdf === '' && !data?.terms?.pdfUrl)
+                                }
+                                onClick={() =>
+                                    setValue(
+                                        'termsPdf',
+                                        termsPdf !== undefined ? undefined : '',
+                                        {
+                                            shouldDirty: true,
+                                        }
+                                    )
+                                }
+                            >
+                                {termsPdf !== undefined
+                                    ? t(
+                                          'form.workspace.termsPdf.cancel',
+                                          'Cancel change'
+                                      )
+                                    : t(
+                                          'form.workspace.termsPdf.remove',
+                                          'Remove PDF'
+                                      )}
+                            </Button>
+                        ) : null}
+                    </Stack>
+                </FormRow>
+                <FormRow>
+                    <CheckboxWidget
+                        label={t(
+                            'form.workspace.attachTermsToExports.label',
+                            'Attach Terms & Conditions PDF to exports'
+                        )}
+                        control={control}
+                        name={'attachTermsToExports'}
+                        disabled={submitting}
+                    />
+                    <FormFieldErrors
+                        field={'attachTermsToExports'}
                         errors={errors}
                     />
                 </FormRow>

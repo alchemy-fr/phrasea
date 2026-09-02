@@ -3,7 +3,14 @@ import {useTranslation} from 'react-i18next';
 import {exportAssets} from '../../../../api/export';
 import {Asset, RenditionDefinition, Workspace} from '../../../../types';
 import {FormRow} from '@alchemy/react-form';
-import {Checkbox, FormControlLabel, Typography} from '@mui/material';
+import {
+    Box,
+    Button,
+    Checkbox,
+    FormControlLabel,
+    Typography,
+} from '@mui/material';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import {FormFieldErrors} from '@alchemy/react-form';
 import {getRenditionDefinitions} from '../../../../api/rendition';
 import FormDialog from '../../../Dialog/FormDialog';
@@ -15,6 +22,7 @@ import {useDirtyFormPrompt} from '@alchemy/phrasea-framework';
 import {RemoteErrors} from '@alchemy/react-form';
 import {downloadUrl} from '@alchemy/core';
 import {useAssetExportStore} from '../../../../store/assetExportStore.ts';
+import {getWorkspace, signWorkspaceTerms} from '../../../../api/workspace.ts';
 
 type Props = {
     assets: Asset[];
@@ -31,9 +39,21 @@ type IndexedDefinition = {
     };
 };
 
+type UnsignedTerms = {
+    workspaceId: string;
+    workspaceName: string;
+    text: string | null;
+    pdfUrl: string | null;
+    version: number;
+};
+
 export default function ExportAssetsDialog({assets, ...modalProps}: Props) {
     const {t} = useTranslation();
     const [definitions, setDefinitions] = useState<IndexedDefinition>();
+    const [unsignedTerms, setUnsignedTerms] = useState<UnsignedTerms[]>();
+    const [acceptedTerms, setAcceptedTerms] = useState<
+        Record<string, boolean>
+    >({});
     const [loading, setLoading] = useState(false);
     const {closeModal} = useModals();
     const addExport = useAssetExportStore(state => state.addExport);
@@ -64,6 +84,26 @@ export default function ExportAssetsDialog({assets, ...modalProps}: Props) {
             });
             setDefinitions(index);
         });
+
+        Promise.all(workspaceIds.map(id => getWorkspace(id))).then(
+            workspaces => {
+                setUnsignedTerms(
+                    workspaces
+                        .filter(
+                            w =>
+                                (w.terms?.text || w.terms?.pdfUrl) &&
+                                w.terms.signed === false
+                        )
+                        .map(w => ({
+                            workspaceId: w.id,
+                            workspaceName: w.name,
+                            text: w.terms!.text ?? null,
+                            pdfUrl: w.terms!.pdfUrl ?? null,
+                            version: w.terms!.version!,
+                        }))
+                );
+            }
+        );
     }, []);
 
     const {
@@ -80,6 +120,12 @@ export default function ExportAssetsDialog({assets, ...modalProps}: Props) {
         onSubmit: async (data: FormData) => {
             setLoading(true);
             try {
+                await Promise.all(
+                    (unsignedTerms ?? []).map(ut =>
+                        signWorkspaceTerms(ut.workspaceId)
+                    )
+                );
+
                 const assetExport = await exportAssets({
                     assets: assets.map(a => a.id),
                     renditions: data.renditions,
@@ -99,9 +145,13 @@ export default function ExportAssetsDialog({assets, ...modalProps}: Props) {
     });
     useDirtyFormPrompt(forbidNavigation, modalProps.modalIndex);
 
-    if (!definitions) {
+    if (!definitions || !unsignedTerms) {
         return <FullPageLoader />;
     }
+
+    const allTermsAccepted = unsignedTerms.every(
+        ut => acceptedTerms[ut.workspaceId]
+    );
 
     const formId = 'export-assets';
 
@@ -115,6 +165,7 @@ export default function ExportAssetsDialog({assets, ...modalProps}: Props) {
             formId={formId}
             submitIcon={<FileDownloadIcon />}
             submitLabel={t('export.dialog.submit', 'Export')}
+            submittable={allTermsAccepted}
         >
             <Typography sx={{mb: 3}}>
                 {t(
@@ -158,6 +209,74 @@ export default function ExportAssetsDialog({assets, ...modalProps}: Props) {
                         </FormRow>
                     );
                 })}
+
+                {unsignedTerms.map(ut => (
+                    <FormRow key={ut.workspaceId}>
+                        <Typography variant={'h6'}>
+                            {t(
+                                'export.dialog.terms.title',
+                                'Terms & Conditions — {{workspace}}',
+                                {
+                                    workspace: ut.workspaceName,
+                                }
+                            )}
+                        </Typography>
+                        {ut.pdfUrl ? (
+                            <Box sx={{my: 1}}>
+                                <Button
+                                    variant={'outlined'}
+                                    href={ut.pdfUrl}
+                                    target={'_blank'}
+                                    rel={'noreferrer'}
+                                    startIcon={<PictureAsPdfIcon />}
+                                >
+                                    {t(
+                                        'export.dialog.terms.view_pdf',
+                                        'Read the Terms & Conditions (PDF)'
+                                    )}
+                                </Button>
+                            </Box>
+                        ) : (
+                            <Box
+                                sx={theme => ({
+                                    whiteSpace: 'pre-wrap',
+                                    maxHeight: 200,
+                                    overflow: 'auto',
+                                    border: `1px solid ${theme.palette.divider}`,
+                                    borderRadius: 1,
+                                    p: 2,
+                                    my: 1,
+                                })}
+                            >
+                                {ut.text}
+                            </Box>
+                        )}
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    disabled={submitting}
+                                    checked={
+                                        acceptedTerms[ut.workspaceId] ?? false
+                                    }
+                                    onChange={(_e, checked) =>
+                                        setAcceptedTerms(p => ({
+                                            ...p,
+                                            [ut.workspaceId]: checked,
+                                        }))
+                                    }
+                                />
+                            }
+                            label={t(
+                                'export.dialog.terms.accept',
+                                'I have read and accept the Terms & Conditions (version {{version}})',
+                                {
+                                    version: ut.version,
+                                }
+                            )}
+                        />
+                    </FormRow>
+                ))}
+
                 <RemoteErrors errors={remoteErrors} />
             </form>
         </FormDialog>

@@ -22,12 +22,6 @@ final class ShareCollectionProvider extends AbstractAssetFilteredCollectionProvi
 
         $asset = $this->getAsset($context);
 
-        $criteria = [
-            'asset' => $asset->getId(),
-        ];
-
-        return array_map($this->shareReadProvider->provideShare(...), $this->em->getRepository(Share::class)->findBy($criteria, [
-            'createdAt' => 'DESC',
-        ]));
+        return array_map($this->shareReadProvider->provideShare(...), $this->em->getRepository(Share::class)->getSharesOfAssets([$asset->getId()]));
     }
 }

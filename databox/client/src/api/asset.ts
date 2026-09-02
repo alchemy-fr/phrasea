@@ -258,13 +258,14 @@ export async function getPublicShare(
 }
 
 export async function createAssetShare(
-    assetId: string,
+    assetIds: string | string[],
     data: Partial<Share> = {}
 ): Promise<Share> {
+    const ids = Array.isArray(assetIds) ? assetIds : [assetIds];
     const res = (
         await apiClient.post(`/shares`, {
             ...data,
-            asset: `/${EntityName.Asset}/${assetId}`,
+            assets: ids.map(id => `/${EntityName.Asset}/${id}`),
         })
     ).data;
 

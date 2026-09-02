@@ -7,8 +7,6 @@ namespace App\Entity\Core;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -16,7 +14,10 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Output\ShareAlternateUrlOutput;
+use App\Api\Model\Output\ShareAttachmentOutput;
+use App\Api\Model\Output\ShareTermsOutput;
 use App\Api\Processor\ShareProcessor;
+use App\Api\Provider\ShareAttachmentProvider;
 use App\Api\Provider\ShareCollectionProvider;
 use App\Api\Provider\ShareReadProvider;
 use App\Api\Provider\ShareRenditionProvider;
@@ -24,6 +25,8 @@ use App\Entity\Traits\OwnerIdTrait;
 use App\Listener\OwnerPersistableInterface;
 use App\Repository\Core\ShareRepository;
 use App\Security\Voter\AbstractVoter;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
@@ -41,6 +44,7 @@ use Symfony\Component\String\ByteString;
                 ],
             ],
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
+            provider: ShareReadProvider::class,
             name: 'share_public',
         ),
         new Get(
@@ -61,12 +65,30 @@ use Symfony\Component\String\ByteString;
             ],
         ),
         new Get(
+            uriTemplate: '/s/{id}/a/{attachment}',
+            uriVariables: [
+                'id' => 'id',
+                'attachment' => 'attachment',
+            ],
+            normalizationContext: [
+                'groups' => [
+                    self::GROUP_PUBLIC_READ,
+                ],
+            ],
+            name: 'share_public_attachment',
+            provider: ShareAttachmentProvider::class,
+            extraProperties: [
+                '_api_disable_swagger_provider' => true,
+            ],
+        ),
+        new Get(
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
             provider: ShareReadProvider::class,
         ),
         new Put(
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
             provider: ShareReadProvider::class,
+            processor: ShareProcessor::class,
         ),
         new Delete(
             security: 'is_granted("'.AbstractVoter::DELETE.'", object)'
@@ -86,7 +108,6 @@ use Symfony\Component\String\ByteString;
     ],
 )]
 #[ORM\Entity(repositoryClass: ShareRepository::class)]
-#[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: ['asset'])]
 class Share extends AbstractUuidEntity implements OwnerPersistableInterface
 {
     use CreatedAtTrait;
@@ -103,10 +124,15 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     #[Groups([self::GROUP_READ])]
     private bool $enabled = true;
 
-    #[ORM\ManyToOne(targetEntity: Asset::class)]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    /**
+     * @var DoctrineCollection<int, Asset>
+     */
+    #[ORM\ManyToMany(targetEntity: Asset::class)]
+    #[ORM\JoinTable(name: 'share_asset')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(onDelete: 'CASCADE')]
     #[Groups([self::GROUP_PUBLIC_READ, self::GROUP_READ])]
-    private ?Asset $asset = null;
+    private DoctrineCollection $assets;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Groups([self::GROUP_READ])]
@@ -129,20 +155,58 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     #[Groups([self::GROUP_READ])]
     public array $alternateUrls = [];
 
+    /**
+     * @var ShareAttachmentOutput[]
+     */
+    #[Groups([self::GROUP_PUBLIC_READ, self::GROUP_READ])]
+    public array $attachments = [];
+
+    #[Groups([self::GROUP_PUBLIC_READ, self::GROUP_READ])]
+    public ?ShareTermsOutput $terms = null;
+
+    #[Groups([self::GROUP_PUBLIC_READ, self::GROUP_READ])]
+    public ?string $logo = null;
+
     public function __construct(UuidInterface|string|null $id = null)
     {
         parent::__construct($id);
         $this->token = ByteString::fromRandom(64)->toString();
+        $this->assets = new ArrayCollection();
     }
 
-    public function getAsset(): ?Asset
+    /**
+     * @return DoctrineCollection<int, Asset>
+     */
+    public function getAssets(): DoctrineCollection
     {
-        return $this->asset;
+        return $this->assets;
     }
 
-    public function setAsset(?Asset $asset): void
+    public function addAsset(Asset $asset): void
     {
-        $this->asset = $asset;
+        if (!$this->assets->contains($asset)) {
+            $this->assets->add($asset);
+        }
+    }
+
+    public function removeAsset(Asset $asset): void
+    {
+        $this->assets->removeElement($asset);
+    }
+
+    /**
+     * @return Asset[]
+     */
+    public function getAssetsList(): array
+    {
+        return $this->assets->getValues();
+    }
+
+    public function getWorkspace(): ?Workspace
+    {
+        $first = $this->assets->first();
+
+        return $first instanceof Asset ? $first->getWorkspace() : null;
     }
 
     public function getStartsAt(): ?\DateTimeImmutable

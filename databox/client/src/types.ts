@@ -63,18 +63,46 @@ export type ShareAlternateUrl = {
     name: string;
     url: string;
     type: string | undefined;
+    assetId?: string | null;
+};
+
+export type ShareAttachment = {
+    id: string;
+    name: string | null;
+    assetId: string;
+    url: string;
+    type: string | null;
+    size: number | null;
+};
+
+export type ShareTerms = {
+    text: string | null;
+    version: number;
+    workspaceName: string;
+    pdfUrl?: string | null;
 };
 
 export type Share = {
     name?: string | undefined;
-    asset: Asset;
+    assets: Asset[];
     token: string;
     startsAt?: string | undefined | null;
     expiresAt?: string | undefined | null;
     updatedAt: Readonly<string>;
     createdAt: Readonly<string>;
     alternateUrls: ShareAlternateUrl[];
+    attachments?: ShareAttachment[];
+    terms?: ShareTerms | null;
+    logo?: string | null;
 } & Entity;
+
+export type WorkspaceTerms = {
+    text: string | null;
+    version: number | null;
+    signed: boolean | null;
+    attachToExports: boolean;
+    pdfUrl?: string | null;
+};
 
 export type ESDocumentState = {
     synced: boolean;
@@ -664,6 +692,13 @@ export interface Workspace
     owner?: User;
     createdAt: string;
     public: boolean;
+    terms?: WorkspaceTerms | null;
+    logo?: string | null;
+    // Form-only fields (mapped to the WorkspaceInput API shape on submit)
+    termsText?: string;
+    // undefined = untouched, '' = remove PDF, otherwise a data:application/pdf;base64 URI
+    termsPdf?: string;
+    attachTermsToExports?: boolean;
 }
 
 export type IntegrationData = {

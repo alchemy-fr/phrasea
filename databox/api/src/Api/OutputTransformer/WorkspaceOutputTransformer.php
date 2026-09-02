@@ -6,13 +6,16 @@ namespace App\Api\OutputTransformer;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
+use Alchemy\StorageBundle\Storage\UrlSigner;
 use App\Api\Model\Output\WorkspaceOutput;
+use App\Api\Model\Output\WorkspaceTermsOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetContainerVoterInterface;
 use App\Security\Voter\WorkspaceVoter;
+use App\Service\Workspace\TermsManager;
 use Symfony\Contracts\Cache\CacheInterface;
 
 class WorkspaceOutputTransformer implements OutputTransformerInterface
@@ -26,6 +29,8 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
 
     public function __construct(
         TemporaryCacheFactory $cacheFactory,
+        private readonly TermsManager $termsManager,
+        private readonly UrlSigner $urlSigner,
     ) {
         $this->capCache = $cacheFactory->createCache();
     }
@@ -59,7 +64,21 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
             $output->fileAnalysisRequired = $data->isFileAnalysisRequired();
             $output->translations = $data->getTranslations();
             $output->owner = $this->transformUser($data->getOwnerId());
+
+            $currentTerms = $this->termsManager->getCurrentTerms($data);
+            if (null !== $currentTerms) {
+                $userId = $this->getUser()?->getId();
+                $output->terms = new WorkspaceTermsOutput(
+                    $currentTerms->hasPdf() ? null : $currentTerms->getText(),
+                    $currentTerms->getVersion(),
+                    null !== $userId ? $this->termsManager->hasSigned($currentTerms, $userId) : null,
+                    $data->isAttachTermsToExports(),
+                    $currentTerms->hasPdf() ? $this->urlSigner->getSignedUrl($currentTerms->getPdfPath()) : null,
+                );
+            }
         }
+
+        $output->logo = $data->getLogo();
 
         if ($this->hasGroup([
             Collection::GROUP_LIST,

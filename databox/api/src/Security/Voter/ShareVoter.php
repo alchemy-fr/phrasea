@@ -36,19 +36,43 @@ class ShareVoter extends AbstractVoter
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
-        $asset = $subject->getAsset();
+        $assets = $subject->getAssetsList();
+
+        $canShareAllAssets = function () use ($assets): bool {
+            if (empty($assets)) {
+                return false;
+            }
+
+            foreach ($assets as $asset) {
+                if (!$this->security->isGranted(AssetVoter::SHARE, $asset)) {
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
+        $canReadAllAssets = function () use ($assets): bool {
+            foreach ($assets as $asset) {
+                if (!$this->security->isGranted(AssetVoter::READ, $asset)) {
+                    return false;
+                }
+            }
+
+            return true;
+        };
 
         return match ($attribute) {
             self::CREATE => $this->isAuthenticated()
-                && $this->security->isGranted(AssetVoter::READ, $asset)
-                && $this->security->isGranted(AssetVoter::SHARE, $asset)
+                && $canReadAllAssets()
+                && $canShareAllAssets()
             ,
             self::READ => $isOwner()
-                || $this->security->isGranted(AssetVoter::SHARE, $asset)
+                || $canShareAllAssets()
                 || $this->hasValidToken($subject),
             self::EDIT,
             self::DELETE => $isOwner()
-                || $this->security->isGranted(AssetVoter::SHARE, $asset),
+                || $canShareAllAssets(),
             default => false,
         };
     }
@@ -65,6 +89,6 @@ class ShareVoter extends AbstractVoter
 
         $token = $this->requestStack->getCurrentRequest()?->get('token');
 
-        return $token && $token === $share->getToken();
+        return $token && hash_equals($share->getToken() ?? '', (string) $token);
     }
 }

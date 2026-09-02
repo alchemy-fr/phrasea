@@ -114,3 +114,20 @@ services:
     App\Validator\ValidRenditionDefinitionConstraintValidator: ~
 
     Alchemy\CoreBundle\Documentation\ApiDocumentationGenerator: ~
+
+when@test:
+    services:
+        # Object storage is not reachable from the test runner: store files locally.
+        test.storage.local_adapter:
+            class: League\Flysystem\Local\LocalFilesystemAdapter
+            arguments:
+                - '%kernel.cache_dir%/storage'
+
+        test.storage.local_filesystem:
+            class: League\Flysystem\Filesystem
+            arguments:
+                - '@test.storage.local_adapter'
+
+        Alchemy\StorageBundle\Storage\FileStorageManager:
+            arguments:
+                $filesystem: '@test.storage.local_filesystem'

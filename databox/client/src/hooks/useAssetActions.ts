@@ -118,7 +118,7 @@ export function useAssetActions<Item extends AssetOrAssetContainer>({
             },
             onShare: () => {
                 openModal(ShareAssetDialog, {
-                    asset,
+                    assets: [asset],
                 });
                 onAction?.();
             },

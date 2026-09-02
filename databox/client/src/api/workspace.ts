@@ -17,3 +17,12 @@ export async function getWorkspaces({
 
     return getHydraCollection(res.data);
 }
+
+export async function signWorkspaceTerms(id: string): Promise<Workspace> {
+    const res = await apiClient.post(
+        `/${EntityName.Workspace}/${id}/terms/sign`,
+        {}
+    );
+
+    return res.data;
+}

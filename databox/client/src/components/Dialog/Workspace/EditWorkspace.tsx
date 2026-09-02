@@ -18,9 +18,19 @@ export default function EditWorkspace({
     const {t} = useTranslation();
 
     const usedFormSubmit = useFormSubmit<Workspace>({
-        defaultValues: data,
+        defaultValues: {
+            ...data,
+            termsText: data.terms?.text ?? '',
+            attachTermsToExports: data.terms?.attachToExports ?? false,
+            logo: data.logo ?? '',
+        },
         onSubmit: async data => {
-            return await putWorkspace(data.id, data);
+            const {termsText, terms: _terms, ...rest} = data;
+
+            return await putWorkspace(data.id, {
+                ...rest,
+                terms: termsText,
+            } as unknown as Partial<Workspace>);
         },
         onSuccess: data => {
             toast.success(
