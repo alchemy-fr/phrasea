@@ -173,8 +173,9 @@ class TagTest extends AbstractSearchTestCase
         // Because Alice use a seeded pseudo-random number generator, we're sure that this ISBN will always be generated.
         $iri = $this->findIriBy(Tag::class, ['name' => 'foo']);
 
-        $client->request('PUT', $iri, [
+        $client->request('PATCH', $iri, [
             'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             ],
             'json' => [
@@ -184,8 +185,9 @@ class TagTest extends AbstractSearchTestCase
 
         $this->assertResponseStatusCodeSame(403);
 
-        $client->request('PUT', $iri, [
+        $client->request('PATCH', $iri, [
             'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [

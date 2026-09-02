@@ -59,6 +59,9 @@ abstract class AbstractUploaderTestCase extends ApiTestCase
                 'Authorization' => $accessToken ? 'Bearer '.$accessToken : null,
             ],
         ];
+        if ('PATCH' === $method) {
+            $options['headers']['Content-Type'] = 'application/merge-patch+json';
+        }
         if (null !== $data) {
             $options['json'] = $data;
         }

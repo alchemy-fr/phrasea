@@ -85,9 +85,6 @@ use Symfony\Component\Validator\Constraints as Assert;
             name: 'collection_ascendants',
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(
-            security: 'is_granted("EDIT", object)',
-        ),
         new Patch(security: 'is_granted("EDIT", object)'),
         new Put(
             uriTemplate: '/collections/{id}/move/{dest}',

@@ -40,10 +40,6 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
         // Moving a value to another list takes the edition of both lists
-        new Put(
-            security: 'is_granted("EDIT", object)',
-            securityPostDenormalize: self::LIST_CHANGE_SECURITY,
-        ),
         new Patch(
             security: 'is_granted("EDIT", object)',
             securityPostDenormalize: self::LIST_CHANGE_SECURITY,

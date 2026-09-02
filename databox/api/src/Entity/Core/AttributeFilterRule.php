@@ -13,8 +13,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\AttributeFilterRuleInput;
 use App\Api\Model\Output\AttributeFilterRuleOutput;
 use App\Entity\Traits\WorkspaceTrait;
@@ -30,7 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'attribute-filter-rule',
     operations: [
         new Get(security: 'is_granted("READ", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
         // Restricted to the editable workspaces by AttributeFilterRuleExtension
         new GetCollection(),

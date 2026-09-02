@@ -31,7 +31,7 @@ export async function putPublication(
     id: string,
     data: Partial<Publication>
 ): Promise<Publication> {
-    return (await apiClient.put(`/${publicationEntity}/${id}`, data)).data;
+    return (await apiClient.patch(`/${publicationEntity}/${id}`, data)).data;
 }
 
 export async function deletePublication(id: string): Promise<void> {

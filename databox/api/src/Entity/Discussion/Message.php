@@ -14,8 +14,8 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\EditThreadMessageInput;
 use App\Api\Model\Input\ThreadMessageInput;
 use App\Api\Model\Output\ThreadMessageOutput;
@@ -43,7 +43,7 @@ use Doctrine\ORM\Mapping as ORM;
             input: ThreadMessageInput::class,
             processor: PostMessageProcessor::class,
         ),
-        new Put(
+        new Patch(
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],

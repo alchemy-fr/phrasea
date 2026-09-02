@@ -165,8 +165,9 @@ class AttributeEntityTest extends AbstractSearchTest
 
         $apiClient = static::createClient();
 
-        $apiClient->request('PUT', '/attribute-entities/'.$entity1->getId(), [
+        $apiClient->request('PATCH', '/attribute-entities/'.$entity1->getId(), [
             'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
@@ -258,8 +259,9 @@ class AttributeEntityTest extends AbstractSearchTest
         ], [$definitionSingle->getId(), $definitionMany->getId()], $esClient, $asset->getId());
 
         // A first translation (new locale key) is propagated too
-        $apiClient->request('PUT', '/attribute-entities/'.$entity1->getId(), [
+        $apiClient->request('PATCH', '/attribute-entities/'.$entity1->getId(), [
             'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
@@ -527,8 +529,9 @@ class AttributeEntityTest extends AbstractSearchTest
         $otherSeqNo = $getSeqNo($otherAsset->getId());
 
         $apiClient = static::createClient();
-        $apiClient->request('PUT', '/attribute-entities/'.$entity->getId(), [
+        $apiClient->request('PATCH', '/attribute-entities/'.$entity->getId(), [
             'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
