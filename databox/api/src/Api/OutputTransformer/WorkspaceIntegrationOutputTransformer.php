@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Api\OutputTransformer;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use ApiPlatform\Api\IriConverterInterface;
+use ApiPlatform\Metadata\IriConverterInterface;
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\IntegrationDataManager;

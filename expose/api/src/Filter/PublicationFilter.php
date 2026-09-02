@@ -11,7 +11,7 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\AuthBundle\Security\Voter\ScopeVoter;
 use ApiPlatform\Doctrine\Orm\Filter\AbstractFilter;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-use ApiPlatform\Exception\InvalidArgumentException;
+use ApiPlatform\Metadata\Exception\InvalidArgumentException;
 use ApiPlatform\Metadata\Operation;
 use App\Security\ScopeInterface;
 use Doctrine\ORM\QueryBuilder;

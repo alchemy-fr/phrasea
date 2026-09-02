@@ -35,15 +35,15 @@ final class AssetTypeTargetFilter extends AbstractFilter
     }
 
     #[\Override]
-    protected function getProperties(): array
+    public function getProperties(): array
     {
-        return ['target'];
+        return ['target' => null];
     }
 
     public function getDescription(string $resourceClass): array
     {
         $description = [];
-        foreach ($this->getProperties() as $property) {
+        foreach (array_keys($this->getProperties()) as $property) {
             $description[$property] = [
                 'property' => $property,
                 'type' => 'int',

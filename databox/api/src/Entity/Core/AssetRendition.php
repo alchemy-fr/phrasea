@@ -14,6 +14,8 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Model\Input\AssetRenditionInput;
 use App\Api\Model\Output\AssetRenditionOutput;
 use App\Api\Processor\DeleteAssetRenditionProcessor;
@@ -41,9 +43,9 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
             order: ['definition.position' => 'ASC'],
         ),
         new Post(
-            openapiContext: [
-                'requestBody' => [
-                    'content' => [
+            openapi: new OpenApiOperation(
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
                         'application/json' => [
                             'examples' => [
                                 'Dynamic rendition (built from an inline specification)' => [
@@ -130,9 +132,9 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                                 ],
                             ],
                         ],
-                    ],
-                ],
-            ],
+                    ]),
+                ),
+            ),
             securityPostDenormalize: 'is_granted("CREATE", object)',
             validationContext: [
                 'groups' => ['Default'],

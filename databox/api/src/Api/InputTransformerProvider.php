@@ -6,6 +6,7 @@ namespace App\Api;
 
 use ApiPlatform\Documentation\Documentation;
 use ApiPlatform\Documentation\Entrypoint;
+use ApiPlatform\Metadata\Exception\ProblemExceptionInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\OpenApi\OpenApi;
 use ApiPlatform\State\ProviderInterface;
@@ -39,6 +40,7 @@ final readonly class InputTransformerProvider implements ProviderInterface
             || $data instanceof Entrypoint
             || $data instanceof OpenApi
             || $data instanceof Documentation
+            || $data instanceof ProblemExceptionInterface
         ) {
             return $data;
         }
@@ -47,7 +49,8 @@ final readonly class InputTransformerProvider implements ProviderInterface
         foreach ($this->transformers as $transformer) {
             if ($transformer->supports($resourceClass, $data)) {
                 $request = $context['request'];
-                if ($previousData = $request?->attributes->get('data')) {
+                $previousData = $request?->attributes->get('read_data') ?? $request?->attributes->get('data');
+                if (null !== $previousData && is_a($previousData, $resourceClass)) {
                     $context[AbstractNormalizer::OBJECT_TO_POPULATE] = $previousData;
                 }
 
