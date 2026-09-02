@@ -1,7 +1,5 @@
 api_platform:
     use_symfony_listeners: true
-    serializer:
-        hydra_prefix: true
     defaults:
         extra_properties:
             standard_put: false

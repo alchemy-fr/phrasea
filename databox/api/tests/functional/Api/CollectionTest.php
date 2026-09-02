@@ -25,14 +25,14 @@ class CollectionTest extends AbstractSearchTestCase
         $this->assertJsonContains([
             '@context' => '/contexts/collection',
             '@id' => '/collections',
-            '@type' => 'hydra:Collection',
-            'hydra:totalItems' => 0,
-            'hydra:view' => [
+            '@type' => 'Collection',
+            'totalItems' => 0,
+            'view' => [
                 '@id' => '/collections?limit='.$limit,
-                '@type' => 'hydra:PartialCollectionView',
+                '@type' => 'PartialCollectionView',
             ],
         ]);
-        $this->assertCount(0, $response->toArray()['hydra:member']);
+        $this->assertCount(0, $response->toArray()['member']);
 
         $response = static::createClient()->request('GET', '/collections?limit='.$limit, [
             'headers' => [
@@ -44,14 +44,14 @@ class CollectionTest extends AbstractSearchTestCase
         $this->assertJsonContains([
             '@context' => '/contexts/collection',
             '@id' => '/collections',
-            '@type' => 'hydra:Collection',
-            'hydra:totalItems' => 2,
-            'hydra:view' => [
+            '@type' => 'Collection',
+            'totalItems' => 2,
+            'view' => [
                 '@id' => '/collections?limit='.$limit,
-                '@type' => 'hydra:PartialCollectionView',
+                '@type' => 'PartialCollectionView',
             ],
         ]);
-        $this->assertCount(2, $response->toArray()['hydra:member']);
+        $this->assertCount(2, $response->toArray()['member']);
         $this->assertMatchesResourceCollectionJsonSchema(Collection::class);
     }
 }
