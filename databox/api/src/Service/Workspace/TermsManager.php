@@ -16,8 +16,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final readonly class TermsManager
 {
-    private const string PDF_DATA_URI_PREFIX = 'data:application/pdf;base64,';
-
     public function __construct(
         private EntityManagerInterface $em,
         private TermsVersionRepository $termsVersionRepository,
@@ -42,58 +40,61 @@ final readonly class TermsManager
     }
 
     /**
-     * Creates a new version when the content differs from the current one.
-     * Previous versions are kept so past signatures stay bound to the content they signed.
-     *
-     * $text: null = untouched, empty string = cleared.
-     * $pdfDataUri: null = untouched, empty string = removed, otherwise a
-     * "data:application/pdf;base64," data URI stored as the provided PDF.
+     * Updates the terms text. Creates a new version when it differs from the
+     * current one (the provided PDF, if any, is carried over).
+     * An empty string clears the text.
      */
-    public function updateTerms(Workspace $workspace, ?string $text, ?string $pdfDataUri = null): ?TermsVersion
+    public function updateTerms(Workspace $workspace, ?string $text): ?TermsVersion
     {
+        $text = trim((string) $text);
         $current = $this->termsVersionRepository->getCurrentVersion($workspace);
 
-        $newText = null !== $text ? trim($text) : trim((string) $current?->getText());
-
-        $newPdfBinary = null;
-        if (null === $pdfDataUri) {
-            $newPdfPath = $current?->getPdfPath();
-            $newPdfChecksum = $current?->getPdfChecksum();
-        } elseif ('' === $pdfDataUri) {
-            $newPdfPath = null;
-            $newPdfChecksum = null;
-        } else {
-            $newPdfBinary = $this->decodePdfDataUri($pdfDataUri);
-            $newPdfChecksum = hash('sha256', $newPdfBinary);
-            $newPdfPath = $current?->getPdfChecksum() === $newPdfChecksum ? $current->getPdfPath() : null;
-        }
-
-        if (
-            null !== $current
-            && $newText === trim((string) $current->getText())
-            && $newPdfChecksum === $current->getPdfChecksum()
-        ) {
+        if (null !== $current && $text === trim((string) $current->getText())) {
             return $current;
         }
 
-        if (null === $current && '' === $newText && null === $newPdfChecksum) {
+        if (null === $current && '' === $text) {
             return null;
         }
 
-        if (null !== $newPdfBinary && null === $newPdfPath) {
-            $newPdfPath = $this->pathGenerator->generatePath('pdf', 'terms/');
-            $this->fileStorageManager->store($newPdfPath, $newPdfBinary);
+        return $this->createVersion($workspace, $current, $text, $current?->getPdfPath(), $current?->getPdfChecksum());
+    }
+
+    /**
+     * Sets the terms PDF from an uploaded binary. Creates a new version unless
+     * the content is identical to the current one (the text is carried over).
+     */
+    public function setTermsPdf(Workspace $workspace, string $binary): TermsVersion
+    {
+        if (!str_starts_with($binary, '%PDF-')) {
+            throw new BadRequestHttpException('Invalid terms PDF: file is not a PDF');
         }
 
-        $version = new TermsVersion();
-        $version->setWorkspace($workspace);
-        $version->setText($newText);
-        $version->setPdfPath($newPdfPath);
-        $version->setPdfChecksum($newPdfChecksum);
-        $version->setVersion(null !== $current ? $current->getVersion() + 1 : 1);
-        $this->em->persist($version);
+        $checksum = hash('sha256', $binary);
+        $current = $this->termsVersionRepository->getCurrentVersion($workspace);
 
-        return $version;
+        if (null !== $current && $checksum === $current->getPdfChecksum()) {
+            return $current;
+        }
+
+        $path = $this->pathGenerator->generatePath('pdf', 'terms/');
+        $this->fileStorageManager->store($path, $binary);
+
+        return $this->createVersion($workspace, $current, trim((string) $current?->getText()), $path, $checksum);
+    }
+
+    /**
+     * Removes the provided PDF: creates a new version without it
+     * (the text terms, if any, apply again).
+     */
+    public function removeTermsPdf(Workspace $workspace): ?TermsVersion
+    {
+        $current = $this->termsVersionRepository->getCurrentVersion($workspace);
+        if (null === $current || !$current->hasPdf()) {
+            return $current;
+        }
+
+        return $this->createVersion($workspace, $current, trim((string) $current->getText()), null, null);
     }
 
     public function getPdfContent(TermsVersion $terms): ?string
@@ -132,21 +133,21 @@ final readonly class TermsManager
         return $signature;
     }
 
-    private function decodePdfDataUri(string $dataUri): string
-    {
-        if (!str_starts_with($dataUri, self::PDF_DATA_URI_PREFIX)) {
-            throw new BadRequestHttpException('Invalid terms PDF: expected a "data:application/pdf;base64," data URI');
-        }
+    private function createVersion(
+        Workspace $workspace,
+        ?TermsVersion $current,
+        string $text,
+        ?string $pdfPath,
+        ?string $pdfChecksum,
+    ): TermsVersion {
+        $version = new TermsVersion();
+        $version->setWorkspace($workspace);
+        $version->setText($text);
+        $version->setPdfPath($pdfPath);
+        $version->setPdfChecksum($pdfChecksum);
+        $version->setVersion(null !== $current ? $current->getVersion() + 1 : 1);
+        $this->em->persist($version);
 
-        $binary = base64_decode(substr($dataUri, strlen(self::PDF_DATA_URI_PREFIX)), true);
-        if (false === $binary || '' === $binary) {
-            throw new BadRequestHttpException('Invalid terms PDF: malformed base64 content');
-        }
-
-        if (!str_starts_with($binary, '%PDF-')) {
-            throw new BadRequestHttpException('Invalid terms PDF: file is not a PDF');
-        }
-
-        return $binary;
+        return $version;
     }
 }

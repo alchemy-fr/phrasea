@@ -26,3 +26,42 @@ export async function signWorkspaceTerms(id: string): Promise<Workspace> {
 
     return res.data;
 }
+
+function toFormData(file: File): FormData {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return formData;
+}
+
+export async function uploadWorkspaceTermsPdf(
+    id: string,
+    file: File
+): Promise<Workspace> {
+    const res = await apiClient.post(
+        `/${EntityName.Workspace}/${id}/terms`,
+        toFormData(file)
+    );
+
+    return res.data;
+}
+
+export async function deleteWorkspaceTermsPdf(id: string): Promise<void> {
+    await apiClient.delete(`/${EntityName.Workspace}/${id}/terms`);
+}
+
+export async function uploadWorkspaceLogo(
+    id: string,
+    file: File
+): Promise<Workspace> {
+    const res = await apiClient.post(
+        `/${EntityName.Workspace}/${id}/logo`,
+        toFormData(file)
+    );
+
+    return res.data;
+}
+
+export async function deleteWorkspaceLogo(id: string): Promise<void> {
+    await apiClient.delete(`/${EntityName.Workspace}/${id}/logo`);
+}

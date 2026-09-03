@@ -18,9 +18,13 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Model\Output\WorkspaceOutput;
+use App\Controller\Core\DeleteWorkspaceLogoAction;
+use App\Controller\Core\DeleteWorkspaceTermsPdfAction;
 use App\Controller\Core\FlushWorkspaceAction;
 use App\Controller\Core\GetWorkspaceBySlugAction;
 use App\Controller\Core\SignWorkspaceTermsAction;
+use App\Controller\Core\UploadWorkspaceLogoAction;
+use App\Controller\Core\UploadWorkspaceTermsPdfAction;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
@@ -61,6 +65,38 @@ use Symfony\Component\Validator\Constraints as Assert;
             deserialize: false,
             validate: false,
             name: 'sign_terms'
+        ),
+        new Post(
+            uriTemplate: '/workspaces/{id}/terms',
+            controller: UploadWorkspaceTermsPdfAction::class,
+            security: 'is_granted("EDIT", object)',
+            read: true,
+            deserialize: false,
+            validate: false,
+            name: 'upload_terms_pdf'
+        ),
+        new Delete(
+            uriTemplate: '/workspaces/{id}/terms',
+            controller: DeleteWorkspaceTermsPdfAction::class,
+            security: 'is_granted("EDIT", object)',
+            read: true,
+            name: 'delete_terms_pdf'
+        ),
+        new Post(
+            uriTemplate: '/workspaces/{id}/logo',
+            controller: UploadWorkspaceLogoAction::class,
+            security: 'is_granted("EDIT", object)',
+            read: true,
+            deserialize: false,
+            validate: false,
+            name: 'upload_logo'
+        ),
+        new Delete(
+            uriTemplate: '/workspaces/{id}/logo',
+            controller: DeleteWorkspaceLogoAction::class,
+            security: 'is_granted("EDIT", object)',
+            read: true,
+            name: 'delete_logo'
         ),
         new GetCollection(
             normalizationContext: [
@@ -110,6 +146,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     private const string CONFIG_FILE_ANALYSIS_REQUIRED = 'fileAnalysisRequired';
     private const string CONFIG_ATTACH_TERMS_TO_EXPORTS = 'attachTermsToExports';
     private const string CONFIG_LOGO = 'logo';
+    private const string CONFIG_LOGO_PATH = 'logoPath';
 
     final public const string TR_FIELD_NAME = 'name';
 
@@ -305,6 +342,22 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
         }
 
         $this->config[self::CONFIG_LOGO] = $logo;
+    }
+
+    public function getLogoPath(): ?string
+    {
+        return $this->config[self::CONFIG_LOGO_PATH] ?? null;
+    }
+
+    public function setLogoPath(?string $path): void
+    {
+        if (null === $path) {
+            unset($this->config[self::CONFIG_LOGO_PATH]);
+
+            return;
+        }
+
+        $this->config[self::CONFIG_LOGO_PATH] = $path;
     }
 
     public function getEnabledLocales(): array

@@ -694,10 +694,11 @@ export interface Workspace
     public: boolean;
     terms?: WorkspaceTerms | null;
     logo?: string | null;
-    // Form-only fields (mapped to the WorkspaceInput API shape on submit)
+    // Form-only fields (mapped to the API on submit)
     termsText?: string;
-    // undefined = untouched, '' = remove PDF, otherwise a data:application/pdf;base64 URI
-    termsPdf?: string;
+    // undefined = untouched, '' = remove, File = multipart upload on submit
+    termsPdf?: File | '';
+    logoUpload?: File | '';
     attachTermsToExports?: boolean;
 }
 

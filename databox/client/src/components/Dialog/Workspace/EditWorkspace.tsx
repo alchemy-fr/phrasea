@@ -1,5 +1,12 @@
 import {Workspace} from '../../../types';
 import {putWorkspace} from '../../../api/collection';
+import {
+    deleteWorkspaceLogo,
+    deleteWorkspaceTermsPdf,
+    getWorkspace,
+    uploadWorkspaceLogo,
+    uploadWorkspaceTermsPdf,
+} from '../../../api/workspace';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'react-toastify';
 import {useFormSubmit} from '@alchemy/api';
@@ -22,15 +29,42 @@ export default function EditWorkspace({
             ...data,
             termsText: data.terms?.text ?? '',
             attachTermsToExports: data.terms?.attachToExports ?? false,
-            logo: data.logo ?? '',
         },
         onSubmit: async data => {
-            const {termsText, terms: _terms, ...rest} = data;
+            const {
+                termsText,
+                termsPdf,
+                logoUpload,
+                terms: _terms,
+                logo: _logo,
+                ...rest
+            } = data;
 
-            return await putWorkspace(data.id, {
+            let workspace = await putWorkspace(data.id, {
                 ...rest,
                 terms: termsText,
             } as unknown as Partial<Workspace>);
+
+            let refresh = false;
+            if (termsPdf instanceof File) {
+                workspace = await uploadWorkspaceTermsPdf(data.id, termsPdf);
+            } else if (termsPdf === '') {
+                await deleteWorkspaceTermsPdf(data.id);
+                refresh = true;
+            }
+
+            if (logoUpload instanceof File) {
+                workspace = await uploadWorkspaceLogo(data.id, logoUpload);
+            } else if (logoUpload === '') {
+                await deleteWorkspaceLogo(data.id);
+                refresh = true;
+            }
+
+            if (refresh) {
+                workspace = await getWorkspace(data.id);
+            }
+
+            return workspace;
         },
         onSuccess: data => {
             toast.success(
