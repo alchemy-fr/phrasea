@@ -1,7 +1,0 @@
-torch==2.6.0
-torchvision==0.21.0
-open_clip_torch==2.31.0
-fastapi==0.115.11
-uvicorn==0.34.0
-pillow==11.1.0
-python-multipart==0.0.20

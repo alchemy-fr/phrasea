@@ -132,7 +132,7 @@ Main behavior:
 
 Operational notes:
 
-- Requires the `similarity-embedder` and `elasticsearch` (>= 8.12) services.
+- Requires the `similarity-embedder` (maintained in [alchemy-fr/phrasea-similarity-embedder](https://github.com/alchemy-fr/phrasea-similarity-embedder)) and `elasticsearch` (>= 8.12) services.
 - The rendition must be an image (documents are covered through their image preview rendition).
 - Backfill existing assets with `bin/console app:similarity:index`.
 
