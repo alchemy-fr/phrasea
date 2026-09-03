@@ -15,23 +15,38 @@
                                 instead of the page header)
     paradeLoginLogoSize      - integer (px), logo height
     paradeLoginBackgroundUrl - absolute URL, replaces the page background
-    paradeLoginBackgroundOverlay - "true" to darken the background image
-                                    for legibility (ignored without a
-                                    background URL)
+    paradeLoginBackgroundOverlay - integer 0-100, darkens the background
+                                    image by that percentage for legibility
+                                    (ignored without a background URL)
     paradeLoginBackgroundColor - CSS color, replaces the page background
                                    with a solid color instead of an image
                                    (ignored when a background URL is set)
     paradeLoginAccentColor   - CSS color, replaces the fixed #0066cc accent
                                 (card border, links, primary button)
-    paradeLoginFormPosition  - "centered" (default) | "split-left" |
-                                "split-right" | "overlay"
+    paradeLoginFormPosition  - horizontal alignment of the card on the page,
+                                independent of the background (which always
+                                covers the full page): "center" (default) |
+                                "left" | "right"
+    paradeLoginFormOpacity   - integer 20-100, opacity of the card itself
+                                (below 100 adds a frosted-glass blur so text
+                                stays legible over a background image)
+    paradeLoginFormTheme     - base color/typography of the card: "light"
+                                (default) | "gray" | "dark"
+    paradeLoginFormPadding   - integer (px), internal padding applied
+                                uniformly to the card (all four sides)
+    paradeLoginFormWidth     - integer (px), max-width of the card (default
+                                667, the base theme's own hardcoded value)
+    paradeLoginFormScale     - integer 70-150, percentage scale applied to
+                                the card's content via CSS zoom — the base
+                                theme hardcodes font-size/line-height in px
+                                on many individual selectors, so a uniform
+                                zoom is the reliable way to resize all of
+                                them (and their spacing) together
     paradeLoginRadius        - integer (px), corner radius applied to the
                                 card and primary button
     paradeLoginWelcomeText   - plain text shown above the page title
 
-  This is a first draft for discussion, not a final layout: the
-  split-left/split-right/overlay positions are a CSS-only approximation and
-  worth eyeballing live before relying on them.
+  This is a first draft for discussion, not a final layout.
 -->
 <#import "footer.ftl" as loginFooter>
 <#macro registrationLayout bodyClass="" displayInfo=false displayMessage=true displayRequiredFields=false>
@@ -64,59 +79,87 @@
     <#assign paradeLogoPosition = (client.attributes.paradeLoginLogoPosition)!'header-center'>
     <#assign paradeLogoSize = (client.attributes.paradeLoginLogoSize)!''>
     <#assign paradeBackgroundUrl = (client.attributes.paradeLoginBackgroundUrl)!''>
-    <#assign paradeBackgroundOverlay = (client.attributes.paradeLoginBackgroundOverlay)!''>
+    <#-- paradeLoginBackgroundOverlay is a 0-100 opacity percentage. Tolerates
+         the legacy "true"/"false" boolean this attribute used to hold (from
+         a client synced before this theme update, mapped the same way the
+         Parade admin's own back-compat parsing does) instead of crashing. -->
+    <#assign paradeBackgroundOverlayRaw = (client.attributes.paradeLoginBackgroundOverlay)!''>
+    <#assign paradeBackgroundOverlay = 0>
+    <#if paradeBackgroundOverlayRaw?matches('^[0-9]+$')>
+        <#assign paradeBackgroundOverlay = paradeBackgroundOverlayRaw?number>
+    <#elseif paradeBackgroundOverlayRaw == 'true'>
+        <#assign paradeBackgroundOverlay = 35>
+    </#if>
+    <#assign paradeOverlayGradient = ''>
+    <#if paradeBackgroundOverlay gt 0>
+        <#assign paradeOverlayGradient = 'linear-gradient(rgba(0, 0, 0, ' + (paradeBackgroundOverlay / 100) + '), rgba(0, 0, 0, ' + (paradeBackgroundOverlay / 100) + ')), '>
+    </#if>
     <#assign paradeBackgroundColor = (client.attributes.paradeLoginBackgroundColor)!''>
     <#assign paradeAccentColor = (client.attributes.paradeLoginAccentColor)!''>
-    <#assign paradeFormPosition = (client.attributes.paradeLoginFormPosition)!'centered'>
+    <#assign paradeFormPosition = (client.attributes.paradeLoginFormPosition)!'center'>
     <#assign paradeRadius = (client.attributes.paradeLoginRadius)!''>
     <#assign paradeWelcomeText = (client.attributes.paradeLoginWelcomeText)!''>
-    <#if paradeLogoUrl?has_content || paradeBackgroundUrl?has_content || paradeBackgroundColor?has_content || paradeAccentColor?has_content || paradeRadius?has_content>
+    <#-- paradeLoginFormOpacity is an integer 20-100; tolerate a missing/malformed value by falling back to fully opaque. -->
+    <#assign paradeFormOpacityRaw = (client.attributes.paradeLoginFormOpacity)!''>
+    <#assign paradeFormOpacity = 100>
+    <#if paradeFormOpacityRaw?matches('^[0-9]+$')>
+        <#assign paradeFormOpacity = paradeFormOpacityRaw?number>
+    </#if>
+    <#assign paradeFormTheme = (client.attributes.paradeLoginFormTheme)!'light'>
+    <#assign paradeFormBaseRgb = '255, 255, 255'>
+    <#assign paradeFormTextColor = ''>
+    <#if paradeFormTheme == 'dark'>
+        <#assign paradeFormBaseRgb = '20, 20, 24'>
+        <#assign paradeFormTextColor = '#f5f5f5'>
+    <#elseif paradeFormTheme == 'gray'>
+        <#assign paradeFormBaseRgb = '90, 90, 96'>
+        <#assign paradeFormTextColor = '#fafafa'>
+    </#if>
+    <#assign paradeFormPadding = (client.attributes.paradeLoginFormPadding)!''>
+    <#assign paradeFormWidth = (client.attributes.paradeLoginFormWidth)!''>
+    <#assign paradeFormScale = (client.attributes.paradeLoginFormScale)!''>
+    <#if paradeLogoUrl?has_content || paradeBackgroundUrl?has_content || paradeBackgroundColor?has_content || paradeAccentColor?has_content || paradeRadius?has_content || paradeFormPosition != 'center' || paradeFormOpacity != 100 || paradeFormTheme != 'light' || paradeFormPadding?has_content || paradeFormWidth?has_content || paradeFormScale?has_content>
         <style>
+            <#-- The background always covers the full page regardless of
+                 formPosition, which only controls the card's own horizontal
+                 alignment (see below) — the two are independent concerns. -->
             <#if paradeBackgroundUrl?has_content>
             .login-pf body {
-                background-image: <#if paradeBackgroundOverlay == 'true'>linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), </#if>url('${paradeBackgroundUrl}');
+                background-image: ${paradeOverlayGradient}url('${paradeBackgroundUrl}');
                 background-repeat: no-repeat;
-                <#if paradeFormPosition == 'split-left'>
-                background-size: 50% 100%;
-                background-position: left center;
-                <#elseif paradeFormPosition == 'split-right'>
-                background-size: 50% 100%;
-                background-position: right center;
-                <#else>
                 background-size: cover;
                 background-position: center;
-                </#if>
             }
             <#elseif paradeBackgroundColor?has_content>
             .login-pf body {
                 background: ${paradeBackgroundColor};
             }
             </#if>
-            <#if (paradeBackgroundUrl?has_content || paradeBackgroundColor?has_content) && (paradeFormPosition == 'split-left' || paradeFormPosition == 'split-right')>
-            .login-pf-page {
-                display: flex;
-                align-items: center;
-                <#if paradeFormPosition == 'split-left'>
-                justify-content: flex-end;
-                padding-right: 6%;
-                <#else>
-                justify-content: flex-start;
-                padding-left: 6%;
-                </#if>
-            }
-            </#if>
-            <#if (paradeBackgroundUrl?has_content || paradeBackgroundColor?has_content) && paradeFormPosition == 'overlay'>
+            <#if paradeFormPosition == 'left'>
             .card-pf {
-                background: rgba(255, 255, 255, 0.9);
-                backdrop-filter: blur(6px);
+                margin-left: 6%;
+                margin-right: auto;
+            }
+            <#elseif paradeFormPosition == 'right'>
+            .card-pf {
+                margin-right: 6%;
+                margin-left: auto;
             }
             </#if>
             <#if paradeLogoUrl?has_content && paradeLogoPosition != 'form-center'>
             #kc-header-wrapper {
-                background: url('${paradeLogoUrl}') no-repeat <#if paradeLogoPosition == 'header-left'>left<#elseif paradeLogoPosition == 'header-right'>right<#else>center</#if> center;
+                background: url('${paradeLogoUrl}') no-repeat <#if paradeLogoPosition == 'header-left'>left 5%<#elseif paradeLogoPosition == 'header-right'>right 5%<#else>center</#if> center;
                 <#if paradeLogoSize?has_content>
                 background-size: auto ${paradeLogoSize}px;
+                min-height: ${paradeLogoSize}px;
                 </#if>
+                <#-- Hides the realm display name text so only the logo shows. -->
+                font-size: 0;
+                <#-- Otherwise the logo sits flush against the very top of the
+                     page, and — especially with a large logoSize — flush
+                     against the card below it. -->
+                margin-top: 24px;
+                margin-bottom: 24px;
             }
             </#if>
             <#if paradeLogoUrl?has_content && paradeLogoPosition == 'form-center' && paradeLogoSize?has_content>
@@ -145,6 +188,48 @@
             .pf-c-button.pf-m-primary {
                 border-radius: ${paradeRadius}px;
             }
+            </#if>
+            <#if paradeFormPadding?has_content>
+            .card-pf {
+                padding: ${paradeFormPadding}px;
+            }
+            </#if>
+            <#if paradeFormWidth?has_content>
+            .card-pf {
+                max-width: ${paradeFormWidth}px;
+            }
+            </#if>
+            <#if paradeFormScale?has_content>
+            <#-- The base theme hardcodes font-size/line-height in px across
+                 many individual selectors — zoom scales all of them (and
+                 their spacing) together instead of overriding each one. -->
+            .card-pf {
+                zoom: ${paradeFormScale}%;
+            }
+            </#if>
+            <#if paradeFormOpacity lt 100 || paradeFormTheme != 'light'>
+            <#-- Below 100 the card becomes translucent, so a blur keeps its
+                 text legible over a busy background image. -->
+            .card-pf {
+                background: rgba(${paradeFormBaseRgb}, ${paradeFormOpacity / 100});
+                <#if paradeFormOpacity lt 100>
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                </#if>
+                <#if paradeFormTextColor?has_content>
+                color: ${paradeFormTextColor};
+                </#if>
+            }
+            <#if paradeFormTextColor?has_content>
+            .card-pf #kc-page-title,
+            .card-pf .pf-c-form__label,
+            .card-pf label,
+            .card-pf .checkbox label,
+            .card-pf p,
+            .card-pf li {
+                color: ${paradeFormTextColor};
+            }
+            </#if>
             </#if>
         </style>
     </#if>
