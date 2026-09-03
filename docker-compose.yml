@@ -816,10 +816,7 @@ services:
   similarity-embedder:
     profiles:
       - similarity
-    image: ${REGISTRY_NAMESPACE}similarity-embedder:${DOCKER_TAG}
-    build:
-      context: ./infra/docker/similarity-embedder
-      network: host
+    image: ${SIMILARITY_EMBEDDER_IMAGE}
     security_opt:
       - no-new-privileges:true
     networks:
