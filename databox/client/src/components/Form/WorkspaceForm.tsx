@@ -56,6 +56,7 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
 
     const enabledLocales = watch('enabledLocales');
     const termsPdf = watch('termsPdf');
+    const logoUpload = watch('logoUpload');
 
     return (
         <>
@@ -233,16 +234,99 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                     />
                 </FormRow>
                 <FormRow>
-                    <TextField
-                        label={t('form.workspace.logo.label', 'Logo URL')}
-                        disabled={submitting}
-                        {...register('logo')}
-                        helperText={t(
+                    <FormLabel>
+                        {t('form.workspace.logo.label', 'Logo')}
+                    </FormLabel>
+                    <FormHelperText>
+                        {t(
                             'form.workspace.logo.helper',
-                            'URL or base64 data URI of the workspace logo. Leave empty to use the default logo.'
+                            'Custom workspace logo. When none is set, the default service logo is used.'
                         )}
-                    />
-                    <FormFieldErrors field={'logo'} errors={errors} />
+                    </FormHelperText>
+                    <Stack
+                        direction={'row'}
+                        spacing={2}
+                        alignItems={'center'}
+                        sx={{mt: 1}}
+                    >
+                        {logoUpload === undefined && data?.logo ? (
+                            <img
+                                src={data.logo}
+                                alt={''}
+                                style={{maxHeight: 40, maxWidth: 160}}
+                            />
+                        ) : null}
+                        {logoUpload instanceof File ? (
+                            <Typography variant={'body2'}>
+                                {t(
+                                    'form.workspace.logo.selected',
+                                    'New logo selected: {{name}}',
+                                    {
+                                        name: logoUpload.name,
+                                    }
+                                )}
+                            </Typography>
+                        ) : null}
+                        {logoUpload === '' ? (
+                            <Typography variant={'body2'} color={'error'}>
+                                {t(
+                                    'form.workspace.logo.removed',
+                                    'The logo will be removed'
+                                )}
+                            </Typography>
+                        ) : null}
+                        <Button
+                            component={'label'}
+                            variant={'outlined'}
+                            disabled={submitting}
+                            startIcon={<UploadFileIcon />}
+                        >
+                            {t('form.workspace.logo.upload', 'Upload Logo')}
+                            <input
+                                type={'file'}
+                                accept={
+                                    'image/png,image/jpeg,image/gif,image/webp,image/svg+xml'
+                                }
+                                hidden
+                                onChange={e => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                        setValue('logoUpload', file, {
+                                            shouldDirty: true,
+                                        });
+                                    }
+                                    e.target.value = '';
+                                }}
+                            />
+                        </Button>
+                        {logoUpload !== undefined || data?.logo ? (
+                            <Button
+                                color={'error'}
+                                disabled={submitting}
+                                onClick={() =>
+                                    setValue(
+                                        'logoUpload',
+                                        logoUpload !== undefined
+                                            ? undefined
+                                            : '',
+                                        {
+                                            shouldDirty: true,
+                                        }
+                                    )
+                                }
+                            >
+                                {logoUpload !== undefined
+                                    ? t(
+                                          'form.workspace.logo.cancel',
+                                          'Cancel change'
+                                      )
+                                    : t(
+                                          'form.workspace.logo.remove',
+                                          'Remove Logo'
+                                      )}
+                            </Button>
+                        ) : null}
+                    </Stack>
                 </FormRow>
                 <FormRow>
                     <TextField
@@ -296,11 +380,14 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                                 )}
                             </Button>
                         ) : null}
-                        {termsPdf ? (
+                        {termsPdf instanceof File ? (
                             <Typography variant={'body2'}>
                                 {t(
                                     'form.workspace.termsPdf.selected',
-                                    'New PDF selected (will create a new version)'
+                                    'New PDF selected: {{name}} (will create a new version)',
+                                    {
+                                        name: termsPdf.name,
+                                    }
                                 )}
                             </Typography>
                         ) : null}
@@ -325,20 +412,11 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                                 hidden
                                 onChange={e => {
                                     const file = e.target.files?.[0];
-                                    if (!file) {
-                                        return;
+                                    if (file) {
+                                        setValue('termsPdf', file, {
+                                            shouldDirty: true,
+                                        });
                                     }
-                                    const reader = new FileReader();
-                                    reader.onload = () => {
-                                        setValue(
-                                            'termsPdf',
-                                            reader.result as string,
-                                            {
-                                                shouldDirty: true,
-                                            }
-                                        );
-                                    };
-                                    reader.readAsDataURL(file);
                                     e.target.value = '';
                                 }}
                             />

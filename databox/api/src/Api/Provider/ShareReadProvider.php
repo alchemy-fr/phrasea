@@ -18,6 +18,7 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Share;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Workspace\LogoManager;
 use App\Service\Workspace\TermsManager;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -30,6 +31,7 @@ final class ShareReadProvider implements ProviderInterface
         private readonly EntityManagerInterface $em,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly TermsManager $termsManager,
+        private readonly LogoManager $logoManager,
         private readonly UrlSigner $urlSigner,
     ) {
     }
@@ -56,7 +58,7 @@ final class ShareReadProvider implements ProviderInterface
 
         $workspace = $item->getWorkspace();
         if (null !== $workspace) {
-            $item->logo = $workspace->getLogo();
+            $item->logo = $this->logoManager->resolveLogoUrl($workspace);
 
             $terms = $this->termsManager->getCurrentTerms($workspace);
             if (null !== $terms) {

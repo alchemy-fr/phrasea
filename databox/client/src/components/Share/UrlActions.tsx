@@ -23,6 +23,7 @@ export function getShareTitle(share: Share): string {
         (share.assets ?? [])
             .map(a => a.name)
             .filter(Boolean)
+            .slice(0, 3)
             .join(', ') ||
         'Databox'
     );

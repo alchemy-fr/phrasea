@@ -7,6 +7,7 @@ namespace App\Tests\Api;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Workspace;
 use App\Tests\AbstractDataboxTestCase;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class WorkspaceTermsTest extends AbstractDataboxTestCase
 {
@@ -102,19 +103,27 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $this->assertTrue($data['terms']['signed']);
     }
 
+    private function uploadFile(string $content, string $name, string $type): UploadedFile
+    {
+        $path = tempnam(sys_get_temp_dir(), 'terms-test');
+        file_put_contents($path, $content);
+
+        return new UploadedFile($path, $name, $type, null, true);
+    }
+
     public function testPdfProvidedTerms(): void
     {
         self::enableFixtures();
         $client = static::createClient();
         $iri = $this->findIriBy(Workspace::class, ['slug' => 'test-workspace']);
 
-        $dataUri = 'data:application/pdf;base64,'.base64_encode('%PDF-1.4 fake terms pdf');
-
-        // Provide terms directly as a PDF
-        $response = $client->request('PUT', $iri, [
+        // Provide terms directly as a PDF (multipart upload)
+        $response = $client->request('POST', $iri.'/terms', [
             'headers' => $this->adminHeaders(),
-            'json' => [
-                'termsPdf' => $dataUri,
+            'extra' => [
+                'files' => [
+                    'file' => $this->uploadFile('%PDF-1.4 fake terms pdf', 'terms.pdf', 'application/pdf'),
+                ],
             ],
         ]);
         $this->assertResponseIsSuccessful();
@@ -124,10 +133,12 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $this->assertNotEmpty($data['terms']['pdfUrl']);
 
         // Same PDF again: no new version
-        $client->request('PUT', $iri, [
+        $client->request('POST', $iri.'/terms', [
             'headers' => $this->adminHeaders(),
-            'json' => [
-                'termsPdf' => $dataUri,
+            'extra' => [
+                'files' => [
+                    'file' => $this->uploadFile('%PDF-1.4 fake terms pdf', 'terms.pdf', 'application/pdf'),
+                ],
             ],
         ]);
         $this->assertResponseIsSuccessful();
@@ -137,34 +148,92 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $this->assertSame(1, $response->toArray()['terms']['version']);
 
         // A different PDF creates a new version
-        $response = $client->request('PUT', $iri, [
+        $response = $client->request('POST', $iri.'/terms', [
             'headers' => $this->adminHeaders(),
-            'json' => [
-                'termsPdf' => 'data:application/pdf;base64,'.base64_encode('%PDF-1.4 updated terms pdf'),
+            'extra' => [
+                'files' => [
+                    'file' => $this->uploadFile('%PDF-1.4 updated terms pdf', 'terms.pdf', 'application/pdf'),
+                ],
             ],
         ]);
         $this->assertResponseIsSuccessful();
         $this->assertSame(2, $response->toArray()['terms']['version']);
 
         // Non-PDF payload is rejected
-        $client->request('PUT', $iri, [
+        $client->request('POST', $iri.'/terms', [
             'headers' => $this->adminHeaders(),
-            'json' => [
-                'termsPdf' => 'data:application/pdf;base64,'.base64_encode('not a pdf'),
+            'extra' => [
+                'files' => [
+                    'file' => $this->uploadFile('not a pdf', 'terms.pdf', 'application/pdf'),
+                ],
             ],
         ]);
         $this->assertResponseStatusCodeSame(400);
 
+        // Non-editor cannot upload
+        $client->request('POST', $iri.'/terms', [
+            'headers' => $this->userHeaders(),
+            'extra' => [
+                'files' => [
+                    'file' => $this->uploadFile('%PDF-1.4 x', 'terms.pdf', 'application/pdf'),
+                ],
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+
         // Removing the PDF (no text behind) clears the terms
-        $response = $client->request('PUT', $iri, [
+        $client->request('DELETE', $iri.'/terms', [
             'headers' => $this->adminHeaders(),
-            'json' => [
-                'termsPdf' => '',
+        ]);
+        $this->assertResponseStatusCodeSame(204);
+
+        $response = $client->request('GET', $iri, [
+            'headers' => $this->adminHeaders(),
+        ]);
+        $data = $response->toArray();
+        $this->assertArrayNotHasKey('pdfUrl', $data['terms'] ?? []);
+    }
+
+    public function testWorkspaceLogoUpload(): void
+    {
+        self::enableFixtures();
+        $client = static::createClient();
+        $iri = $this->findIriBy(Workspace::class, ['slug' => 'test-workspace']);
+
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
+
+        $response = $client->request('POST', $iri.'/logo', [
+            'headers' => $this->adminHeaders(),
+            'extra' => [
+                'files' => [
+                    'file' => $this->uploadFile($png, 'logo.png', 'image/png'),
+                ],
             ],
         ]);
         $this->assertResponseIsSuccessful();
-        $data = $response->toArray();
-        $this->assertArrayNotHasKey('pdfUrl', $data['terms'] ?? []);
+        $this->assertNotEmpty($response->toArray()['logo']);
+
+        // Non-image is rejected
+        $client->request('POST', $iri.'/logo', [
+            'headers' => $this->adminHeaders(),
+            'extra' => [
+                'files' => [
+                    'file' => $this->uploadFile('plain text', 'logo.txt', 'text/plain'),
+                ],
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(400);
+
+        // Remove the logo
+        $client->request('DELETE', $iri.'/logo', [
+            'headers' => $this->adminHeaders(),
+        ]);
+        $this->assertResponseStatusCodeSame(204);
+
+        $response = $client->request('GET', $iri, [
+            'headers' => $this->adminHeaders(),
+        ]);
+        $this->assertArrayNotHasKey('logo', array_filter($response->toArray(), fn ($v) => null !== $v));
     }
 
     public function testSignWithoutTermsIsRejected(): void

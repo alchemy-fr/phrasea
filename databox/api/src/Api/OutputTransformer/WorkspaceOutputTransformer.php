@@ -15,6 +15,7 @@ use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetContainerVoterInterface;
 use App\Security\Voter\WorkspaceVoter;
+use App\Service\Workspace\LogoManager;
 use App\Service\Workspace\TermsManager;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -30,6 +31,7 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
     public function __construct(
         TemporaryCacheFactory $cacheFactory,
         private readonly TermsManager $termsManager,
+        private readonly LogoManager $logoManager,
         private readonly UrlSigner $urlSigner,
     ) {
         $this->capCache = $cacheFactory->createCache();
@@ -78,7 +80,7 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
             }
         }
 
-        $output->logo = $data->getLogo();
+        $output->logo = $this->logoManager->resolveLogoUrl($data);
 
         if ($this->hasGroup([
             Collection::GROUP_LIST,

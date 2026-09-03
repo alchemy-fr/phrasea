@@ -13,6 +13,7 @@ final readonly class TermsPdfGenerator
 {
     public function __construct(
         private Environment $twig,
+        private LogoManager $logoManager,
     ) {
     }
 
@@ -22,7 +23,7 @@ final readonly class TermsPdfGenerator
 
         $html = $this->twig->render('terms/terms_pdf.html.twig', [
             'workspaceName' => $workspace->getName(),
-            'logo' => $workspace->getLogo(),
+            'logo' => $this->logoManager->resolveLogoForPdf($workspace),
             'version' => $terms->getVersion(),
             'text' => $terms->getText(),
             'date' => $terms->getCreatedAt(),
