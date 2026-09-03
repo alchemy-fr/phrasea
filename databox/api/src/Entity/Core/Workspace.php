@@ -146,7 +146,6 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     private const string CONFIG_FILE_ANALYSIS_REQUIRED = 'fileAnalysisRequired';
     private const string CONFIG_ATTACH_TERMS_TO_EXPORTS = 'attachTermsToExports';
     private const string CONFIG_LOGO = 'logo';
-    private const string CONFIG_LOGO_PATH = 'logoPath';
 
     final public const string TR_FIELD_NAME = 'name';
 
@@ -217,6 +216,10 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
      */
     #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: File::class)]
     protected ?DoctrineCollection $files = null;
+
+    #[ORM\ManyToOne(targetEntity: File::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?File $logoFile = null;
 
     public function __construct()
     {
@@ -344,20 +347,14 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
         $this->config[self::CONFIG_LOGO] = $logo;
     }
 
-    public function getLogoPath(): ?string
+    public function getLogoFile(): ?File
     {
-        return $this->config[self::CONFIG_LOGO_PATH] ?? null;
+        return $this->logoFile;
     }
 
-    public function setLogoPath(?string $path): void
+    public function setLogoFile(?File $logoFile): void
     {
-        if (null === $path) {
-            unset($this->config[self::CONFIG_LOGO_PATH]);
-
-            return;
-        }
-
-        $this->config[self::CONFIG_LOGO_PATH] = $path;
+        $this->logoFile = $logoFile;
     }
 
     public function getEnabledLocales(): array
