@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service\Workspace;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use App\Entity\Core\File;
 use App\Entity\Core\TermsSignature;
 use App\Entity\Core\TermsVersion;
 use App\Entity\Core\Workspace;
@@ -55,17 +56,17 @@ final readonly class TermsManager
             return null;
         }
 
-        return $this->createVersion($workspace, $current, $text, $current?->getPdfPath(), $current?->getPdfChecksum());
+        return $this->createVersion($workspace, $current, $text, $current?->getPdfFile(), $current?->getPdfChecksum());
     }
 
     /**
-     * Sets the terms PDF from a file already uploaded to the storage
-     * (S3 multipart upload). Creates a new version unless the content is
-     * identical to the current one (the text is carried over).
+     * Sets the terms PDF from an uploaded File (S3 multipart upload).
+     * Creates a new version unless the content is identical to the current
+     * one (the text is carried over).
      */
-    public function setTermsPdfFromPath(Workspace $workspace, string $path): TermsVersion
+    public function setTermsPdfFromFile(Workspace $workspace, File $file): TermsVersion
     {
-        $stream = $this->fileStorageManager->getStream($path);
+        $stream = $this->fileStorageManager->getStream($file->getPath());
 
         try {
             $head = (string) fread($stream, 5);
@@ -85,14 +86,17 @@ final readonly class TermsManager
 
         if (null !== $current && $checksum === $current->getPdfChecksum()) {
             // Identical content: keep the current version, drop the duplicate upload
-            if ($path !== $current->getPdfPath()) {
-                $this->fileStorageManager->delete($path);
+            if ($file->getId() !== $current->getPdfFile()?->getId()) {
+                $this->fileStorageManager->delete($file->getPath());
+                $this->em->remove($file);
             }
 
             return $current;
         }
 
-        return $this->createVersion($workspace, $current, trim((string) $current?->getText()), $path, $checksum);
+        $file->setChecksum($checksum);
+
+        return $this->createVersion($workspace, $current, trim((string) $current?->getText()), $file, $checksum);
     }
 
     /**
@@ -115,7 +119,7 @@ final readonly class TermsManager
             return null;
         }
 
-        $stream = $this->fileStorageManager->getStream($terms->getPdfPath());
+        $stream = $this->fileStorageManager->getStream($terms->getPdfFile()->getPath());
 
         try {
             return stream_get_contents($stream);
@@ -149,13 +153,13 @@ final readonly class TermsManager
         Workspace $workspace,
         ?TermsVersion $current,
         string $text,
-        ?string $pdfPath,
+        ?File $pdfFile,
         ?string $pdfChecksum,
     ): TermsVersion {
         $version = new TermsVersion();
         $version->setWorkspace($workspace);
         $version->setText($text);
-        $version->setPdfPath($pdfPath);
+        $version->setPdfFile($pdfFile);
         $version->setPdfChecksum($pdfChecksum);
         $version->setVersion(null !== $current ? $current->getVersion() + 1 : 1);
         $this->em->persist($version);

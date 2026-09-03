@@ -6,7 +6,6 @@ namespace App\Api\OutputTransformer;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
-use Alchemy\StorageBundle\Storage\UrlSigner;
 use App\Api\Model\Output\WorkspaceOutput;
 use App\Api\Model\Output\WorkspaceTermsOutput;
 use App\Api\Traits\UserLocaleTrait;
@@ -15,6 +14,7 @@ use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetContainerVoterInterface;
 use App\Security\Voter\WorkspaceVoter;
+use App\Service\Asset\FileUrlResolver;
 use App\Service\Workspace\LogoManager;
 use App\Service\Workspace\TermsManager;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -32,7 +32,7 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
         TemporaryCacheFactory $cacheFactory,
         private readonly TermsManager $termsManager,
         private readonly LogoManager $logoManager,
-        private readonly UrlSigner $urlSigner,
+        private readonly FileUrlResolver $fileUrlResolver,
     ) {
         $this->capCache = $cacheFactory->createCache();
     }
@@ -75,7 +75,7 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
                     $currentTerms->getVersion(),
                     null !== $userId ? $this->termsManager->hasSigned($currentTerms, $userId) : null,
                     $data->isAttachTermsToExports(),
-                    $currentTerms->hasPdf() ? $this->urlSigner->getSignedUrl($currentTerms->getPdfPath()) : null,
+                    $currentTerms->hasPdf() ? $this->fileUrlResolver->resolveUrl($currentTerms->getPdfFile()) : null,
                 );
             }
         }

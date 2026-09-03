@@ -8,6 +8,7 @@ use Alchemy\StorageBundle\Upload\UploadManager;
 use App\Controller\Traits\MultipartUploadResolverTrait;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Storage\FileManager;
 use App\Service\Workspace\TermsManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,6 +25,7 @@ class UploadWorkspaceTermsPdfAction extends AbstractController
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly UploadManager $uploadManager,
+        private readonly FileManager $fileManager,
         private readonly TermsManager $termsManager,
     ) {
     }
@@ -47,7 +49,8 @@ class UploadWorkspaceTermsPdfAction extends AbstractController
             throw new BadRequestHttpException(sprintf('Terms PDF must not exceed %d MB', self::MAX_SIZE / 1024 / 1024));
         }
 
-        $this->termsManager->setTermsPdfFromPath($workspace, $upload->getPath());
+        $file = $this->fileManager->createFileFromMultipartUpload($upload, $workspace);
+        $this->termsManager->setTermsPdfFromFile($workspace, $file);
         $this->em->flush();
 
         return $workspace;

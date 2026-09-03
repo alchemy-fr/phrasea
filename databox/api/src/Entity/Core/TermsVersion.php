@@ -35,8 +35,9 @@ class TermsVersion extends AbstractUuidEntity
     #[ORM\Column(type: Types::TEXT, nullable: false)]
     private ?string $text = null;
 
-    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    private ?string $pdfPath = null;
+    #[ORM\ManyToOne(targetEntity: File::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?File $pdfFile = null;
 
     #[ORM\Column(type: Types::STRING, length: 64, nullable: true)]
     private ?string $pdfChecksum = null;
@@ -71,14 +72,14 @@ class TermsVersion extends AbstractUuidEntity
         $this->text = $text;
     }
 
-    public function getPdfPath(): ?string
+    public function getPdfFile(): ?File
     {
-        return $this->pdfPath;
+        return $this->pdfFile;
     }
 
-    public function setPdfPath(?string $pdfPath): void
+    public function setPdfFile(?File $pdfFile): void
     {
-        $this->pdfPath = $pdfPath;
+        $this->pdfFile = $pdfFile;
     }
 
     public function getPdfChecksum(): ?string
@@ -93,11 +94,11 @@ class TermsVersion extends AbstractUuidEntity
 
     public function hasPdf(): bool
     {
-        return null !== $this->pdfPath;
+        return null !== $this->pdfFile;
     }
 
     public function isEmpty(): bool
     {
-        return null === $this->pdfPath && '' === trim((string) $this->text);
+        return null === $this->pdfFile && '' === trim((string) $this->text);
     }
 }

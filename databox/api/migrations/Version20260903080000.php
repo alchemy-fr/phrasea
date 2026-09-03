@@ -29,13 +29,21 @@ final class Version20260903080000 extends AbstractMigration
         $this->addSql('DROP INDEX idx_ef069d5a5da1941');
         $this->addSql('ALTER TABLE share DROP asset_id');
 
-        $this->addSql('CREATE TABLE terms_version (id UUID NOT NULL, workspace_id UUID NOT NULL, version INT NOT NULL, text TEXT NOT NULL, pdf_path VARCHAR(255) DEFAULT NULL, pdf_checksum VARCHAR(64) DEFAULT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
+        $this->addSql('CREATE TABLE terms_version (id UUID NOT NULL, workspace_id UUID NOT NULL, pdf_file_id UUID DEFAULT NULL, version INT NOT NULL, text TEXT NOT NULL, pdf_checksum VARCHAR(64) DEFAULT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_620E039182D40A1F ON terms_version (workspace_id)');
+        $this->addSql('CREATE INDEX IDX_620E0391C81B0B92 ON terms_version (pdf_file_id)');
         $this->addSql('CREATE UNIQUE INDEX uniq_terms_version ON terms_version (workspace_id, version)');
         $this->addSql('COMMENT ON COLUMN terms_version.id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN terms_version.workspace_id IS \'(DC2Type:uuid)\'');
+        $this->addSql('COMMENT ON COLUMN terms_version.pdf_file_id IS \'(DC2Type:uuid)\'');
         $this->addSql('COMMENT ON COLUMN terms_version.created_at IS \'(DC2Type:datetime_immutable)\'');
         $this->addSql('ALTER TABLE terms_version ADD CONSTRAINT FK_620E039182D40A1F FOREIGN KEY (workspace_id) REFERENCES workspace (id) ON DELETE CASCADE NOT DEFERRABLE INITIALLY IMMEDIATE');
+        $this->addSql('ALTER TABLE terms_version ADD CONSTRAINT FK_620E0391C81B0B92 FOREIGN KEY (pdf_file_id) REFERENCES file (id) ON DELETE SET NULL NOT DEFERRABLE INITIALLY IMMEDIATE');
+
+        $this->addSql('ALTER TABLE workspace ADD logo_file_id UUID DEFAULT NULL');
+        $this->addSql('COMMENT ON COLUMN workspace.logo_file_id IS \'(DC2Type:uuid)\'');
+        $this->addSql('CREATE INDEX IDX_8D9400195911EFB0 ON workspace (logo_file_id)');
+        $this->addSql('ALTER TABLE workspace ADD CONSTRAINT FK_8D9400195911EFB0 FOREIGN KEY (logo_file_id) REFERENCES file (id) ON DELETE SET NULL NOT DEFERRABLE INITIALLY IMMEDIATE');
 
         $this->addSql('CREATE TABLE terms_signature (id UUID NOT NULL, terms_version_id UUID NOT NULL, user_id VARCHAR(36) NOT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, PRIMARY KEY(id))');
         $this->addSql('CREATE INDEX IDX_A126F19CE29B7C7C ON terms_signature (terms_version_id)');
@@ -59,5 +67,9 @@ final class Version20260903080000 extends AbstractMigration
 
         $this->addSql('DROP TABLE terms_signature');
         $this->addSql('DROP TABLE terms_version');
+
+        $this->addSql('ALTER TABLE workspace DROP CONSTRAINT FK_8D9400195911EFB0');
+        $this->addSql('DROP INDEX IDX_8D9400195911EFB0');
+        $this->addSql('ALTER TABLE workspace DROP logo_file_id');
     }
 }
