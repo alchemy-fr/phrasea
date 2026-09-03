@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Service\Workspace;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
-use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use App\Entity\Core\TermsSignature;
 use App\Entity\Core\TermsVersion;
 use App\Entity\Core\Workspace;
@@ -21,7 +20,6 @@ final readonly class TermsManager
         private TermsVersionRepository $termsVersionRepository,
         private TermsSignatureRepository $termsSignatureRepository,
         private FileStorageManager $fileStorageManager,
-        private PathGeneratorInterface $pathGenerator,
     ) {
     }
 
@@ -61,24 +59,38 @@ final readonly class TermsManager
     }
 
     /**
-     * Sets the terms PDF from an uploaded binary. Creates a new version unless
-     * the content is identical to the current one (the text is carried over).
+     * Sets the terms PDF from a file already uploaded to the storage
+     * (S3 multipart upload). Creates a new version unless the content is
+     * identical to the current one (the text is carried over).
      */
-    public function setTermsPdf(Workspace $workspace, string $binary): TermsVersion
+    public function setTermsPdfFromPath(Workspace $workspace, string $path): TermsVersion
     {
-        if (!str_starts_with($binary, '%PDF-')) {
-            throw new BadRequestHttpException('Invalid terms PDF: file is not a PDF');
+        $stream = $this->fileStorageManager->getStream($path);
+
+        try {
+            $head = (string) fread($stream, 5);
+            if ('%PDF-' !== $head) {
+                throw new BadRequestHttpException('Invalid terms PDF: file is not a PDF');
+            }
+
+            $ctx = hash_init('sha256');
+            hash_update($ctx, $head);
+            hash_update_stream($ctx, $stream);
+            $checksum = hash_final($ctx);
+        } finally {
+            fclose($stream);
         }
 
-        $checksum = hash('sha256', $binary);
         $current = $this->termsVersionRepository->getCurrentVersion($workspace);
 
         if (null !== $current && $checksum === $current->getPdfChecksum()) {
+            // Identical content: keep the current version, drop the duplicate upload
+            if ($path !== $current->getPdfPath()) {
+                $this->fileStorageManager->delete($path);
+            }
+
             return $current;
         }
-
-        $path = $this->pathGenerator->generatePath('pdf', 'terms/');
-        $this->fileStorageManager->store($path, $binary);
 
         return $this->createVersion($workspace, $current, trim((string) $current?->getText()), $path, $checksum);
     }
