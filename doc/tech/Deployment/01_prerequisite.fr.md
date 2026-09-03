@@ -62,7 +62,7 @@ Il est fortement recommandé de déléguer les **datastores principaux**—tels 
   - [Image Docker Dashboard](https://hub.docker.com/r/alchemyfr/ps-dashboard/tags)
 
 * **Keycloak**  
-  - [Image Docker Keycloak](https://hub.docker.com/r/alchemyfr/ps-keycloak/tags)  
+  - Image Docker Keycloak : maintenue dans [alchemy-fr/phrasea-keycloak](https://github.com/alchemy-fr/phrasea-keycloak), publiée sur [ECR Public](https://gallery.ecr.aws/b2s9z7l1/ps-keycloak) (`public.ecr.aws/b2s9z7l1/ps-keycloak`)  
   - [Image Docker Configurator](https://hub.docker.com/r/alchemyfr/ps-configurator)
 
 * **Service Databox**  
