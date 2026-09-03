@@ -11,9 +11,19 @@ use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class BasketSearch extends AbstractSearch
 {
+    /**
+     * Most recently created baskets first.
+     */
+    final public const string ORDER_CREATED_AT = 'createdAt';
+
+    final public const array ORDERS = [
+        self::ORDER_CREATED_AT,
+    ];
+
     public function __construct(
         #[Autowire(service: 'fos_elastica.finder.basket')]
         private readonly PaginatedFinderInterface $finder,
@@ -80,6 +90,7 @@ class BasketSearch extends AbstractSearch
         $query = new Query();
         $query->setTrackTotalHits();
         $query->setQuery($rootQuery);
+        $this->applySort($query, $options);
 
         $query->setHighlight([
             'pre_tags' => ['[hl]'],
@@ -107,6 +118,32 @@ class BasketSearch extends AbstractSearch
         $result->getCurrentPageResults();
 
         return $result;
+    }
+
+    private function applySort(Query $query, array $options): void
+    {
+        $order = trim((string) ($options['order'] ?? ''));
+        if ('' === $order) {
+            return;
+        }
+
+        if (!in_array($order, self::ORDERS, true)) {
+            throw new BadRequestHttpException(sprintf('Invalid order "%s". Supported values are: "%s"', $order, implode('", "', self::ORDERS)));
+        }
+
+        $query->setSort([
+            [
+                'createdAt' => [
+                    'order' => 'desc',
+                    'missing' => '_last',
+                ],
+            ],
+            [
+                '_id' => [
+                    'order' => 'asc',
+                ],
+            ],
+        ]);
     }
 
     private function createBasketACLBoolQuery(string $userId, array $groupIds): ?Query\BoolQuery
