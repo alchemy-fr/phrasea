@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Core;
 
 use App\Entity\Core\Workspace;
-use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\WorkspaceVoter;
 use App\Service\Workspace\TermsManager;
 use App\Service\Workspace\TermsPdfGenerator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,7 +32,7 @@ class WorkspaceTermsPdfAction extends AbstractController
             throw new NotFoundHttpException(sprintf('Workspace "%s" not found', $id));
         }
 
-        $this->denyAccessUnlessGranted(AbstractVoter::READ, $workspace);
+        $this->denyAccessUnlessGranted(WorkspaceVoter::READ_NO_TERMS, $workspace);
 
         $terms = $this->termsManager->getCurrentTerms($workspace);
         if (null === $terms) {

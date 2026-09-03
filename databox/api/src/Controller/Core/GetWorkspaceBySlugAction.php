@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Core;
 
 use App\Entity\Core\Workspace;
-use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\WorkspaceVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -27,7 +27,7 @@ class GetWorkspaceBySlugAction extends AbstractController
             throw new NotFoundHttpException(sprintf('Workspace with slug "%s" not found', $slug));
         }
 
-        $this->denyAccessUnlessGranted(AbstractVoter::READ, $workspace);
+        $this->denyAccessUnlessGranted(WorkspaceVoter::READ_NO_TERMS, $workspace);
 
         return $workspace;
     }

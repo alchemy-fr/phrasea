@@ -45,32 +45,26 @@ final readonly class LogoManager
     {
         $this->deleteLogoFile($workspace);
         $workspace->setLogoFile(null);
-        $workspace->setLogo(null);
     }
 
     /**
-     * Returns the displayable logo URL: URL of the uploaded file,
-     * or the configured external URL, or null.
+     * Returns the displayable logo URL, or null when the workspace has no logo.
      */
     public function resolveLogoUrl(Workspace $workspace): ?string
     {
         $file = $workspace->getLogoFile();
-        if (null !== $file) {
-            return $this->fileUrlResolver->resolveUrl($file);
-        }
 
-        return $workspace->getLogo();
+        return null !== $file ? $this->fileUrlResolver->resolveUrl($file) : null;
     }
 
     /**
-     * Returns the uploaded logo as a data URI (for embedding in generated PDFs),
-     * or the configured external URL, or null.
+     * Returns the logo as a data URI (for embedding in generated PDFs), or null.
      */
     public function resolveLogoForPdf(Workspace $workspace): ?string
     {
         $file = $workspace->getLogoFile();
         if (null === $file) {
-            return $workspace->getLogo();
+            return null;
         }
 
         $stream = $this->fileStorageManager->getStream($file->getPath());

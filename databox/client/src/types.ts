@@ -97,7 +97,11 @@ export type Share = {
 } & Entity;
 
 export type WorkspaceTerms = {
+    // Resolved for the current user's locale
     text: string | null;
+    // Untranslated source text (for editing)
+    rawText?: string | null;
+    translations?: Record<string, string> | null;
     version: number | null;
     signed: boolean | null;
     attachToExports: boolean;
@@ -693,6 +697,7 @@ export interface Workspace
     createdAt: string;
     public: boolean;
     terms?: WorkspaceTerms | null;
+    termsUnsigned?: boolean;
     logo?: string | null;
     // Form-only fields (mapped to the API on submit)
     termsText?: string;

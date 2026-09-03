@@ -7,6 +7,7 @@ namespace App\Tests\Api;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
+use App\Entity\Core\Asset;
 use App\Entity\Core\Workspace;
 use App\Tests\AbstractDataboxTestCase;
 use Doctrine\ORM\EntityManagerInterface;
@@ -247,6 +248,109 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
             'headers' => $this->adminHeaders(),
         ]);
         $this->assertArrayNotHasKey('logo', array_filter($response->toArray(), fn ($v) => null !== $v));
+    }
+
+    public function testTermsTranslations(): void
+    {
+        self::enableFixtures();
+        $client = static::createClient();
+        $iri = $this->findIriBy(Workspace::class, ['slug' => 'test-workspace']);
+
+        $response = $client->request('PUT', $iri, [
+            'headers' => $this->adminHeaders(),
+            'json' => [
+                'terms' => 'English terms.',
+                'termsTranslations' => [
+                    'fr' => 'Termes français.',
+                ],
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(1, $response->toArray()['terms']['version']);
+
+        // Text is resolved according to the requested locale
+        $response = $client->request('GET', $iri, [
+            'headers' => $this->userHeaders() + ['X-Data-Locale' => 'fr'],
+        ]);
+        $data = $response->toArray();
+        $this->assertSame('Termes français.', $data['terms']['text']);
+        $this->assertSame('English terms.', $data['terms']['rawText']);
+        $this->assertSame(['fr' => 'Termes français.'], $data['terms']['translations']);
+
+        $response = $client->request('GET', $iri, [
+            'headers' => $this->userHeaders() + ['X-Data-Locale' => 'en'],
+        ]);
+        $this->assertSame('English terms.', $response->toArray()['terms']['text']);
+
+        // Changing only a translation creates a new version
+        $response = $client->request('PUT', $iri, [
+            'headers' => $this->adminHeaders(),
+            'json' => [
+                'termsTranslations' => [
+                    'fr' => 'Termes français (mis à jour).',
+                ],
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $data = $response->toArray();
+        $this->assertSame(2, $data['terms']['version']);
+        $this->assertSame('English terms.', $data['terms']['rawText']);
+    }
+
+    public function testTermsGateBlocksWorkspaceContentUntilSigned(): void
+    {
+        self::enableFixtures();
+        $client = static::createClient();
+        $wsIri = $this->findIriBy(Workspace::class, ['slug' => 'test-workspace']);
+        $assetIri = $this->findIriBy(Asset::class, ['key' => 'foo']);
+
+        // Before any terms: the asset is readable
+        $client->request('GET', $assetIri, [
+            'headers' => $this->userHeaders(),
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        // Admin defines terms
+        $client->request('PUT', $wsIri, [
+            'headers' => $this->adminHeaders(),
+            'json' => [
+                'terms' => 'You must accept these terms.',
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        // Workspace content is now denied to the unsigned user…
+        $client->request('GET', $assetIri, [
+            'headers' => $this->userHeaders(),
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+
+        // …but the workspace (and its terms) can still be fetched to sign them
+        $response = $client->request('GET', $wsIri, [
+            'headers' => $this->userHeaders(),
+        ]);
+        $this->assertResponseIsSuccessful();
+        $data = $response->toArray();
+        $this->assertFalse($data['terms']['signed']);
+        $this->assertTrue($data['termsUnsigned']);
+
+        // The workspace owner is not gated
+        $client->request('GET', $assetIri, [
+            'headers' => $this->adminHeaders(),
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        // Signing restores access
+        $client->request('POST', $wsIri.'/terms/sign', [
+            'headers' => $this->userHeaders(),
+            'json' => [],
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        $client->request('GET', $assetIri, [
+            'headers' => $this->userHeaders(),
+        ]);
+        $this->assertResponseIsSuccessful();
     }
 
     public function testSignWithoutTermsIsRejected(): void

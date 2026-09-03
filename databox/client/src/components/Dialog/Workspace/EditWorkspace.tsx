@@ -27,7 +27,7 @@ export default function EditWorkspace({
     const usedFormSubmit = useFormSubmit<Workspace>({
         defaultValues: {
             ...data,
-            termsText: data.terms?.text ?? '',
+            termsText: data.terms?.rawText ?? '',
             attachTermsToExports: data.terms?.attachToExports ?? false,
         },
         onSubmit: async data => {

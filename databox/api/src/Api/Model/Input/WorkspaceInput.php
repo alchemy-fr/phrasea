@@ -29,16 +29,11 @@ class WorkspaceInput extends AbstractOwnerIdInput
      */
     public ?string $terms = null;
 
-    public ?bool $attachTermsToExports = null;
-
     /**
-     * External workspace logo URL. An empty string removes it.
-     * A logo file can be uploaded instead through POST /workspaces/{id}/logo
-     * (multipart) and takes precedence over the URL.
+     * Terms & Conditions text translations, indexed by locale
+     * (e.g. {"fr": "...", "de": "..."}). Null = untouched.
      */
-    #[Assert\AtLeastOneOf([
-        new Assert\Url(requireTld: true),
-        new Assert\Blank(),
-    ])]
-    public ?string $logo = null;
+    public ?array $termsTranslations = null;
+
+    public ?bool $attachTermsToExports = null;
 }
