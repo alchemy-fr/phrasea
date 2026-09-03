@@ -176,10 +176,6 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
             return true;
         }
 
-        if ($subject->getOwnerId() === $userId) {
-            return true;
-        }
-
         $terms = $this->termsManager->getCurrentTerms($subject);
         if (null === $terms) {
             return true;
