@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Api\InputTransformer;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use ApiPlatform\Exception\ItemNotFoundException;
+use ApiPlatform\Metadata\Exception\ItemNotFoundException;
 use ApiPlatform\Validator\ValidatorInterface;
 use App\Api\EntityIriConverter;
 use App\Api\Model\Input\AssetInput;

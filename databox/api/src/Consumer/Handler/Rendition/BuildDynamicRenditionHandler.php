@@ -6,7 +6,6 @@ namespace App\Consumer\Handler\Rendition;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Entity\Core\AssetRendition;
-use App\Service\Asset\RenditionBuild\Exception\RenditionBuildException;
 use App\Service\Asset\RenditionBuilder;
 use App\Service\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;

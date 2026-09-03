@@ -13,8 +13,11 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
+use ApiPlatform\OpenApi\Model\Response as OpenApiResponse;
 use App\Api\Provider\PublicationProvider;
 use App\Controller\GetPublicationSlugAvailabilityAction;
 use App\Controller\SortAssetsAction;
@@ -46,7 +49,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
             name: self::GET_PUBLICATION_ROUTE_NAME,
             provider: PublicationProvider::class,
         ),
-        new Put(security: 'is_granted("'.PublicationVoter::EDIT.'", object)'),
+        new Patch(security: 'is_granted("'.PublicationVoter::EDIT.'", object)'),
         new Delete(security: 'is_granted("'.PublicationVoter::DELETE.'", object)'),
         new Post(
             uriTemplate: '/publications/{id}/sort-assets',
@@ -68,28 +71,27 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
             uriTemplate: '/publications/slug-availability/{slug}',
             defaults: ['_api_receive' => false, 'input' => false, 'output' => false],
             controller: GetPublicationSlugAvailabilityAction::class,
-            openapiContext: [
-                'summary' => 'Check whether a slug is available or not.',
-                'description' => 'Check whether a slug is available or not.',
-                'responses' => [
-                    '200' => [
-                        'content' => [
+            openapi: new OpenApiOperation(
+                responses: [
+                    '200' => new OpenApiResponse(
+                        content: new \ArrayObject([
                             'application/json' => [
                                 'schema' => ['type' => 'boolean'],
                             ],
-                        ],
-                    ],
+                        ]),
+                    ),
                 ],
-                'parameters' => [
-                    [
-                        'in' => 'path',
-                        'name' => 'slug',
-                        'type' => 'string',
-                        'required' => true,
-                        'description' => 'The slug to verify',
-                    ],
+                summary: 'Check whether a slug is available or not.',
+                description: 'Check whether a slug is available or not.',
+                parameters: [
+                    new OpenApiParameter(
+                        name: 'slug',
+                        in: 'path',
+                        description: 'The slug to verify',
+                        required: true,
+                    ),
                 ],
-            ],
+            ),
             paginationEnabled: false,
             normalizationContext: [
                 'groups' => [self::GROUP_INDEX],

@@ -1,4 +1,5 @@
 api_platform:
+    use_symfony_listeners: true
     version: '1.0.0'
     mapping:
         paths:
@@ -14,3 +15,5 @@ api_platform:
         csv:      ['text/csv']
         html:     ['text/html']
         multipart: ['multipart/form-data']
+    patch_formats:
+        json: ['application/merge-patch+json']

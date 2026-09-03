@@ -14,8 +14,9 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Filter\AssetTypeTargetFilter;
 use App\Api\Filter\InWorkspacesFilter;
 use App\Api\Filter\PartialSearchFilter;
@@ -45,14 +46,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("READ", object)'
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(
+        new Patch(
             normalizationContext: [
                 'groups' => [RenditionDefinition::GROUP_READ],
             ],
             security: 'is_granted("EDIT", object)',
             input: RenditionDefinitionInput::class,
         ),
-        new Patch(security: 'is_granted("EDIT", object)'),
         new GetCollection(
             parameters: [
                 'name' => new QueryParameter(
@@ -80,11 +80,11 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             uriTemplate: '/rendition-definitions/sort',
             controller: RenditionDefinitionSortAction::class,
-            openapiContext: [
-                'summary' => 'Reorder items',
-                'description' => 'Reorder items',
-                'requestBody' => [
-                    'content' => [
+            openapi: new OpenApiOperation(
+                summary: 'Reorder items',
+                description: 'Reorder items',
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
                         'application/json' => [
                             'schema' => [
                                 'description' => 'Ordered list of IDs',
@@ -92,9 +92,9 @@ use Symfony\Component\Validator\Constraints as Assert;
                                 'items' => ['type' => 'string'],
                             ],
                         ],
-                    ],
-                ],
-            ],
+                    ]),
+                ),
+            ),
             input: false,
             output: false,
             read: false,

@@ -23,7 +23,7 @@ class AssetSearchTest extends AbstractSearchTest
 
         $client = self::createClient();
         $response = $client->request('GET', '/assets');
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertCount(1, $data);
     }
 
@@ -42,7 +42,7 @@ class AssetSearchTest extends AbstractSearchTest
         $client = self::createClient();
         $response = $client->request('GET', '/assets');
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertCount(0, $data);
     }
 
@@ -203,7 +203,7 @@ class AssetSearchTest extends AbstractSearchTest
             implode('", "', $expectedResults)
         );
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertSameSize($expectedResults, $data, $getMessage('Invalid result count'));
         foreach ($expectedResults as $expectedResult) {
             $r = array_shift($data);

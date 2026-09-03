@@ -55,7 +55,7 @@ export async function putEntityList(
     id: string,
     data: Partial<EntityList>
 ): Promise<EntityList> {
-    const res = await apiClient.put(`${EntityName.EntityList}/${id}`, data);
+    const res = await apiClient.patch(`${EntityName.EntityList}/${id}`, data);
 
     return res.data;
 }

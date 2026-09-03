@@ -414,11 +414,7 @@ export async function putAsset(
     id: string,
     data: Partial<AssetApiInput>
 ): Promise<Asset> {
-    const res = await apiClient.put(`/${EntityName.Asset}/${id}`, data, {
-        headers: {
-            'Content-Type': 'application/merge-patch+json',
-        },
-    });
+    const res = await apiClient.patch(`/${EntityName.Asset}/${id}`, data);
 
     return res.data;
 }

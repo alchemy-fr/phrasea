@@ -75,7 +75,7 @@ export async function putRenditionPolicy(
     id: string | undefined,
     data: Partial<RenditionPolicy>
 ): Promise<RenditionPolicy> {
-    return (await apiClient.put(`/${EntityName.RenditionPolicy}/${id}`, data))
+    return (await apiClient.patch(`/${EntityName.RenditionPolicy}/${id}`, data))
         .data;
 }
 
@@ -93,7 +93,7 @@ export async function putRenditionDefinition(
     delete data.workspace;
 
     return (
-        await apiClient.put(`/${EntityName.RenditionDefinition}/${id}`, data)
+        await apiClient.patch(`/${EntityName.RenditionDefinition}/${id}`, data)
     ).data;
 }
 

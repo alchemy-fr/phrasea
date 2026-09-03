@@ -10,8 +10,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use App\Controller\GetTargetFormSchemaAction;
 use App\Security\Voter\FormDataEditorVoter;
 use Doctrine\DBAL\Types\Types;
@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Get(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
         new Delete(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
-        new Put(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
+        new Patch(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
         new Post(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
         new GetCollection(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
     ],

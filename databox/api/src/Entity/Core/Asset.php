@@ -150,9 +150,6 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("'.AbstractVoter::DELETE.'", object)',
             processor: DeleteAssetProcessor::class,
         ),
-        new Put(
-            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
-        ),
         new Patch(
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
         ),

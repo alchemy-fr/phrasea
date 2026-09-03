@@ -13,7 +13,7 @@ export async function putAttachment(
     id: string,
     data: Partial<AttachmentInput>
 ): Promise<AssetAttachment> {
-    const res = await apiClient.put(`/${entityType}/${id}`, data);
+    const res = await apiClient.patch(`/${entityType}/${id}`, data);
 
     return res.data;
 }
