@@ -7,6 +7,7 @@ namespace App\Tests\Attribute\Type;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\AssetStatusAttributeType;
 use App\Attribute\Type\BooleanAttributeType;
+use App\Attribute\Type\CollectionPathAttributeType;
 use App\Attribute\Type\DateAttributeType;
 use App\Attribute\Type\DateTimeAttributeType;
 use App\Attribute\Type\GeoPointAttributeType;
@@ -28,6 +29,7 @@ class AttributeTypeRegistryTestFactory
             new DateAttributeType(),
             new BooleanAttributeType(),
             new AssetStatusAttributeType(),
+            new CollectionPathAttributeType(),
         ] as $service) {
             $iterator[$service::getName()] = $service;
         }

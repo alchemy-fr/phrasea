@@ -73,6 +73,8 @@ built_in_attribute:
         name: Name
     collectionPaths:
         name: Collections
+        raw:
+            name: Direct Collections
     workspaceId:
         name: Workspace
     ownerId:

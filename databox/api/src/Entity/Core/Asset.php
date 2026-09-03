@@ -211,11 +211,15 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ),
                 'parents' => new QueryParameter(
                     schema: ['type' => 'array<string>'],
-                    description: 'Parent collections',
+                    description: 'Parent collections ID. Recursive: also matches assets belonging to any descendant collection',
                 ),
                 'parent' => new QueryParameter(
                     schema: ['type' => 'string'],
-                    description: 'Parent collection',
+                    description: 'Parent collection ID. Recursive: also matches assets belonging to any descendant collection',
+                ),
+                'directCollections' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Collections ID. Matches assets directly belonging to at least one of these collections, excluding their descendant collections. Equivalent to the "@directCollection IN (...)" AQL condition',
                 ),
                 'query' => new QueryParameter(
                     schema: ['type' => 'string'],
