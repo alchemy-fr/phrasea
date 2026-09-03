@@ -8,7 +8,9 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeInterface;
 use App\Elasticsearch\AQL\ConditionOperatorEnum;
 use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\CollectionBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\DeletedBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\DirectCollectionBuiltInAttribute;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Collection;
@@ -76,14 +78,16 @@ class AssetSearch extends AbstractSearch
         }
 
         if (isset($options['parents'])) {
-            $parentCollections = DoctrineUtil::getFromIds($this->collectionRepository, $options['parents']);
-            $paths = array_map(fn (Collection $parentCollection): string => $parentCollection->getAbsolutePath(), $parentCollections);
+            $paths = $this->resolveCollectionPaths($options['parents']);
 
-            if (empty($paths)) {
-                throw new NotFoundHttpException('Collections not found');
-            }
+            $filterQueries[] = new Query\Terms(CollectionBuiltInAttribute::getName(), $paths);
+        }
 
-            $filterQueries[] = new Query\Terms('collectionPaths', $paths);
+        if (isset($options['directCollections'])) {
+            $filterQueries[] = new Query\Terms(
+                DirectCollectionBuiltInAttribute::getName(),
+                $this->resolveCollectionPaths($options['directCollections'])
+            );
         }
 
         if (isset($options['ids'])) {
@@ -222,6 +226,23 @@ class AssetSearch extends AbstractSearch
         }
 
         return [$result, $facets, $esQuery, $searchTime];
+    }
+
+    /**
+     * @param string|string[] $collectionIds
+     *
+     * @return string[] the absolute path of each requested collection
+     */
+    private function resolveCollectionPaths(array|string $collectionIds): array
+    {
+        $collections = DoctrineUtil::getFromIds($this->collectionRepository, (array) $collectionIds);
+        $paths = array_map(fn (Collection $collection): string => $collection->getAbsolutePath(), $collections);
+
+        if (empty($paths)) {
+            throw new NotFoundHttpException('Collections not found');
+        }
+
+        return $paths;
     }
 
     private function buildTagFilterQuery(?string $userId, array $groupIds): ?Query\BoolQuery
