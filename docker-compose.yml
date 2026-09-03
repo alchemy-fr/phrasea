@@ -521,10 +521,7 @@ services:
   report-api:
     profiles:
       - report
-    image: ${REGISTRY_NAMESPACE}report-api:${DOCKER_TAG}
-    build:
-      context: report
-      network: host
+    image: ${REPORT_API_IMAGE}
     networks:
       - internal
     environment:

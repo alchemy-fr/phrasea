@@ -273,10 +273,6 @@ services:
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - soketi.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
-  report-api:
-    volumes:
-      - ./report/src:/usr/app
-
   configurator:
     volumes:
       - ./configurator:/srv/app

@@ -99,7 +99,7 @@ Il est fortement recommandé de déléguer les **datastores principaux**—tels 
   Configurez un `MAILER_DSN` (SMTP ou autre transport) pour chaque API qui envoie des notifications.
 
 * **Service Report**  
-  - [API Report](https://hub.docker.com/r/alchemyfr/ps-report-api/tags)
+  - API Report : maintenue dans [alchemy-fr/phrasea-report](https://github.com/alchemy-fr/phrasea-report), publiée sur [ECR Public](https://gallery.ecr.aws/b2s9z7l1/ps-report-api) (`public.ecr.aws/b2s9z7l1/ps-report-api`)
 
 ### Images externes
 Les images référencées dans la stack Docker Compose et Helm ne sont **pas des images Phrasea générées par Alchemy**, mais sont nécessaires pour les déploiements de développement ou de test. Comme expliqué précédemment, ces images sont destinées à être remplacées par des services externes.
