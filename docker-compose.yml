@@ -906,11 +906,7 @@ services:
     labels: []
 
   keycloak:
-    image: ${REGISTRY_NAMESPACE}keycloak:${DOCKER_TAG}
-    build:
-      context: ./infra/docker/keycloak
-      target: keycloak
-      network: host
+    image: ${KEYCLOAK_IMAGE}
     command:
       - 'start'
       - '--optimized'
@@ -942,7 +938,7 @@ services:
       - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
 
   keycloak2:
-    image: ${REGISTRY_NAMESPACE}keycloak:${DOCKER_TAG}
+    image: ${KEYCLOAK_IMAGE}
     command:
       - 'start'
       - '--optimized'

@@ -62,7 +62,7 @@ It is strongly recommended to delegate **primary datastores**—such as **Postgr
   - [Dashboard Docker Image](https://hub.docker.com/r/alchemyfr/ps-dashboard/tags)
 
 * **Keycloak**  
-  - [Keycloak Docker Image](https://hub.docker.com/r/alchemyfr/ps-keycloak/tags)  
+  - Keycloak Docker image: maintained in [alchemy-fr/phrasea-keycloak](https://github.com/alchemy-fr/phrasea-keycloak), published to [ECR Public](https://gallery.ecr.aws/b2s9z7l1/ps-keycloak) (`public.ecr.aws/b2s9z7l1/ps-keycloak`)  
   - [Configurator Docker Image](https://hub.docker.com/r/alchemyfr/ps-configurator)
 
 * **Databox Service**  
