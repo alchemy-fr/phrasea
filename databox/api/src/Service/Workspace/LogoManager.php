@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace App\Service\Workspace;
 
 use Alchemy\StorageBundle\Storage\FileStorageManager;
-use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use Alchemy\StorageBundle\Storage\UrlSigner;
 use App\Entity\Core\Workspace;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final readonly class LogoManager
@@ -23,24 +21,17 @@ final readonly class LogoManager
 
     public function __construct(
         private FileStorageManager $fileStorageManager,
-        private PathGeneratorInterface $pathGenerator,
         private UrlSigner $urlSigner,
     ) {
     }
 
-    public function setLogo(Workspace $workspace, UploadedFile $uploadedFile): void
+    /**
+     * Sets the logo from a file already uploaded to the storage (S3 multipart upload).
+     */
+    public function setLogo(Workspace $workspace, string $path, ?string $type): void
     {
-        $type = $uploadedFile->getMimeType();
         if (!isset(self::ALLOWED_TYPES[$type])) {
             throw new BadRequestHttpException(sprintf('Invalid logo type "%s": allowed types are %s', $type, implode(', ', array_keys(self::ALLOWED_TYPES))));
-        }
-
-        $path = $this->pathGenerator->generatePath(self::ALLOWED_TYPES[$type], 'logos/');
-        $fd = fopen($uploadedFile->getRealPath(), 'r');
-        try {
-            $this->fileStorageManager->storeStream($path, $fd);
-        } finally {
-            fclose($fd);
         }
 
         $this->deleteStoredLogo($workspace);
@@ -79,7 +70,11 @@ final readonly class LogoManager
             return $workspace->getLogo();
         }
 
-        $type = array_search(pathinfo($path, PATHINFO_EXTENSION), self::ALLOWED_TYPES, true) ?: 'image/png';
+        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        if ('jpeg' === $extension) {
+            $extension = 'jpg';
+        }
+        $type = array_search($extension, self::ALLOWED_TYPES, true) ?: 'image/png';
         $stream = $this->fileStorageManager->getStream($path);
         try {
             return sprintf('data:%s;base64,%s', $type, base64_encode(stream_get_contents($stream)));

@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Api;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use Alchemy\StorageBundle\Entity\MultipartUpload;
+use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Entity\Core\Workspace;
 use App\Tests\AbstractDataboxTestCase;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Doctrine\ORM\EntityManagerInterface;
 
 class WorkspaceTermsTest extends AbstractDataboxTestCase
 {
@@ -103,12 +105,37 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $this->assertTrue($data['terms']['signed']);
     }
 
-    private function uploadFile(string $content, string $name, string $type): UploadedFile
+    /**
+     * Simulates a finished S3 multipart upload: the file is already in the
+     * storage and the MultipartUpload row is complete, so the endpoint does
+     * not need to reach S3. Returns the "multipart" request payload.
+     */
+    private function createCompletedUpload(string $content, string $name, string $type): array
     {
-        $path = tempnam(sys_get_temp_dir(), 'terms-test');
-        file_put_contents($path, $content);
+        $container = static::getContainer();
+        /** @var EntityManagerInterface $em */
+        $em = $container->get('doctrine')->getManager();
+        /** @var FileStorageManager $storage */
+        $storage = $container->get(FileStorageManager::class);
 
-        return new UploadedFile($path, $name, $type, null, true);
+        $upload = new MultipartUpload();
+        $upload->setFilename($name);
+        $upload->setType($type);
+        $upload->setSize(strlen($content));
+        $upload->setPath(sprintf('test-uploads/%s.%s', uniqid(), pathinfo($name, PATHINFO_EXTENSION)));
+        $upload->setUploadId('test-'.uniqid());
+        $upload->setComplete(true);
+        $em->persist($upload);
+        $em->flush();
+
+        $storage->store($upload->getPath(), $content);
+
+        return [
+            'uploadId' => $upload->getId(),
+            'parts' => [
+                ['ETag' => 'test-etag', 'PartNumber' => 1],
+            ],
+        ];
     }
 
     public function testPdfProvidedTerms(): void
@@ -120,10 +147,8 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         // Provide terms directly as a PDF (multipart upload)
         $response = $client->request('POST', $iri.'/terms', [
             'headers' => $this->adminHeaders(),
-            'extra' => [
-                'files' => [
-                    'file' => $this->uploadFile('%PDF-1.4 fake terms pdf', 'terms.pdf', 'application/pdf'),
-                ],
+            'json' => [
+                'multipart' => $this->createCompletedUpload('%PDF-1.4 fake terms pdf', 'terms.pdf', 'application/pdf'),
             ],
         ]);
         $this->assertResponseIsSuccessful();
@@ -135,10 +160,8 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         // Same PDF again: no new version
         $client->request('POST', $iri.'/terms', [
             'headers' => $this->adminHeaders(),
-            'extra' => [
-                'files' => [
-                    'file' => $this->uploadFile('%PDF-1.4 fake terms pdf', 'terms.pdf', 'application/pdf'),
-                ],
+            'json' => [
+                'multipart' => $this->createCompletedUpload('%PDF-1.4 fake terms pdf', 'terms.pdf', 'application/pdf'),
             ],
         ]);
         $this->assertResponseIsSuccessful();
@@ -150,10 +173,8 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         // A different PDF creates a new version
         $response = $client->request('POST', $iri.'/terms', [
             'headers' => $this->adminHeaders(),
-            'extra' => [
-                'files' => [
-                    'file' => $this->uploadFile('%PDF-1.4 updated terms pdf', 'terms.pdf', 'application/pdf'),
-                ],
+            'json' => [
+                'multipart' => $this->createCompletedUpload('%PDF-1.4 updated terms pdf', 'terms.pdf', 'application/pdf'),
             ],
         ]);
         $this->assertResponseIsSuccessful();
@@ -162,10 +183,8 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         // Non-PDF payload is rejected
         $client->request('POST', $iri.'/terms', [
             'headers' => $this->adminHeaders(),
-            'extra' => [
-                'files' => [
-                    'file' => $this->uploadFile('not a pdf', 'terms.pdf', 'application/pdf'),
-                ],
+            'json' => [
+                'multipart' => $this->createCompletedUpload('not a pdf', 'terms.pdf', 'application/pdf'),
             ],
         ]);
         $this->assertResponseStatusCodeSame(400);
@@ -173,10 +192,8 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         // Non-editor cannot upload
         $client->request('POST', $iri.'/terms', [
             'headers' => $this->userHeaders(),
-            'extra' => [
-                'files' => [
-                    'file' => $this->uploadFile('%PDF-1.4 x', 'terms.pdf', 'application/pdf'),
-                ],
+            'json' => [
+                'multipart' => $this->createCompletedUpload('%PDF-1.4 x', 'terms.pdf', 'application/pdf'),
             ],
         ]);
         $this->assertResponseStatusCodeSame(403);
@@ -204,10 +221,8 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
 
         $response = $client->request('POST', $iri.'/logo', [
             'headers' => $this->adminHeaders(),
-            'extra' => [
-                'files' => [
-                    'file' => $this->uploadFile($png, 'logo.png', 'image/png'),
-                ],
+            'json' => [
+                'multipart' => $this->createCompletedUpload($png, 'logo.png', 'image/png'),
             ],
         ]);
         $this->assertResponseIsSuccessful();
@@ -216,10 +231,8 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         // Non-image is rejected
         $client->request('POST', $iri.'/logo', [
             'headers' => $this->adminHeaders(),
-            'extra' => [
-                'files' => [
-                    'file' => $this->uploadFile('plain text', 'logo.txt', 'text/plain'),
-                ],
+            'json' => [
+                'multipart' => $this->createCompletedUpload('plain text', 'logo.txt', 'text/plain'),
             ],
         ]);
         $this->assertResponseStatusCodeSame(400);
