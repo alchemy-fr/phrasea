@@ -329,21 +329,53 @@ export const WorkspaceForm: FC<FormProps<Workspace>> = function ({
                     </Stack>
                 </FormRow>
                 <FormRow>
-                    <TextField
-                        label={t(
-                            'form.workspace.terms.label',
-                            'Terms & Conditions'
+                    <TranslatedField<any>
+                        field={'terms'}
+                        getData={() =>
+                            ({
+                                id: data?.id,
+                                terms: getValues('termsText'),
+                                translations: {
+                                    terms: data?.terms?.translations ?? {},
+                                },
+                            }) as any
+                        }
+                        locales={enabledLocales}
+                        getLocales={getLocaleOptions}
+                        title={t(
+                            'form.workspace.terms.translate.title',
+                            'Translate Terms & Conditions'
                         )}
-                        disabled={submitting}
-                        multiline={true}
-                        minRows={4}
-                        maxRows={20}
-                        {...register('termsText')}
-                        helperText={t(
-                            'form.workspace.terms.helper',
-                            'Changing this text creates a new version: users who signed a previous version will be asked to sign again.'
-                        )}
-                    />
+                        inputProps={{
+                            multiline: true,
+                            minRows: 4,
+                        }}
+                        onUpdate={async d => {
+                            const r = await putWorkspace(data!.id, {
+                                termsTranslations:
+                                    (d as any).translations?.terms ?? {},
+                            } as unknown as Partial<Workspace>);
+                            setData?.(r);
+
+                            return d;
+                        }}
+                    >
+                        <TextField
+                            label={t(
+                                'form.workspace.terms.label',
+                                'Terms & Conditions'
+                            )}
+                            disabled={submitting}
+                            multiline={true}
+                            minRows={4}
+                            maxRows={20}
+                            {...register('termsText')}
+                            helperText={t(
+                                'form.workspace.terms.helper',
+                                'Changing this text or its translations creates a new version: users who signed a previous version will be asked to sign again.'
+                            )}
+                        />
+                    </TranslatedField>
                     <FormFieldErrors field={'termsText'} errors={errors} />
                 </FormRow>
                 <FormRow>

@@ -68,8 +68,8 @@ class ShareVoter extends AbstractVoter
                 && $canShareAllAssets()
             ,
             self::READ => $isOwner()
-                || $canShareAllAssets()
-                || $this->hasValidToken($subject),
+                || $this->hasValidToken($subject)
+                || $canShareAllAssets(),
             self::EDIT,
             self::DELETE => $isOwner()
                 || $canShareAllAssets(),

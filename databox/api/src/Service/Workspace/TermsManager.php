@@ -39,24 +39,32 @@ final readonly class TermsManager
     }
 
     /**
-     * Updates the terms text. Creates a new version when it differs from the
-     * current one (the provided PDF, if any, is carried over).
-     * An empty string clears the text.
+     * Updates the terms text and/or its translations (null = untouched).
+     * Creates a new version when the content differs from the current one
+     * (the provided PDF, if any, is carried over).
+     * An empty text clears the terms.
      */
-    public function updateTerms(Workspace $workspace, ?string $text): ?TermsVersion
+    public function updateTerms(Workspace $workspace, ?string $text, ?array $textTranslations = null): ?TermsVersion
     {
-        $text = trim((string) $text);
         $current = $this->termsVersionRepository->getCurrentVersion($workspace);
 
-        if (null !== $current && $text === trim((string) $current->getText())) {
+        $newText = null !== $text ? trim($text) : trim((string) $current?->getText());
+        $newTranslations = $textTranslations ?? $current?->getFieldTranslations(TermsVersion::TR_FIELD_TEXT) ?? [];
+        $newTranslations = array_filter(array_map(trim(...), $newTranslations));
+
+        if (
+            null !== $current
+            && $newText === trim((string) $current->getText())
+            && $newTranslations === ($current->getFieldTranslations(TermsVersion::TR_FIELD_TEXT) ?: [])
+        ) {
             return $current;
         }
 
-        if (null === $current && '' === $text) {
+        if (null === $current && '' === $newText && empty($newTranslations)) {
             return null;
         }
 
-        return $this->createVersion($workspace, $current, $text, $current?->getPdfFile(), $current?->getPdfChecksum());
+        return $this->createVersion($workspace, $current, $newText, $newTranslations, $current?->getFile(), $current?->getChecksum());
     }
 
     /**
@@ -84,9 +92,9 @@ final readonly class TermsManager
 
         $current = $this->termsVersionRepository->getCurrentVersion($workspace);
 
-        if (null !== $current && $checksum === $current->getPdfChecksum()) {
+        if (null !== $current && $checksum === $current->getChecksum()) {
             // Identical content: keep the current version, drop the duplicate upload
-            if ($file->getId() !== $current->getPdfFile()?->getId()) {
+            if ($file->getId() !== $current->getFile()?->getId()) {
                 $this->fileStorageManager->delete($file->getPath());
                 $this->em->remove($file);
             }
@@ -96,7 +104,7 @@ final readonly class TermsManager
 
         $file->setChecksum($checksum);
 
-        return $this->createVersion($workspace, $current, trim((string) $current?->getText()), $file, $checksum);
+        return $this->createVersion($workspace, $current, trim((string) $current?->getText()), $current?->getFieldTranslations(TermsVersion::TR_FIELD_TEXT) ?? [], $file, $checksum);
     }
 
     /**
@@ -106,20 +114,20 @@ final readonly class TermsManager
     public function removeTermsPdf(Workspace $workspace): ?TermsVersion
     {
         $current = $this->termsVersionRepository->getCurrentVersion($workspace);
-        if (null === $current || !$current->hasPdf()) {
+        if (null === $current || !$current->hasFile()) {
             return $current;
         }
 
-        return $this->createVersion($workspace, $current, trim((string) $current->getText()), null, null);
+        return $this->createVersion($workspace, $current, trim((string) $current->getText()), $current->getFieldTranslations(TermsVersion::TR_FIELD_TEXT), null, null);
     }
 
     public function getPdfContent(TermsVersion $terms): ?string
     {
-        if (!$terms->hasPdf()) {
+        if (!$terms->hasFile()) {
             return null;
         }
 
-        $stream = $this->fileStorageManager->getStream($terms->getPdfFile()->getPath());
+        $stream = $this->fileStorageManager->getStream($terms->getFile()->getPath());
 
         try {
             return stream_get_contents($stream);
@@ -153,14 +161,16 @@ final readonly class TermsManager
         Workspace $workspace,
         ?TermsVersion $current,
         string $text,
-        ?File $pdfFile,
-        ?string $pdfChecksum,
+        array $textTranslations,
+        ?File $file,
+        ?string $checksum,
     ): TermsVersion {
         $version = new TermsVersion();
         $version->setWorkspace($workspace);
         $version->setText($text);
-        $version->setPdfFile($pdfFile);
-        $version->setPdfChecksum($pdfChecksum);
+        $version->setTranslations($textTranslations ? [TermsVersion::TR_FIELD_TEXT => $textTranslations] : null);
+        $version->setFile($file);
+        $version->setChecksum($checksum);
         $version->setVersion(null !== $current ? $current->getVersion() + 1 : 1);
         $this->em->persist($version);
 

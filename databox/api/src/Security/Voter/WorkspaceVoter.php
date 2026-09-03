@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Entity\Core\Workspace;
+use App\Service\Workspace\TermsManager;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -17,10 +18,18 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
     final public const string CREATE_COLLECTION = 'CREATE_COLLECTION';
     final public const string MANAGER_USERS = 'MANAGER_USERS';
 
+    /**
+     * Base read access, without requiring the workspace Terms & Conditions
+     * to be signed. Used to fetch the workspace (and its terms) in order
+     * to present and sign them.
+     */
+    final public const string READ_NO_TERMS = 'READ_NO_TERMS';
+
     private readonly CacheInterface $cache;
 
     public function __construct(
         TemporaryCacheFactory $cacheFactory,
+        private readonly TermsManager $termsManager,
     ) {
         $this->cache = $cacheFactory->createCache();
     }
@@ -68,7 +77,9 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
                     PermissionInterface::CREATE,
                     PermissionInterface::OWNER,
                 ], $subject, $token),
-            AbstractVoter::READ => $isCreator()
+            AbstractVoter::READ => $this->doVote(self::READ_NO_TERMS, $subject, $token)
+                && $this->hasAcceptedTerms($subject, $token),
+            self::READ_NO_TERMS => $isCreator()
                 || $subject->isPublic()
                 || $this->hasAcl([
                     PermissionInterface::VIEW,
@@ -148,5 +159,32 @@ class WorkspaceVoter extends AbstractVoter implements AssetContainerVoterInterfa
                 ], $subject, $token),
             default => false,
         };
+    }
+
+    /**
+     * Whether the current user may access the workspace content with regard
+     * to its Terms & Conditions: no terms defined, user is the workspace
+     * owner, anonymous access (terms are informational only), or the current
+     * terms version has been signed.
+     */
+    private function hasAcceptedTerms(Workspace $subject, TokenInterface $token): bool
+    {
+        $user = $token->getUser();
+        $userId = $user instanceof JwtUser ? $user->getId() : null;
+
+        if (null === $userId) {
+            return true;
+        }
+
+        if ($subject->getOwnerId() === $userId) {
+            return true;
+        }
+
+        $terms = $this->termsManager->getCurrentTerms($subject);
+        if (null === $terms) {
+            return true;
+        }
+
+        return $this->termsManager->hasSigned($terms, $userId);
     }
 }

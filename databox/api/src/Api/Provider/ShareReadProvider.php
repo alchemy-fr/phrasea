@@ -12,9 +12,11 @@ use App\Api\Model\Output\ShareAlternateUrlOutput;
 use App\Api\Model\Output\ShareAttachmentOutput;
 use App\Api\Model\Output\ShareTermsOutput;
 use App\Api\Traits\ItemProviderAwareTrait;
+use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Share;
+use App\Entity\Core\TermsVersion;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\FileUrlResolver;
@@ -26,6 +28,7 @@ final class ShareReadProvider implements ProviderInterface
 {
     use ItemProviderAwareTrait;
     use SecurityAwareTrait;
+    use UserLocaleTrait;
 
     public function __construct(
         private readonly EntityManagerInterface $em,
@@ -63,10 +66,10 @@ final class ShareReadProvider implements ProviderInterface
             $terms = $this->termsManager->getCurrentTerms($workspace);
             if (null !== $terms) {
                 $item->terms = new ShareTermsOutput(
-                    $terms->hasPdf() ? null : $terms->getText(),
+                    $terms->hasFile() ? null : $terms->getTranslatedField(TermsVersion::TR_FIELD_TEXT, $this->getPreferredLocales($workspace), $terms->getText()),
                     $terms->getVersion(),
                     $workspace->getName(),
-                    $terms->hasPdf() ? $this->fileUrlResolver->resolveUrl($terms->getPdfFile()) : null,
+                    $terms->hasFile() ? $this->fileUrlResolver->resolveUrl($terms->getFile()) : null,
                 );
             }
         }

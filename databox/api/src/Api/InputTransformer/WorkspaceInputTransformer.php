@@ -60,11 +60,8 @@ class WorkspaceInputTransformer extends AbstractInputTransformer
         if (null !== $data->attachTermsToExports) {
             $object->setAttachTermsToExports($data->attachTermsToExports);
         }
-        if (null !== $data->logo) {
-            $object->setLogo($data->logo);
-        }
-        if (null !== $data->terms) {
-            $this->termsManager->updateTerms($object, $data->terms);
+        if (null !== $data->terms || null !== $data->termsTranslations) {
+            $this->termsManager->updateTerms($object, $data->terms, $data->termsTranslations);
         }
 
         if ($isNew) {

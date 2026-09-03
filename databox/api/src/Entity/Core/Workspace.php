@@ -44,7 +44,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'workspace',
     operations: [
         new Get(
-            security: 'is_granted("READ", object)'
+            security: 'is_granted("READ_NO_TERMS", object)'
         ),
         new Put(
             securityPostDenormalize: 'is_granted("EDIT", object)'
@@ -60,7 +60,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             uriTemplate: '/workspaces/{id}/terms/sign',
             controller: SignWorkspaceTermsAction::class,
-            security: 'is_granted("READ", object)',
+            security: 'is_granted("READ_NO_TERMS", object)',
             read: true,
             deserialize: false,
             validate: false,
@@ -145,7 +145,6 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     private const string CONFIG_ASSET_DEFAULT_STATUS = 'assetDefaultStatus';
     private const string CONFIG_FILE_ANALYSIS_REQUIRED = 'fileAnalysisRequired';
     private const string CONFIG_ATTACH_TERMS_TO_EXPORTS = 'attachTermsToExports';
-    private const string CONFIG_LOGO = 'logo';
 
     final public const string TR_FIELD_NAME = 'name';
 
@@ -328,23 +327,6 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
         }
 
         $this->config[self::CONFIG_ATTACH_TERMS_TO_EXPORTS] = true;
-    }
-
-    public function getLogo(): ?string
-    {
-        return $this->config[self::CONFIG_LOGO] ?? null;
-    }
-
-    public function setLogo(?string $logo): void
-    {
-        $logo = null !== $logo ? trim($logo) : null;
-        if (null === $logo || '' === $logo) {
-            unset($this->config[self::CONFIG_LOGO]);
-
-            return;
-        }
-
-        $this->config[self::CONFIG_LOGO] = $logo;
     }
 
     public function getLogoFile(): ?File

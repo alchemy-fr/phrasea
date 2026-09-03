@@ -6,7 +6,7 @@ namespace App\Controller\Core;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Core\Workspace;
-use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\WorkspaceVoter;
 use App\Service\Workspace\TermsManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,7 +29,7 @@ class SignWorkspaceTermsAction extends AbstractController
             throw new NotFoundHttpException(sprintf('Workspace "%s" not found', $id));
         }
 
-        $this->denyAccessUnlessGranted(AbstractVoter::READ, $workspace);
+        $this->denyAccessUnlessGranted(WorkspaceVoter::READ_NO_TERMS, $workspace);
 
         $user = $this->getUser();
         if (!$user instanceof JwtUser) {

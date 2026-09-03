@@ -10,6 +10,7 @@ use App\Api\Model\Output\WorkspaceOutput;
 use App\Api\Model\Output\WorkspaceTermsOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\Collection;
+use App\Entity\Core\TermsVersion;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetContainerVoterInterface;
@@ -57,6 +58,7 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
         $output->setCreatedAt($data->getCreatedAt());
         $output->ownerId = $data->getOwnerId();
 
+        $currentTerms = null;
         if ($this->hasGroup([
             Workspace::GROUP_READ,
         ], $context)) {
@@ -71,16 +73,27 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
             if (null !== $currentTerms) {
                 $userId = $this->getUser()?->getId();
                 $output->terms = new WorkspaceTermsOutput(
-                    $currentTerms->hasPdf() ? null : $currentTerms->getText(),
+                    $currentTerms->hasFile() ? null : $currentTerms->getTranslatedField(TermsVersion::TR_FIELD_TEXT, $this->getPreferredLocales($data), $currentTerms->getText()),
                     $currentTerms->getVersion(),
                     null !== $userId ? $this->termsManager->hasSigned($currentTerms, $userId) : null,
                     $data->isAttachTermsToExports(),
-                    $currentTerms->hasPdf() ? $this->fileUrlResolver->resolveUrl($currentTerms->getPdfFile()) : null,
+                    $currentTerms->hasFile() ? $this->fileUrlResolver->resolveUrl($currentTerms->getFile()) : null,
+                    $currentTerms->hasFile() ? null : $currentTerms->getText(),
+                    $currentTerms->getFieldTranslations(TermsVersion::TR_FIELD_TEXT) ?: null,
                 );
             }
         }
 
         $output->logo = $this->logoManager->resolveLogoUrl($data);
+
+        $userId = $this->getUser()?->getId();
+        if (null !== $userId && $data->getOwnerId() !== $userId) {
+            $currentTerms ??= $this->termsManager->getCurrentTerms($data);
+            $output->termsUnsigned = null !== $currentTerms
+                && !$this->termsManager->hasSigned($currentTerms, $userId);
+        } else {
+            $output->termsUnsigned = false;
+        }
 
         if ($this->hasGroup([
             Collection::GROUP_LIST,

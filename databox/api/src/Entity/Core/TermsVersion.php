@@ -6,6 +6,7 @@ namespace App\Entity\Core;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
+use App\Entity\Traits\TranslationsTrait;
 use App\Repository\Core\TermsVersionRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -15,8 +16,9 @@ use Doctrine\ORM\Mapping as ORM;
  * A new row is created each time the terms content changes,
  * so signatures always reference the exact content that was signed.
  *
- * Content is either a text (rendered to PDF on demand) or a PDF provided
- * directly (stored in the file storage); the PDF takes precedence.
+ * Content is either a text (translatable, rendered to PDF on demand)
+ * or a PDF provided directly (a File of the workspace); the PDF takes
+ * precedence.
  */
 #[ORM\Table(name: 'terms_version')]
 #[ORM\UniqueConstraint(name: 'uniq_terms_version', columns: ['workspace_id', 'version'])]
@@ -24,6 +26,9 @@ use Doctrine\ORM\Mapping as ORM;
 class TermsVersion extends AbstractUuidEntity
 {
     use CreatedAtTrait;
+    use TranslationsTrait;
+
+    final public const string TR_FIELD_TEXT = 'text';
 
     #[ORM\ManyToOne(targetEntity: Workspace::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
@@ -37,10 +42,10 @@ class TermsVersion extends AbstractUuidEntity
 
     #[ORM\ManyToOne(targetEntity: File::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
-    private ?File $pdfFile = null;
+    private ?File $file = null;
 
     #[ORM\Column(type: Types::STRING, length: 64, nullable: true)]
-    private ?string $pdfChecksum = null;
+    private ?string $checksum = null;
 
     public function getWorkspace(): ?Workspace
     {
@@ -72,33 +77,33 @@ class TermsVersion extends AbstractUuidEntity
         $this->text = $text;
     }
 
-    public function getPdfFile(): ?File
+    public function getFile(): ?File
     {
-        return $this->pdfFile;
+        return $this->file;
     }
 
-    public function setPdfFile(?File $pdfFile): void
+    public function setFile(?File $file): void
     {
-        $this->pdfFile = $pdfFile;
+        $this->file = $file;
     }
 
-    public function getPdfChecksum(): ?string
+    public function getChecksum(): ?string
     {
-        return $this->pdfChecksum;
+        return $this->checksum;
     }
 
-    public function setPdfChecksum(?string $pdfChecksum): void
+    public function setChecksum(?string $checksum): void
     {
-        $this->pdfChecksum = $pdfChecksum;
+        $this->checksum = $checksum;
     }
 
-    public function hasPdf(): bool
+    public function hasFile(): bool
     {
-        return null !== $this->pdfFile;
+        return null !== $this->file;
     }
 
     public function isEmpty(): bool
     {
-        return null === $this->pdfFile && '' === trim((string) $this->text);
+        return null === $this->file && '' === trim((string) $this->text);
     }
 }

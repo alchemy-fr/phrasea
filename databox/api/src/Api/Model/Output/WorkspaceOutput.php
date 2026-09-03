@@ -85,6 +85,16 @@ class WorkspaceOutput extends AbstractUuidOutput
     #[Groups([Workspace::GROUP_READ])]
     public ?WorkspaceTermsOutput $terms = null;
 
+    /**
+     * Whether the current user still has to sign the workspace
+     * Terms & Conditions to access its content.
+     */
+    #[Groups([
+        Workspace::GROUP_LIST,
+        Workspace::GROUP_READ,
+    ])]
+    public ?bool $termsUnsigned = null;
+
     #[Groups([
         Workspace::GROUP_LIST,
         Workspace::GROUP_READ,
