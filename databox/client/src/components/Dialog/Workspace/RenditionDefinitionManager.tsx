@@ -1,6 +1,7 @@
 import {
     RenditionPolicy,
     RenditionDefinition,
+    RenditionBuildReference,
     Workspace,
     AssetTypeFilter,
 } from '../../../types';
@@ -11,6 +12,7 @@ import {
     FormLabel,
     ListItemText,
     TextField,
+    Typography,
 } from '@mui/material';
 import {
     CheckboxWidget,
@@ -25,6 +27,7 @@ import DefinitionManager from './DefinitionManager/DefinitionManager.tsx';
 import {useTranslation} from 'react-i18next';
 import {
     deleteRenditionDefinition,
+    getRenditionBuildReference,
     getWorkspaceRenditionDefinitions,
     postRenditionDefinition,
     putRenditionDefinition,
@@ -35,6 +38,8 @@ import {toast} from 'react-toastify';
 import React from 'react';
 import RenditionDefinitionSelect from '../../Form/RenditionDefinitionSelect.tsx';
 import CodeEditorWidget from '../../Form/CodeEditor/CodeEditorWidget.tsx';
+import CodeEditor from '../../Form/CodeEditor/CodeEditor.tsx';
+import ReferenceSections from './ReferenceSections.tsx';
 import UseAsWidget from '../../Form/UseAsWidget.tsx';
 import MetadataValuesWidget from '../../Form/MetadataValuesWidget.tsx';
 import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
@@ -88,6 +93,20 @@ function Item({
     }, [data]);
 
     const buildMode = watch('buildMode');
+    const [buildReference, setBuildReference] = React.useState<
+        RenditionBuildReference | undefined
+    >();
+
+    React.useEffect(() => {
+        if (
+            buildMode === RenditionBuildMode.CUSTOM.toString() &&
+            !buildReference
+        ) {
+            (async () => {
+                setBuildReference(await getRenditionBuildReference());
+            })();
+        }
+    }, [buildMode, buildReference]);
 
     return (
         <>
@@ -263,6 +282,35 @@ function Item({
                             height={'700px'}
                         />
                         <FormFieldErrors field={'definition'} errors={errors} />
+                        {buildReference ? (
+                            <Box sx={{mt: 2}}>
+                                <Typography variant={'body1'} sx={{mb: 1}}>
+                                    {t(
+                                        'form.rendition_definition.help.build_reference',
+                                        'Build definition reference:'
+                                    )}
+                                </Typography>
+                                <CodeEditor
+                                    mode={'yaml'}
+                                    theme={'github'}
+                                    height={'300px'}
+                                    value={buildReference.reference}
+                                    readOnly={true}
+                                />
+                                <Typography
+                                    variant={'body1'}
+                                    sx={{mt: 2, mb: 1}}
+                                >
+                                    {t(
+                                        'form.rendition_definition.help.modules_reference',
+                                        'Available modules:'
+                                    )}
+                                </Typography>
+                                <ReferenceSections
+                                    sections={buildReference.references}
+                                />
+                            </Box>
+                        ) : null}
                     </FormRow>
                 </>
             ) : (

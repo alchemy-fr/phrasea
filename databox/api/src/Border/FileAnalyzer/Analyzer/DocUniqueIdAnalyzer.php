@@ -66,10 +66,6 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
                 ->info('The maximum number of duplicates to check for. If more than this number of duplicates are found, only the first N will be returned.')
                 ->defaultValue(10)
             ->end()
-            ->booleanNode('treatDuplicateAsError')
-                ->defaultFalse()
-            ->info('Whether to treat duplicate files as errors instead of warnings.')
-            ->end()
             ->booleanNode('generate')
                 ->defaultTrue()
             ->end()
@@ -154,7 +150,7 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
     protected function getDocumentationHeader(): string
     {
         return <<<HEADER
-        This analyzer checks for a unique identifier in the file\'s metadata.
+        This analyzer checks for a unique identifier in the file's metadata.
         If you enable this analyzer, the `File Analyzer` integration must then need a `Read Metadata` integration to be processed before it.
         HEADER;
     }

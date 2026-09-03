@@ -186,10 +186,7 @@ export async function bypassQuarantine(id: string): Promise<Asset> {
 }
 
 export type DuplicateAsset = {
-    id: string;
-    title: string | null;
-    thumbnailUrl: string | null;
-    createdAt: string | null;
+    asset: Asset;
     analyzers: string[];
 };
 

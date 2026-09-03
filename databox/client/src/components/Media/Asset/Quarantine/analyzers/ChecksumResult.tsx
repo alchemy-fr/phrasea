@@ -1,7 +1,8 @@
 import {useTranslation} from 'react-i18next';
 import AnalysisData from '../AnalysisData.tsx';
 import AnalysisMessages, {MessageResolver} from '../AnalysisMessages.tsx';
-import DuplicateList from '../DuplicateList.tsx';
+import DuplicateAssets from '../DuplicateAssets.tsx';
+import {AnalyzerName, outputHasDuplicates} from '../analysisTypes.ts';
 import {AnalyzerComponentProps} from './types.ts';
 
 const resolve: MessageResolver = (t, type, payload) => {
@@ -20,7 +21,10 @@ const resolve: MessageResolver = (t, type, payload) => {
     }
 };
 
-export default function ChecksumResult({output}: AnalyzerComponentProps) {
+export default function ChecksumResult({
+    fileId,
+    output,
+}: AnalyzerComponentProps) {
     const {t} = useTranslation();
     const data = output.data ?? {};
 
@@ -51,7 +55,12 @@ export default function ChecksumResult({output}: AnalyzerComponentProps) {
                     },
                 ]}
             />
-            <DuplicateList duplicates={output.duplicates} />
+            {outputHasDuplicates(output) ? (
+                <DuplicateAssets
+                    fileId={fileId}
+                    analyzerName={AnalyzerName.Checksum}
+                />
+            ) : null}
         </>
     );
 }

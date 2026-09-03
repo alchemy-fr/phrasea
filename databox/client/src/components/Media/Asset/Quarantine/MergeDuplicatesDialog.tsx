@@ -2,16 +2,7 @@ import React from 'react';
 import {ConfirmDialog} from '@alchemy/phrasea-framework';
 import {StackedModalProps} from '@alchemy/navigation';
 import {useTranslation} from 'react-i18next';
-import {
-    Alert,
-    Avatar,
-    Box,
-    Radio,
-    RadioGroup,
-    Stack,
-    Typography,
-} from '@mui/material';
-import ImageIcon from '@mui/icons-material/Image';
+import {Alert, Radio, RadioGroup, Typography} from '@mui/material';
 import CallMergeIcon from '@mui/icons-material/CallMerge';
 import {Asset} from '../../../../types.ts';
 import {
@@ -24,6 +15,7 @@ import {useModalFetch} from '../../../../hooks/useModalFetch.ts';
 import {FullPageLoader} from '@alchemy/phrasea-ui';
 import {useAssetStore} from '../../../../store/assetStore.ts';
 import {toast} from 'react-toastify';
+import DuplicateAssetRow from './DuplicateAssetRow.tsx';
 
 type Props = {
     asset: Asset;
@@ -34,7 +26,7 @@ type Choice = {
     id: string;
     title: string;
     subtitle?: string;
-    thumbnailUrl?: string | null;
+    thumbAsset: Asset;
     incoming?: boolean;
 };
 
@@ -60,7 +52,7 @@ export default function MergeDuplicatesDialog({
             asset.name ??
             t('quarantine.merge.incoming', 'Incoming file'),
         subtitle: t('quarantine.merge.incoming_hint', 'Newly uploaded file'),
-        thumbnailUrl: asset.thumbnail?.file?.url,
+        thumbAsset: asset,
         incoming: true,
     };
 
@@ -69,7 +61,7 @@ export default function MergeDuplicatesDialog({
     React.useEffect(() => {
         // Default to keeping the first existing duplicate once loaded
         if (isSuccess && duplicates && duplicates.length > 0) {
-            setKeptId(duplicates[0].id);
+            setKeptId(duplicates[0].asset.id);
         }
     }, [isSuccess, duplicates]);
 
@@ -80,15 +72,15 @@ export default function MergeDuplicatesDialog({
     const choices: Choice[] = [
         incomingChoice,
         ...duplicates.map(d => ({
-            id: d.id,
-            title: d.title ?? d.id,
-            subtitle: d.createdAt
+            id: d.asset.id,
+            title: d.asset.name ?? d.asset.id,
+            subtitle: d.asset.createdAt
                 ? t('quarantine.merge.existing_hint', {
                       defaultValue: 'Existing asset · {{date}}',
-                      date: new Date(d.createdAt).toLocaleString(),
+                      date: new Date(d.asset.createdAt).toLocaleString(),
                   })
                 : t('quarantine.merge.existing', 'Existing asset'),
-            thumbnailUrl: d.thumbnailUrl,
+            thumbAsset: d.asset,
         })),
     ];
 
@@ -98,7 +90,7 @@ export default function MergeDuplicatesDialog({
                 // Keep the incoming (quarantined) asset: accept it and trash
                 // the existing duplicates it replaces.
                 const updated = await bypassQuarantine(asset.id);
-                const duplicateIds = duplicates.map(d => d.id);
+                const duplicateIds = duplicates.map(d => d.asset.id);
                 if (duplicateIds.length > 0) {
                     await deleteAssets(duplicateIds);
                     duplicateIds.forEach(storeDelete);
@@ -154,58 +146,24 @@ export default function MergeDuplicatesDialog({
                         onChange={e => setKeptId(e.target.value)}
                     >
                         {choices.map(choice => (
-                            <Box
+                            <DuplicateAssetRow
                                 key={choice.id}
-                                sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 1.5,
-                                    p: 1,
-                                    borderRadius: 1,
-                                    border: theme =>
-                                        `1px solid ${
-                                            keptId === choice.id
-                                                ? theme.palette.primary.main
-                                                : theme.palette.divider
-                                        }`,
-                                    mb: 1,
-                                    cursor: 'pointer',
-                                }}
+                                asset={choice.thumbAsset}
+                                title={
+                                    choice.incoming
+                                        ? `${choice.title} (${t('quarantine.merge.new_badge', 'new')})`
+                                        : choice.title
+                                }
+                                subtitle={choice.subtitle}
+                                selected={keptId === choice.id}
                                 onClick={() => setKeptId(choice.id)}
-                            >
-                                <Radio
-                                    value={choice.id}
-                                    checked={keptId === choice.id}
-                                />
-                                <Avatar
-                                    variant={'rounded'}
-                                    src={choice.thumbnailUrl ?? undefined}
-                                    sx={{width: 48, height: 48}}
-                                >
-                                    <ImageIcon />
-                                </Avatar>
-                                <Stack sx={{minWidth: 0}}>
-                                    <Typography
-                                        noWrap
-                                        sx={{fontWeight: 500}}
-                                        title={choice.title}
-                                    >
-                                        {choice.title}
-                                        {choice.incoming
-                                            ? ` (${t('quarantine.merge.new_badge', 'new')})`
-                                            : ''}
-                                    </Typography>
-                                    {choice.subtitle ? (
-                                        <Typography
-                                            variant={'body2'}
-                                            color={'text.secondary'}
-                                            noWrap
-                                        >
-                                            {choice.subtitle}
-                                        </Typography>
-                                    ) : null}
-                                </Stack>
-                            </Box>
+                                leading={
+                                    <Radio
+                                        value={choice.id}
+                                        checked={keptId === choice.id}
+                                    />
+                                }
+                            />
                         ))}
                     </RadioGroup>
                 </>

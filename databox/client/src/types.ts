@@ -703,11 +703,24 @@ export interface WorkspaceIntegration
     lastErrors?: LastErrors;
 }
 
+export interface ReferenceSection {
+    name: string;
+    description?: string | null;
+    reference: string;
+}
+
 export interface IntegrationType {
     id: string;
     displayName: string;
     name: string;
     reference: string;
+    references: ReferenceSection[];
+}
+
+export interface RenditionBuildReference {
+    id: string;
+    reference: string;
+    references: ReferenceSection[];
 }
 
 export type IntegrationToken = {

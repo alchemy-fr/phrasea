@@ -14,7 +14,10 @@ final readonly class AssetDuplicateOutput
 {
     public function __construct(
         /**
-         * @var array<int, array{id: string, title: ?string, thumbnailUrl: ?string, createdAt: ?string, analyzers: string[]}>
+         * Each duplicate asset is serialized through the standard asset
+         * normalization (like GET /assets/{id}).
+         *
+         * @var array<int, array{asset: \App\Entity\Core\Asset, analyzers: string[]}>
          */
         #[Groups(['_'])]
         public array $duplicates,

@@ -18,6 +18,7 @@ export default function AnalyzerResults({file}: Props) {
                     {results.map((result, index) => (
                         <AnalyzerResult
                             key={`${result.name}-${index}`}
+                            fileId={file.id}
                             result={result}
                         />
                     ))}

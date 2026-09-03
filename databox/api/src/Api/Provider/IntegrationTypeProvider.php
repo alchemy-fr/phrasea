@@ -7,6 +7,7 @@ namespace App\Api\Provider;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use App\Integration\ExtraReferenceIntegrationInterface;
 use App\Integration\IntegrationInterface;
 use App\Integration\IntegrationManager;
 use App\Integration\IntegrationRegistry;
@@ -42,6 +43,10 @@ final readonly class IntegrationTypeProvider implements ProviderInterface
         $object->name = $integration::getName();
 
         $object->reference = $this->integrationManager->getIntegrationReference($integration);
+
+        if ($integration instanceof ExtraReferenceIntegrationInterface) {
+            $object->references = $integration->getExtraReferenceSections();
+        }
 
         return $object;
     }

@@ -4,16 +4,26 @@ namespace App\Border;
 
 use App\Border\FileAnalyzer\AnalyzerInterface;
 use App\Border\FileAnalyzer\FileAnalyzerConfigHelper;
-use Psr\Container\ContainerInterface;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 
 final readonly class FileAnalyzerRegistry
 {
     public function __construct(
         #[AutowireLocator(services: AnalyzerInterface::TAG, defaultIndexMethod: 'getName')]
-        private ContainerInterface $analyzers,
+        private ServiceLocator $analyzers,
     ) {
+    }
+
+    /**
+     * @return iterable<string, AnalyzerInterface>
+     */
+    public function getAnalyzers(): iterable
+    {
+        foreach ($this->analyzers->getProvidedServices() as $name => $fqcn) {
+            yield $name => $this->getAnalyzer($name);
+        }
     }
 
     public function getAnalyzer(string $name): AnalyzerInterface

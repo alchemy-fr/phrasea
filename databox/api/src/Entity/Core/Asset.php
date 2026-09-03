@@ -176,7 +176,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(
             uriTemplate: '/assets/{id}/duplicates',
             normalizationContext: [
-                'groups' => [self::GROUP_LIST],
+                'groups' => [self::GROUP_LIST, 'dates'],
             ],
             output: AssetDuplicateOutput::class,
             name: 'duplicates',

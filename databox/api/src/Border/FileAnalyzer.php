@@ -7,6 +7,7 @@ namespace App\Border;
 use App\Border\FileAnalyzer\Dto\AnalysisOutput;
 use App\Border\FileAnalyzer\Dto\LogLevelEnum;
 use App\Border\FileAnalyzer\FileAnalyzerConfigHelper;
+use App\Border\FileAnalyzer\FileDuplicateManager;
 use App\Entity\Core\File;
 use App\Service\Asset\FileFetcher;
 
@@ -15,6 +16,7 @@ final readonly class FileAnalyzer
     public function __construct(
         private FileAnalyzerRegistry $fileAnalyzerRegistry,
         private FileFetcher $fileFetcher,
+        private FileDuplicateManager $fileDuplicateManager,
     ) {
     }
 
@@ -46,6 +48,7 @@ final readonly class FileAnalyzer
                 'status' => File::ANALYSIS_SKIPPED,
                 'message' => 'File analysis skipped because not stored into Databox.',
             ]);
+            $this->fileDuplicateManager->replaceDuplicates($file, []);
 
             return;
         }
@@ -61,6 +64,7 @@ final readonly class FileAnalyzer
     public function analyzeFileSource(string $filePath, File $file, array $config): void
     {
         $outputs = [];
+        $duplicatesByAnalyzer = [];
         $status = File::ANALYSIS_SUCCESS;
         foreach ($config['analyzers'] ?? [] as $analyzerConfig) {
             $analyzer = $this->fileAnalyzerRegistry->getAnalyzer($analyzerConfig['name']);
@@ -71,21 +75,24 @@ final readonly class FileAnalyzer
 
             $output = $this->limitSeverity($analyzer->analyzeFile($file, $filePath, $analyzerConfig), $analyzerConfig);
             $outputs[] = $this->getOutputData($output, $analyzerConfig);
+            $duplicatesByAnalyzer[$analyzerConfig['name']] = $output->getDuplicates();
             if (!$output->isSuccessful()) {
                 $status = File::ANALYSIS_FAILED;
             }
         }
 
-        $this->assignAnalysis($file, $status, $outputs, $config);
+        $this->assignAnalysis($file, $status, $outputs, $config, $duplicatesByAnalyzer);
     }
 
-    private function assignAnalysis(File $file, string $status, array $outputs, array $config): void
+    private function assignAnalysis(File $file, string $status, array $outputs, array $config, array $duplicatesByAnalyzer): void
     {
         $file->setAnalysis([
             'status' => $status,
             'results' => $outputs,
             'hash' => $this->computeHash($file, $config),
         ]);
+
+        $this->fileDuplicateManager->replaceDuplicates($file, $duplicatesByAnalyzer);
     }
 
     private function limitSeverity(AnalysisOutput $analysisOutput, array $config): AnalysisOutput
@@ -99,6 +106,7 @@ final readonly class FileAnalyzer
     public function preAnalyzeFile(File $file, array $config): bool
     {
         $outputs = [];
+        $duplicatesByAnalyzer = [];
         $status = File::ANALYSIS_SUCCESS;
 
         foreach ($config['analyzers'] ?? [] as $analyzerConfig) {
@@ -115,12 +123,13 @@ final readonly class FileAnalyzer
             $output = $analyzer->analyzeFile($file, null, $analyzerConfig);
 
             $outputs[] = $this->getOutputData($output, $analyzerConfig);
+            $duplicatesByAnalyzer[$analyzerConfig['name']] = $output->getDuplicates();
             if (!$output->isSuccessful()) {
                 $status = File::ANALYSIS_FAILED;
             }
         }
 
-        $this->assignAnalysis($file, $status, $outputs, $config);
+        $this->assignAnalysis($file, $status, $outputs, $config, $duplicatesByAnalyzer);
 
         return false;
     }
