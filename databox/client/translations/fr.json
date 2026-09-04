@@ -123,6 +123,14 @@
                 "view_assets": {
                     "desc": "Permet de visualiser les Assets de cette collection et des sous-collections, mais pas les collections auxquelles ils appartiennent.",
                     "label": "Voir les Assets"
+                },
+                "quarantine": {
+                    "desc": "Permet d'afficher les assets mis en quarantaine dans cette collection.",
+                    "label": "Voir les assets placés en quarantaine"
+                },
+                "quarantine_by_pass": {
+                    "desc": "Permet de contourner la mise en quarantaine pour les assets de cette collection.",
+                    "label": "Contourner la mise en quarantaine"
                 }
             },
             "common": {
@@ -155,7 +163,7 @@
                 },
                 "child_view": {
                     "label": "Visualiser",
-                    "desc": "Visualiser la politique de rendition"
+                    "desc": "Visualiser la politique de renditions"
                 }
             },
             "workspace": {
@@ -212,8 +220,12 @@
                     "label": "Voir les Assets"
                 },
                 "quarantine_by_pass": {
-                    "desc": "Permet de contourner la quarantaine pour les actifs de cet espace de travail.",
+                    "desc": "Permet de contourner la quarantaine pour les assets de ce Workspace.",
                     "label": "Contourner la quarantaine"
+                },
+                "quarantine": {
+                    "desc": "Permet d'afficher les assets mis en quarantaine dans ce Workspace.",
+                    "label": "Afficher les assets mis en quarantaine"
                 }
             },
             "child_create": "Création de sous-éléments",
@@ -353,13 +365,28 @@
                 }
             },
             "correct_invalid": "Correct",
-            "invalid_valid": "Valeur non valide. Veuillez la corriger!"
+            "invalid_valid": "Valeur non valide. Veuillez la corriger !"
         },
         "type": {
             "size": {
                 "unit": {
                     "bytes": "{{value}} Octets",
-                    "gb": "{{value}} Go"
+                    "gb": "{{value}} Go",
+                    "eb": "{{value}} EB",
+                    "eib": "{{value}} EB",
+                    "gib": "{{value}} GiB",
+                    "kb": "{{value}} KB",
+                    "kib": "{{value}} KiB",
+                    "mb": "{{value}} MB",
+                    "mib": "{{value}} MiB",
+                    "pb": "{{value}} PB",
+                    "pib": "{{value}} PiB",
+                    "tb": "{{value}} TB",
+                    "tib": "{{value}} TiB",
+                    "yb": "{{value}} YB",
+                    "yib": "{{value}} YiB",
+                    "zb": "{{value}} ZB",
+                    "zib": "{{value}} ZiB"
                 }
             }
         },
@@ -443,7 +470,7 @@
         },
         "batch_merge": {
             "dialog": {
-                "keep": "Sélectionnez l'entité que vous souhaitez conserver. Les autres y seront fusionnés et supprimés.",
+                "keep": "Sélectionnez l'entité que vous souhaitez conserver. Les autres y seront fusionnées et supprimées.",
                 "submit": "Fusionner",
                 "title": "Fusionner des entités"
             },
@@ -452,7 +479,7 @@
         "import": {
             "format": {
                 "csv": "CSV",
-                "raw": "Raw (une valeur par ligne)"
+                "raw": "Ligne (une valeur par ligne)"
             }
         },
         "pending": {
@@ -702,7 +729,10 @@
     },
     "definition_manager": {
         "confirm_delete": "Êtes-vous sûr de vouloir supprimer cet élément ?",
-        "saved": "Enregistré !"
+        "saved": "Enregistré !",
+        "count_one": "{{count}} élément",
+        "count_many": "{{count}} éléments",
+        "count_other": "{{count}} éléments"
     },
     "delete": {
         "basket": {
@@ -728,14 +758,18 @@
             "copy_code": "Copier le code",
             "format": "Format",
             "select_format": "Sélectionner un format",
-            "title": "",
+            "title": "Exporter {{list}}",
             "locale": "Locale",
             "select_locale": "Sélectionner la locale",
             "all_locales": "Toutes les locales",
             "values": {
                 "helper_text": "Entrez une valeur d'attribut d'entité par ligne.",
                 "label": "Valeurs"
-            }
+            },
+            "data": {
+                "label": "Données"
+            },
+            "export": "Export"
         },
         "ok": "OK",
         "import_attribute_entities": {
@@ -935,6 +969,15 @@
             },
             "synonyms": {
                 "label": "Synonyme"
+            },
+            "color": {
+                "label": "Couleur"
+            },
+            "emoji": {
+                "label": "Emoticône"
+            },
+            "status": {
+                "label": "Statut"
             }
         },
         "basket": {
@@ -943,6 +986,9 @@
             },
             "title": {
                 "label": "Titre"
+            },
+            "name": {
+                "label": "Nom"
             }
         },
         "basket_create": {
@@ -956,11 +1002,15 @@
             "title": {
                 "label": "Titre",
                 "translate": {
-                    "title": "Traduire le titre"
+                    "title": "Traduire le titre",
+                    "name": "Traduire le nom"
                 }
             },
             "privacy": {
                 "inherited": "Une collection ne peut pas être plus restreinte que sa collection parente."
+            },
+            "name": {
+                "label": "Nom"
             }
         },
         "collection_create": {
@@ -1000,7 +1050,8 @@
                 },
                 "private": "Privé",
                 "public": "Public",
-                "secret": "Secret"
+                "secret": "Secret",
+                "not_set": "Indéfini"
             },
             "inherited": "Une collection ne peut pas être plus restreinte que sa collection parente.",
             "inherited_from_parent": "La confidentialité est héritée du parent : <strong> {{privacy}} </strong>"
@@ -1168,6 +1219,12 @@
             },
             "trashRetentionDelay": {
                 "label": "Délai de conservation dans la corbeille (en jours)"
+            },
+            "assetDefaultStatus": {
+                "label": "Statut par défaut de l'asset"
+            },
+            "fileAnalysisRequired": {
+                "label": "Requiert une analyse du fichier"
             }
         },
         "attributelist_create": {
@@ -1208,6 +1265,9 @@
             },
             "public": {
                 "label": "Public"
+            },
+            "name": {
+                "label": "Nom"
             }
         },
         "annotation": {
@@ -1244,6 +1304,24 @@
         "entity_type": {
             "name": {
                 "label": "Type"
+            },
+            "allowNewValues": {
+                "label": "Accepter les nouvelles valeurs"
+            },
+            "approveNewValues": {
+                "label": "Approuver automatiquement les nouvelles valeurs"
+            },
+            "withColors": {
+                "label": "Utiliser les couleurs"
+            },
+            "withEmojis": {
+                "label": "Utiliser les émoticônes comme icônes"
+            },
+            "withSynonyms": {
+                "label": "Utiliser les synonymes"
+            },
+            "withTranslations": {
+                "label": "Utiliser les traductions"
             }
         },
         "thread_message": {
@@ -1296,6 +1374,9 @@
             },
             "title": {
                 "label": "Titre"
+            },
+            "name": {
+                "label": "Nom"
             }
         },
         "saved_search_edit": {
@@ -1305,7 +1386,7 @@
             "actions": {
                 "action": {
                     "hide_attribute": "Masquer l'Attribut",
-                    "hide_rendition": "Masquer le Rendition",
+                    "hide_rendition": "Masquer la Rendition",
                     "label": "Action"
                 },
                 "add": "Ajouter une action",
@@ -1336,6 +1417,22 @@
             },
             "users": {
                 "label": "Utilisateurs"
+            }
+        },
+        "display_profile": {
+            "create": {
+                "title": "Créer le profil d'affichage"
+            },
+            "create_success": "Profil d'affichage créé !",
+            "description": {
+                "label": "Description"
+            },
+            "edit_success": "Profil d'affichage modifié !",
+            "name": {
+                "label": "Nom"
+            },
+            "public": {
+                "label": "Public"
             }
         }
     },
@@ -1423,6 +1520,12 @@
                 "sizeRatio": {
                     "label": "Taille"
                 }
+            },
+            "display_name": {
+                "label": "Nom d'affichage"
+            },
+            "name_rows": {
+                "label": "lignes"
             }
         },
         "previews_locked": "Aperçus verrouillés",
@@ -1551,6 +1654,9 @@
         "save_file_as_new_asset": "Enregistrer comme nouvel asset",
         "title": {
             "label": "Titre"
+        },
+        "name": {
+            "label": "Nom"
         }
     },
     "save_file_as_rendition_dialog": {
@@ -1567,7 +1673,8 @@
         },
         "error": "Oups, une erreur s'est produite :",
         "more_options": {
-            "clear_search": "Effacer la recherche"
+            "clear_search": "Effacer la recherche",
+            "save_as_new": "Sauvegarder comme nouvelle recherche"
         },
         "no_results_message": "Nous sommes désolés, mais votre recherche n'a renvoyé <strong> aucun Asset </strong> !",
         "save_search": "Recherche sauvegardée",
@@ -1902,6 +2009,9 @@
             },
             "integrations": {
                 "title": "Intégrations"
+            },
+            "asset_policy": {
+                "title": "Politiques d'accès aux assets"
             }
         },
         "no_locale_defined": "Aucune langue définie pour ce Workspace"
@@ -2855,7 +2965,7 @@
         "choice": {
             "accepted": "Accepter",
             "pending": "En attente",
-            "quarantined": "Quarantaine"
+            "quarantined": "En quarantaine"
         }
     },
     "attribute_entity_select": {
@@ -2914,5 +3024,54 @@
         "not_allowed": "Non autorisé",
         "not_found": "Introuvable",
         "unresolved": "…"
+    },
+    "operation_task": {
+        "index_assets": {
+            "desc": "Réindexer les assets et leurs attributs",
+            "name": "Indexer les assets"
+        },
+        "switch_attribute_locales": {
+            "desc": "Permuter les locales des attributs. C'est utile lorsque vous souhaitez modifier la locale d'un attribut sans avoir à le supprimer et à le recréer.",
+            "name": "Permuter les locales des attributs"
+        }
+    },
+    "operation_tasks": {
+        "title": "Tâches opérationnelles"
+    },
+    "run_task": {
+        "initiated": "La tâche a été initiée avec succès",
+        "not_found": "Aucune tâche trouvée",
+        "submit": "Exécuter",
+        "title": "Exécuter la tâche : {{name}}"
+    },
+    "task": {
+        "card": {
+            "remaining": "Restant :"
+        },
+        "details": {
+            "info": {
+                "createdAt": "Initié le",
+                "duration": "Durée",
+                "endedAt": "Terminé le",
+                "itemTotal": "Total des éléments",
+                "output": "Sortie",
+                "owner": "Propriétaire",
+                "payload": "Charge utile",
+                "progress": "Élément traité",
+                "startedAt": "Commencé le",
+                "task": "Tâche"
+            }
+        }
+    },
+    "taskCard": {
+        "runBy": "<strong>{{task}}</strong> exécuté par <strong>{{owner}}</strong>"
+    },
+    "tasks_details": {
+        "title": "Tâche {{name}}"
+    },
+    "tasks_list": {
+        "create": "Nouvelle tâche",
+        "refresh": "Rafraîchir",
+        "title": "Historique de la tâche"
     }
 }
