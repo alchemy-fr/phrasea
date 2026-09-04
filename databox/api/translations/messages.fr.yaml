@@ -18,6 +18,7 @@ field_type:
     textarea: Zone de texte
     id: ID
     privacy: Confidentialité
+    asset_status: Statuts des assets
 privacy:
   secret: Secret
   private_in_workspace: Privé dans l'espace de travail
@@ -49,3 +50,67 @@ facet:
     name: Story
   stories:
     name: Stories
+  file_type:
+    name: Type de fichier
+  file_extension:
+    name: Extension de fichier
+  has_source_file:
+    name: Possède un fichier source
+  assetStatus:
+    name: Statut de l'asset
+asset_status:
+  accepted: Accepté
+  pending: En attente
+  quarantined: Placé en quarantaine
+built_in_attribute:
+  _score:
+    name: Score
+  _id:
+    name: ID
+  name:
+    name: Nom
+  collectionPaths:
+    name: Collections
+  workspaceId:
+    name: Workspace
+  ownerId:
+    name: Propriétaire
+  privacy:
+    name: Confidentialité
+  isStory:
+    name: Est une Story
+  stories:
+    name: Stories
+  tags:
+    name: Tag
+  renditions:
+    name: Rendition
+  editedAt:
+    name: Modifié le
+  createdAt:
+    name: Créé le
+  fileType:
+    name: Type de fichier
+  fileMimeType:
+    name: Type MIME de fichier
+  fileExtension:
+    name: Extension de fichier
+  fileSize:
+    name: Taille de fichier
+  fileName:
+    name: Nom de fichier
+  checksum:
+    name: Somme de contrôle
+  docUniqueId:
+    name: Identifiant unique de document
+  hasSourceFile:
+    name: Possède un fichier source
+  deleted:
+    name: Supprimé
+  assetStatus:
+    name: Statut de l'asset
+search:
+  suggestion:
+    type:
+      asset: Asset
+      collection: Collection
