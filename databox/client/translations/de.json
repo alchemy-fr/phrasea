@@ -556,7 +556,7 @@
         "import": {
             "format": {
                 "csv": "CSV",
-                "raw": "Roh (Ein Wert pro Zeile)"
+                "raw": "RAW (Ein Wert pro Zeile)"
             }
         },
         "pending": {
@@ -1112,7 +1112,8 @@
                 },
                 "private": "Privat",
                 "public": "Öffentlich",
-                "secret": "Secret"
+                "secret": "Secret",
+                "not_set": "Undefiniert"
             },
             "inherited": "Diese Kollektion kann nicht stärker eingeschränkt sein als ihre übergeordnete Kollektion",
             "inherited_from_parent": "Datenschutz wird vom Elternteil übernommen: <strong> {{privacy}} </strong>"
@@ -1246,6 +1247,12 @@
             },
             "trashRetentionDelay": {
                 "label": "Verzögerung bei der Aufbewahrung von Papierkorb (in Tagen)"
+            },
+            "assetDefaultStatus": {
+                "label": "Standardstatus für Assets"
+            },
+            "fileAnalysisRequired": {
+                "label": "Dateianalyse erforderlich"
             }
         },
         "workspace_edit": {
@@ -1321,6 +1328,9 @@
             },
             "public": {
                 "label": "Öffentlich"
+            },
+            "name": {
+                "label": "Name"
             }
         },
         "thread_message": {
@@ -1358,6 +1368,24 @@
         "entity_type": {
             "name": {
                 "label": "Typ"
+            },
+            "allowNewValues": {
+                "label": "Neue Werte übernehmen"
+            },
+            "approveNewValues": {
+                "label": "Neue Werte automatisch übernehmen"
+            },
+            "withColors": {
+                "label": "Farben verwenden"
+            },
+            "withEmojis": {
+                "label": "Emojis als Symbol verwenden"
+            },
+            "withSynonyms": {
+                "label": "Synonyme verwenden"
+            },
+            "withTranslations": {
+                "label": "Übersetzungen verwenden"
             }
         },
         "profile_edit": {
@@ -1387,6 +1415,24 @@
             },
             "title": {
                 "label": "Titel"
+            },
+            "name": {
+                "label": "Name"
+            },
+            "privacy": {
+                "label": "Datenschutz",
+                "private": {
+                    "helper": "Über Link erreichbar, nicht gelistet",
+                    "label": "Privat"
+                },
+                "public": {
+                    "helper": "Für alle Nutzer gelistet",
+                    "label": "Öffentlich"
+                },
+                "secret": {
+                    "helper": "Nur für Sie und berechtigte Benutzer",
+                    "label": "Geheim"
+                }
             }
         },
         "saved_search_edit": {
@@ -1427,6 +1473,22 @@
             },
             "users": {
                 "label": "Benutzer"
+            }
+        },
+        "display_profile": {
+            "create": {
+                "title": "Anzeigeprofil erstellen"
+            },
+            "create_success": "Anzeigeprofil erstellt!",
+            "description": {
+                "label": "Beschreibung"
+            },
+            "edit_success": "Anzeigeprofil bearbeitet!",
+            "name": {
+                "label": "Name"
+            },
+            "public": {
+                "label": "Öffentlich"
             }
         }
     },
@@ -1511,6 +1573,12 @@
                 "sizeRatio": {
                     "label": "Grösse"
                 }
+            },
+            "display_name": {
+                "label": "Anzeigename"
+            },
+            "name_rows": {
+                "label": "Zeilen"
             }
         },
         "previews_locked": "Vorschauen gesperrt",
@@ -1608,7 +1676,9 @@
         "download": "Download",
         "delete": "Löschen",
         "replace": "Ersetzen",
-        "upload": "Rendition hochladen"
+        "upload": "Rendition hochladen",
+        "create_custom": "Benutzerdefinierte Rendition erstellen",
+        "generating": "Wird generiert…"
     },
     "replace_asset_with_file_dialog": {
         "please_confirm_replacing_asset": "Bitte bestätigen Sie das Ersetzen des Assets.",
@@ -1639,7 +1709,10 @@
         "title": {
             "label": "Titel"
         },
-        "save_file_as_new_asset": "Datei als neues Asset speichern"
+        "save_file_as_new_asset": "Datei als neues Asset speichern",
+        "name": {
+            "label": "Name"
+        }
     },
     "save_file_as_rendition_dialog": {
         "rendition_has_been_saved": "Die Rendition wurde gespeichert",
@@ -1653,7 +1726,8 @@
         },
         "error": "Hoppla, ein Fehler ist aufgetreten:",
         "more_options": {
-            "clear_search": "Suche löschen"
+            "clear_search": "Suche löschen",
+            "save_as_new": "Als neue Suche speichern"
         },
         "no_results_message": "Es tut uns leid, aber Ihre Suche ergab keine <strong> Assets</strong>!",
         "save_search": "Suche speichern",
@@ -1764,6 +1838,9 @@
             },
             "integrations": {
                 "title": "Integrationen"
+            },
+            "asset_policy": {
+                "title": "Asset-Richtlinien"
             }
         },
         "no_locale_defined": "In diesem Workspace ist keine Sprache definiert"
@@ -2780,5 +2857,54 @@
         "not_allowed": "Nicht erlaubt",
         "not_found": "Nicht gefunden",
         "unresolved": "…"
+    },
+    "operation_task": {
+        "index_assets": {
+            "desc": "Assets und deren Attribute neu indizieren",
+            "name": "Assets indizieren"
+        },
+        "switch_attribute_locales": {
+            "desc": "Lokale von Attributen wechseln. Dies ist nützlich, wenn Sie die Locale eines Attributs ändern möchten, ohne es löschen und neu erstellen zu müssen.",
+            "name": "Attribut-Lokale wechseln"
+        }
+    },
+    "operation_tasks": {
+        "title": "Betriebsaufgaben"
+    },
+    "run_task": {
+        "initiated": "Aufgabe erfolgreich initiiert",
+        "not_found": "Keine Aufgabe gefunden",
+        "submit": "Ausführen",
+        "title": "Aufgabe ausführen : {{name}}"
+    },
+    "task": {
+        "card": {
+            "remaining": "Verbleibend:"
+        },
+        "details": {
+            "info": {
+                "createdAt": "Gestartet am",
+                "duration": "Dauer",
+                "endedAt": "Beendet am",
+                "itemTotal": "Gesamtanzahl der Elemente",
+                "output": "Ausgabe",
+                "owner": "Owner",
+                "payload": "Nutzdaten",
+                "progress": "Element verarbeitet",
+                "startedAt": "Gestartet um",
+                "task": "Aufgabe"
+            }
+        }
+    },
+    "taskCard": {
+        "runBy": "<strong>{{task}}</strong> ausgeführt von <strong>{{owner}}</strong>"
+    },
+    "tasks_details": {
+        "title": "Aufgabe {{name}}"
+    },
+    "tasks_list": {
+        "create": "Neue Aufgabe",
+        "refresh": "Aktualisieren",
+        "title": "Aufgabenverlauf"
     }
 }
