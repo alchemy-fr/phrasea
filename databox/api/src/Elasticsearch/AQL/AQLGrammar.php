@@ -257,7 +257,7 @@ public function condition__finalise (&$result) {
         unset($result['e']);
     }
 
-/* not_expression: "NOT" __ e:expression */
+/* not_expression: "NOT" ] e:expression */
 protected $match_not_expression_typestack = ['not_expression'];
 function match_not_expression($stack = []) {
 	$matchrule = 'not_expression';
@@ -267,11 +267,7 @@ function match_not_expression($stack = []) {
 	do {
 		if (($subres = $this->literal('NOT')) !== \false) { $result["text"] .= $subres; }
 		else { $_18327 = \false; break; }
-		$key = 'match_'.'__'; $pos = $this->pos;
-		$subres = $this->packhas($key, $pos)
-			? $this->packread($key, $pos)
-			: $this->packwrite($key, $pos, $this->{$key}(\array_merge($stack, [$result])));
-		if ($subres !== \false) { $this->store($result, $subres); }
+		if (($subres = $this->whitespace()) !== \false) { $result["text"] .= $subres; }
 		else { $_18327 = \false; break; }
 		$key = 'match_'.'expression'; $pos = $this->pos;
 		$subres = $this->packhas($key, $pos)
