@@ -1,6 +1,10 @@
 <#--
   Parade override of the base Keycloak login template.
 
+  Source: Keycloak 26.6.4 base login template.
+  When upgrading Keycloak, resynchronize this override with the matching
+  upstream template before releasing the new image.
+
   Adds optional per-client login branding, driven by plain (non-nested)
   attributes on the Keycloak client — set them via the Admin REST API
   (`PUT /admin/realms/{realm}/clients/{id}`, `attributes: {...}`), the same
@@ -46,7 +50,6 @@
                                 card and primary button
     paradeLoginWelcomeText   - plain text shown above the page title
 
-  This is a first draft for discussion, not a final layout.
 -->
 <#import "footer.ftl" as loginFooter>
 <#macro registrationLayout bodyClass="" displayInfo=false displayMessage=true displayRequiredFields=false>
