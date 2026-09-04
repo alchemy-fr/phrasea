@@ -210,6 +210,10 @@
                 "view_assets": {
                     "desc": "Permet de visualiser tous les Assets du Workspace, mais pas nécessairement les collections auxquelles ils appartiennent.",
                     "label": "Voir les Assets"
+                },
+                "quarantine_by_pass": {
+                    "desc": "Permet de contourner la quarantaine pour les actifs de cet espace de travail.",
+                    "label": "Contourner la quarantaine"
                 }
             },
             "child_create": "Création de sous-éléments",
@@ -314,7 +318,12 @@
         "unselect_all": "Désélectionner tout",
         "share_multiple": "Vous ne pouvez partager qu'un asset à la fois",
         "delete_permanently": "Supprimer définitivement",
-        "restore": "Restaurer"
+        "restore": "Restaurer",
+        "batch_edit": {
+            "different_workspaces": {
+                "message": "Vous ne pouvez pas modifier les attributs d'assets provenant de Workspace différents, simultanément ."
+            }
+        }
     },
     "asset_dropzone": {
         "drop_the_files_here": "Déposez les fichiers ici…",
@@ -342,7 +351,9 @@
                 "values": {
                     "title": "Valeurs"
                 }
-            }
+            },
+            "correct_invalid": "Correct",
+            "invalid_valid": "Valeur non valide. Veuillez la corriger!"
         },
         "type": {
             "size": {
@@ -351,7 +362,11 @@
                     "gb": "{{value}} Go"
                 }
             }
-        }
+        },
+        "entity": {
+            "pending": "[Valeur en attente d'approbation]"
+        },
+        "invalidValue": "Valeur non valide"
     },
     "attribute_policy": {
         "new": {
@@ -364,7 +379,9 @@
         },
         "filter": {
             "asset_type": "Filtrer par type d'Asset",
-            "type": "Filtrer par type"
+            "type": "Filtrer par type",
+            "fillFromName": "Remplir à partir du nom",
+            "useAsName": "Utiliser comme nom"
         }
     },
     "attribute_editor": {
@@ -419,6 +436,33 @@
                     "delete_attr_def": "Je comprends que cette définition d'attribut \"{{ definitionName }}\" sera supprimée de tous les assets qui l'utilisent."
                 }
             }
+        },
+        "batch_delete": {
+            "confirm": "Êtes-vous sûr de vouloir supprimer ces entités?",
+            "label": "Supprimer"
+        },
+        "batch_merge": {
+            "dialog": {
+                "keep": "Sélectionnez l'entité que vous souhaitez conserver. Les autres y seront fusionnés et supprimés.",
+                "submit": "Fusionner",
+                "title": "Fusionner des entités"
+            },
+            "label": "Fusionner"
+        },
+        "import": {
+            "format": {
+                "csv": "CSV",
+                "raw": "Raw (une valeur par ligne)"
+            }
+        },
+        "pending": {
+            "approve": "Approuver",
+            "reject": "Refuser"
+        },
+        "status": {
+            "approved": "Approuvé",
+            "pending": "En attente",
+            "rejected": "Rejeté"
         }
     },
     "attributes": {
@@ -452,7 +496,8 @@
             "label": "Créer un nouveau panier"
         },
         "default": {
-            "title": "Mon panier"
+            "title": "Mon panier",
+            "name": "Mon panier"
         },
         "info": {
             "creation_date": "Date de création",
@@ -517,7 +562,8 @@
         "editable": "Éditable",
         "private": "Privé",
         "public": "Public",
-        "read_only": "Lecture seule"
+        "read_only": "Lecture seule",
+        "disabled": "Désactivé"
     },
     "collection": {
         "info": {
@@ -613,7 +659,11 @@
         "edit": "Editer",
         "revoke": "Révoquer",
         "id": "ID",
-        "confirm": "Confirmer"
+        "confirm": "Confirmer",
+        "clear": "Effacer",
+        "filter": {
+            "placeholder": "Filtre…"
+        }
     },
     "copy_assets": {
         "dialog": {
@@ -678,7 +728,7 @@
             "copy_code": "Copier le code",
             "format": "Format",
             "select_format": "Sélectionner un format",
-            "title": "Exporter les entités de l'attribut",
+            "title": "",
             "locale": "Locale",
             "select_locale": "Sélectionner la locale",
             "all_locales": "Toutes les locales",
@@ -732,7 +782,23 @@
         "smiling": "Souriant"
     },
     "facets": {
-        "missing_with_total": "Manquant ({{total}})"
+        "missing_with_total": "Manquant ({{total}})",
+        "action": {
+            "collapseAll": "Tout réduire",
+            "expandAll": "Tout développer",
+            "hidden": {
+                "success": "La facette {{facetName}} a été masquée",
+                "undo": "{{facetName}} facette restaurée"
+            },
+            "undo": "Annuler"
+        },
+        "settings": {
+            "hidden": "Facettes cachées",
+            "reset": "Paramètres par défaut",
+            "reset_confirm": "Êtes-vous sûr de vouloir réinitialiser les paramètres des facettes ?",
+            "title": "Réglages des Facettes",
+            "visible": "Facettes visibles"
+        }
     },
     "filter": {
         "exclude": "Exclure ",
@@ -1227,6 +1293,13 @@
         },
         "saved_search_edit": {
             "success": "Recherche sauvegardée modifiée !"
+        },
+        "asset_policy": {
+            "actions": {
+                "action": {
+                    "hide_attribute": "Masquer l'Attribut"
+                }
+            }
         }
     },
     "get_resolved_sort_by": {
@@ -1577,7 +1650,7 @@
             "download": "Télécharger",
             "edit_attributes": "Editer les attributs",
             "edit": "Editer",
-            "delete": "Supprimer",
+            "delete": "Corbeille",
             "save_as": "Enregistrer sous",
             "open": "Ouvrir",
             "info": "Informations",
@@ -1735,7 +1808,8 @@
             "deleted_collection": "Restaurer",
             "deleted_collection_or_story_warning": "Remarque : Certains Assets ne peuvent pas être restaurés car leurs collections de référence ou leur Stories ont été supprimées :",
             "no_restorable_assets": "Aucun des Assets sélectionnés ne peut être restauré car leurs collections de référence ont été supprimées."
-        }
+        },
+        "not_found_or_no_access": "Asset introuvable ou vous n'êtes pas autorisé à le consulter."
     },
     "renditions": {
         "dirty": "Les réglages de cette Rendition ont été modifiés après sa génération (Dirty).",
@@ -2187,6 +2261,10 @@
             "title": {
                 "helper": "Vous pouvez définir à qui s'adresse ce lien de partage",
                 "label": "Titre"
+            },
+            "name": {
+                "helper": "Nommer ce lien de partage",
+                "label": "Nom"
             }
         }
     },
@@ -2230,7 +2308,8 @@
         "constant": {
             "no": "Non",
             "null": "Nulle",
-            "yes": "Oui"
+            "yes": "Oui",
+            "na": "N/A"
         }
     },
     "asset_type": {
@@ -2271,7 +2350,8 @@
         }
     },
     "collection_panel": {
-        "trash": "Corbeille"
+        "trash": "Corbeille",
+        "quarantine": "Quarantaine"
     },
     "collection_restore": {
         "confirmed": "La collection a été restaurée !",
@@ -2288,7 +2368,8 @@
     },
     "appbar": {
         "assets": "Assets",
-        "pages": "Pages"
+        "pages": "Pages",
+        "operationTasks": "Tâches opérationnelles"
     },
     "profile": {
         "manage": {
@@ -2719,5 +2800,82 @@
         "write_metadata": {
             "label": "Écrire les attributs dans les métadonnées du fichier"
         }
+    },
+    "asset_export": {
+        "pending": {
+            "toast": {
+                "done": "L'export est prêt! <a> Télécharger </a>",
+                "in_progress": "Préparation de l'export... {{progress}} %"
+            }
+        }
+    },
+    "asset_policy": {
+        "new": {
+            "label": "Nouvelle Politique d'Asset"
+        }
+    },
+    "asset_status": {
+        "choice": {
+            "accepted": "Accepter",
+            "pending": "En attente",
+            "quarantined": "Quarantaine"
+        }
+    },
+    "attribute_entity_select": {
+        "manage_list": "Gérer la liste"
+    },
+    "attribute_type": {
+        "boolean": {
+            "no": {
+                "label": "Non"
+            },
+            "yes": {
+                "label": "Oui"
+            }
+        }
+    },
+    "boolean_filter": {
+        "choice": {
+            "false": "Non",
+            "true": "Oui"
+        }
+    },
+    "display_profile": {
+        "auto_sync": {
+            "label": "Sauvegarde Auto Profil"
+        },
+        "choose_modal": {
+            "title": "Selection du profil d'affichage courant"
+        },
+        "create_button": {
+            "label": "Créer un nouveau Profil d'affichage"
+        },
+        "default": {
+            "title": "Profil d'affichage par défaut"
+        },
+        "delete": {
+            "confirm": "Êtes-vous sûr de vouloir supprimer ce Profil d'affichage ?"
+        },
+        "manage": {
+            "acl": {
+                "title": "Permissions"
+            },
+            "edit": {
+                "title": "Titre - Description"
+            },
+            "organize": {
+                "title": "Attributs"
+            },
+            "title": "Gérer le profil {{name}}"
+        },
+        "organize": {
+            "add_divider": "Ajouter un diviseur",
+            "add_spacer": "Ajouter un espacement"
+        }
+    },
+    "entity": {
+        "not_allowed": "Non autorisé",
+        "not_found": "Introuvable",
+        "unresolved": "…"
     }
 }
