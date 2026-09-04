@@ -2098,9 +2098,7 @@
             "size": "Taille",
             "type": "Type",
             "url": "URL",
-            "accepted": "Accepté",
             "analysis": "Analyse",
-            "analysis_pending": "Analyse en attente",
             "size_unknown": "Inconnu",
             "url_none": "N/A"
         },
@@ -2114,7 +2112,37 @@
             "title": "Gérer le fichier {{name}}"
         },
         "analysis_pending": "Analyse en cours…",
-        "rejected": "Rejeté"
+        "rejected": "Rejeté",
+        "analysis": {
+            "state": {
+                "bypassed": {
+                    "label": "Contournée",
+                    "message": "L'analyse a été contournée manuellement par un administrateur."
+                },
+                "not_applicable": {
+                    "label": "Non applicable",
+                    "message": "Ce fichier n'a pas besoin d'être analysé."
+                },
+                "not_required": {
+                    "label": "Non requise",
+                    "message": "L'analyse de fichier n'est pas requise sur cet espace de travail."
+                },
+                "passed": {
+                    "label": "Analysé",
+                    "message": "Ce fichier a été analysé avec succès."
+                },
+                "pending": {
+                    "message": "Ce fichier est en attente d'analyse."
+                },
+                "reported": {
+                    "label": "Signalements",
+                    "message": "L'analyse a détecté des anomalies, mais elle n'est pas requise sur cet espace de travail : ce fichier n'est pas bloqué."
+                },
+                "skipped": {
+                    "label": "Ignorée"
+                }
+            }
+        }
     },
     "integrations": {
         "new": {
@@ -2718,6 +2746,24 @@
         },
         "write_metadata": {
             "label": "Écrire les attributs dans les métadonnées du fichier"
+        }
+    },
+    "file_analyzer": {
+        "result": {
+            "status": {
+                "rejected": "Ce fichier a été rejeté par l'analyse.",
+                "rejected_with_reason": "Ce fichier a été rejeté par les analyseurs suivants.",
+                "skipped": "L'analyse du fichier a été ignorée.",
+                "success": "Ce fichier a été analysé avec succès"
+            }
+        }
+    },
+    "analysis": {
+        "severity": {
+            "error": "Erreur",
+            "info": "Info",
+            "success": "OK",
+            "warning": "Avertissement"
         }
     }
 }

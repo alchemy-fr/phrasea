@@ -222,6 +222,14 @@
             }
         }
     },
+    "analysis": {
+        "severity": {
+            "error": "Error",
+            "info": "Info",
+            "success": "OK",
+            "warning": "Warning"
+        }
+    },
     "annotation": {
         "type": {
             "arrow": "Arrow",
@@ -1351,6 +1359,36 @@
         }
     },
     "file": {
+        "analysis": {
+            "state": {
+                "bypassed": {
+                    "label": "Bypassed",
+                    "message": "The analysis was manually bypassed by an administrator."
+                },
+                "not_applicable": {
+                    "label": "Not applicable",
+                    "message": "This file does not need to be analyzed."
+                },
+                "not_required": {
+                    "label": "Not required",
+                    "message": "File analysis is not required on this workspace."
+                },
+                "passed": {
+                    "label": "Analyzed",
+                    "message": "This file was analyzed successfully."
+                },
+                "pending": {
+                    "message": "This file is waiting to be analyzed."
+                },
+                "reported": {
+                    "label": "Findings",
+                    "message": "The analysis reported issues, but it is not required on this workspace: this file is not blocked."
+                },
+                "skipped": {
+                    "label": "Skipped"
+                }
+            }
+        },
         "analysis_pending": "Analysis in progress…",
         "dialog": {
             "metadata": {
@@ -1358,9 +1396,7 @@
             }
         },
         "info": {
-            "accepted": "Accepted",
             "analysis": "Analysis",
-            "analysis_pending": "Analysis Pending",
             "id": "ID",
             "size": "Size",
             "size_unknown": "Unknown",
@@ -1378,6 +1414,16 @@
             "title": "Manage File {{name}}"
         },
         "rejected": "Rejected"
+    },
+    "file_analyzer": {
+        "result": {
+            "status": {
+                "rejected": "This file was rejected by the analysis.",
+                "rejected_with_reason": "This file was rejected by the following analyzers.",
+                "skipped": "File analysis was skipped.",
+                "success": "This file was analyzed successfully"
+            }
+        }
     },
     "file_upload": {
         "asset_created_one": "Asset created successfully.",

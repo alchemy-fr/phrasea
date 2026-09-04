@@ -309,6 +309,31 @@ class File extends AbstractUuidEntity implements \Stringable
         return null !== $this->analysis;
     }
 
+    /**
+     * Flattens the `$analysis` JSON column into one explicit state.
+     *
+     * Note this says nothing about whether the file is blocked: that depends on
+     * `Workspace::isFileAnalysisRequired()`.
+     */
+    public function getAnalysisState(): FileAnalysisStateEnum
+    {
+        if (null === $this->analysis) {
+            return FileAnalysisStateEnum::NotAnalyzed;
+        }
+
+        if ([] === $this->analysis) {
+            return FileAnalysisStateEnum::NotApplicable;
+        }
+
+        return match ($this->analysis['status'] ?? null) {
+            self::ANALYSIS_SUCCESS => FileAnalysisStateEnum::Passed,
+            self::ANALYSIS_FAILED => FileAnalysisStateEnum::Failed,
+            self::ANALYSIS_SKIPPED => FileAnalysisStateEnum::Skipped,
+            self::ANALYSIS_BYPASSED => FileAnalysisStateEnum::Bypassed,
+            default => FileAnalysisStateEnum::NotApplicable,
+        };
+    }
+
     public function isAccepted(): bool
     {
         return empty($this->analysis)

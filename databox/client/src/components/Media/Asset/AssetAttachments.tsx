@@ -261,11 +261,9 @@ function AssetAttachments({asset}: Props) {
                                         attachment.name ||
                                         attachment.attachment.name
                                     }
-                                    secondary={
-                                        !file.accepted ? (
-                                            <FileAnalysisChip file={file} />
-                                        ) : undefined
-                                    }
+                                    // The chip decides on its own whether the
+                                    // state is worth flagging.
+                                    secondary={<FileAnalysisChip file={file} />}
                                 />
                             </ListItem>
                         );

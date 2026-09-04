@@ -1728,9 +1728,7 @@
             "id": "ID",
             "size": "Grösse",
             "url": "URL",
-            "accepted": "Akzeptiert",
             "analysis": "Analyse",
-            "analysis_pending": "Analyse ausstehend",
             "size_unknown": "Unbekannt",
             "url_none": "N/A"
         },
