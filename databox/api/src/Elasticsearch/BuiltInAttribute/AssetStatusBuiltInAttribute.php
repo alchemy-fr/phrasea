@@ -63,6 +63,11 @@ final class AssetStatusBuiltInAttribute extends AbstractLabelledBuiltInAttribute
         return 'assetStatus';
     }
 
+    public function isScoreBasedQuery(): bool
+    {
+        return false;
+    }
+
     public function createFilterQuery(mixed $value, ConditionOperatorEnum $operator, array $options): Query\AbstractQuery
     {
         $boolQuery = new BoolQuery();

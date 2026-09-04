@@ -120,6 +120,10 @@ services:
     ports:
       - ${DEV_ELASTICSEARCH_PORT}:9200
 
+  similarity-embedder:
+    ports:
+      - ${DEV_SIMILARITY_EMBEDDER_PORT}:8000
+
   dev:
     build:
       context: infra/docker/dev
@@ -268,10 +272,6 @@ services:
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - soketi.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-
-  report-api:
-    volumes:
-      - ./report/src:/usr/app
 
   configurator:
     volumes:

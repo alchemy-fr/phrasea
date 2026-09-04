@@ -521,10 +521,7 @@ services:
   report-api:
     profiles:
       - report
-    image: ${REGISTRY_NAMESPACE}report-api:${DOCKER_TAG}
-    build:
-      context: report
-      network: host
+    image: ${REPORT_API_IMAGE}
     networks:
       - internal
     environment:
@@ -601,7 +598,6 @@ services:
       - DATABOX_CLIENT_URL
       - DEV_MODE
       - DISPLAY_SERVICES_MENU
-      - ELASTICHQ_URL
       - EXPOSE_API_URL
       - EXPOSE_CLIENT_URL
       - KEYCLOAK_URL
@@ -648,6 +644,7 @@ services:
       - EXPOSE_ADMIN_CLIENT_SECRET=${EXPOSE_ADMIN_CLIENT_SECRET}
       - ELASTICSEARCH_URL
       - ELASTICSEARCH_INDEX_PREFIX
+      - SIMILARITY_EMBEDDER_URL=http://similarity-embedder:8000
       - S3_PATH_PREFIX
       - S3_REQUEST_SIGNATURE_TTL=${DATABOX_REQUEST_SIGNATURE_TTL}
       - S3_BUCKET_NAME=${DATABOX_S3_BUCKET_NAME}
@@ -801,7 +798,7 @@ services:
     networks:
       - internal
     volumes:
-      - elasticsearch:/usr/share/elasticsearch/data
+      - elasticsearch9:/usr/share/elasticsearch/data
     ulimits:
       memlock:
         soft: -1
@@ -811,19 +808,16 @@ services:
       - discovery.type=single-node
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
 
-  elastichq:
+  similarity-embedder:
     profiles:
-      - elastichq
-    image: elastichq/elasticsearch-hq
+      - similarity
+    image: ${SIMILARITY_EMBEDDER_IMAGE}
+    security_opt:
+      - no-new-privileges:true
     networks:
       - internal
-    labels:
-      - "traefik.enable=true"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
-      - "traefik.http.routers.elastichq.rule=Host(`elastichq.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.elastichq.middlewares=admin-secured@docker"
 
   k6:
     profiles:
@@ -912,11 +906,7 @@ services:
     labels: []
 
   keycloak:
-    image: ${REGISTRY_NAMESPACE}keycloak:${DOCKER_TAG}
-    build:
-      context: ./infra/docker/keycloak
-      target: keycloak
-      network: host
+    image: ${KEYCLOAK_IMAGE}
     command:
       - 'start'
       - '--optimized'
@@ -948,7 +938,7 @@ services:
       - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
 
   keycloak2:
-    image: ${REGISTRY_NAMESPACE}keycloak:${DOCKER_TAG}
+    image: ${KEYCLOAK_IMAGE}
     command:
       - 'start'
       - '--optimized'
@@ -1159,7 +1149,7 @@ volumes:
   matomodb:
   pgadmin:
   rabbitmq:
-  elasticsearch:
+  elasticsearch9:
   expose_nginx_cache:
   zippy:
   cypress_output:

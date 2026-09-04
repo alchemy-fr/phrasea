@@ -31,6 +31,8 @@ export default class StoryType
     }
 
     formatValueAsString({value}: AttributeFormatterProps): string | undefined {
-        return value?.name;
+        if (value) {
+            return value.name || value.id;
+        }
     }
 }

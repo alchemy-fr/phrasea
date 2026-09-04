@@ -21,8 +21,7 @@ class AssetRenditionInputTransformer extends AbstractFileInputTransformer
 
     public function __construct(
         private readonly AssetRenditionRepository $assetRenditionRepository,
-    )
-    {
+    ) {
     }
 
     public function supports(string $resourceClass, object $data): bool
