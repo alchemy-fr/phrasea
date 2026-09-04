@@ -13,14 +13,16 @@ import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/ma
 import {UserPreferences} from './store/userPreferencesStore.ts';
 import {BuiltInAttributeEnum} from './components/Media/Search/search.ts';
 import {AttributeWidgetOptions} from './components/Media/Asset/Attribute/types/types';
+import {
+    FileAnalysis,
+    FileAnalysisState,
+} from './components/Media/Asset/Quarantine/analysisTypes.ts';
 
 export type AlternateUrl = {
     type: string;
     url: string;
     label?: string;
 };
-
-export type FileAnalysis = Record<string, any>;
 
 export type FileUsageType = 'source' | 'version' | 'rendition';
 
@@ -44,6 +46,8 @@ export interface ApiFile extends Entity {
     accepted?: boolean;
     analysis?: FileAnalysis | null | undefined;
     analysisPending: boolean;
+    analysisState: FileAnalysisState;
+    analysisEnforced: boolean;
     usages?: FileUsage[];
 }
 
