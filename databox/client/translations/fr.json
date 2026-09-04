@@ -914,6 +914,13 @@
             },
             "asset_type": {
                 "label": "Type de l'Asset cible"
+            },
+            "fillFromName": {
+                "helper": "Renseignez cet attribut avec la valeur du champ \"name\". S'applique uniquement aux attributs de texte.",
+                "label": "Remplir avec le \"Name\""
+            },
+            "namePriority": {
+                "helper": "Utilisez cet attribut comme Titre de l'asset lors de l'affichage. S'applique uniquement aux attributs de texte."
             }
         },
         "attribute_entity": {
@@ -1297,8 +1304,38 @@
         "asset_policy": {
             "actions": {
                 "action": {
-                    "hide_attribute": "Masquer l'Attribut"
-                }
+                    "hide_attribute": "Masquer l'Attribut",
+                    "hide_rendition": "Masquer le Rendition",
+                    "label": "Action"
+                },
+                "add": "Ajouter une action",
+                "label": "Actions",
+                "remove": "Supprimer <1>this Action</1>"
+            },
+            "conditions": {
+                "add": "Ajouter une condition",
+                "field": {
+                    "collection": "Collection",
+                    "label": "Champ"
+                },
+                "label": "Conditions",
+                "operator": {
+                    "equals": "Egale",
+                    "label": "Opérateur"
+                },
+                "remove": "Supprimer <1>cette condition</1>"
+            },
+            "enabled": {
+                "label": "Activé"
+            },
+            "groups": {
+                "label": "Groupes"
+            },
+            "name": {
+                "label": "Nom"
+            },
+            "users": {
+                "label": "Utilisateurs"
             }
         }
     },
