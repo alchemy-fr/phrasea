@@ -318,7 +318,7 @@
     },
     "asset_actions": {
         "copy": "Dupliquer",
-        "delete": "Corbeille",
+        "delete": "Placer dans la corbeille",
         "download": "Télécharger",
         "edit": "Modifier",
         "edit_attributes": "Modifier les attributs",
@@ -373,7 +373,7 @@
                     "bytes": "{{value}} Octets",
                     "gb": "{{value}} Go",
                     "eb": "{{value}} EB",
-                    "eib": "{{value}} EB",
+                    "eib": "{{value}} EiB",
                     "gib": "{{value}} GiB",
                     "kb": "{{value}} KB",
                     "kib": "{{value}} KiB",
@@ -479,7 +479,7 @@
         "import": {
             "format": {
                 "csv": "CSV",
-                "raw": "Ligne (une valeur par ligne)"
+                "raw": "Raw (une valeur par ligne)"
             }
         },
         "pending": {
@@ -822,13 +822,13 @@
             "expandAll": "Tout développer",
             "hidden": {
                 "success": "La facette {{facetName}} a été masquée",
-                "undo": "{{facetName}} facette restaurée"
+                "undo": "Facette {{facetName}} affiché"
             },
             "undo": "Annuler"
         },
         "settings": {
             "hidden": "Facettes cachées",
-            "reset": "Paramètres par défaut",
+            "reset": "réinitialiser les paramètres par défaut",
             "reset_confirm": "Êtes-vous sûr de vouloir réinitialiser les paramètres des facettes ?",
             "title": "Réglages des Facettes",
             "visible": "Facettes visibles"
@@ -950,11 +950,15 @@
                 "label": "Type de l'Asset cible"
             },
             "fillFromName": {
-                "helper": "Renseignez cet attribut avec la valeur du champ \"name\". S'applique uniquement aux attributs de texte.",
+                "helper": "Renseignez cet attribut avec la valeur du champ ( désigné ) \"name\". S'applique uniquement aux attributs de texte.",
                 "label": "Remplir avec le \"Name\""
             },
             "namePriority": {
-                "helper": "Utilisez cet attribut comme Titre de l'asset lors de l'affichage. S'applique uniquement aux attributs de texte."
+                "helper": "Utilisez cet attribut comme Titre de l'asset lors de l'affichage. S'applique uniquement aux attributs de texte.",
+                "label": "Priorité d'affichage"
+            },
+            "useAsName": {
+                "label": "Utiliser comme Titre d'assets"
             }
         },
         "attribute_entity": {
@@ -1312,16 +1316,16 @@
                 "label": "Approuver automatiquement les nouvelles valeurs"
             },
             "withColors": {
-                "label": "Utiliser les couleurs"
+                "label": "Définir des couleurs"
             },
             "withEmojis": {
-                "label": "Utiliser les émoticônes comme icônes"
+                "label": "Définir des émoticônes pour symboliser les valeurs"
             },
             "withSynonyms": {
-                "label": "Utiliser les synonymes"
+                "label": "Définir des synonymes"
             },
             "withTranslations": {
-                "label": "Utiliser les traductions"
+                "label": "Définir des traductions"
             }
         },
         "thread_message": {
@@ -2818,7 +2822,7 @@
             "sum_daily_nb_uniq_visitors": "Somme quotidienne de visiteurs uniques",
             "sum_fullscreen_plays": "Somme des lectures en plein écran",
             "sum_time_progress": "Somme du temps de progression",
-            "nb_plays_with_tip": "Lectures avec pourboire"
+            "nb_plays_with_tip": ""
         }
     },
     "page": {
@@ -2989,10 +2993,10 @@
     },
     "display_profile": {
         "auto_sync": {
-            "label": "Sauvegarde Auto Profil"
+            "label": "Sync-Auto des préférences"
         },
         "choose_modal": {
-            "title": "Selection du profil d'affichage courant"
+            "title": "Choisir un profil d'affichage"
         },
         "create_button": {
             "label": "Créer un nouveau Profil d'affichage"
@@ -3008,7 +3012,7 @@
                 "title": "Permissions"
             },
             "edit": {
-                "title": "Titre - Description"
+                "title": "Nom"
             },
             "organize": {
                 "title": "Attributs"
@@ -3031,8 +3035,8 @@
             "name": "Indexer les assets"
         },
         "switch_attribute_locales": {
-            "desc": "Permuter les locales des attributs. C'est utile lorsque vous souhaitez modifier la locale d'un attribut sans avoir à le supprimer et à le recréer.",
-            "name": "Permuter les locales des attributs"
+            "desc": "Permuter les locales des attributs. A utiliser pour modifier la locale d'un attribut, sans avoir à le supprimer et à le recréer.",
+            "name": "Permuter les locales d'attributs"
         }
     },
     "operation_tasks": {
@@ -3056,7 +3060,7 @@
                 "itemTotal": "Total des éléments",
                 "output": "Sortie",
                 "owner": "Propriétaire",
-                "payload": "Charge utile",
+                "payload": "Paramètres",
                 "progress": "Élément traité",
                 "startedAt": "Commencé le",
                 "task": "Tâche"
@@ -3071,7 +3075,7 @@
     },
     "tasks_list": {
         "create": "Nouvelle tâche",
-        "refresh": "Rafraîchir",
+        "refresh": "Actualiser",
         "title": "Historique de la tâche"
     }
 }
