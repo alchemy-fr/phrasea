@@ -318,7 +318,7 @@
     },
     "asset_actions": {
         "copy": "Dupliquer",
-        "delete": "Supprimer",
+        "delete": "Corbeille",
         "download": "Télécharger",
         "edit": "Modifier",
         "edit_attributes": "Modifier les attributs",
@@ -2861,7 +2861,7 @@
         "helper_desc": "Niveaux de permissions :"
     },
     "remove_bg": {
-        "bg_removed": "{{title}} - Arrière-plan retiré",
+        "bg_removed": "{{name}} - Arrière-plan retiré",
         "cannot_interact": "Vous ne disposez pas des autorisations suffisantes pour supprimer l'arrière-plan",
         "remove_bg": "Retirer l'arrière-plan",
         "use_slider_to_compare": "Utiliser le curseur pour comparer"
