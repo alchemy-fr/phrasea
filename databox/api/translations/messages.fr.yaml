@@ -18,7 +18,7 @@ field_type:
     textarea: Zone de texte
     id: ID
     privacy: Confidentialité
-    asset_status: Statuts des assets
+    asset_status: Statut de l'asset
 privacy:
   secret: Secret
   private_in_workspace: Privé dans l'espace de travail
