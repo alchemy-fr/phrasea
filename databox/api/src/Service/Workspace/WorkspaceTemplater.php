@@ -182,7 +182,7 @@ final readonly class WorkspaceTemplater
             }
             $o->setPublic($item['public']);
             $o->setLabels($item['labels']);
-            $o->setEditable($item['editable']);
+            $o->setEditable($item['editable'] ?? true);
             $this->em->persist($o);
 
             $renditionClassMap[$item['id']] = $o;
@@ -414,7 +414,7 @@ final readonly class WorkspaceTemplater
             $o->setSortable($item['sortable']);
             $o->setSuggest($item['suggest']);
             $o->setTranslatable($item['translatable']);
-            $o->setEditable($item['editable']);
+            $o->setEditable($item['editable'] ?? true);
             $o->setEditableInGui($item['guiEdit']);
             $o->setFillFromName($item['fillFromName'] ?? false);
             $o->setNamePriority($item['namePriority'] ?? null);
