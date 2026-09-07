@@ -254,8 +254,12 @@ class File extends AbstractUuidEntity implements \Stringable
         $this->extension = $extension;
     }
 
-    public function getMetadata(): ?array
+    public function getMetadata(?string $name = null): ?array
     {
+        if (null !== $name) {
+            return $this->metadata?->getMetadataNameValues($name);
+        }
+
         return $this->metadata?->getMetadata();
     }
 

@@ -150,6 +150,7 @@ class AssetExportProcessHandler
                             if ($bag->count() > 0) {
                                 try {
                                     $writer = $this->metadataManipulator->createWriter();
+                                    $writer->disableConversion();
 
                                     $tmpFile = sys_get_temp_dir().'/'.uniqid('metadata-file');
                                     $writer->write($path, $bag, destination: $tmpFile);

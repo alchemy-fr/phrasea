@@ -11,22 +11,18 @@ use App\Attribute\InvalidAttributeValueException;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
-use App\File\FileMetadataAccessorWrapper;
+use App\Entity\Core\File;
+use App\File\StringableMetadataValue;
 use App\Repository\Core\AttributeDefinitionRepository;
-use Twig\Environment;
-use Twig\Loader\ArrayLoader;
+use App\Service\Asset\Attribute\Index\AttributeIndex;
 
 readonly class InitialAttributeValuesResolver
 {
-    private Environment $twig;
-
     public function __construct(
+        private AttributeValueResolver $attributeValueResolver,
         private AttributeDefinitionRepository $attributeDefinitionRepository,
         private AttributeAssigner $attributeAssigner,
     ) {
-        $this->twig = new Environment(new ArrayLoader(), [
-            'autoescape' => false,
-        ]);
     }
 
     /**
@@ -35,9 +31,9 @@ readonly class InitialAttributeValuesResolver
     public function resolveInitialAttributes(Asset $asset, ?AttributeDefinition $onlyDefinition = null): array
     {
         $attributes = [];
+        $now = new \DateTimeImmutable();
 
         $definitions = $this->attributeDefinitionRepository->getWorkspaceInitializeDefinitions($asset->getWorkspaceId());
-        $fileMetadataAccessorWrapper = new FileMetadataAccessorWrapper($asset->getSource());
 
         foreach ($definitions as $definition) {
             if (null !== $onlyDefinition && $definition->getId() !== $onlyDefinition->getId()) {
@@ -46,23 +42,34 @@ readonly class InitialAttributeValuesResolver
 
             $readFromMetadata = $definition->getReadFromMetadata();
             if (null !== $readFromMetadata) {
-                $initialValues = $this->resolveFromMetadata($fileMetadataAccessorWrapper, $readFromMetadata, $definition);
-                $this->createAttributes($asset, $definition, AttributeInterface::NO_LOCALE, $initialValues, $attributes);
+                if (null !== $asset->getSource()?->getMetadata()) {
+                    $initialValues = $this->resolveFromMetadata($asset->getSource(), $readFromMetadata, $definition);
+                    $created = $this->createAttributes($asset, $definition, $now, AttributeInterface::NO_LOCALE, $initialValues);
+                    foreach ($created as $attribute) {
+                        $attributes[] = $attribute;
+                    }
+                }
             }
 
             $initializers = $definition->getInitialValues();
-
             if (null !== $initializers) {
-                foreach ($initializers as $locale => $initializeFormula) {
-                    // TODO : handle locales ? now multiple locales initializers will fetch the same data since metadata is not localized
-                    $initialValues = $this->resolveInitial(
-                        $asset,
-                        $fileMetadataAccessorWrapper,
-                        $initializeFormula,
-                        $definition
-                    );
+                $attributeIndex = new AttributeIndex();
 
-                    $this->createAttributes($asset, $definition, $locale, $initialValues, $attributes);
+                foreach ($initializers as $locale => $initializeFormula) {
+                    $this->attributeValueResolver->resolveAttrValues(
+                        fn (AttributeDefinition $definition) => $definition->getInitialValues(),
+                        Attribute::ORIGIN_INITIAL,
+                        $asset,
+                        $locale,
+                        $definition,
+                        $attributeIndex,
+                    );
+                }
+
+                foreach ($attributeIndex->getFlattenAttributes() as $attribute) {
+                    $attribute->setCreatedAt($now);
+                    $attribute->setUpdatedAt($now);
+                    $attributes[] = $attribute;
                 }
             }
         }
@@ -71,18 +78,17 @@ readonly class InitialAttributeValuesResolver
     }
 
     /**
-     * @param string[]    $initialValues
-     * @param Attribute[] $attributes
+     * @param string[] $initialValues
      */
     private function createAttributes(
         Asset $asset,
         AttributeDefinition $definition,
+        \DateTimeImmutable $now,
         string $locale,
         array $initialValues,
-        array &$attributes,
-    ): void {
+    ): array {
+        $attributes = [];
         $position = 0;
-        $now = new \DateTimeImmutable();
         foreach ($initialValues as $initialValue) {
             try {
                 $normalizedValue = $this->attributeAssigner->normalizeValue($definition, $initialValue);
@@ -115,6 +121,8 @@ readonly class InitialAttributeValuesResolver
 
             $attributes[] = $attribute;
         }
+
+        return $attributes;
     }
 
     /**
@@ -125,44 +133,22 @@ readonly class InitialAttributeValuesResolver
      * @return string[]
      */
     private function resolveFromMetadata(
-        FileMetadataAccessorWrapper $fileMetadataAccessorWrapper,
+        File $file,
         array $tags,
         AttributeDefinition $definition,
     ): array {
         foreach ($tags as $tag) {
-            $m = $fileMetadataAccessorWrapper->getMetadata($tag);
-            if (null === $m) {
+            $values = $file->getMetadataNameValues($tag);
+            if (empty($values)) {
                 continue;
             }
 
-            $initialValues = $definition->isMultiple() ? $m['values'] : [$m['value']];
+            $initialValues = $definition->isMultiple() ? $values : [implode(StringableMetadataValue::MULTIVALUE_SEPARATOR, $values)];
 
             return $this->filterEmptyValues($initialValues);
         }
 
         return [];
-    }
-
-    /**
-     * @return string[]
-     */
-    private function resolveInitial(
-        Asset $asset,
-        FileMetadataAccessorWrapper $fileMetadataAccessorWrapper,
-        string $twigTemplate,
-        AttributeDefinition $definition,
-    ): array {
-        $template = $this->twig->createTemplate($twigTemplate);
-        $context = [
-            'file' => $fileMetadataAccessorWrapper,
-            'asset' => $asset,
-        ];
-        $twigOutput = $this->twig->render($template, $context);
-
-        // to return multiple values via twig : one per line
-        $initialValues = $definition->isMultiple() ? explode("\n", $twigOutput) : [$twigOutput];
-
-        return $this->filterEmptyValues($initialValues);
     }
 
     /**

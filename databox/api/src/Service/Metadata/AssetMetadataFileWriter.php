@@ -30,6 +30,7 @@ final readonly class AssetMetadataFileWriter
 
         try {
             $writer = $this->metadataManipulator->createWriter();
+            $writer->disableConversion();
 
             $tmpFile = tempnam(\dirname($path), 'metadata-file-');
             if (false === $tmpFile) {

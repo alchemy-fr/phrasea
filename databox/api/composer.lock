@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3ef4a8ebfde145344548635b66c4d828",
+    "content-hash": "4a7adf1c91cf9c68f55321801bd1fa0a",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -60,7 +60,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-notifier",
+            "version": "dev-PS-1254-attr-resolution",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -121,7 +121,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-notifier",
+            "version": "dev-PS-1254-attr-resolution",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -180,7 +180,7 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-notifier",
+            "version": "dev-PS-1254-attr-resolution",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -235,7 +235,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-notifier",
+            "version": "dev-PS-1254-attr-resolution",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -298,7 +298,7 @@
         },
         {
             "name": "alchemy/es-bundle",
-            "version": "dev-notifier",
+            "version": "dev-PS-1254-attr-resolution",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/es-bundle",
@@ -356,7 +356,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-notifier",
+            "version": "dev-PS-1254-attr-resolution",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -410,14 +410,14 @@
         },
         {
             "name": "alchemy/metadata-manipulator-bundle",
-            "version": "dev-notifier",
+            "version": "dev-PS-1254-attr-resolution",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/metadata-manipulator-bundle",
-                "reference": "40324e3f2fa1beb34614763af3e67a282471dec6"
+                "reference": "f3c42a5f55a3e620f53e29f54f643a7f2c1e804b"
             },
             "require": {
-                "alchemy/phpexiftool": "^4.1.3",
+                "alchemy/phpexiftool": "^4.2.0",
                 "php": "^8.5",
                 "symfony/framework-bundle": "^4.4 || ^5.0 || ^5 || ^6 || ^7",
                 "symfony/process": "^5 || ^6 || ^7",
@@ -467,11 +467,11 @@
         },
         {
             "name": "alchemy/notifier-bundle",
-            "version": "dev-notifier",
+            "version": "dev-PS-1254-attr-resolution",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notifier-bundle",
-                "reference": "fab88fb8b3ea1b6ac9255bedf83219d84f343a64"
+                "reference": "49f789e9de8d9a315c5b5f1f3a3e3358949387f8"
             },
             "require": {
                 "alchemy/auth-bundle": "@dev",
@@ -480,10 +480,12 @@
                 "doctrine/orm": "^2.7 || ^3",
                 "php": "^8.4",
                 "ramsey/uuid-doctrine": "^1.5",
+                "symfony/clock": "^7.4",
                 "symfony/framework-bundle": "^7.4",
                 "symfony/mailer": "^7.4",
                 "symfony/messenger": "^7.4",
                 "symfony/notifier": "^7.4",
+                "symfony/translation": "^7.4",
                 "symfony/twig-bundle": "^7.4"
             },
             "require-dev": {
@@ -534,11 +536,11 @@
         },
         {
             "name": "alchemy/phpexiftool",
-            "version": "4.1.3",
+            "version": "4.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/PHPExiftool",
-                "reference": "db65fe23baab4cac56be6c372598a014dd876fd1"
+                "reference": "a80b30eaf252fbf34db21743a553041ef23bb13d"
             },
             "require": {
                 "doctrine/cache": "^1.0",
@@ -598,15 +600,15 @@
                 "exiftool",
                 "metadata"
             ],
-            "time": "2026-06-09T17:23:37+00:00"
+            "time": "2026-09-07T14:32:26+00:00"
         },
         {
             "name": "alchemy/rendition-factory",
-            "version": "dev-notifier",
+            "version": "dev-PS-1254-attr-resolution",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory",
-                "reference": "917788dbed2a69668d576adb55955e8ad34bb48e"
+                "reference": "99d28a677bd5882d62902d1b0928ecc7f202d4b1"
             },
             "require": {
                 "alchemy/phpexiftool": "^4.1.2",
@@ -666,7 +668,7 @@
         },
         {
             "name": "alchemy/rendition-factory-bundle",
-            "version": "dev-notifier",
+            "version": "dev-PS-1254-attr-resolution",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/rendition-factory-bundle",
@@ -721,11 +723,11 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-notifier",
+            "version": "dev-PS-1254-attr-resolution",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
-                "reference": "e5439cdd572f1a7b03cf85ad3c1c6a4462f25c62"
+                "reference": "7f076dc8177f0e23adbc5db2e734c2f15eb3e277"
             },
             "require": {
                 "aws/aws-sdk-php": "^3.20",
@@ -738,7 +740,8 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
-                "php-parallel-lint/php-var-dump-check": "v0.5"
+                "php-parallel-lint/php-var-dump-check": "v0.5",
+                "phpunit/phpunit": "^9.5"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -762,7 +765,8 @@
                     "vendor/bin/php-cs-fixer fix"
                 ],
                 "test": [
-                    "vendor/bin/var-dump-check --symfony --exclude vendor ."
+                    "vendor/bin/var-dump-check --symfony --exclude vendor .",
+                    "vendor/bin/phpunit"
                 ]
             },
             "license": [
@@ -777,7 +781,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-notifier",
+            "version": "dev-PS-1254-attr-resolution",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
@@ -830,7 +834,7 @@
         },
         {
             "name": "alchemy/track-bundle",
-            "version": "dev-notifier",
+            "version": "dev-PS-1254-attr-resolution",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/track-bundle",
@@ -893,7 +897,7 @@
         },
         {
             "name": "alchemy/webhook-bundle",
-            "version": "dev-notifier",
+            "version": "dev-PS-1254-attr-resolution",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/webhook-bundle",
@@ -951,7 +955,7 @@
         },
         {
             "name": "alchemy/workflow",
-            "version": "dev-notifier",
+            "version": "dev-PS-1254-attr-resolution",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
@@ -1018,7 +1022,7 @@
         },
         {
             "name": "alchemy/workflow-bundle",
-            "version": "dev-notifier",
+            "version": "dev-PS-1254-attr-resolution",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
@@ -15567,7 +15571,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-notifier",
+            "version": "dev-PS-1254-attr-resolution",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",

@@ -5,13 +5,17 @@ declare(strict_types=1);
 namespace App\Tests\Asset\Attribute;
 
 use App\Attribute\AttributeAssigner;
+use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\TextAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\File;
+use App\Entity\Core\Workspace;
 use App\Repository\Core\AttributeDefinitionRepository;
+use App\Service\Asset\Attribute\AttributeValueResolver;
 use App\Service\Asset\Attribute\InitialAttributeValuesResolver;
+use App\Service\Asset\Attribute\TemplateResolver;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Ramsey\Uuid\Nonstandard\Uuid;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -51,6 +55,11 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
     public function testResolveInitialAttributes(array $definitions, ?array $metadata, array $expected): void
     {
         $attributeDefinitions = [];
+
+        $workspace = $this->createMock(Workspace::class);
+        $workspace->expects($this->any())->method('getId')
+            ->willReturn(Uuid::uuid4()->toString());
+
         foreach ($definitions as $name => $definition) {
             if (null !== ($initialValues = $definition['initialValues'] ?? null)) {
                 $initialValues = is_array($initialValues) ? $initialValues : ['_' => $initialValues];
@@ -58,6 +67,10 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
             $ad = $this->createMock(AttributeDefinition::class);
             $ad->expects($this->any())->method('getName')
                 ->willReturn($name);
+            $ad->expects($this->any())->method('isEnabled')
+                ->willReturn(true);
+            $ad->expects($this->any())->method('getWorkspace')
+                ->willReturn($workspace);
             $ad->expects($this->any())->method('isMultiple')
                 ->willReturn($definition['isMultiple'] ?? false);
             $ad->expects($this->any())->method('isTranslatable')
@@ -71,16 +84,27 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
             $attributeDefinitions[] = $ad;
         }
 
+        /** @var AttributeDefinitionRepository $adr */
         $adr = $this->createMock(AttributeDefinitionRepository::class);
         $adr->expects($this->any())
             ->method('getWorkspaceInitializeDefinitions')
             ->willReturn($attributeDefinitions);
 
         $fileMock = $this->createMock(File::class);
-
         $fileMock->expects($this->any())
             ->method('getMetadata')
-            ->willReturn($this->normalizeMetadata($metadata));
+            ->willReturnCallback(function (?string $name) use ($metadata) {
+                if (null === $name) {
+                    return $metadata;
+                }
+
+                return $metadata[$name] ?? null;
+            });
+        $fileMock->expects($this->any())
+            ->method('getMetadataNameValues')
+            ->willReturnCallback(function (string $name) use ($metadata) {
+                return $metadata[$name] ?? null;
+            });
 
         $assetMock = $this->createMock(Asset::class);
         $assetMock
@@ -92,7 +116,23 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
             ->method('getId')
             ->willReturn(Uuid::uuid4()->toString());
 
+        $templateResolver = new TemplateResolver();
+
+        $attributeTypeRegistry = $this->createMock(AttributeTypeRegistry::class);
+        $textAttributeType = new TextAttributeType();
+
+        $attributeTypeRegistry->expects($this->any())
+            ->method('getType')
+            ->willReturn($textAttributeType);
+
+        $attributeValueResolver = new AttributeValueResolver(
+            $templateResolver,
+            $attributeTypeRegistry,
+            $adr,
+        );
+
         $iavr = new InitialAttributeValuesResolver(
+            $attributeValueResolver,
             $adr,
             $this->attributeAssigner
         );
@@ -100,9 +140,11 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
         $result = [];
         /** @var Attribute $attribute */
         foreach ($iavr->resolveInitialAttributes($assetMock) as $attribute) {
-            $result[$attribute->getDefinition()->getName()] ??= [];
-            $result[$attribute->getDefinition()->getName()][$attribute->getLocale()] ??= [];
-            $result[$attribute->getDefinition()->getName()][$attribute->getLocale()][] = $attribute->getValue();
+            $n = $attribute->getDefinition()->getName();
+            $result[$n] ??= [];
+            $l = $attribute->getLocale();
+            $result[$n][$l] ??= [];
+            $result[$n][$l][] = $attribute->getValue();
         }
 
         $this->assertEquals($this->normalizeExpected($expected), $result);
@@ -125,7 +167,7 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
                 }
             } else {
                 // a single value
-                $normalized[$attributeName] = ['_' => [$value]];
+                $normalized[$attributeName] = ['_' => [trim($value)]];
             }
         }
 

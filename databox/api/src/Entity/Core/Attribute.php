@@ -270,7 +270,7 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
 
         $enabledLocales = $this->getWorkspace()->getEnabledLocales();
 
-        return LocaleUtil::getBestLocale($enabledLocales, [$this->locale]) ?? AttributeInterface::NO_LOCALE;
+        return LocaleUtil::getBestLocale($enabledLocales, [$this->locale]) ?? $this->locale;
     }
 
     public function getWorkspace(): Workspace

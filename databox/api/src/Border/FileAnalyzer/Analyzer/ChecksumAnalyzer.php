@@ -113,6 +113,7 @@ final readonly class ChecksumAnalyzer extends AbstractAnalyzer
         unlink($tmpFile);
 
         $writer = $this->metadataManipulator->createWriter();
+        $writer->disableConversion();
 
         try {
             $writer->reset();
