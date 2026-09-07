@@ -108,6 +108,11 @@
         }
     },
     "upload": {
-        "cancelConfirmation": "Êtes-vous sûr de vouloir annuler le chargement en cours ?"
+        "cancelConfirmation": "Êtes-vous sûr de vouloir annuler le chargement en cours ?",
+        "retry_warning": "Échec de l'envoi. Nouvelle tentative {{retryCount}} dans {{delay}}s..."
+    },
+    "require_login": {
+        "intro": "Veuillez vous connecter pour accéder à cette page.",
+        "log_in": "Se connecter"
     }
 }

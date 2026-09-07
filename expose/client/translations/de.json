@@ -124,7 +124,8 @@
             "edit": {
                 "submit": "Veröffentlichung speichern",
                 "success": "Veröffentlichung gespeichert!",
-                "title": "Veröffentlichung bearbeiten"
+                "title": "Veröffentlichung bearbeiten",
+                "cover": "Titelbild festlegen"
             },
             "parent": {
                 "label": "Übergeordnete Veröffentlichung"
@@ -192,7 +193,23 @@
                 "intro": "Diese Veröffentlichung ist passwortgeschützt. Bitte geben Sie das Passwort ein, um darauf zuzugreifen."
             }
         },
-        "sort_by": "Sortiere nach {{order}}"
+        "sort_by": "Sortiere nach {{order}}",
+        "edit": {
+            "cover": {
+                "set": "Titelbild festlegen",
+                "title": "Titelbild festlegen"
+            }
+        },
+        "list": {
+            "delete_confirm": "Veröffentlichung löschen",
+            "delete_title": "Veröffentlichung \"{{title}}\" löschen",
+            "no_result": "Keine Veröffentlichung",
+            "order": {
+                "last_post_added": "Letzte",
+                "publication_name": "Name"
+            },
+            "sort_by": "Nach {{order}} sortieren"
+        }
     },
     "publication_security_proxy": {
         "sorry_you_cannot_access_this_publication": "Sie haben keinen Zugriff auf diese Publikation"
@@ -236,12 +253,14 @@
             "create_button": "Profil erstellen",
             "title": "Profile",
             "using_publications_one": "{{count}} Veröffentlichung, die dieses Profil verwenden",
-            "using_publications_other": "{{count}} Veröffentlichungen, die dieses Profil verwenden"
+            "using_publications_other": "{{count}} Veröffentlichungen, die dieses Profil verwenden",
+            "no_result": "Kein Profil"
         }
     },
     "publicationHeader": {
         "editButton": "Bearbeiten",
-        "homeLink": "Hauptseite"
+        "homeLink": "Hauptseite",
+        "openMenuTooltip": "Navigationsmenü öffnen"
     },
     "publication_card": {
         "delete": "Löschen",

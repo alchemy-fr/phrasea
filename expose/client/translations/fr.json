@@ -121,7 +121,8 @@
             "edit": {
                 "submit": "Enregistrer la Publication",
                 "success": "Publication enregistrée !",
-                "title": "Modifier la publication"
+                "title": "Modifier la publication",
+                "cover": "Définir l'image de couverture"
             },
             "parent": {
                 "label": "Publication parente"
@@ -189,7 +190,23 @@
                 "intro": "Cette publication est protégée par un mot de passe. Entrez le mot de passe pour y accéder."
             }
         },
-        "sort_by": "Trier par {{order}}"
+        "sort_by": "Trier par {{order}}",
+        "edit": {
+            "cover": {
+                "set": "Définir la couverture",
+                "title": "Définir la couverture"
+            }
+        },
+        "list": {
+            "delete_confirm": "Supprimer la publication",
+            "delete_title": "Supprimer la publication \"{{title}}\"",
+            "no_result": "Aucune publication",
+            "order": {
+                "last_post_added": "Récents",
+                "publication_name": "Nom"
+            },
+            "sort_by": "Trier par {{order}}"
+        }
     },
     "publication_security_proxy": {
         "sorry_you_cannot_access_this_publication": "Désolé ! Vous ne pouvez pas accéder à cette publication."
@@ -237,12 +254,14 @@
             "title": "Profils",
             "using_publications_one": "{{count}} publication utilisant ce profil",
             "using_publications_many": "{{count}} publications utilisant ce profil",
-            "using_publications_other": "{{count}} publications utilisant ce profil"
+            "using_publications_other": "{{count}} publications utilisant ce profil",
+            "no_result": "Aucun profil"
         }
     },
     "publicationHeader": {
         "editButton": "Modifier",
-        "homeLink": "Accueil"
+        "homeLink": "Accueil",
+        "openMenuTooltip": "Ouvrir le menu de navigation"
     },
     "publication_card": {
         "delete": "Supprimer",

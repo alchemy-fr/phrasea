@@ -21,6 +21,14 @@ facet:
     name: Story
   stories:
     name: Stories
+  file_type:
+    name: Dateityp
+  file_extension:
+    name: Dateiendung
+  has_source_file:
+    name: Quelldatei
+  assetStatus:
+    name: Asset-Status
 field_type:
   types:
     text: Text
@@ -39,6 +47,9 @@ field_type:
     entity: Entität
     duration: Dauer
     filesize: Größe der Datei
+    id: ID
+    privacy: Datenschutz
+    asset_status: Asset-Status
 privacy:
   secret: Secret
   private_in_workspace: Privat im Workspace
@@ -46,3 +57,59 @@ privacy:
   private: Privat
   public_for_users: Öffentlich für Benutzer
   public: Öffentlich
+asset_status:
+  accepted: Akzeptiert
+  pending: Ausstehend
+  quarantined: Unter Quarantäne
+built_in_attribute:
+  _score:
+    name: Bewertung
+  _id:
+    name: ID
+  name:
+    name: Name
+  collectionPaths:
+    name: Kollektionen
+  workspaceId:
+    name: Workspace
+  ownerId:
+    name: Owner
+  privacy:
+    name: Datenschutz
+  isStory:
+    name: Ist eine Story
+  stories:
+    name: Stories
+  tags:
+    name: Tag
+  renditions:
+    name: Rendition
+  editedAt:
+    name: Bearbeitet am
+  createdAt:
+    name: Erstellt am
+  fileType:
+    name: Dateityp
+  fileMimeType:
+    name: MIME-Dateityp
+  fileExtension:
+    name: Dateiendung
+  fileSize:
+    name: Dateigrösse
+  fileName:
+    name: Dateiname
+  checksum:
+    name: Prüfsumme
+  docUniqueId:
+    name: Eindeutige Dokument-ID
+  hasSourceFile:
+    name: Hat Quelldatei
+  deleted:
+    name: Gelöscht
+  assetStatus:
+    name: Asset-Status
+search:
+  suggestion:
+    type:
+      asset: Asset
+      collection: Kollektion
