@@ -956,7 +956,7 @@
                 "label": "Type de l'Asset cible"
             },
             "fillFromName": {
-                "helper": "Renseignez avec la ou les valeurs désigné \"name\". S'applique uniquement aux attributs de texte.",
+                "helper": "Renseignez avec la ou les valeurs désignées \"name\". S'applique uniquement aux attributs de texte.",
                 "label": "Remplir avec le \"Name\""
             },
             "namePriority": {
@@ -967,11 +967,11 @@
                 "label": "Utiliser comme Titre d'asset"
             },
             "readFromMetadata": {
-                "helper": "Noms des tags de métadonnées à lire dans le fichier source pour initialiser cet attribut. Le premier tag trouvé est utilisé.",
+                "helper": "Noms des métadonnées à lire dans le fichier source pour initialiser cet attribut. La premiere métadonnée trouvé est utilisé.",
                 "label": "Lire depuis les métadonnées"
             },
             "writeMetadata": {
-                "helper": "Noms des tags de métadonnées dans lesquelles la valeur de cet attribut est écrite lors de l'exportation de l'asset (ou de sa rendition).",
+                "helper": "Nom de métadonnées dans lesquelles la valeur de cet attribut est écrite lors de l'exportation de l'asset (ou de sa rendition).",
                 "label": "Écrire dans les métadonnées"
             }
         },
@@ -1154,7 +1154,7 @@
                 "modules_reference": "Modules disponibles"
             },
             "metadata": {
-                "helper": "Valeurs de métadonnées codées en dur écrites dans le fichier de rendition lors de son exportation.",
+                "helper": "Nom et valeurs de métadonnées ajouté dans le fichier de rendition lors de l'export.",
                 "label": "Métadonnées à écrire"
             }
         },
@@ -1464,7 +1464,7 @@
             "add": "Ajouter des métadonnées",
             "remove": "Retirer",
             "tag": {
-                "label": "Tag (par ex: IPTC:CopyrightNotice)"
+                "label": "Métadonnée (par ex: IPTC:CopyrightNotice)"
             },
             "value": {
                 "label": "Valeur"
@@ -1837,7 +1837,8 @@
             "replace_source_file": "Remplacer le fichier source",
             "share": "Partager",
             "copy": "Copier",
-            "restore": "Restaurer"
+            "restore": "Restaurer",
+            "add_to_basket": "Ajouter au panier"
         },
         "collection_list": {
             "collections_one": "+ {{count}} collection",
@@ -3056,11 +3057,14 @@
                 "title": "Nom"
             },
             "organize": {
-                "title": "Attributs"
+                "title": "Organisez"
             },
             "title": "Gérer le profil {{name}}",
             "info": {
                 "title": "Informations"
+            },
+            "grid": {
+                "title": "carte de l'asset"
             }
         },
         "organize": {
@@ -3076,7 +3080,7 @@
             "visibility": "Visibilité"
         },
         "private": "Privé",
-        "public": "Public",
+        "public": "Publique",
         "shared_by": "Partagé par {{owner}}"
     },
     "entity": {
@@ -3092,6 +3096,18 @@
         "switch_attribute_locales": {
             "desc": "Permuter les locales des attributs. A utiliser pour modifier la locale d'un attribut, sans avoir à le supprimer et à le recréer.",
             "name": "Permuter les locales d'attributs"
+        },
+        "ingest_workspace_assets": {
+            "desc": "Rexécutez le flux de travail d'ingestion sur chaque assets d'un espace de travail",
+            "name": "Ingérer les assets du workspace"
+        },
+        "recompute_initial_values": {
+            "desc": "Recalculez la valeur initiale d'un attribut pour chaque actif du Workspace. Cela remplace les valeurs d'attribut actuellement stockés.",
+            "name": "Recalculer les valeurs initiales"
+        },
+        "store_fallback_attributes": {
+            "desc": "Enregistrer la valeur de repli d'un attribut et en tant que valeur réelle sur chaque assets du Workspace. S'applique uniquement aux assets n'ayant pas de valeur pour cet attribut.",
+            "name": "Stocker la valeur de repli en tant qu'attribut"
         }
     },
     "operation_tasks": {
@@ -3141,5 +3157,121 @@
                 "success": "Ce fichier a été analysé avec succès"
             }
         }
+    },
+    "archive": {
+        "basket": {
+            "confirmed": "Le panier a été archivé!"
+        }
+    },
+    "grid_editor": {
+        "config": {
+            "display_empty": "Afficher même si vide",
+            "format": {
+                "label": "Format"
+            },
+            "show_label": "Afficher la label",
+            "size": {
+                "label": "Taille",
+                "large": "L",
+                "medium": "M",
+                "small": "S"
+            },
+            "variant": {
+                "chip": "Badge",
+                "label": "Afficher comme",
+                "rich": "Enrichie",
+                "text": "Texte"
+            }
+        },
+        "palette": {
+            "empty": "Tous les attributs positionné",
+            "hint": "Faites glisser sur la carte",
+            "no_match": "Aucun attribut correspondant",
+            "title": "Attribut disponibles"
+        },
+        "reserved_cell": "Réservé au contrôle d'assets",
+        "reserved_type_cell": "Réservé à l'icône du type de fichier"
+    },
+    "quarantine": {
+        "actions": {
+            "add_as_version": "Ajouter comme nouvelle version",
+            "bypass": "Forcer (ajouter)",
+            "bypass_error": "Impossible d'accepter l'asset",
+            "bypass_success": "Asset accepté",
+            "delete": "Supprimer définitivement",
+            "merge": "Conserver qu'un asset",
+            "move_to_trash": "Mettre à la corbeille"
+        },
+        "add_as_version": {
+            "description": "Ce fichier partage un identifiant unique de document avec le ou les assets ci-dessous. Choisissez l'asset à laquelle il doit être attachée en tant que nouvelle version: le fichier actuelle devient la version précédente.",
+            "error": "Impossible d'ajouter le fichier en tant que nouvelle version",
+            "no_target": "Aucun Asset correspondante n'a été trouvée pour joindre ce fichier.",
+            "success": "Fichier ajouté en tant que nouvelle version",
+            "title": "Ajouter en tant que nouvelle version"
+        },
+        "analyzer": {
+            "checksum": "Somme de contrôle",
+            "filename": "Nom du fichier",
+            "image_colorspace": "Espace colorimétrique",
+            "image_dimension": "Dimension de l'image"
+        },
+        "checksum": {
+            "algorithm": "Algorithme",
+            "checksum": "Somme de contrôle",
+            "stripped": "Métadonnées supprimées"
+        },
+        "doc_unique_id": {
+            "duplicate_doc_unique_id_one": "{{count}} fichier d'asset partage le même identifiant unique de document (limité à {{limit}}).",
+            "duplicate_doc_unique_id_many": "{{count}} fichiers d'assets partagent le même identifiant unique de document (limité à {{limit}}).",
+            "duplicate_doc_unique_id_other": "",
+            "found_in": "Lire depuis les informations du fichier",
+            "new": "Généré"
+        },
+        "duplicates": {
+            "title_one": "{{count}} Asset dupliqué trouvé.",
+            "title_many": "{{count}} Assets dupliqués trouvés.",
+            "title_other": "",
+            "unavailable": "Les Assets dupliqués ne sont plus disponibles ou ne sont pas accessibles."
+        },
+        "filename": {
+            "extension": "Extention",
+            "extension_is_disallowed": "L'extension de fichier n'est pas autorisée.",
+            "extension_is_not_allowed": "L'extension de fichier ne figure pas dans la liste autorisée ({{allowed}}).",
+            "mime_type_is_disallowed": "Le type MIME n'est pas autorisé.",
+            "mime_type_is_not_allowed": "Le type MIME ne figure pas dans la liste autorisée ({{allowed}}).",
+            "pattern_is_disallowed": "Le nom de fichier correspond à un modèle interdit ({{pattern}}).",
+            "pattern_is_not_allowed": "Le nom de fichier ne correspond à aucun modèle autorisé ({{allowed}})."
+        },
+        "image_colorspace": {
+            "colorspace": "Espace colorimétrique",
+            "disallowed_colorspace": "L'espace colorimétrique de l'image n'est pas autorisé ({{disallowed}}).",
+            "not_an_image": "Le fichier n'est pas une image ; l'espace colorimétrique n'a pas été vérifié.",
+            "not_in_allowed_colorspaces": "L'espace colorimétrique de l'image ne figure pas dans la liste autorisée ({{allowed}}).",
+            "unknown_colorspace": "L'espace colorimétrique de l'image n'a pas pu être déterminé."
+        },
+        "image_dimension": {
+            "dimensions": "Dimensions",
+            "max_height": "La hauteur {{height}} px dépasse le maximum de {{max_height}} px.",
+            "max_width": "La largeur {{width}} px dépasse le maximum de {{max_width}} px.",
+            "min_height": "La hauteur {{height}} px est inférieure au minimum de {{min_height}} px.",
+            "min_width": "La largeur {{width}} px est inférieure au minimum de {{min_width}} px.",
+            "not_an_image": "Le fichier n'est pas une image ; les dimensions n'ont pas été vérifiées.",
+            "unreadable_image": "L'image n'a pas pu être lue pour déterminer ses dimensions."
+        },
+        "merge": {
+            "description": "Ce fichier est identique aux Asset existants. Choisissez lequel conserver, les autres seront placé dans la Corbeille.",
+            "error": "Impossible de fusionner les doublons",
+            "existing": "Asset existant",
+            "existing_hint": "Asset existant · {{date}}",
+            "incoming": "Fichier entrant",
+            "incoming_hint": "Fichier récemment ajouté",
+            "new_badge": "nouveau",
+            "no_duplicates": "Les Assets dupliqués ne sont plus disponibles. Vous pouvez conserver ce fichier en l'acceptant.",
+            "success": "Doublons fusionnés",
+            "title": "Résoudre les doublons"
+        },
+        "rejected": "Ce fichier d'Asset a été rejetée par les analyseurs de fichiers suivants. Passez en revue les raisons ci-dessous et choisissez une action.",
+        "skipped": "L'analyse des fichiers a été ignorée.",
+        "title": "Assets mis en quarantaine"
     }
 }
