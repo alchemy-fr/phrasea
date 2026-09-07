@@ -67,6 +67,12 @@ readonly class InitialAttributeValuesResolver
                 }
 
                 foreach ($attributeIndex->getFlattenAttributes() as $attribute) {
+                    // The index also holds the attributes resolved for the definitions this one
+                    // depends on (through `attr.<slug>`); they are handled by their own iteration.
+                    if ($attribute->getDefinition()->getId() !== $definition->getId()) {
+                        continue;
+                    }
+
                     $attribute->setCreatedAt($now);
                     $attribute->setUpdatedAt($now);
                     $attributes[] = $attribute;

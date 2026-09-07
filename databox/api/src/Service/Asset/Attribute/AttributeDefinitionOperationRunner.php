@@ -73,7 +73,7 @@ final readonly class AttributeDefinitionOperationRunner
      */
     private function storeFallback(Asset $asset, AttributeDefinition $definition): void
     {
-        if (!$definition->isEnabled() || $definition->isMultiple()) {
+        if (!$definition->isEnabled()) {
             return;
         }
 

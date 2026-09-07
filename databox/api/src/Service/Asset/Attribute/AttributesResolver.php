@@ -75,35 +75,28 @@ readonly class AttributesResolver
             ->getWorkspaceFallbackDefinitions($asset->getWorkspaceId());
 
         foreach ($fbDefinitions as $definition) {
-            if ($definition->isMultiple() || !$definition->isEnabled()) {
+            $fallbacks = $definition->getFallback();
+            if (null === $fallbacks) {
                 continue;
             }
-            $k = $definition->getId();
 
-            $fallbacks = $definition->getFallback();
-            if (null !== $fallbacks) {
-                foreach ($fallbacks as $locale => $fb) {
-                    if (null === $attributes->getAttribute($k, $locale)) {
-                        try {
-                            $attr = $this->fallbackResolver->resolveAttrFallback(
-                                $asset,
-                                $locale,
-                                $definition,
-                                $attributes
-                            );
-                        } catch (\Throwable $e) {
-                            if ($e instanceof UserNotifyableException) {
-                                $this->exceptionNotifier->notifyException($e);
-                                continue;
-                            }
-
-                            throw $e;
-                        }
-
-                        if (null !== $attr) {
-                            $attributes->addAttribute($attr);
-                        }
+            // The resolver skips disabled definitions, empty templates and definitions
+            // already holding a value, and indexes the attributes it creates itself.
+            foreach (array_keys($fallbacks) as $locale) {
+                try {
+                    $this->fallbackResolver->resolveAttrFallback(
+                        $asset,
+                        (string) $locale,
+                        $definition,
+                        $attributes
+                    );
+                } catch (\Throwable $e) {
+                    if ($e instanceof UserNotifyableException) {
+                        $this->exceptionNotifier->notifyException($e);
+                        continue;
                     }
+
+                    throw $e;
                 }
             }
         }

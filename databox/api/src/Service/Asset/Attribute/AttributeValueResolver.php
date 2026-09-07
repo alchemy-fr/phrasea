@@ -14,7 +14,10 @@ use App\Service\Asset\Attribute\Index\AttributeIndex;
 
 final class AttributeValueResolver
 {
-    private ?array $indexByName = null;
+    /**
+     * @var array<string, array<string, AttributeDefinition>> definitions indexed by slug, per workspace
+     */
+    private array $indexByName = [];
 
     public function __construct(
         private readonly TemplateResolver $templateResolver,
@@ -25,18 +28,18 @@ final class AttributeValueResolver
 
     private function getDefinitionIndexByName(string $workspaceId): array
     {
-        if (null !== $this->indexByName) {
-            return $this->indexByName;
+        if (isset($this->indexByName[$workspaceId])) {
+            return $this->indexByName[$workspaceId];
         }
 
         $definitions = $this->attributeDefinitionRepository->getWorkspaceDefinitions($workspaceId);
-        $this->indexByName = [];
+        $index = [];
 
         foreach ($definitions as $definition) {
-            $this->indexByName[$definition->getSlug()] = $definition;
+            $index[$definition->getSlug()] = $definition;
         }
 
-        return $this->indexByName;
+        return $this->indexByName[$workspaceId] = $index;
     }
 
     /**
@@ -89,12 +92,13 @@ final class AttributeValueResolver
                         ),
                     ]);
                 } catch (\Throwable $e) {
-                    throw new EntityDisableNotifyableException($definition, sprintf('Error while resolving "%s" (locale=%s) attribute fallback', $definition->getName(), $locale), $e->getMessage(), previous: $e);
+                    throw new EntityDisableNotifyableException($definition, sprintf('Error while resolving "%s" (locale=%s) attribute %s value', $definition->getName(), $locale, Attribute::ORIGIN_LABELS[$origin] ?? $origin), $e->getMessage(), previous: $e);
                 }
 
                 $type = $this->attributeTypeRegistry->getType($definition->getType());
 
                 if ($isMultiple) {
+                    $position = 0;
                     foreach (explode("\n", $resolvedValue) as $row) {
                         $a = $this->createAttributeFromValue(
                             $attributesIndex,
@@ -103,9 +107,11 @@ final class AttributeValueResolver
                             $definition,
                             $type,
                             $origin,
-                            $row
+                            $row,
+                            $position
                         );
                         if (null !== $a) {
+                            ++$position;
                             $attributes[] = $a;
                         }
                     }
@@ -117,7 +123,8 @@ final class AttributeValueResolver
                         $definition,
                         $type,
                         $origin,
-                        $resolvedValue
+                        $resolvedValue,
+                        0
                     );
                     if (null !== $a) {
                         $attributes[] = $a;
@@ -137,6 +144,7 @@ final class AttributeValueResolver
         AttributeTypeInterface $type,
         int $origin,
         mixed $value,
+        int $position,
     ): ?Attribute {
         $normalizedValue = $type->normalizeValue($value);
         if (null === $normalizedValue) {
@@ -145,7 +153,7 @@ final class AttributeValueResolver
         $isInvalid = !empty($type->validate($normalizedValue));
         $value = $type->convertToDbValue($normalizedValue);
         if ($isInvalid && !$definition->isAllowInvalid()) {
-            throw new EntityDisableNotifyableException($definition, sprintf('Invalid value "%s" for "%s" (locale=%s) attribute fallback', $value, $definition->getName(), $locale), sprintf('Invalid value "%s"', $value));
+            throw new EntityDisableNotifyableException($definition, sprintf('Invalid value "%s" for "%s" (locale=%s) attribute %s value', $value, $definition->getName(), $locale, Attribute::ORIGIN_LABELS[$origin] ?? $origin), sprintf('Invalid value "%s"', $value));
         }
 
         $attribute = new Attribute();
@@ -158,6 +166,7 @@ final class AttributeValueResolver
         $attribute->setOrigin($origin);
         $attribute->setValue($value);
         $attribute->setInvalid($isInvalid);
+        $attribute->setPosition($position);
 
         $attributesIndex->addAttribute($attribute);
 

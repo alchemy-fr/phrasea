@@ -63,14 +63,15 @@ final class DynamicAttributeBag
         }
 
         $resolve = $this->resolve;
+        /** @var Attribute[] $attributes */
         $attributes = $resolve($def);
 
         if ($isMultiple) {
             return array_map(fn (Attribute $attr): ?string => $attr->getValue(), $attributes);
-        } elseif ($attributes instanceof Attribute) {
-            return $attributes->getValue();
         }
 
-        return null;
+        $attribute = array_first($attributes);
+
+        return $attribute instanceof Attribute ? $attribute->getValue() : null;
     }
 }

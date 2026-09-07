@@ -137,8 +137,8 @@ unknown_tag:
 
 first_metadata:
     documentation:
-        title: ['First metadata set, with alternate value (1)']
-        description: ['for this test, only the metadata `IPTC:City` is set.']
+        title: 'First metadata set, with alternate value (1)'
+        description: 'for this test, only the metadata `IPTC:City` is set.'
     definitions:
         City:
             initialValues: '{{ file.getMetadata(''XMP-iptcCore:CreatorCity'').value ?? file.getMetadata(''IPTC:City'').value ?? ''no-city ?'' }}'
