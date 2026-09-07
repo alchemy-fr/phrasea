@@ -1026,11 +1026,11 @@
                 "label": "Als Asset-Name verwenden"
             },
             "readFromMetadata": {
-                "helper": "Metadaten-Tag-Namen, die aus der Quelldatei gelesen werden, um dieses Attribut zu initialisieren. Das zuerst gefundene Tag wird verwendet.",
+                "helper": "Metadatennamen, die aus der Quelldatei gelesen werden sollen, um dieses Attribut zu initialisieren. Das zuerst gefundene Metadatum wird verwendet.",
                 "label": "Aus Metadaten lesen"
             },
             "writeMetadata": {
-                "helper": "Metadaten-Tag-Namen, in die dieser Attributwert beim Exportieren des Assets (oder seiner Rendition) geschrieben wird.",
+                "helper": "Metadatenname, in den der Wert dieses Attributs beim Exportieren des Assets (oder seiner Rendition) geschrieben wird.",
                 "label": "In Metadaten schreiben"
             }
         },
@@ -1197,6 +1197,16 @@
             },
             "target": {
                 "label": "Asset-Typ Ziel"
+            },
+            "help": {
+                "modules_reference": "Verfügbare Module:"
+            },
+            "metadata": {
+                "helper": "Feste Metadatenwerte, die beim Exportieren in die Rendition-Datei geschrieben werden.",
+                "label": "Zu schreibende Metadaten"
+            },
+            "write_metadata": {
+                "label": "Attribute beim Export in Rendition-Metadaten schreiben"
             }
         },
         "save_as": {
@@ -1504,6 +1514,16 @@
             },
             "public": {
                 "label": "Öffentlich"
+            }
+        },
+        "metadata_values": {
+            "add": "Metadaten hinzufügen",
+            "remove": "Entfernen",
+            "tag": {
+                "label": "Metadatum (z.B. IPTC:CopyrightNotice)"
+            },
+            "value": {
+                "label": "Wert"
             }
         }
     },
@@ -2873,7 +2893,7 @@
             },
             "title": "Anzeigeprofil {{name}} verwalten",
             "grid": {
-                "title": "Rasterkarte"
+                "title": "Assetkarte"
             },
             "info": {
                 "title": "Informationen"
@@ -2908,6 +2928,18 @@
         "switch_attribute_locales": {
             "desc": "Lokale von Attributen wechseln. Dies ist nützlich, wenn Sie die Locale eines Attributs ändern möchten, ohne es löschen und neu erstellen zu müssen.",
             "name": "Attribut-Lokale wechseln"
+        },
+        "ingest_workspace_assets": {
+            "desc": "Den Ingestions-Workflow für jedes Asset in einem Workspace erneut ausführen",
+            "name": "Assets des Workspaces ingestieren"
+        },
+        "recompute_initial_values": {
+            "desc": "Attributwert für jedes Asset des Workspaces neu berechnen. Dadurch werden die aktuell für diese Definition gespeicherten Attribute überschrieben.",
+            "name": "Initialwerte neu berechnen"
+        },
+        "store_fallback_attributes": {
+            "desc": "Den Fallback eines Attributs auflösen und als echten Attributwert für jedes Asset des Workspaces persistieren, das für dieses Attribut noch keinen Wert hat.",
+            "name": "Fallback als Attribut speichern"
         }
     },
     "operation_tasks": {
@@ -2931,7 +2963,7 @@
                 "itemTotal": "Gesamtanzahl der Elemente",
                 "output": "Ausgabe",
                 "owner": "Owner",
-                "payload": "Nutzdaten",
+                "payload": "Parameter",
                 "progress": "Element verarbeitet",
                 "startedAt": "Gestartet um",
                 "task": "Aufgabe"
@@ -2962,5 +2994,123 @@
                 "success": "Datei erfolgreich analysiert"
             }
         }
+    },
+    "grid_editor": {
+        "config": {
+            "color": {
+                "default": "Standard"
+            },
+            "display_empty": "Wenn leer anzeigen",
+            "format": {
+                "default": "Standard",
+                "label": "Format"
+            },
+            "show_label": "Label anzeigen",
+            "size": {
+                "label": "Grösse",
+                "large": "L",
+                "medium": "M",
+                "small": "S"
+            },
+            "variant": {
+                "chip": "Chip",
+                "label": "Anzeigen als",
+                "rich": "Rich",
+                "text": "Text"
+            }
+        },
+        "palette": {
+            "empty": "Alle Felder platziert",
+            "hint": "Auf die Karte ziehen",
+            "no_match": "Kein passendes Attribut",
+            "title": "Verfügbare Attribute"
+        },
+        "reserved_cell": "Für Asset-Steuerung reserviert",
+        "reserved_type_cell": "Für Dateityp-Symbol reserviert"
+    },
+    "quarantine": {
+        "actions": {
+            "add_as_version": "Als neue Version hinzufügen",
+            "bypass": "Umgehen (akzeptieren)",
+            "bypass_error": "Asset konnte nicht akzeptiert werden",
+            "bypass_success": "Asset akzeptiert",
+            "delete": "Unwiderruflich löschen",
+            "merge": "Nur ein Asset behalten",
+            "move_to_trash": "In den Papierkorb verschieben"
+        },
+        "add_as_version": {
+            "description": "Diese Datei teilt eine eindeutige Dokumenten-ID mit dem oder den unten stehenden Assets. Wählen Sie das Asset aus, dem sie als neue Version hinzugefügt werden soll: Die aktuelle Datei wird zur Vorgängerversion.",
+            "error": "Datei konnte nicht als neue Version hinzugefügt werden",
+            "no_target": "Kein passendes Asset gefunden, dem diese Datei zugeordnet werden kann.",
+            "success": "Als neue Version hinzugefügt",
+            "title": "Als neue Version hinzufügen"
+        },
+        "analyzer": {
+            "checksum": "Prüfsumme",
+            "debug": "Debuggen",
+            "doc_unique_id": "Eindeutige Dokument-ID",
+            "filename": "Dateiname",
+            "image_colorspace": "Bildfarbraum",
+            "image_dimension": "Bildabmessungen"
+        },
+        "checksum": {
+            "algorithm": "Algorithmus",
+            "checksum": "Prüfsumme",
+            "duplicate_checksum_one": "{{count}} Datei mit einer identischen Prüfsumme ist bereits vorhanden (bis zu {{limit}} geprüft).",
+            "duplicate_checksum_other": "{{count}} Dateien mit einer identischen Prüfsumme sind bereits vorhanden",
+            "stripped": "Metadaten entfernt"
+        },
+        "doc_unique_id": {
+            "duid": "Eindeutige ID",
+            "duplicate_doc_unique_id_one": "{{count}} Datei weist dieselbe eindeutige Dokument-ID auf (bis zu {{limit}} geprüft)",
+            "duplicate_doc_unique_id_other": "{{count}} Datei(en) weisen dieselbe eindeutige Dokument-ID auf (bis zu {{limit}} geprüft)",
+            "found_in": "Aus Feld lesen",
+            "new": "Generiert"
+        },
+        "duplicates": {
+            "title_one": "{{count}} dupliziertes Asset gefunden",
+            "title_other": "{{count}} duplizierte Assets gefunden",
+            "unavailable": "Die duplizierten Assets sind nicht mehr verfügbar oder nicht zugänglich."
+        },
+        "filename": {
+            "extension": "Endung",
+            "extension_is_disallowed": "Dateiendung nicht zulässig",
+            "extension_is_not_allowed": "Die Dateiendung ist nicht in der ({{allowed}}) Liste enthalten.",
+            "mime_type_is_disallowed": "MIME-Typ nicht zulässig",
+            "mime_type_is_not_allowed": "Der MIME-Typ ist nicht in der ({{allowed}}) Liste enthalten",
+            "pattern_is_disallowed": "Dateiname entspricht einem unzulässigen Muster ({{pattern}}).",
+            "pattern_is_not_allowed": "Der Dateiname entspricht keinem zulässigen Muster ({{allowed}})."
+        },
+        "image_colorspace": {
+            "colorspace": "Farbraum",
+            "disallowed_colorspace": "Bildfarbraum nicht zulässig ({{disallowed}}).",
+            "not_an_image": "Die Datei ist kein Bild; der Farbraum wurde nicht geprüft.",
+            "not_in_allowed_colorspaces": "Der Bildfarbraum ist nicht in der ({{allowed}}) Liste enthalten.",
+            "unknown_colorspace": "Der Farbraum des Bildes konnte nicht ermittelt werden."
+        },
+        "image_dimension": {
+            "dimensions": "Abmessungen",
+            "max_height": "Die Höhe von {{height}}px überschreitet den Maximalwert von {{max_height}}px.",
+            "max_width": "Die Breite von {{width}}px überschreitet den Maximalwert von {{max_width}}px.",
+            "min_height": "Die Höhe von {{height}}px unterschreitet den Mindestwert von {{min_height}}px.",
+            "min_width": "Die Breite von {{width}}px unterschreitet den Mindestwert von {{min_width}}px.",
+            "not_an_image": "Die Datei ist kein Bild; die Abmessungen wurden nicht geprüft.",
+            "unreadable_image": "Das Bild konnte nicht gelesen werden, um die Abmessungen zu ermitteln."
+        },
+        "merge": {
+            "description": "Diese Datei ist identisch mit vorhandenen Assets. Wählen Sie aus, welches behalten werden soll – die anderen werden in den Papierkorb verschoben.",
+            "error": "Fehler beim Zusammenführen von Duplikaten",
+            "existing": "Vorhandenes Asset",
+            "existing_hint": "Vorhandenes Asset · {{date}}",
+            "incoming": "Eingehende Datei",
+            "incoming_hint": "Neu hochgeladene Datei",
+            "new_badge": "neu",
+            "no_duplicates": "Die Duplikate sind nicht mehr verfügbar. Sie können diese Datei behalten, indem Sie sie akzeptieren.",
+            "success": "Duplikate zusammengeführt",
+            "title": "Duplikate auflösen"
+        },
+        "rejected": "Dieses Asset wurde von den folgenden Dateianalysatoren abgelehnt. Überprüfen Sie die Gründe unten und wählen Sie eine Aktion aus.",
+        "skipped": "Die Dateianalyse wurde übersprungen.",
+        "title": "Unter Quarantäne gestelltes Asset"
     }
 }
