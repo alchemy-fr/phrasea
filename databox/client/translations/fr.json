@@ -333,7 +333,7 @@
         "restore": "Restaurer",
         "batch_edit": {
             "different_workspaces": {
-                "message": "Vous ne pouvez pas modifier les attributs d'assets provenant de Workspace différents, simultanément ."
+                "message": "Vous ne pouvez pas modifier les attributs d'assets provenant de Workspaces différents, simultanément."
             }
         }
     },
@@ -689,7 +689,7 @@
         "confirm": "Confirmer",
         "clear": "Effacer",
         "filter": {
-            "placeholder": "Filtre…"
+            "placeholder": "Filtrer…"
         }
     },
     "copy_assets": {
@@ -822,13 +822,13 @@
             "expandAll": "Tout développer",
             "hidden": {
                 "success": "La facette {{facetName}} a été masquée",
-                "undo": "Facette {{facetName}} affiché"
+                "undo": "Facette {{facetName}} affichée"
             },
             "undo": "Annuler"
         },
         "settings": {
             "hidden": "Facettes cachées",
-            "reset": "réinitialiser les paramètres par défaut",
+            "reset": "Réinitialiser les paramètres par défaut",
             "reset_confirm": "Êtes-vous sûr de vouloir réinitialiser les paramètres des facettes ?",
             "title": "Réglages des Facettes",
             "visible": "Facettes visibles"
@@ -958,7 +958,7 @@
                 "label": "Priorité d'affichage"
             },
             "useAsName": {
-                "label": "Utiliser comme Titre d'assets"
+                "label": "Utiliser comme Titre d'asset"
             }
         },
         "attribute_entity": {
@@ -981,7 +981,7 @@
                 "label": "Emoticône"
             },
             "status": {
-                "label": "Statut"
+                "label": "Status"
             }
         },
         "basket": {
@@ -2822,7 +2822,7 @@
             "sum_daily_nb_uniq_visitors": "Somme quotidienne de visiteurs uniques",
             "sum_fullscreen_plays": "Somme des lectures en plein écran",
             "sum_time_progress": "Somme du temps de progression",
-            "nb_plays_with_tip": ""
+            "nb_plays_with_tip": "Plays with tip count"
         }
     },
     "page": {
