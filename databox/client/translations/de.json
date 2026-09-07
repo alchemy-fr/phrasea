@@ -280,7 +280,8 @@
             "info": "Informationen",
             "move": "Verschieben",
             "share": "Teilen",
-            "restore": "Wiederherstellen"
+            "restore": "Wiederherstellen",
+            "add_to_basket": "Zum Korb hinzufügen"
         },
         "collection_list": {
             "collections_one": "+ {{count}} Kollektion",
@@ -631,13 +632,18 @@
         },
         "actions": {
             "delete": "Korb löschen",
-            "edit": "Korb bearbeiten"
+            "edit": "Korb bearbeiten",
+            "archive": "Korb archivieren",
+            "unarchive": "Korb wiederherstellen"
         },
         "disabled": {
             "label": "Sie sind nicht berechtigt, diesen Korb zu ändern."
         },
         "added_to_basket_one": "{{count}} Artikel zum Korb hinzugefügt",
-        "added_to_basket_other": "{{count}} Artikel zum Korb hinzugefügt"
+        "added_to_basket_other": "{{count}} Artikel zum Korb hinzugefügt",
+        "display_archive": {
+            "label": "Archiv anzeigen"
+        }
     },
     "basket_delete": {
         "title": "Korb löschen",
@@ -999,7 +1005,8 @@
                 "label": "Fallback"
             },
             "initialValues": {
-                "label": "Initial Values"
+                "label": "Initial Values",
+                "helper": "Twig-Template, das aufgelöst wird, um dieses Attribut bei der Erstellung des Assets zu initialisieren."
             },
             "sortable": {
                 "label": "Sortierbar"
@@ -1017,6 +1024,14 @@
             },
             "useAsName": {
                 "label": "Als Asset-Name verwenden"
+            },
+            "readFromMetadata": {
+                "helper": "Metadaten-Tag-Namen, die aus der Quelldatei gelesen werden, um dieses Attribut zu initialisieren. Das zuerst gefundene Tag wird verwendet.",
+                "label": "Aus Metadaten lesen"
+            },
+            "writeMetadata": {
+                "helper": "Metadaten-Tag-Namen, in die dieser Attributwert beim Exportieren des Assets (oder seiner Rendition) geschrieben wird.",
+                "label": "In Metadaten schreiben"
             }
         },
         "attribute_entity": {
@@ -1960,7 +1975,10 @@
         },
         "list": {
             "export": "Exportieren",
-            "import": "Importieren"
+            "import": "Importieren",
+            "clear": {
+                "confirm": "Möchten Sie wirklich alle Entitäten dieser Liste löschen?"
+            }
         }
     },
     "file": {
@@ -1978,7 +1996,9 @@
             "analysis": "Analyse",
             "analysis_pending": "Analyse ausstehend",
             "size_unknown": "Unbekannt",
-            "url_none": "N/A"
+            "url_none": "N/A",
+            "usages": "Referenziert von",
+            "usages_none": "Nicht referenziert"
         },
         "manage": {
             "title": "Datei {{name}} verwalten",
@@ -1990,7 +2010,12 @@
             }
         },
         "analysis_pending": "Analyse läuft…",
-        "rejected": "Abgelehnt"
+        "rejected": "Abgelehnt",
+        "usages": {
+            "rendition": "Rendition \"{{name}}\" von Asset \"{{asset}}\"",
+            "source": "Asset \"{{asset}}\" Quelle",
+            "version": "Version \"{{name}}\" von Asset \"{{asset}}\""
+        }
     },
     "integrations": {
         "new": {
@@ -2846,12 +2871,29 @@
             "organize": {
                 "title": "Organisieren"
             },
-            "title": "Anzeigeprofil {{name}} verwalten"
+            "title": "Anzeigeprofil {{name}} verwalten",
+            "grid": {
+                "title": "Rasterkarte"
+            },
+            "info": {
+                "title": "Informationen"
+            }
         },
         "organize": {
             "add_divider": "Trennlinie hinzufügen",
             "add_spacer": "Abstandshalter hinzufügen"
-        }
+        },
+        "info": {
+            "created_at": "Erstellt am",
+            "description": "Beschreibung",
+            "name": "Name",
+            "owner": "Owner",
+            "updated_at": "Aktualisiert am",
+            "visibility": "Sichtbarkeit"
+        },
+        "private": "Privat",
+        "public": "Öffentlich",
+        "shared_by": "Geteilt von {{owner}}"
     },
     "entity": {
         "not_allowed": "Nicht erlaubt",
@@ -2906,5 +2948,19 @@
         "create": "Neue Aufgabe",
         "refresh": "Aktualisieren",
         "title": "Aufgabenverlauf"
+    },
+    "archive": {
+        "basket": {
+            "confirmed": "Der Korb wurde archiviert!"
+        }
+    },
+    "file_analyzer": {
+        "result": {
+            "status": {
+                "rejected_with_reason": "Von folgenden Analysatoren abgelehnt",
+                "skipped": "Dateianalyse wurde übersprungen.",
+                "success": "Datei erfolgreich analysiert"
+            }
+        }
     }
 }
