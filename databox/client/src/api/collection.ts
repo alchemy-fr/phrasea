@@ -69,7 +69,7 @@ export async function putCollection(
     id: string,
     data: Partial<Collection>
 ): Promise<Collection> {
-    const res = await apiClient.put(
+    const res = await apiClient.patch(
         `/collections/${id}`,
         clearAssociationIds(data)
     );
@@ -114,7 +114,7 @@ export async function putWorkspace(
     id: string,
     data: Partial<Workspace>
 ): Promise<Workspace> {
-    const res = await apiClient.put(
+    const res = await apiClient.patch(
         `/workspaces/${id}`,
         clearAssociationIds(data)
     );

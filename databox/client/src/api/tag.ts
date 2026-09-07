@@ -34,7 +34,7 @@ export async function postTag(data: Partial<Tag>): Promise<Tag> {
 }
 
 export async function putTag(id: string, data: Partial<Tag>): Promise<Tag> {
-    const res = await apiClient.put(`${EntityName.Tag}/${id}`, data);
+    const res = await apiClient.patch(`${EntityName.Tag}/${id}`, data);
 
     return res.data;
 }

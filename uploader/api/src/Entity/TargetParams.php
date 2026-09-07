@@ -11,8 +11,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(security: 'is_granted("EDIT_TARGET_DATA")'),
         new Delete(security: 'is_granted("EDIT_TARGET_DATA")'),
-        new Put(security: 'is_granted("EDIT_TARGET_DATA")'),
+        new Patch(security: 'is_granted("EDIT_TARGET_DATA")'),
         new Post(security: 'is_granted("EDIT_TARGET_DATA")'),
         new GetCollection(security: 'is_granted("EDIT_TARGET_DATA")'),
     ],

@@ -158,8 +158,9 @@ class AttributeEntityTest extends AbstractSearchTest
 
         $apiClient = static::createClient();
 
-        $apiClient->request('PUT', '/attribute-entities/'.$entity1->getId(), [
+        $apiClient->request('PATCH', '/attribute-entities/'.$entity1->getId(), [
             'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [

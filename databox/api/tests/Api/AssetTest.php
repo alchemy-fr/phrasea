@@ -29,19 +29,19 @@ class AssetTest extends AbstractSearchTestCase
         $this->assertJsonContains([
             '@context' => '/contexts/asset',
             '@id' => '/assets',
-            '@type' => 'hydra:Collection',
-            'hydra:totalItems' => 62,
-            'hydra:view' => [
+            '@type' => 'Collection',
+            'totalItems' => 62,
+            'view' => [
                 '@id' => '/assets?limit='.$limit.'&page=1',
-                '@type' => 'hydra:PartialCollectionView',
-                'hydra:first' => '/assets?limit='.$limit.'&page=1',
-                'hydra:last' => '/assets?limit='.$limit.'&page=7',
-                'hydra:next' => '/assets?limit='.$limit.'&page=2',
+                '@type' => 'PartialCollectionView',
+                'first' => '/assets?limit='.$limit.'&page=1',
+                'last' => '/assets?limit='.$limit.'&page=7',
+                'next' => '/assets?limit='.$limit.'&page=2',
             ],
         ]);
 
         // Because test fixtures are automatically loaded between each test, you can assert on them
-        $this->assertCount($limit, $response->toArray()['hydra:member']);
+        $this->assertCount($limit, $response->toArray()['member']);
 
         // Asserts that the returned JSON is validated by the JSON Schema generated for this resource by API Platform
         // This generated JSON Schema is also used in the OpenAPI spec!
@@ -63,19 +63,19 @@ class AssetTest extends AbstractSearchTestCase
         $this->assertJsonContains([
             '@context' => '/contexts/asset',
             '@id' => '/assets',
-            '@type' => 'hydra:Collection',
-            'hydra:totalItems' => 62,
-            'hydra:view' => [
+            '@type' => 'Collection',
+            'totalItems' => 62,
+            'view' => [
                 '@id' => '/assets?limit='.$limit.'&page=1',
-                '@type' => 'hydra:PartialCollectionView',
-                'hydra:first' => '/assets?limit='.$limit.'&page=1',
-                'hydra:last' => '/assets?limit='.$limit.'&page=7',
-                'hydra:next' => '/assets?limit='.$limit.'&page=2',
+                '@type' => 'PartialCollectionView',
+                'first' => '/assets?limit='.$limit.'&page=1',
+                'last' => '/assets?limit='.$limit.'&page=7',
+                'next' => '/assets?limit='.$limit.'&page=2',
             ],
         ]);
 
         // Because test fixtures are automatically loaded between each test, you can assert on them
-        $this->assertCount($limit, $response->toArray()['hydra:member']);
+        $this->assertCount($limit, $response->toArray()['member']);
 
         // Asserts that the returned JSON is validated by the JSON Schema generated for this resource by API Platform
         // This generated JSON Schema is also used in the OpenAPI spec!
@@ -246,8 +246,9 @@ class AssetTest extends AbstractSearchTestCase
         // Because Alice use a seeded pseudo-random number generator, we're sure that this ISBN will always be generated.
         $iri = $this->findIriBy(Asset::class, ['key' => 'foo']);
 
-        $client->request('PUT', $iri, [
+        $client->request('PATCH', $iri, [
             'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             ],
             'json' => [

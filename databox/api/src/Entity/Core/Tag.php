@@ -14,8 +14,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\TagInput;
 use App\Api\Model\Output\TagOutput;
 use App\Api\Provider\TagCollectionProvider;
@@ -48,7 +48,7 @@ use Symfony\Component\Validator\Constraints\Length;
             ]],
             securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',
         ),
-        new Put(
+        new Patch(
             normalizationContext: ['groups' => [
                 '_',
                 Tag::GROUP_READ,

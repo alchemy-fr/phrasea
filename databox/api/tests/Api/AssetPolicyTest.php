@@ -40,7 +40,7 @@ class AssetPolicyTest extends AbstractSearchTestCase
         $this->assertJsonContains([
             '@context' => '/contexts/asset-policy',
             '@id' => '/asset-policies',
-            '@type' => 'hydra:Collection',
+            '@type' => 'Collection',
         ]);
     }
 
@@ -71,7 +71,7 @@ class AssetPolicyTest extends AbstractSearchTestCase
         $this->assertJsonContains([
             '@context' => '/contexts/asset-policy',
             '@id' => '/asset-policies',
-            '@type' => 'hydra:Collection',
+            '@type' => 'Collection',
         ]);
     }
 
@@ -98,7 +98,7 @@ class AssetPolicyTest extends AbstractSearchTestCase
         ]);
         $this->assertResponseStatusCodeSame(422);
         $this->assertSame('users: At least one user or one group is required.
-actions: This collection should contain 1 element or more.', $response->toArray(false)['hydra:description']);
+actions: This collection should contain 1 element or more.', $response->toArray(false)['description']);
 
         $rendition = $this->findOneBy(RenditionDefinition::class, [
             'name' => 'preview',

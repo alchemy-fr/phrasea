@@ -16,8 +16,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\WorkspaceIntegrationInput;
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
 use App\Api\Provider\WorkspaceIntegrationCollectionProvider;
@@ -44,7 +44,7 @@ use Symfony\Component\Yaml\Yaml;
     operations: [
         new Get(),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)'),
         new GetCollection(),
         new Post(
             securityPostDenormalize: 'is_granted("CREATE", object)',

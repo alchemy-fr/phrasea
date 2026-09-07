@@ -12,6 +12,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Controller\AssetAckAction;
 use App\Controller\CreateAssetAction;
 use App\Security\Voter\AssetVoter;
@@ -34,9 +36,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
         new Post(
             defaults: ['_api_receive' => false],
             controller: CreateAssetAction::class,
-            openapiContext: [
-                'requestBody' => [
-                    'content' => [
+            openapi: new OpenApiOperation(
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
                         'application/json' => [
                             'examples' => [
                                 'Multipart upload' => [
@@ -111,9 +113,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
                                 ],
                             ],
                         ],
-                    ],
-                ],
-            ],
+                    ]),
+                ),
+            ),
             validationContext: [
                 'groups' => [
                     'Default',

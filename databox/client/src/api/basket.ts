@@ -45,7 +45,7 @@ export async function putBasket(
     id: string,
     data: Partial<Basket>
 ): Promise<Basket> {
-    const res = await apiClient.put(
+    const res = await apiClient.patch(
         `/baskets/${id}`,
         clearAssociationIds(data)
     );

@@ -65,6 +65,10 @@ final class CrudTest extends AbstractDataboxTestCase
             $defaultOptions['json'] = $data;
         }
 
+        if ('PATCH' === $method) {
+            $defaultOptions['headers']['Content-Type'] = 'application/merge-patch+json';
+        }
+
         $httpOptions = $replacePH(array_merge_recursive($defaultOptions, $options['request'] ?? []));
 
         $client = self::createClient();
@@ -148,7 +152,7 @@ final class CrudTest extends AbstractDataboxTestCase
 
             $createAttributePolicy,
 
-            ['PUT', '/attribute-policies/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
+            ['PATCH', '/attribute-policies/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
                 'name' => 'AttrClass Test 2',
                 'public' => false,
                 'editable' => true,
@@ -182,7 +186,7 @@ final class CrudTest extends AbstractDataboxTestCase
 
             $createRenditionPolicy,
 
-            ['PUT', '/rendition-policies/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
+            ['PATCH', '/rendition-policies/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
                 'name' => 'RendClass Test 2',
                 'public' => false,
             ], [], [
@@ -246,7 +250,7 @@ final class CrudTest extends AbstractDataboxTestCase
 
             $createAttributeDefinition,
 
-            ['PUT', '/attribute-definitions/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
+            ['PATCH', '/attribute-definitions/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
                 'name' => 'AttrDef Test 2',
             ], [], [
                 'createItem' => $createAttributeDefinition,

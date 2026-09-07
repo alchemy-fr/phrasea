@@ -14,8 +14,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Model\Output\WorkspaceOutput;
 use App\Controller\Core\FlushWorkspaceAction;
@@ -41,7 +41,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(
             security: 'is_granted("READ", object)'
         ),
-        new Put(
+        new Patch(
             securityPostDenormalize: 'is_granted("EDIT", object)'
         ),
         new Delete(security: 'is_granted("DELETE", object)'),

@@ -89,7 +89,7 @@
         "alchemy/notifier-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
         "alchemy/storage-bundle": "@dev",
-        "api-platform/core": "^3.1",
+        "api-platform/core": "^4.1",
         "composer/package-versions-deprecated": "1.11.99.3",
         "doctrine/annotations": "^2.0",
         "doctrine/common": "^3.4.3",

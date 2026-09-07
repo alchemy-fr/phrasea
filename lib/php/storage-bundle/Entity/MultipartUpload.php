@@ -12,6 +12,10 @@ use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
+use ApiPlatform\OpenApi\Model\RequestBody;
+use ApiPlatform\OpenApi\Model\Response as OpenApiResponse;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;
@@ -22,39 +26,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
     shortName: 'Upload',
     operations: [
         new Get(),
-        new Post(openapiContext: ['summary' => 'Create a multi part upload.']),
+        new Post(openapi: new OpenApiOperation(summary: 'Create a multi part upload.')),
         new Post(
             uriTemplate: '/uploads/{id}/part',
             controller: MultipartUploadPartAction::class,
-            openapiContext: [
-                'summary' => 'Get next upload URL for the next part of file to upload.',
-                'parameters' => [
-                    [
-                        'in' => 'path',
-                        'name' => 'id',
-                        'type' => 'string',
-                        'description' => 'The upload ID',
-                    ],
-                ],
-                'requestBody' => [
-                    'required' => true,
-                    'content' => [
-                        'application/json' => [
-                            'schema' => [
-                                'type' => 'object',
-                                'properties' => [
-                                    'part' => [
-                                        'type' => 'integer',
-                                    ],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                'responses' => [
-                    '200' => [
-                        'description' => 'An object containing signed URL for direct upload to S3',
-                        'content' => [
+            openapi: new OpenApiOperation(
+                responses: [
+                    '200' => new OpenApiResponse(
+                        description: 'An object containing signed URL for direct upload to S3',
+                        content: new \ArrayObject([
                             'application/json' => [
                                 'schema' => [
                                     'type' => 'object',
@@ -65,15 +45,39 @@ use Symfony\Component\Serializer\Annotation\Groups;
                                     ],
                                 ],
                             ],
-                        ]],
+                        ]),
+                    ),
                 ],
-            ]),
+                summary: 'Get next upload URL for the next part of file to upload.',
+                parameters: [
+                    new OpenApiParameter(
+                        name: 'id',
+                        in: 'path',
+                        description: 'The upload ID',
+                    ),
+                ],
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
+                        'application/json' => [
+                            'schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'part' => [
+                                        'type' => 'integer',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ]),
+                    required: true,
+                ),
+            )),
         new Delete(
             controller: MultipartUploadCancelAction::class,
-            openapiContext: [
-                'summary' => 'Cancel an upload',
-                'description' => 'Cancel an upload.',
-            ]
+            openapi: new OpenApiOperation(
+                summary: 'Cancel an upload',
+                description: 'Cancel an upload.',
+            )
         ),
 
         new GetCollection(security: 'is_granted(\'ROLE_ADMIN\')'),

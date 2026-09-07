@@ -35,8 +35,9 @@ class ProfileTest extends AbstractDataboxTestCase
         ]);
         $this->assertMatchesResourceItemJsonSchema(Profile::class);
 
-        $client->request('PUT', '/profiles/'.$id, [
+        $client->request('PATCH', '/profiles/'.$id, [
             'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [

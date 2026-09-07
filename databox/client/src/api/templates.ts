@@ -26,7 +26,7 @@ export async function putAssetDataTemplate(
     id: string,
     data: Partial<AssetDataTemplate>
 ): Promise<void> {
-    await apiClient.put(`/${EntityName.AssetDataTemplate}/${id}`, data);
+    await apiClient.patch(`/${EntityName.AssetDataTemplate}/${id}`, data);
 }
 
 type GetAssetDataTemplatesOptions = {

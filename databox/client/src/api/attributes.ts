@@ -17,7 +17,7 @@ export async function putAttributeDefinition(
     delete data.workspace;
 
     return (
-        await apiClient.put(`/${EntityName.AttributeDefinition}/${id}`, data)
+        await apiClient.patch(`/${EntityName.AttributeDefinition}/${id}`, data)
     ).data;
 }
 
@@ -33,7 +33,7 @@ export async function putAttributePolicy(
 ): Promise<AttributePolicy> {
     delete data.workspace;
 
-    return (await apiClient.put(`${EntityName.AttributePolicy}/${id}`, data))
+    return (await apiClient.patch(`${EntityName.AttributePolicy}/${id}`, data))
         .data;
 }
 

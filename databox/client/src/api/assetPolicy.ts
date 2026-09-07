@@ -8,7 +8,8 @@ export async function putAssetPolicy(
     id: string | undefined,
     data: Partial<AssetPolicy>
 ): Promise<AssetPolicy> {
-    return (await apiClient.put(`/${EntityName.AssetPolicy}/${id}`, data)).data;
+    return (await apiClient.patch(`/${EntityName.AssetPolicy}/${id}`, data))
+        .data;
 }
 
 export async function postAssetPolicy(data: AssetPolicy): Promise<AssetPolicy> {

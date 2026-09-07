@@ -21,7 +21,7 @@ export async function getPages(
 }
 
 export async function putPage(id: string, data: Partial<Page>): Promise<Page> {
-    const res = await apiClient.put(`/${EntityName.Page}/${id}`, data);
+    const res = await apiClient.patch(`/${EntityName.Page}/${id}`, data);
 
     return res.data;
 }

@@ -332,7 +332,10 @@ final readonly class ExposeClient
         array $data,
     ): array {
         return $this->create($config, $integrationToken)
-            ->request('PUT', '/assets/'.$assetId, [
+            ->request('PATCH', '/assets/'.$assetId, [
+                'headers' => [
+                    'Content-Type' => 'application/merge-patch+json',
+                ],
                 'json' => $data,
             ])
             ->toArray();

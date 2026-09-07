@@ -35,7 +35,7 @@ export async function putThreadMessage(
         content: string;
     }
 ): Promise<ThreadMessage> {
-    const res = await apiClient.put(`/messages/${id}`, data);
+    const res = await apiClient.patch(`/messages/${id}`, data);
 
     return res.data;
 }

@@ -28,7 +28,7 @@ export async function putProfile(
     id: string,
     data: Partial<DisplayProfile>
 ): Promise<DisplayProfile> {
-    const res = await apiClient.put(`/${entityType}/${id}`, data);
+    const res = await apiClient.patch(`/${entityType}/${id}`, data);
 
     return res.data;
 }
