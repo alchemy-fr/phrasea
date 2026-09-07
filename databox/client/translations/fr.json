@@ -555,14 +555,19 @@
         },
         "actions": {
             "delete": "Supprimer le panier",
-            "edit": "Editer le panier"
+            "edit": "Editer le panier",
+            "archive": "Archiver le panier",
+            "unarchive": "Désarchiver le panier"
         },
         "disabled": {
             "label": "Vous n'êtes pas autorisé à modifier ce panier"
         },
         "added_to_basket_one": "Elément ajouté au panier",
         "added_to_basket_many": "{{count}} éléments ajoutés au panier",
-        "added_to_basket_other": "{{count}} éléments ajoutés au panier"
+        "added_to_basket_other": "{{count}} éléments ajoutés au panier",
+        "display_archive": {
+            "label": "Afficher l'archive"
+        }
     },
     "basket_delete": {
         "confirm": "Êtes-vous sûr de vouloir supprimer ce panier ?",
@@ -941,7 +946,8 @@
                 "label": "Valeur de repli"
             },
             "initialValues": {
-                "label": "Valeurs initiales"
+                "label": "Valeurs initiales",
+                "helper": "Le modèle Twig a été résolu pour initialiser cet attribut lors de la création de l'asset."
             },
             "sortable": {
                 "label": "Triable"
@@ -959,6 +965,14 @@
             },
             "useAsName": {
                 "label": "Utiliser comme Titre d'asset"
+            },
+            "readFromMetadata": {
+                "helper": "Noms des tags de métadonnées à lire dans le fichier source pour initialiser cet attribut. Le premier tag trouvé est utilisé.",
+                "label": "Lire depuis les métadonnées"
+            },
+            "writeMetadata": {
+                "helper": "Noms des tags de métadonnées dans lesquelles la valeur de cet attribut est écrite lors de l'exportation de l'asset (ou de sa rendition).",
+                "label": "Écrire dans les métadonnées"
             }
         },
         "attribute_entity": {
@@ -1135,6 +1149,13 @@
             },
             "target": {
                 "label": "Type d'Asset cible"
+            },
+            "help": {
+                "modules_reference": "Modules disponibles"
+            },
+            "metadata": {
+                "helper": "Valeurs de métadonnées codées en dur écrites dans le fichier de rendition lors de son exportation.",
+                "label": "Métadonnées à écrire"
             }
         },
         "save_as": {
@@ -1437,6 +1458,16 @@
             },
             "public": {
                 "label": "Public"
+            }
+        },
+        "metadata_values": {
+            "add": "Ajouter des métadonnées",
+            "remove": "Retirer",
+            "tag": {
+                "label": "Tag (par ex: IPTC:CopyrightNotice)"
+            },
+            "value": {
+                "label": "Valeur"
             }
         }
     },
@@ -2072,7 +2103,10 @@
         },
         "list": {
             "export": "Exporter",
-            "import": "Importer"
+            "import": "Importer",
+            "clear": {
+                "confirm": "Êtes-vous sûr de vouloir supprimer toutes les entités de cette liste ?"
+            }
         }
     },
     "es_document": {
@@ -2327,7 +2361,9 @@
             "analysis": "Analyse",
             "analysis_pending": "Analyse en attente",
             "size_unknown": "Inconnu",
-            "url_none": "N/A"
+            "url_none": "N/A",
+            "usages": "Référencé par",
+            "usages_none": "Non référencé"
         },
         "manage": {
             "info": {
@@ -2339,7 +2375,12 @@
             "title": "Gérer le fichier {{name}}"
         },
         "analysis_pending": "Analyse en cours…",
-        "rejected": "Rejeté"
+        "rejected": "Rejeté",
+        "usages": {
+            "rendition": "Rendition \"{{name}}\" de l'asset \"{{asset}}\"",
+            "source": "Source de l'asset \"{{asset}}\"",
+            "version": "Version \"{{name}}\" de l'asset \"{{asset}}\""
+        }
     },
     "integrations": {
         "new": {
@@ -3017,12 +3058,26 @@
             "organize": {
                 "title": "Attributs"
             },
-            "title": "Gérer le profil {{name}}"
+            "title": "Gérer le profil {{name}}",
+            "info": {
+                "title": "Informations"
+            }
         },
         "organize": {
             "add_divider": "Ajouter un diviseur",
             "add_spacer": "Ajouter un espacement"
-        }
+        },
+        "info": {
+            "created_at": "Créé le",
+            "description": "Description",
+            "name": "Nom",
+            "owner": "Propriétaire",
+            "updated_at": "Mis à jour le",
+            "visibility": "Visibilité"
+        },
+        "private": "Privé",
+        "public": "Public",
+        "shared_by": "Partagé par {{owner}}"
     },
     "entity": {
         "not_allowed": "Non autorisé",
@@ -3077,5 +3132,14 @@
         "create": "Nouvelle tâche",
         "refresh": "Actualiser",
         "title": "Historique de la tâche"
+    },
+    "file_analyzer": {
+        "result": {
+            "status": {
+                "rejected_with_reason": "Ce fichier a été rejeté par les analyseurs suivants.",
+                "skipped": "L'analyse de fichier a été ignorée.",
+                "success": "Ce fichier a été analysé avec succès"
+            }
+        }
     }
 }
