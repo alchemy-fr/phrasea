@@ -967,7 +967,7 @@
                 "label": "Utiliser comme Titre d'asset"
             },
             "readFromMetadata": {
-                "helper": "Noms des métadonnées à lire dans le fichier source pour initialiser cet attribut. La premiere métadonnée trouvé est utilisé.",
+                "helper": "Noms des métadonnées à lire dans le fichier source pour initialiser cet attribut. La première métadonnée trouvée est utilisée.",
                 "label": "Lire depuis les métadonnées"
             },
             "writeMetadata": {
@@ -1154,8 +1154,11 @@
                 "modules_reference": "Modules disponibles"
             },
             "metadata": {
-                "helper": "Nom et valeurs de métadonnées ajouté dans le fichier de rendition lors de l'export.",
+                "helper": "Nom et valeurs de métadonnées ajoutés dans le fichier de rendition lors de l'export.",
                 "label": "Métadonnées à écrire"
+            },
+            "write_metadata": {
+                "label": "Écrire les attributs dans les métadonnées de la rendition lors de l'export"
             }
         },
         "save_as": {
@@ -3064,7 +3067,7 @@
                 "title": "Informations"
             },
             "grid": {
-                "title": "carte de l'asset"
+                "title": "Carte de l'asset"
             }
         },
         "organize": {
@@ -3098,15 +3101,15 @@
             "name": "Permuter les locales d'attributs"
         },
         "ingest_workspace_assets": {
-            "desc": "Rexécutez le flux de travail d'ingestion sur chaque assets d'un espace de travail",
-            "name": "Ingérer les assets du workspace"
+            "desc": "Rexécutez le flux de travail d'ingestion sur chaque asset d'un espace de travail",
+            "name": "Ingérer les assets du Workspace"
         },
         "recompute_initial_values": {
-            "desc": "Recalculez la valeur initiale d'un attribut pour chaque actif du Workspace. Cela remplace les valeurs d'attribut actuellement stockés.",
+            "desc": "Recalculez la valeur initiale d'un attribut pour chaque asset du Workspace. Cela remplace les valeurs d'attribut actuellement stockées.",
             "name": "Recalculer les valeurs initiales"
         },
         "store_fallback_attributes": {
-            "desc": "Enregistrer la valeur de repli d'un attribut et en tant que valeur réelle sur chaque assets du Workspace. S'applique uniquement aux assets n'ayant pas de valeur pour cet attribut.",
+            "desc": "Enregistrer la valeur de repli d'un attribut et en tant que valeur réelle sur chaque asset du Workspace. S'applique uniquement aux assets n'ayant pas de valeur pour cet attribut.",
             "name": "Stocker la valeur de repli en tant qu'attribut"
         }
     },
@@ -3152,7 +3155,7 @@
     "file_analyzer": {
         "result": {
             "status": {
-                "rejected_with_reason": "Ce fichier a été rejeté par les analyseurs suivants.",
+                "rejected_with_reason": "Ce fichier a été rejeté par les analyseurs suivants",
                 "skipped": "L'analyse de fichier a été ignorée.",
                 "success": "Ce fichier a été analysé avec succès"
             }
@@ -3167,9 +3170,10 @@
         "config": {
             "display_empty": "Afficher même si vide",
             "format": {
-                "label": "Format"
+                "label": "Format",
+                "default": "Par défaut"
             },
-            "show_label": "Afficher la label",
+            "show_label": "Afficher le label",
             "size": {
                 "label": "Taille",
                 "large": "L",
@@ -3181,13 +3185,16 @@
                 "label": "Afficher comme",
                 "rich": "Enrichie",
                 "text": "Texte"
+            },
+            "color": {
+                "default": "Par défaut"
             }
         },
         "palette": {
-            "empty": "Tous les attributs positionné",
+            "empty": "Tous les attributs positionnés",
             "hint": "Faites glisser sur la carte",
             "no_match": "Aucun attribut correspondant",
-            "title": "Attribut disponibles"
+            "title": "Attributs disponibles"
         },
         "reserved_cell": "Réservé au contrôle d'assets",
         "reserved_type_cell": "Réservé à l'icône du type de fichier"
@@ -3199,13 +3206,13 @@
             "bypass_error": "Impossible d'accepter l'asset",
             "bypass_success": "Asset accepté",
             "delete": "Supprimer définitivement",
-            "merge": "Conserver qu'un asset",
+            "merge": "Ne conserver qu'un asset",
             "move_to_trash": "Mettre à la corbeille"
         },
         "add_as_version": {
-            "description": "Ce fichier partage un identifiant unique de document avec le ou les assets ci-dessous. Choisissez l'asset à laquelle il doit être attachée en tant que nouvelle version: le fichier actuelle devient la version précédente.",
+            "description": "Ce fichier partage un identifiant unique de document avec le ou les assets ci-dessous. Choisissez l'asset auquel il doit être attaché en tant que nouvelle version: le fichier actuel devient la version précédente.",
             "error": "Impossible d'ajouter le fichier en tant que nouvelle version",
-            "no_target": "Aucun Asset correspondante n'a été trouvée pour joindre ce fichier.",
+            "no_target": "Aucun Asset correspondant n'a été trouvé pour joindre ce fichier.",
             "success": "Fichier ajouté en tant que nouvelle version",
             "title": "Ajouter en tant que nouvelle version"
         },
@@ -3218,23 +3225,26 @@
         "checksum": {
             "algorithm": "Algorithme",
             "checksum": "Somme de contrôle",
-            "stripped": "Métadonnées supprimées"
+            "stripped": "Métadonnées supprimées",
+            "duplicate_checksum_one": "{{count}} fichier avec une somme de contrôle existe déjà (vérifié jusqu'à {{limit}}).",
+            "duplicate_checksum_many": "{{count}} fichiers avec une somme de contrôle identique existent déjà",
+            "duplicate_checksum_other": "{{count}} fichiers avec une somme de contrôle identique existent déjà"
         },
         "doc_unique_id": {
             "duplicate_doc_unique_id_one": "{{count}} fichier d'asset partage le même identifiant unique de document (limité à {{limit}}).",
             "duplicate_doc_unique_id_many": "{{count}} fichiers d'assets partagent le même identifiant unique de document (limité à {{limit}}).",
-            "duplicate_doc_unique_id_other": "",
+            "duplicate_doc_unique_id_other": "{{count}} fichiers d'assets partagent le même identifiant unique de document (limité à {{limit}}).",
             "found_in": "Lire depuis les informations du fichier",
             "new": "Généré"
         },
         "duplicates": {
             "title_one": "{{count}} Asset dupliqué trouvé.",
             "title_many": "{{count}} Assets dupliqués trouvés.",
-            "title_other": "",
+            "title_other": "{{count}} Assets dupliqués trouvés.",
             "unavailable": "Les Assets dupliqués ne sont plus disponibles ou ne sont pas accessibles."
         },
         "filename": {
-            "extension": "Extention",
+            "extension": "Extension",
             "extension_is_disallowed": "L'extension de fichier n'est pas autorisée.",
             "extension_is_not_allowed": "L'extension de fichier ne figure pas dans la liste autorisée ({{allowed}}).",
             "mime_type_is_disallowed": "Le type MIME n'est pas autorisé.",
@@ -3259,7 +3269,7 @@
             "unreadable_image": "L'image n'a pas pu être lue pour déterminer ses dimensions."
         },
         "merge": {
-            "description": "Ce fichier est identique aux Asset existants. Choisissez lequel conserver, les autres seront placé dans la Corbeille.",
+            "description": "Ce fichier est identique aux Assets existants. Choisissez lequel conserver, les autres seront placés dans la Corbeille.",
             "error": "Impossible de fusionner les doublons",
             "existing": "Asset existant",
             "existing_hint": "Asset existant · {{date}}",
@@ -3270,7 +3280,7 @@
             "success": "Doublons fusionnés",
             "title": "Résoudre les doublons"
         },
-        "rejected": "Ce fichier d'Asset a été rejetée par les analyseurs de fichiers suivants. Passez en revue les raisons ci-dessous et choisissez une action.",
+        "rejected": "Ce fichier d'Asset a été rejeté par les analyseurs de fichiers suivants. Passez en revue les raisons ci-dessous et choisissez une action.",
         "skipped": "L'analyse des fichiers a été ignorée.",
         "title": "Assets mis en quarantaine"
     }
