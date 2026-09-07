@@ -44,6 +44,7 @@ import {DataTabProps} from '../Tabbed/TabbedDialog.tsx';
 import {useCreateSaveTranslations} from '../../../hooks/useCreateSaveTranslations.ts';
 import {useAttributeDefinitionStore} from '../../../store/attributeDefinitionStore.ts';
 import EntityListSelect from '../../Form/EntityListSelect.tsx';
+import RenditionDefinitionsSelect from '../../Form/RenditionDefinitionsSelect.tsx';
 import {NO_LOCALE} from '../../Media/Asset/Attribute/constants.ts';
 import {AttributeType} from '../../../api/types.ts';
 import {getLocaleOptions} from '../../../api/locale.ts';
@@ -428,6 +429,29 @@ function Item({
                     )}
                 </FormHelperText>
                 <FormFieldErrors field={'writeMetadata'} errors={errors} />
+            </FormRow>
+
+            <FormRow>
+                <RenditionDefinitionsSelect
+                    disabled={submitting}
+                    name={'writeMetadataRenditions'}
+                    label={t(
+                        'form.attribute_definition.writeMetadataRenditions.label',
+                        'Write to metadata of renditions'
+                    )}
+                    control={control}
+                    workspaceId={workspace.id}
+                />
+                <FormHelperText>
+                    {t(
+                        'form.attribute_definition.writeMetadataRenditions.helper',
+                        'Renditions this attribute is written into. Leave empty to write it into every rendition.'
+                    )}
+                </FormHelperText>
+                <FormFieldErrors
+                    field={'writeMetadataRenditions'}
+                    errors={errors}
+                />
             </FormRow>
 
             <FormRow>

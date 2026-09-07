@@ -7,15 +7,17 @@ namespace App\Service\Asset\Attribute;
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
+use App\Entity\Core\RenditionDefinition;
 use App\Repository\Core\AttributeDefinitionRepository;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 
 /**
- * Builds a metadata bag from an asset's attribute values, according to the
- * "writeMetadata" configuration of the attribute definitions.
+ * Builds a metadata bag from an asset's attribute values, according to the "writeMetadata"
+ * configuration of the attribute definitions.
  *
- * Used when exporting an asset (or one of its renditions) to embed the attribute
- * values into the exported file metadata.
+ * Used when exporting an asset (or one of its renditions) to embed the attribute values into
+ * the exported file metadata. A definition may restrict itself to a subset of the renditions
+ * through "writeMetadataRenditions".
  */
 readonly class AttributeMetadataEmbedder
 {
@@ -26,9 +28,12 @@ readonly class AttributeMetadataEmbedder
     ) {
     }
 
-    public function buildMetadataBag(Asset $asset): ?MetadataBag
+    public function buildMetadataBag(Asset $asset, ?RenditionDefinition $renditionDefinition = null): ?MetadataBag
     {
-        $definitions = $this->attributeDefinitionRepository->getWorkspaceWriteMetadataDefinitions($asset->getWorkspaceId());
+        $definitions = $this->attributeDefinitionRepository->getWorkspaceWriteMetadataDefinitions(
+            $asset->getWorkspaceId(),
+            $renditionDefinition?->getId(),
+        );
         if (empty($definitions)) {
             return null;
         }

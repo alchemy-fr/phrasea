@@ -1,7 +1,8 @@
 # Metadata
 
 __All__ metadata (except binary blobs) are extracted from the file after upload.
-They are saved _as is_ in json in db `file.metadata`.
+They are saved _as is_ in json in db `file_metadata.metadata`, which only ever mirrors what
+was read from the file — see [Reading and writing metadata](#reading-and-writing-metadata).
 
 Each of the 21,324 known metadata fields is uniquely identified by a `TagGroup:TagName` pair, such as:
 - `ExifIFD:CreateDate`
@@ -24,6 +25,55 @@ Each of the 21,324 known metadata fields is uniquely identified by a `TagGroup:T
   }
 }
 ```
+
+## Reading and writing metadata
+
+The metadata of a file live in **two** tables, both in the shape above:
+
+| Table | Content |
+|---|---|
+| `file_metadata` | exactly what was read from the file. Immutable: the application never writes individual tags into it, it is only replaced wholesale when the file is read again. |
+| `file_overridden_metadata` | the tags the application set itself (today: the document unique id computed by the `doc_unique_id` file analyzer). |
+
+Reading resolves the two — an overridden tag wins over the one read from the file — so
+`File::getMetadata()`, `getMetadataNameValues()` and the Twig `file` accessor never have to
+care about the distinction. `File::getReadMetadata()` and `File::getOverriddenMetadata()`
+expose each side on its own, and `File::setMetadataValue()` always writes to the overrides.
+
+:warning: **Only the overrides are written back into files.** When a rendition is built or an
+asset is exported (and the rendition definition has `writeMetadata` enabled), the embedded bag is:
+
+1. the source file's overridden metadata,
+2. then the attribute values (see [`writeMetadata`](#writing-metadata-back-writemetadata)),
+   which win over them,
+3. then the rendition definition's hardcoded metadata, which win over everything.
+
+The metadata read from the source file are never re-written: they already are in the file, and
+the application is not their source of truth.
+
+### Choosing which renditions an attribute reaches
+
+By default an attribute mapped through `writeMetadata` is embedded into every rendition whose
+definition has `writeMetadata` enabled. `AttributeDefinition::$writeMetadataRenditions`
+restricts it to a subset:
+
+| Scope | Effect |
+|---|---|
+| empty (default) | written into every rendition, dynamic renditions included |
+| one or more rendition definitions | written into those only |
+
+A **dynamic rendition has no definition**, so only unscoped attributes reach it.
+
+Three levels, one job each:
+
+| Level | Field | Question |
+|---|---|---|
+| Rendition | `RenditionDefinition::$writeMetadata` (bool) | does this rendition carry metadata at all? |
+| Attribute | `AttributeDefinition::$writeMetadata` (tags) | which tags does this attribute map to? |
+| Link | `AttributeDefinition::$writeMetadataRenditions` | which renditions is it allowed into? |
+
+The link is a real many-to-many, so it is editable from either side and survives the deletion
+of a rendition definition. Workspace templates carry it by rendition **name**.
 
 ## Attribute definition fields
 
@@ -225,3 +275,5 @@ of its renditions — is exported:
 ```
 
 The tags are embedded into the exported file copy; the stored original is never modified.
+Use `writeMetadataRenditions` to restrict which renditions carry them — see
+[Choosing which renditions an attribute reaches](#choosing-which-renditions-an-attribute-reaches).

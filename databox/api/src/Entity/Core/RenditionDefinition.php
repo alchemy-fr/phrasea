@@ -232,11 +232,54 @@ class RenditionDefinition extends AbstractUuidEntity implements LoggableChangeSe
     #[ORM\OneToMany(mappedBy: 'definition', targetEntity: AssetRendition::class, cascade: ['remove'])]
     protected ?DoctrineCollection $renditions = null;
 
+    /**
+     * The attribute definitions explicitly scoped to this rendition (inverse side).
+     *
+     * @var DoctrineCollection<int, AttributeDefinition>
+     */
+    #[ORM\ManyToMany(targetEntity: AttributeDefinition::class, mappedBy: 'writeMetadataRenditions')]
+    private DoctrineCollection $writeMetadataAttributes;
+
     public function __construct()
     {
         parent::__construct();
 
         $this->renditions = new ArrayCollection();
+        $this->writeMetadataAttributes = new ArrayCollection();
+    }
+
+    /**
+     * @return DoctrineCollection<int, AttributeDefinition>
+     */
+    public function getWriteMetadataAttributes(): DoctrineCollection
+    {
+        return $this->writeMetadataAttributes;
+    }
+
+    /**
+     * @param iterable<AttributeDefinition> $attributeDefinitions
+     */
+    public function setWriteMetadataAttributes(iterable $attributeDefinitions): void
+    {
+        $wanted = [];
+        foreach ($attributeDefinitions as $attributeDefinition) {
+            $wanted[$attributeDefinition->getId()] = $attributeDefinition;
+        }
+
+        // the owning side is AttributeDefinition: drive it, and keep the inverse in sync
+        foreach ($this->writeMetadataAttributes->toArray() as $attributeDefinition) {
+            if (!isset($wanted[$attributeDefinition->getId()])) {
+                $attributeDefinition->removeWriteMetadataRendition($this);
+                $this->writeMetadataAttributes->removeElement($attributeDefinition);
+            }
+        }
+
+        foreach ($wanted as $attributeDefinition) {
+            $attributeDefinition->addWriteMetadataRendition($this);
+            if (!$this->writeMetadataAttributes->contains($attributeDefinition)) {
+                $this->writeMetadataAttributes->add($attributeDefinition);
+            }
+        }
     }
 
     public function getName(): string

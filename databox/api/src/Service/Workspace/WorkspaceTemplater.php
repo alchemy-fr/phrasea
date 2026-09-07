@@ -101,6 +101,9 @@ final readonly class WorkspaceTemplater
             $this->importRenditionPolicies($ws, $data['RenditionPolicy'] ?? [], $renditionClassMap);
             $this->importRenditionDefinitions($ws, $data['RenditionDefinition'] ?? [], $renditionClassMap);
 
+            // the scope links attribute definitions to rendition definitions, which only exist now
+            $this->importAttributeDefinitionRenditionScope($ws, $data['AttributeDefinition'] ?? []);
+
             $this->importTags($ws, $data['Tag'] ?? []);
 
             $this->em->flush();
@@ -354,6 +357,9 @@ final readonly class WorkspaceTemplater
                 'initialValues' => $item->getInitialValues(),
                 'readFromMetadata' => $item->getReadFromMetadata(),
                 'writeMetadata' => $item->getWriteMetadata(),
+                'writeMetadataRenditions' => $item->getWriteMetadataRenditions()
+                    ->map(fn (RenditionDefinition $rd): string => $rd->getName())
+                    ->getValues(),
                 'position' => $item->getPosition(),
                 'searchBoost' => $item->getSearchBoost(),
                 'allowInvalid' => $item->isAllowInvalid(),
@@ -422,6 +428,44 @@ final readonly class WorkspaceTemplater
             $o->setMaxLength($item['maxLength'] ?? null);
             $o->setMinLength($item['minLength'] ?? null);
             $this->em->persist($o);
+        }
+    }
+
+    /**
+     * Second pass over the attribute definitions: link them to the rendition definitions they are
+     * scoped to, by name. Runs after importRenditionDefinitions, which creates them.
+     */
+    private function importAttributeDefinitionRenditionScope(Workspace $ws, array $data): void
+    {
+        foreach ($data as $item) {
+            $names = $item['writeMetadataRenditions'] ?? [];
+            if ([] === $names) {
+                continue;
+            }
+
+            $definition = $this->em->getRepository(AttributeDefinition::class)->findOneBy([
+                'workspace' => $ws,
+                'name' => $item['name'],
+            ]);
+            if (!$definition instanceof AttributeDefinition) {
+                continue;
+            }
+
+            $renditionDefinitions = [];
+            foreach ($names as $name) {
+                $renditionDefinition = $this->em->getRepository(RenditionDefinition::class)->findOneBy([
+                    'workspace' => $ws,
+                    'name' => $name,
+                ]);
+                if ($renditionDefinition instanceof RenditionDefinition) {
+                    $renditionDefinitions[] = $renditionDefinition;
+                } else {
+                    $this->logger->warning(sprintf('Unknown RenditionDefinition "%s" in the writeMetadata scope of "%s"', $name, $item['name']));
+                }
+            }
+
+            $definition->setWriteMetadataRenditions($renditionDefinitions);
+            $this->em->persist($definition);
         }
     }
 

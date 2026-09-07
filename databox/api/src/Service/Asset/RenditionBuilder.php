@@ -155,7 +155,7 @@ final readonly class RenditionBuilder
 
             if (null !== $outputFile) {
                 if ($rendition->isWriteMetadata()) {
-                    $this->assetMetadataFileWriter->writeAssetMetadata($outputFile->getPath(), $asset);
+                    $this->assetMetadataFileWriter->writeAssetMetadata($outputFile->getPath(), $asset, $rendition->getDefinition());
                 }
 
                 $file = $this->fileManager->createFileFromPath(

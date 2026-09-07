@@ -16,7 +16,6 @@ use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Zippy\Zippy;
 use App\Entity\Core\AssetExport;
 use App\Entity\Core\AssetRendition;
-use App\Entity\Core\RenditionDefinition;
 use App\Integration\PusherTrait;
 use App\Model\ExportStatusEnum;
 use App\Repository\Core\AssetRenditionRepository;
@@ -24,6 +23,7 @@ use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributeMetadataEmbedder;
 use App\Service\Asset\FileFetcher;
+use App\Service\Metadata\FileMetadataEmbedder;
 use App\Service\Metadata\RenditionDefinitionMetadataEmbedder;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPExiftool\Driver\Metadata\MetadataBag;
@@ -42,6 +42,7 @@ class AssetExportProcessHandler
         private readonly FileFetcher $fileFetcher,
         private readonly MetadataManipulator $metadataManipulator,
         private readonly RenditionDefinitionMetadataEmbedder $definitionMetadataEmbedder,
+        private readonly FileMetadataEmbedder $fileMetadataEmbedder,
         private readonly FileStorageManager $fileStorageManager,
         private readonly PathGeneratorInterface $pathGenerator,
         private readonly UrlSigner $urlSigner,
@@ -84,8 +85,10 @@ class AssetExportProcessHandler
                         AssetRenditionRepository::OPT_WITH_FILE => true,
                     ]);
 
-                    // Attribute values to embed depend only on the asset: resolve once for all its renditions.
-                    $attributeMetadata = false;
+                    // The source file overrides depend only on the asset; the attribute values
+                    // also depend on the rendition definition, so they are cached per definition.
+                    $sourceMetadata = false;
+                    $attributeMetadataCache = [];
 
                     /** @var AssetRendition[] $renditions */
                     foreach ($renditions as $rendition) {
@@ -110,26 +113,21 @@ class AssetExportProcessHandler
                         if ($definition?->isWriteMetadata()) {
                             $bag = new MetadataBag();
 
-                            if (RenditionDefinition::BUILD_MODE_PICK_SOURCE === $definition->getBuildMode()) {
-                                foreach ($file->getMetadataValues() as $tagGroupId => $values) {
-                                    $meta = $this->metadataManipulator->createMetadata($tagGroupId);
-                                    $tagGroup = $meta->getTagGroup();
-                                    if (!$tagGroup->isWritable() || str_starts_with($tagGroupId, 'System:')) {
-                                        continue;
-                                    }
-
-                                    if ($tagGroup->isMulti()) {
-                                        $meta->setValue($values);
-                                    } else {
-                                        $meta->setValue(reset($values));
-                                    }
-                                    $bag->set($tagGroup->getId(), $meta);
+                            // only the metadata the application overrode on the source file:
+                            // the ones read from it already are in the exported copy
+                            if (false === $sourceMetadata) {
+                                $sourceMetadata = $this->fileMetadataEmbedder->buildMetadataBag($asset->getSource());
+                            }
+                            if ($sourceMetadata instanceof MetadataBag) {
+                                foreach ($sourceMetadata as $meta) {
+                                    $bag->set($meta->getTagGroup()->getId(), $meta);
                                 }
                             }
 
-                            if (false === $attributeMetadata) {
-                                $attributeMetadata = $this->attributeMetadataEmbedder->buildMetadataBag($asset);
+                            if (!array_key_exists($definition->getId(), $attributeMetadataCache)) {
+                                $attributeMetadataCache[$definition->getId()] = $this->attributeMetadataEmbedder->buildMetadataBag($asset, $definition);
                             }
+                            $attributeMetadata = $attributeMetadataCache[$definition->getId()];
 
                             if ($attributeMetadata instanceof MetadataBag) {
                                 foreach ($attributeMetadata as $meta) {

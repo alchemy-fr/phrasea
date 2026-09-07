@@ -7,6 +7,7 @@ namespace App\Api\Model\Input;
 use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\EntityList;
+use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use App\Validator\TwigConstraint;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -139,6 +140,13 @@ class AttributeDefinitionInput
      * @var string[]|null
      */
     public ?array $writeMetadata = null;
+
+    /**
+     * Restricts the renditions the attribute is written into. Empty (or null) means all of them.
+     *
+     * @var RenditionDefinition[]|null
+     */
+    public ?array $writeMetadataRenditions = null;
 
     /**
      * @var string|null
