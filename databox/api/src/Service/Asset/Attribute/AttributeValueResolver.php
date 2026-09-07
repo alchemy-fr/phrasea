@@ -43,7 +43,7 @@ final class AttributeValueResolver
     }
 
     /**
-     * @param callable $getTemplates function(AttributeDefinition): array<string, string>  returns an array of
+     * @param callable $getTemplates function(AttributeDefinition): ?array<string, string>  returns an array of
      *                               templates indexed by locale
      */
     public function resolveAttrValues(
@@ -62,8 +62,11 @@ final class AttributeValueResolver
         $attributes = [];
 
         $definitionsIndex = $this->getDefinitionIndexByName($asset->getWorkspaceId());
-        /** @var array<string, string> $templates */
+        /** @var ?array<string, string> $templates */
         $templates = $getTemplates($definition);
+        if (null === $templates) {
+            return [];
+        }
 
         $parentDefinitions[] = $definition->getId();
 

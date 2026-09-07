@@ -21,6 +21,10 @@ final readonly class FileMetadataAccessorWrapper
      */
     public function __call($method, $args)
     {
+        if ('metadata' === $method) {
+            return isset($args[0]) ? $this->getMetadata((string) $args[0]) : null;
+        }
+
         $methods = [
             $method,
             'get'.ucfirst($method),
