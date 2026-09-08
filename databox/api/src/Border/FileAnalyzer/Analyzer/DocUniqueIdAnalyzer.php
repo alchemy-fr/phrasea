@@ -17,6 +17,19 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
 {
     private const string TYPE_DUPLICATE_DOC_UNIQUE_ID = 'duplicate_doc_unique_id';
 
+    /**
+     * The metadata tags carrying a document unique id, used as the default for both
+     * `read_from` and `write_to`.
+     */
+    final public const array TAGS = [
+        'XMP-exif:ImageUniqueID',
+        'SigmaRaw:ImageUniqueID',
+        'IPTC:UniqueDocumentID',
+        'ExifIFD:ImageUniqueID',
+        'Canon:ImageUniqueID',
+        'XMP-xmpMM:DocumentID',
+    ];
+
     public function __construct(
         private EntityManagerInterface $em,
         private FileRepository $fileRepository,
@@ -33,29 +46,16 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
         // @formatter:off
         $builder
             ->arrayNode('read_from')
-                ->defaultValue([
-                    'XMP-exif:ImageUniqueID',
-                    'SigmaRaw:ImageUniqueID',
-                    'IPTC:UniqueDocumentID',
-                    'ExifIFD:ImageUniqueID',
-                    'Canon:ImageUniqueID',
-                    'XMP-xmpMM:DocumentID',
-                ])
+                ->defaultValue(self::TAGS)
                 ->scalarPrototype()
                 ->end()
             ->end()
             ->booleanNode('write')
+                ->info('Store the document unique id in the file overridden metadata, so that it is embedded into renditions and exports.')
                 ->defaultTrue()
             ->end()
             ->arrayNode('write_to')
-                ->defaultValue([
-                    'XMP-exif:ImageUniqueID',
-                    'SigmaRaw:ImageUniqueID',
-                    'IPTC:UniqueDocumentID',
-                    'ExifIFD:ImageUniqueID',
-                    'Canon:ImageUniqueID',
-                    'XMP-xmpMM:DocumentID',
-                ])
+                ->defaultValue(self::TAGS)
                 ->scalarPrototype()
                 ->end()
             ->end()
@@ -120,9 +120,13 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
         $data['duid'] = $duid;
         $file->setDocUniqueId($duid);
 
-        if (null !== $duid && $config['write']) {
+        if ($config['write']) {
             foreach ($config['write_to'] as $key) {
-                $file->setMetadataValue($key, $duid);
+                if (null === $duid) {
+                    $file->removeMetadataValue($key);
+                } else {
+                    $file->setMetadataValue($key, $duid);
+                }
             }
         }
 

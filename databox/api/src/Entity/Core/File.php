@@ -117,9 +117,19 @@ class File extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $alternateUrls = null;
 
+    /**
+     * The metadata read from the file. Never modified by the application.
+     */
     #[ORM\OneToOne(targetEntity: FileMetadata::class, cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: true)]
     private ?FileMetadata $metadata = null;
+
+    /**
+     * The metadata set by the application, overriding the ones read from the file.
+     */
+    #[ORM\OneToOne(targetEntity: FileOverriddenMetadata::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?FileOverriddenMetadata $overriddenMetadata = null;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
     private ?array $analysis = null;
@@ -254,14 +264,59 @@ class File extends AbstractUuidEntity implements \Stringable
         $this->extension = $extension;
     }
 
-    public function getMetadata(): ?array
+    /**
+     * The metadata read from the file, with the application overrides applied on top.
+     */
+    public function getMetadata(?string $name = null): ?array
+    {
+        if (null !== $name) {
+            return $this->getMetadataNameValues($name);
+        }
+
+        if (null === $this->metadata && null === $this->overriddenMetadata) {
+            return null;
+        }
+
+        $resolved = $this->metadata?->getMetadata() ?? [];
+        foreach ($this->overriddenMetadata?->getMetadata() ?? [] as $group => $tags) {
+            foreach ($tags as $tag => $values) {
+                $resolved[$group][$tag] = $values;
+            }
+        }
+
+        return $resolved;
+    }
+
+    /**
+     * The metadata read from the file, without any application override.
+     */
+    public function getReadMetadata(): ?array
     {
         return $this->metadata?->getMetadata();
     }
 
+    /**
+     * The metadata set by the application. These are the only ones written back into
+     * rendition and export files.
+     */
+    public function getOverriddenMetadata(): array
+    {
+        return $this->overriddenMetadata?->getMetadata() ?? [];
+    }
+
+    /**
+     * @return array<string, array> overridden values only, indexed by "Group:Tag"
+     */
+    public function getOverriddenMetadataValues(): array
+    {
+        return $this->overriddenMetadata?->getMetadataValues() ?? [];
+    }
+
     public function getMetadataValues(): array
     {
-        return $this->metadata?->getMetadataValues() ?? [];
+        $values = $this->metadata?->getMetadataValues() ?? [];
+
+        return array_merge($values, $this->getOverriddenMetadataValues());
     }
 
     public function setMetadata(?array $metadata): void
@@ -278,20 +333,39 @@ class File extends AbstractUuidEntity implements \Stringable
         }
     }
 
-    public function setMetadataValue(string $name, mixed $value): void
+    /**
+     * Sets a metadata value the application owns. The metadata read from the file are left
+     * untouched: the value goes to the overrides, and wins on read.
+     */
+    public function setMetadataValue(string $name, mixed $value, bool $append = false): void
     {
-        $this->metadata ??= new FileMetadata();
-        $this->metadata->setMetadataValue($name, $value);
+        $this->overriddenMetadata ??= new FileOverriddenMetadata();
+        $this->overriddenMetadata->setMetadataValue(
+            $name,
+            $value,
+            $append,
+            // seed an append with the values currently read from the file
+            $append ? ($this->metadata?->getMetadataNameValues($name) ?? []) : [],
+        );
+    }
+
+    public function removeMetadataValue(string $name): void
+    {
+        $this->overriddenMetadata?->removeMetadataValue($name);
     }
 
     public function getMetadataNameValues(string $name): ?array
     {
-        return $this->metadata?->getMetadataNameValues($name);
+        return $this->overriddenMetadata?->getMetadataNameValues($name)
+            ?? $this->metadata?->getMetadataNameValues($name);
     }
 
+    /**
+     * Whether the application set metadata of its own on top of the ones read from the file.
+     */
     public function metadataHasChanged(): bool
     {
-        return $this->metadata?->metadataHasChanged() ?? false;
+        return false === $this->overriddenMetadata?->isEmpty();
     }
 
     public function getAnalysis(): ?array

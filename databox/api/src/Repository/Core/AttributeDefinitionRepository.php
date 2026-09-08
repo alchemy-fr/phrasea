@@ -270,13 +270,30 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     /**
      * @return AttributeDefinition[]
      */
-    public function getWorkspaceWriteMetadataDefinitions(string $workspaceId): array
+    /**
+     * @param string|null $renditionDefinitionId the rendition being written, if any. Definitions
+     *                                           scoped to other renditions are left out; a null id
+     *                                           (dynamic rendition) only matches unscoped ones.
+     *
+     * @return AttributeDefinition[]
+     */
+    public function getWorkspaceWriteMetadataDefinitions(string $workspaceId, ?string $renditionDefinitionId = null): array
     {
-        return $this
+        $qb = $this
             ->createQueryBuilder('d')
             ->andWhere('d.workspace = :workspace')
             ->andWhere('d.writeMetadata IS NOT NULL')
-            ->setParameter('workspace', $workspaceId)
+            ->setParameter('workspace', $workspaceId);
+
+        if (null === $renditionDefinitionId) {
+            $qb->andWhere('SIZE(d.writeMetadataRenditions) = 0');
+        } else {
+            $qb
+                ->andWhere('SIZE(d.writeMetadataRenditions) = 0 OR :renditionDefinition MEMBER OF d.writeMetadataRenditions')
+                ->setParameter('renditionDefinition', $renditionDefinitionId);
+        }
+
+        return $qb
             ->getQuery()
             ->getResult();
     }

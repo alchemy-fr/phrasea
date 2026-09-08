@@ -8,11 +8,13 @@ use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use PHPExiftool\Driver\Metadata\Metadata;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Driver\Value\Binary;
+use Psr\Log\LoggerInterface;
 
 final readonly class MetadataNormalizer
 {
     public function __construct(
         private MetadataManipulator $metadataManipulator,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -62,7 +64,20 @@ final readonly class MetadataNormalizer
                     continue;
                 }
 
-                $meta = $this->metadataManipulator->createMetadata($group.':'.$name);
+                $tagGroupId = $group.':'.$name;
+
+                try {
+                    $meta = $this->metadataManipulator->createMetadata($tagGroupId);
+                } catch (\Throwable $e) {
+                    // an unknown tag must not sink the whole bag
+                    $this->logger->warning('Skipping unknown metadata tag', [
+                        'exception' => $e,
+                        'tag' => $tagGroupId,
+                    ]);
+
+                    continue;
+                }
+
                 if (!$meta->getTagGroup()->isWritable()) {
                     continue;
                 }

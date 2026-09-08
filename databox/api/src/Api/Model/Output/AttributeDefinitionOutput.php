@@ -100,6 +100,14 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public ?array $writeMetadata = null;
 
     /**
+     * IRIs of the renditions the attribute is written into. Empty means all of them.
+     *
+     * @var string[]
+     */
+    #[Groups([AttributeDefinition::GROUP_LIST])]
+    public array $writeMetadataRenditions = [];
+
+    /**
      * Unique key by workspace. Used to prevent duplicates.
      */
     public ?string $key = null;

@@ -73,7 +73,7 @@ final readonly class AttributeDefinitionOperationRunner
      */
     private function storeFallback(Asset $asset, AttributeDefinition $definition): void
     {
-        if (!$definition->isEnabled() || $definition->isMultiple()) {
+        if (!$definition->isEnabled()) {
             return;
         }
 
@@ -90,8 +90,8 @@ final readonly class AttributeDefinitionOperationRunner
                 continue;
             }
 
-            $attribute = $this->fallbackResolver->resolveAttrFallback($asset, (string) $locale, $definition, $index);
-            if (null !== $attribute) {
+            $attributes = $this->fallbackResolver->resolveAttrFallback($asset, (string) $locale, $definition, $index);
+            foreach ($attributes as $attribute) {
                 $attribute->setOrigin(Attribute::ORIGIN_FALLBACK_PERSISTED);
                 $this->em->persist($attribute);
                 ++$created;

@@ -35,6 +35,7 @@ use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Validator\SameWorkspaceConstraint;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -264,6 +265,16 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     private ?array $writeMetadata = null;
 
     /**
+     * Restricts the renditions this attribute is written into. An empty collection means
+     * every rendition whose definition has "writeMetadata" enabled.
+     *
+     * @var DoctrineCollection<int, RenditionDefinition>
+     */
+    #[ORM\ManyToMany(targetEntity: RenditionDefinition::class, inversedBy: 'writeMetadataAttributes')]
+    #[ORM\JoinTable(name: 'attribute_definition_write_rendition')]
+    private DoctrineCollection $writeMetadataRenditions;
+
+    /**
      * Resolve this template (TWIG syntax) if no user value provided.
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
@@ -286,6 +297,13 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => true])]
     private bool $enabled = true;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->writeMetadataRenditions = new ArrayCollection();
+    }
 
     public function getName(): ?string
     {
@@ -530,6 +548,62 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     public function setWriteMetadata(?array $writeMetadata): void
     {
         $this->writeMetadata = self::normalizeMetadataList($writeMetadata);
+    }
+
+    /**
+     * @return DoctrineCollection<int, RenditionDefinition>
+     */
+    public function getWriteMetadataRenditions(): DoctrineCollection
+    {
+        return $this->writeMetadataRenditions;
+    }
+
+    /**
+     * @param iterable<RenditionDefinition> $renditionDefinitions
+     */
+    public function setWriteMetadataRenditions(iterable $renditionDefinitions): void
+    {
+        $wanted = [];
+        foreach ($renditionDefinitions as $renditionDefinition) {
+            $wanted[$renditionDefinition->getId()] = $renditionDefinition;
+        }
+
+        // remove/add rather than clear/add: a cleared owning collection is scheduled for
+        // deletion, and Doctrine then drops the inserts made in the same flush
+        foreach ($this->writeMetadataRenditions->toArray() as $renditionDefinition) {
+            if (!isset($wanted[$renditionDefinition->getId()])) {
+                $this->writeMetadataRenditions->removeElement($renditionDefinition);
+            }
+        }
+
+        foreach ($wanted as $renditionDefinition) {
+            $this->addWriteMetadataRendition($renditionDefinition);
+        }
+    }
+
+    public function addWriteMetadataRendition(RenditionDefinition $renditionDefinition): void
+    {
+        if (!$this->writeMetadataRenditions->contains($renditionDefinition)) {
+            $this->writeMetadataRenditions->add($renditionDefinition);
+        }
+    }
+
+    public function removeWriteMetadataRendition(RenditionDefinition $renditionDefinition): void
+    {
+        $this->writeMetadataRenditions->removeElement($renditionDefinition);
+    }
+
+    /**
+     * Whether this attribute is written into the given rendition. A dynamic rendition has no
+     * definition: only unscoped attributes reach it.
+     */
+    public function isWrittenIntoRendition(?RenditionDefinition $renditionDefinition): bool
+    {
+        if ($this->writeMetadataRenditions->isEmpty()) {
+            return true;
+        }
+
+        return null !== $renditionDefinition && $this->writeMetadataRenditions->contains($renditionDefinition);
     }
 
     /**

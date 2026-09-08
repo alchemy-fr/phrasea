@@ -221,6 +221,7 @@ export interface AttributeDefinition
     initialValues: Record<string, string>;
     readFromMetadata?: string[];
     writeMetadata?: string[];
+    writeMetadataRenditions?: string[];
     workspace: Workspace | string;
     policy: AttributePolicy | string | null;
     lastErrors?: LastErrors;

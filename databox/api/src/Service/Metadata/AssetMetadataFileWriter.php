@@ -6,11 +6,16 @@ namespace App\Service\Metadata;
 
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use App\Entity\Core\Asset;
+use App\Entity\Core\RenditionDefinition;
 use App\Service\Asset\Attribute\AttributeMetadataEmbedder;
 use Psr\Log\LoggerInterface;
 
 /**
- * Writes an asset's attribute metadata into a file on disk (in place).
+ * Writes an asset's attribute metadata into a rendition file on disk (in place).
+ *
+ * Neither the metadata read from the source file nor the ones the application overrode on it
+ * are written here: they describe the original, and a rendition is a derived file. They only
+ * travel with the source when the source itself is exported.
  */
 final readonly class AssetMetadataFileWriter
 {
@@ -21,15 +26,16 @@ final readonly class AssetMetadataFileWriter
     ) {
     }
 
-    public function writeAssetMetadata(string $path, Asset $asset): void
+    public function writeAssetMetadata(string $path, Asset $asset, ?RenditionDefinition $renditionDefinition = null): void
     {
-        $bag = $this->attributeMetadataEmbedder->buildMetadataBag($asset);
+        $bag = $this->attributeMetadataEmbedder->buildMetadataBag($asset, $renditionDefinition);
         if (null === $bag || 0 === $bag->count()) {
             return;
         }
 
         try {
             $writer = $this->metadataManipulator->createWriter();
+            $writer->disableConversion();
 
             $tmpFile = tempnam(\dirname($path), 'metadata-file-');
             if (false === $tmpFile) {
