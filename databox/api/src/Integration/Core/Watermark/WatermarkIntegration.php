@@ -6,6 +6,7 @@ namespace App\Integration\Core\Watermark;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
@@ -16,6 +17,8 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 #[AsTaggedItem(index: 'core.watermark')]
 class WatermarkIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    use RenditionConfigNormalizerTrait;
+
     final public const string VERSION = '1.0';
 
     public function buildConfiguration(NodeBuilder $builder): void
@@ -77,5 +80,10 @@ class WatermarkIntegration extends AbstractIntegration implements WorkflowIntegr
         return [
             IntegrationCategory::Processing,
         ];
+    }
+
+    protected function getRenditionConfigPaths(): array
+    {
+        return ['applyToRenditions'];
     }
 }

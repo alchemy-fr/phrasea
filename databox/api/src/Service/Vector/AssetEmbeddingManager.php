@@ -8,6 +8,7 @@ use Alchemy\StorageBundle\Util\FileUtil;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetEmbedding;
 use App\Service\Asset\FileFetcher;
+use App\Service\Image\ImageDownscaler;
 use App\Service\Storage\RenditionManager;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -15,11 +16,18 @@ final readonly class AssetEmbeddingManager
 {
     final public const string DEFAULT_RENDITION = 'preview';
 
+    /**
+     * CLIP works on 224px inputs: sending more than this is useless, and the embedder caps uploads at 2 MB.
+     */
+    final public const int MAX_IMAGE_SIZE = 1024;
+    private const int MAX_UPLOAD_BYTES = 1024 * 1024;
+
     public function __construct(
         private EntityManagerInterface $em,
         private RenditionManager $renditionManager,
         private FileFetcher $fileFetcher,
         private EmbedderClient $embedderClient,
+        private ImageDownscaler $imageDownscaler,
     ) {
     }
 
@@ -32,7 +40,14 @@ final readonly class AssetEmbeddingManager
         }
 
         $path = $this->fileFetcher->getFile($file);
-        $result = $this->embedderClient->embedImageFile($path);
+        $uploadPath = $this->imageDownscaler->downscale($path, self::MAX_IMAGE_SIZE, self::MAX_UPLOAD_BYTES);
+        try {
+            $result = $this->embedderClient->embedImageFile($uploadPath);
+        } finally {
+            if ($uploadPath !== $path) {
+                @unlink($uploadPath);
+            }
+        }
 
         $existingEmbedding = $this->em->getRepository(AssetEmbedding::class)
             ->findOneBy(['asset' => $asset->getId()]);
