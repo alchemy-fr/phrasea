@@ -1595,6 +1595,14 @@
             "writeMetadata": {
                 "helper": "Metadata tag names into which this attribute value is written when the asset (or its rendition) is exported.",
                 "label": "Write to metadata"
+            },
+            "writeMetadataRenditions": {
+                "all": {
+                    "helper": "This attribute is written into every rendition.",
+                    "label": "All renditions"
+                },
+                "helper": "Renditions this attribute is written into. An empty selection means every rendition.",
+                "label": "Write to metadata of renditions"
             }
         },
         "attribute_entity": {

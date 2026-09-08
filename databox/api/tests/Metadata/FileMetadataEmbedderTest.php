@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Metadata;
 
+use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Service\Metadata\FileMetadataEmbedder;
 use PHPExiftool\Driver\Metadata\Metadata;
@@ -83,6 +84,43 @@ class FileMetadataEmbedderTest extends KernelTestCase
 
         $this->assertInstanceOf(MetadataBag::class, $bag);
         $this->assertSame(['IPTC:City' => ['Lyon']], $this->indexBag($bag));
+    }
+
+    public function testTheOverridesAreEmbeddedWhenTheSourceItselfIsExported(): void
+    {
+        $file = new File();
+        $file->setMetadata(self::READ);
+        $file->setMetadataValue('IPTC:City', 'Lyon');
+
+        $asset = new Asset();
+        $asset->setSource($file);
+
+        $bag = $this->embedder->buildExportedFileMetadataBag($asset, $file);
+
+        $this->assertInstanceOf(MetadataBag::class, $bag);
+        $this->assertSame(['IPTC:City' => ['Lyon']], $this->indexBag($bag));
+    }
+
+    public function testTheOverridesNeverReachADerivedRenditionFile(): void
+    {
+        $source = new File();
+        $source->setMetadata(self::READ);
+        $source->setMetadataValue('IPTC:City', 'Lyon');
+
+        $asset = new Asset();
+        $asset->setSource($source);
+
+        $renditionFile = new File();
+
+        $this->assertNull(
+            $this->embedder->buildExportedFileMetadataBag($asset, $renditionFile),
+            'a rendition is a derived file: the metadata set on the original do not belong in it',
+        );
+    }
+
+    public function testNothingIsEmbeddedForAnAssetWithoutSource(): void
+    {
+        $this->assertNull($this->embedder->buildExportedFileMetadataBag(new Asset(), new File()));
     }
 
     /**

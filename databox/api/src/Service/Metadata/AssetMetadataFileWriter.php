@@ -8,20 +8,19 @@ use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use App\Entity\Core\Asset;
 use App\Entity\Core\RenditionDefinition;
 use App\Service\Asset\Attribute\AttributeMetadataEmbedder;
-use PHPExiftool\Driver\Metadata\MetadataBag;
 use Psr\Log\LoggerInterface;
 
 /**
- * Writes an asset's metadata into a file on disk (in place): the metadata the application
- * overrode on the source file, then the attribute values, which win over them.
+ * Writes an asset's attribute metadata into a rendition file on disk (in place).
  *
- * The metadata read from the source file are never written back.
+ * Neither the metadata read from the source file nor the ones the application overrode on it
+ * are written here: they describe the original, and a rendition is a derived file. They only
+ * travel with the source when the source itself is exported.
  */
 final readonly class AssetMetadataFileWriter
 {
     public function __construct(
         private AttributeMetadataEmbedder $attributeMetadataEmbedder,
-        private FileMetadataEmbedder $fileMetadataEmbedder,
         private MetadataManipulator $metadataManipulator,
         private LoggerInterface $logger,
     ) {
@@ -29,19 +28,8 @@ final readonly class AssetMetadataFileWriter
 
     public function writeAssetMetadata(string $path, Asset $asset, ?RenditionDefinition $renditionDefinition = null): void
     {
-        $bag = new MetadataBag();
-
-        // only the metadata the application overrode on the source file, never the ones read from it
-        foreach ($this->fileMetadataEmbedder->buildMetadataBag($asset->getSource()) ?? [] as $meta) {
-            $bag->set($meta->getTagGroup()->getId(), $meta);
-        }
-
-        // attribute values win over the file metadata
-        foreach ($this->attributeMetadataEmbedder->buildMetadataBag($asset, $renditionDefinition) ?? [] as $meta) {
-            $bag->set($meta->getTagGroup()->getId(), $meta);
-        }
-
-        if (0 === $bag->count()) {
+        $bag = $this->attributeMetadataEmbedder->buildMetadataBag($asset, $renditionDefinition);
+        if (null === $bag || 0 === $bag->count()) {
             return;
         }
 

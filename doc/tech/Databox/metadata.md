@@ -40,12 +40,15 @@ Reading resolves the two — an overridden tag wins over the one read from the f
 care about the distinction. `File::getReadMetadata()` and `File::getOverriddenMetadata()`
 expose each side on its own, and `File::setMetadataValue()` always writes to the overrides.
 
-:warning: **Only the overrides are written back into files.** When a rendition is built or an
-asset is exported (and the rendition definition has `writeMetadata` enabled), the embedded bag is:
+:warning: **Only the overrides are ever written back into a file**, and only into the source
+file itself. When a rendition is built or an asset is exported (and the rendition definition has
+`writeMetadata` enabled), the embedded bag is:
 
-1. the source file's overridden metadata,
+1. the source file's overridden metadata — **only when the exported file _is_ the source**
+   (a `pick source` rendition). A transcoded rendition is a derived file: the metadata the
+   application set on the original do not belong in it;
 2. then the attribute values (see [`writeMetadata`](#writing-metadata-back-writemetadata)),
-   which win over them,
+   which win over them;
 3. then the rendition definition's hardcoded metadata, which win over everything.
 
 The metadata read from the source file are never re-written: they already are in the file, and

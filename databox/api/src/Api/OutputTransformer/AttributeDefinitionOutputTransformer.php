@@ -6,10 +6,12 @@ namespace App\Api\OutputTransformer;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use ApiPlatform\Api\IriConverterInterface;
 use App\Api\Model\Output\AttributeDefinitionOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\RenditionDefinition;
 use App\Security\Voter\AbstractVoter;
 
 class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
@@ -18,8 +20,10 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
     use UserLocaleTrait;
     use GroupsHelperTrait;
 
-    public function __construct(private readonly FieldNameResolver $fieldNameResolver)
-    {
+    public function __construct(
+        private readonly FieldNameResolver $fieldNameResolver,
+        private readonly IriConverterInterface $iriConverter,
+    ) {
     }
 
     public function supports(string $outputClass, object $data): bool
@@ -57,7 +61,10 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
         $output->fallback = $data->getFallback() ?: null;
         $output->initialValues = $data->getInitialValues();
         $output->readFromMetadata = $data->getReadFromMetadata();
-        $output->writeMetadataRenditions = $data->getWriteMetadataRenditions()->getValues();
+        $output->writeMetadataRenditions = array_map(
+            fn (RenditionDefinition $renditionDefinition): string => $this->iriConverter->getIriFromResource($renditionDefinition),
+            $data->getWriteMetadataRenditions()->getValues(),
+        );
         $output->writeMetadata = $data->getWriteMetadata();
         $output->translations = $data->getTranslations();
         $output->target = $data->getTarget()->value;

@@ -973,6 +973,14 @@
             "writeMetadata": {
                 "helper": "Nom de métadonnées dans lesquelles la valeur de cet attribut est écrite lors de l'exportation de l'asset (ou de sa rendition).",
                 "label": "Écrire dans les métadonnées"
+            },
+            "writeMetadataRenditions": {
+                "all": {
+                    "helper": "Cet attribut est écrit dans toutes les renditions.",
+                    "label": "Toutes les renditions"
+                },
+                "helper": "Renditions dans lesquelles cet attribut est écrit. Une sélection vide signifie toutes les renditions.",
+                "label": "Écrire dans les métadonnées des renditions"
             }
         },
         "attribute_entity": {

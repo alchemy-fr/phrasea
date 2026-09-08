@@ -12,7 +12,6 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\EntityList;
-use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Share;
 use App\Entity\Core\Workspace;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -101,9 +100,9 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public ?array $writeMetadata = null;
 
     /**
-     * The renditions the attribute is written into. Empty means all of them.
+     * IRIs of the renditions the attribute is written into. Empty means all of them.
      *
-     * @var RenditionDefinition[]
+     * @var string[]
      */
     #[Groups([AttributeDefinition::GROUP_LIST])]
     public array $writeMetadataRenditions = [];

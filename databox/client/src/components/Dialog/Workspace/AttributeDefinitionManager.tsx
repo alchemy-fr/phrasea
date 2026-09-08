@@ -75,6 +75,10 @@ function Item({
     const [useAsName, setUseAsName] = useState<boolean>(
         isNotNull(data.namePriority)
     );
+    // an empty scope means "every rendition"
+    const [allRenditions, setAllRenditions] = useState<boolean>(
+        !data.writeMetadataRenditions?.length
+    );
 
     const isNew = !data.id;
 
@@ -90,6 +94,7 @@ function Item({
 
     React.useEffect(() => {
         setUseAsName(isNotNull(data.namePriority));
+        setAllRenditions(!data.writeMetadataRenditions?.length);
     }, [data]);
 
     const createSaveTranslations = useCreateSaveTranslations({
@@ -432,26 +437,55 @@ function Item({
             </FormRow>
 
             <FormRow>
-                <RenditionDefinitionsSelect
-                    disabled={submitting}
-                    name={'writeMetadataRenditions'}
+                <FormControlLabel
+                    control={
+                        <Switch
+                            checked={allRenditions}
+                            onChange={() => {
+                                setAllRenditions(!allRenditions);
+                                if (!allRenditions) {
+                                    setValue('writeMetadataRenditions', []);
+                                }
+                            }}
+                            disabled={submitting}
+                        />
+                    }
                     label={t(
-                        'form.attribute_definition.writeMetadataRenditions.label',
-                        'Write to metadata of renditions'
+                        'form.attribute_definition.writeMetadataRenditions.all.label',
+                        'All renditions'
                     )}
-                    control={control}
-                    workspaceId={workspace.id}
                 />
-                <FormHelperText>
-                    {t(
-                        'form.attribute_definition.writeMetadataRenditions.helper',
-                        'Renditions this attribute is written into. Leave empty to write it into every rendition.'
-                    )}
-                </FormHelperText>
-                <FormFieldErrors
-                    field={'writeMetadataRenditions'}
-                    errors={errors}
-                />
+                {allRenditions ? (
+                    <FormHelperText>
+                        {t(
+                            'form.attribute_definition.writeMetadataRenditions.all.helper',
+                            'This attribute is written into every rendition.'
+                        )}
+                    </FormHelperText>
+                ) : (
+                    <>
+                        <RenditionDefinitionsSelect
+                            disabled={submitting}
+                            name={'writeMetadataRenditions'}
+                            label={t(
+                                'form.attribute_definition.writeMetadataRenditions.label',
+                                'Write to metadata of renditions'
+                            )}
+                            control={control}
+                            workspaceId={workspace.id}
+                        />
+                        <FormHelperText>
+                            {t(
+                                'form.attribute_definition.writeMetadataRenditions.helper',
+                                'Renditions this attribute is written into. An empty selection means every rendition.'
+                            )}
+                        </FormHelperText>
+                        <FormFieldErrors
+                            field={'writeMetadataRenditions'}
+                            errors={errors}
+                        />
+                    </>
+                )}
             </FormRow>
 
             <FormRow>

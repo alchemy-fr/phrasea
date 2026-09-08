@@ -85,9 +85,9 @@ class AssetExportProcessHandler
                         AssetRenditionRepository::OPT_WITH_FILE => true,
                     ]);
 
-                    // The source file overrides depend only on the asset; the attribute values
-                    // also depend on the rendition definition, so they are cached per definition.
-                    $sourceMetadata = false;
+                    // The attribute values depend on the rendition definition, and the source
+                    // overrides on the exported file: cache both by what they depend on.
+                    $sourceMetadataCache = [];
                     $attributeMetadataCache = [];
 
                     /** @var AssetRendition[] $renditions */
@@ -113,11 +113,13 @@ class AssetExportProcessHandler
                         if ($definition?->isWriteMetadata()) {
                             $bag = new MetadataBag();
 
-                            // only the metadata the application overrode on the source file:
-                            // the ones read from it already are in the exported copy
-                            if (false === $sourceMetadata) {
-                                $sourceMetadata = $this->fileMetadataEmbedder->buildMetadataBag($asset->getSource());
+                            // the metadata the application overrode on the source file, and only
+                            // when that very file is the one being exported
+                            if (!array_key_exists($file->getId(), $sourceMetadataCache)) {
+                                $sourceMetadataCache[$file->getId()] = $this->fileMetadataEmbedder->buildExportedFileMetadataBag($asset, $file);
                             }
+                            $sourceMetadata = $sourceMetadataCache[$file->getId()];
+
                             if ($sourceMetadata instanceof MetadataBag) {
                                 foreach ($sourceMetadata as $meta) {
                                     $bag->set($meta->getTagGroup()->getId(), $meta);
