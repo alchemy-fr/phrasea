@@ -53,14 +53,13 @@ final readonly class ImageColorspaceAnalyzer extends AbstractAnalyzer
 
     public function validateConfiguration(array $config): void
     {
-        $allowedSpaces = array_map('strtolower', $config['allowed_colorspaces'] ?? []);
-        $disallowedSpaces = array_map('strtolower', $config['disallowed_colorspaces'] ?? []);
+        $allowedSpaces = array_map(fn ($s) => strtolower((string) $s), $config['allowed_colorspaces'] ?? []);
+        $disallowedSpaces = array_map(fn ($s) => strtolower((string) $s), $config['disallowed_colorspaces'] ?? []);
 
         // Check for invalid colorspace names
-        $validSpaces = array_keys(self::COMMON_COLORSPACES);
         foreach (array_merge($allowedSpaces, $disallowedSpaces) as $space) {
-            if (!in_array($space, $validSpaces, true)) {
-                throw new \InvalidArgumentException(sprintf('Unknown colorspace "%s". Valid options are: %s', $space, implode(', ', $validSpaces)));
+            if (!in_array($space, self::COMMON_COLORSPACES, true)) {
+                throw new \InvalidArgumentException(sprintf('Unknown colorspace "%s". Valid options are: %s', $space, implode(', ', self::COMMON_COLORSPACES)));
             }
         }
 
@@ -97,7 +96,7 @@ final readonly class ImageColorspaceAnalyzer extends AbstractAnalyzer
             $output->addMessage(LogLevelEnum::Error, self::TYPE_UNKNOWN_COLORSPACE);
         } else {
             if (!empty($config['disallowed_colorspaces'])) {
-                $disallowedSpaces = array_map('strtolower', $config['disallowed_colorspaces']);
+                $disallowedSpaces = array_map(fn ($s) => strtolower((string) $s), $config['disallowed_colorspaces']);
                 if (in_array($colorspace, $disallowedSpaces, true)) {
                     $output->addMessage(LogLevelEnum::Critical, self::TYPE_DISALLOWED_COLORSPACE, [
                         'disallowed' => $disallowedSpaces,
@@ -106,7 +105,7 @@ final readonly class ImageColorspaceAnalyzer extends AbstractAnalyzer
             }
 
             if (!empty($config['allowed_colorspaces'])) {
-                $allowedSpaces = array_map('strtolower', $config['allowed_colorspaces']);
+                $allowedSpaces = array_map(fn ($s) => strtolower((string) $s), $config['allowed_colorspaces']);
                 if (!in_array($colorspace, $allowedSpaces, true)) {
                     $output->addMessage(LogLevelEnum::Critical, self::TYPE_NOT_IN_ALLOWED_COLORSPACES, [
                         'allowed' => $allowedSpaces,
