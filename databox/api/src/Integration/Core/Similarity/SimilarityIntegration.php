@@ -7,6 +7,7 @@ namespace App\Integration\Core\Similarity;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\Core\Rendition\RenditionIntegration;
 use App\Integration\FilterNeedIntegrationInterface;
 use App\Integration\IntegrationConfig;
@@ -20,6 +21,8 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 class SimilarityIntegration extends AbstractIntegration implements FilterNeedIntegrationInterface, WorkflowIntegrationInterface
 {
+    use RenditionConfigNormalizerTrait;
+
     final public const string VERSION = '1.0';
 
     public function __construct(
@@ -84,5 +87,10 @@ class SimilarityIntegration extends AbstractIntegration implements FilterNeedInt
     public static function getDisplayName(): string
     {
         return 'Similarity';
+    }
+
+    protected function getRenditionConfigPaths(): array
+    {
+        return ['rendition'];
     }
 }

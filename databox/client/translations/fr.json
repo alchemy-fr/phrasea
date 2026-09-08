@@ -731,6 +731,28 @@
         "mustache": "Moustache",
         "smiling": "Souriant"
     },
+    "face_recognition": {
+        "actions": {
+            "cancel": "Annuler",
+            "detect": "Détecter les visages",
+            "detect_again": "Relancer la détection",
+            "forget": "Oublier cette identité",
+            "identify": "Identifier cette personne",
+            "save": "Enregistrer"
+        },
+        "age": "~{{age}} ans",
+        "auto_identified": "Reconnu ({{confidence}} % de similarité)",
+        "face_n": "Visage n°{{n}}",
+        "faces": "Visages",
+        "gender": {
+            "female": "Femme",
+            "male": "Homme"
+        },
+        "identity_placeholder": "Nom de la personne",
+        "no_face_detected": "Aucun visage détecté",
+        "unknown": "Personne inconnue",
+        "user_identified": "Identifié par un utilisateur"
+    },
     "facets": {
         "missing_with_total": "Manquant ({{total}})"
     },

@@ -1321,6 +1321,28 @@
         "mustache": "Mustache",
         "smiling": "Smiling"
     },
+    "face_recognition": {
+        "actions": {
+            "cancel": "Cancel",
+            "detect": "Detect faces",
+            "detect_again": "Detect faces again",
+            "forget": "Forget this identity",
+            "identify": "Identify this person",
+            "save": "Save"
+        },
+        "age": "~{{age}} years old",
+        "auto_identified": "Recognized ({{confidence}}% similar)",
+        "face_n": "Face #{{n}}",
+        "faces": "Faces",
+        "gender": {
+            "female": "Female",
+            "male": "Male"
+        },
+        "identity_placeholder": "Person name",
+        "no_face_detected": "No face detected",
+        "unknown": "Unknown person",
+        "user_identified": "Identified by a user"
+    },
     "facet": {
         "boolean": {
             "false": {

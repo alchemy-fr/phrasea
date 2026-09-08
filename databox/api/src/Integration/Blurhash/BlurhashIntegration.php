@@ -6,6 +6,7 @@ namespace App\Integration\Blurhash;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
@@ -13,6 +14,8 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 class BlurhashIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    use RenditionConfigNormalizerTrait;
+
     final public const string VERSION = '1.0';
 
     public static function getName(): string
@@ -44,5 +47,10 @@ class BlurhashIntegration extends AbstractIntegration implements WorkflowIntegra
     public static function getDisplayName(): string
     {
         return 'Blurhash';
+    }
+
+    protected function getRenditionConfigPaths(): array
+    {
+        return ['rendition'];
     }
 }

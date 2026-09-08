@@ -529,6 +529,13 @@ App\Entity\Integration\WorkspaceIntegration:
         public: true
         workspace: '@w_newspaper'
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+    wi_face_recognition:
+        integration: core.face_recognition
+        public: true
+        workspace: '@w_newspaper'
+        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+        needs:
+            - '@wi_renditions'
     wi_watermark:
         integration: core.watermark
         public: true

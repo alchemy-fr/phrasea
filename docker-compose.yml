@@ -645,6 +645,7 @@ services:
       - ELASTICSEARCH_URL
       - ELASTICSEARCH_INDEX_PREFIX
       - SIMILARITY_EMBEDDER_URL=http://similarity-embedder:8000
+      - FACE_RECOGNITION_URL=http://face-recognition:8000
       - S3_PATH_PREFIX
       - S3_REQUEST_SIGNATURE_TTL=${DATABOX_REQUEST_SIGNATURE_TTL}
       - S3_BUCKET_NAME=${DATABOX_S3_BUCKET_NAME}
@@ -814,6 +815,15 @@ services:
     profiles:
       - similarity
     image: ${SIMILARITY_EMBEDDER_IMAGE}
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - internal
+
+  face-recognition:
+    profiles:
+      - face-recognition
+    image: ${FACE_RECOGNITION_IMAGE}
     security_opt:
       - no-new-privileges:true
     networks:
