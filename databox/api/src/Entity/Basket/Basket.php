@@ -44,7 +44,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
-            ]
+            ],
+            security: 'is_granted("'.AbstractVoter::READ.'", object)',
         ),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
         new Put(
