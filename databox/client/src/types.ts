@@ -42,6 +42,8 @@ export interface ApiFile extends Entity {
     fileName: string;
     metadata?: Record<string, any>;
     accepted?: boolean;
+    analyzedAt?: string | null;
+    // Only present on file resources and on rejected files
     analysis?: FileAnalysis | null | undefined;
     analysisPending: boolean;
     usages?: FileUsage[];

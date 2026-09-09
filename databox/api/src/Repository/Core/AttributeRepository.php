@@ -63,12 +63,20 @@ class AttributeRepository extends ServiceEntityRepository
 
     private function getAssetAttributes(string $assetId): array
     {
-        $queryBuilder = $this
-            ->createQueryBuilder('a')
-            ->select('a')
+        return $this
+            ->createAssetAttributesQueryBuilder()
             ->andWhere('a.asset = :asset')
-            ->andWhere('d.enabled = true')
             ->setParameter('asset', $assetId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    private function createAssetAttributesQueryBuilder(): QueryBuilder
+    {
+        return $this
+            ->createQueryBuilder('a')
+            ->select('a, d')
+            ->andWhere('d.enabled = true')
             ->innerJoin('a.definition', 'd')
             ->addOrderBy('d.position', 'ASC')
             ->addOrderBy('d.name', 'ASC')
@@ -76,10 +84,36 @@ class AttributeRepository extends ServiceEntityRepository
             ->addOrderBy('a.value', 'ASC')
             ->addOrderBy('a.id', 'ASC')
         ;
+    }
 
-        return $queryBuilder
+    /**
+     * Load the attributes of many assets in a single query and fill the
+     * per-request cache used by getCachedAssetAttributes().
+     *
+     * @param string[] $assetIds
+     */
+    public function prefetchAssetAttributes(array $assetIds): void
+    {
+        $assetIds = array_values(array_unique($assetIds));
+        if (empty($assetIds)) {
+            return;
+        }
+
+        $byAsset = array_fill_keys($assetIds, []);
+        /** @var Attribute $attribute */
+        foreach ($this->createAssetAttributesQueryBuilder()
+            ->andWhere('a.asset IN (:assets)')
+            ->setParameter('assets', $assetIds)
             ->getQuery()
-            ->getResult();
+            ->getResult() as $attribute) {
+            if ($attribute->isValidValue()) {
+                $byAsset[$attribute->getAsset()->getId()][] = $attribute;
+            }
+        }
+
+        foreach ($byAsset as $assetId => $attributes) {
+            $this->attributeCache->get($assetId, fn (): array => $attributes);
+        }
     }
 
     public function resetAssetCache(Asset $asset): void

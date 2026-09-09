@@ -9,12 +9,16 @@ use ApiPlatform\Metadata\Operation;
 use App\Api\Model\Output\ApiMetaWrapperOutput;
 use App\Elasticsearch\AssetSearch;
 use App\Elasticsearch\NoWorkspaceAllowedException;
+use App\Service\Asset\AssetListPreloader;
 use Symfony\Bundle\SecurityBundle\Security;
 
 class AssetCollectionProvider extends AbstractCollectionProvider
 {
-    public function __construct(private readonly AssetSearch $assetSearch, private readonly Security $security)
-    {
+    public function __construct(
+        private readonly AssetSearch $assetSearch,
+        private readonly Security $security,
+        private readonly AssetListPreloader $assetListPreloader,
+    ) {
     }
 
     protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array|object
@@ -28,6 +32,8 @@ class AssetCollectionProvider extends AbstractCollectionProvider
         } catch (NoWorkspaceAllowedException) {
             return [];
         }
+
+        $this->assetListPreloader->preload($result->getCurrentPageResults());
 
         $response = new ApiMetaWrapperOutput(new PagerFantaApiPlatformPaginator($result));
         $response->setMeta('facets', $facets);
