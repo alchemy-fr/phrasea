@@ -20,7 +20,7 @@ use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
-use App\Security\TagFilterManager;
+use App\Security\AttributeFilterManager;
 use App\Service\Workspace\WorkspaceCreator;
 use MartinGeorgiev\Doctrine\DBAL\Types\ValueObject\Ltree;
 use Ramsey\Uuid\Uuid;
@@ -251,9 +251,9 @@ trait DataboxTestTrait
         return self::getService(PermissionManager::class);
     }
 
-    protected static function getTagFilterManager(): TagFilterManager
+    protected static function getAttributeFilterManager(): AttributeFilterManager
     {
-        return self::getContainer()->get(TagFilterManager::class);
+        return self::getContainer()->get(AttributeFilterManager::class);
     }
 
     protected function addAssetToCollection(string $collectionId, string $assetId, array $options = []): string

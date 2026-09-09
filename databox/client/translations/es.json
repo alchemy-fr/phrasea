@@ -1,7 +1,4 @@
 {
-    "locale": {
-        "current": "Español"
-    },
     "acl": {
         "delete": "Eliminar",
         "form": {
@@ -28,18 +25,18 @@
             "save_as": "Guardar como"
         },
         "collection_list": {
-            "collections_one": "+ {{count}} Collection",
             "collections_many": "",
+            "collections_one": "+ {{count}} Collection",
             "collections_other": "",
             "collections_plural": "+ {{count}} Collection",
-            "others_one": "+ {{count}} otros",
             "others_many": "",
+            "others_one": "+ {{count}} otros",
             "others_other": "+ {{count}} otros"
         },
         "delete": {
             "confirm": {
-                "message_one": "¿Seguro que quieres eliminar este Asset?",
                 "message_many": "",
+                "message_one": "¿Seguro que quieres eliminar este Asset?",
                 "message_other": "¿Seguro que quieres eliminar {{count}} Asset?",
                 "title": "Confirmar eliminación"
             }
@@ -86,11 +83,11 @@
             "label": "Reemplazar"
         },
         "tag_list": {
-            "others_one": "+ {{count}} otros",
             "others_many": "",
+            "others_one": "+ {{count}} otros",
             "others_other": "+ {{count}} otros",
-            "tags_one": "+ {{count}} Tag",
             "tags_many": "",
+            "tags_one": "+ {{count}} Tag",
             "tags_other": "+ {{count}} Tag"
         },
         "view": {
@@ -131,11 +128,6 @@
                     "title": "Valores"
                 }
             }
-        }
-    },
-    "attribute_policy": {
-        "new": {
-            "label": "Nueva política"
         }
     },
     "attribute_definitions": {
@@ -189,9 +181,14 @@
             "label": "Nueva entidad"
         }
     },
+    "attribute_policy": {
+        "new": {
+            "label": "Nueva política"
+        }
+    },
     "attributes": {
-        "values_one": "{{count}} valores",
         "values_many": "",
+        "values_one": "{{count}} valores",
         "values_other": ""
     },
     "attributes_editor_form": {
@@ -327,8 +324,8 @@
         "dialog": {
             "intro": "¿Dónde quieres copiar los Asset seleccionados?",
             "submit": "Copiar",
-            "title_one": "Copiar {{count}} Asset",
             "title_many": "",
+            "title_one": "Copiar {{count}} Asset",
             "title_other": "Copiar {{count}} Asset"
         },
         "form": {
@@ -423,17 +420,23 @@
         "is_missing": "Falta {{title}}"
     },
     "filter_rule": {
+        "condition": {
+            "edit": "Editar condición",
+            "empty": "Aún no se ha definido ninguna condición",
+            "helper": "Los Asset en este workspace solo serán visibles si coinciden con esta condición.",
+            "label": "Condición"
+        },
         "confirm_delete_this_rule": "¿Confirmar eliminación de esta regla?",
-        "exclude": {
-            "helper": "Los Asset en esta {{type}} solo serán visibles si NO contienen estos Tag."
-        },
-        "group": "Grupo",
-        "include": {
-            "helper": "Los Asset en esta {{type}} solo serán visibles si contienen estos Tag."
-        },
-        "or": "o",
+        "groups": "Grupos",
         "rule_applies_for": "Regla aplicable para:",
-        "user": "Usuario"
+        "targets_helper": "Deje ambos vacíos para aplicar la regla a todos los usuarios.",
+        "users": "Usuarios"
+    },
+    "filter_rules": {
+        "edit_this_rule": "Editar esta regla",
+        "everyone": "Todos",
+        "filter_rules": "Reglas de filtrado",
+        "new_rule": "Nueva regla"
     },
     "foo": "bar",
     "form": {
@@ -461,23 +464,9 @@
                 "item_remove": "Eliminar"
             }
         },
-        "attribute_policy": {
-            "editable": {
-                "label": "Editable"
-            },
-            "name": {
-                "label": "Nombre"
-            },
-            "public": {
-                "label": "Público"
-            }
-        },
         "attribute_definition": {
             "allowInvalid": {
                 "label": "Permitir valores no válidos"
-            },
-            "policy": {
-                "label": "Clase"
             },
             "entityList": {
                 "label": "Lista de entidades"
@@ -490,6 +479,9 @@
             },
             "name": {
                 "label": "Nombre"
+            },
+            "policy": {
+                "label": "Clase"
             },
             "searchable": {
                 "label": "Buscable"
@@ -510,6 +502,17 @@
             },
             "value": {
                 "label": "Valor"
+            }
+        },
+        "attribute_policy": {
+            "editable": {
+                "label": "Editable"
+            },
+            "name": {
+                "label": "Nombre"
+            },
+            "public": {
+                "label": "Público"
             }
         },
         "basket": {
@@ -571,18 +574,7 @@
                 }
             }
         },
-        "rendition_policy": {
-            "name": {
-                "label": "Nombre"
-            },
-            "public": {
-                "label": "Público"
-            }
-        },
         "rendition_definition": {
-            "policy": {
-                "label": "Clase"
-            },
             "definition": {
                 "label": "Definición de construcción"
             },
@@ -596,6 +588,12 @@
             "pickSourceFile": {
                 "label": "Seleccionar archivo fuente"
             },
+            "policy": {
+                "label": "Clase"
+            },
+            "useAsAnimatedThumbnail": {
+                "label": "Usar como miniatura activa"
+            },
             "useAsMain": {
                 "label": "Usar como original"
             },
@@ -604,9 +602,14 @@
             },
             "useAsThumbnail": {
                 "label": "Usar como miniatura"
+            }
+        },
+        "rendition_policy": {
+            "name": {
+                "label": "Nombre"
             },
-            "useAsAnimatedThumbnail": {
-                "label": "Usar como miniatura activa"
+            "public": {
+                "label": "Público"
             }
         },
         "save_as": {
@@ -742,6 +745,9 @@
             "loading": "Cargando…"
         }
     },
+    "locale": {
+        "current": "Español"
+    },
     "menu": {
         "change_theme": "Cambiar tema",
         "sign_in": "Iniciar sesión",
@@ -757,8 +763,8 @@
         "dialog": {
             "intro": "¿Dónde quieres mover los Asset seleccionados?",
             "submit": "Mover",
-            "title_one": "Mover {{count}} Asset",
             "title_many": "",
+            "title_one": "Mover {{count}} Asset",
             "title_other": "Mover {{count}} Asset"
         }
     },
@@ -800,14 +806,14 @@
         "remove_bg": "Eliminar fondo",
         "use_slider_to_compare": "Usa el deslizador para comparar"
     },
-    "rendition_policy": {
-        "new": {
-            "label": "Nueva política"
-        }
-    },
     "rendition_definitions": {
         "new": {
             "label": "Nueva Rendition"
+        }
+    },
+    "rendition_policy": {
+        "new": {
+            "label": "Nueva política"
         }
     },
     "renditions": {
@@ -880,11 +886,6 @@
             "title": "Sustituir archivo"
         }
     },
-    "tag_rules": {
-        "edit_this_rule": "Editar esta regla",
-        "new_rule": "Nueva regla",
-        "tag_rules": "Reglas de Tag"
-    },
     "tags": {
         "label": "Tag",
         "new": {
@@ -921,29 +922,29 @@
             "acl": {
                 "title": "Permisos"
             },
-            "attribute_policy": {
-                "title": "Políticas de Attributo"
-            },
             "attribute_definitions": {
                 "title": "Attributos"
             },
             "attribute_entity": {
                 "title": "Entidades"
             },
+            "attribute_policy": {
+                "title": "Políticas de Attributo"
+            },
             "edit": {
                 "title": "Editar"
+            },
+            "filter_rules": {
+                "title": "Reglas de filtrado"
             },
             "info": {
                 "title": "Información"
             },
-            "rendition_policy": {
-                "title": "Políticas de Rendition"
-            },
             "rendition_definition": {
                 "title": "Rendition"
             },
-            "tag_rules": {
-                "title": "Reglas de Tag"
+            "rendition_policy": {
+                "title": "Políticas de Rendition"
             },
             "tags": {
                 "title": "Tag"
