@@ -21,6 +21,11 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
     use InputOutputMetadataTrait;
     use ClassInfoTrait;
 
+    /**
+     * @var array<class-string, string|null>
+     */
+    private array $outputClassByClass = [];
+
     public function __construct(
         private readonly NormalizerInterface $decorated,
         /**
@@ -61,14 +66,21 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
 
     private function getOutputClass(object $object): ?string
     {
-        $metadata = $this->resourceMetadataCollectionFactory->create($this->getObjectClass($object));
+        $class = $this->getObjectClass($object);
+        if (array_key_exists($class, $this->outputClassByClass)) {
+            return $this->outputClassByClass[$class];
+        }
+
+        $outputClass = null;
+        $metadata = $this->resourceMetadataCollectionFactory->create($class);
         foreach ($metadata as $m) {
             if (null !== $output = $m->getOutput()) {
-                return $output['class'];
+                $outputClass = $output['class'];
+                break;
             }
         }
 
-        return null;
+        return $this->outputClassByClass[$class] = $outputClass;
     }
 
     private function transform(object $object, string $outputClass, array &$context): object

@@ -33,7 +33,7 @@ class FileAnalysisStateTest extends AbstractDataboxTestCase
     public function testGetAnalysisState(?array $analysis, FileAnalysisStateEnum $expected): void
     {
         $file = new File();
-        $file->setAnalysis($analysis);
+        $this->assignAnalysis($file, $analysis);
 
         $this->assertSame($expected, $file->getAnalysisState());
     }
@@ -50,7 +50,7 @@ class FileAnalysisStateTest extends AbstractDataboxTestCase
     public function testBypassKeepsPreviousResults(): void
     {
         $file = new File();
-        $file->setAnalysis([
+        $this->assignAnalysis($file, [
             'status' => File::ANALYSIS_FAILED,
             'results' => [['name' => 'checksum', 'output' => []]],
         ]);
@@ -58,7 +58,7 @@ class FileAnalysisStateTest extends AbstractDataboxTestCase
 
         $this->assertSame(FileAnalysisStateEnum::Bypassed, $file->getAnalysisState());
         $this->assertTrue($file->isAccepted());
-        $this->assertCount(1, $file->getAnalysis()['results']);
+        $this->assertCount(1, $file->getAnalysis()->getResults());
     }
 
     /**
@@ -137,12 +137,36 @@ class FileAnalysisStateTest extends AbstractDataboxTestCase
         $file->setWorkspace($workspace);
         $file->setStorage(File::STORAGE_S3_MAIN);
         $file->setPath('test/'.uniqid().'.jpg');
-        $file->setAnalysis($analysis);
+        $this->assignAnalysis($file, $analysis);
         $em->persist($file);
         // The transformer reads createdAt/updatedAt, which Gedmo only sets on flush.
         $em->flush();
 
         return $file;
+    }
+
+    /**
+     * Mirrors the legacy JSON payloads: `null` = never analyzed, `[]` = no
+     * analysis needed, otherwise a full analysis result.
+     */
+    private function assignAnalysis(File $file, ?array $analysis): void
+    {
+        if (null === $analysis) {
+            return;
+        }
+
+        if ([] === $analysis) {
+            $file->setNoAnalysisNeeded();
+
+            return;
+        }
+
+        $file->setAnalysisResult(
+            $analysis['status'],
+            $analysis['results'] ?? [],
+            $analysis['hash'] ?? null,
+            $analysis['message'] ?? null,
+        );
     }
 
     private function transform(File $file, array $groups): FileOutput

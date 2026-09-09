@@ -47,10 +47,7 @@ final class FileAnalyzerAction extends AbstractIntegrationAction implements IfAc
         }
 
         if (($config['skipNonSourceFiles'] ?? false) && $file->getId() !== $asset->getSource()?->getId()) {
-            $file->setAnalysis([
-                'status' => File::ANALYSIS_SKIPPED,
-                'message' => 'File analysis skipped because the file is not the source file of the asset.',
-            ]);
+            $file->setAnalysisResult(File::ANALYSIS_SKIPPED, message: 'File analysis skipped because the file is not the source file of the asset.');
             $this->em->persist($file);
             $this->em->flush();
             $context->setOutput('analyzed', false);
@@ -73,14 +70,14 @@ final class FileAnalyzerAction extends AbstractIntegrationAction implements IfAc
             $this->em->persist($file);
 
             $analysis = $file->getAnalysis();
-            foreach ($analysis['results'] as $analyzerOutput) {
+            foreach ($analysis?->getResults() ?? [] as $analyzerOutput) {
                 if (!empty($analyzerOutput['actions'])) {
                     $actions = array_merge(array_map(fn (string $a): FileAnalyzerAssetActionEnum => FileAnalyzerAssetActionEnum::from($a), $actions), $analyzerOutput['actions']);
                     break;
                 }
             }
 
-            $context->setOutput('analysis', $analysis);
+            $context->setOutput('analysis', $analysis?->toArray());
         }
         $context->setOutput('analyzed', $shouldAnalyze);
 

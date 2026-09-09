@@ -57,6 +57,7 @@ class FileOutputTransformer implements OutputTransformerInterface
         $output->docUniqueId = $data->getDocUniqueId();
         $output->analysisState = $data->getAnalysisState();
         $output->analysisEnforced = $data->getWorkspace()->isFileAnalysisRequired();
+        $output->analyzedAt = $data->getAnalyzedAt();
 
         // Kept for backward compatibility with `accepted`/`analysisPending`:
         // `null` still means "pending". Acceptance stays owned by File::isAccepted(),
@@ -79,7 +80,7 @@ class FileOutputTransformer implements OutputTransformerInterface
         if ($this->hasGroup([File::GROUP_LIST, File::GROUP_READ, File::GROUP_METADATA], $context)
             || !$data->isAccepted()
         ) {
-            $output->analysis = $data->getAnalysis();
+            $output->analysis = $data->getAnalysis()?->toArray();
         }
 
         // Only resolved when the file is the root resource (GET /files/{id}),
