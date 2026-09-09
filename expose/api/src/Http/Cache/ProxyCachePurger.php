@@ -5,17 +5,21 @@ declare(strict_types=1);
 namespace App\Http\Cache;
 
 use Alchemy\MessengerBundle\Listener\TerminateStackListener;
-use GuzzleHttp\Client;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ProxyCachePurger
 {
     private ?array $purgeStack = null;
 
     public function __construct(
-        private readonly Client $client,
+        #[Autowire(service: 'cache_purger.client')]
+        private readonly HttpClientInterface $client,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly TerminateStackListener $terminateStackListener,
+        #[Autowire(env: 'EXPOSE_CLIENT_URL')]
         private readonly string $clientBaseUrl,
     ) {
     }
@@ -38,12 +42,20 @@ class ProxyCachePurger
                             $this->clientBaseUrl,
                             null,
                         ] as $origin) {
-                            $this->client->get('/purge'.$uri, [
-                                'headers' => [
-                                    'Accept' => $contentType,
-                                    'Origin' => $origin,
-                                ],
-                            ]);
+                            try {
+                                $this->client->request('GET', '/purge'.$uri, [
+                                    'headers' => [
+                                        'Accept' => $contentType,
+                                        'Origin' => $origin,
+                                    ],
+                                ]);
+                            } catch (ClientExceptionInterface $e) {
+                                if (404 === $e->getResponse()->getStatusCode()) {
+                                    // ignore 404 errors, as the cache might not exist yet
+                                } else {
+                                    throw $e;
+                                }
+                            }
                         }
                     }
                 }
