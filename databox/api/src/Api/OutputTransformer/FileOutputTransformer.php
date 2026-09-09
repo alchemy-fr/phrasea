@@ -55,7 +55,7 @@ class FileOutputTransformer implements OutputTransformerInterface
         $output->setSize((int) $data->getSize());
         $output->checksum = $data->getChecksum();
         $output->docUniqueId = $data->getDocUniqueId();
-        $output->analysis = $data->getAnalysis();
+        $output->analyzedAt = $data->getAnalyzedAt();
 
         if ($data->getWorkspace()->isFileAnalysisRequired()) {
             if ($data->isAnalyzed()) {
@@ -65,13 +65,14 @@ class FileOutputTransformer implements OutputTransformerInterface
             $output->accepted = true;
         }
 
-        if (!$data->isAccepted()) {
-            $output->analysis = $data->getAnalysis();
+        // The detailed analysis lives in its own table: only load it when the
+        // file is the root resource or when the client needs to explain a rejection.
+        if (!$data->isAccepted() || $this->hasGroup([File::GROUP_LIST, File::GROUP_READ, File::GROUP_METADATA], $context)) {
+            $output->analysis = $data->getAnalysis()?->toArray();
         }
 
         if ($this->hasGroup(File::GROUP_METADATA, $context)) {
             $output->metadata = $data->getMetadata();
-            $output->analysis = $data->getAnalysis();
         }
 
         // Only resolved when the file is the root resource (GET /files/{id}),
