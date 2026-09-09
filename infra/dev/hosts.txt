@@ -11,6 +11,7 @@ ${IP} minio-console.${PHRASEA_DOMAIN}
 ${IP} matomo.${PHRASEA_DOMAIN}
 ${IP} api-databox.${PHRASEA_DOMAIN}
 ${IP} databox.${PHRASEA_DOMAIN}
+${IP} databox-next.${PHRASEA_DOMAIN}
 ${IP} saml-idp.${PHRASEA_DOMAIN}
 ${IP} pma.${PHRASEA_DOMAIN}
 ${IP} mailpit.${PHRASEA_DOMAIN}

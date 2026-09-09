@@ -8,6 +8,7 @@ uploader/api
 
 CLIENT_PROJECTS="
 databox/client
+databox/client-nextjs
 expose/client
 uploader/client
 dashboard/client

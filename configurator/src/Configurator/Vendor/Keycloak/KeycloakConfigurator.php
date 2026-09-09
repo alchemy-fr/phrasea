@@ -223,6 +223,18 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
             );
         }
 
+        if ($nextClientId = EnvHelper::getEnv('DATABOX_NEXT_CLIENT_ID')) {
+            // Public client of the Next.js Databox client (same scopes as the other front-ends)
+            $this->configureClient(
+                $nextClientId,
+                null,
+                EnvHelper::getEnvOrThrow('DATABOX_NEXT_CLIENT_URL'),
+                [
+                    'serviceAccountsEnabled' => false,
+                ]
+            );
+        }
+
         if (EnvHelper::getEnv('INDEXER_DATABOX_CLIENT_ID')) {
             $clientData = $this->keycloakManager->createClient(
                 EnvHelper::getEnvOrThrow('INDEXER_DATABOX_CLIENT_ID'),

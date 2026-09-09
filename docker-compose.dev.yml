@@ -54,6 +54,15 @@ services:
     environment:
       - WDS_SOCKET_PORT=443
 
+  databox-client-next:
+    extends:
+      service: a_client
+    image: ${REGISTRY_NAMESPACE}databox-client-next-dev:${DOCKER_TAG}
+    build:
+      target: client-dev
+    volumes:
+      - ./databox/client-nextjs:/srv/workspace/phrasea/databox/client-nextjs:rw
+
   expose-api-php:
     environment:
       - XDEBUG_ENABLED
