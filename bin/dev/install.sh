@@ -8,7 +8,7 @@ pnpm install
 
 if ! bin/dev/sf-all.sh rm -rf var/cache/test var/cache/dev; then
   echo "Retrying composer install with sudo..."
-  sudo bin/dev/sf-all.sh bin/dev/sf-all.sh rm -rf var/cache/test var/cache/dev
+  sudo bin/dev/sf-all.sh rm -rf var/cache/test var/cache/dev
 fi
 
 bin/dev/sf-all.sh composer install
