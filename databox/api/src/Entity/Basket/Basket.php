@@ -16,6 +16,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\AddToBasketInput;
 use App\Api\Model\Input\BasketInput;
 use App\Api\Model\Input\RemoveFromBasketInput;
@@ -25,6 +26,7 @@ use App\Api\Processor\ArchiveBasketProcessor;
 use App\Api\Processor\RemoveFromBasketProcessor;
 use App\Api\Processor\UnarchiveBasketProcessor;
 use App\Api\Provider\BasketCollectionProvider;
+use App\Elasticsearch\BasketSearch;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Basket\BasketRepository;
@@ -40,7 +42,17 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'basket',
     operations: [
-        new GetCollection(security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")'),
+        new GetCollection(
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            parameters: [
+                'order' => new QueryParameter(
+                    schema: [
+                        'type' => 'string',
+                        'enum' => BasketSearch::ORDERS,
+                    ],
+                ),
+            ],
+        ),
         new Get(
             normalizationContext: [
                 'groups' => [self::GROUP_READ],

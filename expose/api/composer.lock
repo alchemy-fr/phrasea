@@ -60,7 +60,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -121,7 +121,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -180,7 +180,7 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -235,7 +235,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -298,7 +298,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -352,7 +352,7 @@
         },
         {
             "name": "alchemy/notifier-bundle",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notifier-bundle",
@@ -421,7 +421,7 @@
         },
         {
             "name": "alchemy/report-bundle",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-bundle",
@@ -475,7 +475,7 @@
         },
         {
             "name": "alchemy/report-sdk",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-sdk",
@@ -530,7 +530,7 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
@@ -12861,7 +12861,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-master",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",

@@ -15,7 +15,7 @@
     },
     "dependencies": {
         "@alchemy/core": "workspace:*",
-        "@remix-run/router": "^1.23.2",
+        "@remix-run/router": "^1.23.3",
         "react-router-dom": "^7.13.0"
     },
     "peerDependencies": {
