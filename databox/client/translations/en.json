@@ -2717,6 +2717,14 @@
             "x": {
                 "title": "Share on X"
             }
+        },
+        "terms": {
+            "accept": "Accept",
+            "accept_label": "I have read and accept the Terms & Conditions",
+            "dialog_intro": "You must accept the Terms & Conditions of {{workspace}} (version {{version}}) to access this content.",
+            "subtitle": "{{workspace}} — version {{version}}",
+            "title": "Terms & Conditions",
+            "view_pdf": "View Terms & Conditions (PDF)"
         }
     },
     "sort_by": {

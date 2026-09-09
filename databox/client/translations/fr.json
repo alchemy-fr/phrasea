@@ -2309,6 +2309,14 @@
         },
         "embed": {
             "title": "Partage \"code embed\""
+        },
+        "terms": {
+            "accept": "Accepter",
+            "accept_label": "J'ai lu et j'accepte les Conditions Générales d'Utilisation",
+            "dialog_intro": "Vous devez accepter les Conditions Générales d'Utilisation de {{workspace}} (version {{version}}) pour accéder à ce contenu.",
+            "subtitle": "{{workspace}} — version {{version}}",
+            "title": "Conditions Générales d'Utilisation",
+            "view_pdf": "Consulter les Conditions Générales d'Utilisation (PDF)"
         }
     },
     "thread": {

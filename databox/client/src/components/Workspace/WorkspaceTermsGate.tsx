@@ -126,6 +126,8 @@ function WorkspaceTermsDialog({
                     )}
                 </Typography>
                 {terms.pdfUrl ? (
+                    <Box>
+
                     <Button
                         variant={'outlined'}
                         href={terms.pdfUrl}
@@ -138,6 +140,7 @@ function WorkspaceTermsDialog({
                             'Read the Terms & Conditions (PDF)'
                         )}
                     </Button>
+                    </Box>
                 ) : (
                     <Box
                         sx={theme => ({
