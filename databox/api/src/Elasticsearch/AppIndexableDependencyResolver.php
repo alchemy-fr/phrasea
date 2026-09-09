@@ -9,6 +9,7 @@ use Alchemy\ESBundle\Indexer\IndexableDependenciesResolverInterface;
 use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchDependencyResolverTrait;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetEmbedding;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
@@ -31,6 +32,8 @@ class AppIndexableDependencyResolver implements IndexableDependenciesResolverInt
         } elseif ($object instanceof CollectionAsset) {
             $this->addDependency(Asset::class, $object->getAsset()->getId());
         } elseif ($object instanceof Attribute) {
+            $this->addDependency(Asset::class, $object->getAsset()->getId());
+        } elseif ($object instanceof AssetEmbedding) {
             $this->addDependency(Asset::class, $object->getAsset()->getId());
         }
     }

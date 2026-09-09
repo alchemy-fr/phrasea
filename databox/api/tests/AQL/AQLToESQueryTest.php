@@ -18,10 +18,16 @@ use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use App\Elasticsearch\BuiltInAttribute\CreatedAtBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\DeletedBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\SimilarBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\WorkspaceBuiltInAttribute;
+use App\Elasticsearch\Query\Knn;
+use App\Elasticsearch\SimilarAssetSearch;
+use App\Entity\Core\Asset;
+use App\Repository\Core\AssetRepository;
 use App\Tests\Attribute\Type\AttributeTypeRegistryTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\Service\ServiceLocatorTrait;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -43,7 +49,7 @@ class AQLToESQueryTest extends TestCase
 
         $attributeTypeRegistry = AttributeTypeRegistryTestFactory::create();
 
-        $container = new class([WorkspaceBuiltInAttribute::getKey() => fn () => new WorkspaceBuiltInAttribute($em), AssetStatusBuiltInAttribute::getKey() => fn () => new AssetStatusBuiltInAttribute($translator), DeletedBuiltInAttribute::getKey() => fn () => new DeletedBuiltInAttribute(), CreatedAtBuiltInAttribute::getKey() => fn () => new CreatedAtBuiltInAttribute()]) implements ServiceProviderInterface {
+        $container = new class([WorkspaceBuiltInAttribute::getKey() => fn () => new WorkspaceBuiltInAttribute($em), AssetStatusBuiltInAttribute::getKey() => fn () => new AssetStatusBuiltInAttribute($translator), DeletedBuiltInAttribute::getKey() => fn () => new DeletedBuiltInAttribute(), CreatedAtBuiltInAttribute::getKey() => fn () => new CreatedAtBuiltInAttribute(), SimilarBuiltInAttribute::getKey() => fn () => $this->createSimilarBuiltInAttribute()]) implements ServiceProviderInterface {
             use ServiceLocatorTrait;
         };
         $builtInAttributeRegistry = new BuiltInAttributeRegistry($container);
@@ -122,9 +128,33 @@ class AQLToESQueryTest extends TestCase
         }
     }
 
+    private function createSimilarBuiltInAttribute(): SimilarBuiltInAttribute
+    {
+        $repository = $this->createMock(AssetRepository::class);
+        $repository->method('find')->willReturn(new Asset());
+
+        $similarAssetSearch = $this->createMock(SimilarAssetSearch::class);
+        $similarAssetSearch->method('createKnnQuery')->willReturn(new Knn('embedding', [0.1, 0.2], 500));
+
+        $security = $this->createMock(Security::class);
+        $security->method('isGranted')->willReturn(true);
+
+        $attribute = new SimilarBuiltInAttribute($repository, $similarAssetSearch);
+        $attribute->setSecurity($security);
+
+        return $attribute;
+    }
+
     public function getCases(): array
     {
         return [
+            ['@similar = "fa2a50ea-ec37-45a1-8fbc-227344e25e9d"', [
+                'knn' => [
+                    'field' => 'embedding',
+                    'query_vector' => [0.1, 0.2],
+                    'num_candidates' => 500,
+                ],
+            ]],
             ['date < "YYYY-88-88"', 'Invalid date value "YYYY-88-88"'],
             ['date < "9999-88-88"', [
                 'range' => [

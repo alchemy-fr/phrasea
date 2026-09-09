@@ -20,6 +20,7 @@ export enum IntegrationContext {
 
 export enum ObjectType {
     File = 'file',
+    Asset = 'asset',
     Basket = 'basket',
 }
 

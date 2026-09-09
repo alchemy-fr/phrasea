@@ -22,6 +22,7 @@ export enum BuiltInAttributeEnum {
     Score = '@score',
     Tag = '@tag',
     IsStory = '@isStory',
+    Similar = '@similar',
     Story = '@story',
     Workspace = '@workspace',
     Deleted = '@deleted',

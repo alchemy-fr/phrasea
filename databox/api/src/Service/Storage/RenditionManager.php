@@ -13,6 +13,7 @@ use App\Entity\Core\RenditionDefinition;
 use App\Service\Asset\RenditionBuild\Exception\RenditionBuildException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\PersistentCollection;
+use Ramsey\Uuid\Uuid;
 
 final class RenditionManager
 {
@@ -193,15 +194,20 @@ final class RenditionManager
         return null;
     }
 
+    /**
+     * @param string $renditionName the rendition definition name, or its ID (integration configurations store IDs)
+     */
     public function getAssetRenditionByName(string $assetId, string $renditionName): ?AssetRendition
     {
+        $byId = Uuid::isValid($renditionName);
+
         return $this->em
             ->createQueryBuilder()
             ->select('r')
             ->from(AssetRendition::class, 'r')
             ->innerJoin('r.definition', 'd')
             ->andWhere('r.asset = :asset')
-            ->andWhere('d.name = :name')
+            ->andWhere($byId ? 'd.id = :name' : 'd.name = :name')
             ->setParameters([
                 'asset' => $assetId,
                 'name' => $renditionName,
@@ -254,8 +260,15 @@ final class RenditionManager
             ->getResult();
     }
 
+    /**
+     * @param string $name the rendition definition name, or its ID (integration configurations store IDs)
+     */
     public function getRenditionDefinitionByName(string $workspaceId, string $name): RenditionDefinition
     {
+        if (Uuid::isValid($name)) {
+            return $this->getRenditionDefinitionById($workspaceId, $name);
+        }
+
         $definition = $this
             ->em
             ->getRepository(RenditionDefinition::class)

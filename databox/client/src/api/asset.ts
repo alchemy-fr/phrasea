@@ -210,6 +210,25 @@ export async function addAsAssetVersion(
     ).data;
 }
 
+export type SimilarAssetsResult = {
+    assets: Asset[];
+    scores: Record<string, number>;
+};
+
+export async function getSimilarAssets(
+    assetId: string,
+    limit: number = 10
+): Promise<SimilarAssetsResult> {
+    const res = await apiClient.get(`/${EntityName.Asset}/${assetId}/similar`, {
+        params: {limit},
+    });
+
+    return {
+        assets: getHydraCollection<Asset>(res.data).result,
+        scores: res.data.scores ?? {},
+    };
+}
+
 export async function getAssetMetrics(
     assetId: string
 ): Promise<MatomoMediaMetrics> {

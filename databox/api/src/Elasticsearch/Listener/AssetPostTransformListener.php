@@ -9,6 +9,7 @@ use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\AssetPermissionComputer;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetEmbedding;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\RenditionDefinition;
@@ -44,6 +45,11 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
         }
 
         $document->set('renditions', $this->compileRenditions($asset));
+
+        $embedding = $this->em->getRepository(AssetEmbedding::class)->findOneBy(['asset' => $asset->getId()]);
+        if (null !== $embedding) {
+            $document->set('embedding', $embedding->getVector());
+        }
 
         $attrs = $this->compileAttributes($asset);
         // Wrap in an array to force replacing the whole field

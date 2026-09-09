@@ -7,6 +7,7 @@ export enum Integration {
     AwsRekognition = 'aws.rekognition',
     TuiPhotoEditor = 'tui.photo-editor',
     PhraseaExpose = 'phrasea.expose',
+    FaceRecognition = 'core.face_recognition',
 }
 
 type IntegrationActionProps = {

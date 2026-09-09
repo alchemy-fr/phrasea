@@ -5,17 +5,18 @@ declare(strict_types=1);
 namespace App\Integration\Core\Rendition;
 
 use Alchemy\Workflow\Model\Workflow;
-use App\Entity\Core\Workspace;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use App\Service\Storage\RenditionManager;
-use Ramsey\Uuid\Nonstandard\Uuid;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 class RenditionIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    use RenditionConfigNormalizerTrait;
+
     public function __construct(
         private readonly RenditionManager $renditionManager,
     ) {
@@ -38,51 +39,14 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
     {
         $renditions = $config['renditions'] ?? [];
         foreach ($renditions as $rendition) {
-            if (Uuid::isValid($rendition)) {
-                $this->renditionManager->getRenditionDefinitionById($config->getWorkspaceId(), $rendition);
-            } else {
-                $this->renditionManager->getRenditionDefinitionByName($config->getWorkspaceId(), $rendition);
-            }
+            // Accepts a name or an ID
+            $this->renditionManager->getRenditionDefinitionByName($config->getWorkspaceId(), $rendition);
         }
     }
 
-    public function normalizeConfiguration(array $config, ?Workspace $workspace): array
+    protected function getRenditionConfigPaths(): array
     {
-        if (null === $workspace) {
-            throw new \LogicException(sprintf('%s must have a workspace defined', __CLASS__));
-        }
-
-        if (!empty($config['renditions'])) {
-            $config['renditions'] = array_map(function (string $rendition) use ($workspace): string {
-                if (!Uuid::isValid($rendition)) {
-                    return $this->renditionManager->getRenditionDefinitionByName($workspace->getId(), $rendition)->getId();
-                }
-
-                return $rendition;
-            }, $config['renditions']);
-        }
-
-        return $config;
-    }
-
-    public function denormalizeConfiguration(array $config, ?Workspace $workspace): array
-    {
-        if (null === $workspace) {
-            throw new \LogicException(sprintf('%s must have a workspace defined', __CLASS__));
-        }
-
-        if (!empty($config['renditions'])) {
-            $config['renditions'] = array_map(function (string $rendition) use ($workspace): string {
-                if (Uuid::isValid($rendition)) {
-                    return $this->renditionManager->getRenditionDefinitionById($workspace->getId(), $rendition)->getName();
-                }
-
-                return $rendition;
-            }, $config['renditions']);
-
-        }
-
-        return $config;
+        return ['renditions'];
     }
 
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable

@@ -35,7 +35,7 @@ export default function FieldBuilder({
     if (type) {
         const attributeType = getAttributeType(type ?? AttributeType.Text);
 
-        return attributeType.renderWidget({
+        const widget = attributeType.renderWidget({
             id: 'f-' + name,
             value,
             label,
@@ -46,6 +46,11 @@ export default function FieldBuilder({
             },
             options: widgetOptions ?? {},
         });
+
+        // Types without a dedicated widget (e.g. Story) fall back to the text field
+        if (widget) {
+            return widget;
+        }
     }
 
     const extraProps: Partial<TextFieldProps> = {};

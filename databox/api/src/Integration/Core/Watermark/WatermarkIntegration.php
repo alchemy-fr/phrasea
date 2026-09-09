@@ -6,6 +6,7 @@ namespace App\Integration\Core\Watermark;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
@@ -13,6 +14,8 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 class WatermarkIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    use RenditionConfigNormalizerTrait;
+
     final public const string VERSION = '1.0';
 
     public function buildConfiguration(NodeBuilder $builder): void
@@ -67,5 +70,10 @@ class WatermarkIntegration extends AbstractIntegration implements WorkflowIntegr
     public static function getDisplayName(): string
     {
         return 'Watermark';
+    }
+
+    protected function getRenditionConfigPaths(): array
+    {
+        return ['applyToRenditions'];
     }
 }
