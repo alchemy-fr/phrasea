@@ -193,7 +193,7 @@
         },
         {
             "name": "api-platform/core",
-            "version": "v3.4.17",
+            "version": "3.4.x-dev",
             "source": {
                 "type": "git",
                 "url": "https://github.com/api-platform/core.git",
@@ -408,7 +408,7 @@
             ],
             "support": {
                 "issues": "https://github.com/api-platform/core/issues",
-                "source": "https://github.com/api-platform/core/tree/v3.4.17"
+                "source": "https://github.com/api-platform/core/tree/3.4"
             },
             "time": "2025-04-07T08:40:57+00:00"
         },

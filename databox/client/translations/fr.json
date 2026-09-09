@@ -2417,7 +2417,7 @@
                     "label": "Ignorée"
                 }
             }
-        }
+        },
         "rejected": "Rejeté",
         "usages": {
             "rendition": "Rendition \"{{name}}\" de l'asset \"{{asset}}\"",
