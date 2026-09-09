@@ -18,8 +18,13 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Model\Output\WorkspaceOutput;
+use App\Controller\Core\DeleteWorkspaceLogoAction;
+use App\Controller\Core\DeleteWorkspaceTermsPdfAction;
 use App\Controller\Core\FlushWorkspaceAction;
 use App\Controller\Core\GetWorkspaceBySlugAction;
+use App\Controller\Core\SignWorkspaceTermsAction;
+use App\Controller\Core\UploadWorkspaceLogoAction;
+use App\Controller\Core\UploadWorkspaceTermsPdfAction;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
@@ -39,7 +44,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'workspace',
     operations: [
         new Get(
-            security: 'is_granted("READ", object)'
+            security: 'is_granted("READ_NO_TERMS", object)'
         ),
         new Put(
             securityPostDenormalize: 'is_granted("EDIT", object)'
@@ -51,6 +56,47 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("EDIT", object)',
             read: true,
             name: 'flush'
+        ),
+        new Post(
+            uriTemplate: '/workspaces/{id}/terms/sign',
+            controller: SignWorkspaceTermsAction::class,
+            security: 'is_granted("READ_NO_TERMS", object)',
+            read: true,
+            deserialize: false,
+            validate: false,
+            name: 'sign_terms'
+        ),
+        new Post(
+            uriTemplate: '/workspaces/{id}/terms',
+            controller: UploadWorkspaceTermsPdfAction::class,
+            security: 'is_granted("EDIT", object)',
+            read: true,
+            deserialize: false,
+            validate: false,
+            name: 'upload_terms_pdf'
+        ),
+        new Delete(
+            uriTemplate: '/workspaces/{id}/terms',
+            controller: DeleteWorkspaceTermsPdfAction::class,
+            security: 'is_granted("EDIT", object)',
+            read: true,
+            name: 'delete_terms_pdf'
+        ),
+        new Post(
+            uriTemplate: '/workspaces/{id}/logo',
+            controller: UploadWorkspaceLogoAction::class,
+            security: 'is_granted("EDIT", object)',
+            read: true,
+            deserialize: false,
+            validate: false,
+            name: 'upload_logo'
+        ),
+        new Delete(
+            uriTemplate: '/workspaces/{id}/logo',
+            controller: DeleteWorkspaceLogoAction::class,
+            security: 'is_granted("EDIT", object)',
+            read: true,
+            name: 'delete_logo'
         ),
         new GetCollection(
             normalizationContext: [
@@ -98,6 +144,7 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
     private const string CONFIG_TRASH_RETENTION_DELAY = 'trashRetentionDelay';
     private const string CONFIG_ASSET_DEFAULT_STATUS = 'assetDefaultStatus';
     private const string CONFIG_FILE_ANALYSIS_REQUIRED = 'fileAnalysisRequired';
+    private const string CONFIG_ATTACH_TERMS_TO_EXPORTS = 'attachTermsToExports';
 
     final public const string TR_FIELD_NAME = 'name';
 
@@ -168,6 +215,10 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
      */
     #[ORM\OneToMany(mappedBy: 'workspace', targetEntity: File::class)]
     protected ?DoctrineCollection $files = null;
+
+    #[ORM\ManyToOne(targetEntity: File::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?File $logoFile = null;
 
     public function __construct()
     {
@@ -260,6 +311,32 @@ class Workspace extends AbstractUuidEntity implements SoftDeleteableInterface, A
         }
 
         $this->config[self::CONFIG_FILE_ANALYSIS_REQUIRED] = $required;
+    }
+
+    public function isAttachTermsToExports(): bool
+    {
+        return $this->config[self::CONFIG_ATTACH_TERMS_TO_EXPORTS] ?? false;
+    }
+
+    public function setAttachTermsToExports(?bool $attach): void
+    {
+        if (true !== $attach) {
+            unset($this->config[self::CONFIG_ATTACH_TERMS_TO_EXPORTS]);
+
+            return;
+        }
+
+        $this->config[self::CONFIG_ATTACH_TERMS_TO_EXPORTS] = true;
+    }
+
+    public function getLogoFile(): ?File
+    {
+        return $this->logoFile;
+    }
+
+    public function setLogoFile(?File $logoFile): void
+    {
+        $this->logoFile = $logoFile;
     }
 
     public function getEnabledLocales(): array

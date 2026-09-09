@@ -42,7 +42,15 @@ function updateProject(string $project)
     $composerJson = json_decode(file_get_contents($composerSrc), true, 512, JSON_THROW_ON_ERROR);
 
     $composerCacheSrc = $project . '/docker/caching/composer.json';
-    $libPath = $project.'/../../lib';
+    if (!is_dir(dirname($composerCacheSrc))) {
+        echo "No docker/caching directory, running a plain composer update.\n";
+        runSubCommand(sprintf('cd %s && composer update --no-interaction --ansi', $project));
+        return;
+    }
+
+    // Projects live at various depths (e.g. "configurator" vs "databox/api"),
+    // so resolve "lib" from the repository root instead of the project directory.
+    $libPath = dirname(__DIR__).'/lib';
     $libSymlink = $project.'/lib';
     if (is_dir($libPath)) {
         runSubCommand(sprintf('ln -s %s %s', $libPath, $libSymlink));

@@ -24,6 +24,25 @@ export enum AnalysisStatus {
     Success = 'success',
     Failed = 'failed',
     Skipped = 'skipped',
+    Bypassed = 'bypassed',
+}
+
+/**
+ * Mirrors App\Entity\Core\FileAnalysisStateEnum: the flattened state of the
+ * analysis, computed server-side from the `File::$analysis` JSON column.
+ *
+ * Whether that state blocks the file is a separate axis, carried by
+ * `ApiFile.analysisEnforced` (the workspace `fileAnalysisRequired` setting).
+ */
+export enum FileAnalysisState {
+    // No analysis has run yet. Shown as "in progress" when enforced.
+    NotAnalyzed = 'not_analyzed',
+    // The file never needed an analysis (renditions).
+    NotApplicable = 'not_applicable',
+    Passed = 'passed',
+    Failed = 'failed',
+    Skipped = 'skipped',
+    Bypassed = 'bypassed',
 }
 
 // Mirrors App\Integration\Core\FileAnalyzer\FileAnalyzerAssetActionEnum

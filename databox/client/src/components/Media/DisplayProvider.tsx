@@ -9,7 +9,7 @@ import {
     UserPreferences,
     useUserPreferencesStore,
 } from '../../store/userPreferencesStore.ts';
-import {Layout} from '../AssetList/Layouts';
+import {Layout} from '../AssetList/Layouts/layout';
 import {StateSetter} from '../../types.ts';
 import {mergeDeep} from '../../lib/merge';
 

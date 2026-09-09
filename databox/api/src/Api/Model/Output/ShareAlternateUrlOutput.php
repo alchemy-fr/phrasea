@@ -13,6 +13,7 @@ final readonly class ShareAlternateUrlOutput
         private string $name,
         private string $url,
         private ?string $type,
+        private ?string $assetId = null,
     ) {
     }
 
@@ -32,5 +33,11 @@ final readonly class ShareAlternateUrlOutput
     public function getType(): ?string
     {
         return $this->type;
+    }
+
+    #[Groups([Share::GROUP_READ])]
+    public function getAssetId(): ?string
+    {
+        return $this->assetId;
     }
 }

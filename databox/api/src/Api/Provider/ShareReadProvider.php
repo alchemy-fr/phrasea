@@ -9,23 +9,33 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\State\ProviderInterface;
 use App\Api\Model\Output\ShareAlternateUrlOutput;
+use App\Api\Model\Output\ShareAttachmentOutput;
+use App\Api\Model\Output\ShareTermsOutput;
 use App\Api\Traits\ItemProviderAwareTrait;
+use App\Api\Traits\UserLocaleTrait;
+use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Share;
+use App\Entity\Core\TermsVersion;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Service\Storage\RenditionManager;
+use App\Service\Asset\FileUrlResolver;
+use App\Service\Workspace\LogoManager;
+use App\Service\Workspace\TermsManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 final class ShareReadProvider implements ProviderInterface
 {
     use ItemProviderAwareTrait;
     use SecurityAwareTrait;
+    use UserLocaleTrait;
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly RenditionManager $renditionManager,
         private readonly UrlGeneratorInterface $urlGenerator,
+        private readonly TermsManager $termsManager,
+        private readonly LogoManager $logoManager,
+        private readonly FileUrlResolver $fileUrlResolver,
     ) {
     }
 
@@ -41,8 +51,34 @@ final class ShareReadProvider implements ProviderInterface
 
     public function provideShare(Share $item): Share
     {
-        $asset = $item->getAsset();
+        $item->alternateUrls = [];
+        $item->attachments = [];
 
+        foreach ($item->getAssetsList() as $asset) {
+            $this->provideAssetAlternateUrls($item, $asset);
+            $this->provideAssetAttachments($item, $asset);
+        }
+
+        $workspace = $item->getWorkspace();
+        if (null !== $workspace) {
+            $item->logo = $this->logoManager->resolveLogoUrl($workspace);
+
+            $terms = $this->termsManager->getCurrentTerms($workspace);
+            if (null !== $terms) {
+                $item->terms = new ShareTermsOutput(
+                    $terms->hasFile() ? null : $terms->getTranslatedField(TermsVersion::TR_FIELD_TEXT, $this->getPreferredLocales($workspace), $terms->getText()),
+                    $terms->getVersion(),
+                    $workspace->getName(),
+                    $terms->hasFile() ? $this->fileUrlResolver->resolveUrl($terms->getFile()) : null,
+                );
+            }
+        }
+
+        return $item;
+    }
+
+    private function provideAssetAlternateUrls(Share $item, Asset $asset): void
+    {
         $options = [
             AssetRenditionRepository::OPT_WITH_FILE => true,
         ];
@@ -61,13 +97,37 @@ final class ShareReadProvider implements ProviderInterface
                     $this->urlGenerator->generate('share_public_rendition', [
                         'id' => $item->getId(),
                         'rendition' => $definition->getId(),
+                        'asset' => $asset->getId(),
                         'token' => $item->getToken(),
                     ], UrlGeneratorInterface::ABS_URL),
                     $rendition->getFile()->getType(),
+                    $asset->getId(),
                 );
             }
         }
+    }
 
-        return $item;
+    private function provideAssetAttachments(Share $item, Asset $asset): void
+    {
+        foreach ($asset->getAttachments() as $attachment) {
+            $attachedAsset = $attachment->getAttachment();
+            $file = $attachedAsset?->getSource();
+            if (null === $file) {
+                continue;
+            }
+
+            $item->attachments[] = new ShareAttachmentOutput(
+                $attachment->getId(),
+                $attachment->getName() ?? $file->getFileName(),
+                $asset->getId(),
+                $this->urlGenerator->generate('share_public_attachment', [
+                    'id' => $item->getId(),
+                    'attachment' => $attachment->getId(),
+                    'token' => $item->getToken(),
+                ], UrlGeneratorInterface::ABS_URL),
+                $file->getType(),
+                null !== $file->getSize() ? (int) $file->getSize() : null,
+            );
+        }
     }
 }
