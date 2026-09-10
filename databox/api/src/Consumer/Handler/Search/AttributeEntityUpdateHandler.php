@@ -6,8 +6,10 @@ namespace App\Consumer\Handler\Search;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeInterface;
+use App\Attribute\Type\EntityAttributeType;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Elasticsearch\Mapping\FieldNameResolver;
+use App\Elasticsearch\Suggestion\SuggestionLocales;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeEntityRepository;
@@ -21,6 +23,7 @@ final readonly class AttributeEntityUpdateHandler
         private AttributeDefinitionRepository $attributeDefinitionRepository,
         private AttributeEntityRepository $attributeEntityRepository,
         private FieldNameResolver $fieldNameResolver,
+        private EntityAttributeType $entityAttributeType,
     ) {
     }
 
@@ -66,12 +69,13 @@ final readonly class AttributeEntityUpdateHandler
             return;
         }
 
-        if (in_array(AttributeInterface::NO_LOCALE, $locales, true)) {
-            // The suggestions only carry the untranslated value
-            $calls['suggestions'] = AttributeEntitySuggestionsScript::CALL;
-            $params['_entityIds'] = [$id];
-            $params['_suggestion'] = $attributeEntity->getValue() ?? '';
-        }
+        // A change of the base value reaches every locale without translation: recompute them all
+        $calls['suggestions'] = AttributeEntitySuggestionsScript::CALL;
+        $params['_entityIds'] = [$id];
+        $params['_labels'] = AttributeEntitySuggestionsScript::labels($this->entityAttributeType->getSuggestionLabels(
+            $attributeEntity,
+            SuggestionLocales::ofWorkspace($attributeEntity->getWorkspace()),
+        ));
 
         $this->elasticSearchClient->updateByQuery(
             'asset',

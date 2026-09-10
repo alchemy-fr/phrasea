@@ -156,7 +156,33 @@ final class EntityAttributeType extends TextAttributeType
         return parent::convertToDbValue($value);
     }
 
-    private function getEntityFromValue(?string $value): ?AttributeEntity
+    /**
+     * Labels of the entity for the search suggestions: for each locale, the translation
+     * (LocaleUtil::getBestLocale() rules) falling back to the base value. It does not depend on
+     * the user locale, so it can run at index time.
+     *
+     * @param string[] $locales
+     *
+     * @return array<string, string> locale => label, empty when the entity is not approved
+     */
+    public function getSuggestionLabels(AttributeEntity $entity, array $locales): array
+    {
+        if (!$entity->isApproved()) {
+            return [];
+        }
+
+        $labels = [];
+        foreach ($locales as $locale) {
+            $label = $this->getTranslatedValue($entity, $locale);
+            if (null !== $label && '' !== $label) {
+                $labels[$locale] = $label;
+            }
+        }
+
+        return $labels;
+    }
+
+    public function getEntityFromValue(?string $value): ?AttributeEntity
     {
         if (null === $value) {
             return null;

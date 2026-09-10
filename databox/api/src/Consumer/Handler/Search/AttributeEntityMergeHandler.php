@@ -6,8 +6,10 @@ namespace App\Consumer\Handler\Search;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeInterface;
+use App\Attribute\Type\EntityAttributeType;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Elasticsearch\Mapping\FieldNameResolver;
+use App\Elasticsearch\Suggestion\SuggestionLocales;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeEntityRepository;
@@ -23,6 +25,7 @@ final readonly class AttributeEntityMergeHandler
         private AttributeEntityRepository $attributeEntityRepository,
         private AttributeRepository $attributeRepository,
         private FieldNameResolver $fieldNameResolver,
+        private EntityAttributeType $entityAttributeType,
     ) {
     }
 
@@ -53,7 +56,10 @@ final readonly class AttributeEntityMergeHandler
         $params = [
             'merged' => $merged,
             '_entityIds' => array_merge($merged, [$id]),
-            '_suggestion' => $mainEntity->getValue() ?? '',
+            '_labels' => AttributeEntitySuggestionsScript::labels($this->entityAttributeType->getSuggestionLabels(
+                $mainEntity,
+                SuggestionLocales::ofWorkspace($mainEntity->getWorkspace()),
+            )),
         ];
         $locales = $message->getLocales();
         foreach ($definitions as $definition) {

@@ -9,38 +9,51 @@ use App\Attribute\AttributeInterface;
 /**
  * Painless function shared by the attribute entity handlers to keep the "suggestions" nested field
  * of the asset documents (see AssetPostTransformListener) in sync with the entity:
- * - rename: the entries of the entity get the new value;
+ * - rename or translation change: the entries of the entity get the new label of their locale;
  * - merge: the entries of the merged entities are re-attached to the main one;
- * - delete: an empty value removes the entries.
+ * - delete: no label at all removes the entries.
  *
  * The call expects the "_entityIds" (entities to update), "_id" (entity to keep)
- * and "_suggestion" (new value) script parameters.
+ * and "_labels" (locale => label, see labels()) script parameters.
  */
 final class AttributeEntitySuggestionsScript
 {
-    public const string CALL = "updateSuggestions(ctx._source, params['_entityIds'], params['_id'], params['_suggestion']);";
+    public const string CALL = "updateSuggestions(ctx._source, params['_entityIds'], params['_id'], params['_labels']);";
+
+    /**
+     * Encodes the labels as a JSON object even when empty (a JSON array is not a Map for Painless).
+     *
+     * @param array<string, string> $labels
+     */
+    public static function labels(array $labels): \stdClass
+    {
+        return (object) $labels;
+    }
 
     public static function declaration(): string
     {
         return sprintf(<<<'EOF'
-void updateSuggestions(HashMap src, List entityIds, String entityId, String value) {
-    if (!(src.%1$s instanceof List)) {
+void updateSuggestions(Map src, List entityIds, String entityId, Map labels) {
+    def list = src['%1$s'];
+    if (!(list instanceof List)) {
         return;
     }
-    if (value.isEmpty()) {
-        src.%1$s.removeIf(s -> entityIds.contains(s['entityId']));
+    if (labels.isEmpty()) {
+        list.removeIf(s -> entityIds.contains(s['entityId']));
 
         return;
     }
-    for (s in src.%1$s) {
+    // Locales that are not suggested anymore
+    list.removeIf(s -> entityIds.contains(s['entityId']) && !labels.containsKey(s['locale']));
+    for (s in list) {
         if (entityIds.contains(s['entityId'])) {
             s['entityId'] = entityId;
-            s['value'] = value;
+            s['value'] = labels[s['locale']];
         }
     }
-    // Merged entities may leave the same (definition, value) twice
+    // Merged entities may leave the same (definition, locale, value) twice
     Set seen = new HashSet();
-    src.%1$s.removeIf(s -> !seen.add(s['definitionId'] + ':' + s['value']));
+    list.removeIf(s -> !seen.add(s['definitionId'] + ':' + s['locale'] + ':' + s['value']));
 }
 
 

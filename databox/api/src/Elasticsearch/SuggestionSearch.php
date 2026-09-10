@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use Alchemy\CoreBundle\Util\LocaleUtil;
 use App\Api\Traits\UserLocaleTrait;
 use App\Attribute\AttributeInterface;
+use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\Aggregation\MultiTerms;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\Workspace;
 use App\Repository\Core\AttributeDefinitionRepository;
 use Elastica\Aggregation;
 use Elastica\Collapse;
@@ -26,8 +29,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * Attribute values come from the "suggestions" nested field of the asset documents
  * (see AssetPostTransformListener). A nested aggregation returns each (definition, value) pair once,
- * counting only the assets the user is allowed to see (same filters as AssetSearch) and only
- * for the attribute definitions the user is allowed to read.
+ * counting only the assets the user is allowed to see (same filters as AssetSearch), only for the
+ * attribute definitions the user is allowed to read and only in the locales relevant to the user
+ * (see getSuggestedDefinitions()).
  */
 class SuggestionSearch extends AbstractSearch
 {
@@ -52,6 +56,7 @@ class SuggestionSearch extends AbstractSearch
         private readonly Index $assetIndex,
         private readonly AssetSearch $assetSearch,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
+        private readonly AttributeTypeRegistry $attributeTypeRegistry,
         private readonly string $kernelEnv,
         private readonly TranslatorInterface $translator,
         #[Autowire(param: 'es_index_prefix')]
@@ -73,11 +78,11 @@ class SuggestionSearch extends AbstractSearch
                 |> (fn (string $x): string => preg_replace('#^"(.*)$#', '$1', $x))
                 |> (fn (string $x): string => preg_replace('#(.*)"$#', '$1', $x));
 
-        $definitionNames = $this->getSuggestedDefinitionNames($userId, $groupIds);
+        $definitions = $this->getSuggestedDefinitions($userId, $groupIds);
 
         $namesQuery = $this->createNamesQuery($userId, $groupIds, $options, $queryString);
-        $valuesQuery = !empty($definitionNames)
-            ? $this->createAttributeValuesQuery($userId, $groupIds, $options, $queryString, array_keys($definitionNames))
+        $valuesQuery = !empty($definitions)
+            ? $this->createAttributeValuesQuery($userId, $groupIds, $options, $queryString, $definitions)
             : null;
 
         $multiSearch = new Multi\Search($this->assetIndex->getClient());
@@ -90,7 +95,7 @@ class SuggestionSearch extends AbstractSearch
         $resultSets = $multiSearch->search()->getResultSets();
         $searchTime = microtime(true) - $start;
 
-        $items = isset($resultSets['values']) ? $this->createAttributeValueItems($resultSets['values'], $definitionNames) : [];
+        $items = isset($resultSets['values']) ? $this->createAttributeValueItems($resultSets['values'], $definitions) : [];
         array_push($items, ...$this->createNameItems($resultSets['names']));
         $items = array_slice($items, 0, self::MAX_RESULTS);
 
@@ -103,23 +108,53 @@ class SuggestionSearch extends AbstractSearch
     }
 
     /**
-     * @return array<string, string> Definition ID => display name, for the definitions
-     *                               with suggestions enabled that the user is allowed to read
+     * Definitions with suggestions enabled that the user is allowed to read, with their display
+     * name and the locales of the values to suggest (see AssetPostTransformListener for the
+     * indexing side):
+     * - entity: exactly the user's best workspace locale, so that each entity yields one label;
+     * - translatable text or keyword: the best workspace locale plus the untranslated values;
+     * - other definitions: the untranslated values only.
+     *
+     * @return array<string, array{name: string, locales: string[], locale: ?string}> indexed by definition ID
      */
-    private function getSuggestedDefinitionNames(?string $userId, array $groupIds): array
+    private function getSuggestedDefinitions(?string $userId, array $groupIds): array
     {
-        $names = [];
+        $bestLocales = [];
+        $definitions = [];
         foreach ($this->attributeDefinitionRepository->getSearchableAttributes($userId, $groupIds, [
             AttributeDefinitionRepository::OPT_SUGGEST_ENABLED => true,
         ]) as $definition) {
-            $names[$definition->getId()] = $definition->getTranslatedField(
-                AttributeDefinition::TR_FIELD_NAME,
-                $this->getPreferredLocales($definition->getWorkspace()),
-                $definition->getName(),
-            );
+            $workspace = $definition->getWorkspace();
+            $type = $this->attributeTypeRegistry->getStrictType($definition->getType());
+
+            $locale = null;
+            $locales = [AttributeInterface::NO_LOCALE];
+            if ($type->supportsTranslations() || ($type->isLocaleAware() && $definition->isTranslatable())) {
+                $locale = $bestLocales[$workspace->getId()] ??= $this->getBestLocale($workspace);
+                if (null !== $locale) {
+                    $locales = $type->supportsTranslations() ? [$locale] : [$locale, AttributeInterface::NO_LOCALE];
+                }
+            }
+
+            $definitions[$definition->getId()] = [
+                'name' => $definition->getTranslatedField(
+                    AttributeDefinition::TR_FIELD_NAME,
+                    $this->getPreferredLocales($workspace),
+                    $definition->getName(),
+                ),
+                'locales' => $locales,
+                'locale' => $locale,
+            ];
         }
 
-        return $names;
+        return $definitions;
+    }
+
+    private function getBestLocale(Workspace $workspace): ?string
+    {
+        $locale = $this->getBestWorkspaceLocale($workspace);
+
+        return null !== $locale ? LocaleUtil::normalizeLocale($locale) : null;
     }
 
     /**
@@ -162,14 +197,14 @@ class SuggestionSearch extends AbstractSearch
     /**
      * Distinct attribute values matching the query: no hit, only a nested aggregation.
      *
-     * @param string[] $definitionIds the attribute definitions the user may get suggestions from
+     * @param array<string, array{name: string, locales: string[], locale: ?string}> $definitions see getSuggestedDefinitions()
      */
     private function createAttributeValuesQuery(
         ?string $userId,
         array $groupIds,
         array $options,
         string $queryString,
-        array $definitionIds,
+        array $definitions,
     ): Query {
         $suggestionsField = AttributeInterface::SUGGESTIONS_FIELD;
         $valueField = sprintf('%s.value.%s', $suggestionsField, self::SUGGEST_SUB_FIELD);
@@ -178,7 +213,7 @@ class SuggestionSearch extends AbstractSearch
         // aggregated values again because an asset matched through one value of a multi-valued
         // attribute must not contribute its other values.
         $suggestionQuery = new Query\BoolQuery();
-        $suggestionQuery->addFilter(new Query\Terms($suggestionsField.'.definitionId', $definitionIds));
+        $suggestionQuery->addFilter($this->createScopeQuery($suggestionsField, $definitions));
         $suggestionQuery->addMust(new Query\MatchQuery($valueField, $queryString));
 
         $nestedQuery = new Query\Nested();
@@ -227,23 +262,67 @@ class SuggestionSearch extends AbstractSearch
     }
 
     /**
-     * @param array<string, string> $definitionNames
+     * Restricts the nested documents to the allowed definitions, each in the locales to suggest.
+     * Definitions sharing the same locales are grouped to keep the query short.
+     *
+     * @param array<string, array{name: string, locales: string[], locale: ?string}> $definitions
      */
-    private function createAttributeValueItems(ResultSet $resultSet, array $definitionNames): array
+    private function createScopeQuery(string $suggestionsField, array $definitions): Query\AbstractQuery
+    {
+        $groups = [];
+        foreach ($definitions as $definitionId => $definition) {
+            $key = implode(',', $definition['locales']);
+            $groups[$key] ??= [
+                'locales' => $definition['locales'],
+                'definitionIds' => [],
+            ];
+            $groups[$key]['definitionIds'][] = $definitionId;
+        }
+
+        $queries = array_map(function (array $group) use ($suggestionsField): Query\BoolQuery {
+            $query = new Query\BoolQuery();
+            $query->addFilter(new Query\Terms($suggestionsField.'.definitionId', $group['definitionIds']));
+            $query->addFilter(new Query\Terms($suggestionsField.'.locale', $group['locales']));
+
+            return $query;
+        }, array_values($groups));
+
+        if (1 === count($queries)) {
+            return $queries[0];
+        }
+
+        $scope = new Query\BoolQuery();
+        $scope->setMinimumShouldMatch(1);
+        foreach ($queries as $query) {
+            $scope->addShould($query);
+        }
+
+        return $scope;
+    }
+
+    /**
+     * @param array<string, array{name: string, locales: string[], locale: ?string}> $definitions see getSuggestedDefinitions()
+     */
+    private function createAttributeValueItems(ResultSet $resultSet, array $definitions): array
     {
         $valueField = sprintf('%s.value.%s', AttributeInterface::SUGGESTIONS_FIELD, self::SUGGEST_SUB_FIELD);
         $buckets = $resultSet->getAggregation(AttributeInterface::SUGGESTIONS_FIELD)['matching']['values']['buckets'] ?? [];
 
-        return array_map(function (array $bucket) use ($valueField, $definitionNames): array {
+        return array_map(function (array $bucket) use ($valueField, $definitions): array {
             [$definitionId, $value] = $bucket['key'];
 
-            return [
+            $item = [
                 'id' => md5($definitionId.$value),
                 'name' => $value,
                 'hl' => $bucket['highlight']['hits']['hits'][0]['highlight'][$valueField][0] ?? $value,
                 't' => $definitionId,
-                'tName' => $definitionNames[$definitionId],
+                'tName' => $definitions[$definitionId]['name'],
             ];
+            if (null !== $definitions[$definitionId]['locale']) {
+                $item['locale'] = $definitions[$definitionId]['locale'];
+            }
+
+            return $item;
         }, $buckets);
     }
 

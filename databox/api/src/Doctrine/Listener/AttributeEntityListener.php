@@ -41,24 +41,11 @@ final class AttributeEntityListener implements EventSubscriber
                 }
                 if ($changeSet['translations'] ?? false) {
                     [$old, $new] = $changeSet['translations'];
-                    foreach ($new as $l => $v) {
-                        if (isset($old[$l]) && $old[$l] !== $v) {
-                            $locales[$l] = true;
-                        }
-                    }
+                    $locales += $this->getChangedLocales($old, $new, strict: true);
                 }
                 if ($changeSet['synonyms'] ?? false) {
                     [$old, $new] = $changeSet['synonyms'];
-                    foreach (($new ?? []) as $l => $v) {
-                        if (isset($old[$l]) && $old[$l] != $v) {
-                            $locales[$l] = true;
-                        }
-                    }
-                    foreach (($old ?? []) as $l => $v) {
-                        if (isset($new[$l]) && $new[$l] != $v) {
-                            $locales[$l] = true;
-                        }
-                    }
+                    $locales += $this->getChangedLocales($old, $new, strict: false);
                 }
                 if (!empty($locales)) {
                     $this->postFlushStack->addBusMessage(new AttributeEntityUpdate(
@@ -78,6 +65,26 @@ final class AttributeEntityListener implements EventSubscriber
                 ));
             }
         }
+    }
+
+    /**
+     * Locales whose entry differs between the two maps, added and removed ones included.
+     *
+     * @return array<string, true>
+     */
+    private function getChangedLocales(?array $old, ?array $new, bool $strict): array
+    {
+        $locales = [];
+        foreach (array_unique([...array_keys($old ?? []), ...array_keys($new ?? [])]) as $locale) {
+            $changed = $strict
+                ? ($old[$locale] ?? null) !== ($new[$locale] ?? null)
+                : ($old[$locale] ?? null) != ($new[$locale] ?? null);
+            if ($changed) {
+                $locales[$locale] = true;
+            }
+        }
+
+        return $locales;
     }
 
     public function getSubscribedEvents(): array
