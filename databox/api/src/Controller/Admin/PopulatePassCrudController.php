@@ -23,6 +23,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Filter\DateTimeFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\NumericFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use FOS\ElasticaBundle\Index\IndexManager;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -33,16 +35,19 @@ class PopulatePassCrudController extends AbstractAdminCrudController
         return PopulatePass::class;
     }
 
+    public const string CSRF_TOKEN_ID = 'populate_pass_add';
+
     public function __construct(
         private readonly AdminUrlGenerator $adminUrlGenerator,
         private readonly MessageBusInterface $bus,
+        private readonly IndexManager $indexManager,
     ) {
     }
 
     #[\Override]
     public function configureActions(Actions $actions): Actions
     {
-        $globalAddPopulateAction = Action::new('AddPopulate')
+        $globalAddPopulateAction = Action::new('AddPopulate', 'Add Populate', 'fa fa-play')
             ->linkToCrudAction('addPopulate')
             ->createAsGlobalAction();
 
@@ -100,18 +105,49 @@ class PopulatePassCrudController extends AbstractAdminCrudController
 
     }
 
-    #[AdminRoute('/populate-pass/add', name: 'populate_pass_add_populate')]
-    public function addPopulate(): Response
+    /**
+     * Shows the "which index?" form (GET), then queues the populate (POST).
+     */
+    #[AdminRoute('/add', name: 'add_populate')]
+    public function addPopulate(Request $request): Response
     {
-        $this->bus->dispatch(new ESPopulate());
+        $indices = array_keys($this->indexManager->getAllIndexes());
 
-        $this->addFlash('info', 'Populate command was triggered');
+        if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_ID, (string) $request->request->get('token'))) {
+                $this->addFlash('danger', 'Invalid CSRF token, nothing was done. Please retry.');
 
-        $url = $this->adminUrlGenerator
+                return $this->redirect($this->getIndexUrl());
+            }
+
+            $index = $request->request->get('index');
+            $index = '' === $index || null === $index ? null : (string) $index;
+            if (null !== $index && !\in_array($index, $indices, true)) {
+                $this->addFlash('danger', \sprintf('Unknown index "%s".', $index));
+
+                return $this->redirect($this->getIndexUrl());
+            }
+
+            $this->bus->dispatch(new ESPopulate($index));
+
+            $this->addFlash('info', null === $index
+                ? 'Populate of all indices was triggered'
+                : \sprintf('Populate of index "%s" was triggered', $index));
+
+            return $this->redirect($this->getIndexUrl());
+        }
+
+        return $this->render('admin/populate_pass/add.html.twig', [
+            'indices' => $indices,
+            'indexUrl' => $this->getIndexUrl(),
+        ]);
+    }
+
+    private function getIndexUrl(): string
+    {
+        return $this->adminUrlGenerator
             ->setController(PopulatePassCrudController::class)
             ->setAction(Crud::PAGE_INDEX)
             ->generateUrl();
-
-        return $this->redirect($url);
     }
 }

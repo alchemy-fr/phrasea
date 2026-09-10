@@ -26,9 +26,11 @@ final readonly class ESPopulateHandler
         $application = new Application($this->kernel);
         $application->setAutoExit(false);
 
-        $input = new ArrayInput([
-            'command' => 'fos:elastica:populate',
-        ]);
+        $arguments = ['command' => 'fos:elastica:populate'];
+        if (null !== $message->index) {
+            $arguments['--index'] = $message->index;
+        }
+        $input = new ArrayInput($arguments);
         $code = $application->run($input, new NullOutput());
 
         if (0 !== $code) {

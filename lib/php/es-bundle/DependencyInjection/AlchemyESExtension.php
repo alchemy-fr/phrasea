@@ -4,6 +4,7 @@ namespace Alchemy\ESBundle\DependencyInjection;
 
 use Alchemy\ESBundle\Indexer\IndexableDependenciesResolverInterface;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
+use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader;
@@ -23,6 +24,9 @@ class AlchemyESExtension extends Extension
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
+        if (class_exists(AdminRoute::class)) {
+            $loader->load('services_admin.yaml');
+        }
 
         $def = $container->getDefinition(SearchIndexer::class);
         $def->setArgument('$direct', !$config['async']);

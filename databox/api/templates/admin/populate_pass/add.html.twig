@@ -1,0 +1,57 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Add a populate pass{% endblock %}
+
+{% block main %}
+    <p class="text-muted">
+        A populate rebuilds the Elasticsearch documents from the database. It runs in the background
+        (worker queue) and one pass is recorded per index. Populating every index can take a long time on
+        a large instance: prefer targeting the index you actually changed.
+    </p>
+
+    <form method="post" action="" id="populate-pass-add-form" class="mt-3" style="max-width: 40em">
+        <input type="hidden" name="token" value="{{ csrf_token(constant('App\\Controller\\Admin\\PopulatePassCrudController::CSRF_TOKEN_ID')) }}">
+
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="scope" id="populate-scope-all" value="all" checked>
+            <label class="form-check-label" for="populate-scope-all">
+                <strong>All indices</strong>
+                <span class="text-muted">({{ indices|join(', ') }})</span>
+            </label>
+        </div>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="scope" id="populate-scope-one" value="one">
+            <label class="form-check-label" for="populate-scope-one"><strong>Only one index</strong></label>
+        </div>
+        <div class="mb-3 ms-4">
+            <select class="form-select" name="index" id="populate-index" disabled>
+                {% for index in indices %}
+                    <option value="{{ index }}">{{ index }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary"><i class="fa fa-play"></i> Start populate</button>
+        <a href="{{ indexUrl }}" class="btn btn-secondary">Cancel</a>
+    </form>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+    <script>
+        (function () {
+            var select = document.getElementById('populate-index');
+            var radios = document.querySelectorAll('input[name="scope"]');
+            function sync() {
+                // only "one index" submits a value for "index"; "all" disables the select so nothing is sent
+                select.disabled = document.getElementById('populate-scope-one').checked === false;
+            }
+            radios.forEach(function (r) { r.addEventListener('change', sync); });
+            select.addEventListener('focus', function () {
+                document.getElementById('populate-scope-one').checked = true;
+                sync();
+            });
+            sync();
+        })();
+    </script>
+{% endblock %}
