@@ -9,6 +9,7 @@ use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use App\Consumer\Handler\Search\ESPopulate;
 use App\Entity\Admin\PopulatePass;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -41,6 +42,7 @@ class PopulatePassCrudController extends AbstractAdminCrudController
         private readonly AdminUrlGenerator $adminUrlGenerator,
         private readonly MessageBusInterface $bus,
         private readonly IndexManager $indexManager,
+        private readonly EntityManagerInterface $em,
     ) {
     }
 
@@ -120,7 +122,15 @@ class PopulatePassCrudController extends AbstractAdminCrudController
                 return $this->redirect($this->getIndexUrl());
             }
 
+            $running = $this->getRunningIndices();
+
             if ('all' === $request->request->get('scope', 'all')) {
+                if ([] !== $running) {
+                    $this->addFlash('danger', \sprintf('A populate is still running for: %s. Wait for it to finish, or delete its pass if the worker died.', implode(', ', $running)));
+
+                    return $this->redirect($this->getIndexUrl());
+                }
+
                 $this->bus->dispatch(new ESPopulate());
                 $this->addFlash('info', 'Populate of all indices was triggered');
 
@@ -140,6 +150,13 @@ class PopulatePassCrudController extends AbstractAdminCrudController
                 return $this->redirect($this->getIndexUrl());
             }
 
+            $busy = array_intersect($selected, $running);
+            if ([] !== $busy) {
+                $this->addFlash('danger', \sprintf('A populate is still running for: %s. Wait for it to finish, or delete its pass if the worker died.', implode(', ', $busy)));
+
+                return $this->redirect($this->getIndexUrl());
+            }
+
             // one message per index: passes run independently and can be spread across workers
             foreach ($selected as $index) {
                 $this->bus->dispatch(new ESPopulate($index));
@@ -151,8 +168,23 @@ class PopulatePassCrudController extends AbstractAdminCrudController
 
         return $this->render('admin/populate_pass/add.html.twig', [
             'indices' => $indices,
+            'running' => $this->getRunningIndices(),
             'indexUrl' => $this->getIndexUrl(),
         ]);
+    }
+
+    /**
+     * @return list<string> logical indices having an unterminated pass
+     */
+    private function getRunningIndices(): array
+    {
+        $running = [];
+        foreach ($this->em->getRepository(PopulatePass::class)->findBy(['endedAt' => null]) as $pass) {
+            $running[] = $pass->getIndexName();
+        }
+        sort($running);
+
+        return array_values(array_unique($running));
     }
 
     private function getIndexUrl(): string

@@ -7,6 +7,8 @@ namespace App\Tests\Admin;
 use Alchemy\AdminBundle\Tests\AbstractAdminTest;
 use Alchemy\MessengerBundle\Transport\TestTransport;
 use App\Consumer\Handler\Search\ESPopulate;
+use App\Entity\Admin\PopulatePass;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
@@ -94,6 +96,47 @@ class PopulatePassAdminTest extends AbstractAdminTest
 
         $crawler = $this->client->followRedirect();
         $this->assertStringContainsString('Unknown index(es): nope', $crawler->filter('#flash-messages')->text());
+    }
+
+    public function testAnIndexWithARunningPassCannotBePopulatedAgain(): void
+    {
+        /** @var EntityManagerInterface $em */
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $running = new PopulatePass();
+        $running->setIndexName('asset');
+        $running->setMapping([]);
+        $running->setDocumentCount(10);
+        $running->setProgress(3);
+        $em->persist($running);
+        $em->flush();
+
+        try {
+            $crawler = $this->loadAddPage();
+            $this->assertStringContainsString('A populate is currently running for: asset', $crawler->filter('.alert-warning')->text());
+            $this->assertCount(1, $crawler->filter('input[name="indices[]"][value="asset"][data-running="1"]'));
+            $form = $crawler->selectButton('Start populate')->form();
+            $token = $form->get('token')->getValue();
+
+            // the running index, among others
+            $this->client->request('POST', $form->getUri(), ['token' => $token, 'scope' => 'selected', 'indices' => ['collection', 'asset']]);
+            $this->assertResponseRedirects();
+            $this->assertSame([], $this->getPopulateMessages(), 'nothing is queued, not even the free index');
+            $crawler = $this->client->followRedirect();
+            $this->assertStringContainsString('A populate is still running for: asset', $crawler->filter('#flash-messages')->text());
+
+            // "all" is refused as well
+            $this->client->request('POST', $form->getUri(), ['token' => $token, 'scope' => 'all']);
+            $this->assertResponseRedirects();
+            $this->assertSame([], $this->getPopulateMessages());
+
+            // other indices are still allowed
+            $this->client->request('POST', $form->getUri(), ['token' => $token, 'scope' => 'selected', 'indices' => ['collection']]);
+            $this->assertResponseRedirects();
+            $this->assertSame(['collection'], array_map(static fn (ESPopulate $m): ?string => $m->index, $this->getPopulateMessages()));
+        } finally {
+            $em->remove($em->find(PopulatePass::class, $running->getId()) ?? $running);
+            $em->flush();
+        }
     }
 
     public function testInvalidCsrfTokenIsRejected(): void
