@@ -41,8 +41,8 @@ final readonly class AttributeEntityDeleteHandler
         ];
         $params = [
             '_entityIds' => [$id],
-            // An empty value removes the suggestions of the entity
-            '_suggestion' => '',
+            // No label left: the suggestions of the entity are removed
+            '_labels' => AttributeEntitySuggestionsScript::labels([]),
         ];
         foreach ($definitions as $definition) {
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);

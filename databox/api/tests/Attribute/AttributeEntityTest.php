@@ -155,10 +155,11 @@ class AttributeEntityTest extends AbstractSearchTest
                 ],
             ],
         ], $response->asArray()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0]);
+        // One label per workspace locale (enabled ones, fallbacks and "_")
         $this->assertSuggestions([
-            ['definitionId' => $definitionSingle->getId(), 'entityId' => $entity1->getId(), 'value' => 'ae1'],
-            ['definitionId' => $definitionMany->getId(), 'entityId' => $entity1->getId(), 'value' => 'ae1'],
-            ['definitionId' => $definitionMany->getId(), 'entityId' => $entity2->getId(), 'value' => 'ae2'],
+            ...$this->entitySuggestions($definitionSingle->getId(), $entity1->getId(), 'ae1'),
+            ...$this->entitySuggestions($definitionMany->getId(), $entity1->getId(), 'ae1'),
+            ...$this->entitySuggestions($definitionMany->getId(), $entity2->getId(), 'ae2'),
         ], [$definitionSingle->getId(), $definitionMany->getId()], $esClient, $asset->getId());
 
         $apiClient = static::createClient();
@@ -250,9 +251,37 @@ class AttributeEntityTest extends AbstractSearchTest
             ],
         ], $attrs);
         $this->assertSuggestions([
-            ['definitionId' => $definitionSingle->getId(), 'entityId' => $entity1->getId(), 'value' => 'ae1-bis'],
-            ['definitionId' => $definitionMany->getId(), 'entityId' => $entity1->getId(), 'value' => 'ae1-bis'],
-            ['definitionId' => $definitionMany->getId(), 'entityId' => $entity2->getId(), 'value' => 'ae2'],
+            ...$this->entitySuggestions($definitionSingle->getId(), $entity1->getId(), 'ae1-bis'),
+            ...$this->entitySuggestions($definitionMany->getId(), $entity1->getId(), 'ae1-bis'),
+            ...$this->entitySuggestions($definitionMany->getId(), $entity2->getId(), 'ae2'),
+        ], [$definitionSingle->getId(), $definitionMany->getId()], $esClient, $asset->getId());
+
+        // A first translation (new locale key) is propagated too
+        $apiClient->request('PUT', '/attribute-entities/'.$entity1->getId(), [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+            'json' => [
+                'value' => 'ae1-bis',
+                'synonyms' => [
+                    'en' => ['ae1en1-bis', 'ae1en2-bis'],
+                    'fr' => ['ae1fr1-bis', 'ae1fr2-bis'],
+                ],
+                'translations' => [
+                    'fr' => 'ae1-fr',
+                ],
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+        self::waitForESIndex('asset');
+
+        $response = $esClient->request($assetIndexName.'/_search?q=_id:'.$asset->getId());
+        $attrs = $response->asArray()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0];
+        $this->assertSame('ae1-fr', $attrs['fr']['single_entity_s']['value']);
+        $this->assertSuggestions([
+            ...$this->entitySuggestions($definitionSingle->getId(), $entity1->getId(), 'ae1-bis', ['fr' => 'ae1-fr']),
+            ...$this->entitySuggestions($definitionMany->getId(), $entity1->getId(), 'ae1-bis', ['fr' => 'ae1-fr']),
+            ...$this->entitySuggestions($definitionMany->getId(), $entity2->getId(), 'ae2'),
         ], [$definitionSingle->getId(), $definitionMany->getId()], $esClient, $asset->getId());
 
         $em->clear();
@@ -338,6 +367,7 @@ class AttributeEntityTest extends AbstractSearchTest
                         'synonyms' => [
                             'ae2fr1',
                             'ae2fr2',
+                            'ae1-fr',
                             'ae1fr1-bis',
                             'ae1fr2-bis',
                         ],
@@ -347,6 +377,7 @@ class AttributeEntityTest extends AbstractSearchTest
                         'synonyms' => [
                             'ae2fr1',
                             'ae2fr2',
+                            'ae1-fr',
                             'ae1fr1-bis',
                             'ae1fr2-bis',
                         ],
@@ -357,16 +388,17 @@ class AttributeEntityTest extends AbstractSearchTest
                     'synonyms' => [
                         'ae2fr1',
                         'ae2fr2',
+                        'ae1-fr',
                         'ae1fr1-bis',
                         'ae1fr2-bis',
                     ],
                 ],
             ],
         ], $attrs);
-        // The merged entity leaves no duplicate
+        // The merged entity leaves no duplicate, and its translation is not carried over
         $this->assertSuggestions([
-            ['definitionId' => $definitionSingle->getId(), 'entityId' => $entity2->getId(), 'value' => 'ae2'],
-            ['definitionId' => $definitionMany->getId(), 'entityId' => $entity2->getId(), 'value' => 'ae2'],
+            ...$this->entitySuggestions($definitionSingle->getId(), $entity2->getId(), 'ae2'),
+            ...$this->entitySuggestions($definitionMany->getId(), $entity2->getId(), 'ae2'),
         ], [$definitionSingle->getId(), $definitionMany->getId()], $esClient, $asset->getId());
 
         $em->clear();
@@ -399,11 +431,27 @@ class AttributeEntityTest extends AbstractSearchTest
         );
 
         $sort = function (array $suggestions): array {
-            usort($suggestions, fn (array $a, array $b): int => [$a['definitionId'], $a['value']] <=> [$b['definitionId'], $b['value']]);
+            usort($suggestions, fn (array $a, array $b): int => [$a['definitionId'], $a['locale'], $a['value']] <=> [$b['definitionId'], $b['locale'], $b['value']]);
 
             return $suggestions;
         };
 
         $this->assertEquals($sort($expected), $sort($suggestions));
+    }
+
+    /**
+     * Expected suggestion entries of an entity: one per locale of the test workspace
+     * (enabled: fr, en, de; fallback: en) plus the untranslated one.
+     *
+     * @param array<string, string> $translations
+     */
+    private function entitySuggestions(string $definitionId, string $entityId, string $value, array $translations = []): array
+    {
+        return array_map(fn (string $locale): array => [
+            'definitionId' => $definitionId,
+            'entityId' => $entityId,
+            'locale' => $locale,
+            'value' => $translations[$locale] ?? $value,
+        ], ['fr', 'en', 'de', AttributeInterface::NO_LOCALE]);
     }
 }

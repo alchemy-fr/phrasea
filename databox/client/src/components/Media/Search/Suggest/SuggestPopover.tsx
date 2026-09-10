@@ -63,7 +63,12 @@ export default function SuggestPopover({usedSuggest}: Props) {
                                                         'b' as any
                                                     )}
                                                 </div>
-                                                <small>{item.tName}</small>
+                                                <small>
+                                                    {item.tName}
+                                                    {item.locale
+                                                        ? ` (${item.locale})`
+                                                        : ''}
+                                                </small>
                                             </div>
                                         </li>
                                     ))}

@@ -9,6 +9,7 @@ use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\EntityAttributeType;
 use App\Elasticsearch\AssetPermissionComputer;
 use App\Elasticsearch\Mapping\FieldNameResolver;
+use App\Elasticsearch\Suggestion\SuggestionLocales;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
@@ -152,10 +153,14 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
     }
 
     /**
-     * Distinct values of the asset, one entry per (definition, value), for the search-as-you-type
-     * suggestions (see SuggestionSearch). They are deduplicated per asset so that the suggestion
-     * aggregation counts assets. Which definitions actually get suggested (the "suggest" flag,
-     * the permissions) is decided at query time.
+     * Distinct values of the asset, one entry per (definition, locale, value), for the
+     * search-as-you-type suggestions (see SuggestionSearch). They are deduplicated per asset so
+     * that the suggestion aggregation counts assets. Which definitions and locales actually get
+     * suggested (the "suggest" flag, the permissions, the user locale) is decided at query time.
+     *
+     * Translatable values keep the workspace locale of their attribute ("_" when untranslated).
+     * Entities get one label per suggestion locale of the workspace, their translation for that
+     * locale falling back to the base label, so that the query can select exactly one per entity.
      */
     private function compileSuggestions(AttributeIndex $attributeIndex): array
     {
@@ -169,35 +174,57 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
             }
 
             $definitionId = $definition->getId();
-            foreach ($definitionIndex->getFlattenAttributes() as $attribute) {
-                if ($attribute->isInvalid()) {
-                    continue;
-                }
+            $isTranslatable = $type->isLocaleAware() && $definition->isTranslatable();
+            $entityLocales = $type instanceof EntityAttributeType ? SuggestionLocales::ofWorkspace($definition->getWorkspace()) : [];
 
-                $value = $attribute->getValue();
-                $entityId = null;
-                if ($type instanceof EntityAttributeType) {
-                    // Suggest the entity label, not its ID
-                    $entityId = $value;
-                    $value = $type->normalizeElasticsearchValue($value)[AttributeInterface::NO_LOCALE]['value'] ?? null;
-                }
+            foreach ($definitionIndex->getLocales() as $locale => $attributes) {
+                foreach ($attributes instanceof Attribute ? [$attributes] : $attributes as $attribute) {
+                    if ($attribute->isInvalid()) {
+                        continue;
+                    }
 
-                if (null === $value || '' === $value || mb_strlen($value) > self::SUGGESTION_MAX_LENGTH) {
-                    continue;
-                }
+                    if ($type instanceof EntityAttributeType) {
+                        $entity = $type->getEntityFromValue($attribute->getValue());
+                        if (null === $entity) {
+                            continue;
+                        }
 
-                $suggestion = [
-                    'definitionId' => $definitionId,
-                    'value' => $value,
-                ];
-                if (null !== $entityId) {
-                    $suggestion['entityId'] = $entityId;
+                        foreach ($type->getSuggestionLabels($entity, $entityLocales) as $entityLocale => $label) {
+                            $this->addSuggestion($suggestions, $definitionId, $entityLocale, $label, $entity->getId());
+                        }
+
+                        continue;
+                    }
+
+                    $this->addSuggestion(
+                        $suggestions,
+                        $definitionId,
+                        $isTranslatable ? (string) $locale : AttributeInterface::NO_LOCALE,
+                        $attribute->getValue(),
+                    );
                 }
-                $suggestions[$definitionId.':'.$value] = $suggestion;
             }
         }
 
         return array_values($suggestions);
+    }
+
+    private function addSuggestion(array &$suggestions, string $definitionId, string $locale, ?string $value, ?string $entityId = null): void
+    {
+        if (null === $value || '' === $value || mb_strlen($value) > self::SUGGESTION_MAX_LENGTH) {
+            return;
+        }
+
+        $suggestion = [
+            'definitionId' => $definitionId,
+            'locale' => $locale,
+            'value' => $value,
+        ];
+        if (null !== $entityId) {
+            $suggestion['entityId'] = $entityId;
+        }
+
+        $suggestions[$definitionId.':'.$locale.':'.$value] = $suggestion;
     }
 
     public static function getSubscribedEvents(): array
