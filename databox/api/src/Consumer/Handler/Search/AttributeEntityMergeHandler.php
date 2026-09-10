@@ -46,12 +46,14 @@ final readonly class AttributeEntityMergeHandler
             $merged,
         );
 
-        $this->updateAttributeIndex($mainEntity, $merged);
-
         $fields = [];
-        $calls = [];
+        $calls = [
+            'suggestions' => AttributeEntitySuggestionsScript::CALL,
+        ];
         $params = [
             'merged' => $merged,
+            '_entityIds' => array_merge($merged, [$id]),
+            '_suggestion' => $mainEntity->getValue() ?? '',
         ];
         $locales = $message->getLocales();
         foreach ($definitions as $definition) {
@@ -173,31 +175,11 @@ void merge(HashMap src, String locale, String name, String id, List merged, Stri
     }
 }
 
-EOF, AttributeInterface::ATTRIBUTES_FIELD).implode("\n", $calls),
+EOF, AttributeInterface::ATTRIBUTES_FIELD).AttributeEntitySuggestionsScript::declaration().implode("\n", $calls),
                 'params' => array_merge($params, [
                     '_id' => $id,
                 ]),
                 'lang' => 'painless',
-            ]
-        );
-    }
-
-    private function updateAttributeIndex(AttributeEntity $mainEntity, array $merged): void
-    {
-        $this->elasticSearchClient->updateByQuery(
-            'attribute',
-            [
-                'terms' => [
-                    'entityId' => array_merge([$mainEntity->getId()], $merged),
-                ],
-            ],
-            [
-                'source' => 'ctx._source.entityId = params.id; ctx._source.suggestion = params.value;',
-                'lang' => 'painless',
-                'params' => [
-                    'id' => $mainEntity->getId(),
-                    'value' => $mainEntity->getValue(),
-                ],
             ]
         );
     }

@@ -5,32 +5,52 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use App\Api\Traits\UserLocaleTrait;
+use App\Attribute\AttributeInterface;
+use App\Elasticsearch\Aggregation\MultiTerms;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepository;
+use Elastica\Aggregation;
 use Elastica\Collapse;
+use Elastica\Multi;
 use Elastica\Query;
 use Elastica\Result;
+use Elastica\ResultSet;
 use FOS\ElasticaBundle\Elastica\Index;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+/**
+ * Search-as-you-type suggestions: distinct attribute values first, then collection and asset names.
+ *
+ * Attribute values come from the "suggestions" nested field of the asset documents
+ * (see AssetPostTransformListener). A nested aggregation returns each (definition, value) pair once,
+ * counting only the assets the user is allowed to see (same filters as AssetSearch) and only
+ * for the attribute definitions the user is allowed to read.
+ */
 class SuggestionSearch extends AbstractSearch
 {
     use UserLocaleTrait;
 
     private const string SUGGEST_FIELD = 'suggestion';
     private const string SUGGEST_SUB_FIELD = 'suggest';
-    private const string DEFINITION_ID_FIELD = 'definitionId';
+    private const int MAX_RESULTS = 15;
+    /**
+     * Leaves room for the collection and asset names in the result list.
+     */
+    private const int MAX_ATTRIBUTE_VALUES = 10;
+    private const array HIGHLIGHT_TAGS = [
+        'pre_tags' => ['[hl]'],
+        'post_tags' => ['[/hl]'],
+    ];
 
     public function __construct(
         #[Autowire(service: 'fos_elastica.index.collection')]
         private readonly Index $collectionIndex,
         #[Autowire(service: 'fos_elastica.index.asset')]
         private readonly Index $assetIndex,
-        #[Autowire(service: 'fos_elastica.index.attribute')]
-        private readonly Index $attributeIndex,
+        private readonly AssetSearch $assetSearch,
         private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
         private readonly string $kernelEnv,
         private readonly TranslatorInterface $translator,
@@ -39,60 +59,91 @@ class SuggestionSearch extends AbstractSearch
     ) {
     }
 
+    /**
+     * @return array{0: Pagerfanta, 1: array, 2: float}
+     *
+     * @throws NoWorkspaceAllowedException
+     */
     public function search(
         ?string $userId,
         array $groupIds,
         array $options = [],
     ): array {
-        $filterQuery = new Query\BoolQuery();
-
-        $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
-        if (null !== $aclBoolQuery) {
-            $filterQuery->addFilter($aclBoolQuery);
-        }
-
-        if (isset($options['workspaces'])) {
-            $filterQuery->addFilter(new Query\Terms('workspaceId', $options['workspaces']));
-        }
-
         $queryString = trim($options['query'] ?? '')
                 |> (fn (string $x): string => preg_replace('#^"(.*)$#', '$1', $x))
                 |> (fn (string $x): string => preg_replace('#(.*)"$#', '$1', $x));
 
-        $suggestAttributes = $this->attributeDefinitionRepository
-            ->getSearchableAttributes($userId, $groupIds, [
-                AttributeDefinitionRepository::OPT_SUGGEST_ENABLED => true,
-            ]);
+        $definitionNames = $this->getSuggestedDefinitionNames($userId, $groupIds);
 
-        $definitionNames = [];
-        foreach ($suggestAttributes as $definition) {
-            $definitionNames[$definition->getId()] = $definition->getTranslatedField(AttributeDefinition::TR_FIELD_NAME, $this->getPreferredLocales($definition->getWorkspace()), $definition->getName());
+        $namesQuery = $this->createNamesQuery($userId, $groupIds, $options, $queryString);
+        $valuesQuery = !empty($definitionNames)
+            ? $this->createAttributeValuesQuery($userId, $groupIds, $options, $queryString, array_keys($definitionNames))
+            : null;
+
+        $multiSearch = new Multi\Search($this->assetIndex->getClient());
+        $multiSearch->addSearch($this->collectionIndex->createSearch($namesQuery)->addIndex($this->assetIndex), 'names');
+        if (null !== $valuesQuery) {
+            $multiSearch->addSearch($this->assetIndex->createSearch($valuesQuery), 'values');
         }
 
-        $match = new Query\MatchQuery(self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD, $queryString);
-        $filterQuery->addMust($match);
-        $filterType = new Query\BoolQuery();
-        $filterType->addShould(new Query\Terms('definitionId', array_keys($definitionNames)));
-        $filterType->addShould(new Query\Terms('_index', [
-            $this->collectionIndex->getName(),
-            $this->assetIndex->getName(),
-        ]));
-        $filterQuery->addFilter($filterType);
+        $start = microtime(true);
+        $resultSets = $multiSearch->search()->getResultSets();
+        $searchTime = microtime(true) - $start;
 
-        $query = new Query();
+        $items = isset($resultSets['values']) ? $this->createAttributeValueItems($resultSets['values'], $definitionNames) : [];
+        array_push($items, ...$this->createNameItems($resultSets['names']));
+        $items = array_slice($items, 0, self::MAX_RESULTS);
+
+        $esQuery = ['names' => $namesQuery->toArray()];
+        if (null !== $valuesQuery) {
+            $esQuery['values'] = $valuesQuery->toArray();
+        }
+
+        return [new Pagerfanta(new ArrayAdapter($items)), $esQuery, $searchTime];
+    }
+
+    /**
+     * @return array<string, string> Definition ID => display name, for the definitions
+     *                               with suggestions enabled that the user is allowed to read
+     */
+    private function getSuggestedDefinitionNames(?string $userId, array $groupIds): array
+    {
+        $names = [];
+        foreach ($this->attributeDefinitionRepository->getSearchableAttributes($userId, $groupIds, [
+            AttributeDefinitionRepository::OPT_SUGGEST_ENABLED => true,
+        ]) as $definition) {
+            $names[$definition->getId()] = $definition->getTranslatedField(
+                AttributeDefinition::TR_FIELD_NAME,
+                $this->getPreferredLocales($definition->getWorkspace()),
+                $definition->getName(),
+            );
+        }
+
+        return $names;
+    }
+
+    /**
+     * Collection and asset names: one hit per distinct name.
+     */
+    private function createNamesQuery(?string $userId, array $groupIds, array $options, string $queryString): Query
+    {
+        $filterQuery = new Query\BoolQuery();
+        if (null !== $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds)) {
+            $filterQuery->addFilter($aclBoolQuery);
+        }
+        if (isset($options['workspaces'])) {
+            $filterQuery->addFilter(new Query\Terms('workspaceId', $options['workspaces']));
+        }
+        $filterQuery->addMust(new Query\MatchQuery(self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD, $queryString));
+
+        $query = new Query($filterQuery);
         $query->setTrackTotalHits(false);
-        $query->setQuery($filterQuery);
-
         $query->setSort([
             '_score' => 'DESC',
             'createdAt' => 'DESC',
         ]);
-
-        $query->setSize(15);
-
-        $query->setHighlight([
-            'pre_tags' => ['[hl]'],
-            'post_tags' => ['[/hl]'],
+        $query->setSize(self::MAX_RESULTS);
+        $query->setHighlight(self::HIGHLIGHT_TAGS + [
             'fields' => [
                 self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD => new \stdClass(),
             ],
@@ -100,59 +151,123 @@ class SuggestionSearch extends AbstractSearch
         $collapse = new Collapse();
         $collapse->setFieldname(self::SUGGEST_FIELD.'.raw');
         $query->setCollapse($collapse);
-        $query->setSource([
-            'includes' => [
-                self::DEFINITION_ID_FIELD,
-            ],
-        ]);
+        $query->setSource(false);
         $query->setIndicesBoost([
-            $this->attributeIndex->getName() => 1.2,
             $this->assetIndex->getName() => 1.1,
         ]);
 
-        $start = microtime(true);
+        return $query;
+    }
 
-        $search = $this->collectionIndex->createSearch($query);
-        $search->addIndex($this->assetIndex);
-        $search->addIndex($this->attributeIndex);
-        $result = $search->search();
+    /**
+     * Distinct attribute values matching the query: no hit, only a nested aggregation.
+     *
+     * @param string[] $definitionIds the attribute definitions the user may get suggestions from
+     */
+    private function createAttributeValuesQuery(
+        ?string $userId,
+        array $groupIds,
+        array $options,
+        string $queryString,
+        array $definitionIds,
+    ): Query {
+        $suggestionsField = AttributeInterface::SUGGESTIONS_FIELD;
+        $valueField = sprintf('%s.value.%s', $suggestionsField, self::SUGGEST_SUB_FIELD);
 
-        $searchTime = microtime(true) - $start;
+        // Applies to the nested "suggestion" documents: it selects the assets, then filters the
+        // aggregated values again because an asset matched through one value of a multi-valued
+        // attribute must not contribute its other values.
+        $suggestionQuery = new Query\BoolQuery();
+        $suggestionQuery->addFilter(new Query\Terms($suggestionsField.'.definitionId', $definitionIds));
+        $suggestionQuery->addMust(new Query\MatchQuery($valueField, $queryString));
 
+        $nestedQuery = new Query\Nested();
+        $nestedQuery->setPath($suggestionsField);
+        $nestedQuery->setQuery($suggestionQuery);
+
+        $filterQuery = new Query\BoolQuery();
+        foreach ($this->assetSearch->createBaseFilterQueries($userId, $groupIds, $options) as $filter) {
+            $filterQuery->addFilter($filter);
+        }
+        if (isset($options['workspaces'])) {
+            $filterQuery->addFilter(new Query\Terms('workspaceId', $options['workspaces']));
+        }
+        $filterQuery->addFilter($nestedQuery);
+
+        $query = new Query($filterQuery);
+        $query->setSize(0);
+        $query->setTrackTotalHits(false);
+
+        $highlight = new Aggregation\TopHits('highlight');
+        $highlight->setSize(1);
+        $highlight->setSource(false);
+        $highlight->setHighlight(self::HIGHLIGHT_TAGS + [
+            'fields' => [
+                $valueField => [
+                    'highlight_query' => $suggestionQuery->toArray(),
+                ],
+            ],
+        ]);
+
+        $values = new MultiTerms('values', [
+            $suggestionsField.'.definitionId',
+            $suggestionsField.'.value',
+        ]);
+        $values->setSize(self::MAX_ATTRIBUTE_VALUES);
+        $values->addAggregation($highlight);
+
+        $matching = new Aggregation\Filter('matching', $suggestionQuery);
+        $matching->addAggregation($values);
+
+        $suggestions = new Aggregation\Nested($suggestionsField, $suggestionsField);
+        $suggestions->addAggregation($matching);
+        $query->addAggregation($suggestions);
+
+        return $query;
+    }
+
+    /**
+     * @param array<string, string> $definitionNames
+     */
+    private function createAttributeValueItems(ResultSet $resultSet, array $definitionNames): array
+    {
+        $valueField = sprintf('%s.value.%s', AttributeInterface::SUGGESTIONS_FIELD, self::SUGGEST_SUB_FIELD);
+        $buckets = $resultSet->getAggregation(AttributeInterface::SUGGESTIONS_FIELD)['matching']['values']['buckets'] ?? [];
+
+        return array_map(function (array $bucket) use ($valueField, $definitionNames): array {
+            [$definitionId, $value] = $bucket['key'];
+
+            return [
+                'id' => md5($definitionId.$value),
+                'name' => $value,
+                'hl' => $bucket['highlight']['hits']['hits'][0]['highlight'][$valueField][0] ?? $value,
+                't' => $definitionId,
+                'tName' => $definitionNames[$definitionId],
+            ];
+        }, $buckets);
+    }
+
+    private function createNameItems(ResultSet $resultSet): array
+    {
+        $highlightField = self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD;
         $indexNames = [
             'asset_'.$this->kernelEnv => 'asset',
             'collection_'.$this->kernelEnv => 'collection',
         ];
 
-        $result = new Pagerfanta(new ArrayAdapter(array_map(function (Result $result) use (
-            $indexNames,
-            $definitionNames,
-        ): array {
-            $hl = $result->getHighlights()[self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD];
+        return array_map(function (Result $result) use ($highlightField, $indexNames): array {
+            $hl = $result->getHighlights()[$highlightField][0] ?? '';
             $indexName = substr((string) preg_replace('#_\d{4}-\d{2}-\d{2}-\d{6}$#', '', $result->getIndex()), strlen($this->indexPrefix ?? ''));
+            $type = $indexNames[$indexName];
 
-            $data = [
+            return [
                 'id' => $result->getId(),
                 'name' => preg_replace('#\[/?hl]#', '', $hl),
                 'hl' => $hl,
+                't' => $type,
+                'tName' => $this->translator->trans(sprintf('search.suggestion.type.%s', $type)),
+                'tId' => $result->getId(),
             ];
-
-            if ('attribute_'.$this->kernelEnv === $indexName) {
-                $source = $result->getSource();
-                $definitionId = $source['definitionId'];
-                $data['t'] = $definitionId;
-                $data['tName'] = $definitionNames[$definitionId];
-            } else {
-                $type = $indexNames[$indexName];
-                $data['t'] = $type;
-                $data['tName'] = $this->translator->trans(sprintf('search.suggestion.type.%s', $type));
-                $data['tId'] = $result->getId();
-            }
-
-            return $data;
-        }, $result->getResults())));
-        $esQuery = $query->toArray();
-
-        return [$result, $esQuery, $searchTime];
+        }, $resultSet->getResults());
     }
 }

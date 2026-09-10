@@ -155,6 +155,11 @@ class AttributeEntityTest extends AbstractSearchTest
                 ],
             ],
         ], $response->asArray()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0]);
+        $this->assertSuggestions([
+            ['definitionId' => $definitionSingle->getId(), 'entityId' => $entity1->getId(), 'value' => 'ae1'],
+            ['definitionId' => $definitionMany->getId(), 'entityId' => $entity1->getId(), 'value' => 'ae1'],
+            ['definitionId' => $definitionMany->getId(), 'entityId' => $entity2->getId(), 'value' => 'ae2'],
+        ], [$definitionSingle->getId(), $definitionMany->getId()], $esClient, $asset->getId());
 
         $apiClient = static::createClient();
 
@@ -244,6 +249,11 @@ class AttributeEntityTest extends AbstractSearchTest
                 ],
             ],
         ], $attrs);
+        $this->assertSuggestions([
+            ['definitionId' => $definitionSingle->getId(), 'entityId' => $entity1->getId(), 'value' => 'ae1-bis'],
+            ['definitionId' => $definitionMany->getId(), 'entityId' => $entity1->getId(), 'value' => 'ae1-bis'],
+            ['definitionId' => $definitionMany->getId(), 'entityId' => $entity2->getId(), 'value' => 'ae2'],
+        ], [$definitionSingle->getId(), $definitionMany->getId()], $esClient, $asset->getId());
 
         $em->clear();
 
@@ -353,5 +363,47 @@ class AttributeEntityTest extends AbstractSearchTest
                 ],
             ],
         ], $attrs);
+        // The merged entity leaves no duplicate
+        $this->assertSuggestions([
+            ['definitionId' => $definitionSingle->getId(), 'entityId' => $entity2->getId(), 'value' => 'ae2'],
+            ['definitionId' => $definitionMany->getId(), 'entityId' => $entity2->getId(), 'value' => 'ae2'],
+        ], [$definitionSingle->getId(), $definitionMany->getId()], $esClient, $asset->getId());
+
+        $em->clear();
+
+        $apiClient->request('DELETE', '/attribute-entities/'.$entity2->getId(), [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        self::waitForESIndex('asset');
+        $response = $esClient->request($assetIndexName.'/_search?q=_id:'.$asset->getId());
+
+        $attrs = $response->asArray()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0];
+        $this->assertArrayNotHasKey('single_entity_s', $attrs[AttributeInterface::NO_LOCALE]);
+        $this->assertSame([], $attrs[AttributeInterface::NO_LOCALE]['many_entity_m']);
+        $this->assertSuggestions([], [$definitionSingle->getId(), $definitionMany->getId()], $esClient, $asset->getId());
+    }
+
+    /**
+     * @param string[] $definitionIds the definitions to compare, the other ones (the asset name) being ignored
+     */
+    private function assertSuggestions(array $expected, array $definitionIds, ElasticSearchClient $esClient, string $assetId): void
+    {
+        $response = $esClient->request($esClient->getIndexName('asset').'/_search?q=_id:'.$assetId);
+        $suggestions = array_filter(
+            $response->asArray()['hits']['hits'][0]['_source'][AttributeInterface::SUGGESTIONS_FIELD] ?? [],
+            fn (array $suggestion): bool => in_array($suggestion['definitionId'], $definitionIds, true),
+        );
+
+        $sort = function (array $suggestions): array {
+            usort($suggestions, fn (array $a, array $b): int => [$a['definitionId'], $a['value']] <=> [$b['definitionId'], $b['value']]);
+
+            return $suggestions;
+        };
+
+        $this->assertEquals($sort($expected), $sort($suggestions));
     }
 }
