@@ -622,8 +622,11 @@ li {
 .parade-login-form-logo {
     display: block;
     margin: 0 auto 12px;
-    max-height: 32px;
+    /* Bounded by the room available rather than a stored height: the logo
+       keeps its proportions on a phone as on a wide screen. */
+    max-height: clamp(1.75rem, 8vh, 3.5rem);
     max-width: 60%;
+    object-fit: contain;
 }
 
 /* END Parade per-client login logo */
