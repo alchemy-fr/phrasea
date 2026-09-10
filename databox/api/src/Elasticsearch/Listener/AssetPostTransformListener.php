@@ -6,6 +6,7 @@ namespace App\Elasticsearch\Listener;
 
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\Type\EntityAttributeType;
 use App\Elasticsearch\AssetPermissionComputer;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\Asset;
@@ -13,6 +14,7 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\RenditionDefinition;
 use App\Service\Asset\Attribute\AttributesResolver;
+use App\Service\Asset\Attribute\Index\AttributeIndex;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
@@ -20,6 +22,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 final readonly class AssetPostTransformListener implements EventSubscriberInterface
 {
+    /**
+     * Longer values are not worth suggesting (kept in sync with the "ignore_above" of the mapping).
+     */
+    public const int SUGGESTION_MAX_LENGTH = 300;
+
     public function __construct(
         private AssetPermissionComputer $assetPermissionComputer,
         private AttributeTypeRegistry $attributeTypeRegistry,
@@ -45,16 +52,21 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
 
         $document->set('renditions', $this->compileRenditions($asset));
 
-        $attrs = $this->compileAttributes($asset);
+        $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
+
+        $attrs = $this->compileAttributes($attributeIndex);
         // Wrap in an array to force replacing the whole field
         $document->set(AttributeInterface::ATTRIBUTES_FIELD, !empty($attrs) ? [$attrs] : null);
+
+        $suggestions = $this->compileSuggestions($attributeIndex);
+        $document->set(AttributeInterface::SUGGESTIONS_FIELD, !empty($suggestions) ? $suggestions : null);
 
         // Not ready yet
         //        $storyAttrs = [];
         //        foreach ($asset->getCollections() as $collectionAsset) {
         //            if (null !== $storyAsset = $collectionAsset->getCollection()->getStoryAsset()) {
         //                if (!isset($storyAttrs[$storyAsset->getId()])) {
-        //                    $subAttrs = $this->compileAttributes($storyAsset);
+        //                    $subAttrs = $this->compileAttributes($this->attributesResolver->resolveAssetAttributes($storyAsset, false));
         //                    if (!empty($subAttrs)) {
         //                        $storyAttrs[] = $subAttrs;
         //                    }
@@ -78,11 +90,9 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
         return array_column($renditionsDefinitions, 'id');
     }
 
-    private function compileAttributes(Asset $asset): array
+    private function compileAttributes(AttributeIndex $attributeIndex): array
     {
         $data = [];
-
-        $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
 
         foreach ($attributeIndex->getDefinitions() as $definitionIndex) {
             $definition = $definitionIndex->getDefinition();
@@ -139,6 +149,55 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
         }
 
         return $data;
+    }
+
+    /**
+     * Distinct values of the asset, one entry per (definition, value), for the search-as-you-type
+     * suggestions (see SuggestionSearch). They are deduplicated per asset so that the suggestion
+     * aggregation counts assets. Which definitions actually get suggested (the "suggest" flag,
+     * the permissions) is decided at query time.
+     */
+    private function compileSuggestions(AttributeIndex $attributeIndex): array
+    {
+        $suggestions = [];
+
+        foreach ($attributeIndex->getDefinitions() as $definitionIndex) {
+            $definition = $definitionIndex->getDefinition();
+            $type = $this->attributeTypeRegistry->getStrictType($definition->getType());
+            if (!$type->supportsSuggest()) {
+                continue;
+            }
+
+            $definitionId = $definition->getId();
+            foreach ($definitionIndex->getFlattenAttributes() as $attribute) {
+                if ($attribute->isInvalid()) {
+                    continue;
+                }
+
+                $value = $attribute->getValue();
+                $entityId = null;
+                if ($type instanceof EntityAttributeType) {
+                    // Suggest the entity label, not its ID
+                    $entityId = $value;
+                    $value = $type->normalizeElasticsearchValue($value)[AttributeInterface::NO_LOCALE]['value'] ?? null;
+                }
+
+                if (null === $value || '' === $value || mb_strlen($value) > self::SUGGESTION_MAX_LENGTH) {
+                    continue;
+                }
+
+                $suggestion = [
+                    'definitionId' => $definitionId,
+                    'value' => $value,
+                ];
+                if (null !== $entityId) {
+                    $suggestion['entityId'] = $entityId;
+                }
+                $suggestions[$definitionId.':'.$value] = $suggestion;
+            }
+        }
+
+        return array_values($suggestions);
     }
 
     public static function getSubscribedEvents(): array

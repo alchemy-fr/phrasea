@@ -35,8 +35,6 @@ final readonly class AttributeEntityUpdateHandler
             $attributeEntity->getList()->getId(),
         );
 
-        $this->updateAttributeIndex($attributeEntity);
-
         $fields = [];
         $calls = [];
         $params = [];
@@ -66,6 +64,13 @@ final readonly class AttributeEntityUpdateHandler
 
         if (empty($fields)) {
             return;
+        }
+
+        if (in_array(AttributeInterface::NO_LOCALE, $locales, true)) {
+            // The suggestions only carry the untranslated value
+            $calls['suggestions'] = AttributeEntitySuggestionsScript::CALL;
+            $params['_entityIds'] = [$id];
+            $params['_suggestion'] = $attributeEntity->getValue() ?? '';
         }
 
         $this->elasticSearchClient->updateByQuery(
@@ -160,31 +165,11 @@ void up(HashMap src, String locale, String name, String id, String n, def s, boo
     }
 }
 
-EOF, AttributeInterface::ATTRIBUTES_FIELD).implode("\n", $calls),
+EOF, AttributeInterface::ATTRIBUTES_FIELD).AttributeEntitySuggestionsScript::declaration().implode("\n", $calls),
                 'params' => array_merge($params, [
                     '_id' => $id,
                 ]),
                 'lang' => 'painless',
-            ]
-        );
-    }
-
-    private function updateAttributeIndex(AttributeEntity $attributeEntity): void
-    {
-        $this->elasticSearchClient->updateByQuery(
-            'attribute',
-            [
-                'term' => [
-                    'entityId' => $attributeEntity->getId(),
-                ],
-            ],
-            [
-                // Change "suggestion" field to new value
-                'source' => 'ctx._source.suggestion = params.value;',
-                'lang' => 'painless',
-                'params' => [
-                    'value' => $attributeEntity->getValue(),
-                ],
             ]
         );
     }

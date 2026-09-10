@@ -36,8 +36,14 @@ final readonly class AttributeEntityDeleteHandler
         }
 
         $fields = [];
-        $calls = [];
-        $params = [];
+        $calls = [
+            AttributeEntitySuggestionsScript::CALL,
+        ];
+        $params = [
+            '_entityIds' => [$id],
+            // An empty value removes the suggestions of the entity
+            '_suggestion' => '',
+        ];
         foreach ($definitions as $definition) {
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
             $fields[sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, AttributeInterface::NO_LOCALE, $fieldName)] = true;
@@ -79,7 +85,7 @@ void del(HashMap c, String name, String id) {
     }
 }
 
-EOF.implode("\n", $calls),
+EOF.AttributeEntitySuggestionsScript::declaration().implode("\n", $calls),
                 'params' => array_merge($params, [
                     '_id' => $id,
                 ]),

@@ -4,49 +4,16 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
-use App\Attribute\AttributeTypeRegistry;
-use App\Attribute\Type\AttributeTypeInterface;
-use App\Entity\Core\Attribute;
-
+/**
+ * Tells the deferred index listener whether a changed Doctrine entity gets (re)indexed.
+ *
+ * Attributes have no index of their own: they only trigger the re-indexation of their asset
+ * (see AppIndexableDependencyResolver), which requires them to be considered indexable here.
+ */
 final class ObjectIndexable
 {
-    private ?array $suggestTypes = null;
-
-    public function __construct(
-        private readonly AttributeTypeRegistry $attributeTypeRegistry,
-    ) {
-    }
-
     public function isObjectIndexable(object $object): bool
     {
-        if ($object instanceof Attribute) {
-            if (empty($object->getValue())) {
-                return false;
-            }
-
-            $definition = $object->getDefinition();
-
-            return $definition->isEnabled()
-                && $definition->isSearchable()
-                && $object->isValidValue()
-                && in_array($definition->getType(), $this->getSuggestTypes(), true);
-        }
-
         return true;
-    }
-
-    private function getSuggestTypes(): array
-    {
-        if (null === $this->suggestTypes) {
-            $this->suggestTypes = array_map(
-                fn (AttributeTypeInterface $type): string => $type::getName(),
-                array_filter(
-                    $this->attributeTypeRegistry->getTypes(),
-                    fn (AttributeTypeInterface $type): bool => $type->supportsSuggest()
-                )
-            );
-        }
-
-        return $this->suggestTypes;
     }
 }

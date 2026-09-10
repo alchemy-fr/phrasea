@@ -69,6 +69,20 @@ fos_elastica:
                             term_vector: with_positions_offsets
                 !php/const App\Attribute\AttributeInterface::ATTRIBUTES_FIELD:
                     type: object
+                # Distinct attribute values of the asset, for the search suggestions (see SuggestionSearch)
+                !php/const App\Attribute\AttributeInterface::SUGGESTIONS_FIELD:
+                    property_path: false
+                    type: nested
+                    properties:
+                        definitionId:
+                            type: keyword
+                        entityId:
+                            type: keyword
+                        value:
+                            type: keyword
+                            ignore_above: 300
+                            fields:
+                                suggest: *suggest_field
                 referenceCollectionId:
                     type: keyword
                 referenceCollectionPath:
@@ -245,57 +259,6 @@ fos_elastica:
                 listener: { enabled: false }
                 provider:
                     query_builder_method: getESQueryBuilder
-
-        attribute:
-            use_alias: '%elastica.use_alias%'
-            index_name: "%es_index_prefix%attribute_%kernel.environment%"
-            indexable_callback: [ '@App\Elasticsearch\AttributeIndexable', 'isAttributeIndexable' ]
-            settings:
-                index:
-                    analysis:
-                        analyzer:
-                            text: *text_analyzer
-                            partial_words: *partial_words_analyzer
-                        tokenizer:
-                            edge_ngram: *edge_ngram_tokenizer
-                        filter:
-                            worddelimiter: *worddelimiter_filter
-            properties:
-                suggestion:
-                    property_path: value
-                    type: text
-                    analyzer: text
-                    fields:
-                        raw:
-                            type: keyword
-                            ignore_above: 200
-                        suggest: *suggest_field
-                entityId:
-                    property_path: false
-                    type: keyword
-                privacy:
-                    property_path: false
-                    type: byte
-                definitionId:
-                    type: keyword
-                workspaceId:
-                    type: keyword
-                ownerId:
-                    type: keyword
-                users:
-                    property_path: false
-                    type: keyword
-                groups:
-                    property_path: false
-                    type: keyword
-                createdAt:
-                    type: date
-            persistence:
-                driver: orm
-                model: App\Entity\Core\Attribute
-                listener: { enabled: false }
-                provider:
-                    service: App\Elasticsearch\Provider\AttributeProvider
 
         asset_data_template:
             use_alias: '%elastica.use_alias%'
