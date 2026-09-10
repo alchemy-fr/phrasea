@@ -7,6 +7,7 @@ namespace App\Elasticsearch\Listener;
 use Alchemy\ESBundle\Service\IndexRemover;
 use App\Elasticsearch\Exception\PopulateAlreadyRunningException;
 use App\Elasticsearch\Mapping\IndexSyncState;
+use App\Elasticsearch\PopulateLockManager;
 use App\Entity\Admin\PopulatePass;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Event\PostIndexPopulateEvent;
@@ -27,8 +28,6 @@ use Symfony\Component\Lock\LockInterface;
  */
 class PopulatePassListener implements EventSubscriberInterface
 {
-    public const string LOCK_PREFIX = 'es_populate_';
-
     /**
      * Refreshed after every inserted page, so it only has to outlive the
      * fetch + bulk insert of a single page (and a crashed worker frees the
@@ -50,9 +49,12 @@ class PopulatePassListener implements EventSubscriberInterface
     ) {
     }
 
+    /**
+     * @see PopulateLockManager to inspect / force-release these locks
+     */
     public static function getLockName(string $indexName): string
     {
-        return self::LOCK_PREFIX.$indexName;
+        return PopulateLockManager::getLockName($indexName);
     }
 
     public function preIndexPopulate(PreIndexPopulateEvent $event): void

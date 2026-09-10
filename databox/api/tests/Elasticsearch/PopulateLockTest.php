@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace App\Tests\Elasticsearch;
 
+use App\Command\ESPopulateUnlockCommand;
 use App\Elasticsearch\Exception\PopulateAlreadyRunningException;
 use App\Elasticsearch\Listener\PopulatePassListener;
+use App\Elasticsearch\PopulateLockManager;
 use App\Entity\Admin\PopulatePass;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Lock\LockFactory;
 
 /**
@@ -90,6 +93,79 @@ class PopulateLockTest extends KernelTestCase
         $stale = $this->em->find(PopulatePass::class, $interrupted->getId());
         $this->assertNotNull($stale->getEndedAt());
         $this->assertStringContainsString('Interrupted', (string) $stale->getError());
+    }
+
+    public function testForceReleaseRemovesTheLockAndClosesOpenPasses(): void
+    {
+        /** @var LockFactory $lockFactory */
+        $lockFactory = static::getContainer()->get(LockFactory::class);
+        /** @var PopulateLockManager $manager */
+        $manager = static::getContainer()->get(PopulateLockManager::class);
+
+        $deadWorker = $lockFactory->createLock(PopulatePassListener::getLockName(self::INDEX), 600);
+        $this->assertTrue($deadWorker->acquire());
+        $open = new PopulatePass();
+        $open->setIndexName(self::INDEX);
+        $open->setMapping([]);
+        $open->setDocumentCount(4);
+        $open->setProgress(2);
+        $this->em->persist($open);
+        $this->em->flush();
+
+        $this->assertTrue($manager->isLocked(self::INDEX));
+        $this->assertSame([self::INDEX], $manager->getLockedIndices([self::INDEX, 'asset']));
+
+        $result = $manager->forceRelease(self::INDEX);
+
+        $this->assertSame(['lockReleased' => true, 'passesClosed' => 1], $result);
+        $this->assertFalse($manager->isLocked(self::INDEX));
+        $this->em->clear();
+        $closed = $this->em->find(PopulatePass::class, $open->getId());
+        $this->assertNotNull($closed->getEndedAt());
+        $this->assertStringContainsString('lock released manually', (string) $closed->getError());
+
+        // the index is usable again
+        $this->assertSame(0, $this->populate());
+
+        // releasing a free lock is harmless
+        $this->assertSame(['lockReleased' => false, 'passesClosed' => 0], $manager->forceRelease(self::INDEX));
+    }
+
+    public function testUnlockCommand(): void
+    {
+        /** @var LockFactory $lockFactory */
+        $lockFactory = static::getContainer()->get(LockFactory::class);
+        /** @var PopulateLockManager $manager */
+        $manager = static::getContainer()->get(PopulateLockManager::class);
+        $tester = new CommandTester(static::getContainer()->get(ESPopulateUnlockCommand::class));
+
+        // nothing locked
+        $this->assertSame(0, $tester->execute([], ['interactive' => false]));
+        $this->assertStringContainsString('No populate lock is held', $tester->getDisplay());
+
+        $deadWorker = $lockFactory->createLock(PopulatePassListener::getLockName(self::INDEX), 600);
+        $this->assertTrue($deadWorker->acquire());
+
+        // unknown index
+        $this->assertSame(1, $tester->execute(['index' => 'nope'], ['interactive' => false]));
+
+        // non interactive without --force: refused, lock kept
+        $this->assertSame(1, $tester->execute(['index' => self::INDEX], ['interactive' => false]));
+        $this->assertStringContainsString('Use --force', $tester->getDisplay());
+        $this->assertTrue($manager->isLocked(self::INDEX));
+
+        // "no" keeps the lock
+        $tester->setInputs(['no']);
+        $this->assertSame(0, $tester->execute([]));
+        $this->assertStringContainsString('Aborted', $tester->getDisplay());
+        $this->assertTrue($manager->isLocked(self::INDEX));
+
+        // --force releases every locked index
+        $this->assertSame(0, $tester->execute(['--force' => true], ['interactive' => false]));
+        $display = $tester->getDisplay();
+        $this->assertStringContainsString('Populate lock(s) currently held: '.self::INDEX, $display);
+        $this->assertStringContainsString('1 lock(s) released', $display);
+        $this->assertFalse($manager->isLocked(self::INDEX));
     }
 
     private function populate(bool $catchExceptions = true): int

@@ -7,9 +7,12 @@ namespace App\Tests\Admin;
 use Alchemy\AdminBundle\Tests\AbstractAdminTest;
 use Alchemy\MessengerBundle\Transport\TestTransport;
 use App\Consumer\Handler\Search\ESPopulate;
+use App\Elasticsearch\Listener\PopulatePassListener;
+use App\Elasticsearch\PopulateLockManager;
 use App\Entity\Admin\PopulatePass;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
 class PopulatePassAdminTest extends AbstractAdminTest
@@ -136,6 +139,52 @@ class PopulatePassAdminTest extends AbstractAdminTest
         } finally {
             $em->remove($em->find(PopulatePass::class, $running->getId()) ?? $running);
             $em->flush();
+        }
+    }
+
+    public function testALockedIndexIsRefusedAndCanBeForceUnlocked(): void
+    {
+        /** @var LockFactory $lockFactory */
+        $lockFactory = static::getContainer()->get(LockFactory::class);
+        /** @var PopulateLockManager $manager */
+        $manager = static::getContainer()->get(PopulateLockManager::class);
+        $deadWorker = $lockFactory->createLock(PopulatePassListener::getLockName('tag'), 600);
+        $this->assertTrue($deadWorker->acquire());
+
+        try {
+            $crawler = $this->loadAddPage();
+            $this->assertStringContainsString('A populate is currently running for: tag', $crawler->filter('.alert-warning')->text());
+            $form = $crawler->selectButton('Start populate')->form();
+            $token = $form->get('token')->getValue();
+
+            // refused while the lock is held, even without any open pass
+            $this->client->request('POST', $form->getUri(), ['token' => $token, 'scope' => 'selected', 'indices' => ['tag']]);
+            $this->assertResponseRedirects();
+            $this->assertSame([], $this->getPopulateMessages());
+
+            // the "Release lock" button posts to the unlock action
+            $unlock = $crawler->filter('button.es-unlock[data-index="tag"]');
+            $this->assertCount(1, $unlock);
+            $unlockForm = $unlock->form();
+            $this->assertStringEndsWith('/admin/populate-pass/unlock/tag', $unlockForm->getUri());
+
+            // wrong token: nothing happens
+            $this->client->request('POST', $unlockForm->getUri(), ['token' => 'invalid']);
+            $this->assertResponseRedirects();
+            $this->assertTrue($manager->isLocked('tag'));
+
+            $this->client->request('POST', $unlockForm->getUri(), ['token' => $token]);
+            $this->assertResponseRedirects();
+            $this->assertFalse($manager->isLocked('tag'));
+            $crawler = $this->client->followRedirect();
+            $this->assertStringContainsString('Populate lock of "tag" released', $crawler->filter('#flash-messages')->text());
+
+            // and the index can be queued again
+            $this->client->request('POST', $form->getUri(), ['token' => $token, 'scope' => 'selected', 'indices' => ['tag']]);
+            $this->assertResponseRedirects();
+            $this->assertSame(['tag'], array_map(static fn (ESPopulate $m): ?string => $m->index, $this->getPopulateMessages()));
+        } finally {
+            $manager->forceRelease('tag');
         }
     }
 

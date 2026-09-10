@@ -8,6 +8,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\IdField;
 use Alchemy\AdminBundle\Field\JsonField;
 use App\Consumer\Handler\Search\ESPopulate;
+use App\Elasticsearch\PopulateLockManager;
 use App\Entity\Admin\PopulatePass;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
@@ -43,6 +44,7 @@ class PopulatePassCrudController extends AbstractAdminCrudController
         private readonly MessageBusInterface $bus,
         private readonly IndexManager $indexManager,
         private readonly EntityManagerInterface $em,
+        private readonly PopulateLockManager $lockManager,
     ) {
     }
 
@@ -122,7 +124,7 @@ class PopulatePassCrudController extends AbstractAdminCrudController
                 return $this->redirect($this->getIndexUrl());
             }
 
-            $running = $this->getRunningIndices();
+            $running = $this->getRunningIndices($indices);
 
             if ('all' === $request->request->get('scope', 'all')) {
                 if ([] !== $running) {
@@ -168,23 +170,58 @@ class PopulatePassCrudController extends AbstractAdminCrudController
 
         return $this->render('admin/populate_pass/add.html.twig', [
             'indices' => $indices,
-            'running' => $this->getRunningIndices(),
+            'running' => $this->getRunningIndices($indices),
             'indexUrl' => $this->getIndexUrl(),
         ]);
     }
 
     /**
-     * @return list<string> logical indices having an unterminated pass
+     * Force-releases the populate lock of an index (and closes its open passes)
+     * when a worker died mid-populate.
      */
-    private function getRunningIndices(): array
+    #[AdminRoute('/unlock/{index}', name: 'unlock', options: ['methods' => ['POST']])]
+    public function unlockPopulate(Request $request, string $index): Response
     {
-        $running = [];
+        if (!$this->isCsrfTokenValid(self::CSRF_TOKEN_ID, (string) $request->request->get('token'))) {
+            $this->addFlash('danger', 'Invalid CSRF token, nothing was done. Please retry.');
+
+            return $this->redirect($this->getIndexUrl());
+        }
+        if (!\in_array($index, array_keys($this->indexManager->getAllIndexes()), true)) {
+            $this->addFlash('danger', \sprintf('Unknown index "%s".', $index));
+
+            return $this->redirect($this->getIndexUrl());
+        }
+
+        $result = $this->lockManager->forceRelease($index);
+
+        $this->addFlash('warning', \sprintf(
+            'Populate lock of "%s" %s, %d open pass(es) closed. The index can be populated again.',
+            $index,
+            $result['lockReleased'] ? 'released' : 'was already free',
+            $result['passesClosed'],
+        ));
+
+        return $this->redirect($this->getIndexUrl());
+    }
+
+    /**
+     * Logical indices that must not be populated right now: an unterminated pass or a held lock.
+     *
+     * @param list<string> $indices
+     *
+     * @return list<string>
+     */
+    private function getRunningIndices(array $indices): array
+    {
+        $running = $this->lockManager->getLockedIndices($indices);
         foreach ($this->em->getRepository(PopulatePass::class)->findBy(['endedAt' => null]) as $pass) {
             $running[] = $pass->getIndexName();
         }
+        $running = array_values(array_unique($running));
         sort($running);
 
-        return array_values(array_unique($running));
+        return $running;
     }
 
     private function getIndexUrl(): string

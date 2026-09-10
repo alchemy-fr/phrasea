@@ -11,8 +11,17 @@
 
     {% if running is not empty %}
         <div class="alert alert-warning" style="max-width: 40em">
-            A populate is currently running for: <strong>{{ running|join(', ') }}</strong>.
-            These indices cannot be populated again until it finishes (or until its pass is deleted, if the worker died).
+            <p>A populate is currently running for: <strong>{{ running|join(', ') }}</strong>.
+            These indices cannot be populated again until it finishes.</p>
+            <p class="mb-2">If the worker died mid-populate, force-release the lock (this also closes the open pass).
+            <strong>Do not do this while the populate is actually running</strong>: it would lose its index.</p>
+            {% for index in running %}
+                <form method="post" action="{{ path('easyadmin_populate_pass_unlock', {index: index}) }}" class="d-inline"
+                      onsubmit="return confirm('Release the populate lock of {{ index }}? Only do this if its worker is dead.');">
+                    <input type="hidden" name="token" value="{{ csrf_token(constant('App\\Controller\\Admin\\PopulatePassCrudController::CSRF_TOKEN_ID')) }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger es-unlock" data-index="{{ index }}"><i class="fa fa-lock-open"></i> Release lock of {{ index }}</button>
+                </form>
+            {% endfor %}
         </div>
     {% endif %}
 
