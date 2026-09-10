@@ -17,6 +17,15 @@ When `easycorp/easyadmin-bundle` is installed, the bundle registers an admin pag
 
 Every mutation is a CSRF-protected POST confirmed through a modal.
 
+Restrict the screens to the indices/aliases of the current deployment (recommended when several apps or environments share the cluster):
+
+```yaml
+# config/packages/alchemy_es.yaml
+alchemy_es:
+    admin:
+        index_prefix: '%es_index_prefix%'   # e.g. '%env(ELASTICSEARCH_INDEX_PREFIX)%'
+```
+
 Add the menu entry to your `DashboardController`:
 
 ```php

@@ -4,7 +4,9 @@ services:
         autowire: true
         autoconfigure: true
 
-    Alchemy\ESBundle\Admin\ESIndexAdmin: ~
+    Alchemy\ESBundle\Admin\ESIndexAdmin:
+        arguments:
+            $indexPrefix: '%alchemy_es.admin.index_prefix%'
 
     Alchemy\ESBundle\Controller\Admin\ESIndexAdminController:
         public: true

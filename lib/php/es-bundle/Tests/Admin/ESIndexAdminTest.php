@@ -41,7 +41,7 @@ class ESIndexAdminTest extends TestCase
     /** @var Resetter&MockObject */
     private Resetter $resetter;
 
-    private function createAdmin(array $aliases = self::ALIASES, array $cat = self::CAT): ESIndexAdmin
+    private function createAdmin(array $aliases = self::ALIASES, array $cat = self::CAT, string $prefix = ''): ESIndexAdmin
     {
         $this->client = $this->createClientMock();
         $this->indices->method('getAlias')->willReturn($this->createResponse(self::aliasesResponse($aliases)));
@@ -64,7 +64,70 @@ class ESIndexAdminTest extends TestCase
             $this->client,
             $this->resetter,
             new IndexRemover($indexManager, $this->client),
+            $prefix,
         );
+    }
+
+    public function testWithoutPrefixEverythingIsManaged(): void
+    {
+        $admin = $this->createAdmin();
+
+        $this->assertSame('', $admin->getIndexPrefix());
+        $this->assertTrue($admin->isManaged('anything'));
+        $this->assertTrue($admin->isManaged('.kibana'));
+    }
+
+    public function testPrefixRestrictsPhysicalIndicesAndAliases(): void
+    {
+        $admin = $this->createAdmin(prefix: 'asset_');
+        $this->cat->expects($this->once())->method('indices')
+            ->with($this->callback(fn (array $params): bool => 'asset_*' === $params['index']));
+
+        $physical = array_column($admin->getPhysicalIndices(), 'name');
+        $this->assertSame(['asset_dev_2025-12-01-000000', 'asset_dev_2026-01-01-000000'], $physical, 'tag_dev, other_app and .kibana are hidden');
+
+        // the alias on "other_app" (outside the prefix) is not listed
+        $this->assertSame([
+            'asset_dev' => ['asset_dev_2026-01-01-000000'],
+            'asset_snapshot' => ['asset_dev_2026-01-01-000000'],
+        ], $admin->getAliases());
+
+        $this->assertTrue($admin->isManaged('asset_dev_2026-01-01-000000'));
+        $this->assertFalse($admin->isManaged('tag_dev'));
+        $this->assertFalse($admin->isManaged('.kibana'));
+    }
+
+    public function testPrefixHidesAliasesOutsideThePrefixOnManagedIndices(): void
+    {
+        $admin = $this->createAdmin(
+            aliases: ['pfx_index' => ['pfx_alias', 'other_alias'], 'other_index' => ['pfx_stray']],
+            cat: [['index' => 'pfx_index', 'health' => 'green', 'status' => 'open', 'docs.count' => '1', 'store.size' => '1', 'pri' => '1', 'rep' => '0', 'creation.date' => '1767225600000']],
+            prefix: 'pfx_',
+        );
+
+        $physical = $admin->getPhysicalIndices();
+        $this->assertCount(1, $physical);
+        $this->assertSame(['pfx_alias'], $physical[0]['aliases']);
+        $this->assertSame(['pfx_alias' => ['pfx_index']], $admin->getAliases(), 'an in-scope alias on an out-of-scope index stays hidden');
+    }
+
+    public function testSwitchAliasIgnoresIndicesOutsideThePrefix(): void
+    {
+        $admin = $this->createAdmin(prefix: 'asset_');
+        $actions = null;
+        $this->indices->method('updateAliases')->willReturnCallback(function (array $params) use (&$actions) {
+            $actions = $params['body']['actions'];
+
+            return $this->createResponse([]);
+        });
+
+        $previous = $admin->switchAlias('asset_snapshot', 'asset_dev_2025-12-01-000000');
+
+        $this->assertSame(['asset_dev_2026-01-01-000000'], $previous, '"other_app" is out of scope and left untouched');
+        $this->assertSame([
+            ['remove' => ['index' => 'asset_dev_2026-01-01-000000', 'alias' => 'asset_snapshot']],
+            ['add' => ['index' => 'asset_dev_2025-12-01-000000', 'alias' => 'asset_snapshot']],
+        ], $actions);
     }
 
     public function testPhysicalIndicesAreSortedAndClassified(): void

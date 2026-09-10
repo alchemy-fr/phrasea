@@ -24,6 +24,7 @@ class AlchemyESExtension extends Extension
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yaml');
+        $container->setParameter('alchemy_es.admin.index_prefix', (string) $config['admin']['index_prefix']);
         if (class_exists(AdminRoute::class)) {
             $loader->load('services_admin.yaml');
         }

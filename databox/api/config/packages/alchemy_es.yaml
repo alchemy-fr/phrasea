@@ -1,0 +1,4 @@
+alchemy_es:
+    admin:
+        # The EasyAdmin ES screens only show/manage indices and aliases of this deployment
+        index_prefix: '%es_index_prefix%'

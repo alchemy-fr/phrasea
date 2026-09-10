@@ -32,7 +32,24 @@ final readonly class ESIndexAdmin
         private Client $client,
         private Resetter $resetter,
         private IndexRemover $indexRemover,
+        /**
+         * Only indices/aliases starting with this prefix are listed and manageable ('' = everything).
+         */
+        private string $indexPrefix = '',
     ) {
+    }
+
+    public function getIndexPrefix(): string
+    {
+        return $this->indexPrefix;
+    }
+
+    /**
+     * Whether a physical index or alias name is within the managed scope (name prefix).
+     */
+    public function isManaged(string $name): bool
+    {
+        return '' === $this->indexPrefix || str_starts_with($name, $this->indexPrefix);
     }
 
     /**
@@ -98,11 +115,15 @@ final readonly class ESIndexAdmin
      */
     public function getPhysicalIndices(): array
     {
-        $rows = $this->client->cat()->indices([
+        $params = [
             'format' => 'json',
             'bytes' => 'b',
             'h' => 'index,health,status,docs.count,store.size,pri,rep,creation.date',
-        ])->asArray();
+        ];
+        if ('' !== $this->indexPrefix) {
+            $params['index'] = $this->indexPrefix.'*';
+        }
+        $rows = $this->client->cat()->indices($params)->asArray();
 
         $aliases = $this->getAliasesByIndex();
         $targets = $this->getLogicalTargets();
@@ -110,6 +131,9 @@ final readonly class ESIndexAdmin
         $result = [];
         foreach ($rows as $row) {
             $name = $row['index'];
+            if (!$this->isManaged($name)) {
+                continue;
+            }
             $indexAliases = $aliases[$name] ?? [];
             [$logical, $role] = $this->resolveRole($name, $indexAliases, $targets);
 
@@ -282,13 +306,21 @@ final readonly class ESIndexAdmin
     }
 
     /**
+     * Managed indices only, with their managed aliases only.
+     *
      * @return array<string, list<string>> physical index => aliases
      */
     private function getAliasesByIndex(): array
     {
         $result = [];
         foreach ($this->client->indices()->getAlias()->asArray() as $index => $data) {
-            $result[$index] = array_keys($data['aliases'] ?? []);
+            if (!$this->isManaged($index)) {
+                continue;
+            }
+            $result[$index] = array_values(array_filter(
+                array_keys($data['aliases'] ?? []),
+                $this->isManaged(...),
+            ));
         }
 
         return $result;
