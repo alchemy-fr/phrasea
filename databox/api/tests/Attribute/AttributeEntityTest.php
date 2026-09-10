@@ -419,6 +419,69 @@ class AttributeEntityTest extends AbstractSearchTest
         $this->assertSuggestions([], [$definitionSingle->getId(), $definitionMany->getId()], $esClient, $asset->getId());
     }
 
+    public function testAttributeEntityListClear(): void
+    {
+        $em = self::getEntityManager();
+
+        $list = new EntityList();
+        $list->setName('list2');
+        $list->setWorkspace($this->getOrCreateDefaultWorkspace());
+        $em->persist($list);
+
+        $entity = new AttributeEntity();
+        $entity->setList($list);
+        $entity->setValue('ae3');
+        $entity->setTranslations([
+            'fr' => 'ae3-fr',
+        ]);
+        $em->persist($entity);
+
+        $definition = $this->createAttributeDefinition([
+            'name' => 'Cleared',
+            'type' => EntityAttributeType::getName(),
+            'list' => $list,
+            'no_flush' => true,
+        ]);
+
+        $asset = $this->createAsset([
+            'name' => 'Asset2',
+            'attributes' => [
+                [
+                    'definition' => $definition,
+                    'value' => $entity->getId(),
+                ],
+            ],
+        ]);
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('asset');
+
+        $esClient = self::getService(ElasticSearchClient::class);
+        $assetIndexName = $esClient->getIndexName('asset');
+        $attrs = $esClient->request($assetIndexName.'/_search?q=_id:'.$asset->getId())->asArray()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0];
+        $this->assertSame('ae3', $attrs[AttributeInterface::NO_LOCALE]['cleared_entity_s']['value']);
+        $this->assertSame('ae3-fr', $attrs['fr']['cleared_entity_s']['value']);
+        $this->assertSuggestions(
+            $this->entitySuggestions($definition->getId(), $entity->getId(), 'ae3', ['fr' => 'ae3-fr']),
+            [$definition->getId()],
+            $esClient,
+            $asset->getId(),
+        );
+
+        $apiClient = static::createClient();
+        $apiClient->request('POST', '/entity-lists/'.$list->getId().'/clear', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        self::waitForESIndex('asset');
+        $attrs = $esClient->request($assetIndexName.'/_search?q=_id:'.$asset->getId())->asArray()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0];
+        $this->assertArrayNotHasKey('cleared_entity_s', $attrs[AttributeInterface::NO_LOCALE]);
+        $this->assertArrayNotHasKey('cleared_entity_s', $attrs['fr'] ?? []);
+        $this->assertSuggestions([], [$definition->getId()], $esClient, $asset->getId());
+    }
+
     /**
      * @param string[] $definitionIds the definitions to compare, the other ones (the asset name) being ignored
      */
