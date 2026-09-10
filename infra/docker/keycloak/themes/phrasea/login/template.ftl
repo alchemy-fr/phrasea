@@ -183,12 +183,22 @@
                 </#if>
             }
             <#if paradeFormTextColor?has_content>
-            .card-pf #kc-page-title,
-            .card-pf .pf-c-form__label,
-            .card-pf label,
-            .card-pf .checkbox label,
-            .card-pf p,
-            .card-pf li {
+            <#-- Prefixed with .login-pf-page to match the specificity of the
+                 base theme's own `.login-pf-page .card-pf p { color: #333 }`:
+                 a bare `.card-pf p` loses to it, and the welcome text stayed
+                 dark grey on a dark card. This block comes after the linked
+                 stylesheets, so an equal specificity is enough to win. -->
+            .login-pf-page .card-pf #kc-page-title,
+            <#-- Carries an id in the base theme (`#kc-attempted-username`,
+                 black), which outranks any combination of classes — it has to
+                 be named to be reached. -->
+            .login-pf-page .card-pf #kc-attempted-username,
+            .login-pf-page .card-pf .pf-c-form__label,
+            .login-pf-page .card-pf label,
+            .login-pf-page .card-pf .checkbox label,
+            .login-pf-page .card-pf p,
+            .login-pf-page .card-pf .parade-login-welcome,
+            .login-pf-page .card-pf li {
                 color: ${paradeFormTextColor};
             }
             </#if>
