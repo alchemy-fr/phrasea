@@ -48,10 +48,7 @@ final readonly class AttributeEntityListClearHandler
             );
         }
         // The entities are gone: so are their suggestions
-        $calls[] = sprintf(
-            'if (ctx._source.%1$s instanceof List) { List definitionIds = params[\'_definitionIds\']; ctx._source.%1$s.removeIf(s -> definitionIds.contains(s[\'definitionId\'])); }',
-            AttributeInterface::SUGGESTIONS_FIELD,
-        );
+        $calls[] = AttributeEntitySuggestionsScript::removeDefinitionsCall();
 
         $this->attributeEntityRepository->createQueryBuilder('t')
             ->delete()

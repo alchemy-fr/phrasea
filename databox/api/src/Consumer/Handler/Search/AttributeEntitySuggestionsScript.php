@@ -30,6 +30,18 @@ final class AttributeEntitySuggestionsScript
         return (object) $labels;
     }
 
+    /**
+     * Statement removing the entries of the definitions given by the "_definitionIds" parameter
+     * (their entity list has been cleared).
+     */
+    public static function removeDefinitionsCall(): string
+    {
+        return sprintf(
+            "if (ctx._source.%1\$s instanceof List) { List definitionIds = params['_definitionIds']; ctx._source.%1\$s.removeIf(s -> definitionIds.contains(s['definitionId'])); }",
+            AttributeInterface::SUGGESTIONS_FIELD,
+        );
+    }
+
     public static function declaration(): string
     {
         return sprintf(<<<'EOF'
