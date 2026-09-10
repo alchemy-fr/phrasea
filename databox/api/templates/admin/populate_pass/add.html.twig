@@ -14,21 +14,20 @@
 
         <div class="form-check mb-2">
             <input class="form-check-input" type="radio" name="scope" id="populate-scope-all" value="all" checked>
-            <label class="form-check-label" for="populate-scope-all">
-                <strong>All indices</strong>
-                <span class="text-muted">({{ indices|join(', ') }})</span>
-            </label>
+            <label class="form-check-label" for="populate-scope-all"><strong>All indices</strong></label>
+            <div class="text-muted small">{{ indices|join(', ') }}</div>
         </div>
         <div class="form-check mb-2">
-            <input class="form-check-input" type="radio" name="scope" id="populate-scope-one" value="one">
-            <label class="form-check-label" for="populate-scope-one"><strong>Only one index</strong></label>
+            <input class="form-check-input" type="radio" name="scope" id="populate-scope-selected" value="selected">
+            <label class="form-check-label" for="populate-scope-selected"><strong>Only the selected indices</strong></label>
         </div>
-        <div class="mb-3 ms-4">
-            <select class="form-select" name="index" id="populate-index" disabled>
-                {% for index in indices %}
-                    <option value="{{ index }}">{{ index }}</option>
-                {% endfor %}
-            </select>
+        <div class="mb-3 ms-4" id="populate-indices">
+            {% for index in indices %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="indices[]" value="{{ index }}" id="populate-index-{{ index }}" disabled>
+                    <label class="form-check-label" for="populate-index-{{ index }}"><code>{{ index }}</code></label>
+                </div>
+            {% endfor %}
         </div>
 
         <button type="submit" class="btn btn-primary"><i class="fa fa-play"></i> Start populate</button>
@@ -40,17 +39,19 @@
     {{ parent() }}
     <script>
         (function () {
-            var select = document.getElementById('populate-index');
+            var checkboxes = document.querySelectorAll('#populate-indices input[type="checkbox"]');
             var radios = document.querySelectorAll('input[name="scope"]');
+            var selectedRadio = document.getElementById('populate-scope-selected');
+            var submit = document.querySelector('#populate-pass-add-form button[type="submit"]');
             function sync() {
-                // only "one index" submits a value for "index"; "all" disables the select so nothing is sent
-                select.disabled = document.getElementById('populate-scope-one').checked === false;
+                // checkboxes are only enabled (and submitted) with the "selected indices" scope
+                var selected = selectedRadio.checked;
+                var any = false;
+                checkboxes.forEach(function (c) { c.disabled = !selected; any = any || (selected && c.checked); });
+                submit.disabled = selected && !any;
             }
             radios.forEach(function (r) { r.addEventListener('change', sync); });
-            select.addEventListener('focus', function () {
-                document.getElementById('populate-scope-one').checked = true;
-                sync();
-            });
+            checkboxes.forEach(function (c) { c.addEventListener('change', sync); });
             sync();
         })();
     </script>

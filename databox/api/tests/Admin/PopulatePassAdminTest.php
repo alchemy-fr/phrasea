@@ -32,8 +32,8 @@ class PopulatePassAdminTest extends AbstractAdminTest
         $crawler = $this->loadAddPage();
 
         $this->assertCount(1, $crawler->filter('input[name="scope"][value="all"]'));
-        $this->assertCount(1, $crawler->filter('input[name="scope"][value="one"]'));
-        $options = $crawler->filter('select[name="index"] option')->each(fn (Crawler $o): string => $o->attr('value'));
+        $this->assertCount(1, $crawler->filter('input[name="scope"][value="selected"]'));
+        $options = $crawler->filter('input[name="indices[]"]')->each(fn (Crawler $o): string => $o->attr('value'));
         $this->assertContains('asset', $options);
         $this->assertContains('collection', $options);
         $this->assertSame([], $this->getPopulateMessages(), 'displaying the form must not trigger anything');
@@ -56,19 +56,31 @@ class PopulatePassAdminTest extends AbstractAdminTest
         $this->assertStringContainsString('Populate of all indices was triggered', $crawler->filter('#flash-messages')->text());
     }
 
-    public function testPopulateASingleIndex(): void
+    public function testPopulateSelectedIndicesQueuesOneMessagePerIndex(): void
     {
         $crawler = $this->loadAddPage();
         $form = $crawler->selectButton('Start populate')->form();
 
-        $this->client->request('POST', $form->getUri(), ['token' => $form->get('token')->getValue(), 'scope' => 'one', 'index' => 'asset']);
+        $this->client->request('POST', $form->getUri(), ['token' => $form->get('token')->getValue(), 'scope' => 'selected', 'indices' => ['asset', 'collection', 'asset']]);
         $this->assertResponseRedirects();
         $messages = $this->getPopulateMessages();
-        $this->assertCount(1, $messages);
-        $this->assertSame('asset', $messages[0]->index);
+        $this->assertSame(['asset', 'collection'], array_map(static fn (ESPopulate $m): ?string => $m->index, $messages), 'duplicates are ignored');
 
         $crawler = $this->client->followRedirect();
-        $this->assertStringContainsString('Populate of index "asset" was triggered', $crawler->filter('#flash-messages')->text());
+        $this->assertStringContainsString('Populate of 2 index(es) was triggered: asset, collection', $crawler->filter('#flash-messages')->text());
+    }
+
+    public function testSelectedScopeWithoutAnyIndexIsRejected(): void
+    {
+        $crawler = $this->loadAddPage();
+        $form = $crawler->selectButton('Start populate')->form();
+
+        $this->client->request('POST', $form->getUri(), ['token' => $form->get('token')->getValue(), 'scope' => 'selected']);
+        $this->assertResponseRedirects();
+        $this->assertSame([], $this->getPopulateMessages());
+
+        $crawler = $this->client->followRedirect();
+        $this->assertStringContainsString('Select at least one index', $crawler->filter('#flash-messages')->text());
     }
 
     public function testUnknownIndexIsRejected(): void
@@ -76,12 +88,12 @@ class PopulatePassAdminTest extends AbstractAdminTest
         $crawler = $this->loadAddPage();
         $form = $crawler->selectButton('Start populate')->form();
 
-        $this->client->request('POST', $form->getUri(), ['token' => $form->get('token')->getValue(), 'scope' => 'one', 'index' => 'nope']);
+        $this->client->request('POST', $form->getUri(), ['token' => $form->get('token')->getValue(), 'scope' => 'selected', 'indices' => ['asset', 'nope']]);
         $this->assertResponseRedirects();
-        $this->assertSame([], $this->getPopulateMessages());
+        $this->assertSame([], $this->getPopulateMessages(), 'nothing is queued when one of the indices is unknown');
 
         $crawler = $this->client->followRedirect();
-        $this->assertStringContainsString('Unknown index "nope"', $crawler->filter('#flash-messages')->text());
+        $this->assertStringContainsString('Unknown index(es): nope', $crawler->filter('#flash-messages')->text());
     }
 
     public function testInvalidCsrfTokenIsRejected(): void

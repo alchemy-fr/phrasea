@@ -106,7 +106,7 @@ class PopulatePassCrudController extends AbstractAdminCrudController
     }
 
     /**
-     * Shows the "which index?" form (GET), then queues the populate (POST).
+     * Shows the "which indices?" form (GET), then queues one populate per selected index (POST).
      */
     #[AdminRoute('/add', name: 'add_populate')]
     public function addPopulate(Request $request): Response
@@ -120,19 +120,31 @@ class PopulatePassCrudController extends AbstractAdminCrudController
                 return $this->redirect($this->getIndexUrl());
             }
 
-            $index = $request->request->get('index');
-            $index = '' === $index || null === $index ? null : (string) $index;
-            if (null !== $index && !\in_array($index, $indices, true)) {
-                $this->addFlash('danger', \sprintf('Unknown index "%s".', $index));
+            if ('all' === $request->request->get('scope', 'all')) {
+                $this->bus->dispatch(new ESPopulate());
+                $this->addFlash('info', 'Populate of all indices was triggered');
 
                 return $this->redirect($this->getIndexUrl());
             }
 
-            $this->bus->dispatch(new ESPopulate($index));
+            $selected = array_values(array_unique(array_map(strval(...), $request->request->all('indices'))));
+            if ([] === $selected) {
+                $this->addFlash('danger', 'Select at least one index, or choose "All indices".');
 
-            $this->addFlash('info', null === $index
-                ? 'Populate of all indices was triggered'
-                : \sprintf('Populate of index "%s" was triggered', $index));
+                return $this->redirect($this->getIndexUrl());
+            }
+            $unknown = array_diff($selected, $indices);
+            if ([] !== $unknown) {
+                $this->addFlash('danger', \sprintf('Unknown index(es): %s.', implode(', ', $unknown)));
+
+                return $this->redirect($this->getIndexUrl());
+            }
+
+            // one message per index: passes run independently and can be spread across workers
+            foreach ($selected as $index) {
+                $this->bus->dispatch(new ESPopulate($index));
+            }
+            $this->addFlash('info', \sprintf('Populate of %d index(es) was triggered: %s', \count($selected), implode(', ', $selected)));
 
             return $this->redirect($this->getIndexUrl());
         }
