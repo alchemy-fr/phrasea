@@ -29,8 +29,8 @@ services:
     environment:
       - TRAEFIK_API=true
       - TRAEFIK_API_INSECURE=true
-      - TRAEFIK_ACCESSLOG=true
-      - TRAEFIK_LOG_LEVEL=DEBUG
+      - TRAEFIK_ACCESSLOG=${TRAEFIK_ACCESSLOG}
+      - TRAEFIK_LOG_LEVEL=${TRAEFIK_LOG_LEVEL}
       - TRAEFIK_LOG_FORMAT=common
       - TRAEFIK_PROVIDERS_DOCKER=true
       - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
@@ -127,6 +127,7 @@ services:
       - internal
     environment:
       - APP_ENV
+      - WORKER_VERBOSITY
       - FIXTURES_GENERATE_IMAGES
       - TRUSTED_PROXIES
       - VERIFY_SSL
