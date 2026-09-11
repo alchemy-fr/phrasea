@@ -5,8 +5,15 @@ networks:
       config:
         - subnet: ${PS_SUBNET}
 
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: ${DOCKER_LOG_MAX_SIZE}
+    max-file: "${DOCKER_LOG_MAX_FILE}"
+
 services:
   traefik:
+    logging: *default-logging
     image: ${TRAEFIK_IMAGE}
     networks:
       - internal
@@ -29,8 +36,8 @@ services:
     environment:
       - TRAEFIK_API=true
       - TRAEFIK_API_INSECURE=true
-      - TRAEFIK_ACCESSLOG=true
-      - TRAEFIK_LOG_LEVEL=DEBUG
+      - TRAEFIK_ACCESSLOG=${TRAEFIK_ACCESSLOG}
+      - TRAEFIK_LOG_LEVEL=${TRAEFIK_LOG_LEVEL}
       - TRAEFIK_LOG_FORMAT=common
       - TRAEFIK_PROVIDERS_DOCKER=true
       - TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
@@ -68,6 +75,7 @@ services:
       - SCW_SECRET_KEY=${LEGO_SCW_SECRET_KEY}
       - SCW_ACCESS_KEY=${LEGO_SCW_ACCESS_KEY}
   a_client:
+    logging: *default-logging
     profiles:
       - none
     build:
@@ -114,6 +122,7 @@ services:
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   a_api-php:
+    logging: *default-logging
     profiles:
       - none
     build:
@@ -127,6 +136,8 @@ services:
       - internal
     environment:
       - APP_ENV
+      - LOG_ACTION_LEVEL
+      - WORKER_VERBOSITY
       - FIXTURES_GENERATE_IMAGES
       - TRUSTED_PROXIES
       - VERIFY_SSL
@@ -170,6 +181,7 @@ services:
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   a_s3-php:
+    logging: *default-logging
     extends:
       service: a_api-php
     profiles:
@@ -183,6 +195,7 @@ services:
       - S3_USE_PATH_STYLE_ENDPOINT
 
   uploader-api-php:
+    logging: *default-logging
     extends:
       service: a_s3-php
     profiles:
@@ -212,6 +225,7 @@ services:
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   uploader-worker:
+    logging: *default-logging
     extends:
       service: uploader-api-php
     image: ${REGISTRY_NAMESPACE}uploader-worker:${DOCKER_TAG}
@@ -221,6 +235,7 @@ services:
       replicas: $UPLOADER_WORKER_REPLICAS
 
   uploader-api-nginx:
+    logging: *default-logging
     profiles:
       - uploader
     image: ${REGISTRY_NAMESPACE}uploader-api-nginx:${DOCKER_TAG}
@@ -246,6 +261,7 @@ services:
       - "traefik.http.routers.uploader-api.rule=Host(`api-uploader.${PHRASEA_DOMAIN}`)"
 
   databox-client:
+    logging: *default-logging
     extends:
       service: a_client
     image: ${REGISTRY_NAMESPACE}databox-client:${DOCKER_TAG}
@@ -266,6 +282,7 @@ services:
       - "traefik.http.routers.databox-client-dev.rule=Host(`databox.${PHRASEA_DOMAIN}`)"
 
   expose-client:
+    logging: *default-logging
     extends:
       service: a_client
     image: ${REGISTRY_NAMESPACE}expose-client:${DOCKER_TAG}
@@ -287,6 +304,7 @@ services:
       - "traefik.http.routers.expose-client-dev.rule=Host(`expose.${PHRASEA_DOMAIN}`)"
 
   uploader-client:
+    logging: *default-logging
     extends:
       service: a_client
     image: ${REGISTRY_NAMESPACE}uploader-client:${DOCKER_TAG}
@@ -306,6 +324,7 @@ services:
       - "traefik.http.routers.uploader-client-dev.rule=Host(`uploader.${PHRASEA_DOMAIN}`)"
 
   expose-api-php:
+    logging: *default-logging
     extends:
       service: a_s3-php
     profiles:
@@ -344,6 +363,7 @@ services:
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   expose-worker:
+    logging: *default-logging
     extends:
       service: expose-api-php
     image: ${REGISTRY_NAMESPACE}expose-worker:${DOCKER_TAG}
@@ -355,6 +375,7 @@ services:
       - WORKER_PRIORITIES=p1
 
   expose-api-nginx:
+    logging: *default-logging
     profiles:
       - expose
     image: ${REGISTRY_NAMESPACE}expose-api-nginx:${DOCKER_TAG}
@@ -381,6 +402,7 @@ services:
       - "traefik.http.routers.expose-api.rule=Host(`api-expose.${PHRASEA_DOMAIN}`)"
 
   redis:
+    logging: *default-logging
     profiles:
       - redis
     image: ${REDIS_IMAGE}
@@ -390,6 +412,7 @@ services:
       - redis:/data
 
   db:
+    logging: *default-logging
     profiles:
       - db
     image: ${POSTGRES_IMAGE}
@@ -403,6 +426,7 @@ services:
       - db:/var/lib/postgresql/data
 
   rabbitmq:
+    logging: *default-logging
     profiles:
       - rabbitmq
     image: ${RABBITMQ_IMAGE}
@@ -421,6 +445,7 @@ services:
       - "traefik.http.services.rabbitmq-console.loadbalancer.server.port=15672"
 
   dockerize:
+    logging: *default-logging
     profiles:
       - dockerize
     image: jwilder/dockerize:0.6.1
@@ -442,6 +467,7 @@ services:
       - "ready"
 
   minio:
+    logging: *default-logging
     profiles:
       - minio
     image: ${MINIO_IMAGE}
@@ -465,6 +491,7 @@ services:
       - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
 
   matomo-php:
+    logging: *default-logging
     profiles:
       - matomo
     image: ${REGISTRY_NAMESPACE}matomo-php:${DOCKER_TAG}
@@ -482,6 +509,7 @@ services:
       - matomo:/var/www/html
 
   matomo-nginx:
+    logging: *default-logging
     profiles:
       - matomo
     image: ${REGISTRY_NAMESPACE}matomo-nginx:${DOCKER_TAG}
@@ -500,6 +528,7 @@ services:
       - "traefik.http.routers.matomo.rule=Host(`matomo.${PHRASEA_DOMAIN}`)"
 
   matomo-db:
+    logging: *default-logging
     profiles:
       - matomo-db
     image: mariadb:10.4.10-bionic
@@ -519,6 +548,7 @@ services:
       - matomodb:/var/lib/mysql
 
   report-api:
+    logging: *default-logging
     profiles:
       - report
     image: ${REGISTRY_NAMESPACE}report-api:${DOCKER_TAG}
@@ -536,6 +566,7 @@ services:
       - POSTGRES_DATABASE=${REPORT_DB_NAME}
 
   pgadmin:
+    logging: *default-logging
     profiles:
       - pgadmin
     image: dpage/pgadmin4:9.11.0
@@ -555,6 +586,7 @@ services:
       - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.${PHRASEA_DOMAIN}`)"
 
   phpmyadmin:
+    logging: *default-logging
     profiles:
       - phpmyadmin
     image: phpmyadmin/phpmyadmin
@@ -569,6 +601,7 @@ services:
       - "traefik.http.routers.phpmyadmin.middlewares=admin-secured@docker"
 
   mailpit:
+    logging: *default-logging
     profiles:
       - mailpit
     image: ${MAILPIT_IMAGE}
@@ -585,6 +618,7 @@ services:
       - "traefik.http.routers.mailpit.middlewares=admin-secured@docker"
 
   dashboard-client:
+    logging: *default-logging
     extends:
       service: a_client
     profiles:
@@ -629,6 +663,7 @@ services:
       - "traefik.http.routers.dashboard.rule=Host(`dashboard.${PHRASEA_DOMAIN}`)"
 
   databox-api-php:
+    logging: *default-logging
     extends:
       service: a_s3-php
     profiles:
@@ -686,6 +721,7 @@ services:
       - matomo.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   databox-worker:
+    logging: *default-logging
     extends:
       service: databox-api-php
     image: ${REGISTRY_NAMESPACE}databox-worker:${DOCKER_TAG}
@@ -710,6 +746,7 @@ services:
       - IMAGEMAGICK_POLICY_TEMPORARY_PATH
 
   databox-api-nginx:
+    logging: *default-logging
     profiles:
       - databox
     image: ${REGISTRY_NAMESPACE}databox-api-nginx:${DOCKER_TAG}
@@ -735,6 +772,7 @@ services:
       - "traefik.http.routers.databox-api.rule=Host(`api-databox.${PHRASEA_DOMAIN}`)"
 
   databox-indexer:
+    logging: *default-logging
     image: ${REGISTRY_NAMESPACE}databox-indexer:${DOCKER_TAG}
     command: [ "/bin/sh", "-c", "exit" ]
     build:
@@ -795,6 +833,7 @@ services:
       - "traefik.http.routers.databox-indexer.rule=Host(`databox-indexer.${PHRASEA_DOMAIN}`)"
 
   elasticsearch:
+    logging: *default-logging
     profiles:
       - elasticsearch
     image: ${ELASTICSEARCH_IMAGE}
@@ -814,6 +853,7 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
 
   elastichq:
+    logging: *default-logging
     profiles:
       - elastichq
     image: elastichq/elasticsearch-hq
@@ -826,6 +866,7 @@ services:
       - "traefik.http.routers.elastichq.middlewares=admin-secured@docker"
 
   k6:
+    logging: *default-logging
     profiles:
       - loadtest
     image: grafana/k6:0.26.2
@@ -844,6 +885,7 @@ services:
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   influxdb:
+    logging: *default-logging
     image: influxdb:1.8
     profiles:
       - loadtest
@@ -853,6 +895,7 @@ services:
       - INFLUXDB_DB=k6
 
   grafana:
+    logging: *default-logging
     image: grafana/grafana:8.4.2
     profiles:
       - loadtest
@@ -871,6 +914,7 @@ services:
       - "traefik.http.routers.grafana.middlewares=admin-secured@docker"
 
   webhook-endpoint:
+    logging: *default-logging
     image: mendhak/http-https-echo:23
     profiles:
       - webhooks
@@ -882,6 +926,7 @@ services:
       - "traefik.http.routers.webhook-endpoint.rule=Host(`webhook-endpoint.${PHRASEA_DOMAIN}`)"
 
   zippy-api: &zippy
+    logging: *default-logging
     image: alchemyfr/zippy-api:latest
     profiles:
       - zippy
@@ -912,6 +957,7 @@ services:
     labels: []
 
   keycloak:
+    logging: *default-logging
     image: ${REGISTRY_NAMESPACE}keycloak:${DOCKER_TAG}
     build:
       context: ./infra/docker/keycloak
@@ -948,6 +994,7 @@ services:
       - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
 
   keycloak2:
+    logging: *default-logging
     image: ${REGISTRY_NAMESPACE}keycloak:${DOCKER_TAG}
     command:
       - 'start'
@@ -973,6 +1020,7 @@ services:
       - "traefik.http.services.keycloak2.loadbalancer.server.port=8080"
 
   configurator:
+    logging: *default-logging
     image: ${REGISTRY_NAMESPACE}configurator:${DOCKER_TAG}
     build:
       context: ./
@@ -1104,6 +1152,7 @@ services:
       - minio-console.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   cypress:
+    logging: *default-logging
     build:
       context: ./cypress
       network: host
@@ -1130,6 +1179,7 @@ services:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   soketi:
+    logging: *default-logging
     profiles:
       - soketi
     image: ${SOKETI_IMAGE}
