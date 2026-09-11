@@ -1,37 +1,35 @@
 monolog:
     channels:
-        - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
+        - deprecation
     handlers:
-        # Records emitted from PHP-FPM (web) requests.
-        # Named "console_filter" on purpose: ConsoleFilterHandlePass decorates that service so
-        # the handler turns itself off under the CLI SAPI, where the "console" handler below
-        # already prints the very same records. Without it every worker error is logged twice.
-        console_filter:
-            type: filter
+        main:
+            type: fingers_crossed
+            action_level: '%env(LOG_ACTION_LEVEL)%'
+            passthru_level: warning
+            stop_buffering: false
             handler: stderr
-            # Not '%env(LOG_LEVEL)%': monolog-bundle resolves handler levels while the
-            # container is compiled, so an env placeholder never gets resolved there.
-            min_level: warning
+            excluded_http_codes: [404, 403, 405]
+            buffer_size: 50 # How many messages should be saved? Prevent memory leaks
             channels:
                 - '!event'
                 - '!php'
                 - '!deprecation'
 
-        # Deliberately not wrapped in a "fingers_crossed" handler: that one replayed up to 50
-        # buffered DEBUG/INFO records (Doctrine SQL, Messenger chatter, ...) in front of every
-        # error, which is what drowned the actual error in the container output.
         stderr:
             type: stream
             path: php://stderr
             level: debug
             formatter: alchemy_core.monolog.line_formatter_stack_trace
 
-        # Records emitted from CLI commands (messenger workers included).
-        # The level follows the command verbosity: none => WARNING, -v => NOTICE,
-        # -vv => INFO, -vvv => DEBUG.
         console:
             type: console
             process_psr_3_messages: false
+            verbosity_levels:
+                VERBOSITY_QUIET: EMERGENCY
+                VERBOSITY_NORMAL: ERROR
+                VERBOSITY_VERBOSE: NOTICE
+                VERBOSITY_VERY_VERBOSE: INFO
+                VERBOSITY_DEBUG: DEBUG
             channels:
                 - '!event'
                 - '!php'

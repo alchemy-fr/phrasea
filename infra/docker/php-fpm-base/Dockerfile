@@ -14,6 +14,7 @@ RUN apk add --no-cache --virtual .persistent-deps \
 
 ENV APP_ENV=prod \
     PHP_MEMORY_LIMIT=132M \
+    LOG_ACTION_LEVEL=error \
     WORKER_VERBOSITY= \
     APCU_VERSION=5.1.28 \
     AMQP_VERSION=2.2.0 \
