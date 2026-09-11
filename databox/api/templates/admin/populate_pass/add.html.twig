@@ -1,0 +1,86 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Add a populate pass{% endblock %}
+
+{% block main %}
+    <p class="text-muted">
+        A populate rebuilds the Elasticsearch documents from the database. It runs in the background
+        (worker queue) and one pass is recorded per index. Populating every index can take a long time on
+        a large instance: prefer targeting the index you actually changed.
+    </p>
+
+    {% if running is not empty %}
+        <div class="alert alert-warning" style="max-width: 40em">
+            <p>A populate is currently running for: <strong>{{ running|join(', ') }}</strong>.
+            These indices cannot be populated again until it finishes.</p>
+            <p class="mb-2">If the worker died mid-populate, force-release the lock (this also closes the open pass).
+            <strong>Do not do this while the populate is actually running</strong>: it would lose its index.</p>
+            {% for index in running %}
+                <form method="post" action="{{ path('easyadmin_populate_pass_unlock', {index: index}) }}" class="d-inline"
+                      onsubmit="return confirm('Release the populate lock of {{ index }}? Only do this if its worker is dead.');">
+                    <input type="hidden" name="token" value="{{ csrf_token(constant('App\\Controller\\Admin\\PopulatePassCrudController::CSRF_TOKEN_ID')) }}">
+                    <button type="submit" class="btn btn-sm btn-outline-danger es-unlock" data-index="{{ index }}"><i class="fa fa-lock-open"></i> Release lock of {{ index }}</button>
+                </form>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post" action="" id="populate-pass-add-form" class="mt-3" style="max-width: 40em">
+        <input type="hidden" name="token" value="{{ csrf_token(constant('App\\Controller\\Admin\\PopulatePassCrudController::CSRF_TOKEN_ID')) }}">
+
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="scope" id="populate-scope-all" value="all" checked>
+            <label class="form-check-label" for="populate-scope-all"><strong>All indices</strong></label>
+            <div class="text-muted small">{{ indices|join(', ') }}</div>
+        </div>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="scope" id="populate-scope-selected" value="selected">
+            <label class="form-check-label" for="populate-scope-selected"><strong>Only the selected indices</strong></label>
+        </div>
+        <div class="mb-3 ms-4" id="populate-indices">
+            {% for index in indices %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="indices[]" value="{{ index }}" id="populate-index-{{ index }}" disabled{% if index in running %} data-running="1"{% endif %}>
+                    <label class="form-check-label" for="populate-index-{{ index }}"><code>{{ index }}</code>{% if index in running %} <span class="badge badge-warning">running</span>{% endif %}</label>
+                </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-primary"><i class="fa fa-play"></i> Start populate</button>
+        <a href="{{ indexUrl }}" class="btn btn-secondary">Cancel</a>
+    </form>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+    <script>
+        (function () {
+            var form = document.getElementById('populate-pass-add-form');
+            var checkboxes = document.querySelectorAll('#populate-indices input[type="checkbox"]');
+            var radios = document.querySelectorAll('input[name="scope"]');
+            var selectedRadio = document.getElementById('populate-scope-selected');
+            var submit = form.querySelector('button[type="submit"]');
+            var submitted = false;
+            function sync() {
+                // checkboxes are only enabled (and submitted) with the "selected indices" scope;
+                // indices with a running populate cannot be selected
+                var selected = selectedRadio.checked;
+                var any = false;
+                checkboxes.forEach(function (c) {
+                    c.disabled = !selected || c.dataset.running === '1';
+                    any = any || (selected && c.checked);
+                });
+                submit.disabled = submitted || (selected && !any);
+            }
+            radios.forEach(function (r) { r.addEventListener('change', sync); });
+            checkboxes.forEach(function (c) { c.addEventListener('change', sync); });
+            // guard against double submission (each submit queues a populate)
+            form.addEventListener('submit', function (e) {
+                if (submitted) { e.preventDefault(); return; }
+                submitted = true;
+                submit.disabled = true;
+            });
+            sync();
+        })();
+    </script>
+{% endblock %}

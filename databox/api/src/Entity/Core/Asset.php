@@ -327,6 +327,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Index(columns: ['created_at'], name: 'asset_created_at_idx')]
+#[ORM\Index(columns: ['created_at', 'id'], name: 'asset_created_at_id_idx')]
 #[ORM\Entity(repositoryClass: AssetRepository::class)]
 class Asset extends AbstractUuidEntity implements FollowableInterface, HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, \Stringable
 {
