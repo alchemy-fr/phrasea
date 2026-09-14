@@ -71,6 +71,8 @@ services:
       - ./expose/api/docker/nginx/entrypoint.sh:/entrypoint.sh
 
   expose-worker:
+    environment:
+      - WORKER_VERBOSITY=${WORKER_VERBOSITY:--vv}
     volumes:
       - ./expose/api:/srv/app
       - ./lib/php:/lib/php
@@ -86,6 +88,8 @@ services:
       - ./lib/php:/lib/php
 
   uploader-worker:
+    environment:
+      - WORKER_VERBOSITY=${WORKER_VERBOSITY:--vv}
     volumes:
       - ./uploader/api:/srv/app
       - ./lib/php:/lib/php
@@ -112,6 +116,8 @@ services:
       - ./databox/api/public:/srv/app/public
 
   databox-worker:
+    environment:
+      - WORKER_VERBOSITY=${WORKER_VERBOSITY:--vv}
     volumes:
       - ./databox/api:/srv/app
       - ./lib/php:/lib/php

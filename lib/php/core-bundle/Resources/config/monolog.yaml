@@ -1,3 +1,8 @@
+parameters:
+    # Level that triggers the "fingers_crossed" replay in prod: below it nothing reaches
+    # stderr, at it (and above) the buffered context is flushed with the record.
+    env(LOG_ACTION_LEVEL): 'error'
+
 services:
     _defaults:
         autowire: true
