@@ -473,13 +473,22 @@ services:
     image: ${MINIO_IMAGE}
     networks:
       - internal
-    command: server /data --console-address ":9001"
+    command: server /data --console-address :9001
     volumes:
       - s3:/data
     environment:
       - MINIO_ROOT_USER=${S3_ACCESS_KEY}
       - MINIO_ROOT_PASSWORD=${S3_SECRET_KEY}
       - MINIO_BROWSER_REDIRECT_URL=${MINIO_CONSOLE_URL}
+      - MINIO_NOTIFY_AMQP_ENABLE_PRIMARY=on
+      - MINIO_NOTIFY_AMQP_URL_PRIMARY=amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@${RABBITMQ_HOST}:${RABBITMQ_PORT}/s3events
+      - MINIO_NOTIFY_AMQP_EXCHANGE_PRIMARY=s3events
+      - MINIO_NOTIFY_AMQP_EXCHANGE_TYPE_PRIMARY=direct
+      - MINIO_NOTIFY_AMQP_DURABLE_PRIMARY=on
+      - MINIO_NOTIFY_AMQP_MANDATORY_PRIMARY=off
+      - MINIO_NOTIFY_AMQP_NO_WAIT_PRIMARY=off
+      - MINIO_NOTIFY_AMQP_INTERNAL_PRIMARY=off
+      - MINIO_NOTIFY_AMQP_AUTO_DELETED_PRIMARY=off
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -1134,7 +1143,7 @@ services:
       - S3_REGION
       - S3_PATH_PREFIX
       - VERIFY_SSL
-      - MINIO_CONSOLE_URL
+      - MINIO_NOTIFY_AMQP_ARN
       - POSTGRES_HOST
       - POSTGRES_PORT
       - POSTGRES_USER
