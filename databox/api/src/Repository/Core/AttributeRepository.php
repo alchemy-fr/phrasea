@@ -9,6 +9,7 @@ use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Contracts\Cache\CacheInterface;
 

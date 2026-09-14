@@ -273,18 +273,6 @@ class AssetSearch extends AbstractSearch
         return $paths;
     }
 
-    private function buildTagFilterQuery(?string $userId, array $groupIds): ?Query\BoolQuery
-    {
-        $collections = DoctrineUtil::getFromIds($this->collectionRepository, (array) $collectionIds);
-        $paths = array_map(fn (Collection $collection): string => $collection->getAbsolutePath(), $collections);
-
-        if (empty($paths)) {
-            throw new NotFoundHttpException('Collections not found');
-        }
-
-        return $paths;
-    }
-
     private function buildAttributeFilterQuery(?string $userId, array $groupIds, array $options): ?Query\BoolQuery
     {
         $ruleSet = $this->attributeFilterManager->getUserRules($userId, $groupIds);
