@@ -282,7 +282,14 @@ class AssetSearch extends AbstractSearch
                     $fieldName .= '.'.$esFieldInfo->type->getElasticSearchSortSubField();
                 }
 
-                $sort[] = [$fieldName => $w];
+                if ($esFieldInfo->builtIn) {
+                    $sort[] = [$fieldName => $w];
+                } else {
+                    $sort[] = [$fieldName => [
+                        'order' => $w,
+                        'unmapped_type' => 'keyword',
+                    ]];
+                }
             }
         } else {
             $sort[] = [

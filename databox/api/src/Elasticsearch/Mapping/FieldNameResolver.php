@@ -45,7 +45,8 @@ final readonly class FieldNameResolver
             return new FieldInfoDto(
                 $builtInAttribute::getName(),
                 $this->attributeTypeRegistry->getStrictType($builtInAttribute->getType()),
-                $builtInAttribute->isEnabled()
+                $builtInAttribute->isEnabled(),
+                builtIn: true,
             );
         }
         $info = $this->extractFieldFromAttributeKey($name);
