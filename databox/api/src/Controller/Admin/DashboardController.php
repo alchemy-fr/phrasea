@@ -8,6 +8,7 @@ use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\AdminBundle\Controller\Acl\AccessControlEntryCrudController;
 use Alchemy\AdminBundle\Controller\MultipartUploadCrudController;
 use Alchemy\ConfiguratorBundle\Controller\ConfiguratorEntryCrudController;
+use Alchemy\ESBundle\Admin\ESAdminMenu;
 use Alchemy\NotifierBundle\Admin\NotifierAdminMenu;
 use Alchemy\TrackBundle\Controller\ChangeLogCrudController;
 use Alchemy\WebhookBundle\Controller\WebhookCrudController;
@@ -98,7 +99,7 @@ class DashboardController extends AbstractAdminDashboardController
         $submenuAdmin = [
             MenuItem::linkTo(OperationTaskCrudController::class, 'Operation Task'),
             MenuItem::linkTo(PopulatePassCrudController::class, 'Populate Pass'),
-            MenuItem::linkTo(ESIndexStateCrudController::class, 'ES Index State'),
+            ESAdminMenu::createMenuItem(),
         ];
 
         $submenuIntegration = [

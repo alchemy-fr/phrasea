@@ -1,0 +1,271 @@
+{% extends '@AlchemyES/admin/_layout.html.twig' %}
+{% import '@AlchemyES/admin/_layout.html.twig' as es %}
+
+{% block content_title %}Elasticsearch indices &amp; aliases{% endblock %}
+
+{% block es_main %}
+    <style>
+        #es-logical-indices code, #es-physical-indices code, #es-aliases code { word-break: break-all; }
+        td.es-actions form { margin-bottom: 2px; }
+    </style>
+    {% if indexPrefix is not empty %}
+        <p class="text-muted"><i class="fa fa-filter"></i> Only indices and aliases prefixed with <code>{{ indexPrefix }}</code> are shown and manageable here (<code>alchemy_es.admin.index_prefix</code>).</p>
+    {% endif %}
+    <h2 class="mt-3">Logical indices (FOS Elastica configuration)</h2>
+    <p class="text-muted">
+        Each logical index is backed by a physical Elasticsearch index, either directly or through an alias.
+        Dated indices (<code>&lt;name&gt;_YYYY-MM-DD-HHMMSS</code>) are the previous generations left behind by populates.
+    </p>
+    <table class="table datagrid" id="es-logical-indices">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Configured name</th>
+                <th>Mode</th>
+                <th>Physical index</th>
+                <th class="text-end">Documents</th>
+                <th>Old indices</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for li in logicalIndices %}
+            <tr>
+                <td><strong>{{ li.name }}</strong></td>
+                <td><code>{{ li.target }}</code></td>
+                <td>{{ li.useAlias ? 'alias' : 'direct' }}</td>
+                <td>
+                    {% if li.exists %}
+                        {% for p in li.activeIndices %}
+                            <a href="{{ path(es_route ~ 'index_detail', {name: p}) }}"><code>{{ p }}</code></a>{% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <span class="badge badge-danger">missing</span>
+                    {% endif %}
+                </td>
+                <td class="text-end">{{ li.docsCount }}</td>
+                <td>
+                    {% if li.oldIndices is empty %}
+                        <span class="text-muted">none</span>
+                    {% else %}
+                        <span class="badge badge-warning">{{ li.oldIndices|length }}</span>
+                        <small class="text-muted">{{ li.oldIndices|join(', ') }}</small>
+                    {% endif %}
+                </td>
+                <td class="text-end es-actions">
+                    {% if li.oldIndices is not empty %}
+                        {{ es.confirm_form(
+                            path(es_route ~ 'logical_clean_olds', {name: li.name}),
+                            'es-clean-olds-' ~ li.name,
+                            'Remove old indices',
+                            'warning',
+                            'Remove the old indices of "' ~ li.name ~ '"?',
+                            'The following physical indices will be permanently deleted: ' ~ li.oldIndices|join(', ') ~ '. The active index is kept.',
+                            'fa fa-broom'
+                        ) }}
+                    {% endif %}
+                    {{ es.confirm_form(
+                        path(es_route ~ 'logical_reset', {name: li.name}),
+                        'es-reset-' ~ li.name,
+                        li.exists ? 'Reset (recreate empty)' : 'Create',
+                        li.exists ? 'danger' : 'primary',
+                        (li.exists ? 'Reset' : 'Create') ~ ' the index "' ~ li.name ~ '"?',
+                        li.exists
+                            ? 'The index is recreated EMPTY with the mapping from the configuration' ~ (li.useAlias ? ' and the alias is switched to the new index; the previous physical index is deleted' : '; all its documents are lost') ~ '. You will need to run a populate afterwards.'
+                            : 'An empty physical index is created with the mapping from the configuration.',
+                        li.exists ? 'fa fa-rotate' : 'fa fa-plus'
+                    ) }}
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="7" class="text-muted">No logical index configured.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <h2 class="mt-5">Physical indices</h2>
+    <table class="table datagrid" id="es-physical-indices">
+        <thead>
+            <tr>
+                <th>Index</th>
+                <th>Role</th>
+                <th>Logical</th>
+                <th>Health</th>
+                <th>Status</th>
+                <th class="text-end">Docs</th>
+                <th class="text-end">Size</th>
+                <th>Shards</th>
+                <th>Created</th>
+                <th>Aliases</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for p in physicalIndices %}
+            {% set is_system = p.role == 'system' %}
+            <tr class="{{ is_system ? 'text-muted' }}">
+                <td>
+                    {% if is_system %}
+                        <code>{{ p.name }}</code>
+                    {% else %}
+                        <a href="{{ path(es_route ~ 'index_detail', {name: p.name}) }}"><code>{{ p.name }}</code></a>
+                    {% endif %}
+                </td>
+                <td><span class="badge badge-{{ roles[p.role]|default('secondary') }}">{{ p.role }}</span></td>
+                <td>{{ p.logicalIndex ?? '-' }}</td>
+                <td>
+                    {% set health_colors = {green: 'success', yellow: 'warning', red: 'danger'} %}
+                    <span class="badge badge-{{ health_colors[p.health]|default('secondary') }}">{{ p.health ?? '?' }}</span>
+                </td>
+                <td>{{ p.status ?? '?' }}</td>
+                <td class="text-end">{{ p.docsCount }}</td>
+                <td class="text-end">{{ (p.storeSize / 1024)|round(1) }} kB</td>
+                <td>{{ p.primaries ?? '?' }}p / {{ p.replicas ?? '?' }}r</td>
+                <td>{{ p.createdAt ? p.createdAt|date('Y-m-d H:i') : '-' }}</td>
+                <td>
+                    {% for a in p.aliases %}
+                        <code>{{ a }}</code>{% if not loop.last %}, {% endif %}
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endfor %}
+                </td>
+                <td class="text-end es-actions">
+                    {% if not is_system %}
+                        {{ es.confirm_form(
+                            path(es_route ~ 'index_refresh', {name: p.name}),
+                            'es-refresh-' ~ loop.index,
+                            'Refresh', 'secondary',
+                            'Refresh index "' ~ p.name ~ '"?',
+                            'Makes all recent operations visible to search. Harmless.',
+                            'fa fa-rotate-right'
+                        ) }}
+                        {% if p.status == 'close' %}
+                            {{ es.confirm_form(
+                                path(es_route ~ 'index_open', {name: p.name}),
+                                'es-open-' ~ loop.index,
+                                'Open', 'info',
+                                'Open index "' ~ p.name ~ '"?',
+                                'The index becomes readable and writable again.',
+                                'fa fa-lock-open'
+                            ) }}
+                        {% else %}
+                            {{ es.confirm_form(
+                                path(es_route ~ 'index_close', {name: p.name}),
+                                'es-close-' ~ loop.index,
+                                'Close', 'warning',
+                                'Close index "' ~ p.name ~ '"?',
+                                'A closed index is not searchable and rejects writes until reopened.' ~ (p.role in ['active', 'direct'] ? ' WARNING: this index is currently in use by the application!' : ''),
+                                'fa fa-lock'
+                            ) }}
+                        {% endif %}
+                        {{ es.confirm_form(
+                            path(es_route ~ 'index_delete', {name: p.name}),
+                            'es-delete-' ~ loop.index,
+                            'Delete', 'danger',
+                            'Permanently delete index "' ~ p.name ~ '"?',
+                            'All ' ~ p.docsCount ~ ' documents and the aliases of this index will be lost. This cannot be undone.' ~ (p.role in ['active', 'direct'] ? ' WARNING: this index is currently in use by the application!' : ''),
+                            'fa fa-trash'
+                        ) }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="11" class="text-muted">No index in the cluster.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <h2 class="mt-5">Aliases</h2>
+    <div class="row">
+        <div class="col-lg-7">
+            <table class="table datagrid" id="es-aliases">
+                <thead>
+                    <tr>
+                        <th>Alias</th>
+                        <th>Points to</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for alias, indices in aliases %}
+                    {% for i in indices %}
+                        <tr>
+                            <td>{% if loop.first %}<code>{{ alias }}</code>{% endif %}</td>
+                            <td><a href="{{ path(es_route ~ 'index_detail', {name: i}) }}"><code>{{ i }}</code></a></td>
+                            <td class="text-end">
+                                {{ es.confirm_form(
+                                    path(es_route ~ 'alias_remove'),
+                                    'es-alias-remove-' ~ loop.parent.loop.index ~ '-' ~ loop.index,
+                                    'Remove', 'danger',
+                                    'Remove alias "' ~ alias ~ '" from index "' ~ i ~ '"?',
+                                    'Searches through this alias will no longer reach that index. If the alias is used by the application, it must point to another index first.',
+                                    'fa fa-unlink', 'sm',
+                                    {index: i, alias: alias}
+                                ) }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="3" class="text-muted">No alias defined.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-lg-5">
+            {% set index_options %}
+                {% for p in physicalIndices %}
+                    {% if p.role != 'system' %}
+                        <option value="{{ p.name }}">{{ p.name }}</option>
+                    {% endif %}
+                {% endfor %}
+            {% endset %}
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Add an alias</h5>
+                    <p class="card-text text-muted">Adds the alias to the index without touching the other indices it may already point to.</p>
+                    <form method="post" action="{{ path(es_route ~ 'alias_add') }}" id="es-alias-add-form">
+                        <input type="hidden" name="token" value="{{ csrf_token(constant('Alchemy\\ESBundle\\Controller\\Admin\\ESIndexAdminController::CSRF_TOKEN_ID')) }}">
+                        <div class="mb-2">
+                            <label class="form-label" for="es-alias-add-index">Index</label>
+                            <select class="form-select" name="index" id="es-alias-add-index" required>{{ index_options }}</select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label" for="es-alias-add-alias">Alias</label>
+                            <input class="form-control" type="text" name="alias" id="es-alias-add-alias" required placeholder="e.g. asset_prod">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm js-es-confirm" data-form="es-alias-add-form"
+                                data-title="Add the alias?" data-description="The alias will point to the selected index (in addition to its current targets, if any)." data-variant="primary">
+                            <i class="fa fa-link"></i> Add alias
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Switch an alias</h5>
+                    <p class="card-text text-muted">Atomically points the alias to the selected index <strong>only</strong>, removing it from every other index. Use it to roll back to a previous generation of an index.</p>
+                    <form method="post" action="{{ path(es_route ~ 'alias_switch') }}" id="es-alias-switch-form">
+                        <input type="hidden" name="token" value="{{ csrf_token(constant('Alchemy\\ESBundle\\Controller\\Admin\\ESIndexAdminController::CSRF_TOKEN_ID')) }}">
+                        <div class="mb-2">
+                            <label class="form-label" for="es-alias-switch-alias">Alias</label>
+                            <input class="form-control" type="text" name="alias" id="es-alias-switch-alias" required list="es-alias-names">
+                            <datalist id="es-alias-names">
+                                {% for alias in aliases|keys %}<option value="{{ alias }}">{% endfor %}
+                            </datalist>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label" for="es-alias-switch-index">New target index</label>
+                            <select class="form-select" name="index" id="es-alias-switch-index" required>{{ index_options }}</select>
+                        </div>
+                        <button type="button" class="btn btn-warning btn-sm js-es-confirm" data-form="es-alias-switch-form"
+                                data-title="Switch the alias?" data-description="The alias will be removed from all its current indices and added to the selected one, in a single atomic operation. The application will immediately search the new index." data-variant="warning">
+                            <i class="fa fa-right-left"></i> Switch alias
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

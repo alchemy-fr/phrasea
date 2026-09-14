@@ -66,6 +66,12 @@ do
    sleep 1
 done
 
-echo "Configuration file content:"
-cat ${OUTPUT_FILE}
-echo ""
+# The stack configuration can carry credentials: never echo it to the container
+# output unless explicitly asked for with DEBUG_STACK_CONFIG=true.
+if [ "$DEBUG_STACK_CONFIG" = "1" ] || [ "$DEBUG_STACK_CONFIG" = "true" ]; then
+  echo "Configuration file content:"
+  cat ${OUTPUT_FILE}
+  echo ""
+else
+  echo "Configuration file ${OUTPUT_FILE} written ($(wc -c < ${OUTPUT_FILE} | tr -d ' ') bytes)"
+fi
