@@ -65,11 +65,6 @@ class AssetSearch extends AbstractSearch
 
         $filterQueries = [];
 
-        $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
-        if (null !== $aclBoolQuery) {
-            $filterQueries[] = $aclBoolQuery;
-        }
-
         if (isset($options['parent'])) {
             $options['parents'] = [$options['parent']];
         }
@@ -147,21 +142,17 @@ class AssetSearch extends AbstractSearch
             }
         }
 
-        if (!$hasDeletedFilter) {
-            $filterQueries[] = $this->deletedBuiltInAttribute->createFilterQuery(false, ConditionOperatorEnum::EQUALS, $options);
-        }
-
-        if (!$hasStatusFilter && !$hasDeletedFilter) {
-            $filterQueries[] = $this->assetStatusBuiltInAttribute->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options);
-        }
+        $filterQueries = array_merge($this->createBaseFilterQueries(
+            $userId,
+            $groupIds,
+            $options,
+            filterDeleted: !$hasDeletedFilter,
+            filterStatus: !$hasStatusFilter && !$hasDeletedFilter,
+        ), $filterQueries);
 
         $filterQuery = new Query\BoolQuery();
         foreach ($filterQueries as $query) {
             $filterQuery->addFilter($query);
-        }
-
-        if (null !== $attrFilterQuery = $this->buildAttributeFilterQuery($userId, $groupIds, $options)) {
-            $filterQuery->addFilter($attrFilterQuery);
         }
 
         $queryString = trim($options['query'] ?? '');
@@ -230,11 +221,59 @@ class AssetSearch extends AbstractSearch
     }
 
     /**
+     * Filters shared by every search on the asset index: ACL, tag filter rules and, unless the
+     * caller filters on them itself, "not deleted" and "accepted" status.
+     *
+     * @return Query\AbstractQuery[]
+     *
+     * @throws NoWorkspaceAllowedException
+     */
+    public function createBaseFilterQueries(
+        ?string $userId,
+        array $groupIds,
+        array $options = [],
+        bool $filterDeleted = true,
+        bool $filterStatus = true,
+    ): array {
+        $options['userId'] = $userId;
+        $options['groupIds'] = $groupIds;
+
+        $filterQueries = [];
+        if (null !== $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds)) {
+            $filterQueries[] = $aclBoolQuery;
+        }
+
+        if (null !== $attrFilterQuery = $this->buildAttributeFilterQuery($userId, $groupIds, $options)) {
+            $filterQueries[] = $attrFilterQuery;
+        }
+        if ($filterDeleted) {
+            $filterQueries[] = $this->deletedBuiltInAttribute->createFilterQuery(false, ConditionOperatorEnum::EQUALS, $options);
+        }
+        if ($filterStatus) {
+            $filterQueries[] = $this->assetStatusBuiltInAttribute->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options);
+        }
+
+        return $filterQueries;
+    }
+
+    /**
      * @param string|string[] $collectionIds
      *
      * @return string[] the absolute path of each requested collection
      */
     private function resolveCollectionPaths(array|string $collectionIds): array
+    {
+        $collections = DoctrineUtil::getFromIds($this->collectionRepository, (array) $collectionIds);
+        $paths = array_map(fn (Collection $collection): string => $collection->getAbsolutePath(), $collections);
+
+        if (empty($paths)) {
+            throw new NotFoundHttpException('Collections not found');
+        }
+
+        return $paths;
+    }
+
+    private function buildTagFilterQuery(?string $userId, array $groupIds): ?Query\BoolQuery
     {
         $collections = DoctrineUtil::getFromIds($this->collectionRepository, (array) $collectionIds);
         $paths = array_map(fn (Collection $collection): string => $collection->getAbsolutePath(), $collections);

@@ -6,13 +6,16 @@ namespace App\Elasticsearch\Listener;
 
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
+use App\Attribute\Type\EntityAttributeType;
 use App\Elasticsearch\AssetPermissionComputer;
 use App\Elasticsearch\Mapping\FieldNameResolver;
+use App\Elasticsearch\Suggestion\SuggestionLocales;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\RenditionDefinition;
 use App\Service\Asset\Attribute\AttributesResolver;
+use App\Service\Asset\Attribute\Index\AttributeIndex;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\Expr\Join;
 use FOS\ElasticaBundle\Event\PostTransformEvent;
@@ -20,6 +23,11 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 final readonly class AssetPostTransformListener implements EventSubscriberInterface
 {
+    /**
+     * Longer values are not worth suggesting (kept in sync with the "ignore_above" of the mapping).
+     */
+    public const int SUGGESTION_MAX_LENGTH = 300;
+
     public function __construct(
         private AssetPermissionComputer $assetPermissionComputer,
         private AttributeTypeRegistry $attributeTypeRegistry,
@@ -45,16 +53,21 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
 
         $document->set('renditions', $this->compileRenditions($asset));
 
-        $attrs = $this->compileAttributes($asset);
+        $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
+
+        $attrs = $this->compileAttributes($attributeIndex);
         // Wrap in an array to force replacing the whole field
         $document->set(AttributeInterface::ATTRIBUTES_FIELD, !empty($attrs) ? [$attrs] : null);
+
+        $suggestions = $this->compileSuggestions($attributeIndex);
+        $document->set(AttributeInterface::SUGGESTIONS_FIELD, !empty($suggestions) ? $suggestions : null);
 
         // Not ready yet
         //        $storyAttrs = [];
         //        foreach ($asset->getCollections() as $collectionAsset) {
         //            if (null !== $storyAsset = $collectionAsset->getCollection()->getStoryAsset()) {
         //                if (!isset($storyAttrs[$storyAsset->getId()])) {
-        //                    $subAttrs = $this->compileAttributes($storyAsset);
+        //                    $subAttrs = $this->compileAttributes($this->attributesResolver->resolveAssetAttributes($storyAsset, false));
         //                    if (!empty($subAttrs)) {
         //                        $storyAttrs[] = $subAttrs;
         //                    }
@@ -78,11 +91,9 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
         return array_column($renditionsDefinitions, 'id');
     }
 
-    private function compileAttributes(Asset $asset): array
+    private function compileAttributes(AttributeIndex $attributeIndex): array
     {
         $data = [];
-
-        $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
 
         foreach ($attributeIndex->getDefinitions() as $definitionIndex) {
             $definition = $definitionIndex->getDefinition();
@@ -139,6 +150,81 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
         }
 
         return $data;
+    }
+
+    /**
+     * Distinct values of the asset, one entry per (definition, locale, value), for the
+     * search-as-you-type suggestions (see SuggestionSearch). They are deduplicated per asset so
+     * that the suggestion aggregation counts assets. Which definitions and locales actually get
+     * suggested (the "suggest" flag, the permissions, the user locale) is decided at query time.
+     *
+     * Translatable values keep the workspace locale of their attribute ("_" when untranslated).
+     * Entities get one label per suggestion locale of the workspace, their translation for that
+     * locale falling back to the base label, so that the query can select exactly one per entity.
+     */
+    private function compileSuggestions(AttributeIndex $attributeIndex): array
+    {
+        $suggestions = [];
+
+        foreach ($attributeIndex->getDefinitions() as $definitionIndex) {
+            $definition = $definitionIndex->getDefinition();
+            $type = $this->attributeTypeRegistry->getStrictType($definition->getType());
+            if (!$type->supportsSuggest()) {
+                continue;
+            }
+
+            $definitionId = $definition->getId();
+            $isTranslatable = $type->isLocaleAware() && $definition->isTranslatable();
+            $entityLocales = $type instanceof EntityAttributeType ? SuggestionLocales::ofWorkspace($definition->getWorkspace()) : [];
+
+            foreach ($definitionIndex->getLocales() as $locale => $attributes) {
+                foreach ($attributes instanceof Attribute ? [$attributes] : $attributes as $attribute) {
+                    if ($attribute->isInvalid()) {
+                        continue;
+                    }
+
+                    if ($type instanceof EntityAttributeType) {
+                        $entity = $type->getEntityFromValue($attribute->getValue());
+                        if (null === $entity) {
+                            continue;
+                        }
+
+                        foreach ($type->getSuggestionLabels($entity, $entityLocales) as $entityLocale => $label) {
+                            $this->addSuggestion($suggestions, $definitionId, $entityLocale, $label, $entity->getId());
+                        }
+
+                        continue;
+                    }
+
+                    $this->addSuggestion(
+                        $suggestions,
+                        $definitionId,
+                        $isTranslatable ? (string) $locale : AttributeInterface::NO_LOCALE,
+                        $attribute->getValue(),
+                    );
+                }
+            }
+        }
+
+        return array_values($suggestions);
+    }
+
+    private function addSuggestion(array &$suggestions, string $definitionId, string $locale, ?string $value, ?string $entityId = null): void
+    {
+        if (null === $value || '' === $value || mb_strlen($value) > self::SUGGESTION_MAX_LENGTH) {
+            return;
+        }
+
+        $suggestion = [
+            'definitionId' => $definitionId,
+            'locale' => $locale,
+            'value' => $value,
+        ];
+        if (null !== $entityId) {
+            $suggestion['entityId'] = $entityId;
+        }
+
+        $suggestions[$definitionId.':'.$locale.':'.$value] = $suggestion;
     }
 
     public static function getSubscribedEvents(): array

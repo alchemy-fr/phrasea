@@ -6,8 +6,10 @@ namespace App\Consumer\Handler\Search;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeInterface;
+use App\Attribute\Type\EntityAttributeType;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Elasticsearch\Mapping\FieldNameResolver;
+use App\Elasticsearch\Suggestion\SuggestionLocales;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeEntityRepository;
@@ -21,6 +23,7 @@ final readonly class AttributeEntityUpdateHandler
         private AttributeDefinitionRepository $attributeDefinitionRepository,
         private AttributeEntityRepository $attributeEntityRepository,
         private FieldNameResolver $fieldNameResolver,
+        private EntityAttributeType $entityAttributeType,
     ) {
     }
 
@@ -34,8 +37,6 @@ final readonly class AttributeEntityUpdateHandler
             $attributeEntity->getWorkspaceId(),
             $attributeEntity->getList()->getId(),
         );
-
-        $this->updateAttributeIndex($attributeEntity);
 
         $fields = [];
         $calls = [];
@@ -67,6 +68,14 @@ final readonly class AttributeEntityUpdateHandler
         if (empty($fields)) {
             return;
         }
+
+        // A change of the base value reaches every locale without translation: recompute them all
+        $calls['suggestions'] = AttributeEntitySuggestionsScript::CALL;
+        $params['_entityIds'] = [$id];
+        $params['_labels'] = AttributeEntitySuggestionsScript::labels($this->entityAttributeType->getSuggestionLabels(
+            $attributeEntity,
+            SuggestionLocales::ofWorkspace($attributeEntity->getWorkspace()),
+        ));
 
         $this->elasticSearchClient->updateByQuery(
             'asset',
@@ -160,31 +169,11 @@ void up(HashMap src, String locale, String name, String id, String n, def s, boo
     }
 }
 
-EOF, AttributeInterface::ATTRIBUTES_FIELD).implode("\n", $calls),
+EOF, AttributeInterface::ATTRIBUTES_FIELD).AttributeEntitySuggestionsScript::declaration().implode("\n", $calls),
                 'params' => array_merge($params, [
                     '_id' => $id,
                 ]),
                 'lang' => 'painless',
-            ]
-        );
-    }
-
-    private function updateAttributeIndex(AttributeEntity $attributeEntity): void
-    {
-        $this->elasticSearchClient->updateByQuery(
-            'attribute',
-            [
-                'term' => [
-                    'entityId' => $attributeEntity->getId(),
-                ],
-            ],
-            [
-                // Change "suggestion" field to new value
-                'source' => 'ctx._source.suggestion = params.value;',
-                'lang' => 'painless',
-                'params' => [
-                    'value' => $attributeEntity->getValue(),
-                ],
             ]
         );
     }

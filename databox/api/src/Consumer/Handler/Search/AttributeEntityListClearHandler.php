@@ -7,6 +7,7 @@ namespace App\Consumer\Handler\Search;
 use App\Attribute\AttributeInterface;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Elasticsearch\Mapping\FieldNameResolver;
+use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Repository\Core\AttributeEntityRepository;
 use App\Repository\Core\AttributeRepository;
@@ -46,6 +47,8 @@ final readonly class AttributeEntityListClearHandler
                 AttributeInterface::ATTRIBUTES_FIELD
             );
         }
+        // The entities are gone: so are their suggestions
+        $calls[] = AttributeEntitySuggestionsScript::removeDefinitionsCall();
 
         $this->attributeEntityRepository->createQueryBuilder('t')
             ->delete()
@@ -101,6 +104,9 @@ void del(HashMap c, String name) {
 }
 
 EOF.implode("\n", $calls),
+                'params' => [
+                    '_definitionIds' => array_map(fn (AttributeDefinition $definition): string => $definition->getId(), $definitions),
+                ],
                 'lang' => 'painless',
             ]
         );
