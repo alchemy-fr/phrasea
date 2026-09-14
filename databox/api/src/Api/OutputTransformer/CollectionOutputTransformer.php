@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use Alchemy\NotifierBundle\Manager\SubscriptionManager;
 use App\Api\Model\Output\CollectionOutput;
 use App\Api\Traits\UserLocaleTrait;
@@ -20,6 +21,7 @@ use App\Security\Voter\AssetContainerVoterInterface;
 use App\Security\Voter\CollectionVoter;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
+use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
@@ -32,6 +34,8 @@ class CollectionOutputTransformer implements OutputTransformerInterface
 
     final public const string COLLECTION_CACHE_NS = 'coll_visibility';
 
+    private readonly CacheInterface $visibilityRequestCache;
+
     public function __construct(
         private readonly CollectionSearch $collectionSearch,
         private readonly TagAwareCacheInterface $collectionCache,
@@ -39,7 +43,9 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         private readonly SubscriptionManager $subscriptionManager,
         #[Autowire(env: 'API_COLLECTION_OWNER_PROPERTY_REQUIRED_ROLE')]
         private readonly string $ownerPropertyRequiredRole,
+        TemporaryCacheFactory $cacheFactory,
     ) {
+        $this->visibilityRequestCache = $cacheFactory->createCache();
     }
 
     public function supports(string $outputClass, object $data): bool
@@ -129,7 +135,9 @@ class CollectionOutputTransformer implements OutputTransformerInterface
             }
         }
 
-        [$output->shared, $output->public] = $this->collectionCache->get($data->getId(), function (ItemInterface $item) use ($data): array {
+        // The same collection is embedded many times in a page of assets:
+        // hit the shared cache once per request.
+        [$output->shared, $output->public] = $this->visibilityRequestCache->get($data->getId(), fn (): array => $this->collectionCache->get($data->getId(), function (ItemInterface $item) use ($data): array {
             $item->tag(self::COLLECTION_CACHE_NS);
             $shared = false;
             $public = false;
@@ -158,7 +166,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
             }
 
             return [$shared, $public];
-        });
+        }));
 
         if ($this->hasGroup([Collection::GROUP_LIST, Collection::GROUP_READ], $context)) {
             $virtualColl = new Collection();

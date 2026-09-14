@@ -131,8 +131,26 @@ class File extends AbstractUuidEntity implements \Stringable
     #[ORM\JoinColumn(nullable: true)]
     private ?FileOverriddenMetadata $overriddenMetadata = null;
 
-    #[ORM\Column(type: Types::JSON, nullable: true)]
-    private ?array $analysis = null;
+    /**
+     * Detailed analysis result, loaded on demand only (see FileAnalysis).
+     * Null when the file was never analyzed or when no analysis was needed.
+     */
+    #[ORM\OneToOne(targetEntity: FileAnalysis::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?FileAnalysis $analysis = null;
+
+    /**
+     * When the file was last analyzed (or marked as not needing analysis). Null while pending.
+     */
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $analyzedAt = null;
+
+    /**
+     * Outcome of the analysis, denormalized here so that the file can be
+     * displayed (URL, player) without loading the analysis. Null while pending.
+     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
+    private ?bool $accepted = null;
 
     public function getPath(): ?string
     {
@@ -368,44 +386,88 @@ class File extends AbstractUuidEntity implements \Stringable
         return false === $this->overriddenMetadata?->isEmpty();
     }
 
-    public function getAnalysis(): ?array
+    public function getAnalysis(): ?FileAnalysis
     {
         return $this->analysis;
     }
 
-    public function setAnalysis(?array $analysis): void
+    public function getAnalyzedAt(): ?\DateTimeImmutable
     {
-        $this->analysis = $analysis;
+        return $this->analyzedAt;
     }
 
     public function isAnalyzed(): bool
     {
-        return null !== $this->analysis;
+        return null !== $this->analyzedAt;
     }
 
+    /**
+     * A file is accepted unless its analysis rejected it (a pending file is displayable).
+     */
     public function isAccepted(): bool
     {
-        return empty($this->analysis)
-            || in_array($this->analysis['status'] ?? null, [
-                self::ANALYSIS_SUCCESS,
-                self::ANALYSIS_SKIPPED,
-                self::ANALYSIS_BYPASSED,
-            ], true);
+        return false !== $this->accepted;
+    }
+
+    /**
+     * Records the outcome of an analysis, replacing any previous one.
+     */
+    public function setAnalysisResult(string $status, array $results = [], ?string $hash = null, ?string $message = null): FileAnalysis
+    {
+        $analysis = $this->analysis ?? new FileAnalysis($status);
+        $analysis->setStatus($status);
+        $analysis->setResults($results);
+        $analysis->setHash($hash);
+        $analysis->setMessage($message);
+        $this->analysis = $analysis;
+
+        $this->analyzedAt = new \DateTimeImmutable();
+        $this->accepted = self::isAcceptedStatus($status);
+
+        return $analysis;
+    }
+
+    /**
+     * Changes the status of the existing analysis (e.g. after its results were rewritten).
+     */
+    public function setAnalysisStatus(string $status): void
+    {
+        if (null === $this->analysis) {
+            $this->setAnalysisResult($status);
+
+            return;
+        }
+
+        $this->analysis->setStatus($status);
+        $this->accepted = self::isAcceptedStatus($status);
     }
 
     public function bypassAnalysis(): void
     {
-        $this->analysis ??= [];
-        $this->analysis['status'] = self::ANALYSIS_BYPASSED;
+        $this->setAnalysisStatus(self::ANALYSIS_BYPASSED);
     }
 
     public function resetAnalysis(): void
     {
         $this->analysis = null;
+        $this->analyzedAt = null;
+        $this->accepted = null;
     }
 
     public function setNoAnalysisNeeded(): void
     {
-        $this->analysis ??= [];
+        if (!$this->isAnalyzed()) {
+            $this->analyzedAt = new \DateTimeImmutable();
+            $this->accepted = true;
+        }
+    }
+
+    public static function isAcceptedStatus(string $status): bool
+    {
+        return in_array($status, [
+            self::ANALYSIS_SUCCESS,
+            self::ANALYSIS_SKIPPED,
+            self::ANALYSIS_BYPASSED,
+        ], true);
     }
 }
