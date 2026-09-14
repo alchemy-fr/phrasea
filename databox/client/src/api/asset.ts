@@ -127,9 +127,12 @@ export type SearchSuggestion = {
     id: string;
     name: string;
     hl: string;
-    t: 'collection' | 'asset' | 'workspace';
+    // "collection", "asset" or an attribute definition ID
+    t: string;
     tName: string;
     tId?: string;
+    // Locale of the suggested attribute value, when localized
+    locale?: string;
 };
 
 export async function getSearchSuggestions(

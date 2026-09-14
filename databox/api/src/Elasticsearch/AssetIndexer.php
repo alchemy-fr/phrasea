@@ -8,7 +8,6 @@ use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Entity\Core\Asset;
 use App\OperationTask\RunContext;
 use App\Repository\Core\AssetRepository;
-use App\Repository\Core\AttributeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
@@ -19,9 +18,6 @@ final readonly class AssetIndexer
     public function __construct(
         #[Autowire(service: 'fos_elastica.object_persister.asset')]
         private ObjectPersisterInterface $assetObjectPersister,
-        #[Autowire(service: 'fos_elastica.object_persister.attribute')]
-        private ObjectPersisterInterface $attributeObjectPersister,
-        private AttributeRepository $attributeRepository,
         private AssetPermissionComputer $assetPermissionComputer,
         private AssetRepository $assetRepository,
         private EntityManagerInterface $em,
@@ -85,17 +81,12 @@ final readonly class AssetIndexer
 
             $shouldClearLastCollection = false;
             $assetStack = [];
-            $attributeStack = [];
             foreach ($assets as $asset) {
                 if ($lastCollectionId !== $asset->getReferenceCollectionId()) {
                     $shouldClearLastCollection = true;
                     $lastCollectionId = $asset->getReferenceCollectionId();
                 }
 
-                $attributes = $this->attributeRepository->getCachedAssetAttributes($asset->getId());
-                if (!empty($attributes)) {
-                    $attributeStack += $attributes;
-                }
                 ++$i;
                 $assetStack[] = $asset;
             }
@@ -103,9 +94,6 @@ final readonly class AssetIndexer
 
             if (!empty($assetStack)) {
                 $this->assetObjectPersister->replaceMany($assetStack);
-            }
-            if (!empty($attributeStack)) {
-                $this->attributeObjectPersister->replaceMany($attributeStack);
             }
             unset($assetStack);
 

@@ -155,6 +155,12 @@ class AttributeEntityTest extends AbstractSearchTest
                 ],
             ],
         ], $response->asArray()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0]);
+        // One label per workspace locale (enabled ones, fallbacks and "_")
+        $this->assertSuggestions([
+            ...$this->entitySuggestions($definitionSingle->getId(), $entity1->getId(), 'ae1'),
+            ...$this->entitySuggestions($definitionMany->getId(), $entity1->getId(), 'ae1'),
+            ...$this->entitySuggestions($definitionMany->getId(), $entity2->getId(), 'ae2'),
+        ], [$definitionSingle->getId(), $definitionMany->getId()], $esClient, $asset->getId());
 
         $apiClient = static::createClient();
 
@@ -244,6 +250,39 @@ class AttributeEntityTest extends AbstractSearchTest
                 ],
             ],
         ], $attrs);
+        $this->assertSuggestions([
+            ...$this->entitySuggestions($definitionSingle->getId(), $entity1->getId(), 'ae1-bis'),
+            ...$this->entitySuggestions($definitionMany->getId(), $entity1->getId(), 'ae1-bis'),
+            ...$this->entitySuggestions($definitionMany->getId(), $entity2->getId(), 'ae2'),
+        ], [$definitionSingle->getId(), $definitionMany->getId()], $esClient, $asset->getId());
+
+        // A first translation (new locale key) is propagated too
+        $apiClient->request('PUT', '/attribute-entities/'.$entity1->getId(), [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+            'json' => [
+                'value' => 'ae1-bis',
+                'synonyms' => [
+                    'en' => ['ae1en1-bis', 'ae1en2-bis'],
+                    'fr' => ['ae1fr1-bis', 'ae1fr2-bis'],
+                ],
+                'translations' => [
+                    'fr' => 'ae1-fr',
+                ],
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+        self::waitForESIndex('asset');
+
+        $response = $esClient->request($assetIndexName.'/_search?q=_id:'.$asset->getId());
+        $attrs = $response->asArray()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0];
+        $this->assertSame('ae1-fr', $attrs['fr']['single_entity_s']['value']);
+        $this->assertSuggestions([
+            ...$this->entitySuggestions($definitionSingle->getId(), $entity1->getId(), 'ae1-bis', ['fr' => 'ae1-fr']),
+            ...$this->entitySuggestions($definitionMany->getId(), $entity1->getId(), 'ae1-bis', ['fr' => 'ae1-fr']),
+            ...$this->entitySuggestions($definitionMany->getId(), $entity2->getId(), 'ae2'),
+        ], [$definitionSingle->getId(), $definitionMany->getId()], $esClient, $asset->getId());
 
         $em->clear();
 
@@ -328,6 +367,7 @@ class AttributeEntityTest extends AbstractSearchTest
                         'synonyms' => [
                             'ae2fr1',
                             'ae2fr2',
+                            'ae1-fr',
                             'ae1fr1-bis',
                             'ae1fr2-bis',
                         ],
@@ -337,6 +377,7 @@ class AttributeEntityTest extends AbstractSearchTest
                         'synonyms' => [
                             'ae2fr1',
                             'ae2fr2',
+                            'ae1-fr',
                             'ae1fr1-bis',
                             'ae1fr2-bis',
                         ],
@@ -347,11 +388,133 @@ class AttributeEntityTest extends AbstractSearchTest
                     'synonyms' => [
                         'ae2fr1',
                         'ae2fr2',
+                        'ae1-fr',
                         'ae1fr1-bis',
                         'ae1fr2-bis',
                     ],
                 ],
             ],
         ], $attrs);
+        // The merged entity leaves no duplicate, and its translation is not carried over
+        $this->assertSuggestions([
+            ...$this->entitySuggestions($definitionSingle->getId(), $entity2->getId(), 'ae2'),
+            ...$this->entitySuggestions($definitionMany->getId(), $entity2->getId(), 'ae2'),
+        ], [$definitionSingle->getId(), $definitionMany->getId()], $esClient, $asset->getId());
+
+        $em->clear();
+
+        $apiClient->request('DELETE', '/attribute-entities/'.$entity2->getId(), [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        self::waitForESIndex('asset');
+        $response = $esClient->request($assetIndexName.'/_search?q=_id:'.$asset->getId());
+
+        $attrs = $response->asArray()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0];
+        $this->assertArrayNotHasKey('single_entity_s', $attrs[AttributeInterface::NO_LOCALE]);
+        $this->assertSame([], $attrs[AttributeInterface::NO_LOCALE]['many_entity_m']);
+        $this->assertSuggestions([], [$definitionSingle->getId(), $definitionMany->getId()], $esClient, $asset->getId());
+    }
+
+    public function testAttributeEntityListClear(): void
+    {
+        $em = self::getEntityManager();
+
+        $list = new EntityList();
+        $list->setName('list2');
+        $list->setWorkspace($this->getOrCreateDefaultWorkspace());
+        $em->persist($list);
+
+        $entity = new AttributeEntity();
+        $entity->setList($list);
+        $entity->setValue('ae3');
+        $entity->setTranslations([
+            'fr' => 'ae3-fr',
+        ]);
+        $em->persist($entity);
+
+        $definition = $this->createAttributeDefinition([
+            'name' => 'Cleared',
+            'type' => EntityAttributeType::getName(),
+            'list' => $list,
+            'no_flush' => true,
+        ]);
+
+        $asset = $this->createAsset([
+            'name' => 'Asset2',
+            'attributes' => [
+                [
+                    'definition' => $definition,
+                    'value' => $entity->getId(),
+                ],
+            ],
+        ]);
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('asset');
+
+        $esClient = self::getService(ElasticSearchClient::class);
+        $assetIndexName = $esClient->getIndexName('asset');
+        $attrs = $esClient->request($assetIndexName.'/_search?q=_id:'.$asset->getId())->asArray()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0];
+        $this->assertSame('ae3', $attrs[AttributeInterface::NO_LOCALE]['cleared_entity_s']['value']);
+        $this->assertSame('ae3-fr', $attrs['fr']['cleared_entity_s']['value']);
+        $this->assertSuggestions(
+            $this->entitySuggestions($definition->getId(), $entity->getId(), 'ae3', ['fr' => 'ae3-fr']),
+            [$definition->getId()],
+            $esClient,
+            $asset->getId(),
+        );
+
+        $apiClient = static::createClient();
+        $apiClient->request('POST', '/entity-lists/'.$list->getId().'/clear', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        self::waitForESIndex('asset');
+        $attrs = $esClient->request($assetIndexName.'/_search?q=_id:'.$asset->getId())->asArray()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0];
+        $this->assertArrayNotHasKey('cleared_entity_s', $attrs[AttributeInterface::NO_LOCALE]);
+        $this->assertArrayNotHasKey('cleared_entity_s', $attrs['fr'] ?? []);
+        $this->assertSuggestions([], [$definition->getId()], $esClient, $asset->getId());
+    }
+
+    /**
+     * @param string[] $definitionIds the definitions to compare, the other ones (the asset name) being ignored
+     */
+    private function assertSuggestions(array $expected, array $definitionIds, ElasticSearchClient $esClient, string $assetId): void
+    {
+        $response = $esClient->request($esClient->getIndexName('asset').'/_search?q=_id:'.$assetId);
+        $suggestions = array_filter(
+            $response->asArray()['hits']['hits'][0]['_source'][AttributeInterface::SUGGESTIONS_FIELD] ?? [],
+            fn (array $suggestion): bool => in_array($suggestion['definitionId'], $definitionIds, true),
+        );
+
+        $sort = function (array $suggestions): array {
+            usort($suggestions, fn (array $a, array $b): int => [$a['definitionId'], $a['locale'], $a['value']] <=> [$b['definitionId'], $b['locale'], $b['value']]);
+
+            return $suggestions;
+        };
+
+        $this->assertEquals($sort($expected), $sort($suggestions));
+    }
+
+    /**
+     * Expected suggestion entries of an entity: one per locale of the test workspace
+     * (enabled: fr, en, de; fallback: en) plus the untranslated one.
+     *
+     * @param array<string, string> $translations
+     */
+    private function entitySuggestions(string $definitionId, string $entityId, string $value, array $translations = []): array
+    {
+        return array_map(fn (string $locale): array => [
+            'definitionId' => $definitionId,
+            'entityId' => $entityId,
+            'locale' => $locale,
+            'value' => $translations[$locale] ?? $value,
+        ], ['fr', 'en', 'de', AttributeInterface::NO_LOCALE]);
     }
 }
