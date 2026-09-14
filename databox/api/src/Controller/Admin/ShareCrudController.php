@@ -43,7 +43,7 @@ final class ShareCrudController extends AbstractAdminCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add(AssociationIdentifierFilter::new('asset'))
+            ->add(AssociationIdentifierFilter::new('assets'))
             ->add($this->userChoiceFilter->createFilter('ownerId'))
         ;
     }
@@ -53,7 +53,7 @@ final class ShareCrudController extends AbstractAdminCrudController
     {
         yield IdField::new();
         yield TextField::new('name');
-        yield AssociationField::new('asset')
+        yield AssociationField::new('assets')
             ->autocomplete();
         yield CodeField::new('token');
         yield $this->userChoiceField->create('ownerId', 'Owner');

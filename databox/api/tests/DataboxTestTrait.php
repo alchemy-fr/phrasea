@@ -10,6 +10,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\TextAttributeType;
+use App\Entity\Basket\Basket;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -204,6 +205,35 @@ trait DataboxTestTrait
         $this->assertEquals($expectedCode, $response->getStatusCode());
 
         return json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+    }
+
+    protected function createBasket(array $options = []): Basket
+    {
+        $em = self::getEntityManager();
+
+        $basket = new Basket($options['id'] ?? null);
+        $basket->setName($options['name'] ?? null);
+        $basket->setDescription($options['description'] ?? null);
+        $basket->setOwnerId($options['ownerId'] ?? 'custom_owner');
+
+        if (array_key_exists('createdAt', $options)) {
+            $createdAt = $options['createdAt'];
+            if (is_string($createdAt)) {
+                $createdAt = new \DateTimeImmutable($createdAt);
+            }
+
+            // Gedmo Timestampable keeps manually set values
+            $p = new \ReflectionProperty(Basket::class, 'createdAt');
+            $p->setValue($basket, $createdAt);
+        }
+
+        $em->persist($basket);
+
+        if (!($options['no_flush'] ?? false)) {
+            $em->flush();
+        }
+
+        return $basket;
     }
 
     protected function createWorkspace(array $options = []): Workspace

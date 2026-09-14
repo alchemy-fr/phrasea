@@ -11,6 +11,7 @@ use App\Entity\Core\AssetAttachment;
 use App\Entity\Core\AssetFileVersion;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
+use App\Entity\Core\FileAnalysisStateEnum;
 use App\Entity\Core\Share;
 use Symfony\Component\Serializer\Annotation\Groups;
 
@@ -90,6 +91,36 @@ class FileOutput extends AbstractUuidOutput
         AssetAttachment::GROUP_LIST,
     ])]
     public ?bool $accepted = null;
+
+    /**
+     * What the analysis produced. Orthogonal to `$analysisEnforced`, which says
+     * whether that result actually blocks the file.
+     */
+    #[Groups([
+        File::GROUP_LIST,
+        File::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+        AssetRendition::GROUP_READ,
+        AssetAttachment::GROUP_LIST,
+    ])]
+    public FileAnalysisStateEnum $analysisState = FileAnalysisStateEnum::NotAnalyzed;
+
+    /**
+     * Whether the workspace requires the file analysis, i.e. whether a failed
+     * analysis blocks the file or is merely informative.
+     */
+    #[Groups([
+        File::GROUP_LIST,
+        File::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+        AssetRendition::GROUP_READ,
+        AssetAttachment::GROUP_LIST,
+    ])]
+    public bool $analysisEnforced = false;
 
     #[Groups([File::GROUP_METADATA])]
     public ?array $metadata = null;

@@ -23,6 +23,21 @@ export default defineConfig({
         host: '0.0.0.0',
         allowedHosts: true,
     },
+    ssr: {
+        // Packages that must go through the vite transform pipeline during
+        // server-side rendering: CJS named-export interop issues, and
+        // MUI/emotion which must resolve to a single instance shared with
+        // the transformed workspace sources
+        noExternal: [
+            '@jonkoops/matomo-tracker-react',
+            '@jonkoops/matomo-tracker',
+            'styled-components',
+            'react-virtualized',
+            /^@algolia\//,
+            /^@mui\//,
+            /^@emotion\//,
+        ],
+    },
     optimizeDeps: {
         esbuildOptions: {
             plugins: [fixReactVirtualized],

@@ -1,4 +1,5 @@
 import {Box, Chip, Paper, Stack, Typography} from '@mui/material';
+import {useTranslation} from 'react-i18next';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
@@ -25,6 +26,15 @@ const severityIcon: Record<AlertColor, ReactNode> = {
  * analyzer-specific content below.
  */
 export default function AnalyzerCard({title, severity, children}: Props) {
+    const {t} = useTranslation();
+
+    const severityLabel: Record<AlertColor, string> = {
+        error: t('analysis.severity.error', 'Error'),
+        warning: t('analysis.severity.warning', 'Warning'),
+        info: t('analysis.severity.info', 'Info'),
+        success: t('analysis.severity.success', 'OK'),
+    };
+
     return (
         <Paper variant={'outlined'} sx={{p: 2}}>
             <Stack
@@ -39,7 +49,11 @@ export default function AnalyzerCard({title, severity, children}: Props) {
                 </Typography>
                 <Box sx={{flexGrow: 1}} />
 
-                <Chip size={'small'} color={severity} label={severity} />
+                <Chip
+                    size={'small'}
+                    color={severity}
+                    label={severityLabel[severity]}
+                />
             </Stack>
             {children}
         </Paper>

@@ -13,14 +13,16 @@ import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/ma
 import {UserPreferences} from './store/userPreferencesStore.ts';
 import {BuiltInAttributeEnum} from './components/Media/Search/search.ts';
 import {AttributeWidgetOptions} from './components/Media/Asset/Attribute/types/types';
+import {
+    FileAnalysis,
+    FileAnalysisState,
+} from './components/Media/Asset/Quarantine/analysisTypes.ts';
 
 export type AlternateUrl = {
     type: string;
     url: string;
     label?: string;
 };
-
-export type FileAnalysis = Record<string, any>;
 
 export type FileUsageType = 'source' | 'version' | 'rendition';
 
@@ -44,6 +46,8 @@ export interface ApiFile extends Entity {
     accepted?: boolean;
     analysis?: FileAnalysis | null | undefined;
     analysisPending: boolean;
+    analysisState: FileAnalysisState;
+    analysisEnforced: boolean;
     usages?: FileUsage[];
 }
 
@@ -63,18 +67,50 @@ export type ShareAlternateUrl = {
     name: string;
     url: string;
     type: string | undefined;
+    assetId?: string | null;
+};
+
+export type ShareAttachment = {
+    id: string;
+    name: string | null;
+    assetId: string;
+    url: string;
+    type: string | null;
+    size: number | null;
+};
+
+export type ShareTerms = {
+    text: string | null;
+    version: number;
+    workspaceName: string;
+    pdfUrl?: string | null;
 };
 
 export type Share = {
     name?: string | undefined;
-    asset: Asset;
+    assets: Asset[];
     token: string;
     startsAt?: string | undefined | null;
     expiresAt?: string | undefined | null;
     updatedAt: Readonly<string>;
     createdAt: Readonly<string>;
     alternateUrls: ShareAlternateUrl[];
+    attachments?: ShareAttachment[];
+    terms?: ShareTerms | null;
+    logo?: string | null;
 } & Entity;
+
+export type WorkspaceTerms = {
+    // Resolved for the current user's locale
+    text: string | null;
+    // Untranslated source text (for editing)
+    rawText?: string | null;
+    translations?: Record<string, string> | null;
+    version: number | null;
+    signed: boolean | null;
+    attachToExports: boolean;
+    pdfUrl?: string | null;
+};
 
 export type ESDocumentState = {
     synced: boolean;
@@ -665,6 +701,15 @@ export interface Workspace
     owner?: User;
     createdAt: string;
     public: boolean;
+    terms?: WorkspaceTerms | null;
+    termsUnsigned?: boolean;
+    logo?: string | null;
+    // Form-only fields (mapped to the API on submit)
+    termsText?: string;
+    // undefined = untouched, '' = remove, File = multipart upload on submit
+    termsPdf?: File | '';
+    logoUpload?: File | '';
+    attachTermsToExports?: boolean;
 }
 
 export type IntegrationData = {

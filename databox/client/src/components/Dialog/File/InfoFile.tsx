@@ -3,17 +3,16 @@ import {DialogTabProps} from '../Tabbed/TabbedDialog';
 import ContentTab from '../Tabbed/ContentTab';
 import InfoRow from '../Info/InfoRow.tsx';
 import KeyIcon from '@mui/icons-material/Key';
-import {Divider, Link, MenuList, Stack} from '@mui/material';
+import {Box, Chip, Divider, Link, MenuList, Stack} from '@mui/material';
 import {useTranslation} from 'react-i18next';
 import InfoIcon from '@mui/icons-material/Info';
-import YesNoChip from '../../Ui/YesNoChip.tsx';
-import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import DescriptionIcon from '@mui/icons-material/Description';
 import LinkIcon from '@mui/icons-material/Link';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import {formatFilesize} from '../../../lib/filesizeFormatter.ts';
 import FileAnalysisReport from './FileAnalysisReport.tsx';
+import {getFileAnalysisPresentation} from '../../Media/Asset/Quarantine/analysisPresentation.ts';
 import {modalRoutes} from '../../../routes.ts';
 import {useNavigateToModal} from '../../Routing/ModalLink.tsx';
 
@@ -73,6 +72,8 @@ function FileUsages({usages}: {usages: FileUsage[]}) {
 
 export default function InfoFile({data, onClose, minHeight}: Props) {
     const {t, i18n} = useTranslation();
+    const presentation = getFileAnalysisPresentation(data, t);
+
     return (
         <ContentTab onClose={onClose} minHeight={minHeight}>
             <MenuList>
@@ -116,36 +117,24 @@ export default function InfoFile({data, onClose, minHeight}: Props) {
                     copyValue={data.size ? data.size?.toString() : undefined}
                     icon={<InfoIcon />}
                 />
-                {data.analysisPending ? (
-                    <InfoRow
-                        label={t(
-                            'file.info.analysis_pending',
-                            `Analysis Pending`
-                        )}
-                        value={t('common.yes', 'Yes')}
-                        icon={<FactCheckIcon />}
-                    />
-                ) : (
-                    <>
-                        <InfoRow
-                            label={t('file.info.accepted', `Accepted`)}
-                            value={
-                                undefined !== data.accepted ? (
-                                    <YesNoChip value={data.accepted} />
-                                ) : null
-                            }
-                            icon={<FactCheckIcon />}
+                <InfoRow
+                    label={t('file.info.analysis', `Analysis`)}
+                    value={
+                        <Chip
+                            size={'small'}
+                            color={presentation.severity}
+                            label={presentation.label}
                         />
-                        {data.analysis ? (
-                            <InfoRow
-                                label={t('file.info.analysis', `Analysis`)}
-                                value={<FileAnalysisReport file={data} />}
-                                icon={<TroubleshootIcon />}
-                            />
-                        ) : null}
-                    </>
-                )}
+                    }
+                    icon={<FactCheckIcon />}
+                />
             </MenuList>
+
+            {/* Rendered outside the MenuList: the report is made of cards and
+                tables, which do not belong in a ListItemText secondary slot. */}
+            <Box sx={{px: 2, pb: 2}}>
+                <FileAnalysisReport file={data} />
+            </Box>
         </ContentTab>
     );
 }

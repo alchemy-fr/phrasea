@@ -7,12 +7,17 @@ namespace App\Api\OutputTransformer;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Api\Model\Output\WorkspaceOutput;
+use App\Api\Model\Output\WorkspaceTermsOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\Collection;
+use App\Entity\Core\TermsVersion;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetContainerVoterInterface;
 use App\Security\Voter\WorkspaceVoter;
+use App\Service\Asset\FileUrlResolver;
+use App\Service\Workspace\LogoManager;
+use App\Service\Workspace\TermsManager;
 use Symfony\Contracts\Cache\CacheInterface;
 
 class WorkspaceOutputTransformer implements OutputTransformerInterface
@@ -26,6 +31,9 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
 
     public function __construct(
         TemporaryCacheFactory $cacheFactory,
+        private readonly TermsManager $termsManager,
+        private readonly LogoManager $logoManager,
+        private readonly FileUrlResolver $fileUrlResolver,
     ) {
         $this->capCache = $cacheFactory->createCache();
     }
@@ -50,6 +58,7 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
         $output->setCreatedAt($data->getCreatedAt());
         $output->ownerId = $data->getOwnerId();
 
+        $currentTerms = null;
         if ($this->hasGroup([
             Workspace::GROUP_READ,
         ], $context)) {
@@ -59,6 +68,31 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
             $output->fileAnalysisRequired = $data->isFileAnalysisRequired();
             $output->translations = $data->getTranslations();
             $output->owner = $this->transformUser($data->getOwnerId());
+
+            $currentTerms = $this->termsManager->getCurrentTerms($data);
+            if (null !== $currentTerms) {
+                $userId = $this->getUser()?->getId();
+                $output->terms = new WorkspaceTermsOutput(
+                    $currentTerms->hasFile() ? null : $currentTerms->getTranslatedField(TermsVersion::TR_FIELD_TEXT, $this->getPreferredLocales($data), $currentTerms->getText()),
+                    $currentTerms->getVersion(),
+                    null !== $userId ? $this->termsManager->hasSigned($currentTerms, $userId) : null,
+                    $data->isAttachTermsToExports(),
+                    $currentTerms->hasFile() ? $this->fileUrlResolver->resolveUrl($currentTerms->getFile()) : null,
+                    $currentTerms->hasFile() ? null : $currentTerms->getText(),
+                    $currentTerms->getFieldTranslations(TermsVersion::TR_FIELD_TEXT) ?: null,
+                );
+            }
+        }
+
+        $output->logo = $this->logoManager->resolveLogoUrl($data);
+
+        $userId = $this->getUser()?->getId();
+        if (null !== $userId && $data->getOwnerId() !== $userId) {
+            $currentTerms ??= $this->termsManager->getCurrentTerms($data);
+            $output->termsUnsigned = null !== $currentTerms
+                && !$this->termsManager->hasSigned($currentTerms, $userId);
+        } else {
+            $output->termsUnsigned = false;
         }
 
         if ($this->hasGroup([

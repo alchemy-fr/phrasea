@@ -130,7 +130,10 @@
         "symfony/string": "^4.0 || ^5 || ^6 || ^7",
         "symfony/monolog-bundle": "^4.0",
         "sentry/sentry-symfony": "^5.10",
-        "symfony/notifier": "^7.4"
+        "symfony/clock": "^7.4",
+        "symfony/mailer": "^7.4",
+        "symfony/notifier": "^7.4",
+        "symfony/translation": "^7.4"
     },
     "require-dev": {
         "alchemy/api-test": "@dev",
@@ -199,7 +202,11 @@
         ],
         "phpunit": [
             "@pre-phpunit",
-            "php -d memory_limit=512M ./bin/phpunit"
+            "php -d memory_limit=1024M ./bin/phpunit"
+        ],
+        "phpunit:compact": [
+            "@pre-phpunit",
+            "php -d memory_limit=1024M ./bin/phpunit --printer 'Alchemy\\ApiTest\\PHPUnit\\CompactResultPrinter'"
         ],
         "test": [
             "vendor/bin/var-dump-check --symfony src",

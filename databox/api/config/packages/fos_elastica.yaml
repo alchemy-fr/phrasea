@@ -358,6 +358,8 @@ fos_elastica:
                     type: keyword
                 isArchived:
                     type: boolean
+                createdAt:
+                    type: date
             persistence:
                 driver: orm
                 model: App\Entity\Basket\Basket

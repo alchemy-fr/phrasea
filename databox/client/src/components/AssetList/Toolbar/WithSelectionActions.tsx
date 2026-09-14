@@ -19,7 +19,6 @@ import BasketSwitcher from '../../Basket/BasketSwitcher';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import {useAuth} from '@alchemy/react-auth';
 import ShareAssetDialog from '../../Share/ShareAssetDialog.tsx';
-import {toast} from 'react-toastify';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
 import RestoreAssetsConfirm from '../../Media/Asset/Actions/RestoreAssetsConfirm.tsx';
 import {
@@ -120,17 +119,18 @@ export default function WithSelectionActions<
         };
 
         const onShare = () => {
-            if (selectedAssets.length > 1) {
-                toast.warn(
-                    t(
-                        'asset_actions.share_multiple',
-                        'You can only share one asset at a time'
-                    )
-                );
+            const workspaceId = selectedAssets[0].workspace?.id;
+            if (selectedAssets.some(a => a.workspace?.id !== workspaceId)) {
+                openModal(AlertDialog, {
+                    children: t(
+                        'asset_actions.share_multiple_workspaces',
+                        'You cannot share assets from different workspaces at the same time.'
+                    ),
+                });
                 return;
             }
             openModal(ShareAssetDialog, {
-                asset: selectedAssets[0],
+                assets: selectedAssets.filter(a => a.capabilities.share),
             });
         };
 
