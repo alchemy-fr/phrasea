@@ -14,6 +14,10 @@ fos_elastica:
             index_name: "%es_index_prefix%asset_%kernel.environment%"
             settings:
                 index:
+                    # Dynamically adjust replicas count to the number of ES data nodes,
+                    # instead of a static number_of_replicas, to avoid keeping it in sync
+                    # manually with the Elasticsearch Helm chart node count.
+                    auto_expand_replicas: "0-2"
                     analysis:
                         analyzer:
                             collection_path:
@@ -186,6 +190,7 @@ fos_elastica:
             index_name: "%es_index_prefix%collection_%kernel.environment%"
             settings:
                 index:
+                    auto_expand_replicas: "0-2"
                     analysis:
                         analyzer:
                             collection_path:
@@ -252,6 +257,7 @@ fos_elastica:
             indexable_callback: [ '@App\Elasticsearch\AttributeIndexable', 'isAttributeIndexable' ]
             settings:
                 index:
+                    auto_expand_replicas: "0-2"
                     analysis:
                         analyzer:
                             text: *text_analyzer
@@ -300,6 +306,9 @@ fos_elastica:
         asset_data_template:
             use_alias: '%elastica.use_alias%'
             index_name: "%es_index_prefix%asset_data_template_%kernel.environment%"
+            settings:
+                index:
+                    auto_expand_replicas: "0-2"
             properties:
                 name:
                     type: text
@@ -334,6 +343,7 @@ fos_elastica:
         basket:
             settings:
                 index:
+                    auto_expand_replicas: "0-2"
                     analysis:
                         analyzer:
                             text: *text_analyzer
@@ -368,6 +378,7 @@ fos_elastica:
         attribute_entity:
             settings:
                 index:
+                    auto_expand_replicas: "0-2"
                     analysis:
                         analyzer:
                             text: *text_analyzer
@@ -400,6 +411,7 @@ fos_elastica:
         tag:
             settings:
                 index:
+                    auto_expand_replicas: "0-2"
                     analysis:
                         analyzer:
                             text: *text_analyzer
@@ -430,6 +442,7 @@ fos_elastica:
         message:
             settings:
                 index:
+                    auto_expand_replicas: "0-2"
                     analysis:
                         analyzer:
                             text: *text_analyzer
