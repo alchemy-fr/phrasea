@@ -8,7 +8,7 @@ set -ex
 
 export XDEBUG_ENABLED=0
 export VERIFY_SSL=false
-export COMPOSE_PROFILES=db,redis,elasticsearch,report,minio
+export COMPOSE_PROFILES=db,redis,elasticsearch,minio,report
 
 docker compose up -d
 docker compose run --rm dockerize

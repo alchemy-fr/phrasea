@@ -6,6 +6,7 @@ namespace App\Integration\Happyscribe;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
@@ -13,6 +14,8 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 class HappyscribeIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    use RenditionConfigNormalizerTrait;
+
     final public const array ALLOWED_EXTENSIONS = ['srt', 'txt', 'json', 'vtt', 'docx', 'pdf', 'html'];
 
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
@@ -70,5 +73,10 @@ class HappyscribeIntegration extends AbstractIntegration implements WorkflowInte
     public static function getName(): string
     {
         return 'happyscribe';
+    }
+
+    protected function getRenditionConfigPaths(): array
+    {
+        return ['rendition'];
     }
 }

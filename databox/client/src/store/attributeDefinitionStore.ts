@@ -297,6 +297,12 @@ function normalizeDefinitionFromId<T extends BaseAttributeDefinition>(d: T): T {
                 ...d,
                 type: AttributeType.Story,
             };
+        case BuiltInAttributeEnum.Similar:
+            // Values are asset IDs: reuse the Story type to resolve asset names
+            return {
+                ...d,
+                type: AttributeType.Story,
+            };
         case BuiltInAttributeEnum.Rendition:
             return {
                 ...d,

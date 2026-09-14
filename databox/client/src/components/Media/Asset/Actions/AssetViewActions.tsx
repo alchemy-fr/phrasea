@@ -11,6 +11,9 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import {useCloseModal} from '../../../Routing/ModalLink.tsx';
 import SaveAsButton from './SaveAsButton.tsx';
 import FollowButton from '../../../Ui/FollowButton.tsx';
+import ImageSearchIcon from '@mui/icons-material/ImageSearch';
+import {useModals} from '@alchemy/navigation';
+import SimilarAssetsDialog from './SimilarAssetsDialog.tsx';
 
 type Props = {
     asset: Asset;
@@ -20,6 +23,7 @@ type Props = {
 export default function AssetViewActions({asset, file}: Props) {
     const {t} = useTranslation();
     const closeModal = useCloseModal();
+    const {openModal} = useModals();
     const {
         onDelete,
         onRestore,
@@ -138,6 +142,19 @@ export default function AssetViewActions({asset, file}: Props) {
                 ) : (
                     ''
                 )}
+                <div>
+                    <Button
+                        variant={'contained'}
+                        onClick={() =>
+                            openModal(SimilarAssetsDialog, {
+                                asset,
+                            })
+                        }
+                        startIcon={<ImageSearchIcon />}
+                    >
+                        {t('asset_actions.find_similar', 'Find similar')}
+                    </Button>
+                </div>
                 {can.share ? (
                     <div>
                         <Button

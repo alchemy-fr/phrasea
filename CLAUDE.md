@@ -28,7 +28,6 @@ The applications:
 - **uploader** — asset ingestion front-end.
 - **dashboard** — client-only shell that ties the apps together (no API of its own).
 - **configurator** — a standalone Symfony app that generates per-tenant configuration.
-- **report** — reporting service.
 - **databox/indexer** — a Node.js service (not a client) for external indexing.
 
 ## Repository layout

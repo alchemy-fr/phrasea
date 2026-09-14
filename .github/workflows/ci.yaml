@@ -19,15 +19,6 @@ env:
   FIXTURES_GENERATE_IMAGES: "true"
 
 jobs:
-  build_keycloak:
-    name: 'Build Keycloak'
-    uses: ./.github/workflows/build_base.yaml
-    with:
-      image: keycloak
-      context: ./infra/docker/keycloak
-      target: keycloak
-    secrets: inherit
-
   build_php-fpm-base:
     name: 'Build php-fpm-base'
     uses: ./.github/workflows/build_base.yaml
@@ -150,14 +141,6 @@ jobs:
       - build_nodejs-base
       - build_nginx-client-base
 
-  build_report_api:
-    name: 'Build Report API'
-    uses: ./.github/workflows/build.yaml
-    with:
-      image: report-api
-      context: report
-    secrets: inherit
-
   build_uploader_api:
     name: 'Build Uploader API'
     uses: ./.github/workflows/build_api.yaml
@@ -193,8 +176,6 @@ jobs:
       - build_databox_indexer
       - build_expose_api
       - build_expose_client
-      - build_keycloak
-      - build_report_api
       - build_uploader_api
       - build_uploader_client
 

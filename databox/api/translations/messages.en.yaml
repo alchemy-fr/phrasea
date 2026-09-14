@@ -111,6 +111,8 @@ built_in_attribute:
         name: Deleted
     assetStatus:
         name: Asset Status
+    similar:
+        name: Similar to
 
 search:
     suggestion:

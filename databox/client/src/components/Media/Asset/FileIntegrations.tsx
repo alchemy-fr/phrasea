@@ -17,6 +17,7 @@ import {SetIntegrationOverlayFunction} from './View/AssetView.tsx';
 import AwsRekognitionAssetEditorActions from '../../Integration/AwsRekognition/AwsRekognitionAssetEditorActions';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import TUIPhotoEditor from '../../Integration/TuiPhotoEditor/TUIPhotoEditor';
+import FaceRecognitionAssetEditorActions from '../../Integration/FaceRecognition/FaceRecognitionAssetEditorActions';
 import {
     AssetIntegrationActionsProps,
     Integration,
@@ -46,6 +47,10 @@ const integrations: Record<
     },
     [Integration.TuiPhotoEditor]: {
         component: TUIPhotoEditor,
+        supports: supportsImage,
+    },
+    [Integration.FaceRecognition]: {
+        component: FaceRecognitionAssetEditorActions,
         supports: supportsImage,
     },
 };

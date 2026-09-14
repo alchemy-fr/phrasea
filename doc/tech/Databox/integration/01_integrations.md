@@ -15,6 +15,8 @@ They provide practical value by:
 - Normalizing data exchanged between Phrasea and external services.
 - Keeping synchronized states between Phrasea objects and external resources.
 
+Rendition references in integration configurations (`rendition`, `renditions`, `applyToRenditions`, `labels.rendition`...) are written by name in YAML but persisted as rendition definition IDs (see `RenditionConfigNormalizer`): renaming a rendition definition does not break the integrations using it, and the YAML shown back to users still displays names.
+
 ## Rendition integration (core.rendition)
 
 Display name: Rendition
@@ -116,6 +118,62 @@ Operational notes:
 - Save and delete actions require valid user context and integration data identifiers.
 - Unsupported actions are rejected.
 
+## Similarity integration (core.similarity)
+
+Display name: Similarity
+
+This integration computes a visual embedding (CLIP vector) for each ingested asset and stores it in the asset Elasticsearch document (dense_vector field).
+It powers the "Similar assets" panel and the "Find similar" action of the asset view, through a kNN search that enforces the same ACL filters as the regular search.
+
+Main behavior:
+
+- Adds a workflow job on asset ingest, depending on the configured rendition job (default: preview).
+- Sends the rendition image to the similarity-embedder service (self-hosted, CLIP) to compute the vector.
+- Stores the vector in database (asset_embedding table) and reindexes the asset in Elasticsearch.
+- Similar assets are served by `GET /assets/{id}/similar` using an Elasticsearch kNN query filtered by permissions.
+
+Operational notes:
+
+- Requires the `similarity-embedder` (maintained in [alchemy-fr/phrasea-similarity-embedder](https://github.com/alchemy-fr/phrasea-similarity-embedder)) and `elasticsearch` (>= 8.12) services.
+- The rendition must be an image (documents are covered through their image preview rendition).
+- Backfill existing assets with `bin/console app:similarity:index`.
+
+## Face Recognition integration (core.face_recognition)
+
+Display name: Face Recognition
+
+This integration detects the faces of image assets and recognizes the persons that users have already named, through a self-hosted service (no data leaves the platform).
+It is the self-hosted counterpart of the "faces" category of AWS Rekognition, with recognition on top of detection.
+
+Main behavior:
+
+- Sends the configured rendition (default: preview, falls back to the source file), downscaled to `maxImageSize` pixels, to the `face-recognition` service, which returns for each face a bounding box, a detection confidence, an estimated age/gender and a 512-d ArcFace embedding.
+- Stores the faces in database (`asset_face` table) and exposes them to the asset view as integration data (`faces`), drawn as rectangle annotations on the image.
+- Runs on asset ingest when `processIncoming` is enabled (workflow job depending on the rendition job), or on demand from the asset view ("Detect faces").
+- Users name a face from the asset view ("Identify this person"). User-identified faces form the reference gallery of the workspace: every new detection is compared to it (cosine similarity, `matchThreshold`) and the closest known person is assigned automatically.
+- When a user names a face and `autoPropagate` is enabled, the identity is propagated asynchronously to the similar, not yet user-identified faces of the workspace.
+- With `attribute` set to the slug of a multi-valued string attribute, the names of the recognized persons are written as machine attribute values (with rectangle annotations and the match confidence), which makes them searchable.
+- Re-running the detection on an asset keeps the identities set by users on overlapping faces.
+
+Configuration:
+
+| Key | Default | Description |
+| --- | --- | --- |
+| rendition | preview | Rendition sent to the service (must be an image) |
+| maxImageSize | 2048 | Longest side (pixels) of the downscaled JPEG copy actually sent to the service |
+| processIncoming | false | Detect faces on all incoming assets |
+| minConfidence | 0.5 | Minimum detection confidence for a face to be kept |
+| matchThreshold | 0.5 | Minimum cosine similarity with a user-identified face to recognize a person (0 disables recognition) |
+| autoPropagate | true | Apply a newly set identity to the similar faces of the workspace |
+| attribute | null | Slug of a multi-valued string attribute receiving the recognized names |
+
+Operational notes:
+
+- Requires the `face-recognition` service (maintained in [alchemy-fr/phrasea-face-recognition](https://github.com/alchemy-fr/phrasea-face-recognition), InsightFace `buffalo_l` model pack on CPU; image `FACE_RECOGNITION_IMAGE`, `face-recognition` Docker Compose profile). Databox reaches it through `FACE_RECOGNITION_URL`.
+- Recognition only relies on faces explicitly identified by users; automatically assigned identities are never used as references, to avoid drift.
+- Backfill existing assets with `bin/console app:face-recognition:index` (add `--sync` to run in the foreground).
+- Faces are listed in the admin (Asset Face) with their identities and embeddings.
+
 ## Exhaustive integration list
 
 The table below is the exhaustive integration list currently available in Databox codebase.
@@ -138,6 +196,8 @@ The table below is the exhaustive integration list currently available in Databo
 | remove.bg | Remove BG | Asset view background removal | Yes |
 | phraseanet.renditions | Phraseanet Renditions | Workflow rendition synchronization with Phraseanet | No |
 | core.test_asset_operation | Test Asset Operation | Test-only workflow integration | No |
+| similarity | Similarity | Workflow embedding generation for similarity search | No |
+| core.face_recognition | Face Recognition | Face detection and recognition (asset view and workflow) | No |
 
 Note: for integrations marked Yes in the External service column, some assets, metadata, or derived content will necessarily be submitted to these external services for processing.
 

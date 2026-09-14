@@ -10,6 +10,7 @@ use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Action\FileUserActionsTrait;
 use App\Integration\Aws\AbstractAwsIntegration;
 use App\Integration\Aws\Rekognition\Message\RekognitionAnalyze;
+use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\Core\Rendition\RenditionIntegration;
 use App\Integration\FilterNeedIntegrationInterface;
 use App\Integration\IntegrationConfig;
@@ -30,6 +31,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class AwsRekognitionIntegration extends AbstractAwsIntegration implements FilterNeedIntegrationInterface, WorkflowIntegrationInterface, UserActionsIntegrationInterface
 {
     use FileUserActionsTrait;
+    use RenditionConfigNormalizerTrait;
 
     private const string ACTION_ANALYZE = 'analyze';
 
@@ -205,5 +207,10 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
         }
 
         return null;
+    }
+
+    protected function getRenditionConfigPaths(): array
+    {
+        return array_map(fn (string $category): string => $category.'.rendition', array_keys(self::CATEGORIES));
     }
 }
