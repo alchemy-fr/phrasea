@@ -36,6 +36,8 @@ use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\Exception\RejectRedeliveredMessageException;
+use Symfony\Component\Serializer\Exception\NotEncodableValueException;
+use Symfony\Component\Serializer\Exception\UnexpectedValueException as SerializerUnexpectedValueException;
 use Symfony\Component\Serializer\Exception\UnsupportedFormatException;
 use Symfony\Component\Yaml\Yaml;
 
@@ -181,6 +183,20 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                     ConversionException::class => [
                         'status_code' => 404,
                         'log_level' => 'debug',
+                    ],
+                    // A malformed request body or filter is the client's problem: it
+                    // already gets a 4xx, so keep it out of the error log (and out of
+                    // Sentry, whose Monolog handler only listens from ERROR up).
+                    BadRequestHttpException::class => [
+                        'log_level' => 'info',
+                    ],
+                    NotEncodableValueException::class => [
+                        'status_code' => 400,
+                        'log_level' => 'info',
+                    ],
+                    SerializerUnexpectedValueException::class => [
+                        'status_code' => 400,
+                        'log_level' => 'info',
                     ],
                 ],
             ]);

@@ -31,7 +31,15 @@ final readonly class IndexRemover
         bool $removeOlds = false,
         bool $forcePrefix = false,
     ): array {
-        $indices = null === $indexArg ? array_keys($this->indexManager->getAllIndexes()) : [$indexArg];
+        $knownIndices = array_keys($this->indexManager->getAllIndexes());
+        if (null !== $indexArg && !in_array($indexArg, $knownIndices, true)) {
+            // getIndex() would throw "The index ... does not exist" without saying
+            // what a caller may pass — the logical name ("asset"), not the physical
+            // one ("asset_prod").
+            throw new \InvalidArgumentException(\sprintf('Unknown index "%s". Available indices: %s.', $indexArg, implode(', ', $knownIndices)));
+        }
+
+        $indices = null === $indexArg ? $knownIndices : [$indexArg];
         $removeOlds = $oldsOnly || $removeOlds;
 
         $aliasesData = $this->client->indices()->getAlias()->asArray();

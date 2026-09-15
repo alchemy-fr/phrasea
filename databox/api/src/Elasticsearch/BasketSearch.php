@@ -104,7 +104,7 @@ class BasketSearch extends AbstractSearch
             $result->setAllowOutOfRangePages(true);
             $result->setCurrentPage((int) $options['page']);
         }
-        $result->getCurrentPageResults();
+        $this->executeSearch($result->getCurrentPageResults(...));
 
         return $result;
     }

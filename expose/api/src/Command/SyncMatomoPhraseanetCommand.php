@@ -11,6 +11,8 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
  * @deprecated
@@ -41,7 +43,16 @@ final class SyncMatomoPhraseanetCommand extends Command
                     $this->logger->error('Invalid stat format', ['stat' => $stat]);
                     continue;
                 }
-                $this->phraseanetClient->patchField($stat);
+                try {
+                    $this->phraseanetClient->patchField($stat);
+                } catch (TransportExceptionInterface|HttpExceptionInterface $e) {
+                    // One unreachable or slow record must not abort the whole sync;
+                    // the next run picks it up again.
+                    $this->logger->error('Failed to sync Matomo stat to Phraseanet', [
+                        'label' => $stat['label'] ?? null,
+                        'exception' => $e,
+                    ]);
+                }
             }
 
             if (count($stats) < $limit) {

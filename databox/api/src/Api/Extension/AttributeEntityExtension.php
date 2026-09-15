@@ -37,7 +37,7 @@ class AttributeEntityExtension implements QueryCollectionExtensionInterface
 
         $listId = $context['filters']['list'] ?? null;
         if (isset($listId)) {
-            $list = DoctrineUtil::findStrict($this->em, EntityList::class, $listId);
+            $list = DoctrineUtil::findStrict($this->em, EntityList::class, $listId, throw404: true);
             if ($this->isGranted(AbstractVoter::EDIT, $list)) {
                 return;
             }

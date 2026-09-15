@@ -56,7 +56,7 @@ class AssetSearch extends AbstractSearch
 
         if (isset($options['savedSearch'])) {
             /** @var SavedSearch $savedSearch */
-            $savedSearch = DoctrineUtil::findStrictByRepo($this->savedSearchRepository, $options['savedSearch']);
+            $savedSearch = DoctrineUtil::findStrictByRepo($this->savedSearchRepository, $options['savedSearch'], throw404: true);
             $options = array_merge($options, $savedSearch->getData());
         }
 
@@ -75,8 +75,8 @@ class AssetSearch extends AbstractSearch
             $filterQueries[] = new Query\Term(['stories' => $options['story']]);
         }
 
-        if (isset($options['parents'])) {
-            $parentCollections = DoctrineUtil::getFromIds($this->collectionRepository, $options['parents']);
+        if (!empty($parentIds = self::toIdList($options['parents'] ?? null))) {
+            $parentCollections = DoctrineUtil::getFromIds($this->collectionRepository, $parentIds);
             $paths = array_map(fn (Collection $parentCollection): string => $parentCollection->getAbsolutePath(), $parentCollections);
 
             if (empty($paths)) {
@@ -86,13 +86,13 @@ class AssetSearch extends AbstractSearch
             $filterQueries[] = new Query\Terms('collectionPaths', $paths);
         }
 
-        if (isset($options['ids'])) {
-            $filterQueries[] = new Query\Terms('_id', $options['ids']);
+        if (!empty($assetIds = self::toIdList($options['ids'] ?? null))) {
+            $filterQueries[] = new Query\Terms('_id', $assetIds);
             $maxLimit = 500;
         }
 
-        if (isset($options['workspaces'])) {
-            $filterQueries[] = new Query\Terms('workspaceId', $options['workspaces']);
+        if (!empty($workspaceIds = self::toIdList($options['workspaces'] ?? null))) {
+            $filterQueries[] = new Query\Terms('workspaceId', $workspaceIds);
         }
 
         if (isset($options['tags_must']) || isset($options['tags_must_not'])) {
@@ -208,7 +208,8 @@ class AssetSearch extends AbstractSearch
             $result->setCurrentPage((int) $options['page']);
         }
         $start = microtime(true);
-        $result->getCurrentPageResults(); // Force query to ensure adapter will run it just once.
+        // Force query to ensure adapter will run it just once.
+        $this->executeSearch($result->getCurrentPageResults(...));
         $searchTime = microtime(true) - $start;
 
         $facets = $adapter->getAggregations();
