@@ -112,9 +112,10 @@ function IntegrationForm({
     const save = async () => {
         setSaving(true);
         try {
-            const data: Partial<WorkspaceIntegration> = {
+            const data: Partial<WorkspaceIntegration> & {name?: string} = {
                 integration: form.integration,
-                title: form.title,
+                // The API input names the label `name`
+                name: form.title,
                 enabled: form.enabled,
                 public: form.public,
                 if: form.if || undefined,

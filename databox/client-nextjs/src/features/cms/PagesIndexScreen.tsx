@@ -19,14 +19,7 @@ import {Button} from '@/components/ui/button';
 import {Badge, EmptyState, Skeleton} from '@/components/ui/misc';
 import {FormRow, Input, Textarea} from '@/components/ui/input';
 import {LabeledControl, Switch} from '@/components/ui/controls';
-import {
-    Dialog,
-    DialogBody,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import {FormDialog} from '@/components/modals/FormDialog';
 import {useModals, type ModalProps} from '@/components/modals/ModalProvider';
 import {ConfirmDialog} from '@/components/ui/confirm';
 import {routes} from '@/lib/routes';
@@ -169,9 +162,13 @@ export function PagesIndexScreen() {
 export function PageFormDialog({
     open,
     onOpenChange,
+    resolve,
     page,
     onSaved,
-}: ModalProps & {page?: CmsPage; onSaved?: (page: CmsPage) => void}) {
+}: ModalProps<CmsPage> & {
+    page?: CmsPage;
+    onSaved?: (page: CmsPage) => void;
+}) {
     const {t} = useTranslation();
     const queryClient = useQueryClient();
     const [title, setTitle] = useState(page?.title ?? '');
@@ -179,100 +176,67 @@ export function PageFormDialog({
     const [description, setDescription] = useState(page?.description ?? '');
     const [enabled, setEnabled] = useState(page?.enabled ?? true);
     const [isPublic, setIsPublic] = useState(page?.public ?? false);
-    const [loading, setLoading] = useState(false);
 
     const submit = async () => {
-        setLoading(true);
-        try {
-            const data = {title, slug, description, enabled, public: isPublic};
-            const saved = page
-                ? await putPage(page.id, data)
-                : await postPage({...data, data: {type: 'doc', content: []}});
-            void queryClient.invalidateQueries({queryKey: ['pages']});
-            toast.success(t('cms.saved', 'Page saved'));
-            onSaved?.(saved);
-            onOpenChange(false);
-        } catch (e: any) {
-            toast.error(e?.message);
-        } finally {
-            setLoading(false);
-        }
+        const data = {title, slug, description, enabled, public: isPublic};
+        const saved = page
+            ? await putPage(page.id, data)
+            : await postPage({...data, data: {type: 'doc', content: []}});
+        void queryClient.invalidateQueries({queryKey: ['pages']});
+        toast.success(t('cms.saved', 'Page saved'));
+        onSaved?.(saved);
+        resolve?.(saved);
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="sm">
-                <DialogHeader>
-                    <DialogTitle>
-                        {page
-                            ? t('cms.edit_meta', 'Page settings')
-                            : t('cms.create', 'Create page')}
-                    </DialogTitle>
-                </DialogHeader>
-                <DialogBody>
-                    <FormRow label={t('cms.title', 'Title')}>
-                        <Input
-                            autoFocus
-                            value={title}
-                            onChange={e => setTitle(e.target.value)}
-                        />
-                    </FormRow>
-                    <FormRow
-                        label={t('cms.slug', 'Slug')}
-                        help={t(
-                            'cms.slug_help',
-                            'Leave empty for the home page'
-                        )}
-                    >
-                        <Input
-                            value={slug}
-                            onChange={e =>
-                                setSlug(
-                                    e.target.value
-                                        .toLowerCase()
-                                        .replace(/[^a-z0-9-_]/g, '-')
-                                )
-                            }
-                            className="font-mono"
-                        />
-                    </FormRow>
-                    <FormRow label={t('common.description', 'Description')}>
-                        <Textarea
-                            value={description}
-                            onChange={e => setDescription(e.target.value)}
-                        />
-                    </FormRow>
-                    <div className="flex gap-6">
-                        <LabeledControl label={t('common.enabled', 'Enabled')}>
-                            <Switch
-                                checked={enabled}
-                                onCheckedChange={setEnabled}
-                            />
-                        </LabeledControl>
-                        <LabeledControl label={t('common.public', 'Public')}>
-                            <Switch
-                                checked={isPublic}
-                                onCheckedChange={setIsPublic}
-                            />
-                        </LabeledControl>
-                    </div>
-                </DialogBody>
-                <DialogFooter>
-                    <Button
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                    >
-                        {t('common.cancel', 'Cancel')}
-                    </Button>
-                    <Button
-                        onClick={submit}
-                        disabled={!title.trim()}
-                        loading={loading}
-                    >
-                        {t('common.save', 'Save')}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <FormDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title={
+                page
+                    ? t('cms.edit_meta', 'Page settings')
+                    : t('cms.create', 'Create page')
+            }
+            canSubmit={!!title.trim()}
+            onSubmit={submit}
+        >
+            <FormRow label={t('cms.title', 'Title')}>
+                <Input
+                    autoFocus
+                    value={title}
+                    onChange={e => setTitle(e.target.value)}
+                />
+            </FormRow>
+            <FormRow
+                label={t('cms.slug', 'Slug')}
+                help={t('cms.slug_help', 'Leave empty for the home page')}
+            >
+                <Input
+                    value={slug}
+                    onChange={e =>
+                        setSlug(
+                            e.target.value
+                                .toLowerCase()
+                                .replace(/[^a-z0-9-_]/g, '-')
+                        )
+                    }
+                    className="font-mono"
+                />
+            </FormRow>
+            <FormRow label={t('common.description', 'Description')}>
+                <Textarea
+                    value={description}
+                    onChange={e => setDescription(e.target.value)}
+                />
+            </FormRow>
+            <div className="flex gap-6">
+                <LabeledControl label={t('common.enabled', 'Enabled')}>
+                    <Switch checked={enabled} onCheckedChange={setEnabled} />
+                </LabeledControl>
+                <LabeledControl label={t('common.public', 'Public')}>
+                    <Switch checked={isPublic} onCheckedChange={setIsPublic} />
+                </LabeledControl>
+            </div>
+        </FormDialog>
     );
 }

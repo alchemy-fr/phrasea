@@ -27,6 +27,7 @@ export function LeftPanel() {
             value={tab}
             onValueChange={v => setTab(v as LeftPanelTab)}
             className="flex h-full min-h-0 flex-col"
+            data-testid="left-panel"
         >
             <TabsList className="m-2 grid grid-cols-3">
                 <TabsTrigger

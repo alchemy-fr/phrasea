@@ -106,7 +106,16 @@ export function AssetViewActions({
                         : t('asset.view.show_panel', 'Show panel')
                 }
             >
-                <Button variant="ghost" size="icon-sm" onClick={onTogglePanel}>
+                <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={onTogglePanel}
+                    aria-label={
+                        panelOpen
+                            ? t('asset.view.hide_panel', 'Hide panel')
+                            : t('asset.view.show_panel', 'Show panel')
+                    }
+                >
                     {panelOpen ? (
                         <PanelRightCloseIcon />
                     ) : (

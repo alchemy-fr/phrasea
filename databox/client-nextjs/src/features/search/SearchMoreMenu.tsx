@@ -60,6 +60,7 @@ export function SearchMoreMenu() {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button
+                    data-testid="search-more"
                     type="button"
                     variant="ghost"
                     size="icon"

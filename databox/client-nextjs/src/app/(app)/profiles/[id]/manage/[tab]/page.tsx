@@ -1,5 +1,4 @@
-import AssetsPage from '@/app/(app)/assets/page';
-import {ProfileManageRoute} from '@/features/profiles/manage/ProfileManageRoute';
+import {ProfileManageTab} from '@/features/profiles/manage/ProfileManageRoute';
 
 export default async function Page({
     params,
@@ -8,10 +7,5 @@ export default async function Page({
 }) {
     const {id, tab} = await params;
 
-    return (
-        <>
-            <AssetsPage />
-            <ProfileManageRoute profileId={id} tab={tab} />
-        </>
-    );
+    return <ProfileManageTab profileId={id} tab={tab} />;
 }

@@ -17,6 +17,7 @@ export function SearchError({
     return (
         <EmptyState
             className="h-full"
+            testId="search-error"
             icon={<AlertTriangleIcon className="text-destructive" />}
             title={t('search.error.title', 'Search failed')}
             description={<code className="text-xs break-all">{error}</code>}

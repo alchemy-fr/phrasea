@@ -1,11 +1,11 @@
-import {FileManageRoute} from '@/features/files/FileManageRoute';
+import {FileManageTab} from '@/features/files/FileManageRoute';
 
-export default async function Modal({
+export default async function Page({
     params,
 }: {
     params: Promise<{id: string; tab: string}>;
 }) {
     const {id, tab} = await params;
 
-    return <FileManageRoute fileId={id} tab={tab} />;
+    return <FileManageTab fileId={id} tab={tab} />;
 }

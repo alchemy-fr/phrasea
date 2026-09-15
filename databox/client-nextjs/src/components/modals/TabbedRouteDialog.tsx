@@ -1,8 +1,8 @@
 'use client';
 
-import {ComponentType, ReactNode, useMemo} from 'react';
-import {useRouter} from 'next/navigation';
-import {RouteDialog} from './RouteDialog';
+import {ComponentType, ReactNode} from 'react';
+import {useRouter, useSelectedLayoutSegment} from 'next/navigation';
+import {RouteDialog, useCloseRoute} from './RouteDialog';
 import {
     DialogBody,
     DialogHeader,
@@ -15,47 +15,57 @@ import {
     UnderlineTabsTrigger,
 } from '@/components/ui/misc';
 
-export type DialogTab<P extends object> = {
-    id: string;
-    title: ReactNode;
-    icon?: ReactNode;
-    component: ComponentType<P & DialogTabProps>;
-    props?: Partial<P>;
-    enabled?: boolean;
-};
-
 export type DialogTabProps = {
     /** Close the whole dialog */
     onClose: () => void;
 };
 
+/** What the shell needs to draw a tab — no content, that is the page's job. */
+export type DialogTabHeader = {
+    id: string;
+    title: ReactNode;
+    icon?: ReactNode;
+    enabled?: boolean;
+};
+
+export type DialogTab<P extends object> = DialogTabHeader & {
+    component: ComponentType<P & DialogTabProps>;
+    props?: Partial<P>;
+};
+
 /**
- * Dialog with tabs mirrored in the URL (`…/manage/:tab`).
+ * Shell of a dialog whose tabs are route segments (`…/manage/:tab`).
+ *
+ * It belongs in the `layout.tsx` of the `manage` segment, with the tab content
+ * in `[tab]/page.tsx`: a Next layout survives the navigation to a sibling
+ * segment, so switching tabs is a real navigation — it lands in the history
+ * and the back button walks through the tabs — while the dialog itself stays
+ * mounted and never replays its opening.
  */
-export function TabbedRouteDialog<P extends object>({
+export function TabbedRouteDialogShell({
     title,
+    subtitle,
     tabs,
-    activeTab,
     buildTabHref,
     size = 'lg',
-    baseProps,
-    subtitle,
+    placeholder,
+    children,
 }: {
     title: ReactNode;
     subtitle?: ReactNode;
-    tabs: DialogTab<P>[];
-    activeTab: string;
+    tabs: DialogTabHeader[];
     buildTabHref: (tab: string) => string;
     size?: DialogSize;
-    baseProps: P;
+    /** Shown instead of the tabs while the entity loads, or when it is missing */
+    placeholder?: ReactNode;
+    children?: ReactNode;
 }) {
     const router = useRouter();
-    const enabledTabs = useMemo(
-        () => tabs.filter(t => t.enabled !== false),
-        [tabs]
-    );
-    const current = enabledTabs.find(t => t.id === activeTab) ?? enabledTabs[0];
-    const Component = current?.component;
+    // The tab is the segment right below this layout
+    const segment = useSelectedLayoutSegment();
+    const enabledTabs = tabs.filter(t => t.enabled !== false);
+    const active =
+        enabledTabs.find(t => t.id === segment)?.id ?? enabledTabs[0]?.id;
 
     return (
         <RouteDialog size={size} className="h-[85dvh]">
@@ -67,30 +77,62 @@ export function TabbedRouteDialog<P extends object>({
                     </div>
                 ) : null}
             </DialogHeader>
-            <Tabs
-                value={current?.id}
-                onValueChange={tab =>
-                    router.replace(buildTabHref(tab), {scroll: false})
-                }
-            >
-                <UnderlineTabsList>
-                    {enabledTabs.map(tab => (
-                        <UnderlineTabsTrigger key={tab.id} value={tab.id}>
-                            {tab.icon} {tab.title}
-                        </UnderlineTabsTrigger>
-                    ))}
-                </UnderlineTabsList>
-            </Tabs>
-            <DialogBody className="pt-4">
-                {Component ? (
-                    <Component
-                        key={current.id}
-                        {...(baseProps as P)}
-                        {...(current.props ?? {})}
-                        onClose={() => router.back()}
-                    />
-                ) : null}
-            </DialogBody>
+            {placeholder ? (
+                <DialogBody className="flex items-center justify-center">
+                    {placeholder}
+                </DialogBody>
+            ) : (
+                <>
+                    <Tabs
+                        value={active}
+                        onValueChange={next =>
+                            router.push(buildTabHref(next), {scroll: false})
+                        }
+                    >
+                        <UnderlineTabsList>
+                            {enabledTabs.map(tab => (
+                                <UnderlineTabsTrigger
+                                    key={tab.id}
+                                    value={tab.id}
+                                >
+                                    {tab.icon} {tab.title}
+                                </UnderlineTabsTrigger>
+                            ))}
+                        </UnderlineTabsList>
+                    </Tabs>
+                    <DialogBody className="pt-4">{children}</DialogBody>
+                </>
+            )}
         </RouteDialog>
+    );
+}
+
+/**
+ * Content of the active tab, rendered by `[tab]/page.tsx` inside the shell.
+ */
+export function DialogTabContent<P extends object>({
+    tabs,
+    tab,
+    baseProps,
+}: {
+    tabs: DialogTab<P>[];
+    tab: string;
+    baseProps: P | undefined;
+}) {
+    const closeRoute = useCloseRoute();
+    const enabledTabs = tabs.filter(t => t.enabled !== false);
+    const current = enabledTabs.find(t => t.id === tab) ?? enabledTabs[0];
+    const Component = current?.component;
+
+    if (!Component || !baseProps) {
+        return null;
+    }
+
+    return (
+        <Component
+            {...baseProps}
+            {...(current.props ?? {})}
+            onClose={closeRoute}
+        />
     );
 }

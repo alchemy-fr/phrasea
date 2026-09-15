@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {ReactNode, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {
@@ -14,10 +14,10 @@ import {toast} from 'sonner';
 import type {SavedSearch, SavedSearchPrivacy} from '@/types/api';
 import {getSavedSearch, putSavedSearch} from '@/lib/api/misc';
 import {
-    TabbedRouteDialog,
     DialogTab,
+    DialogTabContent,
+    TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
-import {RouteDialog} from '@/components/modals/RouteDialog';
 import {FullPageLoader} from '@/components/ui/loader';
 import {routes} from '@/lib/routes';
 import {InfoRow} from '@/features/assets/view/AssetInfoList';
@@ -33,28 +33,18 @@ import {PermissionObject} from '@/features/permissions/permissionTypes';
 
 type TabProps = {savedSearch: SavedSearch; refresh: () => void};
 
-export function SavedSearchManageRoute({
-    savedSearchId,
-    tab,
-}: {
-    savedSearchId: string;
-    tab: string;
-}) {
-    const {t} = useTranslation();
-    const query = useQuery({
+/** Shared by the shell and the tab content: one query, one request. */
+function useSavedSearch(savedSearchId: string) {
+    return useQuery({
         queryKey: ['saved-search', savedSearchId],
         queryFn: () => getSavedSearch(savedSearchId),
     });
-    const saved = query.data;
-    if (!saved) {
-        return (
-            <RouteDialog size="md">
-                <FullPageLoader />
-            </RouteDialog>
-        );
-    }
+}
 
-    const tabs: DialogTab<TabProps>[] = [
+function useTabs(saved?: SavedSearch): DialogTab<TabProps>[] {
+    const {t} = useTranslation();
+
+    return [
         {
             id: 'info',
             title: t('collection.manage.info', 'Info'),
@@ -66,14 +56,14 @@ export function SavedSearchManageRoute({
             title: t('common.edit', 'Edit'),
             icon: <PencilIcon />,
             component: EditTab,
-            enabled: saved.capabilities.edit,
+            enabled: !!saved?.capabilities.edit,
         },
         {
             id: 'permissions',
             title: t('collection.manage.permissions', 'Permissions'),
             icon: <ShieldIcon />,
             component: PermissionsTab,
-            enabled: saved.capabilities.editPermissions,
+            enabled: !!saved?.capabilities.editPermissions,
         },
         {
             id: 'automations',
@@ -82,16 +72,53 @@ export function SavedSearchManageRoute({
             component: AutomationsTab,
         },
     ];
+}
+
+export function SavedSearchManageShell({
+    savedSearchId,
+    children,
+}: {
+    savedSearchId: string;
+    children: ReactNode;
+}) {
+    const {t} = useTranslation();
+    const saved = useSavedSearch(savedSearchId).data;
+    const tabs = useTabs(saved);
 
     return (
-        <TabbedRouteDialog<TabProps>
+        <TabbedRouteDialogShell
             title={t('saved_search.manage.title', 'Manage saved search')}
-            subtitle={saved.name}
+            subtitle={saved?.name}
             tabs={tabs}
-            activeTab={tab}
-            buildTabHref={next => routes.savedSearchManage(savedSearchId, next)}
-            baseProps={{savedSearch: saved, refresh: () => query.refetch()}}
+            buildTabHref={tab => routes.savedSearchManage(savedSearchId, tab)}
             size="md"
+            placeholder={saved ? undefined : <FullPageLoader />}
+        >
+            {children}
+        </TabbedRouteDialogShell>
+    );
+}
+
+export function SavedSearchManageTab({
+    savedSearchId,
+    tab,
+}: {
+    savedSearchId: string;
+    tab: string;
+}) {
+    const query = useSavedSearch(savedSearchId);
+    const saved = query.data;
+    const tabs = useTabs(saved);
+
+    return (
+        <DialogTabContent
+            tabs={tabs}
+            tab={tab}
+            baseProps={
+                saved
+                    ? {savedSearch: saved, refresh: () => void query.refetch()}
+                    : undefined
+            }
         />
     );
 }

@@ -738,13 +738,6 @@ export interface TagFilterRule extends HydraObject, Entity {
     exclude: Tag[];
 }
 
-export interface AttributeFilterRule extends HydraObject, Entity {
-    users?: (User | string)[];
-    groups?: (Group | string)[];
-    workspace?: Workspace | string;
-    condition: string;
-}
-
 // ---------------------------------------------------------------------------
 // Export, templates, tasks, workflows, integrations
 

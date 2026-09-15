@@ -41,6 +41,39 @@ baked at build time.
 | `S3_MULTIPART_*`, `S3_MAX_OBJECT_SIZE`, `ALLOWED_FILE_TYPES` | Uploads |
 | `DASHBOARD_CLIENT_URL`, `DISPLAY_SERVICES_MENU` | Services menu |
 | `MATOMO_URL`, `MATOMO_SITE_ID`, `SENTRY_DSN`… | Analytics / monitoring |
+| `DATABOX_TICKETING_ENABLED`, `DATABOX_TICKETING_JIRA_*` | Ticketing (see below) |
+
+## Ticketing (JIRA)
+
+When `DATABOX_TICKETING_ENABLED` is true, a floating button (bottom right of
+the app shell, signed-in users only) opens a report form. The ticket is pushed
+to JIRA by the `POST /api/ticketing` route handler, enriched with:
+
+- the page the user was on (URL, title, locale, theme, timezone, viewport,
+  screen, user agent, last uncaught JS errors of the session),
+- their session (user id, username, email, roles, groups, Keycloak session id),
+  rebuilt **server side** from the access token — the browser never sends its
+  own identity, and the token is validated against Keycloak's userinfo
+  endpoint before anything is created,
+- an optional screenshot (Screen Capture API, or an image pasted with Ctrl+V),
+  uploaded as an issue attachment.
+
+The JIRA credentials stay in the server container: only `ticketing.enabled`
+reaches the browser. Ticket creation is rate limited to 5 per user / 10 min
+and per process.
+
+| Variable | Description |
+|---|---|
+| `DATABOX_TICKETING_ENABLED` | Enables the module (default `false`) |
+| `DATABOX_TICKETING_JIRA_URL` | JIRA base URL, e.g. `https://acme.atlassian.net` |
+| `DATABOX_TICKETING_JIRA_USER` | JIRA Cloud account email (Basic auth). Leave empty on Server/DC to authenticate with a PAT |
+| `DATABOX_TICKETING_JIRA_API_TOKEN` | API token (Cloud) or personal access token (Server/DC) |
+| `DATABOX_TICKETING_JIRA_PROJECT_KEY` | Target project key |
+| `DATABOX_TICKETING_JIRA_ISSUE_TYPE` | Issue type for improvements / questions (default `Task`) |
+| `DATABOX_TICKETING_JIRA_BUG_ISSUE_TYPE` | Issue type for bugs (defaults to the above) |
+| `DATABOX_TICKETING_JIRA_LABELS` | Labels added to every issue (default `databox`); `databox-<kind>` is always added |
+| `DATABOX_TICKETING_JIRA_API_VERSION` | `3` = Cloud / ADF (default), `2` = Server/DC / wiki markup |
+| `KEYCLOAK_INTERNAL_URL` | Keycloak URL reachable from the container, used to verify the reporter's token (falls back to `KEYCLOAK_URL`) |
 
 ## Layout
 
@@ -75,7 +108,8 @@ Implemented:
 - Upload: dropzone, URL import, templates, stories, pending uploads, toasts.
 - Workspaces admin: info/edit/permissions, tags, entity lists (values,
   import/export, merge, moderation), attribute definitions & policies,
-  rendition definitions & policies, asset policies, integrations, filter rules.
+  rendition definitions & policies, asset policies, integrations, tag filter
+  rules (the API has no attribute filter rule resource).
 - Collections tree (CRUD, move, notifications, permissions, trash),
   baskets (panel, view, manage, integrations), share links & embed,
   ACL editor with inherited permissions, display profiles (organize + grid
@@ -83,6 +117,8 @@ Implemented:
   widgets, public rendering), workflows view, operation tasks, discussion
   with mentions, notifications & realtime (Soketi/Pusher), preferences
   (theme, UI & data locale), keyboard shortcuts, runtime configuration.
+- Ticketing: floating button creating a JIRA issue with the page context, the
+  user session and an optional screenshot.
 
 Not (fully) implemented yet:
 
@@ -93,3 +129,44 @@ Not (fully) implemented yet:
 - Vendor-specific integration UIs (Rekognition boxes, Remove.bg compare,
   TUI image editor).
 - Translations: `en` and `fr` are complete, `de` / `es` fall back to English.
+
+## End-to-end tests (Cypress)
+
+The e2e suite lives in the repository-level Cypress project
+(`cypress/cypress/e2e/databox-next/`), one spec per feature domain of
+`databox/features.md` (`01-navigation-auth` … `25-runtime-config`). Each spec
+seeds its own workspace through the API with the `databox-admin` service
+account (`lib/api.js`), logs in once through Keycloak with `cy.session`
+(`lib/app.js`) and cleans up after itself. Stable hooks are exposed with
+`data-testid` attributes (`cy.getBySel(...)`).
+
+Run the whole suite against a running stack (profiles `databox-next` and
+`cypress` enabled):
+
+```bash
+dc run --rm cypress
+```
+
+Run a single spec:
+
+```bash
+dc run --rm cypress --spec cypress/e2e/databox-next/02-search.cy.js
+```
+
+The CI flow (`bin/dev/run-tests-in-ci-conditions.sh`) starts
+`databox-client-next` and runs the same suite.
+
+Things the specs rely on (see `lib/api.js` / `lib/app.js`):
+
+- A workspace created through the API has none of the defaults the admin UI
+  gives it: the seed replicates `WorkspaceCreator` (rendition policy, the
+  Main / Preview / Thumbnail chain, the read-metadata and rendition
+  integrations) so that uploads get renditions, and adds a `Title` attribute
+  flagged *fill from name* because the asset name is stored as an attribute.
+- Asset names are indexed for prefix matching only: seeded assets use single
+  distinct words (`Alpha`, `Bravo`…).
+- AQL conditions use the attribute `slug`; sort and facet keys use the
+  `searchSlug` (`keywords_text_m`).
+- Radix portals (select lists, popovers, toasts) live outside the dialogs:
+  `cy.selectOption()`, `expectToastText()` and `cy.dialog()` escape any
+  `.within()` scope and wait for the open animation before typing.

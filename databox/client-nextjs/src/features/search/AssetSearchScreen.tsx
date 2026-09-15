@@ -3,8 +3,9 @@
 import {useEffect} from 'react';
 import {useTranslation} from 'react-i18next';
 import {PlusIcon} from 'lucide-react';
-import {SearchProvider, useSearch} from './SearchProvider';
+import {SearchProvider, useOptionalSearch, useSearch} from './SearchProvider';
 import {ResultProvider, useResults} from './ResultProvider';
+import {useOptionalResults} from './useOptionalResults';
 import {SearchBar} from './SearchBar';
 import {SearchConditions} from './conditions/SearchConditions';
 import {AssetList} from '@/features/assets/list/AssetList';
@@ -24,15 +25,23 @@ import {ExportWatcher} from '@/features/assets/ExportWatcher';
 import {useDisplayPreferences} from '@/features/preferences/store';
 
 export function AssetSearchScreen() {
-    return (
-        <SearchProvider>
-            <ResultProvider>
-                <SelectionProvider>
-                    <SearchScreenContent />
-                </SelectionProvider>
-            </ResultProvider>
-        </SearchProvider>
+    // Providers normally come from the app layout; keep a fallback for
+    // screens rendered outside of it (e.g. embedded widgets).
+    const hasSearch = !!useOptionalSearch();
+    const hasResults = !!useOptionalResults();
+    let content = (
+        <SelectionProvider>
+            <SearchScreenContent />
+        </SelectionProvider>
     );
+    if (!hasResults) {
+        content = <ResultProvider>{content}</ResultProvider>;
+    }
+    if (!hasSearch) {
+        content = <SearchProvider>{content}</SearchProvider>;
+    }
+
+    return content;
 }
 
 function SearchScreenContent() {
@@ -50,11 +59,16 @@ function SearchScreenContent() {
     }, [loadDefinitions]);
 
     const openUpload = (files?: File[]) => {
-        openModal(UploadDialog, {
-            files,
-            workspaceId: search.workspaces[0],
-            collectionId: search.collections[0],
-        });
+        openModal(
+            UploadDialog,
+            {
+                files,
+                workspaceId: search.workspaces[0],
+                collectionId: search.collections[0],
+            },
+            // Staged files and their attributes must survive a navigation
+            {key: 'upload', keepOnNavigate: true}
+        );
     };
 
     const isEmpty =

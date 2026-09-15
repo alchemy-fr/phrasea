@@ -1,5 +1,6 @@
 'use client';
 
+import {ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import Link from 'next/link';
 import {useQuery} from '@tanstack/react-query';
@@ -7,10 +8,10 @@ import {InfoIcon, ListTreeIcon, RefreshCwIcon} from 'lucide-react';
 import type {ApiFile} from '@/types/api';
 import {getFile, getFileMetadata} from '@/lib/api/misc';
 import {
-    TabbedRouteDialog,
     DialogTab,
+    DialogTabContent,
+    TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
-import {RouteDialog} from '@/components/modals/RouteDialog';
 import {FullPageLoader, InlineLoader} from '@/components/ui/loader';
 import {routes} from '@/lib/routes';
 import {InfoRow} from '@/features/assets/view/AssetInfoList';
@@ -23,22 +24,18 @@ import {severityLabels} from '@/features/assets/quarantine/QuarantineBanner';
 
 type TabProps = {file: ApiFile};
 
-export function FileManageRoute({fileId, tab}: {fileId: string; tab: string}) {
-    const {t} = useTranslation();
-    const query = useQuery({
+/** Shared by the shell and the tab content: one query, one request. */
+function useFile(fileId: string) {
+    return useQuery({
         queryKey: ['file', fileId],
         queryFn: () => getFile(fileId),
     });
-    const file = query.data;
-    if (!file) {
-        return (
-            <RouteDialog size="md">
-                <FullPageLoader />
-            </RouteDialog>
-        );
-    }
+}
 
-    const tabs: DialogTab<TabProps>[] = [
+function useTabs(): DialogTab<TabProps>[] {
+    const {t} = useTranslation();
+
+    return [
         {
             id: 'info',
             title: t('collection.manage.info', 'Info'),
@@ -52,16 +49,42 @@ export function FileManageRoute({fileId, tab}: {fileId: string; tab: string}) {
             component: MetadataTab,
         },
     ];
+}
+
+export function FileManageShell({
+    fileId,
+    children,
+}: {
+    fileId: string;
+    children: ReactNode;
+}) {
+    const {t} = useTranslation();
+    const file = useFile(fileId).data;
+    const tabs = useTabs();
 
     return (
-        <TabbedRouteDialog<TabProps>
+        <TabbedRouteDialogShell
             title={t('file.manage.title', 'File')}
-            subtitle={file.fileName}
+            subtitle={file?.fileName}
             tabs={tabs}
-            activeTab={tab}
-            buildTabHref={next => routes.fileManage(fileId, next)}
-            baseProps={{file}}
+            buildTabHref={tab => routes.fileManage(fileId, tab)}
             size="md"
+            placeholder={file ? undefined : <FullPageLoader />}
+        >
+            {children}
+        </TabbedRouteDialogShell>
+    );
+}
+
+export function FileManageTab({fileId, tab}: {fileId: string; tab: string}) {
+    const file = useFile(fileId).data;
+    const tabs = useTabs();
+
+    return (
+        <DialogTabContent
+            tabs={tabs}
+            tab={tab}
+            baseProps={file ? {file} : undefined}
         />
     );
 }

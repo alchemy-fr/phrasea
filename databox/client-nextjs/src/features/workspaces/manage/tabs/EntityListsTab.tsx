@@ -50,14 +50,7 @@ import {SimpleSelect} from '@/components/ui/select';
 import {EntityChip} from '@/components/chips';
 import {useModals, type ModalProps} from '@/components/modals/ModalProvider';
 import {ConfirmDialog} from '@/components/ui/confirm';
-import {
-    Dialog,
-    DialogBody,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import {FormDialog} from '@/components/modals/FormDialog';
 import {downloadUrl} from '@/lib/utils/misc';
 import {useDebouncedValue} from '@/hooks/useDebouncedValue';
 import {Flag} from '@/components/ui/flag';
@@ -750,72 +743,48 @@ function EntityForm({
 function MergeEntitiesDialog({
     open,
     onOpenChange,
+    resolve,
     entities,
     onMerged,
-}: ModalProps & {entities: AttributeEntity[]; onMerged: () => void}) {
+}: ModalProps<string> & {entities: AttributeEntity[]; onMerged: () => void}) {
     const {t} = useTranslation();
     const [kept, setKept] = useState(entities[0]?.id);
-    const [loading, setLoading] = useState(false);
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="sm">
-                <DialogHeader>
-                    <DialogTitle>
-                        {t('entity.merge.title', 'Merge {{count}} values', {
-                            count: entities.length,
-                        })}
-                    </DialogTitle>
-                </DialogHeader>
-                <DialogBody>
-                    <p className="mb-2 text-sm text-muted-foreground">
-                        {t(
-                            'entity.merge.help',
-                            'Select the value to keep; the others are replaced by it everywhere.'
-                        )}
-                    </p>
-                    <SimpleSelect
-                        value={kept}
-                        onValueChange={setKept}
-                        options={entities.map(e => ({
-                            value: e.id,
-                            label: e.value,
-                        }))}
-                    />
-                </DialogBody>
-                <DialogFooter>
-                    <Button
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                    >
-                        {t('common.cancel', 'Cancel')}
-                    </Button>
-                    <Button
-                        loading={loading}
-                        onClick={async () => {
-                            setLoading(true);
-                            try {
-                                await mergeAttributeEntities(
-                                    kept!,
-                                    entities.map(e => e.id)
-                                );
-                                toast.success(
-                                    t('entity.merged', 'Values merged')
-                                );
-                                onMerged();
-                                onOpenChange(false);
-                            } catch (e: any) {
-                                toast.error(e?.message);
-                            } finally {
-                                setLoading(false);
-                            }
-                        }}
-                    >
-                        <MergeIcon /> {t('entity.merge', 'Merge')}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <FormDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title={t('entity.merge.title', 'Merge {{count}} values', {
+                count: entities.length,
+            })}
+            submitLabel={t('entity.merge', 'Merge')}
+            submitIcon={<MergeIcon />}
+            canSubmit={!!kept}
+            onSubmit={async () => {
+                await mergeAttributeEntities(
+                    kept!,
+                    entities.map(e => e.id)
+                );
+                toast.success(t('entity.merged', 'Values merged'));
+                onMerged();
+                resolve?.(kept!);
+            }}
+        >
+            <p className="mb-2 text-sm text-muted-foreground">
+                {t(
+                    'entity.merge.help',
+                    'Select the value to keep; the others are replaced by it everywhere.'
+                )}
+            </p>
+            <SimpleSelect
+                value={kept}
+                onValueChange={setKept}
+                options={entities.map(e => ({
+                    value: e.id,
+                    label: e.value,
+                }))}
+            />
+        </FormDialog>
     );
 }
 
@@ -828,86 +797,53 @@ function ExportEntitiesDialog({
     const {t} = useTranslation();
     const [format, setFormat] = useState('csv');
     const [locale, setLocale] = useState('__all');
-    const [loading, setLoading] = useState(false);
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="sm">
-                <DialogHeader>
-                    <DialogTitle>
-                        {t('entity.export.title', 'Export "{{name}}"', {
-                            name: list.name,
-                        })}
-                    </DialogTitle>
-                </DialogHeader>
-                <DialogBody className="space-y-3">
-                    <FormRow label={t('entity.export.format', 'Format')}>
-                        <SimpleSelect
-                            value={format}
-                            onValueChange={setFormat}
-                            options={[
-                                {value: 'csv', label: 'CSV'},
-                                {value: 'json', label: 'JSON'},
-                                {value: 'liform', label: 'LiForm (Uploader)'},
-                            ]}
-                        />
-                    </FormRow>
-                    <FormRow label={t('entity.export.locale', 'Locale')}>
-                        <SimpleSelect
-                            value={locale}
-                            onValueChange={setLocale}
-                            options={[
-                                {
-                                    value: '__all',
-                                    label: t(
-                                        'entity.export.all_locales',
-                                        'All locales'
-                                    ),
-                                },
-                                ...locales.map(l => ({value: l, label: l})),
-                            ]}
-                        />
-                    </FormRow>
-                </DialogBody>
-                <DialogFooter>
-                    <Button
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                    >
-                        {t('common.cancel', 'Cancel')}
-                    </Button>
-                    <Button
-                        loading={loading}
-                        onClick={async () => {
-                            setLoading(true);
-                            try {
-                                const {blob, filename} = await exportEntityList(
-                                    list.id,
-                                    {
-                                        format,
-                                        locale:
-                                            locale === '__all'
-                                                ? undefined
-                                                : locale,
-                                    }
-                                );
-                                downloadUrl(
-                                    URL.createObjectURL(blob),
-                                    filename
-                                );
-                                onOpenChange(false);
-                            } catch (e: any) {
-                                toast.error(e?.message);
-                            } finally {
-                                setLoading(false);
-                            }
-                        }}
-                    >
-                        <DownloadIcon /> {t('entity.export', 'Export')}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <FormDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title={t('entity.export.title', 'Export "{{name}}"', {
+                name: list.name,
+            })}
+            submitLabel={t('entity.export', 'Export')}
+            submitIcon={<DownloadIcon />}
+            bodyClassName="space-y-3"
+            onSubmit={async () => {
+                const {blob, filename} = await exportEntityList(list.id, {
+                    format,
+                    locale: locale === '__all' ? undefined : locale,
+                });
+                downloadUrl(URL.createObjectURL(blob), filename);
+            }}
+        >
+            <FormRow label={t('entity.export.format', 'Format')}>
+                <SimpleSelect
+                    value={format}
+                    onValueChange={setFormat}
+                    options={[
+                        {value: 'csv', label: 'CSV'},
+                        {value: 'json', label: 'JSON'},
+                        {value: 'liform', label: 'LiForm (Uploader)'},
+                    ]}
+                />
+            </FormRow>
+            <FormRow label={t('entity.export.locale', 'Locale')}>
+                <SimpleSelect
+                    value={locale}
+                    onValueChange={setLocale}
+                    options={[
+                        {
+                            value: '__all',
+                            label: t(
+                                'entity.export.all_locales',
+                                'All locales'
+                            ),
+                        },
+                        ...locales.map(l => ({value: l, label: l})),
+                    ]}
+                />
+            </FormRow>
+        </FormDialog>
     );
 }
 
@@ -919,66 +855,42 @@ function ImportEntitiesDialog({
 }: ModalProps & {list: EntityList; onImported: () => void}) {
     const {t} = useTranslation();
     const [data, setData] = useState('');
-    const [loading, setLoading] = useState(false);
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="md">
-                <DialogHeader>
-                    <DialogTitle>
-                        {t('entity.import.title', 'Import into "{{name}}"', {
-                            name: list.name,
-                        })}
-                    </DialogTitle>
-                </DialogHeader>
-                <DialogBody className="space-y-3">
-                    <Input
-                        type="file"
-                        accept=".csv,text/csv"
-                        onChange={async e => {
-                            const f = e.target.files?.[0];
-                            if (f) {
-                                setData(await f.text());
-                            }
-                        }}
-                    />
-                    <Textarea
-                        value={data}
-                        onChange={e => setData(e.target.value)}
-                        className="min-h-40 font-mono text-xs"
-                        placeholder={'value,locale,translation\n…'}
-                    />
-                </DialogBody>
-                <DialogFooter>
-                    <Button
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                    >
-                        {t('common.cancel', 'Cancel')}
-                    </Button>
-                    <Button
-                        loading={loading}
-                        disabled={!data.trim()}
-                        onClick={async () => {
-                            setLoading(true);
-                            try {
-                                await importEntityList(list.id, 'csv', data);
-                                toast.success(
-                                    t('entity.imported', 'Values imported')
-                                );
-                                onImported();
-                                onOpenChange(false);
-                            } catch (e: any) {
-                                toast.error(e?.message);
-                            } finally {
-                                setLoading(false);
-                            }
-                        }}
-                    >
-                        <UploadIcon /> {t('entity.import', 'Import')}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <FormDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            size="md"
+            title={t('entity.import.title', 'Import into "{{name}}"', {
+                name: list.name,
+            })}
+            submitLabel={t('entity.import', 'Import')}
+            submitIcon={<UploadIcon />}
+            canSubmit={!!data.trim()}
+            dirty={!!data.trim()}
+            bodyClassName="space-y-3"
+            onSubmit={async () => {
+                await importEntityList(list.id, 'csv', data);
+                toast.success(t('entity.imported', 'Values imported'));
+                onImported();
+            }}
+        >
+            <Input
+                type="file"
+                accept=".csv,text/csv"
+                onChange={async e => {
+                    const f = e.target.files?.[0];
+                    if (f) {
+                        setData(await f.text());
+                    }
+                }}
+            />
+            <Textarea
+                value={data}
+                onChange={e => setData(e.target.value)}
+                className="min-h-40 font-mono text-xs"
+                placeholder={'value,locale,translation\n…'}
+            />
+        </FormDialog>
     );
 }

@@ -34,7 +34,7 @@ import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
 import {Input} from '@/components/ui/input';
 import {useSearch} from '../SearchProvider';
 import {BuiltInAttribute, isDefaultSortBy, resolveSortBy} from '../searchState';
-import {useDefinitionsBySlug} from '@/features/attributes/definitionsStore';
+import {useDefinitionsBySearchSlug} from '@/features/attributes/definitionsStore';
 import {cn} from '@/lib/utils/cn';
 
 type Row = SortBy & {enabled: boolean};
@@ -43,7 +43,7 @@ export function SortByButton() {
     const {t} = useTranslation();
     const search = useSearch();
     const [open, setOpen] = useState(false);
-    const definitions = useDefinitionsBySlug({
+    const definitions = useDefinitionsBySearchSlug({
         workspaceId: search.workspaces[0],
     });
     const effective = resolveSortBy(search.sortBy);
@@ -53,6 +53,7 @@ export function SortByButton() {
             <PopoverTrigger asChild>
                 <Button
                     type="button"
+                    data-testid="sort-button"
                     variant={
                         isDefaultSortBy(search.sortBy) ? 'ghost' : 'secondary'
                     }
@@ -89,7 +90,7 @@ export function SortByButton() {
 function SortEditor({onClose}: {onClose: () => void}) {
     const {t} = useTranslation();
     const search = useSearch();
-    const definitions = useDefinitionsBySlug({
+    const definitions = useDefinitionsBySearchSlug({
         workspaceId: search.workspaces[0],
     });
     const [filter, setFilter] = useState('');

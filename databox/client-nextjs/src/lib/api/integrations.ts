@@ -1,7 +1,6 @@
 import {api} from './http';
 import {toPage} from './hydra';
 import {
-    AttributeFilterRule,
     EntityName,
     HydraCollection,
     IntegrationData,
@@ -146,44 +145,21 @@ export function saveTagFilterRule(data: {
     include?: string[];
     exclude?: string[];
 }): Promise<TagFilterRule> {
-    const {id, ...rest} = data;
+    const {id, include, exclude, ...rest} = data;
+    // Tags are denormalized from their IRIs
+    const toIri = (tagId: string) =>
+        tagId.startsWith('/') ? tagId : `/${EntityName.Tag}/${tagId}`;
+    const payload = {
+        ...rest,
+        include: include?.map(toIri),
+        exclude: exclude?.map(toIri),
+    };
 
     return id
-        ? api.put<TagFilterRule>(`/tag-filter-rules/${id}`, rest)
-        : api.post<TagFilterRule>('/tag-filter-rules', rest);
+        ? api.put<TagFilterRule>(`/tag-filter-rules/${id}`, payload)
+        : api.post<TagFilterRule>('/tag-filter-rules', payload);
 }
 
 export function deleteTagFilterRule(id: string): Promise<void> {
     return api.delete(`/tag-filter-rules/${id}`);
-}
-
-export async function getAttributeFilterRules(
-    workspaceId: string
-): Promise<Page<AttributeFilterRule>> {
-    return toPage(
-        await api.get<HydraCollection<AttributeFilterRule>>(
-            '/attribute-filter-rules',
-            {
-                params: {workspace: workspaceId},
-            }
-        )
-    );
-}
-
-export function saveAttributeFilterRule(data: {
-    id?: string;
-    users?: string[];
-    groups?: string[];
-    workspace?: string;
-    condition: string;
-}): Promise<AttributeFilterRule> {
-    const {id, ...rest} = data;
-
-    return id
-        ? api.put<AttributeFilterRule>(`/attribute-filter-rules/${id}`, rest)
-        : api.post<AttributeFilterRule>('/attribute-filter-rules', rest);
-}
-
-export function deleteAttributeFilterRule(id: string): Promise<void> {
-    return api.delete(`/attribute-filter-rules/${id}`);
 }

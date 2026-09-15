@@ -5,15 +5,7 @@ import {useTranslation} from 'react-i18next';
 import {CodeIcon, WandSparklesIcon} from 'lucide-react';
 import type {AQLQuery} from '@/types/api';
 import type {ModalProps} from '@/components/modals/ModalProvider';
-import {
-    Dialog,
-    DialogBody,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import {Button} from '@/components/ui/button';
+import {FormDialog} from '@/components/modals/FormDialog';
 import {Textarea} from '@/components/ui/input';
 import {Alert, Tabs, TabsList, TabsTrigger} from '@/components/ui/misc';
 import type {SearchContextValue} from '../SearchProvider';
@@ -33,7 +25,7 @@ import {
 import {InlineLoader} from '@/components/ui/loader';
 import {cn} from '@/lib/utils/cn';
 
-type Props = ModalProps & {
+type Props = ModalProps<string> & {
     condition?: AQLQuery;
     /** Called instead of updating the search (e.g. filter rules) */
     onSubmit?: (query: string) => void;
@@ -52,6 +44,7 @@ type Mode = 'builder' | 'text';
 export function ConditionDialog({
     open,
     onOpenChange,
+    resolve,
     condition,
     onSubmit,
     title,
@@ -114,7 +107,8 @@ export function ConditionDialog({
         } catch (e: any) {
             setError(e.message);
 
-            return;
+            // Reported in place, right under the expression
+            return false;
         }
         const normalized = astToString(ast);
         if (onSubmit) {
@@ -128,93 +122,78 @@ export function ConditionDialog({
                 renewId: !condition,
             });
         }
-        onOpenChange(false);
+        resolve?.(normalized);
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="lg" className="sm:max-w-4xl">
-                <DialogHeader className="flex-row items-center justify-between pr-8">
-                    <DialogTitle>
-                        {title ??
-                            (condition
-                                ? t(
-                                      'search.condition.edit_title',
-                                      'Edit condition'
-                                  )
-                                : t(
-                                      'search.condition.add_title',
-                                      'Add condition'
-                                  ))}
-                    </DialogTitle>
-                    <Tabs
-                        value={mode}
-                        onValueChange={v => switchMode(v as Mode)}
-                    >
-                        <TabsList>
-                            <TabsTrigger value="builder">
-                                <WandSparklesIcon />{' '}
-                                {t('search.condition.builder', 'Builder')}
-                            </TabsTrigger>
-                            <TabsTrigger value="text">
-                                <CodeIcon /> AQL
-                            </TabsTrigger>
-                        </TabsList>
-                    </Tabs>
-                </DialogHeader>
-                <DialogBody className="min-h-48 py-2">
-                    {!loaded && loadingDefinitions ? (
-                        <InlineLoader />
-                    ) : mode === 'builder' ? (
-                        <ExpressionBuilder
-                            expression={expression}
-                            onChange={setExpression}
-                            definitions={definitions}
-                            root
-                        />
-                    ) : (
-                        <Textarea
-                            autoFocus
-                            spellCheck={false}
-                            value={text}
-                            onChange={e => {
-                                setText(e.target.value);
-                                setError(undefined);
-                            }}
-                            className={cn(
-                                'min-h-40 font-mono text-sm',
-                                error && 'border-destructive'
-                            )}
-                            placeholder={
-                                'title CONTAINS "report" AND @createdAt > "2024-01-01"'
-                            }
-                        />
+        <FormDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            size="lg"
+            className="sm:max-w-4xl"
+            title={
+                title ??
+                (condition
+                    ? t('search.condition.edit_title', 'Edit condition')
+                    : t('search.condition.add_title', 'Add condition'))
+            }
+            headerEnd={
+                <Tabs value={mode} onValueChange={v => switchMode(v as Mode)}>
+                    <TabsList>
+                        <TabsTrigger value="builder">
+                            <WandSparklesIcon />{' '}
+                            {t('search.condition.builder', 'Builder')}
+                        </TabsTrigger>
+                        <TabsTrigger value="text">
+                            <CodeIcon /> AQL
+                        </TabsTrigger>
+                    </TabsList>
+                </Tabs>
+            }
+            submitLabel={
+                condition ? t('common.save', 'Save') : t('common.add', 'Add')
+            }
+            bodyClassName="min-h-48 py-2"
+            onSubmit={submit}
+        >
+            {!loaded && loadingDefinitions ? (
+                <InlineLoader />
+            ) : mode === 'builder' ? (
+                <ExpressionBuilder
+                    expression={expression}
+                    onChange={setExpression}
+                    definitions={definitions}
+                    root
+                />
+            ) : (
+                <Textarea
+                    autoFocus
+                    data-testid="condition-aql"
+                    spellCheck={false}
+                    value={text}
+                    onChange={e => {
+                        setText(e.target.value);
+                        setError(undefined);
+                    }}
+                    className={cn(
+                        'min-h-40 font-mono text-sm',
+                        error && 'border-destructive'
                     )}
-                    {mode === 'builder' && builderQuery ? (
-                        <pre className="mt-3 overflow-x-auto rounded-md bg-muted px-3 py-2 font-mono text-xs text-muted-foreground">
-                            {builderQuery}
-                        </pre>
-                    ) : null}
-                    {error ? (
-                        <Alert variant="destructive" className="mt-3">
-                            {error}
-                        </Alert>
-                    ) : null}
-                </DialogBody>
-                <DialogFooter>
-                    <Button
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                    >
-                        {t('common.cancel', 'Cancel')}
-                    </Button>
-                    <Button onClick={submit}>
-                        {condition
-                            ? t('common.save', 'Save')
-                            : t('common.add', 'Add')}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                    placeholder={
+                        'title CONTAINS "report" AND @createdAt > "2024-01-01"'
+                    }
+                />
+            )}
+            {mode === 'builder' && builderQuery ? (
+                <pre className="mt-3 overflow-x-auto rounded-md bg-muted px-3 py-2 font-mono text-xs text-muted-foreground">
+                    {builderQuery}
+                </pre>
+            ) : null}
+            {error ? (
+                <Alert variant="destructive" className="mt-3">
+                    {error}
+                </Alert>
+            ) : null}
+        </FormDialog>
     );
 }
