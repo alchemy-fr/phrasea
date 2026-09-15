@@ -11,22 +11,24 @@ class MediaFaker extends AbstractCachedFaker
         string $type,
         string $n,
     ): string {
+        $bucketBaseUrl = 'https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/fixtures/';
+
         $urls = [
             'mp4' => [
-                'https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/fixtures/video-classic.mp4',
-                'https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/fixtures/video-tall.mp4',
+                $bucketBaseUrl.'video-classic.mp4',
+                $bucketBaseUrl.'video-tall.mp4',
             ],
             'avi' => [
-                'https://jsoncompare.org/LearningContainer/SampleFiles/Video/AVI/Sample-AVI-Video-File-for-Testing.avi',
+                $bucketBaseUrl.'Sample-AVI-Video-File-for-Testing.avi',
             ],
             'mp3' => [
-                'https://download.samplelib.com/mp3/sample-3s.mp3',
-                'https://download.samplelib.com/mp3/sample-9s.mp3',
-                'https://download.samplelib.com/mp3/sample-12s.mp3',
+                $bucketBaseUrl.'soundreality-drums-loop-75bpm-455455.mp3',
+                $bucketBaseUrl.'soundreality-drums-loop-75bpm-3-455453.mp3',
+                $bucketBaseUrl.'soundreality-drums-loop-80bpm-455452.mp3',
             ],
             'pdf' => [
-                'https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/fixtures/one-page.pdf',
-                'https://phrasea-alchemy-statics.s3.eu-west-3.amazonaws.com/fixtures/two-page.pdf',
+                $bucketBaseUrl.'one-page.pdf',
+                $bucketBaseUrl.'two-page.pdf',
             ],
         ][$type];
 
