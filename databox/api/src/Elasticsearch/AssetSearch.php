@@ -12,11 +12,10 @@ use App\Elasticsearch\BuiltInAttribute\DeletedBuiltInAttribute;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Collection;
-use App\Entity\Core\Workspace;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Repository\Core\CollectionRepository;
 use App\Repository\SavedSearch\SavedSearchRepository;
-use App\Security\TagFilterManager;
+use App\Security\AttributeFilterManager;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
 use App\Service\Asset\AssetSortGroupMapper;
@@ -24,6 +23,7 @@ use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -33,7 +33,8 @@ class AssetSearch extends AbstractSearch
     public function __construct(
         #[Autowire(service: 'fos_elastica.finder.asset')]
         private readonly PaginatedFinderInterface $finder,
-        private readonly TagFilterManager $tagFilterManager,
+        private readonly AttributeFilterManager $attributeFilterManager,
+        private readonly LoggerInterface $logger,
         private readonly AttributeSearch $attributeSearch,
         private readonly QueryStringParser $queryStringParser,
         private readonly FacetHandler $facetHandler,
@@ -155,8 +156,8 @@ class AssetSearch extends AbstractSearch
             $filterQuery->addFilter($query);
         }
 
-        if (null !== $tagQuery = $this->buildTagFilterQuery($userId, $groupIds)) {
-            $filterQuery->addFilter($tagQuery);
+        if (null !== $attrFilterQuery = $this->buildAttributeFilterQuery($userId, $groupIds, $options)) {
+            $filterQuery->addFilter($attrFilterQuery);
         }
 
         $queryString = trim($options['query'] ?? '');
@@ -224,27 +225,39 @@ class AssetSearch extends AbstractSearch
         return [$result, $facets, $esQuery, $searchTime];
     }
 
-    private function buildTagFilterQuery(?string $userId, array $groupIds): ?Query\BoolQuery
+    private function buildAttributeFilterQuery(?string $userId, array $groupIds, array $options): ?Query\BoolQuery
     {
-        $ruleSet = $this->tagFilterManager->getUserRules($userId, $groupIds);
+        $ruleSet = $this->attributeFilterManager->getUserRules($userId, $groupIds);
 
         $query = new Query\BoolQuery();
         $hasConditions = false;
 
-        foreach ($ruleSet as $wId => $rules) {
-            if (empty($rules['include']) && empty($rules['exclude'])) {
-                continue;
-            }
-            $workspace = $this->workspaceRepository->find($wId);
-            if ($workspace instanceof Workspace) {
-                if (!empty($rules['include'])) {
-                    $query->addMust($this->createIncludeQuery('workspaceId', $workspace->getId(), $rules['include']));
-                    $hasConditions = true;
+        foreach ($ruleSet as $wId => $conditions) {
+            foreach ($conditions as $condition) {
+                try {
+                    $conditionQuery = $this->attributeSearch->buildConditionQuery(
+                        $this->attributeSearch->buildAllAttributeDefinitionsGroups(),
+                        $condition,
+                        $options
+                    );
+                } catch (\Throwable $e) {
+                    // Fail-closed: hide the whole workspace rather than breaking search or leaking assets
+                    $this->logger->error('Invalid attribute filter rule condition', [
+                        'workspaceId' => $wId,
+                        'condition' => $condition,
+                        'error' => $e->getMessage(),
+                    ]);
+                    $conditionQuery = new Query\MatchNone();
                 }
-                if (!empty($rules['exclude'])) {
-                    $query->addMustNot($this->createExcludeQuery('workspaceId', $workspace->getId(), $rules['exclude']));
-                    $hasConditions = true;
-                }
+
+                $scoped = new Query\BoolQuery();
+                $notWorkspace = new Query\BoolQuery();
+                $notWorkspace->addMustNot(new Query\Term(['workspaceId' => $wId]));
+                $scoped->addShould($notWorkspace);
+                $scoped->addShould($conditionQuery);
+
+                $query->addMust($scoped);
+                $hasConditions = true;
             }
         }
 
@@ -295,32 +308,6 @@ class AssetSearch extends AbstractSearch
         $sort[] = ['sequence' => 'ASC'];
 
         $query->setSort($sort);
-    }
-
-    private function createIncludeQuery(string $termCol, string $termValue, array $include): Query\BoolQuery
-    {
-        $query = new Query\BoolQuery();
-
-        $notMatch = new Query\BoolQuery();
-        $notMatch->addMustNot(new Query\Term([$termCol => $termValue]));
-        $query->addShould($notMatch);
-
-        $bool = new Query\BoolQuery();
-        foreach ($include as $tag) {
-            $bool->addFilter(new Query\Term(['tags' => $tag]));
-        }
-        $query->addShould($bool);
-
-        return $query;
-    }
-
-    private function createExcludeQuery(string $termCol, string $termValue, array $exclude): Query\BoolQuery
-    {
-        $query = new Query\BoolQuery();
-        $query->addFilter(new Query\Term([$termCol => $termValue]));
-        $query->addFilter(new Query\Terms('tags', $exclude));
-
-        return $query;
     }
 
     protected function getAdminScope(): ?string

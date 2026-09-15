@@ -4,24 +4,24 @@ declare(strict_types=1);
 
 namespace App\Security\Voter;
 
-use App\Entity\Core\TagFilterRule;
+use App\Entity\Core\AttributeFilterRule;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
-class TagFilterRuleVoter extends AbstractVoter
+class AttributeFilterRuleVoter extends AbstractVoter
 {
     protected function supports(string $attribute, $subject): bool
     {
-        return $subject instanceof TagFilterRule;
+        return $subject instanceof AttributeFilterRule;
     }
 
     #[\Override]
     public function supportsType(string $subjectType): bool
     {
-        return is_a($subjectType, TagFilterRule::class, true);
+        return is_a($subjectType, AttributeFilterRule::class, true);
     }
 
     /**
-     * @param TagFilterRule $subject
+     * @param AttributeFilterRule $subject
      */
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {

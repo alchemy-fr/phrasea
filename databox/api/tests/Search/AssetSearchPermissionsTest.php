@@ -7,7 +7,6 @@ namespace App\Tests\Search;
 use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
-use App\Entity\Core\TagFilterRule;
 
 class AssetSearchPermissionsTest extends AbstractSearchTest
 {
@@ -308,7 +307,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
     /**
      * @dataProvider getAssetTagsDataSet
      */
-    public function testSearchAssetsWithTagFilterRule(
+    public function testSearchAssetsWithAttributeFilterRuleOnTags(
         array $assets,
         array $include,
         array $exclude,
@@ -341,13 +340,20 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         $include = array_map($resolveTag, $include);
         $exclude = array_map($resolveTag, $exclude);
 
-        self::getTagFilterManager()->updateRule(
-            $workspace,
-            TagFilterRule::TYPE_USER,
-            KeycloakClientTestMock::USER_UID,
-            $include,
-            $exclude
-        );
+        $conditionParts = array_map(fn (string $id): string => sprintf('@tag = "%s"', $id), $include);
+        if (!empty($exclude)) {
+            $conditionParts[] = sprintf('@tag NOT IN (%s)', implode(', ', array_map(fn (string $id): string => sprintf('"%s"', $id), $exclude)));
+        }
+        $condition = implode(' AND ', $conditionParts);
+
+        if ('' !== $condition) {
+            self::getAttributeFilterManager()->saveRule(
+                $workspace,
+                [KeycloakClientTestMock::USER_UID],
+                [],
+                $condition
+            );
+        }
         self::releaseIndex();
 
         $client = self::createClient();
@@ -388,6 +394,145 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             // Strange cases
             [['Foo' => ['tag1'], 'Bar' => ['tag2', 'tag1']], ['tag1'], ['tag1'], []],
             [['Foo' => [], 'Bar' => []], ['tag1'], ['tag1'], []],
+        ];
+    }
+
+    /**
+     * @dataProvider getAttributeConditionsDataSet
+     */
+    public function testSearchAssetsWithAttributeFilterRuleOnAttribute(
+        string $condition,
+        array $expectedResults,
+    ): void {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $collection = $this->createCollection([
+            'workspace' => $workspace,
+        ]);
+        $definition = $this->createAttributeDefinition([
+            'workspace' => $workspace,
+            'name' => 'Category',
+            'slug' => 'category',
+        ]);
+
+        foreach ([
+            'Press' => 'press',
+            'Internal' => 'internal',
+            'None' => null,
+        ] as $assetName => $category) {
+            $this->createAsset([
+                'workspace' => $workspace,
+                'name' => $assetName,
+                'public' => true,
+                'collectionId' => $collection->getId(),
+                'attributes' => null !== $category ? [[
+                    'definition' => $definition,
+                    'value' => $category,
+                ]] : [],
+            ]);
+        }
+        self::releaseIndex();
+
+        self::getAttributeFilterManager()->saveRule(
+            $workspace,
+            [KeycloakClientTestMock::USER_UID],
+            [],
+            $condition
+        );
+        self::releaseIndex();
+
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
+
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $names = array_map(fn (array $asset): string => $asset['name'], $data);
+        sort($names);
+        sort($expectedResults);
+
+        $this->assertSame($expectedResults, $names);
+    }
+
+    public function getAttributeConditionsDataSet(): array
+    {
+        return [
+            'equals' => ['category = "press"', ['Press']],
+            'not equals' => ['NOT (category = "press")', ['Internal', 'None']],
+            'in' => ['category IN ("press", "internal")', ['Internal', 'Press']],
+            // Invalid condition (unknown field): fail-closed, the workspace is hidden
+            'unknown field' => ['unknown_field = "press"', []],
+        ];
+    }
+
+    /**
+     * @dataProvider getTargetingDataSet
+     */
+    public function testAttributeFilterRuleTargeting(array $userIds, bool $applies): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $collection = $this->createCollection([
+            'workspace' => $workspace,
+        ]);
+        $definition = $this->createAttributeDefinition([
+            'workspace' => $workspace,
+            'name' => 'Category',
+            'slug' => 'category',
+        ]);
+
+        foreach ([
+            'Press' => 'press',
+            'Internal' => 'internal',
+        ] as $assetName => $category) {
+            $this->createAsset([
+                'workspace' => $workspace,
+                'name' => $assetName,
+                'public' => true,
+                'collectionId' => $collection->getId(),
+                'attributes' => [[
+                    'definition' => $definition,
+                    'value' => $category,
+                ]],
+            ]);
+        }
+        self::releaseIndex();
+
+        self::getAttributeFilterManager()->saveRule(
+            $workspace,
+            $userIds,
+            [],
+            'category = "press"'
+        );
+        self::releaseIndex();
+
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+        ]);
+
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $names = array_map(fn (array $asset): string => $asset['name'], $data);
+        sort($names);
+
+        $this->assertSame($applies ? ['Press'] : ['Internal', 'Press'], $names);
+    }
+
+    public function getTargetingDataSet(): array
+    {
+        return [
+            'no target applies to everyone' => [[], true],
+            'targeted user' => [[KeycloakClientTestMock::USER_UID], true],
+            'other user only' => [[KeycloakClientTestMock::OTHER_USER_UID], false],
+            'multiple users including current' => [[KeycloakClientTestMock::OTHER_USER_UID, KeycloakClientTestMock::USER_UID], true],
         ];
     }
 }

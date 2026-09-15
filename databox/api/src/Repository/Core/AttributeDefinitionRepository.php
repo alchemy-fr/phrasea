@@ -160,6 +160,35 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Returns every searchable attribute definition, regardless of user permissions.
+     * Filter rule conditions are authored by workspace admins and must resolve
+     * even when the target user cannot read the referenced attributes.
+     */
+    public function getAllSearchableAttributes(): iterable
+    {
+        $queryBuilder = $this
+            ->createQueryBuilder('t')
+            ->innerJoin('t.workspace', 'w')
+            ->select('t.type')
+            ->addSelect('t.slug')
+            ->addSelect('t.multiple')
+            ->addSelect('t.searchBoost')
+            ->addSelect('t.translatable')
+            ->addSelect('w.id AS workspaceId')
+            ->addSelect('w.enabledLocales AS enabledLocales')
+            ->andWhere('t.searchable = true')
+        ;
+
+        foreach ($queryBuilder
+                     ->getQuery()
+                     ->toIterable() as $row) {
+            $row['allowed'] = true;
+
+            yield $row;
+        }
+    }
+
+    /**
      * @return AttributeDefinition[]
      */
     public function getSearchableAttributes(?string $userId, array $groupIds, array $options = []): array

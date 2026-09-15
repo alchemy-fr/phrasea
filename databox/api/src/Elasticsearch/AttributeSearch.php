@@ -54,6 +54,16 @@ class AttributeSearch
         });
     }
 
+    public function buildAllAttributeDefinitionsGroups(): array
+    {
+        return $this->cache->get('sa_all', function () {
+            $definitions = $this->em->getRepository(AttributeDefinition::class)
+                ->getAllSearchableAttributes();
+
+            return $this->createClustersFromDefinitions($definitions);
+        });
+    }
+
     public function createClustersFromDefinitions(iterable $definitions): array
     {
         $groups = [];
