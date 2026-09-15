@@ -1,5 +1,4 @@
-import AssetsPage from '@/app/(app)/assets/page';
-import {BasketManageRoute} from '@/features/baskets/manage/BasketManageRoute';
+import {BasketManageTab} from '@/features/baskets/manage/BasketManageRoute';
 
 export default async function Page({
     params,
@@ -8,10 +7,5 @@ export default async function Page({
 }) {
     const {id, tab} = await params;
 
-    return (
-        <>
-            <AssetsPage />
-            <BasketManageRoute basketId={id} tab={tab} />
-        </>
-    );
+    return <BasketManageTab basketId={id} tab={tab} />;
 }

@@ -14,14 +14,7 @@ import {
 import {toast} from 'sonner';
 import type {ModalProps} from '@/components/modals/ModalProvider';
 import {useModals} from '@/components/modals/ModalProvider';
-import {
-    Dialog,
-    DialogBody,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import {FormDialog} from '@/components/modals/FormDialog';
 import {Button} from '@/components/ui/button';
 import {Input, FormRow, Textarea} from '@/components/ui/input';
 import {LabeledControl, Switch} from '@/components/ui/controls';
@@ -65,112 +58,102 @@ export function SelectProfileDialog({open, onOpenChange}: ModalProps) {
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="sm">
-                <DialogHeader>
-                    <DialogTitle>
-                        {t('profile.select.title', 'Display profile')}
-                    </DialogTitle>
-                </DialogHeader>
-                <DialogBody className="space-y-2">
-                    <ProfileRow
-                        profile={undefined}
-                        current={current}
-                        userId={user?.id}
-                        onChoose={choose}
-                        onDelete={remove}
-                        onEdit={id => {
-                            onOpenChange(false);
-                            router.push(routes.profileManage(id, 'organize'));
-                        }}
-                    />
-                    {profiles.map(p => (
-                        <ProfileRow
-                            key={p.id}
-                            profile={p}
-                            current={current}
-                            userId={user?.id}
-                            onChoose={choose}
-                            onDelete={remove}
-                            onEdit={id => {
-                                onOpenChange(false);
-                                router.push(
-                                    routes.profileManage(id, 'organize')
+        <FormDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title={t('profile.select.title', 'Display profile')}
+            hideCancel
+            submitLabel={t('common.close', 'Close')}
+            bodyClassName="space-y-2"
+            footerStart={
+                <Button
+                    variant="outline"
+                    onClick={() =>
+                        openModal(CreateProfileDialog, {
+                            onCreated: () => onOpenChange(false),
+                        })
+                    }
+                >
+                    <PlusIcon /> {t('profile.create', 'New profile')}
+                </Button>
+            }
+        >
+            <ProfileRow
+                profile={undefined}
+                current={current}
+                userId={user?.id}
+                onChoose={choose}
+                onDelete={remove}
+                onEdit={id => {
+                    onOpenChange(false);
+                    router.push(routes.profileManage(id, 'organize'));
+                }}
+            />
+            {profiles.map(p => (
+                <ProfileRow
+                    key={p.id}
+                    profile={p}
+                    current={current}
+                    userId={user?.id}
+                    onChoose={choose}
+                    onDelete={remove}
+                    onEdit={id => {
+                        onOpenChange(false);
+                        router.push(routes.profileManage(id, 'organize'));
+                    }}
+                />
+            ))}
+            {next ? (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => loadMore()}
+                >
+                    {t('common.load_more', 'Load more')}
+                </Button>
+            ) : null}
+            {current ? (
+                <div className="mt-4 space-y-2 rounded-md bg-muted/50 p-3">
+                    <LabeledControl
+                        label={t(
+                            'profile.auto_sync',
+                            'Auto-sync preferences to this profile'
+                        )}
+                        description={t(
+                            'profile.auto_sync_help',
+                            'Layout, thumbnail size, facets and theme changes are saved to the profile.'
+                        )}
+                    >
+                        <Switch
+                            checked={autoSync}
+                            disabled={!current.capabilities.edit}
+                            onCheckedChange={v =>
+                                updatePreference('autoSync', v)
+                            }
+                        />
+                    </LabeledControl>
+                    {!synced && current.capabilities.edit ? (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={async () => {
+                                await syncPreferences();
+                                toast.success(
+                                    t('profile.synced', 'Profile updated')
                                 );
                             }}
-                        />
-                    ))}
-                    {next ? (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="w-full"
-                            onClick={() => loadMore()}
                         >
-                            {t('common.load_more', 'Load more')}
+                            <RefreshCwIcon />{' '}
+                            {t(
+                                'profile.sync_now',
+                                'Save current preferences to profile'
+                            )}
                         </Button>
                     ) : null}
-                    {current ? (
-                        <div className="mt-4 space-y-2 rounded-md bg-muted/50 p-3">
-                            <LabeledControl
-                                label={t(
-                                    'profile.auto_sync',
-                                    'Auto-sync preferences to this profile'
-                                )}
-                                description={t(
-                                    'profile.auto_sync_help',
-                                    'Layout, thumbnail size, facets and theme changes are saved to the profile.'
-                                )}
-                            >
-                                <Switch
-                                    checked={autoSync}
-                                    disabled={!current.capabilities.edit}
-                                    onCheckedChange={v =>
-                                        updatePreference('autoSync', v)
-                                    }
-                                />
-                            </LabeledControl>
-                            {!synced && current.capabilities.edit ? (
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={async () => {
-                                        await syncPreferences();
-                                        toast.success(
-                                            t(
-                                                'profile.synced',
-                                                'Profile updated'
-                                            )
-                                        );
-                                    }}
-                                >
-                                    <RefreshCwIcon />{' '}
-                                    {t(
-                                        'profile.sync_now',
-                                        'Save current preferences to profile'
-                                    )}
-                                </Button>
-                            ) : null}
-                        </div>
-                    ) : null}
-                </DialogBody>
-                <DialogFooter className="sm:justify-between">
-                    <Button
-                        variant="outline"
-                        onClick={() =>
-                            openModal(CreateProfileDialog, {
-                                onCreated: () => onOpenChange(false),
-                            })
-                        }
-                    >
-                        <PlusIcon /> {t('profile.create', 'New profile')}
-                    </Button>
-                    <Button onClick={() => onOpenChange(false)}>
-                        {t('common.close', 'Close')}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                </div>
+            ) : null}
+        </FormDialog>
     );
 }
 
@@ -270,93 +253,66 @@ function ProfileRow({
 export function CreateProfileDialog({
     open,
     onOpenChange,
+    resolve,
     onCreated,
-}: ModalProps & {onCreated?: (profile: DisplayProfile) => void}) {
+}: ModalProps<DisplayProfile> & {
+    onCreated?: (profile: DisplayProfile) => void;
+}) {
     const {t} = useTranslation();
     const router = useRouter();
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [isPublic, setIsPublic] = useState(false);
-    const [loading, setLoading] = useState(false);
     const upsert = useProfileStore(s => s.upsert);
     const setCurrent = useProfileStore(s => s.setCurrent);
     const prefs = usePreferencesStore(s => s.preferences);
 
     const submit = async () => {
-        setLoading(true);
-        try {
-            const {profile: _p, ...data} = prefs;
-            const profile = await postProfile({
-                name,
-                description,
-                public: isPublic,
-                data: data as any,
-            });
-            upsert(profile);
-            await setCurrent(profile);
-            onOpenChange(false);
-            onCreated?.(profile);
-            router.push(routes.profileManage(profile.id, 'organize'));
-        } catch (e: any) {
-            toast.error(e?.message);
-        } finally {
-            setLoading(false);
-        }
+        const {profile: _p, ...data} = prefs;
+        const profile = await postProfile({
+            name,
+            description,
+            public: isPublic,
+            data: data as any,
+        });
+        upsert(profile);
+        await setCurrent(profile);
+        resolve?.(profile);
+        onCreated?.(profile);
+        router.push(routes.profileManage(profile.id, 'organize'));
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="sm">
-                <DialogHeader>
-                    <DialogTitle>
-                        {t('profile.create', 'New profile')}
-                    </DialogTitle>
-                </DialogHeader>
-                <DialogBody>
-                    <FormRow
-                        label={t('common.name', 'Name')}
-                        htmlFor="profile-name"
-                    >
-                        <Input
-                            id="profile-name"
-                            autoFocus
-                            value={name}
-                            onChange={e => setName(e.target.value)}
-                        />
-                    </FormRow>
-                    <FormRow
-                        label={t('common.description', 'Description')}
-                        htmlFor="profile-desc"
-                    >
-                        <Textarea
-                            id="profile-desc"
-                            value={description}
-                            onChange={e => setDescription(e.target.value)}
-                        />
-                    </FormRow>
-                    <LabeledControl label={t('common.public', 'Public')}>
-                        <Switch
-                            checked={isPublic}
-                            onCheckedChange={setIsPublic}
-                        />
-                    </LabeledControl>
-                </DialogBody>
-                <DialogFooter>
-                    <Button
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                    >
-                        {t('common.cancel', 'Cancel')}
-                    </Button>
-                    <Button
-                        onClick={submit}
-                        disabled={!name.trim()}
-                        loading={loading}
-                    >
-                        {t('common.create', 'Create')}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <FormDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title={t('profile.create', 'New profile')}
+            submitLabel={t('common.create', 'Create')}
+            canSubmit={!!name.trim()}
+            dirty={!!name.trim() || !!description.trim()}
+            onSubmit={submit}
+        >
+            <FormRow label={t('common.name', 'Name')} htmlFor="profile-name">
+                <Input
+                    id="profile-name"
+                    autoFocus
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                />
+            </FormRow>
+            <FormRow
+                label={t('common.description', 'Description')}
+                htmlFor="profile-desc"
+            >
+                <Textarea
+                    id="profile-desc"
+                    value={description}
+                    onChange={e => setDescription(e.target.value)}
+                />
+            </FormRow>
+            <LabeledControl label={t('common.public', 'Public')}>
+                <Switch checked={isPublic} onCheckedChange={setIsPublic} />
+            </LabeledControl>
+        </FormDialog>
     );
 }

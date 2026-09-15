@@ -1,22 +1,12 @@
 'use client';
 
-import {ReactNode, useState} from 'react';
+import {ReactNode, useCallback, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {toast} from 'sonner';
-import {
-    Dialog,
-    DialogBody,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from './dialog';
-import {Button} from './button';
 import {Input} from './input';
-import type {ModalProps} from '@/components/modals/ModalProvider';
+import {FormDialog} from '@/components/modals/FormDialog';
+import {useModals, type ModalProps} from '@/components/modals/ModalProvider';
 
-export type ConfirmDialogProps = ModalProps & {
+export type ConfirmOptions = {
     title: ReactNode;
     description?: ReactNode;
     children?: ReactNode;
@@ -25,14 +15,21 @@ export type ConfirmDialogProps = ModalProps & {
     destructive?: boolean;
     /** When set, the user must type this text to enable the confirm button */
     textToType?: string;
-    onConfirm: () => Promise<unknown> | unknown;
+    /**
+     * Runs while the dialog is still open, so the action keeps its spinner and
+     * its errors are reported in place. Omit it to only collect the answer.
+     */
+    onConfirm?: () => Promise<unknown> | unknown;
     onConfirmed?: () => void;
     disabled?: boolean;
 };
 
+export type ConfirmDialogProps = ModalProps<boolean> & ConfirmOptions;
+
 export function ConfirmDialog({
     open,
     onOpenChange,
+    resolve,
     title,
     description,
     children,
@@ -46,81 +43,65 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
     const {t} = useTranslation();
     const [typed, setTyped] = useState('');
-    const [loading, setLoading] = useState(false);
 
-    const canConfirm =
-        !disabled &&
-        !loading &&
-        (!textToType || typed.trim() === textToType.trim());
-
-    const confirm = async () => {
-        setLoading(true);
-        try {
-            await onConfirm();
-            onOpenChange(false);
-            onConfirmed?.();
-        } catch (e: any) {
-            toast.error(e?.message ?? t('common.error', 'An error occurred'));
-        } finally {
-            setLoading(false);
-        }
-    };
+    const body =
+        children || textToType ? (
+            <>
+                {children}
+                {textToType ? (
+                    <div>
+                        <p className="mb-2 text-sm text-muted-foreground">
+                            {t(
+                                'confirm.type_to_confirm',
+                                'Type "{{text}}" to confirm:',
+                                {text: textToType}
+                            )}
+                        </p>
+                        <Input
+                            autoFocus
+                            value={typed}
+                            onChange={e => setTyped(e.target.value)}
+                        />
+                    </div>
+                ) : null}
+            </>
+        ) : undefined;
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="sm">
-                <DialogHeader>
-                    <DialogTitle>{title}</DialogTitle>
-                    {description ? (
-                        <DialogDescription>{description}</DialogDescription>
-                    ) : null}
-                </DialogHeader>
-                {children || textToType ? (
-                    <DialogBody className="space-y-3">
-                        {children}
-                        {textToType ? (
-                            <div>
-                                <p className="mb-2 text-sm text-muted-foreground">
-                                    {t(
-                                        'confirm.type_to_confirm',
-                                        'Type "{{text}}" to confirm:',
-                                        {
-                                            text: textToType,
-                                        }
-                                    )}
-                                </p>
-                                <Input
-                                    autoFocus
-                                    value={typed}
-                                    onChange={e => setTyped(e.target.value)}
-                                    onKeyDown={e => {
-                                        if (e.key === 'Enter' && canConfirm) {
-                                            void confirm();
-                                        }
-                                    }}
-                                />
-                            </div>
-                        ) : null}
-                    </DialogBody>
-                ) : null}
-                <DialogFooter>
-                    <Button
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                        disabled={loading}
-                    >
-                        {cancelLabel ?? t('common.cancel', 'Cancel')}
-                    </Button>
-                    <Button
-                        variant={destructive ? 'destructive' : 'default'}
-                        onClick={confirm}
-                        disabled={!canConfirm}
-                        loading={loading}
-                    >
-                        {confirmLabel ?? t('common.confirm', 'Confirm')}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <FormDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title={title}
+            description={description}
+            submitLabel={confirmLabel ?? t('common.confirm', 'Confirm')}
+            cancelLabel={cancelLabel}
+            submitVariant={destructive ? 'destructive' : 'default'}
+            canSubmit={
+                !disabled && (!textToType || typed.trim() === textToType.trim())
+            }
+            bodyClassName="space-y-3"
+            onSubmit={async () => {
+                await onConfirm?.();
+                onConfirmed?.();
+                resolve?.(true);
+            }}
+        >
+            {body}
+        </FormDialog>
+    );
+}
+
+/**
+ * Promise-based confirmation: `if (await confirm({...})) { … }`.
+ *
+ * Prefer passing `onConfirm` when the action is asynchronous, so the dialog
+ * stays up with a spinner until it completes.
+ */
+export function useConfirm(): (options: ConfirmOptions) => Promise<boolean> {
+    const {openModal} = useModals();
+
+    return useCallback(
+        async options => (await openModal(ConfirmDialog, options)) === true,
+        [openModal]
     );
 }

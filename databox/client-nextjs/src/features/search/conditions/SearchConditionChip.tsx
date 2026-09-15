@@ -77,6 +77,9 @@ export function SearchConditionChip({condition}: {condition: AQLQuery}) {
         <ContextMenu>
             <ContextMenuTrigger asChild>
                 <div
+                    data-testid="search-condition"
+                    data-condition-id={condition.id}
+                    data-disabled={condition.disabled ? 'true' : undefined}
                     className={cn(
                         'group/chip inline-flex h-7 max-w-full items-center gap-1 rounded-full border pr-1 pl-2.5 text-xs transition-colors',
                         condition.disabled

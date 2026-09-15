@@ -114,6 +114,7 @@ export function CollectionsPanel() {
                         <li key={c.id}>
                             <button
                                 type="button"
+                                data-testid="collection-search-result"
                                 className={cn(
                                     'flex w-full flex-col gap-0.5 px-3 py-1.5 text-left text-sm hover:bg-accent',
                                     search?.collections.includes(c.id) &&
@@ -170,6 +171,7 @@ export function CollectionsPanel() {
                                             !c.disabled
                                     ) && 'bg-primary/10'
                                 )}
+                                data-testid="tree-trash"
                                 onClick={selectTrash}
                             >
                                 <Trash2Icon className="size-4 text-muted-foreground" />{' '}
@@ -186,6 +188,7 @@ export function CollectionsPanel() {
                                             !c.disabled
                                     ) && 'bg-primary/10'
                                 )}
+                                data-testid="tree-quarantine"
                                 onClick={selectQuarantine}
                             >
                                 <ShieldAlertIcon className="size-4 text-muted-foreground" />{' '}
@@ -236,7 +239,11 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
             {workspace.capabilities.createAsset ? (
                 <Item
                     onSelect={() =>
-                        openModal(UploadDialog, {workspaceId: workspace.id})
+                        openModal(
+                            UploadDialog,
+                            {workspaceId: workspace.id},
+                            {key: 'upload', keepOnNavigate: true}
+                        )
                     }
                 >
                     <ImagePlusIcon />{' '}
@@ -275,6 +282,9 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
             <ContextMenu>
                 <ContextMenuTrigger asChild>
                     <div
+                        data-testid="workspace-item"
+                        data-workspace-id={workspace.id}
+                        data-selected={selected ? 'true' : undefined}
                         className={cn(
                             'group/ws sticky top-0 z-10 flex items-center bg-sidebar pr-1',
                             selected && 'bg-primary/10'
@@ -408,10 +418,14 @@ function CollectionItem({
             {collection.capabilities.createAsset ? (
                 <Item
                     onSelect={() =>
-                        openModal(UploadDialog, {
-                            workspaceId: collection.workspaceId,
-                            collectionId: collection.id,
-                        })
+                        openModal(
+                            UploadDialog,
+                            {
+                                workspaceId: collection.workspaceId,
+                                collectionId: collection.id,
+                            },
+                            {key: 'upload', keepOnNavigate: true}
+                        )
                     }
                 >
                     <ImagePlusIcon />{' '}
@@ -482,6 +496,9 @@ function CollectionItem({
             <ContextMenu>
                 <ContextMenuTrigger asChild>
                     <div
+                        data-testid="collection-item"
+                        data-collection-id={collection.id}
+                        data-selected={selected ? 'true' : undefined}
                         className={cn(
                             'group/col flex items-center pr-1',
                             selected && 'bg-primary/10'

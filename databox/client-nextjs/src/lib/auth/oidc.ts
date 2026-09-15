@@ -100,6 +100,7 @@ export class OidcClient {
     private tokens: Tokens | undefined;
     private refreshPromise: Promise<Tokens | undefined> | undefined;
     private refreshTimer: ReturnType<typeof setTimeout> | undefined;
+    private readonly callbackPromises = new Map<string, Promise<string>>();
     private readonly listeners = new Set<Listener>();
     private readonly storageKey: string;
 
@@ -377,8 +378,28 @@ export class OidcClient {
 
     /**
      * Exchanges the authorization code. Returns the path to redirect to.
+     *
+     * Idempotent per `state`: React may run the callback effect twice (Strict
+     * Mode in development), the second call must share the first exchange
+     * instead of failing on an already consumed login state.
      */
-    public async handleCallback(
+    public handleCallback(searchParams: URLSearchParams): Promise<string> {
+        const state = searchParams.get('state') ?? '';
+        const pending = this.callbackPromises.get(state);
+        if (pending) {
+            return pending;
+        }
+        const promise = this.doHandleCallback(searchParams).finally(() => {
+            // Keep the settled promise for a while: late duplicate calls get
+            // the same outcome instead of an "invalid state" error.
+            setTimeout(() => this.callbackPromises.delete(state), 60000);
+        });
+        this.callbackPromises.set(state, promise);
+
+        return promise;
+    }
+
+    private async doHandleCallback(
         searchParams: URLSearchParams
     ): Promise<string> {
         const error = searchParams.get('error');
@@ -395,7 +416,6 @@ export class OidcClient {
         }
         const key = `${this.storageKey}.state.${state}`;
         const raw = sessionStorage.getItem(key);
-        sessionStorage.removeItem(key);
         if (!raw) {
             throw new OidcError(
                 'Invalid or expired login state',
@@ -423,6 +443,7 @@ export class OidcClient {
             );
         }
         this.setTokens(await res.json());
+        sessionStorage.removeItem(key);
         this.emit('login');
 
         return stored.redirectTo || '/';

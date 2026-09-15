@@ -1,5 +1,4 @@
-import AssetsPage from '@/app/(app)/assets/page';
-import {CollectionManageRoute} from '@/features/collections/manage/CollectionManageRoute';
+import {CollectionManageTab} from '@/features/collections/manage/CollectionManageRoute';
 
 export default async function Page({
     params,
@@ -8,10 +7,5 @@ export default async function Page({
 }) {
     const {id, tab} = await params;
 
-    return (
-        <>
-            <AssetsPage />
-            <CollectionManageRoute collectionId={id} tab={tab} />
-        </>
-    );
+    return <CollectionManageTab collectionId={id} tab={tab} />;
 }

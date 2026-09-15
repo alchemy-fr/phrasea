@@ -12,20 +12,12 @@ import {
     UserIcon,
 } from 'lucide-react';
 import {toast} from 'sonner';
-import type {
-    AttributeFilterRule,
-    Group,
-    TagFilterRule,
-    User,
-} from '@/types/api';
+import type {TagFilterRule} from '@/types/api';
 import {EntityName} from '@/types/api';
 import type {WorkspaceTabProps} from '../WorkspaceManageRoute';
 import {
-    deleteAttributeFilterRule,
     deleteTagFilterRule,
-    getAttributeFilterRules,
     getTagFilterRules,
-    saveAttributeFilterRule,
     saveTagFilterRule,
 } from '@/lib/api/integrations';
 import {Button} from '@/components/ui/button';
@@ -34,274 +26,24 @@ import {Badge, Skeleton} from '@/components/ui/misc';
 import {GroupSelect, TagSelect, UserSelect} from '@/components/form/selects';
 import {useModals} from '@/components/modals/ModalProvider';
 import {ConfirmDialog} from '@/components/ui/confirm';
-import {ConditionDialog} from '@/features/search/conditions/ConditionDialog';
-import {SearchProvider} from '@/features/search/SearchProvider';
-import {HumanizedExpression} from '@/features/search/conditions/SearchConditionChip';
-import {parseAQL} from '@/features/search/aql/parser';
-import {iri, idFromIri} from '@/lib/utils/iri';
+import {iri} from '@/lib/utils/iri';
 import {TagChip} from '@/components/chips';
 
 /**
- * Attribute filter rules (AQL condition per users / groups) and tag filter
- * rules (include / exclude tags).
+ * Tag filter rules: tags included / excluded for users or groups.
  */
 export function FilterRulesTab({workspace}: WorkspaceTabProps) {
     const {t} = useTranslation();
 
     return (
-        <SearchProvider>
+        <>
             <div className="space-y-8">
-                <AttributeRules workspaceId={workspace.id} />
                 <TagRules workspaceId={workspace.id} />
             </div>
             <span className="sr-only">
                 {t('workspace.manage.filter_rules', 'Filter rules')}
             </span>
-        </SearchProvider>
-    );
-}
-
-function idOf(x: User | Group | string): string {
-    return typeof x === 'string' ? idFromIri(x) : x.id;
-}
-
-function AttributeRules({workspaceId}: {workspaceId: string}) {
-    const {t} = useTranslation();
-    const {openModal} = useModals();
-    const rules = useQuery({
-        queryKey: ['attribute-filter-rules', workspaceId],
-        queryFn: () => getAttributeFilterRules(workspaceId),
-    });
-    const [editing, setEditing] = useState<AttributeFilterRule | 'new' | null>(
-        null
-    );
-
-    return (
-        <section className="space-y-3">
-            <div className="flex items-center gap-2">
-                <h3 className="text-sm font-semibold">
-                    {t(
-                        'filter_rules.attribute.title',
-                        'Attribute filter rules'
-                    )}
-                </h3>
-                <span className="text-xs text-muted-foreground">
-                    {t(
-                        'filter_rules.attribute.help',
-                        'Assets are only visible to the targets when they match the condition.'
-                    )}
-                </span>
-                <Button
-                    size="sm"
-                    variant="outline"
-                    className="ml-auto"
-                    onClick={() => setEditing('new')}
-                >
-                    <PlusIcon /> {t('filter_rules.add', 'Add rule')}
-                </Button>
-            </div>
-            {rules.isLoading ? <Skeleton className="h-16" /> : null}
-            <div className="space-y-2">
-                {rules.data?.items.map(rule => (
-                    <div
-                        key={rule.id}
-                        className="flex items-start gap-3 rounded-md border p-3 text-sm"
-                    >
-                        <div className="min-w-0 flex-1 space-y-1">
-                            <RuleTargets
-                                users={rule.users}
-                                groups={rule.groups}
-                            />
-                            <div className="rounded bg-muted/60 px-2 py-1 font-mono text-xs">
-                                {parseAQL(rule.condition) ? (
-                                    <HumanizedExpression
-                                        expression={
-                                            parseAQL(rule.condition)!.expression
-                                        }
-                                    />
-                                ) : (
-                                    rule.condition
-                                )}
-                            </div>
-                        </div>
-                        <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={() => setEditing(rule)}
-                        >
-                            <PencilIcon />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            className="text-destructive"
-                            onClick={() =>
-                                openModal(ConfirmDialog, {
-                                    title: t(
-                                        'filter_rules.delete',
-                                        'Delete this rule?'
-                                    ),
-                                    destructive: true,
-                                    onConfirm: async () => {
-                                        await deleteAttributeFilterRule(
-                                            rule.id
-                                        );
-                                        void rules.refetch();
-                                    },
-                                })
-                            }
-                        >
-                            <Trash2Icon />
-                        </Button>
-                    </div>
-                ))}
-                {rules.data?.items.length === 0 && !editing ? (
-                    <p className="text-sm text-muted-foreground">
-                        {t('filter_rules.none', 'No rule')}
-                    </p>
-                ) : null}
-            </div>
-            {editing ? (
-                <AttributeRuleForm
-                    key={editing === 'new' ? 'new' : editing.id}
-                    rule={editing === 'new' ? undefined : editing}
-                    workspaceId={workspaceId}
-                    onSaved={() => {
-                        setEditing(null);
-                        void rules.refetch();
-                    }}
-                    onCancel={() => setEditing(null)}
-                />
-            ) : null}
-        </section>
-    );
-}
-
-function RuleTargets({
-    users,
-    groups,
-}: {
-    users?: (User | string)[];
-    groups?: (Group | string)[];
-}) {
-    const {t} = useTranslation();
-    if (!users?.length && !groups?.length) {
-        return (
-            <Badge variant="secondary">
-                {t('filter_rules.everyone', 'Everyone')}
-            </Badge>
-        );
-    }
-
-    return (
-        <div className="flex flex-wrap gap-1">
-            {users?.map(u => (
-                <Badge key={idOf(u)} variant="outline">
-                    <UserIcon /> {typeof u === 'string' ? idOf(u) : u.username}
-                </Badge>
-            ))}
-            {groups?.map(g => (
-                <Badge key={idOf(g)} variant="outline">
-                    <UsersIcon /> {typeof g === 'string' ? idOf(g) : g.name}
-                </Badge>
-            ))}
-        </div>
-    );
-}
-
-function AttributeRuleForm({
-    rule,
-    workspaceId,
-    onSaved,
-    onCancel,
-}: {
-    rule?: AttributeFilterRule;
-    workspaceId: string;
-    onSaved: () => void;
-    onCancel: () => void;
-}) {
-    const {t} = useTranslation();
-    const {openModal} = useModals();
-    const [users, setUsers] = useState<string[]>((rule?.users ?? []).map(idOf));
-    const [groups, setGroups] = useState<string[]>(
-        (rule?.groups ?? []).map(idOf)
-    );
-    const [condition, setCondition] = useState(rule?.condition ?? '');
-    const [saving, setSaving] = useState(false);
-
-    const save = async () => {
-        setSaving(true);
-        try {
-            await saveAttributeFilterRule({
-                id: rule?.id,
-                users,
-                groups,
-                condition,
-                workspace: iri(EntityName.Workspace, workspaceId),
-            });
-            toast.success(t('filter_rules.saved', 'Rule saved'));
-            onSaved();
-        } catch (e: any) {
-            toast.error(e?.message);
-        } finally {
-            setSaving(false);
-        }
-    };
-
-    return (
-        <div className="space-y-3 rounded-md border border-dashed p-3">
-            <div className="grid gap-3 sm:grid-cols-2">
-                <FormRow
-                    label={t('filter_rules.users', 'Users')}
-                    help={t('asset_policy.targets_help', 'Empty = everyone')}
-                >
-                    <UserSelect multiple value={users} onChange={setUsers} />
-                </FormRow>
-                <FormRow label={t('filter_rules.groups', 'Groups')}>
-                    <GroupSelect multiple value={groups} onChange={setGroups} />
-                </FormRow>
-            </div>
-            <FormRow label={t('filter_rules.condition', 'Condition')}>
-                <div className="flex items-center gap-2">
-                    <code className="min-w-0 flex-1 truncate rounded bg-muted px-2 py-1.5 text-xs">
-                        {condition ||
-                            t('filter_rules.no_condition', 'No condition yet')}
-                    </code>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                            openModal(ConditionDialog, {
-                                condition: condition
-                                    ? {id: 'rule', query: condition}
-                                    : undefined,
-                                onSubmit: setCondition,
-                                workspaceId,
-                                title: t('filter_rules.condition', 'Condition'),
-                            })
-                        }
-                    >
-                        <PencilIcon />{' '}
-                        {condition
-                            ? t('common.edit', 'Edit')
-                            : t('common.add', 'Add')}
-                    </Button>
-                </div>
-            </FormRow>
-            <div className="flex justify-end gap-2">
-                <Button variant="ghost" size="sm" onClick={onCancel}>
-                    {t('common.cancel', 'Cancel')}
-                </Button>
-                <Button
-                    size="sm"
-                    onClick={save}
-                    disabled={!condition}
-                    loading={saving}
-                >
-                    <SaveIcon /> {t('common.save', 'Save')}
-                </Button>
-            </div>
-        </div>
+        </>
     );
 }
 
@@ -408,6 +150,11 @@ function TagRules({workspaceId}: {workspaceId: string}) {
                         </Button>
                     </div>
                 ))}
+                {rules.data?.items.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                        {t('filter_rules.none', 'No rule')}
+                    </p>
+                ) : null}
             </div>
             {editing ? (
                 <TagRuleForm
@@ -509,7 +256,13 @@ function TagRuleForm({
                 <Button variant="ghost" size="sm" onClick={onCancel}>
                     {t('common.cancel', 'Cancel')}
                 </Button>
-                <Button size="sm" onClick={save} loading={saving}>
+                <Button
+                    size="sm"
+                    onClick={save}
+                    loading={saving}
+                    // The API requires a user or a group target
+                    disabled={!userId && !groupId}
+                >
                     <SaveIcon /> {t('common.save', 'Save')}
                 </Button>
             </div>

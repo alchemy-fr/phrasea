@@ -9,6 +9,7 @@ import {
     useMemo,
     useRef,
     useState,
+    useEffect,
 } from 'react';
 import type {Asset} from '@/types/api';
 
@@ -104,6 +105,30 @@ export function SelectionProvider({
             disabledIds,
         };
     }, [selection, setSelection, disabledIds]);
+
+    // Escape clears the selection (outside inputs and open dialogs)
+    useEffect(() => {
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key !== 'Escape' || e.defaultPrevented) {
+                return;
+            }
+            const el = document.activeElement as HTMLElement | null;
+            if (
+                el &&
+                (el.isContentEditable ||
+                    ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))
+            ) {
+                return;
+            }
+            if (document.querySelector('[role=dialog][data-state=open]')) {
+                return;
+            }
+            setSelectionState(prev => (prev.length > 0 ? [] : prev));
+        };
+        window.addEventListener('keydown', onKeyDown);
+
+        return () => window.removeEventListener('keydown', onKeyDown);
+    }, []);
 
     return (
         <SelectionContext.Provider value={value}>

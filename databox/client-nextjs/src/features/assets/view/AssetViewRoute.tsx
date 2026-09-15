@@ -2,7 +2,6 @@
 
 import {useEffect, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useRouter} from 'next/navigation';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {ChevronLeftIcon, ChevronRightIcon, XIcon} from 'lucide-react';
 import type {Asset, AssetRendition} from '@/types/api';
@@ -31,14 +30,22 @@ import {isApiError} from '@/lib/api/http';
  * Full screen asset viewer: media on the left, side panel on the right.
  */
 export function AssetViewRoute({
-    assetId,
-    renditionId,
+    assetId: initialAssetId,
+    renditionId: initialRenditionId,
 }: {
     assetId: string;
     renditionId: string;
 }) {
+    // Navigating between results keeps this component mounted and mirrors
+    // the current asset in the URL (shallow): a router navigation would
+    // trigger the intercepting route and stack a second viewer.
+    const [assetId, setAssetId] = useState(initialAssetId);
+    const [renditionId, setRenditionId] = useState(initialRenditionId);
+    useEffect(() => {
+        setAssetId(initialAssetId);
+        setRenditionId(initialRenditionId);
+    }, [initialAssetId, initialRenditionId]);
     const {t} = useTranslation();
-    const router = useRouter();
     const queryClient = useQueryClient();
     const close = useCloseRoute();
     const update = useAssetStore(s => s.update);
@@ -92,8 +99,18 @@ export function AssetViewRoute({
     const prevId = index > 0 ? ids[index - 1] : undefined;
     const nextId =
         index >= 0 && index < ids.length - 1 ? ids[index + 1] : undefined;
-    const go = (id: string | undefined) =>
-        id && router.replace(routes.assetView(id));
+    const go = (id: string | undefined) => {
+        if (!id) {
+            return;
+        }
+        setAssetId(id);
+        setRenditionId(UNKNOWN_RENDITION);
+        window.history.replaceState(
+            window.history.state,
+            '',
+            routes.assetView(id)
+        );
+    };
 
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
@@ -105,6 +122,11 @@ export function AssetViewRoute({
                 go(prevId);
             } else if (e.key === 'ArrowRight') {
                 go(nextId);
+            } else if (
+                e.key === 'Escape' &&
+                !document.querySelector('[role=dialog][data-state=open]')
+            ) {
+                close();
             }
         };
         window.addEventListener('keydown', onKey);
@@ -127,7 +149,10 @@ export function AssetViewRoute({
     }, [prevId, nextId, queryClient]);
 
     return (
-        <div className="fixed inset-0 z-50 flex flex-col bg-background text-foreground">
+        <div
+            data-testid="asset-view"
+            className="fixed inset-0 z-50 flex flex-col bg-background text-foreground"
+        >
             <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3">
                 <Tooltip content={t('common.close', 'Close')}>
                     <Button
@@ -140,6 +165,7 @@ export function AssetViewRoute({
                     </Button>
                 </Tooltip>
                 <h1
+                    data-testid="asset-view-title"
                     className="min-w-0 flex-1 truncate text-base font-semibold"
                     title={asset?.name}
                 >
@@ -150,9 +176,14 @@ export function AssetViewRoute({
                         size="sm"
                         className="w-48"
                         value={rendition?.id}
-                        onValueChange={id =>
-                            router.replace(routes.assetView(assetId, id))
-                        }
+                        onValueChange={id => {
+                            setRenditionId(id);
+                            window.history.replaceState(
+                                window.history.state,
+                                '',
+                                routes.assetView(assetId, id)
+                            );
+                        }}
                         options={renditions
                             .filter(r => r.file)
                             .map(r => ({

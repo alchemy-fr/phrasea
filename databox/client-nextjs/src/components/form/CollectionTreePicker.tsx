@@ -151,6 +151,7 @@ function WorkspaceNode({
                 </button>
                 <button
                     type="button"
+                    data-testid="tree-picker-workspace"
                     disabled={!selectable}
                     className={cn(
                         'flex min-w-0 flex-1 items-center gap-2 py-1 text-left text-sm font-medium',
@@ -295,6 +296,7 @@ function CollectionTreeNode({
                 </button>
                 <button
                     type="button"
+                    data-testid="tree-picker-collection"
                     disabled={!selectable}
                     className={cn(
                         'flex min-w-0 flex-1 items-center gap-2 py-1 text-left text-sm',

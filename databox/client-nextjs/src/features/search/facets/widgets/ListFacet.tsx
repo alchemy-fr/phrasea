@@ -45,6 +45,8 @@ export function ListFacet({name, facet}: FacetWidgetProps) {
                 return (
                     <li key={String(value)}>
                         <label
+                            data-testid="facet-value"
+                            data-selected={selected ? 'true' : undefined}
                             className={cn(
                                 'flex cursor-pointer items-center gap-2 rounded px-1.5 py-1 text-sm hover:bg-accent/60',
                                 selected && 'bg-primary/10'

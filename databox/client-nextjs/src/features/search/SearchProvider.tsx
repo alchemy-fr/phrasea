@@ -8,6 +8,7 @@ import {
     useMemo,
     useRef,
     useState,
+    useEffect,
 } from 'react';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import type {
@@ -32,6 +33,7 @@ import {
 import {parseAQL} from './aql/parser';
 import {resolveScalar} from './aql/serializer';
 import {isCondition, isField} from './aql/types';
+import {getSavedSearch} from '@/lib/api/misc';
 import {useEntitiesStore} from './entitiesStore';
 import {shortId} from '@/lib/utils/misc';
 
@@ -150,6 +152,34 @@ export function SearchProvider({
         },
         [update]
     );
+
+    // Deep link / left panel: `?id=<saved search>` without any other state
+    // loads the saved search definition.
+    useEffect(() => {
+        const {searchId, query, conditions, sortBy} = stateRef.current;
+        if (!searchId || query || conditions.length > 0 || sortBy.length > 0) {
+            return;
+        }
+        let cancelled = false;
+        getSavedSearch(searchId)
+            .then(saved => {
+                if (cancelled || !saved.data) {
+                    return;
+                }
+                inputQuery.current = saved.data.query ?? '';
+                commit({
+                    ...stateRef.current,
+                    query: saved.data.query ?? '',
+                    conditions: saved.data.conditions ?? [],
+                    sortBy: saved.data.sortBy ?? [],
+                });
+            })
+            .catch(() => undefined);
+
+        return () => {
+            cancelled = true;
+        };
+    }, [state.searchId, commit]);
 
     const value = useMemo<SearchContextValue>(() => {
         const enabledAsts = state.conditions

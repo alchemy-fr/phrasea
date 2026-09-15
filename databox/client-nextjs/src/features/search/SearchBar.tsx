@@ -94,6 +94,7 @@ export function SearchBar() {
                 <input
                     ref={inputRef}
                     type="search"
+                    data-testid="search-input"
                     value={value}
                     autoFocus
                     placeholder={t('search.placeholder', 'Search assets…')}
@@ -135,6 +136,7 @@ export function SearchBar() {
                         type="button"
                         className="absolute top-1/2 right-2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
                         aria-label={t('search.clear', 'Clear')}
+                        data-testid="search-clear"
                         onClick={() => {
                             setValue('');
                             search.setQuery('');
@@ -202,6 +204,7 @@ export function SearchBar() {
                         }
                     }}
                     aria-label={t('search.geo.enable', 'Search around me')}
+                    data-testid="search-geo"
                 >
                     <LocateFixedIcon
                         className={cn(search.geolocation && 'text-primary')}
@@ -211,6 +214,7 @@ export function SearchBar() {
             <SortByButton />
             <Button
                 type="submit"
+                data-testid="search-submit"
                 disabled={sameAsCurrent && loading}
                 className="hidden sm:inline-flex"
             >

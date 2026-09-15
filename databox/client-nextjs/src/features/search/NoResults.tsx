@@ -13,6 +13,7 @@ export function NoResults() {
     return (
         <EmptyState
             className="h-full"
+            testId="no-results"
             icon={<SearchXIcon />}
             title={t('search.no_results.title', 'No results')}
             description={

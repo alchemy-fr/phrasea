@@ -39,6 +39,7 @@ export function DisplayOptionsMenu({
         <Popover>
             <PopoverTrigger asChild>
                 <Button
+                    data-testid="display-options"
                     variant="ghost"
                     size="icon-sm"
                     aria-label={t('display.settings', 'Display settings')}

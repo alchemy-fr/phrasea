@@ -1,5 +1,4 @@
-import AssetsPage from '@/app/(app)/assets/page';
-import {FileManageRoute} from '@/features/files/FileManageRoute';
+import {FileManageTab} from '@/features/files/FileManageRoute';
 
 export default async function Page({
     params,
@@ -8,10 +7,5 @@ export default async function Page({
 }) {
     const {id, tab} = await params;
 
-    return (
-        <>
-            <AssetsPage />
-            <FileManageRoute fileId={id} tab={tab} />
-        </>
-    );
+    return <FileManageTab fileId={id} tab={tab} />;
 }

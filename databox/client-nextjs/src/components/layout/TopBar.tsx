@@ -73,11 +73,15 @@ export function TopBar() {
     };
 
     return (
-        <header className="flex h-12 shrink-0 items-center gap-2 border-b bg-background px-2">
+        <header
+            data-testid="topbar"
+            className="flex h-12 shrink-0 items-center gap-2 border-b bg-background px-2"
+        >
             <Tooltip content={t('layout.toggle_panel', 'Toggle side panel')}>
                 <Button
                     variant="ghost"
                     size="icon-sm"
+                    data-testid="toggle-left-panel"
                     onClick={() => toggleLeftPanel()}
                 >
                     <PanelLeftIcon />
@@ -115,6 +119,7 @@ export function TopBar() {
                     <NavLink
                         href={routes.pages()}
                         active={pathname.startsWith('/pages')}
+                        testId="nav-pages"
                     >
                         <FileTextIcon /> {t('nav.pages', 'Pages')}
                         <Badge
@@ -152,6 +157,7 @@ export function TopBar() {
                     <Button
                         variant="ghost"
                         size="icon-sm"
+                        data-testid="settings-menu"
                         aria-label={t('nav.settings', 'Settings')}
                     >
                         <SettingsIcon />
@@ -235,6 +241,7 @@ export function TopBar() {
                     <DropdownMenuTrigger asChild>
                         <button
                             type="button"
+                            data-testid="user-menu"
                             className="rounded-full focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
                             aria-label={user.username}
                         >
@@ -271,7 +278,7 @@ export function TopBar() {
                     </DropdownMenuContent>
                 </DropdownMenu>
             ) : (
-                <Button size="sm" onClick={() => login()}>
+                <Button size="sm" data-testid="sign-in" onClick={() => login()}>
                     <LogInIcon /> {t('user.login', 'Sign in')}
                 </Button>
             )}
@@ -283,14 +290,17 @@ function NavLink({
     href,
     active,
     children,
+    testId,
 }: {
     href: string;
     active: boolean;
     children: React.ReactNode;
+    testId?: string;
 }) {
     return (
         <Link
             href={href}
+            data-testid={testId}
             className={cn(
                 'inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium transition-colors hover:bg-accent [&_svg]:size-4',
                 active

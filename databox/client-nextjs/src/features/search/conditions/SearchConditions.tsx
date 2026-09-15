@@ -14,7 +14,10 @@ export function SearchConditions() {
     const {openModal} = useModals();
 
     return (
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div
+            className="flex flex-wrap items-center gap-1.5"
+            data-testid="search-conditions"
+        >
             {search.conditions.map(condition => (
                 <SearchConditionChip key={condition.id} condition={condition} />
             ))}
@@ -23,6 +26,7 @@ export function SearchConditions() {
                 variant="outline"
                 size="sm"
                 className="h-7 rounded-full border-dashed px-2.5 text-xs"
+                data-testid="add-condition"
                 onClick={() => openModal(ConditionDialog, {search})}
             >
                 <PlusIcon className="size-3.5" />{' '}

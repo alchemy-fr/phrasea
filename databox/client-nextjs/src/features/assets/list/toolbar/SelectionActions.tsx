@@ -32,7 +32,10 @@ export function SelectionActions({
     const bulkActions = groups.flat().filter(a => a.bulk && a.id !== 'basket');
 
     return (
-        <div className="flex items-center gap-1">
+        <div
+            className="flex items-center gap-1"
+            data-testid="selection-actions"
+        >
             <Tooltip
                 content={
                     count === total && total > 0
@@ -42,6 +45,7 @@ export function SelectionActions({
             >
                 <span className="flex items-center px-1">
                     <Checkbox
+                        data-testid="select-all"
                         checked={
                             count === 0
                                 ? false

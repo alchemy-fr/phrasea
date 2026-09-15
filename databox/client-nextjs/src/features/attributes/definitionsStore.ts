@@ -144,7 +144,7 @@ export function workspaceIdOf(
 /**
  * Index of definitions by search slug (`@createdAt`, `title`...) — used by AQL.
  */
-export function useDefinitionsBySlug(
+export function useDefinitionsBySearchSlug(
     options: {
         workspaceId?: string;
         target?: AssetTypeFilter;
@@ -181,6 +181,38 @@ export function useDefinitionsBySlug(
 
         return index;
     }, [definitions, builtIn, workspaceId, target, includeBuiltIn]);
+}
+
+/**
+ * Key of a definition in AQL queries: the API resolves attribute fields by
+ * their `slug` (the `searchSlug` — `slug_type_m` — is the sort / facet key),
+ * built-in attributes keep their `@name`.
+ */
+export function aqlKey(d: AttributeDefinitionOrBuiltIn): string {
+    return (d as BuiltInAttribute).builtIn ? d.searchSlug : d.slug;
+}
+
+/**
+ * Index by AQL field name (see `aqlKey`): used to validate and build
+ * conditions.
+ */
+export function useDefinitionsBySlug(
+    options: {
+        workspaceId?: string;
+        target?: AssetTypeFilter;
+        includeBuiltIn?: boolean;
+    } = {}
+): DefinitionsIndex {
+    const bySearchSlug = useDefinitionsBySearchSlug(options);
+
+    return useMemo(() => {
+        const index: DefinitionsIndex = {};
+        Object.values(bySearchSlug).forEach(d => {
+            index[aqlKey(d)] = d;
+        });
+
+        return index;
+    }, [bySearchSlug]);
 }
 
 /**

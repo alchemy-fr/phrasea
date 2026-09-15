@@ -55,7 +55,7 @@ function useTaskTypes(): TaskType[] {
 
     return [
         {
-            id: 'switch-attribute-locale',
+            id: 'switch_attribute_locales',
             label: t('tasks.switch_locale', 'Switch attribute locales'),
             description: t(
                 'tasks.switch_locale_desc',
@@ -89,7 +89,7 @@ function useTaskTypes(): TaskType[] {
             ],
         },
         {
-            id: 'index-assets',
+            id: 'index_assets',
             label: t('tasks.index_assets', 'Index assets'),
             description: t(
                 'tasks.index_assets_desc',
@@ -104,7 +104,7 @@ function useTaskTypes(): TaskType[] {
             ],
         },
         {
-            id: 'ingest-workspace-assets',
+            id: 'ingest_workspace_assets',
             label: t('tasks.ingest', 'Ingest workspace assets'),
             description: t(
                 'tasks.ingest_desc',
@@ -120,7 +120,7 @@ function useTaskTypes(): TaskType[] {
             ],
         },
         {
-            id: 'store-fallback-as-attribute',
+            id: 'store_fallback_attributes',
             label: t('tasks.store_fallback', 'Store fallback as attribute'),
             description: t(
                 'tasks.store_fallback_desc',
@@ -142,7 +142,7 @@ function useTaskTypes(): TaskType[] {
             ],
         },
         {
-            id: 'recompute-initial-values',
+            id: 'recompute_initial_values',
             label: t('tasks.recompute_initial', 'Recompute initial values'),
             description: t(
                 'tasks.recompute_initial_desc',

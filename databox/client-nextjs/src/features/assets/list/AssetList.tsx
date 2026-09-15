@@ -116,6 +116,8 @@ export function AssetList(props: AssetListProps) {
         <PreviewProvider disabled={props.noPreview}>
             <div
                 ref={scrollRef}
+                data-testid="asset-list"
+                data-layout={layout}
                 className={cn('relative h-full overflow-y-auto', className)}
             >
                 {loading ? (

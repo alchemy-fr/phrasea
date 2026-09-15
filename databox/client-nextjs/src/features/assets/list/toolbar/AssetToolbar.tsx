@@ -22,6 +22,7 @@ export function AssetToolbar() {
             <div className="flex-1" />
             <button
                 type="button"
+                data-testid="results-count"
                 className={cn(
                     'text-xs text-muted-foreground tabular-nums',
                     results.debug && 'cursor-help hover:underline'

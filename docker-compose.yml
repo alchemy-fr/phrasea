@@ -296,6 +296,17 @@ services:
       - DATABOX_NEXT_CLIENT_URL
       - CLIENT_ID=${DATABOX_NEXT_CLIENT_ID}
       - ALLOWED_FILE_TYPES=${DATABOX_ALLOWED_FILE_TYPES}
+      # Used server side to verify the reporter's token (ticketing)
+      - KEYCLOAK_INTERNAL_URL
+      - DATABOX_TICKETING_ENABLED
+      - DATABOX_TICKETING_JIRA_URL
+      - DATABOX_TICKETING_JIRA_USER
+      - DATABOX_TICKETING_JIRA_API_TOKEN
+      - DATABOX_TICKETING_JIRA_PROJECT_KEY
+      - DATABOX_TICKETING_JIRA_ISSUE_TYPE
+      - DATABOX_TICKETING_JIRA_BUG_ISSUE_TYPE
+      - DATABOX_TICKETING_JIRA_LABELS
+      - DATABOX_TICKETING_JIRA_API_VERSION
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -1190,6 +1201,11 @@ services:
       network: host
     profiles:
       - cypress
+    deploy:
+      resources:
+        limits:
+          cpus: ${CYPRESS_CPU_LIMIT}
+          memory: ${CYPRESS_MEMORY_LIMIT}
     environment:
       - CYPRESS_BASE_URL=${DASHBOARD_CLIENT_URL}
       - MAILPIT_URL
@@ -1201,6 +1217,14 @@ services:
       - CYPRESS_ADMIN_PASSWORD=${DEFAULT_ADMIN_PASSWORD}
       - CYPRESS_EXPOSE_ADMIN_CLIENT_ID=${EXPOSE_ADMIN_CLIENT_ID}
       - CYPRESS_EXPOSE_ADMIN_CLIENT_SECRET=${EXPOSE_ADMIN_CLIENT_SECRET}
+      - CYPRESS_DASHBOARD_CLIENT_URL=${DASHBOARD_CLIENT_URL}
+      - DEFAULT_COMMAND_TIMEOUT=15000
+      # Databox (Next.js client) e2e tests
+      - CYPRESS_DATABOX_NEXT_CLIENT_URL=${DATABOX_NEXT_CLIENT_URL}
+      - CYPRESS_DATABOX_API_URL=${DATABOX_API_URL}
+      - CYPRESS_DATABOX_NEXT_CLIENT_ID=${DATABOX_NEXT_CLIENT_ID}
+      - CYPRESS_DATABOX_ADMIN_CLIENT_ID=${DATABOX_ADMIN_CLIENT_ID}
+      - CYPRESS_DATABOX_ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
     volumes:
       - cypress_output:/cypress/output
     extra_hosts:
@@ -1209,6 +1233,9 @@ services:
       - dashboard.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - databox-next.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - soketi.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   soketi:
     logging: *default-logging

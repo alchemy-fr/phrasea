@@ -1,5 +1,6 @@
 'use client';
 
+import {ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {
@@ -15,10 +16,12 @@ import {
 } from 'lucide-react';
 import {getAsset} from '@/lib/api/assets';
 import {
-    TabbedRouteDialog,
     DialogTab,
+    DialogTabContent,
+    TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
-import {RouteDialog} from '@/components/modals/RouteDialog';
+import {useCloseRoute} from '@/components/modals/RouteDialog';
+import {useRouter} from 'next/navigation';
 import {FullPageLoader} from '@/components/ui/loader';
 import {routes} from '@/lib/routes';
 import type {Asset} from '@/types/api';
@@ -34,22 +37,14 @@ import {ESDocumentTab} from './tabs/ESDocumentTab';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {EmptyState} from '@/components/ui/misc';
 import {Button} from '@/components/ui/button';
-import {useRouter} from 'next/navigation';
 
 export type AssetTabProps = {asset: Asset; refresh: () => void};
 
-export function AssetManageRoute({
-    assetId,
-    tab,
-}: {
-    assetId: string;
-    tab: string;
-}) {
-    const {t} = useTranslation();
-    const router = useRouter();
-    const {hasRole} = useAuth();
+/** Shared by the shell and the tab content: one query, one request. */
+function useAsset(assetId: string) {
     const update = useAssetStore(s => s.update);
-    const query = useQuery({
+
+    return useQuery({
         queryKey: ['asset', assetId],
         queryFn: async () => {
             const asset = await getAsset(assetId);
@@ -59,34 +54,13 @@ export function AssetManageRoute({
         },
         staleTime: 0,
     });
-    const asset = query.data;
+}
 
-    if (query.isLoading || (!asset && !query.isError)) {
-        return (
-            <RouteDialog size="lg">
-                <FullPageLoader />
-            </RouteDialog>
-        );
-    }
-    if (!asset) {
-        return (
-            <RouteDialog size="sm">
-                <EmptyState
-                    title={t(
-                        'asset.view.not_found',
-                        'Asset not found or not accessible'
-                    )}
-                    action={
-                        <Button onClick={() => router.back()}>
-                            {t('common.close', 'Close')}
-                        </Button>
-                    }
-                />
-            </RouteDialog>
-        );
-    }
+function useTabs(asset?: Asset): DialogTab<AssetTabProps>[] {
+    const {t} = useTranslation();
+    const {hasRole} = useAuth();
 
-    const tabs: DialogTab<AssetTabProps>[] = [
+    return [
         {
             id: 'open',
             title: t('asset.manage.open', 'Open'),
@@ -104,8 +78,9 @@ export function AssetManageRoute({
             title: t('asset.manage.edit', 'Edit'),
             icon: <PencilIcon />,
             component: AssetEditTab,
-            enabled:
-                asset.capabilities.editAttributes || asset.capabilities.edit,
+            enabled: !!(
+                asset?.capabilities.editAttributes || asset?.capabilities.edit
+            ),
         },
         {
             id: 'renditions',
@@ -118,28 +93,28 @@ export function AssetManageRoute({
             title: t('asset.manage.versions', 'Versions'),
             icon: <HistoryIcon />,
             component: AssetVersionsTab,
-            enabled: asset.capabilities.edit,
+            enabled: !!asset?.capabilities.edit,
         },
         {
             id: 'permissions',
             title: t('asset.manage.permissions', 'Permissions'),
             icon: <ShieldIcon />,
             component: AssetPermissionsTab,
-            enabled: asset.capabilities.editPermissions,
+            enabled: !!asset?.capabilities.editPermissions,
         },
         {
             id: 'workflow',
             title: t('asset.manage.workflow', 'Workflow'),
             icon: <WorkflowIcon />,
             component: AssetWorkflowTab,
-            enabled: asset.capabilities.edit,
+            enabled: !!asset?.capabilities.edit,
         },
         {
             id: 'operations',
             title: t('asset.manage.operations', 'Operations'),
             icon: <WrenchIcon />,
             component: AssetOperationsTab,
-            enabled: asset.capabilities.edit || asset.capabilities.delete,
+            enabled: !!(asset?.capabilities.edit || asset?.capabilities.delete),
         },
         {
             id: 'es',
@@ -149,16 +124,67 @@ export function AssetManageRoute({
             enabled: hasRole(AppRole.Tech),
         },
     ];
+}
+
+export function AssetManageShell({
+    assetId,
+    children,
+}: {
+    assetId: string;
+    children: ReactNode;
+}) {
+    const {t} = useTranslation();
+    const closeRoute = useCloseRoute();
+    const query = useAsset(assetId);
+    const asset = query.data;
+
+    const missing = !asset && !query.isLoading;
+
+    const tabs = useTabs(asset);
 
     return (
-        <TabbedRouteDialog<AssetTabProps>
+        <TabbedRouteDialogShell
             title={t('asset.manage.title', 'Manage asset')}
-            subtitle={asset.name}
+            subtitle={asset?.name}
             tabs={tabs}
-            activeTab={tab}
-            buildTabHref={next => routes.assetManage(assetId, next)}
-            baseProps={{asset, refresh: () => query.refetch()}}
+            buildTabHref={tab => routes.assetManage(assetId, tab)}
             size="xl"
+            placeholder={
+                asset ? undefined : missing ? (
+                    <EmptyState
+                        title={t(
+                            'asset.view.not_found',
+                            'Asset not found or not accessible'
+                        )}
+                        action={
+                            <Button onClick={closeRoute}>
+                                {t('common.close', 'Close')}
+                            </Button>
+                        }
+                    />
+                ) : (
+                    <FullPageLoader />
+                )
+            }
+        >
+            {children}
+        </TabbedRouteDialogShell>
+    );
+}
+
+export function AssetManageTab({assetId, tab}: {assetId: string; tab: string}) {
+    const query = useAsset(assetId);
+    const asset = query.data;
+
+    const tabs = useTabs(asset);
+
+    return (
+        <DialogTabContent
+            tabs={tabs}
+            tab={tab}
+            baseProps={
+                asset ? {asset, refresh: () => void query.refetch()} : undefined
+            }
         />
     );
 }

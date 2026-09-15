@@ -1,5 +1,4 @@
-import AssetsPage from '@/app/(app)/assets/page';
-import {WorkspaceManageRoute} from '@/features/workspaces/manage/WorkspaceManageRoute';
+import {WorkspaceManageTab} from '@/features/workspaces/manage/WorkspaceManageRoute';
 
 export default async function Page({
     params,
@@ -8,10 +7,5 @@ export default async function Page({
 }) {
     const {id, tab} = await params;
 
-    return (
-        <>
-            <AssetsPage />
-            <WorkspaceManageRoute workspaceId={id} tab={tab} />
-        </>
-    );
+    return <WorkspaceManageTab workspaceId={id} tab={tab} />;
 }

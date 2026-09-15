@@ -73,6 +73,8 @@ const GridItem = memo(function GridItem({
         <AssetContextMenu asset={asset} onOpen={() => openAsset(asset)}>
             <div
                 data-asset-id={asset.id}
+                data-testid="asset-item"
+                data-selected={selected ? 'true' : undefined}
                 className={cn(
                     'group/item relative flex flex-col overflow-hidden rounded-lg border bg-card text-card-foreground transition-shadow select-none hover:shadow-md',
                     selected && 'border-primary ring-2 ring-primary/40',
@@ -114,6 +116,7 @@ const GridItem = memo(function GridItem({
                     <div className="flex min-h-0 flex-col gap-1 p-2">
                         <div className="flex items-start gap-1">
                             <div
+                                data-testid="asset-item-title"
                                 className="min-w-0 flex-1 truncate text-sm font-medium"
                                 title={asset.name}
                             >

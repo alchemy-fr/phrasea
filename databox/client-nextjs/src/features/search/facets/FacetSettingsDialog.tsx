@@ -25,18 +25,9 @@ import {
 import {CSS} from '@dnd-kit/utilities';
 import type {Facets} from '@/types/api';
 import type {ModalProps} from '@/components/modals/ModalProvider';
-import {useModals} from '@/components/modals/ModalProvider';
-import {
-    Dialog,
-    DialogBody,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import {FormDialog} from '@/components/modals/FormDialog';
 import {Button} from '@/components/ui/button';
-import {ConfirmDialog} from '@/components/ui/confirm';
+import {useConfirm} from '@/components/ui/confirm';
 import {
     FacetPreference,
     usePreferencesStore,
@@ -52,7 +43,7 @@ export function FacetSettingsDialog({
     facets,
 }: ModalProps & {facets: Facets}) {
     const {t} = useTranslation();
-    const {openModal} = useModals();
+    const confirm = useConfirm();
     const prefs =
         usePreferencesStore(s => s.preferences.facets) ?? EMPTY_FACETS;
     const updatePreference = usePreferencesStore(s => s.updatePreference);
@@ -102,126 +93,108 @@ export function FacetSettingsDialog({
             r.hidden ? {name: r.name, hidden: true} : {name: r.name, order: i}
         );
         await updatePreference('facets', next);
-        onOpenChange(false);
     };
 
     const visibleRows = rows.filter(r => !r.hidden);
     const hiddenRows = rows.filter(r => r.hidden);
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="sm">
-                <DialogHeader>
-                    <DialogTitle>
-                        {t('facets.settings', 'Facet settings')}
-                    </DialogTitle>
-                    <DialogDescription>
-                        {t(
-                            'facets.settings_help',
-                            'Drag to reorder facets, toggle their visibility.'
-                        )}
-                    </DialogDescription>
-                </DialogHeader>
-                <DialogBody className="space-y-3">
-                    <DndContext
-                        sensors={sensors}
-                        collisionDetection={closestCenter}
-                        onDragEnd={onDragEnd}
-                    >
-                        <SortableContext
-                            items={visibleRows.map(r => r.name)}
-                            strategy={verticalListSortingStrategy}
-                        >
-                            <ul className="space-y-1">
-                                {visibleRows.map(r => (
-                                    <FacetRow
-                                        key={r.name}
-                                        row={r}
-                                        onToggle={() =>
-                                            setRows(prev =>
-                                                prev.map(x =>
-                                                    x.name === r.name
-                                                        ? {...x, hidden: true}
-                                                        : x
-                                                )
-                                            )
-                                        }
-                                    />
-                                ))}
-                            </ul>
-                        </SortableContext>
-                    </DndContext>
-                    {hiddenRows.length > 0 ? (
-                        <div>
-                            <h4 className="mb-1 text-xs font-semibold text-muted-foreground uppercase">
-                                {t('facets.hidden_section', 'Hidden')}
-                            </h4>
-                            <ul className="space-y-1">
-                                {hiddenRows.map(r => (
-                                    <li
-                                        key={r.name}
-                                        className="flex items-center gap-2 rounded-md border px-2 py-1 text-sm text-muted-foreground"
-                                    >
-                                        <span className="flex-1 truncate">
-                                            {r.label}
-                                        </span>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon-xs"
-                                            onClick={() =>
-                                                setRows(prev =>
-                                                    prev.map(x =>
-                                                        x.name === r.name
-                                                            ? {
-                                                                  ...x,
-                                                                  hidden: false,
-                                                              }
-                                                            : x
-                                                    )
-                                                )
-                                            }
-                                        >
-                                            <EyeIcon />
-                                        </Button>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ) : null}
-                </DialogBody>
-                <DialogFooter className="sm:justify-between">
-                    <Button
-                        variant="ghost"
-                        onClick={() =>
-                            openModal(ConfirmDialog, {
-                                title: t(
-                                    'facets.reset.title',
-                                    'Reset facets to default?'
-                                ),
-                                onConfirm: async () => {
-                                    await updatePreference('facets', []);
-                                    onOpenChange(false);
-                                },
-                            })
+        <FormDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title={t('facets.settings', 'Facet settings')}
+            description={t(
+                'facets.settings_help',
+                'Drag to reorder facets, toggle their visibility.'
+            )}
+            bodyClassName="space-y-3"
+            footerStart={
+                <Button
+                    variant="ghost"
+                    onClick={async () => {
+                        const done = await confirm({
+                            title: t(
+                                'facets.reset.title',
+                                'Reset facets to default?'
+                            ),
+                            onConfirm: () => updatePreference('facets', []),
+                        });
+                        if (done) {
+                            onOpenChange(false);
                         }
-                    >
-                        <RotateCcwIcon />{' '}
-                        {t('facets.reset', 'Reset to default')}
-                    </Button>
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            onClick={() => onOpenChange(false)}
-                        >
-                            {t('common.cancel', 'Cancel')}
-                        </Button>
-                        <Button onClick={save}>
-                            {t('common.save', 'Save')}
-                        </Button>
-                    </div>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                    }}
+                >
+                    <RotateCcwIcon /> {t('facets.reset', 'Reset to default')}
+                </Button>
+            }
+            onSubmit={save}
+        >
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={onDragEnd}
+            >
+                <SortableContext
+                    items={visibleRows.map(r => r.name)}
+                    strategy={verticalListSortingStrategy}
+                >
+                    <ul className="space-y-1">
+                        {visibleRows.map(r => (
+                            <FacetRow
+                                key={r.name}
+                                row={r}
+                                onToggle={() =>
+                                    setRows(prev =>
+                                        prev.map(x =>
+                                            x.name === r.name
+                                                ? {...x, hidden: true}
+                                                : x
+                                        )
+                                    )
+                                }
+                            />
+                        ))}
+                    </ul>
+                </SortableContext>
+            </DndContext>
+            {hiddenRows.length > 0 ? (
+                <div>
+                    <h4 className="mb-1 text-xs font-semibold text-muted-foreground uppercase">
+                        {t('facets.hidden_section', 'Hidden')}
+                    </h4>
+                    <ul className="space-y-1">
+                        {hiddenRows.map(r => (
+                            <li
+                                key={r.name}
+                                className="flex items-center gap-2 rounded-md border px-2 py-1 text-sm text-muted-foreground"
+                            >
+                                <span className="flex-1 truncate">
+                                    {r.label}
+                                </span>
+                                <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    onClick={() =>
+                                        setRows(prev =>
+                                            prev.map(x =>
+                                                x.name === r.name
+                                                    ? {
+                                                          ...x,
+                                                          hidden: false,
+                                                      }
+                                                    : x
+                                            )
+                                        )
+                                    }
+                                >
+                                    <EyeIcon />
+                                </Button>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            ) : null}
+        </FormDialog>
     );
 }
 

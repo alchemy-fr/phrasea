@@ -1,5 +1,6 @@
 'use client';
 
+import {ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {
@@ -19,10 +20,10 @@ import {
 import type {Workspace} from '@/types/api';
 import {getWorkspace} from '@/lib/api/collections';
 import {
-    TabbedRouteDialog,
     DialogTab,
+    DialogTabContent,
+    TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
-import {RouteDialog} from '@/components/modals/RouteDialog';
 import {FullPageLoader} from '@/components/ui/loader';
 import {routes} from '@/lib/routes';
 import {useCollectionStore} from '@/features/collections/collectionStore';
@@ -41,16 +42,14 @@ import {FilterRulesTab} from './tabs/FilterRulesTab';
 
 export type WorkspaceTabProps = {workspace: Workspace; refresh: () => void};
 
-export function WorkspaceManageRoute({
-    workspaceId,
-    tab,
-}: {
-    workspaceId: string;
-    tab: string;
-}) {
-    const {t} = useTranslation();
+/**
+ * Shared by the shell and the tab content, which render in two different route
+ * segments: the query key is the same, so only one request is made.
+ */
+function useWorkspace(workspaceId: string) {
     const upsertWorkspace = useCollectionStore(s => s.upsertWorkspace);
-    const query = useQuery({
+
+    return useQuery({
         queryKey: ['workspace', workspaceId],
         queryFn: async () => {
             const ws = await getWorkspace(workspaceId);
@@ -59,17 +58,13 @@ export function WorkspaceManageRoute({
             return ws;
         },
     });
-    const workspace = query.data;
-    if (!workspace) {
-        return (
-            <RouteDialog size="xl">
-                <FullPageLoader />
-            </RouteDialog>
-        );
-    }
-    const canEdit = workspace.capabilities.edit;
+}
 
-    const tabs: DialogTab<WorkspaceTabProps>[] = [
+function useTabs(workspace?: Workspace): DialogTab<WorkspaceTabProps>[] {
+    const {t} = useTranslation();
+    const canEdit = !!workspace?.capabilities.edit;
+
+    return [
         {
             id: 'info',
             title: t('collection.manage.info', 'Info'),
@@ -88,7 +83,7 @@ export function WorkspaceManageRoute({
             title: t('collection.manage.permissions', 'Permissions'),
             icon: <ShieldIcon />,
             component: WorkspacePermissionsTab,
-            enabled: workspace.capabilities.editPermissions,
+            enabled: !!workspace?.capabilities.editPermissions,
         },
         {
             id: 'tags',
@@ -160,16 +155,53 @@ export function WorkspaceManageRoute({
             enabled: canEdit,
         },
     ];
+}
+
+export function WorkspaceManageShell({
+    workspaceId,
+    children,
+}: {
+    workspaceId: string;
+    children: ReactNode;
+}) {
+    const {t} = useTranslation();
+    const workspace = useWorkspace(workspaceId).data;
+    const tabs = useTabs(workspace);
 
     return (
-        <TabbedRouteDialog<WorkspaceTabProps>
+        <TabbedRouteDialogShell
             title={t('workspace.manage.title', 'Manage workspace')}
-            subtitle={workspace.displayName ?? workspace.name}
+            subtitle={workspace?.displayName ?? workspace?.name}
             tabs={tabs}
-            activeTab={tab}
-            buildTabHref={next => routes.workspaceManage(workspaceId, next)}
-            baseProps={{workspace, refresh: () => query.refetch()}}
+            buildTabHref={tab => routes.workspaceManage(workspaceId, tab)}
             size="xl"
+            placeholder={workspace ? undefined : <FullPageLoader />}
+        >
+            {children}
+        </TabbedRouteDialogShell>
+    );
+}
+
+export function WorkspaceManageTab({
+    workspaceId,
+    tab,
+}: {
+    workspaceId: string;
+    tab: string;
+}) {
+    const query = useWorkspace(workspaceId);
+    const workspace = query.data;
+    const tabs = useTabs(workspace);
+
+    return (
+        <DialogTabContent
+            tabs={tabs}
+            tab={tab}
+            baseProps={
+                workspace
+                    ? {workspace, refresh: () => void query.refetch()}
+                    : undefined
+            }
         />
     );
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import {ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {
@@ -13,10 +14,10 @@ import {
 import type {Collection} from '@/types/api';
 import {getCollection} from '@/lib/api/collections';
 import {
-    TabbedRouteDialog,
     DialogTab,
+    DialogTabContent,
+    TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
-import {RouteDialog} from '@/components/modals/RouteDialog';
 import {FullPageLoader} from '@/components/ui/loader';
 import {routes} from '@/lib/routes';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
@@ -31,17 +32,11 @@ import {EntityName} from '@/types/api';
 
 export type CollectionTabProps = {collection: Collection; refresh: () => void};
 
-export function CollectionManageRoute({
-    collectionId,
-    tab,
-}: {
-    collectionId: string;
-    tab: string;
-}) {
-    const {t} = useTranslation();
-    const {hasRole} = useAuth();
+/** Shared by the shell and the tab content: one query, one request. */
+function useCollection(collectionId: string) {
     const upsert = useCollectionStore(s => s.upsertCollection);
-    const query = useQuery({
+
+    return useQuery({
         queryKey: ['collection', collectionId],
         queryFn: async () => {
             const c = await getCollection(collectionId);
@@ -50,17 +45,13 @@ export function CollectionManageRoute({
             return c;
         },
     });
-    const collection = query.data;
+}
 
-    if (!collection) {
-        return (
-            <RouteDialog size="lg">
-                <FullPageLoader />
-            </RouteDialog>
-        );
-    }
+function useTabs(collection?: Collection): DialogTab<CollectionTabProps>[] {
+    const {t} = useTranslation();
+    const {hasRole} = useAuth();
 
-    const tabs: DialogTab<CollectionTabProps>[] = [
+    return [
         {
             id: 'info',
             title: t('collection.manage.info', 'Info'),
@@ -72,7 +63,7 @@ export function CollectionManageRoute({
             title: t('common.edit', 'Edit'),
             icon: <PencilIcon />,
             component: CollectionEditTab,
-            enabled: collection.capabilities.edit,
+            enabled: !!collection?.capabilities.edit,
         },
         {
             id: 'notifications',
@@ -85,15 +76,16 @@ export function CollectionManageRoute({
             title: t('collection.manage.permissions', 'Permissions'),
             icon: <ShieldIcon />,
             component: CollectionPermissionsTab,
-            enabled: collection.capabilities.editPermissions,
+            enabled: !!collection?.capabilities.editPermissions,
         },
         {
             id: 'operations',
             title: t('collection.manage.operations', 'Operations'),
             icon: <WrenchIcon />,
             component: CollectionOperationsTab,
-            enabled:
-                collection.capabilities.edit || collection.capabilities.delete,
+            enabled: !!(
+                collection?.capabilities.edit || collection?.capabilities.delete
+            ),
         },
         {
             id: 'es',
@@ -105,19 +97,58 @@ export function CollectionManageRoute({
             enabled: hasRole(AppRole.Tech),
         },
     ];
+}
+
+export function CollectionManageShell({
+    collectionId,
+    children,
+}: {
+    collectionId: string;
+    children: ReactNode;
+}) {
+    const {t} = useTranslation();
+    const collection = useCollection(collectionId).data;
+
+    const tabs = useTabs(collection);
 
     return (
-        <TabbedRouteDialog<CollectionTabProps>
+        <TabbedRouteDialogShell
             title={t('collection.manage.title', 'Manage collection')}
             subtitle={
-                collection.absoluteDisplayName ??
-                collection.displayName ??
-                collection.name
+                collection?.absoluteDisplayName ??
+                collection?.displayName ??
+                collection?.name
             }
             tabs={tabs}
-            activeTab={tab}
-            buildTabHref={next => routes.collectionManage(collectionId, next)}
-            baseProps={{collection, refresh: () => query.refetch()}}
+            buildTabHref={tab => routes.collectionManage(collectionId, tab)}
+            placeholder={collection ? undefined : <FullPageLoader />}
+        >
+            {children}
+        </TabbedRouteDialogShell>
+    );
+}
+
+export function CollectionManageTab({
+    collectionId,
+    tab,
+}: {
+    collectionId: string;
+    tab: string;
+}) {
+    const query = useCollection(collectionId);
+    const collection = query.data;
+
+    const tabs = useTabs(collection);
+
+    return (
+        <DialogTabContent
+            tabs={tabs}
+            tab={tab}
+            baseProps={
+                collection
+                    ? {collection, refresh: () => void query.refetch()}
+                    : undefined
+            }
         />
     );
 }

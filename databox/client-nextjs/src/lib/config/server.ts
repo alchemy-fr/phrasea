@@ -98,6 +98,10 @@ export function getServerConfig(): AppConfig {
             maxFileSize: int(env.S3_MAX_OBJECT_SIZE),
             allowedTypes: parseAllowedTypes(env.ALLOWED_FILE_TYPES),
         },
+        ticketing: {
+            // JIRA credentials stay on the server (see lib/ticketing/config.ts)
+            enabled: bool(env.DATABOX_TICKETING_ENABLED),
+        },
         logo: env.APP_LOGO_SRC ? {src: env.APP_LOGO_SRC} : undefined,
     };
 }

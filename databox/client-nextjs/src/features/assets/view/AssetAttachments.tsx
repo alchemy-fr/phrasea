@@ -30,14 +30,7 @@ import {useModals} from '@/components/modals/ModalProvider';
 import {ConfirmDialog} from '@/components/ui/confirm';
 import {useAssetOpener} from '@/features/assets/useAssetOpener';
 import {FileOrUrlInput, FileOrUrl} from '@/components/form/FileOrUrlInput';
-import {
-    Dialog,
-    DialogBody,
-    DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import {FormDialog} from '@/components/modals/FormDialog';
 import type {ModalProps} from '@/components/modals/ModalProvider';
 import {EntityName} from '@/types/api';
 import {iri} from '@/lib/utils/iri';
@@ -207,82 +200,60 @@ export function AssetAttachments({asset}: {asset: Asset}) {
 function AddAttachmentDialog({
     open,
     onOpenChange,
+    resolve,
     asset,
     onAdded,
-}: ModalProps & {asset: Asset; onAdded: () => void}) {
+}: ModalProps<boolean> & {asset: Asset; onAdded: () => void}) {
     const {t} = useTranslation();
     const [value, setValue] = useState<FileOrUrl>({});
     const [name, setName] = useState('');
-    const [loading, setLoading] = useState(false);
 
     const submit = async () => {
-        setLoading(true);
-        try {
-            const props = {
-                workspace: iri(EntityName.Workspace, asset.workspace.id),
-                relationship: {source: asset.id, type: 'attachment'},
-            };
-            let created;
-            if (value.file) {
-                created = await uploadAsset(value.file, {
-                    ...props,
-                    name: name || value.file.name,
-                });
-            } else {
-                const {postAsset} = await import('@/lib/api/assets');
-                created = await postAsset({
-                    ...props,
-                    name: name || value.url,
-                    sourceFile: {url: value.url, importFile: true},
-                });
-            }
-            await postAttachment({
-                assetId: asset.id,
-                attachmentId: created.id,
-                name: name || undefined,
+        const props = {
+            workspace: iri(EntityName.Workspace, asset.workspace.id),
+            relationship: {source: asset.id, type: 'attachment'},
+        };
+        let created;
+        if (value.file) {
+            created = await uploadAsset(value.file, {
+                ...props,
+                name: name || value.file.name,
             });
-            toast.success(t('asset.attachments.added', 'Attachment added'));
-            onAdded();
-            onOpenChange(false);
-        } catch (e: any) {
-            toast.error(e?.message);
-        } finally {
-            setLoading(false);
+        } else {
+            const {postAsset} = await import('@/lib/api/assets');
+            created = await postAsset({
+                ...props,
+                name: name || value.url,
+                sourceFile: {url: value.url, importFile: true},
+            });
         }
+        await postAttachment({
+            assetId: asset.id,
+            attachmentId: created.id,
+            name: name || undefined,
+        });
+        toast.success(t('asset.attachments.added', 'Attachment added'));
+        onAdded();
+        resolve?.(true);
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="sm">
-                <DialogHeader>
-                    <DialogTitle>
-                        {t('asset.attachments.add', 'Add attachment')}
-                    </DialogTitle>
-                </DialogHeader>
-                <DialogBody className="space-y-3">
-                    <Input
-                        placeholder={t('common.name', 'Name')}
-                        value={name}
-                        onChange={e => setName(e.target.value)}
-                    />
-                    <FileOrUrlInput value={value} onChange={setValue} />
-                </DialogBody>
-                <DialogFooter>
-                    <Button
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                    >
-                        {t('common.cancel', 'Cancel')}
-                    </Button>
-                    <Button
-                        onClick={submit}
-                        disabled={!value.file && !value.url}
-                        loading={loading}
-                    >
-                        <LinkIcon /> {t('common.add', 'Add')}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <FormDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title={t('asset.attachments.add', 'Add attachment')}
+            submitLabel={t('common.add', 'Add')}
+            submitIcon={<LinkIcon />}
+            canSubmit={!!value.file || !!value.url}
+            bodyClassName="space-y-3"
+            onSubmit={submit}
+        >
+            <Input
+                placeholder={t('common.name', 'Name')}
+                value={name}
+                onChange={e => setName(e.target.value)}
+            />
+            <FileOrUrlInput value={value} onChange={setValue} />
+        </FormDialog>
     );
 }
