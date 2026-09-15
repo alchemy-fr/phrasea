@@ -8,6 +8,7 @@ use Alchemy\RenditionFactory\Config\YamlLoader;
 use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Exception\NoBuildConfigException;
+use Alchemy\RenditionFactory\Exception\UnsupportedSourceFileException;
 use Alchemy\RenditionFactory\RenditionCreator;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
@@ -101,7 +102,7 @@ final readonly class RenditionBuilder
         try {
             try {
                 $outputFile = $this->createRendition($source, $buildDef, $metadataContainer);
-            } catch (NoBuildConfigException $e) {
+            } catch (NoBuildConfigException|UnsupportedSourceFileException $e) {
                 throw new RenditionBuildException(true, $e->getMessage(), $e->getCode(), $e);
             }
 
@@ -149,7 +150,7 @@ final readonly class RenditionBuilder
         try {
             try {
                 $outputFile = $this->createRendition($source, $buildDef, $metadataContainer);
-            } catch (NoBuildConfigException $e) {
+            } catch (NoBuildConfigException|UnsupportedSourceFileException $e) {
                 throw new RenditionBuildException(true, $e->getMessage(), $e->getCode(), $e);
             }
 

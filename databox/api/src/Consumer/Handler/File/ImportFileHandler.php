@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Consumer\Handler\File;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use App\Border\Exception\UnsupportedUriException;
 use App\Entity\Core\File;
 use App\Service\Asset\FileFetcher;
 use App\Service\Storage\FileManager;
@@ -52,6 +53,11 @@ readonly class ImportFileHandler
             }
 
             throw $e;
+        } catch (UnsupportedUriException $e) {
+            // The source has to be fixed by hand; retrying the message never helps.
+            $this->logger->error(sprintf('Import error: file "%s": %s', $file->getId(), $e->getMessage()));
+
+            return;
         }
 
         try {

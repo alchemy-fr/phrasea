@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use App\Api\EntityIriConverter;
+use App\Elasticsearch\Exception\MissingSearchIndexException;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\AssetDataTemplate;
@@ -98,6 +99,17 @@ final readonly class AssetDataTemplateSearch
         $result->setMaxPerPage((int) $limit);
         if ($filters['page'] ?? false) {
             $result->setCurrentPage((int) $filters['page']);
+        }
+
+        // Force query so a missing index surfaces here, not during serialization.
+        try {
+            $result->getCurrentPageResults();
+        } catch (\Throwable $e) {
+            if (null !== $missing = MissingSearchIndexException::tryFrom($e)) {
+                throw $missing;
+            }
+
+            throw $e;
         }
 
         return $result;

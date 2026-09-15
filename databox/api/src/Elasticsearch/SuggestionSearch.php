@@ -51,8 +51,8 @@ class SuggestionSearch extends AbstractSearch
             $filterQuery->addFilter($aclBoolQuery);
         }
 
-        if (isset($options['workspaces'])) {
-            $filterQuery->addFilter(new Query\Terms('workspaceId', $options['workspaces']));
+        if (!empty($workspaceIds = self::toIdList($options['workspaces'] ?? null))) {
+            $filterQuery->addFilter(new Query\Terms('workspaceId', $workspaceIds));
         }
 
         $queryString = trim($options['query'] ?? '')
@@ -115,7 +115,7 @@ class SuggestionSearch extends AbstractSearch
         $search = $this->collectionIndex->createSearch($query);
         $search->addIndex($this->assetIndex);
         $search->addIndex($this->attributeIndex);
-        $result = $search->search();
+        $result = $this->executeSearch($search->search(...));
 
         $searchTime = microtime(true) - $start;
 
