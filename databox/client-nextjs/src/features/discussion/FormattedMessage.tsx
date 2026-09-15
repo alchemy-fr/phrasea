@@ -10,7 +10,7 @@ const tokenRegex = /(https?:\/\/[^\s<]+|@[\w.-]+)/g;
 export function FormattedMessage({content}: {content: string}): ReactNode {
     return (
         <span className="whitespace-pre-wrap break-words">
-            {content.split(tokenRegex).map((part, i) => {
+            {(content ?? '').split(tokenRegex).map((part, i) => {
                 if (/^https?:\/\//.test(part)) {
                     return (
                         <a

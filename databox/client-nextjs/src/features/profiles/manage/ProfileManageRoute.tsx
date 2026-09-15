@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {ReactNode, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {
@@ -15,10 +15,10 @@ import {toast} from 'sonner';
 import type {DisplayProfile} from '@/types/api';
 import {getProfile, putProfile} from '@/lib/api/misc';
 import {
-    TabbedRouteDialog,
     DialogTab,
+    DialogTabContent,
+    TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
-import {RouteDialog} from '@/components/modals/RouteDialog';
 import {FullPageLoader} from '@/components/ui/loader';
 import {routes} from '@/lib/routes';
 import {InfoRow} from '@/features/assets/view/AssetInfoList';
@@ -37,16 +37,11 @@ import {GridProfileEditorTab} from './GridProfileEditorTab';
 
 export type ProfileTabProps = {profile: DisplayProfile; refresh: () => void};
 
-export function ProfileManageRoute({
-    profileId,
-    tab,
-}: {
-    profileId: string;
-    tab: string;
-}) {
-    const {t} = useTranslation();
+/** Shared by the shell and the tab content: one query, one request. */
+function useProfile(profileId: string) {
     const upsert = useProfileStore(s => s.upsert);
-    const query = useQuery({
+
+    return useQuery({
         queryKey: ['profile', profileId],
         queryFn: async () => {
             const p = await getProfile(profileId);
@@ -55,16 +50,13 @@ export function ProfileManageRoute({
             return p;
         },
     });
-    const profile = query.data;
-    if (!profile) {
-        return (
-            <RouteDialog size="lg">
-                <FullPageLoader />
-            </RouteDialog>
-        );
-    }
+}
 
-    const tabs: DialogTab<ProfileTabProps>[] = [
+function useTabs(profile?: DisplayProfile): DialogTab<ProfileTabProps>[] {
+    const {t} = useTranslation();
+    const canEdit = !!profile?.capabilities.edit;
+
+    return [
         {
             id: 'info',
             title: t('collection.manage.info', 'Info'),
@@ -76,40 +68,77 @@ export function ProfileManageRoute({
             title: t('profile.organize', 'Organize'),
             icon: <ListOrderedIcon />,
             component: OrganizeProfileTab,
-            enabled: profile.capabilities.edit,
+            enabled: canEdit,
         },
         {
             id: 'grid',
             title: t('profile.grid_card', 'Grid card'),
             icon: <LayoutGridIcon />,
             component: GridProfileEditorTab,
-            enabled: profile.capabilities.edit,
+            enabled: canEdit,
         },
         {
             id: 'edit',
             title: t('common.edit', 'Edit'),
             icon: <PencilIcon />,
             component: EditTab,
-            enabled: profile.capabilities.edit,
+            enabled: canEdit,
         },
         {
             id: 'permissions',
             title: t('collection.manage.permissions', 'Permissions'),
             icon: <ShieldIcon />,
             component: PermissionsTab,
-            enabled: profile.capabilities.editPermissions,
+            enabled: !!profile?.capabilities.editPermissions,
         },
     ];
+}
+
+export function ProfileManageShell({
+    profileId,
+    children,
+}: {
+    profileId: string;
+    children: ReactNode;
+}) {
+    const {t} = useTranslation();
+    const profile = useProfile(profileId).data;
+    const tabs = useTabs(profile);
 
     return (
-        <TabbedRouteDialog<ProfileTabProps>
+        <TabbedRouteDialogShell
             title={t('profile.manage.title', 'Display profile')}
-            subtitle={profile.name}
+            subtitle={profile?.name}
             tabs={tabs}
-            activeTab={tab}
-            buildTabHref={next => routes.profileManage(profileId, next)}
-            baseProps={{profile, refresh: () => query.refetch()}}
+            buildTabHref={tab => routes.profileManage(profileId, tab)}
             size="xl"
+            placeholder={profile ? undefined : <FullPageLoader />}
+        >
+            {children}
+        </TabbedRouteDialogShell>
+    );
+}
+
+export function ProfileManageTab({
+    profileId,
+    tab,
+}: {
+    profileId: string;
+    tab: string;
+}) {
+    const query = useProfile(profileId);
+    const profile = query.data;
+    const tabs = useTabs(profile);
+
+    return (
+        <DialogTabContent
+            tabs={tabs}
+            tab={tab}
+            baseProps={
+                profile
+                    ? {profile, refresh: () => void query.refetch()}
+                    : undefined
+            }
         />
     );
 }

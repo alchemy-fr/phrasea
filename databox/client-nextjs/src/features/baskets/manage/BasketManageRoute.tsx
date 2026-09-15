@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {ReactNode, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {
@@ -16,10 +16,10 @@ import {toast} from 'sonner';
 import type {Basket} from '@/types/api';
 import {getBasket, putBasket} from '@/lib/api/misc';
 import {
-    TabbedRouteDialog,
     DialogTab,
+    DialogTabContent,
+    TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
-import {RouteDialog} from '@/components/modals/RouteDialog';
 import {FullPageLoader} from '@/components/ui/loader';
 import {routes} from '@/lib/routes';
 import {InfoRow} from '@/features/assets/view/AssetInfoList';
@@ -38,16 +38,11 @@ import {BasketIntegrations} from './BasketIntegrations';
 
 type TabProps = {basket: Basket; refresh: () => void; onClose: () => void};
 
-export function BasketManageRoute({
-    basketId,
-    tab,
-}: {
-    basketId: string;
-    tab: string;
-}) {
-    const {t} = useTranslation();
+/** Shared by the shell and the tab content: one query, one request. */
+function useBasket(basketId: string) {
     const upsert = useBasketStore(s => s.upsert);
-    const query = useQuery({
+
+    return useQuery({
         queryKey: ['basket', basketId],
         queryFn: async () => {
             const b = await getBasket(basketId);
@@ -56,16 +51,12 @@ export function BasketManageRoute({
             return b;
         },
     });
-    const basket = query.data;
-    if (!basket) {
-        return (
-            <RouteDialog size="md">
-                <FullPageLoader />
-            </RouteDialog>
-        );
-    }
+}
 
-    const tabs: DialogTab<TabProps>[] = [
+function useTabs(basket?: Basket): DialogTab<TabProps>[] {
+    const {t} = useTranslation();
+
+    return [
         {
             id: 'info',
             title: t('collection.manage.info', 'Info'),
@@ -77,21 +68,21 @@ export function BasketManageRoute({
             title: t('common.edit', 'Edit'),
             icon: <PencilIcon />,
             component: EditTab,
-            enabled: basket.capabilities.edit,
+            enabled: !!basket?.capabilities.edit,
         },
         {
             id: 'permissions',
             title: t('collection.manage.permissions', 'Permissions'),
             icon: <ShieldIcon />,
             component: PermissionsTab,
-            enabled: basket.capabilities.editPermissions,
+            enabled: !!basket?.capabilities.editPermissions,
         },
         {
             id: 'operations',
             title: t('collection.manage.operations', 'Operations'),
             icon: <WrenchIcon />,
             component: OperationsTab,
-            enabled: basket.capabilities.delete,
+            enabled: !!basket?.capabilities.delete,
         },
         {
             id: 'integrations',
@@ -100,20 +91,59 @@ export function BasketManageRoute({
             component: ({basket: b}) => <BasketIntegrations basket={b} />,
         },
     ];
+}
+
+export function BasketManageShell({
+    basketId,
+    children,
+}: {
+    basketId: string;
+    children: ReactNode;
+}) {
+    const {t} = useTranslation();
+    const basket = useBasket(basketId).data;
+
+    const tabs = useTabs(basket);
 
     return (
-        <TabbedRouteDialog<TabProps>
+        <TabbedRouteDialogShell
             title={t('basket.manage.title', 'Manage basket')}
-            subtitle={basket.name}
+            subtitle={basket?.name}
             tabs={tabs}
-            activeTab={tab}
-            buildTabHref={next => routes.basketManage(basketId, next)}
-            baseProps={{
-                basket,
-                refresh: () => query.refetch(),
-                onClose: () => undefined,
-            }}
+            buildTabHref={tab => routes.basketManage(basketId, tab)}
             size="md"
+            placeholder={basket ? undefined : <FullPageLoader />}
+        >
+            {children}
+        </TabbedRouteDialogShell>
+    );
+}
+
+export function BasketManageTab({
+    basketId,
+    tab,
+}: {
+    basketId: string;
+    tab: string;
+}) {
+    const query = useBasket(basketId);
+    const basket = query.data;
+
+    const tabs = useTabs(basket);
+
+    return (
+        <DialogTabContent
+            tabs={tabs}
+            tab={tab}
+            baseProps={
+                basket
+                    ? {
+                          basket,
+                          refresh: () => void query.refetch(),
+                          onClose: () => undefined,
+                      }
+                    : undefined
+            }
         />
     );
 }

@@ -7,16 +7,7 @@ import {AlertTriangleIcon, Trash2Icon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {Asset} from '@/types/api';
 import type {ModalProps} from '@/components/modals/ModalProvider';
-import {
-    Dialog,
-    DialogBody,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import {Button} from '@/components/ui/button';
+import {FormDialog} from '@/components/modals/FormDialog';
 import {Input} from '@/components/ui/input';
 import {
     Checkbox,
@@ -30,7 +21,7 @@ import {CollectionChip} from '@/components/chips';
 import {deleteAssets, prepareDeleteAssets} from '@/lib/api/assets';
 import {useAssetStore} from '@/features/assets/assetStore';
 
-type Props = ModalProps & {
+type Props = ModalProps<string[]> & {
     assets: Asset[];
     hardDelete?: boolean;
     onComplete?: () => void;
@@ -43,6 +34,7 @@ type Props = ModalProps & {
 export function DeleteAssetsDialog({
     open,
     onOpenChange,
+    resolve,
     assets,
     hardDelete,
     onComplete,
@@ -54,7 +46,6 @@ export function DeleteAssetsDialog({
         []
     );
     const [typed, setTyped] = useState('');
-    const [loading, setLoading] = useState(false);
     const removeFromStore = useAssetStore(s => s.remove);
 
     const prepare = useQuery({
@@ -66,191 +57,149 @@ export function DeleteAssetsDialog({
     const confirmWord = t('asset.delete.confirm_word', 'Delete');
     const needsTyping = !!hardDelete;
     const collections = prepare.data?.collections ?? [];
-    const disabled =
-        loading ||
-        (needsTyping && typed.trim() !== confirmWord) ||
-        (mode === 'collections' && selectedCollections.length === 0);
+    const allowed = !!prepare.data?.canDelete || collections.length > 0;
+    const canSubmit =
+        allowed &&
+        (!needsTyping || typed.trim() === confirmWord) &&
+        (mode !== 'collections' || selectedCollections.length > 0);
 
     const submit = async () => {
-        setLoading(true);
-        try {
-            await deleteAssets(ids, {
-                collections: mode === 'collections' ? selectedCollections : [],
-                hardDelete: mode === 'trash' && hardDelete,
-            });
-            if (mode === 'trash') {
-                removeFromStore(ids);
-            }
-            toast.success(
-                hardDelete && mode === 'trash'
-                    ? t(
-                          'asset.delete.done_permanent',
-                          '{{count}} asset(s) permanently deleted',
-                          {count: ids.length}
-                      )
-                    : t(
-                          'asset.delete.done',
-                          '{{count}} asset(s) moved to trash',
-                          {count: ids.length}
-                      )
-            );
-            onComplete?.();
-            onOpenChange(false);
-        } catch (e: any) {
-            toast.error(e?.message);
-        } finally {
-            setLoading(false);
+        await deleteAssets(ids, {
+            collections: mode === 'collections' ? selectedCollections : [],
+            hardDelete: mode === 'trash' && hardDelete,
+        });
+        if (mode === 'trash') {
+            removeFromStore(ids);
         }
+        toast.success(
+            hardDelete && mode === 'trash'
+                ? t(
+                      'asset.delete.done_permanent',
+                      '{{count}} asset(s) permanently deleted',
+                      {count: ids.length}
+                  )
+                : t('asset.delete.done', '{{count}} asset(s) moved to trash', {
+                      count: ids.length,
+                  })
+        );
+        onComplete?.();
+        resolve?.(ids);
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="sm">
-                <DialogHeader>
-                    <DialogTitle>
-                        {hardDelete
-                            ? t(
-                                  'asset.delete.title_permanent',
-                                  'Permanently delete {{count}} asset(s)?',
-                                  {count: ids.length}
-                              )
-                            : t(
-                                  'asset.delete.title',
-                                  'Delete {{count}} asset(s)?',
-                                  {count: ids.length}
-                              )}
-                    </DialogTitle>
-                    {!hardDelete ? (
-                        <DialogDescription>
-                            {t(
-                                'asset.delete.description',
-                                'Assets moved to the trash can be restored later.'
-                            )}
-                        </DialogDescription>
-                    ) : null}
-                </DialogHeader>
-                <DialogBody className="space-y-3">
-                    {prepare.isLoading ? <InlineLoader /> : null}
-                    {prepare.data &&
-                    !prepare.data.canDelete &&
-                    collections.length === 0 ? (
-                        <Alert
-                            variant="destructive"
-                            icon={<AlertTriangleIcon />}
-                        >
-                            {t(
-                                'asset.delete.not_allowed',
-                                "You don't have permission to delete any of these assets"
-                            )}
-                        </Alert>
-                    ) : null}
-                    {prepare.data && prepare.data.shareCount > 0 ? (
-                        <Alert variant="warning" icon={<AlertTriangleIcon />}>
-                            {t(
-                                'asset.delete.shared_warning',
-                                '{{count}} asset(s) are currently shared with a public link.',
-                                {count: prepare.data.shareCount}
-                            )}
-                        </Alert>
-                    ) : null}
-                    {collections.length > 0 && !hardDelete ? (
-                        <RadioGroup
-                            value={mode}
-                            onValueChange={v =>
-                                setMode(v as 'trash' | 'collections')
-                            }
-                            className="space-y-2"
-                        >
-                            <label className="flex items-center gap-2 text-sm">
-                                <RadioGroupItem value="trash" />{' '}
-                                {t('asset.delete.mode_trash', 'Move to trash')}
-                            </label>
-                            <label className="flex items-center gap-2 text-sm">
-                                <RadioGroupItem value="collections" />{' '}
-                                {t(
-                                    'asset.delete.mode_collections',
-                                    'Only remove from collections:'
-                                )}
-                            </label>
-                            {mode === 'collections' ? (
-                                <div className="ml-6 flex flex-col gap-1.5">
-                                    {collections.map(c => (
-                                        <LabeledControl
-                                            key={c.id}
-                                            label={
-                                                <CollectionChip
-                                                    collection={c}
-                                                    absolute
-                                                    size="sm"
-                                                />
-                                            }
-                                        >
-                                            <Checkbox
-                                                checked={selectedCollections.includes(
-                                                    c.id
-                                                )}
-                                                onCheckedChange={v =>
-                                                    setSelectedCollections(
-                                                        prev =>
-                                                            v
-                                                                ? [
-                                                                      ...prev,
-                                                                      c.id,
-                                                                  ]
-                                                                : prev.filter(
-                                                                      x =>
-                                                                          x !==
-                                                                          c.id
-                                                                  )
-                                                    )
-                                                }
-                                            />
-                                        </LabeledControl>
-                                    ))}
-                                </div>
-                            ) : null}
-                        </RadioGroup>
-                    ) : null}
-                    {needsTyping ? (
-                        <div>
-                            <p className="mb-1 text-sm text-muted-foreground">
-                                {t(
-                                    'confirm.type_to_confirm',
-                                    'Type "{{text}}" to confirm:',
-                                    {text: confirmWord}
-                                )}
-                            </p>
-                            <Input
-                                autoFocus
-                                value={typed}
-                                onChange={e => setTyped(e.target.value)}
-                            />
+        <FormDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title={
+                hardDelete
+                    ? t(
+                          'asset.delete.title_permanent',
+                          'Permanently delete {{count}} asset(s)?',
+                          {count: ids.length}
+                      )
+                    : t('asset.delete.title', 'Delete {{count}} asset(s)?', {
+                          count: ids.length,
+                      })
+            }
+            description={
+                !hardDelete
+                    ? t(
+                          'asset.delete.description',
+                          'Assets moved to the trash can be restored later.'
+                      )
+                    : undefined
+            }
+            submitLabel={t('common.delete', 'Delete')}
+            submitIcon={<Trash2Icon />}
+            submitVariant="destructive"
+            canSubmit={canSubmit}
+            bodyClassName="space-y-3"
+            onSubmit={submit}
+        >
+            {prepare.isLoading ? <InlineLoader /> : null}
+            {prepare.data && !allowed ? (
+                <Alert variant="destructive" icon={<AlertTriangleIcon />}>
+                    {t(
+                        'asset.delete.not_allowed',
+                        "You don't have permission to delete any of these assets"
+                    )}
+                </Alert>
+            ) : null}
+            {prepare.data && prepare.data.shareCount > 0 ? (
+                <Alert variant="warning" icon={<AlertTriangleIcon />}>
+                    {t(
+                        'asset.delete.shared_warning',
+                        '{{count}} asset(s) are currently shared with a public link.',
+                        {count: prepare.data.shareCount}
+                    )}
+                </Alert>
+            ) : null}
+            {collections.length > 0 && !hardDelete ? (
+                <RadioGroup
+                    value={mode}
+                    onValueChange={v => setMode(v as 'trash' | 'collections')}
+                    className="space-y-2"
+                >
+                    <label className="flex items-center gap-2 text-sm">
+                        <RadioGroupItem value="trash" />{' '}
+                        {t('asset.delete.mode_trash', 'Move to trash')}
+                    </label>
+                    <label className="flex items-center gap-2 text-sm">
+                        <RadioGroupItem value="collections" />{' '}
+                        {t(
+                            'asset.delete.mode_collections',
+                            'Only remove from collections:'
+                        )}
+                    </label>
+                    {mode === 'collections' ? (
+                        <div className="ml-6 flex flex-col gap-1.5">
+                            {collections.map(c => (
+                                <LabeledControl
+                                    key={c.id}
+                                    label={
+                                        <CollectionChip
+                                            collection={c}
+                                            absolute
+                                            size="sm"
+                                        />
+                                    }
+                                >
+                                    <Checkbox
+                                        checked={selectedCollections.includes(
+                                            c.id
+                                        )}
+                                        onCheckedChange={v =>
+                                            setSelectedCollections(prev =>
+                                                v
+                                                    ? [...prev, c.id]
+                                                    : prev.filter(
+                                                          x => x !== c.id
+                                                      )
+                                            )
+                                        }
+                                    />
+                                </LabeledControl>
+                            ))}
                         </div>
                     ) : null}
-                </DialogBody>
-                <DialogFooter>
-                    <Button
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                    >
-                        {t('common.cancel', 'Cancel')}
-                    </Button>
-                    <Button
-                        variant="destructive"
-                        onClick={submit}
-                        disabled={
-                            disabled ||
-                            (prepare.data
-                                ? !prepare.data.canDelete &&
-                                  collections.length === 0
-                                : true)
-                        }
-                        loading={loading}
-                    >
-                        <Trash2Icon /> {t('common.delete', 'Delete')}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                </RadioGroup>
+            ) : null}
+            {needsTyping ? (
+                <div>
+                    <p className="mb-1 text-sm text-muted-foreground">
+                        {t(
+                            'confirm.type_to_confirm',
+                            'Type "{{text}}" to confirm:',
+                            {text: confirmWord}
+                        )}
+                    </p>
+                    <Input
+                        autoFocus
+                        value={typed}
+                        onChange={e => setTyped(e.target.value)}
+                    />
+                </div>
+            ) : null}
+        </FormDialog>
     );
 }

@@ -108,7 +108,10 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
     const total = assets.data?.pages[0]?.total ?? 0;
 
     return (
-        <div className="fixed inset-0 z-50 flex flex-col bg-background">
+        <div
+            data-testid="basket-view"
+            className="fixed inset-0 z-50 flex flex-col bg-background"
+        >
             <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3">
                 <Button
                     variant="ghost"

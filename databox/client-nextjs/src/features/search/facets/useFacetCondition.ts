@@ -3,13 +3,25 @@ import {useSearch} from '../SearchProvider';
 import {parseAQL} from '../aql/parser';
 import {ConditionBuilder} from '../aql/serializer';
 import type {ScalarValue} from '../aql/types';
+import {
+    aqlKey,
+    useDefinitionsBySearchSlug,
+} from '@/features/attributes/definitionsStore';
 
 /**
- * Facet names are attribute search slugs, optionally suffixed by a locale
- * (`description_fr`). The underlying field is what AQL expects.
+ * Facet names are attribute search slugs (`keywords_text_m`), optionally
+ * suffixed by a locale (`description_text_s_fr`); AQL conditions use the
+ * attribute slug instead (built-ins keep their `@name`).
  */
-export function facetField(name: string): string {
-    return name;
+export function useFacetField(name: string): string {
+    const bySearchSlug = useDefinitionsBySearchSlug();
+
+    return useMemo(() => {
+        const definition =
+            bySearchSlug[name] ?? bySearchSlug[name.replace(/_[a-z]{2}$/, '')];
+
+        return definition ? aqlKey(definition) : name;
+    }, [bySearchSlug, name]);
 }
 
 /**
@@ -18,7 +30,7 @@ export function facetField(name: string): string {
  */
 export function useFacetCondition(name: string) {
     const search = useSearch();
-    const field = facetField(name);
+    const field = useFacetField(name);
     const condition = search.conditions.find(c => c.id === name);
     const active = !!condition && !condition.disabled;
 

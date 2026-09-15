@@ -112,6 +112,14 @@ export async function getStoryThumbnails(assetId: string): Promise<string[]> {
 export async function getAssetAttributes(
     assetId: string | string[]
 ): Promise<Attribute[]> {
+    // The collection filter only accepts a single asset: fan out.
+    if (Array.isArray(assetId)) {
+        const pages = await Promise.all(
+            assetId.map(id => getAssetAttributes(id))
+        );
+
+        return pages.flat();
+    }
     const res = await api.get<HydraCollection<Attribute>>('/attributes', {
         params: {assetId},
     });
@@ -148,7 +156,8 @@ function normalizeActions(
 
 export async function attributeBatchUpdate(
     assetId: string | string[],
-    actions: AttributeBatchAction[]
+    actions: AttributeBatchAction[],
+    workspaceId?: string
 ): Promise<Asset> {
     const normalized = normalizeActions(actions);
     if (typeof assetId === 'string') {
@@ -159,6 +168,7 @@ export async function attributeBatchUpdate(
 
     return api.post<Asset>('/attributes/batch-update', {
         assets: assetId,
+        workspaceId,
         actions: normalized,
     });
 }

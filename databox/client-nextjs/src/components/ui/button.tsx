@@ -50,6 +50,9 @@ export function Button({
     loading = false,
     disabled,
     children,
+    // Buttons sit inside <form> elements (see FormDialog): never let one
+    // submit by accident just because it was not given a type.
+    type = 'button',
     ...props
 }: ButtonProps) {
     const classes = cn(buttonVariants({variant, size, className}));
@@ -66,6 +69,7 @@ export function Button({
     return (
         <button
             data-slot="button"
+            type={type}
             className={classes}
             disabled={disabled || loading}
             {...props}

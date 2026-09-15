@@ -49,7 +49,13 @@ export function GlobalToasts() {
                 <button
                     type="button"
                     className="w-80 rounded-lg border bg-popover p-3 text-left text-sm shadow-lg"
-                    onClick={() => openModal(PendingUploadsDialog, {})}
+                    onClick={() =>
+                        openModal(
+                            PendingUploadsDialog,
+                            {},
+                            {key: 'pending-uploads'}
+                        )
+                    }
                 >
                     <div className="mb-2 flex items-center gap-2 font-medium">
                         <UploadIcon className="size-4" />

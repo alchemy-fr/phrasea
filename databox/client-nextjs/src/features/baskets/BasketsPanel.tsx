@@ -195,6 +195,9 @@ function BasketRow({basket}: {basket: Basket}) {
         <ContextMenu>
             <ContextMenuTrigger asChild>
                 <li
+                    data-testid="basket-item"
+                    data-basket-id={basket.id}
+                    data-current={isCurrent ? 'true' : undefined}
                     className={cn(
                         'group/basket flex items-center gap-1 px-2',
                         isCurrent && 'bg-primary/10'

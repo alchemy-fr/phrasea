@@ -154,6 +154,8 @@ export function Discussion({
                 setThreadId((message as any).thread?.id ?? threadId);
             }
             upsertLocal(message);
+            // The creation payload is partial: reload the thread
+            void messages.refetch();
         } catch (e: any) {
             toast.error(e?.message);
         } finally {
@@ -168,6 +170,8 @@ export function Discussion({
         const m = await putMessage(editing.id, {content: editing.content});
         upsertLocal(m);
         setEditing(null);
+        // The update payload is partial: reload the thread
+        void messages.refetch();
     };
 
     return (
@@ -204,11 +208,11 @@ export function Discussion({
                                 'bg-success/15 ring-1 ring-success'
                         )}
                     >
-                        <Avatar name={m.author.username} size="sm" />
+                        <Avatar name={m.author?.username ?? '?'} size="sm" />
                         <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 text-xs">
                                 <span className="font-medium">
-                                    {m.author.username}
+                                    {m.author?.username ?? '?'}
                                 </span>
                                 <Tooltip
                                     content={formatDateTime(

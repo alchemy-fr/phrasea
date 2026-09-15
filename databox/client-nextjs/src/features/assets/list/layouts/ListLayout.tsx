@@ -121,6 +121,8 @@ const ListItem = memo(function ListItem({
         <AssetContextMenu asset={asset} onOpen={() => openAsset(asset)}>
             <div
                 data-asset-id={asset.id}
+                data-testid="asset-item"
+                data-selected={selected ? 'true' : undefined}
                 className={cn(
                     'group/item mx-3 my-2 flex gap-3 rounded-lg border bg-card p-2 transition-shadow select-none hover:shadow-md',
                     selected && 'border-primary ring-2 ring-primary/40',
@@ -146,6 +148,7 @@ const ListItem = memo(function ListItem({
                 <div className="min-w-0 flex-1">
                     <div className="mb-1 flex items-start gap-2">
                         <h3
+                            data-testid="asset-item-title"
                             className="min-w-0 flex-1 truncate text-sm font-semibold"
                             title={asset.name}
                         >

@@ -4,19 +4,9 @@ import {useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {DownloadIcon} from 'lucide-react';
-import {toast} from 'sonner';
 import type {Asset, RenditionDefinition, Workspace} from '@/types/api';
 import type {ModalProps} from '@/components/modals/ModalProvider';
-import {
-    Dialog,
-    DialogBody,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import {Button} from '@/components/ui/button';
+import {FormDialog} from '@/components/modals/FormDialog';
 import {Checkbox, LabeledControl} from '@/components/ui/controls';
 import {InlineLoader} from '@/components/ui/loader';
 import {exportAssets, getRenditionDefinitions} from '@/lib/api/misc';
@@ -26,11 +16,11 @@ import {downloadUrl} from '@/lib/utils/misc';
 export function ExportDialog({
     open,
     onOpenChange,
+    resolve,
     assets,
-}: ModalProps & {assets: Asset[]}) {
+}: ModalProps<string[]> & {assets: Asset[]}) {
     const {t} = useTranslation();
     const [selected, setSelected] = useState<string[]>([]);
-    const [loading, setLoading] = useState(false);
     const addExport = useExportStore(s => s.add);
     const workspaceIds = useMemo(
         () => [...new Set(assets.map(a => a.workspace.id))],
@@ -59,89 +49,63 @@ export function ExportDialog({
     }, [definitions.data]);
 
     const submit = async () => {
-        setLoading(true);
-        try {
-            const exp = await exportAssets({
-                assets: assets.map(a => a.id),
-                renditions: selected,
-            });
-            addExport(exp);
-            if (exp.downloadUrl) {
-                downloadUrl(exp.downloadUrl);
-            }
-            onOpenChange(false);
-        } catch (e: any) {
-            toast.error(e?.message);
-        } finally {
-            setLoading(false);
+        const exp = await exportAssets({
+            assets: assets.map(a => a.id),
+            renditions: selected,
+        });
+        addExport(exp);
+        if (exp.downloadUrl) {
+            downloadUrl(exp.downloadUrl);
         }
+        resolve?.(selected);
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent size="sm">
-                <DialogHeader>
-                    <DialogTitle>
-                        {t('export.dialog.title', 'Export {{count}} asset(s)', {
-                            count: assets.length,
-                        })}
-                    </DialogTitle>
-                    <DialogDescription>
-                        {t(
-                            'export.dialog.help',
-                            'Select the renditions to include in the export.'
-                        )}
-                    </DialogDescription>
-                </DialogHeader>
-                <DialogBody className="space-y-4">
-                    {definitions.isLoading ? <InlineLoader /> : null}
-                    {Object.entries(byWorkspace).map(([wsId, {name, defs}]) => (
-                        <div key={wsId}>
-                            {workspaceIds.length > 1 ? (
-                                <h4 className="mb-1 text-xs font-semibold text-muted-foreground uppercase">
-                                    {name}
-                                </h4>
-                            ) : null}
-                            <div className="space-y-1.5">
-                                {defs.map(d => (
-                                    <LabeledControl
-                                        key={d.id}
-                                        label={d.displayName ?? d.name}
-                                    >
-                                        <Checkbox
-                                            checked={selected.includes(d.id)}
-                                            onCheckedChange={v =>
-                                                setSelected(prev =>
-                                                    v
-                                                        ? [...prev, d.id]
-                                                        : prev.filter(
-                                                              x => x !== d.id
-                                                          )
-                                                )
-                                            }
-                                        />
-                                    </LabeledControl>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
-                </DialogBody>
-                <DialogFooter>
-                    <Button
-                        variant="outline"
-                        onClick={() => onOpenChange(false)}
-                    >
-                        {t('common.cancel', 'Cancel')}
-                    </Button>
-                    <Button
-                        onClick={submit}
-                        disabled={selected.length === 0}
-                        loading={loading}
-                    >
-                        <DownloadIcon /> {t('export.dialog.submit', 'Export')}
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        <FormDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title={t('export.dialog.title', 'Export {{count}} asset(s)', {
+                count: assets.length,
+            })}
+            description={t(
+                'export.dialog.help',
+                'Select the renditions to include in the export.'
+            )}
+            submitLabel={t('export.dialog.submit', 'Export')}
+            submitIcon={<DownloadIcon />}
+            canSubmit={selected.length > 0}
+            bodyClassName="space-y-4"
+            onSubmit={submit}
+        >
+            {definitions.isLoading ? <InlineLoader /> : null}
+            {Object.entries(byWorkspace).map(([wsId, {name, defs}]) => (
+                <div key={wsId}>
+                    {workspaceIds.length > 1 ? (
+                        <h4 className="mb-1 text-xs font-semibold text-muted-foreground uppercase">
+                            {name}
+                        </h4>
+                    ) : null}
+                    <div className="space-y-1.5">
+                        {defs.map(d => (
+                            <LabeledControl
+                                key={d.id}
+                                label={d.displayName ?? d.name}
+                            >
+                                <Checkbox
+                                    checked={selected.includes(d.id)}
+                                    onCheckedChange={v =>
+                                        setSelected(prev =>
+                                            v
+                                                ? [...prev, d.id]
+                                                : prev.filter(x => x !== d.id)
+                                        )
+                                    }
+                                />
+                            </LabeledControl>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </FormDialog>
     );
 }

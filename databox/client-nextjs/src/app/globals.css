@@ -162,3 +162,14 @@
         10px -10px,
         -10px 0;
 }
+
+/*
+ * Stacked dialogs (a confirmation opened above a form) render one overlay
+ * each, and their opacities add up to an almost black screen. Radix portals
+ * every overlay into <body>, in mount order: only keep the topmost one
+ * painted. Unlayered on purpose — it has to win over the utility layer.
+ */
+[data-slot='dialog-overlay']:has(~ [data-slot='dialog-overlay']) {
+    background: transparent;
+    backdrop-filter: none;
+}

@@ -1,5 +1,4 @@
-import AssetsPage from '@/app/(app)/assets/page';
-import {SavedSearchManageRoute} from '@/features/saved-searches/manage/SavedSearchManageRoute';
+import {SavedSearchManageTab} from '@/features/saved-searches/manage/SavedSearchManageRoute';
 
 export default async function Page({
     params,
@@ -8,10 +7,5 @@ export default async function Page({
 }) {
     const {id, tab} = await params;
 
-    return (
-        <>
-            <AssetsPage />
-            <SavedSearchManageRoute savedSearchId={id} tab={tab} />
-        </>
-    );
+    return <SavedSearchManageTab savedSearchId={id} tab={tab} />;
 }

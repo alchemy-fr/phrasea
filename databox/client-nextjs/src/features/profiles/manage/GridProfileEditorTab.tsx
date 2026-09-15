@@ -97,16 +97,14 @@ export function GridProfileEditorTab({profile, refresh}: ProfileTabProps) {
             !q || (d.displayName ?? d.name).toLowerCase().includes(q);
 
         return [
-            ...builtIn
-                .filter(match)
-                .map(b => ({
+            ...builtIn.filter(match).map(b => ({
+                key: b.searchSlug,
+                label: b.displayName ?? b.name,
+                item: {
+                    type: ProfileItemType.BuiltIn,
                     key: b.searchSlug,
-                    label: b.displayName ?? b.name,
-                    item: {
-                        type: ProfileItemType.BuiltIn,
-                        key: b.searchSlug,
-                    } as Partial<ProfileItem>,
-                })),
+                } as Partial<ProfileItem>,
+            })),
             ...definitions.filter(match).map(d => ({
                 key: d.id,
                 label: `${d.displayName ?? d.name} · ${workspaces.find(w => w.id === workspaceIdOf(d))?.displayName ?? ''}`,

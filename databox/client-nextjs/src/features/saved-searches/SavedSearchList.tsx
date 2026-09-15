@@ -71,6 +71,8 @@ export function SavedSearchList() {
                     return (
                         <li
                             key={s.id}
+                            data-testid="saved-search-item"
+                            data-active={active ? 'true' : undefined}
                             className={cn(
                                 'group flex items-center gap-1 px-2',
                                 active && 'bg-primary/10'

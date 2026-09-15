@@ -496,15 +496,18 @@ export function EmptyState({
     description,
     action,
     className,
+    testId,
 }: {
     icon?: React.ReactNode;
     title: React.ReactNode;
     description?: React.ReactNode;
     action?: React.ReactNode;
     className?: string;
+    testId?: string;
 }) {
     return (
         <div
+            data-testid={testId}
             className={cn(
                 'flex flex-col items-center justify-center gap-2 p-8 text-center text-muted-foreground',
                 className

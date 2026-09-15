@@ -471,7 +471,8 @@ export function AttributeBatchEditorRoute() {
                             locale:
                                 a.locale !== NO_LOCALE ? a.locale : undefined,
                             assets: a.assets,
-                        }))
+                        })),
+                        workspaceId
                     );
                 }
                 if (tagActions.length > 0) {
@@ -567,7 +568,10 @@ export function AttributeBatchEditorRoute() {
         previewAssets[Math.min(previewIndex, previewAssets.length - 1)];
 
     return (
-        <div className="fixed inset-0 z-50 flex flex-col bg-background">
+        <div
+            data-testid="batch-editor"
+            className="fixed inset-0 z-50 flex flex-col bg-background"
+        >
             <header className="flex h-12 shrink-0 items-center gap-2 border-b px-3">
                 <Button
                     variant="ghost"

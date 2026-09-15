@@ -21,6 +21,11 @@ export type AnalyticsConfig = {
     };
 };
 
+export type TicketingConfig = {
+    /** `DATABOX_TICKETING_ENABLED`: shows the floating "report an issue" button */
+    enabled: boolean;
+};
+
 export type AppConfig = {
     appId: string;
     appName: string;
@@ -49,6 +54,7 @@ export type AppConfig = {
         release?: string;
     };
     upload: UploadConfig;
+    ticketing: TicketingConfig;
     logo?: {
         src?: string;
         style?: string;

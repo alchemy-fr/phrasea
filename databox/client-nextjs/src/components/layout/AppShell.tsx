@@ -8,6 +8,7 @@ import {useLayoutStore} from './layoutStore';
 import {cn} from '@/lib/utils/cn';
 import {GlobalToasts} from '@/features/upload/GlobalToasts';
 import {NotificationUriListener} from '@/features/notifications/NotificationUriListener';
+import {TicketButton} from '@/features/ticketing/TicketButton';
 
 export function AppShell({children}: PropsWithChildren) {
     const {status} = useAuth();
@@ -35,6 +36,7 @@ export function AppShell({children}: PropsWithChildren) {
                 <>
                     <GlobalToasts />
                     <NotificationUriListener />
+                    <TicketButton />
                 </>
             ) : null}
         </div>

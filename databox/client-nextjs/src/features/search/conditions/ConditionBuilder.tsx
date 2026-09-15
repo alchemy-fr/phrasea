@@ -31,6 +31,7 @@ import {
     rawTypeMap,
 } from '../aql/validation';
 import {RawType} from '../aql/types';
+import {aqlKey} from '@/features/attributes/definitionsStore';
 import type {DefinitionsIndex} from '@/features/attributes/definitionsStore';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
@@ -386,17 +387,17 @@ function FieldPicker({
 
     const item = (d: AttributeDefinitionOrBuiltIn) => (
         <CommandItem
-            key={d.searchSlug}
-            value={`${d.displayName ?? d.name} ${d.searchSlug}`}
+            key={aqlKey(d)}
+            value={`${d.displayName ?? d.name} ${aqlKey(d)}`}
             onSelect={() => {
-                onChange(d.searchSlug);
+                onChange(aqlKey(d));
                 setOpen(false);
             }}
         >
             <CheckIcon
                 className={cn(
                     'size-4',
-                    d.searchSlug === value ? 'opacity-100' : 'opacity-0'
+                    aqlKey(d) === value ? 'opacity-100' : 'opacity-0'
                 )}
             />
             <span

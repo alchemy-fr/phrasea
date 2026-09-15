@@ -1,11 +1,11 @@
-import {AssetManageRoute} from '@/features/assets/manage/AssetManageRoute';
+import {AssetManageTab} from '@/features/assets/manage/AssetManageRoute';
 
-export default async function AssetManageModal({
+export default async function Page({
     params,
 }: {
     params: Promise<{id: string; tab: string}>;
 }) {
     const {id, tab} = await params;
 
-    return <AssetManageRoute assetId={id} tab={tab} />;
+    return <AssetManageTab assetId={id} tab={tab} />;
 }

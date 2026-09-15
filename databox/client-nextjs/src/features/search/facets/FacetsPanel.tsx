@@ -204,7 +204,12 @@ export function FacetsPanel() {
                 </p>
             ) : null}
             {visible.map(({name, facet, hidden, pinned}) => (
-                <div key={name} className="group/facet border-b">
+                <div
+                    key={name}
+                    className="group/facet border-b"
+                    data-testid="facet"
+                    data-facet={name}
+                >
                     <div className="flex items-center pr-1">
                         <button
                             type="button"

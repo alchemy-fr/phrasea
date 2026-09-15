@@ -1,11 +1,11 @@
-import {BasketManageRoute} from '@/features/baskets/manage/BasketManageRoute';
+import {BasketManageTab} from '@/features/baskets/manage/BasketManageRoute';
 
-export default async function Modal({
+export default async function Page({
     params,
 }: {
     params: Promise<{id: string; tab: string}>;
 }) {
     const {id, tab} = await params;
 
-    return <BasketManageRoute basketId={id} tab={tab} />;
+    return <BasketManageTab basketId={id} tab={tab} />;
 }

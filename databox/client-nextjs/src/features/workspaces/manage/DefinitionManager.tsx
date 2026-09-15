@@ -130,6 +130,7 @@ export function DefinitionManager<D extends DefinitionItem>({
                     />
                     <Button
                         size="sm"
+                        data-testid="definition-create"
                         variant={selected === 'new' ? 'default' : 'outline'}
                         onClick={() => setSelected('new')}
                     >
@@ -265,6 +266,7 @@ function Row({
 
     return (
         <li
+            data-testid="definition-item"
             ref={setNodeRef}
             style={{transform: CSS.Transform.toString(transform), transition}}
             className={cn(
