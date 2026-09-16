@@ -26,6 +26,12 @@ framework:
             Alchemy\ConfiguratorBundle\Message\DeployConfig: p2
             Alchemy\NotifierBundle\Message\BroadcastNotification: p2
             Alchemy\NotifierBundle\Message\FlushNotificationDigest: p2
+            Alchemy\NotifierBundle\Message\SendNotification: p2
+            Alchemy\NotifierBundle\Message\SendEmailNotification: p2
+            # Notifications are dispatched from Doctrine postFlush (PostFlushStack):
+            # keep them off the HTTP request so a notification failure never fails the write.
+            App\Consumer\Handler\Asset\NotifyAssetTopic: p2
+            App\Consumer\Handler\Collection\NotifyCollectionTopic: p2
             Alchemy\CoreBundle\Message\Debug\SentryDebug: p1
 
 when@dev:
