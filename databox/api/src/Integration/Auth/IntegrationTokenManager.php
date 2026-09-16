@@ -25,21 +25,11 @@ final readonly class IntegrationTokenManager
             throw new \InvalidArgumentException('Token was expired');
         }
 
-        if ($this->isRenewalDue($integrationToken)) {
+        if ($integrationToken->hasRefreshToken() && $integrationToken->isAccessTokenExpired()) {
             $integrationToken = $this->renewToken($integrationToken, $onRenew);
         }
 
         return $integrationToken->getToken()['access_token'];
-    }
-
-    /**
-     * Whether the access token is (about to be) expired and a refresh token is available.
-     *
-     * @param int $threshold Seconds before the access token expiry from which a renewal is due
-     */
-    public function isRenewalDue(IntegrationToken $integrationToken, int $threshold = 0): bool
-    {
-        return $integrationToken->isRenewalDue($threshold);
     }
 
     /**

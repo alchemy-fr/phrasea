@@ -13,21 +13,35 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class IntegrationTokenManagerTest extends TestCase
 {
-    public function testRenewalIsDueOnlyWithinThreshold(): void
+    public function testTokenExpiryHelpers(): void
     {
-        $manager = new IntegrationTokenManager($this->createMock(EntityManagerInterface::class));
-
         $token = $this->createToken(accessExpiresIn: 3600);
-
-        $this->assertFalse($manager->isRenewalDue($token));
-        $this->assertFalse($manager->isRenewalDue($token, 600));
-        $this->assertTrue($manager->isRenewalDue($token, 7200));
+        $this->assertTrue($token->hasRefreshToken());
+        $this->assertFalse($token->isAccessTokenExpired());
+        $this->assertFalse($token->isRefreshTokenExpiringWithin(3600));
+        $this->assertTrue($token->isRefreshTokenExpiringWithin(2 * 86400));
 
         $expired = $this->createToken(accessExpiresIn: -10);
-        $this->assertTrue($manager->isRenewalDue($expired));
+        $this->assertTrue($expired->isAccessTokenExpired());
 
         $noRefresh = $this->createToken(accessExpiresIn: -10, refreshToken: null);
-        $this->assertFalse($manager->isRenewalDue($noRefresh));
+        $this->assertFalse($noRefresh->hasRefreshToken());
+    }
+
+    public function testGetAccessTokenRenewsOnlyWhenAccessTokenIsExpired(): void
+    {
+        $em = $this->createMock(EntityManagerInterface::class);
+        $manager = new IntegrationTokenManager($em);
+
+        $valid = $this->createToken(accessExpiresIn: 3600);
+        $this->assertSame('access-1', $manager->getAccessToken($valid, fn () => $this->fail('must not renew')));
+
+        $expired = $this->createToken(accessExpiresIn: -10);
+        $this->assertSame('access-2', $manager->getAccessToken($expired, fn (): array => [
+            'access_token' => 'access-2',
+            'refresh_token' => 'refresh-2',
+            'expires_in' => 300,
+        ]));
     }
 
     public function testRenewTokenPersistsTheNewTokenSet(): void
@@ -56,7 +70,7 @@ class IntegrationTokenManagerTest extends TestCase
         $this->assertSame('access-2', $renewed->getToken()['access_token']);
         $this->assertSame('refresh-2', $renewed->getToken()['refresh_token']);
         $this->assertGreaterThan(time() + 86000, $renewed->getExpiresAt()->getTimestamp());
-        $this->assertFalse($manager->isRenewalDue($renewed));
+        $this->assertFalse($renewed->isAccessTokenExpired());
     }
 
     /**

@@ -18,8 +18,8 @@ use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExcep
 
 /**
  * Meant to run periodically (hourly cron): refreshes the integration tokens
- * whose access token expires soon, so that background jobs (e.g. Expose basket
- * synchronization) keep a valid token even when the user is not active.
+ * whose refresh token expires soon, so that background jobs (e.g. Expose basket
+ * synchronization) keep a usable token even when the user is not active.
  */
 #[AsCommand('app:integration:renew-tokens', 'Renew the integration tokens about to expire')]
 final class RenewIntegrationTokensCommand extends Command
@@ -39,7 +39,7 @@ final class RenewIntegrationTokensCommand extends Command
             'threshold',
             't',
             InputOption::VALUE_REQUIRED,
-            'Renew tokens whose access token expires within this number of seconds',
+            'Renew tokens whose refresh token expires within this number of seconds',
             7200,
         );
     }
