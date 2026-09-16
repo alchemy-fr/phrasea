@@ -42,20 +42,15 @@ class IntegrationTokenRepository extends ServiceEntityRepository
     {
         $now = new \DateTimeImmutable();
 
-        $tokens = $this
+        return $this
             ->createQueryBuilder('it')
+            ->andWhere('it.hasRefreshToken = true')
             ->andWhere('it.expiresAt > :now')
             ->andWhere('it.expiresAt <= :limit')
             ->setParameter('now', $now)
             ->setParameter('limit', $now->modify(sprintf('+%d seconds', $threshold)))
             ->getQuery()
             ->getResult();
-
-        // The refresh token itself lives in the JSON column: filter in PHP.
-        return array_values(array_filter(
-            $tokens,
-            fn (IntegrationToken $token): bool => $token->hasRefreshToken(),
-        ));
     }
 
     private function createValidTokenQueryBuilder(string $integrationId, string $userId): QueryBuilder
