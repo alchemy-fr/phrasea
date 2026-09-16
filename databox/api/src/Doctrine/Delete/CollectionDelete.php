@@ -82,7 +82,10 @@ final readonly class CollectionDelete
         /** @var Collection $collection */
         $collection = $this->em->find(Collection::class, $collectionId);
         if (!$collection instanceof Collection) {
-            throw new \InvalidArgumentException(sprintf('Collection "%s" not found for deletion', $collectionId));
+            // Already removed (concurrent deletion or replayed job): nothing left to do.
+            $this->logger->notice(sprintf('Collection "%s" not found for deletion, skipping', $collectionId));
+
+            return;
         }
 
         if ($collection->isStory()) {
