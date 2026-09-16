@@ -46,6 +46,7 @@
         "react-router-dom": "^7.13.0",
         "react-toastify": "^11.0.5",
         "ts-node": "^10.9.2",
-        "typescript": "^5.9.2"
+        "typescript": "^5.9.2",
+        "react-dom": "^18.3.1"
     }
 }

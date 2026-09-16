@@ -7,11 +7,10 @@ import {buildSections, SectionDivider} from './Dividers';
 import {AssetThumb} from '../AssetThumb';
 import {AssetItemControls} from '../AssetItemControls';
 import {AssetContextMenu} from '../AssetContextMenu';
-import {useIsAssetSelected, useSelectionActions} from '../SelectionProvider';
+import {SelectableCard} from '../SelectableCard';
 import {useLiveAsset} from '@/features/assets/assetStore';
 import {Highlight} from '@/components/ui/highlight';
 import {TagChip, CollectionChip, PrivacyIcon} from '@/components/chips';
-import {cn} from '@/lib/utils/cn';
 import {GridCardZones, useGridProfileItems} from './GridCardZones';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
 
@@ -74,26 +73,19 @@ const GridItem = memo(function GridItem({
     itemActions,
     searchQuery,
 }: GridItemProps) {
+    // Not subscribed to the selection: see `SelectableCard`
     const asset = useLiveAsset(initialAsset);
-    const selected = useIsAssetSelected(asset.id);
-    const disabled = useSelectionActions().disabledIds?.has(asset.id);
     const search = useOptionalSearch();
     const gridItems = useGridProfileItems();
     const hasProfile = gridItems.length > 0;
 
     return (
         <AssetContextMenu asset={asset} onOpen={() => openAsset(asset)}>
-            <div
-                data-asset-id={asset.id}
-                data-testid="asset-item"
-                data-selected={selected ? 'true' : undefined}
-                className={cn(
-                    'group/item relative flex flex-col overflow-hidden rounded-lg border bg-card text-card-foreground transition-shadow select-none hover:shadow-md',
-                    selected && 'border-primary ring-2 ring-primary/40',
-                    disabled && 'opacity-40'
-                )}
-                onClick={e => !disabled && onItemClick(asset, e)}
-                onDoubleClick={() => onItemDoubleClick(asset)}
+            <SelectableCard
+                asset={asset}
+                className="group/item relative flex flex-col overflow-hidden rounded-lg border bg-card text-card-foreground transition-shadow select-none hover:shadow-md"
+                onItemClick={onItemClick}
+                onItemDoubleClick={onItemDoubleClick}
             >
                 <div
                     className="relative overflow-hidden bg-media-bg"
@@ -102,7 +94,6 @@ const GridItem = memo(function GridItem({
                     <AssetThumb asset={asset} size={thumbSize} previewOnHover />
                     <AssetItemControls
                         asset={asset}
-                        selected={selected}
                         actions={itemActions?.(asset)}
                     />
                     {itemOverlay?.(asset, index)}
@@ -191,7 +182,7 @@ const GridItem = memo(function GridItem({
                         {searchQuery ? null : null}
                     </div>
                 )}
-            </div>
+            </SelectableCard>
         </AssetContextMenu>
     );
 });
