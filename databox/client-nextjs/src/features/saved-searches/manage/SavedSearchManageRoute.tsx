@@ -1,6 +1,6 @@
 'use client';
 
-import {ReactNode, useState} from 'react';
+import {useState, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {
@@ -15,7 +15,6 @@ import type {SavedSearch, SavedSearchPrivacy} from '@/types/api';
 import {getSavedSearch, putSavedSearch} from '@/lib/api/misc';
 import {
     DialogTab,
-    DialogTabContent,
     TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
 import {FullPageLoader} from '@/components/ui/loader';
@@ -76,49 +75,34 @@ function useTabs(saved?: SavedSearch): DialogTab<TabProps>[] {
 
 export function SavedSearchManageShell({
     savedSearchId,
-    children,
 }: {
     savedSearchId: string;
-    children: ReactNode;
 }) {
     const {t} = useTranslation();
-    const saved = useSavedSearch(savedSearchId).data;
+    const query = useSavedSearch(savedSearchId);
+    const saved = query.data;
     const tabs = useTabs(saved);
+
+    // Stable: every tab kept mounted receives it, and is memoized (`refetch`
+    // is stable, the query result object is not)
+    const {refetch} = query;
+    const baseProps = useMemo(
+        () =>
+            saved
+                ? {savedSearch: saved, refresh: () => void refetch()}
+                : undefined,
+        [saved, refetch]
+    );
 
     return (
         <TabbedRouteDialogShell
             title={t('saved_search.manage.title', 'Manage saved search')}
             subtitle={saved?.name}
             tabs={tabs}
+            baseProps={baseProps}
             buildTabHref={tab => routes.savedSearchManage(savedSearchId, tab)}
             size="md"
             placeholder={saved ? undefined : <FullPageLoader />}
-        >
-            {children}
-        </TabbedRouteDialogShell>
-    );
-}
-
-export function SavedSearchManageTab({
-    savedSearchId,
-    tab,
-}: {
-    savedSearchId: string;
-    tab: string;
-}) {
-    const query = useSavedSearch(savedSearchId);
-    const saved = query.data;
-    const tabs = useTabs(saved);
-
-    return (
-        <DialogTabContent
-            tabs={tabs}
-            tab={tab}
-            baseProps={
-                saved
-                    ? {savedSearch: saved, refresh: () => void query.refetch()}
-                    : undefined
-            }
         />
     );
 }

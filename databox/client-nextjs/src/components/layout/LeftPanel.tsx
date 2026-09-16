@@ -29,9 +29,10 @@ export function LeftPanel() {
             className="flex h-full min-h-0 flex-col"
             data-testid="left-panel"
         >
-            <TabsList className="m-2 grid grid-cols-3">
+            <TabsList className="m-2 flex w-auto">
                 <TabsTrigger
                     value="facets"
+                    className="flex-auto px-2"
                     aria-label={t('panel.facets', 'Facets')}
                 >
                     <SlidersHorizontalIcon />
@@ -41,6 +42,7 @@ export function LeftPanel() {
                 </TabsTrigger>
                 <TabsTrigger
                     value="tree"
+                    className="flex-auto px-2"
                     aria-label={t('panel.tree', 'Navigation')}
                 >
                     <FolderTreeIcon />
@@ -51,6 +53,7 @@ export function LeftPanel() {
                 {isAuthenticated ? (
                     <TabsTrigger
                         value="baskets"
+                        className="flex-auto px-2"
                         aria-label={t('panel.baskets', 'Baskets')}
                     >
                         <ShoppingBasketIcon />

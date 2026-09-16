@@ -1,11 +1,7 @@
-import {WorkspaceManageTab} from '@/features/workspaces/manage/WorkspaceManageRoute';
-
-export default async function Page({
-    params,
-}: {
-    params: Promise<{id: string; tab: string}>;
-}) {
-    const {id, tab} = await params;
-
-    return <WorkspaceManageTab workspaceId={id} tab={tab} />;
+/**
+ * Makes every tab URL resolvable (direct link, intercepted navigation). The
+ * tabs are rendered by the layout, which switches between them client-side.
+ */
+export default function Page() {
+    return null;
 }

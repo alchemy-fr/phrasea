@@ -10,7 +10,7 @@ import {
     DropdownMenuContent,
     DropdownMenuTrigger,
 } from '@/components/ui/menu';
-import {useSelection} from './SelectionProvider';
+import {useSelectionActions} from './SelectionProvider';
 import {AssetMenuItems} from './AssetContextMenu';
 import {cn} from '@/lib/utils/cn';
 
@@ -26,7 +26,7 @@ export function AssetItemControls({
     selected: boolean;
     actions?: ReactNode;
 }) {
-    const selection = useSelection();
+    const selection = useSelectionActions();
 
     return (
         <>

@@ -7,12 +7,11 @@ import {buildSections, SectionDivider} from './Dividers';
 import {AssetThumb} from '../AssetThumb';
 import {AssetItemControls} from '../AssetItemControls';
 import {AssetContextMenu} from '../AssetContextMenu';
-import {useSelection} from '../SelectionProvider';
+import {useIsAssetSelected, useSelectionActions} from '../SelectionProvider';
 import {useLiveAsset} from '@/features/assets/assetStore';
 import {Highlight} from '@/components/ui/highlight';
 import {TagChip, CollectionChip, PrivacyIcon} from '@/components/chips';
 import {cn} from '@/lib/utils/cn';
-import {usePreview} from '../preview/PreviewProvider';
 import {GridCardZones, useGridProfileItems} from './GridCardZones';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
 
@@ -36,7 +35,13 @@ export function GridLayout(props: LayoutProps) {
                                 key={asset.id}
                                 asset={asset}
                                 index={index}
-                                {...props}
+                                thumbSize={thumbSize}
+                                onItemClick={props.onItemClick}
+                                onItemDoubleClick={props.onItemDoubleClick}
+                                openAsset={props.openAsset}
+                                itemOverlay={props.itemOverlay}
+                                itemActions={props.itemActions}
+                                searchQuery={props.searchQuery}
                             />
                         ))}
                     </div>
@@ -47,7 +52,16 @@ export function GridLayout(props: LayoutProps) {
     );
 }
 
-type GridItemProps = LayoutProps & {asset: Asset; index: number};
+type GridItemProps = Pick<
+    LayoutProps,
+    | 'thumbSize'
+    | 'onItemClick'
+    | 'onItemDoubleClick'
+    | 'openAsset'
+    | 'itemOverlay'
+    | 'itemActions'
+    | 'searchQuery'
+> & {asset: Asset; index: number};
 
 const GridItem = memo(function GridItem({
     asset: initialAsset,
@@ -61,10 +75,8 @@ const GridItem = memo(function GridItem({
     searchQuery,
 }: GridItemProps) {
     const asset = useLiveAsset(initialAsset);
-    const selection = useSelection();
-    const selected = selection.isSelected(asset.id);
-    const disabled = selection.disabledIds?.has(asset.id);
-    const preview = usePreview();
+    const selected = useIsAssetSelected(asset.id);
+    const disabled = useSelectionActions().disabledIds?.has(asset.id);
     const search = useOptionalSearch();
     const gridItems = useGridProfileItems();
     const hasProfile = gridItems.length > 0;
@@ -82,14 +94,12 @@ const GridItem = memo(function GridItem({
                 )}
                 onClick={e => !disabled && onItemClick(asset, e)}
                 onDoubleClick={() => onItemDoubleClick(asset)}
-                onMouseEnter={e => preview.onEnter(asset, e.currentTarget)}
-                onMouseLeave={() => preview.onLeave(asset)}
             >
                 <div
                     className="relative overflow-hidden bg-media-bg"
                     style={{height: thumbSize}}
                 >
-                    <AssetThumb asset={asset} size={thumbSize} />
+                    <AssetThumb asset={asset} size={thumbSize} previewOnHover />
                     <AssetItemControls
                         asset={asset}
                         selected={selected}

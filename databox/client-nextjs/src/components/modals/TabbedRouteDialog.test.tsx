@@ -1,85 +1,130 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {RouteHistoryProvider} from './RouteDialog';
-import {TabbedRouteDialogShell} from './TabbedRouteDialog';
+import {DialogTab, TabbedRouteDialogShell} from './TabbedRouteDialog';
 
 const nav = vi.hoisted(() => ({
     pathname: '/workspaces/1/manage/info',
-    search: '',
-    segment: 'info',
     push: vi.fn(),
-    replace: vi.fn(),
+    renders: {info: 0, tags: 0} as Record<string, number>,
 }));
 
 vi.mock('next/navigation', () => ({
     usePathname: () => nav.pathname,
-    useSearchParams: () => new URLSearchParams(nav.search),
-    useSelectedLayoutSegment: () => nav.segment,
-    useRouter: () => ({push: nav.push, replace: nav.replace}),
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({push: nav.push}),
 }));
 
-const tabs = [
-    {id: 'info', title: 'Info'},
-    {id: 'tags', title: 'Tags'},
-    {id: 'hidden', title: 'Hidden', enabled: false},
+type Props = {name: string};
+
+function tabComponent(id: string) {
+    return function Tab({name}: Props) {
+        nav.renders[id] = (nav.renders[id] ?? 0) + 1;
+
+        return (
+            <span>
+                {id} of {name}
+            </span>
+        );
+    };
+}
+
+const tabs: DialogTab<Props>[] = [
+    {id: 'info', title: 'Info', component: tabComponent('info')},
+    {id: 'tags', title: 'Tags', component: tabComponent('tags')},
+    {
+        id: 'hidden',
+        title: 'Hidden',
+        component: tabComponent('hidden'),
+        enabled: false,
+    },
 ];
 
-function renderShell() {
-    act(() => {
-        render(
-            <RouteHistoryProvider>
-                <TabbedRouteDialogShell
-                    title="Manage workspace"
-                    tabs={tabs}
-                    buildTabHref={tab => `/workspaces/1/manage/${tab}`}
-                >
-                    <span>tab content</span>
-                </TabbedRouteDialogShell>
-            </RouteHistoryProvider>
-        );
-    });
+// Stable, as the manage shells provide it (`useMemo`)
+const baseProps: Props = {name: 'ws'};
+
+function Shell() {
+    return (
+        <RouteHistoryProvider>
+            <TabbedRouteDialogShell
+                title="Manage workspace"
+                tabs={tabs}
+                baseProps={baseProps}
+                buildTabHref={tab => `/workspaces/1/manage/${tab}`}
+            />
+        </RouteHistoryProvider>
+    );
+}
+
+function selectTab(name: string) {
+    // Radix tabs activate on mouse down, not on click
+    act(() =>
+        fireEvent.mouseDown(screen.getByRole('tab', {name}), {button: 0})
+    );
 }
 
 beforeEach(() => {
-    nav.segment = 'info';
+    nav.pathname = '/workspaces/1/manage/info';
     nav.push.mockClear();
-    nav.replace.mockClear();
+    nav.renders = {};
     vi.restoreAllMocks();
 });
 
 describe('TabbedRouteDialogShell', () => {
-    it('pushes a history entry for the tab instead of rewriting the URL', () => {
-        const replaceState = vi.spyOn(window.history, 'replaceState');
-        renderShell();
+    it('does not re-render the tabs already visited when switching', () => {
+        const {rerender} = render(<Shell />);
+        const go = (tab: string) => {
+            nav.pathname = `/workspaces/1/manage/${tab}`;
+            act(() => rerender(<Shell />));
+        };
 
-        // Radix tabs activate on mouse down, not on click
-        act(() =>
-            fireEvent.mouseDown(screen.getByRole('tab', {name: 'Tags'}), {
-                button: 0,
-            })
-        );
+        go('tags');
+        go('info');
+        go('tags');
 
-        expect(nav.push).toHaveBeenCalledWith('/workspaces/1/manage/tags', {
-            scroll: false,
+        // Each tab rendered once, when first shown
+        expect(nav.renders).toEqual({info: 1, tags: 1});
+    });
+
+    it('switches tabs with a history entry, without navigating', () => {
+        const pushState = vi.spyOn(window.history, 'pushState');
+        act(() => {
+            render(<Shell />);
         });
-        // A shallow rewrite would leave the router tree on the previous tab
-        expect(replaceState).not.toHaveBeenCalled();
-        expect(nav.replace).not.toHaveBeenCalled();
+
+        selectTab('Tags');
+
+        expect(pushState).toHaveBeenCalledOnce();
+        // `null`: Next ignores (does not sync) states carrying its own markers
+        expect(pushState.mock.calls[0][0]).toBeNull();
+        expect(pushState.mock.calls[0][2]).toBe('/workspaces/1/manage/tags');
+        expect(nav.push).not.toHaveBeenCalled();
     });
 
-    it('marks the tab of the active route segment', () => {
-        nav.segment = 'tags';
-        renderShell();
+    it('shows the tab of the URL and keeps visited tabs mounted', () => {
+        const {rerender} = render(<Shell />);
+        expect(screen.getByTestId('dialog-tab-info').hidden).toBe(false);
+        expect(screen.queryByTestId('dialog-tab-tags')).toBeNull();
 
-        expect(screen.getByRole('tab', {name: 'Tags'})).toHaveProperty(
-            'ariaSelected',
-            'true'
-        );
+        // Next syncs usePathname with the pushed URL
+        nav.pathname = '/workspaces/1/manage/tags';
+        act(() => rerender(<Shell />));
+        expect(screen.getByTestId('dialog-tab-tags').hidden).toBe(false);
+        expect(screen.getByTestId('dialog-tab-info').hidden).toBe(true);
+
+        // Back to info: shown again, not remounted
+        const infoNode = screen.getByTestId('dialog-tab-info').firstChild;
+        nav.pathname = '/workspaces/1/manage/info';
+        act(() => rerender(<Shell />));
+        expect(screen.getByTestId('dialog-tab-info').hidden).toBe(false);
+        expect(screen.getByTestId('dialog-tab-info').firstChild).toBe(infoNode);
     });
 
-    it('leaves out disabled tabs', () => {
-        renderShell();
+    it('leaves out disabled tabs, even when the URL points at one', () => {
+        nav.pathname = '/workspaces/1/manage/hidden';
+        render(<Shell />);
 
         expect(screen.queryByRole('tab', {name: 'Hidden'})).toBeNull();
+        expect(screen.getByTestId('dialog-tab-info').hidden).toBe(false);
     });
 });

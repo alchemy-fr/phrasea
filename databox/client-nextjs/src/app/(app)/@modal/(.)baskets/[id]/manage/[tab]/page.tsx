@@ -1,11 +1,7 @@
-import {BasketManageTab} from '@/features/baskets/manage/BasketManageRoute';
-
-export default async function Page({
-    params,
-}: {
-    params: Promise<{id: string; tab: string}>;
-}) {
-    const {id, tab} = await params;
-
-    return <BasketManageTab basketId={id} tab={tab} />;
+/**
+ * Makes every tab URL resolvable (direct link, intercepted navigation). The
+ * tabs are rendered by the layout, which switches between them client-side.
+ */
+export default function Page() {
+    return null;
 }
