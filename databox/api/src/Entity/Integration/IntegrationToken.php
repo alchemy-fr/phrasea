@@ -113,4 +113,15 @@ class IntegrationToken extends AbstractUuidEntity
     {
         return $this->expiresAt < new \DateTimeImmutable();
     }
+
+    /**
+     * Whether the access token is (about to be) expired and a refresh token is available.
+     *
+     * @param int $threshold Seconds before the access token expiry from which a renewal is due
+     */
+    public function isRenewalDue(int $threshold = 0): bool
+    {
+        return isset($this->token['refresh_token'], $this->token['expires_at'])
+            && $this->token['expires_at'] < time() + $threshold;
+    }
 }

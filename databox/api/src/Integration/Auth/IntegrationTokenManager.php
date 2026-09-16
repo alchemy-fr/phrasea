@@ -39,15 +39,12 @@ final readonly class IntegrationTokenManager
      */
     public function isRenewalDue(IntegrationToken $integrationToken, int $threshold = 0): bool
     {
-        $tokens = $integrationToken->getToken();
-
-        return isset($tokens['refresh_token'], $tokens['expires_at'])
-            && $tokens['expires_at'] < time() + $threshold;
+        return $integrationToken->isRenewalDue($threshold);
     }
 
     /**
      * Exchanges the refresh token for a new token set and persists it.
-     * A refresh token rejected by the provider (400) removes the token from database.
+     * A refresh token rejected by the provider (400 or 401) removes the token from database.
      *
      * @param \Closure(string $refreshToken, IntegrationToken $token): array $onRenew
      */
@@ -58,7 +55,7 @@ final readonly class IntegrationTokenManager
         try {
             $data = $onRenew($tokens['refresh_token'], $integrationToken);
         } catch (ClientExceptionInterface $e) {
-            if (400 === $e->getCode()) {
+            if (in_array($e->getCode(), [400, 401], true)) {
                 $this->em->remove($integrationToken);
                 $this->em->flush();
             }

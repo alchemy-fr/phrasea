@@ -49,11 +49,7 @@ final class RenewIntegrationTokensCommand extends Command
         $threshold = (int) $input->getOption('threshold');
         $renewed = $skipped = $failed = 0;
 
-        foreach ($this->integrationTokenRepository->getRenewableTokens() as $token) {
-            if (!$this->integrationTokenManager->isRenewalDue($token, $threshold)) {
-                continue;
-            }
-
+        foreach ($this->integrationTokenRepository->getRenewableTokens($threshold) as $token) {
             $workspaceIntegration = $token->getIntegration();
             $config = $this->integrationManager->getIntegrationConfiguration($workspaceIntegration);
             $integration = $config->getIntegration();
@@ -71,6 +67,7 @@ final class RenewIntegrationTokensCommand extends Command
                 $output->writeln(sprintf('Renewed token <info>%s</info> (%s, user %s)', $token->getId(), $workspaceIntegration->getName() ?? $workspaceIntegration->getIntegration(), $token->getUserId() ?? '-'));
             } catch (HttpClientExceptionInterface $e) {
                 ++$failed;
+                // On 400/401 the manager has already removed the token (refresh token revoked).
                 $this->logger->warning('Failed to renew integration token', [
                     'tokenId' => $token->getId(),
                     'integrationId' => $workspaceIntegration->getId(),

@@ -33,18 +33,27 @@ class IntegrationTokenRepository extends ServiceEntityRepository
     }
 
     /**
-     * Tokens still refreshable (their refresh token is not expired yet).
+     * Tokens still refreshable (their refresh token is not expired yet) whose
+     * access token expires within $threshold seconds.
+     *
+     * @param int $threshold Seconds before the access token expiry from which a renewal is due
      *
      * @return IntegrationToken[]
      */
-    public function getRenewableTokens(): array
+    public function getRenewableTokens(int $threshold = 0): array
     {
-        return $this
+        $tokens = $this
             ->createQueryBuilder('it')
             ->andWhere('it.expiresAt > :now')
             ->setParameter('now', new \DateTimeImmutable())
             ->getQuery()
             ->getResult();
+
+        // The access token expiry lives in the JSON column: filter in PHP.
+        return array_values(array_filter(
+            $tokens,
+            fn (IntegrationToken $token): bool => $token->isRenewalDue($threshold),
+        ));
     }
 
     private function createValidTokenQueryBuilder(string $integrationId, string $userId): QueryBuilder
