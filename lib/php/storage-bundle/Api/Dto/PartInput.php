@@ -16,11 +16,6 @@ final class PartInput
     #[Assert\NotBlank]
     public ?string $ETag = null;
 
-    /**
-     * The controllers build the input by hand (no validator pass), so the
-     * shape is checked here: S3 rejects a part with a missing ETag or an
-     * invalid PartNumber with an opaque "MalformedXML" error.
-     */
     public static function fromArray(array $data): self
     {
         $partNumber = $data['PartNumber'] ?? null;
