@@ -1,6 +1,6 @@
 'use client';
 
-import {useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
     CheckIcon,
@@ -9,7 +9,7 @@ import {
     Trash2Icon,
     XIcon,
 } from 'lucide-react';
-import type {AttributeDefinitionOrBuiltIn, AttributeType} from '@/types/api';
+import {AttributeType, type AttributeDefinitionOrBuiltIn} from '@/types/api';
 import {
     AQLCondition,
     AQLExpression,
@@ -50,6 +50,7 @@ import {
     CommandList,
 } from '@/components/ui/command';
 import {cn} from '@/lib/utils/cn';
+import {useCollectionStore} from '@/features/collections/collectionStore';
 
 export function emptyCondition(): AQLCondition {
     return {
@@ -374,7 +375,9 @@ function FieldPicker({
         );
         const builtIn = defs
             .filter(d => d.builtIn)
-            .sort((a, b) => a.name.localeCompare(b.name));
+            .sort((a, b) =>
+                (a.displayName ?? a.name).localeCompare(b.displayName ?? b.name)
+            );
         const others = defs
             .filter(d => !d.builtIn)
             .sort((a, b) =>
@@ -410,7 +413,9 @@ function FieldPicker({
     );
 
     return (
-        <Popover open={open} onOpenChange={setOpen}>
+        // modal: the builder lives in a dialog whose scroll lock would otherwise
+        // swallow wheel events on the portaled list.
+        <Popover open={open} onOpenChange={setOpen} modal>
             <PopoverTrigger asChild>
                 <Button
                     variant="outline"
@@ -477,6 +482,19 @@ function ValueInput({
     const raw = type ? rawTypeMap[type] : undefined;
     const text = valueToInput(value);
 
+    if (
+        type === AttributeType.Workspace &&
+        (isLiteral(value) || value === null)
+    ) {
+        return (
+            <WorkspaceValueSelect
+                value={isLiteral(value) ? value.literal : ''}
+                label={label}
+                onChange={id => onChange({literal: id})}
+            />
+        );
+    }
+
     if (raw === RawType.Boolean) {
         return (
             <SimpleSelect
@@ -523,6 +541,51 @@ function ValueInput({
                 value={text}
                 placeholder={raw === RawType.GeoPoint ? 'lat' : undefined}
                 onChange={e => onChange(inputToValue(e.target.value, raw))}
+            />
+        </div>
+    );
+}
+
+/** Workspace picker for `@workspace` conditions (ids are opaque to users) */
+function WorkspaceValueSelect({
+    value,
+    label,
+    onChange,
+}: {
+    value: string;
+    label?: string;
+    onChange: (id: string) => void;
+}) {
+    const {t} = useTranslation();
+    const workspaces = useCollectionStore(s => s.workspaces);
+    const loadWorkspaces = useCollectionStore(s => s.loadWorkspaces);
+    useEffect(() => {
+        void loadWorkspaces();
+    }, [loadWorkspaces]);
+    const options = useMemo(
+        () =>
+            [...workspaces]
+                .sort((a, b) =>
+                    (a.displayName ?? a.name).localeCompare(
+                        b.displayName ?? b.name
+                    )
+                )
+                .map(w => ({value: w.id, label: w.displayName ?? w.name})),
+        [workspaces]
+    );
+
+    return (
+        <div className="flex items-center gap-1">
+            {label ? (
+                <span className="text-xs text-muted-foreground">{label}</span>
+            ) : null}
+            <SimpleSelect
+                size="sm"
+                className="w-52"
+                value={value || undefined}
+                onValueChange={onChange}
+                options={options}
+                placeholder={t('common.select', 'Select…')}
             />
         </div>
     );

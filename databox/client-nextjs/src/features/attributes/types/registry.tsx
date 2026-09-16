@@ -434,6 +434,21 @@ const workspaceType: AttributeTypeDef = {
         value && typeof value === 'object' ? (value as any).id : value,
 };
 
+const renditionType: AttributeTypeDef = {
+    entity: EntityName.RenditionDefinition,
+    formats: () => [],
+    format: value =>
+        value && typeof value === 'object'
+            ? ((value as any).name ?? '')
+            : str(value),
+    formatString: value =>
+        value && typeof value === 'object'
+            ? ((value as any).name ?? '')
+            : str(value),
+    normalize: value =>
+        value && typeof value === 'object' ? (value as any).id : value,
+};
+
 const collectionType: AttributeTypeDef = {
     rich: true,
     entity: EntityName.Collection,
@@ -572,7 +587,7 @@ const registry: Record<AttributeType, AttributeTypeDef> = {
     [AttributeType.Id]: textType,
     [AttributeType.Ip]: textType,
     [AttributeType.FileType]: textType,
-    [AttributeType.Rendition]: textType,
+    [AttributeType.Rendition]: renditionType,
     [AttributeType.Code]: jsonType,
     [AttributeType.WebVtt]: jsonType,
     [AttributeType.Json]: jsonType,

@@ -1,6 +1,6 @@
 'use client';
 
-import {ReactNode} from 'react';
+import {useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {
@@ -15,7 +15,6 @@ import type {Collection} from '@/types/api';
 import {getCollection} from '@/lib/api/collections';
 import {
     DialogTab,
-    DialogTabContent,
     TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
 import {FullPageLoader} from '@/components/ui/loader';
@@ -31,6 +30,10 @@ import {ESDocumentTab} from '@/features/assets/manage/tabs/ESDocumentTab';
 import {EntityName} from '@/types/api';
 
 export type CollectionTabProps = {collection: Collection; refresh: () => void};
+
+function CollectionESDocumentTab({collection}: CollectionTabProps) {
+    return <ESDocumentTab entity={EntityName.Collection} id={collection.id} />;
+}
 
 /** Shared by the shell and the tab content: one query, one request. */
 function useCollection(collectionId: string) {
@@ -91,25 +94,29 @@ function useTabs(collection?: Collection): DialogTab<CollectionTabProps>[] {
             id: 'es',
             title: t('asset.manage.es_document', 'ES Document'),
             icon: <DatabaseIcon />,
-            component: ({collection: c}) => (
-                <ESDocumentTab entity={EntityName.Collection} id={c.id} />
-            ),
+            component: CollectionESDocumentTab,
             enabled: hasRole(AppRole.Tech),
         },
     ];
 }
 
-export function CollectionManageShell({
-    collectionId,
-    children,
-}: {
-    collectionId: string;
-    children: ReactNode;
-}) {
+export function CollectionManageShell({collectionId}: {collectionId: string}) {
     const {t} = useTranslation();
-    const collection = useCollection(collectionId).data;
+    const query = useCollection(collectionId);
+    const collection = query.data;
 
     const tabs = useTabs(collection);
+
+    // Stable: every tab kept mounted receives it, and is memoized (`refetch`
+    // is stable, the query result object is not)
+    const {refetch} = query;
+    const baseProps = useMemo(
+        () =>
+            collection
+                ? {collection, refresh: () => void refetch()}
+                : undefined,
+        [collection, refetch]
+    );
 
     return (
         <TabbedRouteDialogShell
@@ -120,35 +127,9 @@ export function CollectionManageShell({
                 collection?.name
             }
             tabs={tabs}
+            baseProps={baseProps}
             buildTabHref={tab => routes.collectionManage(collectionId, tab)}
             placeholder={collection ? undefined : <FullPageLoader />}
-        >
-            {children}
-        </TabbedRouteDialogShell>
-    );
-}
-
-export function CollectionManageTab({
-    collectionId,
-    tab,
-}: {
-    collectionId: string;
-    tab: string;
-}) {
-    const query = useCollection(collectionId);
-    const collection = query.data;
-
-    const tabs = useTabs(collection);
-
-    return (
-        <DialogTabContent
-            tabs={tabs}
-            tab={tab}
-            baseProps={
-                collection
-                    ? {collection, refresh: () => void query.refetch()}
-                    : undefined
-            }
         />
     );
 }

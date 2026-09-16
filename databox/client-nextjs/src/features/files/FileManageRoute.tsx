@@ -1,6 +1,6 @@
 'use client';
 
-import {ReactNode} from 'react';
+import {useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import Link from 'next/link';
 import {useQuery} from '@tanstack/react-query';
@@ -9,7 +9,6 @@ import type {ApiFile} from '@/types/api';
 import {getFile, getFileMetadata} from '@/lib/api/misc';
 import {
     DialogTab,
-    DialogTabContent,
     TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
 import {FullPageLoader, InlineLoader} from '@/components/ui/loader';
@@ -51,40 +50,23 @@ function useTabs(): DialogTab<TabProps>[] {
     ];
 }
 
-export function FileManageShell({
-    fileId,
-    children,
-}: {
-    fileId: string;
-    children: ReactNode;
-}) {
+export function FileManageShell({fileId}: {fileId: string}) {
     const {t} = useTranslation();
     const file = useFile(fileId).data;
     const tabs = useTabs();
+
+    // Stable: every tab kept mounted receives it, and is memoized
+    const baseProps = useMemo(() => (file ? {file} : undefined), [file]);
 
     return (
         <TabbedRouteDialogShell
             title={t('file.manage.title', 'File')}
             subtitle={file?.fileName}
             tabs={tabs}
+            baseProps={baseProps}
             buildTabHref={tab => routes.fileManage(fileId, tab)}
             size="md"
             placeholder={file ? undefined : <FullPageLoader />}
-        >
-            {children}
-        </TabbedRouteDialogShell>
-    );
-}
-
-export function FileManageTab({fileId, tab}: {fileId: string; tab: string}) {
-    const file = useFile(fileId).data;
-    const tabs = useTabs();
-
-    return (
-        <DialogTabContent
-            tabs={tabs}
-            tab={tab}
-            baseProps={file ? {file} : undefined}
         />
     );
 }

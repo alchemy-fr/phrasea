@@ -1,6 +1,6 @@
 'use client';
 
-import {ReactNode} from 'react';
+import {useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {
@@ -17,7 +17,6 @@ import {
 import {getAsset} from '@/lib/api/assets';
 import {
     DialogTab,
-    DialogTabContent,
     TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
 import {useCloseRoute} from '@/components/modals/RouteDialog';
@@ -126,13 +125,7 @@ function useTabs(asset?: Asset): DialogTab<AssetTabProps>[] {
     ];
 }
 
-export function AssetManageShell({
-    assetId,
-    children,
-}: {
-    assetId: string;
-    children: ReactNode;
-}) {
+export function AssetManageShell({assetId}: {assetId: string}) {
     const {t} = useTranslation();
     const query = useAsset(assetId);
     const asset = query.data;
@@ -141,11 +134,20 @@ export function AssetManageShell({
 
     const tabs = useTabs(asset);
 
+    // Stable: every tab kept mounted receives it, and is memoized (`refetch`
+    // is stable, the query result object is not)
+    const {refetch} = query;
+    const baseProps = useMemo(
+        () => (asset ? {asset, refresh: () => void refetch()} : undefined),
+        [asset, refetch]
+    );
+
     return (
         <TabbedRouteDialogShell
             title={t('asset.manage.title', 'Manage asset')}
             subtitle={asset?.name}
             tabs={tabs}
+            baseProps={baseProps}
             buildTabHref={tab => routes.assetManage(assetId, tab)}
             size="xl"
             placeholder={
@@ -155,9 +157,7 @@ export function AssetManageShell({
                     <FullPageLoader />
                 )
             }
-        >
-            {children}
-        </TabbedRouteDialogShell>
+        />
     );
 }
 
@@ -176,23 +176,6 @@ function AssetNotFound() {
                 <Button onClick={closeRoute}>
                     {t('common.close', 'Close')}
                 </Button>
-            }
-        />
-    );
-}
-
-export function AssetManageTab({assetId, tab}: {assetId: string; tab: string}) {
-    const query = useAsset(assetId);
-    const asset = query.data;
-
-    const tabs = useTabs(asset);
-
-    return (
-        <DialogTabContent
-            tabs={tabs}
-            tab={tab}
-            baseProps={
-                asset ? {asset, refresh: () => void query.refetch()} : undefined
             }
         />
     );

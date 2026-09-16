@@ -1,6 +1,6 @@
 'use client';
 
-import {ReactNode, useState} from 'react';
+import {useState, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {
@@ -16,7 +16,6 @@ import type {DisplayProfile} from '@/types/api';
 import {getProfile, putProfile} from '@/lib/api/misc';
 import {
     DialogTab,
-    DialogTabContent,
     TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
 import {FullPageLoader} from '@/components/ui/loader';
@@ -94,51 +93,29 @@ function useTabs(profile?: DisplayProfile): DialogTab<ProfileTabProps>[] {
     ];
 }
 
-export function ProfileManageShell({
-    profileId,
-    children,
-}: {
-    profileId: string;
-    children: ReactNode;
-}) {
+export function ProfileManageShell({profileId}: {profileId: string}) {
     const {t} = useTranslation();
-    const profile = useProfile(profileId).data;
+    const query = useProfile(profileId);
+    const profile = query.data;
     const tabs = useTabs(profile);
+
+    // Stable: every tab kept mounted receives it, and is memoized (`refetch`
+    // is stable, the query result object is not)
+    const {refetch} = query;
+    const baseProps = useMemo(
+        () => (profile ? {profile, refresh: () => void refetch()} : undefined),
+        [profile, refetch]
+    );
 
     return (
         <TabbedRouteDialogShell
             title={t('profile.manage.title', 'Display profile')}
             subtitle={profile?.name}
             tabs={tabs}
+            baseProps={baseProps}
             buildTabHref={tab => routes.profileManage(profileId, tab)}
             size="xl"
             placeholder={profile ? undefined : <FullPageLoader />}
-        >
-            {children}
-        </TabbedRouteDialogShell>
-    );
-}
-
-export function ProfileManageTab({
-    profileId,
-    tab,
-}: {
-    profileId: string;
-    tab: string;
-}) {
-    const query = useProfile(profileId);
-    const profile = query.data;
-    const tabs = useTabs(profile);
-
-    return (
-        <DialogTabContent
-            tabs={tabs}
-            tab={tab}
-            baseProps={
-                profile
-                    ? {profile, refresh: () => void query.refetch()}
-                    : undefined
-            }
         />
     );
 }

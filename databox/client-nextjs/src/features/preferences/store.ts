@@ -5,6 +5,9 @@ import {deepEquals} from '@/lib/utils/misc';
 
 export type LayoutMode = 'grid' | 'list';
 
+/** How thumbnails fill their box: `contain` keeps the whole image, `cover` crops it */
+export type ThumbFit = 'contain' | 'cover';
+
 export type PreviewOptions = {
     sizeRatio: number;
     attributesRatio: number;
@@ -15,6 +18,7 @@ export type PreviewOptions = {
 export type DisplayPreferences = {
     layout: LayoutMode;
     thumbSize: number;
+    thumbFit: ThumbFit;
     displayPreview: boolean;
     playVideos: boolean;
     previewLocked: boolean;
@@ -41,6 +45,7 @@ export type UserPreferences = {
 export const defaultDisplayPreferences: DisplayPreferences = {
     layout: 'grid',
     thumbSize: 200,
+    thumbFit: 'contain',
     displayPreview: true,
     playVideos: false,
     previewLocked: false,

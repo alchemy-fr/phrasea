@@ -1,7 +1,13 @@
 'use client';
 
 import {useTranslation} from 'react-i18next';
-import {LayoutGridIcon, ListIcon, SlidersHorizontalIcon} from 'lucide-react';
+import {
+    CropIcon,
+    LayoutGridIcon,
+    ListIcon,
+    ScanIcon,
+    SlidersHorizontalIcon,
+} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {
     Popover,
@@ -82,6 +88,33 @@ export function DisplayOptionsMenu({
                         value={[display.thumbSize]}
                         onValueChange={([v]) => patch({thumbSize: v})}
                     />
+                </div>
+                <div>
+                    <Label className="mb-2">
+                        {t('display.thumb_fit', 'Thumbnail fit')}
+                    </Label>
+                    <Tabs
+                        value={display.thumbFit}
+                        onValueChange={v =>
+                            patch({
+                                thumbFit: v as DisplayPreferences['thumbFit'],
+                            })
+                        }
+                    >
+                        <TabsList
+                            className="w-full"
+                            aria-label={t('display.thumb_fit', 'Thumbnail fit')}
+                        >
+                            <TabsTrigger value="contain">
+                                <ScanIcon />{' '}
+                                {t('display.fit_contain', 'Whole image')}
+                            </TabsTrigger>
+                            <TabsTrigger value="cover">
+                                <CropIcon />{' '}
+                                {t('display.fit_cover', 'Fill (crop)')}
+                            </TabsTrigger>
+                        </TabsList>
+                    </Tabs>
                 </div>
                 <div className="space-y-3 border-t pt-3">
                     <Row

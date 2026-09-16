@@ -10,6 +10,8 @@ import {
     useRef,
     useState,
     useEffect,
+    useLayoutEffect,
+    useSyncExternalStore,
 } from 'react';
 import type {Asset} from '@/types/api';
 
@@ -27,6 +29,24 @@ export type SelectionContextValue = {
 };
 
 const SelectionContext = createContext<SelectionContextValue | null>(null);
+
+/**
+ * Selection API for list items, whose identity never changes: an item reading
+ * `SelectionContext` would re-render on every click anywhere in the list — all
+ * of them, for every selection change. Items subscribe to their own selected
+ * state with `useIsAssetSelected` instead.
+ */
+export type SelectionActions = {
+    subscribe: (listener: () => void) => () => void;
+    isSelected: (id: string) => boolean;
+    toggle: (asset: Asset) => void;
+    onItemClick: (asset: Asset, pages: Asset[][], e?: MouseEvent) => void;
+    selectAll: (pages: Asset[][]) => void;
+    clear: () => void;
+    disabledIds?: Set<string>;
+};
+
+const SelectionActionsContext = createContext<SelectionActions | null>(null);
 
 /**
  * Computes the new selection for a click, supporting Ctrl/Cmd (toggle) and
@@ -84,6 +104,12 @@ export function SelectionProvider({
         [disabledIds]
     );
 
+    // Read by the stable actions below, so that they never change identity
+    const selectionRef = useRef(selection);
+    selectionRef.current = selection;
+    const selectedIdsRef = useRef<Set<string>>(new Set());
+    const listeners = useRef(new Set<() => void>());
+
     const value = useMemo<SelectionContextValue>(() => {
         const selectedIds = new Set(selection.map(a => a.id));
 
@@ -105,6 +131,39 @@ export function SelectionProvider({
             disabledIds,
         };
     }, [selection, setSelection, disabledIds]);
+
+    // Notify item subscribers once the new selection is committed, before paint
+    useLayoutEffect(() => {
+        selectedIdsRef.current = value.selectedIds;
+        listeners.current.forEach(listener => listener());
+    }, [value.selectedIds]);
+
+    const actions = useMemo<SelectionActions>(
+        () => ({
+            subscribe: listener => {
+                listeners.current.add(listener);
+
+                return () => listeners.current.delete(listener);
+            },
+            isSelected: id => selectedIdsRef.current.has(id),
+            toggle: asset => {
+                const current = selectionRef.current;
+                setSelection(
+                    current.some(a => a.id === asset.id)
+                        ? current.filter(a => a.id !== asset.id)
+                        : [...current, asset]
+                );
+            },
+            onItemClick: (asset, pages, e) =>
+                setSelection(
+                    computeSelection(selectionRef.current, asset, pages, e)
+                ),
+            selectAll: pages => setSelection(pages.flat()),
+            clear: () => setSelection([]),
+            disabledIds,
+        }),
+        [setSelection, disabledIds]
+    );
 
     // Escape clears the selection (outside inputs and open dialogs)
     useEffect(() => {
@@ -131,9 +190,11 @@ export function SelectionProvider({
     }, []);
 
     return (
-        <SelectionContext.Provider value={value}>
-            {children}
-        </SelectionContext.Provider>
+        <SelectionActionsContext.Provider value={actions}>
+            <SelectionContext.Provider value={value}>
+                {children}
+            </SelectionContext.Provider>
+        </SelectionActionsContext.Provider>
     );
 }
 
@@ -148,4 +209,26 @@ export function useSelection(): SelectionContextValue {
 
 export function useOptionalSelection(): SelectionContextValue | null {
     return useContext(SelectionContext);
+}
+
+export function useSelectionActions(): SelectionActions {
+    const ctx = useContext(SelectionActionsContext);
+    if (!ctx) {
+        throw new Error(
+            'useSelectionActions must be used within SelectionProvider'
+        );
+    }
+
+    return ctx;
+}
+
+/** Re-renders only when this asset gets selected or deselected. */
+export function useIsAssetSelected(id: string): boolean {
+    const {subscribe, isSelected} = useSelectionActions();
+
+    return useSyncExternalStore(
+        subscribe,
+        () => isSelected(id),
+        () => false
+    );
 }

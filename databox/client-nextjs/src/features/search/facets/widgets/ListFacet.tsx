@@ -36,8 +36,12 @@ export function ListFacet({name, facet}: FacetWidgetProps) {
             {facet.buckets.map(bucket => {
                 const {label, value, item} = resolveBucket(bucket);
                 const selected = hasValue(value as ScalarValue);
+                // Labelled buckets (entities resolved by the API) already carry
+                // their display label: only format raw scalar keys.
+                const labelled =
+                    bucket.key !== null && typeof bucket.key === 'object';
                 const display =
-                    type && !item && typeof value !== 'object'
+                    type && !labelled && typeof value !== 'object'
                         ? formatAttributeString(type, value, undefined, ctx) ||
                           label
                         : label;

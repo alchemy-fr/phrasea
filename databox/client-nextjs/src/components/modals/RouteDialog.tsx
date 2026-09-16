@@ -64,9 +64,11 @@ export function RouteHistoryProvider({children}: PropsWithChildren) {
  * Origin of the route screen identified by `screen` (null: not a screen, do
  * nothing), resolved once when it mounts.
  */
-function useScreenOrigin(screen: string | null): string {
+function useScreenOrigin(
+    screen: string | null,
+    pathname: string | null
+): string {
     const history = useContext(RouteHistoryContext);
-    const pathname = usePathname();
     const [origin] = useState(() =>
         screen !== null && history
             ? history.origins.resolve(screen, history.lastUrl.current)
@@ -74,7 +76,7 @@ function useScreenOrigin(screen: string | null): string {
     );
 
     useEffect(() => {
-        if (screen !== null) {
+        if (screen !== null && pathname !== null) {
             history?.origins.register(pathname, screen);
         }
     }, [history, pathname, screen]);
@@ -104,9 +106,15 @@ export function useCloseRoute(): () => void {
  */
 function useOpenedFrom(): string {
     const fromDialog = useContext(ReturnUrl);
-    const pathname = usePathname();
-    const [mountPath] = useState(pathname);
-    const own = useScreenOrigin(fromDialog === null ? mountPath : null);
+    // Deliberately not `usePathname()`: that would re-render every consumer —
+    // e.g. each tab kept mounted in a dialog — on every URL change. The URL a
+    // screen mounted on is all we need.
+    const [mountPath] = useState(() =>
+        fromDialog === null && typeof window !== 'undefined'
+            ? window.location.pathname
+            : null
+    );
+    const own = useScreenOrigin(mountPath, mountPath);
 
     return fromDialog ?? own;
 }
@@ -139,7 +147,7 @@ export function RouteDialog({
     const router = useRouter();
     const pathname = usePathname();
     const [screen] = useState(() => routeKey ?? pathname);
-    const returnUrl = useScreenOrigin(screen);
+    const returnUrl = useScreenOrigin(screen, pathname);
     const [open, setOpen] = useState(true);
     const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 

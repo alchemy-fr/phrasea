@@ -38,11 +38,20 @@ function normalizeDefinition(d: AttributeDefinition): AttributeDefinition {
     };
 }
 
+/**
+ * The API exposes built-ins with their AQL key as `id` (`@workspace`), no
+ * `slug`/`searchSlug`, and a raw ES type (`keyword`): derive the slugs from the
+ * key and restore the entity type so values get resolved (workspace, user...).
+ */
 function normalizeBuiltIn(d: BuiltInAttribute): BuiltInAttribute {
+    const slug = d.slug ?? d.id;
+
     return {
         ...d,
         builtIn: true,
-        searchSlug: d.searchSlug ?? d.slug,
+        slug,
+        searchSlug: d.searchSlug ?? slug,
+        type: builtInTypes[slug as BuiltInEnum] ?? d.type,
         enabled: true,
     };
 }
@@ -289,6 +298,7 @@ export const builtInTypes: Partial<Record<BuiltInEnum, AttributeType>> = {
     [BuiltInEnum.Collection]: AttributeType.CollectionPath,
     [BuiltInEnum.Workspace]: AttributeType.Workspace,
     [BuiltInEnum.Owner]: AttributeType.User,
+    [BuiltInEnum.Rendition]: AttributeType.Rendition,
     [BuiltInEnum.AssetStatus]: AttributeType.AssetStatus,
     [BuiltInEnum.Story]: AttributeType.Story,
 };

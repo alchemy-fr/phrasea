@@ -1,6 +1,7 @@
 import {type ReactNode} from 'react';
 import {CollectionManageShell} from '@/features/collections/manage/CollectionManageRoute';
 
+/** The dialog and its tabs: see `TabbedRouteDialogShell`. */
 export default async function Layout({
     children,
     params,
@@ -11,8 +12,9 @@ export default async function Layout({
     const {id} = await params;
 
     return (
-        <CollectionManageShell collectionId={id}>
+        <>
+            <CollectionManageShell collectionId={id} />
             {children}
-        </CollectionManageShell>
+        </>
     );
 }

@@ -1,6 +1,7 @@
 import {type ReactNode} from 'react';
 import {ProfileManageShell} from '@/features/profiles/manage/ProfileManageRoute';
 
+/** The dialog and its tabs: see `TabbedRouteDialogShell`. */
 export default async function Layout({
     children,
     params,
@@ -10,5 +11,10 @@ export default async function Layout({
 }) {
     const {id} = await params;
 
-    return <ProfileManageShell profileId={id}>{children}</ProfileManageShell>;
+    return (
+        <>
+            <ProfileManageShell profileId={id} />
+            {children}
+        </>
+    );
 }

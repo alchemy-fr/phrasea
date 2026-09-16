@@ -8,13 +8,12 @@ import {buildSections, ListSection, SectionDivider} from './Dividers';
 import {AssetThumb} from '../AssetThumb';
 import {AssetItemControls} from '../AssetItemControls';
 import {AssetContextMenu} from '../AssetContextMenu';
-import {useSelection} from '../SelectionProvider';
+import {useIsAssetSelected, useSelectionActions} from '../SelectionProvider';
 import {useLiveAsset} from '@/features/assets/assetStore';
 import {Highlight} from '@/components/ui/highlight';
 import {AttributeList} from '@/features/attributes/AttributeList';
 import {TagChip, CollectionChip, PrivacyIcon} from '@/components/chips';
 import {cn} from '@/lib/utils/cn';
-import {usePreview} from '../preview/PreviewProvider';
 import {QuarantineBanner} from '@/features/assets/quarantine/QuarantineBanner';
 import {AssetStatus} from '@/types/api';
 
@@ -88,7 +87,12 @@ export function ListLayout(props: LayoutProps) {
                             <ListItem
                                 asset={row.asset}
                                 index={row.index}
-                                {...props}
+                                thumbSize={thumbSize}
+                                onItemClick={props.onItemClick}
+                                onItemDoubleClick={props.onItemDoubleClick}
+                                openAsset={props.openAsset}
+                                itemOverlay={props.itemOverlay}
+                                itemActions={props.itemActions}
                             />
                         ) : (
                             footer
@@ -109,12 +113,18 @@ const ListItem = memo(function ListItem({
     openAsset,
     itemOverlay,
     itemActions,
-}: LayoutProps & {asset: Asset; index: number}) {
+}: Pick<
+    LayoutProps,
+    | 'thumbSize'
+    | 'onItemClick'
+    | 'onItemDoubleClick'
+    | 'openAsset'
+    | 'itemOverlay'
+    | 'itemActions'
+> & {asset: Asset; index: number}) {
     const asset = useLiveAsset(initialAsset);
-    const selection = useSelection();
-    const selected = selection.isSelected(asset.id);
-    const disabled = selection.disabledIds?.has(asset.id);
-    const preview = usePreview();
+    const selected = useIsAssetSelected(asset.id);
+    const disabled = useSelectionActions().disabledIds?.has(asset.id);
     const size = Math.max(thumbSize, 120);
 
     return (
@@ -134,10 +144,8 @@ const ListItem = memo(function ListItem({
                 <div
                     className="relative shrink-0 overflow-hidden rounded-md bg-media-bg"
                     style={{width: size, height: size}}
-                    onMouseEnter={e => preview.onEnter(asset, e.currentTarget)}
-                    onMouseLeave={() => preview.onLeave(asset)}
                 >
-                    <AssetThumb asset={asset} size={size} />
+                    <AssetThumb asset={asset} size={size} previewOnHover />
                     <AssetItemControls
                         asset={asset}
                         selected={selected}
