@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Consumer\Handler\Asset;
 
+use Alchemy\MessengerBundle\Attribute\MessengerMessage;
+
+#[MessengerMessage('p2')]
 final readonly class NotifyAssetTopic
 {
     public function __construct(
