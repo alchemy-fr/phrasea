@@ -1,6 +1,6 @@
 'use client';
 
-import {ReactNode} from 'react';
+import {useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {
@@ -21,7 +21,6 @@ import type {Workspace} from '@/types/api';
 import {getWorkspace} from '@/lib/api/collections';
 import {
     DialogTab,
-    DialogTabContent,
     TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
 import {FullPageLoader} from '@/components/ui/loader';
@@ -157,51 +156,30 @@ function useTabs(workspace?: Workspace): DialogTab<WorkspaceTabProps>[] {
     ];
 }
 
-export function WorkspaceManageShell({
-    workspaceId,
-    children,
-}: {
-    workspaceId: string;
-    children: ReactNode;
-}) {
+export function WorkspaceManageShell({workspaceId}: {workspaceId: string}) {
     const {t} = useTranslation();
-    const workspace = useWorkspace(workspaceId).data;
+    const query = useWorkspace(workspaceId);
+    const workspace = query.data;
     const tabs = useTabs(workspace);
+
+    // Stable: every tab kept mounted receives it, and is memoized (`refetch`
+    // is stable, the query result object is not)
+    const {refetch} = query;
+    const baseProps = useMemo(
+        () =>
+            workspace ? {workspace, refresh: () => void refetch()} : undefined,
+        [workspace, refetch]
+    );
 
     return (
         <TabbedRouteDialogShell
             title={t('workspace.manage.title', 'Manage workspace')}
             subtitle={workspace?.displayName ?? workspace?.name}
             tabs={tabs}
+            baseProps={baseProps}
             buildTabHref={tab => routes.workspaceManage(workspaceId, tab)}
             size="xl"
             placeholder={workspace ? undefined : <FullPageLoader />}
-        >
-            {children}
-        </TabbedRouteDialogShell>
-    );
-}
-
-export function WorkspaceManageTab({
-    workspaceId,
-    tab,
-}: {
-    workspaceId: string;
-    tab: string;
-}) {
-    const query = useWorkspace(workspaceId);
-    const workspace = query.data;
-    const tabs = useTabs(workspace);
-
-    return (
-        <DialogTabContent
-            tabs={tabs}
-            tab={tab}
-            baseProps={
-                workspace
-                    ? {workspace, refresh: () => void query.refetch()}
-                    : undefined
-            }
         />
     );
 }

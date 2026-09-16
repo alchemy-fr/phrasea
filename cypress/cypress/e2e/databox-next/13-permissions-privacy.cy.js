@@ -58,7 +58,6 @@ describe('Permissions & privacy', () => {
         cy.visit(`${databoxNextUrl}/collections/${ctx.entertainment.id}/manage/edit`);
         routeDialog().within(() => {
             cy.fieldByLabel('Privacy').selectOption('Public');
-            cy.contains('Effective privacy').should('be.visible');
             cy.contains('button', 'Save').click();
         });
         expectToastText('Collection saved');

@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {LayersIcon, Trash2Icon} from 'lucide-react';
 import type {Asset} from '@/types/api';
@@ -9,29 +9,39 @@ import {useDisplayPreferences} from '@/features/preferences/store';
 import {cn} from '@/lib/utils/cn';
 import {FileKind, getFileKind} from '@/lib/utils/mime';
 import {AnalysisChip} from '@/features/assets/quarantine/AnalysisChip';
+import {usePreview} from '@/features/assets/list/preview/PreviewProvider';
 
 /**
  * Thumbnail of an asset (with animated preview on hover when available),
- * falling back to a file type icon.
+ * falling back to a file type icon. The image fills its box according to the
+ * `thumbFit` display preference (whole image vs. cropped cover).
+ *
+ * With `previewOnHover`, hovering the file type chip opens the preview popover
+ * (see `PreviewProvider`), anchored on the thumbnail.
  */
 export function AssetThumb({
     asset,
     size,
     className,
+    previewOnHover,
 }: {
     asset: Asset;
     size?: number;
     className?: string;
+    previewOnHover?: boolean;
 }) {
     const {t} = useTranslation();
     const [hover, setHover] = useState(false);
-    const {displayPreview} = useDisplayPreferences();
+    const {thumbFit} = useDisplayPreferences();
+    const preview = usePreview();
+    const container = useRef<HTMLDivElement>(null);
     const thumb = asset.thumbnail?.file;
     const animated = asset.animatedThumbnail?.file;
     const source = asset.source;
     const pending = source?.analysisPending || source?.accepted === false;
 
     const url = hover && animated?.url ? animated.url : thumb?.url;
+    const fitClass = thumbFit === 'cover' ? 'object-cover' : 'object-contain';
     const isVideoThumb =
         url &&
         getFileKind(hover && animated?.url ? animated.type : thumb?.type) ===
@@ -39,6 +49,7 @@ export function AssetThumb({
 
     return (
         <div
+            ref={container}
             className={cn(
                 'relative flex size-full items-center justify-center overflow-hidden',
                 className
@@ -55,7 +66,7 @@ export function AssetThumb({
                 isVideoThumb ? (
                     <video
                         src={url}
-                        className="size-full object-contain"
+                        className={cn('size-full', fitClass)}
                         muted
                         loop
                         autoPlay
@@ -69,7 +80,7 @@ export function AssetThumb({
                         loading="lazy"
                         decoding="async"
                         draggable={false}
-                        className="size-full object-contain"
+                        className={cn('size-full', fitClass)}
                         style={size ? {maxHeight: size} : undefined}
                     />
                 )
@@ -97,13 +108,33 @@ export function AssetThumb({
                     </span>
                 ) : null}
                 {source && url ? (
-                    <FileTypeChip
-                        mimeType={source.type}
-                        extension={source.extension}
-                    />
+                    <span
+                        data-testid="asset-type-chip"
+                        className={cn(
+                            'flex',
+                            previewOnHover &&
+                                'pointer-events-auto rounded ring-white/60 transition-shadow hover:ring-2'
+                        )}
+                        onMouseEnter={
+                            previewOnHover
+                                ? () =>
+                                      container.current &&
+                                      preview.onEnter(asset, container.current)
+                                : undefined
+                        }
+                        onMouseLeave={
+                            previewOnHover
+                                ? () => preview.onLeave(asset)
+                                : undefined
+                        }
+                    >
+                        <FileTypeChip
+                            mimeType={source.type}
+                            extension={source.extension}
+                        />
+                    </span>
                 ) : null}
             </div>
-            {displayPreview ? null : null}
         </div>
     );
 }

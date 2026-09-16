@@ -19,6 +19,13 @@ export function DebugEsDialog({
 }: ModalProps & {debug: ESDebug}) {
     const {t} = useTranslation();
     const json = JSON.stringify(debug.query, null, 2);
+    // Keep 3 significant decimals for sub-millisecond ES timings, whole ms above.
+    const formatMs = (ms: number): string =>
+        ms < 1
+            ? ms.toFixed(3)
+            : ms < 100
+              ? ms.toFixed(1)
+              : String(Math.round(ms));
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -34,12 +41,12 @@ export function DebugEsDialog({
                             {t(
                                 'search.debug.es_time',
                                 'Elasticsearch: {{ms}} ms',
-                                {ms: debug.esQueryTime}
+                                {ms: formatMs(debug.esQueryTime)}
                             )}
                         </span>
                         <span>
                             {t('search.debug.total_time', 'Total: {{ms}} ms', {
-                                ms: debug.totalResponseTime,
+                                ms: formatMs(debug.totalResponseTime),
                             })}
                         </span>
                         <span className="ml-auto">

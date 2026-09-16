@@ -1,9 +1,9 @@
 'use client';
 
-import {useEffect, useRef} from 'react';
+import {useCallback, useEffect, useMemo, useRef} from 'react';
 import {useTranslation} from 'react-i18next';
 import type {Asset} from '@/types/api';
-import {useSelection} from './SelectionProvider';
+import {useSelectionActions} from './SelectionProvider';
 import {useSelectAllKey} from '@/hooks/useSelectAllKey';
 import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
 import {GridLayout} from './layouts/GridLayout';
@@ -67,7 +67,8 @@ export function AssetList(props: AssetListProps) {
         onOpen,
     } = props;
     const {t} = useTranslation();
-    const selection = useSelection();
+    // Not `useSelection`: the list must not re-render on every selection change
+    const selection = useSelectionActions();
     const scrollRef = useRef<HTMLDivElement>(null);
 
     useSelectAllKey(() => selection.selectAll(pages));
@@ -84,8 +85,17 @@ export function AssetList(props: AssetListProps) {
         !!hasMore && !loadingMore && !loading
     );
 
-    const allIds = pages.flat().map(a => a.id);
-    const openAsset = (asset: Asset) => onOpen?.(asset, {siblings: allIds});
+    const allIds = useMemo(() => pages.flat().map(a => a.id), [pages]);
+    const openAsset = useCallback(
+        (asset: Asset) => onOpen?.(asset, {siblings: allIds}),
+        [onOpen, allIds]
+    );
+    // Stable across renders: every item receives them, and items are memoized
+    const onItemClick = useCallback(
+        (asset: Asset, e: React.MouseEvent) =>
+            selection.onItemClick(asset, pages, e),
+        [selection, pages]
+    );
 
     const footer = (
         <div className="flex flex-col items-center py-4">
@@ -106,8 +116,8 @@ export function AssetList(props: AssetListProps) {
     const layoutProps: LayoutProps = {
         ...props,
         scrollRef,
-        onItemClick: (asset, e) => selection.onItemClick(asset, pages, e),
-        onItemDoubleClick: asset => openAsset(asset),
+        onItemClick,
+        onItemDoubleClick: openAsset,
         openAsset,
         footer,
     };

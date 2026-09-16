@@ -9,6 +9,10 @@ import {useSearch} from './SearchProvider';
 export function NoResults() {
     const {t} = useTranslation();
     const search = useSearch();
+    // Sorting alone is not a filter: only show the hints when something narrows the results.
+    const hasFilters = Boolean(
+        search.query || search.conditions.length > 0 || search.geolocation
+    );
 
     return (
         <EmptyState
@@ -17,26 +21,33 @@ export function NoResults() {
             icon={<SearchXIcon />}
             title={t('search.no_results.title', 'No results')}
             description={
-                <ul className="list-disc space-y-1 text-left">
-                    <li>
-                        {t(
-                            'search.no_results.spelling',
-                            'Check the spelling of your query'
-                        )}
-                    </li>
-                    <li>
-                        {t(
-                            'search.no_results.facets',
-                            'Remove some facets or conditions'
-                        )}
-                    </li>
-                    <li>
-                        {t(
-                            'search.no_results.filters',
-                            'Try a broader workspace or collection'
-                        )}
-                    </li>
-                </ul>
+                hasFilters ? (
+                    <ul className="list-disc space-y-1 text-left">
+                        <li>
+                            {t(
+                                'search.no_results.spelling',
+                                'Check the spelling of your query'
+                            )}
+                        </li>
+                        <li>
+                            {t(
+                                'search.no_results.facets',
+                                'Remove some facets or conditions'
+                            )}
+                        </li>
+                        <li>
+                            {t(
+                                'search.no_results.filters',
+                                'Try a broader workspace or collection'
+                            )}
+                        </li>
+                    </ul>
+                ) : (
+                    t(
+                        'search.no_results.empty',
+                        'There are no assets to display.'
+                    )
+                )
             }
             action={
                 search.hasSearch ? (

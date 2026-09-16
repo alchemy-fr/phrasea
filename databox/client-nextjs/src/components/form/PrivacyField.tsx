@@ -173,11 +173,6 @@ export function PrivacyField({
                     ) : null}
                 </div>
             ) : null}
-            <p className="text-xs text-muted-foreground">
-                {t('form.privacy.effective', 'Effective privacy: {{label}}', {
-                    label: labels[effective],
-                })}
-            </p>
             {inheritedPrivacy !== undefined &&
             inheritedPrivacy > Privacy.Secret ? (
                 <Alert variant="info" icon={<InfoIcon />}>
