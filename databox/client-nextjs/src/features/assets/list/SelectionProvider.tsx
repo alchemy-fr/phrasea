@@ -10,7 +10,6 @@ import {
     useRef,
     useState,
     useEffect,
-    useLayoutEffect,
     useSyncExternalStore,
 } from 'react';
 import type {Asset} from '@/types/api';
@@ -93,22 +92,29 @@ export function SelectionProvider({
     const onChangeRef = useRef(onChange);
     onChangeRef.current = onChange;
 
+    // Read by the stable actions below, so that they never change identity
+    const selectionRef = useRef(selection);
+    const selectedIdsRef = useRef<Set<string>>(new Set());
+    const listeners = useRef(new Set<() => void>());
+
     const setSelection = useCallback(
         (assets: Asset[]) => {
             const filtered = disabledIds
                 ? assets.filter(a => !disabledIds.has(a.id))
                 : assets;
+            selectionRef.current = filtered;
+            selectedIdsRef.current = new Set(filtered.map(a => a.id));
             setSelectionState(filtered);
+            // Item subscribers are notified right away: their re-render is
+            // batched with ours in a single pass, instead of a second one
+            // triggered from an effect after the first commit
+            listeners.current.forEach(listener => listener());
             onChangeRef.current?.(filtered);
         },
         [disabledIds]
     );
-
-    // Read by the stable actions below, so that they never change identity
-    const selectionRef = useRef(selection);
-    selectionRef.current = selection;
-    const selectedIdsRef = useRef<Set<string>>(new Set());
-    const listeners = useRef(new Set<() => void>());
+    const setSelectionRef = useRef(setSelection);
+    setSelectionRef.current = setSelection;
 
     const value = useMemo<SelectionContextValue>(() => {
         const selectedIds = new Set(selection.map(a => a.id));
@@ -131,12 +137,6 @@ export function SelectionProvider({
             disabledIds,
         };
     }, [selection, setSelection, disabledIds]);
-
-    // Notify item subscribers once the new selection is committed, before paint
-    useLayoutEffect(() => {
-        selectedIdsRef.current = value.selectedIds;
-        listeners.current.forEach(listener => listener());
-    }, [value.selectedIds]);
 
     const actions = useMemo<SelectionActions>(
         () => ({
@@ -182,7 +182,9 @@ export function SelectionProvider({
             if (document.querySelector('[role=dialog][data-state=open]')) {
                 return;
             }
-            setSelectionState(prev => (prev.length > 0 ? [] : prev));
+            if (selectionRef.current.length > 0) {
+                setSelectionRef.current([]);
+            }
         };
         window.addEventListener('keydown', onKeyDown);
 
