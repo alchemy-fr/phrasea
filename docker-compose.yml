@@ -176,9 +176,14 @@ services:
       - MATOMO_SITE_ID
       - MATOMO_MEDIA_PLUGIN_ENABLED
       - MATOMO_AUTH_TOKEN
+      - SOKETI_HOST=soketi.${PHRASEA_DOMAIN}
+      - SOKETI_APP_ID
+      - SOKETI_KEY
+      - SOKETI_SECRET
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - soketi.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   a_s3-php:
     logging: *default-logging
@@ -712,10 +717,6 @@ services:
       - PWI_EXPOSE_API_URL=${EXPOSE_API_URL}
       - PWI_EXPOSE_CLIENT_URL=${EXPOSE_CLIENT_URL}
       - PWI_UPLOADER_API_URL=${UPLOADER_API_URL}
-      - SOKETI_HOST=soketi.${PHRASEA_DOMAIN}
-      - SOKETI_APP_ID
-      - SOKETI_KEY
-      - SOKETI_SECRET
       - DB_NAME=${DATABOX_DB_NAME}
       - PWI_DATABOX_EXPOSE_INTEGRATION_CLIENT_ID=${DATABOX_EXPOSE_INTEGRATION_CLIENT_ID}
       - API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE=${DATABOX_API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE}
@@ -726,7 +727,6 @@ services:
       - ${PHRASEANET_DOMAIN}:${PS_GATEWAY_IP}
       - webhook-endpoint.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - zippy.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - soketi.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - matomo.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   databox-worker:

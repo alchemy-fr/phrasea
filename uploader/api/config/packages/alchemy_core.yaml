@@ -2,3 +2,9 @@ alchemy_core:
     app_name: uploader
     app_url: '%env(UPLOADER_API_URL)%'
     healthcheck: ~
+    pusher: ~
+
+when@test:
+    alchemy_core:
+        pusher:
+            disabled: true

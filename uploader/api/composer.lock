@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "70cb89c6f8e9efb3be86fed20fe182ed",
+    "content-hash": "7cdc3557caa1adca0c17a4a13f25cbdc",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -60,7 +60,7 @@
         },
         {
             "name": "alchemy/admin-bundle",
-            "version": "dev-notifier",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/admin-bundle",
@@ -121,7 +121,7 @@
         },
         {
             "name": "alchemy/auth-bundle",
-            "version": "dev-notifier",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/auth-bundle",
@@ -180,7 +180,7 @@
         },
         {
             "name": "alchemy/configurator-bundle",
-            "version": "dev-notifier",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/configurator-bundle",
@@ -235,7 +235,7 @@
         },
         {
             "name": "alchemy/core-bundle",
-            "version": "dev-notifier",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/core-bundle",
@@ -298,7 +298,7 @@
         },
         {
             "name": "alchemy/messenger-bundle",
-            "version": "dev-notifier",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/messenger-bundle",
@@ -352,11 +352,11 @@
         },
         {
             "name": "alchemy/notifier-bundle",
-            "version": "dev-notifier",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/notifier-bundle",
-                "reference": "efdd52b1ef325a77dd76b6b7e7caafcbe1f98871"
+                "reference": "49f789e9de8d9a315c5b5f1f3a3e3358949387f8"
             },
             "require": {
                 "alchemy/auth-bundle": "@dev",
@@ -365,16 +365,19 @@
                 "doctrine/orm": "^2.7 || ^3",
                 "php": "^8.4",
                 "ramsey/uuid-doctrine": "^1.5",
+                "symfony/clock": "^7.4",
                 "symfony/framework-bundle": "^7.4",
                 "symfony/mailer": "^7.4",
                 "symfony/messenger": "^7.4",
                 "symfony/notifier": "^7.4",
+                "symfony/translation": "^7.4",
                 "symfony/twig-bundle": "^7.4"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
                 "php-parallel-lint/php-var-dump-check": "v0.5",
                 "phpunit/phpunit": "^11.3.2",
+                "pusher/pusher-php-server": "^7.2.4",
                 "rector/rector": "^2.3.0"
             },
             "type": "symfony-bundle",
@@ -418,7 +421,7 @@
         },
         {
             "name": "alchemy/report-bundle",
-            "version": "dev-notifier",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-bundle",
@@ -472,7 +475,7 @@
         },
         {
             "name": "alchemy/report-sdk",
-            "version": "dev-notifier",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/report-sdk",
@@ -527,11 +530,11 @@
         },
         {
             "name": "alchemy/storage-bundle",
-            "version": "dev-notifier",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/storage-bundle",
-                "reference": "e5439cdd572f1a7b03cf85ad3c1c6a4462f25c62"
+                "reference": "7f076dc8177f0e23adbc5db2e734c2f15eb3e277"
             },
             "require": {
                 "aws/aws-sdk-php": "^3.20",
@@ -544,7 +547,8 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.17",
-                "php-parallel-lint/php-var-dump-check": "v0.5"
+                "php-parallel-lint/php-var-dump-check": "v0.5",
+                "phpunit/phpunit": "^9.5"
             },
             "type": "symfony-bundle",
             "autoload": {
@@ -568,7 +572,8 @@
                     "vendor/bin/php-cs-fixer fix"
                 ],
                 "test": [
-                    "vendor/bin/var-dump-check --symfony --exclude vendor ."
+                    "vendor/bin/var-dump-check --symfony --exclude vendor .",
+                    "vendor/bin/phpunit"
                 ]
             },
             "license": [
@@ -4888,6 +4893,69 @@
                 "source": "https://github.com/php-fig/log/tree/3.0.2"
             },
             "time": "2024-09-11T13:17:53+00:00"
+        },
+        {
+            "name": "pusher/pusher-php-server",
+            "version": "7.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pusher/pusher-http-php.git",
+                "reference": "058d8464246118110a341fc2e6e70c7c8b6a7f2c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pusher/pusher-http-php/zipball/058d8464246118110a341fc2e6e70c7c8b6a7f2c",
+                "reference": "058d8464246118110a341fc2e6e70c7c8b6a7f2c",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "guzzlehttp/guzzle": "^7.8.2 || ^8.0",
+                "guzzlehttp/promises": "^2.0.3 || ^3.0",
+                "guzzlehttp/psr7": "^2.6.3 || ^3.0",
+                "php": "^7.3|^8.0",
+                "psr/http-client": "^1.0",
+                "psr/log": "^1.0 || ^2.0 || ^3.0"
+            },
+            "require-dev": {
+                "overtrue/phplint": "^2.3",
+                "phpunit/phpunit": "^9.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Pusher\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Library for interacting with the Pusher REST API",
+            "keywords": [
+                "events",
+                "messaging",
+                "php-pusher-server",
+                "publish",
+                "push",
+                "pusher",
+                "real time",
+                "real-time",
+                "realtime",
+                "rest",
+                "trigger"
+            ],
+            "support": {
+                "issues": "https://github.com/pusher/pusher-http-php/issues",
+                "source": "https://github.com/pusher/pusher-http-php/tree/7.3.0"
+            },
+            "time": "2026-08-07T12:47:11+00:00"
         },
         {
             "name": "ralouphie/getallheaders",
@@ -11882,7 +11950,7 @@
     "packages-dev": [
         {
             "name": "alchemy/api-test",
-            "version": "dev-notifier",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/api-test",
@@ -11936,7 +12004,7 @@
         },
         {
             "name": "alchemy/test-bundle",
-            "version": "dev-notifier",
+            "version": "dev-main",
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/test-bundle",
