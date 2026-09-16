@@ -32,6 +32,21 @@ class IntegrationTokenRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    /**
+     * Tokens still refreshable (their refresh token is not expired yet).
+     *
+     * @return IntegrationToken[]
+     */
+    public function getRenewableTokens(): array
+    {
+        return $this
+            ->createQueryBuilder('it')
+            ->andWhere('it.expiresAt > :now')
+            ->setParameter('now', new \DateTimeImmutable())
+            ->getQuery()
+            ->getResult();
+    }
+
     private function createValidTokenQueryBuilder(string $integrationId, string $userId): QueryBuilder
     {
         return $this

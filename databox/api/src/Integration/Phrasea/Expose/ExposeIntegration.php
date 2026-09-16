@@ -9,12 +9,14 @@ use App\Entity\Basket\Basket;
 use App\Entity\Integration\IntegrationData;
 use App\Integration\AbstractIntegration;
 use App\Integration\Action\UserActionsTrait;
+use App\Integration\Auth\IntegrationTokenRenewerInterface;
 use App\Integration\Auth\IntegrationTokenTrait;
 use App\Integration\BasketUpdateHandlerIntegrationInterface;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationContext;
 use App\Integration\IntegrationDataTransformerInterface;
 use App\Integration\Phrasea\Expose\Message\SyncBasket;
+use App\Integration\Phrasea\PhraseaClientFactory;
 use App\Integration\UserActionsIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,7 +25,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
 
-class ExposeIntegration extends AbstractIntegration implements UserActionsIntegrationInterface, IntegrationDataTransformerInterface, BasketUpdateHandlerIntegrationInterface
+class ExposeIntegration extends AbstractIntegration implements UserActionsIntegrationInterface, IntegrationDataTransformerInterface, BasketUpdateHandlerIntegrationInterface, IntegrationTokenRenewerInterface
 {
     use IntegrationTokenTrait;
     use UserActionsTrait;
@@ -34,7 +36,13 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly ExposeClient $exposeClient,
         private readonly MessageBusInterface $bus,
+        private readonly PhraseaClientFactory $clientFactory,
     ) {
+    }
+
+    public function renewIntegrationToken(IntegrationConfig $config, string $refreshToken): array
+    {
+        return $this->clientFactory->createTokenRenewer($config['baseUrl'], $config['clientId'])($refreshToken);
     }
 
     public function buildConfiguration(NodeBuilder $builder): void

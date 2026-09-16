@@ -25,24 +25,48 @@ final readonly class IntegrationTokenManager
             throw new \InvalidArgumentException('Token was expired');
         }
 
-        $tokens = $integrationToken->getToken();
-
-        if (isset($tokens['refresh_token']) && $tokens['expires_at'] < time()) {
-            try {
-                $data = $onRenew($tokens['refresh_token'], $integrationToken);
-            } catch (ClientExceptionInterface $e) {
-                if (400 === $e->getCode()) {
-                    $this->em->remove($integrationToken);
-                    $this->em->flush();
-                }
-
-                throw $e;
-            }
-
-            $integrationToken = $this->refreshToken($integrationToken, $data);
+        if ($this->isRenewalDue($integrationToken)) {
+            $integrationToken = $this->renewToken($integrationToken, $onRenew);
         }
 
         return $integrationToken->getToken()['access_token'];
+    }
+
+    /**
+     * Whether the access token is (about to be) expired and a refresh token is available.
+     *
+     * @param int $threshold Seconds before the access token expiry from which a renewal is due
+     */
+    public function isRenewalDue(IntegrationToken $integrationToken, int $threshold = 0): bool
+    {
+        $tokens = $integrationToken->getToken();
+
+        return isset($tokens['refresh_token'], $tokens['expires_at'])
+            && $tokens['expires_at'] < time() + $threshold;
+    }
+
+    /**
+     * Exchanges the refresh token for a new token set and persists it.
+     * A refresh token rejected by the provider (400) removes the token from database.
+     *
+     * @param \Closure(string $refreshToken, IntegrationToken $token): array $onRenew
+     */
+    public function renewToken(IntegrationToken $integrationToken, \Closure $onRenew): IntegrationToken
+    {
+        $tokens = $integrationToken->getToken();
+
+        try {
+            $data = $onRenew($tokens['refresh_token'], $integrationToken);
+        } catch (ClientExceptionInterface $e) {
+            if (400 === $e->getCode()) {
+                $this->em->remove($integrationToken);
+                $this->em->flush();
+            }
+
+            throw $e;
+        }
+
+        return $this->refreshToken($integrationToken, $data);
     }
 
     private function refreshToken(IntegrationToken $integrationToken, array $data): IntegrationToken

@@ -122,6 +122,10 @@ export default function ExposeBasketIntegration({integration, basket}: Props) {
             'integration.expose.sync.event.sync_complete',
             `Sync Complete!`
         ),
+        'sync-failed': t(
+            'integration.expose.sync.event.sync_failed',
+            `Sync failed: please authenticate again`
+        ),
     };
 
     return (
