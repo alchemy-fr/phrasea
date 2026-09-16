@@ -93,7 +93,9 @@ export async function addMissingRenditionsConf(
     const TARGET_ASSETS_ONLY = 1;
     const TARGET_ASSETS_AND_STORIES = 3;
     const target =
-        dm.importStories === true ? TARGET_ASSETS_AND_STORIES : TARGET_ASSETS_ONLY;
+        dm.importStories === true
+            ? TARGET_ASSETS_AND_STORIES
+            : TARGET_ASSETS_ONLY;
 
     dm.sourceFile = 'document';
 
