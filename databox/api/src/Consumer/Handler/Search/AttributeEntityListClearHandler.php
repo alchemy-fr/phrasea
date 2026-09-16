@@ -41,7 +41,7 @@ final readonly class AttributeEntityListClearHandler
             $fieldName = $this->fieldNameResolver->getFieldNameFromDefinition($definition);
             $fields[sprintf('%s.%s.%s', AttributeInterface::ATTRIBUTES_FIELD, AttributeInterface::NO_LOCALE, $fieldName)] = true;
             $calls[] = sprintf(
-                'del(ctx._source.%2$s[0], \'%1$s\');',
+                'del(ctx._source.%2$s, \'%1$s\');',
                 $fieldName,
                 AttributeInterface::ATTRIBUTES_FIELD
             );
@@ -90,12 +90,25 @@ final readonly class AttributeEntityListClearHandler
                 ],
             ],
             [
+                // Same guards as AttributeEntityDeleteHandler: "attrs" may be null or a locale
+                // node may be missing, which would make painless fail with a "runtime error".
                 'source' => <<<EOF
-void del(HashMap c, String name) {
+void del(def attrs, String name) {
+    if (!(attrs instanceof List) || attrs.isEmpty()) {
+        return;
+    }
+    def c = attrs[0];
+    if (!(c instanceof Map)) {
+        return;
+    }
     for (def entry : c.entrySet()) {
-        String locale = entry.getKey();
-        if (c[locale].get(name) instanceof List || c[locale].get(name) instanceof Map) {
-            c[locale].remove(name);
+        def node = entry.getValue();
+        if (!(node instanceof Map)) {
+            continue;
+        }
+        def field = node.get(name);
+        if (field instanceof List || field instanceof Map) {
+            node.remove(name);
         }
     }
 }
