@@ -7,6 +7,7 @@ namespace Alchemy\StorageBundle\Doctrine;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use Alchemy\StorageBundle\Upload\UploadManager;
+use Alchemy\StorageBundle\Util\FileUtil;
 use Aws\S3\Exception\S3Exception;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
@@ -42,7 +43,9 @@ final readonly class MultipartUploadListener implements EventSubscriber
     {
         $entity = $args->getObject();
         if ($entity instanceof MultipartUpload && !$entity->hasPath()) {
-            $extension = pathinfo($entity->getFilename(), PATHINFO_EXTENSION);
+            // The filename is client-provided: only keep a sane extension, otherwise the
+            // generated path (persisted, then used for storage operations) ends up corrupted.
+            $extension = FileUtil::getExtensionFromPath($entity->getFilename());
             $path = $this->pathGenerator->generatePath($extension);
 
             $uploadData = $this->uploadManager->prepareMultipartUpload($path, $entity->getType());
