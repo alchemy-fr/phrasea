@@ -105,4 +105,24 @@ describe('AssetList selection rendering', () => {
         expect(first.itemRenders).toBeLessThanOrEqual(1);
         expect(second.itemRenders).toBeLessThanOrEqual(2);
     });
+
+    it('selects and unselects everything without rendering any item', () => {
+        const {container} = renderList();
+        const selectedCount = () =>
+            container.querySelectorAll('[data-asset-id][data-selected]').length;
+
+        counter.itemRenders = 0;
+        act(() => {
+            fireEvent.keyDown(window, {key: 'a', ctrlKey: true});
+        });
+        expect(selectedCount()).toBe(COUNT);
+        // Only the item shells (`SelectableCard`) and their checkboxes render
+        expect(counter.itemRenders).toBe(0);
+
+        act(() => {
+            fireEvent.keyDown(window, {key: 'Escape'});
+        });
+        expect(selectedCount()).toBe(0);
+        expect(counter.itemRenders).toBe(0);
+    });
 });

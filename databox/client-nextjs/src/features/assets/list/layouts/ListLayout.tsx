@@ -8,12 +8,11 @@ import {buildSections, ListSection, SectionDivider} from './Dividers';
 import {AssetThumb} from '../AssetThumb';
 import {AssetItemControls} from '../AssetItemControls';
 import {AssetContextMenu} from '../AssetContextMenu';
-import {useIsAssetSelected, useSelectionActions} from '../SelectionProvider';
+import {SelectableCard} from '../SelectableCard';
 import {useLiveAsset} from '@/features/assets/assetStore';
 import {Highlight} from '@/components/ui/highlight';
 import {AttributeList} from '@/features/attributes/AttributeList';
 import {TagChip, CollectionChip, PrivacyIcon} from '@/components/chips';
-import {cn} from '@/lib/utils/cn';
 import {QuarantineBanner} from '@/features/assets/quarantine/QuarantineBanner';
 import {AssetStatus} from '@/types/api';
 
@@ -122,24 +121,17 @@ const ListItem = memo(function ListItem({
     | 'itemOverlay'
     | 'itemActions'
 > & {asset: Asset; index: number}) {
+    // Not subscribed to the selection: see `SelectableCard`
     const asset = useLiveAsset(initialAsset);
-    const selected = useIsAssetSelected(asset.id);
-    const disabled = useSelectionActions().disabledIds?.has(asset.id);
     const size = Math.max(thumbSize, 120);
 
     return (
         <AssetContextMenu asset={asset} onOpen={() => openAsset(asset)}>
-            <div
-                data-asset-id={asset.id}
-                data-testid="asset-item"
-                data-selected={selected ? 'true' : undefined}
-                className={cn(
-                    'group/item mx-3 my-2 flex gap-3 rounded-lg border bg-card p-2 transition-shadow select-none hover:shadow-md',
-                    selected && 'border-primary ring-2 ring-primary/40',
-                    disabled && 'opacity-40'
-                )}
-                onClick={e => !disabled && onItemClick(asset, e)}
-                onDoubleClick={() => onItemDoubleClick(asset)}
+            <SelectableCard
+                asset={asset}
+                className="group/item mx-3 my-2 flex gap-3 rounded-lg border bg-card p-2 transition-shadow select-none hover:shadow-md"
+                onItemClick={onItemClick}
+                onItemDoubleClick={onItemDoubleClick}
             >
                 <div
                     className="relative shrink-0 overflow-hidden rounded-md bg-media-bg"
@@ -148,7 +140,6 @@ const ListItem = memo(function ListItem({
                     <AssetThumb asset={asset} size={size} previewOnHover />
                     <AssetItemControls
                         asset={asset}
-                        selected={selected}
                         actions={itemActions?.(asset)}
                     />
                     {itemOverlay?.(asset, index)}
@@ -188,7 +179,7 @@ const ListItem = memo(function ListItem({
                         <AttributeList asset={asset} dense pinnedOnly={false} />
                     </div>
                 </div>
-            </div>
+            </SelectableCard>
         </AssetContextMenu>
     );
 });
