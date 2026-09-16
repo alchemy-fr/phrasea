@@ -1,7 +1,11 @@
 'use client';
 
-import {ComponentType, ReactNode} from 'react';
-import {useRouter, useSelectedLayoutSegment} from 'next/navigation';
+import {ComponentType, ReactNode, useState} from 'react';
+import {
+    usePathname,
+    useRouter,
+    useSelectedLayoutSegment,
+} from 'next/navigation';
 import {RouteDialog, useCloseRoute} from './RouteDialog';
 import {
     DialogBody,
@@ -61,14 +65,21 @@ export function TabbedRouteDialogShell({
     children?: ReactNode;
 }) {
     const router = useRouter();
+    const pathname = usePathname();
     // The tab is the segment right below this layout
     const segment = useSelectedLayoutSegment();
+    // All the tabs are the same screen: identify it by the URL without the tab
+    const [routeKey] = useState(() =>
+        segment && pathname.endsWith(`/${segment}`)
+            ? pathname.slice(0, -segment.length - 1)
+            : pathname
+    );
     const enabledTabs = tabs.filter(t => t.enabled !== false);
     const active =
         enabledTabs.find(t => t.id === segment)?.id ?? enabledTabs[0]?.id;
 
     return (
-        <RouteDialog size={size} className="h-[85dvh]">
+        <RouteDialog routeKey={routeKey} size={size} className="h-[85dvh]">
             <DialogHeader>
                 <DialogTitle className="pr-6">{title}</DialogTitle>
                 {subtitle ? (

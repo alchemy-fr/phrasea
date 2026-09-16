@@ -1,7 +1,8 @@
 import React from 'react';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {act, render} from '@testing-library/react';
-import {RouteHistoryProvider, useCloseRoute} from './RouteDialog';
+import {act, render, screen} from '@testing-library/react';
+import {RouteDialog, RouteHistoryProvider, useCloseRoute} from './RouteDialog';
+import {modalExitDuration} from './ModalProvider';
 
 const nav = vi.hoisted(() => ({
     pathname: '/assets',
@@ -83,5 +84,60 @@ describe('useCloseRoute', () => {
         act(() => close());
 
         expect(nav.push).toHaveBeenCalledWith('/assets', {scroll: false});
+    });
+});
+
+/** The app at `nav.pathname`: the search screen, or one of two dialogs. */
+function App() {
+    const path = nav.pathname;
+    const dialog = path.startsWith('/assets/a/manage')
+        ? '/assets/a/manage'
+        : path.startsWith('/files/f/manage')
+          ? '/files/f/manage'
+          : null;
+
+    return (
+        <RouteHistoryProvider>
+            {dialog ? (
+                // A different route remounts the dialog, as Next does
+                <RouteDialog key={dialog} routeKey={dialog}>
+                    {dialog}
+                </RouteDialog>
+            ) : null}
+        </RouteHistoryProvider>
+    );
+}
+
+describe('RouteDialog', () => {
+    it('does not bounce between a dialog and the one opened from it', () => {
+        vi.useFakeTimers();
+        try {
+            const {rerender} = render(<App />);
+            const go = (url: string) => {
+                const [pathname, search = ''] = url.split('?');
+                nav.pathname = pathname;
+                nav.search = search;
+                act(() => rerender(<App />));
+            };
+            const closeAndFollow = () => {
+                nav.push.mockClear();
+                act(() => screen.getByRole('button', {name: 'Close'}).click());
+                act(() => vi.advanceTimersByTime(modalExitDuration));
+                expect(nav.push).toHaveBeenCalledOnce();
+                const target = nav.push.mock.calls[0][0] as string;
+                go(target);
+
+                return target;
+            };
+
+            go('/assets?query=cats');
+            go('/assets/a/manage/open');
+            go('/files/f/manage/info');
+
+            expect(closeAndFollow()).toBe('/assets/a/manage/open');
+            expect(closeAndFollow()).toBe('/assets?query=cats');
+        } finally {
+            vi.useRealTimers();
+        }
     });
 });
