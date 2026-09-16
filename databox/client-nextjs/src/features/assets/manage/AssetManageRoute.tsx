@@ -134,7 +134,6 @@ export function AssetManageShell({
     children: ReactNode;
 }) {
     const {t} = useTranslation();
-    const closeRoute = useCloseRoute();
     const query = useAsset(assetId);
     const asset = query.data;
 
@@ -151,17 +150,7 @@ export function AssetManageShell({
             size="xl"
             placeholder={
                 asset ? undefined : missing ? (
-                    <EmptyState
-                        title={t(
-                            'asset.view.not_found',
-                            'Asset not found or not accessible'
-                        )}
-                        action={
-                            <Button onClick={closeRoute}>
-                                {t('common.close', 'Close')}
-                            </Button>
-                        }
-                    />
+                    <AssetNotFound />
                 ) : (
                     <FullPageLoader />
                 )
@@ -169,6 +158,26 @@ export function AssetManageShell({
         >
             {children}
         </TabbedRouteDialogShell>
+    );
+}
+
+/** Rendered inside the dialog, so that closing uses the dialog's origin. */
+function AssetNotFound() {
+    const {t} = useTranslation();
+    const closeRoute = useCloseRoute();
+
+    return (
+        <EmptyState
+            title={t(
+                'asset.view.not_found',
+                'Asset not found or not accessible'
+            )}
+            action={
+                <Button onClick={closeRoute}>
+                    {t('common.close', 'Close')}
+                </Button>
+            }
+        />
     );
 }
 

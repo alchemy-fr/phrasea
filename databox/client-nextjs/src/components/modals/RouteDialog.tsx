@@ -8,53 +8,84 @@ import {
     useCallback,
     useContext,
     useEffect,
+    useMemo,
     useRef,
     useState,
 } from 'react';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {Dialog, DialogContent, DialogSize} from '@/components/ui/dialog';
 import {modalExitDuration} from './ModalProvider';
+import {RouteOrigins} from './routeOrigins';
 import {routes} from '@/lib/routes';
 
-/** URL of the screen the app is on, updated after every navigation. */
-const LastUrl = createContext<RefObject<string | undefined> | null>(null);
+type RouteHistory = {
+    /** URL of the screen the app is on, updated after every navigation */
+    lastUrl: RefObject<string | undefined>;
+    origins: RouteOrigins;
+};
+
+const RouteHistoryContext = createContext<RouteHistory | null>(null);
 
 /**
  * Where the dialog currently open sends the user when it closes. Held by the
  * dialog itself, which outlives the screens it contains: a tab page remounts
- * on every tab change, long after the URL it was opened from is reachable.
+ * on every tab change.
  */
 const ReturnUrl = createContext<string | null>(null);
 
 /**
- * Remembers the current URL so that a dialog bound to a route knows where to
- * send the user when it closes.
+ * Tracks the navigation so that a screen bound to a route knows where to send
+ * the user when it closes.
  *
- * Must wrap both the page and the `@modal` slot: the ref is written in an
- * effect, so a dialog mounting reads — during its own render, before that
- * effect runs — the URL of the screen it was opened from.
+ * Must wrap both the page and the `@modal` slot: `lastUrl` is written in an
+ * effect, so a screen mounting reads — during its own render, before that
+ * effect runs — the URL displayed before it.
  */
 export function RouteHistoryProvider({children}: PropsWithChildren) {
     const pathname = usePathname();
     const params = useSearchParams();
     const lastUrl = useRef<string | undefined>(undefined);
+    const [origins] = useState(() => new RouteOrigins());
+    const history = useMemo(() => ({lastUrl, origins}), [origins]);
     const query = params.toString();
 
     useEffect(() => {
         lastUrl.current = query ? `${pathname}?${query}` : pathname;
     }, [pathname, query]);
 
-    return <LastUrl.Provider value={lastUrl}>{children}</LastUrl.Provider>;
+    return (
+        <RouteHistoryContext.Provider value={history}>
+            {children}
+        </RouteHistoryContext.Provider>
+    );
 }
 
 /**
- * Leaves the route a dialog is bound to, for the screen it was opened from —
- * as a push, not a back: the dialog stays in the history, so the browser back
- * button reopens it and the forward entries are left alone.
- *
- * The destination is frozen on the first render, before the dialog has had a
- * chance to become "the current URL", and so that mirroring the active tab in
- * the URL later on does not move it.
+ * Origin of the route screen identified by `screen` (null: not a screen, do
+ * nothing), resolved once when it mounts.
+ */
+function useScreenOrigin(screen: string | null): string {
+    const history = useContext(RouteHistoryContext);
+    const pathname = usePathname();
+    const [origin] = useState(() =>
+        screen !== null && history
+            ? history.origins.resolve(screen, history.lastUrl.current)
+            : routes.assets()
+    );
+
+    useEffect(() => {
+        if (screen !== null) {
+            history?.origins.register(pathname, screen);
+        }
+    }, [history, pathname, screen]);
+
+    return origin;
+}
+
+/**
+ * Leaves the route a screen is bound to, for the screen it was opened from —
+ * as a push, not a back: it stays in the history, so the browser back button
+ * reopens it and the forward entries are left alone.
  */
 export function useCloseRoute(): () => void {
     const router = useRouter();
@@ -67,16 +98,17 @@ export function useCloseRoute(): () => void {
 }
 
 /**
- * The URL to return to: the one the enclosing dialog froze when it opened, or
- * — for screens that are not wrapped in a `RouteDialog` — the URL that was
- * current when this component first rendered.
+ * The enclosing dialog's origin, or — for route screens that are not wrapped
+ * in a `RouteDialog` (viewers) — the origin of the screen at the URL this
+ * component mounted on.
  */
 function useOpenedFrom(): string {
-    const lastUrl = useContext(LastUrl);
     const fromDialog = useContext(ReturnUrl);
-    const [ownFallback] = useState(() => lastUrl?.current ?? routes.assets());
+    const pathname = usePathname();
+    const [mountPath] = useState(pathname);
+    const own = useScreenOrigin(fromDialog === null ? mountPath : null);
 
-    return fromDialog ?? ownFallback;
+    return fromDialog ?? own;
 }
 
 /**
@@ -85,6 +117,7 @@ function useOpenedFrom(): string {
  */
 export function RouteDialog({
     children,
+    routeKey,
     size = 'lg',
     className,
     hideClose,
@@ -92,14 +125,21 @@ export function RouteDialog({
     onClose,
 }: {
     children: ReactNode;
+    /**
+     * URL prefix shared by all the URLs of this dialog (e.g. without the tab).
+     * Defaults to the URL it opened on.
+     */
+    routeKey?: string;
     size?: DialogSize;
     className?: string;
     hideClose?: boolean;
     closeOnEscape?: boolean;
     onClose?: () => void;
 }) {
-    const returnUrl = useOpenedFrom();
-    const closeRoute = useCloseRoute();
+    const router = useRouter();
+    const pathname = usePathname();
+    const [screen] = useState(() => routeKey ?? pathname);
+    const returnUrl = useScreenOrigin(screen);
     const [open, setOpen] = useState(true);
     const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -110,8 +150,11 @@ export function RouteDialog({
     const close = useCallback(() => {
         setOpen(false);
         onClose?.();
-        timer.current = setTimeout(closeRoute, modalExitDuration);
-    }, [closeRoute, onClose]);
+        timer.current = setTimeout(
+            () => router.push(returnUrl, {scroll: false}),
+            modalExitDuration
+        );
+    }, [router, returnUrl, onClose]);
 
     return (
         <Dialog open={open} onOpenChange={o => !o && close()}>
