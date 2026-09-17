@@ -50,6 +50,11 @@ import {cn} from '@/lib/utils/cn';
 import {debounce, deepEquals} from '@/lib/utils/misc';
 import {Flag} from '@/components/ui/flag';
 import {Input} from '@/components/ui/input';
+import {
+    type ResolvedEntity,
+    useEntitiesStore,
+} from '@/features/search/entitiesStore';
+import {iri} from '@/lib/utils/iri';
 
 /** per asset, per definition, per locale => values */
 type ValueMap = Record<string, Record<string, Record<string, unknown[]>>>;
@@ -64,6 +69,49 @@ const TAGS_DEFINITION_ID = '__tags';
 
 function keyOf(v: unknown): string {
     return typeof v === 'object' ? JSON.stringify(v) : String(v);
+}
+
+/**
+ * Relation values (entity, tag, user...) are edited as ids: labels come from
+ * the entities store, seeded with the loaded objects and resolved otherwise.
+ */
+function useValueFormatter() {
+    const ctx = useFormatContext();
+    const index = useEntitiesStore(s => s.index);
+    const request = useEntitiesStore(s => s.request);
+    const missing: string[] = [];
+    useEffect(() => {
+        missing.forEach(request);
+    });
+
+    return (definition: AttributeDefinition, value: unknown): string => {
+        const typeDef = getAttributeType(definition.type);
+        let resolved = value;
+        if (typeDef.entity && typeof value === 'string' && value) {
+            const entityIri = iri(typeDef.entity, value);
+            const entry = index[entityIri];
+            if (entry === undefined) {
+                missing.push(entityIri);
+
+                return '…';
+            }
+            if (typeof entry === 'object') {
+                resolved = entry;
+            }
+        }
+
+        return typeDef.formatString(resolved, undefined, ctx) || String(value);
+    };
+}
+
+function relationEntry(
+    definition: {type: AttributeType | string},
+    item: unknown
+): [string, ResolvedEntity] | undefined {
+    const entity = getAttributeType(definition.type).entity;
+    if (entity && item && typeof item === 'object' && 'id' in item) {
+        return [iri(entity, String(item.id)), item as ResolvedEntity];
+    }
 }
 
 /**
@@ -162,6 +210,31 @@ export function AttributeBatchEditorRoute() {
 
         return map;
     }, [assets, attributesQuery.data]);
+
+    const storeEntities = useEntitiesStore(s => s.storeMany);
+    useEffect(() => {
+        const entities: Record<string, ResolvedEntity> = {};
+        assets.forEach(a =>
+            (a.tags ?? []).forEach(tg => {
+                entities[iri(EntityName.Tag, tg.id)] =
+                    tg as unknown as ResolvedEntity;
+            })
+        );
+        (attributesQuery.data ?? []).forEach(attr => {
+            const entry = relationEntry(attr.definition, attr.value);
+            if (entry) {
+                entities[entry[0]] = entry[1];
+            }
+        });
+        storeEntities(entities);
+    }, [assets, attributesQuery.data, storeEntities]);
+    const rememberItem = (definition: AttributeDefinition, item: unknown) => {
+        const entry = relationEntry(definition, item);
+        if (entry) {
+            storeEntities({[entry[0]]: entry[1]});
+        }
+    };
+    const formatValue = useValueFormatter();
 
     const [history, setHistory] = useState<{
         past: EditorState[];
@@ -685,7 +758,7 @@ export function AttributeBatchEditorRoute() {
                 {/* definitions */}
                 <aside className="overflow-y-auto border-r">
                     {definitions.map(def => {
-                        const vals = new Set<string>();
+                        const vals = new Map<string, unknown>();
                         let indeterminate = false;
                         let first: string | undefined;
                         state.subSelection.forEach((id, i) => {
@@ -704,7 +777,7 @@ export function AttributeBatchEditorRoute() {
                                 id,
                                 def.id,
                                 def.translatable ? locale : NO_LOCALE
-                            ).forEach(v => vals.add(keyOf(v)));
+                            ).forEach(v => vals.set(keyOf(v), v));
                         });
                         const changed = state.subSelection.some(
                             id =>
@@ -755,7 +828,7 @@ export function AttributeBatchEditorRoute() {
                                             {count: vals.size}
                                         )
                                     ) : (
-                                        [...vals][0]
+                                        formatValue(def, [...vals.values()][0])
                                     )}
                                 </span>
                             </button>
@@ -813,6 +886,8 @@ export function AttributeBatchEditorRoute() {
                             total={eligible.length}
                             onAdd={addToAll}
                             onRemove={removeFromAll}
+                            onItem={rememberItem}
+                            formatValue={formatValue}
                             workspaceId={workspaceId}
                         />
                     ) : (
@@ -822,6 +897,7 @@ export function AttributeBatchEditorRoute() {
                             total={eligible.length}
                             onChange={debouncedSetSingle}
                             onCommit={setSingle}
+                            onItem={rememberItem}
                             workspaceId={workspaceId}
                         />
                     )}
@@ -850,6 +926,7 @@ export function AttributeBatchEditorRoute() {
                                     definition={currentDef}
                                     distinct={distinct}
                                     total={eligible.length}
+                                    formatValue={formatValue}
                                     remote={eligible.flatMap(
                                         id =>
                                             remote[id]?.[currentDef.id]?.[
@@ -964,7 +1041,10 @@ export function AttributeBatchEditorRoute() {
                                                             ) : (
                                                                 <PlusIcon />
                                                             )}{' '}
-                                                            {String(d.value)}
+                                                            {formatValue(
+                                                                currentDef,
+                                                                d.value
+                                                            )}
                                                         </Button>
                                                     );
                                                 })}
@@ -982,6 +1062,7 @@ export function AttributeBatchEditorRoute() {
 }
 
 type Distinct = {key: string; value: unknown; count: number}[];
+type ValueFormatter = ReturnType<typeof useValueFormatter>;
 
 function SingleValueEditor({
     definition,
@@ -989,6 +1070,7 @@ function SingleValueEditor({
     total,
     onChange,
     onCommit,
+    onItem,
     workspaceId,
 }: {
     definition: AttributeDefinition;
@@ -996,6 +1078,7 @@ function SingleValueEditor({
     total: number;
     onChange: (v: unknown) => void;
     onCommit: (v: unknown) => void;
+    onItem: (definition: AttributeDefinition, item: unknown) => void;
     workspaceId?: string;
 }) {
     const {t} = useTranslation();
@@ -1020,7 +1103,8 @@ function SingleValueEditor({
                 }
                 disabled={!definition.canEdit}
                 workspaceId={workspaceId}
-                onChange={v => {
+                onChange={(v, item) => {
+                    onItem(definition, item);
                     setLocal(v);
                     if (
                         definition.type === AttributeType.Text ||
@@ -1051,6 +1135,8 @@ function MultiValueEditor({
     total,
     onAdd,
     onRemove,
+    onItem,
+    formatValue,
     workspaceId,
 }: {
     definition: AttributeDefinition;
@@ -1058,12 +1144,12 @@ function MultiValueEditor({
     total: number;
     onAdd: (v: unknown) => void;
     onRemove: (v: unknown) => void;
+    onItem: (definition: AttributeDefinition, item: unknown) => void;
+    formatValue: ValueFormatter;
     workspaceId?: string;
 }) {
     const {t} = useTranslation();
-    const ctx = useFormatContext();
     const [draft, setDraft] = useState<unknown>('');
-    const typeDef = getAttributeType(definition.type);
 
     return (
         <div className="space-y-3">
@@ -1074,8 +1160,7 @@ function MultiValueEditor({
                         className="flex items-center gap-2 rounded-md border px-2 py-1.5 text-sm"
                     >
                         <span className="min-w-0 flex-1 truncate">
-                            {typeDef.formatString(d.value, undefined, ctx) ||
-                                String(d.value)}
+                            {formatValue(definition, d.value)}
                         </span>
                         <PartPercentage part={d.count} total={total} />
                         {d.count < total ? (
@@ -1118,7 +1203,8 @@ function MultiValueEditor({
                         id={`batch-add-${definition.id}`}
                         definition={definition}
                         value={draft}
-                        onChange={v => {
+                        onChange={(v, item) => {
+                            onItem(definition, item);
                             if (
                                 definition.type === AttributeType.Tag ||
                                 definition.type === AttributeType.Entity ||
@@ -1179,6 +1265,7 @@ function ValuesSuggestions({
     definition,
     distinct,
     total,
+    formatValue,
     remote,
     onApply,
     onSelectAssets,
@@ -1186,13 +1273,12 @@ function ValuesSuggestions({
     definition: AttributeDefinition;
     distinct: Distinct;
     total: number;
+    formatValue: ValueFormatter;
     remote: unknown[];
     onApply: (v: unknown) => void;
     onSelectAssets: (v: unknown) => void;
 }) {
     const {t} = useTranslation();
-    const ctx = useFormatContext();
-    const typeDef = getAttributeType(definition.type);
     const [filter, setFilter] = useState('');
     const remoteKeys = new Set(remote.map(keyOf));
 
@@ -1214,7 +1300,7 @@ function ValuesSuggestions({
                     .filter(
                         d =>
                             !filter ||
-                            String(d.value)
+                            formatValue(definition, d.value)
                                 .toLowerCase()
                                 .includes(filter.toLowerCase())
                     )
@@ -1229,11 +1315,7 @@ function ValuesSuggestions({
                         >
                             <div className="flex items-center gap-2">
                                 <span className="min-w-0 flex-1 truncate">
-                                    {typeDef.formatString(
-                                        d.value,
-                                        undefined,
-                                        ctx
-                                    ) || String(d.value)}
+                                    {formatValue(definition, d.value)}
                                 </span>
                                 {!remoteKeys.has(d.key) ? (
                                     <Badge variant="secondary">
@@ -1288,7 +1370,7 @@ function SavePreviewDialog({
     onConfirm: () => Promise<void>;
 }) {
     const {t} = useTranslation();
-    const ctx = useFormatContext();
+    const formatValue = useValueFormatter();
 
     return (
         <ConfirmDialog
@@ -1305,51 +1387,42 @@ function SavePreviewDialog({
             onConfirm={onConfirm}
         >
             <ul className="max-h-72 space-y-1 overflow-y-auto text-sm">
-                {actions.map((a, i) => {
-                    const typeDef = getAttributeType(a.definition.type);
-
-                    return (
-                        <li
-                            key={i}
-                            className="flex items-center gap-2 rounded border px-2 py-1"
+                {actions.map((a, i) => (
+                    <li
+                        key={i}
+                        className="flex items-center gap-2 rounded border px-2 py-1"
+                    >
+                        <Badge
+                            variant={
+                                a.action === AttributeBatchActionEnum.Delete
+                                    ? 'destructive'
+                                    : a.action === AttributeBatchActionEnum.Add
+                                      ? 'success'
+                                      : 'secondary'
+                            }
                         >
-                            <Badge
-                                variant={
-                                    a.action === AttributeBatchActionEnum.Delete
-                                        ? 'destructive'
-                                        : a.action ===
-                                            AttributeBatchActionEnum.Add
-                                          ? 'success'
-                                          : 'secondary'
-                                }
-                            >
-                                {a.action}
-                            </Badge>
-                            <span className="font-medium">
-                                {a.definition.displayName ?? a.definition.name}
-                            </span>
-                            {a.locale !== NO_LOCALE ? (
-                                <Flag locale={a.locale} />
-                            ) : null}
-                            <span className="min-w-0 flex-1 truncate text-muted-foreground">
-                                {a.value === undefined
-                                    ? '—'
-                                    : typeDef.formatString(
-                                          a.value,
-                                          undefined,
-                                          ctx
-                                      ) || String(a.value)}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                                {t(
-                                    'batch_edit.confirm.assets',
-                                    '{{count}} asset(s)',
-                                    {count: a.assets.length}
-                                )}
-                            </span>
-                        </li>
-                    );
-                })}
+                            {a.action}
+                        </Badge>
+                        <span className="font-medium">
+                            {a.definition.displayName ?? a.definition.name}
+                        </span>
+                        {a.locale !== NO_LOCALE ? (
+                            <Flag locale={a.locale} />
+                        ) : null}
+                        <span className="min-w-0 flex-1 truncate text-muted-foreground">
+                            {a.value === undefined
+                                ? '—'
+                                : formatValue(a.definition, a.value)}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                            {t(
+                                'batch_edit.confirm.assets',
+                                '{{count}} asset(s)',
+                                {count: a.assets.length}
+                            )}
+                        </span>
+                    </li>
+                ))}
             </ul>
         </ConfirmDialog>
     );

@@ -5,6 +5,7 @@ import {useTranslation} from 'react-i18next';
 import {AsyncCombobox, ComboOption} from './AsyncCombobox';
 import {
     getAttributeEntities,
+    getAttributeEntity,
     getTag,
     getTags,
     postAttributeEntity,
@@ -243,6 +244,10 @@ export function AttributeEntitySelect({
         },
         [listId]
     );
+    const resolve = useCallback(
+        async (value: string) => entityOption(await getAttributeEntity(value)),
+        []
+    );
 
     return (
         <AsyncCombobox<AttributeEntity>
@@ -250,6 +255,7 @@ export function AttributeEntitySelect({
             disabled={disabled || !listId}
             queryKey={['attribute-entities', listId]}
             loadOptions={load}
+            resolveValue={resolve}
             value={value}
             onChange={(v, opt) => onChange(v, opt?.item)}
             placeholder={t('form.entity.placeholder', 'Select a value…')}
