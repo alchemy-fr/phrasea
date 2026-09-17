@@ -23,7 +23,8 @@ export type AttributeWidgetProps = {
     id: string;
     definition: AttributeDefinition;
     value: unknown;
-    onChange: (value: unknown) => void;
+    /** `item` is the selected object for relation types (tag, entity, user) */
+    onChange: (value: unknown, item?: unknown) => void;
     disabled?: boolean;
     readOnly?: boolean;
     autoFocus?: boolean;
@@ -233,7 +234,7 @@ export function AttributeWidget(props: AttributeWidgetProps) {
                                 : idFromIri(String(value))
                             : undefined
                     }
-                    onChange={v => onChange(v)}
+                    onChange={(v, tag) => onChange(v, tag)}
                 />
             );
         case AttributeType.Entity: {
@@ -260,7 +261,7 @@ export function AttributeWidget(props: AttributeWidgetProps) {
                                 : String(value)
                             : undefined
                     }
-                    onChange={v => onChange(v)}
+                    onChange={(v, entity) => onChange(v, entity)}
                 />
             );
         }
@@ -276,7 +277,7 @@ export function AttributeWidget(props: AttributeWidgetProps) {
                                 : String(value)
                             : undefined
                     }
-                    onChange={v => onChange(v)}
+                    onChange={(v, users) => onChange(v, users?.[0])}
                 />
             );
         case AttributeType.Privacy:

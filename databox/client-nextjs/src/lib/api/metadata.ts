@@ -267,6 +267,10 @@ export async function getAttributeEntities(options: {
     );
 }
 
+export function getAttributeEntity(id: string): Promise<AttributeEntity> {
+    return api.get<AttributeEntity>(`/${EntityName.AttributeEntity}/${id}`);
+}
+
 export function postAttributeEntity(
     listId: string,
     data: Partial<AttributeEntity>

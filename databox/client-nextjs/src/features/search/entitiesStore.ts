@@ -14,6 +14,7 @@ type State = {
     pending: Set<string>;
     timer: ReturnType<typeof setTimeout> | null;
     store: (iri: string, entity: ResolvedEntity) => void;
+    storeMany: (entities: Record<string, ResolvedEntity>) => void;
     /** Returns the entity if known, schedules a fetch otherwise */
     request: (iri: string) => EntityEntry;
     flush: () => Promise<void>;
@@ -29,6 +30,7 @@ export const useEntitiesStore = create<State>((set, get) => ({
     timer: null,
 
     store: (iri, entity) => set(s => ({index: {...s.index, [iri]: entity}})),
+    storeMany: entities => set(s => ({index: {...s.index, ...entities}})),
 
     request: iri => {
         const {index, pending} = get();
