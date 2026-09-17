@@ -26,7 +26,7 @@ final readonly class FileAnalyzer
             return true;
         }
 
-        $hash = $file->getAnalysis()['hash'] ?? null;
+        $hash = $file->getAnalysis()?->getHash();
         if (null === $hash) {
             return true;
         }
@@ -44,10 +44,7 @@ final readonly class FileAnalyzer
     public function analyzeFile(File $file, array $config): void
     {
         if (File::STORAGE_S3_MAIN !== $file->getStorage()) {
-            $file->setAnalysis([
-                'status' => File::ANALYSIS_SKIPPED,
-                'message' => 'File analysis skipped because not stored into Databox.',
-            ]);
+            $file->setAnalysisResult(File::ANALYSIS_SKIPPED, message: 'File analysis skipped because not stored into Databox.');
             $this->fileDuplicateManager->replaceDuplicates($file, []);
 
             return;
@@ -86,11 +83,7 @@ final readonly class FileAnalyzer
 
     private function assignAnalysis(File $file, string $status, array $outputs, array $config, array $duplicatesByAnalyzer): void
     {
-        $file->setAnalysis([
-            'status' => $status,
-            'results' => $outputs,
-            'hash' => $this->computeHash($file, $config),
-        ]);
+        $file->setAnalysisResult($status, $outputs, $this->computeHash($file, $config));
 
         $this->fileDuplicateManager->replaceDuplicates($file, $duplicatesByAnalyzer);
     }
