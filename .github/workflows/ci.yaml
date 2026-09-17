@@ -15,8 +15,10 @@ env:
   DOCKER_TAG: ${{ github.sha }}
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   VERIFY_SSL: "false"
-  COMPOSE_PROFILES: databox,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard
+  COMPOSE_PROFILES: databox,databox-next,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard
   FIXTURES_GENERATE_IMAGES: "true"
+  CYPRESS_CPU_LIMIT: '2'
+  CYPRESS_MEMORY_LIMIT: '-1'
 
 jobs:
   build_keycloak:
