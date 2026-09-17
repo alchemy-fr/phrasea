@@ -17,8 +17,8 @@ env:
   VERIFY_SSL: "false"
   COMPOSE_PROFILES: databox,databox-next,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard
   FIXTURES_GENERATE_IMAGES: "true"
-  CYPRESS_CPU_LIMIT: '2'
-  CYPRESS_MEMORY_LIMIT: '-1'
+  CYPRESS_CPU_LIMIT: '8'
+  CYPRESS_MEMORY_LIMIT: '16G'
 
 jobs:
   build_keycloak:
