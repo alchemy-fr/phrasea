@@ -13,6 +13,7 @@ import {toast} from 'sonner';
 import type {ThreadMessage} from '@/types/api';
 import {
     deleteMessage,
+    getMessage,
     getThreadMessages,
     postMessage,
     putMessage,
@@ -113,9 +114,11 @@ export function Discussion({
                 : prev
         );
 
-    useChannelEvent(`thread-${threadKey}`, 'message', (m: ThreadMessage) =>
-        upsertLocal(m)
-    );
+    // The event only carries the id: the message itself is read back with the
+    // recipient's own permissions.
+    useChannelEvent(`thread-${threadKey}`, 'message', ({id}: {id: string}) => {
+        void getMessage(id).then(upsertLocal);
+    });
     useChannelEvent(
         `thread-${threadKey}`,
         'message-delete',
