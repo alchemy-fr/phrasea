@@ -386,6 +386,20 @@ export function waitForIndexed(qs, expectedCount, options = {}) {
     );
 }
 
+/**
+ * Baskets are listed from the search index, which is fed asynchronously: a
+ * freshly created basket shows up in the panel only once the API lists it.
+ */
+export function waitForBasketListed(name) {
+    return cy.waitUntil(
+        () =>
+            apiRequest({path: '/baskets'}).then(body =>
+                (body['hydra:member'] ?? []).some(b => b.name === name)
+            ),
+        {timeout: 60000, message: `basket "${name}" indexed`}
+    );
+}
+
 export function waitForAsset(id, predicate, message = 'asset state') {
     return cy.waitUntil(() => getAsset(id).then(predicate), {timeout: 120000, message});
 }
