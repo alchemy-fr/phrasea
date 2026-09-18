@@ -2,7 +2,7 @@
  * Feature 15 — Tag filter rules (per user / group tag inclusion or
  * exclusion). The API only exposes tag rules.
  */
-import {deleteWorkspace, seedWorkspace} from './lib/api';
+import {deleteWorkspace, ensureUser, seedWorkspace} from './lib/api';
 import {expectToastText, login, routeDialog} from './lib/app';
 import {databoxNextUrl} from '../lib/urls';
 
@@ -11,6 +11,7 @@ describe('Filter rules', () => {
 
     before(() => {
         login();
+        ensureUser('alice');
         seedWorkspace({assets: 1}).then(c => {
             ctx = c;
         });

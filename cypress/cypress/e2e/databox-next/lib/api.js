@@ -144,6 +144,33 @@ export const iri = (entity, id) => `/${entity}/${id}`;
  */
 export const ASSET_NAMES = ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot'];
 
+/**
+ * A user other than the logged-in admin, needed by the permission, filter rule
+ * and asset policy pickers. The databox fixtures create it the same way, so a
+ * stack loaded with them already has it — creating it again is a 409.
+ */
+export function ensureUser(username) {
+    return getAdminToken().then(token =>
+        cy.request({
+            method: 'POST',
+            url: `${keycloakUrl}/admin/realms/${keycloakRealm}/users`,
+            auth: {bearer: token},
+            failOnStatusCode: false,
+            body: {
+                username,
+                email: `${username}@phrasea.local`,
+                emailVerified: true,
+                enabled: true,
+                credentials: [
+                    {type: 'password', value: 'xxx', temporary: true},
+                ],
+            },
+        }).then(res => {
+            expect(res.status, `create user ${username}`).to.be.oneOf([201, 409]);
+        })
+    );
+}
+
 export function uniqueName(prefix) {
     return `${prefix} ${Date.now().toString(36)}${Math.floor(Math.random() * 1000)}`;
 }
