@@ -1,7 +1,7 @@
 /**
  * Feature 11 — Baskets.
  */
-import {deleteWorkspace, seedWorkspace} from './lib/api';
+import {deleteWorkspace, seedWorkspace, waitForBasketListed} from './lib/api';
 import {assetItem, dialogTab, expectToastText, login, openAssetContextMenu, openLeftPanelTab, routeDialog, visitWorkspace, waitForResults} from './lib/app';
 
 /**
@@ -56,6 +56,8 @@ describe('Baskets', () => {
         });
         expectToastText('Basket created');
         cy.getBySel('basket-item').contains(basketName).should('be.visible');
+        // The panel only refetches on load: the next specs need it indexed
+        waitForBasketListed(basketName);
     });
 
     it('sets the basket as current and adds a selection to it', () => {
