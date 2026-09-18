@@ -113,7 +113,8 @@ services:
       - S3_MAX_OBJECT_SIZE
       - NOTIFICATIONS_ENABLED
       - SOKETI_KEY
-      - SOKETI_HOST=soketi.${PHRASEA_DOMAIN}
+      # Carries the public HTTPS port, which is not 443 on every stack (CI).
+      - SOKETI_HOST=soketi.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -749,6 +750,14 @@ services:
       - PWI_EXPOSE_API_URL=${EXPOSE_API_URL}
       - PWI_EXPOSE_CLIENT_URL=${EXPOSE_CLIENT_URL}
       - PWI_UPLOADER_API_URL=${UPLOADER_API_URL}
+      # Reached directly on the internal network: going through Traefik would
+      # need the public HTTPS port, which is not 443 on every stack (CI).
+      - SOKETI_HOST=soketi
+      - SOKETI_PORT=6001
+      - SOKETI_SCHEME=http
+      - SOKETI_APP_ID
+      - SOKETI_KEY
+      - SOKETI_SECRET
       - DB_NAME=${DATABOX_DB_NAME}
       - PWI_DATABOX_EXPOSE_INTEGRATION_CLIENT_ID=${DATABOX_EXPOSE_INTEGRATION_CLIENT_ID}
       - API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE=${DATABOX_API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE}
