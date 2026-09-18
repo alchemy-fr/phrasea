@@ -2,9 +2,26 @@
  * Feature 25 — Runtime configuration injected by the server.
  */
 import {databoxApiUrl, keycloakUrl} from '../lib/urls';
+import {deleteWorkspace, seedWorkspace} from './lib/api';
 import {assetsUrl, login, visitAssets} from './lib/app';
 
 describe('Runtime configuration', () => {
+    let ctx;
+
+    // The workspace the last test opens: nothing guarantees the stack has one.
+    before(() => {
+        login();
+        seedWorkspace({assets: 1}).then(c => {
+            ctx = c;
+        });
+    });
+
+    after(() => {
+        if (ctx) {
+            deleteWorkspace(ctx.workspace.id);
+        }
+    });
+
     beforeEach(() => {
         cy.viewport(1400, 900);
     });

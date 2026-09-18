@@ -2,7 +2,7 @@
  * Feature 9 — Workspace administration dialog: info, edit, tags, attribute
  * definitions & policies, renditions, asset policies.
  */
-import {deleteWorkspace, seedWorkspace} from './lib/api';
+import {deleteWorkspace, ensureUser, seedWorkspace} from './lib/api';
 import {dialogTab, expectToastText, login, openLeftPanelTab, routeDialog, treeWorkspace, visitWorkspace, waitForResults} from './lib/app';
 import {databoxNextUrl} from '../lib/urls';
 
@@ -11,6 +11,7 @@ describe('Workspace administration', () => {
 
     before(() => {
         login();
+        ensureUser('alice');
         seedWorkspace({assets: 1}).then(c => {
             ctx = c;
         });

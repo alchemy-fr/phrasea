@@ -1,7 +1,7 @@
 /**
  * Feature 13 — Permissions (ACL) and privacy.
  */
-import {deleteWorkspace, seedWorkspace} from './lib/api';
+import {deleteWorkspace, ensureUser, seedWorkspace} from './lib/api';
 import {expectToastText, login, routeDialog} from './lib/app';
 import {databoxNextUrl} from '../lib/urls';
 
@@ -10,6 +10,7 @@ describe('Permissions & privacy', () => {
 
     before(() => {
         login();
+        ensureUser('alice');
         seedWorkspace({assets: 1}).then(c => {
             ctx = c;
         });
