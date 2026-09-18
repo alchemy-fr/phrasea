@@ -2,7 +2,7 @@
  * Feature 6 — Asset management dialog and actions: copy, move, delete,
  * restore, export, rename.
  */
-import {deleteWorkspace, getAsset, seedWorkspace, waitForIndexed} from './lib/api';
+import {deleteWorkspace, getAsset, seedWorkspace, waitForAsset, waitForIndexed} from './lib/api';
 import {assetItem, dialogTab, expandTreePickerWorkspace, expectToastText, login, openAssetContextMenu, pickTreeNode, routeDialog, visitWorkspace, waitForResults} from './lib/app';
 import {databoxNextUrl} from '../lib/urls';
 
@@ -85,9 +85,12 @@ describe('Asset actions', () => {
             cy.contains('button', 'Move').click();
         });
         expectToastText('1 asset(s) moved');
-        getAsset(ctx.assets[2].id).then(asset => {
-            expect(asset.referenceCollection?.id ?? asset.collections?.[0]?.id).to.eq(ctx.entertainment.id);
-        });
+        // The move is processed asynchronously
+        waitForAsset(
+            ctx.assets[2].id,
+            asset => (asset.referenceCollection?.id ?? asset.collections?.[0]?.id) === ctx.entertainment.id,
+            'asset moved to Entertainment'
+        );
     });
 
     it('opens the export dialog for assets with a file', () => {

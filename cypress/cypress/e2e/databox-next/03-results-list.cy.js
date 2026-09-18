@@ -105,9 +105,10 @@ describe('Results list', () => {
     it('groups results into sections when sorting with grouping enabled', () => {
         cy.getBySel('sort-button').click();
         cy.get('[role=dialog]').last().within(() => {
-            // Grouping needs a non-score first criterion: drop @score, add Keywords
-            cy.contains('@score').parent().find('[role=switch]').click();
-            cy.contains('@createdAt').parent().find('[role=switch]').click();
+            // Grouping needs a non-score first criterion: drop the built-in
+            // Score and Created At rows, which are labelled by the API
+            cy.contains(/^Score$/).parent().find('[role=switch]').click();
+            cy.contains(/^Created At$/).parent().find('[role=switch]').click();
             // Grouping works on single-valued attributes
             cy.contains('Description').parent().find('[role=switch]').click();
             cy.fieldByLabel('Group by sections').click();
