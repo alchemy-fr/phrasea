@@ -31,7 +31,10 @@ readonly class ImportFileHandler
         $file = DoctrineUtil::findStrict($this->em, File::class, $message->getFileId());
 
         if (!$file->isPathPublic()) {
-            throw new \InvalidArgumentException(sprintf('Import error: Source of file "%s" is not publicly accessible', $file->getId()));
+            // Declared private by the client: the URL cannot be fetched, retrying never helps.
+            $this->logger->error(sprintf('Import error: Source of file "%s" is not publicly accessible', $file->getId()));
+
+            return;
         }
 
         if (File::STORAGE_URL !== $file->getStorage()) {

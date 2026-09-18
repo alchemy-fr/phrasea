@@ -175,6 +175,10 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(),
         new Post(
             controller: CreateAssetAction::class,
+            // The controller resolves the publication itself; without this, API Platform
+            // "reads" the item through the publication link and fails with a
+            // NonUniqueResultException as soon as the publication holds several assets.
+            read: false,
             openapiContext: [
                 'requestBody' => [
                     'content' => [

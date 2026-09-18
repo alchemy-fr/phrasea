@@ -73,6 +73,14 @@ final readonly class JobExecutor
 
             $jobId = $job->getId();
 
+            if (null === $jobState) {
+                // The state was removed while the job message was in flight
+                // (e.g. workflow deleted along with its subject): nothing left to run.
+                $this->logger->warning(sprintf('Job state "%s" of job "%s" not found for workflow "%s", skipping', $jobStateId, $jobId, $workflowId));
+
+                return null;
+            }
+
             try {
                 $status = $jobState->getStatus();
                 if (JobState::STATUS_TRIGGERED !== $status) {

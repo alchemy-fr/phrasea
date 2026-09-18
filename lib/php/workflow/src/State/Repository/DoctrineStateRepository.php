@@ -6,6 +6,7 @@ namespace Alchemy\Workflow\State\Repository;
 
 use Alchemy\Workflow\Doctrine\Entity\JobState as JobStateEntity;
 use Alchemy\Workflow\Doctrine\Entity\WorkflowState as WorkflowStateEntity;
+use Alchemy\Workflow\Exception\WorkflowStateNotFoundException;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\WorkflowState;
 use Doctrine\DBAL\LockMode;
@@ -39,7 +40,7 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface, Tran
     {
         $entity = $this->em->getRepository($this->workflowStateEntity)->find($id);
         if (!$entity instanceof WorkflowStateEntity) {
-            throw new \InvalidArgumentException(sprintf('Workflow state "%s" does not exist', $id));
+            throw new WorkflowStateNotFoundException($id);
         }
 
         $state = $entity->getWorkflowState();
