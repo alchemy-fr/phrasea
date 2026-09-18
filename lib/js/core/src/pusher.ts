@@ -36,9 +36,14 @@ export function createPusher({
     authorize?: ChannelAuthorizer;
     options?: Partial<Options>;
 }): Pusher {
+    // The host carries the public port when the stack is not served on 443.
+    const [wsHost, port] = host.split(':');
+    const wsPort = port ? Number(port) : 443;
+
     const pusher = new Pusher(key, {
-        wsHost: host,
-        wsPort: 443,
+        wsHost,
+        wsPort,
+        wssPort: wsPort,
         forceTLS: true,
         disableStats: true,
         enabledTransports: ['ws'],

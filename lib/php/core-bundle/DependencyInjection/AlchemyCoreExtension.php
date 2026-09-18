@@ -120,6 +120,8 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
             '$secret' => $config['secret'],
             '$appId' => $config['appId'],
             '$verifySsl' => $config['verifySsl'],
+            '$port' => $config['port'],
+            '$scheme' => $config['scheme'],
         ]);
         $def->setFactory([PusherFactory::class, 'create']);
         $container->setDefinition(Pusher::class, $def);
