@@ -14,7 +14,7 @@ abstract class AbstractLog extends AbstractUuidEntity
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     protected \DateTimeImmutable $date;
 
-    #[ORM\Column(type: Types::STRING, length: 32, nullable: true)]
+    #[ORM\Column(type: Types::STRING, length: 39, nullable: true)]
     private ?string $ip = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
