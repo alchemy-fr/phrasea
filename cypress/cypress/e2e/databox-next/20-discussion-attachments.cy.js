@@ -38,7 +38,12 @@ describe('Discussion & attachments', () => {
         });
         cy.menuItem('Edit').click();
         cy.getBySel('asset-view').within(() => {
-            cy.get('[data-message-id] textarea').clear().should('have.value', '').type('Edited from Cypress');
+            // The thread re-renders while the editor is open, which detaches
+            // the textarea: query it again for every step
+            cy.get('[data-message-id] textarea').should('have.value', 'Hello from Cypress');
+            cy.wait(1000);
+            cy.get('[data-message-id] textarea').type('{selectall}{del}Edited from Cypress');
+            cy.get('[data-message-id] textarea').should('have.value', 'Edited from Cypress');
             cy.contains('button', 'Save').click();
             cy.contains('Edited from Cypress', {timeout: 20000}).should('be.visible');
             // Let the thread reload settle before opening the row menu

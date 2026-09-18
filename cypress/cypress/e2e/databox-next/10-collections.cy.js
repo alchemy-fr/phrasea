@@ -1,7 +1,7 @@
 /**
  * Feature 10 — Collections tree and collection management.
  */
-import {deleteWorkspace, seedWorkspace} from './lib/api';
+import {apiRequest, deleteWorkspace, seedWorkspace} from './lib/api';
 import {dialogTab, expandTreePickerWorkspace, expandTreeWorkspace, expectToastText, login, openLeftPanelTab, routeDialog, treeCollection, treeWorkspace, visitWorkspace, waitForResults} from './lib/app';
 import {databoxNextUrl} from '../lib/urls';
 
@@ -113,6 +113,12 @@ describe('Collections', () => {
         });
         expectToastText('Collection moved to trash');
 
+        // The collection is moved to the trash asynchronously: the operations
+        // tab offers "Restore" only once the API reports it deleted
+        cy.waitUntil(
+            () => apiRequest({path: `/collections/${ctx.entertainment.id}`}).then(c => c.deleted === true),
+            {timeout: 60000, message: 'collection in trash'}
+        );
         cy.visit(`${databoxNextUrl}/collections/${ctx.entertainment.id}/manage/operations`);
         routeDialog().within(() => {
             cy.contains('button', 'Restore').click();
