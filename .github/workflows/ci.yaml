@@ -15,7 +15,7 @@ env:
   DOCKER_TAG: ${{ github.sha }}
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   VERIFY_SSL: "false"
-  COMPOSE_PROFILES: databox,databox-next,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard
+  COMPOSE_PROFILES: databox,databox-next,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard,soketi
   FIXTURES_GENERATE_IMAGES: "true"
   CYPRESS_CPU_LIMIT: '4'
   CYPRESS_MEMORY_LIMIT: '16G'
@@ -254,7 +254,7 @@ jobs:
         run: |
           docker compose build cypress &
           docker compose up -d --wait expose-api-php --wait-timeout 200 &
-          docker compose up -d --wait databox-client-next databox-api-php --wait-timeout 200 &
+          docker compose up -d --wait databox-client-next databox-api-php soketi --wait-timeout 200 &
           wait
           docker compose exec expose-api-php bin/console hautelook:fixtures:load -n
           docker compose restart expose-api-nginx
