@@ -4,6 +4,24 @@
 import {deleteWorkspace, seedWorkspace} from './lib/api';
 import {assetItem, dialogTab, expectToastText, login, openAssetContextMenu, openLeftPanelTab, routeDialog, visitWorkspace, waitForResults} from './lib/app';
 
+/**
+ * Creating a basket already makes it the current one, and the row then offers
+ * "Unset as current" instead.
+ */
+function makeCurrent(basketName) {
+    cy.getBySel('basket-item')
+        .contains(basketName)
+        .closest('[data-testid=basket-item]')
+        .then($row => {
+            if ($row.attr('data-current') === 'true') {
+                return;
+            }
+
+            cy.wrap($row).rightclick();
+            cy.menuItem('Set as current').click();
+        });
+}
+
 describe('Baskets', () => {
     let ctx;
     const basketName = `E2E basket ${Date.now()}`;
@@ -42,8 +60,7 @@ describe('Baskets', () => {
 
     it('sets the basket as current and adds a selection to it', () => {
         openLeftPanelTab('Baskets');
-        cy.getBySel('basket-item').contains(basketName).closest('[data-testid=basket-item]').rightclick();
-        cy.menuItem('Set as current').click();
+        makeCurrent(basketName);
         cy.getBySel('basket-item').contains(basketName).closest('[data-testid=basket-item]').should('have.attr', 'data-current', 'true');
 
         assetItem('Alpha').click();
@@ -54,8 +71,7 @@ describe('Baskets', () => {
 
     it('adds an asset from the context menu and opens the basket view', () => {
         openLeftPanelTab('Baskets');
-        cy.getBySel('basket-item').contains(basketName).closest('[data-testid=basket-item]').rightclick();
-        cy.menuItem('Set as current').click();
+        makeCurrent(basketName);
         openAssetContextMenu('Charlie');
         cy.menuItem('Add to basket').click();
         expectToastText('1 item(s) added to basket');
@@ -96,7 +112,7 @@ describe('Baskets', () => {
 
         cy.getBySel('basket-item').contains(`${basketName} edited`).closest('[data-testid=basket-item]').rightclick();
         cy.menuItem('Archive').click();
-        cy.getBySel('basket-item').contains(`${basketName} edited`).should('not.exist');
+        cy.contains('[data-testid=basket-item]', `${basketName} edited`).should('not.exist');
         cy.fieldByLabel('Display archived').click();
         cy.getBySel('basket-item').contains(`${basketName} edited`).should('be.visible');
         cy.getBySel('basket-item').contains(`${basketName} edited`).closest('[data-testid=basket-item]').rightclick();
@@ -105,6 +121,6 @@ describe('Baskets', () => {
         cy.getBySel('basket-item').contains(`${basketName} edited`).closest('[data-testid=basket-item]').rightclick();
         cy.menuItem('Delete').click();
         cy.dialog().contains('button', /Delete|Confirm/).click();
-        cy.getBySel('basket-item').contains(`${basketName} edited`).should('not.exist');
+        cy.contains('[data-testid=basket-item]', `${basketName} edited`).should('not.exist');
     });
 });

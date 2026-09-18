@@ -166,7 +166,8 @@ describe('Search', () => {
         cy.getBySel('saved-search-item').contains(name).closest('[data-testid=saved-search-item]').scrollIntoView().find('button').last().click({force: true});
         cy.menuItem('Delete').click();
         cy.dialog().contains('button', /Confirm|Delete/).click();
-        cy.getBySel('saved-search-item').contains(name).should('not.exist');
+        // The list may now be empty: match the row itself
+        cy.contains('[data-testid=saved-search-item]', name).should('not.exist');
     });
 
     it('clears the whole search from the "More" menu', () => {
