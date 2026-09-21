@@ -8,6 +8,7 @@ use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
+use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\TextAttributeType;
 use App\Entity\Basket\Basket;
@@ -105,6 +106,9 @@ trait DataboxTestTrait
         $em = self::getEntityManager();
 
         $collection = new Collection();
+        if (isset($options['id'])) {
+            self::forceEntityId($collection, $options['id']);
+        }
         $collection->setWorkspace($options['workspace'] ?? $this->getOrCreateDefaultWorkspace());
         $collection->setName($options['name'] ?? null);
         $collection->setOwnerId($options['ownerId'] ?? 'custom_owner');
@@ -122,6 +126,16 @@ trait DataboxTestTrait
         }
 
         return $collection;
+    }
+
+    /**
+     * Forces the (assigned) UUID of a not-yet-persisted entity, to pin test cases
+     * that depend on a specific ID value.
+     */
+    protected static function forceEntityId(AbstractUuidEntity $entity, string $id): void
+    {
+        $property = new \ReflectionProperty(AbstractUuidEntity::class, 'id');
+        $property->setValue($entity, Uuid::fromString($id));
     }
 
     protected function createCollectionAccess(Collection $collection, ?string $userId, int $privacy, array $options = []): CollectionAccess

@@ -99,7 +99,7 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
             Collection::GROUP_LIST,
             Workspace::GROUP_LIST,
         ], $context)) {
-            $k = $data->getId().$this->getUserCacheId();
+            $k = 'w.'.$data->getId().$this->getUserCacheId();
             $output->setCapabilities($this->capCache->get($k, fn (): array => [
                 'createAsset' => $this->isGranted(AssetContainerVoterInterface::ASSET_CREATE, $data),
                 'createCollection' => $this->isGranted(WorkspaceVoter::CREATE_COLLECTION, $data),

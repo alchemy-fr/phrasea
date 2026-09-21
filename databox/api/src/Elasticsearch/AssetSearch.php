@@ -8,7 +8,9 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeInterface;
 use App\Elasticsearch\AQL\ConditionOperatorEnum;
 use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use App\Elasticsearch\BuiltInAttribute\CollectionBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\CustomSortBuiltInAttributeInterface;
 use App\Elasticsearch\BuiltInAttribute\DeletedBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\DirectCollectionBuiltInAttribute;
 use App\Entity\Core\Asset;
@@ -45,6 +47,7 @@ class AssetSearch extends AbstractSearch
         private readonly CollectionRepository $collectionRepository,
         private readonly SavedSearchRepository $savedSearchRepository,
         private readonly AssetSortGroupMapper $assetSortGroupMapper,
+        private readonly BuiltInAttributeRegistry $builtInAttributeRegistry,
     ) {
     }
 
@@ -71,6 +74,13 @@ class AssetSearch extends AbstractSearch
 
         if (isset($options['story'])) {
             $filterQueries[] = new Query\Term(['stories' => $options['story']]);
+        }
+
+        if (isset($options['collection'])) {
+            // Exact membership: unlike "parents", this does not span the sub-tree.
+            // collectionPaths is path-hierarchy analyzed, its "raw" sub-field holds the full paths.
+            $collection = DoctrineUtil::findStrictByRepo($this->collectionRepository, $options['collection'], throw404: true);
+            $filterQueries[] = new Query\Term(['collectionPaths.raw' => $collection->getAbsolutePath()]);
         }
 
         if (!empty($parentIds = self::toIdList($options['parents'] ?? null))) {
@@ -328,6 +338,13 @@ class AssetSearch extends AbstractSearch
                 $w = strtoupper((string) $way);
                 if (!in_array($w, ['ASC', 'DESC'], true)) {
                     throw new BadRequestHttpException(sprintf('Invalid sort way "%s"', $way));
+                }
+
+                $builtInAttribute = $this->builtInAttributeRegistry->getBuiltInAttribute($field);
+                if ($builtInAttribute instanceof CustomSortBuiltInAttributeInterface) {
+                    $sort[] = $builtInAttribute->createSortClause($w, $options);
+
+                    continue;
                 }
 
                 try {

@@ -15,6 +15,8 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 class AttributeRepository extends ServiceEntityRepository
 {
+    private const string CACHE_KEY_PREFIX = 'a.';
+
     private readonly CacheInterface $attributeCache;
 
     public function __construct(
@@ -111,12 +113,12 @@ class AttributeRepository extends ServiceEntityRepository
 
     public function resetAssetCache(Asset $asset): void
     {
-        $this->attributeCache->delete($asset->getId());
+        $this->attributeCache->delete(self::CACHE_KEY_PREFIX.$asset->getId());
     }
 
     public function getCachedAssetAttributes(string $assetId): array
     {
-        return $this->attributeCache->get($assetId, fn (): array => array_filter($this->getAssetAttributes($assetId), fn (Attribute $attribute): bool => $attribute->isValidValue()));
+        return $this->attributeCache->get(self::CACHE_KEY_PREFIX.$assetId, fn (): array => array_filter($this->getAssetAttributes($assetId), fn (Attribute $attribute): bool => $attribute->isValidValue()));
     }
 
     public function deleteByAttributeEntity(string $entityId, string $workspaceId, string $entityListId): void

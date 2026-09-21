@@ -8,6 +8,7 @@ use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\EntityAttributeType;
 use App\Elasticsearch\AssetPermissionComputer;
+use App\Elasticsearch\BuiltInAttribute\PositionBuiltInAttribute;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Elasticsearch\Suggestion\SuggestionLocales;
 use App\Entity\Core\Asset;
@@ -52,6 +53,7 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
         }
 
         $document->set('renditions', $this->compileRenditions($asset));
+        $document->set(PositionBuiltInAttribute::ES_FIELD, $this->compileCollectionPositions($asset));
 
         $attributeIndex = $this->attributesResolver->resolveAssetAttributes($asset, false);
 
@@ -75,6 +77,23 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
         //            }
         //        }
         //        $document->set(AttributeInterface::STORY_ATTRIBUTES_FIELD, !empty($storyAttrs) ? $storyAttrs : null);
+    }
+
+    /**
+     * The rank of the asset in each of its collections, so that a search narrowed
+     * down to one collection or story can sort on it.
+     */
+    private function compileCollectionPositions(Asset $asset): array
+    {
+        $positions = [];
+        foreach ($asset->getCollections() as $collectionAsset) {
+            $positions[] = [
+                'collection' => $collectionAsset->getCollection()->getId(),
+                'position' => $collectionAsset->getPosition() ?? 0,
+            ];
+        }
+
+        return $positions;
     }
 
     private function compileRenditions(Asset $asset): array

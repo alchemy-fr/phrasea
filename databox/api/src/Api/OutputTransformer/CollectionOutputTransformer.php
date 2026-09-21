@@ -34,6 +34,8 @@ class CollectionOutputTransformer implements OutputTransformerInterface
 
     final public const string COLLECTION_CACHE_NS = 'coll_visibility';
 
+    private const string CACHE_KEY_PREFIX = 'c.';
+
     private readonly CacheInterface $visibilityRequestCache;
 
     public function __construct(
@@ -137,7 +139,8 @@ class CollectionOutputTransformer implements OutputTransformerInterface
 
         // The same collection is embedded many times in a page of assets:
         // hit the shared cache once per request.
-        [$output->shared, $output->public] = $this->visibilityRequestCache->get($data->getId(), fn (): array => $this->collectionCache->get('c_'.$data->getId(), function (ItemInterface $item) use ($data): array {
+        $cacheKey = self::CACHE_KEY_PREFIX.$data->getId();
+        [$output->shared, $output->public] = $this->visibilityRequestCache->get($cacheKey, fn (): array => $this->collectionCache->get($cacheKey, function (ItemInterface $item) use ($data): array {
             $item->tag(self::COLLECTION_CACHE_NS);
             $shared = false;
             $public = false;

@@ -34,7 +34,22 @@ trait SearchTestTrait
             self::$documentIndices[$indexName] = $container->get('fos_elastica.index.'.$indexName);
         }
 
-        $application = new Application($kernel);
+        static::populateSearchIndices();
+
+        $container->get(EntityManagerInterface::class)->clear();
+    }
+
+    /**
+     * Rebuilds every index from the database.
+     *
+     * Entities written straight through the entity manager and only later related
+     * through an HTTP request lose their deferred index operation, because the test
+     * client reboots the kernel in between. Repopulating is the reliable way to get
+     * such a fixture fully indexed.
+     */
+    protected static function populateSearchIndices(): void
+    {
+        $application = new Application(static::$kernel);
         $application->setAutoExit(false);
         $application->setCatchExceptions(false);
         $application->run(new ArrayInput([
@@ -43,11 +58,9 @@ trait SearchTestTrait
 
         self::forceNewEntitiesToBeIndexed();
 
-        foreach ($indexes as $index) {
+        foreach (array_keys(self::$documentIndices) as $index) {
             static::waitForESIndex($index);
         }
-
-        $container->get(EntityManagerInterface::class)->clear();
     }
 
     protected static function forceNewEntitiesToBeIndexed(): void
