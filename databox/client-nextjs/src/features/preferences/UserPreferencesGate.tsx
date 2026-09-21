@@ -1,12 +1,13 @@
 'use client';
 
-import {PropsWithChildren, useEffect} from 'react';
+import {PropsWithChildren, useEffect, useRef} from 'react';
 import {useTheme} from 'next-themes';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {usePreferencesStore} from './store';
 import {FullPageLoader} from '@/components/ui/loader';
 import {setApiLocales} from '@/lib/api/http';
+import {useThemeStore} from '@/features/theme/themeStore';
 
 /**
  * Loads server-side user preferences once the session is known, then applies
@@ -24,11 +25,28 @@ export function UserPreferencesGate({children}: PropsWithChildren) {
         }
     }, [status, load]);
 
+    // Each persisted value is applied once: next-themes's setTheme changes
+    // identity with the current theme, re-running these effects would revert
+    // a change made on purpose without the preference (e.g. a preview).
+    const appliedTheme = useRef<string>(undefined);
     useEffect(() => {
-        if (preferences.theme) {
+        if (preferences.theme && preferences.theme !== appliedTheme.current) {
+            appliedTheme.current = preferences.theme;
             setTheme(preferences.theme);
         }
     }, [preferences.theme, setTheme]);
+
+    const setPalette = useThemeStore(s => s.setTheme);
+    const appliedPalette = useRef<string>(undefined);
+    useEffect(() => {
+        if (
+            preferences.palette &&
+            preferences.palette !== appliedPalette.current
+        ) {
+            appliedPalette.current = preferences.palette;
+            setPalette(preferences.palette, {persist: false});
+        }
+    }, [preferences.palette, setPalette]);
 
     useEffect(() => {
         setApiLocales({data: preferences.dataLocale});

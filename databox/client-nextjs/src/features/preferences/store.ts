@@ -33,7 +33,10 @@ export type FacetPreference = {
 
 export type UserPreferences = {
     autoSync?: boolean;
+    /** Appearance: light, dark or system */
     theme?: string;
+    /** Selected theme (palette + style): a preset id, `custom` or `default` */
+    palette?: string;
     layout?: LayoutMode;
     dataLocale?: string;
     profile?: string | null;

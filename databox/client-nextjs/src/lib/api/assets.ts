@@ -86,15 +86,20 @@ export async function getSearchSuggestions(
     return {...toPage(res), debug: res['debug:es']?.query};
 }
 
+/** A resolved entity, or `{notAllowed: true}` when the user cannot read it */
+export type ResolvedEntityValue = Record<string, unknown> & {
+    notAllowed?: boolean;
+};
+
 export async function resolveEntities(
     iris: string[],
     signal?: AbortSignal
-): Promise<Record<string, object | null>> {
-    return api.post(
-        `/${EntityName.Asset}/entities`,
-        {entities: iris},
-        {signal}
-    );
+): Promise<Record<string, ResolvedEntityValue | null>> {
+    const res = await api.post<{
+        entities: Record<string, ResolvedEntityValue | null>;
+    }>(`/${EntityName.Asset}/entities`, {entities: iris}, {signal});
+
+    return res.entities ?? {};
 }
 
 export function getAsset(id: string, signal?: AbortSignal): Promise<Asset> {

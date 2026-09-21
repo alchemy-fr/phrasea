@@ -42,6 +42,41 @@ baked at build time.
 | `DASHBOARD_CLIENT_URL`, `DISPLAY_SERVICES_MENU` | Services menu |
 | `MATOMO_URL`, `MATOMO_SITE_ID`, `SENTRY_DSN`… | Analytics / monitoring |
 | `DATABOX_TICKETING_ENABLED`, `DATABOX_TICKETING_JIRA_*` | Ticketing (see below) |
+| `CONFIGURATOR_S3_*`, `CONFIG_IS_PUBLIC`, `STACK_CONFIG_SRC`, `STACK_CONFIG_REFRESH_INTERVAL` | Stack configuration (see below) |
+
+## Stack configuration and themes
+
+Like the other clients, this one reads the **stack configuration**: the
+configurator entries (`Global Config` in the API admin) that the API dumps to
+`config.json` in the static bucket. It carries the `logo` and the
+**organisation theme** (`databox.theme`). The legacy clients fetch it once at
+container start (`lib/bash/configurator/get-config.sh`) and compile it into
+their HTML; this server does the same at request time, so that the theme is
+served as CSS with the page (no flash, no extra request):
+
+- when `CONFIGURATOR_S3_ENDPOINT` / `CONFIGURATOR_S3_BUCKET_NAME` are set,
+  `config.json` is fetched from the bucket (same URL and signature rules as
+  `get-config.sh`, `VERIFY_SSL` honoured) and cached for
+  `STACK_CONFIG_REFRESH_INTERVAL` seconds (default 60), so that a change made
+  by an administrator needs no restart;
+- otherwise (or when the bucket cannot be reached) the file written at
+  container start is read (`STACK_CONFIG_SRC`, default
+  `/etc/app/stack-config.json`).
+
+The theme menu has two independent choices: the **appearance** (light / dark
+/ system, handled by next-themes with the `dark` class) and the **theme**
+(`data-theme` on `<html>`): the base palette, ten built-in presets or, when
+one is defined, the organisation theme. Every preset is a light palette with a
+dark alternative and its own font, corner radius, base size and letter spacing
+(`src/app/globals.css`, `[data-theme='<id>']` and `.dark[data-theme='<id>']`).
+Administrators define the organisation theme from *Customize theme…*
+(`/admin/theme`): a light palette of hex colors, an optional dark alternative,
+the corner radius, the base font size, the letter spacing and the font family,
+previewed live on the page in either appearance. Saving goes through
+`PUT /client-theme` on the API, which stores the `databox.theme` configurator
+entry (validated with the same rules as the schema of the entry) and schedules
+the push of `config.json` to the bucket.
+The "apply by default" option makes it the theme of users who never picked one.
 
 ## Ticketing (JIRA)
 
@@ -117,6 +152,9 @@ Implemented:
   widgets, public rendering), workflows view, operation tasks, discussion
   with mentions, notifications & realtime (Soketi/Pusher), preferences
   (theme, UI & data locale), keyboard shortcuts, runtime configuration.
+- Themes: light / dark / system appearance, ten presets (palette, font,
+  radius, tracking, each with a dark alternative), and the organisation theme
+  customized by administrators (stack configuration, compiled server side).
 - Ticketing: floating button creating a JIRA issue with the page context, the
   user session and an optional screenshot.
 
