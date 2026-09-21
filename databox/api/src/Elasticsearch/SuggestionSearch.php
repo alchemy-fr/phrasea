@@ -92,7 +92,7 @@ class SuggestionSearch extends AbstractSearch
         }
 
         $start = microtime(true);
-        $resultSets = $multiSearch->search()->getResultSets();
+        $resultSets = $this->executeSearch(fn (): array => $multiSearch->search()->getResultSets());
         $searchTime = microtime(true) - $start;
 
         $items = isset($resultSets['values']) ? $this->createAttributeValueItems($resultSets['values'], $definitions) : [];
@@ -166,8 +166,8 @@ class SuggestionSearch extends AbstractSearch
         if (null !== $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds)) {
             $filterQuery->addFilter($aclBoolQuery);
         }
-        if (isset($options['workspaces'])) {
-            $filterQuery->addFilter(new Query\Terms('workspaceId', $options['workspaces']));
+        if (!empty($workspaceIds = self::toIdList($options['workspaces'] ?? null))) {
+            $filterQuery->addFilter(new Query\Terms('workspaceId', $workspaceIds));
         }
         $filterQuery->addMust(new Query\MatchQuery(self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD, $queryString));
 
@@ -224,8 +224,8 @@ class SuggestionSearch extends AbstractSearch
         foreach ($this->assetSearch->createBaseFilterQueries($userId, $groupIds, $options) as $filter) {
             $filterQuery->addFilter($filter);
         }
-        if (isset($options['workspaces'])) {
-            $filterQuery->addFilter(new Query\Terms('workspaceId', $options['workspaces']));
+        if (!empty($workspaceIds = self::toIdList($options['workspaces'] ?? null))) {
+            $filterQuery->addFilter(new Query\Terms('workspaceId', $workspaceIds));
         }
         $filterQuery->addFilter($nestedQuery);
 

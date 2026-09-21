@@ -64,5 +64,5 @@ class AssetInput extends AbstractOwnerIdInput
 
     public ?bool $isStory = null;
 
-    public ?array $story = null;
+    public ?AssetStoryInput $story = null;
 }

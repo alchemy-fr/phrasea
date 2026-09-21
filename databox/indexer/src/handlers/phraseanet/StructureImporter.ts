@@ -93,7 +93,9 @@ export async function addMissingRenditionsConf(
     const TARGET_ASSETS_ONLY = 1;
     const TARGET_ASSETS_AND_STORIES = 3;
     const target =
-        dm.importStories === true ? TARGET_ASSETS_AND_STORIES : TARGET_ASSETS_ONLY;
+        dm.importStories === true
+            ? TARGET_ASSETS_AND_STORIES
+            : TARGET_ASSETS_ONLY;
 
     dm.sourceFile = 'document';
 
@@ -694,19 +696,24 @@ function translateVideoSettings_withVcodec(sd: PhraseanetSubdefStruct): object {
     }
 
     if (null !== sd.options['acodec']) {
-        const audioCodecs = [
-            'libfaac',
-            'libvo_aacenc',
-            'libmp3lame',
-            'libvorbis',
-            'libfdk_aac',
-        ];
-        if (!audioCodecs.includes(sd.options['acodec'])) {
+        // Phraseanet may reference AAC encoders that the databox ffmpeg build does
+        // not ship (libfdk_aac is non-free, libfaac/libvo_aacenc were removed):
+        // map them to the native "aac" encoder.
+        const audioCodecMap: Record<string, string> = {
+            libfaac: 'aac',
+            libvo_aacenc: 'aac',
+            libfdk_aac: 'aac',
+            aac: 'aac',
+            libmp3lame: 'libmp3lame',
+            libvorbis: 'libvorbis',
+        };
+        const audioCodec = audioCodecMap[sd.options['acodec']];
+        if (!audioCodec) {
             throw new Error(
                 `Unsupported audio codec: ${sd.options['acodec']} for subdef video: ${sd.name}`
             );
         }
-        ffmpegModuleOptions['audio_codec'] = sd.options['acodec'];
+        ffmpegModuleOptions['audio_codec'] = audioCodec;
     }
 
     const audioSamplerate = sd.options['audiosamplerate'] ?? 0;

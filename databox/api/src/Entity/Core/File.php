@@ -94,7 +94,7 @@ class File extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: UuidType::NAME, nullable: true)]
     private ?string $docUniqueId = null;
 
-    #[ORM\Column(type: Types::STRING, length: 255, nullable: false)]
+    #[ORM\Column(type: Types::TEXT, nullable: false)]
     private ?string $path = null;
 
     public ?string $localTmpPath = null;

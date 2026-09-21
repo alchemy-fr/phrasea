@@ -20,12 +20,15 @@ framework:
         routing:
             Alchemy\ESBundle\Message\ESIndex: p1
             Alchemy\CoreBundle\Message\PusherMessage: p1
+            Alchemy\WorkflowBundle\Message\JobUpdatePusherMessage: p1
             Alchemy\Workflow\Message\JobConsumer: p2
             Alchemy\WebhookBundle\Consumer\WebhookTriggerMessage: p2
             Alchemy\WebhookBundle\Consumer\WebhookEvent: p2
             Alchemy\ConfiguratorBundle\Message\DeployConfig: p2
             Alchemy\NotifierBundle\Message\BroadcastNotification: p2
             Alchemy\NotifierBundle\Message\FlushNotificationDigest: p2
+            Alchemy\NotifierBundle\Message\SendNotification: p2
+            Alchemy\NotifierBundle\Message\SendEmailNotification: p2
             Alchemy\CoreBundle\Message\Debug\SentryDebug: p1
 
 when@dev:

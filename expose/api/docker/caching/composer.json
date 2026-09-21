@@ -96,6 +96,7 @@
         "nelmio/cors-bundle": "^2.1",
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",
+        "pusher/pusher-php-server": "^7.2.4",
         "ramsey/uuid-doctrine": "^1.5",
         "stof/doctrine-extensions-bundle": "^1.15",
         "symfony/amqp-messenger": "^7.4",

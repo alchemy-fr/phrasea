@@ -10,7 +10,9 @@ use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\IntegrationInterface;
 use App\Integration\IntegrationRegistry;
 use App\Model\IntegrationType;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
@@ -48,7 +50,11 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
         $integration = $this->integrationRegistry->getIntegration($object->getIntegration());
 
         if (null !== $data->configYaml) {
-            $object->setConfig(Yaml::parse($data->configYaml) ?? []);
+            try {
+                $object->setConfig(Yaml::parse($data->configYaml) ?? []);
+            } catch (ParseException $e) {
+                throw new BadRequestHttpException(sprintf('Invalid YAML configuration: %s', $e->getMessage()), $e);
+            }
         } elseif (null !== $data->config) {
             $object->setConfig($data->config);
         }

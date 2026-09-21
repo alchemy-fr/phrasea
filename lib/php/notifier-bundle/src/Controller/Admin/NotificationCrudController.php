@@ -15,6 +15,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('ROLE_ADMIN')]
@@ -43,6 +44,16 @@ class NotificationCrudController extends AbstractAdminCrudController
             ->remove(Crud::PAGE_INDEX, Action::EDIT)
             ->remove(Crud::PAGE_DETAIL, Action::EDIT)
         ;
+    }
+
+    /**
+     * Disabling the NEW action only hides the button: the route stays reachable
+     * and EasyAdmin would call `new Notification()`, which needs a subscriber and
+     * a topic. Notifications are produced by the notifier, never by hand.
+     */
+    public function createEntity(string $entityFqcn): never
+    {
+        throw new AccessDeniedHttpException('In-app notifications cannot be created from the admin.');
     }
 
     public function configureFields(string $pageName): iterable

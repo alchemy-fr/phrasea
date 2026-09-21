@@ -18,7 +18,9 @@ final readonly class PathGenerator implements PathGeneratorInterface
             $uuid,
         ]);
 
-        if ($extension) {
+        // Defensive: an extension must never carry path separators, whitespace or control chars.
+        $extension = preg_replace('/[^A-Za-z0-9]/', '', (string) $extension);
+        if ('' !== $extension) {
             $path .= '.'.$extension;
         }
 

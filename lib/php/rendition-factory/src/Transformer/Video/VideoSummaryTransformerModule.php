@@ -147,13 +147,15 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
         $start = $this->optionsResolver->resolveOption($options['start'] ?? 0, $resolverContext);
         $startAsTimecode = FFMpegHelper::optionAsTimecode($start);
         if (null === $startAsTimecode || ($start = FFMpegHelper::timecodeToseconds($startAsTimecode)) < 0) {
-            throw new \InvalidArgumentException('Invalid start');
+            throw new \InvalidArgumentException(sprintf('Invalid start for module "%s": got %s, should be >=0', self::getName(), json_encode($start)));
         }
 
         $clipDuration = $this->optionsResolver->resolveOption($options['duration'] ?? 0, $resolverContext);
         $clipDurationAsTimecode = FFMpegHelper::optionAsTimecode($clipDuration);
         if (null === $clipDurationAsTimecode || ($clipDuration = FFMpegHelper::timecodeToseconds($clipDurationAsTimecode)) <= 0 || $clipDuration >= $period) {
-            throw new \InvalidArgumentException('Invalid duration, should be >0 and <period');
+            // Name the values: without them the rendition definition at fault is
+            // impossible to identify from the log alone.
+            throw new \InvalidArgumentException(sprintf('Invalid duration for module "%s": got %s, should be >0 and <period (%s)', self::getName(), json_encode($clipDuration), json_encode($period)));
         }
 
         $context->log(sprintf('  start=%s (%.02f), period=%s (%.02f), duration=%s (%.02f)', $startAsTimecode, $start, $periodAsTimecode, $period, $clipDurationAsTimecode, $clipDuration));
@@ -170,6 +172,11 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
                 $FFMpegOutputFormat->setVideoCodec($videoCodec);
             }
             if ($audioCodec = $this->optionsResolver->resolveOption($options['audio_codec'] ?? null, $resolverContext)) {
+                $normalizedCodec = AudioCodecNormalizer::normalize($audioCodec);
+                if ($normalizedCodec !== $audioCodec) {
+                    $context->log(sprintf('Audio codec "%s" is not available, using "%s"', $audioCodec, $normalizedCodec));
+                    $audioCodec = $normalizedCodec;
+                }
                 if (!in_array($audioCodec, $FFMpegOutputFormat->getAvailableAudioCodecs())) {
                     throw new \InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
                 }

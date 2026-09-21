@@ -20,6 +20,8 @@ use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
+use App\Entity\Integration\IntegrationData;
+use App\Entity\Integration\IntegrationToken;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Integration\WorkspaceSecret;
 use App\Entity\Template\AssetDataTemplate;
@@ -102,6 +104,7 @@ final readonly class WorkspaceDelete
             $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
             $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
             $this->deleteDependencies(AttributePolicy::class, $workspaceId);
+            $this->deleteIntegrationChildren($workspaceId);
             $this->deleteDependencies(WorkspaceIntegration::class, $workspaceId);
             $this->deleteDependencies(WorkspaceSecret::class, $workspaceId);
             $this->deleteDependencies(AttributeEntity::class, $workspaceId);
@@ -144,6 +147,20 @@ final readonly class WorkspaceDelete
             $this->softDeleteToggler->enable();
             $this->collectionListener->softDeleteEnabled = true;
             $configuration->setSQLLogger($sqlLogger);
+        }
+    }
+
+    private function deleteIntegrationChildren(string $workspaceId): void
+    {
+        foreach ([IntegrationToken::class, IntegrationData::class] as $entityClass) {
+            $this->em->createQueryBuilder()
+                ->delete($entityClass, 'c')
+                ->andWhere('c.integration IN (
+                    SELECT wi.id FROM '.WorkspaceIntegration::class.' wi WHERE wi.workspace = :ws
+                )')
+                ->setParameter('ws', $workspaceId)
+                ->getQuery()
+                ->execute();
         }
     }
 

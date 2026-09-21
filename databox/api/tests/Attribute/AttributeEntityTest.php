@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Attribute\AttributeInterface;
 use App\Attribute\Type\EntityAttributeType;
 use App\Elasticsearch\ElasticSearchClient;
+use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
 use App\Tests\Search\AbstractSearchTest;
@@ -516,5 +517,184 @@ class AttributeEntityTest extends AbstractSearchTest
             'locale' => $locale,
             'value' => $translations[$locale] ?? $value,
         ], ['fr', 'en', 'de', AttributeInterface::NO_LOCALE]);
+    }
+
+    public function testAttributeEntityDelete(): void
+    {
+        $em = self::getEntityManager();
+
+        $workspace = $this->getOrCreateDefaultWorkspace(['no_flush']);
+        $em->persist($workspace);
+
+        $list = new EntityList();
+        $list->setName('list1');
+        $list->setWorkspace($workspace);
+        $em->persist($list);
+
+        $entity1 = new AttributeEntity();
+        $entity1->setList($list);
+        $entity1->setValue('ae1');
+        $entity1->setSynonyms([
+            'en' => ['ae1en1', 'ae1en2'],
+            'fr' => ['ae1fr1', 'ae1fr2'],
+        ]);
+        $em->persist($entity1);
+
+        $entity2 = new AttributeEntity();
+        $entity2->setList($list);
+        $entity2->setValue('ae2');
+        $entity2->setSynonyms([
+            'en' => ['ae2en1', 'ae2en2'],
+            'fr' => ['ae2fr1', 'ae2fr2'],
+        ]);
+        $em->persist($entity2);
+
+        $definitionSingle = $this->createAttributeDefinition([
+            'name' => 'Single',
+            'type' => EntityAttributeType::getName(),
+            'list' => $list,
+            'no_flush' => true,
+        ]);
+
+        $definitionMany = $this->createAttributeDefinition([
+            'name' => 'Many',
+            'type' => EntityAttributeType::getName(),
+            'list' => $list,
+            'multiple' => true,
+            'no_flush' => true,
+        ]);
+
+        $asset = $this->createAsset([
+            'name' => 'Asset1',
+            'attributes' => [
+                [
+                    'definition' => $definitionSingle,
+                    'value' => $entity1->getId(),
+                    'position' => 0,
+                ],
+                [
+                    'definition' => $definitionMany,
+                    'value' => $entity1->getId(),
+                    'position' => 1,
+                ],
+                [
+                    'definition' => $definitionMany,
+                    'value' => $entity2->getId(),
+                    'position' => 2,
+                ],
+            ],
+        ]);
+        // An asset referencing only the entity to delete
+        $asset2 = $this->createAsset([
+            'name' => 'Asset2',
+            'attributes' => [
+                [
+                    'definition' => $definitionSingle,
+                    'value' => $entity1->getId(),
+                    'position' => 0,
+                ],
+            ],
+        ]);
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('asset');
+
+        $esClient = self::getService(ElasticSearchClient::class);
+        $assetIndexName = $esClient->getIndexName('asset');
+        $entity1Id = $entity1->getId();
+        $entity2Id = $entity2->getId();
+        $assetId = $asset->getId();
+        $asset2Id = $asset2->getId();
+        $entityDefinitionIds = [$definitionSingle->getId(), $definitionMany->getId()];
+
+        $searchByEntity = fn (string $entityId): array => array_map(
+            fn (array $hit): string => $hit['_id'],
+            $esClient->request($assetIndexName.'/_search', [
+                'query' => [
+                    'bool' => [
+                        'should' => [
+                            ['term' => ['attrs._.single_entity_s.id' => $entityId]],
+                            ['term' => ['attrs._.many_entity_m.id' => $entityId]],
+                        ],
+                    ],
+                ],
+            ])->asArray()['hits']['hits']
+        );
+
+        $entity1Hits = $searchByEntity($entity1Id);
+        sort($entity1Hits);
+        $expectedHits = [$assetId, $asset2Id];
+        sort($expectedHits);
+        $this->assertEquals($expectedHits, $entity1Hits);
+
+        $em->clear();
+
+        $apiClient = static::createClient();
+        $apiClient->request('DELETE', '/attribute-entities/'.$entity1Id, [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(204);
+
+        self::waitForESIndex('asset');
+
+        $this->assertNull($em->find(AttributeEntity::class, $entity1Id));
+        $this->assertNotNull($em->find(AttributeEntity::class, $entity2Id));
+
+        // Attributes referencing the deleted entity are removed from the database
+        $remainingValues = array_map(
+            fn (Attribute $attribute): string => $attribute->getValue(),
+            $em->getRepository(Attribute::class)->findBy(['asset' => $assetId, 'definition' => $entityDefinitionIds])
+        );
+        $this->assertEquals([$entity2Id], $remainingValues);
+        $this->assertEmpty($em->getRepository(Attribute::class)->findBy(['asset' => $asset2Id, 'definition' => $entityDefinitionIds]));
+
+        // The deleted entity no longer matches any asset
+        $this->assertEmpty($searchByEntity($entity1Id));
+        $this->assertEquals([$assetId], $searchByEntity($entity2Id));
+
+        $response = $esClient->request($assetIndexName.'/_search?q=_id:'.$assetId);
+        $this->assertEquals([
+            AttributeInterface::NO_LOCALE => [
+                'many_entity_m' => [
+                    [
+                        'id' => $entity2Id,
+                        'value' => 'ae2',
+                    ],
+                ],
+                'name_text_s' => 'Asset1',
+            ],
+            'en' => [
+                'many_entity_m' => [
+                    [
+                        'id' => $entity2Id,
+                        'synonyms' => [
+                            'ae2en1',
+                            'ae2en2',
+                        ],
+                    ],
+                ],
+            ],
+            'fr' => [
+                'many_entity_m' => [
+                    [
+                        'id' => $entity2Id,
+                        'synonyms' => [
+                            'ae2fr1',
+                            'ae2fr2',
+                        ],
+                    ],
+                ],
+            ],
+        ], $response->asArray()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0]);
+
+        $response = $esClient->request($assetIndexName.'/_search?q=_id:'.$asset2Id);
+        $this->assertEquals([
+            AttributeInterface::NO_LOCALE => [
+                'name_text_s' => 'Asset2',
+            ],
+            'en' => [],
+            'fr' => [],
+        ], $response->asArray()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0]);
     }
 }

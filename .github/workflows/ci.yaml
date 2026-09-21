@@ -271,6 +271,25 @@ jobs:
         run: |
           docker compose down --volumes
 
+      - name: Compute image tag from ref
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          # A ref name is not necessarily a valid Docker tag: one must match
+          # /[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}/, so "feat/x" is rejected.
+          TAG=$(printf '%s' "$REF_NAME" | sed 's/[^A-Za-z0-9_.-]/-/g')
+          case "$TAG" in
+            [A-Za-z0-9_]*) ;;
+            # A tag cannot start with "." or "-".
+            *) TAG="_$(printf '%s' "$TAG" | cut -c2-)" ;;
+          esac
+          if [ ${#TAG} -gt 128 ]; then
+            # Keep long refs distinct instead of collapsing them onto one tag.
+            TAG="$(printf '%s' "$TAG" | cut -c1-120)-$(printf '%s' "$REF_NAME" | sha1sum | cut -c1-7)"
+          fi
+          echo "Ref \"$REF_NAME\" -> image tag \"$TAG\""
+          echo "IMAGE_TAG=$TAG" >> $GITHUB_ENV
+
       - name: Login to Docker Hub
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -303,14 +322,14 @@ jobs:
           docker image ls --filter "reference=${{ env.REGISTRY_NAMESPACE }}*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while IFS= read -r repo; do
             image_name="${repo##*/ps-}"
             new_repo="alchemyfr/ps-${image_name}"
-            docker tag "$repo:${{ env.DOCKER_TAG }}" "$new_repo:${{ github.ref_name }}"
+            docker tag "$repo:${{ env.DOCKER_TAG }}" "$new_repo:${{ env.IMAGE_TAG }}"
             if [ "$IS_LATEST" = true ]; then
               docker tag "$repo:${{ env.DOCKER_TAG }}" "$new_repo:latest"
             fi
           done
 
           export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,indexer"
-          REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=${{ github.ref_name }} docker compose push
+          REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=${{ env.IMAGE_TAG }} docker compose push
 
           # If latest, also push latest tag
           if [ "$IS_LATEST" = true ]; then
@@ -345,10 +364,10 @@ jobs:
             # Extract image name after ps- prefix
             image_name="${repo##*/ps-}"
             ecr_repo="${ECR_REGISTRY}/ps-${image_name}"
-            docker tag "$repo:${{ env.DOCKER_TAG }}" "$ecr_repo:${{ github.ref_name }}"
+            docker tag "$repo:${{ env.DOCKER_TAG }}" "$ecr_repo:${{ env.IMAGE_TAG }}"
           done
           export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,indexer"
-          REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ github.ref_name }} docker compose push
+          REGISTRY_NAMESPACE=${ECR_REGISTRY}/ps- DOCKER_TAG=${{ env.IMAGE_TAG }} docker compose push
 
       - name: Generate GitHub App token for documentation dispatch
         id: documentation-builder-app-token

@@ -1514,6 +1514,7 @@
                 "event": {
                     "sync_clean": "Nettoyage des assets…",
                     "sync_complete": "Synchronisation terminée !",
+                    "sync_failed": "Synchronisation échouée : veuillez vous authentifier à nouveau",
                     "sync_progress": "Synchronisation en cours…"
                 }
             }
