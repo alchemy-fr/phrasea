@@ -24,6 +24,8 @@ export const routes = {
         `/profiles/${id}/manage/${tab}`,
     workflow: (id: string) => `/workflows/${id}`,
     attributesEditor: () => '/attributes/editor',
+    quarantine: (assetId?: string) =>
+        assetId ? `/quarantine?asset=${assetId}` : '/quarantine',
     operationTasks: () => '/admin/tasks',
     operationTaskNew: () => '/admin/tasks/new',
     operationTaskRun: (task: string) => `/admin/tasks/${task}/run`,

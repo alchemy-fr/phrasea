@@ -7,6 +7,7 @@ import type {Asset, GroupValue} from '@/types/api';
 import {getAttributeType} from '@/features/attributes/types/registry';
 import {useFormatContext} from '@/features/attributes/AttributeValue';
 import {useAttributeFormats} from '@/features/attributes/formatStore';
+import {useDefinitionsBySearchSlug} from '@/features/attributes/definitionsStore';
 import {Button} from '@/components/ui/button';
 import {Tooltip} from '@/components/ui/overlays';
 import {cn} from '@/lib/utils/cn';
@@ -89,6 +90,7 @@ function GroupLabel({group}: {group: GroupValue}) {
     const {t} = useTranslation();
     const ctx = useFormatContext();
     const {getFormat, setTypeFormat} = useAttributeFormats();
+    const definition = useDefinitionsBySearchSlug()[group.name];
     const typeDef = getAttributeType(group.type);
     const formats = typeDef.formats(ctx.t);
     const current = getFormat(group.type) ?? formats[0]?.name;
@@ -114,7 +116,7 @@ function GroupLabel({group}: {group: GroupValue}) {
     return (
         <div className="group/div flex items-center gap-2 text-sm font-medium text-foreground">
             <span className="text-xs text-muted-foreground uppercase">
-                {group.name}
+                {definition?.displayName ?? definition?.name ?? group.name}
             </span>
             {content}
             {formats.length > 1 ? (

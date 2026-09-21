@@ -67,8 +67,19 @@ describe('Files & quarantine', () => {
         visitWorkspace(ctx.workspace.id);
         waitForResults();
         cy.getBySel('left-panel').find('[role=tab][aria-label="Navigation"]').click();
-        cy.getBySel('tree-quarantine').scrollIntoView().click();
+        cy.getBySel('tree-quarantine-filter').scrollIntoView().click();
         cy.url().should('include', 'assetStatus');
+    });
+
+    it('opens the dedicated quarantine screen from the navigation tree', () => {
+        visitWorkspace(ctx.workspace.id);
+        waitForResults();
+        cy.getBySel('left-panel').find('[role=tab][aria-label="Navigation"]').click();
+        cy.getBySel('tree-quarantine').scrollIntoView().click();
+        cy.url().should('include', '/quarantine');
+        cy.getBySel('quarantine-queue').should('exist');
+        cy.getBySel('quarantine-count').should('be.visible');
+        cy.contains('a', 'Open in search').should('have.attr', 'href').and('include', 'assetStatus');
     });
 
     it('shows the analysis state of the file', () => {

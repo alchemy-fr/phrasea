@@ -2,6 +2,7 @@
 
 import {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
+import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {useQuery} from '@tanstack/react-query';
 import {
@@ -20,11 +21,13 @@ import {
     Trash2Icon,
     BookOpenIcon,
     SettingsIcon,
+    ListIcon,
 } from 'lucide-react';
 import type {Collection, Workspace} from '@/types/api';
 import {useCollectionStore, pagerKey} from '../collectionStore';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
 import {BuiltInAttribute, quoteAQL} from '@/features/search/searchState';
+import {quarantineCondition} from '@/features/assets/quarantine/analysis';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {
@@ -80,10 +83,7 @@ export function CollectionsPanel() {
             query: `${BuiltInAttribute.Deleted} = true`,
         });
     const selectQuarantine = () =>
-        search?.resetWithCondition({
-            id: BuiltInAttribute.AssetStatus,
-            query: `${BuiltInAttribute.AssetStatus} = 2`,
-        });
+        search?.resetWithCondition(quarantineCondition);
 
     return (
         <PanelSection
@@ -177,10 +177,9 @@ export function CollectionsPanel() {
                                 <Trash2Icon className="size-4 text-muted-foreground" />{' '}
                                 {t('collections.trash', 'Trash')}
                             </button>
-                            <button
-                                type="button"
+                            <div
                                 className={cn(
-                                    'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-accent',
+                                    'flex items-center pr-1 hover:bg-accent',
                                     search?.conditions.some(
                                         c =>
                                             c.id ===
@@ -188,12 +187,36 @@ export function CollectionsPanel() {
                                             !c.disabled
                                     ) && 'bg-primary/10'
                                 )}
-                                data-testid="tree-quarantine"
-                                onClick={selectQuarantine}
                             >
-                                <ShieldAlertIcon className="size-4 text-muted-foreground" />{' '}
-                                {t('collections.quarantine', 'Quarantine')}
-                            </button>
+                                {/* The entry itself opens the resolution
+                                    screen; the icon falls back to the plain
+                                    filtered list of quarantined assets. */}
+                                <Link
+                                    href={routes.quarantine()}
+                                    className="flex min-w-0 flex-1 items-center gap-2 px-3 py-1.5 text-left text-sm"
+                                    data-testid="tree-quarantine"
+                                >
+                                    <ShieldAlertIcon className="size-4 text-muted-foreground" />{' '}
+                                    <span className="truncate">
+                                        {t(
+                                            'collections.quarantine',
+                                            'Quarantine'
+                                        )}
+                                    </span>
+                                </Link>
+                                <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    data-testid="tree-quarantine-filter"
+                                    title={t(
+                                        'quarantine.list_help',
+                                        'List quarantined assets in the search'
+                                    )}
+                                    onClick={selectQuarantine}
+                                >
+                                    <ListIcon />
+                                </Button>
+                            </div>
                         </div>
                     ) : null}
                 </div>

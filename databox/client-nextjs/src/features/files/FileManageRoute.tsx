@@ -19,7 +19,8 @@ import {Badge} from '@/components/ui/misc';
 import {Button} from '@/components/ui/button';
 import {CopyButton} from '@/components/ui/copy-button';
 import {AnalysisChip} from '@/features/assets/quarantine/AnalysisChip';
-import {severityLabels} from '@/features/assets/quarantine/QuarantineBanner';
+import {AnalysisReport} from '@/features/assets/quarantine/AnalysisReport';
+import {fileAnalysis} from '@/features/assets/quarantine/analysis';
 
 type TabProps = {file: ApiFile};
 
@@ -73,10 +74,6 @@ export function FileManageShell({fileId}: {fileId: string}) {
 
 function InfoTab({file}: TabProps) {
     const {t, i18n} = useTranslation();
-    const analysis = (file.analysis ?? {}) as Record<string, any>;
-    const analyzers = Object.entries(analysis).filter(
-        ([k]) => !['accepted', 'status', 'reason'].includes(k)
-    );
 
     return (
         <dl className="divide-y">
@@ -123,28 +120,7 @@ function InfoTab({file}: TabProps) {
                             {t('file.analysis.ok', 'Accepted')}
                         </Badge>
                     ) : null}
-                    {analyzers.map(([name, r]) => (
-                        <div
-                            key={name}
-                            className="flex items-center gap-2 text-xs"
-                        >
-                            <Badge
-                                variant={
-                                    r?.passed === false
-                                        ? 'destructive'
-                                        : 'muted'
-                                }
-                            >
-                                {name}
-                            </Badge>
-                            {typeof r?.level === 'number' ? (
-                                <span className="uppercase text-muted-foreground">
-                                    {severityLabels[r.level]}
-                                </span>
-                            ) : null}
-                            <span>{r?.message ?? ''}</span>
-                        </div>
-                    ))}
+                    <AnalysisReport analysis={fileAnalysis(file)} />
                 </div>
             </InfoRow>
             {file.usages && file.usages.length > 0 ? (

@@ -18,17 +18,24 @@ import {usePreview} from '@/features/assets/list/preview/PreviewProvider';
  *
  * With `previewOnHover`, hovering the file type chip opens the preview popover
  * (see `PreviewProvider`), anchored on the thumbnail.
+ *
+ * A file still being analyzed — or rejected by the analyzers — normally shows
+ * its analysis state instead of the image; `ignoreAnalysis` renders the
+ * thumbnail rendition anyway, for screens where the picture is what the user
+ * has to look at (quarantine resolution, duplicate comparison).
  */
 export function AssetThumb({
     asset,
     size,
     className,
     previewOnHover,
+    ignoreAnalysis,
 }: {
     asset: Asset;
     size?: number;
     className?: string;
     previewOnHover?: boolean;
+    ignoreAnalysis?: boolean;
 }) {
     const {t} = useTranslation();
     const [hover, setHover] = useState(false);
@@ -38,7 +45,9 @@ export function AssetThumb({
     const thumb = asset.thumbnail?.file;
     const animated = asset.animatedThumbnail?.file;
     const source = asset.source;
-    const pending = source?.analysisPending || source?.accepted === false;
+    const pending =
+        !ignoreAnalysis &&
+        (source?.analysisPending || source?.accepted === false);
 
     const url = hover && animated?.url ? animated.url : thumb?.url;
     const fitClass = thumbFit === 'cover' ? 'object-cover' : 'object-contain';
