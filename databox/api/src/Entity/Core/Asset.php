@@ -21,6 +21,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\Group\GroupValue;
+use App\Api\Model\Input\AddAssetsToCollectionInput;
 use App\Api\Model\Input\AssetAddAsVersionInput;
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetsDeleteInput;
@@ -40,6 +41,7 @@ use App\Api\Model\Output\PrepareDeleteAssetsOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Model\Output\StoryThumbnailsOutput;
 use App\Api\Processor\AddAsAssetVersionProcessor;
+use App\Api\Processor\AddAssetsToCollectionProcessor;
 use App\Api\Processor\AssetAttributeBatchUpdateProcessor;
 use App\Api\Processor\AssetsDeleteProcessor;
 use App\Api\Processor\AssetsRestoreProcessor;
@@ -268,6 +270,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: CopyAssetInput::class,
             name: 'post_copy',
             processor: CopyAssetProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/add-to-collection',
+            description: 'Add multiple assets to a collection or a story. Assets already in the destination are ignored.',
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: AddAssetsToCollectionInput::class,
+            name: 'asset_add_to_collection',
+            processor: AddAssetsToCollectionProcessor::class,
         ),
         new Delete(
             uriTemplate: '/assets-by-keys',
