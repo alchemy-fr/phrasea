@@ -131,7 +131,15 @@ export function MergeDuplicatesDialog({
                             <th className="py-1">
                                 <div className="flex items-center gap-2">
                                     <span className="size-10 overflow-hidden rounded bg-media-bg">
-                                        <AssetThumb asset={asset} size={40} />
+                                        {/* Both sides show their thumbnail
+                                            rendition rather than their
+                                            analysis state: comparing them is
+                                            the whole point of this dialog. */}
+                                        <AssetThumb
+                                            asset={asset}
+                                            size={40}
+                                            ignoreAnalysis
+                                        />
                                     </span>
                                     {t('quarantine.incoming', 'Incoming file')}
                                 </div>
@@ -139,7 +147,11 @@ export function MergeDuplicatesDialog({
                             <th className="py-1">
                                 <div className="flex items-center gap-2">
                                     <span className="size-10 overflow-hidden rounded bg-media-bg">
-                                        <AssetThumb asset={target} size={40} />
+                                        <AssetThumb
+                                            asset={target}
+                                            size={40}
+                                            ignoreAnalysis
+                                        />
                                     </span>
                                     {t('quarantine.existing', 'Existing asset')}
                                 </div>
