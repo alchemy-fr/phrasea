@@ -10,6 +10,8 @@ framework:
             Alchemy\CoreBundle\Message\PusherMessage: p1
             Alchemy\NotifierBundle\Message\BroadcastNotification: p1
             Alchemy\NotifierBundle\Message\FlushNotificationDigest: p1
+            Alchemy\NotifierBundle\Message\SendNotification: p1
+            Alchemy\NotifierBundle\Message\SendEmailNotification: p1
             Alchemy\CoreBundle\Message\Debug\SentryDebug: p1
 
 when@dev:

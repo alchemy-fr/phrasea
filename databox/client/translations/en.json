@@ -2026,6 +2026,7 @@
                 "event": {
                     "sync_clean": "Cleaning assets…",
                     "sync_complete": "Sync Complete!",
+                    "sync_failed": "Sync failed: please authenticate again",
                     "sync_progress": "Sync in progress…"
                 }
             }

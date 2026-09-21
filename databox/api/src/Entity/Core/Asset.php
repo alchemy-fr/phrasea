@@ -45,6 +45,7 @@ use App\Api\Processor\AssetsDeleteProcessor;
 use App\Api\Processor\AssetsRestoreProcessor;
 use App\Api\Processor\BypassQuarantineProcessor;
 use App\Api\Processor\CopyAssetProcessor;
+use App\Api\Processor\CreateAssetProcessor;
 use App\Api\Processor\DeleteAssetProcessor;
 use App\Api\Processor\FollowProcessor;
 use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
@@ -226,6 +227,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             securityPostDenormalize: 'is_granted("CREATE", object)',
             validate: true,
+            processor: CreateAssetProcessor::class,
         ),
         new Post(
             uriTemplate: '/assets/multiple',

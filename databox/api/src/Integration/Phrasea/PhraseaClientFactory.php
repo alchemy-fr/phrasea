@@ -22,18 +22,33 @@ final readonly class PhraseaClientFactory
             'base_uri' => $baseUrl,
         ]);
 
-        $accessToken = $this->integrationTokenManager->getAccessToken($integrationToken, fn (string $refreshToken): array => $client->request('POST', '/oauth/v2/token', [
-            'body' => [
-                'grant_type' => 'refresh_token',
-                'client_id' => $clientId,
-                'refresh_token' => $refreshToken,
-            ],
-        ])->toArray());
+        $accessToken = $this->integrationTokenManager->getAccessToken(
+            $integrationToken,
+            $this->createTokenRenewer($baseUrl, $clientId),
+        );
 
         return $client->withOptions([
             'headers' => [
                 'Authorization' => 'Bearer '.$accessToken,
             ],
         ]);
+    }
+
+    /**
+     * @return \Closure(string $refreshToken): array
+     */
+    public function createTokenRenewer(string $baseUrl, string $clientId): \Closure
+    {
+        $client = $this->client->withOptions([
+            'base_uri' => $baseUrl,
+        ]);
+
+        return fn (string $refreshToken): array => $client->request('POST', '/oauth/v2/token', [
+            'body' => [
+                'grant_type' => 'refresh_token',
+                'client_id' => $clientId,
+                'refresh_token' => $refreshToken,
+            ],
+        ])->toArray();
     }
 }

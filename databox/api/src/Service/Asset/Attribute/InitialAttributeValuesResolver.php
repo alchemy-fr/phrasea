@@ -13,6 +13,8 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\File;
 use App\File\StringableMetadataValue;
+use App\Notification\ExceptionNotifier;
+use App\Notification\UserNotifyableException;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Service\Asset\Attribute\Index\AttributeIndex;
 
@@ -22,6 +24,7 @@ readonly class InitialAttributeValuesResolver
         private AttributeValueResolver $attributeValueResolver,
         private AttributeDefinitionRepository $attributeDefinitionRepository,
         private AttributeAssigner $attributeAssigner,
+        private ExceptionNotifier $exceptionNotifier,
     ) {
     }
 
@@ -56,14 +59,22 @@ readonly class InitialAttributeValuesResolver
                 $attributeIndex = new AttributeIndex();
 
                 foreach ($initializers as $locale => $initializeFormula) {
-                    $this->attributeValueResolver->resolveAttrValues(
-                        fn (AttributeDefinition $definition) => $definition->getInitialValues(),
-                        Attribute::ORIGIN_INITIAL,
-                        $asset,
-                        $locale,
-                        $definition,
-                        $attributeIndex,
-                    );
+                    try {
+                        $this->attributeValueResolver->resolveAttrValues(
+                            fn (AttributeDefinition $definition) => $definition->getInitialValues(),
+                            Attribute::ORIGIN_INITIAL,
+                            $asset,
+                            $locale,
+                            $definition,
+                            $attributeIndex,
+                        );
+                    } catch (UserNotifyableException $e) {
+                        // A broken template (Twig error) is reported to the definition owner
+                        // and must not prevent the other definitions from being initialized.
+                        $this->exceptionNotifier->notifyException($e);
+
+                        continue 2;
+                    }
                 }
 
                 foreach ($attributeIndex->getFlattenAttributes() as $attribute) {

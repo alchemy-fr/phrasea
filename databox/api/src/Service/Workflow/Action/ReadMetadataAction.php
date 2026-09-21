@@ -45,10 +45,12 @@ class ReadMetadataAction extends AbstractIntegrationAction implements IfActionIn
     #[\Override]
     protected function shouldRun(Asset $asset): bool
     {
-        if (null === $asset->getSource()) {
+        $source = $asset->getSource();
+        if (null === $source) {
             return false;
         }
 
-        return true;
+        // A private remote source cannot be downloaded: nothing to read.
+        return $this->fileFetcher->isFetchable($source);
     }
 }
