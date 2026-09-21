@@ -24,6 +24,7 @@ use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Input\AddAssetsToCollectionInput;
 use App\Api\Model\Input\AssetAddAsVersionInput;
 use App\Api\Model\Input\AssetInput;
+use App\Api\Model\Input\AssetPositionInput;
 use App\Api\Model\Input\AssetsDeleteInput;
 use App\Api\Model\Input\AssetsRestoreInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
@@ -55,6 +56,7 @@ use App\Api\Processor\MultipleAssetCreateProcessor;
 use App\Api\Processor\PrepareDeleteAssetProcessor;
 use App\Api\Processor\RemoveAssetFromCollectionProcessor;
 use App\Api\Processor\ResolveEntitiesProcessor;
+use App\Api\Processor\SetAssetPositionProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Processor\UnfollowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
@@ -163,6 +165,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
             processor: TriggerAssetWorkflowProcessor::class,
         ),
+        new Put(
+            uriTemplate: '/assets/{id}/position',
+            description: 'Move the asset to a given rank inside a collection or a story',
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: AssetPositionInput::class,
+            name: 'asset_set_position',
+            processor: SetAssetPositionProcessor::class,
+        ),
         new Post(
             uriTemplate: '/assets/{id}/quarantine-bypass',
             input: false,
@@ -194,7 +204,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'groups' => [self::GROUP_LIST],
             ],
             parameters: [
-                'collection' => new QueryParameter(),
+                'collection' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Collection the assets directly belong to (use "parent" to span the sub-tree)',
+                ),
                 'conditions' => new QueryParameter(
                     schema: ['type' => 'array<string>'],
                     description: 'Use AQL condition to filter assets',
@@ -218,6 +231,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'parent' => new QueryParameter(
                     schema: ['type' => 'string'],
                     description: 'Parent collection',
+                ),
+                'story' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Story asset ID',
                 ),
                 'query' => new QueryParameter(
                     schema: ['type' => 'string'],

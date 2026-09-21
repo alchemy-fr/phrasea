@@ -32,6 +32,8 @@ class CollectionOutputTransformer implements OutputTransformerInterface
 
     final public const string COLLECTION_CACHE_NS = 'coll_visibility';
 
+    private const string CACHE_KEY_PREFIX = 'c.';
+
     public function __construct(
         private readonly CollectionSearch $collectionSearch,
         private readonly TagAwareCacheInterface $collectionCache,
@@ -129,7 +131,7 @@ class CollectionOutputTransformer implements OutputTransformerInterface
             }
         }
 
-        [$output->shared, $output->public] = $this->collectionCache->get($data->getId(), function (ItemInterface $item) use ($data): array {
+        [$output->shared, $output->public] = $this->collectionCache->get(self::CACHE_KEY_PREFIX.$data->getId(), function (ItemInterface $item) use ($data): array {
             $item->tag(self::COLLECTION_CACHE_NS);
             $shared = false;
             $public = false;

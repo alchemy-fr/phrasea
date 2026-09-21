@@ -63,6 +63,8 @@ asset_status:
   pending: En attente
   quarantined: Placé en quarantaine
 built_in_attribute:
+  collectionPositions:
+    name: Position
   _score:
     name: Score
   _id:
