@@ -16,6 +16,7 @@ import {UserPreferencesGate} from '@/features/preferences/UserPreferencesGate';
 import {RealtimeProvider} from '@/lib/realtime/RealtimeProvider';
 import {ModalProvider} from '@/components/modals/ModalProvider';
 import {SessionExpiredDialog} from '@/lib/auth/SessionExpiredDialog';
+import {ThemeManager} from '@/features/theme/ThemeManager';
 
 function createQueryClient(): QueryClient {
     return new QueryClient({
@@ -52,6 +53,7 @@ export function Providers({config, language, children}: Props) {
                     enableSystem
                     disableTransitionOnChange
                 >
+                    <ThemeManager />
                     <QueryClientProvider client={queryClient}>
                         <Suspense fallback={<FullPageLoader />}>
                             <AuthProvider>

@@ -65,12 +65,11 @@ export const useEntitiesStore = create<State>((set, get) => ({
                 const index = {...s.index};
                 iris.forEach(iri => {
                     const v = result[iri];
-                    index[iri] =
-                        v === null
-                            ? ResolveStatus.NotFound
-                            : v === undefined
-                              ? ResolveStatus.NotAllowed
-                              : (v as ResolvedEntity);
+                    index[iri] = !v
+                        ? ResolveStatus.NotFound
+                        : v.notAllowed
+                          ? ResolveStatus.NotAllowed
+                          : (v as ResolvedEntity);
                 });
 
                 return {index};

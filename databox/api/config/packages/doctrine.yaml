@@ -37,8 +37,15 @@ doctrine:
 when@test:
     doctrine:
         dbal:
-            driver: 'sqlite'
-            url: 'sqlite:///%kernel.cache_dir%/data.db'
+            connections:
+                default:
+                    driver: 'sqlite'
+                    url: 'sqlite:///%kernel.cache_dir%/data.db'
+                # The configurator bundle points this connection to the shared
+                # configurator database: tests must not touch it.
+                configurator:
+                    driver: 'sqlite'
+                    url: 'sqlite:///%kernel.cache_dir%/configurator.db'
 
 when@prod:
     doctrine:
