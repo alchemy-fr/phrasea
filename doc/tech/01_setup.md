@@ -101,7 +101,7 @@ You may want to populate databases with a set of fixtures:
 
 ```bash
 # Warning! This will empty the databases, insert fixtures, and run bin/setup.sh again.
-dc run --rm databox-api-php bin/dev/reset-db-fixtures.sh
+bin/dev/reset-db-fixtures.sh
 ```
 
 * Read the documentation for each group of services to customize environment variables:
