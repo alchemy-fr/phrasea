@@ -5,26 +5,36 @@ declare(strict_types=1);
 namespace App\Service\Asset\AssetPolicy;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Entity\Core\Asset;
 use App\Repository\Core\AssetPolicyRepository;
+use Symfony\Contracts\Cache\CacheInterface;
 
 final class AssetPolicyManager
 {
     use SecurityAwareTrait;
 
+    private readonly CacheInterface $cache;
+
     public function __construct(
         private readonly AssetPolicyRepository $assetPolicyRepository,
+        TemporaryCacheFactory $cacheFactory,
     ) {
+        $this->cache = $cacheFactory->createCache();
     }
 
     public function getPolicyApplicationFilter(Asset $asset): AssetPolicyResultFilter
     {
         $user = $this->getUser();
 
-        $policies = $this->assetPolicyRepository->getAssetPolicies(
-            $asset->getWorkspaceId(),
-            $user?->getUserIdentifier(),
-            $user?->getGroups() ?? []
+        // Policies only depend on the workspace and the user: load them once per request.
+        $policies = $this->cache->get(
+            sprintf('%s_%s', $asset->getWorkspaceId(), $user?->getUserIdentifier() ?? '_anon'),
+            fn (): array => $this->assetPolicyRepository->getAssetPolicies(
+                $asset->getWorkspaceId(),
+                $user?->getUserIdentifier(),
+                $user?->getGroups() ?? []
+            )
         );
 
         $filter = new AssetPolicyResultFilter();

@@ -120,13 +120,22 @@ class AssetRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * Hydrates search results with every relation read by the asset output,
+     * so a page of assets does not trigger one lazy-load query per asset.
+     */
     public function createElasticaToModelQueryBuilder(string $alias = 't'): QueryBuilder
     {
         return $this
             ->createQueryBuilder($alias)
-            ->select($alias.', f, w')
+            ->select($alias.', f, w, tg, ca, cac, rc, sc')
             ->leftJoin($alias.'.source', 'f')
             ->leftJoin($alias.'.workspace', 'w')
+            ->leftJoin($alias.'.tags', 'tg')
+            ->leftJoin($alias.'.collections', 'ca')
+            ->leftJoin('ca.collection', 'cac')
+            ->leftJoin($alias.'.referenceCollection', 'rc')
+            ->leftJoin($alias.'.storyCollection', 'sc')
         ;
     }
 }

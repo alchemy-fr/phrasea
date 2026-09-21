@@ -91,6 +91,17 @@ class FileOutput extends AbstractUuidOutput
     ])]
     public ?bool $accepted = null;
 
+    #[Groups([
+        File::GROUP_LIST,
+        File::GROUP_READ,
+        Asset::GROUP_LIST,
+        Asset::GROUP_READ,
+        AssetRendition::GROUP_LIST,
+        AssetRendition::GROUP_READ,
+        AssetAttachment::GROUP_LIST,
+    ])]
+    public ?\DateTimeImmutable $analyzedAt = null;
+
     #[Groups([File::GROUP_METADATA])]
     public ?array $metadata = null;
 

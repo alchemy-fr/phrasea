@@ -65,14 +65,16 @@ final readonly class FileAnalysisReevaluator
     private function rewriteAnalysis(File $file, array $remainingByAnalyzer): void
     {
         $analysis = $file->getAnalysis();
-        if (empty($analysis['results'])
-            || !in_array($analysis['status'] ?? null, [File::ANALYSIS_SUCCESS, File::ANALYSIS_FAILED], true)
+        if (null === $analysis
+            || empty($analysis->getResults())
+            || !in_array($analysis->getStatus(), [File::ANALYSIS_SUCCESS, File::ANALYSIS_FAILED], true)
         ) {
             return;
         }
 
+        $results = $analysis->getResults();
         $hasError = false;
-        foreach ($analysis['results'] as $i => $result) {
+        foreach ($results as $i => $result) {
             $remaining = $remainingByAnalyzer[$result['name'] ?? ''] ?? 0;
 
             $messages = [];
@@ -91,18 +93,17 @@ final readonly class FileAnalysisReevaluator
             }
 
             if (empty($messages)) {
-                unset($analysis['results'][$i]['output']['messages']);
+                unset($results[$i]['output']['messages']);
             } else {
-                $analysis['results'][$i]['output']['messages'] = $messages;
+                $results[$i]['output']['messages'] = $messages;
             }
         }
-        $analysis['results'] = array_values($analysis['results']);
 
         $newStatus = $hasError ? File::ANALYSIS_FAILED : File::ANALYSIS_SUCCESS;
-        $becameAccepted = File::ANALYSIS_FAILED === $analysis['status'] && File::ANALYSIS_SUCCESS === $newStatus;
-        $analysis['status'] = $newStatus;
+        $becameAccepted = File::ANALYSIS_FAILED === $analysis->getStatus() && File::ANALYSIS_SUCCESS === $newStatus;
 
-        $file->setAnalysis($analysis);
+        $analysis->setResults($results);
+        $file->setAnalysisStatus($newStatus);
         $this->em->persist($file);
 
         if ($becameAccepted) {
@@ -148,12 +149,13 @@ final readonly class FileAnalysisReevaluator
     private function restoreLink(File $owner, File $duplicateFile, string $analyzer): void
     {
         $analysis = $owner->getAnalysis();
-        if (!in_array($analysis['status'] ?? null, [File::ANALYSIS_SUCCESS, File::ANALYSIS_FAILED], true)) {
+        if (null === $analysis || !in_array($analysis->getStatus(), [File::ANALYSIS_SUCCESS, File::ANALYSIS_FAILED], true)) {
             return;
         }
 
+        $results = $analysis->getResults();
         $resultIndex = null;
-        foreach ($analysis['results'] ?? [] as $i => $result) {
+        foreach ($results as $i => $result) {
             if (($result['name'] ?? null) === $analyzer) {
                 $resultIndex = $i;
                 break;
@@ -183,7 +185,7 @@ final readonly class FileAnalysisReevaluator
         ]);
 
         $messageType = self::DUPLICATE_MESSAGE_PREFIX.$analyzer;
-        $messages = $analysis['results'][$resultIndex]['output']['messages'] ?? [];
+        $messages = $results[$resultIndex]['output']['messages'] ?? [];
         $found = false;
         foreach ($messages as $i => $message) {
             if (($message[1] ?? null) === $messageType) {
@@ -195,13 +197,13 @@ final readonly class FileAnalysisReevaluator
         if (!$found) {
             $messages[] = [LogLevelEnum::Critical->value, $messageType, ['count' => $count]];
         }
-        $analysis['results'][$resultIndex]['output']['messages'] = $messages;
-        $analysis['status'] = File::ANALYSIS_FAILED;
+        $results[$resultIndex]['output']['messages'] = $messages;
 
-        $owner->setAnalysis($analysis);
+        $analysis->setResults($results);
+        $owner->setAnalysisStatus(File::ANALYSIS_FAILED);
         $this->em->persist($owner);
 
-        if (in_array(FileAnalyzerAssetActionEnum::QUARANTINE->value, $analysis['results'][$resultIndex]['actions'] ?? [], true)) {
+        if (in_array(FileAnalyzerAssetActionEnum::QUARANTINE->value, $results[$resultIndex]['actions'] ?? [], true)) {
             foreach ($this->assetRepository->findBySourceFileIds([$owner->getId()]) as $asset) {
                 if (AssetStatusEnum::Accepted === $asset->getStatus() && !$asset->isDeleted()) {
                     $asset->setStatus(AssetStatusEnum::Quarantined);
