@@ -10,17 +10,12 @@ import {
     LayoutGridIcon,
     LogInIcon,
     LogOutIcon,
-    MoonIcon,
     PanelLeftIcon,
     SettingsIcon,
-    SunIcon,
-    MonitorIcon,
     UserIcon,
     LanguagesIcon,
-    PaletteIcon,
     ListChecksIcon,
 } from 'lucide-react';
-import {useTheme} from 'next-themes';
 import {Button} from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -41,11 +36,11 @@ import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {useLayoutStore} from './layoutStore';
 import {supportedLanguages} from '@/i18n';
-import {usePreferencesStore} from '@/features/preferences/store';
 import {routes} from '@/lib/routes';
 import {useModals} from '@/components/modals/ModalProvider';
 import {DataLocaleDialog} from '@/features/preferences/DataLocaleDialog';
 import {DisplayProfileMenuItem} from '@/features/profiles/DisplayProfileMenuItem';
+import {ThemeMenu} from '@/features/theme/ThemeMenu';
 import {NotificationsMenu} from '@/features/notifications/NotificationsMenu';
 import {getAuthClient} from '@/lib/auth/client';
 import {cn} from '@/lib/utils/cn';
@@ -56,16 +51,9 @@ export function TopBar() {
     const config = useConfig();
     const router = useRouter();
     const pathname = usePathname();
-    const {theme, setTheme} = useTheme();
     const toggleLeftPanel = useLayoutStore(s => s.toggleLeftPanel);
-    const updatePreference = usePreferencesStore(s => s.updatePreference);
     const {openModal} = useModals();
     const isAdmin = hasRole(AppRole.DataboxAdmin) || hasRole(AppRole.Admin);
-
-    const changeTheme = (value: string) => {
-        setTheme(value);
-        void updatePreference('theme', value);
-    };
 
     const changeLanguage = (lng: string) => {
         void i18n.changeLanguage(lng);
@@ -165,30 +153,7 @@ export function TopBar() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-60">
                     {isAuthenticated ? <DisplayProfileMenuItem /> : null}
-                    <DropdownMenuSub>
-                        <DropdownMenuSubTrigger>
-                            <PaletteIcon /> {t('settings.theme', 'Theme')}
-                        </DropdownMenuSubTrigger>
-                        <DropdownMenuSubContent>
-                            <DropdownMenuRadioGroup
-                                value={theme}
-                                onValueChange={changeTheme}
-                            >
-                                <DropdownMenuRadioItem value="light">
-                                    <SunIcon />{' '}
-                                    {t('settings.theme_light', 'Light')}
-                                </DropdownMenuRadioItem>
-                                <DropdownMenuRadioItem value="dark">
-                                    <MoonIcon />{' '}
-                                    {t('settings.theme_dark', 'Dark')}
-                                </DropdownMenuRadioItem>
-                                <DropdownMenuRadioItem value="system">
-                                    <MonitorIcon />{' '}
-                                    {t('settings.theme_system', 'System')}
-                                </DropdownMenuRadioItem>
-                            </DropdownMenuRadioGroup>
-                        </DropdownMenuSubContent>
-                    </DropdownMenuSub>
+                    <ThemeMenu />
                     <DropdownMenuSub>
                         <DropdownMenuSubTrigger>
                             <LanguagesIcon />{' '}

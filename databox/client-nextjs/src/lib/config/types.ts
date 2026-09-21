@@ -26,6 +26,8 @@ export type TicketingConfig = {
     enabled: boolean;
 };
 
+import type {ClientThemeMeta} from '@/features/theme/customTheme';
+
 export type AppConfig = {
     appId: string;
     appName: string;
@@ -59,4 +61,10 @@ export type AppConfig = {
         src?: string;
         style?: string;
     };
+    /**
+     * The organisation theme compiled from the stack configuration
+     * (`databox.theme`), when one is defined: its stylesheet is served with
+     * the page, this is what the theme menu needs.
+     */
+    theme?: ClientThemeMeta;
 };

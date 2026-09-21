@@ -28,6 +28,7 @@ export const routes = {
     operationTaskNew: () => '/admin/tasks/new',
     operationTaskRun: (task: string) => `/admin/tasks/${task}/run`,
     operationTaskDetails: (id: string) => `/admin/tasks/${id}/details`,
+    themeSettings: () => '/admin/theme',
     pages: () => '/pages',
     pageEdit: (id: string) => `/pages/${id}/edit`,
     page: (slug: string) => `/p/${slug}`,

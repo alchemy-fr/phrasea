@@ -71,36 +71,51 @@ function keyOf(v: unknown): string {
     return typeof v === 'object' ? JSON.stringify(v) : String(v);
 }
 
+type ValueFormatter = (
+    definition: {type: AttributeType | string},
+    value: unknown
+) => string;
+
+/** IRI of the entity a relation value (entity, tag, user...) refers to */
+function entityIriOf(
+    definition: {type: AttributeType | string},
+    value: unknown
+): string | undefined {
+    const entity = getAttributeType(definition.type).entity;
+
+    return entity && typeof value === 'string' && value
+        ? iri(entity, value)
+        : undefined;
+}
+
 /**
- * Relation values (entity, tag, user...) are edited as ids: labels come from
- * the entities store, seeded with the loaded objects and resolved otherwise.
+ * Relation values are edited as ids: their labels come from the entities
+ * store, seeded with the loaded objects and resolved through the API
+ * otherwise.
  */
-function useValueFormatter() {
+function useValueFormatter(iris: string[]): ValueFormatter {
     const ctx = useFormatContext();
     const index = useEntitiesStore(s => s.index);
     const request = useEntitiesStore(s => s.request);
-    const missing: string[] = [];
     useEffect(() => {
-        missing.forEach(request);
-    });
+        iris.forEach(request);
+    }, [iris, request]);
 
-    return (definition: AttributeDefinition, value: unknown): string => {
+    return (definition, value) => {
         const typeDef = getAttributeType(definition.type);
-        let resolved = value;
-        if (typeDef.entity && typeof value === 'string' && value) {
-            const entityIri = iri(typeDef.entity, value);
-            const entry = index[entityIri];
-            if (entry === undefined) {
-                missing.push(entityIri);
-
-                return '…';
-            }
-            if (typeof entry === 'object') {
-                resolved = entry;
-            }
+        const entityIri = entityIriOf(definition, value);
+        const entry = entityIri ? index[entityIri] : undefined;
+        if (entityIri && entry === undefined) {
+            return '…';
         }
 
-        return typeDef.formatString(resolved, undefined, ctx) || String(value);
+        return (
+            typeDef.formatString(
+                typeof entry === 'object' ? entry : value,
+                undefined,
+                ctx
+            ) || String(value)
+        );
     };
 }
 
@@ -234,7 +249,6 @@ export function AttributeBatchEditorRoute() {
             storeEntities({[entry[0]]: entry[1]});
         }
     };
-    const formatValue = useValueFormatter();
 
     const [history, setHistory] = useState<{
         past: EditorState[];
@@ -262,6 +276,24 @@ export function AttributeBatchEditorRoute() {
     }, [initialized, assets, attributesQuery.isSuccess, remote, definitions]);
 
     const state = history.present;
+    const relationIris = useMemo(() => {
+        const iris = new Set<string>();
+        definitions.forEach(def =>
+            Object.values(history.present.values).forEach(byDefinition =>
+                Object.values(byDefinition[def.id] ?? {}).forEach(values =>
+                    values.forEach(v => {
+                        const entityIri = entityIriOf(def, v);
+                        if (entityIri) {
+                            iris.add(entityIri);
+                        }
+                    })
+                )
+            )
+        );
+
+        return [...iris];
+    }, [definitions, history.present.values]);
+    const formatValue = useValueFormatter(relationIris);
     const commit = useCallback((next: Partial<EditorState>) => {
         setHistory(h => ({
             past: [...h.past.slice(-49), h.present],
@@ -1062,7 +1094,6 @@ export function AttributeBatchEditorRoute() {
 }
 
 type Distinct = {key: string; value: unknown; count: number}[];
-type ValueFormatter = ReturnType<typeof useValueFormatter>;
 
 function SingleValueEditor({
     definition,
@@ -1370,7 +1401,14 @@ function SavePreviewDialog({
     onConfirm: () => Promise<void>;
 }) {
     const {t} = useTranslation();
-    const formatValue = useValueFormatter();
+    const relationIris = useMemo(
+        () =>
+            actions
+                .map(a => entityIriOf(a.definition, a.value))
+                .filter((v): v is string => !!v),
+        [actions]
+    );
+    const formatValue = useValueFormatter(relationIris);
 
     return (
         <ConfirmDialog

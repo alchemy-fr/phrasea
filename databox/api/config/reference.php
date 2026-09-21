@@ -140,6 +140,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         secret?: scalar|Param|null, // Default: "%env(SOKETI_SECRET)%"
  *         appId?: scalar|Param|null, // Default: "%env(SOKETI_APP_ID)%"
  *         verifySsl?: bool|Param, // Default: "%env(bool:VERIFY_SSL)%"
+ *         port?: scalar|Param|null, // Port of the Soketi server, server side (defaults to 443) // Default: "%env(SOKETI_PORT)%"
+ *         scheme?: scalar|Param|null, // Scheme used to reach the Soketi server, server side (defaults to https) // Default: "%env(SOKETI_SCHEME)%"
  *         channel_prefix?: scalar|Param|null, // Prefix of the per-user private channel a user may authorize (suffixed with the user identifier) // Default: "private-user-"
  *     },
  * }
