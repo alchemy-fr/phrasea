@@ -117,6 +117,8 @@ readonly class WorkspaceDuplicateManager
             $i->setEnabled($item->isEnabled());
             $i->setConfig($item->getConfig());
             $i->setWorkspace($to);
+            $i->setOwnerId($item->getOwnerId());
+            $i->setPublic($item->getPublic());
             $this->em->persist($i);
         }
     }
