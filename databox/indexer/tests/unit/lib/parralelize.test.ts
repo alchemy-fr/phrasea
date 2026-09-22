@@ -1,4 +1,8 @@
 import {parralelize} from '../../../src/lib/parralelize';
+import {
+    clearShutdownRequest,
+    handleShutdownSignal,
+} from '../../../src/shutdown';
 
 async function* range(n: number): AsyncGenerator<number> {
     for (let i = 0; i < n; ++i) {
@@ -87,5 +91,30 @@ describe('parralelize', () => {
                 1
             )
         ).rejects.toThrow('boom');
+    });
+
+    it('stops pulling once a shutdown is requested', async () => {
+        const stderr = vi.spyOn(console, 'error').mockImplementation(() => {});
+        const seen: number[] = [];
+
+        try {
+            await parralelize(
+                () => range(100),
+                async i => {
+                    seen.push(i);
+                    if (2 === i) {
+                        handleShutdownSignal('SIGTERM');
+                    }
+                },
+                1
+            );
+        } finally {
+            clearShutdownRequest();
+            stderr.mockRestore();
+        }
+
+        // The item in flight is seen through to the end; nothing after it is
+        // pulled.
+        expect(seen).toEqual([0, 1, 2]);
     });
 });
