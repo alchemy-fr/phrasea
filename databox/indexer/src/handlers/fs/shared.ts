@@ -32,7 +32,7 @@ export function createAsset(
     return {
         workspaceId,
         key: p,
-        path: p,
+        path: path,
         publicUrl: generatePublicUrl(p, locationName),
         isPrivate: true,
         sourcePath,

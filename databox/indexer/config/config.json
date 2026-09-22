@@ -33,7 +33,12 @@
                 "dirPrefix": "%env(WATCH_DIR_PREFIX)%",
                 "sourceDir": "%env(WATCH_SOURCE_DIR)%",
                 "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%",
-                "createNewWorkspace": true
+                "importFiles": "%env(bool:IMPORT_FILES)%",
+                "createNewWorkspace": true,
+                "maxPartNumber": "%env(S3_MULTIPART_MAX_PART_NUMBER)%",
+                "minChunkSize": "%env(S3_MULTIPART_MIN_CHUNK_SIZE)%",
+                "maxChunkSize": "%env(S3_MULTIPART_MAX_CHUNK_SIZE)%",
+                "maxFileSize": "%env(S3_MAX_OBJECT_SIZE)%"
             },
             "alternateUrls": [
                 {
