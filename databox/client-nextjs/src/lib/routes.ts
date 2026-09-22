@@ -10,13 +10,14 @@ export const routes = {
     assets: () => '/assets',
     assetView: (id: string, renditionId = UNKNOWN_RENDITION, hash = '') =>
         `/assets/${id}/${renditionId}${hash}`,
-    assetManage: (id: string, tab = 'info') => `/assets/${id}/manage/${tab}`,
     fileManage: (id: string, tab = 'info') => `/files/${id}/manage/${tab}`,
     collectionManage: (id: string, tab = 'info') =>
         `/collections/${id}/manage/${tab}`,
     workspaceManage: (id: string, tab = 'info') =>
         `/workspaces/${id}/manage/${tab}`,
     basketView: (id: string) => `/baskets/${id}/view`,
+    /** Every basket view is the same screen: switching basket does not stack */
+    basketViewScreen: () => '/baskets',
     basketManage: (id: string, tab = 'info') => `/baskets/${id}/manage/${tab}`,
     savedSearchManage: (id: string, tab = 'info') =>
         `/saved-searches/${id}/manage/${tab}`,

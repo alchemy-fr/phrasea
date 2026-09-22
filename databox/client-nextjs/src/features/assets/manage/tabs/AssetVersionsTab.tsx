@@ -4,7 +4,7 @@ import {useTranslation} from 'react-i18next';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {DownloadIcon, SaveIcon, Trash2Icon} from 'lucide-react';
 import {toast} from 'sonner';
-import type {AssetTabProps} from '../AssetManageRoute';
+import type {AssetTabProps} from '../types';
 import {deleteAssetFileVersion, getAssetFileVersions} from '@/lib/api/assets';
 import {Button} from '@/components/ui/button';
 import {Skeleton} from '@/components/ui/misc';

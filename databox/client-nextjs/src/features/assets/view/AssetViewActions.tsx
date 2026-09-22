@@ -22,23 +22,30 @@ export function AssetViewActions({
     asset,
     rendition,
     onTogglePanel,
+    onEdit,
+    editing,
     panelOpen,
 }: {
     asset: Asset;
     rendition?: AssetRendition;
     onTogglePanel: () => void;
+    /** Turns the edit mode of the side panel on and off */
+    onEdit: () => void;
+    editing: boolean;
     panelOpen: boolean;
 }) {
     const {t} = useTranslation();
     const {isAuthenticated} = useAuth();
     const groups = useAssetActions([asset], {
-        context: {open: false, info: true, basket: true},
+        context: {open: false, info: false, basket: true},
     });
+    // Editing happens in the side panel, next to the media
     const primary = groups
         .flat()
         .filter(a =>
             ['download', 'edit', 'share', 'delete', 'restore'].includes(a.id)
-        );
+        )
+        .map(a => (a.id === 'edit' ? {...a, run: onEdit} : a));
     void rendition;
 
     return (
@@ -71,10 +78,16 @@ export function AssetViewActions({
                 <Fragment key={a.id}>
                     <Tooltip content={a.label}>
                         <Button
-                            variant="ghost"
+                            variant={
+                                a.id === 'edit' && editing
+                                    ? 'secondary'
+                                    : 'ghost'
+                            }
                             size="icon-sm"
+                            data-testid={`asset-action-${a.id}`}
                             onClick={() => a.run()}
                             disabled={a.disabled}
+                            aria-pressed={a.id === 'edit' ? editing : undefined}
                             className={
                                 a.destructive ? 'text-destructive' : undefined
                             }
@@ -96,7 +109,11 @@ export function AssetViewActions({
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                    <AssetMenuItems asset={asset} variant="dropdown" />
+                    <AssetMenuItems
+                        asset={asset}
+                        variant="dropdown"
+                        context={{open: false, info: false, edit: false}}
+                    />
                 </DropdownMenuContent>
             </DropdownMenu>
             <Tooltip

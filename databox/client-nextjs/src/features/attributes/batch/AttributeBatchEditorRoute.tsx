@@ -47,6 +47,8 @@ import {NO_LOCALE} from '@/lib/utils/locale';
 import {getAttributeType} from '@/features/attributes/types/registry';
 import {useFormatContext} from '@/features/attributes/AttributeValue';
 import {cn} from '@/lib/utils/cn';
+import {belowTopBar} from '@/components/layout/chrome';
+import {usePageTrail} from '@/components/layout/layoutStore';
 import {debounce, deepEquals} from '@/lib/utils/misc';
 import {Flag} from '@/components/ui/flag';
 import {Input} from '@/components/ui/input';
@@ -645,9 +647,12 @@ export function AttributeBatchEditorRoute() {
         return () => window.removeEventListener('keydown', onKey);
     }, [definitions, state.currentDefinition, commit]);
 
+    // Where the user is, shown in the top bar
+    usePageTrail(t('batch_edit.trail', 'Batch edit'));
+
     if (ids.length === 0) {
         return (
-            <div className="fixed inset-0 z-50 bg-background">
+            <div className={cn(belowTopBar, 'z-50 bg-background')}>
                 <EmptyState
                     className="h-full"
                     title={t('batch_edit.no_selection', 'No asset selected')}
@@ -662,7 +667,7 @@ export function AttributeBatchEditorRoute() {
     }
     if (!initialized || !currentDef) {
         return (
-            <div className="fixed inset-0 z-50 bg-background">
+            <div className={cn(belowTopBar, 'z-50 bg-background')}>
                 <FullPageLoader />
             </div>
         );
@@ -675,7 +680,7 @@ export function AttributeBatchEditorRoute() {
     return (
         <div
             data-testid="batch-editor"
-            className="fixed inset-0 z-50 flex flex-col bg-background"
+            className={cn(belowTopBar, 'z-50 flex flex-col bg-background')}
         >
             <header className="flex h-12 shrink-0 items-center gap-2 border-b px-3">
                 <Button

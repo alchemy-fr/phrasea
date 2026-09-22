@@ -1,9 +1,9 @@
 /**
- * Feature 6 — Asset management dialog and actions: copy, move, delete,
- * restore, export, rename.
+ * Feature 6 — Asset management (side panel of the asset view) and actions:
+ * copy, move, delete, restore, export, rename.
  */
 import {deleteWorkspace, getAsset, seedWorkspace, waitForAsset, waitForIndexed} from './lib/api';
-import {assetItem, dialogTab, expandTreePickerWorkspace, expectToastText, login, openAssetContextMenu, pickTreeNode, routeDialog, visitWorkspace, waitForResults} from './lib/app';
+import {assetItem, assetPanelTab, assetView, expandTreePickerWorkspace, expectToastText, login, openAssetContextMenu, openAssetEditor, pickTreeNode, visitAssetView, visitWorkspace, waitForResults} from './lib/app';
 import {databoxNextUrl} from '../lib/urls';
 
 describe('Asset actions', () => {
@@ -27,26 +27,39 @@ describe('Asset actions', () => {
         login();
     });
 
-    it('walks through the manage dialog tabs', () => {
-        cy.visit(`${databoxNextUrl}/assets/${ctx.assets[0].id}/manage/info`);
-        routeDialog().contains('Manage asset');
-        ['Edit', 'Renditions', 'Versions', 'Permissions', 'Workflow', 'Operations'].forEach(tab => {
-            dialogTab(tab);
-            cy.url().should('include', '/manage/');
+    it('walks through the tabs of the side panel', () => {
+        // The former manage dialog URLs land on the matching panel tab
+        cy.visit(`${databoxNextUrl}/assets/${ctx.assets[0].id}/manage/versions`);
+        assetView().findBySel('asset-panel-tab-versions').should('be.visible');
+        assetView().contains('No previous version of the source file').should('be.visible');
+
+        ['Renditions', 'Permissions', 'Workflow', 'Operations'].forEach(tab => {
+            assetPanelTab(tab);
+            cy.url().should('include', '#panel=');
         });
-        dialogTab('Versions');
-        routeDialog().contains('No previous version of the source file');
+        assetPanelTab('Info');
+        assetView().findBySel('asset-panel-tab-details').should('be.visible');
     });
 
-    it('renames an asset from the edit tab', () => {
-        cy.visit(`${databoxNextUrl}/assets/${ctx.assets[0].id}/manage/edit`);
-        routeDialog().within(() => {
+    it('renames an asset from the editor', () => {
+        visitAssetView(ctx.assets[0].id, 'edit').within(() => {
             // The asset name lives in the attribute flagged "fill from name"
             cy.get(`#attr-${ctx.title.id}`, {timeout: 20000}).type('{selectAll}{backspace}').should('have.value', '').type('E2E Renamed');
             cy.contains('button', 'Save').click();
         });
         expectToastText('Asset saved');
         getAsset(ctx.assets[0].id).its('name').should('eq', 'E2E Renamed');
+    });
+
+    it('turns the edit mode on and off from the toolbar', () => {
+        visitAssetView(ctx.assets[1].id);
+        openAssetEditor();
+        cy.url().should('include', '#panel=edit');
+        // The same button leaves the mode, back to the tabs
+        cy.getBySel('asset-action-edit').click();
+        cy.getBySel('asset-panel-edit').should('not.be.visible');
+        cy.getBySel('asset-panel-tab-details').should('be.visible');
+        cy.url().should('not.include', '#panel=edit');
     });
 
     it('copies an asset to another collection', () => {
@@ -126,8 +139,7 @@ describe('Asset actions', () => {
     });
 
     it('shows the location and shortcuts in the operations tab', () => {
-        cy.visit(`${databoxNextUrl}/assets/${ctx.assets[1].id}/manage/operations`);
-        routeDialog().within(() => {
+        visitAssetView(ctx.assets[1].id, 'operations').within(() => {
             cy.contains('Location').should('be.visible');
             cy.contains('Shortcuts').should('be.visible');
             cy.contains('Danger zone').should('be.visible');
