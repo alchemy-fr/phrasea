@@ -7,7 +7,14 @@ export class CPhraseanetMetadata {
     values: string[] = [];
     metaStructure?: PhraseanetMetaStruct;
 
-    static NullMetadata = new CPhraseanetMetadata();
+    /**
+     * A fresh, empty metadata. A shared instance would be handed out for every
+     * missing field, and one caller mutating it would corrupt the value every
+     * other caller sees for the rest of the process.
+     */
+    static get NullMetadata(): CPhraseanetMetadata {
+        return new CPhraseanetMetadata();
+    }
 
     static fromTPhraseanetMetadata(Tm: PhraseanetMetadata) {
         const m = new CPhraseanetMetadata();

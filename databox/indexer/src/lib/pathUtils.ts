@@ -3,7 +3,7 @@ export function escapePath(
     replaceBadChars: string = '_'
 ): string {
     // eslint-disable-next-line no-control-regex
-    return escapeSlashes(path.replace(/[\x00-\x0F]/g, replaceBadChars));
+    return escapeSlashes(path.replace(/[\x00-\x1F]/g, replaceBadChars));
 }
 
 export function escapeSlashes(path: string): string {

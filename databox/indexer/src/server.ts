@@ -1,4 +1,5 @@
 import express, {Request} from 'express';
+import {Server} from 'http';
 import {getEnvStrict} from './env';
 import {Response} from 'express';
 import {Logger} from 'winston';
@@ -6,8 +7,9 @@ import {ConfigOptions, IndexLocation} from './types/config';
 import {assetServerFactories} from './serverFactories';
 import {getLocation} from './locations';
 import {createLogger} from './lib/logger';
+import {onShutdown} from './shutdown';
 
-const app = express();
+export const app = express();
 
 app.use(express.json());
 
@@ -34,7 +36,7 @@ function getOrCreateServer(location: IndexLocation<any>): AssetServerHandler {
     ));
 }
 
-export function runServer(logger: Logger): void {
+export function runServer(logger: Logger): Server {
     app.get(
         '/assets',
         async (
@@ -77,9 +79,20 @@ export function runServer(logger: Logger): void {
     );
 
     const port = getEnvStrict('SERVER_PORT');
-    app.listen(port, () => {
+
+    const server = app.listen(port, () => {
         logger.info(`Server: listening at http://localhost:${port}`);
     });
+
+    // Without this the server keeps the event loop alive on its own, and an
+    // interrupted run waits out the whole grace period before being killed.
+    onShutdown(() => {
+        logger.info('Server: closing');
+        server.close();
+        server.closeAllConnections();
+    });
+
+    return server;
 }
 
 function badRequest(res: Response, message: string, logger: Logger): void {
