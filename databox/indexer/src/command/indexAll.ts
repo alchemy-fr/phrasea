@@ -20,7 +20,9 @@ export default async function indexAllCommand(options: IndexOptions) {
 
     await databoxClient.authenticate();
     const mainLogger = createLogger('app');
-    runServer(mainLogger);
+    if (false !== options.server) {
+        runServer(mainLogger);
+    }
 
     const entries = Object.entries(locations);
     for (const [_, location] of entries) {
