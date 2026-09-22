@@ -14,9 +14,13 @@ export const s3AmqpWatcher: Watcher<S3AmqpConfig> = async (
 ) => {
     const config = location.options as S3AmqpConfig;
 
-    const bucketsList: string[] = getConfig('s3.bucketNames', '', config).split(
-        ','
-    );
+    // Empty entries are dropped: ''.split(',') is [''], whose length is 1, and
+    // the filter below would then reject every bucket instead of accepting all
+    // of them.
+    const bucketsList: string[] = getConfig('s3.bucketNames', '', config)
+        .split(',')
+        .map((b: string) => b.trim())
+        .filter((b: string) => b.length > 0);
 
     const workspaceId = await databoxClient.getWorkspaceIdFromSlug(
         getStrict('workspaceSlug', config)
