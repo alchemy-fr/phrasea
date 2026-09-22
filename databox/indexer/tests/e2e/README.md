@@ -87,14 +87,14 @@ moves the fixtures and the expectations together.
 - `redis` backs the Symfony cache. Without it every request spends 30s failing
   to reach it, which trips the indexer's own 30s timeout. That is why the
   script refuses to start without it rather than letting the indexation fail
-  halfway (see `KNOWN_ISSUES.md` #11 for what that used to look like).
+  halfway through.
 
 ## Options
 
 ```
 --slug <slug>        Workspace slug to index into (default: indexer-e2e)
 --concurrency <n>    DATABOX_CONCURRENCY for the indexer (default: 1)
---timeout <seconds>  Timeout of a single indexation (default: 300)
+--timeout <seconds>  Deadline of a single indexation (default: 300)
 --skip-build         Do not rebuild databox/indexer/dist first
 --skip-idempotence   Index once instead of twice
 --keep               Keep the workspace and the /e2e volume
@@ -102,6 +102,19 @@ moves the fixtures and the expectations together.
 
 ## Design notes and known limits
 
+- **The outer `timeout` runs `--foreground`, and the docker client gets its
+  stdin from `/dev/null`.** GNU `timeout` otherwise puts its command in a
+  process group of its own, which is not the foreground group of the terminal;
+  `docker compose run` then touches the tty, the kernel stops it with SIGTTIN,
+  and the run hangs without even answering SIGTERM. It only happens on a
+  terminal, so a redirected run never shows it.
+- **`--timeout` is enforced inside the container**, by a `timeout` whose child
+  is node itself. Killing the `docker compose run` client from the host stops
+  nothing — the container keeps running, and keeps writing to databox — so the
+  outer deadline is only a backstop, and the container is named so the script
+  can remove it whatever happens. The indexer turns the signal into a
+  cooperative stop: the assets in flight finish, nothing more is pulled, and it
+  exits 143.
 - **Everything is read through the databox API**; the suite never connects to
   the database. For an admin token `GET /assets` and `GET /collections` are
   served from Elasticsearch, which is fed from the writes the indexer just

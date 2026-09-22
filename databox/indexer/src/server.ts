@@ -7,6 +7,7 @@ import {ConfigOptions, IndexLocation} from './types/config';
 import {assetServerFactories} from './serverFactories';
 import {getLocation} from './locations';
 import {createLogger} from './lib/logger';
+import {onShutdown} from './shutdown';
 
 export const app = express();
 
@@ -79,9 +80,19 @@ export function runServer(logger: Logger): Server {
 
     const port = getEnvStrict('SERVER_PORT');
 
-    return app.listen(port, () => {
+    const server = app.listen(port, () => {
         logger.info(`Server: listening at http://localhost:${port}`);
     });
+
+    // Without this the server keeps the event loop alive on its own, and an
+    // interrupted run waits out the whole grace period before being killed.
+    onShutdown(() => {
+        logger.info('Server: closing');
+        server.close();
+        server.closeAllConnections();
+    });
+
+    return server;
 }
 
 function badRequest(res: Response, message: string, logger: Logger): void {

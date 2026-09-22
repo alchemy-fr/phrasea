@@ -6,6 +6,7 @@ import {DataboxClient} from './client';
 import {getConfig} from '../configLoader';
 import {passFilters} from '../pathFilter';
 import {IndexLocation} from '../types/config';
+import {isShutdownRequested, shutdownExitCode} from '../shutdown';
 
 export async function consume(
     location: IndexLocation<any>,
@@ -37,4 +38,9 @@ export async function consume(
         },
         concurrency
     );
+
+    if (isShutdownRequested()) {
+        logger.warn(`Interrupted after ${total - 1} assets.`);
+        process.exit(shutdownExitCode());
+    }
 }
