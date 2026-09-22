@@ -87,9 +87,8 @@ APP_DIR="/srv/workspace/phrasea/databox/indexer"
 # Checked here rather than in the suite: the containers cannot see the Docker
 # daemon, so a stopped stack reaches them as a DNS failure on `databox-api`.
 # redis is in the list because it backs the Symfony cache: without it every
-# request spends 30s failing to reach it and the indexer's 30s axios timeout
-# fires, which is a hard failure now that POSTs are no longer replayed
-# (KNOWN_ISSUES.md #11).
+# request spends 30s failing to reach it, which trips the indexer's own 30s
+# axios timeout and fails the indexation halfway through.
 REQUIRED_SERVICES=(db elasticsearch keycloak redis databox-api-php databox-api-nginx)
 # In APP_ENV=dev every Messenger transport is sync://, so the websocket
 # broadcast that follows POST /assets runs inside the request: a missing soketi
@@ -115,6 +114,11 @@ fi
 # on the host.
 E2E_VOLUME="indexer-e2e-$$"
 
+# Set while an indexation container is running. `docker compose run` does not
+# stop the container when the client attached to it is killed, so a run the
+# script gave up on would otherwise keep writing to databox behind its back.
+INDEXER_CONTAINER=""
+
 # The flags every step of the suite shares. DATABOX_API_URL is overridden: the
 # computed value goes through Traefik on the host, which does not necessarily
 # listen on the port it implies.
@@ -135,12 +139,16 @@ e2e_step() {
 
     docker compose run "${flags[@]}" \
         --workdir "${APP_DIR}" --entrypoint pnpm databox-indexer \
-        test:e2e "tests/e2e/$1"
+        test:e2e "tests/e2e/$1" </dev/null
 }
 
 cleanup() {
     local rc=$?
     trap - EXIT INT TERM
+
+    if [ -n "${INDEXER_CONTAINER}" ]; then
+        docker rm -f "${INDEXER_CONTAINER}" >/dev/null 2>&1 || true
+    fi
 
     if [ "${KEEP}" = "1" ]; then
         echo "Volume ${E2E_VOLUME} kept (docker volume rm ${E2E_VOLUME})."
@@ -196,26 +204,50 @@ run_indexer() {
     local flags=()
     mapfile -t flags < <(indexer_flags)
 
-    # `timeout` runs docker compose itself: it cannot run a shell function.
+    INDEXER_CONTAINER="phrasea-indexer-e2e-$$-${run_no}"
+
+    # The deadline is enforced *inside* the container, by a `timeout` whose
+    # child is node itself. Killing the `docker compose run` client from out
+    # here stops nothing: the container's PID 1 is a shell, and the kernel
+    # drops a SIGTERM that PID 1 has no handler for. The outer timeout is only
+    # a backstop for a docker client that is itself stuck, and the container is
+    # removed by name whatever happens.
+    #
+    # --foreground, and stdin from /dev/null: without the first, `timeout` puts
+    # the command in a process group of its own, which is not the foreground
+    # group of the terminal; `docker compose run` then touches the tty and the
+    # kernel stops it with SIGTTIN. The run hangs, and being stopped it does
+    # not even answer SIGTERM. It only ever happens on a terminal, which is why
+    # a redirected run never shows it.
     set +e
-    timeout "${E2E_TIMEOUT}" docker compose run "${flags[@]}" \
+    timeout --foreground --kill-after=10 "$((E2E_TIMEOUT + 30))" \
+        docker compose run "${flags[@]}" \
+        --name "${INDEXER_CONTAINER}" \
         --workdir /e2e \
         -e CONFIG_FILE=config.e2e.json \
         --entrypoint /bin/sh \
         databox-indexer \
-        -c "{ node ${APP_DIR}/dist/console.mjs \
+        -c "{ timeout ${E2E_TIMEOUT} node ${APP_DIR}/dist/console.mjs \
                   index e2e_fs --no-server --debug 2>&1
               echo \$? >/e2e/run${run_no}.rc
             } | tee /e2e/run${run_no}.log
-            exit \$(cat /e2e/run${run_no}.rc)"
+            exit \$(cat /e2e/run${run_no}.rc)" </dev/null
     rc=$?
     set -e
 
-    if [ "${rc}" -eq 124 ]; then
-        die "the indexation timed out after ${E2E_TIMEOUT}s.
-  Without --no-server the indexer never exits; check that the option reached it."
-    fi
-    [ "${rc}" -eq 0 ] || die "the indexer exited with code ${rc}."
+    docker rm -f "${INDEXER_CONTAINER}" >/dev/null 2>&1 || true
+    INDEXER_CONTAINER=""
+
+    # The indexer turns SIGTERM into 143 itself; busybox timeout reports 143
+    # too, or 137 once it had to escalate to SIGKILL. The outer GNU timeout
+    # reports 124.
+    case "${rc}" in
+        124 | 137 | 143)
+            die "the indexation did not finish within ${E2E_TIMEOUT}s."
+            ;;
+        0) ;;
+        *) die "the indexer exited with code ${rc}." ;;
+    esac
 }
 
 ############################################################

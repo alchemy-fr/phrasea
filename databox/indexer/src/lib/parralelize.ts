@@ -1,3 +1,5 @@
+import {isShutdownRequested} from '../shutdown';
+
 export async function parralelize<T>(
     getIterator: () => AsyncGenerator<T>,
     handler: (item: T) => Promise<void>,
@@ -6,6 +8,12 @@ export async function parralelize<T>(
     const iterator = getIterator();
 
     const next = async () => {
+        // An interrupted run stops pulling; the items already handed out are
+        // seen through to the end.
+        if (isShutdownRequested()) {
+            return;
+        }
+
         const f = await iterator.next();
 
         if (!f.done) {
