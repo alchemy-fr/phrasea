@@ -1,4 +1,5 @@
 import express, {Request} from 'express';
+import {Server} from 'http';
 import {getEnvStrict} from './env';
 import {Response} from 'express';
 import {Logger} from 'winston';
@@ -7,7 +8,7 @@ import {assetServerFactories} from './serverFactories';
 import {getLocation} from './locations';
 import {createLogger} from './lib/logger';
 
-const app = express();
+export const app = express();
 
 app.use(express.json());
 
@@ -34,7 +35,7 @@ function getOrCreateServer(location: IndexLocation<any>): AssetServerHandler {
     ));
 }
 
-export function runServer(logger: Logger): void {
+export function runServer(logger: Logger): Server {
     app.get(
         '/assets',
         async (
@@ -77,7 +78,8 @@ export function runServer(logger: Logger): void {
     );
 
     const port = getEnvStrict('SERVER_PORT');
-    app.listen(port, () => {
+
+    return app.listen(port, () => {
         logger.info(`Server: listening at http://localhost:${port}`);
     });
 }
