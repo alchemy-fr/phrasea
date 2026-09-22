@@ -6,7 +6,7 @@ import {useQueryClient} from '@tanstack/react-query';
 import {SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import {AssetTypeFilter, EntityName, Privacy} from '@/types/api';
-import type {AssetTabProps} from '../AssetManageRoute';
+import type {AssetTabProps} from '../types';
 import {Button} from '@/components/ui/button';
 import {FormRow} from '@/components/ui/input';
 import {TagSelect} from '@/components/form/selects';

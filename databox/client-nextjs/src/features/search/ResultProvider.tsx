@@ -20,6 +20,12 @@ import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 
 export type ResultContextValue = {
     pages: Asset[][];
+    /**
+     * Checksum of the search the current pages come from. It lags behind
+     * `useSearch().checksum` while a new search runs: the screen keeps showing
+     * the previous results instead of flashing empty.
+     */
+    checksum?: string;
     loading: boolean;
     loadingMore: boolean;
     total?: number;
@@ -47,6 +53,7 @@ export function ResultProvider({
     const search = useSearch();
     const [state, setState] = useState<{
         pages: Asset[][];
+        checksum?: string;
         loading: boolean;
         loadingMore: boolean;
         total?: number;
@@ -88,6 +95,7 @@ export function ResultProvider({
                 error: undefined,
             }));
 
+            const checksum = search.checksum;
             const order: Record<string, 'asc' | 'desc'> = {};
             const sortBy = resolveSortBy(search.sortBy);
             sortBy.forEach(s => {
@@ -121,6 +129,7 @@ export function ResultProvider({
                     pages: nextUrl
                         ? [...prev.pages, result.items]
                         : [result.items],
+                    checksum,
                     next: result.next,
                     total: result.total,
                     facets: result.facets,
@@ -160,6 +169,7 @@ export function ResultProvider({
     const value = useMemo<ResultContextValue>(
         () => ({
             pages: state.pages,
+            checksum: state.checksum,
             loading: state.loading,
             loadingMore: state.loadingMore,
             total: state.total,

@@ -11,7 +11,10 @@ import {
     DropdownMenuItem,
     DropdownMenuSeparator,
 } from '@/components/ui/menu';
-import {useAssetActions} from '@/features/assets/actions/useAssetActions';
+import {
+    useAssetActions,
+    type ActionContext,
+} from '@/features/assets/actions/useAssetActions';
 
 export function AssetContextMenu({
     asset,
@@ -40,12 +43,15 @@ export function AssetMenuItems({
     asset,
     variant,
     onOpen,
+    context,
 }: {
     asset: Asset;
     variant: 'context' | 'dropdown';
     onOpen?: () => void;
+    /** Actions that do not make sense where the menu is rendered */
+    context?: ActionContext;
 }) {
-    const groups = useAssetActions([asset], {onOpen});
+    const groups = useAssetActions([asset], {onOpen, context});
     const Item = variant === 'context' ? ContextMenuItem : DropdownMenuItem;
     const Sep =
         variant === 'context' ? ContextMenuSeparator : DropdownMenuSeparator;

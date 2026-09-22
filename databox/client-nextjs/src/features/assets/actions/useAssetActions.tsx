@@ -136,7 +136,9 @@ export function useAssetActions(
                 id: 'info',
                 label: t('asset.actions.info', 'Info'),
                 icon: <InfoIcon />,
-                run: () => router.push(routes.assetManage(single.id, 'info')),
+                // The tabs of the former manage dialog live in the side
+                // panel of the viewer
+                run: () => router.push(routes.assetView(single.id)),
             });
         }
         if (isAuthenticated && ctx.basket && !anyDeleted) {
@@ -209,7 +211,13 @@ export function useAssetActions(
                     icon: <PencilIcon />,
                     run: () => {
                         if (single) {
-                            router.push(routes.assetManage(single.id, 'edit'));
+                            router.push(
+                                routes.assetView(
+                                    single.id,
+                                    undefined,
+                                    '#panel=edit'
+                                )
+                            );
                         } else {
                             const workspaces = new Set(
                                 assets.map(a => a.workspace.id)

@@ -14,3 +14,14 @@
 // ***********************************************************
 
 import './commands'
+
+/**
+ * Next.js instruments its render with `performance.measure` in dev mode, and
+ * throws on a negative timestamp while measuring a route it re-renders (the
+ * `@modal` catch-all, after a redirect). It is dev-server noise, not an
+ * application error: let the test go on.
+ */
+Cypress.on(
+    'uncaught:exception',
+    err => !/cannot have a negative time stamp/.test(err.message)
+);

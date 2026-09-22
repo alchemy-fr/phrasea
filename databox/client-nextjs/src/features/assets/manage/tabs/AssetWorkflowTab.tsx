@@ -5,7 +5,7 @@ import {useRouter} from 'next/navigation';
 import {useQuery} from '@tanstack/react-query';
 import {ExternalLinkIcon, PlayIcon} from 'lucide-react';
 import {toast} from 'sonner';
-import type {AssetTabProps} from '../AssetManageRoute';
+import type {AssetTabProps} from '../types';
 import {WorkflowStatus} from '@/types/api';
 import {getAssetWorkflows} from '@/lib/api/misc';
 import {triggerAssetWorkflow} from '@/lib/api/assets';

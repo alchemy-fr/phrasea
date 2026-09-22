@@ -21,6 +21,7 @@ import {AssetMetrics} from './AssetMetrics';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {FileIntegrations} from '@/features/integrations/FileIntegrations';
 
+/** Content of the `details` tab of the asset side panel (see `AssetPanel`). */
 export function AssetSidePanel({
     asset,
     rendition,
@@ -35,11 +36,7 @@ export function AssetSidePanel({
     const config = useConfig();
 
     return (
-        <Accordion
-            type="multiple"
-            defaultValue={['attributes', 'discussion']}
-            className="px-4"
-        >
+        <Accordion type="multiple" defaultValue={['attributes', 'discussion']}>
             <AccordionItem value="attributes">
                 <AccordionTrigger>
                     {t('asset.view.attributes', 'Attributes')}

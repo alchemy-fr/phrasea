@@ -34,6 +34,20 @@ const nextConfig: NextConfig = {
         optimizePackageImports: ['lucide-react', 'radix-ui', 'date-fns'],
     },
     turbopack: {},
+    async redirects() {
+        return [
+            {
+                // The asset manage dialog moved into the side panel of the
+                // viewer: former URLs (links, bookmarks, notifications) land
+                // on the matching panel tab. Redirected at the routing layer
+                // rather than from a page, so that no React tree is rendered
+                // just to be thrown away.
+                source: '/assets/:id/manage/:tab',
+                destination: '/assets/:id/_#panel=:tab',
+                permanent: false,
+            },
+        ];
+    },
 };
 
 export default nextConfig;

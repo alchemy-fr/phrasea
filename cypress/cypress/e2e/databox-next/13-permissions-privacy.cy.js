@@ -2,7 +2,7 @@
  * Feature 13 — Permissions (ACL) and privacy.
  */
 import {deleteWorkspace, ensureUser, seedWorkspace} from './lib/api';
-import {expectToastText, login, routeDialog} from './lib/app';
+import {expectToastText, login, routeDialog, visitAssetView} from './lib/app';
 import {databoxNextUrl} from '../lib/urls';
 
 describe('Permissions & privacy', () => {
@@ -49,8 +49,7 @@ describe('Permissions & privacy', () => {
     });
 
     it('shows inherited permissions on an asset', () => {
-        cy.visit(`${databoxNextUrl}/assets/${ctx.assets[0].id}/manage/permissions`);
-        routeDialog().within(() => {
+        visitAssetView(ctx.assets[0].id, 'permissions').within(() => {
             cy.contains('Inherited permissions').should('be.visible');
         });
     });

@@ -2,7 +2,7 @@
  * Feature 7 — Files, analysis and quarantine.
  */
 import {apiRequest, deleteWorkspace, seedWorkspace, uploadAssetFromFixture, waitForAsset, waitForIndexed} from './lib/api';
-import {dialogTab, login, routeDialog, visitWorkspace, waitForResults} from './lib/app';
+import {dialogTab, login, routeDialog, visitAssetView, visitWorkspace, waitForResults} from './lib/app';
 import {databoxNextUrl} from '../lib/urls';
 
 describe('Files & quarantine', () => {
@@ -37,8 +37,7 @@ describe('Files & quarantine', () => {
     });
 
     it('lists the renditions of the uploaded file', () => {
-        cy.visit(`${databoxNextUrl}/assets/${image.id}/manage/renditions`);
-        routeDialog().within(() => {
+        visitAssetView(image.id, 'renditions').within(() => {
             cy.contains('Create custom rendition').should('be.visible');
             cy.contains('Main').should('exist');
             cy.contains('Preview').should('exist');
@@ -80,6 +79,21 @@ describe('Files & quarantine', () => {
         cy.getBySel('quarantine-queue').should('exist');
         cy.getBySel('quarantine-count').should('be.visible');
         cy.contains('a', 'Open in search').should('have.attr', 'href').and('include', 'assetStatus');
+    });
+
+    it('does not flash unfiltered results when opening the search from the quarantine screen', () => {
+        cy.visit(`${databoxNextUrl}/quarantine`);
+        cy.getBySel('quarantine-queue').should('exist');
+        // Slow the search down to make the transition observable
+        cy.intercept('GET', '**/assets?*', req => {
+            req.on('response', res => res.setDelay(2000));
+        }).as('filteredSearch');
+        cy.contains('a', 'Open in search').click();
+        cy.url().should('include', 'assetStatus');
+        // The results of the previous search must not show up in between
+        cy.getBySel('asset-list').should('not.exist');
+        cy.wait('@filteredSearch');
+        cy.get('[data-testid=asset-list], [data-testid=no-results]', {timeout: 20000}).should('exist');
     });
 
     it('shows the analysis state of the file', () => {

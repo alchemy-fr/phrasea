@@ -9,8 +9,9 @@ import {
     NodeViewWrapper,
     ReactNodeViewRenderer,
     useEditor,
+    useEditorState,
 } from '@tiptap/react';
-import type {NodeViewProps} from '@tiptap/react';
+import type {Editor as TipTapEditor, NodeViewProps} from '@tiptap/react';
 import {
     AlignCenterIcon,
     AlignJustifyIcon,
@@ -36,6 +37,7 @@ import {
     StrikethroughIcon,
     Trash2Icon,
     UnderlineIcon,
+    UndoIcon,
 } from 'lucide-react';
 import {toast} from 'sonner';
 import type {CmsPage} from '@/types/api';
@@ -246,233 +248,7 @@ function Editor({page, onSaved}: {page: CmsPage; onSaved: () => void}) {
                     <SaveIcon /> {t('common.save', 'Save')}
                 </Button>
             </header>
-            <div className="flex shrink-0 flex-wrap items-center gap-0.5 border-b px-2 py-1">
-                <ToolbarButton
-                    label={t('common.undo', 'Undo')}
-                    onClick={() => editor.chain().focus().undo().run()}
-                >
-                    <ArrowLeftIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                    label={t('common.redo', 'Redo')}
-                    onClick={() => editor.chain().focus().redo().run()}
-                >
-                    <RedoIcon />
-                </ToolbarButton>
-                <span className="mx-1 h-5 w-px bg-border" />
-                <SimpleSelect
-                    size="sm"
-                    className="w-36"
-                    value={
-                        editor.isActive('heading', {level: 1})
-                            ? 'h1'
-                            : editor.isActive('heading', {level: 2})
-                              ? 'h2'
-                              : editor.isActive('heading', {level: 3})
-                                ? 'h3'
-                                : 'p'
-                    }
-                    onValueChange={v =>
-                        v === 'p'
-                            ? editor.chain().focus().setParagraph().run()
-                            : editor
-                                  .chain()
-                                  .focus()
-                                  .toggleHeading({
-                                      level: Number(v.slice(1)) as 1 | 2 | 3,
-                                  })
-                                  .run()
-                    }
-                    options={[
-                        {value: 'p', label: t('cms.paragraph', 'Paragraph')},
-                        {value: 'h1', label: 'Heading 1'},
-                        {value: 'h2', label: 'Heading 2'},
-                        {value: 'h3', label: 'Heading 3'},
-                    ]}
-                />
-                <SimpleSelect
-                    size="sm"
-                    className="w-36"
-                    value={
-                        (editor.getAttributes('textStyle')
-                            .fontFamily as string) || 'default'
-                    }
-                    onValueChange={v =>
-                        v === 'default'
-                            ? editor.chain().focus().unsetFontFamily().run()
-                            : editor.chain().focus().setFontFamily(v).run()
-                    }
-                    options={[
-                        {
-                            value: 'default',
-                            label: t('cms.font_default', 'Default font'),
-                        },
-                        {value: 'serif', label: 'Serif'},
-                        {value: 'monospace', label: 'Monospace'},
-                        {value: 'cursive', label: 'Cursive'},
-                    ]}
-                />
-                <span className="mx-1 h-5 w-px bg-border" />
-                <ToolbarButton
-                    label="Bold"
-                    active={editor.isActive('bold')}
-                    onClick={() => editor.chain().focus().toggleBold().run()}
-                >
-                    <BoldIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                    label="Italic"
-                    active={editor.isActive('italic')}
-                    onClick={() => editor.chain().focus().toggleItalic().run()}
-                >
-                    <ItalicIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                    label="Underline"
-                    active={editor.isActive('underline')}
-                    onClick={() =>
-                        editor.chain().focus().toggleUnderline().run()
-                    }
-                >
-                    <UnderlineIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                    label="Strike"
-                    active={editor.isActive('strike')}
-                    onClick={() => editor.chain().focus().toggleStrike().run()}
-                >
-                    <StrikethroughIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                    label="Code"
-                    active={editor.isActive('code')}
-                    onClick={() => editor.chain().focus().toggleCode().run()}
-                >
-                    <CodeIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                    label="Highlight"
-                    active={editor.isActive('highlight')}
-                    onClick={() =>
-                        editor.chain().focus().toggleHighlight().run()
-                    }
-                >
-                    <HighlighterIcon />
-                </ToolbarButton>
-                <Tooltip content={t('cms.color', 'Text color')}>
-                    <label className="relative inline-flex size-8 cursor-pointer items-center justify-center rounded-md hover:bg-accent">
-                        <PaletteIcon className="size-4" />
-                        <input
-                            type="color"
-                            className="absolute inset-0 cursor-pointer opacity-0"
-                            onChange={e =>
-                                editor
-                                    .chain()
-                                    .focus()
-                                    .setColor(e.target.value)
-                                    .run()
-                            }
-                        />
-                    </label>
-                </Tooltip>
-                <ToolbarButton
-                    label={t('cms.clear_format', 'Clear formatting')}
-                    onClick={() =>
-                        editor
-                            .chain()
-                            .focus()
-                            .unsetAllMarks()
-                            .clearNodes()
-                            .run()
-                    }
-                >
-                    <EraserIcon />
-                </ToolbarButton>
-                <span className="mx-1 h-5 w-px bg-border" />
-                <ToolbarButton
-                    label="Bullet list"
-                    active={editor.isActive('bulletList')}
-                    onClick={() =>
-                        editor.chain().focus().toggleBulletList().run()
-                    }
-                >
-                    <ListIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                    label="Ordered list"
-                    active={editor.isActive('orderedList')}
-                    onClick={() =>
-                        editor.chain().focus().toggleOrderedList().run()
-                    }
-                >
-                    <ListOrderedIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                    label="Quote"
-                    active={editor.isActive('blockquote')}
-                    onClick={() =>
-                        editor.chain().focus().toggleBlockquote().run()
-                    }
-                >
-                    <QuoteIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                    label="Code block"
-                    active={editor.isActive('codeBlock')}
-                    onClick={() =>
-                        editor.chain().focus().toggleCodeBlock().run()
-                    }
-                >
-                    <SquareCodeIcon />
-                </ToolbarButton>
-                <ToolbarButton
-                    label="Link"
-                    active={editor.isActive('link')}
-                    onClick={() => {
-                        const prev = editor.getAttributes('link').href as
-                            | string
-                            | undefined;
-                        const url = window.prompt(
-                            t('cms.link_url', 'Link URL'),
-                            prev ?? 'https://'
-                        );
-                        if (url === null) return;
-                        if (url === '') {
-                            editor.chain().focus().unsetLink().run();
-                        } else {
-                            editor
-                                .chain()
-                                .focus()
-                                .extendMarkRange('link')
-                                .setLink({href: url})
-                                .run();
-                        }
-                    }}
-                >
-                    <LinkIcon />
-                </ToolbarButton>
-                <span className="mx-1 h-5 w-px bg-border" />
-                {(['left', 'center', 'right', 'justify'] as const).map(a => (
-                    <ToolbarButton
-                        key={a}
-                        label={`Align ${a}`}
-                        active={editor.isActive({textAlign: a})}
-                        onClick={() =>
-                            editor.chain().focus().setTextAlign(a).run()
-                        }
-                    >
-                        {a === 'left' ? (
-                            <AlignLeftIcon />
-                        ) : a === 'center' ? (
-                            <AlignCenterIcon />
-                        ) : a === 'right' ? (
-                            <AlignRightIcon />
-                        ) : (
-                            <AlignJustifyIcon />
-                        )}
-                    </ToolbarButton>
-                ))}
-            </div>
+            <Toolbar editor={editor} />
             <div className="relative min-h-0 flex-1 overflow-y-auto">
                 <div className="mx-auto max-w-5xl">
                     <EditorContent editor={editor} />
@@ -520,6 +296,247 @@ function Editor({page, onSaved}: {page: CmsPage; onSaved: () => void}) {
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
+        </div>
+    );
+}
+
+/**
+ * Formatting toolbar. The button/select states are derived through
+ * `useEditorState` so that they follow the current selection: `useEditor` does
+ * not re-render on transactions on its own.
+ */
+function Toolbar({editor}: {editor: TipTapEditor}) {
+    const {t} = useTranslation();
+    const state = useEditorState({
+        editor,
+        selector: ({editor}) => ({
+            block: editor.isActive('heading', {level: 1})
+                ? 'h1'
+                : editor.isActive('heading', {level: 2})
+                  ? 'h2'
+                  : editor.isActive('heading', {level: 3})
+                    ? 'h3'
+                    : 'p',
+            fontFamily:
+                (editor.getAttributes('textStyle').fontFamily as string) ||
+                'default',
+            bold: editor.isActive('bold'),
+            italic: editor.isActive('italic'),
+            underline: editor.isActive('underline'),
+            strike: editor.isActive('strike'),
+            code: editor.isActive('code'),
+            highlight: editor.isActive('highlight'),
+            bulletList: editor.isActive('bulletList'),
+            orderedList: editor.isActive('orderedList'),
+            blockquote: editor.isActive('blockquote'),
+            codeBlock: editor.isActive('codeBlock'),
+            link: editor.isActive('link'),
+            align: {
+                left: editor.isActive({textAlign: 'left'}),
+                center: editor.isActive({textAlign: 'center'}),
+                right: editor.isActive({textAlign: 'right'}),
+                justify: editor.isActive({textAlign: 'justify'}),
+            },
+        }),
+    });
+
+    return (
+        <div className="flex shrink-0 flex-wrap items-center gap-0.5 border-b px-2 py-1">
+            <ToolbarButton
+                label={t('common.undo', 'Undo')}
+                onClick={() => editor.chain().focus().undo().run()}
+            >
+                <UndoIcon />
+            </ToolbarButton>
+            <ToolbarButton
+                label={t('common.redo', 'Redo')}
+                onClick={() => editor.chain().focus().redo().run()}
+            >
+                <RedoIcon />
+            </ToolbarButton>
+            <span className="mx-1 h-5 w-px bg-border" />
+            <SimpleSelect
+                size="sm"
+                className="w-36"
+                value={state.block}
+                onValueChange={v =>
+                    v === 'p'
+                        ? editor.chain().focus().setParagraph().run()
+                        : editor
+                              .chain()
+                              .focus()
+                              .setHeading({
+                                  level: Number(v.slice(1)) as 1 | 2 | 3,
+                              })
+                              .run()
+                }
+                options={[
+                    {value: 'p', label: t('cms.paragraph', 'Paragraph')},
+                    {value: 'h1', label: 'Heading 1'},
+                    {value: 'h2', label: 'Heading 2'},
+                    {value: 'h3', label: 'Heading 3'},
+                ]}
+            />
+            <SimpleSelect
+                size="sm"
+                className="w-36"
+                value={state.fontFamily}
+                onValueChange={v =>
+                    v === 'default'
+                        ? editor.chain().focus().unsetFontFamily().run()
+                        : editor.chain().focus().setFontFamily(v).run()
+                }
+                options={[
+                    {
+                        value: 'default',
+                        label: t('cms.font_default', 'Default font'),
+                    },
+                    {value: 'serif', label: 'Serif'},
+                    {value: 'monospace', label: 'Monospace'},
+                    {value: 'cursive', label: 'Cursive'},
+                ]}
+            />
+            <span className="mx-1 h-5 w-px bg-border" />
+            <ToolbarButton
+                label="Bold"
+                active={state.bold}
+                onClick={() => editor.chain().focus().toggleBold().run()}
+            >
+                <BoldIcon />
+            </ToolbarButton>
+            <ToolbarButton
+                label="Italic"
+                active={state.italic}
+                onClick={() => editor.chain().focus().toggleItalic().run()}
+            >
+                <ItalicIcon />
+            </ToolbarButton>
+            <ToolbarButton
+                label="Underline"
+                active={state.underline}
+                onClick={() => editor.chain().focus().toggleUnderline().run()}
+            >
+                <UnderlineIcon />
+            </ToolbarButton>
+            <ToolbarButton
+                label="Strike"
+                active={state.strike}
+                onClick={() => editor.chain().focus().toggleStrike().run()}
+            >
+                <StrikethroughIcon />
+            </ToolbarButton>
+            <ToolbarButton
+                label="Code"
+                active={state.code}
+                onClick={() => editor.chain().focus().toggleCode().run()}
+            >
+                <CodeIcon />
+            </ToolbarButton>
+            <ToolbarButton
+                label="Highlight"
+                active={state.highlight}
+                onClick={() => editor.chain().focus().toggleHighlight().run()}
+            >
+                <HighlighterIcon />
+            </ToolbarButton>
+            <Tooltip content={t('cms.color', 'Text color')}>
+                <label className="relative inline-flex size-8 cursor-pointer items-center justify-center rounded-md hover:bg-accent">
+                    <PaletteIcon className="size-4" />
+                    <input
+                        type="color"
+                        className="absolute inset-0 cursor-pointer opacity-0"
+                        onChange={e =>
+                            editor
+                                .chain()
+                                .focus()
+                                .setColor(e.target.value)
+                                .run()
+                        }
+                    />
+                </label>
+            </Tooltip>
+            <ToolbarButton
+                label={t('cms.clear_format', 'Clear formatting')}
+                onClick={() =>
+                    editor.chain().focus().unsetAllMarks().clearNodes().run()
+                }
+            >
+                <EraserIcon />
+            </ToolbarButton>
+            <span className="mx-1 h-5 w-px bg-border" />
+            <ToolbarButton
+                label="Bullet list"
+                active={state.bulletList}
+                onClick={() => editor.chain().focus().toggleBulletList().run()}
+            >
+                <ListIcon />
+            </ToolbarButton>
+            <ToolbarButton
+                label="Ordered list"
+                active={state.orderedList}
+                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            >
+                <ListOrderedIcon />
+            </ToolbarButton>
+            <ToolbarButton
+                label="Quote"
+                active={state.blockquote}
+                onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            >
+                <QuoteIcon />
+            </ToolbarButton>
+            <ToolbarButton
+                label="Code block"
+                active={state.codeBlock}
+                onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+            >
+                <SquareCodeIcon />
+            </ToolbarButton>
+            <ToolbarButton
+                label="Link"
+                active={state.link}
+                onClick={() => {
+                    const prev = editor.getAttributes('link').href as
+                        | string
+                        | undefined;
+                    const url = window.prompt(
+                        t('cms.link_url', 'Link URL'),
+                        prev ?? 'https://'
+                    );
+                    if (url === null) return;
+                    if (url === '') {
+                        editor.chain().focus().unsetLink().run();
+                    } else {
+                        editor
+                            .chain()
+                            .focus()
+                            .extendMarkRange('link')
+                            .setLink({href: url})
+                            .run();
+                    }
+                }}
+            >
+                <LinkIcon />
+            </ToolbarButton>
+            <span className="mx-1 h-5 w-px bg-border" />
+            {(['left', 'center', 'right', 'justify'] as const).map(a => (
+                <ToolbarButton
+                    key={a}
+                    label={`Align ${a}`}
+                    active={state.align[a]}
+                    onClick={() => editor.chain().focus().setTextAlign(a).run()}
+                >
+                    {a === 'left' ? (
+                        <AlignLeftIcon />
+                    ) : a === 'center' ? (
+                        <AlignCenterIcon />
+                    ) : a === 'right' ? (
+                        <AlignRightIcon />
+                    ) : (
+                        <AlignJustifyIcon />
+                    )}
+                </ToolbarButton>
+            ))}
         </div>
     );
 }

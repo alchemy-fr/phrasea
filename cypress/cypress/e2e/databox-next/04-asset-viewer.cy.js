@@ -51,6 +51,20 @@ describe('Asset viewer', () => {
         });
     });
 
+    it('keeps the top bar, names the page and gets back to the assets', () => {
+        visitWorkspace(ctx.workspace.id);
+        waitForResults(4);
+        openAsset('E2E Image');
+        // The first row never goes away: user menu and the way back
+        cy.getBySel('topbar').should('be.visible');
+        cy.getBySel('user-menu').should('be.visible');
+        cy.getBySel('page-title').should('have.text', 'E2E Image');
+        cy.getBySel('trail-root').click();
+        cy.getBySel('asset-view').should('not.exist');
+        cy.url().should('match', /\/assets$/);
+        cy.getBySel('search-input').should('be.visible');
+    });
+
     it('shows the side panel sections', () => {
         cy.visit(`${databoxNextUrl}/assets/${image.id}/_`);
         cy.getBySel('asset-view', {timeout: 30000}).within(() => {
@@ -73,6 +87,21 @@ describe('Asset viewer', () => {
             cy.get('[aria-label="Show panel"]').click();
             cy.contains('button', 'Attributes').should('be.visible');
         });
+    });
+
+    it('opens a tab of the side panel and resizes it', () => {
+        cy.visit(`${databoxNextUrl}/assets/${image.id}/_#panel=renditions`);
+        cy.getBySel('asset-view', {timeout: 30000}).should('be.visible');
+        cy.getBySel('asset-panel-tab-renditions').should('be.visible');
+        cy.contains('Create custom rendition').should('be.visible');
+
+        // Drag the handle to the left: the panel gets wider
+        cy.getBySel('asset-panel').invoke('outerWidth').should('be.lessThan', 500);
+        cy.get('[data-resize-handle]')
+            .trigger('pointerdown', {pointerId: 1, force: true})
+            .trigger('pointermove', {pointerId: 1, clientX: 700, force: true})
+            .trigger('pointerup', {pointerId: 1, force: true});
+        cy.getBySel('asset-panel').invoke('outerWidth').should('be.greaterThan', 600);
     });
 
     it('navigates to the previous / next result with buttons and arrow keys', () => {

@@ -88,10 +88,16 @@ function useScreenOrigin(
  * Leaves the route a screen is bound to, for the screen it was opened from —
  * as a push, not a back: it stays in the history, so the browser back button
  * reopens it and the forward entries are left alone.
+ *
+ * `screen` is the URL prefix shared by every URL of that screen (like
+ * `RouteDialog`'s `routeKey`). A viewer that navigates between its own URLs —
+ * the basket view switching basket — must pass it, otherwise each of them
+ * counts as a new screen and closing walks back through them one by one
+ * instead of leaving for the page it was opened from.
  */
-export function useCloseRoute(): () => void {
+export function useCloseRoute(screen?: string): () => void {
     const router = useRouter();
-    const openedFrom = useOpenedFrom();
+    const openedFrom = useOpenedFrom(screen);
 
     return useCallback(() => {
         // The screen underneath is still mounted: keep it where it was
@@ -104,7 +110,7 @@ export function useCloseRoute(): () => void {
  * in a `RouteDialog` (viewers) — the origin of the screen at the URL this
  * component mounted on.
  */
-function useOpenedFrom(): string {
+function useOpenedFrom(screen?: string): string {
     const fromDialog = useContext(ReturnUrl);
     // Deliberately not `usePathname()`: that would re-render every consumer —
     // e.g. each tab kept mounted in a dialog — on every URL change. The URL a
@@ -114,7 +120,10 @@ function useOpenedFrom(): string {
             ? window.location.pathname
             : null
     );
-    const own = useScreenOrigin(mountPath, mountPath);
+    const own = useScreenOrigin(
+        mountPath === null ? null : (screen ?? mountPath),
+        mountPath
+    );
 
     return fromDialog ?? own;
 }

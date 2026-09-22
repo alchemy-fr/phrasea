@@ -34,6 +34,9 @@ import {useDisplayPreferences} from '@/features/preferences/store';
 import {SelectionActions} from '@/features/assets/list/toolbar/SelectionActions';
 import {useOptionalSelection} from '@/features/assets/list/SelectionProvider';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
+import {belowTopBar} from '@/components/layout/chrome';
+import {usePageTrail} from '@/components/layout/layoutStore';
+import {cn} from '@/lib/utils/cn';
 
 /**
  * Full screen basket view: basket list on the left, ordered assets grid.
@@ -41,7 +44,9 @@ import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 export function BasketViewRoute({basketId}: {basketId: string}) {
     const {t} = useTranslation();
     const router = useRouter();
-    const close = useCloseRoute();
+    // Switching basket from here stays the same screen: closing leaves for
+    // the page the basket view was opened from, not for the previous basket
+    const close = useCloseRoute(routes.basketViewScreen());
     const queryClient = useQueryClient();
     const openAsset = useAssetOpener();
     const display = useDisplayPreferences();
@@ -107,10 +112,17 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
 
     const total = assets.data?.pages[0]?.total ?? 0;
 
+    // Where the user is, shown in the top bar. An asset opened from here
+    // stacks over it, and comes back to this basket.
+    usePageTrail(
+        basket.data?.name || t('nav.basket', 'Basket'),
+        routes.basketView(basketId)
+    );
+
     return (
         <div
             data-testid="basket-view"
-            className="fixed inset-0 z-50 flex flex-col bg-background"
+            className={cn(belowTopBar, 'z-50 flex flex-col bg-background')}
         >
             <header className="flex h-14 shrink-0 items-center gap-2 border-b px-3">
                 <Button
