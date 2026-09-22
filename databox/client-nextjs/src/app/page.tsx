@@ -1,5 +1,7 @@
-import {HomeScreen} from '@/features/cms/HomeScreen';
+import {redirect} from 'next/navigation';
+import {routes} from '@/lib/routes';
 
+/** The client opens on the assets */
 export default function IndexPage() {
-    return <HomeScreen />;
+    redirect(routes.assets());
 }

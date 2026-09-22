@@ -8,9 +8,15 @@ import {
     resolveThemeColors,
     THEME_COLOR_TOKENS,
     THEME_CSS_VARS,
+    themeFontFacesCss,
     themeMeta,
+    themeStyleVars,
     themeToCssVars,
+    THEME_LIMITS,
 } from './customTheme';
+import {findThemeFont, themeFontStack} from './fonts';
+
+const woff2 = 'data:font/woff2;base64,d09GMgABAAAAAA==';
 
 const theme: ClientTheme = {
     name: 'Acme',
@@ -158,8 +164,118 @@ describe('custom theme', () => {
                 {name: 'x', fontFamily: 'Inter; color: red'},
             ],
             ['default not boolean', {name: 'x', default: 'yes'}],
+            ['fonts not a list', {name: 'x', fonts: {}}],
+            [
+                'too many fonts',
+                {
+                    name: 'x',
+                    fonts: Array.from(
+                        {length: THEME_LIMITS.fonts.max + 1},
+                        () => ({family: 'A', src: woff2})
+                    ),
+                },
+            ],
+            [
+                'font family with a quote',
+                {name: 'x', fonts: [{family: "A'B", src: woff2}]},
+            ],
+            [
+                'font source that is not a font',
+                {
+                    name: 'x',
+                    fonts: [{family: 'A', src: 'data:image/png;base64,AAAA'}],
+                },
+            ],
+            [
+                'font source with a url',
+                {
+                    name: 'x',
+                    fonts: [{family: 'A', src: 'https://evil.test/f.woff2'}],
+                },
+            ],
+            [
+                'unknown font weight',
+                {name: 'x', fonts: [{family: 'A', src: woff2, weight: '450'}]},
+            ],
+            [
+                'unknown font property',
+                {name: 'x', fonts: [{family: 'A', src: woff2, url: 'x'}]},
+            ],
         ])('rejects %s', (_label, raw) => {
             expect(normalizeClientTheme(raw)).toBeNull();
+        });
+
+        it('keeps the uploaded fonts', () => {
+            expect(
+                normalizeClientTheme({
+                    name: 'x',
+                    fontFamily: 'Acme Sans',
+                    fonts: [
+                        {
+                            family: 'Acme Sans',
+                            src: woff2,
+                            weight: 'bold',
+                            style: 'italic',
+                        },
+                    ],
+                })
+            ).toEqual({
+                name: 'x',
+                default: false,
+                colors: {},
+                fontFamily: 'Acme Sans',
+                fonts: [
+                    {
+                        family: 'Acme Sans',
+                        src: woff2,
+                        weight: 'bold',
+                        style: 'italic',
+                    },
+                ],
+            });
+        });
+    });
+
+    describe('fonts', () => {
+        const uploaded: ClientTheme = {
+            name: 'Acme',
+            default: false,
+            colors: {},
+            fontFamily: 'Acme Sans',
+            fonts: [{family: 'Acme Sans', src: woff2, weight: 'bold'}],
+        };
+
+        it('quotes an uploaded family and backs it with the generic sans', () => {
+            expect(themeStyleVars(uploaded)['--font-sans']).toBe(
+                "'Acme Sans', ui-sans-serif, system-ui, sans-serif"
+            );
+        });
+
+        it('sends a built-in font to the property Next defines for it', () => {
+            expect(
+                themeStyleVars({...theme, fontFamily: 'Inter', fonts: []})[
+                    '--font-sans'
+                ]
+            ).toBe(themeFontStack(findThemeFont('Inter')!));
+        });
+
+        it('leaves any other font list alone', () => {
+            expect(themeStyleVars(theme)['--font-sans']).toBe(
+                'Inter, sans-serif'
+            );
+        });
+
+        it('compiles one @font-face per uploaded face', () => {
+            const css = themeFontFacesCss(uploaded);
+            expect(css).toContain("font-family:'Acme Sans'");
+            expect(css).toContain("format('woff2')");
+            expect(css).toContain('font-weight:bold');
+            expect(css).toContain('font-style:normal');
+            expect(css).toContain('font-display:swap');
+        });
+
+        it('has no rule without an uploaded font', () => {
+            expect(themeFontFacesCss(theme)).toBe('');
         });
     });
 });

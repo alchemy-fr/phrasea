@@ -32,6 +32,7 @@ import {useCloseRoute} from '@/components/modals/RouteDialog';
 import {routes} from '@/lib/routes';
 import {useDisplayPreferences} from '@/features/preferences/store';
 import {SelectionActions} from '@/features/assets/list/toolbar/SelectionActions';
+import {DisplayOptionsMenu} from '@/features/assets/list/toolbar/DisplayOptionsMenu';
 import {useOptionalSelection} from '@/features/assets/list/SelectionProvider';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {belowTopBar} from '@/components/layout/chrome';
@@ -314,6 +315,10 @@ function BasketToolbar({
                     {t('basket.remove_item', 'Remove from basket')}
                 </Button>
             ) : null}
+            <div className="flex-1" />
+            {/* Same preferences as the results screen: a basket shows the
+                same assets, with the same thumbnails */}
+            <DisplayOptionsMenu />
         </div>
     );
 }

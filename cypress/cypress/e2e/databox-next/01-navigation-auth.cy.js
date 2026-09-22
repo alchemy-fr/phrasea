@@ -49,12 +49,11 @@ describe('Navigation & authentication', () => {
         cy.getBySel('left-panel').find('[role=tab][aria-label="Facets"]').click();
     });
 
-    it('exposes the admin navigation and the Pages back-office', () => {
+    it('opens on the assets from the root URL', () => {
         login();
-        visitAssets();
-        cy.getBySel('nav-pages').should('be.visible').click();
-        cy.url().should('include', '/pages');
-        cy.contains('h1, h2, h3', 'Pages').should('be.visible');
+        cy.visit(`${databoxNextUrl}/`);
+        cy.url({timeout: 20000}).should('match', /\/assets(\?|$)/);
+        cy.getBySel('search-input').should('exist');
     });
 
     it('resolves notification deep links', () => {

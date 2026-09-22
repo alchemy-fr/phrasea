@@ -151,11 +151,14 @@ export function LabeledControl({
     return (
         <label
             className={cn(
-                'flex cursor-pointer items-start gap-2.5 text-sm select-none',
+                'flex cursor-pointer gap-2.5 text-sm select-none',
+                // A single-line label is centered on the control; a
+                // description makes the text taller, so it aligns on top.
+                description ? 'items-start' : 'items-center',
                 className
             )}
         >
-            <span className="mt-0.5">{children}</span>
+            <span className={cn(description && 'mt-0.5')}>{children}</span>
             <span className="flex flex-col">
                 <span>{label}</span>
                 {description ? (

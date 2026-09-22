@@ -55,13 +55,13 @@ describe('Display profiles', () => {
         cy.menuItem('Edit').click();
         routeDialog().within(() => {
             cy.contains('Display profile').should('be.visible');
-            cy.get('[role=tab]').contains('Organize').click();
+            cy.contains('[role=tab]', 'Organize').click();
             cy.contains('Available attributes').should('be.visible');
             cy.contains('Description').parent().find('button').first().click();
             cy.contains('Displayed').should('be.visible');
         });
         routeDialog().within(() => {
-            cy.get('[role=tab]').contains('Grid card').click();
+            cy.contains('[role=tab]', 'Grid card').click();
             cy.contains('Card layout').should('be.visible');
         });
     });

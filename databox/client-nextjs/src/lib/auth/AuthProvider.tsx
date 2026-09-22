@@ -24,6 +24,8 @@ export type AuthContextValue = {
     logout: () => void;
     hasRole: (role: string) => boolean;
     sessionExpired: boolean;
+    /** Closes the "session expired" dialog and stays signed out */
+    dismissSessionExpired: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -91,6 +93,13 @@ export function AuthProvider({children}: PropsWithChildren) {
         void getAuthClient().logout();
     }, []);
 
+    // Signing in again is not the only way out: the public parts of the app
+    // (shared links, public pages) are still usable while signed out.
+    const dismissSessionExpired = useCallback(
+        () => setSessionExpired(false),
+        []
+    );
+
     const value = useMemo<AuthContextValue>(
         () => ({
             status,
@@ -100,8 +109,9 @@ export function AuthProvider({children}: PropsWithChildren) {
             logout,
             hasRole: role => !!user?.roles.includes(role),
             sessionExpired,
+            dismissSessionExpired,
         }),
-        [status, user, login, logout, sessionExpired]
+        [status, user, login, logout, sessionExpired, dismissSessionExpired]
     );
 
     return (

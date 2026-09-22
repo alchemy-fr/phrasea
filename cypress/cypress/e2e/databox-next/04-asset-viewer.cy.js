@@ -3,7 +3,7 @@
  * navigation between results, keyboard shortcuts.
  */
 import {deleteWorkspace, seedWorkspace, uploadAssetFromFixture, waitForAsset, waitForIndexed} from './lib/api';
-import {assetItem, login, openAsset, visitWorkspace, waitForResults} from './lib/app';
+import {assetItem, login, openAsset, openAssetEditor, visitWorkspace, waitForResults} from './lib/app';
 import {databoxNextUrl} from '../lib/urls';
 
 describe('Asset viewer', () => {
@@ -102,6 +102,35 @@ describe('Asset viewer', () => {
             .trigger('pointermove', {pointerId: 1, clientX: 700, force: true})
             .trigger('pointerup', {pointerId: 1, force: true});
         cy.getBySel('asset-panel').invoke('outerWidth').should('be.greaterThan', 600);
+    });
+
+    it('resizes the editor on its own and keeps the overflow menu afterwards', () => {
+        cy.visit(`${databoxNextUrl}/assets/${image.id}/_`);
+        cy.getBySel('asset-view', {timeout: 30000}).should('be.visible');
+
+        const drag = clientX =>
+            cy
+                .get('[data-resize-handle]')
+                .trigger('pointerdown', {pointerId: 1, force: true})
+                .trigger('pointermove', {pointerId: 1, clientX, force: true})
+                .trigger('pointerup', {pointerId: 1, force: true});
+
+        // The tabs do not all fit: the rest is under the "…" menu
+        drag(900);
+        cy.getBySel('asset-panel').invoke('outerWidth').should('be.closeTo', 500, 20);
+        cy.getBySel('asset-panel-more').should('be.visible');
+
+        // The editor has a width of its own
+        openAssetEditor();
+        drag(700);
+        cy.getBySel('asset-panel').invoke('outerWidth').should('be.closeTo', 700, 20);
+
+        // Closing it comes back to the width of the tabs, "…" included
+        cy.getBySel('asset-panel-edit-close').click();
+        cy.getBySel('asset-panel').invoke('outerWidth').should('be.closeTo', 500, 20);
+        cy.getBySel('asset-panel-more').should('be.visible').click();
+        cy.get('[role=menuitem]').should('have.length.greaterThan', 0);
+        cy.get('body').type('{esc}');
     });
 
     it('navigates to the previous / next result with buttons and arrow keys', () => {

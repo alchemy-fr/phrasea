@@ -51,8 +51,16 @@ export function FacetsPanel() {
     const updatePreference = usePreferencesStore(s => s.updatePreference);
     const {openModal} = useModals();
     const [filter, setFilter] = useState('');
+    // Per-facet overrides of `defaultCollapsed`, which the expand/collapse all
+    // entries set. Toggling one facet must not carry the others along, so
+    // those entries reset the overrides instead of shadowing them.
     const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-    const [allCollapsed, setAllCollapsed] = useState<boolean | undefined>();
+    const [defaultCollapsed, setDefaultCollapsed] = useState(false);
+
+    const setAllCollapsed = (value: boolean) => {
+        setDefaultCollapsed(value);
+        setCollapsed({});
+    };
 
     const entries = useMemo(() => {
         const list = Object.entries(facets ?? {}).map(([name, facet]) => {
@@ -133,12 +141,9 @@ export function FacetsPanel() {
             return [...prev, {name, order: nextOrder}];
         });
 
-    const isOpen = (name: string) =>
-        allCollapsed !== undefined ? !allCollapsed : !collapsed[name];
-    const toggleOpen = (name: string) => {
-        setAllCollapsed(undefined);
+    const isOpen = (name: string) => !(collapsed[name] ?? defaultCollapsed);
+    const toggleOpen = (name: string) =>
         setCollapsed(prev => ({...prev, [name]: isOpen(name)}));
-    };
 
     if (!facets && loading) {
         return (
@@ -152,7 +157,9 @@ export function FacetsPanel() {
 
     return (
         <div className="flex flex-col">
-            <div className="flex items-center gap-1 px-2 pb-2">
+            {/* pt-1: the input focus ring would be clipped by the
+                overflowing panel it sits at the very top of. */}
+            <div className="flex items-center gap-1 px-2 pt-1 pb-2">
                 <Input
                     value={filter}
                     onChange={e => setFilter(e.target.value)}

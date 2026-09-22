@@ -118,6 +118,40 @@ describe('Baskets', () => {
         cy.url().should('include', '/assets');
     });
 
+    it('offers the display options of the results in the basket view', () => {
+        openLeftPanelTab('Baskets');
+        cy.getBySel('basket-item').contains(basketName).click();
+        cy.getBySel('basket-view', {timeout: 30000}).should('be.visible');
+
+        cy.getBySel('basket-view').findBySel('display-options').click();
+        cy.contains('Thumbnail size').should('be.visible');
+        cy.contains('[role=tab]', 'List').click();
+        cy.get('body').type('{esc}');
+        cy.getBySel('asset-list').should('have.attr', 'data-layout', 'list');
+
+        // Back to the grid: the preference is shared with the search screen
+        cy.getBySel('basket-view').findBySel('display-options').click();
+        cy.contains('[role=tab]', 'Grid').click();
+        cy.get('body').type('{esc}');
+        cy.getBySel('asset-list').should('have.attr', 'data-layout', 'grid');
+    });
+
+    it('reaches the basket actions from the "…" of the switcher', () => {
+        openLeftPanelTab('Baskets');
+        makeCurrent(basketName);
+
+        cy.get('[aria-label="Switch basket"]').click();
+        cy.contains('[data-testid=basket-switch-row]', basketName)
+            .findBySel('basket-switch-more')
+            .click();
+        cy.menuItem('Delete').should('be.visible');
+        cy.menuItem('Edit').click();
+        cy.dialog().within(() => {
+            cy.fieldByLabel('Name').should('have.value', basketName);
+            cy.contains('button', 'Cancel').click();
+        });
+    });
+
     it('edits, archives, unarchives and deletes the basket', () => {
         openLeftPanelTab('Baskets');
         cy.getBySel('basket-item').contains(basketName).closest('[data-testid=basket-item]').rightclick();
@@ -142,7 +176,12 @@ describe('Baskets', () => {
 
         cy.getBySel('basket-item').contains(`${basketName} edited`).closest('[data-testid=basket-item]').rightclick();
         cy.menuItem('Delete').click();
-        cy.dialog().contains('button', /Delete|Confirm/).click();
+        // Queried from the root, not chained on the dialog: the confirmation
+        // is remounted while the basket list settles behind it, and a
+        // `contains()` chained on a captured element cannot requery
+        cy.contains('[role=dialog] button', /Delete|Confirm/)
+            .should('be.visible')
+            .click();
         cy.contains('[data-testid=basket-item]', `${basketName} edited`).should('not.exist');
     });
 });
