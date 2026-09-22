@@ -495,7 +495,7 @@ importers:
         version: 1.2.1(typescript@5.9.2)
       jsdom:
         specifier: ^29.1.1
-        version: 29.1.1(canvas@2.11.2(encoding@0.1.13))
+        version: 29.1.1(canvas@3.2.0)
       sass-embedded:
         specifier: ^1.97.3
         version: 1.97.3
@@ -516,7 +516,7 @@ importers:
         version: 5.2.0(rollup@4.52.5)(typescript@5.9.2)(vite@7.3.2(@types/node@18.19.127)(jiti@2.7.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.93.2)(terser@5.51.2)(yaml@2.8.3))
       vitest:
         specifier: ^4.1.10
-        version: 4.1.10(@types/node@18.19.127)(jsdom@29.1.1(canvas@2.11.2(encoding@0.1.13)))(vite@7.3.2(@types/node@18.19.127)(jiti@2.7.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.93.2)(terser@5.51.2)(yaml@2.8.3))
+        version: 4.1.10(@types/node@18.19.127)(jsdom@29.1.1(canvas@3.2.0))(vite@7.3.2(@types/node@18.19.127)(jiti@2.7.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.93.2)(terser@5.51.2)(yaml@2.8.3))
 
   databox/client-nextjs:
     dependencies:
@@ -541,33 +541,6 @@ importers:
       '@tanstack/react-virtual':
         specifier: ^3.14.11
         version: 3.14.11(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      '@tiptap/extension-highlight':
-        specifier: ^3.20.1
-        version: 3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))
-      '@tiptap/extension-image':
-        specifier: ^3.20.1
-        version: 3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))
-      '@tiptap/extension-link':
-        specifier: ^3.20.1
-        version: 3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))(@tiptap/pm@3.31.3)
-      '@tiptap/extension-placeholder':
-        specifier: ^3.20.1
-        version: 3.31.3(@tiptap/extensions@3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))(@tiptap/pm@3.31.3))
-      '@tiptap/extension-text-align':
-        specifier: ^3.20.1
-        version: 3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))
-      '@tiptap/extension-text-style':
-        specifier: ^3.20.1
-        version: 3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))
-      '@tiptap/pm':
-        specifier: ^3.20.1
-        version: 3.31.3
-      '@tiptap/react':
-        specifier: ^3.20.1
-        version: 3.31.3(@floating-ui/dom@1.7.5)(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))(@tiptap/pm@3.31.3)(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      '@tiptap/starter-kit':
-        specifier: ^3.20.1
-        version: 3.31.3
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -658,7 +631,7 @@ importers:
         version: 16.3.4(@typescript-eslint/parser@8.58.1(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.2))(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.2)
       jsdom:
         specifier: ^29.1.1
-        version: 29.1.1(canvas@3.2.0)
+        version: 29.1.1(canvas@2.11.2(encoding@0.1.13))
       postcss:
         specifier: ^8.5.6
         version: 8.5.14
@@ -673,7 +646,7 @@ importers:
         version: 5.9.2
       vitest:
         specifier: ^4.1.10
-        version: 4.1.10(@types/node@22.20.1)(jsdom@29.1.1(canvas@3.2.0))(vite@7.3.2(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.51.2)(yaml@2.8.3))
+        version: 4.1.10(@types/node@22.20.1)(jsdom@29.1.1(canvas@2.11.2(encoding@0.1.13)))(vite@7.3.2(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.51.2)(yaml@2.8.3))
 
   databox/indexer:
     dependencies:
@@ -6328,11 +6301,6 @@ packages:
     resolution: {integrity: sha512-+iPku7wJfy5hbNDNLX8dveFtYVsZMmh7vztjuq8hT3mipSC4IByDehDbU8fzUCjfXiEzmI7mQn7c8LGmHULuzA==}
     peerDependencies:
       '@tiptap/core': 3.31.3
-
-  '@tiptap/extension-placeholder@3.31.3':
-    resolution: {integrity: sha512-9jYtR8ELEw7GVaruyrm4oFkPcjig9Q+crc+dpmarhBNXUmxagCdlhVzNwCJ2WJRzvBAtx59sEYqNTU38Wx8S3A==}
-    peerDependencies:
-      '@tiptap/extensions': 3.31.3
 
   '@tiptap/extension-strike@3.31.3':
     resolution: {integrity: sha512-G29bhKttYwcKHT+BI6emWVFol3RO/gUXxQVcmr/iT8LXXy7j8J6HFUnsKM+Kg5YlP1rxMRgsa65dbrQVahZi0A==}
@@ -20148,10 +20116,6 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.31.3(@tiptap/pm@3.31.3)
 
-  '@tiptap/extension-placeholder@3.31.3(@tiptap/extensions@3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))(@tiptap/pm@3.31.3))':
-    dependencies:
-      '@tiptap/extensions': 3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))(@tiptap/pm@3.31.3)
-
   '@tiptap/extension-strike@3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))':
     dependencies:
       '@tiptap/core': 3.31.3(@tiptap/pm@3.31.3)
@@ -20218,23 +20182,6 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       use-sync-external-store: 1.6.0(react@18.3.1)
-    optionalDependencies:
-      '@tiptap/extension-bubble-menu': 3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))(@tiptap/pm@3.31.3)
-      '@tiptap/extension-floating-menu': 3.31.3(@floating-ui/dom@1.7.5)(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))(@tiptap/pm@3.31.3)
-    transitivePeerDependencies:
-      - '@floating-ui/dom'
-
-  '@tiptap/react@3.31.3(@floating-ui/dom@1.7.5)(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))(@tiptap/pm@3.31.3)(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
-    dependencies:
-      '@tiptap/core': 3.31.3(@tiptap/pm@3.31.3)
-      '@tiptap/pm': 3.31.3
-      '@types/react': 19.2.18
-      '@types/react-dom': 19.2.7(@types/react@19.2.18)
-      '@types/use-sync-external-store': 0.0.6
-      fast-equals: 5.4.0
-      react: 19.2.8
-      react-dom: 19.2.8(react@19.2.8)
-      use-sync-external-store: 1.6.0(react@19.2.8)
     optionalDependencies:
       '@tiptap/extension-bubble-menu': 3.31.3(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))(@tiptap/pm@3.31.3)
       '@tiptap/extension-floating-menu': 3.31.3(@floating-ui/dom@1.7.5)(@tiptap/core@3.31.3(@tiptap/pm@3.31.3))(@tiptap/pm@3.31.3)
@@ -29686,6 +29633,7 @@ snapshots:
   use-sync-external-store@1.6.0(react@19.2.8):
     dependencies:
       react: 19.2.8
+    optional: true
 
   use@3.1.1: {}
 
@@ -29972,7 +29920,7 @@ snapshots:
       terser: 5.51.2
       yaml: 2.8.3
 
-  vitest@4.1.10(@types/node@18.19.127)(jsdom@29.1.1(canvas@2.11.2(encoding@0.1.13)))(vite@7.3.2(@types/node@18.19.127)(jiti@2.7.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.93.2)(terser@5.51.2)(yaml@2.8.3)):
+  vitest@4.1.10(@types/node@18.19.127)(jsdom@29.1.1(canvas@3.2.0))(vite@7.3.2(@types/node@18.19.127)(jiti@2.7.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.93.2)(terser@5.51.2)(yaml@2.8.3)):
     dependencies:
       '@vitest/expect': 4.1.10
       '@vitest/mocker': 4.1.10(vite@7.3.2(@types/node@18.19.127)(jiti@2.7.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.93.2)(terser@5.51.2)(yaml@2.8.3))
@@ -29996,11 +29944,11 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 18.19.127
-      jsdom: 29.1.1(canvas@2.11.2(encoding@0.1.13))
+      jsdom: 29.1.1(canvas@3.2.0)
     transitivePeerDependencies:
       - msw
 
-  vitest@4.1.10(@types/node@22.20.1)(jsdom@29.1.1(canvas@3.2.0))(vite@7.3.2(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.51.2)(yaml@2.8.3)):
+  vitest@4.1.10(@types/node@22.20.1)(jsdom@29.1.1(canvas@2.11.2(encoding@0.1.13)))(vite@7.3.2(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.51.2)(yaml@2.8.3)):
     dependencies:
       '@vitest/expect': 4.1.10
       '@vitest/mocker': 4.1.10(vite@7.3.2(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.32.0)(sass-embedded@1.97.3)(sass@1.97.3)(terser@5.51.2)(yaml@2.8.3))
@@ -30024,7 +29972,7 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 22.20.1
-      jsdom: 29.1.1(canvas@3.2.0)
+      jsdom: 29.1.1(canvas@2.11.2(encoding@0.1.13))
     transitivePeerDependencies:
       - msw
 

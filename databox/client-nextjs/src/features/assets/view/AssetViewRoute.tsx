@@ -86,7 +86,8 @@ export function AssetViewRoute({
     const update = useAssetStore(s => s.update);
     const navContext = useNavigationContextStore(s => s.context);
     const [panelOpen, setPanelOpen] = useState(true);
-    const panel = useResizablePanel();
+    // The editor and the tabs each keep their own width
+    const panel = useResizablePanel(editing ? 'edit' : 'info');
 
     const queryKey = ['asset-view', assetId];
     const query = useQuery({

@@ -3,7 +3,7 @@
 import {useEffect, useMemo} from 'react';
 import {useTheme} from 'next-themes';
 import {useConfig} from '@/lib/config/ConfigProvider';
-import {applyThemeVars, themeToCssVars} from './customTheme';
+import {applyThemeVars, themeFontFacesCss, themeToCssVars} from './customTheme';
 import {
     CUSTOM_THEME_ID,
     DEFAULT_THEME_ID,
@@ -14,6 +14,8 @@ import {useThemeStore} from './themeStore';
 import {buildPrepaintScript, prepaintOptionsFor} from './themeScript';
 
 const presetIds = themePresets.map(p => p.id);
+
+const previewFontsId = 'client-theme-preview-fonts';
 
 /**
  * Applies the selected theme next to next-themes (which handles the light /
@@ -67,6 +69,24 @@ export function ThemeManager() {
                 : null
         );
     }, [preview, resolvedTheme]);
+
+    // The fonts of the draft are served by no stylesheet yet: the editor
+    // previews them from the data URIs it holds
+    useEffect(() => {
+        const css = preview ? themeFontFacesCss(preview) : '';
+        if (!css) {
+            document.getElementById(previewFontsId)?.remove();
+
+            return;
+        }
+        let style = document.getElementById(previewFontsId);
+        if (!style) {
+            style = document.createElement('style');
+            style.id = previewFontsId;
+            document.head.appendChild(style);
+        }
+        style.textContent = css;
+    }, [preview]);
 
     return <script dangerouslySetInnerHTML={{__html: script}} />;
 }

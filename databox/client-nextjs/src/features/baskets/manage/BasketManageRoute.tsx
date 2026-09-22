@@ -125,7 +125,7 @@ export function BasketManageShell({basketId}: {basketId: string}) {
             tabs={tabs}
             baseProps={baseProps}
             buildTabHref={tab => routes.basketManage(basketId, tab)}
-            size="md"
+            size="lg"
             placeholder={basket ? undefined : <FullPageLoader />}
         />
     );

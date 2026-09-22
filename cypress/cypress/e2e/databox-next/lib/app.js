@@ -156,9 +156,13 @@ export function assetPanelTab(title) {
             if (shown.length > 0) {
                 cy.wrap(shown).click();
             } else {
-                // A menu that just closed still holds the pointer events
+                // A menu that just closed still holds the pointer events,
+                // and clicking the trigger while it is still there would
+                // only close it again
                 cy.get('body').should('not.have.css', 'pointer-events', 'none');
+                cy.get('[role=menu]').should('not.exist');
                 cy.getBySel('asset-panel-more').click();
+                cy.get('[role=menu]').should('be.visible');
                 cy.menuItem(title).click();
             }
         });
@@ -174,7 +178,11 @@ export function openAssetEditor() {
 export function dialogTab(title) {
     // The top-most modal layer is the only one receiving pointer events
     routeDialog().should('have.css', 'pointer-events', 'auto');
-    cy.getBySel('route-dialog').last().find('[role=tab]').contains(title).click();
+    // The tabs of a manage dialog are a menu on the left, and only appear
+    // once the entity has loaded; `contains(selector, text)` yields the tab
+    // itself, not the element holding the label.
+    cy.getBySel('route-dialog').last().find('[role=tab]').should('exist');
+    cy.getBySel('route-dialog').last().contains('[role=tab]', title).click();
 }
 
 export function openSettingsMenu() {

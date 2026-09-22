@@ -7,6 +7,7 @@ import {getStackConfig} from '@/lib/config/stackConfig';
 import {compileStackTheme} from '@/features/theme/compile';
 import {Providers} from './providers';
 import {defaultLanguage, isSupportedLanguage, LANG_COOKIE} from '@/i18n/config';
+import {fontVariables} from './fonts';
 
 export const metadata: Metadata = {
     title: {
@@ -58,7 +59,12 @@ export default async function RootLayout({
         : defaultLanguage;
 
     return (
-        <html lang={language} suppressHydrationWarning>
+        <html
+            lang={language}
+            // Defines every `--font-…` the themes pick from
+            className={fontVariables}
+            suppressHydrationWarning
+        >
             <body className="h-full overflow-hidden">
                 {/* Rendered in the body: a <head> written by hand in the
                     root layout does not hydrate (Next manages it). */}
@@ -66,6 +72,16 @@ export default async function RootLayout({
                     <style
                         id="client-theme"
                         dangerouslySetInnerHTML={{__html: compiledTheme.css}}
+                    />
+                ) : null}
+                {/* The fonts uploaded with the theme are served apart and
+                    cached for good: addressed by the digest of their rules.
+                    React hoists it into <head>. */}
+                {compiledTheme?.fontsCss ? (
+                    <link
+                        rel="stylesheet"
+                        precedence="default"
+                        href={`/api/theme-fonts?v=${compiledTheme.fontsHash}`}
                     />
                 ) : null}
                 <Providers config={config} language={language}>

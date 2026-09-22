@@ -69,14 +69,31 @@ The theme menu has two independent choices: the **appearance** (light / dark
 one is defined, the organisation theme. Every preset is a light palette with a
 dark alternative and its own font, corner radius, base size and letter spacing
 (`src/app/globals.css`, `[data-theme='<id>']` and `.dark[data-theme='<id>']`).
+Each preset is set in one of ten popular Google fonts, self-hosted by Next
+(`src/app/fonts.ts`, nothing is fetched from Google at runtime) and reached
+through the custom property it defines — the families are renamed at build
+time, so `src/features/theme/fonts.ts` is what maps a font id to it.
+The base font size of a theme drives the whole Tailwind text scale
+(`--text-…` in the `@theme` block of `globals.css`): the sizes are fixed rem
+values out of the box, so without it only the elements inheriting the size of
+the body would follow.
+
 Administrators define the organisation theme from *Customize theme…*
 (`/admin/theme`): a light palette of hex colors, an optional dark alternative,
-the corner radius, the base font size, the letter spacing and the font family,
-previewed live on the page in either appearance. Saving goes through
-`PUT /client-theme` on the API, which stores the `databox.theme` configurator
-entry (validated with the same rules as the schema of the entry) and schedules
-the push of `config.json` to the bucket.
+the corner radius, the base font size, the letter spacing and the font —
+one of the built-in Google fonts, a font list of their own, or **font files
+they upload**. Everything is previewed live on the page in either appearance.
+Saving goes through `PUT /client-theme` on the API, which stores the
+`databox.theme` configurator entry (validated with the same rules as the
+schema of the entry) and schedules the push of `config.json` to the bucket.
 The "apply by default" option makes it the theme of users who never picked one.
+
+An uploaded font is kept in that entry as a data URI, like the logo of the
+global configuration (at most four faces, woff2/woff/ttf/otf, 300 000
+characters each — subset the font). The palette is inlined in the page so
+that it never flashes; the `@font-face` rules are served apart by
+`/api/theme-fonts`, addressed by the digest of their content and cached for
+good.
 
 ## Ticketing (JIRA)
 
@@ -141,7 +158,8 @@ Implemented:
   debug ES dialog, URL-addressable search state.
 - Results: grid & list layouts (virtualized), dividers, selection (Ctrl+A,
   ranges), hover preview, display options, context menu, infinite scroll.
-- Assets: viewer (image zoom/pan, video/audio, PDF), resizable side panel
+- Assets: viewer (image zoom/pan, video/audio, PDF), side panel resized on
+  its own for the tabs and for the editor (two remembered widths),
   whose single-line tabs (the rest under “…”) hold everything about the asset
   — info (attributes, metrics, attachments, discussion, integrations,
   appears-in), renditions, versions, permissions, workflow, operations, ES
@@ -157,17 +175,21 @@ Implemented:
   rendition definitions & policies, asset policies, integrations, tag filter
   rules (the API has no attribute filter rule resource).
 - Collections tree (CRUD, move, notifications, permissions, trash),
-  baskets (panel, view, manage, integrations), share links & embed,
+  baskets (panel, switcher with per-basket actions, view with the same
+  display options as the results, manage, integrations), share links & embed,
   ACL editor with inherited permissions, display profiles (organize + grid
-  card editor), CMS pages (TipTap editor with asset/carousel/grid/search
-  widgets, public rendering), workflows view, operation tasks, discussion
+  card editor), workflows view, operation tasks, discussion
   with mentions, notifications & realtime (Soketi/Pusher), preferences
   (theme, UI & data locale), keyboard shortcuts, runtime configuration.
-- Themes: light / dark / system appearance, ten presets (palette, font,
-  radius, tracking, each with a dark alternative), and the organisation theme
-  customized by administrators (stack configuration, compiled server side).
+- Themes: light / dark / system appearance, ten presets (palette, Google
+  font, radius, tracking, each with a dark alternative), and the organisation
+  theme customized by administrators (stack configuration, compiled server
+  side), with its own uploaded fonts.
 - Ticketing: floating button creating a JIRA issue with the page context, the
   user session and an optional screenshot.
+
+CMS pages are **not** part of this client: the resource stays on the API side,
+nothing renders or manages it here.
 
 Not (fully) implemented yet:
 
@@ -183,7 +205,8 @@ Not (fully) implemented yet:
 
 The e2e suite lives in the repository-level Cypress project
 (`cypress/cypress/e2e/databox-next/`), one spec per feature domain of
-`databox/features.md` (`01-navigation-auth` … `27-stories`). Each spec
+`databox/features.md` (`01-navigation-auth` … `27-stories`, `16` left out
+with the CMS pages). Each spec
 seeds its own workspace through the API with the `databox-admin` service
 account (`lib/api.js`), logs in once through Keycloak with `cy.session`
 (`lib/app.js`) and cleans up after itself. Stable hooks are exposed with

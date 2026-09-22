@@ -1,4 +1,5 @@
 import {CUSTOM_THEME_ID, type ThemeMode} from './presets';
+import {findThemeFont, themeFontStack} from './fonts';
 
 /**
  * The organisation theme: a light palette, an optional dark alternative and
@@ -43,6 +44,21 @@ export type ThemeColorToken = (typeof THEME_COLOR_TOKENS)[number];
 
 export type ThemeColors = Partial<Record<ThemeColorToken, string>>;
 
+/**
+ * A font uploaded by an administrator, stored in the configurator entry as a
+ * data URI — the entry is a text value, like the logo of the stack
+ * configuration — and served to the browser as an `@font-face` rule.
+ */
+export type ClientThemeFont = {
+    /** The family name the theme refers to */
+    family: string;
+    /** `data:font/woff2;base64,…` */
+    src: string;
+    /** `normal`, `bold` or a number; several faces make a family */
+    weight?: string;
+    style?: 'normal' | 'italic';
+};
+
 export type ClientTheme = {
     name: string;
     /** Applied to users who never picked a theme themselves */
@@ -55,9 +71,15 @@ export type ClientTheme = {
     radius?: number;
     /** Base font size in px */
     fontSize?: number;
+    /**
+     * A font of `fonts`, the id of a built-in Google font (see fonts.ts), or
+     * a plain CSS font list for fonts installed on the users' devices.
+     */
     fontFamily?: string;
     /** Body letter spacing in em */
     letterSpacing?: number;
+    /** Fonts uploaded by the administrator, served as `@font-face` rules */
+    fonts?: ClientThemeFont[];
 };
 
 export const THEME_LIMITS = {
@@ -66,7 +88,42 @@ export const THEME_LIMITS = {
     letterSpacing: {min: -0.05, max: 0.1, step: 0.005, default: 0},
     nameMaxLength: 50,
     fontFamilyMaxLength: 120,
+    fonts: {
+        max: 4,
+        familyMaxLength: 50,
+        /**
+         * Characters of the data URI, so roughly 3/4 of that in bytes: a
+         * subsetted woff2 is an order of magnitude smaller. They go through
+         * the configuration of the stack, which every page of every client
+         * reads.
+         */
+        srcMaxLength: 300_000,
+        types: ['woff2', 'woff', 'ttf', 'otf'] as const,
+        weights: [
+            '100',
+            '200',
+            '300',
+            'normal',
+            '500',
+            '600',
+            'bold',
+            '800',
+            '900',
+        ] as const,
+        styles: ['normal', 'italic'] as const,
+    },
 } as const;
+
+export const FONT_FAMILY_NAME_RE = /^[a-zA-Z0-9][a-zA-Z0-9 _-]*$/;
+export const FONT_SRC_RE =
+    /^data:font\/(woff2|woff|ttf|otf);base64,[A-Za-z0-9+/]+={0,2}$/;
+
+const fontFormats: Record<string, string> = {
+    woff2: 'woff2',
+    woff: 'woff',
+    ttf: 'truetype',
+    otf: 'opentype',
+};
 
 /**
  * Hex equivalents of the base palettes of app/globals.css (`:root` and
@@ -183,6 +240,27 @@ export function themeColorVars(
     return vars;
 }
 
+/**
+ * The CSS font list of `fontFamily`: an uploaded family is quoted and backed
+ * by the generic sans, a built-in Google font goes through the custom
+ * property Next defines for it (its real family name is generated), and
+ * anything else is taken as the CSS list it is.
+ */
+export function resolveThemeFontFamily(
+    theme: Pick<ClientTheme, 'fontFamily' | 'fonts'>
+): string | undefined {
+    const family = theme.fontFamily?.trim();
+    if (!family) {
+        return undefined;
+    }
+    if (theme.fonts?.some(f => f.family === family)) {
+        return `'${family}', ui-sans-serif, system-ui, sans-serif`;
+    }
+    const builtIn = findThemeFont(family);
+
+    return builtIn ? themeFontStack(builtIn) : family;
+}
+
 /** The style custom properties of a theme (same for both appearances) */
 export function themeStyleVars(theme: ClientTheme): Record<string, string> {
     const vars: Record<string, string> = {
@@ -191,14 +269,40 @@ export function themeStyleVars(theme: ClientTheme): Record<string, string> {
     if (theme.fontSize) {
         vars['--font-size'] = `${theme.fontSize}px`;
     }
-    if (theme.fontFamily) {
-        vars['--font-sans'] = theme.fontFamily;
+    const fontFamily = resolveThemeFontFamily(theme);
+    if (fontFamily) {
+        vars['--font-sans'] = fontFamily;
     }
     if (theme.letterSpacing) {
         vars['--tracking'] = `${theme.letterSpacing}em`;
     }
 
     return vars;
+}
+
+/**
+ * The `@font-face` rules of the fonts uploaded with the theme. Served apart
+ * from the palette (which is inlined in the page so that it never flashes):
+ * they are large, never change between two pages, and a font loading late is
+ * exactly what `font-display: swap` is for.
+ */
+export function themeFontFacesCss(theme: Pick<ClientTheme, 'fonts'>): string {
+    return (theme.fonts ?? [])
+        .map(font => {
+            const type = font.src.match(FONT_SRC_RE)?.[1];
+            if (!type) {
+                return '';
+            }
+
+            return (
+                `@font-face{font-family:'${font.family}';` +
+                `src:url(${font.src}) format('${fontFormats[type]}');` +
+                `font-weight:${font.weight ?? 'normal'};` +
+                `font-style:${font.style ?? 'normal'};` +
+                `font-display:swap}`
+            );
+        })
+        .join('');
 }
 
 /**
@@ -316,6 +420,7 @@ export function normalizeClientTheme(raw: unknown): ClientTheme | null {
         'fontSize',
         'fontFamily',
         'letterSpacing',
+        'fonts',
     ];
     if (Object.keys(input).some(k => !allowed.includes(k))) {
         return null;
@@ -375,6 +480,15 @@ export function normalizeClientTheme(raw: unknown): ClientTheme | null {
         }
         theme.letterSpacing = letterSpacing;
     }
+    if (input.fonts !== undefined && input.fonts !== null) {
+        const fonts = normalizeFonts(input.fonts);
+        if (!fonts) {
+            return null;
+        }
+        if (fonts.length > 0) {
+            theme.fonts = fonts;
+        }
+    }
     if (input.fontFamily !== undefined && input.fontFamily !== null) {
         if (typeof input.fontFamily !== 'string') {
             return null;
@@ -392,6 +506,69 @@ export function normalizeClientTheme(raw: unknown): ClientTheme | null {
     }
 
     return theme;
+}
+
+/** The uploaded fonts of an untrusted theme, or null when one is invalid */
+function normalizeFonts(raw: unknown): ClientThemeFont[] | null {
+    if (!Array.isArray(raw) || raw.length > THEME_LIMITS.fonts.max) {
+        return null;
+    }
+    const fonts: ClientThemeFont[] = [];
+    for (const item of raw) {
+        if (!item || typeof item !== 'object' || Array.isArray(item)) {
+            return null;
+        }
+        const input = item as Record<string, unknown>;
+        if (
+            Object.keys(input).some(
+                k => !['family', 'src', 'weight', 'style'].includes(k)
+            )
+        ) {
+            return null;
+        }
+        const family =
+            typeof input.family === 'string' ? input.family.trim() : '';
+        if (
+            !family ||
+            family.length > THEME_LIMITS.fonts.familyMaxLength ||
+            !FONT_FAMILY_NAME_RE.test(family)
+        ) {
+            return null;
+        }
+        const src = typeof input.src === 'string' ? input.src : '';
+        if (
+            !FONT_SRC_RE.test(src) ||
+            src.length > THEME_LIMITS.fonts.srcMaxLength
+        ) {
+            return null;
+        }
+        const font: ClientThemeFont = {family, src};
+        if (input.weight !== undefined && input.weight !== null) {
+            const weight = String(input.weight);
+            if (
+                !(THEME_LIMITS.fonts.weights as readonly string[]).includes(
+                    weight
+                )
+            ) {
+                return null;
+            }
+            font.weight = weight;
+        }
+        if (input.style !== undefined && input.style !== null) {
+            if (
+                typeof input.style !== 'string' ||
+                !(THEME_LIMITS.fonts.styles as readonly string[]).includes(
+                    input.style
+                )
+            ) {
+                return null;
+            }
+            font.style = input.style as ClientThemeFont['style'];
+        }
+        fonts.push(font);
+    }
+
+    return fonts;
 }
 
 function declarations(vars: Record<string, string>): string {

@@ -121,12 +121,16 @@ export function DropdownMenuShortcut({
 export function DropdownMenuSubTrigger({
     className,
     children,
+    /** For a trigger that is an icon of its own (a “…” button) */
+    hideChevron = false,
     ...props
-}: React.ComponentProps<typeof DM.SubTrigger>) {
+}: React.ComponentProps<typeof DM.SubTrigger> & {hideChevron?: boolean}) {
     return (
         <DM.SubTrigger className={cn(itemClass, className)} {...props}>
             {children}
-            <ChevronRightIcon className="ml-auto size-4" />
+            {!hideChevron ? (
+                <ChevronRightIcon className="ml-auto size-4" />
+            ) : null}
         </DM.SubTrigger>
     );
 }

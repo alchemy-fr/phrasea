@@ -6,6 +6,9 @@
 :root {
     color-scheme: light;
     --radius: 0.5rem;
+    /* Base text size of the interface: the size of `text-sm`, which the
+       whole Tailwind text scale is derived from (see the @theme block) */
+    --font-size: 14px;
     --background: oklch(0.985 0.002 250);
     --foreground: oklch(0.2 0.02 260);
     --card: oklch(1 0 0);
@@ -72,8 +75,11 @@
  * list and the menu swatches). Each preset defines its light palette and its
  * style (font, radius, size, tracking) under `[data-theme='<id>']`, and its
  * dark alternative under `.dark[data-theme='<id>']`, which wins over `.dark`
- * by specificity. The organisation theme customized by an administrator is
- * compiled the same way on the server (features/theme/compile.ts).
+ * by specificity. Each one uses one of the Google fonts self-hosted by Next
+ * (app/fonts.ts), through the custom property it defines, and keeps the
+ * closest system fonts behind it. The organisation theme customized by an
+ * administrator is compiled the same way on the server
+ * (features/theme/compile.ts).
  */
 [data-theme='ocean'] {
     --background: oklch(0.985 0.006 215);
@@ -104,7 +110,8 @@
     --media-bg: oklch(0.91 0.014 215);
     --selection: oklch(0.55 0.14 220 / 0.14);
     --radius: 0.75rem;
-    --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-sans:
+        var(--font-inter), system-ui, -apple-system, 'Segoe UI', sans-serif;
     --font-size: 14px;
     --tracking: normal;
 }
@@ -168,7 +175,7 @@
     --media-bg: oklch(0.91 0.012 145);
     --selection: oklch(0.52 0.14 150 / 0.14);
     --radius: 0.375rem;
-    --font-sans: Georgia, 'Times New Roman', Times, serif;
+    --font-sans: var(--font-lora), Georgia, 'Times New Roman', Times, serif;
     --font-size: 15px;
     --tracking: normal;
 }
@@ -232,7 +239,8 @@
     --media-bg: oklch(0.91 0.016 65);
     --selection: oklch(0.62 0.17 45 / 0.14);
     --radius: 1rem;
-    --font-sans: 'Trebuchet MS', 'Segoe UI', Tahoma, sans-serif;
+    --font-sans:
+        var(--font-nunito), 'Trebuchet MS', 'Segoe UI', Tahoma, sans-serif;
     --font-size: 14px;
     --tracking: 0.01em;
 }
@@ -297,7 +305,8 @@
     --selection: oklch(0.55 0.18 300 / 0.14);
     --radius: 1.25rem;
     --font-sans:
-        'Avenir Next', Avenir, 'Nunito', 'Segoe UI', system-ui, sans-serif;
+        var(--font-manrope), 'Avenir Next', Avenir, 'Segoe UI', system-ui,
+        sans-serif;
     --font-size: 14px;
     --tracking: normal;
 }
@@ -362,7 +371,8 @@
     --selection: oklch(0.47 0.09 60 / 0.14);
     --radius: 0.25rem;
     --font-sans:
-        'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', serif;
+        var(--font-source-serif), 'Iowan Old Style', 'Palatino Linotype',
+        Palatino, 'Book Antiqua', serif;
     --font-size: 15px;
     --tracking: normal;
 }
@@ -426,7 +436,8 @@
     --media-bg: oklch(0.91 0.01 250);
     --selection: oklch(0.5 0.1 230 / 0.14);
     --radius: 0.5rem;
-    --font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --font-sans:
+        var(--font-roboto), 'Helvetica Neue', Helvetica, Arial, sans-serif;
     --font-size: 14px;
     --tracking: -0.01em;
 }
@@ -491,7 +502,8 @@
     --selection: oklch(0.3 0 0 / 0.14);
     --radius: 0;
     --font-sans:
-        ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+        var(--font-jetbrains-mono), ui-monospace, 'SF Mono', Menlo, Consolas,
+        'Liberation Mono', monospace;
     --font-size: 13px;
     --tracking: normal;
 }
@@ -555,7 +567,9 @@
     --media-bg: oklch(0.91 0.014 35);
     --selection: oklch(0.6 0.18 45 / 0.14);
     --radius: 0.5rem;
-    --font-sans: 'Gill Sans', 'Gill Sans MT', Calibri, 'Segoe UI', sans-serif;
+    --font-sans:
+        var(--font-work-sans), 'Gill Sans', 'Gill Sans MT', Calibri, 'Segoe UI',
+        sans-serif;
     --font-size: 15px;
     --tracking: normal;
 }
@@ -619,7 +633,7 @@
     --media-bg: oklch(0.91 0.012 170);
     --selection: oklch(0.55 0.12 165 / 0.14);
     --radius: 1rem;
-    --font-sans: Verdana, Geneva, Tahoma, sans-serif;
+    --font-sans: var(--font-open-sans), Verdana, Geneva, Tahoma, sans-serif;
     --font-size: 13px;
     --tracking: normal;
 }
@@ -683,7 +697,8 @@
     --media-bg: oklch(0.91 0.012 330);
     --selection: oklch(0.55 0.17 335 / 0.14);
     --radius: 0.625rem;
-    --font-sans: Optima, Candara, 'Segoe UI', Calibri, sans-serif;
+    --font-sans:
+        var(--font-raleway), Optima, Candara, 'Segoe UI', Calibri, sans-serif;
     --font-size: 14px;
     --tracking: 0.02em;
 }
@@ -756,6 +771,24 @@
     --font-mono:
         ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
         'Liberation Mono', monospace;
+    /*
+     * The text scale follows the base size of the theme (`--font-size`, the
+     * size of `text-sm`) instead of the root rem. Tailwind's own sizes are
+     * fixed rem values: without this, changing the base size of a theme
+     * would only move the few elements that inherit the size of the body —
+     * everything carrying a `text-…` class, that is the whole interface,
+     * would stay put. The ratios are those of the default scale relative to
+     * `text-sm`; the line heights are unitless and follow on their own.
+     */
+    --text-xs: calc(var(--font-size) * 0.857);
+    --text-sm: calc(var(--font-size) * 1);
+    --text-base: calc(var(--font-size) * 1.143);
+    --text-lg: calc(var(--font-size) * 1.286);
+    --text-xl: calc(var(--font-size) * 1.429);
+    --text-2xl: calc(var(--font-size) * 1.714);
+    --text-3xl: calc(var(--font-size) * 2.143);
+    --text-4xl: calc(var(--font-size) * 2.571);
+    --text-5xl: calc(var(--font-size) * 3.429);
 }
 
 @layer base {

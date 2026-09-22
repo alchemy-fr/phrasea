@@ -6,7 +6,6 @@ import {
     ReactNode,
     useEffect,
     useMemo,
-    useRef,
     useState,
 } from 'react';
 import {useTranslation} from 'react-i18next';
@@ -162,10 +161,17 @@ const triggerGap = 4;
  * measured once (all of them rendered, invisible), then only those that fit
  * the panel are shown — the others go to the “…” menu. The active tab is
  * always one of the visible ones.
+ *
+ * The row is held in a state, not in a ref: the edit mode replaces it with
+ * its own header, so the node is unmounted and a new one takes its place
+ * when the editor is closed. A ref would leave the observer attached to the
+ * detached node — a zero width, hence no “…” at all and every tab spilling
+ * out of the panel. A zero width is ignored for the same reason: the panel
+ * can be closed while the row is still mounted.
  */
 function useSingleLineTabs(tabs: PanelTab[], active: AssetPanelTab) {
     const {i18n} = useTranslation();
-    const rowRef = useRef<HTMLDivElement>(null);
+    const [row, setRow] = useState<HTMLDivElement | null>(null);
     const [widths, setWidths] = useState<Record<string, number>>({});
     const [rowWidth, setRowWidth] = useState(0);
 
@@ -177,7 +183,6 @@ function useSingleLineTabs(tabs: PanelTab[], active: AssetPanelTab) {
     // Runs again when the row is resized: while the panel is hidden every
     // width is zero, and the tabs are measured when it comes back.
     useEffect(() => {
-        const row = rowRef.current;
         if (!row || !measuring) {
             return;
         }
@@ -191,20 +196,28 @@ function useSingleLineTabs(tabs: PanelTab[], active: AssetPanelTab) {
         if (Object.keys(measured).length > 0) {
             setWidths(w => ({...w, ...measured}));
         }
-    }, [measuring, widths, rowWidth]);
+    }, [row, measuring, widths, rowWidth]);
 
     useEffect(() => {
-        const row = rowRef.current;
-        if (!row || typeof ResizeObserver === 'undefined') {
+        if (!row) {
             return;
         }
-        const observer = new ResizeObserver(entries =>
-            setRowWidth(entries[0].contentRect.width)
-        );
+        if (row.offsetWidth > 0) {
+            setRowWidth(row.offsetWidth);
+        }
+        if (typeof ResizeObserver === 'undefined') {
+            return;
+        }
+        const observer = new ResizeObserver(entries => {
+            const width = entries[0].contentRect.width;
+            if (width > 0) {
+                setRowWidth(width);
+            }
+        });
         observer.observe(row);
 
         return () => observer.disconnect();
-    }, []);
+    }, [row]);
 
     const {visible, hidden} = useMemo(() => {
         if (measuring || rowWidth === 0) {
@@ -237,7 +250,7 @@ function useSingleLineTabs(tabs: PanelTab[], active: AssetPanelTab) {
         return {visible: shown, hidden: tabs.filter(tb => tb !== shown[0])};
     }, [tabs, active, widths, rowWidth, measuring]);
 
-    return {rowRef, measuring, visible, hidden};
+    return {rowRef: setRow, measuring, visible, hidden};
 }
 
 /**

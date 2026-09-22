@@ -9,11 +9,7 @@ import {
     DialogTitle,
     DialogSize,
 } from '@/components/ui/dialog';
-import {
-    Tabs,
-    UnderlineTabsList,
-    UnderlineTabsTrigger,
-} from '@/components/ui/misc';
+import {Tabs, SideTabsList, SideTabsTrigger} from '@/components/ui/misc';
 
 export type DialogTabProps = {
     /** Close the whole dialog */
@@ -30,7 +26,9 @@ export type DialogTab<P extends object> = {
 };
 
 /**
- * Dialog whose tabs are mirrored in the URL (`…/manage/:tab`).
+ * Dialog whose tabs are mirrored in the URL (`…/manage/:tab`), listed as a
+ * menu on the left: a management dialog has many of them, and a vertical
+ * list reads them on one line each whatever the language.
  *
  * It belongs in the `layout.tsx` of the `manage` segment and renders the tabs
  * itself; `[tab]/page.tsx` only exists so that every tab URL resolves (direct
@@ -99,20 +97,23 @@ export function TabbedRouteDialogShell<P extends object>({
                     {placeholder}
                 </DialogBody>
             ) : (
-                <>
-                    <Tabs value={active} onValueChange={selectTab}>
-                        <UnderlineTabsList>
-                            {enabledTabs.map(tab => (
-                                <UnderlineTabsTrigger
-                                    key={tab.id}
-                                    value={tab.id}
-                                >
-                                    {tab.icon} {tab.title}
-                                </UnderlineTabsTrigger>
-                            ))}
-                        </UnderlineTabsList>
-                    </Tabs>
-                    <DialogBody className="pt-4">
+                <Tabs
+                    value={active}
+                    onValueChange={selectTab}
+                    orientation="vertical"
+                    className="-mx-6 flex min-h-0 flex-1 border-t px-6"
+                >
+                    <SideTabsList>
+                        {enabledTabs.map(tab => (
+                            <SideTabsTrigger key={tab.id} value={tab.id}>
+                                {tab.icon}
+                                <span className="min-w-0 truncate">
+                                    {tab.title}
+                                </span>
+                            </SideTabsTrigger>
+                        ))}
+                    </SideTabsList>
+                    <DialogBody className="mx-0 pt-4 pr-0 pl-4">
                         {enabledTabs
                             .filter(tab => visited.includes(tab.id))
                             .map(tab => (
@@ -129,7 +130,7 @@ export function TabbedRouteDialogShell<P extends object>({
                                 </div>
                             ))}
                     </DialogBody>
-                </>
+                </Tabs>
             )}
         </RouteDialog>
     );

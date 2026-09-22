@@ -27,6 +27,9 @@ class ClientThemeTest extends AbstractDataboxTestCase
 {
     private const string ENDPOINT = '/client-theme';
 
+    /** A font file is stored in the entry as a data URI, like the logo */
+    private const string WOFF2 = 'data:font/woff2;base64,d09GMgABAAAAAA==';
+
     private const array VALID_THEME = [
         'name' => 'Acme',
         'default' => true,
@@ -219,6 +222,40 @@ class ClientThemeTest extends AbstractDataboxTestCase
         yield 'font size out of range' => [['name' => 'x', 'fontSize' => 40], 'fontSize'];
         yield 'font family with unsafe chars' => [['name' => 'x', 'fontFamily' => 'Inter; color: red'], 'fontFamily'];
         yield 'default not boolean' => [['name' => 'x', 'default' => 'yes'], 'default'];
+        yield 'fonts not a list' => [['name' => 'x', 'fonts' => ['family' => 'A']], 'fonts'];
+        yield 'too many fonts' => [['name' => 'x', 'fonts' => array_fill(0, 5, ['family' => 'A', 'src' => self::WOFF2])], 'fonts'];
+        yield 'font family with a quote' => [['name' => 'x', 'fonts' => [['family' => "A'B", 'src' => self::WOFF2]]], 'fonts[0].family'];
+        yield 'font source that is not a font' => [['name' => 'x', 'fonts' => [['family' => 'A', 'src' => 'data:image/png;base64,AAAA']]], 'fonts[0].src'];
+        yield 'font source fetched from elsewhere' => [['name' => 'x', 'fonts' => [['family' => 'A', 'src' => 'https://evil.test/f.woff2']]], 'fonts[0].src'];
+        yield 'font too large' => [['name' => 'x', 'fonts' => [['family' => 'A', 'src' => 'data:font/woff2;base64,'.str_repeat('A', 300001)]]], 'fonts[0].src'];
+        yield 'unknown font weight' => [['name' => 'x', 'fonts' => [['family' => 'A', 'src' => self::WOFF2, 'weight' => '450']]], 'fonts[0].weight'];
+        yield 'unknown font style' => [['name' => 'x', 'fonts' => [['family' => 'A', 'src' => self::WOFF2, 'style' => 'oblique']]], 'fonts[0].style'];
+        yield 'unknown font property' => [['name' => 'x', 'fonts' => [['family' => 'A', 'src' => self::WOFF2, 'url' => 'x']]], 'fonts[0].url'];
+    }
+
+    public function testAdminCanUploadTheFontsOfTheTheme(): void
+    {
+        $client = $this->client;
+
+        $response = $client->request('PUT', self::ENDPOINT, [
+            'headers' => $this->adminHeaders(),
+            'json' => [
+                'name' => 'Acme',
+                'fontFamily' => 'Acme Sans',
+                'fonts' => [
+                    ['family' => 'Acme Sans', 'src' => self::WOFF2, 'weight' => 'normal', 'style' => 'normal'],
+                    ['family' => 'Acme Sans', 'src' => self::WOFF2, 'weight' => 'bold'],
+                ],
+            ],
+        ]);
+
+        $this->assertResponseStatusCodeSame(200);
+        $theme = json_decode($response->getContent(), true, flags: JSON_THROW_ON_ERROR);
+        self::assertSame([
+            ['family' => 'Acme Sans', 'src' => self::WOFF2, 'weight' => 'normal', 'style' => 'normal'],
+            ['family' => 'Acme Sans', 'src' => self::WOFF2, 'weight' => 'bold'],
+        ], $theme['fonts']);
+        self::assertSame('Acme Sans', $theme['fontFamily']);
     }
 
     public function testTheConfiguratorEntryIsValidatedWithTheSameRules(): void

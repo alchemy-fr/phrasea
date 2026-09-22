@@ -7,7 +7,6 @@ import {useTranslation} from 'react-i18next';
 import {
     BellIcon,
     ChevronRightIcon,
-    FileTextIcon,
     ImagesIcon,
     LayoutGridIcon,
     LogInIcon,
@@ -33,7 +32,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/menu';
 import {Tooltip} from '@/components/ui/overlays';
-import {Avatar, Badge} from '@/components/ui/misc';
+import {Avatar} from '@/components/ui/misc';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {useLayoutStore} from './layoutStore';
@@ -150,32 +149,7 @@ export function TopBar() {
                     })}
                 </nav>
             ) : (
-                <>
-                    {isAdmin ? (
-                        <nav className="ml-2 hidden items-center gap-1 md:flex">
-                            <NavLink
-                                href={routes.assets()}
-                                active={pathname.startsWith('/assets')}
-                            >
-                                <LayoutGridIcon /> {t('nav.assets', 'Assets')}
-                            </NavLink>
-                            <NavLink
-                                href={routes.pages()}
-                                active={pathname.startsWith('/pages')}
-                                testId="nav-pages"
-                            >
-                                <FileTextIcon /> {t('nav.pages', 'Pages')}
-                                <Badge
-                                    variant="warning"
-                                    className="ml-1 px-1 py-0 text-[10px]"
-                                >
-                                    BETA
-                                </Badge>
-                            </NavLink>
-                        </nav>
-                    ) : null}
-                    <div className="flex-1" />
-                </>
+                <div className="flex-1" />
             )}
 
             {config.displayServicesMenu && config.dashboardUrl ? (
@@ -304,33 +278,6 @@ export function TopBar() {
                 </Button>
             )}
         </header>
-    );
-}
-
-function NavLink({
-    href,
-    active,
-    children,
-    testId,
-}: {
-    href: string;
-    active: boolean;
-    children: React.ReactNode;
-    testId?: string;
-}) {
-    return (
-        <Link
-            href={href}
-            data-testid={testId}
-            className={cn(
-                'inline-flex h-8 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium transition-colors hover:bg-accent [&_svg]:size-4',
-                active
-                    ? 'bg-accent text-accent-foreground'
-                    : 'text-muted-foreground'
-            )}
-        >
-            {children}
-        </Link>
     );
 }
 

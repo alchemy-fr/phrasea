@@ -9,7 +9,6 @@ import {
     AssetType,
     Basket,
     BasketAsset,
-    CmsPage,
     DisplayProfile,
     DuplicateAsset,
     EntityName,
@@ -590,32 +589,4 @@ export function runOperationTask(data: {
     payload: Record<string, unknown>;
 }): Promise<OperationTask> {
     return api.post<OperationTask>(`/${EntityName.OperationTask}`, data);
-}
-
-// CMS pages ----------------------------------------------------------------
-
-export async function getPages(url?: string): Promise<Page<CmsPage>> {
-    return toPage(
-        await api.get<HydraCollection<CmsPage>>(url ?? `/${EntityName.Page}`)
-    );
-}
-
-export function getPage(id: string): Promise<CmsPage> {
-    return api.get<CmsPage>(`/${EntityName.Page}/${id}`);
-}
-
-export function getPageBySlug(slug: string): Promise<CmsPage> {
-    return api.get<CmsPage>(`/page-by-slug/${slug}`);
-}
-
-export function postPage(data: Partial<CmsPage>): Promise<CmsPage> {
-    return api.post<CmsPage>(`/${EntityName.Page}`, data);
-}
-
-export function putPage(id: string, data: Partial<CmsPage>): Promise<CmsPage> {
-    return api.put<CmsPage>(`/${EntityName.Page}/${id}`, data);
-}
-
-export function deletePage(id: string): Promise<void> {
-    return api.delete(`/${EntityName.Page}/${id}`);
 }

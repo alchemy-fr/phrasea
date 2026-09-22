@@ -212,6 +212,41 @@ export function UnderlineTabsTrigger({
     );
 }
 
+/**
+ * Tabs listed vertically, as a menu on the left of a dialog: the labels are
+ * read on one line each, so a dialog can hold many of them without the row
+ * scrolling or overflowing into a “…” menu.
+ */
+export function SideTabsList({
+    className,
+    ...props
+}: React.ComponentProps<typeof TabsPrimitive.List>) {
+    return (
+        <TabsPrimitive.List
+            className={cn(
+                'flex w-48 shrink-0 flex-col gap-0.5 overflow-y-auto border-r py-2 pr-2',
+                className
+            )}
+            {...props}
+        />
+    );
+}
+
+export function SideTabsTrigger({
+    className,
+    ...props
+}: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
+    return (
+        <TabsPrimitive.Trigger
+            className={cn(
+                'inline-flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground [&_svg]:size-4 [&_svg]:shrink-0',
+                className
+            )}
+            {...props}
+        />
+    );
+}
+
 // ---------------------------------------------------------------------------
 // ScrollArea
 

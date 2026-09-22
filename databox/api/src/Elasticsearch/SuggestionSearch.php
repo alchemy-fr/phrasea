@@ -128,7 +128,7 @@ class SuggestionSearch extends AbstractSearch
             $indexNames,
             $definitionNames,
         ): array {
-            $hl = $result->getHighlights()[self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD];
+            $hl = $result->getHighlights()[self::SUGGEST_FIELD.'.'.self::SUGGEST_SUB_FIELD][0] ?? '';
             $indexName = substr((string) preg_replace('#_\d{4}-\d{2}-\d{2}-\d{6}$#', '', $result->getIndex()), strlen($this->indexPrefix ?? ''));
 
             $data = [

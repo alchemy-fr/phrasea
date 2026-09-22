@@ -233,7 +233,8 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
     const {pagers, collections, loadChildren, loadMore} = useCollectionStore();
     const key = pagerKey(workspace.id);
     const pager = pagers[key];
-    const [expanded, setExpanded] = useState(true);
+    // Collapsed by default: expanding is what loads the collections.
+    const [expanded, setExpanded] = useState(false);
     const selected = search?.workspaces.includes(workspace.id) ?? false;
 
     useEffect(() => {
@@ -415,7 +416,11 @@ function CollectionItem({
     const pager = pagers[key];
     const [expanded, setExpanded] = useState(false);
     const selected = search?.collections.includes(collection.id) ?? false;
-    const hasChildren = pager ? pager.ids.length > 0 || !pager.loaded : true;
+    // The list endpoint ships the first children along with each collection,
+    // so an empty `children` means a leaf. Without that hint (search results,
+    // ascendants…) we can't tell, and the chevron stays.
+    const childrenKnown = !!pager?.loaded || Array.isArray(collection.children);
+    const hasChildren = childrenKnown ? (pager?.ids.length ?? 0) > 0 : true;
 
     useEffect(() => {
         if (expanded) {
