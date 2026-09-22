@@ -30,7 +30,9 @@ export default async function indexCommand(
     const logger = createLogger(location.name);
     const iterator = indexer(location, logger, databoxClient, options);
 
-    runServer(mainLogger);
+    if (false !== options.server) {
+        runServer(mainLogger);
+    }
 
     await consume(location, databoxClient, iterator, logger);
 }
