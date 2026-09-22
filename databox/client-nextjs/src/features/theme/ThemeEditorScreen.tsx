@@ -37,11 +37,13 @@ import {deleteClientTheme, getClientTheme, putClientTheme} from './api';
 import {
     baseThemeColors,
     ClientTheme,
+    ClientThemeFont,
     isHexColor,
     resolveThemeColors,
     THEME_LIMITS,
     ThemeColorToken,
 } from './customTheme';
+import {ThemeFontFields} from './ThemeFontFields';
 import {CUSTOM_THEME_ID, ThemeMode} from './presets';
 import {ThemeSwatch} from './ThemeMenu';
 import {useThemeStore} from './themeStore';
@@ -49,10 +51,11 @@ import {useThemeStore} from './themeStore';
 type Palette = Record<ThemeColorToken, string>;
 
 /** The form state: complete palettes, the dark one kept even when disabled */
-type Draft = Omit<ClientTheme, 'colors' | 'dark'> & {
+type Draft = Omit<ClientTheme, 'colors' | 'dark' | 'fonts'> & {
     colors: Palette;
     darkEnabled: boolean;
     dark: Palette;
+    fonts: ClientThemeFont[];
 };
 
 const colorGroups: {
@@ -148,6 +151,7 @@ function newDraft(name: string): Draft {
         fontSize: THEME_LIMITS.fontSize.default,
         fontFamily: '',
         letterSpacing: THEME_LIMITS.letterSpacing.default,
+        fonts: [],
     };
 }
 
@@ -162,6 +166,7 @@ function toDraft(theme: ClientTheme): Draft {
         fontFamily: theme.fontFamily ?? '',
         letterSpacing:
             theme.letterSpacing ?? THEME_LIMITS.letterSpacing.default,
+        fonts: theme.fonts ?? [],
     };
 }
 
@@ -176,6 +181,7 @@ function toTheme(draft: Draft): ClientTheme {
         fontSize: draft.fontSize,
         fontFamily: draft.fontFamily?.trim() || undefined,
         letterSpacing: draft.letterSpacing || undefined,
+        fonts: draft.fonts.length > 0 ? draft.fonts : undefined,
     };
 }
 
@@ -621,34 +627,14 @@ export function ThemeEditorScreen() {
                                             }
                                         />
                                     </FormRow>
-                                    <FormRow
-                                        label={t(
-                                            'theme.editor.font_family',
-                                            'Font family'
-                                        )}
-                                        htmlFor="theme-font-family"
-                                        error={errors.fontFamily}
-                                        help={t(
-                                            'theme.editor.font_family_help',
-                                            'A CSS font list, e.g. "Inter, sans-serif". The font must be available on the users’ devices. Leave empty for the default system font.'
-                                        )}
-                                    >
-                                        <Input
-                                            id="theme-font-family"
-                                            data-testid="theme-font-family"
-                                            value={draft.fontFamily ?? ''}
-                                            maxLength={
-                                                THEME_LIMITS.fontFamilyMaxLength
-                                            }
-                                            placeholder="ui-sans-serif, system-ui, sans-serif"
-                                            aria-invalid={!!errors.fontFamily}
-                                            onChange={e =>
-                                                update({
-                                                    fontFamily: e.target.value,
-                                                })
-                                            }
-                                        />
-                                    </FormRow>
+                                    <ThemeFontFields
+                                        fontFamily={draft.fontFamily ?? ''}
+                                        fonts={draft.fonts}
+                                        error={
+                                            errors.fontFamily ?? errors.fonts
+                                        }
+                                        onChange={update}
+                                    />
                                 </section>
                             </div>
 

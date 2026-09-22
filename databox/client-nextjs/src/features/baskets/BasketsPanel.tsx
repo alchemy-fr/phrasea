@@ -68,7 +68,9 @@ export function BasketsPanel() {
 
     return (
         <div className="flex flex-col">
-            <div className="flex items-center gap-1 px-2 pb-2">
+            {/* pt-1: the input focus ring would be clipped by the
+                overflowing panel it sits at the very top of. */}
+            <div className="flex items-center gap-1 px-2 pt-1 pb-2">
                 <Input
                     value={filter}
                     onChange={e => setFilter(e.target.value)}

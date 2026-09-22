@@ -127,7 +127,6 @@ export enum EntityName {
     Collection = 'collections',
     Workspace = 'workspaces',
     SavedSearch = 'saved-searches',
-    Page = 'pages',
     AttributeDefinition = 'attribute-definitions',
     AttributePolicy = 'attribute-policies',
     RenditionDefinition = 'rendition-definitions',
@@ -656,18 +655,6 @@ export interface DisplayProfile extends WithCapabilities, Entity {
     createdAt: string;
     updatedAt: string;
     data?: Record<string, unknown>;
-    owner?: User;
-}
-
-export interface CmsPage extends WithCapabilities, Entity {
-    title: string;
-    description?: string;
-    slug: string;
-    enabled?: boolean;
-    public?: boolean;
-    createdAt: string;
-    updatedAt: string;
-    data?: unknown;
     owner?: User;
 }
 

@@ -158,9 +158,7 @@ export const useProfileStore = create<State>((set, get) => ({
 
     addItems: async items => {
         const {current} = get();
-        const profile = await addToProfile(current?.id, {
-            items,
-        } as any as ProfileItem[]);
+        const profile = await addToProfile(current?.id, items);
         get().upsert(profile);
         if (!current) {
             await get().setCurrent(profile);

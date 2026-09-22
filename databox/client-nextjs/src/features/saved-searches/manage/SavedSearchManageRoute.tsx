@@ -101,7 +101,7 @@ export function SavedSearchManageShell({
             tabs={tabs}
             baseProps={baseProps}
             buildTabHref={tab => routes.savedSearchManage(savedSearchId, tab)}
-            size="md"
+            size="lg"
             placeholder={saved ? undefined : <FullPageLoader />}
         />
     );

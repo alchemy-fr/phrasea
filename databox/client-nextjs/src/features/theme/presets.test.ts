@@ -8,6 +8,7 @@ import {
     themePresets,
 } from './presets';
 import {HEX_COLOR_RE} from './customTheme';
+import {themeFonts} from './fonts';
 
 describe('theme presets', () => {
     it('offers ten distinct presets with a valid swatch', () => {
@@ -36,16 +37,20 @@ describe('theme presets', () => {
             expect(block).toContain('--font-size:');
             expect(css).toContain(`.dark[data-theme='${preset.id}'] {`);
         }
-        // Presets differ by more than their colors
-        const fonts = new Set(
-            themePresets.map(p => {
-                const start = css.indexOf(`[data-theme='${p.id}'] {`);
-                return css
-                    .slice(start, css.indexOf('}', start))
-                    .match(/--font-sans: (.*);/)?.[1];
-            })
-        );
-        expect(fonts.size).toBeGreaterThan(5);
+        // Presets differ by more than their colors: each one is set in a
+        // Google font of its own, served through app/fonts.ts
+        const fonts = themePresets.map(p => {
+            const start = css.indexOf(`[data-theme='${p.id}'] {`);
+
+            return css
+                .slice(start, css.indexOf('}', start))
+                .match(/--font-sans:\s*var\((--font-[a-z-]+)\)/)?.[1];
+        });
+        expect(fonts.filter(Boolean)).toHaveLength(themePresets.length);
+        expect(new Set(fonts).size).toBe(themePresets.length);
+        for (const cssVar of fonts) {
+            expect(themeFonts.map(f => f.cssVar)).toContain(cssVar);
+        }
     });
 
     it('knows which theme ids are valid', () => {

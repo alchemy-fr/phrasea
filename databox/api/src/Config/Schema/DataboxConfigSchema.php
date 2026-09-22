@@ -18,7 +18,7 @@ final class DataboxConfigSchema implements SchemaProviderInterface
         return [
             new SchemaProperty(
                 name: 'theme',
-                description: 'Organisation theme of the Databox client (JSON): a light palette of hex colors, an optional dark alternative and a few style properties, offered to every user in the theme menu next to the light / dark appearance. Managed from the client ("Customize theme…" in the settings menu of an administrator).',
+                description: 'Organisation theme of the Databox client (JSON): a light palette of hex colors, an optional dark alternative, a few style properties and, optionally, the font files themselves (data URIs, served to the browser as @font-face rules). Offered to every user in the theme menu next to the light / dark appearance. Managed from the client ("Customize theme…" in the settings menu of an administrator).',
                 example: <<<'EOT'
 {
   "name": "Acme",
@@ -32,8 +32,16 @@ final class DataboxConfigSchema implements SchemaProviderInterface
   },
   "radius": 0.75,
   "fontSize": 14,
-  "fontFamily": "Inter, sans-serif",
-  "letterSpacing": 0.01
+  "fontFamily": "Acme Sans",
+  "letterSpacing": 0.01,
+  "fonts": [
+    {
+      "family": "Acme Sans",
+      "src": "data:font/woff2;base64,d09GMgABAAAA...",
+      "weight": "normal",
+      "style": "normal"
+    }
+  ]
 }
 EOT,
                 validationConstraints: [
