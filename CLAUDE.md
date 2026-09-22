@@ -67,7 +67,7 @@ function dc() {
 bin/build.sh              # build images in cache-optimal order
 bin/setup.sh              # create databases + initial config
 bin/migrate.sh            # run migrations against an already-deployed stack
-bin/install-fixtures.sh   # WARNING: wipes DBs, loads fixtures, re-runs setup
+bin/dev/reset-db-fixtures.sh  # WARNING: wipes DBs, loads fixtures, re-runs setup
 dc up -d                  # start the whole stack
 ```
 

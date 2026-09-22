@@ -5,7 +5,7 @@ import axios, {
     RawAxiosRequestConfig,
 } from 'axios';
 import * as https from 'https';
-import axiosRetry from 'axios-retry';
+import axiosRetry, {isNetworkOrIdempotentRequestError} from 'axios-retry';
 import {createLogger} from './logger';
 
 type Options = {
@@ -42,6 +42,15 @@ export function createHttpClient({
         retryCondition: error => {
             const {config} = error;
             if (!config) {
+                return false;
+            }
+
+            // Only the idempotent verbs. A POST that times out on the client
+            // has very often been carried out by the server anyway, and
+            // replaying it creates a duplicate — or fails on a unique index,
+            // reporting a conflict that hides the real cause (the API was
+            // slow).
+            if (!isNetworkOrIdempotentRequestError(error)) {
                 return false;
             }
 

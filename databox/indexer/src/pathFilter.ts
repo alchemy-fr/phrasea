@@ -12,7 +12,7 @@ export function passFilters(asset: Asset, logger: Logger): boolean {
         return false;
     }
     if (blacklist && blacklist.some(w => path.match(new RegExp(w)))) {
-        logger.debug(`"${path}" does not match blacklist, skipping...`);
+        logger.debug(`"${path}" matches blacklist, skipping...`);
         return false;
     }
 
