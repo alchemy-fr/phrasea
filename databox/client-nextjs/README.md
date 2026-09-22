@@ -123,6 +123,14 @@ src/
   types/          API contracts
 ```
 
+The top bar (`components/layout/TopBar`) is permanent chrome: it always shows
+the logo, where the user is and the user menu. Screens that take over the
+window — asset viewer, basket view, batch attribute editor — are laid out
+*below* it (`belowTopBar` in `components/layout/chrome.ts`), and publish their
+name to it with `usePageTrail(label, href?)`, which renders as
+`Assets › Basket X › Asset Y`: the trail is the way back out (and stacks when
+a screen opens over another).
+
 ## Feature coverage (vs. `databox/features.md`)
 
 Implemented:
@@ -133,11 +141,14 @@ Implemented:
   debug ES dialog, URL-addressable search state.
 - Results: grid & list layouts (virtualized), dividers, selection (Ctrl+A,
   ranges), hover preview, display options, context menu, infinite scroll.
-- Assets: viewer (image zoom/pan, video/audio, PDF), side panel (attributes,
-  info, metrics, attachments, discussion, integrations, appears-in), story
-  carousel, manage dialog (info, edit, renditions, versions, permissions,
-  workflow, operations, ES document), copy/move/delete/restore/export/
-  replace source/save as, batch attribute editor (undo/redo, preview).
+- Assets: viewer (image zoom/pan, video/audio, PDF), resizable side panel
+  whose single-line tabs (the rest under “…”) hold everything about the asset
+  — info (attributes, metrics, attachments, discussion, integrations,
+  appears-in), renditions, versions, permissions, workflow, operations, ES
+  document — plus an edit mode toggled from the toolbar, story carousel
+  (browses the items of the story in place), photo editor (Toast UI
+  integration), copy/move/delete/restore/export/replace source/save as,
+  batch attribute editor (undo/redo, preview).
 - Files & quarantine: analysis chips, quarantine banner, duplicate merge,
   file manage dialog.
 - Upload: dropzone, URL import, templates, stories, pending uploads, toasts.
@@ -164,15 +175,15 @@ Not (fully) implemented yet:
 - Leaflet / OpenStreetMap maps (the geo facet is list-only).
 - Page-by-page PDF player (iframe fallback is used).
 - Matomo / Sentry wiring (env variables are exposed, no SDK yet).
-- Vendor-specific integration UIs (Rekognition boxes, Remove.bg compare,
-  TUI image editor).
+- Vendor-specific integration UIs, apart from the Toast UI photo editor
+  (Rekognition boxes, Remove.bg compare).
 - Translations: `en` and `fr` are complete, `de` / `es` fall back to English.
 
 ## End-to-end tests (Cypress)
 
 The e2e suite lives in the repository-level Cypress project
 (`cypress/cypress/e2e/databox-next/`), one spec per feature domain of
-`databox/features.md` (`01-navigation-auth` … `25-runtime-config`). Each spec
+`databox/features.md` (`01-navigation-auth` … `27-stories`). Each spec
 seeds its own workspace through the API with the `databox-admin` service
 account (`lib/api.js`), logs in once through Keycloak with `cy.session`
 (`lib/app.js`) and cleans up after itself. Stable hooks are exposed with

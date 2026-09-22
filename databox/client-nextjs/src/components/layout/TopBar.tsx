@@ -1,10 +1,12 @@
 'use client';
 
+import {Fragment} from 'react';
 import Link from 'next/link';
 import {usePathname, useRouter} from 'next/navigation';
 import {useTranslation} from 'react-i18next';
 import {
     BellIcon,
+    ChevronRightIcon,
     FileTextIcon,
     ImagesIcon,
     LayoutGridIcon,
@@ -35,6 +37,7 @@ import {Avatar, Badge} from '@/components/ui/misc';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {useLayoutStore} from './layoutStore';
+import {topBarHeight} from './chrome';
 import {supportedLanguages} from '@/i18n';
 import {routes} from '@/lib/routes';
 import {useModals} from '@/components/modals/ModalProvider';
@@ -52,6 +55,7 @@ export function TopBar() {
     const router = useRouter();
     const pathname = usePathname();
     const toggleLeftPanel = useLayoutStore(s => s.toggleLeftPanel);
+    const pageTrail = useLayoutStore(s => s.pageTrail);
     const {openModal} = useModals();
     const isAdmin = hasRole(AppRole.DataboxAdmin) || hasRole(AppRole.Admin);
 
@@ -63,7 +67,10 @@ export function TopBar() {
     return (
         <header
             data-testid="topbar"
-            className="flex h-12 shrink-0 items-center gap-2 border-b bg-background px-2"
+            className={cn(
+                'flex shrink-0 items-center gap-2 border-b bg-background px-2',
+                topBarHeight
+            )}
         >
             <Tooltip content={t('layout.toggle_panel', 'Toggle side panel')}>
                 <Button
@@ -96,31 +103,80 @@ export function TopBar() {
                 <span className="hidden sm:inline">Databox</span>
             </Link>
 
-            {isAdmin ? (
-                <nav className="ml-2 hidden items-center gap-1 md:flex">
-                    <NavLink
+            {/* A screen opened over the main view takes over this row: where
+                the user is, and the way back */}
+            {pageTrail.length > 0 ? (
+                <nav
+                    data-testid="page-trail"
+                    aria-label={t('nav.breadcrumb', 'Breadcrumb')}
+                    className="ml-1 flex min-w-0 flex-1 items-center gap-1 text-sm"
+                >
+                    <Link
                         href={routes.assets()}
-                        active={pathname.startsWith('/assets')}
+                        data-testid="trail-root"
+                        className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md px-2 font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground [&_svg]:size-4"
                     >
                         <LayoutGridIcon /> {t('nav.assets', 'Assets')}
-                    </NavLink>
-                    <NavLink
-                        href={routes.pages()}
-                        active={pathname.startsWith('/pages')}
-                        testId="nav-pages"
-                    >
-                        <FileTextIcon /> {t('nav.pages', 'Pages')}
-                        <Badge
-                            variant="warning"
-                            className="ml-1 px-1 py-0 text-[10px]"
-                        >
-                            BETA
-                        </Badge>
-                    </NavLink>
-                </nav>
-            ) : null}
+                    </Link>
+                    {pageTrail.map((entry, i) => {
+                        const last = i === pageTrail.length - 1;
 
-            <div className="flex-1" />
+                        return (
+                            <Fragment key={entry.id}>
+                                <ChevronRightIcon className="size-4 shrink-0 text-muted-foreground" />
+                                {last ? (
+                                    <span
+                                        data-testid="page-title"
+                                        title={entry.label}
+                                        className="min-w-0 truncate px-1 font-semibold"
+                                    >
+                                        {entry.label}
+                                    </span>
+                                ) : entry.href ? (
+                                    <Link
+                                        href={entry.href}
+                                        title={entry.label}
+                                        className="max-w-[20ch] truncate rounded-md px-2 py-1 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                                    >
+                                        {entry.label}
+                                    </Link>
+                                ) : (
+                                    <span className="max-w-[20ch] truncate px-1 text-muted-foreground">
+                                        {entry.label}
+                                    </span>
+                                )}
+                            </Fragment>
+                        );
+                    })}
+                </nav>
+            ) : (
+                <>
+                    {isAdmin ? (
+                        <nav className="ml-2 hidden items-center gap-1 md:flex">
+                            <NavLink
+                                href={routes.assets()}
+                                active={pathname.startsWith('/assets')}
+                            >
+                                <LayoutGridIcon /> {t('nav.assets', 'Assets')}
+                            </NavLink>
+                            <NavLink
+                                href={routes.pages()}
+                                active={pathname.startsWith('/pages')}
+                                testId="nav-pages"
+                            >
+                                <FileTextIcon /> {t('nav.pages', 'Pages')}
+                                <Badge
+                                    variant="warning"
+                                    className="ml-1 px-1 py-0 text-[10px]"
+                                >
+                                    BETA
+                                </Badge>
+                            </NavLink>
+                        </nav>
+                    ) : null}
+                    <div className="flex-1" />
+                </>
+            )}
 
             {config.displayServicesMenu && config.dashboardUrl ? (
                 <Tooltip content={t('nav.dashboard', 'All services')}>

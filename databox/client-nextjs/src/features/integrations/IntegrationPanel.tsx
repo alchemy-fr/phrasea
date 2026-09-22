@@ -10,23 +10,33 @@ import {getIntegrationData, runIntegrationAction} from '@/lib/api/integrations';
 import {Button} from '@/components/ui/button';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {InlineLoader} from '@/components/ui/loader';
+import {TuiPhotoEditorPanel, tuiPhotoEditor} from './tui/TuiPhotoEditorPanel';
 
-/**
- * Generic integration panel: runs the `analyze` / `process` actions and lists
- * the produced data (realtime refresh on `file-{id}` channel).
- *
- * Vendor specific renderers (AWS Rekognition boxes, Remove.bg comparison,
- * photo editor) plug in here through the `integration.integration` key.
- */
-export function IntegrationPanel({
-    integration,
-    asset,
-    file,
-}: {
+type Props = {
     integration: WorkspaceIntegration;
     asset: Asset;
     file: ApiFile;
-}) {
+};
+
+/**
+ * Panel of an integration, for the displayed file.
+ *
+ * Vendor specific renderers (photo editor…) plug in here through the
+ * `integration.integration` key; the others get the generic panel.
+ */
+export function IntegrationPanel(props: Props) {
+    if (props.integration.integration === tuiPhotoEditor) {
+        return <TuiPhotoEditorPanel {...props} />;
+    }
+
+    return <GenericIntegrationPanel {...props} />;
+}
+
+/**
+ * Runs the `analyze` / `process` actions and lists the produced data
+ * (realtime refresh on the `file-{id}` channel).
+ */
+function GenericIntegrationPanel({integration, asset, file}: Props) {
     const {t} = useTranslation();
     const queryClient = useQueryClient();
     const [running, setRunning] = useState<string>();

@@ -1,7 +1,7 @@
 'use client';
 
 import {useTranslation} from 'react-i18next';
-import type {AssetTabProps} from '../AssetManageRoute';
+import type {AssetTabProps} from '../types';
 import {AclEditor} from '@/features/permissions/AclEditor';
 import {assetPermissions} from '@/features/permissions/permissionDefinitions';
 import {PermissionObject} from '@/features/permissions/permissionTypes';

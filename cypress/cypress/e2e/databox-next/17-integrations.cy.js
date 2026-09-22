@@ -1,7 +1,7 @@
 /**
  * Feature 17 — Integrations: workspace administration and asset side panel.
  */
-import {deleteWorkspace, seedWorkspace, uploadAssetFromFixture, waitForAsset} from './lib/api';
+import {apiRequest, deleteWorkspace, seedWorkspace, uploadAssetFromFixture, waitForAsset} from './lib/api';
 import {expectToastText, login, routeDialog} from './lib/app';
 import {databoxNextUrl} from '../lib/urls';
 
@@ -59,5 +59,36 @@ describe('Integrations', () => {
             cy.contains('button', 'Integrations').click();
             cy.contains(/No integration available|E2E integration/).should('be.visible');
         });
+    });
+
+    it('edits the displayed file with the Toast UI photo editor', () => {
+        apiRequest({
+            method: 'POST',
+            path: '/integrations',
+            body: {
+                workspace: `/workspaces/${ctx.workspace.id}`,
+                integration: 'tui.photo-editor',
+                name: 'E2E photo editor',
+                enabled: true,
+                public: false,
+            },
+        });
+
+        cy.visit(`${databoxNextUrl}/assets/${image.id}/_`);
+        cy.getBySel('asset-view', {timeout: 30000}).within(() => {
+            cy.contains('button', 'Integrations').click();
+            cy.contains('button', 'Open photo editor', {timeout: 30000}).click();
+        });
+
+        // The editor is a full screen dialog over the viewer
+        cy.get('.tui-image-editor-container', {timeout: 60000}).should('be.visible');
+        cy.dialog('last').within(() => {
+            cy.get('input[placeholder="File name"]').type('E2E edited');
+            cy.contains('button', 'Save as').click();
+        });
+        expectToastText('Saved!');
+
+        // The export is listed in the panel, ready to be reopened
+        cy.getBySel('asset-view').contains('E2E edited', {timeout: 30000}).should('be.visible');
     });
 });

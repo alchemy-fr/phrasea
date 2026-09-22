@@ -5,7 +5,7 @@ import {useRouter} from 'next/navigation';
 import {useQueryClient} from '@tanstack/react-query';
 import {RotateCcwIcon, Trash2Icon, UnlinkIcon} from 'lucide-react';
 import {toast} from 'sonner';
-import type {AssetTabProps} from '../AssetManageRoute';
+import type {AssetTabProps} from '../types';
 import {Button} from '@/components/ui/button';
 import {Alert} from '@/components/ui/misc';
 import {CollectionChip, WorkspaceChip} from '@/components/chips';

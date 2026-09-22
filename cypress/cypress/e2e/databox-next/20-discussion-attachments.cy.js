@@ -28,6 +28,13 @@ describe('Discussion & attachments', () => {
         cy.getBySel('asset-view', {timeout: 30000}).should('be.visible');
     });
 
+    it('suggests users to mention, out of the panel', () => {
+        const admin = Cypress.env('ADMIN_USERNAME');
+        cy.getBySel('asset-view').find('textarea[placeholder*="Write a message"]').type(`Hello @${admin.slice(0, 4)}`);
+        // Portalled next to the field: the scrolling panel does not clip it
+        cy.getBySel('mention-suggestions', {timeout: 20000}).should('be.visible').and('contain', `@${admin}`);
+    });
+
     it('posts, edits and deletes a message', () => {
         cy.getBySel('asset-view').within(() => {
             cy.get('textarea[placeholder*="Write a message"]').type('Hello from Cypress');

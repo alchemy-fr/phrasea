@@ -3,7 +3,7 @@
  * entity lists.
  */
 import {deleteWorkspace, seedWorkspace} from './lib/api';
-import {assetItem, dialogTab, expectToastText, login, openAssetContextMenu, routeDialog, visitWorkspace, waitForResults} from './lib/app';
+import {assetItem, assetView, expectToastText, login, openAssetContextMenu, openAssetEditor, routeDialog, visitAssetView, visitWorkspace, waitForResults} from './lib/app';
 import {databoxNextUrl} from '../lib/urls';
 
 describe('Attributes', () => {
@@ -38,8 +38,7 @@ describe('Attributes', () => {
     });
 
     it('edits the attributes of a single asset', () => {
-        cy.visit(`${databoxNextUrl}/assets/${ctx.assets[1].id}/manage/edit`);
-        routeDialog().within(() => {
+        visitAssetView(ctx.assets[1].id, 'edit').within(() => {
             cy.get(`#attr-${ctx.description.id}`, {timeout: 20000}).type('{selectAll}{backspace}').should('have.value', '').type('Edited description');
             cy.contains('button', 'Save').click();
         });
@@ -91,17 +90,18 @@ describe('Attributes', () => {
         routeDialog().contains('Summer').should('be.visible');
     });
 
-    it('shows the info tab of the asset manage dialog', () => {
+    it('shows the info of an asset in the side panel', () => {
         visitWorkspace(ctx.workspace.id);
         waitForResults(3);
         openAssetContextMenu('Alpha');
         cy.menuItem('Info').click();
-        routeDialog().within(() => {
-            cy.contains('Manage asset').should('be.visible');
+        assetView().within(() => {
+            cy.contains('button', 'Information').click();
             cy.contains('Workspace').should('be.visible');
             cy.contains(ctx.workspace.name).should('be.visible');
         });
-        dialogTab('Edit');
-        cy.url().should('include', '/manage/edit');
+        // Editing is a mode of the panel, turned on from the toolbar
+        openAssetEditor();
+        cy.url().should('include', '#panel=edit');
     });
 });

@@ -477,9 +477,19 @@ export function AccordionContent({
     children,
     ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Content>) {
+    // The height animation needs `overflow-hidden`, which also clips whatever
+    // sticks out of the fields inside (focus rings, the mention popup): clip
+    // while the panel animates only.
+    const [clipped, setClipped] = React.useState(false);
+
     return (
         <AccordionPrimitive.Content
-            className="overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+            className={cn(
+                'text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down',
+                clipped ? 'overflow-hidden' : 'overflow-visible'
+            )}
+            onAnimationStart={() => setClipped(true)}
+            onAnimationEnd={() => setClipped(false)}
             {...props}
         >
             <div className={cn('pt-0 pb-3', className)}>{children}</div>

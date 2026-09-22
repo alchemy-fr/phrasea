@@ -127,6 +127,50 @@ export function routeDialog() {
     return cy.getBySel('route-dialog').last().should('be.visible');
 }
 
+/**
+ * The asset view, once its asset is loaded. The tabs of the side panel hold
+ * everything the manage dialog used to (see `AssetPanel`).
+ */
+export function assetView() {
+    cy.getBySel('asset-view', {timeout: 30000}).should('be.visible');
+
+    return cy.getBySel('asset-view');
+}
+
+/** Opens the asset view of an asset, on a given side panel tab */
+export function visitAssetView(assetId, tab) {
+    cy.visit(`${databoxNextUrl}/assets/${assetId}/_${tab ? `#panel=${tab}` : ''}`);
+
+    return assetView();
+}
+
+/**
+ * Clicks a tab of the asset view side panel, wherever it sits: the row only
+ * shows the tabs that fit on one line, the others are in the "…" menu.
+ */
+export function assetPanelTab(title) {
+    cy.getBySel('asset-view')
+        .find('[role=tab]')
+        .then($tabs => {
+            const shown = $tabs.filter((_, el) => el.textContent.trim() === title);
+            if (shown.length > 0) {
+                cy.wrap(shown).click();
+            } else {
+                // A menu that just closed still holds the pointer events
+                cy.get('body').should('not.have.css', 'pointer-events', 'none');
+                cy.getBySel('asset-panel-more').click();
+                cy.menuItem(title).click();
+            }
+        });
+}
+
+/** Turns the edit mode of the side panel on from the viewer toolbar */
+export function openAssetEditor() {
+    cy.getBySel('asset-action-edit').click();
+
+    return cy.getBySel('asset-panel-edit').should('be.visible');
+}
+
 export function dialogTab(title) {
     // The top-most modal layer is the only one receiving pointer events
     routeDialog().should('have.css', 'pointer-events', 'auto');

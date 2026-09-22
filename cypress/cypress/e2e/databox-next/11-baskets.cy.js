@@ -1,7 +1,7 @@
 /**
  * Feature 11 — Baskets.
  */
-import {deleteWorkspace, seedWorkspace, waitForBasketListed} from './lib/api';
+import {apiRequest, deleteWorkspace, seedWorkspace, waitForBasketListed} from './lib/api';
 import {assetItem, dialogTab, expectToastText, login, openAssetContextMenu, openLeftPanelTab, routeDialog, visitWorkspace, waitForResults} from './lib/app';
 
 /**
@@ -96,6 +96,26 @@ describe('Baskets', () => {
         });
         expectToastText('1 item(s) removed from basket');
         cy.getBySel('basket-view').findBySel('asset-item').should('have.length', 2);
+    });
+
+    it('closes the basket view for the page it was opened from', () => {
+        const other = `${basketName} bis`;
+        apiRequest({method: 'POST', path: '/baskets', body: {name: other}});
+        waitForBasketListed(other);
+
+        openLeftPanelTab('Baskets');
+        cy.getBySel('basket-item').contains(basketName).click();
+        cy.getBySel('basket-view', {timeout: 30000}).should('be.visible');
+
+        // Switching basket from inside the view is the same screen…
+        cy.getBySel('basket-view').findBySel('basket-item').contains(other).click();
+        cy.getBySel('basket-view', {timeout: 30000}).contains(other).should('be.visible');
+
+        // …so closing leaves for the search screen, not for the first basket
+        cy.getBySel('basket-view').find('[aria-label=Close]').click();
+        cy.getBySel('basket-view').should('not.exist');
+        cy.getBySel('search-input').should('be.visible');
+        cy.url().should('include', '/assets');
     });
 
     it('edits, archives, unarchives and deletes the basket', () => {

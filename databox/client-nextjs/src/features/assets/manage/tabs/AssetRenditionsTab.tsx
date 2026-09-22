@@ -14,7 +14,7 @@ import {
 import {toast} from 'sonner';
 import type {AssetRendition, RenditionDefinition} from '@/types/api';
 import {AssetType} from '@/types/api';
-import type {AssetTabProps} from '../AssetManageRoute';
+import type {AssetTabProps} from '../types';
 import {
     deleteRendition,
     getAssetRenditions,

@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {PlusIcon} from 'lucide-react';
 import {SearchProvider, useOptionalSearch, useSearch} from './SearchProvider';
@@ -12,6 +12,7 @@ import {AssetList} from '@/features/assets/list/AssetList';
 import {SelectionProvider} from '@/features/assets/list/SelectionProvider';
 import {AssetToolbar} from '@/features/assets/list/toolbar/AssetToolbar';
 import {NoResults} from './NoResults';
+import {FullPageLoader} from '@/components/ui/loader';
 import {SearchError} from './SearchError';
 import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
 import {Button} from '@/components/ui/button';
@@ -71,7 +72,22 @@ function SearchScreenContent() {
         );
     };
 
+    // The search providers live in the app layout: arriving from another
+    // route (the quarantine screen, a basket…), they still hold the results
+    // of the previous search. Showing them would flash results that do not
+    // match the filters displayed above, so the screen waits for its first
+    // matching results. Later searches keep the previous ones on screen.
+    const [hasOwnResults, setHasOwnResults] = useState(
+        () => results.checksum === search.checksum
+    );
+    useEffect(() => {
+        if (results.checksum === search.checksum) {
+            setHasOwnResults(true);
+        }
+    }, [results.checksum, search.checksum]);
+
     const isEmpty =
+        hasOwnResults &&
         !results.loading &&
         !results.error &&
         results.pages.every(p => p.length === 0);
@@ -95,6 +111,8 @@ function SearchScreenContent() {
                         error={results.error}
                         onRetry={() => results.reload()}
                     />
+                ) : !hasOwnResults ? (
+                    <FullPageLoader />
                 ) : isEmpty ? (
                     <NoResults />
                 ) : (

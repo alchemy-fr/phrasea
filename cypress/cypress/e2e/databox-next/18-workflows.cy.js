@@ -2,8 +2,7 @@
  * Feature 18 — Workflows.
  */
 import {deleteWorkspace, seedWorkspace, uploadAssetFromFixture, waitForAsset} from './lib/api';
-import {expectToastText, login, routeDialog} from './lib/app';
-import {databoxNextUrl} from '../lib/urls';
+import {expectToastText, login, routeDialog, visitAssetView} from './lib/app';
 
 describe('Workflows', () => {
     let ctx;
@@ -36,8 +35,7 @@ describe('Workflows', () => {
     });
 
     it('lists the ingestion workflow of an uploaded asset and opens it', () => {
-        cy.visit(`${databoxNextUrl}/assets/${image.id}/manage/workflow`);
-        routeDialog().within(() => {
+        visitAssetView(image.id, 'workflow').within(() => {
             cy.contains('button', 'View', {timeout: 60000}).first().click();
         });
         cy.url().should('include', '/workflows/');
@@ -48,8 +46,7 @@ describe('Workflows', () => {
     });
 
     it('triggers the workflow again', () => {
-        cy.visit(`${databoxNextUrl}/assets/${image.id}/manage/workflow`);
-        routeDialog().within(() => {
+        visitAssetView(image.id, 'workflow').within(() => {
             cy.contains('button', 'Trigger workflow again').click();
         });
         expectToastText('Workflow triggered');
