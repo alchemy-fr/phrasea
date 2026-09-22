@@ -289,7 +289,7 @@ export class DataboxClient {
                 slug,
                 enabledLocales: locales ?? [],
                 localeFallbacks: [],
-                ownerId: getStrict('databox.ownerId'),
+                ownerId: this.ownerId,
             })
         ).data.id;
     }
