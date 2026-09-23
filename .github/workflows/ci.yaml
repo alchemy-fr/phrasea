@@ -266,7 +266,6 @@ jobs:
 
       - name: Replay Doctrine migrations
         if: env.TIER == 'release'
-        continue-on-error: true
         run: bin/dev/test-migrations.sh
 
       - name: Indexer end-to-end

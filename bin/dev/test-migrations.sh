@@ -7,6 +7,11 @@
 # and marks them all as executed. This is the only place where a migration is
 # proven to run on a fresh install, and where mapping/migrations drift shows.
 #
+# Each API starts with a "Day-0" migration (databox Version20211021000000,
+# expose Version20200507000000, uploader Version20200506000000) that creates
+# the schema as it was before the first recorded migration, so the whole chain
+# can be replayed from an empty database.
+#
 # Needs the `db` service up (bin/setup.sh or `docker compose up -d db`).
 #
 # Usage: bin/dev/test-migrations.sh [--keep]   (run from the repository root)

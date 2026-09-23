@@ -33,6 +33,14 @@ final class Version20211124140146 extends AbstractMigration
         $this->addSql('ALTER INDEX sdr_object_idx RENAME TO rr_object_idx');
         $this->addSql('ALTER INDEX sdr_user_type_idx RENAME TO rr_user_type_idx');
         $this->addSql('ALTER INDEX sdr_uniq_rule RENAME TO rend_uniq_rule');
+        // Keep the foreign key names in line with the renamed tables, as the indexes above
+        // (Version20250618142033 expects the mapping-derived names). FK_44FBBC15908E2FFE is
+        // left alone: Version20211124141441 drops it under its old name.
+        $this->addSql('ALTER TABLE asset_rendition RENAME CONSTRAINT fk_44fbbc155da1941 TO fk_7a972a835da1941');
+        $this->addSql('ALTER TABLE asset_rendition RENAME CONSTRAINT fk_44fbbc1593cb796c TO fk_7a972a8393cb796c');
+        $this->addSql('ALTER TABLE rendition_class RENAME CONSTRAINT fk_c7ab378482d40a1f TO fk_8e3e63a882d40a1f');
+        $this->addSql('ALTER TABLE rendition_definition RENAME CONSTRAINT fk_4f0b98c5ea000b10 TO fk_63599969ea000b10');
+        $this->addSql('ALTER TABLE rendition_definition RENAME CONSTRAINT fk_4f0b98c582d40a1f TO fk_6359996982d40a1f');
         $this->addSql('DROP INDEX idx_e8839a321aeefe4');
         $this->addSql('DROP INDEX idx_e8839a32517eacff');
     }
@@ -52,6 +60,11 @@ final class Version20211124140146 extends AbstractMigration
         $this->addSql('ALTER INDEX rr_object_idx RENAME TO sdr_object_idx');
         $this->addSql('ALTER INDEX rr_user_type_idx RENAME TO sdr_user_type_idx');
         $this->addSql('ALTER INDEX rend_uniq_rule RENAME TO sdr_uniq_rule');
+        $this->addSql('ALTER TABLE rendition_definition RENAME CONSTRAINT fk_6359996982d40a1f TO fk_4f0b98c582d40a1f');
+        $this->addSql('ALTER TABLE rendition_definition RENAME CONSTRAINT fk_63599969ea000b10 TO fk_4f0b98c5ea000b10');
+        $this->addSql('ALTER TABLE rendition_class RENAME CONSTRAINT fk_8e3e63a882d40a1f TO fk_c7ab378482d40a1f');
+        $this->addSql('ALTER TABLE asset_rendition RENAME CONSTRAINT fk_7a972a8393cb796c TO fk_44fbbc1593cb796c');
+        $this->addSql('ALTER TABLE asset_rendition RENAME CONSTRAINT fk_7a972a835da1941 TO fk_44fbbc155da1941');
         $this->addSql('ALTER INDEX rend_def_ws_name RENAME TO sds_ws_name');
         $this->addSql('ALTER INDEX idx_6359996982d40a1f RENAME TO idx_4f0b98c582d40a1f');
         $this->addSql('ALTER INDEX idx_63599969ea000b10 RENAME TO idx_4f0b98c5ea000b10');

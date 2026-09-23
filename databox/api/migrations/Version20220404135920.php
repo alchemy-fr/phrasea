@@ -4,55 +4,44 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
-use Alchemy\ESBundle\Listener\DeferredIndexListener;
-use App\Entity\Core\AttributeDefinition;
-use App\Migrations\AbstractServiceContainerMigration;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\Migrations\AbstractMigration;
+use Gedmo\Sluggable\Util\Urlizer;
 
-final class Version20220404135920 extends AbstractServiceContainerMigration
+use function Symfony\Component\String\u;
+
+/**
+ * Backfill the slug of the attribute definitions created before the slug column existed.
+ *
+ * Used to be done through the ORM in postUp() (re-saving each entity so that the Gedmo
+ * sluggable listener computed the slug), which stopped running on a fresh database once
+ * the AttributeDefinition entity evolved. The slug is now computed here the same way the
+ * listener does (transliterate, urlize with an empty separator, lower case).
+ */
+final class Version20220404135920 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return '';
+        return 'Backfill attribute_definition.slug';
     }
 
     public function up(Schema $schema): void
     {
-        // this up() migration is auto-generated, please modify it to your needs
+        $rows = $this->connection->fetchAllAssociative('SELECT id, name FROM attribute_definition WHERE slug IS NULL');
+
+        foreach ($rows as $row) {
+            $slug = Urlizer::transliterate((string) $row['name'], '');
+            $slug = Urlizer::urlize($slug, '');
+            $slug = u($slug)->lower()->toString();
+
+            $this->connection->executeStatement('UPDATE attribute_definition SET slug = :slug WHERE id = :id', [
+                'slug' => $slug,
+                'id' => $row['id'],
+            ]);
+        }
     }
 
     public function down(Schema $schema): void
     {
-        // this down() migration is auto-generated, please modify it to your needs
-    }
-
-    public function postUp(Schema $schema): void
-    {
-        DeferredIndexListener::disable();
-
-        $em = $this->getEntityManager();
-        $em->getConnection()->getConfiguration()->setSQLLogger(null);
-
-        /** @var AttributeDefinition[] $attributeDefinitions */
-        $attributeDefinitions = $em->createQueryBuilder()
-            ->select('d')
-            ->from(AttributeDefinition::class, 'd')
-            ->andWhere('d.slug IS NULL')
-            ->getQuery()
-            ->toIterable();
-
-        foreach ($attributeDefinitions as $d) {
-            if ($d->getSlug()) {
-                continue;
-            }
-
-            $name = $d->getName();
-            $d->setName($name.'__');
-            $em->persist($d);
-            $em->flush();
-            $d->setName($name);
-            $em->persist($d);
-            $em->flush();
-        }
     }
 }
