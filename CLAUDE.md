@@ -35,7 +35,7 @@ The applications:
 
 - `databox/`, `expose/`, `uploader/` — each has `api/` (Symfony) and `client/` (React/Vite).
 - `dashboard/client/` — React client only.
-- `lib/php/*` — shared Symfony bundles (e.g. `core-bundle`, `auth-bundle`, `configurator-bundle`, `storage-bundle`, `es-bundle`, `notify-bundle`, `report-bundle`, `workflow-bundle`, `rendition-factory`). Consumed by the API apps as Composer **`type: path` repositories, symlinked** — editing a bundle immediately affects the apps that depend on it.
+- `lib/php/*` — shared Symfony bundles (e.g. `core-bundle`, `auth-bundle`, `configurator-bundle`, `storage-bundle`, `es-bundle`, `notifier-bundle`, `report-bundle`, `workflow-bundle`, `rendition-factory`). Consumed by the API apps as Composer **`type: path` repositories, symlinked** — editing a bundle immediately affects the apps that depend on it.
 - `lib/js/*` — shared React/TS packages published under the **`@alchemy/*`** scope (e.g. `@alchemy/core`, `@alchemy/auth`, `@alchemy/api`, `@alchemy/phrasea-ui`, `@alchemy/react-hooks`). Consumed via pnpm `workspace:*`.
 - `bin/` — orchestration scripts (setup, build, migrate, test); `bin/dev/` — developer helpers.
 - `infra/`, `docker-compose*.yml` — deployment and local stack.
@@ -87,7 +87,7 @@ dc run --rm dev pnpm build         # tsc + vite build across packages
 
 Per-client: `pnpm --filter databox-client <script>` (scripts: `lint`, `build`, `cs` = lint:fix + format).
 
-**Frontend tests use Vitest** (only where present, e.g. `databox/client`):
+**Frontend tests use Vitest** (`databox/client`, `databox/indexer`, `lib/js/auth`, `lib/js/i18n`; `pnpm test` at the root runs them all through Turbo):
 
 ```bash
 dc run --rm dev pnpm --filter databox-client test                      # vitest run
@@ -134,8 +134,15 @@ Symfony console: `dc run --rm databox-api-php bin/console <cmd>`.
 
 ### Whole-repo / CI test flow
 
-- `bin/test.sh` — runs `composer test` for every Symfony API and every PHP lib inside containers.
-- `bin/dev/run-tests-in-ci-conditions.sh` — reproduces CI: builds, brings up the stack, runs `bin/test.sh`, then Cypress (`cypress/`) end-to-end.
+Tests are organised in three tiers, documented in `doc/tech/Development/ci.md`:
+
+- `bin/test.sh quick` — static checks + unit tests, **no service needed**: `composer test:quick` per Symfony project (lint + PHPUnit `--testsuite unit`), `composer test` per PHP lib, `pnpm test:quick` (lint, typecheck, vitest). Runs on every push (`.github/workflows/quick.yaml`).
+- `bin/test.sh standard` (default) — full `composer test` (unit + functional suites) inside the API images with db/redis/elasticsearch/minio up, plus the libs. Runs on PRs to master (`ci.yaml`), followed by `bin/dev/test-cypress.sh`.
+- `bin/test.sh release` — standard + `bin/dev/test-migrations.sh` (migrations replay + `schema:validate`) + `bin/dev/test-indexer-e2e.sh`. Runs on tags, nightly on master and on demand (`release.yaml`).
+- `bin/dev/run-tests-in-ci-conditions.sh [tier]` — reproduces CI: builds, brings up the stack, runs the tier, then Cypress.
+
+PHPUnit suites: `unit` is the explicit list in each `phpunit.xml.dist`, `functional` is everything else (a new test lands there by default).
+
 - `bin/php-cs.sh` — php-cs-fixer across all Symfony projects and PHP libs.
 
 The canonical project lists (used by the whole-repo scripts) live in `bin/vars.sh`: `SYMFONY_PROJECTS`, `CLIENT_PROJECTS`, `PHP_LIBS`, `JS_LIBS`.
