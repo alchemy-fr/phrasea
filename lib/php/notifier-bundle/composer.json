@@ -32,7 +32,7 @@
         "alchemy/core-bundle": "@dev",
         "doctrine/doctrine-bundle": "^2.11",
         "doctrine/orm": "^2.7 || ^3",
-        "ramsey/uuid-doctrine": "^1.5",
+        "ramsey/uuid-doctrine": "^1.5 || ^2.0",
         "symfony/clock": "^7.4",
         "symfony/framework-bundle": "^7.4",
         "symfony/mailer": "^7.4",
