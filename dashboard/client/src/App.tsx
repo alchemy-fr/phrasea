@@ -6,6 +6,7 @@ import keycloakImg from './images/keycloak.png';
 import databoxImg from './images/databox.png';
 import uploaderImg from './images/uploader.png';
 import exposeImg from './images/expose.png';
+import paradeImg from './images/parade.png';
 import dashboardImg from './images/dashboard.png';
 import {useAuth} from '@alchemy/react-auth';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
@@ -22,6 +23,7 @@ export default function App({}: Props) {
         DATABOX_API_URL,
         EXPOSE_API_URL,
         UPLOADER_API_URL,
+        PARADE_CLIENT_URL,
         DATABOX_CLIENT_URL,
         EXPOSE_CLIENT_URL,
         UPLOADER_CLIENT_URL,
@@ -133,6 +135,14 @@ export default function App({}: Props) {
                         description={`Standalone Asset deposit`}
                         logo={uploaderImg}
                         isAdmin={roles.includes('uploader-admin')}
+                    />
+                )}
+                {PARADE_CLIENT_URL && (
+                    <ClientApp
+                        clientUrl={PARADE_CLIENT_URL}
+                        title={`Parade`}
+                        description={`Present your media as engaging experiences`}
+                        logo={paradeImg}
                     />
                 )}
                 {isInIframe ? (
