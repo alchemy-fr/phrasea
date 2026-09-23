@@ -10,15 +10,23 @@ export async function* streamify(
     event: string,
     endEvent: string
 ): AsyncGenerator<string, void> {
-    let done = false;
+    // The stream is paused between two values, and a paused stream emits
+    // neither `event` nor `endEvent`. The flag and the `readableEnded` check
+    // below only cover a stream that was already over when the generator was
+    // first pulled — there is no event left to wait for in that case.
+    let ended = false;
     stream.on(endEvent, () => {
-        done = true;
+        ended = true;
     });
 
-    while (!done) {
-        const r = await oncePromise(stream, event);
+    for (;;) {
+        if (ended || stream.readableEnded) {
+            return;
+        }
+
+        const r = await nextValue(stream, event, endEvent);
         if (r.done) {
-            break;
+            return;
         }
 
         yield r.value!;
@@ -26,20 +34,44 @@ export async function* streamify(
     }
 }
 
-function oncePromise(
+/**
+ * Resolves on the next value, on the end of the stream, or rejects on its
+ * error. All three have to be waited on at once: waiting for a value alone
+ * leaves the generator pending forever once the stream is over.
+ */
+function nextValue(
     stream: Readable,
-    event: string
+    event: string,
+    endEvent: string
 ): Promise<Wrapper<string>> {
-    return new Promise<Wrapper<string>>(resolve => {
-        const handler = (obj: {name: string}) => {
-            stream.pause();
-            stream.removeListener(event, handler);
+    return new Promise<Wrapper<string>>((resolve, reject) => {
+        const cleanup = () => {
+            stream.removeListener(event, onValue);
+            stream.removeListener(endEvent, onEnd);
+            stream.removeListener('error', onError);
+        };
 
+        const onValue = (obj: {name: string}) => {
+            stream.pause();
+            cleanup();
             resolve({
                 value: obj.name,
                 done: false,
             });
         };
-        stream.addListener(event, handler);
+
+        const onEnd = () => {
+            cleanup();
+            resolve({done: true});
+        };
+
+        const onError = (err: Error) => {
+            cleanup();
+            reject(err);
+        };
+
+        stream.addListener(event, onValue);
+        stream.addListener(endEvent, onEnd);
+        stream.addListener('error', onError);
     });
 }

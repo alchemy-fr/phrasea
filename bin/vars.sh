@@ -6,6 +6,12 @@ expose/api
 uploader/api
 "
 
+# Symfony projects that only get static checks (no PHPUnit suite, no bin/setup.sh
+# run by bin/setup.sh through the SYMFONY_PROJECTS loop).
+SYMFONY_LINT_ONLY_PROJECTS="
+configurator
+"
+
 CLIENT_PROJECTS="
 databox/client
 expose/client

@@ -21,6 +21,17 @@
         "^lint"
       ]
     },
+    "test": {
+      "cache": false,
+      "outputs": [
+      ]
+    },
+    "typecheck": {
+      "outputs": []
+    },
+    "format:check": {
+      "outputs": []
+    },
     "dev": {
       "cache": false,
       "persistent": true

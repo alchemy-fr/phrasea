@@ -2,7 +2,9 @@
     "compilerOptions": {
         "target": "ES2020",
         "useDefineForClassFields": true,
-        "lib": ["ES2020", "DOM", "DOM.Iterable"],
+        // ES2022.Error is what types `new Error(message, {cause})`, which the
+        // eslint rule preserve-caught-error requires when rethrowing.
+        "lib": ["ES2020", "ES2022.Error", "DOM", "DOM.Iterable"],
         "module": "ESNext",
         "skipLibCheck": true,
 
@@ -20,7 +22,12 @@
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
 
-        "types": ["node"]
+        "types": ["node", "vitest/globals"]
     },
-    "include": ["src/*"]
+    "include": [
+        "src/**/*",
+        "tests/**/*",
+        "vitest.config.ts",
+        "vitest.e2e.config.ts"
+    ]
 }

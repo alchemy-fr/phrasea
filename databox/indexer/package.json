@@ -3,21 +3,22 @@
     "version": "1.0.0",
     "private": true,
     "description": "Consumes S3 events from AMQP and synchronize Databox",
-    "main": "dist/index.mjs",
+    "main": "dist/console.mjs",
     "license": "MIT",
-    "bin": {
-        "console": "node dist/console.mjs"
-    },
     "scripts": {
         "console": "node dist/console.mjs",
         "dev": "nodemon",
         "validate": "tsc -p ./tsconfig.check.json",
+    "typecheck": "pnpm validate",
         "build": "pnpm validate && rimraf ./dist && vite build",
-        "test": "jest",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:e2e": "vitest run --config vitest.e2e.config.ts",
         "sync-databox-types": "generate-api-platform-client --generator typescript http://databox-api src/",
         "format": "prettier --ignore-path .prettierignore --write \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
-        "lint": "eslint src",
-        "lint:fix": "eslint --fix src",
+    "format:check": "prettier --ignore-path .prettierignore --check \"**/*.+(js|ts|json|cjs|tsx|jsx)\"",
+        "lint": "eslint src tests",
+        "lint:fix": "eslint --fix src tests",
         "cs": "pnpm lint:fix && pnpm format"
     },
     "dependencies": {
@@ -42,12 +43,16 @@
         "@types/js-yaml": "^4.0.9",
         "@types/minio": "^7.1.1",
         "@types/node": "^18.19.127",
+        "@types/supertest": "^6.0.3",
         "@types/twig": "^1.12.17",
+        "axios-mock-adapter": "^2.1.0",
         "nodemon": "^3.1.10",
         "rimraf": "^5.0.10",
+        "supertest": "^7.1.4",
         "ts-node": "^10.9.2",
         "typescript": "^5.9.2",
         "vite": "^5.4.21",
-        "vite-plugin-node": "^3.1.0"
+        "vite-plugin-node": "^3.1.0",
+        "vitest": "^3.2.4"
     }
 }

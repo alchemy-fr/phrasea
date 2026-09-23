@@ -192,7 +192,7 @@
         "phpstan/phpdoc-parser": "^1.0",
         "predis/predis": "^1.1",
         "pusher/pusher-php-server": "^7.2.4",
-        "ramsey/uuid-doctrine": "^1.6,<1.7",
+        "ramsey/uuid-doctrine": "^2.0",
         "smuuf/php-peg": "^3.1",
         "stof/doctrine-extensions-bundle": "^1.7",
         "symfony/amqp-messenger": "^7.4",
@@ -290,9 +290,24 @@
             "@pre-phpunit",
             "php -d memory_limit=1024M ./bin/phpunit --printer 'Alchemy\\ApiTest\\PHPUnit\\CompactResultPrinter'"
         ],
-        "test": [
-            "vendor/bin/var-dump-check --symfony src",
+        "var-dump-check": "vendor/bin/var-dump-check --symfony src",
+        "cs:check": "vendor/bin/php-cs-fixer fix --dry-run --diff",
+        "lint": [
+            "@var-dump-check",
             "@phpstan",
+            "@cs:check"
+        ],
+        "phpunit:unit": "php -d memory_limit=1024M vendor/bin/phpunit --testsuite unit",
+        "phpunit:functional": [
+            "@pre-phpunit",
+            "php -d memory_limit=1024M ./bin/phpunit --testsuite functional"
+        ],
+        "test:quick": [
+            "@lint",
+            "@phpunit:unit"
+        ],
+        "test": [
+            "@lint",
             "@phpunit"
         ]
     },
