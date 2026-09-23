@@ -15,6 +15,7 @@ on:
 
 env:
   COMPOSE_PROJECT_NAME: build
+  BUILD_CACHE_VERSION: 1
   REGISTRY_NAMESPACE: ghcr.io/${{ github.repository_owner }}/ps-
   DOCKER_TAG: ${{ github.sha }}
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
@@ -22,6 +23,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     if: ${{ github.repository_owner == 'alchemy-fr' }}
     steps:
       - name: Checkout code

@@ -17,8 +17,13 @@
         <env name="SHELL_VERBOSITY" value="-1"/>
     </php>
 
+    <!--
+        Only a `functional` suite so far: every expose test boots the kernel
+        (SQLite + minio). Add a `unit` suite (and its <exclude> mirror here)
+        with the first plain TestCase; see databox/api/phpunit.xml.dist.
+    -->
     <testsuites>
-        <testsuite name="Project Test Suite">
+        <testsuite name="functional">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
