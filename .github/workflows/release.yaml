@@ -1,0 +1,139 @@
+# Tier "release": the standard pipeline plus the heavy suites (Doctrine
+# migrations replay, indexer end-to-end), then the Docker Hub publication when
+# the ref is a tag. Also played every weekday night on master, and on demand.
+# See doc/tech/Development/ci.md for the three tiers.
+name: Release
+
+on:
+  push:
+    tags: ['**']
+  schedule:
+    # 03:00 UTC, Monday to Friday, on the default branch (master)
+    - cron: '0 3 * * 1-5'
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  pipeline:
+    name: 'Pipeline'
+    uses: ./.github/workflows/ci.yaml
+    with:
+      tier: release
+    secrets: inherit
+
+  publish-dockerhub:
+    name: 'Publish to Docker Hub'
+    needs: pipeline
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      COMPOSE_PROJECT_NAME: build
+      REGISTRY_NAMESPACE: ghcr.io/${{ github.repository_owner }}/ps-
+      DOCKER_TAG: ${{ github.sha }}
+      IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+      COMPOSE_PROFILES: databox,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard,configurator,indexer
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.IMAGE_REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull images built by the pipeline
+        run: docker compose pull
+
+      - name: Compute image tag from ref
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          # A ref name is not necessarily a valid Docker tag: one must match
+          # /[A-Za-z0-9_][A-Za-z0-9_.-]{0,127}/, so "feat/x" is rejected.
+          TAG=$(printf '%s' "$REF_NAME" | sed 's/[^A-Za-z0-9_.-]/-/g')
+          case "$TAG" in
+            [A-Za-z0-9_]*) ;;
+            # A tag cannot start with "." or "-".
+            *) TAG="_$(printf '%s' "$TAG" | cut -c2-)" ;;
+          esac
+          if [ ${#TAG} -gt 128 ]; then
+            # Keep long refs distinct instead of collapsing them onto one tag.
+            TAG="$(printf '%s' "$TAG" | cut -c1-120)-$(printf '%s' "$REF_NAME" | sha1sum | cut -c1-7)"
+          fi
+          echo "Ref \"$REF_NAME\" -> image tag \"$TAG\""
+          echo "IMAGE_TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Login to Docker Hub
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        if: env.DOCKERHUB_USERNAME != null
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push images to Dockerhub
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        if: env.DOCKERHUB_USERNAME != null
+        run: |
+          # Check if this is the latest release
+          LATEST_TAG=$(curl \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/releases/latest | jq --raw-output '.tag_name')
+
+          IS_LATEST=false
+          if [ "${LATEST_TAG}" == "${{ github.ref_name }}" ]; then
+            IS_LATEST=true
+          fi
+
+          # Tag all images with version (and latest if it's the latest release)
+          docker image ls --filter "reference=${{ env.REGISTRY_NAMESPACE }}*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while IFS= read -r repo; do
+            image_name="${repo##*/ps-}"
+            new_repo="alchemyfr/ps-${image_name}"
+            docker tag "$repo:${{ env.DOCKER_TAG }}" "$new_repo:${{ env.IMAGE_TAG }}"
+            if [ "$IS_LATEST" = true ]; then
+              docker tag "$repo:${{ env.DOCKER_TAG }}" "$new_repo:latest"
+            fi
+          done
+
+          REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=${{ env.IMAGE_TAG }} docker compose push
+
+          # If latest, also push latest tag
+          if [ "$IS_LATEST" = true ]; then
+            REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=latest docker compose push
+          fi
+
+      - name: Generate GitHub App token for documentation dispatch
+        id: documentation-builder-app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.DOCUMENTATION_BUILDER_APP_ID }}
+          private-key: ${{ secrets.DOCUMENTATION_BUILDER_APP_PRIVATE_KEY }}
+          owner: alchemy-fr
+          repositories: phrasea-documentation-builder
+
+      - name: Trigger Workflow in documentation builder Repository
+        run: |
+            DATETIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            http_code=$(curl -sS -o /tmp/dispatch-response.json -w "%{http_code}" -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ steps.documentation-builder-app-token.outputs.token }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/alchemy-fr/phrasea-documentation-builder/dispatches \
+            -d "{\"event_type\": \"trigger-workflow\",\"client_payload\": {\"PHRASEA_REFNAME\": \"${{ github.ref_name }}\", \"PHRASEA_REFTYPE\": \"${{ github.ref_type }}\", \"PHRASEA_DATETIME\": \"${DATETIME}\"}}")
+            echo "repository_dispatch HTTP status: ${http_code}"
+            if [ "${http_code}" -lt 200 ] || [ "${http_code}" -ge 300 ]; then
+              echo "repository_dispatch failed"
+              cat /tmp/dispatch-response.json
+              exit 1
+            fi
