@@ -83,8 +83,17 @@
         "post-update-cmd": [
             "@auto-scripts"
         ],
+        "var-dump-check": "vendor/bin/var-dump-check --symfony src",
+        "cs:check": "vendor/bin/php-cs-fixer fix --dry-run --diff",
+        "lint": [
+            "@var-dump-check",
+            "@cs:check"
+        ],
+        "test:quick": [
+            "@lint"
+        ],
         "test": [
-            "vendor/bin/var-dump-check --symfony src"
+            "@lint"
         ]
     },
     "conflict": {

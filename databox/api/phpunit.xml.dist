@@ -15,9 +15,47 @@
         <server name="APP_ENV" value="test" force="true"/>
         <server name="SHELL_VERBOSITY" value="-1"/>
     </php>
+    <!--
+        Two suites, selected with the testsuite option (unit or functional):
+
+        - unit: plain PHPUnit TestCase classes that need no service at all
+          (no database, no Elasticsearch, no Redis, no S3). Played by the
+          `quick` tier (composer test:quick) on every push, without the stack.
+        - functional: everything else (kernel boot, SQLite, Elasticsearch,
+          Redis, minio). Defined as `tests` minus the unit entries, so a new
+          test lands here by default and is never silently skipped.
+
+        A test moves to `unit` only when it is listed in BOTH blocks below.
+        PHPUnit 9 <exclude> entries are path prefixes, so list files rather
+        than directories whenever a directory mixes both kinds.
+    -->
     <testsuites>
-        <testsuite name="Project Test Suite">
+        <testsuite name="unit">
+            <directory>tests/AQL</directory>
+            <directory>tests/Attribute/Type</directory>
+            <directory>tests/Border</directory>
+            <directory>tests/Util</directory>
+            <directory>tests/Integration/Auth</directory>
+            <file>tests/ArrayUtilTest.php</file>
+            <file>tests/Asset/Attribute/FallbackResolverTest.php</file>
+            <file>tests/Attribute/AttributeSearchTest.php</file>
+            <file>tests/ElasticSearch/QueryStringParserTest.php</file>
+            <file>tests/ElasticSearch/Mapping/IndexMappingDiffTest.php</file>
+            <file>tests/File/FileOverriddenMetadataTest.php</file>
+        </testsuite>
+        <testsuite name="functional">
             <directory>tests</directory>
+            <exclude>tests/AQL</exclude>
+            <exclude>tests/Attribute/Type</exclude>
+            <exclude>tests/Border</exclude>
+            <exclude>tests/Util</exclude>
+            <exclude>tests/Integration/Auth</exclude>
+            <exclude>tests/ArrayUtilTest.php</exclude>
+            <exclude>tests/Asset/Attribute/FallbackResolverTest.php</exclude>
+            <exclude>tests/Attribute/AttributeSearchTest.php</exclude>
+            <exclude>tests/ElasticSearch/QueryStringParserTest.php</exclude>
+            <exclude>tests/ElasticSearch/Mapping/IndexMappingDiffTest.php</exclude>
+            <exclude>tests/File/FileOverriddenMetadataTest.php</exclude>
         </testsuite>
     </testsuites>
     <listeners>
