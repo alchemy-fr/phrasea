@@ -8,6 +8,9 @@
         "lint:fix": "turbo run lint:fix --parallel",
         "build": "turbo run build",
         "test": "turbo run test",
+        "typecheck": "turbo run typecheck",
+        "format:check": "turbo run format:check --parallel",
+        "test:quick": "pnpm lint && pnpm typecheck && pnpm test",
         "prepare": "husky"
     },
     "devDependencies": {
