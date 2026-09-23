@@ -680,6 +680,7 @@ services:
       - DATABOX_API_URL
       - DATABOX_CLIENT_URL
       - DEV_MODE
+      - PARADE_CLIENT_URL
       - DISPLAY_SERVICES_MENU
       - ELASTICHQ_URL
       - EXPOSE_API_URL
