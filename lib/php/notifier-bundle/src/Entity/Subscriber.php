@@ -10,6 +10,7 @@ use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\NotifierBundle\Repository\SubscriberRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidType;
 
 /**
  * A recipient of notifications, uniquely identified by its userId.
@@ -22,7 +23,7 @@ class Subscriber extends AbstractUuidEntity
     use CreatedAtTrait;
     use UpdatedAtTrait;
 
-    #[ORM\Column(type: Types::GUID, unique: true)]
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
     private string $userId;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
