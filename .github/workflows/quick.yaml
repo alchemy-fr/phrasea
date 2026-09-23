@@ -1,0 +1,150 @@
+# Tier "quick": static checks and unit tests, on every push, without the stack.
+#
+# Nothing here starts a service or builds an image: PHP runs on the runner with
+# setup-php, JS with pnpm. The suites played are the same `composer test:quick`
+# and `pnpm test:quick` that `bin/test.sh quick` runs locally in Docker.
+# See doc/tech/Development/ci.md for the three tiers.
+name: Quick checks
+
+on:
+  push:
+    branches: ['**']
+    tags-ignore: ['**']
+  pull_request:
+
+concurrency:
+  group: quick-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Keep in sync with infra/docker/php-fpm-base/Dockerfile (php:8.5.x) and
+  # infra/docker/nodejs-base/Dockerfile (node:25.x).
+  PHP_VERSION: '8.5'
+  # Extensions of the API images. Only intl, sodium, imagick and pdo_sqlite are
+  # needed by `composer install` and the unit suites; the others keep the
+  # container compilation identical to the images.
+  PHP_EXTENSIONS: intl, zip, sockets, bcmath, pdo_sqlite, pdo_pgsql, sodium, exif, imagick, apcu, redis, amqp
+  NODE_VERSION: '25'
+
+jobs:
+  # In-repository branches are covered by the `push` event (GitHub attaches the
+  # run to the PR through the head SHA); `pull_request` is only needed for forks.
+  php-api:
+    name: 'PHP ${{ matrix.app }}'
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {app: databox, dir: databox/api}
+          - {app: expose, dir: expose/api}
+          - {app: uploader, dir: uploader/api}
+          - {app: configurator, dir: configurator}
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          tools: composer:v2
+          coverage: none
+          ini-values: memory_limit=-1
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ matrix.dir }}/vendor
+            ~/.cache/composer
+          key: composer-${{ matrix.app }}-${{ env.PHP_VERSION }}-${{ hashFiles(format('{0}/composer.lock', matrix.dir)) }}
+          restore-keys: |
+            composer-${{ matrix.app }}-${{ env.PHP_VERSION }}-
+
+      - name: Install dependencies
+        run: |
+          # exiftool, phpexiftool and doctrineextensions are git sources
+          composer config -g github-oauth.github.com "${{ secrets.GITHUB_TOKEN }}"
+          composer install --no-interaction --prefer-dist --no-progress --no-scripts
+
+      - name: Lint and unit tests
+        run: composer test:quick
+
+  php-libs:
+    name: 'PHP libs'
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          tools: composer:v2
+          coverage: none
+          ini-values: memory_limit=-1
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: |
+            lib/php/*/vendor
+            ~/.cache/composer
+          # The libs' composer.lock files are git-ignored: key on composer.json
+          key: composer-libs-${{ env.PHP_VERSION }}-${{ hashFiles('lib/php/*/composer.json') }}
+          restore-keys: |
+            composer-libs-${{ env.PHP_VERSION }}-
+
+      - name: Test every lib
+        run: |
+          composer config -g github-oauth.github.com "${{ secrets.GITHUB_TOKEN }}"
+          . bin/vars.sh
+          status=0
+          for lib in ${PHP_LIBS}; do
+            echo "::group::${lib}"
+            if ! (cd "${lib}" && composer install --no-interaction --prefer-dist --no-progress && composer test); then
+              echo "::error::${lib}: composer test failed"
+              status=1
+            fi
+            echo "::endgroup::"
+          done
+          exit ${status}
+
+  js:
+    name: 'JS ${{ matrix.task }}'
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        task: [lint, typecheck, test]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: pnpm ${{ matrix.task }}
+        run: pnpm ${{ matrix.task }}
