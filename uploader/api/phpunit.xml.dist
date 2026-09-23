@@ -17,9 +17,23 @@
         <env name="SYMFONY_PHPUNIT_VERSION" value="9.6" />
     </php>
 
+    <!--
+        unit: plain TestCase classes without any service, played by the
+        `quick` tier without the stack. functional: `tests` minus the unit
+        entries (kernel, SQLite, minio), so a new test lands there by default.
+        A test moves to `unit` only when listed in BOTH blocks.
+    -->
     <testsuites>
-        <testsuite name="Project Test Suite">
+        <testsuite name="unit">
+            <file>tests/Consumer/CommitHandlerTest.php</file>
+            <file>tests/Consumer/DownloadHandlerTest.php</file>
+            <file>tests/PresignedUrlTest.php</file>
+        </testsuite>
+        <testsuite name="functional">
             <directory>tests</directory>
+            <exclude>tests/Consumer/CommitHandlerTest.php</exclude>
+            <exclude>tests/Consumer/DownloadHandlerTest.php</exclude>
+            <exclude>tests/PresignedUrlTest.php</exclude>
         </testsuite>
     </testsuites>
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Elasticsearch;
+namespace App\Tests\ElasticSearch;
 
 use App\Command\ESPopulateUnlockCommand;
 use App\Elasticsearch\Exception\PopulateAlreadyRunningException;
