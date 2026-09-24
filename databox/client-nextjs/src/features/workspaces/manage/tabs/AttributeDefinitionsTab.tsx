@@ -32,6 +32,7 @@ import {Badge} from '@/components/ui/misc';
 import {TranslatableField} from '@/components/form/TranslatableField';
 import {iri} from '@/lib/utils/iri';
 import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
+import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 export function AttributeDefinitionsTab({workspace}: WorkspaceTabProps) {
     const {t} = useTranslation();
@@ -182,6 +183,7 @@ function DefinitionForm({
         searchBoost: d?.searchBoost?.toString() ?? '1',
     });
     const [saving, setSaving] = useState(false);
+    const {markSaved} = useDirtyState(form);
     const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
         setForm(f => ({...f, [k]: v}));
     const locales = workspace.enabledLocales ?? [];
@@ -236,6 +238,7 @@ function DefinitionForm({
                       workspace: iri(EntityName.Workspace, workspace.id),
                   });
             toast.success(t('attribute_def.saved', 'Attribute saved'));
+            markSaved();
             onSaved(saved);
         } catch (e: any) {
             toast.error(e?.message);

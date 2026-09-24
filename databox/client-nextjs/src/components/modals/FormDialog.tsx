@@ -14,6 +14,12 @@ import {
 } from '@/components/ui/dialog';
 import {Button, type ButtonProps} from '@/components/ui/button';
 import {toastError} from '@/lib/utils/errors';
+import {
+    hasUnsavedChanges,
+    UnsavedChangesScope,
+    useUnsavedChangesChildScope,
+    useUnsavedChangesPrompt,
+} from '@/lib/navigation/unsavedChanges';
 
 export type FormDialogProps = {
     open: boolean;
@@ -44,7 +50,8 @@ export type FormDialogProps = {
     /**
      * Whether the form holds changes worth protecting. When set, dismissing
      * the dialog (escape, click outside, close button) asks for confirmation
-     * instead of silently dropping what the user typed.
+     * instead of silently dropping what the user typed. Forms inside the
+     * dialog using `useDirtyState` are taken into account too.
      */
     dirty?: boolean;
     /**
@@ -86,6 +93,9 @@ export function FormDialog({
     const {t} = useTranslation();
     const [submitting, setSubmitting] = useState(false);
     const [confirmDiscard, setConfirmDiscard] = useState(false);
+    const scope = useUnsavedChangesChildScope();
+    // Leaving the page must not drop them either
+    useUnsavedChangesPrompt(!!dirty && open);
 
     const close = () => {
         setConfirmDiscard(false);
@@ -96,7 +106,7 @@ export function FormDialog({
         if (submitting) {
             return;
         }
-        if (dirty) {
+        if (dirty || hasUnsavedChanges(scope)) {
             setConfirmDiscard(true);
 
             return;
@@ -150,7 +160,9 @@ export function FormDialog({
                         </DialogHeader>
                         {children ? (
                             <DialogBody className={bodyClassName}>
-                                {children}
+                                <UnsavedChangesScope.Provider value={scope}>
+                                    {children}
+                                </UnsavedChangesScope.Provider>
                             </DialogBody>
                         ) : null}
                         <DialogFooter>

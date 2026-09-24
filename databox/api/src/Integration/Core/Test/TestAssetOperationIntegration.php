@@ -6,6 +6,7 @@ namespace App\Integration\Core\Test;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
@@ -41,5 +42,12 @@ class TestAssetOperationIntegration extends AbstractIntegration implements Workf
     public static function getDisplayName(): string
     {
         return 'Test asset operation';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Other,
+        ];
     }
 }

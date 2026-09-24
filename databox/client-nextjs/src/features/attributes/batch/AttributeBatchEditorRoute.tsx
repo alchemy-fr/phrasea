@@ -42,6 +42,7 @@ import {AttributeWidget} from '@/features/attributes/widgets/AttributeWidget';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
 import {useModals} from '@/components/modals/ModalProvider';
 import {ConfirmDialog} from '@/components/ui/confirm';
+import {useUnsavedChangesPrompt} from '@/lib/navigation/unsavedChanges';
 import {useSelectAllKey} from '@/hooks/useSelectAllKey';
 import {NO_LOCALE} from '@/lib/utils/locale';
 import {getAttributeType} from '@/features/attributes/types/registry';
@@ -456,6 +457,7 @@ export function AttributeBatchEditorRoute() {
     };
 
     const dirty = !deepEquals(state.values, remote);
+    useUnsavedChangesPrompt(dirty);
 
     /** Diff => batch actions per asset */
     const computeActions = () => {
@@ -606,18 +608,8 @@ export function AttributeBatchEditorRoute() {
         });
     };
 
-    const requestClose = () => {
-        if (dirty) {
-            openModal(ConfirmDialog, {
-                title: t('batch_edit.discard.title', 'Discard changes?'),
-                destructive: true,
-                confirmLabel: t('batch_edit.discard', 'Discard'),
-                onConfirm: close,
-            });
-        } else {
-            close();
-        }
-    };
+    // Closing asks before dropping them (`useCloseRoute`)
+    const requestClose = close;
 
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {

@@ -18,6 +18,7 @@ import {PrivacyField} from '@/components/form/PrivacyField';
 import {assetStatusLabels} from '@/features/attributes/types/registry';
 import {idFromIri} from '@/lib/utils/iri';
 import {cn} from '@/lib/utils/cn';
+import {ColorInput} from '@/components/ui/color-input';
 
 export type AttributeWidgetProps = {
     id: string;
@@ -183,28 +184,13 @@ export function AttributeWidget(props: AttributeWidgetProps) {
             );
         case AttributeType.Color:
             return (
-                <div className="flex items-center gap-2">
-                    <input
-                        type="color"
-                        id={id}
-                        value={
-                            /^#[0-9a-f]{6}$/i.test(str(value))
-                                ? str(value)
-                                : '#000000'
-                        }
-                        onChange={e => onChange(e.target.value)}
-                        disabled={disabled || readOnly}
-                        className="size-9 cursor-pointer rounded border bg-transparent"
-                    />
-                    <Input
-                        value={str(value)}
-                        onChange={e => onChange(e.target.value || undefined)}
-                        placeholder="#rrggbb"
-                        className="w-32 font-mono"
-                        disabled={disabled}
-                        readOnly={readOnly}
-                    />
-                </div>
+                <ColorInput
+                    id={id}
+                    value={str(value)}
+                    onChange={v => onChange(v || undefined)}
+                    disabled={disabled}
+                    readOnly={readOnly}
+                />
             );
         case AttributeType.GeoPoint: {
             const text =

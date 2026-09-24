@@ -47,6 +47,8 @@ import {ThemeFontFields} from './ThemeFontFields';
 import {CUSTOM_THEME_ID, ThemeMode} from './presets';
 import {ThemeSwatch} from './ThemeMenu';
 import {useThemeStore} from './themeStore';
+import {ColorInput} from '@/components/ui/color-input';
+import {useUnsavedChangesPrompt} from '@/lib/navigation/unsavedChanges';
 
 type Palette = Record<ThemeColorToken, string>;
 
@@ -229,6 +231,15 @@ export function ThemeEditorScreen() {
     }, [draft, isAdmin, setPreview]);
     useEffect(() => () => setPreview(null), [setPreview]);
 
+    // Unsaved changes: what would be sent (`toTheme`) against the last saved
+    // (or freshly reset) state, the first draft once loaded being the start
+    const current = draft ? JSON.stringify(toTheme(draft)) : undefined;
+    const [baseline, setBaseline] = useState<string>();
+    if (current !== undefined && baseline === undefined) {
+        setBaseline(current);
+    }
+    useUnsavedChangesPrompt(current !== undefined && current !== baseline);
+
     const update = (patch: Partial<Draft>) =>
         setDraft(d => (d ? {...d, ...patch} : d));
 
@@ -261,8 +272,10 @@ export function ThemeEditorScreen() {
         setSaving(true);
         setErrors({});
         try {
-            const result = await putClientTheme(toTheme(draft));
+            const theme = toTheme(draft);
+            const result = await putClientTheme(theme);
             queryClient.setQueryData(['client-theme'], result);
+            setBaseline(JSON.stringify(theme));
             toast.success(
                 t(
                     'theme.editor.saved',
@@ -300,9 +313,11 @@ export function ThemeEditorScreen() {
         if (ok) {
             queryClient.setQueryData(['client-theme'], null);
             toast.success(t('theme.editor.deleted', 'Theme removed'));
-            setDraft(
-                newDraft(t('theme.editor.default_name', 'My organisation'))
+            const fresh = newDraft(
+                t('theme.editor.default_name', 'My organisation')
             );
+            setDraft(fresh);
+            setBaseline(JSON.stringify(toTheme(fresh)));
         }
     };
 
@@ -749,12 +764,13 @@ function ColorField({
             )}
             data-testid={`theme-color-${token}`}
         >
-            <input
-                type="color"
+            <ColorInput
                 aria-label={label}
-                value={isHexColor(value) ? value : '#000000'}
-                onChange={e => onChange(e.target.value)}
-                className="size-8 shrink-0 cursor-pointer rounded border-0 bg-transparent p-0"
+                value={value}
+                onChange={onChange}
+                clearable={false}
+                withInput={false}
+                swatchClassName="size-8"
             />
             <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1 text-sm">

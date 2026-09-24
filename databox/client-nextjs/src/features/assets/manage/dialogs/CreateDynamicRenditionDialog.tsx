@@ -12,6 +12,7 @@ import {Checkbox, LabeledControl, Slider} from '@/components/ui/controls';
 import {postRendition} from '@/lib/api/misc';
 import {FileKind, getFileKind} from '@/lib/utils/mime';
 import {clamp} from '@/lib/utils/misc';
+import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 type Ratio = 'original' | '1:1' | '4:3' | '3:4' | '16:9' | 'custom';
 const ratios: Record<Exclude<Ratio, 'original' | 'custom'>, number> = {
@@ -64,6 +65,21 @@ export function CreateDynamicRenditionDialog({
     const drag = useRef<{x: number; y: number; ox: number; oy: number} | null>(
         null
     );
+
+    const {dirty} = useDirtyState({
+        sourceId,
+        definitionId,
+        name,
+        ratio,
+        customRatio,
+        zoom,
+        offset,
+        maxWidth,
+        maxHeight,
+        format,
+        grayscale,
+        writeMetadata,
+    });
 
     const source = sources.find(s => s.id === sourceId);
     const aspect =
@@ -151,6 +167,7 @@ export function CreateDynamicRenditionDialog({
             )}
             submitLabel={t('common.create', 'Create')}
             canSubmit={!!source && !!definitionId}
+            dirty={dirty}
             onSubmit={submit}
         >
             <div className="grid gap-6 md:grid-cols-2">

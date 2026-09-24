@@ -29,6 +29,7 @@ import {SavedSearchPrivacyField} from '../SavedSearchPrivacyField';
 import {AclEditor} from '@/features/permissions/AclEditor';
 import {genericPermissions} from '@/features/permissions/permissionDefinitions';
 import {PermissionObject} from '@/features/permissions/permissionTypes';
+import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 type TabProps = {savedSearch: SavedSearch; refresh: () => void};
 
@@ -148,11 +149,13 @@ function EditTab({savedSearch, refresh}: TabProps) {
         savedSearch.privacy ?? 0
     );
     const [saving, setSaving] = useState(false);
+    const {markSaved} = useDirtyState({name, privacy});
 
     const save = async () => {
         setSaving(true);
         try {
             await putSavedSearch(savedSearch.id, {name, privacy});
+            markSaved();
             refresh();
             void queryClient.invalidateQueries({queryKey: ['saved-searches']});
             toast.success(t('saved_search.updated', 'Search updated'));

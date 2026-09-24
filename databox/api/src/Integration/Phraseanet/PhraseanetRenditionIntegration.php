@@ -6,6 +6,7 @@ namespace App\Integration\Phraseanet;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
@@ -131,6 +132,13 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
     public static function getDisplayName(): string
     {
         return 'Phraseanet Renditions';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Processing,
+        ];
     }
 
     public static function getName(): string

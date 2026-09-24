@@ -17,6 +17,7 @@ import {RealtimeProvider} from '@/lib/realtime/RealtimeProvider';
 import {ModalProvider} from '@/components/modals/ModalProvider';
 import {SessionExpiredDialog} from '@/lib/auth/SessionExpiredDialog';
 import {ThemeManager} from '@/features/theme/ThemeManager';
+import {UnsavedChangesGuard} from '@/components/modals/UnsavedChangesGuard';
 
 function createQueryClient(): QueryClient {
     return new QueryClient({
@@ -66,6 +67,7 @@ export function Providers({config, language, children}: Props) {
                                         </UserPreferencesGate>
                                     </RealtimeProvider>
                                     <SessionExpiredDialog />
+                                    <UnsavedChangesGuard />
                                 </Tooltip.Provider>
                             </AuthProvider>
                         </Suspense>

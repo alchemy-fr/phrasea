@@ -7,6 +7,7 @@ namespace App\Integration;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Contracts\Translation\TranslatableInterface;
 
 interface IntegrationInterface
 {
@@ -15,6 +16,18 @@ interface IntegrationInterface
     public static function requiresWorkspace(): bool;
 
     public static function getDisplayName(): string;
+
+    /**
+     * A short sentence describing what the integration does, shown in the catalog.
+     */
+    public static function getDescription(): TranslatableInterface;
+
+    /**
+     * The catalog categories, the first one being the main one.
+     *
+     * @return IntegrationCategory[]
+     */
+    public static function getCategories(): array;
 
     public function buildConfiguration(NodeBuilder $builder): void;
 

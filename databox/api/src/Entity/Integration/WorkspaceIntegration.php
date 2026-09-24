@@ -269,11 +269,13 @@ class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, Er
 
     public function __toString(): string
     {
+        // The name, or the integration type when it has none
+        $label = $this->name ?: (string) $this->getIntegration();
         if ($this->workspace) {
-            return sprintf('%s - %s', $this->workspace->getName(), $this->getIntegration());
+            return sprintf('%s - %s', $this->workspace->getName(), $label);
         }
 
-        return (string) $this->getIntegration();
+        return $label;
     }
 
     public function getAclOwnerId(): string

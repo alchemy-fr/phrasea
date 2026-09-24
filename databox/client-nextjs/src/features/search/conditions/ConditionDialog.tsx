@@ -24,6 +24,7 @@ import {
 } from './ConditionBuilder';
 import {InlineLoader} from '@/components/ui/loader';
 import {cn} from '@/lib/utils/cn';
+import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 type Props = ModalProps<string> & {
     condition?: AQLQuery;
@@ -77,6 +78,9 @@ export function ConditionDialog({
     }, [loadDefinitions, loadWorkspace, workspaceId]);
 
     const builderQuery = useMemo(() => astToString({expression}), [expression]);
+
+    // Compared on the resulting query, so that switching modes is not a change
+    const {dirty} = useDirtyState(mode === 'text' ? text.trim() : builderQuery);
 
     const switchMode = (next: Mode) => {
         setError(undefined);
@@ -154,6 +158,7 @@ export function ConditionDialog({
                 condition ? t('common.save', 'Save') : t('common.add', 'Add')
             }
             bodyClassName="min-h-48 py-2"
+            dirty={dirty}
             onSubmit={submit}
         >
             {!loaded && loadingDefinitions ? (

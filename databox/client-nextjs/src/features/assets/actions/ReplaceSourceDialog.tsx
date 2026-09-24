@@ -60,6 +60,7 @@ export function ReplaceSourceDialog({
             )}
             submitLabel={t('asset.replace.submit', 'Replace')}
             canSubmit={!!value.file || !!value.url}
+            dirty={!!value.file || !!value.url}
             bodyClassName="space-y-3"
             onSubmit={submit}
         >

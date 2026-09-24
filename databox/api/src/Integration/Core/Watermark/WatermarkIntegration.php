@@ -6,6 +6,7 @@ namespace App\Integration\Core\Watermark;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
@@ -67,5 +68,12 @@ class WatermarkIntegration extends AbstractIntegration implements WorkflowIntegr
     public static function getDisplayName(): string
     {
         return 'Watermark';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Processing,
+        ];
     }
 }

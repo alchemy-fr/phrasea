@@ -18,6 +18,25 @@ import {AsyncCombobox} from '@/components/form/AsyncCombobox';
 import {assetStatusLabels} from '@/features/attributes/types/registry';
 import {useCollectionStore} from '@/features/collections/collectionStore';
 import {Flag} from '@/components/ui/flag';
+import {
+    closestCenter,
+    DndContext,
+    DragEndEvent,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {CSS} from '@dnd-kit/utilities';
+import {cn} from '@/lib/utils/cn';
+import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 export function WorkspaceEditTab({workspace, refresh}: WorkspaceTabProps) {
     const {t} = useTranslation();
@@ -43,6 +62,16 @@ export function WorkspaceEditTab({workspace, refresh}: WorkspaceTabProps) {
         !!workspace.fileAnalysisRequired
     );
     const [saving, setSaving] = useState(false);
+    const {markSaved} = useDirtyState({
+        name,
+        translations,
+        isPublic,
+        locales,
+        fallbacks,
+        retention,
+        defaultStatus,
+        analysisRequired,
+    });
     const allLocales = useQuery({
         queryKey: ['locales'],
         queryFn: getLocales,
@@ -63,6 +92,7 @@ export function WorkspaceEditTab({workspace, refresh}: WorkspaceTabProps) {
                 fileAnalysisRequired: analysisRequired,
             } as any);
             upsert(updated);
+            markSaved();
             refresh();
             toast.success(t('workspace.saved', 'Workspace saved'));
         } catch (e: any) {
@@ -180,49 +210,52 @@ function LocaleList({
     options: {value: string; label: string}[];
 }) {
     const {t} = useTranslation();
+    const sensors = useSensors(
+        useSensor(PointerSensor, {activationConstraint: {distance: 4}}),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const onDragEnd = ({active, over}: DragEndEvent) => {
+        if (over && active.id !== over.id) {
+            onChange(
+                arrayMove(
+                    value,
+                    value.indexOf(String(active.id)),
+                    value.indexOf(String(over.id))
+                )
+            );
+        }
+    };
 
     return (
         <div className="space-y-2">
-            <ul className="space-y-1">
-                {value.map((l, i) => (
-                    <li
-                        key={l}
-                        className="flex items-center gap-2 rounded-md border px-2 py-1 text-sm"
-                    >
-                        <GripVerticalIcon className="size-4 text-muted-foreground" />
-                        <Flag locale={l} />
-                        <span className="flex-1">
-                            {options.find(o => o.value === l)?.label ?? l}
-                        </span>
-                        <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            disabled={i === 0}
-                            onClick={() => onChange(move(value, i, i - 1))}
-                            aria-label="Up"
-                        >
-                            ↑
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            disabled={i === value.length - 1}
-                            onClick={() => onChange(move(value, i, i + 1))}
-                            aria-label="Down"
-                        >
-                            ↓
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={() => onChange(value.filter(x => x !== l))}
-                            aria-label={t('common.remove', 'Remove')}
-                        >
-                            <XIcon />
-                        </Button>
-                    </li>
-                ))}
-            </ul>
+            <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={onDragEnd}
+            >
+                <SortableContext
+                    items={value}
+                    strategy={verticalListSortingStrategy}
+                >
+                    <ul className="space-y-1">
+                        {value.map(l => (
+                            <LocaleRow
+                                key={l}
+                                locale={l}
+                                label={
+                                    options.find(o => o.value === l)?.label ?? l
+                                }
+                                onRemove={() =>
+                                    onChange(value.filter(x => x !== l))
+                                }
+                            />
+                        ))}
+                    </ul>
+                </SortableContext>
+            </DndContext>
             <AsyncCombobox
                 queryKey={['locale-options']}
                 loadOptions={async q =>
@@ -242,10 +275,53 @@ function LocaleList({
     );
 }
 
-function move<T>(list: T[], from: number, to: number): T[] {
-    const next = [...list];
-    const [item] = next.splice(from, 1);
-    next.splice(to, 0, item);
+function LocaleRow({
+    locale,
+    label,
+    onRemove,
+}: {
+    locale: string;
+    label: string;
+    onRemove: () => void;
+}) {
+    const {t} = useTranslation();
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({id: locale});
 
-    return next;
+    return (
+        <li
+            ref={setNodeRef}
+            style={{transform: CSS.Transform.toString(transform), transition}}
+            className={cn(
+                'flex items-center gap-2 rounded-md border bg-card px-2 py-1 text-sm',
+                isDragging && 'relative z-10 shadow-md'
+            )}
+        >
+            <button
+                type="button"
+                className="cursor-grab text-muted-foreground"
+                {...attributes}
+                {...listeners}
+                aria-label="Drag"
+            >
+                <GripVerticalIcon className="size-4" />
+            </button>
+            <Flag locale={locale} />
+            <span className="flex-1">{label}</span>
+            <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={onRemove}
+                aria-label={t('common.remove', 'Remove')}
+            >
+                <XIcon />
+            </Button>
+        </li>
+    );
 }
