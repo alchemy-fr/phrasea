@@ -1,0 +1,35 @@
+# Integration descriptions, keyed by the integration name (IntegrationInterface::getDescription())
+'aws.rekognition':
+    description: 'Détecte les objets, textes et visages dans les images avec Amazon Rekognition.'
+'aws.transcribe':
+    description: 'Transcrit la parole des fichiers audio et vidéo en sous-titres avec Amazon Transcribe.'
+'aws.translate':
+    description: 'Traduit les valeurs d''attributs dans d''autres langues avec Amazon Translate.'
+'blurhash':
+    description: 'Calcule un aperçu flou compact affiché pendant le chargement des images.'
+'core.file_analyzer':
+    description: 'Contrôle les fichiers entrants avec des analyseurs et met en quarantaine, à la corbeille ou supprime ceux qui sont rejetés.'
+'core.moderation':
+    description: 'Retient les assets entrants pour une validation humaine et prévient les modérateurs par email.'
+'core.read_metadata':
+    description: 'Extrait les métadonnées embarquées des fichiers (EXIF, IPTC, XMP…) et initialise les attributs à partir de celles-ci.'
+'core.rendition':
+    description: 'Génère les rendus (vignettes, aperçus…) définis dans le workspace.'
+'core.watermark':
+    description: 'Appose la valeur d''un attribut en filigrane sur les rendus.'
+'core.webhook':
+    description: 'Appelle une URL externe depuis les workflows d''asset pour brancher vos propres traitements.'
+'happyscribe':
+    description: 'Transcrit les fichiers audio et vidéo avec Happyscribe.'
+'phrasea.expose':
+    description: 'Publie les paniers sous forme de galeries publiques sur Phrasea Expose.'
+'phrasea.uploader':
+    description: 'Reçoit les fichiers envoyés depuis une cible Phrasea Uploader.'
+'phraseanet.renditions':
+    description: 'Délègue la génération des rendus à une instance Phraseanet.'
+'remove.bg':
+    description: 'Supprime l''arrière-plan des images avec le service remove.bg.'
+'test.asset_operation':
+    description: 'Intégration de développement qui écrit une valeur de test sur les assets.'
+'tui.photo-editor':
+    description: 'Retouche les images dans le navigateur : recadrage, rotation, filtres, dessin et texte.'

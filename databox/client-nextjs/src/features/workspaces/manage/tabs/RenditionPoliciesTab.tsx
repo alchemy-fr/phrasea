@@ -23,6 +23,7 @@ import {AclEditor} from '@/features/permissions/AclEditor';
 import {renditionPolicyPermissions} from '@/features/permissions/permissionDefinitions';
 import {PermissionObject} from '@/features/permissions/permissionTypes';
 import {iri} from '@/lib/utils/iri';
+import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 export function RenditionPoliciesTab({workspace}: WorkspaceTabProps) {
     const {t} = useTranslation();
@@ -74,6 +75,7 @@ function PolicyForm({
     const [name, setName] = useState(policy?.name ?? '');
     const [isPublic, setIsPublic] = useState(policy?.public ?? true);
     const [saving, setSaving] = useState(false);
+    const {markSaved} = useDirtyState({name, isPublic});
 
     const save = async () => {
         setSaving(true);
@@ -86,6 +88,7 @@ function PolicyForm({
                       workspace: iri(EntityName.Workspace, workspaceId),
                   });
             toast.success(t('policy.saved', 'Policy saved'));
+            markSaved();
             onSaved(saved);
         } catch (e: any) {
             toast.error(e?.message);

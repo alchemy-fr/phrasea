@@ -95,6 +95,8 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
             $queryBuilder
                 ->andWhere('t.workspace = :ws')
                 ->setParameter('ws', $workspace->getId());
+        } elseif (filter_var($filters['global'] ?? false, FILTER_VALIDATE_BOOL)) {
+            $queryBuilder->andWhere('t.workspace IS NULL');
         } else {
             $queryBuilder
                 ->leftJoin('t.workspace', 'w');

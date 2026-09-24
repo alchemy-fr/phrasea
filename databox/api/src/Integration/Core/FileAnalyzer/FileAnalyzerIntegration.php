@@ -9,6 +9,7 @@ use App\Border\FileAnalyzerRegistry;
 use App\Documentation\ConfigurationReferenceDumper;
 use App\Integration\AbstractIntegration;
 use App\Integration\ExtraReferenceIntegrationInterface;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
@@ -74,6 +75,14 @@ class FileAnalyzerIntegration extends AbstractIntegration implements WorkflowInt
     public static function getDisplayName(): string
     {
         return 'File Analyzer';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Processing,
+            IntegrationCategory::Ingest,
+        ];
     }
 
     public function getExtraReferenceSections(): array

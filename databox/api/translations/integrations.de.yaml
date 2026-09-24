@@ -1,0 +1,35 @@
+# Integration descriptions, keyed by the integration name (IntegrationInterface::getDescription())
+'aws.rekognition':
+    description: 'Erkennt Objekte, Texte und Gesichter in Bildern mit Amazon Rekognition.'
+'aws.transcribe':
+    description: 'Transkribiert die Sprache von Audio- und Videodateien in Untertitel mit Amazon Transcribe.'
+'aws.translate':
+    description: 'Übersetzt Attributwerte mit Amazon Translate in andere Sprachen.'
+'blurhash':
+    description: 'Berechnet einen kompakten, unscharfen Platzhalter, der beim Laden der Bilder angezeigt wird.'
+'core.file_analyzer':
+    description: 'Prüft eingehende Dateien mit Analysatoren und stellt abgelehnte Dateien unter Quarantäne, verschiebt sie in den Papierkorb oder löscht sie.'
+'core.moderation':
+    description: 'Hält eingehende Assets für eine manuelle Prüfung zurück und benachrichtigt die Moderatoren per E-Mail.'
+'core.read_metadata':
+    description: 'Liest die eingebetteten Metadaten (EXIF, IPTC, XMP…) aus und initialisiert damit die Attribute.'
+'core.rendition':
+    description: 'Erzeugt die im Workspace definierten Renditions (Miniaturen, Vorschauen…).'
+'core.watermark':
+    description: 'Setzt den Wert eines Attributs als Wasserzeichen auf die Renditions.'
+'core.webhook':
+    description: 'Ruft aus den Asset-Workflows eine externe URL auf, um eigene Prozesse anzubinden.'
+'happyscribe':
+    description: 'Transkribiert Audio- und Videodateien mit Happyscribe.'
+'phrasea.expose':
+    description: 'Veröffentlicht Warenkörbe als öffentliche Galerien auf Phrasea Expose.'
+'phrasea.uploader':
+    description: 'Empfängt die von einem Phrasea-Uploader-Ziel gesendeten Dateien.'
+'phraseanet.renditions':
+    description: 'Überträgt die Erzeugung der Renditions an eine Phraseanet-Instanz.'
+'remove.bg':
+    description: 'Entfernt den Hintergrund von Bildern mit dem Dienst remove.bg.'
+'test.asset_operation':
+    description: 'Entwicklungsintegration, die einen Testwert in die Assets schreibt.'
+'tui.photo-editor':
+    description: 'Bearbeitet Bilder im Browser: Zuschneiden, Drehen, Filter, Zeichnen und Text.'

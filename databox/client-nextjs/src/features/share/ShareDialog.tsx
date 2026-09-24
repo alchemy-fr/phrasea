@@ -112,6 +112,8 @@ export function ShareDialog({
             hideSubmit={advancedMode || !simpleShare}
             submitLabel={t('share.copy_link', 'Copy link')}
             submitIcon={<CopyIcon />}
+            // The new-link form holds what the user typed; the rest applies live
+            dirty={creating && (!!newName.trim() || !!startsAt || !!expiresAt)}
             bodyClassName="space-y-4"
             onSubmit={async () => {
                 await copyToClipboard(urlFor(simpleShare!));

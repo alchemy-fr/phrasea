@@ -39,6 +39,31 @@ class IntegrationType
     public string $displayName = '';
 
     #[Groups(self::GROUP_READ)]
+    public string $description = '';
+
+    /**
+     * The catalog categories, the first one being the main one.
+     *
+     * @var string[]
+     */
+    #[Groups(self::GROUP_READ)]
+    public array $categories = [];
+
+    /**
+     * False when the integration can also be set up on the whole instance (without workspace).
+     */
+    #[Groups(self::GROUP_READ)]
+    public bool $requiresWorkspace = true;
+
+    /**
+     * Where the integration takes part: "workflow" and/or the client contexts ("asset-view", "basket").
+     *
+     * @var string[]
+     */
+    #[Groups(self::GROUP_READ)]
+    public array $features = [];
+
+    #[Groups(self::GROUP_READ)]
     public string $reference = '';
 
     /**

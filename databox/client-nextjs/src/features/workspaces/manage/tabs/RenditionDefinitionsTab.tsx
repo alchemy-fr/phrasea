@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/overlays';
 import {CopyButton} from '@/components/ui/copy-button';
 import {iri} from '@/lib/utils/iri';
+import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 export function RenditionDefinitionsTab({workspace}: WorkspaceTabProps) {
     const {t} = useTranslation();
@@ -123,6 +124,7 @@ function DefinitionForm({
         useAsAnimatedThumbnail: d?.useAsAnimatedThumbnail ?? false,
     });
     const [saving, setSaving] = useState(false);
+    const {markSaved} = useDirtyState(form);
     const reference = useQuery({
         queryKey: ['rendition-build-reference'],
         queryFn: getRenditionBuildReference,
@@ -157,6 +159,7 @@ function DefinitionForm({
             toast.success(
                 t('rendition_def.saved', 'Rendition definition saved')
             );
+            markSaved();
             onSaved(saved);
         } catch (e: any) {
             toast.error(e?.message);

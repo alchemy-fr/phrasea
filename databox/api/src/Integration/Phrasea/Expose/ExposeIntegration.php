@@ -11,6 +11,7 @@ use App\Integration\AbstractIntegration;
 use App\Integration\Action\UserActionsTrait;
 use App\Integration\Auth\IntegrationTokenTrait;
 use App\Integration\BasketUpdateHandlerIntegrationInterface;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationContext;
 use App\Integration\IntegrationDataTransformerInterface;
@@ -185,6 +186,13 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
     public static function getDisplayName(): string
     {
         return 'Expose';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Publication,
+        ];
     }
 
     public static function getName(): string

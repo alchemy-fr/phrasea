@@ -25,6 +25,8 @@ class WorkspaceIntegrationInput extends AbstractOwnerIdInput
     public ?array $needs = null;
     public ?string $if = null;
 
-    #[NotNull(groups: ['create'])]
+    /**
+     * Null for an instance-wide integration (only allowed for integrations not requiring a workspace).
+     */
     public ?Workspace $workspace = null;
 }

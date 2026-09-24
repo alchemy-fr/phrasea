@@ -17,7 +17,7 @@ import {attributeBatchUpdate, patchAsset} from '@/lib/api/assets';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {iri} from '@/lib/utils/iri';
 import {InlineLoader} from '@/components/ui/loader';
-import {useUnsavedChangesPrompt} from '@/hooks/useUnsavedChangesPrompt';
+import {useUnsavedChangesPrompt} from '@/lib/navigation/unsavedChanges';
 
 export function AssetEditTab({asset, refresh}: AssetTabProps) {
     const {t} = useTranslation();

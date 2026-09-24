@@ -25,6 +25,11 @@ import {Skeleton, EmptyState} from '@/components/ui/misc';
 import {useModals} from '@/components/modals/ModalProvider';
 import {ConfirmDialog} from '@/components/ui/confirm';
 import {cn} from '@/lib/utils/cn';
+import {
+    confirmLeave,
+    UnsavedChangesScope,
+    useUnsavedChangesChildScope,
+} from '@/lib/navigation/unsavedChanges';
 
 export type DefinitionItem = {id: string};
 
@@ -50,6 +55,8 @@ type Props<D extends DefinitionItem> = {
     /** Render a nested management panel for the selected item (e.g. entities of a list) */
     renderManage?: (item: D, back: () => void) => ReactNode;
     manageLabel?: string;
+    /** Take the whole height of the parent (a flex column); both panes scroll */
+    fill?: boolean;
 };
 
 /**
@@ -71,26 +78,52 @@ export function DefinitionManager<D extends DefinitionItem>({
     toolbar,
     renderManage,
     manageLabel,
+    fill,
 }: Props<D>) {
     const {t} = useTranslation();
     const {openModal} = useModals();
     const [query, setQuery] = useState('');
     const [selected, setSelected] = useState<string | 'new' | null>(null);
     const [managing, setManaging] = useState<string | null>(null);
+    // The form pane: leaving the item being edited asks first when it is dirty
+    const formScope = useUnsavedChangesChildScope();
+    const leaveForm = (next: () => void) => {
+        void confirmLeave(formScope).then(leave => leave && next());
+    };
+    const select = (id: string | 'new' | null) => {
+        if (id !== selected) {
+            leaveForm(() => setSelected(id));
+        }
+    };
     const sensors = useSensors(
         useSensor(PointerSensor, {activationConstraint: {distance: 4}})
     );
+    // Optimistic order, kept until the refreshed items arrive
+    const [order, setOrder] = useState<{
+        of: D[] | undefined;
+        ids: string[];
+    } | null>(null);
 
-    const visible = useMemo(() => {
-        if (!items) {
-            return [];
-        }
-        if (!query || !filter) {
+    const ordered = useMemo(() => {
+        if (!items || order?.of !== items) {
             return items;
         }
 
-        return items.filter(i => filter(i, query.toLowerCase()));
-    }, [items, query, filter]);
+        return order.ids
+            .map(id => items.find(i => i.id === id))
+            .filter((i): i is D => !!i);
+    }, [items, order]);
+
+    const visible = useMemo(() => {
+        if (!ordered) {
+            return [];
+        }
+        if (!query || !filter) {
+            return ordered;
+        }
+
+        return ordered.filter(i => filter(i, query.toLowerCase()));
+    }, [ordered, query, filter]);
 
     const current =
         selected === 'new' ? undefined : items?.find(i => i.id === selected);
@@ -98,18 +131,20 @@ export function DefinitionManager<D extends DefinitionItem>({
 
     const onDragEnd = async (e: DragEndEvent) => {
         const {active, over} = e;
-        if (!over || active.id === over.id || !items || !onSort) {
+        if (!over || active.id === over.id || !ordered || !onSort) {
             return;
         }
         const ids = arrayMove(
-            items.map(i => i.id),
-            items.findIndex(i => i.id === active.id),
-            items.findIndex(i => i.id === over.id)
+            ordered.map(i => i.id),
+            ordered.findIndex(i => i.id === active.id),
+            ordered.findIndex(i => i.id === over.id)
         );
+        setOrder({of: items, ids});
         try {
             await onSort(ids);
             onChanged();
         } catch (err: any) {
+            setOrder(null);
             toast.error(err?.message);
         }
     };
@@ -119,8 +154,19 @@ export function DefinitionManager<D extends DefinitionItem>({
     }
 
     return (
-        <div className="grid gap-4 lg:grid-cols-[minmax(16rem,1fr)_2fr]">
-            <div className="space-y-2">
+        <div
+            className={cn(
+                // minmax(0, …): wide content (YAML, references) must not widen the columns
+                'grid gap-4 lg:grid-cols-[minmax(16rem,1fr)_minmax(0,2fr)]',
+                fill && 'min-h-0 flex-1 lg:grid-rows-[minmax(0,1fr)]'
+            )}
+        >
+            <div
+                className={cn(
+                    'min-w-0 space-y-2',
+                    fill && 'flex min-h-0 flex-col'
+                )}
+            >
                 <div className="flex items-center gap-2">
                     <Input
                         value={query}
@@ -132,7 +178,7 @@ export function DefinitionManager<D extends DefinitionItem>({
                         size="sm"
                         data-testid="definition-create"
                         variant={selected === 'new' ? 'default' : 'outline'}
-                        onClick={() => setSelected('new')}
+                        onClick={() => select('new')}
                     >
                         <PlusIcon />{' '}
                         {createLabel ?? t('common.create', 'Create')}
@@ -160,17 +206,25 @@ export function DefinitionManager<D extends DefinitionItem>({
                             items={visible.map(i => i.id)}
                             strategy={verticalListSortingStrategy}
                         >
-                            <ul className="max-h-[60vh] space-y-1 overflow-y-auto pr-1">
+                            <ul
+                                className={cn(
+                                    'space-y-1 overflow-y-auto pr-1',
+                                    fill ? 'min-h-0 flex-1' : 'max-h-[60vh]'
+                                )}
+                            >
                                 {visible.map(item => (
                                     <Row
                                         key={item.id}
                                         id={item.id}
                                         sortable={!!onSort && !query}
                                         active={selected === item.id}
-                                        onClick={() => setSelected(item.id)}
+                                        onClick={() => select(item.id)}
                                         onManage={
                                             renderManage
-                                                ? () => setManaging(item.id)
+                                                ? () =>
+                                                      leaveForm(() =>
+                                                          setManaging(item.id)
+                                                      )
                                                 : undefined
                                         }
                                         manageLabel={manageLabel}
@@ -210,7 +264,12 @@ export function DefinitionManager<D extends DefinitionItem>({
                     </DndContext>
                 )}
             </div>
-            <div className="min-h-64 rounded-md border p-4">
+            <div
+                className={cn(
+                    'min-h-64 min-w-0 rounded-md border p-4',
+                    fill && 'lg:overflow-y-auto'
+                )}
+            >
                 {selected === null ? (
                     <EmptyState
                         title={t(
@@ -220,16 +279,18 @@ export function DefinitionManager<D extends DefinitionItem>({
                         className="h-full"
                     />
                 ) : (
-                    <div key={selected}>
-                        {renderForm(
-                            current,
-                            saved => {
-                                onChanged();
-                                setSelected(saved.id);
-                            },
-                            () => setSelected(null)
-                        )}
-                    </div>
+                    <UnsavedChangesScope.Provider value={formScope}>
+                        <div key={selected}>
+                            {renderForm(
+                                current,
+                                saved => {
+                                    onChanged();
+                                    setSelected(saved.id);
+                                },
+                                () => select(null)
+                            )}
+                        </div>
+                    </UnsavedChangesScope.Provider>
                 )}
             </div>
         </div>

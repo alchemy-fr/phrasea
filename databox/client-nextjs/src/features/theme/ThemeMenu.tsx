@@ -1,6 +1,6 @@
 'use client';
 
-import {useRouter} from 'next/navigation';
+import {useGuardedRouter} from '@/components/modals/UnsavedChangesGuard';
 import {useTranslation} from 'react-i18next';
 import {useTheme} from 'next-themes';
 import {
@@ -59,7 +59,7 @@ export function ThemeSwatch({
  */
 export function ThemeMenu() {
     const {t} = useTranslation();
-    const router = useRouter();
+    const router = useGuardedRouter();
     const {hasRole} = useAuth();
     const {theme: appearance, setTheme: setAppearance} = useTheme();
     const updatePreference = usePreferencesStore(s => s.updatePreference);

@@ -50,6 +50,20 @@ export async function getWorkspaceIntegrations(
     );
 }
 
+/** Instance-wide integrations (not attached to a workspace) */
+export async function getGlobalIntegrations(): Promise<
+    Page<WorkspaceIntegration>
+> {
+    return toPage(
+        await api.get<HydraCollection<WorkspaceIntegration>>(
+            `/${EntityName.Integration}`,
+            {
+                params: {global: 1, limit: 100},
+            }
+        )
+    );
+}
+
 export async function getIntegrationData(
     integrationId: string,
     url?: string,

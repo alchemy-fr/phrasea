@@ -28,6 +28,12 @@ import {useModals} from '@/components/modals/ModalProvider';
 import {ConfirmDialog} from '@/components/ui/confirm';
 import {iri} from '@/lib/utils/iri';
 import {TagChip} from '@/components/chips';
+import {
+    confirmLeave,
+    UnsavedChangesScope,
+    useDirtyState,
+    useUnsavedChangesChildScope,
+} from '@/lib/navigation/unsavedChanges';
 
 /**
  * Tag filter rules: tags included / excluded for users or groups.
@@ -55,6 +61,16 @@ function TagRules({workspaceId}: {workspaceId: string}) {
         queryFn: () => getTagFilterRules({workspaceId}),
     });
     const [editing, setEditing] = useState<TagFilterRule | 'new' | null>(null);
+    // The rule form: switching away from it asks first when it is dirty
+    const formScope = useUnsavedChangesChildScope();
+    const edit = (next: TagFilterRule | 'new' | null) => {
+        const keyOf = (e: typeof next) =>
+            e === null || e === 'new' ? e : e.id;
+        if (keyOf(next) === keyOf(editing)) {
+            return;
+        }
+        void confirmLeave(formScope).then(leave => leave && setEditing(next));
+    };
 
     return (
         <section className="space-y-3">
@@ -72,7 +88,7 @@ function TagRules({workspaceId}: {workspaceId: string}) {
                     size="sm"
                     variant="outline"
                     className="ml-auto"
-                    onClick={() => setEditing('new')}
+                    onClick={() => edit('new')}
                 >
                     <PlusIcon /> {t('filter_rules.add', 'Add rule')}
                 </Button>
@@ -124,7 +140,7 @@ function TagRules({workspaceId}: {workspaceId: string}) {
                         <Button
                             variant="ghost"
                             size="icon-xs"
-                            onClick={() => setEditing(rule)}
+                            onClick={() => edit(rule)}
                         >
                             <PencilIcon />
                         </Button>
@@ -157,16 +173,18 @@ function TagRules({workspaceId}: {workspaceId: string}) {
                 ) : null}
             </div>
             {editing ? (
-                <TagRuleForm
-                    key={editing === 'new' ? 'new' : editing.id}
-                    rule={editing === 'new' ? undefined : editing}
-                    workspaceId={workspaceId}
-                    onSaved={() => {
-                        setEditing(null);
-                        void rules.refetch();
-                    }}
-                    onCancel={() => setEditing(null)}
-                />
+                <UnsavedChangesScope.Provider value={formScope}>
+                    <TagRuleForm
+                        key={editing === 'new' ? 'new' : editing.id}
+                        rule={editing === 'new' ? undefined : editing}
+                        workspaceId={workspaceId}
+                        onSaved={() => {
+                            setEditing(null);
+                            void rules.refetch();
+                        }}
+                        onCancel={() => edit(null)}
+                    />
+                </UnsavedChangesScope.Provider>
             ) : null}
         </section>
     );
@@ -193,6 +211,12 @@ function TagRuleForm({
         (rule?.exclude ?? []).map(tg => tg.id)
     );
     const [saving, setSaving] = useState(false);
+    useDirtyState({
+        userId: userId || undefined,
+        groupId: groupId || undefined,
+        include,
+        exclude,
+    });
 
     const save = async () => {
         setSaving(true);
@@ -217,21 +241,21 @@ function TagRuleForm({
     return (
         <div className="space-y-3 rounded-md border border-dashed p-3">
             <div className="grid gap-3 sm:grid-cols-2">
-                <FormRow label={t('acl.user', 'User')}>
-                    <UserSelect
-                        value={userId}
-                        onChange={v => {
-                            setUserId(v);
-                            if (v) setGroupId(undefined);
-                        }}
-                    />
-                </FormRow>
                 <FormRow label={t('acl.group', 'Group')}>
                     <GroupSelect
                         value={groupId}
                         onChange={v => {
                             setGroupId(v);
                             if (v) setUserId(undefined);
+                        }}
+                    />
+                </FormRow>
+                <FormRow label={t('acl.user', 'User')}>
+                    <UserSelect
+                        value={userId}
+                        onChange={v => {
+                            setUserId(v);
+                            if (v) setGroupId(undefined);
                         }}
                     />
                 </FormRow>

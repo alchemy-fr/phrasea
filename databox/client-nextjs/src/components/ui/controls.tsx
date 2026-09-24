@@ -151,7 +151,7 @@ export function LabeledControl({
     return (
         <label
             className={cn(
-                'flex cursor-pointer gap-2.5 text-sm select-none',
+                'flex cursor-pointer gap-2.5 text-sm',
                 // A single-line label is centered on the control; a
                 // description makes the text taller, so it aligns on top.
                 description ? 'items-start' : 'items-center',

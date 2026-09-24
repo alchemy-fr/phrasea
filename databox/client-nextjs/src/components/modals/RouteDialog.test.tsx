@@ -3,6 +3,10 @@ import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {act, render, screen} from '@testing-library/react';
 import {RouteDialog, RouteHistoryProvider, useCloseRoute} from './RouteDialog';
 import {modalExitDuration} from './ModalProvider';
+import {
+    useUnsavedChangesPrompt,
+    useUnsavedChangesStore,
+} from '@/lib/navigation/unsavedChanges';
 
 const nav = vi.hoisted(() => ({
     pathname: '/assets',
@@ -16,17 +20,28 @@ vi.mock('next/navigation', () => ({
     useRouter: () => ({push: nav.push}),
 }));
 
-function Closer({onReady}: {onReady: (close: () => void) => void}) {
+function Closer({
+    onReady,
+    dirty = false,
+}: {
+    onReady: (close: () => void) => void;
+    dirty?: boolean;
+}) {
     onReady(useCloseRoute());
+    useUnsavedChangesPrompt(dirty);
 
     return null;
 }
 
 /** Renders the screen at `nav`, with the dialog mounted or not. */
-function harness(dialog: boolean, onReady: (close: () => void) => void) {
+function harness(
+    dialog: boolean,
+    onReady: (close: () => void) => void,
+    dirty?: boolean
+) {
     return (
         <RouteHistoryProvider>
-            {dialog ? <Closer onReady={onReady} /> : null}
+            {dialog ? <Closer onReady={onReady} dirty={dirty} /> : null}
         </RouteHistoryProvider>
     );
 }
@@ -74,6 +89,24 @@ describe('useCloseRoute', () => {
         navigate(rerender, '/assets/1/manage/tags', true, onReady);
         act(() => close());
 
+        expect(nav.push).toHaveBeenCalledWith('/assets', {scroll: false});
+    });
+
+    it('asks before dropping unsaved changes', async () => {
+        let close!: () => void;
+        nav.pathname = '/assets/1/manage/info';
+        render(harness(true, c => (close = c), true));
+
+        act(() => close());
+        const first = useUnsavedChangesStore.getState().pending;
+        expect(first).not.toBeNull();
+        await act(async () => first!.resolve(false));
+        expect(nav.push).not.toHaveBeenCalled();
+
+        act(() => close());
+        await act(async () =>
+            useUnsavedChangesStore.getState().pending!.resolve(true)
+        );
         expect(nav.push).toHaveBeenCalledWith('/assets', {scroll: false});
     });
 

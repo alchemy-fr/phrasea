@@ -11,10 +11,12 @@ import type {WorkspaceTabProps} from '../WorkspaceManageRoute';
 import {DefinitionManager} from '../DefinitionManager';
 import {deleteTag, getTags, postTag, putTag} from '@/lib/api/metadata';
 import {Button} from '@/components/ui/button';
-import {FormRow, Input} from '@/components/ui/input';
+import {FormRow} from '@/components/ui/input';
 import {TranslatableField} from '@/components/form/TranslatableField';
 import {TagChip} from '@/components/chips';
 import {iri} from '@/lib/utils/iri';
+import {ColorInput} from '@/components/ui/color-input';
+import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 export function TagManagerTab({workspace}: WorkspaceTabProps) {
     const {t} = useTranslation();
@@ -66,6 +68,7 @@ function TagForm({
     );
     const [color, setColor] = useState(tag?.color ?? '');
     const [saving, setSaving] = useState(false);
+    const {markSaved} = useDirtyState({name, translations, color});
 
     const save = async () => {
         setSaving(true);
@@ -82,6 +85,7 @@ function TagForm({
                       workspace: iri(EntityName.Workspace, workspaceId),
                   });
             toast.success(t('tag.saved', 'Tag saved'));
+            markSaved();
             onSaved(saved);
         } catch (e: any) {
             toast.error(e?.message);
@@ -101,31 +105,7 @@ function TagForm({
                 locales={locales}
             />
             <FormRow label={t('tag.color', 'Color')}>
-                <div className="flex items-center gap-2">
-                    <input
-                        type="color"
-                        value={
-                            /^#[0-9a-f]{6}$/i.test(color) ? color : '#888888'
-                        }
-                        onChange={e => setColor(e.target.value)}
-                        className="size-9 cursor-pointer rounded border bg-transparent"
-                    />
-                    <Input
-                        value={color}
-                        onChange={e => setColor(e.target.value)}
-                        placeholder="#rrggbb"
-                        className="w-32 font-mono"
-                    />
-                    {color ? (
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setColor('')}
-                        >
-                            {t('common.clear', 'Clear')}
-                        </Button>
-                    ) : null}
-                </div>
+                <ColorInput value={color} onChange={setColor} />
             </FormRow>
             <div className="flex justify-end">
                 <Button onClick={save} loading={saving} disabled={!name.trim()}>

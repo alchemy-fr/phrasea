@@ -249,11 +249,13 @@ async function request<T>(
         return undefined as T;
     }
     const contentType = response.headers.get('content-type') ?? '';
+    const text = await response.text();
     if (contentType.includes('json')) {
-        return (await response.json()) as T;
+        // Some actions (e.g. `/sort`) answer 200 with an empty body
+        return (text ? JSON.parse(text) : undefined) as T;
     }
 
-    return (await response.text()) as unknown as T;
+    return text as unknown as T;
 }
 
 export const api = {

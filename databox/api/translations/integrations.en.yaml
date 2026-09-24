@@ -1,0 +1,35 @@
+# Integration descriptions, keyed by the integration name (IntegrationInterface::getDescription())
+'aws.rekognition':
+    description: 'Detects labels, texts and faces in images with Amazon Rekognition.'
+'aws.transcribe':
+    description: 'Transcribes the speech of audio and video files into subtitles with Amazon Transcribe.'
+'aws.translate':
+    description: 'Translates attribute values into other locales with Amazon Translate.'
+'blurhash':
+    description: 'Computes a compact blurred placeholder displayed while the images load.'
+'core.file_analyzer':
+    description: 'Checks incoming files with analyzers and quarantines, trashes or deletes the rejected ones.'
+'core.moderation':
+    description: 'Holds incoming assets for a human review and notifies the moderators by email.'
+'core.read_metadata':
+    description: 'Extracts the embedded file metadata (EXIF, IPTC, XMP…) and initializes the attributes from it.'
+'core.rendition':
+    description: 'Generates the renditions (thumbnails, previews…) defined in the workspace.'
+'core.watermark':
+    description: 'Stamps the value of an attribute as a watermark on the renditions.'
+'core.webhook':
+    description: 'Calls an external URL from the asset workflows to plug in your own processes.'
+'happyscribe':
+    description: 'Transcribes audio and video files with Happyscribe.'
+'phrasea.expose':
+    description: 'Publishes baskets as public galleries on Phrasea Expose.'
+'phrasea.uploader':
+    description: 'Receives the files sent from a Phrasea Uploader target.'
+'phraseanet.renditions':
+    description: 'Delegates the rendition generation to a Phraseanet instance.'
+'remove.bg':
+    description: 'Removes the background of images with the remove.bg service.'
+'test.asset_operation':
+    description: 'Development integration writing a test value on the assets.'
+'tui.photo-editor':
+    description: 'Edits images in the browser: crop, rotate, filters, drawing and text.'

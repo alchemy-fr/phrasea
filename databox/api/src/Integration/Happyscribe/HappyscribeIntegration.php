@@ -6,6 +6,7 @@ namespace App\Integration\Happyscribe;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
@@ -65,6 +66,14 @@ class HappyscribeIntegration extends AbstractIntegration implements WorkflowInte
     public static function getDisplayName(): string
     {
         return 'Happyscribe';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Ai,
+            IntegrationCategory::Processing,
+        ];
     }
 
     public static function getName(): string

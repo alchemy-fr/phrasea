@@ -11,6 +11,7 @@ import {
 import {InlineLoader} from '@/components/ui/loader';
 import {Badge} from '@/components/ui/misc';
 import {IntegrationPanel} from './IntegrationPanel';
+import {integrationLabel} from '@/features/integrations/integrationLabel';
 
 /**
  * Integrations available for the displayed file (workspace integrations of
@@ -51,10 +52,13 @@ export function FileIntegrations({asset, file}: {asset: Asset; file: ApiFile}) {
                 <div key={integration.id} className="rounded-md border p-3">
                     <div className="mb-2 flex items-center gap-2 text-sm font-medium">
                         <PlugIcon className="size-4 text-muted-foreground" />
-                        {integration.title ?? integration.name}
-                        <Badge variant="muted" className="ml-auto">
-                            {integration.integration}
-                        </Badge>
+                        {integrationLabel(integration)}
+                        {integration.name ? (
+                            <Badge variant="muted" className="ml-auto">
+                                {integration.integrationName ??
+                                    integration.integration}
+                            </Badge>
+                        ) : null}
                     </div>
                     <IntegrationPanel
                         integration={integration}

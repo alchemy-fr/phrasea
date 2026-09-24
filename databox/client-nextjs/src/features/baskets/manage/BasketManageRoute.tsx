@@ -34,6 +34,7 @@ import {useModals} from '@/components/modals/ModalProvider';
 import {ConfirmDialog} from '@/components/ui/confirm';
 import {useBasketStore} from '../basketStore';
 import {BasketIntegrations} from './BasketIntegrations';
+import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 type TabProps = {basket: Basket; refresh: () => void; onClose: () => void};
 
@@ -165,12 +166,14 @@ function EditTab({basket, refresh}: TabProps) {
     const [name, setName] = useState(basket.name);
     const [description, setDescription] = useState(basket.description ?? '');
     const [saving, setSaving] = useState(false);
+    const {markSaved} = useDirtyState({name, description});
 
     const save = async () => {
         setSaving(true);
         try {
             const saved = await putBasket(basket.id, {name, description});
             upsert(saved);
+            markSaved();
             refresh();
             toast.success(t('basket.updated', 'Basket updated'));
         } catch (e: any) {

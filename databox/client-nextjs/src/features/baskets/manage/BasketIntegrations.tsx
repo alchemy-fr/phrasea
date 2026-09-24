@@ -28,6 +28,7 @@ import {Checkbox, LabeledControl} from '@/components/ui/controls';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {getAuthClient} from '@/lib/auth/client';
+import {integrationLabel} from '@/features/integrations/integrationLabel';
 
 /**
  * Basket integrations (context `basket`), notably Phrasea Expose: OAuth
@@ -61,10 +62,12 @@ export function BasketIntegrations({basket}: {basket: Basket}) {
                 <div key={i.id} className="rounded-md border p-3">
                     <div className="mb-2 flex items-center gap-2 text-sm font-medium">
                         <PlugIcon className="size-4 text-muted-foreground" />
-                        {i.title ?? i.name}
-                        <Badge variant="muted" className="ml-auto">
-                            {i.integration}
-                        </Badge>
+                        {integrationLabel(i)}
+                        {i.name ? (
+                            <Badge variant="muted" className="ml-auto">
+                                {i.integrationName ?? i.integration}
+                            </Badge>
+                        ) : null}
                     </div>
                     {i.integration.includes('expose') ? (
                         <ExposeIntegration integration={i} basket={basket} />

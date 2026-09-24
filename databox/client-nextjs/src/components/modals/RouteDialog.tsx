@@ -17,6 +17,12 @@ import {Dialog, DialogContent, DialogSize} from '@/components/ui/dialog';
 import {modalExitDuration} from './ModalProvider';
 import {RouteOrigins} from './routeOrigins';
 import {routes} from '@/lib/routes';
+import {
+    askDiscardChanges,
+    hasUnsavedChanges,
+    UnsavedChangesScope,
+    useUnsavedChangesChildScope,
+} from '@/lib/navigation/unsavedChanges';
 
 type RouteHistory = {
     /** URL of the screen the app is on, updated after every navigation */
@@ -98,11 +104,17 @@ function useScreenOrigin(
 export function useCloseRoute(screen?: string): () => void {
     const router = useRouter();
     const openedFrom = useOpenedFrom(screen);
+    // Inside a dialog: only its own forms are lost
+    const scope = useContext(UnsavedChangesScope);
 
-    return useCallback(() => {
-        // The screen underneath is still mounted: keep it where it was
-        router.push(openedFrom, {scroll: false});
-    }, [router, openedFrom]);
+    return useCallback(
+        () =>
+            whenLeaving(scope, () => {
+                // The screen underneath is still mounted: keep it where it was
+                router.push(openedFrom, {scroll: false});
+            }),
+        [router, openedFrom, scope]
+    );
 }
 
 /**
@@ -159,19 +171,24 @@ export function RouteDialog({
     const returnUrl = useScreenOrigin(screen, pathname);
     const [open, setOpen] = useState(true);
     const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+    const scope = useUnsavedChangesChildScope();
 
     // Leaving through the browser back button unmounts us mid-animation:
     // the pending navigation would then fire a second one.
     useEffect(() => () => clearTimeout(timer.current), []);
 
-    const close = useCallback(() => {
-        setOpen(false);
-        onClose?.();
-        timer.current = setTimeout(
-            () => router.push(returnUrl, {scroll: false}),
-            modalExitDuration
-        );
-    }, [router, returnUrl, onClose]);
+    const close = useCallback(
+        () =>
+            whenLeaving(scope, () => {
+                setOpen(false);
+                onClose?.();
+                timer.current = setTimeout(
+                    () => router.push(returnUrl, {scroll: false}),
+                    modalExitDuration
+                );
+            }),
+        [router, returnUrl, onClose, scope]
+    );
 
     return (
         <Dialog open={open} onOpenChange={o => !o && close()}>
@@ -187,9 +204,24 @@ export function RouteDialog({
                 }}
             >
                 <ReturnUrl.Provider value={returnUrl}>
-                    {children}
+                    <UnsavedChangesScope.Provider value={scope}>
+                        {children}
+                    </UnsavedChangesScope.Provider>
                 </ReturnUrl.Provider>
             </DialogContent>
         </Dialog>
     );
+}
+
+/**
+ * Runs `leave` once the forms of `scope` may be dropped: right away when none
+ * is dirty (synchronously), after the user confirmed otherwise.
+ */
+function whenLeaving(scope: string, leave: () => void): void {
+    if (!hasUnsavedChanges(scope)) {
+        leave();
+
+        return;
+    }
+    void askDiscardChanges().then(discard => discard && leave());
 }
