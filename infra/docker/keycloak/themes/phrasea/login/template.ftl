@@ -108,16 +108,39 @@
             <#-- The background always covers the full page regardless of
                  formPosition, which only controls the card's own horizontal
                  alignment (see below) — the two are independent concerns. -->
+            <#-- Le fond va sur .login-pf (l'element <html>), pas sur body :
+                 body est contraint a la hauteur du viewport, et un formulaire
+                 plus haut — l'inscription — deborde de sa boite, laissant voir
+                 le fond par defaut sous l'image en defilant. <html> s'etire, lui,
+                 sur toute la hauteur du document. -->
+            <#-- Neutraliser le fond que le theme de base pose sur body
+                 (##KC_LOGIN_CSS_BACKGROUND##) : sans cela il repeindrait par
+                 dessus le fond Parade porte par <html>, dans la zone du
+                 viewport. Emis UNIQUEMENT quand un fond Parade est actif, donc
+                 les pages Phrasea sans branding gardent leur fond intact. -->
+            <#-- background-attachment: fixed epingle le fond au viewport.
+                 html et body sont bloques a la hauteur de l'ecran (height:100%),
+                 alors que .login-pf-page grandit avec le contenu — l'inscription
+                 depasse et decouvrait du blanc en dessous. Fixe, le fond couvre
+                 toujours l'ecran, quel que soit l'element qui defile. -->
             <#if paradeBackgroundUrl?has_content>
-            .login-pf body {
+            .login-pf {
                 background-image: ${paradeOverlayGradient}url('${paradeBackgroundUrl}');
                 background-repeat: no-repeat;
                 background-size: cover;
                 background-position: center;
+                background-attachment: fixed;
+            }
+            .login-pf body {
+                background: transparent;
             }
             <#elseif paradeBackgroundColor?has_content>
-            .login-pf body {
+            .login-pf {
                 background: ${paradeBackgroundColor};
+                background-attachment: fixed;
+            }
+            .login-pf body {
+                background: transparent;
             }
             </#if>
             <#if paradeFormPosition == 'left'>
