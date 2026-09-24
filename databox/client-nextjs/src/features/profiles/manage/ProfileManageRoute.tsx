@@ -33,6 +33,7 @@ import {PermissionObject} from '@/features/permissions/permissionTypes';
 import {useProfileStore} from '../profileStore';
 import {OrganizeProfileTab} from './OrganizeProfileTab';
 import {GridProfileEditorTab} from './GridProfileEditorTab';
+import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 export type ProfileTabProps = {profile: DisplayProfile; refresh: () => void};
 
@@ -161,6 +162,12 @@ function EditTab({profile, refresh}: ProfileTabProps) {
     const [isPublic, setIsPublic] = useState(!!profile.public);
     const [exclusive, setExclusive] = useState(!!profile.exclusive);
     const [saving, setSaving] = useState(false);
+    const {markSaved} = useDirtyState({
+        name,
+        description,
+        isPublic,
+        exclusive,
+    });
 
     const save = async () => {
         setSaving(true);
@@ -172,6 +179,7 @@ function EditTab({profile, refresh}: ProfileTabProps) {
                 exclusive,
             });
             upsert(saved);
+            markSaved();
             refresh();
             toast.success(t('profile.saved', 'Profile saved'));
         } catch (e: any) {

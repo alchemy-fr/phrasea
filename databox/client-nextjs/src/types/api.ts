@@ -820,8 +820,7 @@ export type IntegrationToken = Entity & {
 
 export interface WorkspaceIntegration
     extends WithCapabilities<{use: boolean; interact: boolean}>, Entity {
-    title?: string;
-    name: string;
+    name?: string | null;
     public: boolean;
     enabled: boolean;
     integration: string;
@@ -831,7 +830,8 @@ export interface WorkspaceIntegration
     configYaml: string;
     configInfo?: {label: string; description: string; value?: string}[];
     tokens?: IntegrationToken[];
-    workspace: Workspace | string;
+    /** Null for an instance-wide integration */
+    workspace: Workspace | string | null;
     owner?: User;
     if?: string;
     needs?: string[];
@@ -839,10 +839,26 @@ export interface WorkspaceIntegration
     supported?: boolean;
 }
 
+export type IntegrationCategory =
+    | 'processing'
+    | 'ai'
+    | 'editor'
+    | 'publication'
+    | 'ingest'
+    | 'automation'
+    | 'other';
+
 export type IntegrationType = {
     id: string;
     displayName: string;
     name: string;
+    description: string;
+    /** The first one is the main category */
+    categories: IntegrationCategory[];
+    /** False when it can also be set up on the whole instance */
+    requiresWorkspace: boolean;
+    /** "workflow" and/or the client contexts ("asset-view", "basket") */
+    features: string[];
     reference: string;
     references: {
         name: string;

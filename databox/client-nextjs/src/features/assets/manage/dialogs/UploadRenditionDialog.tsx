@@ -67,6 +67,7 @@ export function UploadRenditionDialog({
             })}
             submitLabel={t('rendition.upload', 'Upload')}
             canSubmit={!!value.file || !!value.url}
+            dirty={!!value.file || !!value.url}
             bodyClassName="space-y-3"
             onSubmit={submit}
         >

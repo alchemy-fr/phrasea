@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {ComponentProps, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {HelpCircleIcon, Trash2Icon, UserIcon, UsersIcon} from 'lucide-react';
@@ -51,7 +51,7 @@ export function AclEditor({
         queryKey,
         queryFn: () => getAces(objectType, objectId),
     });
-    const [addType, setAddType] = useState<UserType>(UserType.User);
+    const [addType, setAddType] = useState<UserType>(UserType.Group);
     const [saving, setSaving] = useState<string | null>(null);
 
     const refresh = () => queryClient.invalidateQueries({queryKey});
@@ -115,17 +115,6 @@ export function AclEditor({
                     <div className="flex rounded-md border p-0.5">
                         <Button
                             variant={
-                                addType === UserType.User
-                                    ? 'secondary'
-                                    : 'ghost'
-                            }
-                            size="sm"
-                            onClick={() => setAddType(UserType.User)}
-                        >
-                            <UserIcon /> {t('acl.user', 'User')}
-                        </Button>
-                        <Button
-                            variant={
                                 addType === UserType.Group
                                     ? 'secondary'
                                     : 'ghost'
@@ -135,15 +124,26 @@ export function AclEditor({
                         >
                             <UsersIcon /> {t('acl.group', 'Group')}
                         </Button>
+                        <Button
+                            variant={
+                                addType === UserType.User
+                                    ? 'secondary'
+                                    : 'ghost'
+                            }
+                            size="sm"
+                            onClick={() => setAddType(UserType.User)}
+                        >
+                            <UserIcon /> {t('acl.user', 'User')}
+                        </Button>
                     </div>
                     <div className="min-w-64 flex-1">
-                        {addType === UserType.User ? (
-                            <UserSelect
+                        {addType === UserType.Group ? (
+                            <GroupSelect
                                 value={undefined}
                                 onChange={v => v && add(v)}
                             />
                         ) : (
-                            <GroupSelect
+                            <UserSelect
                                 value={undefined}
                                 onChange={v => v && add(v)}
                             />
@@ -192,22 +192,26 @@ export function AclEditor({
                     <table className="w-full text-sm">
                         <thead className="bg-muted/50 text-xs text-muted-foreground">
                             <tr>
-                                <th className="px-3 py-2 text-left font-medium">
+                                <th className="px-3 py-2 text-left align-bottom font-medium">
                                     {t('acl.subject', 'User / group')}
                                 </th>
-                                <th className="px-2 py-2 text-center font-medium">
-                                    {t('acl.all', 'All')}
+                                <th className="px-2 py-2 align-bottom font-medium">
+                                    <VerticalLabel>
+                                        {t('acl.all', 'All')}
+                                    </VerticalLabel>
                                 </th>
                                 {definitions.map(d => (
                                     <th
                                         key={`${d.type}-${d.key}`}
-                                        className="px-2 py-2 text-center font-medium whitespace-nowrap"
+                                        className="px-2 py-2 align-bottom font-medium"
                                     >
                                         <Tooltip
                                             content={d.description}
                                             disabled={!d.description}
                                         >
-                                            <span>{d.label}</span>
+                                            <VerticalLabel>
+                                                {d.label}
+                                            </VerticalLabel>
                                         </Tooltip>
                                     </th>
                                 ))}
@@ -272,6 +276,7 @@ export function AclEditor({
                                         </td>
                                         <td className="px-2 py-1.5 text-center">
                                             <Checkbox
+                                                className="mx-auto"
                                                 checked={
                                                     allChecked
                                                         ? true
@@ -308,6 +313,7 @@ export function AclEditor({
                                                     className="px-2 py-1.5 text-center"
                                                 >
                                                     <Checkbox
+                                                        className="mx-auto"
                                                         checked={checked}
                                                         disabled={disabled}
                                                         onCheckedChange={v => {
@@ -375,5 +381,18 @@ export function AclEditor({
                 </div>
             )}
         </div>
+    );
+}
+
+/** Column header read bottom-to-top, so that many permissions fit */
+function VerticalLabel({className, ...props}: ComponentProps<'span'>) {
+    return (
+        <span
+            className={cn(
+                'mx-auto block rotate-180 text-left whitespace-nowrap [writing-mode:vertical-rl]',
+                className
+            )}
+            {...props}
+        />
     );
 }

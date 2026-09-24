@@ -7,6 +7,7 @@ namespace App\Integration\Core\Rendition;
 use Alchemy\Workflow\Model\Workflow;
 use App\Entity\Core\Workspace;
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
@@ -152,5 +153,12 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
     public static function getDisplayName(): string
     {
         return 'Rendition';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Processing,
+        ];
     }
 }

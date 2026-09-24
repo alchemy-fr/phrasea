@@ -2,7 +2,8 @@
 
 import {Fragment} from 'react';
 import Link from 'next/link';
-import {usePathname, useRouter} from 'next/navigation';
+import {usePathname} from 'next/navigation';
+import {useGuardedRouter} from '@/components/modals/UnsavedChangesGuard';
 import {useTranslation} from 'react-i18next';
 import {
     BellIcon,
@@ -16,6 +17,7 @@ import {
     UserIcon,
     LanguagesIcon,
     ListChecksIcon,
+    PlugIcon,
 } from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {
@@ -51,7 +53,7 @@ export function TopBar() {
     const {t, i18n} = useTranslation();
     const {user, isAuthenticated, login, logout, hasRole} = useAuth();
     const config = useConfig();
-    const router = useRouter();
+    const router = useGuardedRouter();
     const pathname = usePathname();
     const toggleLeftPanel = useLayoutStore(s => s.toggleLeftPanel);
     const pageTrail = useLayoutStore(s => s.pageTrail);
@@ -224,6 +226,17 @@ export function TopBar() {
                                 {t(
                                     'settings.operation_tasks',
                                     'Operation tasks'
+                                )}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onSelect={() =>
+                                    router.push(routes.instanceIntegrations())
+                                }
+                            >
+                                <PlugIcon />{' '}
+                                {t(
+                                    'settings.instance_integrations',
+                                    'Instance integrations'
                                 )}
                             </DropdownMenuItem>
                         </>

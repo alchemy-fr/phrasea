@@ -6,6 +6,7 @@ namespace App\Integration\Core\Webhook;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
@@ -53,5 +54,12 @@ class WebhookIntegration extends AbstractIntegration implements WorkflowIntegrat
     public static function getDisplayName(): string
     {
         return 'Webhook';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Automation,
+        ];
     }
 }

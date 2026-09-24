@@ -1,6 +1,6 @@
 'use client';
 
-import {useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
@@ -19,12 +19,28 @@ import {Progress} from '@/components/ui/misc';
 import {multipartUpload} from '@/lib/api/upload';
 import {runIntegrationAction} from '@/lib/api/integrations';
 import {dataUrlToFile} from '@/lib/utils/mime';
+import {
+    askDiscardChanges,
+    useUnsavedChangesPrompt,
+} from '@/lib/navigation/unsavedChanges';
 import {PhotoEditor, type PhotoEditorInstance} from './PhotoEditor';
 
 /**
  * Full screen photo editor on a file, saving its result as a new file of the
  * workspace through the integration `save` action.
  */
+/**
+ * Whether the image was modified: the editor empties its undo stack once the
+ * image is loaded.
+ */
+function isEdited(editor: PhotoEditorInstance | null): boolean {
+    const stack = editor as
+        | (PhotoEditorInstance & {isEmptyUndoStack?: () => boolean})
+        | null;
+
+    return stack?.isEmptyUndoStack?.() === false;
+}
+
 export function PhotoEditorDialog({
     open,
     onOpenChange,
@@ -49,7 +65,33 @@ export function PhotoEditorDialog({
     const [name, setName] = useState(suggestedName ?? '');
     const [saving, setSaving] = useState(false);
     const [progress, setProgress] = useState<number>();
+    const [edited, setEdited] = useState(false);
     const canEdit = !!asset.capabilities.edit;
+
+    // The editor is imperative and loaded lazily: poll whether it was used
+    useEffect(() => {
+        if (!open) {
+            setEdited(false);
+
+            return;
+        }
+        const timer = setInterval(
+            () => setEdited(isEdited(editorRef.current)),
+            1000
+        );
+
+        return () => clearInterval(timer);
+    }, [open]);
+    useUnsavedChangesPrompt(open && edited && !saving);
+
+    const requestClose = async () => {
+        if (saving) {
+            return;
+        }
+        if (!isEdited(editorRef.current) || (await askDiscardChanges())) {
+            onOpenChange(false);
+        }
+    };
 
     const save = async () => {
         const dataUrl = editorRef.current?.toDataURL();
@@ -84,7 +126,7 @@ export function PhotoEditorDialog({
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={o => !o && void requestClose()}>
             <DialogContent
                 size="full"
                 className="gap-0 p-0"

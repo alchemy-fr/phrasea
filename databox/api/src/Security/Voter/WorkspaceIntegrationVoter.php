@@ -34,8 +34,14 @@ class WorkspaceIntegrationVoter extends AbstractVoter
             return true;
         }
 
-        $isWorkspaceEditor = fn (): bool => $this->security->isGranted(self::EDIT, $subject->getWorkspace());
-        $isWorkspaceReader = fn (): bool => $this->security->isGranted(self::READ, $subject->getWorkspace());
+        $workspace = $subject->getWorkspace();
+        // Instance-wide integrations are managed by the admins only
+        $isWorkspaceEditor = fn (): bool => null !== $workspace
+            ? $this->security->isGranted(self::EDIT, $workspace)
+            : $this->isAdmin();
+        $isWorkspaceReader = fn (): bool => null !== $workspace
+            ? $this->security->isGranted(self::READ, $workspace)
+            : $this->isAdmin();
 
         return match ($attribute) {
             self::CREATE => $isWorkspaceEditor(),

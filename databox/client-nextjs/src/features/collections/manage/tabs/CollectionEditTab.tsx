@@ -11,6 +11,7 @@ import {PrivacyField} from '@/components/form/PrivacyField';
 import {TranslatableField} from '@/components/form/TranslatableField';
 import {putCollection} from '@/lib/api/collections';
 import {useCollectionStore} from '../../collectionStore';
+import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 export function CollectionEditTab({collection, refresh}: CollectionTabProps) {
     const {t} = useTranslation();
@@ -23,6 +24,7 @@ export function CollectionEditTab({collection, refresh}: CollectionTabProps) {
         collection.privacy
     );
     const [saving, setSaving] = useState(false);
+    const {markSaved} = useDirtyState({name, translations, privacy});
 
     const save = async () => {
         setSaving(true);
@@ -33,6 +35,7 @@ export function CollectionEditTab({collection, refresh}: CollectionTabProps) {
                 translations: {name: translations},
             });
             upsert(updated);
+            markSaved();
             refresh();
             toast.success(t('collection.edit.saved', 'Collection saved'));
         } catch (e: any) {

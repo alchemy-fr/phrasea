@@ -11,6 +11,7 @@ import {SavedSearch, SavedSearchPrivacy} from '@/types/api';
 import {postSavedSearch, putSavedSearch} from '@/lib/api/misc';
 import type {SearchContextValue} from '@/features/search/SearchProvider';
 import {SavedSearchPrivacyField} from './SavedSearchPrivacyField';
+import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 type Props = ModalProps<SavedSearch> & {
     /** Caller's search context (modals render above SearchProvider) */
@@ -37,6 +38,8 @@ export function SaveSearchDialog({
     const [privacy, setPrivacy] = useState<SavedSearchPrivacy>(
         savedSearch?.privacy ?? SavedSearchPrivacy.Secret
     );
+
+    const {dirty} = useDirtyState({name, privacy});
 
     const submit = async () => {
         const data = {
@@ -76,6 +79,7 @@ export function SaveSearchDialog({
             }
             submitLabel={t('common.save', 'Save')}
             canSubmit={!!name.trim()}
+            dirty={dirty}
             onSubmit={submit}
         >
             <FormRow label={t('common.name', 'Name')} htmlFor="ss-name">

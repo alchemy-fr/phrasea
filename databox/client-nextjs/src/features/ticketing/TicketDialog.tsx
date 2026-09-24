@@ -30,6 +30,10 @@ import {
     AccordionTrigger,
 } from '@/components/ui/misc';
 import {useAuth} from '@/lib/auth/AuthProvider';
+import {
+    askDiscardChanges,
+    useUnsavedChangesPrompt,
+} from '@/lib/navigation/unsavedChanges';
 import {createTicket} from './api';
 import {
     captureScreenshot,
@@ -68,6 +72,20 @@ export function TicketDialog({open, onOpenChange, page}: Props) {
     // on the server.
     const [canCapture, setCanCapture] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+
+    // The fields survive the dialog being closed: only guard them while open
+    const dirty =
+        open && (!!summary.trim() || !!description.trim() || !!screenshot);
+    useUnsavedChangesPrompt(dirty);
+
+    const requestClose = async () => {
+        if (submitting) {
+            return;
+        }
+        if (!dirty || (await askDiscardChanges())) {
+            onOpenChange(false);
+        }
+    };
 
     useEffect(() => setCanCapture(isScreenCaptureSupported()), []);
 
@@ -165,7 +183,7 @@ export function TicketDialog({open, onOpenChange, page}: Props) {
     const KindIcon = kindIcons[kind];
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={o => !o && void requestClose()}>
             <DialogContent size="md">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
@@ -337,7 +355,7 @@ export function TicketDialog({open, onOpenChange, page}: Props) {
                 <DialogFooter>
                     <Button
                         variant="outline"
-                        onClick={() => onOpenChange(false)}
+                        onClick={() => void requestClose()}
                     >
                         {t('common.cancel', 'Cancel')}
                     </Button>

@@ -32,6 +32,7 @@ export const routes = {
     operationTaskRun: (task: string) => `/admin/tasks/${task}/run`,
     operationTaskDetails: (id: string) => `/admin/tasks/${id}/details`,
     themeSettings: () => '/admin/theme',
+    instanceIntegrations: () => '/admin/integrations',
     share: (id: string, token: string) => `/s/${id}/${token}`,
 };
 

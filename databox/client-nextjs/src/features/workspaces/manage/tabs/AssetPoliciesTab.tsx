@@ -22,6 +22,7 @@ import {SimpleSelect} from '@/components/ui/select';
 import {Badge} from '@/components/ui/misc';
 import {GroupSelect, UserSelect} from '@/components/form/selects';
 import {iri, toIris} from '@/lib/utils/iri';
+import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 type AssetPolicyCondition = {field?: string; operator: string; value: string};
 type AssetPolicyAction = {
@@ -117,6 +118,14 @@ function PolicyForm({
         policy?.actions ?? []
     );
     const [saving, setSaving] = useState(false);
+    const {markSaved} = useDirtyState({
+        name,
+        enabled,
+        users,
+        groups,
+        conditions,
+        actions,
+    });
 
     const save = async () => {
         setSaving(true);
@@ -137,6 +146,7 @@ function PolicyForm({
                   )
                 : await api.post<AssetPolicy>(endpoint, data);
             toast.success(t('policy.saved', 'Policy saved'));
+            markSaved();
             onSaved(saved);
         } catch (e: any) {
             toast.error(e?.message);
@@ -155,13 +165,13 @@ function PolicyForm({
             </LabeledControl>
             <div className="grid gap-3 sm:grid-cols-2">
                 <FormRow
-                    label={t('asset_policy.users', 'Target users')}
+                    label={t('asset_policy.groups', 'Target groups')}
                     help={t('asset_policy.targets_help', 'Empty = everyone')}
                 >
-                    <UserSelect multiple value={users} onChange={setUsers} />
-                </FormRow>
-                <FormRow label={t('asset_policy.groups', 'Target groups')}>
                     <GroupSelect multiple value={groups} onChange={setGroups} />
+                </FormRow>
+                <FormRow label={t('asset_policy.users', 'Target users')}>
+                    <UserSelect multiple value={users} onChange={setUsers} />
                 </FormRow>
             </div>
             <FormRow

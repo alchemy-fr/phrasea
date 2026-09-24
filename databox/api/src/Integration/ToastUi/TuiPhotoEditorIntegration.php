@@ -6,6 +6,7 @@ namespace App\Integration\ToastUi;
 
 use App\Integration\AbstractIntegration;
 use App\Integration\Action\FileUserActionsTrait;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationContext;
 use App\Integration\IntegrationDataTransformerInterface;
@@ -75,6 +76,13 @@ class TuiPhotoEditorIntegration extends AbstractIntegration implements UserActio
     public static function getDisplayName(): string
     {
         return 'Toast UI Photo Editor';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Editor,
+        ];
     }
 
     #[\Override]

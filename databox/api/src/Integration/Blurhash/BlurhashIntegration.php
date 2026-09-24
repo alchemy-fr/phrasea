@@ -6,6 +6,7 @@ namespace App\Integration\Blurhash;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
@@ -44,5 +45,12 @@ class BlurhashIntegration extends AbstractIntegration implements WorkflowIntegra
     public static function getDisplayName(): string
     {
         return 'Blurhash';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Processing,
+        ];
     }
 }

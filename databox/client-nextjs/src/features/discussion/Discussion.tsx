@@ -33,6 +33,7 @@ import {ConfirmDialog} from '@/components/ui/confirm';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {formatDateTime} from '@/lib/utils/format';
 import {cn} from '@/lib/utils/cn';
+import {useUnsavedChangesPrompt} from '@/lib/navigation/unsavedChanges';
 import {MentionTextarea} from './MentionTextarea';
 import {FormattedMessage} from './FormattedMessage';
 
@@ -69,6 +70,14 @@ export function Discussion({
         enabled: !!threadId,
     });
     const items = messages.data?.pages.flatMap(p => p.items) ?? [];
+
+    // A message being written (or edited) must not be lost when leaving
+    useUnsavedChangesPrompt(
+        !!draft.trim() ||
+            (!!editing &&
+                items.find(m => m.id === editing.id)?.content !==
+                    editing.content)
+    );
 
     const upsertLocal = (message: ThreadMessage) => {
         queryClient.setQueryData(queryKey, (prev: typeof messages.data) => {

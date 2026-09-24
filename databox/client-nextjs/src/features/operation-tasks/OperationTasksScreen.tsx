@@ -69,7 +69,7 @@ function useTaskTypes(): TaskType[] {
                     required: true,
                 },
                 {
-                    name: 'attributeDefinitionId',
+                    name: 'definitionId',
                     label: t('common.attribute', 'Attribute'),
                     type: 'attribute',
                     required: true,
@@ -134,7 +134,7 @@ function useTaskTypes(): TaskType[] {
                     required: true,
                 },
                 {
-                    name: 'attributeDefinitionId',
+                    name: 'definitionId',
                     label: t('common.attribute', 'Attribute'),
                     type: 'attribute',
                     required: true,
@@ -156,7 +156,7 @@ function useTaskTypes(): TaskType[] {
                     required: true,
                 },
                 {
-                    name: 'attributeDefinitionId',
+                    name: 'definitionId',
                     label: t('common.attribute', 'Attribute'),
                     type: 'attribute',
                     required: true,
@@ -487,9 +487,16 @@ function RunTaskForm({task, onRun}: {task: TaskType; onRun: () => void}) {
                             onValueChange={v =>
                                 setPayload({...payload, [f.name]: v})
                             }
-                            options={(workspace?.enabledLocales ?? []).map(
-                                l => ({value: l, label: l})
-                            )}
+                            options={[
+                                {
+                                    value: '_',
+                                    label: t('tasks.no_locale', 'No locale'),
+                                },
+                                ...(workspace?.enabledLocales ?? []).map(l => ({
+                                    value: l,
+                                    label: l,
+                                })),
+                            ]}
                             placeholder={t('common.select', 'Select…')}
                         />
                     ) : (

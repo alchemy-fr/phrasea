@@ -33,6 +33,7 @@ import {
     usePreferencesStore,
 } from '@/features/preferences/store';
 import {cn} from '@/lib/utils/cn';
+import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 type Row = {name: string; label: string; hidden: boolean};
 
@@ -71,6 +72,9 @@ export function FacetSettingsDialog({
     }, [facets, prefs]);
 
     const [rows, setRows] = useState<Row[]>(initial);
+    const {dirty} = useDirtyState(
+        rows.map(r => ({name: r.name, hidden: r.hidden}))
+    );
     const sensors = useSensors(
         useSensor(PointerSensor, {activationConstraint: {distance: 4}})
     );
@@ -127,6 +131,7 @@ export function FacetSettingsDialog({
                     <RotateCcwIcon /> {t('facets.reset', 'Reset to default')}
                 </Button>
             }
+            dirty={dirty}
             onSubmit={save}
         >
             <DndContext

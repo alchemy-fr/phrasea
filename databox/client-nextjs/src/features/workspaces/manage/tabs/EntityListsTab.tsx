@@ -55,6 +55,13 @@ import {downloadUrl} from '@/lib/utils/misc';
 import {useDebouncedValue} from '@/hooks/useDebouncedValue';
 import {Flag} from '@/components/ui/flag';
 import {cn} from '@/lib/utils/cn';
+import {ColorInput} from '@/components/ui/color-input';
+import {
+    confirmLeave,
+    UnsavedChangesScope,
+    useDirtyState,
+    useUnsavedChangesChildScope,
+} from '@/lib/navigation/unsavedChanges';
 
 export function EntityListsTab({workspace}: WorkspaceTabProps) {
     const {t} = useTranslation();
@@ -121,6 +128,7 @@ function ListForm({
         withColors: list?.withColors ?? false,
     });
     const [saving, setSaving] = useState(false);
+    const {markSaved} = useDirtyState(form);
     const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
         setForm(f => ({...f, [k]: v}));
 
@@ -131,6 +139,7 @@ function ListForm({
                 ? await putEntityList(list.id, form)
                 : await postEntityList(workspaceId, form);
             toast.success(t('entity_list.saved', 'List saved'));
+            markSaved();
             onSaved(saved);
         } catch (e: any) {
             toast.error(e?.message);
@@ -215,6 +224,18 @@ function EntityManager({
     const [editing, setEditing] = useState<AttributeEntity | 'new' | null>(
         null
     );
+    // The value form: leaving the value being edited asks first when it is dirty
+    const formScope = useUnsavedChangesChildScope();
+    const leaveForm = (next: () => void) => {
+        void confirmLeave(formScope).then(leave => leave && next());
+    };
+    const edit = (next: AttributeEntity | 'new' | null) => {
+        const keyOf = (e: typeof next) =>
+            e === null || e === 'new' ? e : e.id;
+        if (keyOf(next) !== keyOf(editing)) {
+            leaveForm(() => setEditing(next));
+        }
+    };
     const entities = useQuery({
         queryKey: ['attribute-entities', 'manage', list.id, debounced],
         queryFn: () =>
@@ -237,7 +258,11 @@ function EntityManager({
     return (
         <div className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={onBack}>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => leaveForm(onBack)}
+                >
                     <ArrowLeftIcon /> {t('common.back', 'Back')}
                 </Button>
                 <h3 className="text-sm font-semibold">{list.name}</h3>
@@ -247,11 +272,7 @@ function EntityManager({
                     placeholder={t('common.search', 'Search…')}
                     className="h-8 w-56"
                 />
-                <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setEditing('new')}
-                >
+                <Button size="sm" variant="outline" onClick={() => edit('new')}>
                     <PlusIcon /> {t('entity.create', 'New value')}
                 </Button>
                 {selected.length > 0 ? (
@@ -422,7 +443,7 @@ function EntityManager({
                                         </td>
                                         <td
                                             className="cursor-pointer px-2 py-1"
-                                            onClick={() => setEditing(e)}
+                                            onClick={() => edit(e)}
                                         >
                                             <EntityChip entity={e} size="sm" />
                                             {list.withSynonyms && e.synonyms ? (
@@ -521,17 +542,20 @@ function EntityManager({
                 </div>
                 <div className="rounded-md border p-3">
                     {editing ? (
-                        <EntityForm
-                            key={editing === 'new' ? 'new' : editing.id}
-                            entity={editing === 'new' ? undefined : editing}
-                            list={list}
-                            locales={workspaceLocales}
-                            onSaved={() => {
-                                setEditing(null);
-                                void refresh();
-                            }}
-                            onCancel={() => setEditing(null)}
-                        />
+                        <UnsavedChangesScope.Provider value={formScope}>
+                            <EntityForm
+                                key={editing === 'new' ? 'new' : editing.id}
+                                entity={editing === 'new' ? undefined : editing}
+                                list={list}
+                                locales={workspaceLocales}
+                                onSaved={saved => {
+                                    // Stay on the saved value
+                                    setEditing(saved);
+                                    void refresh();
+                                }}
+                                onCancel={() => edit(null)}
+                            />
+                        </UnsavedChangesScope.Provider>
                     ) : (
                         <p className="text-sm text-muted-foreground">
                             {t(
@@ -556,7 +580,7 @@ function EntityForm({
     entity?: AttributeEntity;
     list: EntityList;
     locales: string[];
-    onSaved: () => void;
+    onSaved: (entity: AttributeEntity) => void;
     onCancel: () => void;
 }) {
     const {t} = useTranslation();
@@ -578,6 +602,14 @@ function EntityForm({
         )
     );
     const [saving, setSaving] = useState(false);
+    const {markSaved} = useDirtyState({
+        value,
+        status,
+        emoji,
+        color,
+        translations,
+        synonyms,
+    });
 
     const save = async () => {
         setSaving(true);
@@ -600,13 +632,12 @@ function EntityForm({
                       )
                     : undefined,
             };
-            if (entity) {
-                await putAttributeEntity(entity.id, data);
-            } else {
-                await postAttributeEntity(list.id, data);
-            }
+            const saved = entity
+                ? await putAttributeEntity(entity.id, data)
+                : await postAttributeEntity(list.id, data);
             toast.success(t('entity.saved', 'Value saved'));
-            onSaved();
+            markSaved();
+            onSaved(saved);
         } catch (e: any) {
             toast.error(e?.message);
         } finally {
@@ -655,24 +686,7 @@ function EntityForm({
             ) : null}
             {list.withColors ? (
                 <FormRow label={t('tag.color', 'Color')}>
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="color"
-                            value={
-                                /^#[0-9a-f]{6}$/i.test(color)
-                                    ? color
-                                    : '#888888'
-                            }
-                            onChange={e => setColor(e.target.value)}
-                            className="size-9 rounded border bg-transparent"
-                        />
-                        <Input
-                            value={color}
-                            onChange={e => setColor(e.target.value)}
-                            className="w-32 font-mono"
-                            placeholder="#rrggbb"
-                        />
-                    </div>
+                    <ColorInput value={color} onChange={setColor} />
                 </FormRow>
             ) : null}
             {list.withTranslations && locales.length > 0 ? (
