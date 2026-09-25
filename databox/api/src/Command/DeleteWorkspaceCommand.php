@@ -41,7 +41,10 @@ class DeleteWorkspaceCommand extends Command
         $workspaceId = $input->getArgument('workspace-id');
         $workspace = $this->em->find(Workspace::class, $workspaceId);
         if (!$workspace instanceof Workspace) {
-            throw new \InvalidArgumentException(sprintf('Workspace "%s" not found', $workspaceId));
+            // Idempotent: the deletion job may be replayed after a successful run.
+            $output->writeln(sprintf('<comment>Workspace "%s" not found (already deleted?), nothing to do.</comment>', $workspaceId));
+
+            return Command::SUCCESS;
         }
 
         if (!$input->getOption('force')) {

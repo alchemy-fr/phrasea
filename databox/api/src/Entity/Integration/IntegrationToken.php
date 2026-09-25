@@ -48,6 +48,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 )]
 #[ORM\Entity]
 #[ORM\Index(columns: ['integration_id', 'user_id'], name: 'user_token')]
+#[ORM\Index(columns: ['has_refresh_token', 'expires_at'], name: 'renewable_token')]
 class IntegrationToken extends AbstractUuidEntity
 {
     use CreatedAtTrait;
@@ -63,6 +64,9 @@ class IntegrationToken extends AbstractUuidEntity
 
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private ?array $token = null;
+
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => false])]
+    private bool $hasRefreshToken = false;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: false)]
     #[Groups([self::GROUP_LIST, WorkspaceIntegration::GROUP_LIST])]
@@ -86,6 +90,7 @@ class IntegrationToken extends AbstractUuidEntity
     public function setToken(?array $token): void
     {
         $this->token = $token;
+        $this->hasRefreshToken = !empty($token['refresh_token']);
     }
 
     public function getExpiresAt(): ?\DateTimeImmutable
@@ -112,5 +117,23 @@ class IntegrationToken extends AbstractUuidEntity
     public function isExpired(): bool
     {
         return $this->expiresAt < new \DateTimeImmutable();
+    }
+
+    public function hasRefreshToken(): bool
+    {
+        return $this->hasRefreshToken;
+    }
+
+    public function isAccessTokenExpired(): bool
+    {
+        return isset($this->token['expires_at']) && $this->token['expires_at'] < time();
+    }
+
+    /**
+     * Whether the refresh token itself (expiresAt) expires within $seconds.
+     */
+    public function isRefreshTokenExpiringWithin(int $seconds): bool
+    {
+        return $this->expiresAt < new \DateTimeImmutable()->modify(sprintf('+%d seconds', $seconds));
     }
 }

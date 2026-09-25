@@ -21,6 +21,7 @@ use App\Service\Asset\RenditionBuild\Exception\RenditionBuildException;
 use App\Service\Metadata\AssetMetadataFileWriter;
 use App\Service\Storage\FileManager;
 use App\Service\Storage\RenditionManager;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class RenditionBuilder
@@ -122,6 +123,13 @@ final readonly class RenditionBuilder
 
             $file->setNoAnalysisNeeded();
 
+            // Building can take minutes: the asset may have been deleted meanwhile while
+            // it is still held in the identity map. Check the database before writing
+            // a rendition that would violate the asset FK (and close the EntityManager).
+            if (!$this->assetStillExists($asset)) {
+                throw new RenditionBuildException(true, sprintf('Asset "%s" was deleted while building rendition "%s"', $asset->getId(), $renditionDefinition->getName()));
+            }
+
             $this->renditionManager->createOrReplaceRenditionFile(
                 $asset,
                 $renditionDefinition,
@@ -130,7 +138,12 @@ final readonly class RenditionBuilder
                 $outputFile?->getBuildHashes(),
                 projection: $isProjection,
             );
-            $this->em->flush();
+
+            try {
+                $this->em->flush();
+            } catch (ForeignKeyConstraintViolationException $e) {
+                throw new RenditionBuildException(true, sprintf('Asset "%s" was deleted while building rendition "%s"', $asset->getId(), $renditionDefinition->getName()), $e->getCode(), $e);
+            }
         } finally {
             $this->renditionCreator->cleanUp();
         }
@@ -227,5 +240,16 @@ final readonly class RenditionBuilder
         }
 
         return $outputFile;
+    }
+
+    private function assetStillExists(Asset $asset): bool
+    {
+        return (int) $this->em->createQueryBuilder()
+            ->select('COUNT(a.id)')
+            ->from(Asset::class, 'a')
+            ->andWhere('a.id = :id')
+            ->setParameter('id', $asset->getId())
+            ->getQuery()
+            ->getSingleScalarResult() > 0;
     }
 }

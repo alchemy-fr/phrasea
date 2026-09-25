@@ -4,3 +4,4 @@ services:
         autoconfigure: true
 
     Alchemy\WorkflowBundle\Listener\PusherListener: ~
+    Alchemy\WorkflowBundle\Message\JobUpdatePusherHandler: ~

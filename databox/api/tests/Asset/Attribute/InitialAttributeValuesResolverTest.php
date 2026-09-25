@@ -12,6 +12,7 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
+use App\Notification\ExceptionNotifier;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Service\Asset\Attribute\AttributeValueResolver;
 use App\Service\Asset\Attribute\InitialAttributeValuesResolver;
@@ -134,7 +135,8 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
         $iavr = new InitialAttributeValuesResolver(
             $attributeValueResolver,
             $adr,
-            $this->attributeAssigner
+            $this->attributeAssigner,
+            static::getContainer()->get(ExceptionNotifier::class),
         );
 
         $result = [];

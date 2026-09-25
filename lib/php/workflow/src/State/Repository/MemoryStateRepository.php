@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\Workflow\State\Repository;
 
+use Alchemy\Workflow\Exception\WorkflowStateNotFoundException;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\WorkflowState;
 
@@ -27,7 +28,7 @@ class MemoryStateRepository implements StateRepositoryInterface
     public function getWorkflowState(string $id): WorkflowState
     {
         if (!isset($this->workflows[$id])) {
-            throw new \InvalidArgumentException(sprintf('Workflow state "%s" does not exist', $id));
+            throw new WorkflowStateNotFoundException($id);
         }
 
         return $this->workflows[$id];

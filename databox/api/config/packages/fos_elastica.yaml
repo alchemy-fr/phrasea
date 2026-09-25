@@ -97,6 +97,14 @@ fos_elastica:
                 stories:
                     property_path: false
                     type: keyword
+                collectionPositions:
+                    property_path: false
+                    type: nested
+                    properties:
+                        collection:
+                            type: keyword
+                        position:
+                            type: integer
                 isStory:
                     type: boolean
                 renditions:

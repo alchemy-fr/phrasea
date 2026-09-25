@@ -35,6 +35,7 @@ use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeDefinitionRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Validator\SameWorkspaceConstraint;
+use App\Validator\TwigConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
@@ -244,6 +245,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
      * Initialize attributes after asset creation from a Twig template; key=locale, value=Twig code.
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Assert\All([new TwigConstraint()])]
     private ?array $initialValues = null;
 
     /**
@@ -278,6 +280,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
      * Resolve this template (TWIG syntax) if no user value provided.
      */
     #[ORM\Column(type: Types::JSON, nullable: true)]
+    #[Assert\All([new TwigConstraint()])]
     private ?array $fallback = null;
 
     /**

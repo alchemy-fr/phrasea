@@ -21,8 +21,10 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\Group\GroupValue;
+use App\Api\Model\Input\AddAssetsToCollectionInput;
 use App\Api\Model\Input\AssetAddAsVersionInput;
 use App\Api\Model\Input\AssetInput;
+use App\Api\Model\Input\AssetPositionInput;
 use App\Api\Model\Input\AssetsDeleteInput;
 use App\Api\Model\Input\AssetsRestoreInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
@@ -40,11 +42,13 @@ use App\Api\Model\Output\PrepareDeleteAssetsOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Model\Output\StoryThumbnailsOutput;
 use App\Api\Processor\AddAsAssetVersionProcessor;
+use App\Api\Processor\AddAssetsToCollectionProcessor;
 use App\Api\Processor\AssetAttributeBatchUpdateProcessor;
 use App\Api\Processor\AssetsDeleteProcessor;
 use App\Api\Processor\AssetsRestoreProcessor;
 use App\Api\Processor\BypassQuarantineProcessor;
 use App\Api\Processor\CopyAssetProcessor;
+use App\Api\Processor\CreateAssetProcessor;
 use App\Api\Processor\DeleteAssetProcessor;
 use App\Api\Processor\FollowProcessor;
 use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
@@ -53,6 +57,7 @@ use App\Api\Processor\MultipleAssetCreateProcessor;
 use App\Api\Processor\PrepareDeleteAssetProcessor;
 use App\Api\Processor\RemoveAssetFromCollectionProcessor;
 use App\Api\Processor\ResolveEntitiesProcessor;
+use App\Api\Processor\SetAssetPositionProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Processor\UnfollowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
@@ -161,6 +166,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
             processor: TriggerAssetWorkflowProcessor::class,
         ),
+        new Put(
+            uriTemplate: '/assets/{id}/position',
+            description: 'Move the asset to a given rank inside a collection or a story',
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: AssetPositionInput::class,
+            name: 'asset_set_position',
+            processor: SetAssetPositionProcessor::class,
+        ),
         new Post(
             uriTemplate: '/assets/{id}/quarantine-bypass',
             input: false,
@@ -192,7 +205,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'groups' => [self::GROUP_LIST],
             ],
             parameters: [
-                'collection' => new QueryParameter(),
+                'collection' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Collection the assets directly belong to (use "parent" to span the sub-tree)',
+                ),
                 'conditions' => new QueryParameter(
                     schema: ['type' => 'array<string>'],
                     description: 'Use AQL condition to filter assets',
@@ -217,6 +233,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                     schema: ['type' => 'string'],
                     description: 'Parent collection',
                 ),
+                'story' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Story asset ID',
+                ),
                 'query' => new QueryParameter(
                     schema: ['type' => 'string'],
                     description: 'Search query',
@@ -226,6 +246,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             securityPostDenormalize: 'is_granted("CREATE", object)',
             validate: true,
+            processor: CreateAssetProcessor::class,
         ),
         new Post(
             uriTemplate: '/assets/multiple',
@@ -268,6 +289,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: CopyAssetInput::class,
             name: 'post_copy',
             processor: CopyAssetProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/add-to-collection',
+            description: 'Add multiple assets to a collection or a story. Assets already in the destination are ignored.',
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: AddAssetsToCollectionInput::class,
+            name: 'asset_add_to_collection',
+            processor: AddAssetsToCollectionProcessor::class,
         ),
         new Delete(
             uriTemplate: '/assets-by-keys',

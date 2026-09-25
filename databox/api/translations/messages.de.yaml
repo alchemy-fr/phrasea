@@ -62,6 +62,8 @@ asset_status:
   pending: Ausstehend
   quarantined: Unter Quarantäne
 built_in_attribute:
+  collectionPositions:
+    name: Position
   _score:
     name: Bewertung
   _id:
