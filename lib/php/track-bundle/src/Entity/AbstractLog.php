@@ -7,6 +7,7 @@ namespace Alchemy\TrackBundle\Entity;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use MartinGeorgiev\Doctrine\DBAL\Type;
 
 #[ORM\MappedSuperclass]
 abstract class AbstractLog extends AbstractUuidEntity
@@ -14,7 +15,7 @@ abstract class AbstractLog extends AbstractUuidEntity
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
     protected \DateTimeImmutable $date;
 
-    #[ORM\Column(type: 'inet', nullable: true)]
+    #[ORM\Column(type: Type::INET, nullable: true)]
     private ?string $ip = null;
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
