@@ -668,10 +668,20 @@ export interface DisplayProfile extends WithCapabilities, Entity {
 // ---------------------------------------------------------------------------
 // Sharing
 
+/**
+ * A rendition of a shared asset, downloadable through the share. Several
+ * renditions may point to the same file: `id` identifies the rendition.
+ */
 export type ShareAlternateUrl = {
+    /** The rendition */
+    id?: string | null;
+    definitionId?: string | null;
     name: string;
+    /** Translated name of the rendition definition */
+    displayName?: string | null;
     url: string;
-    type?: string;
+    type?: string | null;
+    size?: number | null;
     /** The shared asset this URL belongs to */
     assetId?: string | null;
 };

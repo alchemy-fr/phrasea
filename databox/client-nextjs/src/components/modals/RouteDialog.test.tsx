@@ -110,6 +110,35 @@ describe('useCloseRoute', () => {
         expect(nav.push).toHaveBeenCalledWith('/assets', {scroll: false});
     });
 
+    it('goes back to the last search a viewer was opened from', () => {
+        let close!: () => void;
+        const onReady = (c: () => void) => (close = c);
+        // The router writes the URL to the history once the new screen is
+        // rendered: the viewer mounts while the browser still shows the search
+        const searchAt = (search: string) => {
+            window.history.replaceState(null, '', `/assets?${search}`);
+            navigate(rerender, `/assets?${search}`, false, onReady);
+        };
+        const {rerender} = render(harness(false, onReady));
+        try {
+            searchAt('q=cats');
+            navigate(rerender, '/assets/1/_', true, onReady);
+            act(() => close());
+            expect(nav.push).toHaveBeenLastCalledWith('/assets?q=cats', {
+                scroll: false,
+            });
+
+            searchAt('q=dogs');
+            navigate(rerender, '/assets/2/_', true, onReady);
+            act(() => close());
+            expect(nav.push).toHaveBeenLastCalledWith('/assets?q=dogs', {
+                scroll: false,
+            });
+        } finally {
+            window.history.replaceState(null, '', '/');
+        }
+    });
+
     it('falls back to the assets screen when opened from a direct link', () => {
         let close!: () => void;
         nav.pathname = '/assets/1/manage/info';

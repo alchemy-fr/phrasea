@@ -49,6 +49,21 @@ describe('Results list', () => {
         cy.getBySel('asset-list').should('have.attr', 'data-layout', 'grid');
     });
 
+    it('switches to the masonry layout: bare thumbnails, no page divider', () => {
+        cy.getBySel('display-options').click();
+        cy.get('[role=tab]').contains('Masonry').click();
+        cy.get('body').type('{esc}');
+        cy.getBySel('asset-list').should('have.attr', 'data-layout', 'masonry');
+        cy.getBySel('masonry').find('[data-testid=asset-item]').should('have.length', 5);
+        cy.getBySel('asset-item-title').should('not.exist');
+
+        cy.getBySel('display-options').click();
+        cy.get('[role=tab]').contains('Grid').click();
+        cy.get('body').type('{esc}');
+        cy.getBySel('asset-list').should('have.attr', 'data-layout', 'grid');
+        cy.getBySel('asset-item-title').should('have.length', 5);
+    });
+
     it('selects items with click, ctrl+click, shift+click and Ctrl+A', () => {
         assetItem('Alpha').click();
         cy.get('[data-testid=asset-item][data-selected=true]').should('have.length', 1);

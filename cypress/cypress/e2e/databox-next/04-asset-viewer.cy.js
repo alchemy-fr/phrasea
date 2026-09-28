@@ -3,7 +3,7 @@
  * navigation between results, keyboard shortcuts.
  */
 import {deleteWorkspace, seedWorkspace, uploadAssetFromFixture, waitForAsset, waitForIndexed} from './lib/api';
-import {assetItem, login, openAsset, openAssetEditor, visitWorkspace, waitForResults} from './lib/app';
+import {assetItem, login, openAsset, openAssetEditor, search, visitWorkspace, waitForResults} from './lib/app';
 import {databoxNextUrl} from '../lib/urls';
 
 describe('Asset viewer', () => {
@@ -51,18 +51,41 @@ describe('Asset viewer', () => {
         });
     });
 
-    it('keeps the top bar, names the page and gets back to the assets', () => {
+    it('keeps the top bar, names the page and gets back to the last search', () => {
         visitWorkspace(ctx.workspace.id);
         waitForResults(4);
+        search('Image');
+        waitForResults(1);
         openAsset('E2E Image');
         // The first row never goes away: user menu and the way back
         cy.getBySel('topbar').should('be.visible');
         cy.getBySel('user-menu').should('be.visible');
         cy.getBySel('page-title').should('have.text', 'E2E Image');
+        cy.getBySel('trail-root').should('have.attr', 'href').and('include', 'q=Image');
         cy.getBySel('trail-root').click();
         cy.getBySel('asset-view').should('not.exist');
-        cy.url().should('match', /\/assets$/);
-        cy.getBySel('search-input').should('be.visible');
+        cy.url().should('include', 'q=Image').and('include', encodeURIComponent(ctx.workspace.id));
+        cy.getBySel('search-input').should('have.value', 'Image');
+        waitForResults(1);
+    });
+
+    it('closes the viewer back to the search it was opened from', () => {
+        visitWorkspace(ctx.workspace.id);
+        waitForResults(4);
+        // A first round trip from another search must not be remembered
+        openAsset('Bravo');
+        cy.getBySel('asset-view').find('[aria-label="Close"]').click();
+        cy.getBySel('asset-view').should('not.exist');
+
+        search('Charlie');
+        waitForResults(1);
+        openAsset('Charlie');
+        cy.getBySel('asset-view').find('[aria-label="Close"]').click();
+        cy.getBySel('asset-view').should('not.exist');
+        cy.url().should('include', 'q=Charlie');
+        cy.getBySel('search-input').should('have.value', 'Charlie');
+        waitForResults(1);
+        assetItem('Charlie').should('be.visible');
     });
 
     it('shows the side panel sections', () => {

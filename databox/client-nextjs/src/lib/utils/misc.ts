@@ -63,6 +63,42 @@ export function downloadUrl(url: string, filename?: string): void {
     a.remove();
 }
 
+/** Above this size, a file is not buffered in memory to be saved */
+const maxBufferedDownloadSize = 500 * 1024 * 1024;
+
+/**
+ * Saves the file at `url` under `filename`. A cross-origin URL ignores the
+ * `download` attribute of a link (the browser opens images, PDFs… instead
+ * of saving them), so the file is fetched and saved from memory; it falls
+ * back to opening the URL when it cannot be fetched (CORS) or is too big.
+ */
+export async function saveUrlAs(
+    url: string,
+    filename: string,
+    size?: number
+): Promise<void> {
+    if (!size || size <= maxBufferedDownloadSize) {
+        try {
+            const res = await fetch(url, {credentials: 'omit'});
+            if (res.ok) {
+                const objectUrl = URL.createObjectURL(await res.blob());
+                const a = document.createElement('a');
+                a.href = objectUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+
+                return;
+            }
+        } catch {
+            // Falls back to the plain link below
+        }
+    }
+    downloadUrl(url, filename);
+}
+
 /**
  * Runs async tasks with a maximum concurrency, preserving result order.
  */

@@ -40,6 +40,11 @@ type Props = {
     asset: Asset;
     /** show pin / copy / format controls */
     controls?: boolean;
+    /**
+     * Content shown outside of the application (public share): the viewer's
+     * display profile neither orders the attributes nor can be pinned to.
+     */
+    ignoreProfile?: boolean;
     /** only show attributes pinned in the current display profile */
     pinnedOnly?: boolean;
     dense?: boolean;
@@ -54,13 +59,15 @@ type Props = {
 export function AttributeList({
     asset,
     controls = false,
+    ignoreProfile = false,
     pinnedOnly = false,
     dense = false,
     className,
 }: Props) {
     const {t} = useTranslation();
     const definitionsIndex = useDefinitionsById();
-    const profile = useProfileStore(s => s.current);
+    const currentProfile = useProfileStore(s => s.current);
+    const profile = ignoreProfile ? null : currentProfile;
     const toggleDefinition = useProfileStore(s => s.toggleDefinition);
     const pinnedItems = useMemo(
         () =>
@@ -181,6 +188,7 @@ export function AttributeList({
                         builtInValue={item.builtInValue}
                         format={item.format}
                         controls={controls}
+                        pinnable={!ignoreProfile}
                         pinned={pinnedItems.some(
                             p =>
                                 p.definition === def.id ||
@@ -201,6 +209,7 @@ function AttributeRow({
     builtInValue,
     format,
     controls,
+    pinnable,
     pinned,
     onTogglePin,
     dense,
@@ -210,6 +219,7 @@ function AttributeRow({
     builtInValue?: unknown;
     format?: string;
     controls: boolean;
+    pinnable: boolean;
     pinned: boolean;
     onTogglePin: () => void;
     dense: boolean;
@@ -237,10 +247,13 @@ function AttributeRow({
         );
     };
 
+    // Copied as displayed: in the format currently chosen
     const copyValue = attribute
-        ? formatValueForCopy(definition, attribute, ctx)
-        : builtInValue !== undefined
-          ? typeDef.formatString(builtInValue, undefined, ctx)
+        ? formatValueForCopy(definition, attribute, ctx, current)
+        : builtInValue !== undefined && builtInValue !== null
+          ? (Array.isArray(builtInValue) ? builtInValue : [builtInValue])
+                .map(v => typeDef.formatString(v, current, ctx))
+                .join('\n')
           : '';
 
     return (
@@ -274,22 +287,27 @@ function AttributeRow({
                             </Tooltip>
                         ) : null}
                         {copyValue ? <CopyButton value={copyValue} /> : null}
-                        <Tooltip
-                            content={
-                                pinned
-                                    ? t('attribute.unpin', 'Unpin from profile')
-                                    : t('attribute.pin', 'Pin to profile')
-                            }
-                        >
-                            <Button
-                                variant="ghost"
-                                size="icon-xs"
-                                onClick={onTogglePin}
-                                className={cn(pinned && 'text-primary')}
+                        {pinnable ? (
+                            <Tooltip
+                                content={
+                                    pinned
+                                        ? t(
+                                              'attribute.unpin',
+                                              'Unpin from profile'
+                                          )
+                                        : t('attribute.pin', 'Pin to profile')
+                                }
                             >
-                                {pinned ? <PinOffIcon /> : <PinIcon />}
-                            </Button>
-                        </Tooltip>
+                                <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    onClick={onTogglePin}
+                                    className={cn(pinned && 'text-primary')}
+                                >
+                                    {pinned ? <PinOffIcon /> : <PinIcon />}
+                                </Button>
+                            </Tooltip>
+                        ) : null}
                     </span>
                 ) : null}
             </dt>

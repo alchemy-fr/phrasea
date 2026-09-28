@@ -27,6 +27,9 @@ import {StoryThumb} from '@/features/assets/list/StoryThumb';
  * (see `PreviewProvider`), anchored on the thumbnail; clicking the chip locks
  * the preview open.
  *
+ * With `natural`, the box takes the width it is given and the height of the
+ * thumbnail's aspect ratio (masonry layout) instead of filling a fixed box.
+ *
  * A file still being analyzed — or rejected by the analyzers — normally shows
  * its analysis state instead of the image; `ignoreAnalysis` renders the
  * thumbnail rendition anyway, for screens where the picture is what the user
@@ -38,12 +41,15 @@ export function AssetThumb({
     className,
     previewOnHover,
     ignoreAnalysis,
+    natural,
 }: {
     asset: Asset;
     size?: number;
     className?: string;
     previewOnHover?: boolean;
     ignoreAnalysis?: boolean;
+    /** Height from the thumbnail's aspect ratio, for the given width */
+    natural?: boolean;
 }) {
     const {t} = useTranslation();
     const [hover, setHover] = useState(false);
@@ -67,6 +73,16 @@ export function AssetThumb({
     const storyCarousel = !!asset.storyCollection && !asset.deleted;
     const videoRef = useRef<HTMLVideoElement>(null);
     const playing = hover && playOnHover;
+    // Natural size: the ratio of the still thumbnail, kept while the animated
+    // one is shown so that hovering never changes the height of the box
+    const [ratio, setRatio] = useState<{url: string; value: number}>();
+    const naturalRatio =
+        ratio && ratio.url === thumb?.url ? ratio.value : defaultNaturalRatio;
+    const measure = (w: number, h: number) => {
+        if (natural && thumb?.url && url === thumb.url && w > 0 && h > 0) {
+            setRatio({url: thumb.url, value: w / h});
+        }
+    };
 
     // A video thumbnail only plays while hovered, when enabled
     useEffect(() => {
@@ -87,9 +103,11 @@ export function AssetThumb({
         <div
             ref={container}
             className={cn(
-                'relative flex size-full items-center justify-center overflow-hidden',
+                'relative flex items-center justify-center overflow-hidden',
+                natural ? 'w-full' : 'size-full',
                 className
             )}
+            style={natural ? {aspectRatio: naturalRatio} : undefined}
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
         >
@@ -108,6 +126,12 @@ export function AssetThumb({
                         loop
                         playsInline
                         preload="metadata"
+                        onLoadedMetadata={e =>
+                            measure(
+                                e.currentTarget.videoWidth,
+                                e.currentTarget.videoHeight
+                            )
+                        }
                     />
                 ) : isAudioThumb ? (
                     <AudioPlayer
@@ -126,7 +150,13 @@ export function AssetThumb({
                         decoding="async"
                         draggable={false}
                         className={cn('size-full', fitClass)}
-                        style={size ? {maxHeight: size} : undefined}
+                        style={size && !natural ? {maxHeight: size} : undefined}
+                        onLoad={e =>
+                            measure(
+                                e.currentTarget.naturalWidth,
+                                e.currentTarget.naturalHeight
+                            )
+                        }
                     />
                 )
             ) : (
@@ -209,3 +239,6 @@ export function AssetThumb({
         </div>
     );
 }
+
+/** Box ratio of a natural thumbnail until its size is known, or without image */
+const defaultNaturalRatio = 4 / 3;
