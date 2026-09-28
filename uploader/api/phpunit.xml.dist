@@ -18,22 +18,15 @@
     </php>
 
     <!--
-        unit: plain TestCase classes without any service, played by the
-        `quick` tier without the stack. functional: `tests` minus the unit
-        entries (kernel, SQLite, minio), so a new test lands there by default.
-        A test moves to `unit` only when listed in BOTH blocks.
+        tests/unit: plain TestCase classes without any service, played by the
+        `quick` tier without the stack. tests/functional: kernel, SQLite, minio.
     -->
     <testsuites>
         <testsuite name="unit">
-            <file>tests/Consumer/CommitHandlerTest.php</file>
-            <file>tests/Consumer/DownloadHandlerTest.php</file>
-            <file>tests/PresignedUrlTest.php</file>
+            <directory>tests/unit</directory>
         </testsuite>
         <testsuite name="functional">
-            <directory>tests</directory>
-            <exclude>tests/Consumer/CommitHandlerTest.php</exclude>
-            <exclude>tests/Consumer/DownloadHandlerTest.php</exclude>
-            <exclude>tests/PresignedUrlTest.php</exclude>
+            <directory>tests/functional</directory>
         </testsuite>
     </testsuites>
 

@@ -157,7 +157,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "App\\Tests\\": "tests/"
+            "App\\Tests\\Functional\\": "tests/functional/"
         }
     },
     "replace": {

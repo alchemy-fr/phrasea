@@ -1,0 +1,29 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Functional;
+
+use Alchemy\ApiTest\ApiTestTrait;
+use Alchemy\TestBundle\Helper\FixturesTrait;
+use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use Symfony\Component\HttpKernel\KernelInterface;
+
+abstract class AbstractDataboxTestCase extends ApiTestCase
+{
+    use FixturesTrait;
+    use DataboxTestTrait;
+    use ApiTestTrait;
+
+    #[\Override]
+    protected static function bootKernel(array $options = []): KernelInterface
+    {
+        return static::bootKernelWithFixtures($options);
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        static::disableFixtures();
+    }
+}
