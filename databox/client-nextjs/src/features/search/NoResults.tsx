@@ -10,7 +10,7 @@ import {useSearch} from './SearchProvider';
 export function NoResults() {
     const {t} = useTranslation();
     const search = useSearch();
-    const {status, login} = useAuth();
+    const {status, login, redirecting} = useAuth();
     // Sorting alone is not a filter: only show the hints when something narrows the results.
     const hasFilters = Boolean(
         search.query || search.conditions.length > 0 || search.geolocation
@@ -60,6 +60,7 @@ export function NoResults() {
                     // Nothing public to show: the assets may need an account
                     <Button
                         data-testid="no-results-sign-in"
+                        loading={redirecting}
                         onClick={() => login()}
                     >
                         <LogInIcon /> {t('user.login', 'Sign in')}

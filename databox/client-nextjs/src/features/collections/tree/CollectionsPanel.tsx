@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
@@ -23,8 +23,16 @@ import {
     SettingsIcon,
     ListIcon,
 } from 'lucide-react';
-import type {Collection, Workspace} from '@/types/api';
-import {useCollectionStore, pagerKey} from '../collectionStore';
+import type {Workspace} from '@/types/api';
+import {
+    useCollectionStore,
+    pagerKey,
+    type CollectionNode,
+} from '../collectionStore';
+import {useDropTarget} from '@/features/dnd/useDropTarget';
+import {useCollectionDrag} from '@/features/dnd/useCollectionDrag';
+import {useHoverExpand} from '@/features/dnd/useHoverExpand';
+import {mergeRefs} from '@/lib/utils/refs';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
 import {BuiltInAttribute, quoteAQL} from '@/features/search/searchState';
 import {quarantineCondition} from '@/features/assets/quarantine/analysis';
@@ -236,6 +244,9 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
     // Collapsed by default: expanding is what loads the collections.
     const [expanded, setExpanded] = useState(false);
     const selected = search?.workspaces.includes(workspace.id) ?? false;
+    const drop = useDropTarget({type: 'workspace', workspace});
+    const expand = useCallback(() => setExpanded(true), []);
+    useHoverExpand(drop.isOver, expanded, expand);
 
     useEffect(() => {
         if (expanded) {
@@ -306,6 +317,7 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
             <ContextMenu>
                 <ContextMenuTrigger asChild>
                     <div
+                        ref={drop.setNodeRef}
                         data-testid="workspace-item"
                         data-workspace-id={workspace.id}
                         data-selected={selected ? 'true' : undefined}
@@ -313,7 +325,8 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
                             'group/ws sticky top-0 z-10 flex items-center bg-sidebar pr-1',
                             selected && 'bg-primary/10',
                             // A menu open (context or ⋮): the item it acts on
-                            'data-[state=open]:bg-accent has-[>[data-state=open]]:bg-accent'
+                            'data-[state=open]:bg-accent has-[>[data-state=open]]:bg-accent',
+                            drop.dropClass
                         )}
                     >
                         <button
@@ -406,7 +419,7 @@ function CollectionItem({
     collection,
     depth,
 }: {
-    collection: Collection & {workspaceId: string};
+    collection: CollectionNode;
     depth: number;
 }) {
     const {t} = useTranslation();
@@ -418,6 +431,10 @@ function CollectionItem({
     const pager = pagers[key];
     const [expanded, setExpanded] = useState(false);
     const selected = search?.collections.includes(collection.id) ?? false;
+    const drop = useDropTarget({type: 'collection', collection});
+    const drag = useCollectionDrag(collection);
+    const expand = useCallback(() => setExpanded(true), []);
+    useHoverExpand(drop.isOver, expanded, expand);
     // The list endpoint ships the first children along with each collection,
     // so an empty `children` means a leaf. Without that hint (search results,
     // ascendants…) we can't tell, and the chevron stays.
@@ -526,14 +543,19 @@ function CollectionItem({
             <ContextMenu>
                 <ContextMenuTrigger asChild>
                     <div
+                        ref={mergeRefs(drop.setNodeRef, drag.setNodeRef)}
+                        {...drag.listeners}
                         data-testid="collection-item"
                         data-collection-id={collection.id}
                         data-selected={selected ? 'true' : undefined}
+                        data-dragging={drag.isDragging ? 'true' : undefined}
                         className={cn(
                             'group/col flex items-center pr-1',
                             selected && 'bg-primary/10',
                             // A menu open (context or ⋮): the item it acts on
-                            'data-[state=open]:bg-accent has-[>[data-state=open]]:bg-accent'
+                            'data-[state=open]:bg-accent has-[>[data-state=open]]:bg-accent',
+                            drag.isDragging && 'opacity-50',
+                            drop.dropClass
                         )}
                         style={{paddingLeft: depth * 12}}
                     >

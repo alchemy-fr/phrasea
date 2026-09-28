@@ -198,7 +198,10 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
                 ) : null}
             </header>
             <div className="flex min-h-0 flex-1">
-                <aside className="w-72 shrink-0 overflow-y-auto border-r bg-sidebar">
+                <aside
+                    className="w-72 shrink-0 overflow-y-auto border-r bg-sidebar"
+                    data-dnd-scroll
+                >
                     <BasketsPanel />
                 </aside>
                 <main className="flex min-w-0 flex-1 flex-col">
@@ -234,6 +237,7 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
                             ) : (
                                 <AssetList
                                     pages={pages}
+                                    basketId={basketId}
                                     loading={false}
                                     loadingMore={assets.isFetchingNextPage}
                                     hasMore={assets.hasNextPage}

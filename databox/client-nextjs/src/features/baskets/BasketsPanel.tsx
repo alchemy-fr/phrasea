@@ -37,6 +37,7 @@ import {BasketFormDialog} from './BasketFormDialog';
 import {routes} from '@/lib/routes';
 import {cn} from '@/lib/utils/cn';
 import {useDebouncedValue} from '@/hooks/useDebouncedValue';
+import {useDropTarget} from '@/features/dnd/useDropTarget';
 
 export function BasketsPanel() {
     const {t} = useTranslation();
@@ -135,6 +136,7 @@ function BasketRow({basket}: {basket: Basket}) {
     const {current, setCurrent, archive, remove} = useBasketStore();
     const isCurrent = current?.id === basket.id;
     const isViewed = usePathname().startsWith(`/baskets/${basket.id}/`);
+    const drop = useDropTarget({type: 'basket', basket});
 
     const menu = (
         Item: typeof DropdownMenuItem,
@@ -198,6 +200,7 @@ function BasketRow({basket}: {basket: Basket}) {
         <ContextMenu>
             <ContextMenuTrigger asChild>
                 <li
+                    ref={drop.setNodeRef}
                     data-testid="basket-item"
                     data-basket-id={basket.id}
                     data-current={isCurrent ? 'true' : undefined}
@@ -210,7 +213,8 @@ function BasketRow({basket}: {basket: Basket}) {
                             ? 'bg-primary/25'
                             : isViewed && 'bg-primary/10',
                         // A menu open (context or ⋮): the basket it acts on
-                        'data-[state=open]:bg-accent has-[>[data-state=open]]:bg-accent'
+                        'data-[state=open]:bg-accent has-[>[data-state=open]]:bg-accent',
+                        drop.dropClass
                     )}
                 >
                     <button

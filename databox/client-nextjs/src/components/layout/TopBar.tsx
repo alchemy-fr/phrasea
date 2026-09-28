@@ -51,7 +51,8 @@ import {cn} from '@/lib/utils/cn';
 
 export function TopBar() {
     const {t, i18n} = useTranslation();
-    const {user, isAuthenticated, login, logout, hasRole} = useAuth();
+    const {user, isAuthenticated, login, redirecting, logout, hasRole} =
+        useAuth();
     const config = useConfig();
     const router = useGuardedRouter();
     const pathname = usePathname();
@@ -286,7 +287,12 @@ export function TopBar() {
                     </DropdownMenuContent>
                 </DropdownMenu>
             ) : (
-                <Button size="sm" data-testid="sign-in" onClick={() => login()}>
+                <Button
+                    size="sm"
+                    data-testid="sign-in"
+                    loading={redirecting}
+                    onClick={() => login()}
+                >
                     <LogInIcon /> {t('user.login', 'Sign in')}
                 </Button>
             )}

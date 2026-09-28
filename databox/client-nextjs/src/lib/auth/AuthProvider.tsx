@@ -12,6 +12,7 @@ import {
 import {usePathname, useSearchParams} from 'next/navigation';
 import {getAuthClient} from './client';
 import type {AuthUser} from './oidc';
+import {toastError} from '@/lib/utils/errors';
 
 export type AuthStatus = 'loading' | 'anonymous' | 'authenticated';
 
@@ -21,6 +22,12 @@ export type AuthContextValue = {
     isAuthenticated: boolean;
     /** Redirects to Keycloak, coming back to the current page by default */
     login: (redirectTo?: string) => void;
+    /**
+     * A sign-in redirection is under way: the PKCE challenge is being
+     * computed, or the browser is leaving for Keycloak. Sign-in buttons show
+     * a spinner meanwhile.
+     */
+    redirecting: boolean;
     logout: () => void;
     hasRole: (role: string) => boolean;
     sessionExpired: boolean;
@@ -40,6 +47,7 @@ export function AuthProvider({children}: PropsWithChildren) {
     const [status, setStatus] = useState<AuthStatus>('loading');
     const [user, setUser] = useState<AuthUser | undefined>();
     const [sessionExpired, setSessionExpired] = useState(false);
+    const [redirecting, setRedirecting] = useState(false);
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
@@ -78,13 +86,35 @@ export function AuthProvider({children}: PropsWithChildren) {
         };
     }, []);
 
+    // The page is restored from the back/forward cache when the user comes
+    // back from Keycloak with the browser's back button: the redirection
+    // state set before leaving is still there, and would stick.
+    useEffect(() => {
+        const onPageShow = (e: PageTransitionEvent) => {
+            if (e.persisted) {
+                setRedirecting(false);
+            }
+        };
+        window.addEventListener('pageshow', onPageShow);
+
+        return () => window.removeEventListener('pageshow', onPageShow);
+    }, []);
+
     const login = useCallback(
         (redirectTo?: string) => {
             const qs = searchParams.toString();
             const current = `${pathname}${qs ? `?${qs}` : ''}${
                 typeof window !== 'undefined' ? window.location.hash : ''
             }`;
-            void getAuthClient().login(redirectTo ?? current);
+            // Stays on until the page unloads: `login()` resolves as soon as
+            // the navigation is requested, well before the browser leaves.
+            setRedirecting(true);
+            getAuthClient()
+                .login(redirectTo ?? current)
+                .catch((e: unknown) => {
+                    setRedirecting(false);
+                    toastError(e);
+                });
         },
         [pathname, searchParams]
     );
@@ -106,12 +136,21 @@ export function AuthProvider({children}: PropsWithChildren) {
             user,
             isAuthenticated: status === 'authenticated',
             login,
+            redirecting,
             logout,
             hasRole: role => !!user?.roles.includes(role),
             sessionExpired,
             dismissSessionExpired,
         }),
-        [status, user, login, logout, sessionExpired, dismissSessionExpired]
+        [
+            status,
+            user,
+            login,
+            redirecting,
+            logout,
+            sessionExpired,
+            dismissSessionExpired,
+        ]
     );
 
     return (
