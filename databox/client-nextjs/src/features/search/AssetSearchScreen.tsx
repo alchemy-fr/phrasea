@@ -12,7 +12,7 @@ import {AssetList} from '@/features/assets/list/AssetList';
 import {SelectionProvider} from '@/features/assets/list/SelectionProvider';
 import {AssetToolbar} from '@/features/assets/list/toolbar/AssetToolbar';
 import {NoResults} from './NoResults';
-import {FullPageLoader} from '@/components/ui/loader';
+import {AssetStackLoader} from '@/components/ui/asset-loaders';
 import {SearchError} from './SearchError';
 import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
 import {Button} from '@/components/ui/button';
@@ -112,7 +112,10 @@ function SearchScreenContent() {
                         onRetry={() => results.reload()}
                     />
                 ) : !hasOwnResults ? (
-                    <FullPageLoader />
+                    <AssetStackLoader
+                        className="h-full min-h-[50vh]"
+                        label={t('search.loading', 'Loading assets…')}
+                    />
                 ) : isEmpty ? (
                     <NoResults />
                 ) : (

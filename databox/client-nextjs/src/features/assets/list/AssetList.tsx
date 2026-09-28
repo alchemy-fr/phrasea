@@ -10,6 +10,7 @@ import {GridLayout} from './layouts/GridLayout';
 import {ListLayout} from './layouts/ListLayout';
 import {Button} from '@/components/ui/button';
 import {Spinner} from '@/components/ui/loader';
+import {AssetStackLoader} from '@/components/ui/asset-loaders';
 import type {LayoutMode} from '@/features/preferences/store';
 import type {OpenAssetOptions} from '@/features/assets/useAssetOpener';
 import {PreviewProvider} from './preview/PreviewProvider';
@@ -124,24 +125,34 @@ export function AssetList(props: AssetListProps) {
 
     return (
         <PreviewProvider disabled={props.noPreview}>
-            <div
-                ref={scrollRef}
-                data-testid="asset-list"
-                data-layout={layout}
-                className={cn('relative h-full overflow-y-auto', className)}
-            >
+            <div className="relative h-full">
+                <div
+                    ref={scrollRef}
+                    data-testid="asset-list"
+                    data-layout={layout}
+                    className={cn('h-full overflow-y-auto', className)}
+                >
+                    {layout === 'list' ? (
+                        <ListLayout {...layoutProps} />
+                    ) : (
+                        <GridLayout {...layoutProps} />
+                    )}
+                </div>
+                {/* New search: the previous results stay visible under the
+                    loader and blur progressively (5s, see globals.css).
+                    Sibling of the scroll container so it covers the viewport
+                    whatever the scroll position. */}
                 {loading ? (
-                    <div className="pointer-events-none absolute inset-x-0 top-2 z-10 flex justify-center">
-                        <div className="rounded-full bg-background/90 p-2 shadow-md">
-                            <Spinner />
-                        </div>
+                    <div
+                        data-testid="asset-list-loading"
+                        className="absolute inset-0 z-10 flex items-center justify-center animate-asset-overlay motion-reduce:animate-none motion-reduce:bg-background/40 motion-reduce:backdrop-blur-sm"
+                    >
+                        <AssetStackLoader
+                            className="animate-in fade-in duration-200"
+                            label={t('search.loading', 'Loading assets…')}
+                        />
                     </div>
                 ) : null}
-                {layout === 'list' ? (
-                    <ListLayout {...layoutProps} />
-                ) : (
-                    <GridLayout {...layoutProps} />
-                )}
             </div>
         </PreviewProvider>
     );
