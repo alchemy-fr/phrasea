@@ -74,18 +74,6 @@ final class Version20200506000000 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE asset DROP CONSTRAINT FK_2AF5A5C3D5814AC');
-        $this->addSql('ALTER TABLE access_token DROP CONSTRAINT FK_B6A2DD6819EB6921');
-        $this->addSql('ALTER TABLE refresh_token DROP CONSTRAINT FK_C74F219519EB6921');
-        $this->addSql('ALTER TABLE auth_code DROP CONSTRAINT FK_5933D02C19EB6921');
-        $this->addSql('DROP TABLE auth_code');
-        $this->addSql('DROP TABLE oauth_client');
-        $this->addSql('DROP TABLE refresh_token');
-        $this->addSql('DROP TABLE access_token');
-        $this->addSql('DROP TABLE form_schema');
-        $this->addSql('DROP TABLE failed_event');
-        $this->addSql('DROP TABLE asset_commit');
-        $this->addSql('DROP TABLE asset');
-        $this->addSql('DROP TABLE bulk_data');
+        $this->throwIrreversibleMigrationException('Day-0 baseline: on an existing database up() did nothing, rolling it back would drop the whole base schema.');
     }
 }

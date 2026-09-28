@@ -5,7 +5,7 @@ import axios, {
     RawAxiosRequestConfig,
 } from 'axios';
 import * as https from 'https';
-import axiosRetry, {isNetworkOrIdempotentRequestError} from 'axios-retry';
+import axiosRetry from 'axios-retry';
 import {createLogger} from './logger';
 
 type Options = {
@@ -15,6 +15,12 @@ type Options = {
 } & Record<string, any>;
 
 const logger = createLogger('http');
+
+const IDEMPOTENT_METHODS = ['get', 'head', 'options', 'put', 'delete'];
+
+// The connection was never established: the server cannot have processed the
+// request, so replaying it is safe whatever the verb.
+const NOT_SENT_ERROR_CODES = ['ECONNREFUSED', 'ENOTFOUND', 'EAI_AGAIN'];
 
 export function createHttpClient({
     verifySSL = true,
@@ -45,12 +51,18 @@ export function createHttpClient({
                 return false;
             }
 
-            // Only the idempotent verbs. A POST that times out on the client
-            // has very often been carried out by the server anyway, and
-            // replaying it creates a duplicate — or fails on a unique index,
-            // reporting a conflict that hides the real cause (the API was
-            // slow).
-            if (!isNetworkOrIdempotentRequestError(error)) {
+            // A non-idempotent request (POST, PATCH) that timed out or whose
+            // connection dropped has very often been carried out by the
+            // server anyway, and replaying it creates a duplicate — or fails
+            // on a unique index, reporting a conflict that hides the real
+            // cause (the API was slow). It is only replayed when it never
+            // reached the server.
+            const method = config.method?.toLowerCase() ?? '';
+            if (
+                !IDEMPOTENT_METHODS.includes(method) &&
+                (error.response ||
+                    !NOT_SENT_ERROR_CODES.includes(error.code ?? ''))
+            ) {
                 return false;
             }
 

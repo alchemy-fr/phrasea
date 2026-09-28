@@ -96,25 +96,6 @@ final class Version20200507000000 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE asset DROP CONSTRAINT FK_2AF5A5C9D346BBD');
-        $this->addSql('ALTER TABLE asset DROP CONSTRAINT FK_2AF5A5CEA11AF98');
-        $this->addSql('ALTER TABLE publication DROP CONSTRAINT FK_AF3C6779922726E9');
-        $this->addSql('ALTER TABLE publication DROP CONSTRAINT FK_AF3C6779F44CABFF');
-        $this->addSql('ALTER TABLE publication DROP CONSTRAINT FK_AF3C6779727ACA70');
-        $this->addSql('ALTER TABLE sub_definition DROP CONSTRAINT FK_44FBBC155DA1941');
-        $this->addSql('ALTER TABLE publication_asset DROP CONSTRAINT FK_E7711CD038B217A7');
-        $this->addSql('ALTER TABLE publication_asset DROP CONSTRAINT FK_E7711CD05DA1941');
-        $this->addSql('ALTER TABLE access_token DROP CONSTRAINT FK_B6A2DD6819EB6921');
-        $this->addSql('ALTER TABLE refresh_token DROP CONSTRAINT FK_C74F219519EB6921');
-        $this->addSql('ALTER TABLE auth_code DROP CONSTRAINT FK_5933D02C19EB6921');
-        $this->addSql('DROP TABLE access_control_entry');
-        $this->addSql('DROP TABLE auth_code');
-        $this->addSql('DROP TABLE oauth_client');
-        $this->addSql('DROP TABLE refresh_token');
-        $this->addSql('DROP TABLE access_token');
-        $this->addSql('DROP TABLE publication_asset');
-        $this->addSql('DROP TABLE sub_definition');
-        $this->addSql('DROP TABLE publication');
-        $this->addSql('DROP TABLE asset');
+        $this->throwIrreversibleMigrationException('Day-0 baseline: on an existing database up() did nothing, rolling it back would drop the whole base schema.');
     }
 }
