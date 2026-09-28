@@ -28,20 +28,33 @@ describe('Persisted preferences', () => {
     });
 
     it('keeps the layout and display options across reloads', () => {
+        // Set rather than toggle: a failed run leaves its preferences behind
+        const setSwitch = (label, checked) =>
+            cy.fieldByLabel(label).then($switch => {
+                if (($switch.attr('aria-checked') === 'true') !== checked) {
+                    cy.wrap($switch).click();
+                }
+                cy.fieldByLabel(label).should('have.attr', 'aria-checked', String(checked));
+            });
+
         cy.getBySel('display-options').click();
         cy.get('[role=tab]').contains('List').click();
-        cy.fieldByLabel('Auto play video previews').click();
+        setSwitch('Auto play media in preview', true);
+        setSwitch('Play media on hover', true);
         cy.get('body').type('{esc}');
         cy.getBySel('asset-list').should('have.attr', 'data-layout', 'list');
 
         cy.reload();
         cy.getBySel('asset-list', {timeout: 30000}).should('have.attr', 'data-layout', 'list');
         cy.getBySel('display-options').click();
-        cy.fieldByLabel('Auto play video previews').should('have.attr', 'aria-checked', 'true');
+        cy.fieldByLabel('Auto play media in preview').should('have.attr', 'aria-checked', 'true');
+        cy.fieldByLabel('Play media on hover').should('have.attr', 'aria-checked', 'true');
         // restore
-        cy.fieldByLabel('Auto play video previews').click();
+        setSwitch('Auto play media in preview', false);
+        setSwitch('Play media on hover', false);
         cy.get('[role=tab]').contains('Grid').click();
         cy.get('body').type('{esc}');
+        cy.getBySel('asset-list').should('have.attr', 'data-layout', 'grid');
     });
 
     it('keeps the facets configuration', () => {

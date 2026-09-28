@@ -20,7 +20,10 @@ export type DisplayPreferences = {
     thumbSize: number;
     thumbFit: ThumbFit;
     displayPreview: boolean;
+    /** Auto play the media (video, sound) shown in the hover preview */
     playVideos: boolean;
+    /** Play a video/sound thumbnail while the mouse is over it */
+    playOnHover: boolean;
     previewLocked: boolean;
     previewOptions: PreviewOptions;
 };
@@ -51,6 +54,7 @@ export const defaultDisplayPreferences: DisplayPreferences = {
     thumbFit: 'contain',
     displayPreview: true,
     playVideos: false,
+    playOnHover: false,
     previewLocked: false,
     previewOptions: {
         sizeRatio: 0.5,
@@ -180,10 +184,57 @@ export const usePreferencesStore = create<State>((set, get) => ({
     },
 }));
 
-/** Saves the current value of a preference */
-async function persist(
+/** Saves in flight, by preference name */
+const saving = new Map<keyof UserPreferences, Promise<void>>();
+/** Saves requested while one was in flight: `reset` of the queued save */
+const queued = new Map<keyof UserPreferences, boolean>();
+
+/**
+ * Saves the current value of a preference. The saves of a preference are
+ * sent one at a time: concurrent requests could be applied in any order and
+ * leave an older value on the server (quick successive toggles). A save
+ * requested meanwhile sends the latest value once the current one is done,
+ * or right away when the page is left (see `flushQueuedSaves`).
+ */
+function persist(name: keyof UserPreferences, reset?: boolean): Promise<void> {
+    const current = saving.get(name);
+    if (current) {
+        queued.set(name, (queued.get(name) ?? false) || !!reset);
+
+        return current;
+    }
+
+    const run = (async () => {
+        let nextReset: boolean | undefined = reset;
+        for (;;) {
+            await save(name, nextReset);
+            if (!queued.has(name)) {
+                return;
+            }
+            nextReset = queued.get(name) || undefined;
+            queued.delete(name);
+        }
+    })().finally(() => saving.delete(name));
+    saving.set(name, run);
+
+    return run;
+}
+
+/** A queued save must not be lost when the page is left (reload, close…) */
+function flushQueuedSaves() {
+    queued.forEach((reset, name) => {
+        queued.delete(name);
+        void save(name, reset || undefined, true);
+    });
+}
+if (typeof window !== 'undefined') {
+    window.addEventListener('pagehide', flushQueuedSaves);
+}
+
+async function save(
     name: keyof UserPreferences,
-    reset?: boolean
+    reset?: boolean,
+    keepalive?: boolean
 ): Promise<void> {
     const {preferences, onBeforePersist, authenticated} =
         usePreferencesStore.getState();
@@ -192,7 +243,11 @@ async function persist(
     }
     if (authenticated) {
         await api
-            .put('/preferences', {name, value: preferences[name], reset})
+            .put(
+                '/preferences',
+                {name, value: preferences[name], reset},
+                keepalive ? {keepalive} : undefined
+            )
             .catch(e => console.warn('[preferences] save failed', e));
     }
 }

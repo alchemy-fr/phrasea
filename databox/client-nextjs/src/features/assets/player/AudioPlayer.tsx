@@ -43,17 +43,23 @@ function formatTime(seconds: number): string {
  * it is a static waveform (grid thumbnails, unlocked hover preview).
  *
  * With `autoPlay`, playback follows the visibility of the player: it starts
- * when the waveform scrolls into view and pauses when it leaves.
+ * when the waveform scrolls into view and pauses when it leaves. With
+ * `playing`, playback is driven by the parent instead (thumbnails played on
+ * hover): it rewinds when `playing` turns false.
+ *
+ * The player fills the width of its box.
  */
 export function AudioPlayer({
     src,
     autoPlay,
+    playing,
     controls = true,
     height = 128,
     className,
 }: {
     src: string;
     autoPlay?: boolean;
+    playing?: boolean;
     controls?: boolean;
     /** Waveform height in px */
     height?: number;
@@ -115,6 +121,19 @@ export function AudioPlayer({
         return () => observer.disconnect();
     }, [wavesurfer, autoPlay, isReady]);
 
+    useEffect(() => {
+        if (!wavesurfer || !isReady || undefined === playing) {
+            return;
+        }
+        if (playing) {
+            // Rejected when the browser blocks autoplay before any interaction
+            wavesurfer.play().catch(() => undefined);
+        } else {
+            wavesurfer.pause();
+            wavesurfer.seekTo(0);
+        }
+    }, [wavesurfer, isReady, playing]);
+
     const duration = wavesurfer && isReady ? wavesurfer.getDuration() : null;
     const playLabel = isPlaying
         ? t('player.pause', 'Pause')
@@ -123,19 +142,14 @@ export function AudioPlayer({
     return (
         <div
             className={cn(
-                'flex items-center justify-center',
+                'flex w-full items-center justify-center',
                 controls && 'p-4',
                 className
             )}
             data-testid="audio-player"
             data-playing={isPlaying || undefined}
         >
-            <div
-                className={cn(
-                    'flex w-full flex-col gap-2',
-                    controls && 'max-w-3xl'
-                )}
-            >
+            <div className="flex w-full flex-col gap-2">
                 <div
                     className="relative w-full overflow-hidden"
                     style={{minHeight: height}}
