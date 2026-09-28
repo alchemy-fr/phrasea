@@ -10,6 +10,7 @@ import {AnalysisChip} from '@/features/assets/quarantine/AnalysisChip';
 import {Button} from '@/components/ui/button';
 import {cn} from '@/lib/utils/cn';
 import {clamp} from '@/lib/utils/misc';
+import {AudioPlayer} from '@/features/assets/player/AudioPlayer';
 
 export type FilePlayerProps = {
     file: ApiFile;
@@ -79,6 +80,7 @@ export function FilePlayer({
         case FileKind.Video:
             return (
                 <VideoPlayer
+                    key={file.id}
                     src={file.url}
                     type={file.type}
                     autoPlay={autoPlay}
@@ -89,9 +91,10 @@ export function FilePlayer({
         case FileKind.Audio:
             return (
                 <AudioPlayer
+                    key={file.id}
                     src={file.url}
-                    type={file.type}
                     autoPlay={autoPlay}
+                    controls={controls}
                     className={className}
                 />
             );
@@ -149,9 +152,12 @@ function VideoPlayer({
         return () => observer.disconnect();
     }, []);
 
+    // `src` is set on the element itself (not through `<source>`) so that a
+    // change of file — prev/next navigation in the viewer — reloads the video.
     return (
         <video
             ref={ref}
+            src={src}
             className={cn('max-h-full max-w-full', className)}
             controls={controls}
             autoPlay={autoPlay}
@@ -159,43 +165,8 @@ function VideoPlayer({
             loop={!controls}
             playsInline
             preload="metadata"
-        >
-            <source src={src} type={type} />
-        </video>
-    );
-}
-
-function AudioPlayer({
-    src,
-    type,
-    autoPlay,
-    className,
-}: {
-    src: string;
-    type: string;
-    autoPlay?: boolean;
-    className?: string;
-}) {
-    const {t} = useTranslation();
-
-    return (
-        <div
-            className={cn(
-                'flex w-full max-w-xl flex-col items-center gap-3 p-4',
-                className
-            )}
-        >
-            <FileKindIcon mimeType={type} className="size-16" />
-            <audio
-                controls
-                autoPlay={autoPlay}
-                className="w-full"
-                preload="metadata"
-                aria-label={t('player.audio', 'Audio player')}
-            >
-                <source src={src} type={type} />
-            </audio>
-        </div>
+            data-type={type}
+        />
     );
 }
 

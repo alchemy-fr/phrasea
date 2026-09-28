@@ -11,12 +11,13 @@ import {
     useEffect,
 } from 'react';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
-import type {
-    AQLQuery,
-    Collection,
-    SavedSearch,
-    SortBy,
-    Workspace,
+import {
+    type AQLQuery,
+    type Collection,
+    EntityName,
+    type SavedSearch,
+    type SortBy,
+    type Workspace,
 } from '@/types/api';
 import {
     BuiltInAttribute,
@@ -36,6 +37,7 @@ import {isCondition, isField} from './aql/types';
 import {getSavedSearch} from '@/lib/api/misc';
 import {useEntitiesStore} from './entitiesStore';
 import {shortId} from '@/lib/utils/misc';
+import {iri} from '@/lib/utils/iri';
 
 export type SearchContextValue = SearchState & {
     /** Stable checksum of the effective search (undefined when nothing is searched) */
@@ -44,6 +46,8 @@ export type SearchContextValue = SearchState & {
     hasSearch: boolean;
     /** ids of collections / workspaces currently filtered */
     collections: string[];
+    /** Story asset ids selected through `@story` conditions */
+    stories: string[];
     workspaces: string[];
     /** query typed in the search input but not submitted yet */
     inputQuery: React.RefObject<string>;
@@ -55,6 +59,10 @@ export type SearchContextValue = SearchState & {
     removeCondition: (id: string) => void;
     resetWithCondition: (condition: AQLQuery) => void;
     selectWorkspace: (id: string | undefined, workspace?: Workspace) => void;
+    /**
+     * Filter by collection. A story collection (`storyAsset` set) is
+     * searched through its story asset (`@story`) rather than `@collection`.
+     */
     selectCollection: (id: string | undefined, collection?: Collection) => void;
     loadSavedSearch: (savedSearch: SavedSearch) => void;
     setSearchId: (id: string | undefined) => void;
@@ -139,13 +147,17 @@ export function SearchProvider({
 
     const selectFilter = useCallback(
         (
-            attribute: BuiltInAttribute.Workspace | BuiltInAttribute.Collection,
+            attribute:
+                | BuiltInAttribute.Workspace
+                | BuiltInAttribute.Collection
+                | BuiltInAttribute.Story,
             id: string | undefined
         ) => {
             update(prev => {
                 let conditions = removeConditions(prev.conditions, [
                     BuiltInAttribute.Workspace,
                     BuiltInAttribute.Collection,
+                    BuiltInAttribute.Story,
                     BuiltInAttribute.Deleted,
                     BuiltInAttribute.AssetStatus,
                 ]);
@@ -231,6 +243,7 @@ export function SearchProvider({
             reloadInc,
             hasSearch,
             collections: idsOf(BuiltInAttribute.Collection),
+            stories: idsOf(BuiltInAttribute.Story),
             workspaces: idsOf(BuiltInAttribute.Workspace),
             inputQuery,
             setInputQuery: q => {
@@ -267,6 +280,18 @@ export function SearchProvider({
             selectCollection: (id, collection) => {
                 if (collection) {
                     storeEntity(collection['@id'], collection as any);
+                }
+                // A story collection has no indexed path of its own: its
+                // assets are found by the story asset (`@story`).
+                const storyAsset = collection?.storyAsset;
+                if (id && storyAsset) {
+                    storeEntity(
+                        iri(EntityName.Asset, storyAsset.id),
+                        storyAsset as any
+                    );
+                    selectFilter(BuiltInAttribute.Story, storyAsset.id);
+
+                    return;
                 }
                 selectFilter(BuiltInAttribute.Collection, id);
             },

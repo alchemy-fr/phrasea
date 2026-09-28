@@ -10,6 +10,7 @@ import {
     useRef,
     useState,
 } from 'react';
+import {useTranslation} from 'react-i18next';
 import {LockIcon} from 'lucide-react';
 import type {Asset} from '@/types/api';
 import {
@@ -25,11 +26,14 @@ import {cn} from '@/lib/utils/cn';
 type PreviewContextValue = {
     onEnter: (asset: Asset, anchor: HTMLElement) => void;
     onLeave: (asset: Asset) => void;
+    /** Open the preview right away and keep it open (interactive) until unlocked. */
+    onLock: (asset: Asset, anchor: HTMLElement) => void;
 };
 
 const PreviewContext = createContext<PreviewContextValue>({
     onEnter: () => undefined,
     onLeave: () => undefined,
+    onLock: () => undefined,
 });
 
 export function usePreview(): PreviewContextValue {
@@ -38,8 +42,9 @@ export function usePreview(): PreviewContextValue {
 
 /**
  * Hover preview of an asset (player + pinned attributes), positioned next to
- * the hovered thumbnail and kept inside the viewport. Clicking the lock makes
- * it interactive.
+ * the hovered thumbnail and kept inside the viewport. Clicking the file type
+ * chip locks the preview: it stays open and becomes interactive (video
+ * controls, scrollable attributes) until the red lock is clicked.
  */
 export function PreviewProvider({
     children,
@@ -56,9 +61,24 @@ export function PreviewProvider({
     const leaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
     const enabled = display.displayPreview && !disabled;
 
+    const open = state !== null;
+    const setPreviewLocked = useCallback(
+        (next: boolean) => {
+            setLocked(next);
+            void updatePreference('display', prev => ({
+                ...display,
+                ...(prev ?? {}),
+                previewLocked: next,
+            }));
+        },
+        [display, updatePreference]
+    );
+
     const onEnter = useCallback(
         (asset: Asset, anchor: HTMLElement) => {
-            if (!enabled || locked) {
+            // A locked preview stays on its asset; hovering only opens one
+            // when nothing is displayed yet.
+            if (!enabled || (locked && open)) {
                 return;
             }
             clearTimeout(leaveTimer.current);
@@ -68,7 +88,7 @@ export function PreviewProvider({
                 50
             );
         },
-        [enabled, locked]
+        [enabled, locked, open]
     );
     const onLeave = useCallback(() => {
         if (locked) {
@@ -77,6 +97,20 @@ export function PreviewProvider({
         clearTimeout(enterTimer.current);
         leaveTimer.current = setTimeout(() => setState(null), 100);
     }, [locked]);
+    const onLock = useCallback(
+        (asset: Asset, anchor: HTMLElement) => {
+            if (!enabled) {
+                return;
+            }
+            clearTimeout(leaveTimer.current);
+            clearTimeout(enterTimer.current);
+            setState({asset, anchor});
+            if (!locked) {
+                setPreviewLocked(true);
+            }
+        },
+        [enabled, locked, setPreviewLocked]
+    );
 
     useEffect(() => {
         if (display.previewLocked) {
@@ -84,7 +118,10 @@ export function PreviewProvider({
         }
     }, [display.previewLocked]);
 
-    const value = useMemo(() => ({onEnter, onLeave}), [onEnter, onLeave]);
+    const value = useMemo(
+        () => ({onEnter, onLeave, onLock}),
+        [onEnter, onLeave, onLock]
+    );
 
     return (
         <PreviewContext.Provider value={value}>
@@ -94,17 +131,9 @@ export function PreviewProvider({
                     asset={state.asset}
                     anchor={state.anchor}
                     locked={locked}
-                    onLockToggle={() => {
-                        const next = !locked;
-                        setLocked(next);
-                        void updatePreference('display', prev => ({
-                            ...display,
-                            ...(prev ?? {}),
-                            previewLocked: next,
-                        }));
-                        if (!next) {
-                            setState(null);
-                        }
+                    onUnlock={() => {
+                        setPreviewLocked(false);
+                        setState(null);
                     }}
                     onMouseEnter={() => clearTimeout(leaveTimer.current)}
                     onMouseLeave={onLeave}
@@ -118,17 +147,18 @@ function PreviewPopover({
     asset: initial,
     anchor,
     locked,
-    onLockToggle,
+    onUnlock,
     onMouseEnter,
     onMouseLeave,
 }: {
     asset: Asset;
     anchor: HTMLElement;
     locked: boolean;
-    onLockToggle: () => void;
+    onUnlock: () => void;
     onMouseEnter: () => void;
     onMouseLeave: () => void;
 }) {
+    const {t} = useTranslation();
     const asset = useLiveAsset(initial);
     const display = useDisplayPreferences();
     const {sizeRatio, attributesRatio, displayFile, displayAttributes} =
@@ -221,15 +251,18 @@ function PreviewPopover({
                     <AttributeList asset={asset} pinnedOnly dense />
                 </div>
             ) : null}
-            <Button
-                variant={locked ? 'destructive' : 'secondary'}
-                size="icon-xs"
-                className="pointer-events-auto absolute top-2 right-2 shadow"
-                onClick={onLockToggle}
-                aria-label="Lock preview"
-            >
-                <LockIcon />
-            </Button>
+            {locked ? (
+                <Button
+                    variant="destructive"
+                    size="icon-xs"
+                    className="absolute top-2 right-2 shadow"
+                    onClick={onUnlock}
+                    aria-label={t('preview.unlock', 'Unlock preview')}
+                    title={t('preview.unlock', 'Unlock preview')}
+                >
+                    <LockIcon />
+                </Button>
+            ) : null}
         </div>
     );
 }

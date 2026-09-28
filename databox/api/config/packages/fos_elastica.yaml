@@ -168,6 +168,9 @@ fos_elastica:
                 fileExtension:
                     type: keyword
                     property_path: getSourceFileExtension
+                fileFamily:
+                    type: keyword
+                    property_path: getSourceFileFamily
                 checksum:
                     type: keyword
                     property_path: getSourceChecksum

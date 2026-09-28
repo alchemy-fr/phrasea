@@ -1,6 +1,6 @@
 'use client';
 
-import {memo, useMemo} from 'react';
+import {memo, useEffect, useMemo, useState} from 'react';
 import {useVirtualizer} from '@tanstack/react-virtual';
 import type {Asset} from '@/types/api';
 import type {LayoutProps} from '../AssetList';
@@ -42,9 +42,20 @@ export function ListLayout(props: LayoutProps) {
         return out;
     }, [pages]);
 
+    // The scroll container is an ancestor rendered by `AssetList`: its ref is
+    // attached after this component's layout effects, so the virtualizer
+    // would read `null` on mount and, without a later re-render, never
+    // measure nor render any row. Hand it the element once it exists.
+    const [scrollElement, setScrollElement] = useState<HTMLDivElement | null>(
+        null
+    );
+    useEffect(() => {
+        setScrollElement(scrollRef.current);
+    }, [scrollRef]);
+
     const virtualizer = useVirtualizer({
         count: rows.length,
-        getScrollElement: () => scrollRef.current,
+        getScrollElement: () => scrollElement,
         estimateSize: i =>
             rows[i].type === 'asset' ? Math.max(thumbSize, 120) + 16 : 40,
         overscan: 6,

@@ -65,8 +65,10 @@ import {
 import {CollectionTreePicker} from '@/components/form/CollectionTreePicker';
 import {
     assetStatusLabels,
+    fileFamilyLabels,
     privacyLabels,
 } from '@/features/attributes/types/registry';
+import {fileFamilies} from '@/lib/utils/mime';
 import {ResolveStatus, useEntitiesStore, useEntity} from '../entitiesStore';
 import {idFromIri, iri} from '@/lib/utils/iri';
 
@@ -604,6 +606,8 @@ function pickerFor(
     }
 
     switch (type) {
+        case AttributeType.FileFamily:
+            return <FileFamilyValueSelect value={literal} onChange={setId} />;
         case AttributeType.Workspace:
             return <WorkspaceValueSelect value={literal} onChange={setId} />;
         case AttributeType.Tag:
@@ -669,6 +673,32 @@ function EnumValueSelect({
             options={Object.entries(labels).map(([k, label]) => ({
                 value: k,
                 label,
+            }))}
+            placeholder={t('common.select', 'Select…')}
+        />
+    );
+}
+
+/** Select among the file families, for `@family` conditions */
+function FileFamilyValueSelect({
+    value,
+    onChange,
+}: {
+    value: string;
+    onChange: (value: string) => void;
+}) {
+    const {t} = useTranslation();
+    const labels = fileFamilyLabels(t);
+
+    return (
+        <SimpleSelect
+            size="sm"
+            className="w-52"
+            value={value || undefined}
+            onValueChange={onChange}
+            options={fileFamilies.map(family => ({
+                value: family,
+                label: labels[family],
             }))}
             placeholder={t('common.select', 'Select…')}
         />

@@ -823,6 +823,14 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     /**
      * Used by ES.
      */
+    public function getSourceFileFamily(): ?string
+    {
+        return $this->source?->getFamily()->value;
+    }
+
+    /**
+     * Used by ES.
+     */
     public function getSourceChecksum(): ?string
     {
         return $this->source?->getChecksum();

@@ -32,6 +32,13 @@ asset_status:
     pending: Pending
     quarantined: Quarantined
 
+file_family:
+    image: Image
+    audio: Audio
+    video: Video
+    document: Document
+    other: Other
+
 facet:
     collections:
         name: Collections
@@ -57,6 +64,8 @@ facet:
         name: Stories
     file_type:
         name: File Type
+    file_family:
+        name: File Family
     file_extension:
         name: File Extension
     has_source_file:
@@ -97,6 +106,8 @@ built_in_attribute:
         name: Created At
     fileType:
         name: File Type
+    fileFamily:
+        name: File Family
     fileMimeType:
         name: File MIME Type
     fileExtension:

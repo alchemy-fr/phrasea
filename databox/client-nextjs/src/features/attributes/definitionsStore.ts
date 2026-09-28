@@ -13,6 +13,7 @@ import {
     getWorkspaceAttributeDefinitions,
 } from '@/lib/api/metadata';
 import {BuiltInAttribute as BuiltInEnum} from '@/features/search/searchState';
+import {getFileFamily} from '@/lib/utils/mime';
 
 export type DefinitionsIndex<
     T extends AttributeDefinitionOrBuiltIn = AttributeDefinitionOrBuiltIn,
@@ -274,6 +275,7 @@ export const builtInValueResolvers: Partial<
     [BuiltInEnum.DocUniqueId]: a => a.source?.docUniqueId,
     [BuiltInEnum.EditedAt]: a => a.editedAt,
     [BuiltInEnum.FileExtension]: a => a.source?.extension,
+    [BuiltInEnum.FileFamily]: a => getFileFamily(a.source?.type),
     [BuiltInEnum.FileName]: a => a.source?.fileName,
     [BuiltInEnum.HasSource]: a => !!a.source,
     [BuiltInEnum.FileSize]: a => a.source?.size,
@@ -301,4 +303,5 @@ export const builtInTypes: Partial<Record<BuiltInEnum, AttributeType>> = {
     [BuiltInEnum.Rendition]: AttributeType.Rendition,
     [BuiltInEnum.AssetStatus]: AttributeType.AssetStatus,
     [BuiltInEnum.Story]: AttributeType.Story,
+    [BuiltInEnum.FileFamily]: AttributeType.FileFamily,
 };

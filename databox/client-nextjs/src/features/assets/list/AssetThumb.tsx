@@ -1,6 +1,6 @@
 'use client';
 
-import {useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {LayersIcon, Trash2Icon} from 'lucide-react';
 import type {Asset} from '@/types/api';
@@ -10,14 +10,21 @@ import {cn} from '@/lib/utils/cn';
 import {FileKind, getFileKind} from '@/lib/utils/mime';
 import {AnalysisChip} from '@/features/assets/quarantine/AnalysisChip';
 import {usePreview} from '@/features/assets/list/preview/PreviewProvider';
+import {AudioPlayer} from '@/features/assets/player/AudioPlayer';
+import {StoryThumb} from '@/features/assets/list/StoryThumb';
 
 /**
  * Thumbnail of an asset (with animated preview on hover when available),
  * falling back to a file type icon. The image fills its box according to the
  * `thumbFit` display preference (whole image vs. cropped cover).
  *
+ * Video thumbnails only play while hovered; audio thumbnails (the thumbnail
+ * rendition of a sound is a sound) show a static waveform; a story shows the
+ * carousel of its items' thumbnails while hovered (see `StoryThumb`).
+ *
  * With `previewOnHover`, hovering the file type chip opens the preview popover
- * (see `PreviewProvider`), anchored on the thumbnail.
+ * (see `PreviewProvider`), anchored on the thumbnail; clicking the chip locks
+ * the preview open.
  *
  * A file still being analyzed — or rejected by the analyzers — normally shows
  * its analysis state instead of the image; `ignoreAnalysis` renders the
@@ -51,10 +58,28 @@ export function AssetThumb({
 
     const url = hover && animated?.url ? animated.url : thumb?.url;
     const fitClass = thumbFit === 'cover' ? 'object-cover' : 'object-contain';
-    const isVideoThumb =
-        url &&
-        getFileKind(hover && animated?.url ? animated.type : thumb?.type) ===
-            FileKind.Video;
+    const thumbKind = getFileKind(
+        hover && animated?.url ? animated.type : thumb?.type
+    );
+    const isVideoThumb = !!url && thumbKind === FileKind.Video;
+    const isAudioThumb = !!url && thumbKind === FileKind.Audio;
+    const storyCarousel = !!asset.storyCollection && !asset.deleted;
+    const videoRef = useRef<HTMLVideoElement>(null);
+
+    // A video thumbnail only plays while hovered
+    useEffect(() => {
+        const video = videoRef.current;
+        if (!video) {
+            return;
+        }
+        if (hover) {
+            // jsdom has no `play()` implementation (returns undefined)
+            video.play()?.catch(() => undefined);
+        } else {
+            video.pause();
+            video.currentTime = 0;
+        }
+    }, [hover, url]);
 
     return (
         <div
@@ -74,12 +99,20 @@ export function AssetThumb({
             ) : url ? (
                 isVideoThumb ? (
                     <video
+                        ref={videoRef}
                         src={url}
                         className={cn('size-full', fitClass)}
                         muted
                         loop
-                        autoPlay
                         playsInline
+                        preload="metadata"
+                    />
+                ) : isAudioThumb ? (
+                    <AudioPlayer
+                        src={url}
+                        controls={false}
+                        height={Math.round((size ?? 200) * 0.4)}
+                        className="size-full px-2"
                     />
                 ) : (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -100,7 +133,15 @@ export function AssetThumb({
                 />
             )}
 
-            <div className="pointer-events-none absolute right-1 bottom-1 flex items-center gap-1">
+            {storyCarousel ? (
+                <StoryThumb
+                    assetId={asset.id}
+                    size={size ?? 200}
+                    active={hover}
+                />
+            ) : null}
+
+            <div className="pointer-events-none absolute right-1 bottom-1 z-10 flex items-center gap-1">
                 {asset.storyCollection ? (
                     <span
                         className="flex items-center gap-0.5 rounded bg-black/60 px-1 py-0.5 text-[10px] font-semibold text-white"
@@ -134,6 +175,24 @@ export function AssetThumb({
                         onMouseLeave={
                             previewOnHover
                                 ? () => preview.onLeave(asset)
+                                : undefined
+                        }
+                        onClick={
+                            previewOnHover
+                                ? e => {
+                                      e.stopPropagation();
+                                      if (container.current) {
+                                          preview.onLock(
+                                              asset,
+                                              container.current
+                                          );
+                                      }
+                                  }
+                                : undefined
+                        }
+                        onDoubleClick={
+                            previewOnHover
+                                ? e => e.stopPropagation()
                                 : undefined
                         }
                     >

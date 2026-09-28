@@ -1,6 +1,13 @@
 import type {ReactNode} from 'react';
 import type {TFunction} from 'i18next';
-import {AssetStatus, AttributeType, EntityName, Privacy} from '@/types/api';
+import {
+    type Asset,
+    AssetStatus,
+    AttributeType,
+    type Collection,
+    EntityName,
+    Privacy,
+} from '@/types/api';
 import {
     formatDateTime,
     formatDuration,
@@ -10,6 +17,7 @@ import {
 } from '@/lib/utils/format';
 import {Highlight} from '@/components/ui/highlight';
 import {pickTranslation} from '@/lib/utils/locale';
+import {FileFamily} from '@/lib/utils/mime';
 import {
     AssetStatusChip,
     CollectionChip,
@@ -449,6 +457,54 @@ const renditionType: AttributeTypeDef = {
         value && typeof value === 'object' ? (value as any).id : value,
 };
 
+/**
+ * `@story` values are story *asset* ids (a story collection has no indexed
+ * path of its own); the API also returns the story collection as attribute
+ * value, whose story asset carries the name.
+ */
+const storyType: AttributeTypeDef = {
+    rich: true,
+    entity: EntityName.Asset,
+    formats: () => [],
+    format: (value, format, ctx) => {
+        const collection = asStoryCollection(value);
+        if (collection) {
+            return <CollectionChip collection={collection} />;
+        }
+
+        return storyType.formatString(value, format, ctx);
+    },
+    formatString: value => {
+        if (value && typeof value === 'object') {
+            const v = value as {
+                storyAsset?: {name?: string};
+                name?: string;
+            };
+
+            return v.storyAsset?.name ?? v.name ?? '';
+        }
+
+        return str(value);
+    },
+    normalize: value =>
+        value && typeof value === 'object' ? (value as any).id : value,
+};
+
+function asStoryCollection(value: unknown): Collection | undefined {
+    if (!value || typeof value !== 'object') {
+        return undefined;
+    }
+    if ((value as Collection).storyAsset) {
+        return value as Collection;
+    }
+    const asset = value as Asset;
+    if (asset.storyCollection) {
+        return {...asset.storyCollection, storyAsset: asset};
+    }
+
+    return undefined;
+}
+
 const collectionType: AttributeTypeDef = {
     rich: true,
     entity: EntityName.Collection,
@@ -514,6 +570,28 @@ const privacyType: AttributeTypeDef = {
             : (privacyLabels(t)[n as Privacy] ?? String(n));
     },
     normalize: value => toNumber(value),
+};
+
+export function fileFamilyLabels(t: TFunction): Record<FileFamily, string> {
+    return {
+        [FileFamily.Image]: t('file_family.image', 'Image'),
+        [FileFamily.Audio]: t('file_family.audio', 'Audio'),
+        [FileFamily.Video]: t('file_family.video', 'Video'),
+        [FileFamily.Document]: t('file_family.document', 'Document'),
+        [FileFamily.Other]: t('file_family.other', 'Other'),
+    };
+}
+
+/** `@family` built-in: keyword among {@link fileFamilies}, shown translated */
+const fileFamilyType: AttributeTypeDef = {
+    formats: () => [],
+    format: (value, format, ctx) =>
+        fileFamilyType.formatString(value, format, ctx),
+    formatString: (value, _f, {t}) => {
+        const v = str(value);
+
+        return v ? (fileFamilyLabels(t)[v as FileFamily] ?? v) : '';
+    },
 };
 
 export function assetStatusLabels(t: TFunction): Record<AssetStatus, string> {
@@ -587,6 +665,7 @@ const registry: Record<AttributeType, AttributeTypeDef> = {
     [AttributeType.Id]: textType,
     [AttributeType.Ip]: textType,
     [AttributeType.FileType]: textType,
+    [AttributeType.FileFamily]: fileFamilyType,
     [AttributeType.Rendition]: renditionType,
     [AttributeType.Code]: jsonType,
     [AttributeType.WebVtt]: jsonType,
@@ -605,7 +684,7 @@ const registry: Record<AttributeType, AttributeTypeDef> = {
     [AttributeType.User]: userType,
     [AttributeType.Workspace]: workspaceType,
     [AttributeType.CollectionPath]: collectionType,
-    [AttributeType.Story]: collectionType,
+    [AttributeType.Story]: storyType,
     [AttributeType.Privacy]: privacyType,
     [AttributeType.AssetStatus]: assetStatusType,
 };

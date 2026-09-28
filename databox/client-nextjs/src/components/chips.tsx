@@ -156,12 +156,16 @@ export function CollectionChip({
     onClick?: () => void;
     absolute?: boolean;
 }) {
-    const label = absolute
-        ? (collection.absoluteDisplayName ??
-          collection.absoluteName ??
-          collection.displayName ??
-          collection.name)
-        : (collection.displayName ?? collection.name);
+    // A story collection has no name of its own: show its story asset's.
+    const label =
+        (absolute
+            ? (collection.absoluteDisplayName ??
+              collection.absoluteName ??
+              collection.displayName ??
+              collection.name)
+            : (collection.displayName ?? collection.name)) ||
+        collection.storyAsset?.name ||
+        '';
 
     return (
         <Chip

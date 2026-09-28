@@ -176,6 +176,11 @@ class File extends AbstractUuidEntity implements \Stringable
         $this->type = $type;
     }
 
+    public function getFamily(): FileFamilyEnum
+    {
+        return FileFamilyEnum::fromMimeType($this->type);
+    }
+
     public function getSize(): string|int|null
     {
         return $this->size;
