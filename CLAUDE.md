@@ -127,7 +127,7 @@ inside the API containers.
 Single PHP test (PHPUnit filter):
 
 ```bash
-dc run --rm -e APP_ENV=test databox-api-php php -d memory_limit=1024M bin/phpunit --filter SomeTest tests/Path/SomeTest.php
+dc run --rm -e APP_ENV=test databox-api-php php -d memory_limit=1024M bin/phpunit --filter SomeTest tests/functional/Path/SomeTest.php
 ```
 
 Symfony console: `dc run --rm databox-api-php bin/console <cmd>`.
@@ -141,7 +141,7 @@ Tests are organised in three tiers, documented in `doc/tech/Development/ci.md`:
 - `bin/test.sh release` — standard + `bin/dev/test-migrations.sh` (migrations replay + `schema:validate`) + `bin/dev/test-indexer-e2e.sh`. Runs on tags, nightly on master and on demand (`release.yaml`).
 - `bin/dev/run-tests-in-ci-conditions.sh [tier]` — reproduces CI: builds, brings up the stack, runs the tier, then Cypress.
 
-PHPUnit suites: `unit` is the explicit list in each `phpunit.xml.dist`, `functional` is everything else (a new test lands there by default).
+PHPUnit suites are directories: `tests/unit/` (plain `TestCase`, no service, namespace `App\Tests\Unit\`) and `tests/functional/` (kernel/stack, namespace `App\Tests\Functional\`).
 
 - `bin/php-cs.sh` — php-cs-fixer across all Symfony projects and PHP libs.
 

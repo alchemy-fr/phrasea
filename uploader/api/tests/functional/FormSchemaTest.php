@@ -1,0 +1,62 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Functional;
+
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+
+class FormSchemaTest extends AbstractUploaderTestCase
+{
+    public function testFormSchemaEditOK(): void
+    {
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/form-schemas');
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals([], $response->toArray()['hydra:member']);
+
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/form-schemas', [
+            'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
+            'data' => [
+                'foo' => 'bar',
+            ],
+        ]);
+        $this->assertEquals(201, $response->getStatusCode());
+        $data = $response->toArray();
+        $this->assertArrayHasKey('id', $data);
+        $this->assertArrayHasKey('data', $data);
+
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/form-schemas');
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = $response->toArray();
+        $this->assertCount(1, $data['hydra:member']);
+        $this->assertEquals([
+            'foo' => 'bar',
+        ], $data['hydra:member'][0]['data']);
+    }
+
+    public function testFormSchemaPostWithANonAdminUser(): void
+    {
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'POST', '/form-schemas', [
+            'data' => [
+                'foo' => 'bar',
+            ],
+        ]);
+        $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    public function testFormSchemaPostWithAnonymousUser(): void
+    {
+        $response = $this->request(null, 'POST', '/form-schemas', [
+            'data' => [
+                'foo' => 'bar',
+            ],
+        ]);
+        $this->assertEquals(401, $response->getStatusCode());
+    }
+
+    public function testFormSchemaGetWithAnonymousUser(): void
+    {
+        $response = $this->request(null, 'GET', '/form-schemas');
+        $this->assertEquals(401, $response->getStatusCode());
+    }
+}
