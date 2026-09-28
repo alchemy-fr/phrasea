@@ -1,6 +1,6 @@
 /**
- * Feature 15 — Tag filter rules (per user / group tag inclusion or
- * exclusion). The API only exposes tag rules.
+ * Feature 15 — Attribute filter rules: the assets of a workspace are only
+ * visible to the targeted users / groups when they match an AQL condition.
  */
 import {deleteWorkspace, ensureUser, seedWorkspace} from './lib/api';
 import {expectToastText, login, routeDialog} from './lib/app';
@@ -31,40 +31,44 @@ describe('Filter rules', () => {
 
     it('shows the empty state', () => {
         routeDialog().within(() => {
-            cy.contains('Tag filter rules').should('be.visible');
+            cy.contains('Attribute filter rules').should('be.visible');
             cy.contains('No rule').should('be.visible');
         });
     });
 
-    it('creates a tag filter rule for a user including a tag', () => {
+    it('creates a rule for a user with an AQL condition', () => {
         routeDialog().within(() => {
             cy.contains('button', 'Add rule').click();
-            cy.contains('label', 'User').should('be.visible');
-            // A rule targets a user or a group
-            cy.contains('label', 'User').parent().find('[role=combobox]').click();
+            cy.contains('button', 'Save').should('be.disabled');
+            cy.contains('label', 'Users').parent().find('[role=combobox]').click();
         });
         cy.get('[cmdk-input]').type('alice');
-        // A single select closes on its own: Esc would close the dialog
         cy.get('[cmdk-item]').contains('alice', {timeout: 20000}).click();
+        // Esc in the open picker only closes the picker
+        cy.get('[cmdk-input]').type('{esc}');
         routeDialog().within(() => {
-            cy.contains('label', 'Include').parent().find('[role=combobox]').click();
+            cy.contains('button', 'Add condition').click();
         });
-        cy.get('[cmdk-item]').contains('online', {timeout: 20000}).click();
-        cy.get('body').type('{esc}');
+        cy.dialog('last').within(() => {
+            cy.contains('[role=tab], button', 'AQL').click();
+            cy.getBySel('condition-aql').type('title = "Alpha"');
+            cy.contains('button', /^Add$/).click();
+        });
         routeDialog().within(() => {
+            cy.getBySel('filter-rule-form-condition').should('contain', 'title = "Alpha"');
             cy.contains('button', 'Save').click();
         });
         expectToastText('Rule saved');
         routeDialog().within(() => {
-            cy.contains('alice').should('be.visible');
-            cy.contains('online').should('be.visible');
+            cy.getBySel('filter-rule').should('have.length', 1).and('contain', 'alice');
+            cy.getBySel('filter-rule-condition').should('contain', 'Alpha');
         });
     });
 
     it('deletes the rule', () => {
         routeDialog().within(() => {
-            cy.contains('alice', {timeout: 20000}).should('exist');
-            cy.get('button:has(svg.lucide-trash-2), button:has(svg.lucide-trash2)').first().click({force: true});
+            cy.getBySel('filter-rule', {timeout: 20000}).should('contain', 'alice');
+            cy.getBySel('filter-rule').find('button[aria-label=Delete]').click();
         });
         cy.dialog('last').contains('button', /Confirm|Delete/).click();
         routeDialog().contains('No rule', {timeout: 20000}).should('exist');

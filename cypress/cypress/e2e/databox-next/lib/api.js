@@ -433,6 +433,8 @@ export function seedWorkspace({assets = 3, name} = {}) {
                 fillFromName: true,
                 namePriority: 1,
                 sortable: true,
+                // Assets and stories (AssetTypeEnum::Both), like WorkspaceCreator
+                target: 3,
             });
         })
         .then(def => {

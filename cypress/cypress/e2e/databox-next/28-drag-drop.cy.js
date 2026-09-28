@@ -141,7 +141,6 @@ describe('Drag & drop', () => {
 
         dragStart(assetItem('Charlie'));
         dragOver(cy.get(`[data-testid=pinned-story-item][data-story-id="${story.id}"]`));
-        // The seeded name attribute targets assets only: the story has no name
         cy.getBySel('drag-ghost').should('contain', 'Add to');
         drop();
 
