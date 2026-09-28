@@ -16,8 +16,6 @@ export const routes = {
     workspaceManage: (id: string, tab = 'info') =>
         `/workspaces/${id}/manage/${tab}`,
     basketView: (id: string) => `/baskets/${id}/view`,
-    /** Every basket view is the same screen: switching basket does not stack */
-    basketViewScreen: () => '/baskets',
     basketManage: (id: string, tab = 'info') => `/baskets/${id}/manage/${tab}`,
     savedSearchManage: (id: string, tab = 'info') =>
         `/saved-searches/${id}/manage/${tab}`,

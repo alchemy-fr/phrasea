@@ -4,6 +4,7 @@ import {useTranslation} from 'react-i18next';
 import {BanIcon, CheckIcon, FolderIcon} from 'lucide-react';
 import type {Asset} from '@/types/api';
 import {FileKindIcon} from '@/components/chips';
+import {assetKey} from '@/features/assets/list/SelectionProvider';
 import {cn} from '@/lib/utils/cn';
 import {useDragOver, useDragPayload} from './DragContext';
 import {type DropOp, isNeutralTarget, targetName} from './types';
@@ -90,7 +91,7 @@ function ThumbStack({assets}: {assets: Asset[]}) {
 
                 return (
                     <div
-                        key={asset.id}
+                        key={assetKey(asset)}
                         className="absolute top-0 flex size-9 items-center justify-center overflow-hidden rounded border bg-media-bg"
                         style={{left: i * 6, zIndex: shown.length - i}}
                     >

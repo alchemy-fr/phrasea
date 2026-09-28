@@ -1,3 +1,4 @@
+import {useMemo} from 'react';
 import {create} from 'zustand';
 import type {Asset} from '@/types/api';
 import {getAsset} from '@/lib/api/assets';
@@ -47,5 +48,16 @@ export const useAssetStore = create<State>((set, get) => ({
 }));
 
 export function useLiveAsset(asset: Asset): Asset {
-    return useAssetStore(s => s.assets[asset.id]) ?? asset;
+    const live = useAssetStore(s => s.assets[asset.id]);
+
+    return useMemo(
+        () =>
+            !live
+                ? asset
+                : asset.basketItemId
+                  ? // Still the same basket item
+                    {...live, basketItemId: asset.basketItemId}
+                  : live,
+        [live, asset]
+    );
 }

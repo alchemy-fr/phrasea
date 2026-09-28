@@ -31,6 +31,7 @@ import {
     emptyDragOver,
     type DragOverState,
 } from './DragContext';
+import {assetKey} from '@/features/assets/list/SelectionProvider';
 import {DragGhost} from './DragGhost';
 import {canDrop} from './canDrop';
 import {mostSpecificPointerWithin} from './collision';
@@ -215,7 +216,7 @@ export function resolvePayload(
     }
     const selection = source.getSelection();
     const assets = (
-        selection.some(a => a.id === source.asset.id)
+        selection.some(a => assetKey(a) === assetKey(source.asset))
             ? selection
             : [source.asset]
     ).filter(a => !a.deleted);

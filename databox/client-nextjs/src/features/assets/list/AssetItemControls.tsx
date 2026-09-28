@@ -9,7 +9,11 @@ import {
     DropdownMenuContent,
     DropdownMenuTrigger,
 } from '@/components/ui/menu';
-import {useIsAssetSelected, useSelectionActions} from './SelectionProvider';
+import {
+    assetKey,
+    useIsAssetSelected,
+    useSelectionActions,
+} from './SelectionProvider';
 import {AssetMenuItems} from './AssetContextMenu';
 import {cn} from '@/lib/utils/cn';
 
@@ -59,7 +63,7 @@ export function AssetItemControls({
  */
 function SelectionCheckbox({asset}: {asset: Asset}) {
     const selection = useSelectionActions();
-    const selected = useIsAssetSelected(asset.id);
+    const selected = useIsAssetSelected(assetKey(asset));
 
     return (
         <div
