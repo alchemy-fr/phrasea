@@ -388,13 +388,14 @@ export function getPublicShare(id: string, token: string): Promise<Share> {
     });
 }
 
+/** Share one or several assets (of the same workspace) under a single link */
 export function createShare(
-    assetId: string,
-    data: Partial<Share> = {}
+    assetIds: string[],
+    data: Omit<Partial<Share>, 'assets'> = {}
 ): Promise<Share> {
     return api.post<Share>(`/${EntityName.Share}`, {
         ...data,
-        asset: `/${EntityName.Asset}/${assetId}`,
+        assets: assetIds.map(id => `/${EntityName.Asset}/${id}`),
     });
 }
 

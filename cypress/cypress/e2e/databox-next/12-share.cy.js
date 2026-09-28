@@ -1,8 +1,9 @@
 /**
- * Feature 12 — Share: public links, share page, embed code, revocation.
+ * Feature 12 — Share: public links, share page, embed code, revocation, and
+ * links sharing several assets at once.
  */
 import {deleteWorkspace, seedWorkspace, uploadAssetFromFixture, waitForAsset, waitForIndexed} from './lib/api';
-import {login, openAssetContextMenu, visitWorkspace, waitForResults} from './lib/app';
+import {assetItem, login, openAssetContextMenu, visitWorkspace, waitForResults} from './lib/app';
 
 describe('Share', () => {
     let ctx;
@@ -81,5 +82,35 @@ describe('Share', () => {
         Cypress.session.clearCurrentSessionData();
         cy.visit(shareUrl, {failOnStatusCode: false});
         cy.contains('This link is not valid or has expired', {timeout: 30000}).should('be.visible');
+    });
+
+    it('shares several assets under a single link', () => {
+        login();
+        visitWorkspace(ctx.workspace.id);
+        waitForResults(2);
+        assetItem('E2E Shared').click();
+        assetItem('Alpha').click({ctrlKey: true});
+        cy.get('[data-testid=asset-item][data-selected=true]').should('have.length', 2);
+        cy.getBySel('selection-actions').contains('button', 'Share').click();
+        let multiUrl;
+        cy.dialog().within(() => {
+            cy.contains('Share 2 assets').should('be.visible');
+            cy.fieldByLabel('Create a public link').click();
+            cy.get('a[href*="/s/"]', {timeout: 20000})
+                .first()
+                .invoke('attr', 'href')
+                .then(href => {
+                    expect(href).not.to.equal(shareUrl);
+                    multiUrl = href;
+                });
+        });
+        cy.get('body').type('{esc}');
+
+        cy.then(() => {
+            Cypress.session.clearCurrentSessionData();
+            cy.visit(multiUrl);
+        });
+        cy.getBySel('share-asset', {timeout: 30000}).should('have.length', 2);
+        cy.contains('E2E Shared').should('be.visible');
     });
 });
