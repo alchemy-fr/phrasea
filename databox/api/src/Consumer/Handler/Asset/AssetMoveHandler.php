@@ -11,6 +11,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException;
 
 #[AsMessageHandler]
 readonly class AssetMoveHandler
@@ -27,6 +28,10 @@ readonly class AssetMoveHandler
 
         $asset = DoctrineUtil::findStrict($this->em, Asset::class, $message->getId());
         $destination = $this->iriConverter->getResourceFromIri($dest);
+        // Checked by MoveAssetProcessor: an asset never leaves its workspace
+        if ($destination instanceof Collection && $destination->getWorkspaceId() !== $asset->getWorkspaceId()) {
+            throw new UnrecoverableMessageHandlingException(sprintf('Asset "%s" cannot be moved to another workspace', $asset->getId()));
+        }
 
         $this->em->wrapInTransaction(function () use ($asset, $destination): void {
             $from = $asset->getReferenceCollection();

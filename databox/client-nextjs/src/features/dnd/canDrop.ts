@@ -97,12 +97,15 @@ function canDropAssets(
             if (assets.some(a => a.storyCollection?.id === collection.id)) {
                 return {ok: false, reason: 'self'};
             }
-            // Assets cannot be linked across workspaces: they get duplicated
-            if (
-                op === 'add' &&
-                crossWorkspace(collectionWorkspace(collection))
-            ) {
-                op = 'copy';
+            if (crossWorkspace(collectionWorkspace(collection))) {
+                // Assets never leave their workspace
+                if (op === 'move') {
+                    return {ok: false, reason: 'workspace'};
+                }
+                // Assets cannot be linked across workspaces: they get duplicated
+                if (op === 'add') {
+                    op = 'copy';
+                }
             }
             if (
                 op === 'add' &&
