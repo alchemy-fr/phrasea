@@ -1,7 +1,17 @@
 'use client';
 
-import {memo, useEffect, useMemo, useState} from 'react';
+import {
+    memo,
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
+import {useTranslation} from 'react-i18next';
 import {useVirtualizer} from '@tanstack/react-virtual';
+import {ChevronDownIcon, ChevronUpIcon} from 'lucide-react';
 import type {Asset} from '@/types/api';
 import type {LayoutProps} from '../AssetList';
 import {buildSections, ListSection, SectionDivider} from './Dividers';
@@ -16,6 +26,9 @@ import {AttributeList} from '@/features/attributes/AttributeList';
 import {TagChip, CollectionChip, PrivacyIcon} from '@/components/chips';
 import {QuarantineBanner} from '@/features/assets/quarantine/QuarantineBanner';
 import {AssetStatus} from '@/types/api';
+import {cn} from '@/lib/utils/cn';
+
+const NO_KEYS: ReadonlySet<string> = new Set();
 
 type Row =
     | {type: 'divider'; section: ListSection}
@@ -54,6 +67,15 @@ export function ListLayout(props: LayoutProps) {
         setScrollElement(scrollRef.current);
     }, [scrollRef]);
 
+    // Rows whose attributes are expanded, by asset key: kept here since a row
+    // unmounts when it is scrolled out of the virtual window, and dropped
+    // with the results of a new search (a new first page).
+    const [expanded, setExpanded] = useState<{
+        page: Asset[] | undefined;
+        keys: ReadonlySet<string>;
+    }>({page: pages[0], keys: NO_KEYS});
+    const expandedKeys = expanded.page === pages[0] ? expanded.keys : NO_KEYS;
+
     const virtualizer = useVirtualizer({
         count: rows.length,
         getScrollElement: () => scrollElement,
@@ -70,6 +92,36 @@ export function ListLayout(props: LayoutProps) {
                   : 'footer';
         },
     });
+
+    const firstPage = pages[0];
+    const expandedRef = useRef(expandedKeys);
+    useEffect(() => {
+        expandedRef.current = expandedKeys;
+    }, [expandedKeys]);
+    const toggleExpanded = useCallback(
+        (key: string) => {
+            const keys = new Set(expandedRef.current);
+            if (keys.delete(key)) {
+                // The row shrinks from its bottom: when its top is above the
+                // fold, bring it back instead of jumping past it.
+                const item = virtualizer
+                    .getVirtualItems()
+                    .find(v => v.key === key);
+                if (
+                    item &&
+                    scrollElement &&
+                    item.start < scrollElement.scrollTop
+                ) {
+                    scrollElement.scrollTop = item.start;
+                }
+            } else {
+                keys.add(key);
+            }
+            expandedRef.current = keys;
+            setExpanded({page: firstPage, keys});
+        },
+        [firstPage, virtualizer, scrollElement]
+    );
 
     return (
         <div style={{height: virtualizer.getTotalSize(), position: 'relative'}}>
@@ -104,6 +156,8 @@ export function ListLayout(props: LayoutProps) {
                                 openAsset={props.openAsset}
                                 itemOverlay={props.itemOverlay}
                                 itemActions={props.itemActions}
+                                expanded={expandedKeys.has(assetKey(row.asset))}
+                                onToggleExpanded={toggleExpanded}
                             />
                         ) : (
                             footer
@@ -124,6 +178,8 @@ const ListItem = memo(function ListItem({
     openAsset,
     itemOverlay,
     itemActions,
+    expanded,
+    onToggleExpanded,
 }: Pick<
     LayoutProps,
     | 'thumbSize'
@@ -132,10 +188,18 @@ const ListItem = memo(function ListItem({
     | 'openAsset'
     | 'itemOverlay'
     | 'itemActions'
-> & {asset: Asset; index: number}) {
+> & {
+    asset: Asset;
+    index: number;
+    expanded: boolean;
+    onToggleExpanded: (key: string) => void;
+}) {
+    const {t} = useTranslation();
     // Not subscribed to the selection: see `SelectableCard`
     const asset = useLiveAsset(initialAsset);
     const size = Math.max(thumbSize, 120);
+    const attributesRef = useRef<HTMLDivElement>(null);
+    const overflowing = useOverflowing(attributesRef, expanded);
 
     return (
         <AssetContextMenu asset={asset} onOpen={() => openAsset(asset)}>
@@ -187,11 +251,87 @@ const ListItem = memo(function ListItem({
                     {asset.status === AssetStatus.Quarantined ? (
                         <QuarantineBanner asset={asset} compact />
                     ) : null}
-                    <div className="max-h-60 overflow-hidden">
+                    <div
+                        ref={attributesRef}
+                        data-testid="asset-item-attributes"
+                        className={cn(
+                            !expanded && 'max-h-60 overflow-hidden',
+                            !expanded &&
+                                overflowing &&
+                                'mask-b-from-80% mask-b-to-100%'
+                        )}
+                    >
                         <AttributeList asset={asset} dense pinnedOnly={false} />
                     </div>
+                    {expanded || overflowing ? (
+                        <button
+                            type="button"
+                            data-testid="asset-item-attributes-toggle"
+                            aria-expanded={expanded}
+                            className="mt-1 inline-flex items-center gap-1 rounded text-xs font-medium text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
+                            // Neither select, drag nor open the asset
+                            onPointerDown={e => e.stopPropagation()}
+                            onClick={e => {
+                                e.stopPropagation();
+                                onToggleExpanded(assetKey(asset));
+                            }}
+                            onDoubleClick={e => e.stopPropagation()}
+                        >
+                            {expanded ? (
+                                <>
+                                    <ChevronUpIcon className="size-3.5" />
+                                    {t(
+                                        'asset.attributes.show_less',
+                                        'Show fewer attributes'
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    <ChevronDownIcon className="size-3.5" />
+                                    {t(
+                                        'asset.attributes.show_all',
+                                        'Show all attributes'
+                                    )}
+                                </>
+                            )}
+                        </button>
+                    ) : null}
                 </div>
             </SelectableCard>
         </AssetContextMenu>
     );
 });
+
+/**
+ * Whether the content of a height-clamped box is cropped. Only measured while
+ * clamped (`expanded` false): the box then keeps its fixed height and the
+ * content is observed to follow late updates (attributes, fonts…).
+ */
+function useOverflowing(
+    ref: React.RefObject<HTMLDivElement | null>,
+    expanded: boolean
+): boolean {
+    const [overflowing, setOverflowing] = useState(false);
+
+    useLayoutEffect(() => {
+        const el = ref.current;
+        if (!el || expanded) {
+            return;
+        }
+        const check = () =>
+            setOverflowing(el.scrollHeight > el.clientHeight + 1);
+        check();
+        if (typeof ResizeObserver === 'undefined') {
+            return;
+        }
+        const observer = new ResizeObserver(check);
+        observer.observe(el);
+        if (el.firstElementChild) {
+            observer.observe(el.firstElementChild);
+        }
+
+        return () => observer.disconnect();
+    }, [ref, expanded]);
+
+    return overflowing;
+}
