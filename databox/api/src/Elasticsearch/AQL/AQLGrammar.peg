@@ -63,7 +63,7 @@ condition: '(' > e:expression > ')'
         unset($result['e']);
     }
 
-not_expression: "NOT" __ e:expression
+not_expression: "NOT" ] e:expression
     function __finalise(&$result) {
         $result['data'] = [
             'type' => 'expression',

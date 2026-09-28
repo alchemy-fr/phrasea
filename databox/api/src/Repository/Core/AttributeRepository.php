@@ -5,16 +5,12 @@ declare(strict_types=1);
 namespace App\Repository\Core;
 
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
-use App\Attribute\AttributeInterface;
-use App\Attribute\AttributeTypeRegistry;
-use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Cache\CacheInterface;
 
 class AttributeRepository extends ServiceEntityRepository
@@ -25,9 +21,6 @@ class AttributeRepository extends ServiceEntityRepository
 
     public function __construct(
         ManagerRegistry $registry,
-        private readonly AttributeTypeRegistry $attributeTypeRegistry,
-        #[Autowire(param: 'kernel.environment')]
-        private readonly string $kernelEnv,
         TemporaryCacheFactory $cacheFactory,
     ) {
         parent::__construct($registry, Attribute::class);
@@ -65,12 +58,20 @@ class AttributeRepository extends ServiceEntityRepository
 
     private function getAssetAttributes(string $assetId): array
     {
-        $queryBuilder = $this
-            ->createQueryBuilder('a')
-            ->select('a')
+        return $this
+            ->createAssetAttributesQueryBuilder()
             ->andWhere('a.asset = :asset')
-            ->andWhere('d.enabled = true')
             ->setParameter('asset', $assetId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    private function createAssetAttributesQueryBuilder(): QueryBuilder
+    {
+        return $this
+            ->createQueryBuilder('a')
+            ->select('a, d')
+            ->andWhere('d.enabled = true')
             ->innerJoin('a.definition', 'd')
             ->addOrderBy('d.position', 'ASC')
             ->addOrderBy('d.name', 'ASC')
@@ -78,10 +79,36 @@ class AttributeRepository extends ServiceEntityRepository
             ->addOrderBy('a.value', 'ASC')
             ->addOrderBy('a.id', 'ASC')
         ;
+    }
 
-        return $queryBuilder
+    /**
+     * Load the attributes of many assets in a single query and fill the
+     * per-request cache used by getCachedAssetAttributes().
+     *
+     * @param string[] $assetIds
+     */
+    public function prefetchAssetAttributes(array $assetIds): void
+    {
+        $assetIds = array_values(array_unique($assetIds));
+        if (empty($assetIds)) {
+            return;
+        }
+
+        $byAsset = array_fill_keys($assetIds, []);
+        /** @var Attribute $attribute */
+        foreach ($this->createAssetAttributesQueryBuilder()
+            ->andWhere('a.asset IN (:assets)')
+            ->setParameter('assets', $assetIds)
             ->getQuery()
-            ->getResult();
+            ->getResult() as $attribute) {
+            if ($attribute->isValidValue()) {
+                $byAsset[$attribute->getAsset()->getId()][] = $attribute;
+            }
+        }
+
+        foreach ($byAsset as $assetId => $attributes) {
+            $this->attributeCache->get($assetId, fn (): array => $attributes);
+        }
     }
 
     public function resetAssetCache(Asset $asset): void
@@ -92,40 +119,6 @@ class AttributeRepository extends ServiceEntityRepository
     public function getCachedAssetAttributes(string $assetId): array
     {
         return $this->attributeCache->get(self::CACHE_KEY_PREFIX.$assetId, fn (): array => array_filter($this->getAssetAttributes($assetId), fn (Attribute $attribute): bool => $attribute->isValidValue()));
-    }
-
-    public function getESQueryBuilder(): QueryBuilder
-    {
-        $types = array_map(
-            fn (AttributeTypeInterface $type): string => $type::getName(),
-            array_filter(
-                $this->attributeTypeRegistry->getTypes(),
-                fn (AttributeTypeInterface $type): bool => $type->supportsSuggest()
-            )
-        );
-
-        $queryBuilder = $this
-            ->createQueryBuilder('t');
-
-        if ('test' !== $this->kernelEnv) {
-            // SQLite does not find asset_id in the wrapped query
-            $queryBuilder->addOrderBy('t.asset', 'ASC');
-        }
-
-        $queryBuilder
-            ->addOrderBy('t.id', 'ASC')
-            ->innerJoin('t.definition', 'd')
-            ->andWhere('d.enabled = true')
-            ->andWhere('d.type IN (:types)')
-            ->andWhere('t.value != \'\'')
-            ->setParameter('types', $types);
-
-        return $queryBuilder;
-    }
-
-    private function restrictTranslatableFields(QueryBuilder $queryBuilder, $rootAlias = 'a'): void
-    {
-        $queryBuilder->andWhere(sprintf('d.translatable = true OR %1$s.locale IS NULL OR %1$s.locale = \'%2$s\'', $rootAlias, AttributeInterface::NO_LOCALE));
     }
 
     public function deleteByAttributeEntity(string $entityId, string $workspaceId, string $entityListId): void

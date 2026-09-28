@@ -51,7 +51,11 @@ final readonly class AQLToESQuery
     private function visitExpression(array $fieldClusters, array $data, array $options): Query\AbstractQuery
     {
         $boolQuery = new Query\BoolQuery();
-        $method = LogicOperatorEnum::AND->value === strtoupper((string) $data['operator']) ? 'addMust' : 'addShould';
+        $method = match (strtoupper((string) $data['operator'])) {
+            LogicOperatorEnum::AND->value => 'addMust',
+            LogicOperatorEnum::NOT->value => 'addMustNot',
+            default => 'addShould',
+        };
 
         foreach ($data['conditions'] as $condition) {
             $boolQuery->$method($this->visitNode($fieldClusters, $condition, $options));

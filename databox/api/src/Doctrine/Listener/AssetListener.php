@@ -6,7 +6,6 @@ namespace App\Doctrine\Listener;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Consumer\Handler\File\ReevaluateFileAnalyses;
-use App\Consumer\Handler\Search\IndexAssetAttributes;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetFileVersion;
 use App\Entity\Core\Attribute;
@@ -17,15 +16,11 @@ use App\Service\Asset\Attribute\AssetNameFiller;
 use App\Service\Log\ActionLogManager;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\OnFlushEventArgs;
-use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::onFlush)]
-#[AsDoctrineListener(Events::postUpdate)]
 class AssetListener
 {
-    use ChangeFieldListenerTrait;
-
     public function __construct(
         private readonly PostFlushStack $postFlushStack,
         private readonly ActionLogManager $actionLogManager,
@@ -108,24 +103,5 @@ class AssetListener
                 }
             }
         }
-    }
-
-    public function postUpdate(PostUpdateEventArgs $args): void
-    {
-        $entity = $args->getObject();
-
-        if (!$entity instanceof Asset) {
-            return;
-        }
-
-        if (!$this->hasChangedField([
-            'privacy',
-            'owner',
-            'referenceCollection',
-        ], $args->getObjectManager(), $entity)) {
-            return;
-        }
-
-        $this->postFlushStack->addBusMessage(new IndexAssetAttributes($entity->getId()));
     }
 }

@@ -25,7 +25,6 @@ trait SearchTestTrait
         $indexes = [
             'asset',
             'collection',
-            'attribute',
             'asset_data_template',
             'basket',
         ];

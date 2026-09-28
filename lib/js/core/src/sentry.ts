@@ -9,6 +9,11 @@ export function initSentry({
     appId,
     appName,
 }: SentryConfig) {
+    if (typeof document === 'undefined') {
+        // Server-side rendering: the browser Sentry SDK is not usable there
+        return;
+    }
+
     Sentry.init({
         enabled: !!sentryDsn,
         dsn: sentryDsn,

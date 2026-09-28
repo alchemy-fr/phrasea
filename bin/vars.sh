@@ -1,6 +1,7 @@
 #!/bin/sh
 
 SYMFONY_PROJECTS="
+configurator
 databox/api
 expose/api
 uploader/api

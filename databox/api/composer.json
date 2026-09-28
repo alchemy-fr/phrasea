@@ -177,6 +177,7 @@
         "doctrine/doctrine-bundle": "^2.9",
         "doctrine/doctrine-migrations-bundle": "^3.0",
         "doctrine/orm": "^2.7",
+        "dompdf/dompdf": "^3.1",
         "exercise/htmlpurifier-bundle": "^5.2",
         "friendsofsymfony/elastica-bundle": "^7.2",
         "gedmo/doctrine-extensions": "^3.5",

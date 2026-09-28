@@ -16,18 +16,37 @@ use App\Elasticsearch\AQL\DateNormalizer;
 use App\Elasticsearch\AQL\Function\AQLFunctionRegistry;
 use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
+use App\Elasticsearch\BuiltInAttribute\CollectionBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\CreatedAtBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\DeletedBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\DirectCollectionBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\WorkspaceBuiltInAttribute;
+use App\Entity\Core\Collection;
 use App\Tests\Attribute\Type\AttributeTypeRegistryTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\Service\ServiceLocatorTrait;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class AQLToESQueryTest extends TestCase
 {
+    /**
+     * Root collection.
+     */
+    private const string COLL_A = '2b2c8b1e-0000-4000-8000-00000000000a';
+
+    /**
+     * Child of {@see self::COLL_A}.
+     */
+    private const string COLL_B = '2b2c8b1e-0000-4000-8000-00000000000b';
+
+    private const array COLLECTION_PATHS = [
+        self::COLL_A => '/'.self::COLL_A,
+        self::COLL_B => '/'.self::COLL_A.'/'.self::COLL_B,
+    ];
+
     /**
      * @dataProvider getCases
      */
@@ -36,14 +55,16 @@ class AQLToESQueryTest extends TestCase
         $parser = new AQLParser();
         $result = $parser->parse($expression);
         $em = $this->createMock(EntityManagerInterface::class);
+        $em->method('find')->willReturnCallback(fn (string $class, mixed $id): ?Collection => $this->createCollectionStub($class, $id));
         $translator = $this->createMock(TranslatorInterface::class);
+        $security = $this->createMock(Security::class);
 
         $functionRegistry = new AQLFunctionRegistry();
         $functionRegistry->register(new MockNowFunction());
 
         $attributeTypeRegistry = AttributeTypeRegistryTestFactory::create();
 
-        $container = new class([WorkspaceBuiltInAttribute::getKey() => fn () => new WorkspaceBuiltInAttribute($em), AssetStatusBuiltInAttribute::getKey() => fn () => new AssetStatusBuiltInAttribute($translator), DeletedBuiltInAttribute::getKey() => fn () => new DeletedBuiltInAttribute(), CreatedAtBuiltInAttribute::getKey() => fn () => new CreatedAtBuiltInAttribute()]) implements ServiceProviderInterface {
+        $container = new class([WorkspaceBuiltInAttribute::getKey() => fn () => new WorkspaceBuiltInAttribute($em), AssetStatusBuiltInAttribute::getKey() => fn () => new AssetStatusBuiltInAttribute($translator), DeletedBuiltInAttribute::getKey() => fn () => new DeletedBuiltInAttribute(), CreatedAtBuiltInAttribute::getKey() => fn () => new CreatedAtBuiltInAttribute(), CollectionBuiltInAttribute::getKey() => fn () => new CollectionBuiltInAttribute($em, $security), DirectCollectionBuiltInAttribute::getKey() => fn () => new DirectCollectionBuiltInAttribute($em, $security)]) implements ServiceProviderInterface {
             use ServiceLocatorTrait;
         };
         $builtInAttributeRegistry = new BuiltInAttributeRegistry($container);
@@ -122,9 +143,65 @@ class AQLToESQueryTest extends TestCase
         }
     }
 
+    private function createCollectionStub(string $class, mixed $id): ?Collection
+    {
+        if (Collection::class !== $class || !isset(self::COLLECTION_PATHS[$id])) {
+            return null;
+        }
+
+        $collection = $this->createMock(Collection::class);
+        $collection->method('getAbsolutePath')->willReturn(self::COLLECTION_PATHS[$id]);
+
+        return $collection;
+    }
+
     public function getCases(): array
     {
         return [
+            // @collection is recursive: the "collectionPaths" field is analyzed
+            // with a path_hierarchy tokenizer, so descendants match too.
+            ['@collection = "'.self::COLL_A.'"', [
+                'term' => ['collectionPaths' => '/'.self::COLL_A],
+            ]],
+            ['@collection IN ("'.self::COLL_A.'", "'.self::COLL_B.'")', [
+                'terms' => ['collectionPaths' => [
+                    '/'.self::COLL_A,
+                    '/'.self::COLL_A.'/'.self::COLL_B,
+                ]],
+            ]],
+            // @directCollection targets the raw keyword sub field: only assets
+            // directly attached to the given collections match.
+            ['@directCollection = "'.self::COLL_A.'"', [
+                'term' => ['collectionPaths.raw' => '/'.self::COLL_A],
+            ]],
+            ['@directCollection IN ("'.self::COLL_A.'", "'.self::COLL_B.'")', [
+                'terms' => ['collectionPaths.raw' => [
+                    '/'.self::COLL_A,
+                    '/'.self::COLL_A.'/'.self::COLL_B,
+                ]],
+            ]],
+            ['@directCollection NOT IN ("'.self::COLL_B.'")', [
+                'bool' => [
+                    'must_not' => [
+                        ['terms' => ['collectionPaths.raw' => [
+                            '/'.self::COLL_A.'/'.self::COLL_B,
+                        ]]],
+                    ],
+                ],
+            ]],
+            ['@directCollection != "'.self::COLL_A.'"', [
+                'bool' => [
+                    'must_not' => [
+                        ['term' => ['collectionPaths.raw' => '/'.self::COLL_A]],
+                    ],
+                ],
+            ]],
+            ['@directCollection EXISTS', [
+                'exists' => ['field' => 'collectionPaths.raw'],
+            ]],
+            ['@directCollection = "not-an-uuid"', 'Invalid collection ID'],
+            ['@directCollection = "2b2c8b1e-0000-4000-8000-0000000000ff"', 'Collection not found'],
+            ['@directCollection CONTAINS "foo"', 'Operator "CONTAINS" not supported for field type "collection_path"'],
             ['date < "YYYY-88-88"', 'Invalid date value "YYYY-88-88"'],
             ['date < "9999-88-88"', [
                 'range' => [

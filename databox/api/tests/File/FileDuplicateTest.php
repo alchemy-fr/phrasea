@@ -89,7 +89,7 @@ class FileDuplicateTest extends AbstractDataboxTestCase
         $duplicateAsset = $this->createAssetWithSource($duplicateSource);
 
         $analyzedFile = $this->createFile($workspace);
-        $analyzedFile->setAnalysis($this->buildFailedChecksumAnalysis());
+        $this->assignAnalysis($analyzedFile, $this->buildFailedChecksumAnalysis());
         $quarantined = $this->createAssetWithSource($analyzedFile, AssetStatusEnum::Quarantined);
         $this->createLink($analyzedFile, $duplicateSource);
         $em->flush();
@@ -104,7 +104,7 @@ class FileDuplicateTest extends AbstractDataboxTestCase
 
         $this->assertCount(0, self::getService(FileDuplicateRepository::class)->findByFileId($analyzedFile->getId()));
 
-        $analysis = $em->find(File::class, $analyzedFile->getId())->getAnalysis();
+        $analysis = $em->find(File::class, $analyzedFile->getId())->getAnalysis()->toArray();
         $this->assertSame(File::ANALYSIS_SUCCESS, $analysis['status']);
         $this->assertArrayNotHasKey('messages', $analysis['results'][0]['output']);
 
@@ -127,7 +127,7 @@ class FileDuplicateTest extends AbstractDataboxTestCase
                 'messages' => [[4, 'dimension_too_small', []]],
             ],
         ];
-        $analyzedFile->setAnalysis($analysis);
+        $this->assignAnalysis($analyzedFile, $analysis);
         $quarantined = $this->createAssetWithSource($analyzedFile, AssetStatusEnum::Quarantined);
         $em->flush();
 
@@ -136,7 +136,7 @@ class FileDuplicateTest extends AbstractDataboxTestCase
             ->reevaluateFiles([$analyzedFile->getId()]);
         $em->clear();
 
-        $analysis = $em->find(File::class, $analyzedFile->getId())->getAnalysis();
+        $analysis = $em->find(File::class, $analyzedFile->getId())->getAnalysis()->toArray();
         $this->assertSame(File::ANALYSIS_FAILED, $analysis['status']);
         $this->assertArrayNotHasKey('messages', $analysis['results'][0]['output']);
         $this->assertSame('dimension_too_small', $analysis['results'][1]['output']['messages'][0][1]);
@@ -155,7 +155,7 @@ class FileDuplicateTest extends AbstractDataboxTestCase
         $analyzedFile = $this->createFile($workspace);
         $analysis = $this->buildFailedChecksumAnalysis();
         $analysis['status'] = File::ANALYSIS_BYPASSED;
-        $analyzedFile->setAnalysis($analysis);
+        $this->assignAnalysis($analyzedFile, $analysis);
         $this->createAssetWithSource($analyzedFile);
         $em->flush();
 
@@ -163,7 +163,7 @@ class FileDuplicateTest extends AbstractDataboxTestCase
             ->reevaluateFiles([$analyzedFile->getId()]);
         $em->clear();
 
-        $analysis = $em->find(File::class, $analyzedFile->getId())->getAnalysis();
+        $analysis = $em->find(File::class, $analyzedFile->getId())->getAnalysis()->toArray();
         $this->assertSame(File::ANALYSIS_BYPASSED, $analysis['status']);
         $this->assertSame('duplicate_checksum', $analysis['results'][0]['output']['messages'][0][1]);
     }
@@ -181,7 +181,7 @@ class FileDuplicateTest extends AbstractDataboxTestCase
         // Simulate a previously cleaned-up analysis
         $analysis['status'] = File::ANALYSIS_SUCCESS;
         unset($analysis['results'][0]['output']['messages']);
-        $analyzedFile->setAnalysis($analysis);
+        $this->assignAnalysis($analyzedFile, $analysis);
         $owningAsset = $this->createAssetWithSource($analyzedFile);
         $em->flush();
 
@@ -194,7 +194,7 @@ class FileDuplicateTest extends AbstractDataboxTestCase
         $this->assertSame($restoredSource->getId(), $links[0]->getDuplicateFile()->getId());
         $this->assertSame('checksum', $links[0]->getAnalyzer());
 
-        $analysis = $em->find(File::class, $analyzedFile->getId())->getAnalysis();
+        $analysis = $em->find(File::class, $analyzedFile->getId())->getAnalysis()->toArray();
         $this->assertSame(File::ANALYSIS_FAILED, $analysis['status']);
         $this->assertSame('duplicate_checksum', $analysis['results'][0]['output']['messages'][0][1]);
         $this->assertSame(1, $analysis['results'][0]['output']['messages'][0][2]['count']);
@@ -240,6 +240,16 @@ class FileDuplicateTest extends AbstractDataboxTestCase
         self::getEntityManager()->persist($link);
 
         return $link;
+    }
+
+    private function assignAnalysis(File $file, array $analysis): void
+    {
+        $file->setAnalysisResult(
+            $analysis['status'],
+            $analysis['results'] ?? [],
+            $analysis['hash'] ?? null,
+            $analysis['message'] ?? null,
+        );
     }
 
     private function buildFailedChecksumAnalysis(): array

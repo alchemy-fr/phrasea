@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Asset\Attribute;
 
+use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Attribute\AttributeInterface;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\Asset;
@@ -15,16 +16,21 @@ use App\Security\Voter\AttributeDefinitionVoter;
 use App\Service\Asset\Attribute\Index\AttributeIndex;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Contracts\Cache\CacheInterface;
 
 readonly class AttributesResolver
 {
+    private CacheInterface $definitionPermissionCache;
+
     public function __construct(
         private EntityManagerInterface $em,
         private FieldNameResolver $fieldNameResolver,
         private FallbackResolver $fallbackResolver,
         private Security $security,
         private ExceptionNotifier $exceptionNotifier,
+        TemporaryCacheFactory $cacheFactory,
     ) {
+        $this->definitionPermissionCache = $cacheFactory->createCache();
     }
 
     public function resolveAssetAttributes(Asset $asset, bool $applyPermissions): AttributeIndex
@@ -43,7 +49,7 @@ readonly class AttributesResolver
         if ($applyPermissions) {
             foreach ($index->getDefinitions() as $definitionIndex) {
                 $definition = $definitionIndex->getDefinition();
-                if (!$this->security->isGranted(AttributeDefinitionVoter::VIEW_ATTRIBUTES, $definition)) {
+                if (!$this->canViewDefinitionAttributes($definition)) {
                     $index->removeDefinition($definition->getId());
                 }
             }
@@ -52,6 +58,20 @@ readonly class AttributesResolver
         }
 
         return $index;
+    }
+
+    /**
+     * The decision only depends on the definition policy and the current user,
+     * so it is taken once per definition and request instead of once per asset.
+     */
+    private function canViewDefinitionAttributes(AttributeDefinition $definition): bool
+    {
+        $key = $definition->getId().'_'.($this->security->getUser()?->getUserIdentifier() ?? '_anon');
+
+        return $this->definitionPermissionCache->get(
+            $key,
+            fn (): bool => $this->security->isGranted(AttributeDefinitionVoter::VIEW_ATTRIBUTES, $definition)
+        );
     }
 
     /**

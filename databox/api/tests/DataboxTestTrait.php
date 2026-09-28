@@ -11,6 +11,7 @@ use Alchemy\AclBundle\Security\PermissionManager;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use App\Attribute\AttributeTypeRegistry;
 use App\Attribute\Type\TextAttributeType;
+use App\Entity\Basket\Basket;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -21,7 +22,7 @@ use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
-use App\Security\TagFilterManager;
+use App\Security\AttributeFilterManager;
 use App\Service\Workspace\WorkspaceCreator;
 use MartinGeorgiev\Doctrine\DBAL\Types\ValueObject\Ltree;
 use Ramsey\Uuid\Uuid;
@@ -220,6 +221,35 @@ trait DataboxTestTrait
         return json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
     }
 
+    protected function createBasket(array $options = []): Basket
+    {
+        $em = self::getEntityManager();
+
+        $basket = new Basket($options['id'] ?? null);
+        $basket->setName($options['name'] ?? null);
+        $basket->setDescription($options['description'] ?? null);
+        $basket->setOwnerId($options['ownerId'] ?? 'custom_owner');
+
+        if (array_key_exists('createdAt', $options)) {
+            $createdAt = $options['createdAt'];
+            if (is_string($createdAt)) {
+                $createdAt = new \DateTimeImmutable($createdAt);
+            }
+
+            // Gedmo Timestampable keeps manually set values
+            $p = new \ReflectionProperty(Basket::class, 'createdAt');
+            $p->setValue($basket, $createdAt);
+        }
+
+        $em->persist($basket);
+
+        if (!($options['no_flush'] ?? false)) {
+            $em->flush();
+        }
+
+        return $basket;
+    }
+
     protected function createWorkspace(array $options = []): Workspace
     {
         $em = self::getEntityManager();
@@ -265,9 +295,9 @@ trait DataboxTestTrait
         return self::getService(PermissionManager::class);
     }
 
-    protected static function getTagFilterManager(): TagFilterManager
+    protected static function getAttributeFilterManager(): AttributeFilterManager
     {
-        return self::getContainer()->get(TagFilterManager::class);
+        return self::getContainer()->get(AttributeFilterManager::class);
     }
 
     protected function addAssetToCollection(string $collectionId, string $assetId, array $options = []): string

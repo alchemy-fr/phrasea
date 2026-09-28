@@ -18,6 +18,7 @@ import {UserRole} from '../../constants.ts';
 import {useNavigateToModal} from '../Routing/ModalLink.tsx';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {modalRoutes} from '../../routes.ts';
+import WorkspaceTermsGate from '../Workspace/WorkspaceTermsGate.tsx';
 
 type Props = PropsWithChildren<{
     leftPanelOpen: boolean;
@@ -89,6 +90,7 @@ export default function AppLayout({children}: Props) {
                 height: '100vh',
             }}
         >
+            <WorkspaceTermsGate />
             {children}
         </VerticalMenuLayout>
     );

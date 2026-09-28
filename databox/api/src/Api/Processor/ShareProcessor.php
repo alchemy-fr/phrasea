@@ -11,6 +11,7 @@ use ApiPlatform\Validator\ValidatorInterface;
 use App\Api\Provider\ShareReadProvider;
 use App\Entity\Core\Share;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ShareProcessor implements ProcessorInterface
 {
@@ -30,6 +31,18 @@ class ShareProcessor implements ProcessorInterface
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): Share
     {
+        $assets = $data->getAssetsList();
+        if (empty($assets)) {
+            throw new BadRequestHttpException('A share must contain at least one asset');
+        }
+
+        $workspaceId = $assets[0]->getWorkspaceId();
+        foreach ($assets as $asset) {
+            if ($asset->getWorkspaceId() !== $workspaceId) {
+                throw new BadRequestHttpException('All shared assets must belong to the same workspace');
+            }
+        }
+
         $item = $this->decorated->process($this->processOwnerId($data), $operation, $uriVariables, $context);
         $this->validator->validate($item);
 

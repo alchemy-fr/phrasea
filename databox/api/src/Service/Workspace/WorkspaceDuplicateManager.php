@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Service\Workspace;
 
+use App\Entity\Core\AttributeFilterRule;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Tag;
-use App\Entity\Core\TagFilterRule;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use Doctrine\ORM\EntityManagerInterface;
@@ -77,29 +77,26 @@ readonly class WorkspaceDuplicateManager
         $items = $this->em->getRepository(Tag::class)->findBy([
             'workspace' => $from->getId(),
         ]);
-        $map = [];
         foreach ($items as $item) {
             $i = new Tag();
             $i->setWorkspace($to);
             $i->setName($item->getName());
             $i->setLocale($item->getLocale());
             $this->em->persist($i);
-            $map[$item->getId()] = $i;
         }
 
-        /** @var TagFilterRule[] $items */
-        $items = $this->em->getRepository(TagFilterRule::class)->findBy([
+        /** @var AttributeFilterRule[] $items */
+        $items = $this->em->getRepository(AttributeFilterRule::class)->findBy([
             'workspace' => $from->getId(),
         ]);
 
-        $replace = fn (Tag $t): Tag => $map[$t->getId()];
+        // Entity UUIDs embedded in the AQL condition (e.g. @tag references) are NOT
+        // remapped to the duplicated workspace's entities: such rules fail closed.
         foreach ($items as $item) {
-            $i = new TagFilterRule();
-            $i->setExclude($item->getExclude()->map($replace));
-            $i->setInclude($item->getInclude()->map($replace));
+            $i = new AttributeFilterRule();
+            $i->setCondition($item->getCondition());
             $i->setWorkspace($to);
-            $i->setUserId($item->getUserId());
-            $i->setUserType($item->getUserType());
+            $i->setTargets($item->getUserIds(), $item->getGroupIds());
             $this->em->persist($i);
         }
     }
