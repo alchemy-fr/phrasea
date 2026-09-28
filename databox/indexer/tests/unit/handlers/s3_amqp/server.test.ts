@@ -68,6 +68,18 @@ describe('s3AmqpAssetServerFactory', () => {
         expect(res.redirect).toHaveBeenCalled();
     });
 
+    it('accepts a bucket of a padded list', async () => {
+        const res = createFakeResponse();
+
+        await s3AmqpAssetServerFactory(location('bucket-a, bucket-b'), logger)(
+            'x',
+            res,
+            {bucket: 'bucket-b'}
+        );
+
+        expect(res.redirect).toHaveBeenCalled();
+    });
+
     it('answers 404 for a bucket outside the list', async () => {
         const res = createFakeResponse();
 

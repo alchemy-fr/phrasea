@@ -64,22 +64,6 @@ final class Version20260923120000 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        // The dropped table and column were dead: they are not restored.
-        $this->addSql('DROP INDEX IF EXISTS ca_path_idx');
-        $this->addSql('CREATE INDEX ca_path_idx ON collection_access (path)');
-        $this->addSql('CREATE INDEX gist_path_idx ON collection_access USING GIST (path)');
-        $this->addSql(<<<'SQL'
-            DO $$ BEGIN
-                IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_8c9f36101e268798' AND conrelid = 'file'::regclass) THEN
-                    ALTER TABLE file RENAME CONSTRAINT fk_8c9f36101e268798 TO fk_8c9f361019a0ab55;
-                END IF;
-            END $$
-            SQL);
-        $this->addSql('ALTER INDEX IF EXISTS uniq_8c9f36101e268798 RENAME TO uniq_8c9f361019a0ab55');
-        $this->addSql('ALTER INDEX IF EXISTS idx_2225e6199373edff RENAME TO idx_adwr_rendition');
-        $this->addSql('ALTER INDEX IF EXISTS idx_2225e6197492f274 RENAME TO idx_adwr_attribute');
-        $this->addSql('ALTER TABLE job_state ALTER number SET DEFAULT 0');
-        $this->addSql('ALTER TABLE asset_rendition ALTER substituted SET DEFAULT FALSE');
-        $this->addSql('ALTER TABLE asset_rendition ALTER locked SET DEFAULT FALSE');
+        $this->throwIrreversibleMigrationException('The dropped oauth_client table and asset_rendition.uri column were dead, they are not restored.');
     }
 }
