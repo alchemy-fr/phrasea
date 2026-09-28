@@ -7,7 +7,7 @@ import {
     IntegrationToken,
     IntegrationType,
     Page,
-    TagFilterRule,
+    AttributeFilterRule,
     WorkspaceIntegration,
 } from '@/types/api';
 import {toIris} from '@/lib/utils/iri';
@@ -154,41 +154,33 @@ export function deleteIntegration(id: string): Promise<void> {
 
 // Filter rules -------------------------------------------------------------
 
-export async function getTagFilterRules(options: {
-    collectionId?: string;
-    workspaceId?: string;
-}): Promise<Page<TagFilterRule>> {
+export async function getAttributeFilterRules(
+    workspaceId: string
+): Promise<Page<AttributeFilterRule>> {
     return toPage(
-        await api.get<HydraCollection<TagFilterRule>>('/tag-filter-rules', {
-            params: options,
-        })
+        await api.get<HydraCollection<AttributeFilterRule>>(
+            '/attribute-filter-rules',
+            {params: {workspaceId}}
+        )
     );
 }
 
-export function saveTagFilterRule(data: {
+export function saveAttributeFilterRule(data: {
     id?: string;
-    userId?: string;
-    groupId?: string;
-    collectionId?: string;
-    workspaceId?: string;
-    include?: string[];
-    exclude?: string[];
-}): Promise<TagFilterRule> {
-    const {id, include, exclude, ...rest} = data;
-    // Tags are denormalized from their IRIs
-    const toIri = (tagId: string) =>
-        tagId.startsWith('/') ? tagId : `/${EntityName.Tag}/${tagId}`;
-    const payload = {
-        ...rest,
-        include: include?.map(toIri),
-        exclude: exclude?.map(toIri),
-    };
+    /** No user nor group: the rule applies to everyone */
+    userIds: string[];
+    groupIds: string[];
+    workspaceId: string;
+    /** AQL condition the visible assets must match */
+    condition: string;
+}): Promise<AttributeFilterRule> {
+    const {id, ...payload} = data;
 
     return id
-        ? api.put<TagFilterRule>(`/tag-filter-rules/${id}`, payload)
-        : api.post<TagFilterRule>('/tag-filter-rules', payload);
+        ? api.put<AttributeFilterRule>(`/attribute-filter-rules/${id}`, payload)
+        : api.post<AttributeFilterRule>('/attribute-filter-rules', payload);
 }
 
-export function deleteTagFilterRule(id: string): Promise<void> {
-    return api.delete(`/tag-filter-rules/${id}`);
+export function deleteAttributeFilterRule(id: string): Promise<void> {
+    return api.delete(`/attribute-filter-rules/${id}`);
 }
