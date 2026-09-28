@@ -2,5 +2,5 @@ imports:
     - './services_dev.yaml'
 
 services:
-    App\Tests\Rendition\Phraseanet\PhraseanetApiClientFactoryMock: ~
-    App\Integration\Phraseanet\PhraseanetApiClientFactory: '@App\Tests\Rendition\Phraseanet\PhraseanetApiClientFactoryMock'
+    App\Tests\Functional\Rendition\Phraseanet\PhraseanetApiClientFactoryMock: ~
+    App\Integration\Phraseanet\PhraseanetApiClientFactory: '@App\Tests\Functional\Rendition\Phraseanet\PhraseanetApiClientFactoryMock'

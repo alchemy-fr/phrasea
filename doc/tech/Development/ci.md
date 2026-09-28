@@ -17,15 +17,15 @@ No service is started. Per Symfony project (`composer test:quick`):
 
 - `var-dump-check`, PHPStan, `php-cs-fixer --dry-run` (`composer lint`)
 - PHPUnit suite `unit` (`composer phpunit:unit`): plain `TestCase` classes that
-  need no database, Elasticsearch, Redis or S3. The suite is the explicit list
-  in `phpunit.xml.dist`; everything else is `functional`.
+  need no database, Elasticsearch, Redis or S3, under `tests/unit/`;
+  everything that needs the stack is under `tests/functional/`.
 
 Every lib in `lib/php/*` runs its own `composer test` (var-dump-check, plus
 PHPUnit for the libs that have tests).
 
 JS (`pnpm test:quick`): `pnpm lint` (eslint), `pnpm typecheck` (`tsc`) and
-`pnpm test` (vitest: `databox/client`, `databox/indexer` unit suite,
-`@alchemy/auth`, `@alchemy/i18n`).
+`pnpm test` (vitest: `databox/client`, `databox/client-nextjs`, `databox/indexer`
+unit suite, `@alchemy/auth`, `@alchemy/i18n`).
 
 In CI the PHP part runs on the runner with `setup-php` and a Composer cache,
 the JS part with pnpm; no image is built.
@@ -78,11 +78,13 @@ images and reproduces the CI run in an isolated compose project.
 
 ## Adding a test
 
-- A PHP test that boots the kernel or touches a service goes anywhere under
-  `tests/`: it lands in the `functional` suite by default.
-- A plain `TestCase` can join the `unit` suite: add it to **both** the
-  `<testsuite name="unit">` block and the `<exclude>` list of the `functional`
-  suite in the project's `phpunit.xml.dist`.
+- PHP tests of an API live under `tests/unit/` (namespace `App\Tests\Unit\`)
+  or `tests/functional/` (namespace `App\Tests\Functional\`); the directory
+  is the suite, `phpunit.xml.dist` lists nothing else. A plain `TestCase` that
+  needs no service goes in `unit`; anything that boots the kernel or touches
+  the database, Elasticsearch, Redis or S3 goes in `functional`. A unit test
+  never depends on a functional helper (the reverse is fine). Shared input
+  files stay in `tests/fixtures/`.
 - A JS package gets tests by adding a `test` script (`vitest run`) and a
   `vitest.config.ts`; turbo picks it up in `pnpm test`.
 - Heavy scenarios (full-stack, minutes long) go in a script under `bin/dev/`
