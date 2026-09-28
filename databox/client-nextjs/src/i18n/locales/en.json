@@ -771,6 +771,7 @@
     "search.error.title": "Search failed",
     "search.geo.disable": "Disable \"around me\"",
     "search.geo.enable": "Search around me",
+    "search.loading": "Loading assets…",
     "search.more": "More",
     "search.no_results.empty": "There are no assets to display.",
     "search.no_results.facets": "Remove some facets or conditions",

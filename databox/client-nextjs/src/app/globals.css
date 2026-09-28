@@ -791,6 +791,122 @@
     --text-5xl: calc(var(--font-size) * 3.429);
 }
 
+/*
+ * Loaders depicting assets being fetched (components/ui/asset-loaders.tsx).
+ * Declared as theme animations so the components use plain
+ * `animate-asset-*` utilities.
+ */
+@theme {
+    --animate-asset-tile: asset-tile 1.8s ease-in-out infinite;
+    --animate-asset-shimmer: asset-shimmer 2.2s ease-in-out infinite;
+    --animate-asset-stack: asset-stack 3.6s ease-in-out infinite;
+    --animate-asset-frame: asset-frame 2.6s ease-in-out infinite;
+    --animate-asset-overlay: asset-overlay 5s ease-out forwards;
+
+    /* Thumbnail placeholder: swells and brightens as the wave passes */
+    @keyframes asset-tile {
+        0%,
+        100% {
+            opacity: 0.45;
+            transform: scale(0.94);
+        }
+        35% {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Light band sweeping over the grid, from off-left to off-right */
+    @keyframes asset-shimmer {
+        0% {
+            transform: translateX(0) skewX(-12deg);
+        }
+        100% {
+            transform: translateX(400%) skewX(-12deg);
+        }
+    }
+
+    /*
+     * One card of the pile. Its timeline runs front → slides out → lands at
+     * the back → climbs to the middle → returns to the front; the three
+     * cards share it with a 1/3 offset. The z-index steps at the keyframes
+     * (it does not interpolate), which is what makes the card slip under.
+     */
+    @keyframes asset-stack {
+        0% {
+            transform: translate(0, 0) rotate(0deg) scale(1);
+            z-index: 3;
+            opacity: 1;
+        }
+        18% {
+            transform: translate(-44px, 10px) rotate(-14deg) scale(1);
+            z-index: 3;
+            opacity: 0.85;
+        }
+        30% {
+            transform: translate(12px, -12px) rotate(8deg) scale(0.92);
+            z-index: 1;
+            opacity: 1;
+        }
+        33.333%,
+        45% {
+            transform: translate(12px, -12px) rotate(8deg) scale(0.92);
+            z-index: 1;
+        }
+        66.666%,
+        78% {
+            transform: translate(6px, -6px) rotate(4deg) scale(0.96);
+            z-index: 2;
+        }
+        100% {
+            transform: translate(0, 0) rotate(0deg) scale(1);
+            z-index: 3;
+            opacity: 1;
+        }
+    }
+
+    /*
+     * Veil over stale results while a new search runs: the blur builds up
+     * slowly, so a fast search barely dims the list and a slow one ends up
+     * clearly out of focus.
+     */
+    @keyframes asset-overlay {
+        from {
+            background-color: transparent;
+            -webkit-backdrop-filter: blur(0);
+            backdrop-filter: blur(0);
+        }
+        to {
+            background-color: color-mix(
+                in oklab,
+                var(--background) 40%,
+                transparent
+            );
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+        }
+    }
+
+    /* Filmstrip frame: develops, holds, then fades for the next pass */
+    @keyframes asset-frame {
+        0%,
+        8% {
+            opacity: 0.15;
+            transform: scale(0.85);
+        }
+        22%,
+        62% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        78%,
+        100% {
+            opacity: 0.15;
+            transform: scale(0.85);
+        }
+    }
+}
+
 @layer base {
     * {
         @apply border-border outline-ring/50;

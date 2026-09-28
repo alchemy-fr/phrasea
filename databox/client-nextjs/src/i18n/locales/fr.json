@@ -771,6 +771,7 @@
     "search.error.title": "La recherche a échoué",
     "search.geo.disable": "Désactiver « autour de moi »",
     "search.geo.enable": "Rechercher autour de moi",
+    "search.loading": "Chargement des assets…",
     "search.more": "Plus",
     "search.no_results.empty": "Il n'y a aucun asset à afficher.",
     "search.no_results.facets": "Retirez des facettes ou des conditions",
