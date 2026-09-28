@@ -1,0 +1,20 @@
+mcp:
+    servers:
+        expose:
+            name: 'Phrasea Expose'
+            description: 'Manage Phrasea Expose publications, publication profiles and published assets.'
+            instructions: |
+                Phrasea Expose publishes asset galleries on the web. A publication has a title, an optional URL
+                slug, settings ("config") and assets; publications can be nested. A publication profile holds
+                settings shared by the publications using it: a publication setting left unset (null) falls back
+                to the one of its profile. Every call runs with the permissions of the authenticated user.
+            http:
+                path: /mcp
+                # Requests are authenticated by a Bearer token (see security.yaml), which a browser never
+                # attaches to a rebound request: the DNS rebinding protection would only reject the public host.
+                allowed_hosts: false
+            session:
+                # Shared across PHP workers/replicas, unlike the default file store.
+                store: framework
+            registry:
+                tools: ['App\Mcp\Tool\']

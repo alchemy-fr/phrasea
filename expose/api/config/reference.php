@@ -145,6 +145,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         secret?: scalar|Param|null, // Default: "%env(SOKETI_SECRET)%"
  *         appId?: scalar|Param|null, // Default: "%env(SOKETI_APP_ID)%"
  *         verifySsl?: bool|Param, // Default: "%env(bool:VERIFY_SSL)%"
+ *         port?: scalar|Param|null, // Port of the Soketi server, server side (defaults to 443) // Default: "%env(SOKETI_PORT)%"
+ *         scheme?: scalar|Param|null, // Scheme used to reach the Soketi server, server side (defaults to https) // Default: "%env(SOKETI_SCHEME)%"
  *         channel_prefix?: scalar|Param|null, // Prefix of the per-user private channel a user may authorize (suffixed with the user identifier) // Default: "private-user-"
  *     },
  * }
@@ -703,10 +705,10 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         message_bus?: scalar|Param|null, // The message bus to use. // Default: "messenger.default_bus"
  *         routing?: array<string, array{ // Default: []
  *             service?: scalar|Param|null,
- *             secret?: scalar|Param|null, // Default: ""
+ *             secret?: scalar|Param|null, // The secret used to verify incoming request signatures. It must be set in production: with an empty value, requests from any sender are accepted. // Default: ""
  *         }>,
  *     },
- *     remote-event?: bool|array{ // RemoteEvent configuration
+ *     remote_event?: bool|array{ // RemoteEvent configuration
  *         enabled?: bool|Param, // Default: false
  *     },
  *     json_streamer?: bool|array{ // JSON streamer configuration
@@ -719,6 +721,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         id?: scalar|Param|null,
  *         type?: scalar|Param|null,
  *         value?: mixed,
+ *         ...<string, mixed>
  *     }>,
  *     autoescape_service?: scalar|Param|null, // Default: null
  *     autoescape_service_method?: scalar|Param|null, // Default: null
@@ -844,7 +847,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             limiter?: scalar|Param|null, // A service id implementing "Symfony\Component\HttpFoundation\RateLimiter\RequestRateLimiterInterface".
  *             max_attempts?: int|Param, // Default: 5
  *             interval?: scalar|Param|null, // Default: "1 minute"
- *             lock_factory?: scalar|Param|null, // The service ID of the lock factory used by the login rate limiter (or null to disable locking). // Default: null
+ *             lock_factory?: scalar|Param|null, // The service ID of the lock factory used by the login rate limiter ("auto" to use the default one when the Lock component is configured, or null to disable locking). // Default: "auto"
  *             cache_pool?: string|Param, // The cache pool to use for storing the limiter state // Default: "cache.rate_limiter"
  *             storage_service?: string|Param, // The service ID of a custom storage implementation, this precedes any configured "cache_pool" // Default: null
  *         },
@@ -1035,7 +1038,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             lifetime?: int|Param, // Default: 31536000
  *             path?: scalar|Param|null, // Default: "/"
  *             domain?: scalar|Param|null, // Default: null
- *             secure?: true|false|"auto"|Param, // Default: null
+ *             secure?: true|false|"auto"|Param, // Default: "auto"
  *             httponly?: bool|Param, // Default: true
  *             samesite?: null|"lax"|"strict"|"none"|Param, // Default: "lax"
  *             always_remember_me?: bool|Param, // Default: false
@@ -1175,6 +1178,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *                 use_savepoints?: bool|Param, // Use savepoints for nested transactions
  *                 instancename?: scalar|Param|null, // Optional parameter, complete whether to add the INSTANCE_NAME parameter in the connection. It is generally used to connect to an Oracle RAC server to select the name of a particular instance.
  *                 connectstring?: scalar|Param|null, // Complete Easy Connect connection descriptor, see https://docs.oracle.com/database/121/NETAG/naming.htm.When using this option, you will still need to provide the user and password parameters, but the other parameters will no longer be used. Note that when using this parameter, the getHost and getPort methods from Doctrine\DBAL\Connection will no longer function as expected.
+ *                 ...<string, mixed>
  *             }>,
  *             replicas?: array<string, array{ // Default: []
  *                 url?: scalar|Param|null, // A URL with connection information; any parameter value parsed from this string will override explicitly set parameters
@@ -1207,8 +1211,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *                 use_savepoints?: bool|Param, // Use savepoints for nested transactions
  *                 instancename?: scalar|Param|null, // Optional parameter, complete whether to add the INSTANCE_NAME parameter in the connection. It is generally used to connect to an Oracle RAC server to select the name of a particular instance.
  *                 connectstring?: scalar|Param|null, // Complete Easy Connect connection descriptor, see https://docs.oracle.com/database/121/NETAG/naming.htm.When using this option, you will still need to provide the user and password parameters, but the other parameters will no longer be used. Note that when using this parameter, the getHost and getPort methods from Doctrine\DBAL\Connection will no longer function as expected.
+ *                 ...<string, mixed>
  *             }>,
+ *             ...<string, mixed>
  *         }>,
+ *         ...<string, mixed>
  *     },
  *     orm?: array{
  *         default_entity_manager?: scalar|Param|null,
@@ -1247,6 +1254,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *                         }>,
  *                     }>,
  *                 }>,
+ *                 ...<string, mixed>
  *             },
  *             connection?: scalar|Param|null,
  *             class_metadata_factory_name?: scalar|Param|null, // Default: "Doctrine\\ORM\\Mapping\\ClassMetadataFactory"
@@ -1308,10 +1316,12 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *                 class?: scalar|Param|null,
  *                 enabled?: bool|Param, // Default: false
  *                 parameters?: array<string, mixed>,
+ *                 ...<string, mixed>
  *             }>,
  *             identity_generation_preferences?: array<string, scalar|Param|null>,
  *         }>,
  *         resolve_target_entities?: array<string, scalar|Param|null>,
+ *         ...<string, mixed>
  *     },
  * }
  * @psalm-type ApiPlatformConfig = array{
@@ -1557,6 +1567,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         item_uri_template?: mixed,
  *         ...<string, mixed>
  *     },
+ *     ...<string, mixed>
  * }
  * @psalm-type NelmioAliceConfig = array{
  *     locale?: scalar|Param|null, // Default locale for the Faker Generator // Default: "en_US"
@@ -1815,6 +1826,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *             enabled?: bool|Param|null, // Default: null
  *             date_format?: scalar|Param|null,
  *             remove_used_context_fields?: bool|Param,
+ *             ...<string, mixed>
  *         },
  *         path?: scalar|Param|null, // Default: "%kernel.logs_dir%/%kernel.environment%.log"
  *         file_permission?: scalar|Param|null, // Default: null
@@ -1938,6 +1950,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         channels?: Param|string|array{
  *             type?: scalar|Param|null,
  *             elements?: list<scalar|Param|null>,
+ *             ...<string, mixed>
  *         },
  *     }>,
  * }
@@ -2150,6 +2163,95 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         ...<string, mixed>
  *     },
  * }
+ * @psalm-type McpConfig = array{
+ *     servers?: list<array{ // Default: []
+ *         name?: string|Param, // Name advertised to clients. Defaults to the configuration key. // Default: null
+ *         version?: string|Param, // Default: "0.0.1"
+ *         description?: string|Param, // Default: null
+ *         icons?: list<array{ // Default: []
+ *             src?: string|Param,
+ *             mime_type?: string|Param, // Default: null
+ *             sizes?: list<scalar|Param|null>,
+ *         }>,
+ *         website_url?: string|Param, // Default: null
+ *         pagination_limit?: int|Param, // Default: 50
+ *         instructions?: string|Param, // Default: null
+ *         transports?: array{
+ *             stdio?: bool|Param, // Expose the server over STDIO via the "mcp:server" command. // Default: false
+ *             http?: bool|Param, // Expose the server over HTTP via a controller and route. // Default: true
+ *         },
+ *         http?: array{
+ *             path?: string|Param, // HTTP endpoint path. Defaults to "/mcp/<name>". // Default: null
+ *             allowed_hosts?: mixed, // DNS rebinding protection hosts (without port). Leave unset to keep the SDK default (localhost only), set an array of hostnames to expose a public MCP server, or false to disable the protection entirely. // Default: null
+ *         },
+ *         protocol_versions?: Param|string|list<"2024-11-05"|"2025-03-26"|"2025-06-18"|"2025-11-25"|"2026-07-28"|Param>,
+ *         request_state?: array{ // Signs the state a multi-round-trip answer carries through the client, which has no session to keep progress in. Required for a modern-era server whose handlers return an InputRequiredResult, and for one whose handlers call ClientGateway::elicit() more than once: the second ask has to carry the first answer to the next round.
+ *             key?: string|Param, // HMAC key, at least 32 bytes. The same value must reach every process that might serve the retry. // Default: null
+ *             ttl?: int|Param, // Seconds a minted state stays valid. // Default: 600
+ *         },
+ *         cache?: array{ // Cache hints the modern-era leg puts on its answers. The spec requires them on server/discover, the list methods and resources/read.
+ *             ttl_ms?: int|Param, // Default freshness in milliseconds. 0 refuses caching. // Default: 0
+ *             scope?: "private"|"public"|Param, // Default: "private"
+ *             methods?: array<string, array{ // Default: []
+ *                 ttl_ms?: int|Param,
+ *                 scope?: "private"|"public"|Param, // Default: "private"
+ *             }>,
+ *         },
+ *         subscriptions?: array{ // Delivery for "subscriptions/listen" streams, which replace the HTTP GET stream in 2026-07-28.
+ *             bus?: "none"|"memory"|"cache"|Param, // Default: "none"
+ *             cache_pool?: string|Param, // PSR-16 service for the "cache" bus. Under PHP-FPM the publisher and the stream are different workers, so "memory" cannot reach them. // Default: "cache.mcp.notifications"
+ *             lifetime?: float|Param, // Seconds a stream is held before the server closes it gracefully. 0 means until the client or the runtime ends it. // Default: 30.0
+ *         },
+ *         session?: array{ // Session storage. Every server needs its own store: session ids are not namespaced by server, so a shared store makes a session minted on one server valid on the others.
+ *             store?: "file"|"memory"|"cache"|"framework"|Param, // Default: "file"
+ *             directory?: string|Param, // Directory for the "file" store. Defaults to "%kernel.cache_dir%/mcp-sessions/<name>". // Default: null
+ *             cache_pool?: string|Param, // PSR-16 cache service for the "cache" store. // Default: "cache.mcp.sessions"
+ *             prefix?: string|Param, // Key prefix for the "cache" and "framework" stores. Defaults to "mcp-<name>-". // Default: null
+ *             ttl?: int|Param, // Default: 3600
+ *         },
+ *         registry?: array{ // The elements this server exposes, either as one list covering every kind or as a map narrowing each kind.
+ *             tools?: Param|string|list<scalar|Param|null>,
+ *             prompts?: Param|string|list<scalar|Param|null>,
+ *             resources?: Param|string|list<scalar|Param|null>,
+ *             resource_templates?: Param|string|list<scalar|Param|null>,
+ *             apps?: Param|string|list<scalar|Param|null>,
+ *             ...<string, mixed>
+ *         },
+ *     }>,
+ *     clients?: list<array{ // Default: []
+ *         client_info?: array{ // Identity advertised to every remote server of this client during the initialize handshake.
+ *             name?: string|Param, // Defaults to the configuration key. // Default: null
+ *             version?: string|Param, // Default: "0.0.1"
+ *             description?: string|Param, // Default: null
+ *         },
+ *         protocol_version?: "2024-11-05"|"2025-03-26"|"2025-06-18"|"2025-11-25"|"2026-07-28"|Param, // MCP protocol version to negotiate. Leave unset to keep the SDK default. // Default: null
+ *         capabilities?: array{ // Client capabilities advertised during the handshake. "roots", "sampling" and "elicitation" are derived from the handlers configured below.
+ *             roots_list_changed?: bool|Param, // Default: false
+ *         },
+ *         roots?: string|Param, // Service id implementing Mcp\Client\Handler\Request\RootsCallbackInterface. Answers the server's "roots/list" requests. // Default: null
+ *         sampling?: string|Param, // Service id implementing Mcp\Client\Handler\Request\SamplingCallbackInterface. Enables the "sampling" capability. // Default: null
+ *         elicitation?: string|Param, // Service id implementing Mcp\Client\Handler\Request\ElicitationCallbackInterface. Enables the "elicitation" capability. // Default: null
+ *         forward_server_logs?: bool|Param, // Forward logging notifications received from the remote servers to the "mcp" logger channel. // Default: true
+ *         init_timeout?: int|Param, // Default: 30
+ *         request_timeout?: int|Param, // Default: 120
+ *         max_retries?: int|Param, // Default: 3
+ *         servers?: list<array{ // Default: []
+ *             transport?: "stdio"|"http"|Param, // How the server is reached: as a child process (stdio) or over a remote HTTP endpoint (http).
+ *             command?: list<scalar|Param|null>,
+ *             cwd?: string|Param, // Working directory of the stdio child process. // Default: null
+ *             env?: list<scalar|Param|null>,
+ *             inherit_env?: bool|Param, // Merge "env" on top of the current process environment instead of replacing it. // Default: true
+ *             max_buffer_size?: int|Param, // Maximum bytes buffered while waiting for a newline. Defaults to the SDK value. // Default: null
+ *             url?: string|Param, // Endpoint URL of the remote MCP server. // Default: null
+ *             headers?: list<scalar|Param|null>,
+ *             http_client?: string|Param, // Service id of a PSR-18 HTTP client. Defaults to "psr18.http_client" when available. // Default: null
+ *             max_sse_buffer_bytes?: int|Param, // Maximum bytes buffered per SSE event. Defaults to the SDK value. // Default: null
+ *             init_timeout?: int|Param, // Overrides the client-level value. // Default: null
+ *             request_timeout?: int|Param, // Overrides the client-level value. // Default: null
+ *             max_retries?: int|Param, // Overrides the client-level value. // Default: null
+ *         }>,
+ *     }>,
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -2178,6 +2280,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     twig_component?: TwigComponentConfig,
  *     stof_doctrine_extensions?: StofDoctrineExtensionsConfig,
  *     twig_extra?: TwigExtraConfig,
+ *     mcp?: McpConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -2208,6 +2311,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         twig_component?: TwigComponentConfig,
  *         stof_doctrine_extensions?: StofDoctrineExtensionsConfig,
  *         twig_extra?: TwigExtraConfig,
+ *         mcp?: McpConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -2237,6 +2341,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         twig_component?: TwigComponentConfig,
  *         stof_doctrine_extensions?: StofDoctrineExtensionsConfig,
  *         twig_extra?: TwigExtraConfig,
+ *         mcp?: McpConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -2268,6 +2373,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         twig_component?: TwigComponentConfig,
  *         stof_doctrine_extensions?: StofDoctrineExtensionsConfig,
  *         twig_extra?: TwigExtraConfig,
+ *         mcp?: McpConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

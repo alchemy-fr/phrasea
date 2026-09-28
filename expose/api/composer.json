@@ -113,6 +113,7 @@
         "symfony/expression-language": "^7.4",
         "symfony/flex": "^2.10",
         "symfony/framework-bundle": "^7.4",
+        "symfony/mcp-bundle": "^0.14",
         "symfony/property-access": "^7.4",
         "symfony/property-info": "^7.4",
         "symfony/psr-http-message-bridge": "^7.4",

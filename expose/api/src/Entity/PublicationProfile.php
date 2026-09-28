@@ -27,6 +27,7 @@ use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     operations: [
@@ -79,10 +80,12 @@ class PublicationProfile implements AclObjectInterface, \Stringable
 
     #[ORM\Column(type: Types::STRING, length: 150)]
     #[Groups([self::GROUP_INDEX, Publication::GROUP_READ, self::GROUP_WRITE])]
+    #[Assert\Length(max: 150)]
     private ?string $name = null;
 
     #[ORM\Embedded(class: PublicationConfig::class)]
     #[Groups([self::GROUP_INDEX, Publication::GROUP_READ, self::GROUP_WRITE])]
+    #[Assert\Valid]
     private PublicationConfig $config;
 
     #[ORM\Column(type: Types::STRING, nullable: true)]

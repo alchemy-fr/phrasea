@@ -31,6 +31,8 @@ final class PostDownloadAssetViaEmailAction extends AbstractAssetAction
         $downloadRequest->setEmail($request->request->get('email'));
         $downloadRequest->setLocale($request->getLocale());
 
+        $this->validator->validate($downloadRequest);
+
         $this->em->persist($downloadRequest);
         $this->em->flush();
 

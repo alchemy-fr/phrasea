@@ -19,6 +19,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_asset_type', columns: ['asset_id', 'name'])]
@@ -199,6 +200,7 @@ class SubDefinition implements MediaInterface
 
     #[Groups([Asset::GROUP_READ, Publication::GROUP_READ, self::GROUP_READ])]
     #[ORM\Column(type: Types::STRING, length: 30)]
+    #[Assert\Length(max: 30)]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::STRING, length: 255)]

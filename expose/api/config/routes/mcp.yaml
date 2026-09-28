@@ -1,0 +1,7 @@
+mcp:
+    resource: .
+    type: mcp
+
+mcp_controllers:
+    resource: ../../src/Mcp/Controller/
+    type: attribute

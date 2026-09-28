@@ -24,6 +24,17 @@ security:
             custom_authenticators:
                 - Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator
 
+        oauth_metadata:
+            pattern: ^/\.well-known/oauth-protected-resource$
+            security: false
+
+        mcp:
+            pattern: ^/mcp
+            stateless: true
+            entry_point: App\Mcp\Security\McpAuthenticationEntryPoint
+            custom_authenticators:
+                - Alchemy\AuthBundle\Security\AccessTokenAuthenticator
+
         api:
             stateless: true
             custom_authenticators:
@@ -32,6 +43,7 @@ security:
     access_control:
         - { path: ^/admin/login$, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/mcp, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
