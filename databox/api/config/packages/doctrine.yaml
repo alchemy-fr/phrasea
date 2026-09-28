@@ -9,8 +9,10 @@ doctrine:
         url: '%env(resolve:DATABASE_URL)%'
         types:
             !php/const MartinGeorgiev\Doctrine\DBAL\Type::LTREE: MartinGeorgiev\Doctrine\DBAL\Types\Ltree
+            !php/const MartinGeorgiev\Doctrine\DBAL\Type::INET: MartinGeorgiev\Doctrine\DBAL\Types\Inet
         mapping_types:
             ltree: !php/const MartinGeorgiev\Doctrine\DBAL\Type::LTREE
+            inet: !php/const MartinGeorgiev\Doctrine\DBAL\Type::INET
     orm:
         connection: default
         auto_generate_proxy_classes: true
