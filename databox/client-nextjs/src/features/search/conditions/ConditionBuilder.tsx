@@ -1,15 +1,21 @@
 'use client';
 
-import {useEffect, useMemo, useState} from 'react';
+import {ReactNode, useEffect, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
     CheckIcon,
     ChevronsUpDownIcon,
+    FolderIcon,
     PlusIcon,
     Trash2Icon,
     XIcon,
 } from 'lucide-react';
-import {AttributeType, type AttributeDefinitionOrBuiltIn} from '@/types/api';
+import {
+    AttributeType,
+    EntityName,
+    type AttributeDefinition,
+    type AttributeDefinitionOrBuiltIn,
+} from '@/types/api';
 import {
     AQLCondition,
     AQLExpression,
@@ -51,6 +57,18 @@ import {
 } from '@/components/ui/command';
 import {cn} from '@/lib/utils/cn';
 import {useCollectionStore} from '@/features/collections/collectionStore';
+import {
+    AttributeEntitySelect,
+    TagSelect,
+    UserSelect,
+} from '@/components/form/selects';
+import {CollectionTreePicker} from '@/components/form/CollectionTreePicker';
+import {
+    assetStatusLabels,
+    privacyLabels,
+} from '@/features/attributes/types/registry';
+import {ResolveStatus, useEntitiesStore, useEntity} from '../entitiesStore';
+import {idFromIri, iri} from '@/lib/utils/iri';
 
 export function emptyCondition(): AQLCondition {
     return {
@@ -298,7 +316,7 @@ function ConditionRow({
                             <div key={i} className="flex items-center gap-1">
                                 <ValueInput
                                     value={v}
-                                    type={definition?.type}
+                                    definition={definition}
                                     onChange={nv => setValue(i, nv)}
                                 />
                                 {values.length > 1 ? (
@@ -337,7 +355,7 @@ function ConditionRow({
                         <ValueInput
                             key={i}
                             value={values[i] ?? {literal: ''}}
-                            type={definition?.type}
+                            definition={definition}
                             label={argNames?.[i]}
                             onChange={nv => setValue(i, nv)}
                         />
@@ -470,28 +488,30 @@ function FieldPicker({
  */
 function ValueInput({
     value,
-    type,
+    definition,
     label,
     onChange,
 }: {
     value: AQLValueExpr;
-    type: AttributeType | undefined;
+    definition: AttributeDefinitionOrBuiltIn | undefined;
     label?: string;
     onChange: (value: AQLValueExpr) => void;
 }) {
+    const type = definition?.type;
     const raw = type ? rawTypeMap[type] : undefined;
     const text = valueToInput(value, raw);
+    const picker = pickerFor(value, definition, onChange);
 
-    if (
-        type === AttributeType.Workspace &&
-        (isLiteral(value) || value === null)
-    ) {
+    if (picker) {
         return (
-            <WorkspaceValueSelect
-                value={isLiteral(value) ? value.literal : ''}
-                label={label}
-                onChange={id => onChange({literal: id})}
-            />
+            <div className="flex items-center gap-1">
+                {label ? (
+                    <span className="text-xs text-muted-foreground">
+                        {label}
+                    </span>
+                ) : null}
+                {picker}
+            </div>
         );
     }
 
@@ -546,14 +566,205 @@ function ValueInput({
     );
 }
 
-/** Workspace picker for `@workspace` conditions (ids are opaque to users) */
-function WorkspaceValueSelect({
+/**
+ * Picker for the value types whose raw value (an id, an enum number) is
+ * meaningless to users. Complex expressions (`=` raw mode) keep the text
+ * input.
+ */
+function pickerFor(
+    value: AQLValueExpr,
+    definition: AttributeDefinitionOrBuiltIn | undefined,
+    onChange: (value: AQLValueExpr) => void
+): ReactNode {
+    const type = definition?.type;
+    const literal = isLiteral(value)
+        ? value.literal
+        : value === null
+          ? ''
+          : undefined;
+    const setId = (id: string | undefined) => onChange({literal: id ?? ''});
+
+    switch (type) {
+        case AttributeType.Privacy:
+        case AttributeType.AssetStatus:
+            if (typeof value !== 'number' && literal === undefined) {
+                return null;
+            }
+
+            return (
+                <EnumValueSelect
+                    type={type}
+                    value={typeof value === 'number' ? value : undefined}
+                    onChange={onChange}
+                />
+            );
+    }
+    if (literal === undefined) {
+        return null;
+    }
+
+    switch (type) {
+        case AttributeType.Workspace:
+            return <WorkspaceValueSelect value={literal} onChange={setId} />;
+        case AttributeType.Tag:
+            return (
+                <div className="w-52">
+                    <TagSelect value={literal || undefined} onChange={setId} />
+                </div>
+            );
+        case AttributeType.User:
+            return (
+                <div className="w-52">
+                    <UserSelect value={literal || undefined} onChange={setId} />
+                </div>
+            );
+        case AttributeType.Entity: {
+            const entityList = (definition as AttributeDefinition).entityList;
+
+            return (
+                <div className="w-52">
+                    <AttributeEntitySelect
+                        listId={
+                            entityList
+                                ? typeof entityList === 'string'
+                                    ? idFromIri(entityList)
+                                    : entityList.id
+                                : undefined
+                        }
+                        allowNewValues={false}
+                        value={literal || undefined}
+                        onChange={setId}
+                    />
+                </div>
+            );
+        }
+        case AttributeType.CollectionPath:
+            return <CollectionValuePicker value={literal} onChange={setId} />;
+    }
+
+    return null;
+}
+
+function EnumValueSelect({
+    type,
     value,
-    label,
+    onChange,
+}: {
+    type: AttributeType.Privacy | AttributeType.AssetStatus;
+    value: number | undefined;
+    onChange: (value: number) => void;
+}) {
+    const {t} = useTranslation();
+    const labels: Record<number, string> =
+        type === AttributeType.Privacy
+            ? privacyLabels(t)
+            : assetStatusLabels(t);
+
+    return (
+        <SimpleSelect
+            size="sm"
+            className="w-52"
+            value={value === undefined ? undefined : String(value)}
+            onValueChange={v => onChange(Number(v))}
+            options={Object.entries(labels).map(([k, label]) => ({
+                value: k,
+                label,
+            }))}
+            placeholder={t('common.select', 'Select…')}
+        />
+    );
+}
+
+/** Collection tree in a popover, for `@collection` conditions */
+function CollectionValuePicker({
+    value,
     onChange,
 }: {
     value: string;
-    label?: string;
+    onChange: (id: string | undefined) => void;
+}) {
+    const {t} = useTranslation();
+    const [open, setOpen] = useState(false);
+    const entityIri = value ? iri(EntityName.Collection, value) : undefined;
+    const entity = useEntity(entityIri);
+    const storeEntity = useEntitiesStore(s => s.store);
+    const label =
+        entity && typeof entity === 'object'
+            ? String(
+                  entity.absoluteDisplayName ??
+                      entity.displayName ??
+                      entity.name ??
+                      value
+              )
+            : entity === ResolveStatus.NotFound
+              ? t('entity.not_found', 'Not found')
+              : entity === ResolveStatus.NotAllowed
+                ? t('entity.not_allowed', 'Not allowed')
+                : value
+                  ? '…'
+                  : undefined;
+
+    return (
+        // modal: see FieldPicker
+        <Popover open={open} onOpenChange={setOpen} modal>
+            <PopoverTrigger asChild>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                        'w-52 justify-between font-normal',
+                        !label && 'text-muted-foreground'
+                    )}
+                >
+                    <span className="flex min-w-0 items-center gap-1.5">
+                        <FolderIcon className="shrink-0 opacity-60" />
+                        <span className="truncate">
+                            {label ??
+                                t(
+                                    'search.condition.select_collection',
+                                    'Select a collection…'
+                                )}
+                        </span>
+                    </span>
+                    <ChevronsUpDownIcon className="opacity-50" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-1" align="start">
+                <CollectionTreePicker
+                    className="max-h-96 border-0"
+                    allowWorkspace={false}
+                    value={
+                        value
+                            ? {
+                                  iri: entityIri!,
+                                  workspaceId: '',
+                                  collectionId: value,
+                                  label: label ?? value,
+                              }
+                            : undefined
+                    }
+                    onChange={selection => {
+                        if (selection?.collectionId) {
+                            storeEntity(selection.iri, {
+                                id: selection.collectionId,
+                                absoluteDisplayName: selection.label,
+                            });
+                        }
+                        onChange(selection?.collectionId);
+                        setOpen(false);
+                    }}
+                />
+            </PopoverContent>
+        </Popover>
+    );
+}
+
+/** Workspace picker for `@workspace` conditions (ids are opaque to users) */
+function WorkspaceValueSelect({
+    value,
+    onChange,
+}: {
+    value: string;
     onChange: (id: string) => void;
 }) {
     const {t} = useTranslation();
@@ -575,19 +786,14 @@ function WorkspaceValueSelect({
     );
 
     return (
-        <div className="flex items-center gap-1">
-            {label ? (
-                <span className="text-xs text-muted-foreground">{label}</span>
-            ) : null}
-            <SimpleSelect
-                size="sm"
-                className="w-52"
-                value={value || undefined}
-                onValueChange={onChange}
-                options={options}
-                placeholder={t('common.select', 'Select…')}
-            />
-        </div>
+        <SimpleSelect
+            size="sm"
+            className="w-52"
+            value={value || undefined}
+            onValueChange={onChange}
+            options={options}
+            placeholder={t('common.select', 'Select…')}
+        />
     );
 }
 
