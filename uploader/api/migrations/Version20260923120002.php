@@ -39,13 +39,6 @@ final class Version20260923120002 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        // The dropped oauth_client table was dead: it is not restored.
-        $this->addSql(<<<'SQL'
-            DO $$ BEGIN
-                IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'fk_86c4e943158e0b66' AND conrelid = 'target_params'::regclass) THEN
-                    ALTER TABLE target_params RENAME CONSTRAINT fk_86c4e943158e0b66 TO fk_68fd8f15158e0b66;
-                END IF;
-            END $$
-            SQL);
+        $this->throwIrreversibleMigrationException('The dropped oauth_client table was dead, it is not restored.');
     }
 }

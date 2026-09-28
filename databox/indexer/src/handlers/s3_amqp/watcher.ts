@@ -5,7 +5,7 @@ import {handleDeleteObject, handlePutObject} from '../../eventHandler';
 import {S3AmqpConfig} from './types';
 import {Watcher} from '../../watchers';
 import {Asset} from '../../indexers';
-import {createAsset} from './shared';
+import {createAsset, parseBucketNames} from './shared';
 
 export const s3AmqpWatcher: Watcher<S3AmqpConfig> = async (
     location,
@@ -14,13 +14,10 @@ export const s3AmqpWatcher: Watcher<S3AmqpConfig> = async (
 ) => {
     const config = location.options as S3AmqpConfig;
 
-    // Empty entries are dropped: ''.split(',') is [''], whose length is 1, and
-    // the filter below would then reject every bucket instead of accepting all
-    // of them.
-    const bucketsList: string[] = getConfig('s3.bucketNames', '', config)
-        .split(',')
-        .map((b: string) => b.trim())
-        .filter((b: string) => b.length > 0);
+    // An empty list accepts every bucket.
+    const bucketsList = parseBucketNames(
+        getConfig('s3.bucketNames', '', config)
+    );
 
     const workspaceId = await databoxClient.getWorkspaceIdFromSlug(
         getStrict('workspaceSlug', config)

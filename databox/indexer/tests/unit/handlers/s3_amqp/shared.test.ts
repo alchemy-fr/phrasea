@@ -1,6 +1,7 @@
 import {
     createAsset,
     createS3ClientFromConfig,
+    parseBucketNames,
 } from '../../../../src/handlers/s3_amqp/shared';
 import {S3AmqpConfig} from '../../../../src/handlers/s3_amqp/types';
 
@@ -78,5 +79,27 @@ describe('createS3ClientFromConfig', () => {
 
         expect(client.accessKey).toEqual('access');
         expect(client.secretKey).toEqual('secret');
+    });
+});
+
+describe('parseBucketNames', () => {
+    it('splits on commas and trims the entries', () => {
+        expect(parseBucketNames('bucket-a, bucket-b ,bucket-c')).toEqual([
+            'bucket-a',
+            'bucket-b',
+            'bucket-c',
+        ]);
+    });
+
+    it('drops the blank entries', () => {
+        expect(parseBucketNames('bucket-a,, ,bucket-b,')).toEqual([
+            'bucket-a',
+            'bucket-b',
+        ]);
+    });
+
+    it('returns an empty list for an empty or missing value', () => {
+        expect(parseBucketNames('')).toEqual([]);
+        expect(parseBucketNames(undefined)).toEqual([]);
     });
 });
