@@ -14,6 +14,7 @@ import {AssetStackLoader} from '@/components/ui/asset-loaders';
 import type {LayoutMode} from '@/features/preferences/store';
 import type {OpenAssetOptions} from '@/features/assets/useAssetOpener';
 import {PreviewProvider} from './preview/PreviewProvider';
+import {DragScopeProvider} from '@/features/dnd/DragScope';
 import {cn} from '@/lib/utils/cn';
 
 export type OnOpenAsset = (asset: Asset, options?: OpenAssetOptions) => void;
@@ -37,6 +38,8 @@ export type AssetListProps = {
     className?: string;
     /** Disable hover preview */
     noPreview?: boolean;
+    /** The basket displayed, when the list is a basket's content */
+    basketId?: string;
 };
 
 export type LayoutProps = Omit<
@@ -47,6 +50,7 @@ export type LayoutProps = Omit<
     | 'onLoadMore'
     | 'searchGeneration'
     | 'className'
+    | 'basketId'
 > & {
     scrollRef: React.RefObject<HTMLDivElement | null>;
     onItemClick: (asset: Asset, e: React.MouseEvent) => void;
@@ -125,35 +129,37 @@ export function AssetList(props: AssetListProps) {
 
     return (
         <PreviewProvider disabled={props.noPreview}>
-            <div className="relative h-full">
-                <div
-                    ref={scrollRef}
-                    data-testid="asset-list"
-                    data-layout={layout}
-                    className={cn('h-full overflow-y-auto', className)}
-                >
-                    {layout === 'list' ? (
-                        <ListLayout {...layoutProps} />
-                    ) : (
-                        <GridLayout {...layoutProps} />
-                    )}
-                </div>
-                {/* New search: the previous results stay visible under the
+            <DragScopeProvider basketId={props.basketId}>
+                <div className="relative h-full">
+                    <div
+                        ref={scrollRef}
+                        data-testid="asset-list"
+                        data-layout={layout}
+                        className={cn('h-full overflow-y-auto', className)}
+                    >
+                        {layout === 'list' ? (
+                            <ListLayout {...layoutProps} />
+                        ) : (
+                            <GridLayout {...layoutProps} />
+                        )}
+                    </div>
+                    {/* New search: the previous results stay visible under the
                     loader and blur progressively (5s, see globals.css).
                     Sibling of the scroll container so it covers the viewport
                     whatever the scroll position. */}
-                {loading ? (
-                    <div
-                        data-testid="asset-list-loading"
-                        className="absolute inset-0 z-10 flex items-center justify-center animate-asset-overlay motion-reduce:animate-none motion-reduce:bg-background/40 motion-reduce:backdrop-blur-sm"
-                    >
-                        <AssetStackLoader
-                            className="animate-in fade-in duration-200"
-                            label={t('search.loading', 'Loading assets…')}
-                        />
-                    </div>
-                ) : null}
-            </div>
+                    {loading ? (
+                        <div
+                            data-testid="asset-list-loading"
+                            className="absolute inset-0 z-10 flex items-center justify-center animate-asset-overlay motion-reduce:animate-none motion-reduce:bg-background/40 motion-reduce:backdrop-blur-sm"
+                        >
+                            <AssetStackLoader
+                                className="animate-in fade-in duration-200"
+                                label={t('search.loading', 'Loading assets…')}
+                            />
+                        </div>
+                    ) : null}
+                </div>
+            </DragScopeProvider>
         </PreviewProvider>
     );
 }

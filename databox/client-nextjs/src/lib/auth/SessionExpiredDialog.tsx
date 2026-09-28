@@ -15,7 +15,8 @@ import {Button} from '@/components/ui/button';
 import {routes} from '@/lib/routes';
 
 export function SessionExpiredDialog() {
-    const {sessionExpired, login, dismissSessionExpired} = useAuth();
+    const {sessionExpired, login, redirecting, dismissSessionExpired} =
+        useAuth();
     const {t} = useTranslation();
     const router = useRouter();
 
@@ -60,7 +61,7 @@ export function SessionExpiredDialog() {
                     >
                         {t('auth.stay_signed_out', 'Stay signed out')}
                     </Button>
-                    <Button onClick={() => login()}>
+                    <Button loading={redirecting} onClick={() => login()}>
                         {t('auth.sign_in', 'Sign in')}
                     </Button>
                 </DialogFooter>

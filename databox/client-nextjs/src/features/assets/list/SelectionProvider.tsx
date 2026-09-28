@@ -42,6 +42,8 @@ export type SelectionActions = {
     onItemClick: (asset: Asset, pages: Asset[][], e?: MouseEvent) => void;
     selectAll: (pages: Asset[][]) => void;
     clear: () => void;
+    /** The current selection, read on demand (a drag start, a shortcut…) */
+    getSelection: () => Asset[];
     disabledIds?: Set<string>;
 };
 
@@ -193,6 +195,7 @@ export function SelectionProvider({
             onItemClick: clickItem,
             selectAll: pages => setSelection(pages.flat()),
             clear: () => setSelection([]),
+            getSelection: () => selectionRef.current,
             disabledIds,
         }),
         [setSelection, clickItem, disabledIds]

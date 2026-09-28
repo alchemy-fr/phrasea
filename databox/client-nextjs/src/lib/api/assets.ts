@@ -345,6 +345,22 @@ export function moveAssets(ids: string[], destination: string): Promise<void> {
     return api.post(`/${EntityName.Asset}/move`, {ids, destination});
 }
 
+/**
+ * Links assets to a collection (or to a story, given the story asset's IRI)
+ * without touching their other collections. Idempotent: assets already in
+ * the destination are skipped. The assets must belong to the destination's
+ * workspace.
+ */
+export function addAssetsToCollection(
+    ids: string[],
+    destination: string
+): Promise<void> {
+    return api.post(`/${EntityName.Asset}/add-to-collection`, {
+        ids,
+        destination,
+    });
+}
+
 export function bypassQuarantine(id: string): Promise<Asset> {
     return api.post<Asset>(`/${EntityName.Asset}/${id}/quarantine-bypass`, {});
 }

@@ -17,6 +17,8 @@ import {
     Trash2Icon,
     ExpandIcon,
     SaveIcon,
+    PinIcon,
+    PinOffIcon,
 } from 'lucide-react';
 import {toast} from 'sonner';
 import type {Asset} from '@/types/api';
@@ -34,6 +36,7 @@ import {ReplaceSourceDialog} from './ReplaceSourceDialog';
 import {SaveAsDialog} from './SaveAsDialog';
 import {useOptionalResults} from '@/features/search/useOptionalResults';
 import {useOptionalSelection} from '@/features/assets/list/SelectionProvider';
+import {usePinnedStoriesStore} from '@/features/stories/pinnedStoriesStore';
 
 export type AssetAction = {
     id: string;
@@ -60,6 +63,8 @@ export type ActionContext = {
     replace?: boolean;
     info?: boolean;
     saveAs?: boolean;
+    /** Pin a story in the sidebar */
+    pin?: boolean;
 };
 
 export const defaultActionContext: Required<ActionContext> = {
@@ -75,6 +80,7 @@ export const defaultActionContext: Required<ActionContext> = {
     replace: true,
     info: true,
     saveAs: true,
+    pin: true,
 };
 
 type Options = {
@@ -99,6 +105,8 @@ export function useAssetActions(
     const openAsset = useAssetOpener();
     const results = useOptionalResults();
     const selection = useOptionalSelection();
+    const pinnedStories = usePinnedStoriesStore(s => s.ids);
+    const togglePinnedStory = usePinnedStoriesStore(s => s.toggle);
     const ctx = {...defaultActionContext, ...context};
     const ctxKey = JSON.stringify(ctx);
 
@@ -139,6 +147,22 @@ export function useAssetActions(
                 // The tabs of the former manage dialog live in the side
                 // panel of the viewer
                 run: () => router.push(routes.assetView(single.id)),
+            });
+        }
+        if (
+            single?.storyCollection &&
+            isAuthenticated &&
+            ctx.pin &&
+            !anyDeleted
+        ) {
+            const pinned = pinnedStories.includes(single.id);
+            nav.push({
+                id: 'pin-story',
+                label: pinned
+                    ? t('story.unpin', 'Unpin story')
+                    : t('story.pin', 'Pin story'),
+                icon: pinned ? <PinOffIcon /> : <PinIcon />,
+                run: () => togglePinnedStory(single.id),
             });
         }
         if (isAuthenticated && ctx.basket && !anyDeleted) {
@@ -339,5 +363,5 @@ export function useAssetActions(
 
         return groups.filter(g => g.length > 0);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [assets, isAuthenticated, t, onOpen, ctxKey]);
+    }, [assets, isAuthenticated, t, onOpen, ctxKey, pinnedStories]);
 }

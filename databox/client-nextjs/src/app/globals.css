@@ -977,3 +977,18 @@
     background: transparent;
     backdrop-filter: none;
 }
+
+/*
+ * Drag & drop (see features/dnd): the pointer shape follows the drag, over
+ * anything — the elements under it keep their own cursor rules otherwise.
+ * Unlayered on purpose, like the rule above.
+ */
+body[data-dragging] {
+    cursor: grabbing;
+}
+body[data-dragging] * {
+    cursor: inherit !important;
+}
+body[data-dragging][data-drop='invalid'] {
+    cursor: no-drop;
+}
