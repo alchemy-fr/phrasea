@@ -6,7 +6,11 @@ import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {PlayIcon, RefreshCwIcon, Trash2Icon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {ApiFile, Asset, WorkspaceIntegration} from '@/types/api';
-import {getIntegrationData, runIntegrationAction} from '@/lib/api/integrations';
+import {
+    getIntegrationData,
+    IntegrationObjectType,
+    runIntegrationAction,
+} from '@/lib/api/integrations';
 import {Button} from '@/components/ui/button';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {InlineLoader} from '@/components/ui/loader';
@@ -45,7 +49,11 @@ function GenericIntegrationPanel({integration, asset, file}: Props) {
     const data = useQuery({
         queryKey,
         queryFn: ({signal}) =>
-            getIntegrationData(integration.id, undefined, signal),
+            getIntegrationData(
+                integration.id,
+                {type: IntegrationObjectType.File, id: file.id},
+                signal
+            ),
     });
 
     useChannelEvent(
@@ -74,9 +82,7 @@ function GenericIntegrationPanel({integration, asset, file}: Props) {
         }
     };
 
-    const items = (data.data?.items ?? []).filter(
-        d => !d.object || (d.object as any).id === file.id
-    );
+    const items = data.data?.items ?? [];
     const canInteract = integration.capabilities?.interact !== false;
 
     return (

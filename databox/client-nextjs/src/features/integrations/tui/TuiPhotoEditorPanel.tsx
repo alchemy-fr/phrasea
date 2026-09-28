@@ -5,7 +5,11 @@ import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {FileImageIcon, PencilRulerIcon, Trash2Icon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {ApiFile, Asset, WorkspaceIntegration} from '@/types/api';
-import {getIntegrationData, runIntegrationAction} from '@/lib/api/integrations';
+import {
+    getIntegrationData,
+    IntegrationObjectType,
+    runIntegrationAction,
+} from '@/lib/api/integrations';
 import {Button} from '@/components/ui/button';
 import {InlineLoader} from '@/components/ui/loader';
 import {useModals} from '@/components/modals/ModalProvider';
@@ -39,7 +43,11 @@ export function TuiPhotoEditorPanel({
     const data = useQuery({
         queryKey,
         queryFn: ({signal}) =>
-            getIntegrationData(integration.id, undefined, signal),
+            getIntegrationData(
+                integration.id,
+                {type: IntegrationObjectType.File, id: file.id},
+                signal
+            ),
     });
     const reload = () => queryClient.invalidateQueries({queryKey});
 
@@ -47,9 +55,7 @@ export function TuiPhotoEditorPanel({
         reload()
     );
 
-    const exports = (data.data?.items ?? []).filter(
-        d => !d.object || (d.object as {id?: string}).id === file.id
-    );
+    const exports = data.data?.items ?? [];
     const allowed = integration.capabilities?.interact !== false;
 
     const edit = (source: SavedFile, suggestedName?: string) =>

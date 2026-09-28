@@ -41,10 +41,8 @@ describe('Integrations', () => {
         cy.getBySel('definition-create', {timeout: 30000}).should('be.visible');
         routeDialog().within(() => {
             cy.getBySel('definition-create').click();
-            cy.fieldByLabel('Type').click();
-        });
-        cy.get('[role=option]').first().click();
-        routeDialog().within(() => {
+            // The type is picked in the catalog, then the form shows up
+            cy.getBySel('integration-catalog-item').first().click();
             cy.fieldByLabel('Title').type('E2E integration');
             cy.contains('Configuration (YAML)').should('be.visible');
             cy.contains('button', 'Save').click();

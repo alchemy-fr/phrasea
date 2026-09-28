@@ -115,17 +115,20 @@ export function FacetSettingsDialog({
             footerStart={
                 <Button
                     variant="ghost"
-                    onClick={async () => {
-                        const done = await confirm({
+                    // Not returned: the confirm dialog shows the request
+                    // spinner, this button must not spin while it is open
+                    onClick={() => {
+                        void confirm({
                             title: t(
                                 'facets.reset.title',
                                 'Reset facets to default?'
                             ),
                             onConfirm: () => updatePreference('facets', []),
+                        }).then(done => {
+                            if (done) {
+                                onOpenChange(false);
+                            }
                         });
-                        if (done) {
-                            onOpenChange(false);
-                        }
                     }}
                 >
                     <RotateCcwIcon /> {t('facets.reset', 'Reset to default')}

@@ -2,17 +2,24 @@ import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {act, fireEvent, render, screen} from '@testing-library/react';
 import {RouteHistoryProvider} from './RouteDialog';
 import {DialogTab, TabbedRouteDialogShell} from './TabbedRouteDialog';
+import {
+    useUnsavedChangesPrompt,
+    useUnsavedChangesStore,
+} from '@/lib/navigation/unsavedChanges';
+import {useRoutePath} from '@/lib/navigation/routePath';
 
 const nav = vi.hoisted(() => ({
     pathname: '/workspaces/1/manage/info',
     push: vi.fn(),
+    // Stable, like Next's own
+    router: {} as {push: unknown},
     renders: {info: 0, tags: 0} as Record<string, number>,
 }));
 
 vi.mock('next/navigation', () => ({
     usePathname: () => nav.pathname,
     useSearchParams: () => new URLSearchParams(),
-    useRouter: () => ({push: nav.push}),
+    useRouter: () => Object.assign(nav.router, {push: nav.push}),
 }));
 
 type Props = {name: string};
@@ -43,12 +50,38 @@ const tabs: DialogTab<Props>[] = [
 // Stable, as the manage shells provide it (`useMemo`)
 const baseProps: Props = {name: 'ws'};
 
-function Shell() {
+function DirtyTab() {
+    useUnsavedChangesPrompt(true);
+
+    return <span>dirty form</span>;
+}
+
+const dirtyTabs: DialogTab<Props>[] = [
+    {id: 'info', title: 'Info', component: DirtyTab},
+    {id: 'tags', title: 'Tags', component: tabComponent('tags')},
+];
+
+function PathTab() {
+    const {segments, navigate} = useRoutePath();
+
+    return (
+        <button type="button" onClick={() => navigate(['t 2', 'manage'])}>
+            path: {segments.join('|') || '-'}
+        </button>
+    );
+}
+
+const pathTabs: DialogTab<Props>[] = [
+    {id: 'info', title: 'Info', component: tabComponent('info')},
+    {id: 'tags', title: 'Tags', component: PathTab},
+];
+
+function Shell({tabList = tabs}: {tabList?: DialogTab<Props>[]}) {
     return (
         <RouteHistoryProvider>
             <TabbedRouteDialogShell
                 title="Manage workspace"
-                tabs={tabs}
+                tabs={tabList}
                 baseProps={baseProps}
                 buildTabHref={tab => `/workspaces/1/manage/${tab}`}
             />
@@ -68,6 +101,7 @@ beforeEach(() => {
     nav.push.mockClear();
     nav.renders = {};
     vi.restoreAllMocks();
+    useUnsavedChangesStore.setState({dirty: {}, pending: null});
 });
 
 describe('TabbedRouteDialogShell', () => {
@@ -87,7 +121,9 @@ describe('TabbedRouteDialogShell', () => {
     });
 
     it('switches tabs with a history entry, without navigating', () => {
-        const pushState = vi.spyOn(window.history, 'pushState');
+        const pushState = vi
+            .spyOn(window.history, 'pushState')
+            .mockImplementation(() => {});
         act(() => {
             render(<Shell />);
         });
@@ -126,5 +162,62 @@ describe('TabbedRouteDialogShell', () => {
 
         expect(screen.queryByRole('tab', {name: 'Hidden'})).toBeNull();
         expect(screen.getByTestId('dialog-tab-info').hidden).toBe(false);
+    });
+
+    it('asks before leaving a tab holding unsaved changes', async () => {
+        const pushState = vi
+            .spyOn(window.history, 'pushState')
+            .mockImplementation(() => {});
+        const {rerender} = render(<Shell tabList={dirtyTabs} />);
+
+        selectTab('Tags');
+        const {pending} = useUnsavedChangesStore.getState();
+        expect(pending).not.toBeNull();
+
+        // Kept editing: stays on the tab
+        await act(async () => pending!.resolve(false));
+        expect(pushState).not.toHaveBeenCalled();
+
+        selectTab('Tags');
+        await act(async () =>
+            useUnsavedChangesStore.getState().pending!.resolve(true)
+        );
+        expect(pushState).toHaveBeenCalledOnce();
+        expect(pushState.mock.calls[0][2]).toBe('/workspaces/1/manage/tags');
+
+        // Discarded: the tab is dropped, and its changes with it
+        nav.pathname = '/workspaces/1/manage/tags';
+        act(() => rerender(<Shell tabList={dirtyTabs} />));
+        expect(screen.queryByTestId('dialog-tab-info')).toBeNull();
+        expect(useUnsavedChangesStore.getState().dirty).toEqual({});
+    });
+
+    it('gives each tab the URL below it, and restores it', () => {
+        const pushState = vi
+            .spyOn(window.history, 'pushState')
+            .mockImplementation(() => {});
+        nav.pathname = '/workspaces/1/manage/tags/t1';
+        const {rerender} = render(<Shell tabList={pathTabs} />);
+        expect(screen.getByText('path: t1')).toBeTruthy();
+
+        // The tab changes its own path (encoded)
+        act(() => fireEvent.click(screen.getByText('path: t1')));
+        expect(pushState.mock.calls[0][2]).toBe(
+            '/workspaces/1/manage/tags/t%202/manage'
+        );
+        nav.pathname = '/workspaces/1/manage/tags/t%202/manage';
+        act(() => rerender(<Shell tabList={pathTabs} />));
+        expect(screen.getByText('path: t 2|manage')).toBeTruthy();
+
+        // Another tab: the hidden one keeps its path…
+        nav.pathname = '/workspaces/1/manage/info';
+        act(() => rerender(<Shell tabList={pathTabs} />));
+        expect(screen.getByText('path: t 2|manage')).toBeTruthy();
+
+        // …and gets it back in the URL when selected again
+        selectTab('Tags');
+        expect(pushState.mock.calls[1][2]).toBe(
+            '/workspaces/1/manage/tags/t%202/manage'
+        );
     });
 });

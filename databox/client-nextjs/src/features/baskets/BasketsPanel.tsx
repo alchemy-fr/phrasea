@@ -2,7 +2,7 @@
 
 import {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useRouter} from 'next/navigation';
+import {usePathname, useRouter} from 'next/navigation';
 import {
     ArchiveIcon,
     ArchiveRestoreIcon,
@@ -134,6 +134,7 @@ function BasketRow({basket}: {basket: Basket}) {
     const {openModal} = useModals();
     const {current, setCurrent, archive, remove} = useBasketStore();
     const isCurrent = current?.id === basket.id;
+    const isViewed = usePathname().startsWith(`/baskets/${basket.id}/`);
 
     const menu = (
         Item: typeof DropdownMenuItem,
@@ -200,9 +201,16 @@ function BasketRow({basket}: {basket: Basket}) {
                     data-testid="basket-item"
                     data-basket-id={basket.id}
                     data-current={isCurrent ? 'true' : undefined}
+                    data-active={isViewed ? 'true' : undefined}
                     className={cn(
                         'group/basket flex items-center gap-1 px-2',
-                        isCurrent && 'bg-primary/10'
+                        // The basket displayed, and — brighter — the one
+                        // assets are added to
+                        isCurrent
+                            ? 'bg-primary/25'
+                            : isViewed && 'bg-primary/10',
+                        // A menu open (context or ⋮): the basket it acts on
+                        'data-[state=open]:bg-accent has-[>[data-state=open]]:bg-accent'
                     )}
                 >
                     <button

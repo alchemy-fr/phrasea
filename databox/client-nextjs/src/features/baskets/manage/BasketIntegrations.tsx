@@ -18,6 +18,7 @@ import {
     getIntegrationsOfContext,
     getIntegrationTokens,
     IntegrationContext,
+    IntegrationObjectType,
     runIntegrationAction,
 } from '@/lib/api/integrations';
 import {InlineLoader} from '@/components/ui/loader';
@@ -127,7 +128,14 @@ function ExposeIntegration({
     const data = useQuery({
         queryKey,
         queryFn: ({signal}) =>
-            getIntegrationData(integration.id, undefined, signal),
+            getIntegrationData(
+                integration.id,
+                {
+                    type: IntegrationObjectType.Basket,
+                    id: basket.id,
+                },
+                signal
+            ),
         enabled: authorized,
     });
     const [creating, setCreating] = useState(false);
@@ -407,7 +415,14 @@ function GenericBasketIntegration({
     const data = useQuery({
         queryKey: ['integration-data', integration.id, basket.id],
         queryFn: ({signal}) =>
-            getIntegrationData(integration.id, undefined, signal),
+            getIntegrationData(
+                integration.id,
+                {
+                    type: IntegrationObjectType.Basket,
+                    id: basket.id,
+                },
+                signal
+            ),
     });
 
     return (

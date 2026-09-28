@@ -64,15 +64,30 @@ export async function getGlobalIntegrations(): Promise<
     );
 }
 
+export enum IntegrationObjectType {
+    File = 'file',
+    Basket = 'basket',
+}
+
+/**
+ * Lists the data an integration stored. Pass the object (file, basket…)
+ * it relates to: without it, the data of every object of the integration
+ * comes back.
+ */
 export async function getIntegrationData(
     integrationId: string,
-    url?: string,
+    object?: {type: IntegrationObjectType; id: string},
     signal?: AbortSignal
 ): Promise<Page<IntegrationData>> {
     return toPage(
         await api.get<HydraCollection<IntegrationData>>(
-            url ?? `/${EntityName.Integration}/${integrationId}/data`,
-            {signal}
+            `/${EntityName.Integration}/${integrationId}/data`,
+            {
+                signal,
+                params: object
+                    ? {objectType: object.type, objectId: object.id}
+                    : undefined,
+            }
         )
     );
 }

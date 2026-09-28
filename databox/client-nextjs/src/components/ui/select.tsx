@@ -2,8 +2,18 @@
 
 import * as React from 'react';
 import {Select as SelectPrimitive} from 'radix-ui';
+import {useTranslation} from 'react-i18next';
 import {CheckIcon, ChevronDownIcon, ChevronUpIcon} from 'lucide-react';
 import {cn} from '@/lib/utils/cn';
+import {Popover, PopoverContent, PopoverTrigger} from './overlays';
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from './command';
 
 export const Select = SelectPrimitive.Root;
 export const SelectGroup = SelectPrimitive.Group;
@@ -125,8 +135,17 @@ export function SelectSeparator({
     );
 }
 
+export type SimpleSelectOption<T extends string> = {
+    value: T;
+    label: React.ReactNode;
+    disabled?: boolean;
+    /** Text matched by the search, when `label` is not a plain string */
+    searchText?: string;
+};
+
 /**
- * Convenience select for simple option lists.
+ * Select for simple option lists, with a search field to filter the options
+ * (a combobox: a Radix `Select` cannot hold a text input).
  */
 export function SimpleSelect<T extends string>({
     value,
@@ -135,36 +154,124 @@ export function SimpleSelect<T extends string>({
     placeholder,
     className,
     disabled,
-    size,
+    size = 'default',
+    id,
 }: {
     value: T | undefined;
     onValueChange: (value: T) => void;
-    options: {value: T; label: React.ReactNode; disabled?: boolean}[];
+    options: SimpleSelectOption<T>[];
     placeholder?: string;
     className?: string;
     disabled?: boolean;
     size?: 'sm' | 'default';
+    id?: string;
 }) {
+    const {t} = useTranslation();
+    const [open, setOpen] = React.useState(false);
+    const [search, setSearch] = React.useState('');
+    const listId = React.useId();
+    const selected = options.find(o => o.value === value);
+    const query = search.trim().toLowerCase();
+    const visible = query
+        ? options.filter(o => optionText(o).toLowerCase().includes(query))
+        : options;
+
     return (
-        <Select
-            value={value}
-            onValueChange={v => onValueChange(v as T)}
-            disabled={disabled}
+        <Popover
+            open={open}
+            onOpenChange={o => {
+                setOpen(o);
+                if (!o) {
+                    setSearch('');
+                }
+            }}
         >
-            <SelectTrigger className={cn('w-full', className)} size={size}>
-                <SelectValue placeholder={placeholder} />
-            </SelectTrigger>
-            <SelectContent>
-                {options.map(o => (
-                    <SelectItem
-                        key={o.value}
-                        value={o.value}
-                        disabled={o.disabled}
-                    >
-                        {o.label}
-                    </SelectItem>
-                ))}
-            </SelectContent>
-        </Select>
+            <PopoverTrigger asChild>
+                <button
+                    id={id}
+                    type="button"
+                    role="combobox"
+                    aria-expanded={open}
+                    aria-controls={listId}
+                    data-size={size}
+                    data-slot="select-trigger"
+                    data-placeholder={selected ? undefined : ''}
+                    disabled={disabled}
+                    className={cn(
+                        "flex w-full min-w-0 items-center justify-between gap-2 rounded-md border border-input bg-transparent px-3 py-2 text-left text-sm whitespace-nowrap shadow-xs outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring/60 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-muted-foreground data-[size=default]:h-9 data-[size=sm]:h-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+                        className
+                    )}
+                >
+                    <span className="flex min-w-0 flex-1 items-center gap-2 truncate">
+                        {selected ? selected.label : placeholder}
+                    </span>
+                    <ChevronDownIcon className="size-4 opacity-50" />
+                </button>
+            </PopoverTrigger>
+            <PopoverContent
+                id={listId}
+                align="start"
+                className="z-[70] w-[var(--radix-popover-trigger-width)] min-w-48 p-0"
+            >
+                <Command shouldFilter={false}>
+                    <CommandInput
+                        value={search}
+                        onValueChange={setSearch}
+                        placeholder={t('common.search', 'Search…')}
+                    />
+                    <CommandList>
+                        <CommandEmpty>
+                            {t('common.no_match', 'No match')}
+                        </CommandEmpty>
+                        <CommandGroup>
+                            {visible.map(o => (
+                                <CommandItem
+                                    key={o.value}
+                                    value={o.value}
+                                    disabled={o.disabled}
+                                    data-slot="select-item"
+                                    onSelect={() => {
+                                        onValueChange(o.value);
+                                        setOpen(false);
+                                        setSearch('');
+                                    }}
+                                >
+                                    <span className="flex min-w-0 flex-1 items-center gap-2 truncate">
+                                        {o.label}
+                                    </span>
+                                    <CheckIcon
+                                        className={cn(
+                                            'size-4',
+                                            o.value === value
+                                                ? 'opacity-100'
+                                                : 'opacity-0'
+                                        )}
+                                    />
+                                </CommandItem>
+                            ))}
+                        </CommandGroup>
+                    </CommandList>
+                </Command>
+            </PopoverContent>
+        </Popover>
     );
+}
+
+function optionText(o: SimpleSelectOption<string>): string {
+    return o.searchText ?? (nodeText(o.label) || o.value);
+}
+
+/** Plain text of a React node (the strings it renders) */
+function nodeText(node: React.ReactNode): string {
+    if (typeof node === 'string' || typeof node === 'number') {
+        return String(node);
+    }
+    if (Array.isArray(node)) {
+        return node.map(nodeText).join(' ');
+    }
+    if (React.isValidElement<{children?: React.ReactNode}>(node)) {
+        return nodeText(node.props.children);
+    }
+
+    return '';
 }

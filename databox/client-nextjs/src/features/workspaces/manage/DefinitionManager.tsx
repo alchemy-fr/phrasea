@@ -1,6 +1,6 @@
 'use client';
 
-import {ReactNode, useMemo, useState} from 'react';
+import {ReactNode, useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {GripVerticalIcon, PlusIcon, Trash2Icon} from 'lucide-react';
 import {
@@ -30,6 +30,8 @@ import {
     UnsavedChangesScope,
     useUnsavedChangesChildScope,
 } from '@/lib/navigation/unsavedChanges';
+import {NestedRoutePath, useRoutePath} from '@/lib/navigation/routePath';
+import {useFocusFirstField} from '@/hooks/useFocusFirstField';
 
 export type DefinitionItem = {id: string};
 
@@ -52,17 +54,29 @@ type Props<D extends DefinitionItem> = {
     emptyLabel?: string;
     /** Extra content rendered in the list toolbar */
     toolbar?: ReactNode;
-    /** Render a nested management panel for the selected item (e.g. entities of a list) */
+    /**
+     * Render a nested management panel for the selected item (e.g. entities
+     * of a list). It gets the URL below `:id/manage` (`useRoutePath`).
+     */
     renderManage?: (item: D, back: () => void) => ReactNode;
     manageLabel?: string;
     /** Take the whole height of the parent (a flex column); both panes scroll */
     fill?: boolean;
 };
 
+/** Path segment of the item being created */
+const NEW = 'new';
+/** Path segment of the nested management panel, below the item id */
+const MANAGE = 'manage';
+
 /**
  * Generic master / detail manager used for workspace definitions (tags,
  * attribute definitions, rendition definitions, policies, integrations...):
  * filterable, sortable list on the left, form on the right.
+ *
+ * What is shown lives in the URL (`useRoutePath`), so that a refresh or a
+ * shared link lands on it: `:id` (edited), `new`, `:id/manage/…` (the nested
+ * panel).
  */
 export function DefinitionManager<D extends DefinitionItem>({
     items,
@@ -83,16 +97,21 @@ export function DefinitionManager<D extends DefinitionItem>({
     const {t} = useTranslation();
     const {openModal} = useModals();
     const [query, setQuery] = useState('');
-    const [selected, setSelected] = useState<string | 'new' | null>(null);
-    const [managing, setManaging] = useState<string | null>(null);
+    const {segments, navigate} = useRoutePath();
+    const selected: string | null = segments[0] ?? null;
+    const managing = segments[1] === MANAGE ? selected : null;
+    const formPane = useRef<HTMLDivElement>(null);
+    useFocusFirstField(formPane, selected === NEW);
+    // Just created: shown until the refreshed items include it
+    const [created, setCreated] = useState<D>();
     // The form pane: leaving the item being edited asks first when it is dirty
     const formScope = useUnsavedChangesChildScope();
     const leaveForm = (next: () => void) => {
         void confirmLeave(formScope).then(leave => leave && next());
     };
-    const select = (id: string | 'new' | null) => {
+    const select = (id: string | null) => {
         if (id !== selected) {
-            leaveForm(() => setSelected(id));
+            leaveForm(() => navigate(id ? [id] : []));
         }
     };
     const sensors = useSensors(
@@ -126,8 +145,13 @@ export function DefinitionManager<D extends DefinitionItem>({
     }, [ordered, query, filter]);
 
     const current =
-        selected === 'new' ? undefined : items?.find(i => i.id === selected);
-    const managed = managing ? items?.find(i => i.id === managing) : undefined;
+        selected === NEW
+            ? undefined
+            : (items?.find(i => i.id === selected) ??
+              (created?.id === selected ? created : undefined));
+    // An id in the URL that is not (or no longer) in the list
+    const missing = selected !== null && selected !== NEW && !current;
+    const managed = managing ? current : undefined;
 
     const onDragEnd = async (e: DragEndEvent) => {
         const {active, over} = e;
@@ -150,7 +174,11 @@ export function DefinitionManager<D extends DefinitionItem>({
     };
 
     if (managed && renderManage) {
-        return <>{renderManage(managed, () => setManaging(null))}</>;
+        return (
+            <NestedRoutePath prefix={[managed.id, MANAGE]}>
+                {renderManage(managed, () => navigate([managed.id]))}
+            </NestedRoutePath>
+        );
     }
 
     return (
@@ -177,8 +205,8 @@ export function DefinitionManager<D extends DefinitionItem>({
                     <Button
                         size="sm"
                         data-testid="definition-create"
-                        variant={selected === 'new' ? 'default' : 'outline'}
-                        onClick={() => select('new')}
+                        variant={selected === NEW ? 'default' : 'outline'}
+                        onClick={() => select(NEW)}
                     >
                         <PlusIcon />{' '}
                         {createLabel ?? t('common.create', 'Create')}
@@ -223,7 +251,10 @@ export function DefinitionManager<D extends DefinitionItem>({
                                             renderManage
                                                 ? () =>
                                                       leaveForm(() =>
-                                                          setManaging(item.id)
+                                                          navigate([
+                                                              item.id,
+                                                              MANAGE,
+                                                          ])
                                                       )
                                                 : undefined
                                         }
@@ -246,8 +277,11 @@ export function DefinitionManager<D extends DefinitionItem>({
                                                                       selected ===
                                                                       item.id
                                                                   ) {
-                                                                      setSelected(
-                                                                          null
+                                                                      navigate(
+                                                                          [],
+                                                                          {
+                                                                              replace: true,
+                                                                          }
                                                                       );
                                                                   }
                                                                   onChanged();
@@ -265,12 +299,23 @@ export function DefinitionManager<D extends DefinitionItem>({
                 )}
             </div>
             <div
+                ref={formPane}
                 className={cn(
                     'min-h-64 min-w-0 rounded-md border p-4',
                     fill && 'lg:overflow-y-auto'
                 )}
             >
-                {selected === null ? (
+                {missing && !items ? (
+                    <Skeleton className="h-32" />
+                ) : missing ? (
+                    <EmptyState
+                        title={t(
+                            'definition.not_found',
+                            'This item does not exist anymore.'
+                        )}
+                        className="h-full"
+                    />
+                ) : selected === null ? (
                     <EmptyState
                         title={t(
                             'definition.select_hint',
@@ -285,7 +330,11 @@ export function DefinitionManager<D extends DefinitionItem>({
                                 current,
                                 saved => {
                                     onChanged();
-                                    setSelected(saved.id);
+                                    setCreated(saved);
+                                    // Created: `new` would open a blank form
+                                    navigate([saved.id], {
+                                        replace: selected === NEW,
+                                    });
                                 },
                                 () => select(null)
                             )}

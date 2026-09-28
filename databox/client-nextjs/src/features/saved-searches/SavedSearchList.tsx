@@ -8,16 +8,24 @@ import {
     BookmarkIcon,
     MoreVerticalIcon,
     PencilIcon,
+    SearchIcon,
     Trash2Icon,
 } from 'lucide-react';
+import type {SavedSearch} from '@/types/api';
 import {deleteSavedSearch, getSavedSearches} from '@/lib/api/misc';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
 import {Input} from '@/components/ui/input';
 import {Button} from '@/components/ui/button';
 import {
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuSeparator,
+    ContextMenuTrigger,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/menu';
 import {useModals} from '@/components/modals/ModalProvider';
@@ -29,10 +37,6 @@ import {useDebouncedValue} from '@/hooks/useDebouncedValue';
 
 export function SavedSearchList() {
     const {t} = useTranslation();
-    const router = useRouter();
-    const search = useOptionalSearch();
-    const {openModal} = useModals();
-    const queryClient = useQueryClient();
     const [filter, setFilter] = useState('');
     const query = useDebouncedValue(filter, 250);
 
@@ -65,110 +69,9 @@ export function SavedSearchList() {
                 </p>
             ) : null}
             <ul>
-                {items.map(s => {
-                    const active = search?.searchId === s.id;
-
-                    return (
-                        <li
-                            key={s.id}
-                            data-testid="saved-search-item"
-                            data-active={active ? 'true' : undefined}
-                            className={cn(
-                                'group flex items-center gap-1 px-2',
-                                active && 'bg-primary/10'
-                            )}
-                        >
-                            <button
-                                type="button"
-                                className="flex min-w-0 flex-1 items-center gap-2 rounded px-1 py-1.5 text-left text-sm hover:bg-accent"
-                                onClick={() => {
-                                    if (search) {
-                                        search.loadSavedSearch(s);
-                                    } else {
-                                        router.push(
-                                            `${routes.assets()}?id=${s.id}`
-                                        );
-                                    }
-                                }}
-                            >
-                                <BookmarkIcon
-                                    className={cn(
-                                        'size-4 shrink-0',
-                                        active
-                                            ? 'text-primary'
-                                            : 'text-muted-foreground'
-                                    )}
-                                />
-                                <span className="truncate">{s.name}</span>
-                            </button>
-                            {s.capabilities.edit || s.capabilities.delete ? (
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon-xs"
-                                            className="opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100"
-                                        >
-                                            <MoreVerticalIcon />
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                        {s.capabilities.edit ? (
-                                            <DropdownMenuItem
-                                                onSelect={() =>
-                                                    router.push(
-                                                        routes.savedSearchManage(
-                                                            s.id,
-                                                            'edit'
-                                                        )
-                                                    )
-                                                }
-                                            >
-                                                <PencilIcon />{' '}
-                                                {t('common.edit', 'Edit')}
-                                            </DropdownMenuItem>
-                                        ) : null}
-                                        {s.capabilities.delete ? (
-                                            <DropdownMenuItem
-                                                variant="destructive"
-                                                onSelect={() =>
-                                                    openModal(ConfirmDialog, {
-                                                        title: t(
-                                                            'saved_search.delete.title',
-                                                            'Delete search "{{name}}"?',
-                                                            {name: s.name}
-                                                        ),
-                                                        destructive: true,
-                                                        onConfirm: async () => {
-                                                            await deleteSavedSearch(
-                                                                s.id
-                                                            );
-                                                            void queryClient.invalidateQueries(
-                                                                {
-                                                                    queryKey: [
-                                                                        'saved-searches',
-                                                                    ],
-                                                                }
-                                                            );
-                                                            if (active) {
-                                                                search?.setSearchId(
-                                                                    undefined
-                                                                );
-                                                            }
-                                                        },
-                                                    })
-                                                }
-                                            >
-                                                <Trash2Icon />{' '}
-                                                {t('common.delete', 'Delete')}
-                                            </DropdownMenuItem>
-                                        ) : null}
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            ) : null}
-                        </li>
-                    );
-                })}
+                {items.map(s => (
+                    <SavedSearchRow key={s.id} savedSearch={s} />
+                ))}
             </ul>
             {list.hasNextPage ? (
                 <Button
@@ -182,5 +85,135 @@ export function SavedSearchList() {
                 </Button>
             ) : null}
         </PanelSection>
+    );
+}
+
+function SavedSearchRow({savedSearch: s}: {savedSearch: SavedSearch}) {
+    const {t} = useTranslation();
+    const router = useRouter();
+    const search = useOptionalSearch();
+    const {openModal} = useModals();
+    const queryClient = useQueryClient();
+    const active = search?.searchId === s.id;
+    const manageable = s.capabilities.edit || s.capabilities.delete;
+
+    const open = () => {
+        if (search) {
+            search.loadSavedSearch(s);
+        } else {
+            router.push(`${routes.assets()}?id=${s.id}`);
+        }
+    };
+
+    const menu = (
+        Item: typeof DropdownMenuItem,
+        Sep: typeof DropdownMenuSeparator,
+        withOpen: boolean
+    ) => (
+        <>
+            {withOpen ? (
+                <Item onSelect={open}>
+                    <SearchIcon /> {t('common.open', 'Open')}
+                </Item>
+            ) : null}
+            {s.capabilities.edit ? (
+                <Item
+                    onSelect={() =>
+                        router.push(routes.savedSearchManage(s.id, 'edit'))
+                    }
+                >
+                    <PencilIcon /> {t('common.edit', 'Edit')}
+                </Item>
+            ) : null}
+            {s.capabilities.delete ? (
+                <>
+                    {withOpen || s.capabilities.edit ? <Sep /> : null}
+                    <Item
+                        variant="destructive"
+                        onSelect={() =>
+                            openModal(ConfirmDialog, {
+                                title: t(
+                                    'saved_search.delete.title',
+                                    'Delete search "{{name}}"?',
+                                    {name: s.name}
+                                ),
+                                destructive: true,
+                                onConfirm: async () => {
+                                    await deleteSavedSearch(s.id);
+                                    void queryClient.invalidateQueries({
+                                        queryKey: ['saved-searches'],
+                                    });
+                                    if (active) {
+                                        search?.setSearchId(undefined);
+                                    }
+                                },
+                            })
+                        }
+                    >
+                        <Trash2Icon /> {t('common.delete', 'Delete')}
+                    </Item>
+                </>
+            ) : null}
+        </>
+    );
+
+    return (
+        <ContextMenu>
+            <ContextMenuTrigger asChild>
+                <li
+                    data-testid="saved-search-item"
+                    data-active={active ? 'true' : undefined}
+                    className={cn(
+                        'group flex items-center gap-1 px-2',
+                        active && 'bg-primary/10',
+                        // A menu open (context or ⋮): the search it acts on
+                        'data-[state=open]:bg-accent has-[>[data-state=open]]:bg-accent'
+                    )}
+                >
+                    <button
+                        type="button"
+                        className="flex min-w-0 flex-1 items-center gap-2 rounded px-1 py-1.5 text-left text-sm hover:bg-accent"
+                        onClick={open}
+                    >
+                        <BookmarkIcon
+                            className={cn(
+                                'size-4 shrink-0',
+                                active
+                                    ? 'text-primary'
+                                    : 'text-muted-foreground'
+                            )}
+                        />
+                        <span className="truncate">{s.name}</span>
+                    </button>
+                    {manageable ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    className="opacity-0 group-hover:opacity-100 data-[state=open]:opacity-100"
+                                >
+                                    <MoreVerticalIcon />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                {menu(
+                                    DropdownMenuItem,
+                                    DropdownMenuSeparator,
+                                    false
+                                )}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : null}
+                </li>
+            </ContextMenuTrigger>
+            <ContextMenuContent>
+                {menu(
+                    ContextMenuItem as any,
+                    ContextMenuSeparator as any,
+                    true
+                )}
+            </ContextMenuContent>
+        </ContextMenu>
     );
 }

@@ -11,7 +11,10 @@ import {api} from '@/lib/api/http';
 import {toPage} from '@/lib/api/hydra';
 import {
     EntityName,
+    type AttributeDefinition,
     type HydraCollection,
+    type Page,
+    type RenditionDefinition,
     type User,
     type Group,
 } from '@/types/api';
@@ -21,12 +24,22 @@ import {LabeledControl, Switch} from '@/components/ui/controls';
 import {SimpleSelect} from '@/components/ui/select';
 import {Badge} from '@/components/ui/misc';
 import {GroupSelect, UserSelect} from '@/components/form/selects';
+import {CollectionTreePicker} from '@/components/form/CollectionTreePicker';
+import {AsyncCombobox, ComboOption} from '@/components/form/AsyncCombobox';
+import {getRenditionDefinitions} from '@/lib/api/misc';
+import {getCollection} from '@/lib/api/collections';
+import {getWorkspaceAttributeDefinitions} from '@/lib/api/metadata';
 import {iri, toIris} from '@/lib/utils/iri';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 type AssetPolicyCondition = {field?: string; operator: string; value: string};
+const HIDE_RENDITION = 'hide_rendition';
+const HIDE_ATTRIBUTE = 'hide_attribute';
+type ActionName = typeof HIDE_RENDITION | typeof HIDE_ATTRIBUTE;
+/** What `AssetPolicyManager` reads: the id of the definition to hide */
 type AssetPolicyAction = {
-    action: 'hide_rendition' | 'hide_attribute';
+    action: ActionName;
+    definitionId?: string;
     [k: string]: unknown;
 };
 type AssetPolicy = {
@@ -114,9 +127,27 @@ function PolicyForm({
     const [conditions, setConditions] = useState<AssetPolicyCondition[]>(
         policy?.conditions ?? []
     );
+    const renditions = useQuery({
+        queryKey: ['rendition-definitions', 'manage', workspaceId],
+        queryFn: () => getRenditionDefinitions({workspaceIds: [workspaceId]}),
+    });
+    const attributes = useQuery({
+        queryKey: ['attribute-definitions', 'manage', workspaceId],
+        queryFn: () => getWorkspaceAttributeDefinitions({workspaceId}),
+    });
     const [actions, setActions] = useState<AssetPolicyAction[]>(
         policy?.actions ?? []
     );
+    const hidden = (action: ActionName) =>
+        actions
+            .filter(a => a.action === action)
+            .map(a => definitionIdOf(a, renditions.data, attributes.data))
+            .filter((id): id is string => !!id);
+    const setHidden = (action: ActionName, ids: string[]) =>
+        setActions([
+            ...actions.filter(a => a.action !== action),
+            ...ids.map(definitionId => ({action, definitionId})),
+        ]);
     const [saving, setSaving] = useState(false);
     const {markSaved} = useDirtyState({
         name,
@@ -136,7 +167,11 @@ function PolicyForm({
                 users,
                 groups,
                 conditions,
-                actions,
+                actions: (
+                    [HIDE_RENDITION, HIDE_ATTRIBUTE] as ActionName[]
+                ).flatMap(action =>
+                    hidden(action).map(definitionId => ({action, definitionId}))
+                ),
                 workspace: iri(EntityName.Workspace, workspaceId),
             };
             const saved = policy
@@ -180,175 +215,264 @@ function PolicyForm({
                     'Conditions (all must match)'
                 )}
             >
-                <div className="space-y-2">
-                    {conditions.map((c, i) => (
-                        <div key={i} className="flex items-center gap-2">
-                            <Input
-                                className="w-40 font-mono"
-                                placeholder="field"
-                                value={c.field ?? ''}
-                                onChange={e =>
-                                    setConditions(
-                                        conditions.map((x, j) =>
-                                            j === i
-                                                ? {...x, field: e.target.value}
-                                                : x
-                                        )
-                                    )
-                                }
-                            />
-                            <SimpleSelect
-                                className="w-20"
-                                value={c.operator}
-                                onValueChange={v =>
-                                    setConditions(
-                                        conditions.map((x, j) =>
-                                            j === i ? {...x, operator: v} : x
-                                        )
-                                    )
-                                }
-                                options={[
-                                    {value: '=', label: '='},
-                                    {value: '!=', label: '!='},
-                                ]}
-                            />
-                            <Input
-                                className="flex-1"
-                                placeholder="value"
-                                value={String(c.value ?? '')}
-                                onChange={e =>
-                                    setConditions(
-                                        conditions.map((x, j) =>
-                                            j === i
-                                                ? {...x, value: e.target.value}
-                                                : x
-                                        )
-                                    )
-                                }
-                            />
-                            <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                onClick={() =>
-                                    setConditions(
-                                        conditions.filter((_, j) => j !== i)
-                                    )
-                                }
-                            >
-                                <XIcon />
-                            </Button>
-                        </div>
-                    ))}
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                            setConditions([
-                                ...conditions,
-                                {field: '', operator: '=', value: ''},
-                            ])
-                        }
-                    >
-                        <PlusIcon />{' '}
-                        {t('asset_policy.add_condition', 'Add condition')}
-                    </Button>
-                </div>
+                <PolicyConditions
+                    conditions={conditions}
+                    onChange={setConditions}
+                    workspaceId={workspaceId}
+                />
             </FormRow>
-            <FormRow label={t('asset_policy.actions', 'Actions')}>
-                <div className="space-y-2">
-                    {actions.map((a, i) => (
-                        <div key={i} className="flex items-center gap-2">
-                            <SimpleSelect
-                                className="w-44"
-                                value={a.action}
-                                onValueChange={v =>
-                                    setActions(
-                                        actions.map((x, j) =>
-                                            j === i
-                                                ? {
-                                                      ...x,
-                                                      action: v as AssetPolicyAction['action'],
-                                                  }
-                                                : x
-                                        )
-                                    )
-                                }
-                                options={[
-                                    {
-                                        value: 'hide_rendition',
-                                        label: t(
-                                            'asset_policy.hide_rendition',
-                                            'Hide rendition'
-                                        ),
-                                    },
-                                    {
-                                        value: 'hide_attribute',
-                                        label: t(
-                                            'asset_policy.hide_attribute',
-                                            'Hide attribute'
-                                        ),
-                                    },
-                                ]}
-                            />
-                            <Input
-                                className="flex-1 font-mono"
-                                placeholder={
-                                    a.action === 'hide_rendition'
-                                        ? 'rendition name'
-                                        : 'attribute slug'
-                                }
-                                value={String(
-                                    (a.action === 'hide_rendition'
-                                        ? a.rendition
-                                        : a.attribute) ?? ''
-                                )}
-                                onChange={e =>
-                                    setActions(
-                                        actions.map((x, j) =>
-                                            j === i
-                                                ? {
-                                                      action: x.action,
-                                                      [x.action ===
-                                                      'hide_rendition'
-                                                          ? 'rendition'
-                                                          : 'attribute']:
-                                                          e.target.value,
-                                                  }
-                                                : x
-                                        )
-                                    )
-                                }
-                            />
-                            <Button
-                                variant="ghost"
-                                size="icon-sm"
-                                onClick={() =>
-                                    setActions(
-                                        actions.filter((_, j) => j !== i)
-                                    )
-                                }
-                            >
-                                <XIcon />
-                            </Button>
-                        </div>
-                    ))}
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                            setActions([...actions, {action: 'hide_rendition'}])
-                        }
-                    >
-                        <PlusIcon />{' '}
-                        {t('asset_policy.add_action', 'Add action')}
-                    </Button>
-                </div>
-            </FormRow>
+            <div className="grid gap-3 sm:grid-cols-2">
+                <FormRow
+                    label={t(
+                        'asset_policy.hidden_renditions',
+                        'Hide renditions'
+                    )}
+                    htmlFor="asset-policy-renditions"
+                >
+                    <DefinitionMultiSelect
+                        id="asset-policy-renditions"
+                        options={(renditions.data?.items ?? []).map(r => ({
+                            value: r.id,
+                            label: r.displayName ?? r.name,
+                        }))}
+                        value={hidden(HIDE_RENDITION)}
+                        onChange={ids => setHidden(HIDE_RENDITION, ids)}
+                    />
+                </FormRow>
+                <FormRow
+                    label={t(
+                        'asset_policy.hidden_attributes',
+                        'Hide attributes'
+                    )}
+                    htmlFor="asset-policy-attributes"
+                >
+                    <DefinitionMultiSelect
+                        id="asset-policy-attributes"
+                        options={(attributes.data?.items ?? []).map(d => ({
+                            value: d.id,
+                            label: d.displayName ?? d.name,
+                        }))}
+                        value={hidden(HIDE_ATTRIBUTE)}
+                        onChange={ids => setHidden(HIDE_ATTRIBUTE, ids)}
+                    />
+                </FormRow>
+            </div>
             <div className="flex justify-end">
                 <Button onClick={save} loading={saving} disabled={!name.trim()}>
                     <SaveIcon /> {t('common.save', 'Save')}
                 </Button>
             </div>
         </div>
+    );
+}
+
+/**
+ * Early versions of this screen stored the rendition name / attribute slug
+ * (`rendition` / `attribute`) instead of the `definitionId` the API reads.
+ */
+function definitionIdOf(
+    a: AssetPolicyAction,
+    renditions?: Page<RenditionDefinition>,
+    attributes?: Page<AttributeDefinition>
+): string | undefined {
+    if (a.definitionId) {
+        return a.definitionId;
+    }
+    if (a.action === HIDE_RENDITION && typeof a.rendition === 'string') {
+        return renditions?.items.find(r => r.name === a.rendition)?.id;
+    }
+    if (a.action === HIDE_ATTRIBUTE && typeof a.attribute === 'string') {
+        return attributes?.items.find(d => d.slug === a.attribute)?.id;
+    }
+
+    return undefined;
+}
+
+function DefinitionMultiSelect({
+    id,
+    options,
+    value,
+    onChange,
+}: {
+    id: string;
+    options: ComboOption[];
+    value: string[];
+    onChange: (ids: string[]) => void;
+}) {
+    return (
+        <AsyncCombobox
+            id={id}
+            multiple
+            queryKey={['asset-policy-definitions', id, options]}
+            loadOptions={async query =>
+                options.filter(o =>
+                    o.label.toLowerCase().includes(query.toLowerCase())
+                )
+            }
+            resolveValue={async v => options.find(o => o.value === v)}
+            value={value}
+            onChange={onChange}
+        />
+    );
+}
+
+/** The only condition `AssetPolicyManager::matchesConditions` evaluates */
+const COLLECTION = 'collection';
+
+/**
+ * Conditions of a policy, laid out as the search condition builder (field,
+ * operator, value), restricted to what the API evaluates: the asset's
+ * reference collection being a given collection or below it.
+ */
+function PolicyConditions({
+    conditions,
+    onChange,
+    workspaceId,
+}: {
+    conditions: AssetPolicyCondition[];
+    onChange: (conditions: AssetPolicyCondition[]) => void;
+    workspaceId: string;
+}) {
+    const {t} = useTranslation();
+    const update = (i: number, c: AssetPolicyCondition) =>
+        onChange(conditions.map((x, j) => (j === i ? c : x)));
+
+    return (
+        <div className="space-y-2">
+            {conditions.map((c, i) => (
+                <div
+                    key={i}
+                    className="flex flex-wrap items-start gap-2 rounded-md bg-muted/40 p-2"
+                    data-testid="asset-policy-condition"
+                >
+                    <SimpleSelect
+                        size="sm"
+                        className="w-44"
+                        value={c.field}
+                        onValueChange={field =>
+                            update(i, {field, operator: '=', value: ''})
+                        }
+                        options={[
+                            {
+                                value: COLLECTION,
+                                label: t(
+                                    'asset_policy.field.collection',
+                                    'Collection'
+                                ),
+                            },
+                            // Saved by hand, not evaluated: shown as is
+                            ...(c.field && c.field !== COLLECTION
+                                ? [{value: c.field, label: c.field}]
+                                : []),
+                        ]}
+                    />
+                    <SimpleSelect
+                        size="sm"
+                        className="w-44"
+                        value={c.operator}
+                        onValueChange={operator => update(i, {...c, operator})}
+                        options={[
+                            {
+                                value: '=',
+                                label: t(
+                                    'asset_policy.operator.in',
+                                    'is in (or below)'
+                                ),
+                            },
+                        ]}
+                    />
+                    <div className="min-w-56 flex-1">
+                        {c.field === COLLECTION ? (
+                            <>
+                                <SelectedCollection id={c.value} />
+                                <CollectionTreePicker
+                                    workspaceId={workspaceId}
+                                    allowWorkspace={false}
+                                    className="max-h-48 bg-background"
+                                    value={
+                                        c.value
+                                            ? {
+                                                  iri: iri(
+                                                      EntityName.Collection,
+                                                      c.value
+                                                  ),
+                                                  workspaceId,
+                                                  collectionId: c.value,
+                                                  label: '',
+                                              }
+                                            : undefined
+                                    }
+                                    onChange={selection =>
+                                        update(i, {
+                                            ...c,
+                                            value:
+                                                selection?.collectionId ?? '',
+                                        })
+                                    }
+                                />
+                            </>
+                        ) : (
+                            <Input
+                                className="h-8"
+                                value={String(c.value ?? '')}
+                                onChange={e =>
+                                    update(i, {...c, value: e.target.value})
+                                }
+                            />
+                        )}
+                    </div>
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() =>
+                            onChange(conditions.filter((_, j) => j !== i))
+                        }
+                        aria-label={t('common.remove', 'Remove')}
+                    >
+                        <XIcon />
+                    </Button>
+                </div>
+            ))}
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                    onChange([
+                        ...conditions,
+                        {field: COLLECTION, operator: '=', value: ''},
+                    ])
+                }
+            >
+                <PlusIcon /> {t('asset_policy.add_condition', 'Add condition')}
+            </Button>
+        </div>
+    );
+}
+
+/** The tree does not unfold to it: its path, spelled out */
+function SelectedCollection({id}: {id: string}) {
+    const {t} = useTranslation();
+    const collection = useQuery({
+        queryKey: ['collection', id],
+        queryFn: () => getCollection(id),
+        enabled: !!id,
+    });
+    if (!id) {
+        return (
+            <p className="mb-1 text-xs text-muted-foreground">
+                {t('asset_policy.pick_collection', 'Pick a collection:')}
+            </p>
+        );
+    }
+
+    return (
+        <p className="mb-1 truncate text-xs font-medium">
+            {collection.data
+                ? (collection.data.absoluteDisplayName ??
+                  collection.data.displayName)
+                : collection.isError
+                  ? id
+                  : '…'}
+        </p>
     );
 }

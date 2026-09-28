@@ -31,8 +31,18 @@ import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {UploadRenditionDialog} from '../dialogs/UploadRenditionDialog';
 import {CreateDynamicRenditionDialog} from '../dialogs/CreateDynamicRenditionDialog';
 import {SaveAsDialog} from '@/features/assets/actions/SaveAsDialog';
+import {cn} from '@/lib/utils/cn';
 
-export function AssetRenditionsTab({asset}: AssetTabProps) {
+export function AssetRenditionsTab({
+    asset,
+    displayed,
+    onDisplay,
+}: AssetTabProps & {
+    /** Rendition shown by the viewer */
+    displayed?: string;
+    /** Shows a rendition in the viewer (asset view only) */
+    onDisplay?: (id: string) => void;
+}) {
     const {t, i18n} = useTranslation();
     const {openModal} = useModals();
     const queryClient = useQueryClient();
@@ -86,7 +96,6 @@ export function AssetRenditionsTab({asset}: AssetTabProps) {
                         openModal(CreateDynamicRenditionDialog, {
                             asset,
                             renditions,
-                            definitions,
                             onCreated: refresh,
                         })
                     }
@@ -102,6 +111,12 @@ export function AssetRenditionsTab({asset}: AssetTabProps) {
                     asset={asset}
                     lang={i18n.language}
                     onChanged={refresh}
+                    displayed={r.id === displayed}
+                    onDisplay={
+                        onDisplay && r.file?.url
+                            ? () => onDisplay(r.id)
+                            : undefined
+                    }
                 />
             ))}
             {missing.map(d => (
@@ -139,24 +154,44 @@ function RenditionCard({
     asset,
     lang,
     onChanged,
+    displayed,
+    onDisplay,
 }: {
     rendition: AssetRendition;
     asset: AssetTabProps['asset'];
     lang: string;
     onChanged: () => void;
+    displayed?: boolean;
+    onDisplay?: () => void;
 }) {
     const {t} = useTranslation();
     const {openModal} = useModals();
     const file = rendition.file;
 
     return (
-        <div className="flex gap-3 rounded-md border p-3">
-            <div className="flex size-32 shrink-0 items-center justify-center overflow-hidden rounded bg-media-bg">
+        <div
+            data-testid={`rendition-card-${rendition.name}`}
+            data-displayed={displayed || undefined}
+            className={cn(
+                'flex gap-3 rounded-md border p-3',
+                displayed && 'border-primary ring-1 ring-primary'
+            )}
+        >
+            <div className="relative flex size-32 shrink-0 items-center justify-center overflow-hidden rounded bg-media-bg">
                 {file ? (
                     <FilePlayer file={file} controls={false} />
                 ) : (
                     <RefreshCwIcon className="size-6 animate-spin text-muted-foreground" />
                 )}
+                {onDisplay ? (
+                    // Over the player: a video thumbnail must not catch the click
+                    <button
+                        type="button"
+                        className="absolute inset-0 cursor-zoom-in focus-visible:outline-2 focus-visible:outline-ring"
+                        onClick={onDisplay}
+                        aria-label={t('rendition.display', 'View')}
+                    />
+                ) : null}
             </div>
             <div className="min-w-0 flex-1 space-y-1 text-sm">
                 <div className="flex flex-wrap items-center gap-2">

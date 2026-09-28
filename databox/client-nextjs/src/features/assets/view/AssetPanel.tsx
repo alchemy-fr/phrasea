@@ -96,7 +96,11 @@ type PanelTab = {
     enabled?: boolean;
 };
 
-function useTabs(asset: Asset, rendition?: AssetRendition): PanelTab[] {
+function useTabs(
+    asset: Asset,
+    rendition?: AssetRendition,
+    onSelectRendition?: (id: string) => void
+): PanelTab[] {
     const {t} = useTranslation();
     const {hasRole} = useAuth();
 
@@ -113,6 +117,7 @@ function useTabs(asset: Asset, rendition?: AssetRendition): PanelTab[] {
             title: t('asset.manage.renditions', 'Renditions'),
             icon: <ImagesIcon />,
             component: AssetRenditionsTab,
+            props: {displayed: rendition?.id, onDisplay: onSelectRendition},
         },
         {
             id: 'versions',
@@ -266,6 +271,7 @@ function useSingleLineTabs(tabs: PanelTab[], active: AssetPanelTab) {
 export function AssetPanel({
     asset,
     rendition,
+    onSelectRendition,
     tab,
     onTabChange,
     editing,
@@ -274,6 +280,8 @@ export function AssetPanel({
 }: {
     asset: Asset;
     rendition?: AssetRendition;
+    /** Displays a rendition in the viewer */
+    onSelectRendition?: (id: string) => void;
     tab: AssetPanelTab;
     onTabChange: (tab: AssetPanelTab) => void;
     editing: boolean;
@@ -281,7 +289,9 @@ export function AssetPanel({
     refresh: () => void;
 }) {
     const {t} = useTranslation();
-    const tabs = useTabs(asset, rendition).filter(tb => tb.enabled !== false);
+    const tabs = useTabs(asset, rendition, onSelectRendition).filter(
+        tb => tb.enabled !== false
+    );
     const active = tabs.find(tb => tb.id === tab) ? tab : defaultAssetPanelTab;
     const {rowRef, measuring, visible, hidden} = useSingleLineTabs(
         tabs,
