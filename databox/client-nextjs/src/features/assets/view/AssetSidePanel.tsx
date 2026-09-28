@@ -67,15 +67,15 @@ export function AssetSidePanel({
                                         absolute
                                         size="sm"
                                         onClick={() => {
-                                            router.push(routes.assets());
-                                            setTimeout(
-                                                () =>
-                                                    search?.selectCollection(
-                                                        c.id,
-                                                        c
-                                                    ),
-                                                0
-                                            );
+                                            // Navigates to the search screen
+                                            if (search) {
+                                                search.selectCollection(
+                                                    c.id,
+                                                    c
+                                                );
+                                            } else {
+                                                router.push(routes.assets());
+                                            }
                                         }}
                                     />
                                 </li>

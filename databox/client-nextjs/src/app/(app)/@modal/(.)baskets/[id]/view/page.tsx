@@ -1,7 +1,8 @@
-import {BasketViewRoute} from '@/features/baskets/view/BasketViewRoute';
-
-export default async function Modal({params}: {params: Promise<{id: string}>}) {
-    const {id} = await params;
-
-    return <BasketViewRoute basketId={id} />;
+/**
+ * The basket view is rendered by `BasketViewLayer`. Intercepting its route
+ * still keeps the search screen mounted underneath (a plain navigation would
+ * remount it) and clears this slot.
+ */
+export default function Modal() {
+    return null;
 }

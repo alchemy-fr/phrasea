@@ -3,6 +3,7 @@ import {AppShell} from '@/components/layout/AppShell';
 import {RouteHistoryProvider} from '@/components/modals/RouteDialog';
 import {SearchProvider} from '@/features/search/SearchProvider';
 import {ResultProvider} from '@/features/search/ResultProvider';
+import {BasketViewLayer} from '@/features/baskets/view/BasketViewLayer';
 
 /**
  * The search state (URL) and results are shared by the search screen and the
@@ -20,6 +21,7 @@ export default function AppLayout({
                     <RouteHistoryProvider>
                         <AppShell>
                             {children}
+                            <BasketViewLayer />
                             {modal}
                         </AppShell>
                     </RouteHistoryProvider>

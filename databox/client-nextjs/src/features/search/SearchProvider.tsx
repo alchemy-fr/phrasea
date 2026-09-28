@@ -75,10 +75,20 @@ export function SearchProvider({
     const inputQuery = useRef<string>('');
     const storeEntity = useEntitiesStore(s => s.store);
 
-    const state = useMemo(
-        () => paramsToSearchState(searchParams),
-        [searchParams]
+    // Only the search screen carries the search in its URL. Dialog routes
+    // (workspace management, asset view...) are rendered above it: keep the
+    // last search instead of running an unfiltered one, so that closing the
+    // dialog finds the results as they were.
+    const onSearchScreen = pathname === basePath;
+    const qs = searchParams.toString();
+    const urlState = useMemo(
+        () => paramsToSearchState(new URLSearchParams(qs)),
+        [qs]
     );
+    const [state, setState] = useState(urlState);
+    if (onSearchScreen && urlState !== state) {
+        setState(urlState);
+    }
 
     const stateRef = useRef(state);
     stateRef.current = state;
@@ -91,13 +101,12 @@ export function SearchProvider({
             const params = searchStateToParams(next);
             const qs = params.toString();
             const currentQs = searchStateToParams(stateRef.current).toString();
-            if (qs === currentQs) {
+            const onSearchScreen = pathname === basePath;
+            if (qs === currentQs && onSearchScreen) {
                 return false;
             }
-            // Navigating from a modal route back to the search page keeps the
-            // current pathname when we are already on the search screen.
-            const target = pathname.startsWith(basePath) ? pathname : basePath;
-            router.push(`${target}${qs ? `?${qs}` : ''}`, {scroll: false});
+            // From any other route (dialog, viewer...), go to the search screen
+            router.push(`${basePath}${qs ? `?${qs}` : ''}`, {scroll: false});
 
             return true;
         },

@@ -89,6 +89,12 @@ export type UpdatePreference = <K extends keyof UserPreferences>(
         reset?: boolean;
         offlineUpdates?: UserPreferences;
         persist?: boolean;
+        /**
+         * Saves at most once per this many milliseconds (the last value
+         * always ends up saved): for continuous inputs such as sliders. The
+         * local state is updated right away.
+         */
+        throttle?: number;
     }
 ) => Promise<void>;
 
@@ -104,6 +110,9 @@ type State = {
         prefs: UserPreferences
     ) => boolean;
 };
+
+/** Preferences in a throttle window: whether a save is due at its end */
+const throttled = new Map<keyof UserPreferences, {pending: boolean}>();
 
 export const usePreferencesStore = create<State>((set, get) => ({
     preferences: typeof window !== 'undefined' ? readLocal() : {},
@@ -144,20 +153,49 @@ export const usePreferencesStore = create<State>((set, get) => ({
         if (deepEquals(next[name], prev[name]) || options.persist === false) {
             return;
         }
-        if (get().onBeforePersist?.(name, next) === false) {
+        if (!options.throttle) {
+            return persist(name, options.reset);
+        }
+        const current = throttled.get(name);
+        if (current) {
+            current.pending = true;
+
             return;
         }
-        if (get().authenticated) {
-            await api
-                .put('/preferences', {
-                    name,
-                    value: next[name],
-                    reset: options.reset,
-                })
-                .catch(e => console.warn('[preferences] save failed', e));
-        }
+        const delay = options.throttle;
+        const open = () => {
+            const w = {pending: false};
+            throttled.set(name, w);
+            setTimeout(() => {
+                throttled.delete(name);
+                if (w.pending) {
+                    open();
+                    void persist(name);
+                }
+            }, delay);
+        };
+        open();
+
+        return persist(name, options.reset);
     },
 }));
+
+/** Saves the current value of a preference */
+async function persist(
+    name: keyof UserPreferences,
+    reset?: boolean
+): Promise<void> {
+    const {preferences, onBeforePersist, authenticated} =
+        usePreferencesStore.getState();
+    if (onBeforePersist?.(name, preferences) === false) {
+        return;
+    }
+    if (authenticated) {
+        await api
+            .put('/preferences', {name, value: preferences[name], reset})
+            .catch(e => console.warn('[preferences] save failed', e));
+    }
+}
 
 export function useDisplayPreferences(
     key: 'display' | 'displayBatchEdit' = 'display'

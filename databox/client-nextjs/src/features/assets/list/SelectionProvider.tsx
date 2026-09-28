@@ -48,33 +48,51 @@ export type SelectionActions = {
 const SelectionActionsContext = createContext<SelectionActions | null>(null);
 
 /**
- * Computes the new selection for a click, supporting Ctrl/Cmd (toggle) and
- * Shift (range across pages).
+ * Computes the new selection for a click:
+ * - plain click selects the item alone;
+ * - Ctrl/Cmd toggles it;
+ * - Shift selects the range from the anchor (the last item clicked without
+ *   Shift) to the item, replacing the selection;
+ * - Shift+Ctrl/Cmd adds that range to the selection.
+ *
+ * Without an anchor in the pages, the last selected item stands for it.
  */
 export function computeSelection(
     current: Asset[],
     item: Asset,
     pages: Asset[][],
-    e?: {ctrlKey?: boolean; metaKey?: boolean; shiftKey?: boolean}
+    e?: {ctrlKey?: boolean; metaKey?: boolean; shiftKey?: boolean},
+    anchorId?: string
 ): Asset[] {
-    if (e?.ctrlKey || e?.metaKey) {
+    const additive = Boolean(e?.ctrlKey || e?.metaKey);
+    if (e?.shiftKey) {
+        const flat = pages.flat();
+        const itemIndex = flat.findIndex(f => f.id === item.id);
+        let anchorIndex = anchorId
+            ? flat.findIndex(f => f.id === anchorId)
+            : -1;
+        if (anchorIndex === -1 && current.length > 0) {
+            anchorIndex = flat.findIndex(
+                f => f.id === current[current.length - 1].id
+            );
+        }
+        if (itemIndex !== -1 && anchorIndex !== -1) {
+            const range = flat.slice(
+                Math.min(itemIndex, anchorIndex),
+                Math.max(itemIndex, anchorIndex) + 1
+            );
+            if (!additive) {
+                return range;
+            }
+            const ids = new Set(current.map(a => a.id));
+
+            return [...current, ...range.filter(a => !ids.has(a.id))];
+        }
+    }
+    if (additive) {
         return current.some(a => a.id === item.id)
             ? current.filter(a => a.id !== item.id)
             : [...current, item];
-    }
-    if (e?.shiftKey && current.length > 0) {
-        const flat = pages.flat();
-        const selectedIndexes = current
-            .map(a => flat.findIndex(f => f.id === a.id))
-            .filter(i => i >= 0);
-        const itemIndex = flat.findIndex(f => f.id === item.id);
-        if (itemIndex === -1 || selectedIndexes.length === 0) {
-            return [item];
-        }
-        const start = Math.min(itemIndex, ...selectedIndexes);
-        const end = Math.max(itemIndex, ...selectedIndexes);
-
-        return flat.slice(start, end + 1);
     }
 
     return [item];
@@ -116,6 +134,25 @@ export function SelectionProvider({
     const setSelectionRef = useRef(setSelection);
     setSelectionRef.current = setSelection;
 
+    /** last item clicked without Shift: start of a Shift+click range */
+    const anchorRef = useRef<string | undefined>(undefined);
+    const clickItem = useCallback(
+        (asset: Asset, pages: Asset[][], e?: MouseEvent) => {
+            const next = computeSelection(
+                selectionRef.current,
+                asset,
+                pages,
+                e,
+                anchorRef.current
+            );
+            if (!e?.shiftKey) {
+                anchorRef.current = asset.id;
+            }
+            setSelectionRef.current(next);
+        },
+        []
+    );
+
     const value = useMemo<SelectionContextValue>(() => {
         const selectedIds = new Set(selection.map(a => a.id));
 
@@ -130,13 +167,12 @@ export function SelectionProvider({
                         ? selection.filter(a => a.id !== asset.id)
                         : [...selection, asset]
                 ),
-            onItemClick: (asset, pages, e) =>
-                setSelection(computeSelection(selection, asset, pages, e)),
+            onItemClick: clickItem,
             selectAll: pages => setSelection(pages.flat()),
             isSelected: id => selectedIds.has(id),
             disabledIds,
         };
-    }, [selection, setSelection, disabledIds]);
+    }, [selection, setSelection, clickItem, disabledIds]);
 
     const actions = useMemo<SelectionActions>(
         () => ({
@@ -154,15 +190,12 @@ export function SelectionProvider({
                         : [...current, asset]
                 );
             },
-            onItemClick: (asset, pages, e) =>
-                setSelection(
-                    computeSelection(selectionRef.current, asset, pages, e)
-                ),
+            onItemClick: clickItem,
             selectAll: pages => setSelection(pages.flat()),
             clear: () => setSelection([]),
             disabledIds,
         }),
-        [setSelection, disabledIds]
+        [setSelection, clickItem, disabledIds]
     );
 
     // Escape clears the selection (outside inputs and open dialogs)

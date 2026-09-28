@@ -49,3 +49,21 @@ export type WorkspaceTab =
     | 'asset-policies'
     | 'integrations'
     | 'filter-rules';
+
+/**
+ * Routes rendered in the `@modal` slot when navigated to client-side: they
+ * open above the current screen, which must stay as it is behind them. Keep
+ * in sync with the intercepting routes of `app/(app)/@modal`.
+ */
+const stackedRoute =
+    /^\/(assets\/[^/]+\/[^/]+|attributes\/editor|(baskets|collections|files|profiles|saved-searches|workspaces)\/[^/]+\/manage|workflows\/[^/]+)(\/|$)/;
+
+export function isStackedRoute(pathname: string): boolean {
+    return stackedRoute.test(pathname);
+}
+
+const basketViewRoute = /^\/baskets\/([^/]+)\/view\/?$/;
+
+export function matchBasketView(pathname: string): string | undefined {
+    return basketViewRoute.exec(pathname)?.[1];
+}

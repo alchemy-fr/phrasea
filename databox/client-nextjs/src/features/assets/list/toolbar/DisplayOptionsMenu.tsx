@@ -23,6 +23,9 @@ import {
     usePreferencesStore,
 } from '@/features/preferences/store';
 
+/** at most one save of the display preferences per interval while sliding */
+const sliderSaveInterval = 1000;
+
 export function DisplayOptionsMenu({
     prefKey = 'display',
 }: {
@@ -32,14 +35,21 @@ export function DisplayOptionsMenu({
     const display = useDisplayPreferences(prefKey);
     const updatePreference = usePreferencesStore(s => s.updatePreference);
 
-    const patch = (p: Partial<DisplayPreferences>) =>
-        updatePreference(prefKey, prev => ({
-            ...display,
-            ...(prev ?? {}),
-            ...p,
-        }));
-    const patchPreview = (p: Partial<DisplayPreferences['previewOptions']>) =>
-        patch({previewOptions: {...display.previewOptions, ...p}});
+    /** `throttle`: sliders, whose values change continuously while dragged */
+    const patch = (p: Partial<DisplayPreferences>, throttle?: boolean) =>
+        updatePreference(
+            prefKey,
+            prev => ({
+                ...display,
+                ...(prev ?? {}),
+                ...p,
+            }),
+            {throttle: throttle ? sliderSaveInterval : undefined}
+        );
+    const patchPreview = (
+        p: Partial<DisplayPreferences['previewOptions']>,
+        throttle?: boolean
+    ) => patch({previewOptions: {...display.previewOptions, ...p}}, throttle);
 
     return (
         <Popover>
@@ -86,7 +96,7 @@ export function DisplayOptionsMenu({
                         max={400}
                         step={10}
                         value={[display.thumbSize]}
-                        onValueChange={([v]) => patch({thumbSize: v})}
+                        onValueChange={([v]) => patch({thumbSize: v}, true)}
                     />
                 </div>
                 <div>
@@ -174,7 +184,7 @@ export function DisplayOptionsMenu({
                                         display.previewOptions.sizeRatio * 100,
                                     ]}
                                     onValueChange={([v]) =>
-                                        patchPreview({sizeRatio: v / 100})
+                                        patchPreview({sizeRatio: v / 100}, true)
                                     }
                                 />
                             </div>
@@ -203,9 +213,10 @@ export function DisplayOptionsMenu({
                                                 .attributesRatio * 100,
                                         ]}
                                         onValueChange={([v]) =>
-                                            patchPreview({
-                                                attributesRatio: v / 100,
-                                            })
+                                            patchPreview(
+                                                {attributesRatio: v / 100},
+                                                true
+                                            )
                                         }
                                     />
                                 </div>

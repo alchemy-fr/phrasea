@@ -5,6 +5,7 @@ import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {
     CheckIcon,
+    CheckCheckIcon,
     LockIcon,
     MinusIcon,
     PlusIcon,
@@ -12,13 +13,13 @@ import {
     SaveIcon,
     UndoIcon,
     XIcon,
+    ZoomInIcon,
 } from 'lucide-react';
 import {toast} from 'sonner';
-import type {Asset, Attribute, AttributeDefinition} from '@/types/api';
+import type {Asset, AttributeDefinition} from '@/types/api';
 import {AttributeBatchActionEnum, AttributeType, EntityName} from '@/types/api';
 import {
     attributeBatchUpdate,
-    getAssetAttributes,
     isAssetEligibleForDefinition,
     searchAssets,
 } from '@/lib/api/assets';
@@ -58,6 +59,8 @@ import {
     useEntitiesStore,
 } from '@/features/search/entitiesStore';
 import {iri} from '@/lib/utils/iri';
+import {Slider} from '@/components/ui/controls';
+import {thumbSizeRange, useBatchEditorLayout} from './useBatchEditorLayout';
 
 /** per asset, per definition, per locale => values */
 type ValueMap = Record<string, Record<string, Record<string, unknown[]>>>;
@@ -149,14 +152,11 @@ export function AttributeBatchEditorRoute() {
         }
     }, []);
 
+    // The assets come with their attributes: one request for the whole
+    // selection
     const assetsQuery = useQuery({
         queryKey: ['batch-edit', 'assets', ids],
         queryFn: () => searchAssets({ids, limit: ids.length || 1}),
-        enabled: ids.length > 0,
-    });
-    const attributesQuery = useQuery({
-        queryKey: ['batch-edit', 'attributes', ids],
-        queryFn: () => getAssetAttributes(ids),
         enabled: ids.length > 0,
     });
     const assets = useMemo(
@@ -206,28 +206,24 @@ export function AttributeBatchEditorRoute() {
                 },
             };
         });
-        (attributesQuery.data ?? []).forEach(
-            (attr: Attribute & {asset?: {id: string}}) => {
-                const assetId = attr.asset?.id ?? (attr as any).assetId;
-                if (!assetId || !map[assetId]) {
-                    return;
-                }
+        assets.forEach(a =>
+            (a.attributes ?? []).forEach(attr => {
                 const defId = attr.definition.id;
                 const locale = attr.locale ?? NO_LOCALE;
                 const typeDef = getAttributeType(attr.definition.type);
                 const value = typeDef.normalize
                     ? typeDef.normalize(attr.value)
                     : attr.value;
-                map[assetId][defId] ??= {};
-                map[assetId][defId][locale] = [
-                    ...(map[assetId][defId][locale] ?? []),
+                map[a.id][defId] ??= {};
+                map[a.id][defId][locale] = [
+                    ...(map[a.id][defId][locale] ?? []),
                     value,
                 ];
-            }
+            })
         );
 
         return map;
-    }, [assets, attributesQuery.data]);
+    }, [assets]);
 
     const storeEntities = useEntitiesStore(s => s.storeMany);
     useEffect(() => {
@@ -238,14 +234,16 @@ export function AttributeBatchEditorRoute() {
                     tg as unknown as ResolvedEntity;
             })
         );
-        (attributesQuery.data ?? []).forEach(attr => {
-            const entry = relationEntry(attr.definition, attr.value);
-            if (entry) {
-                entities[entry[0]] = entry[1];
-            }
-        });
+        assets.forEach(a =>
+            (a.attributes ?? []).forEach(attr => {
+                const entry = relationEntry(attr.definition, attr.value);
+                if (entry) {
+                    entities[entry[0]] = entry[1];
+                }
+            })
+        );
         storeEntities(entities);
-    }, [assets, attributesQuery.data, storeEntities]);
+    }, [assets, storeEntities]);
     const rememberItem = (definition: AttributeDefinition, item: unknown) => {
         const entry = relationEntry(definition, item);
         if (entry) {
@@ -264,7 +262,7 @@ export function AttributeBatchEditorRoute() {
     });
     const [initialized, setInitialized] = useState(false);
     useEffect(() => {
-        if (!initialized && assets.length > 0 && attributesQuery.isSuccess) {
+        if (!initialized && assets.length > 0 && assetsQuery.isSuccess) {
             setHistory({
                 past: [],
                 present: {
@@ -276,7 +274,7 @@ export function AttributeBatchEditorRoute() {
             });
             setInitialized(true);
         }
-    }, [initialized, assets, attributesQuery.isSuccess, remote, definitions]);
+    }, [initialized, assets, assetsQuery.isSuccess, remote, definitions]);
 
     const state = history.present;
     const relationIris = useMemo(() => {
@@ -329,7 +327,48 @@ export function AttributeBatchEditorRoute() {
     const [rightTab, setRightTab] = useState<'values' | 'preview'>('values');
     const [previewIndex, setPreviewIndex] = useState(0);
 
-    useSelectAllKey(() => commit({subSelection: assets.map(a => a.id)}));
+    // Above the asset list behind the editor, which may mount after it
+    useSelectAllKey(
+        () => commit({subSelection: assets.map(a => a.id)}),
+        true,
+        1
+    );
+
+    const {layout, set: setLayout, startResize} = useBatchEditorLayout();
+
+    /** last asset clicked without Shift: start of a Shift+click range */
+    const anchorRef = useRef<string | undefined>(undefined);
+    const onThumbClick = (e: React.MouseEvent, assetId: string) => {
+        const additive = e.ctrlKey || e.metaKey;
+        const anchorIndex = anchorRef.current
+            ? assets.findIndex(a => a.id === anchorRef.current)
+            : -1;
+        if (e.shiftKey && anchorIndex >= 0) {
+            const index = assets.findIndex(a => a.id === assetId);
+            const [from, to] =
+                anchorIndex <= index
+                    ? [anchorIndex, index]
+                    : [index, anchorIndex];
+            const range = assets.slice(from, to + 1).map(a => a.id);
+            commit({
+                subSelection: additive
+                    ? [...new Set([...state.subSelection, ...range])]
+                    : range,
+            });
+
+            return;
+        }
+        anchorRef.current = assetId;
+        if (additive) {
+            commit({
+                subSelection: state.subSelection.includes(assetId)
+                    ? state.subSelection.filter(id => id !== assetId)
+                    : [...state.subSelection, assetId],
+            });
+        } else {
+            commit({subSelection: [assetId]});
+        }
+    };
 
     const currentDef = definitions.find(d => d.id === state.currentDefinition);
     const eligible = useMemo(
@@ -601,7 +640,6 @@ export function AttributeBatchEditorRoute() {
                     );
                 }
                 toast.success(t('batch_edit.saved', 'Attributes updated'));
-                await attributesQuery.refetch();
                 await assetsQuery.refetch();
                 setInitialized(false);
             },
@@ -716,76 +754,111 @@ export function AttributeBatchEditorRoute() {
             </header>
 
             {/* thumbnails band */}
-            <div className="flex h-28 shrink-0 items-center gap-2 overflow-x-auto border-b px-3">
-                <span className="mr-1 text-xs text-muted-foreground whitespace-nowrap">
-                    {t(
-                        'batch_edit.sub_selection',
-                        '{{count}} / {{total}} selected',
-                        {count: state.subSelection.length, total: assets.length}
-                    )}
-                </span>
-                {assets.map(a => {
-                    const selected = state.subSelection.includes(a.id);
-                    const notEligible =
-                        currentDef.id !== TAGS_DEFINITION_ID &&
-                        !isAssetEligibleForDefinition(a, currentDef);
-                    const assetValues = valuesFor(
-                        a.id,
-                        currentDef.id,
-                        effectiveLocale
-                    );
-
-                    return (
-                        <div
-                            key={a.id}
-                            className={cn(
-                                'group/thumb relative size-20 shrink-0 overflow-hidden rounded-md border bg-media-bg',
-                                selected ? 'ring-2 ring-primary' : 'opacity-50',
-                                notEligible && 'opacity-25'
+            <div
+                className="flex shrink-0"
+                style={{height: layout.thumbsHeight}}
+            >
+                <div className="flex w-40 shrink-0 flex-col gap-2 border-r p-2">
+                    <span className="text-xs text-muted-foreground">
+                        {t(
+                            'batch_edit.sub_selection',
+                            '{{count}} / {{total}} selected',
+                            {
+                                count: state.subSelection.length,
+                                total: assets.length,
+                            }
+                        )}
+                    </span>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={state.subSelection.length === assets.length}
+                        onClick={() =>
+                            commit({subSelection: assets.map(a => a.id)})
+                        }
+                    >
+                        <CheckCheckIcon /> {t('list.select_all', 'Select all')}
+                    </Button>
+                    <label className="flex items-center gap-2">
+                        <ZoomInIcon
+                            className="size-4 shrink-0 text-muted-foreground"
+                            aria-hidden
+                        />
+                        <Slider
+                            aria-label={t(
+                                'batch_edit.thumb_size',
+                                'Thumbnail size'
                             )}
-                        >
-                            <button
-                                type="button"
-                                className="size-full"
-                                onClick={e => {
-                                    if (e.ctrlKey || e.metaKey) {
-                                        commit({
-                                            subSelection: selected
-                                                ? state.subSelection.filter(
-                                                      id => id !== a.id
-                                                  )
-                                                : [...state.subSelection, a.id],
-                                        });
-                                    } else {
-                                        commit({subSelection: [a.id]});
-                                    }
-                                }}
-                                title={a.name}
-                            >
-                                <AssetThumb asset={a} size={80} />
-                            </button>
-                            {assetValues.length > 0 ? (
-                                <span className="pointer-events-none absolute right-1 bottom-1 rounded bg-background/90 px-1 text-[10px] font-semibold">
-                                    {assetValues.length}
-                                </span>
-                            ) : null}
-                        </div>
-                    );
-                })}
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                        commit({subSelection: assets.map(a => a.id)})
-                    }
-                >
-                    {t('list.select_all', 'Select all')}
-                </Button>
-            </div>
+                            min={thumbSizeRange.min}
+                            max={thumbSizeRange.max}
+                            step={thumbSizeRange.step}
+                            value={[layout.thumbSize]}
+                            onValueChange={([v]) => setLayout('thumbSize', v)}
+                        />
+                    </label>
+                </div>
+                <div className="flex min-w-0 flex-1 flex-wrap content-start gap-2 overflow-y-auto p-2 select-none">
+                    {assets.map(a => {
+                        const selected = state.subSelection.includes(a.id);
+                        const notEligible =
+                            currentDef.id !== TAGS_DEFINITION_ID &&
+                            !isAssetEligibleForDefinition(a, currentDef);
+                        const assetValues = valuesFor(
+                            a.id,
+                            currentDef.id,
+                            effectiveLocale
+                        );
 
-            <div className="grid min-h-0 flex-1 grid-cols-[16rem_1fr_20rem]">
+                        return (
+                            <div
+                                key={a.id}
+                                data-testid="batch-thumb"
+                                className={cn(
+                                    'group/thumb relative shrink-0 overflow-hidden rounded-md border bg-media-bg',
+                                    selected
+                                        ? 'ring-2 ring-primary'
+                                        : 'opacity-50',
+                                    notEligible && 'opacity-25'
+                                )}
+                                style={{
+                                    width: layout.thumbSize,
+                                    height: layout.thumbSize,
+                                }}
+                            >
+                                <button
+                                    type="button"
+                                    className="size-full"
+                                    aria-pressed={selected}
+                                    onClick={e => onThumbClick(e, a.id)}
+                                    title={a.name}
+                                >
+                                    <AssetThumb
+                                        asset={a}
+                                        size={layout.thumbSize}
+                                    />
+                                </button>
+                                {assetValues.length > 0 ? (
+                                    <span className="pointer-events-none absolute top-1 right-1 rounded bg-background/90 px-1 text-[10px] font-semibold">
+                                        {assetValues.length}
+                                    </span>
+                                ) : null}
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+            <ResizeHandle
+                axis="y"
+                onPointerDown={startResize('thumbsHeight', 'y', 1)}
+                label={t('batch_edit.resize_thumbs', 'Resize thumbnails')}
+            />
+
+            <div className="flex min-h-0 flex-1">
                 {/* definitions */}
-                <aside className="overflow-y-auto border-r">
+                <aside
+                    className="shrink-0 overflow-y-auto"
+                    style={{width: layout.definitionsWidth}}
+                >
                     {definitions.map(def => {
                         const vals = new Map<string, unknown>();
                         let indeterminate = false;
@@ -865,8 +938,20 @@ export function AttributeBatchEditorRoute() {
                     })}
                 </aside>
 
+                <ResizeHandle
+                    axis="x"
+                    onPointerDown={startResize('definitionsWidth', 'x', 1)}
+                    label={t(
+                        'batch_edit.resize_definitions',
+                        'Resize attributes'
+                    )}
+                />
+
                 {/* editor */}
-                <section className="overflow-y-auto p-4" data-batch-values>
+                <section
+                    className="min-w-0 flex-1 overflow-y-auto p-4"
+                    data-batch-values
+                >
                     <div className="mb-3 flex items-center gap-2">
                         <h2 className="text-base font-semibold">
                             {currentDef.displayName ?? currentDef.name}
@@ -932,8 +1017,17 @@ export function AttributeBatchEditorRoute() {
                     )}
                 </section>
 
+                <ResizeHandle
+                    axis="x"
+                    onPointerDown={startResize('sideWidth', 'x', -1)}
+                    label={t('batch_edit.resize_side', 'Resize side panel')}
+                />
+
                 {/* suggestions / preview */}
-                <aside className="flex min-h-0 flex-col border-l">
+                <aside
+                    className="flex min-h-0 shrink-0 flex-col"
+                    style={{width: layout.sideWidth}}
+                >
                     <Tabs
                         value={rightTab}
                         onValueChange={v =>
@@ -1087,6 +1181,36 @@ export function AttributeBatchEditorRoute() {
                 </aside>
             </div>
         </div>
+    );
+}
+
+/**
+ * Separator between two panes, dragged to resize them. `axis` is the
+ * direction of the drag.
+ */
+function ResizeHandle({
+    axis,
+    onPointerDown,
+    label,
+}: {
+    axis: 'x' | 'y';
+    onPointerDown: (e: React.PointerEvent) => void;
+    label: string;
+}) {
+    return (
+        <div
+            role="separator"
+            aria-orientation={axis === 'x' ? 'vertical' : 'horizontal'}
+            aria-label={label}
+            onPointerDown={onPointerDown}
+            className={cn(
+                'relative shrink-0 bg-border transition-colors hover:bg-primary/60 active:bg-primary',
+                'after:absolute after:content-[""]',
+                axis === 'x'
+                    ? 'w-px cursor-col-resize after:inset-y-0 after:-inset-x-1.5'
+                    : 'h-px cursor-row-resize after:inset-x-0 after:-inset-y-1.5'
+            )}
+        />
     );
 }
 
@@ -1357,6 +1481,7 @@ function ValuesSuggestions({
                                     variant="ghost"
                                     size="sm"
                                     className="h-6 text-xs"
+                                    disabled={d.count >= total}
                                     onClick={() => onApply(d.value)}
                                 >
                                     <CheckIcon />{' '}

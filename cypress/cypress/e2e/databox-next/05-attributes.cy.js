@@ -72,6 +72,32 @@ describe('Attributes', () => {
         cy.getBySel('asset-view', {timeout: 30000}).contains('batch').should('be.visible');
     });
 
+    it('sub-selects assets in the batch editor', () => {
+        cy.intercept('GET', '**/attributes?*').as('assetAttributes');
+        visitWorkspace(ctx.workspace.id);
+        waitForResults(3);
+        assetItem('Alpha').click();
+        assetItem('Charlie').click({shiftKey: true});
+        cy.getBySel('selection-actions').contains('button', 'Edit attributes').click();
+        cy.getBySel('batch-editor', {timeout: 30000}).within(() => {
+            cy.contains('Edit attributes of 3 assets').should('be.visible');
+            cy.contains('3 / 3 selected').should('be.visible');
+            cy.contains('button', 'Select all').should('be.disabled');
+
+            cy.getBySel('batch-thumb').eq(0).find('button').click();
+            cy.contains('1 / 3 selected').should('be.visible');
+            cy.getBySel('batch-thumb').eq(2).find('button').click({shiftKey: true});
+            cy.contains('3 / 3 selected').should('be.visible');
+            cy.getBySel('batch-thumb').eq(1).find('button').click();
+            cy.contains('1 / 3 selected').should('be.visible');
+        });
+        // The asset list behind the editor must not catch the shortcut
+        cy.get('body').type('{ctrl}a');
+        cy.getBySel('batch-editor').contains('3 / 3 selected').should('be.visible');
+        // Attributes come with the assets
+        cy.get('@assetAttributes.all').should('have.length', 0);
+    });
+
     it('manages the entity lists of the workspace', () => {
         cy.visit(`${databoxNextUrl}/workspaces/${ctx.workspace.id}/manage/entities`);
         routeDialog().within(() => {
