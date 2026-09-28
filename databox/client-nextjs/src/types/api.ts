@@ -672,17 +672,44 @@ export type ShareAlternateUrl = {
     name: string;
     url: string;
     type?: string;
+    /** The shared asset this URL belongs to */
+    assetId?: string | null;
+};
+
+/** An attachment of a shared asset, downloadable from the public page */
+export type ShareAttachment = {
+    id: string;
+    name: string | null;
+    assetId: string;
+    url: string;
+    type: string | null;
+    size: number | null;
+};
+
+/** Terms & Conditions of the shared workspace, to accept before viewing */
+export type ShareTerms = {
+    text: string | null;
+    version: number;
+    workspaceName: string;
+    pdfUrl?: string | null;
 };
 
 export interface Share extends Entity {
     name?: string;
-    asset: Asset;
+    /** Every shared asset belongs to the same workspace */
+    assets: Asset[];
     token: string;
     startsAt?: string | null;
     expiresAt?: string | null;
     updatedAt: string;
     createdAt: string;
     alternateUrls: ShareAlternateUrl[];
+    /** Public share only */
+    attachments?: ShareAttachment[];
+    /** Public share only */
+    terms?: ShareTerms | null;
+    /** Public share only: logo of the workspace */
+    logo?: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -721,15 +748,15 @@ export type Ace = Entity & {
     metadata?: number[];
 };
 
-export interface TagFilterRule extends HydraObject, Entity {
-    userId?: string;
-    username?: string;
-    groupId?: string;
-    groupName?: string;
-    workspaceId?: string;
-    collectionId?: string;
-    include: Tag[];
-    exclude: Tag[];
+/**
+ * Assets of the workspace are only visible to the targeted users and groups
+ * (everyone when there is no target) when they match the AQL condition.
+ */
+export interface AttributeFilterRule extends HydraObject, Entity {
+    users: {id: string; name: string}[];
+    groups: {id: string; name: string}[];
+    workspaceId: string;
+    condition: string;
 }
 
 // ---------------------------------------------------------------------------

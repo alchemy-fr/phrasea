@@ -265,13 +265,26 @@ export function useAssetActions(
                     },
                 });
             }
-            if (single && ctx.share && single.capabilities.share) {
+            if (ctx.share && can('share')) {
                 manage.push({
                     id: 'share',
                     bulk: true,
                     label: t('asset.actions.share', 'Share'),
                     icon: <ShareIcon />,
-                    run: () => openModal(ShareDialog, {asset: single}),
+                    run: () => {
+                        // A share holds the assets of a single workspace
+                        if (new Set(assets.map(a => a.workspace.id)).size > 1) {
+                            toast.error(
+                                t(
+                                    'share.mixed_workspaces',
+                                    'Assets of different workspaces cannot be shared together'
+                                )
+                            );
+
+                            return;
+                        }
+                        openModal(ShareDialog, {assets});
+                    },
                 });
             }
             if (ctx.move && can('edit')) {

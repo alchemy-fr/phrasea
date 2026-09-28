@@ -33,15 +33,32 @@ export function getShareUrl(share: Share): string {
     return `${window.location.origin}${routes.share(share.id, share.token)}`;
 }
 
+/** Whether the share holds exactly these assets (sorted IDs) */
+export function isShareOf(share: Share, assetIds: string[]): boolean {
+    const ids = (share.assets ?? []).map(a => a.id).sort();
+
+    return (
+        ids.length === assetIds.length &&
+        ids.every((id, i) => id === assetIds[i])
+    );
+}
+
+/**
+ * Public links of one or several assets (of the same workspace). A link
+ * shares the whole set: only the links holding exactly these assets are
+ * listed (an asset may also belong to links of other sets).
+ */
 export function ShareDialog({
     open,
     onOpenChange,
-    asset,
-}: ModalProps & {asset: Asset}) {
+    assets,
+}: ModalProps & {assets: Asset[]}) {
     const {t, i18n} = useTranslation();
     const queryClient = useQueryClient();
     const {openModal} = useModals();
-    const queryKey = ['shares', asset.id];
+    const assetIds = useMemo(() => assets.map(a => a.id).sort(), [assets]);
+    const single = assets.length === 1 ? assets[0] : undefined;
+    const queryKey = ['shares', assetIds.join(',')];
     const [advanced, setAdvanced] = useState<boolean>();
     const [creating, setCreating] = useState(false);
     const [newName, setNewName] = useState('');
@@ -51,7 +68,10 @@ export function ShareDialog({
 
     const shares = useQuery({
         queryKey,
-        queryFn: () => getAssetShares(asset.id),
+        queryFn: async () =>
+            (await getAssetShares(assetIds[0])).filter(s =>
+                isShareOf(s, assetIds)
+            ),
     });
     const list = useMemo(() => shares.data ?? [], [shares.data]);
     const simpleShare =
@@ -65,7 +85,7 @@ export function ShareDialog({
     const advancedMode = advanced ?? !isSimple;
 
     const create = useMutation({
-        mutationFn: (data: Partial<Share>) => createShare(asset.id, data),
+        mutationFn: (data: Partial<Share>) => createShare(assetIds, data),
         onSuccess: share => {
             queryClient.setQueryData<Share[]>(queryKey, prev => [
                 ...(prev ?? []),
@@ -92,22 +112,40 @@ export function ShareDialog({
 
         return alt ? alt.url : getShareUrl(share);
     };
+    // A rendition can only be picked for a single asset: a link of several
+    // assets always opens the share page
     const renditionOptions = useMemo(() => {
         const first = list[0];
-        const alts = first?.alternateUrls ?? [];
+        const alts = single
+            ? (first?.alternateUrls ?? []).filter(
+                  a => !a.assetId || a.assetId === single.id
+              )
+            : [];
 
         return [
             {value: 'asset', label: t('share.rendition.asset', 'Asset page')},
             ...alts.map(a => ({value: a.name, label: a.name})),
         ];
-    }, [list, t]);
+    }, [list, single, t]);
+    const shareTitle = (share: Share) =>
+        share.name ||
+        assets
+            .map(a => a.name)
+            .filter(Boolean)
+            .join(', ');
 
     return (
         <FormDialog
             open={open}
             onOpenChange={onOpenChange}
             size={advancedMode ? 'lg' : 'sm'}
-            title={t('share.title', 'Share asset')}
+            title={
+                single
+                    ? t('share.title', 'Share asset')
+                    : t('share.title_multiple', 'Share {{count}} assets', {
+                          count: assets.length,
+                      })
+            }
             cancelLabel={t('common.close', 'Close')}
             hideSubmit={advancedMode || !simpleShare}
             submitLabel={t('share.copy_link', 'Copy link')}
@@ -156,7 +194,7 @@ export function ShareDialog({
                             <ShareUrl url={urlFor(simpleShare)} />
                             <ShareSocials
                                 url={urlFor(simpleShare)}
-                                title={asset.name ?? ''}
+                                title={shareTitle(simpleShare)}
                             />
                             <Button
                                 variant="outline"
@@ -164,7 +202,7 @@ export function ShareDialog({
                                 onClick={() =>
                                     openModal(EmbedDialog, {
                                         share: simpleShare,
-                                        asset,
+                                        assets,
                                     })
                                 }
                             >
@@ -215,7 +253,7 @@ export function ShareDialog({
                                         onClick={() =>
                                             openModal(EmbedDialog, {
                                                 share: s,
-                                                asset,
+                                                assets,
                                             })
                                         }
                                         aria-label={t(

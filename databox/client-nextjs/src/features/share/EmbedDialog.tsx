@@ -16,22 +16,30 @@ export function EmbedDialog({
     open,
     onOpenChange,
     share,
-    asset,
-}: ModalProps & {share: Share; asset: Asset}) {
+    assets,
+}: ModalProps & {share: Share; assets: Asset[]}) {
     const {t} = useTranslation();
     const defaultCode = useMemo(() => {
         const pageUrl = getShareUrl(share);
-        const preview = share.alternateUrls?.find(a =>
-            a.type?.startsWith('image/')
+        // A single image is embedded as such, anything else as the share page
+        const asset = assets.length === 1 ? assets[0] : undefined;
+        const preview = share.alternateUrls?.find(
+            a =>
+                a.type?.startsWith('image/') &&
+                (!a.assetId || a.assetId === asset?.id)
         );
-        if (getFileKind(asset.source?.type) === FileKind.Image && preview) {
+        if (
+            asset &&
+            getFileKind(asset.source?.type) === FileKind.Image &&
+            preview
+        ) {
             return `<img src="${preview.url}" alt="${(asset.name ?? '').replace(/"/g, '&quot;')}" style="max-width:100%;height:auto" />`;
         }
 
         return `<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden">
   <iframe src="${pageUrl}?embed=1" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allowfullscreen loading="lazy"></iframe>
 </div>`;
-    }, [share, asset]);
+    }, [share, assets]);
     const [code, setCode] = useState(defaultCode);
 
     return (
