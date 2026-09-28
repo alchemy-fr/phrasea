@@ -1,15 +1,9 @@
 'use client';
 
-import {useState} from 'react';
+import {useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
-import {
-    BookOpenIcon,
-    ChevronDownIcon,
-    KeyIcon,
-    RepeatIcon,
-    SaveIcon,
-} from 'lucide-react';
+import {KeyIcon, RepeatIcon, SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {IntegrationType, WorkspaceIntegration} from '@/types/api';
 import {EntityName} from '@/types/api';
@@ -24,19 +18,23 @@ import {
     putIntegration,
 } from '@/lib/api/integrations';
 import {Button} from '@/components/ui/button';
-import {FormRow, Input, Textarea} from '@/components/ui/input';
+import {FormRow, Input} from '@/components/ui/input';
+import {CodeEditor} from '@/components/form/code/CodeEditor';
 import {LabeledControl, Switch} from '@/components/ui/controls';
 import {Badge} from '@/components/ui/misc';
 import {CopyButton} from '@/components/ui/copy-button';
+import {AsyncCombobox, ComboOption} from '@/components/form/AsyncCombobox';
 import {AclEditor} from '@/features/permissions/AclEditor';
 import {integrationPermissions} from '@/features/permissions/permissionDefinitions';
 import {PermissionObject} from '@/features/permissions/permissionTypes';
 import {iri} from '@/lib/utils/iri';
 import {cn} from '@/lib/utils/cn';
+import {ReferenceDetails} from '@/components/form/ReferenceDetails';
 import {IntegrationCatalog} from './IntegrationCatalog';
 import {IntegrationTypeIcon} from './integrationTypeUi';
 import {integrationLabel} from '../integrationLabel';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {useFocusFirstField} from '@/hooks/useFocusFirstField';
 
 type Props = {
     /** Omitted for the instance-wide integrations */
@@ -151,6 +149,9 @@ function IntegrationForm({
     // The type alone (picked from the catalog) is nothing worth keeping
     const {integration: _type, ...edited} = form;
     const {markSaved} = useDirtyState(edited);
+    // Type picked in the catalog: on to the form
+    const formRef = useRef<HTMLDivElement>(null);
+    useFocusFirstField(formRef, !i && !!form.integration);
     const set = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
         setForm(f => ({...f, [k]: v}));
     const reference = useQuery({
@@ -161,6 +162,9 @@ function IntegrationForm({
     const type = types?.find(tp => tp.name === form.integration);
     // IF and Needs only drive the workflow jobs
     const isWorkflow = !type || type.features.includes('workflow');
+    const needOptions: ComboOption[] = all
+        .filter(x => x.id !== i?.id)
+        .map(x => ({value: x['@id'], label: integrationLabel(x)}));
 
     const save = async () => {
         setSaving(true);
@@ -210,7 +214,7 @@ function IntegrationForm({
     }
 
     return (
-        <div className="space-y-4">
+        <div ref={formRef} className="space-y-4">
             <div className="flex items-start gap-3 rounded-lg border bg-muted/30 p-3">
                 {type ? <IntegrationTypeIcon type={type} /> : null}
                 <div className="min-w-0 flex-1">
@@ -275,88 +279,50 @@ function IntegrationForm({
                     </FormRow>
                     <FormRow
                         label={t('integration.needs', 'Needs (runs after)')}
+                        htmlFor="integration-needs"
                     >
-                        <div className="flex flex-wrap gap-2">
-                            {all
-                                .filter(x => x.id !== i?.id)
-                                .map(x => (
-                                    <LabeledControl
-                                        key={x.id}
-                                        label={integrationLabel(x)}
-                                    >
-                                        <Switch
-                                            checked={form.needs.includes(
-                                                x['@id']
-                                            )}
-                                            onCheckedChange={v =>
-                                                set(
-                                                    'needs',
-                                                    v
-                                                        ? [
-                                                              ...form.needs,
-                                                              x['@id'],
-                                                          ]
-                                                        : form.needs.filter(
-                                                              n =>
-                                                                  n !== x['@id']
-                                                          )
-                                                )
-                                            }
-                                        />
-                                    </LabeledControl>
-                                ))}
-                        </div>
+                        <AsyncCombobox
+                            id="integration-needs"
+                            multiple
+                            queryKey={['integrations', 'needs', needOptions]}
+                            loadOptions={async query =>
+                                needOptions.filter(o =>
+                                    o.label
+                                        .toLowerCase()
+                                        .includes(query.toLowerCase())
+                                )
+                            }
+                            resolveValue={async v =>
+                                needOptions.find(o => o.value === v)
+                            }
+                            value={form.needs}
+                            onChange={v => set('needs', v)}
+                            placeholder={t(
+                                'integration.needs.placeholder',
+                                'Select integrations…'
+                            )}
+                        />
                     </FormRow>
                 </>
             ) : null}
             <FormRow label={t('integration.config', 'Configuration (YAML)')}>
-                <Textarea
+                <CodeEditor
+                    mode="twig"
+                    minLines={10}
                     value={form.configYaml}
-                    onChange={e => set('configYaml', e.target.value)}
-                    className="min-h-40 font-mono text-xs"
-                    spellCheck={false}
+                    onChange={v => set('configYaml', v)}
                 />
             </FormRow>
             {reference.data ? (
-                <details className="group/ref rounded-md border text-xs">
-                    <summary className="flex cursor-pointer items-center gap-2 p-3 font-medium select-none">
-                        <BookOpenIcon className="size-4" />
-                        <span className="flex-1">
-                            {t(
-                                'integration.reference',
-                                'Configuration reference'
-                            )}
-                        </span>
-                        <ChevronDownIcon className="size-4 transition-transform group-open/ref:rotate-180" />
-                    </summary>
-                    <div className="space-y-3 border-t p-3">
-                        {[
-                            {
-                                name: reference.data.displayName,
-                                description: null,
-                                reference: reference.data.reference,
-                            },
-                            ...reference.data.references,
-                        ]
-                            .filter(r => r.reference.trim())
-                            .map(r => (
-                                <div key={r.name} className="min-w-0">
-                                    <div className="flex items-center gap-1 font-semibold">
-                                        {r.name}{' '}
-                                        <CopyButton value={r.reference} />
-                                    </div>
-                                    {r.description ? (
-                                        <p className="text-muted-foreground">
-                                            {r.description}
-                                        </p>
-                                    ) : null}
-                                    <pre className="mt-1 overflow-x-auto rounded bg-muted p-2 font-mono">
-                                        {r.reference}
-                                    </pre>
-                                </div>
-                            ))}
-                    </div>
-                </details>
+                <ReferenceDetails
+                    sections={[
+                        {
+                            name: reference.data.displayName,
+                            reference: reference.data.reference,
+                        },
+                        ...reference.data.references,
+                    ]}
+                />
             ) : null}
             {i?.configInfo && i.configInfo.length > 0 ? (
                 <div className="rounded-md border p-3 text-xs">

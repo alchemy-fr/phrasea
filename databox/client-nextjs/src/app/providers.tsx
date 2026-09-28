@@ -3,7 +3,6 @@
 import {PropsWithChildren, Suspense, useState} from 'react';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {ThemeProvider} from 'next-themes';
-import {Toaster} from 'sonner';
 import {Tooltip} from 'radix-ui';
 import {ConfigProvider} from '@/lib/config/ConfigProvider';
 import type {AppConfig} from '@/lib/config/types';
@@ -18,6 +17,7 @@ import {ModalProvider} from '@/components/modals/ModalProvider';
 import {SessionExpiredDialog} from '@/lib/auth/SessionExpiredDialog';
 import {ThemeManager} from '@/features/theme/ThemeManager';
 import {UnsavedChangesGuard} from '@/components/modals/UnsavedChangesGuard';
+import {Toaster} from '@/components/ui/toaster';
 
 function createQueryClient(): QueryClient {
     return new QueryClient({
@@ -71,12 +71,7 @@ export function Providers({config, language, children}: Props) {
                                 </Tooltip.Provider>
                             </AuthProvider>
                         </Suspense>
-                        <Toaster
-                            position="bottom-left"
-                            richColors
-                            closeButton
-                            toastOptions={{duration: 5000}}
-                        />
+                        <Toaster />
                     </QueryClientProvider>
                 </ThemeProvider>
             </I18nProvider>

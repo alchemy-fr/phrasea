@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {
@@ -27,6 +27,7 @@ import {
     deleteEntityList,
     exportEntityList,
     getAttributeEntities,
+    getAttributeEntity,
     getEntityLists,
     importEntityList,
     mergeAttributeEntities,
@@ -39,6 +40,7 @@ import {Button} from '@/components/ui/button';
 import {FormRow, Input, Textarea} from '@/components/ui/input';
 import {Checkbox, LabeledControl} from '@/components/ui/controls';
 import {Badge, Skeleton} from '@/components/ui/misc';
+import {InlineLoader} from '@/components/ui/loader';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -62,6 +64,8 @@ import {
     useDirtyState,
     useUnsavedChangesChildScope,
 } from '@/lib/navigation/unsavedChanges';
+import {useRoutePath} from '@/lib/navigation/routePath';
+import {useFocusFirstField} from '@/hooks/useFocusFirstField';
 
 export function EntityListsTab({workspace}: WorkspaceTabProps) {
     const {t} = useTranslation();
@@ -206,6 +210,8 @@ function ListForm({
 /**
  * Values of an entity list: search, CRUD, moderation (approve / reject),
  * bulk delete, merge, export / import and clear.
+ *
+ * The value edited is in the URL (`useRoutePath`): `:entityId` or `new`.
  */
 function EntityManager({
     list,
@@ -221,19 +227,19 @@ function EntityManager({
     const [query, setQuery] = useState('');
     const debounced = useDebouncedValue(query, 250);
     const [selected, setSelected] = useState<string[]>([]);
-    const [editing, setEditing] = useState<AttributeEntity | 'new' | null>(
-        null
-    );
+    const {segments, navigate} = useRoutePath();
+    const editingId = segments[0] ?? null;
+    const formPane = useRef<HTMLDivElement>(null);
+    useFocusFirstField(formPane, editingId === 'new');
     // The value form: leaving the value being edited asks first when it is dirty
     const formScope = useUnsavedChangesChildScope();
     const leaveForm = (next: () => void) => {
         void confirmLeave(formScope).then(leave => leave && next());
     };
     const edit = (next: AttributeEntity | 'new' | null) => {
-        const keyOf = (e: typeof next) =>
-            e === null || e === 'new' ? e : e.id;
-        if (keyOf(next) !== keyOf(editing)) {
-            leaveForm(() => setEditing(next));
+        const id = next === null || next === 'new' ? next : next.id;
+        if (id !== editingId) {
+            leaveForm(() => navigate(id ? [id] : []));
         }
     };
     const entities = useQuery({
@@ -246,6 +252,24 @@ function EntityManager({
     });
     const items = entities.data?.items ?? [];
     const refresh = () => entities.refetch();
+    // Just saved: shown until the refreshed values include it
+    const [saved, setSaved] = useState<AttributeEntity>();
+    const listed =
+        items.find(e => e.id === editingId) ??
+        (saved?.id === editingId ? saved : undefined);
+    // Not among the values listed (search, paging): loaded on its own
+    const single = useQuery({
+        queryKey: ['attribute-entity', editingId],
+        queryFn: () => getAttributeEntity(editingId!),
+        enabled:
+            !!editingId &&
+            editingId !== 'new' &&
+            !listed &&
+            !entities.isLoading,
+        retry: false,
+    });
+    const editing: AttributeEntity | 'new' | null =
+        editingId === 'new' ? 'new' : (listed ?? single.data ?? null);
 
     const setStatus = async (
         e: AttributeEntity,
@@ -314,6 +338,12 @@ function EntityManager({
                                             )
                                         );
                                         setSelected([]);
+                                        if (
+                                            editingId &&
+                                            selected.includes(editingId)
+                                        ) {
+                                            navigate([], {replace: true});
+                                        }
                                         void refresh();
                                     },
                                 })
@@ -540,17 +570,31 @@ function EntityManager({
                         </table>
                     )}
                 </div>
-                <div className="rounded-md border p-3">
-                    {editing ? (
+                <div ref={formPane} className="rounded-md border p-3">
+                    {editingId && !editing ? (
+                        single.isError ? (
+                            <p className="text-sm text-muted-foreground">
+                                {t(
+                                    'definition.not_found',
+                                    'This item does not exist anymore.'
+                                )}
+                            </p>
+                        ) : (
+                            <InlineLoader />
+                        )
+                    ) : editing ? (
                         <UnsavedChangesScope.Provider value={formScope}>
                             <EntityForm
                                 key={editing === 'new' ? 'new' : editing.id}
                                 entity={editing === 'new' ? undefined : editing}
                                 list={list}
                                 locales={workspaceLocales}
-                                onSaved={saved => {
+                                onSaved={entity => {
                                     // Stay on the saved value
-                                    setEditing(saved);
+                                    setSaved(entity);
+                                    navigate([entity.id], {
+                                        replace: editing === 'new',
+                                    });
                                     void refresh();
                                 }}
                                 onCancel={() => edit(null)}

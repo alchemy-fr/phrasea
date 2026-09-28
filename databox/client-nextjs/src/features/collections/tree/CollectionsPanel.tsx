@@ -311,7 +311,9 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
                         data-selected={selected ? 'true' : undefined}
                         className={cn(
                             'group/ws sticky top-0 z-10 flex items-center bg-sidebar pr-1',
-                            selected && 'bg-primary/10'
+                            selected && 'bg-primary/10',
+                            // A menu open (context or ⋮): the item it acts on
+                            'data-[state=open]:bg-accent has-[>[data-state=open]]:bg-accent'
                         )}
                     >
                         <button
@@ -529,7 +531,9 @@ function CollectionItem({
                         data-selected={selected ? 'true' : undefined}
                         className={cn(
                             'group/col flex items-center pr-1',
-                            selected && 'bg-primary/10'
+                            selected && 'bg-primary/10',
+                            // A menu open (context or ⋮): the item it acts on
+                            'data-[state=open]:bg-accent has-[>[data-state=open]]:bg-accent'
                         )}
                         style={{paddingLeft: depth * 12}}
                     >

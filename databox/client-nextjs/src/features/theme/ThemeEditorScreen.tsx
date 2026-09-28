@@ -345,7 +345,9 @@ export function ThemeEditorScreen() {
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={onDelete}
+                                // Not returned: the confirm dialog shows the
+                                // request spinner, not this button
+                                onClick={() => void onDelete()}
                                 data-testid="theme-delete"
                             >
                                 <Trash2Icon /> {t('common.delete', 'Delete')}
@@ -354,7 +356,8 @@ export function ThemeEditorScreen() {
                         <Button
                             size="sm"
                             onClick={onSave}
-                            disabled={!draft || saving}
+                            disabled={!draft}
+                            loading={saving}
                             data-testid="theme-save"
                         >
                             <SaveIcon /> {t('common.save', 'Save')}

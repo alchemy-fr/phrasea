@@ -2,9 +2,12 @@
 
 import {useTranslation} from 'react-i18next';
 import {PlugIcon} from 'lucide-react';
+import {usePathname} from 'next/navigation';
 import {RequireAuth} from '@/lib/auth/RequireAuth';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
 import {EmptyState} from '@/components/ui/misc';
+import {UrlPathProvider} from '@/lib/navigation/routePath';
+import {routes} from '@/lib/routes';
 import {IntegrationManager} from './IntegrationManager';
 
 /**
@@ -15,6 +18,7 @@ export function InstanceIntegrationsScreen() {
     const {t} = useTranslation();
     const {hasRole} = useAuth();
     const isAdmin = hasRole(AppRole.DataboxAdmin) || hasRole(AppRole.Admin);
+    const pathname = usePathname();
 
     return (
         <RequireAuth>
@@ -48,7 +52,13 @@ export function InstanceIntegrationsScreen() {
                             </p>
                         </div>
                     </div>
-                    <IntegrationManager fill />
+                    {/* `/admin/integrations/:id`: the integration edited */}
+                    <UrlPathProvider
+                        base={routes.instanceIntegrations()}
+                        pathname={pathname}
+                    >
+                        <IntegrationManager fill />
+                    </UrlPathProvider>
                 </div>
             )}
         </RequireAuth>

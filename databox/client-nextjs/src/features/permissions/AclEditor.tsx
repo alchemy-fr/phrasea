@@ -195,7 +195,7 @@ export function AclEditor({
                                 <th className="px-3 py-2 text-left align-bottom font-medium">
                                     {t('acl.subject', 'User / group')}
                                 </th>
-                                <th className="px-2 py-2 align-bottom font-medium">
+                                <th className="px-2 py-2 text-center align-bottom font-medium">
                                     <VerticalLabel>
                                         {t('acl.all', 'All')}
                                     </VerticalLabel>
@@ -203,7 +203,7 @@ export function AclEditor({
                                 {definitions.map(d => (
                                     <th
                                         key={`${d.type}-${d.key}`}
-                                        className="px-2 py-2 align-bottom font-medium"
+                                        className="px-2 py-2 text-center align-bottom font-medium"
                                     >
                                         <Tooltip
                                             content={d.description}
@@ -389,7 +389,8 @@ function VerticalLabel({className, ...props}: ComponentProps<'span'>) {
     return (
         <span
             className={cn(
-                'mx-auto block rotate-180 text-left whitespace-nowrap [writing-mode:vertical-rl]',
+                // Inline: as wide as its line, centered above the checkboxes
+                'inline-block rotate-180 text-left whitespace-nowrap [writing-mode:vertical-rl]',
                 className
             )}
             {...props}

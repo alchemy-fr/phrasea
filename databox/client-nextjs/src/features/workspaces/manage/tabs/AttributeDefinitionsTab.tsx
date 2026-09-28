@@ -29,7 +29,11 @@ import {FormRow, Input, Textarea} from '@/components/ui/input';
 import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
 import {SimpleSelect} from '@/components/ui/select';
 import {Badge} from '@/components/ui/misc';
-import {TranslatableField} from '@/components/form/TranslatableField';
+import {
+    NO_LOCALE,
+    TranslatableField,
+} from '@/components/form/TranslatableField';
+import {LocalizedCodeField} from '@/components/form/code/LocalizedCodeField';
 import {iri} from '@/lib/utils/iri';
 import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
@@ -170,8 +174,8 @@ function DefinitionForm({
         multiple: d?.multiple ?? false,
         allowInvalid: d?.allowInvalid ?? false,
         facetEnabled: d?.facetEnabled ?? false,
-        fallback: d?.fallback ?? {},
-        initialValues: d?.initialValues ?? {},
+        fallback: localized(d?.fallback),
+        initialValues: localized(d?.initialValues),
         readFromMetadata: (d?.readFromMetadata ?? []).join('\n'),
         writeMetadata: (d?.writeMetadata ?? []).join('\n'),
         writeAllRenditions:
@@ -486,26 +490,28 @@ function DefinitionForm({
                     ) : null}
                 </div>
             ) : null}
-            <div className="grid gap-3 sm:grid-cols-2">
-                <LocaleValues
-                    label={t(
-                        'attribute_def.fallback',
-                        'Fallback (Twig template per locale)'
-                    )}
-                    values={form.fallback}
-                    onChange={v => set('fallback', v)}
-                    locales={locales}
-                />
-                <LocaleValues
-                    label={t(
-                        'attribute_def.initial_values',
-                        'Initial values (Twig template per locale)'
-                    )}
-                    values={form.initialValues}
-                    onChange={v => set('initialValues', v)}
-                    locales={locales}
-                />
-            </div>
+            <LocalizedCodeField
+                label={t('attribute_def.fallback', 'Fallback')}
+                help={t(
+                    'attribute_def.fallback_help',
+                    'Twig template resolved when the attribute has no value.'
+                )}
+                values={form.fallback}
+                onChange={v => set('fallback', v)}
+                locales={form.translatable ? locales : []}
+                placeholder="{{ file.filename }}"
+            />
+            <LocalizedCodeField
+                label={t('attribute_def.initial_values', 'Initial values')}
+                help={t(
+                    'attribute_def.initial_values_help',
+                    'Twig template resolved to initialize this attribute when the asset is created.'
+                )}
+                values={form.initialValues}
+                onChange={v => set('initialValues', v)}
+                locales={form.translatable ? locales : []}
+                placeholder="{{ file.filename }}"
+            />
             {d?.lastErrors && d.lastErrors.length > 0 ? (
                 <div className="rounded-md border border-destructive/40 bg-destructive/5 p-2 text-xs">
                     <div className="mb-1 font-semibold text-destructive">
@@ -533,49 +539,14 @@ function DefinitionForm({
     );
 }
 
-function LocaleValues({
-    label,
-    values,
-    onChange,
-    locales,
-}: {
-    label: string;
-    values: Record<string, string>;
-    onChange: (v: Record<string, string>) => void;
-    locales: string[];
-}) {
-    const keys = [...new Set(['_', ...locales, ...Object.keys(values)])];
+/**
+ * Per-locale templates, keyed by locale or `_` for all of them. Early
+ * versions of this screen saved the latter under `fallback`.
+ */
+function localized(values?: Record<string, string> | null) {
+    const {fallback, ...rest} = values ?? {};
 
-    return (
-        <FormRow label={label}>
-            <div className="space-y-1">
-                {keys.map(k => (
-                    <div key={k} className="flex items-center gap-2">
-                        <span className="w-10 shrink-0 font-mono text-xs text-muted-foreground">
-                            {k === '_' ? '*' : k}
-                        </span>
-                        <Input
-                            value={
-                                values[k === '_' ? 'fallback' : k] ??
-                                values[k] ??
-                                ''
-                            }
-                            onChange={e => {
-                                const next = {...values};
-                                const key = k === '_' ? 'fallback' : k;
-                                if (e.target.value) {
-                                    next[key] = e.target.value;
-                                } else {
-                                    delete next[key];
-                                }
-                                onChange(next);
-                            }}
-                            className="font-mono text-xs"
-                            placeholder="{{ file.name }}"
-                        />
-                    </div>
-                ))}
-            </div>
-        </FormRow>
-    );
+    return fallback && !rest[NO_LOCALE]
+        ? {...rest, [NO_LOCALE]: fallback}
+        : rest;
 }

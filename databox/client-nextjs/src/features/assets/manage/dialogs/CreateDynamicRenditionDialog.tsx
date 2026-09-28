@@ -3,7 +3,7 @@
 import {useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'sonner';
-import type {Asset, AssetRendition, RenditionDefinition} from '@/types/api';
+import type {ApiFile, Asset, AssetRendition} from '@/types/api';
 import type {ModalProps} from '@/components/modals/ModalProvider';
 import {FormDialog} from '@/components/modals/FormDialog';
 import {FormRow, Input} from '@/components/ui/input';
@@ -15,6 +15,8 @@ import {clamp} from '@/lib/utils/misc';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 type Ratio = 'original' | '1:1' | '4:3' | '3:4' | '16:9' | 'custom';
+const sourceFileKey = 'source';
+
 const ratios: Record<Exclude<Ratio, 'original' | 'custom'>, number> = {
     '1:1': 1,
     '4:3': 4 / 3,
@@ -25,7 +27,8 @@ const ratios: Record<Exclude<Ratio, 'original' | 'custom'>, number> = {
 /**
  * Builds a custom rendition from a source rendition: interactive crop
  * (aspect ratio + zoom + pan), max dimensions, output format, grayscale and
- * metadata writing. Produces a rendition-factory build definition.
+ * metadata writing. Produces a rendition-factory build definition: the
+ * rendition is not bound to a rendition definition.
  */
 export function CreateDynamicRenditionDialog({
     open,
@@ -33,22 +36,35 @@ export function CreateDynamicRenditionDialog({
     resolve,
     asset,
     renditions,
-    definitions,
     onCreated,
 }: ModalProps<boolean> & {
     asset: Asset;
     renditions: AssetRendition[];
-    definitions: RenditionDefinition[];
     onCreated?: () => void;
 }) {
     const {t} = useTranslation();
-    const sources = renditions.filter(
-        r => r.file?.url && getFileKind(r.file.type) === FileKind.Image
-    );
+    // The generated build definition only covers the "image" family
+    const isImage = (file?: ApiFile): file is ApiFile =>
+        !!file?.url && getFileKind(file.type) === FileKind.Image;
+    const sources: {id: string; label: string; file: ApiFile}[] = [
+        ...(isImage(asset.source)
+            ? [
+                  {
+                      id: sourceFileKey,
+                      label: t('rendition.source_file', 'Source file'),
+                      file: asset.source,
+                  },
+              ]
+            : []),
+        ...renditions
+            .filter(r => r.ready && isImage(r.file))
+            .map(r => ({
+                id: r.id,
+                label: r.displayName ?? r.name,
+                file: r.file!,
+            })),
+    ];
     const [sourceId, setSourceId] = useState(sources[0]?.id);
-    const [definitionId, setDefinitionId] = useState(
-        definitions.find(d => d.substitutable)?.id
-    );
     const [name, setName] = useState('');
     const [ratio, setRatio] = useState<Ratio>('original');
     const [customRatio, setCustomRatio] = useState('1.5');
@@ -68,7 +84,6 @@ export function CreateDynamicRenditionDialog({
 
     const {dirty} = useDirtyState({
         sourceId,
-        definitionId,
         name,
         ratio,
         customRatio,
@@ -112,43 +127,54 @@ export function CreateDynamicRenditionDialog({
         return {x, y, w, h};
     }, [natural, aspect, zoom, offset]);
 
+    // rendition-factory definition (image family, Imagine filters). JSON is
+    // a subset of YAML: the API parses it as a rendition build definition.
     const buildDefinition = (): string => {
-        const lines: string[] = ['transformations:'];
+        const filters: Record<string, unknown> = {};
         if (crop && natural && (ratio !== 'original' || zoom !== 1)) {
-            lines.push(
-                '  - module: image_crop',
-                `    options: {x: ${Math.round(crop.x * natural.w)}, y: ${Math.round(crop.y * natural.h)}, width: ${Math.round(crop.w * natural.w)}, height: ${Math.round(crop.h * natural.h)}}`
-            );
+            filters.crop = {
+                start: [
+                    Math.round(crop.x * natural.w),
+                    Math.round(crop.y * natural.h),
+                ],
+                size: [
+                    Math.round(crop.w * natural.w),
+                    Math.round(crop.h * natural.h),
+                ],
+            };
         }
-        if (maxWidth || maxHeight) {
-            lines.push(
-                '  - module: image_resize',
-                `    options: {width: ${maxWidth || 'null'}, height: ${maxHeight || 'null'}, mode: inset}`
-            );
+        const w = parseInt(maxWidth) || 0;
+        const h = parseInt(maxHeight) || 0;
+        if (w > 0 && h > 0) {
+            filters.thumbnail = {size: [w, h], mode: 'inset'};
+        } else if (w > 0) {
+            filters.relative_resize = {widen: w};
+        } else if (h > 0) {
+            filters.relative_resize = {heighten: h};
         }
         if (grayscale) {
-            lines.push('  - module: image_grayscale');
+            filters.grayscale = null;
         }
+        const options: Record<string, unknown> = {filters};
         if (format !== 'same') {
-            lines.push(
-                '  - module: image_convert',
-                `    options: {format: ${format}}`
-            );
+            options.format = format;
         }
 
-        return lines.length > 1 ? lines.join('\n') : 'transformations: []';
+        return JSON.stringify(
+            {image: {transformations: [{module: 'imagine', options}]}},
+            null,
+            2
+        );
     };
 
     const submit = async () => {
         await postRendition({
             assetId: asset.id,
-            definitionId: definitionId!,
-            name: name || undefined,
-            sourceRenditionId: source!.id,
+            name: name.trim(),
+            sourceRenditionId:
+                source!.id === sourceFileKey ? undefined : source!.id,
             buildDefinition: buildDefinition(),
             writeMetadata,
-            substituted: true,
-            force: true,
         });
         toast.success(t('rendition.created', 'Rendition creation started'));
         onCreated?.();
@@ -166,7 +192,7 @@ export function CreateDynamicRenditionDialog({
                 'Crop, resize and convert a source rendition into a new one.'
             )}
             submitLabel={t('common.create', 'Create')}
-            canSubmit={!!source && !!definitionId}
+            canSubmit={!!source && !!name.trim()}
             dirty={dirty}
             onSubmit={submit}
         >
@@ -178,11 +204,11 @@ export function CreateDynamicRenditionDialog({
                             onValueChange={setSourceId}
                             options={sources.map(s => ({
                                 value: s.id,
-                                label: s.displayName ?? s.name,
+                                label: s.label,
                             }))}
                         />
                     </FormRow>
-                    {source?.file?.url ? (
+                    {source ? (
                         <div
                             className="relative aspect-square w-full cursor-move overflow-hidden rounded-md bg-media-bg select-none"
                             onMouseDown={e =>
@@ -253,28 +279,11 @@ export function CreateDynamicRenditionDialog({
                     </FormRow>
                 </div>
                 <div className="space-y-3">
-                    <FormRow
-                        label={t(
-                            'rendition.definition',
-                            'Rendition definition'
-                        )}
-                    >
-                        <SimpleSelect
-                            value={definitionId}
-                            onValueChange={setDefinitionId}
-                            options={definitions
-                                .filter(d => d.substitutable)
-                                .map(d => ({
-                                    value: d.id,
-                                    label: d.displayName ?? d.name,
-                                }))}
-                        />
-                    </FormRow>
                     <FormRow label={t('common.name', 'Name')}>
                         <Input
                             value={name}
                             onChange={e => setName(e.target.value)}
-                            placeholder={t('common.optional', 'Optional')}
+                            required
                         />
                     </FormRow>
                     <FormRow label={t('rendition.ratio', 'Aspect ratio')}>

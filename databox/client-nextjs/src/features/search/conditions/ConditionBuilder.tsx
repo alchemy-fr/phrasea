@@ -118,7 +118,7 @@ export function ExpressionBuilder({
                 ) : (
                     <SimpleSelect
                         size="sm"
-                        className="w-24"
+                        className="w-auto shrink-0"
                         value={group.operator}
                         onValueChange={op =>
                             onChange({...group, operator: op as AQLLogical})
@@ -480,7 +480,7 @@ function ValueInput({
     onChange: (value: AQLValueExpr) => void;
 }) {
     const raw = type ? rawTypeMap[type] : undefined;
-    const text = valueToInput(value);
+    const text = valueToInput(value, raw);
 
     if (
         type === AttributeType.Workspace &&
@@ -591,14 +591,38 @@ function WorkspaceValueSelect({
     );
 }
 
-function valueToInput(value: AQLValueExpr): string {
+function valueToInput(value: AQLValueExpr, raw: RawType | undefined): string {
     if (value === null) return 'null';
     if (typeof value === 'boolean') return String(value);
     if (typeof value === 'number') return String(value);
-    if (isLiteral(value)) return value.literal;
+    if (isLiteral(value)) {
+        // Native date inputs only accept their own format and render empty
+        // otherwise: the stored ISO value (UTC) is shown in local time.
+        if (raw === RawType.DateTime) return toDateTimeLocal(value.literal);
+        if (raw === RawType.Date) return toDateOnly(value.literal);
+
+        return value.literal;
+    }
 
     // complex expression (function, arithmetic, field): raw mode
     return `=${valueToString(value)}`;
+}
+
+const pad = (n: number) => String(n).padStart(2, '0');
+
+/** `2026-09-12T11:00:00.000Z` → `2026-09-12T13:00` (local, `datetime-local`) */
+function toDateTimeLocal(literal: string): string {
+    const d = new Date(literal);
+    if (!literal || Number.isNaN(d.getTime())) return literal;
+
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+/** Keeps the `YYYY-MM-DD` part accepted by a `date` input */
+function toDateOnly(literal: string): string {
+    const m = /^\d{4}-\d{2}-\d{2}/.exec(literal);
+
+    return m ? m[0] : literal;
 }
 
 function inputToValue(input: string, raw: RawType | undefined): AQLValueExpr {

@@ -3,7 +3,7 @@
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
-import {BookOpenIcon, SaveIcon} from 'lucide-react';
+import {SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {RenditionDefinition, RenditionPolicy} from '@/types/api';
 import {AssetType, EntityName, RenditionBuildMode} from '@/types/api';
@@ -19,16 +19,12 @@ import {
     sortRenditionDefinitions,
 } from '@/lib/api/misc';
 import {Button} from '@/components/ui/button';
-import {FormRow, Input, Textarea} from '@/components/ui/input';
+import {FormRow, Input} from '@/components/ui/input';
+import {CodeEditor} from '@/components/form/code/CodeEditor';
 import {Checkbox, LabeledControl} from '@/components/ui/controls';
 import {SimpleSelect} from '@/components/ui/select';
 import {Badge} from '@/components/ui/misc';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/overlays';
-import {CopyButton} from '@/components/ui/copy-button';
+import {ReferenceDetails} from '@/components/form/ReferenceDetails';
 import {iri} from '@/lib/utils/iri';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
@@ -65,11 +61,6 @@ export function RenditionDefinitionsTab({workspace}: WorkspaceTabProps) {
                     ) : null}
                     {d.useAsMain ? (
                         <Badge variant="secondary">main</Badge>
-                    ) : null}
-                    {d.substitutable ? (
-                        <Badge variant="muted">
-                            {t('rendition_def.substitutable', 'substitutable')}
-                        </Badge>
                     ) : null}
                 </span>
             )}
@@ -299,66 +290,27 @@ function DefinitionForm({
                 ))}
             </div>
             {Number(form.buildMode) === RenditionBuildMode.Custom ? (
-                <FormRow
-                    label={
-                        <span className="flex items-center gap-2">
-                            {t(
-                                'rendition_def.definition',
-                                'Build definition (YAML)'
-                            )}
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="h-6 text-xs"
-                                    >
-                                        <BookOpenIcon />{' '}
-                                        {t(
-                                            'rendition_def.reference',
-                                            'Reference'
-                                        )}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="max-h-96 w-[32rem] overflow-auto">
-                                    {reference.data ? (
-                                        <div className="space-y-3 text-xs">
-                                            {reference.data.references.map(
-                                                r => (
-                                                    <div key={r.name}>
-                                                        <div className="flex items-center gap-1 font-semibold">
-                                                            {r.name}{' '}
-                                                            <CopyButton
-                                                                value={
-                                                                    r.reference
-                                                                }
-                                                            />
-                                                        </div>
-                                                        {r.description ? (
-                                                            <p className="text-muted-foreground">
-                                                                {r.description}
-                                                            </p>
-                                                        ) : null}
-                                                        <pre className="mt-1 rounded bg-muted p-2 font-mono">
-                                                            {r.reference}
-                                                        </pre>
-                                                    </div>
-                                                )
-                                            )}
-                                        </div>
-                                    ) : null}
-                                </PopoverContent>
-                            </Popover>
-                        </span>
-                    }
-                >
-                    <Textarea
-                        value={form.definition}
-                        onChange={e => set('definition', e.target.value)}
-                        className="min-h-48 font-mono text-xs"
-                        spellCheck={false}
-                    />
-                </FormRow>
+                <div className="space-y-2">
+                    <FormRow
+                        label={t(
+                            'rendition_def.definition',
+                            'Build definition (YAML)'
+                        )}
+                    >
+                        <CodeEditor
+                            mode="twig"
+                            minLines={12}
+                            value={form.definition}
+                            onChange={v => set('definition', v)}
+                        />
+                    </FormRow>
+                    {reference.data ? (
+                        <ReferenceDetails
+                            sections={reference.data.references}
+                            title={t('rendition_def.reference', 'Reference')}
+                        />
+                    ) : null}
+                </div>
             ) : null}
             <div className="flex justify-end">
                 <Button

@@ -20,8 +20,15 @@ import './commands'
  * throws on a negative timestamp while measuring a route it re-renders (the
  * `@modal` catch-all, after a redirect). It is dev-server noise, not an
  * application error: let the test go on.
+ *
+ * "ResizeObserver loop completed with undelivered notifications": a code
+ * editor (Ace) resized in the frame it observes itself, e.g. mounted or
+ * removed with the form around it. The browser reports it, nothing breaks.
  */
 Cypress.on(
     'uncaught:exception',
-    err => !/cannot have a negative time stamp/.test(err.message)
+    err =>
+        !/cannot have a negative time stamp|ResizeObserver loop/.test(
+            err.message
+        )
 );

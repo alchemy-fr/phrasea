@@ -44,8 +44,8 @@ describe('Filter rules', () => {
             cy.contains('label', 'User').parent().find('[role=combobox]').click();
         });
         cy.get('[cmdk-input]').type('alice');
+        // A single select closes on its own: Esc would close the dialog
         cy.get('[cmdk-item]').contains('alice', {timeout: 20000}).click();
-        cy.get('body').type('{esc}');
         routeDialog().within(() => {
             cy.contains('label', 'Include').parent().find('[role=combobox]').click();
         });

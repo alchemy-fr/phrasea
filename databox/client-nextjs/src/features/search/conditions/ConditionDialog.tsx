@@ -190,9 +190,14 @@ export function ConditionDialog({
                 />
             )}
             {mode === 'builder' && builderQuery ? (
-                <pre className="mt-3 overflow-x-auto rounded-md bg-muted px-3 py-2 font-mono text-xs text-muted-foreground">
-                    {builderQuery}
-                </pre>
+                <div className="mt-3 space-y-1">
+                    <div className="text-xs font-medium text-muted-foreground">
+                        {t('search.condition.aql_preview', 'Preview AQL')}
+                    </div>
+                    <pre className="overflow-x-auto rounded-md bg-muted px-3 py-2 font-mono text-xs text-muted-foreground">
+                        {builderQuery}
+                    </pre>
+                </div>
             ) : null}
             {error ? (
                 <Alert variant="destructive" className="mt-3">

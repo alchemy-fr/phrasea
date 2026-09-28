@@ -1,3 +1,5 @@
+'use client';
+
 import * as React from 'react';
 import {Slot} from 'radix-ui';
 import {cva, type VariantProps} from 'class-variance-authority';
@@ -39,6 +41,11 @@ export const buttonVariants = cva(
 export type ButtonProps = React.ComponentProps<'button'> &
     VariantProps<typeof buttonVariants> & {
         asChild?: boolean;
+        /**
+         * Shows a spinner in place of the leading icon and disables the
+         * button. Automatic while the promise returned by `onClick` (a
+         * request) is pending.
+         */
         loading?: boolean;
     };
 
@@ -53,14 +60,26 @@ export function Button({
     // Buttons sit inside <form> elements (see FormDialog): never let one
     // submit by accident just because it was not given a type.
     type = 'button',
+    onClick,
     ...props
 }: ButtonProps) {
-    const classes = cn(buttonVariants({variant, size, className}));
+    const [pending, setPending] = React.useState(false);
+    const busy = loading || pending;
+    const classes = cn(
+        buttonVariants({variant, size, className}),
+        // The spinner takes the place of the leading icon
+        busy && '[&>[data-slot=spinner]+svg]:hidden'
+    );
 
     if (asChild) {
         // Slot requires a single element child: no loader injection here.
         return (
-            <Slot.Root data-slot="button" className={classes} {...props}>
+            <Slot.Root
+                data-slot="button"
+                className={classes}
+                onClick={onClick}
+                {...props}
+            >
                 {children}
             </Slot.Root>
         );
@@ -71,11 +90,42 @@ export function Button({
             data-slot="button"
             type={type}
             className={classes}
-            disabled={disabled || loading}
+            disabled={disabled || busy}
+            onClick={
+                onClick
+                    ? e => {
+                          const result: unknown = onClick(e);
+                          if (isRequest(result)) {
+                              setPending(true);
+                              // Rethrown: still reported as before
+                              result.then(
+                                  () => setPending(false),
+                                  (error: unknown) => {
+                                      setPending(false);
+                                      throw error;
+                                  }
+                              );
+                          }
+                      }
+                    : undefined
+            }
             {...props}
         >
-            {loading ? <Loader2 className="animate-spin" /> : null}
+            {busy ? (
+                <Loader2 data-slot="spinner" className="animate-spin" />
+            ) : null}
             {children}
         </button>
+    );
+}
+
+/**
+ * A promise returned by a click handler is taken for a request, except the
+ * handle of a modal (`openModal()`), which only settles once it is closed.
+ */
+function isRequest(result: unknown): result is Promise<unknown> {
+    return (
+        result instanceof Promise &&
+        typeof (result as {close?: unknown}).close !== 'function'
     );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import {
@@ -34,6 +34,8 @@ import {
     useDirtyState,
     useUnsavedChangesChildScope,
 } from '@/lib/navigation/unsavedChanges';
+import {useRoutePath} from '@/lib/navigation/routePath';
+import {useFocusFirstField} from '@/hooks/useFocusFirstField';
 
 /**
  * Tag filter rules: tags included / excluded for users or groups.
@@ -60,16 +62,25 @@ function TagRules({workspaceId}: {workspaceId: string}) {
         queryKey: ['tag-filter-rules', workspaceId],
         queryFn: () => getTagFilterRules({workspaceId}),
     });
-    const [editing, setEditing] = useState<TagFilterRule | 'new' | null>(null);
+    // The rule edited is in the URL: `:ruleId` or `new`
+    const {segments, navigate} = useRoutePath();
+    const editingId = segments[0] ?? null;
+    const editing: TagFilterRule | 'new' | null =
+        editingId === 'new'
+            ? 'new'
+            : (rules.data?.items.find(r => r.id === editingId) ?? null);
+    const formPane = useRef<HTMLDivElement>(null);
+    useFocusFirstField(formPane, editingId === 'new');
     // The rule form: switching away from it asks first when it is dirty
     const formScope = useUnsavedChangesChildScope();
     const edit = (next: TagFilterRule | 'new' | null) => {
-        const keyOf = (e: typeof next) =>
-            e === null || e === 'new' ? e : e.id;
-        if (keyOf(next) === keyOf(editing)) {
+        const id = next === null || next === 'new' ? next : next.id;
+        if (id === editingId) {
             return;
         }
-        void confirmLeave(formScope).then(leave => leave && setEditing(next));
+        void confirmLeave(formScope).then(
+            leave => leave && navigate(id ? [id] : [])
+        );
     };
 
     return (
@@ -157,6 +168,9 @@ function TagRules({workspaceId}: {workspaceId: string}) {
                                     destructive: true,
                                     onConfirm: async () => {
                                         await deleteTagFilterRule(rule.id);
+                                        if (rule.id === editingId) {
+                                            navigate([], {replace: true});
+                                        }
                                         void rules.refetch();
                                     },
                                 })
@@ -174,16 +188,18 @@ function TagRules({workspaceId}: {workspaceId: string}) {
             </div>
             {editing ? (
                 <UnsavedChangesScope.Provider value={formScope}>
-                    <TagRuleForm
-                        key={editing === 'new' ? 'new' : editing.id}
-                        rule={editing === 'new' ? undefined : editing}
-                        workspaceId={workspaceId}
-                        onSaved={() => {
-                            setEditing(null);
-                            void rules.refetch();
-                        }}
-                        onCancel={() => edit(null)}
-                    />
+                    <div ref={formPane}>
+                        <TagRuleForm
+                            key={editing === 'new' ? 'new' : editing.id}
+                            rule={editing === 'new' ? undefined : editing}
+                            workspaceId={workspaceId}
+                            onSaved={() => {
+                                navigate([], {replace: true});
+                                void rules.refetch();
+                            }}
+                            onCancel={() => edit(null)}
+                        />
+                    </div>
                 </UnsavedChangesScope.Provider>
             ) : null}
         </section>

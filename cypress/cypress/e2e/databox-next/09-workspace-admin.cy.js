@@ -122,12 +122,16 @@ describe('Workspace administration', () => {
         cy.get('[cmdk-item]').contains('alice', {timeout: 20000}).click();
         cy.get('body').type('{esc}');
         routeDialog().within(() => {
-            cy.contains('button', 'Add action').click();
+            // Condition: assets of a collection
+            cy.contains('button', 'Add condition').click();
+            cy.getBySel('asset-policy-condition').should('contain', 'Collection');
+            cy.getBySel('asset-policy-condition').contains('Sport').click();
+            cy.fieldByLabel('Hide attributes').click();
         });
-        // Action row: type then target attribute slug
-        routeDialog().find('[role=combobox]').filter(':visible').last().selectOption('Hide attribute');
+        // Action: the attribute definition created above
+        cy.get('[cmdk-item]').contains('Author', {timeout: 20000}).click();
+        cy.get('body').type('{esc}');
         routeDialog().within(() => {
-            cy.get('input[placeholder="attribute slug"]').type('description');
             cy.contains('button', 'Save').click();
         });
         expectToastText(/saved/);

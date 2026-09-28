@@ -35,6 +35,7 @@ import {QuarantineActions} from './QuarantineActions';
 import {fileAnalysis, hasAnalysisReport, quarantineCondition} from './analysis';
 import {quarantineQueueKey, useQuarantineQueueStore} from './quarantineQueue';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
+import {usePageTrail} from '@/components/layout/layoutStore';
 import {cn} from '@/lib/utils/cn';
 
 const pageSize = 30;
@@ -58,6 +59,13 @@ export function QuarantineScreen() {
     const [selectedId, setSelectedId] = useState<string | undefined>(linkedId);
     const resolved = useQuarantineQueueStore(s => s.resolved);
     const resetResolved = useQuarantineQueueStore(s => s.reset);
+
+    // Where the user is, shown in the top bar with the way back to the
+    // assets. An asset opened from here stacks over it.
+    usePageTrail(
+        t('quarantine.queue.title', 'Quarantine'),
+        routes.quarantine()
+    );
 
     const queue = useInfiniteQuery({
         queryKey: quarantineQueueKey,

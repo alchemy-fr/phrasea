@@ -147,17 +147,39 @@ export function AssetViewRoute({
             : undefined;
     const displayedFile = rendition?.file ?? standInFile(storyStandIn);
 
-    // prev / next navigation: inside a story it walks the story items, the
-    // list the viewer was opened from otherwise
-    const inStory = !!storyId && assetId !== storyId;
+    // prev / next navigation: a story is walked from its cover through its
+    // items, the list the viewer was opened from otherwise. Leaving the story
+    // for its neighbours in that list takes a second press (see `step`).
+    const outerIds = useMemo(() => navContext?.ids ?? [], [navContext?.ids]);
     const ids = useMemo(
-        () => (inStory ? story.items.map(a => a.id) : (navContext?.ids ?? [])),
-        [inStory, story.items, navContext?.ids]
+        () => (storyId ? [storyId, ...story.items.map(a => a.id)] : outerIds),
+        [storyId, story.items, outerIds]
     );
     const index = ids.indexOf(assetId);
     const prevId = index > 0 ? ids[index - 1] : undefined;
     const nextId =
         index >= 0 && index < ids.length - 1 ? ids[index + 1] : undefined;
+    const outerIndex = storyId ? outerIds.indexOf(storyId) : -1;
+    const outerPrevId = outerIndex > 0 ? outerIds[outerIndex - 1] : undefined;
+    const outerNextId =
+        outerIndex >= 0 && outerIndex < outerIds.length - 1
+            ? outerIds[outerIndex + 1]
+            : undefined;
+    const hasPrev = !!(prevId ?? outerPrevId);
+    const hasNext = !!(nextId ?? outerNextId) || !!story.hasNextPage;
+
+    // At an end of the story, the direction of the pending exit: a hint asks
+    // to press again, for a little while
+    const [exitHint, setExitHint] = useState<'prev' | 'next'>();
+    useEffect(() => setExitHint(undefined), [assetId]);
+    useEffect(() => {
+        if (!exitHint) {
+            return;
+        }
+        const timeout = setTimeout(() => setExitHint(undefined), 3000);
+
+        return () => clearTimeout(timeout);
+    }, [exitHint]);
 
     const goTo = useCallback(
         (id: string, target: AssetPanelTarget) => {
@@ -175,11 +197,48 @@ export function AssetViewRoute({
         },
         [setAssetId, setRenditionId]
     );
+    // Keeps the `#panel=` hash: picking from the renditions tab stays there
+    const selectRendition = useCallback(
+        (id: string) => {
+            setRenditionId(id);
+            window.history.replaceState(
+                window.history.state,
+                '',
+                routes.assetView(assetId, id, window.location.hash)
+            );
+        },
+        [assetId]
+    );
     const panelTarget: AssetPanelTarget = editing ? editPanelTarget : panelTab;
     const go = (id: string | undefined) => {
         if (id) {
             goTo(id, panelTarget);
         }
+    };
+    const step = (direction: 'prev' | 'next') => {
+        const id = direction === 'prev' ? prevId : nextId;
+        if (id) {
+            go(id);
+
+            return;
+        }
+        if (direction === 'next' && storyId && story.hasNextPage) {
+            // The next item is on a page of the story not loaded yet
+            void story.fetchNextPage();
+
+            return;
+        }
+        const outerId = direction === 'prev' ? outerPrevId : outerNextId;
+        if (!outerId) {
+            return;
+        }
+        if (exitHint !== direction) {
+            setExitHint(direction);
+
+            return;
+        }
+        setStoryId(undefined);
+        go(outerId);
     };
     const selectPanelTab = (tab: AssetPanelTab) => {
         setPanelTab(tab);
@@ -222,9 +281,9 @@ export function AssetViewRoute({
                 return;
             }
             if (e.key === 'ArrowLeft') {
-                go(prevId);
+                step('prev');
             } else if (e.key === 'ArrowRight') {
-                go(nextId);
+                step('next');
             } else if (
                 e.key === 'Escape' &&
                 !document.querySelector('[role=dialog][data-state=open]')
@@ -236,7 +295,15 @@ export function AssetViewRoute({
 
         return () => window.removeEventListener('keydown', onKey);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [prevId, nextId, panelTarget]);
+    }, [
+        prevId,
+        nextId,
+        outerPrevId,
+        outerNextId,
+        exitHint,
+        story.hasNextPage,
+        panelTarget,
+    ]);
 
     // Prefetch neighbours
     useEffect(() => {
@@ -289,14 +356,7 @@ export function AssetViewRoute({
                         size="sm"
                         className="w-48"
                         value={rendition?.id}
-                        onValueChange={id => {
-                            setRenditionId(id);
-                            window.history.replaceState(
-                                window.history.state,
-                                '',
-                                routes.assetView(assetId, id)
-                            );
-                        }}
+                        onValueChange={selectRendition}
                         options={renditions
                             .filter(r => r.file)
                             .map(r => ({
@@ -319,14 +379,17 @@ export function AssetViewRoute({
 
             <div className="flex min-h-0 flex-1">
                 <div className="relative flex min-w-0 flex-1 flex-col">
-                    {ids.length > 1 ? (
+                    {hasPrev || hasNext ? (
                         <>
                             <Button
                                 variant="secondary"
                                 size="icon"
-                                className="absolute top-1/2 left-3 z-10 -translate-y-1/2 rounded-full shadow"
-                                disabled={!prevId}
-                                onClick={() => go(prevId)}
+                                className={cn(
+                                    'absolute top-1/2 left-3 z-10 -translate-y-1/2 rounded-full shadow',
+                                    exitHint === 'prev' && 'ring-2 ring-primary'
+                                )}
+                                disabled={!hasPrev}
+                                onClick={() => step('prev')}
                                 aria-label={t(
                                     'asset.view.previous',
                                     'Previous'
@@ -337,9 +400,12 @@ export function AssetViewRoute({
                             <Button
                                 variant="secondary"
                                 size="icon"
-                                className="absolute top-1/2 right-3 z-10 -translate-y-1/2 rounded-full shadow"
-                                disabled={!nextId}
-                                onClick={() => go(nextId)}
+                                className={cn(
+                                    'absolute top-1/2 right-3 z-10 -translate-y-1/2 rounded-full shadow',
+                                    exitHint === 'next' && 'ring-2 ring-primary'
+                                )}
+                                disabled={!hasNext}
+                                onClick={() => step('next')}
                                 aria-label={t('asset.view.next', 'Next')}
                             >
                                 <ChevronRightIcon />
@@ -348,6 +414,23 @@ export function AssetViewRoute({
                     ) : null}
                     <div className="relative flex min-h-0 flex-1 items-center justify-center bg-media-bg">
                         {query.isLoading ? <FullPageLoader /> : null}
+                        {exitHint ? (
+                            <div
+                                data-testid="story-exit-hint"
+                                role="status"
+                                className="pointer-events-none absolute bottom-4 left-1/2 z-10 -translate-x-1/2 rounded-full bg-foreground/85 px-4 py-2 text-sm text-background shadow"
+                            >
+                                {exitHint === 'next'
+                                    ? t(
+                                          'asset.view.story_exit_next',
+                                          'End of the story: press again to go to the next asset'
+                                      )
+                                    : t(
+                                          'asset.view.story_exit_prev',
+                                          'Start of the story: press again to go to the previous asset'
+                                      )}
+                            </div>
+                        ) : null}
                         {query.isError ? (
                             <EmptyState
                                 title={
@@ -429,6 +512,7 @@ export function AssetViewRoute({
                         <AssetPanel
                             asset={asset}
                             rendition={rendition}
+                            onSelectRendition={selectRendition}
                             tab={panelTab}
                             onTabChange={selectPanelTab}
                             editing={editing}

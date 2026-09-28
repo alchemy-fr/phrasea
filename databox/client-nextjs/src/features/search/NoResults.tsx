@@ -1,14 +1,16 @@
 'use client';
 
 import {useTranslation} from 'react-i18next';
-import {SearchXIcon} from 'lucide-react';
+import {LogInIcon, SearchXIcon} from 'lucide-react';
 import {EmptyState} from '@/components/ui/misc';
 import {Button} from '@/components/ui/button';
+import {useAuth} from '@/lib/auth/AuthProvider';
 import {useSearch} from './SearchProvider';
 
 export function NoResults() {
     const {t} = useTranslation();
     const search = useSearch();
+    const {status, login} = useAuth();
     // Sorting alone is not a filter: only show the hints when something narrows the results.
     const hasFilters = Boolean(
         search.query || search.conditions.length > 0 || search.geolocation
@@ -53,6 +55,14 @@ export function NoResults() {
                 search.hasSearch ? (
                     <Button variant="outline" onClick={search.reset}>
                         {t('search.clear_search', 'Clear search')}
+                    </Button>
+                ) : status === 'anonymous' ? (
+                    // Nothing public to show: the assets may need an account
+                    <Button
+                        data-testid="no-results-sign-in"
+                        onClick={() => login()}
+                    >
+                        <LogInIcon /> {t('user.login', 'Sign in')}
                     </Button>
                 ) : null
             }
