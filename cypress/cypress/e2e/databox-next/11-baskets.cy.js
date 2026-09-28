@@ -98,7 +98,7 @@ describe('Baskets', () => {
         cy.getBySel('basket-view').findBySel('asset-item').should('have.length', 2);
     });
 
-    it('closes the basket view for the page it was opened from', () => {
+    it('closes the basket view back to the assets', () => {
         const other = `${basketName} bis`;
         apiRequest({method: 'POST', path: '/baskets', body: {name: other}});
         waitForBasketListed(other);
@@ -107,11 +107,11 @@ describe('Baskets', () => {
         cy.getBySel('basket-item').contains(basketName).click();
         cy.getBySel('basket-view', {timeout: 30000}).should('be.visible');
 
-        // Switching basket from inside the view is the same screen…
+        // Whatever was browsed in the view (here another basket)…
         cy.getBySel('basket-view').findBySel('basket-item').contains(other).click();
         cy.getBySel('basket-view', {timeout: 30000}).contains(other).should('be.visible');
 
-        // …so closing leaves for the search screen, not for the first basket
+        // …closing goes back to the assets, not to the first basket
         cy.getBySel('basket-view').find('[aria-label=Close]').click();
         cy.getBySel('basket-view').should('not.exist');
         cy.getBySel('search-input').should('be.visible');

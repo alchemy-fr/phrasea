@@ -85,7 +85,8 @@ async function dropAssets(
     deps: DropDeps
 ): Promise<boolean> {
     const {t, queryClient, reloadResults} = deps;
-    const ids = payload.assets.map(a => a.id);
+    // The same asset twice when both of its basket items are dragged
+    const ids = [...new Set(payload.assets.map(a => a.id))];
     const count = ids.length;
     const name = targetName(target) || t('dnd.untitled', 'untitled');
 

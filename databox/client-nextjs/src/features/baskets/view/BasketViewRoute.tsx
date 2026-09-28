@@ -17,7 +17,7 @@ import {
     XIcon,
 } from 'lucide-react';
 import {toast} from 'sonner';
-import type {Asset, BasketAsset} from '@/types/api';
+import type {Asset} from '@/types/api';
 import {getBasket, getBasketAssets} from '@/lib/api/misc';
 import {Button} from '@/components/ui/button';
 import {Tooltip} from '@/components/ui/overlays';
@@ -28,8 +28,9 @@ import {SelectionProvider} from '@/features/assets/list/SelectionProvider';
 import {useAssetOpener} from '@/features/assets/useAssetOpener';
 import {useBasketStore} from '../basketStore';
 import {BasketsPanel} from '../BasketsPanel';
-import {useCloseRoute} from '@/components/modals/RouteDialog';
 import {routes} from '@/lib/routes';
+import {useOptionalSearch} from '@/features/search/SearchProvider';
+import {searchStateToParams} from '@/features/search/searchState';
 import {useDisplayPreferences} from '@/features/preferences/store';
 import {SelectionActions} from '@/features/assets/list/toolbar/SelectionActions';
 import {DisplayOptionsMenu} from '@/features/assets/list/toolbar/DisplayOptionsMenu';
@@ -45,9 +46,15 @@ import {cn} from '@/lib/utils/cn';
 export function BasketViewRoute({basketId}: {basketId: string}) {
     const {t} = useTranslation();
     const router = useRouter();
-    // Switching basket from here stays the same screen: closing leaves for
-    // the page the basket view was opened from, not for the previous basket
-    const close = useCloseRoute(routes.basketViewScreen());
+    const search = useOptionalSearch();
+    // Always back to the assets, with the search as it was: not to where the
+    // basket view was opened from (an asset, a dialog, another basket…)
+    const close = () => {
+        const qs = search ? searchStateToParams(search).toString() : '';
+        router.push(`${routes.assets()}${qs ? `?${qs}` : ''}`, {
+            scroll: false,
+        });
+    };
     const queryClient = useQueryClient();
     const openAsset = useAssetOpener();
     const display = useDisplayPreferences();
@@ -76,17 +83,20 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
         void basket.refetch();
     });
 
+    // An asset can be in the basket several times: each item is its own
+    // card, selected and removed on its own (see `assetKey`)
     const pages = useMemo(
-        () => (assets.data?.pages ?? []).map(p => p.items.map(i => i.asset)),
+        () =>
+            (assets.data?.pages ?? []).map(p =>
+                p.items.map(i => ({...i.asset, basketItemId: i.id}))
+            ),
         [assets.data]
     );
-    const itemsByAsset = useMemo(() => {
-        const map = new Map<string, BasketAsset>();
+    const positions = useMemo(() => {
+        const map = new Map<string, number>();
         let position = 1;
         assets.data?.pages.forEach(p =>
-            p.items.forEach(i =>
-                map.set(i.asset.id, {...i, position: position++})
-            )
+            p.items.forEach(i => map.set(i.id, position++))
         );
 
         return map;
@@ -94,7 +104,7 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
 
     const remove = async (list: Asset[]) => {
         const itemIds = list
-            .map(a => itemsByAsset.get(a.id)?.id)
+            .map(a => a.basketItemId)
             .filter((id): id is string => !!id);
         try {
             await removeItems(basketId, itemIds);
@@ -252,10 +262,9 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
                                     itemOverlay={asset => (
                                         <span className="pointer-events-none absolute bottom-1.5 left-1.5 z-10 rounded bg-background/90 px-1.5 py-0.5 font-mono text-[11px] font-semibold shadow-sm">
                                             #
-                                            {
-                                                itemsByAsset.get(asset.id)
-                                                    ?.position
-                                            }
+                                            {positions.get(
+                                                asset.basketItemId ?? ''
+                                            )}
                                         </span>
                                     )}
                                     itemActions={

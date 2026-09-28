@@ -2,7 +2,11 @@
 
 import type {ComponentProps, MouseEvent, PointerEvent} from 'react';
 import type {Asset} from '@/types/api';
-import {useIsAssetSelected, useSelectionActions} from './SelectionProvider';
+import {
+    assetKey,
+    useIsAssetSelected,
+    useSelectionActions,
+} from './SelectionProvider';
 import {useAssetDrag} from '@/features/dnd/useAssetDrag';
 import {cn} from '@/lib/utils/cn';
 import {mergeRefs} from '@/lib/utils/refs';
@@ -35,7 +39,7 @@ export function SelectableCard({
     onPointerDown,
     ...rest
 }: Props) {
-    const selected = useIsAssetSelected(asset.id);
+    const selected = useIsAssetSelected(assetKey(asset));
     const disabled = useSelectionActions().disabledIds?.has(asset.id);
     const drag = useAssetDrag(asset);
 

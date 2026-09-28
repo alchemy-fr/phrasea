@@ -27,6 +27,14 @@ export type SelectionContextValue = {
     disabledIds?: Set<string>;
 };
 
+/**
+ * Identity of a list item for selection: the asset, or the basket item when
+ * the list is a basket's content (the same asset can appear more than once).
+ */
+export function assetKey(asset: Asset): string {
+    return asset.basketItemId ?? asset.id;
+}
+
 const SelectionContext = createContext<SelectionContextValue | null>(null);
 
 /**
@@ -69,13 +77,13 @@ export function computeSelection(
     const additive = Boolean(e?.ctrlKey || e?.metaKey);
     if (e?.shiftKey) {
         const flat = pages.flat();
-        const itemIndex = flat.findIndex(f => f.id === item.id);
+        const itemIndex = flat.findIndex(f => assetKey(f) === assetKey(item));
         let anchorIndex = anchorId
-            ? flat.findIndex(f => f.id === anchorId)
+            ? flat.findIndex(f => assetKey(f) === anchorId)
             : -1;
         if (anchorIndex === -1 && current.length > 0) {
             anchorIndex = flat.findIndex(
-                f => f.id === current[current.length - 1].id
+                f => assetKey(f) === assetKey(current[current.length - 1])
             );
         }
         if (itemIndex !== -1 && anchorIndex !== -1) {
@@ -86,14 +94,14 @@ export function computeSelection(
             if (!additive) {
                 return range;
             }
-            const ids = new Set(current.map(a => a.id));
+            const keys = new Set(current.map(assetKey));
 
-            return [...current, ...range.filter(a => !ids.has(a.id))];
+            return [...current, ...range.filter(a => !keys.has(assetKey(a)))];
         }
     }
     if (additive) {
-        return current.some(a => a.id === item.id)
-            ? current.filter(a => a.id !== item.id)
+        return current.some(a => assetKey(a) === assetKey(item))
+            ? current.filter(a => assetKey(a) !== assetKey(item))
             : [...current, item];
     }
 
@@ -123,7 +131,7 @@ export function SelectionProvider({
                 ? assets.filter(a => !disabledIds.has(a.id))
                 : assets;
             selectionRef.current = filtered;
-            selectedIdsRef.current = new Set(filtered.map(a => a.id));
+            selectedIdsRef.current = new Set(filtered.map(assetKey));
             setSelectionState(filtered);
             // Item subscribers are notified right away: their re-render is
             // batched with ours in a single pass, instead of a second one
@@ -148,7 +156,7 @@ export function SelectionProvider({
                 anchorRef.current
             );
             if (!e?.shiftKey) {
-                anchorRef.current = asset.id;
+                anchorRef.current = assetKey(asset);
             }
             setSelectionRef.current(next);
         },
@@ -156,7 +164,7 @@ export function SelectionProvider({
     );
 
     const value = useMemo<SelectionContextValue>(() => {
-        const selectedIds = new Set(selection.map(a => a.id));
+        const selectedIds = new Set(selection.map(assetKey));
 
         return {
             selection,
@@ -165,8 +173,8 @@ export function SelectionProvider({
             clear: () => setSelection([]),
             toggle: asset =>
                 setSelection(
-                    selectedIds.has(asset.id)
-                        ? selection.filter(a => a.id !== asset.id)
+                    selectedIds.has(assetKey(asset))
+                        ? selection.filter(a => assetKey(a) !== assetKey(asset))
                         : [...selection, asset]
                 ),
             onItemClick: clickItem,
@@ -187,8 +195,8 @@ export function SelectionProvider({
             toggle: asset => {
                 const current = selectionRef.current;
                 setSelection(
-                    current.some(a => a.id === asset.id)
-                        ? current.filter(a => a.id !== asset.id)
+                    current.some(a => assetKey(a) === assetKey(asset))
+                        ? current.filter(a => assetKey(a) !== assetKey(asset))
                         : [...current, asset]
                 );
             },
@@ -260,13 +268,16 @@ export function useSelectionActions(): SelectionActions {
     return ctx;
 }
 
-/** Re-renders only when this asset gets selected or deselected. */
-export function useIsAssetSelected(id: string): boolean {
+/**
+ * Re-renders only when this asset gets selected or deselected.
+ * `key` is the item's `assetKey`.
+ */
+export function useIsAssetSelected(key: string): boolean {
     const {subscribe, isSelected} = useSelectionActions();
 
     return useSyncExternalStore(
         subscribe,
-        () => isSelected(id),
+        () => isSelected(key),
         () => false
     );
 }

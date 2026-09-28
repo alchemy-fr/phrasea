@@ -2,7 +2,10 @@
 
 import {useDraggable} from '@dnd-kit/core';
 import type {Asset} from '@/types/api';
-import {useSelectionActions} from '@/features/assets/list/SelectionProvider';
+import {
+    assetKey,
+    useSelectionActions,
+} from '@/features/assets/list/SelectionProvider';
 import {useDragScope} from './DragScope';
 import {useDndEnabled} from './DragContext';
 import {type AssetDragSource, dragId} from './types';
@@ -16,7 +19,7 @@ export function useAssetDrag(asset: Asset) {
     const {getSelection} = useSelectionActions();
     const enabled = useDndEnabled();
     const {setNodeRef, listeners, isDragging} = useDraggable({
-        id: dragId.asset(scope, asset.id),
+        id: dragId.asset(scope, assetKey(asset)),
         data: {
             kind: 'asset-source',
             asset,

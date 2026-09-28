@@ -8,6 +8,7 @@ import {AssetThumb} from '../AssetThumb';
 import {AssetItemControls} from '../AssetItemControls';
 import {AssetContextMenu} from '../AssetContextMenu';
 import {SelectableCard} from '../SelectableCard';
+import {assetKey} from '../SelectionProvider';
 import {useLiveAsset} from '@/features/assets/assetStore';
 import {Highlight} from '@/components/ui/highlight';
 import {TagChip, CollectionChip, PrivacyIcon} from '@/components/chips';
@@ -31,7 +32,7 @@ export function GridLayout(props: LayoutProps) {
                     >
                         {section.items.map(({asset, index}) => (
                             <GridItem
-                                key={asset.id}
+                                key={assetKey(asset)}
                                 asset={asset}
                                 index={index}
                                 thumbSize={thumbSize}

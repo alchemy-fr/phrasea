@@ -41,4 +41,29 @@ describe('computeSelection', () => {
         expect(select(['e'], 'c', {shiftKey: true})).toEqual(['c', 'd', 'e']);
         expect(select([], 'c', {shiftKey: true})).toEqual(['c']);
     });
+
+    it('tells apart the items of the same asset in a basket', () => {
+        // The same asset twice in a basket: two items, two cards
+        const items = [
+            {id: 'x', basketItemId: 'i1'},
+            {id: 'y', basketItemId: 'i2'},
+            {id: 'x', basketItemId: 'i3'},
+        ] as Asset[];
+        const keys = (list: Asset[]) => list.map(a => a.basketItemId);
+
+        expect(keys(computeSelection([], items[2], [items]))).toEqual(['i3']);
+        expect(
+            keys(
+                computeSelection([items[0]], items[2], [items], {ctrlKey: true})
+            )
+        ).toEqual(['i1', 'i3']);
+        expect(
+            keys(computeSelection(items, items[0], [items], {metaKey: true}))
+        ).toEqual(['i2', 'i3']);
+        expect(
+            keys(
+                computeSelection([], items[2], [items], {shiftKey: true}, 'i2')
+            )
+        ).toEqual(['i2', 'i3']);
+    });
 });

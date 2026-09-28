@@ -9,6 +9,7 @@ import {AssetThumb} from '../AssetThumb';
 import {AssetItemControls} from '../AssetItemControls';
 import {AssetContextMenu} from '../AssetContextMenu';
 import {SelectableCard} from '../SelectableCard';
+import {assetKey} from '../SelectionProvider';
 import {useLiveAsset} from '@/features/assets/assetStore';
 import {Highlight} from '@/components/ui/highlight';
 import {AttributeList} from '@/features/attributes/AttributeList';
@@ -63,7 +64,7 @@ export function ListLayout(props: LayoutProps) {
             const r = rows[i];
 
             return r.type === 'asset'
-                ? r.asset.id
+                ? assetKey(r.asset)
                 : r.type === 'divider'
                   ? `d-${r.section.key}`
                   : 'footer';

@@ -478,6 +478,11 @@ export interface Asset
         Entity {
     name?: string;
     nameHighlight: string | null;
+    /**
+     * Client side only: the basket item this asset is displayed for. An asset
+     * can be in a basket several times, each item is selected on its own.
+     */
+    basketItemId?: string;
     description?: string;
     privacy: Privacy;
     tags?: Tag[];
