@@ -114,9 +114,17 @@ describe('canDrop assets', () => {
     it('duplicates instead of linking across workspaces', () => {
         const t = target({type: 'collection', collection: collections.foreign});
         expect(verdict(assetsPayload([a1]), t)).toEqual({ok: true, op: 'copy'});
-        expect(verdict(assetsPayload([a1]), t, {shift: true})).toEqual({
+        expect(verdict(assetsPayload([a1]), t, {ctrl: true})).toEqual({
             ok: true,
-            op: 'move',
+            op: 'copy',
+        });
+    });
+
+    it('refuses to move assets to another workspace', () => {
+        const t = target({type: 'collection', collection: collections.foreign});
+        expect(verdict(assetsPayload([a1]), t, {shift: true})).toEqual({
+            ok: false,
+            reason: 'workspace',
         });
     });
 

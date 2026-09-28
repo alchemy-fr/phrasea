@@ -37,6 +37,12 @@ export function CopyMoveDialog({
 
     const ids = assets.map(a => a.id);
     const sourceWorkspaces = new Set(assets.map(a => a.workspace.id));
+    // Moved assets never leave their workspace (the API refuses it)
+    const moveWorkspace =
+        mode === 'move' && sourceWorkspaces.size === 1
+            ? [...sourceWorkspaces][0]
+            : undefined;
+    const mixedMove = mode === 'move' && sourceWorkspaces.size > 1;
     const crossWorkspace = destination
         ? [...sourceWorkspaces].some(w => w !== destination.workspaceId)
         : false;
@@ -86,21 +92,39 @@ export function CopyMoveDialog({
                     : t('asset.actions.copy', 'Copy')
             }
             submitIcon={mode === 'move' ? <FolderInputIcon /> : <CopyIcon />}
-            canSubmit={!!destination}
+            canSubmit={!!destination && !mixedMove}
             bodyClassName="space-y-4"
             onSubmit={submit}
         >
-            <div>
-                <p className="mb-2 text-sm font-medium">
-                    {t('asset.copy.destination', 'Destination')}
-                </p>
-                <CollectionTreePicker
-                    value={destination}
-                    onChange={setDestination}
-                    requireCapability="createAsset"
-                    allowCreate
-                />
-            </div>
+            {mixedMove ? (
+                <Alert variant="destructive" icon={<InfoIcon />}>
+                    {t(
+                        'asset.move.mixed_workspaces',
+                        'Assets cannot be moved to another workspace: select assets of a single workspace.'
+                    )}
+                </Alert>
+            ) : (
+                <div>
+                    <p className="mb-2 text-sm font-medium">
+                        {t('asset.copy.destination', 'Destination')}
+                    </p>
+                    <CollectionTreePicker
+                        value={destination}
+                        onChange={setDestination}
+                        workspaceId={moveWorkspace}
+                        requireCapability="createAsset"
+                        allowCreate
+                    />
+                    {moveWorkspace ? (
+                        <p className="mt-2 text-xs text-muted-foreground">
+                            {t(
+                                'asset.move.same_workspace',
+                                'Assets are moved within their workspace.'
+                            )}
+                        </p>
+                    ) : null}
+                </div>
+            )}
             {mode === 'copy' ? (
                 <div className="space-y-3">
                     <LabeledControl
