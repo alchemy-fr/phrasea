@@ -7,7 +7,7 @@
         "dev": "next dev -H 0.0.0.0 -p 3000",
         "build": "next build",
         "start": "next start -H 0.0.0.0 -p 3000",
-        "typecheck": "tsc --noEmit",
+        "typecheck": "tsc --noEmit -p tsconfig.typecheck.json",
         "lint": "eslint src",
         "lint:fix": "eslint --fix src",
         "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json|cjs|mjs|tsx|jsx|css)\"",
