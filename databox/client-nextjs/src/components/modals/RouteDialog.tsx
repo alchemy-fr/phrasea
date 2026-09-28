@@ -124,14 +124,12 @@ export function useCloseRoute(screen?: string): () => void {
  */
 function useOpenedFrom(screen?: string): string {
     const fromDialog = useContext(ReturnUrl);
-    // Deliberately not `usePathname()`: that would re-render every consumer —
-    // e.g. each tab kept mounted in a dialog — on every URL change. The URL a
-    // screen mounted on is all we need.
-    const [mountPath] = useState(() =>
-        fromDialog === null && typeof window !== 'undefined'
-            ? window.location.pathname
-            : null
-    );
+    // Not `window.location`: on a client-side navigation, the screen renders
+    // before the router writes its URL to the history — it would read the URL
+    // of the screen it was opened from, and take it for its own. Only the URL
+    // the screen mounted on is kept.
+    const pathname = usePathname();
+    const [mountPath] = useState(() => (fromDialog === null ? pathname : null));
     const own = useScreenOrigin(
         mountPath === null ? null : (screen ?? mountPath),
         mountPath

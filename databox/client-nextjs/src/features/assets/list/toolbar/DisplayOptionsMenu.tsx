@@ -3,6 +3,7 @@
 import {useTranslation} from 'react-i18next';
 import {
     CropIcon,
+    LayoutDashboardIcon,
     LayoutGridIcon,
     ListIcon,
     ScanIcon,
@@ -78,6 +79,10 @@ export function DisplayOptionsMenu({
                             <TabsTrigger value="grid">
                                 <LayoutGridIcon /> {t('display.grid', 'Grid')}
                             </TabsTrigger>
+                            <TabsTrigger value="masonry">
+                                <LayoutDashboardIcon />{' '}
+                                {t('display.masonry', 'Masonry')}
+                            </TabsTrigger>
                             <TabsTrigger value="list">
                                 <ListIcon /> {t('display.list', 'List')}
                             </TabsTrigger>
@@ -99,33 +104,40 @@ export function DisplayOptionsMenu({
                         onValueChange={([v]) => patch({thumbSize: v}, true)}
                     />
                 </div>
-                <div>
-                    <Label className="mb-2">
-                        {t('display.thumb_fit', 'Thumbnail fit')}
-                    </Label>
-                    <Tabs
-                        value={display.thumbFit}
-                        onValueChange={v =>
-                            patch({
-                                thumbFit: v as DisplayPreferences['thumbFit'],
-                            })
-                        }
-                    >
-                        <TabsList
-                            className="w-full"
-                            aria-label={t('display.thumb_fit', 'Thumbnail fit')}
+                {/* A masonry thumbnail keeps its own ratio: nothing to fit */}
+                {display.layout !== 'masonry' ? (
+                    <div>
+                        <Label className="mb-2">
+                            {t('display.thumb_fit', 'Thumbnail fit')}
+                        </Label>
+                        <Tabs
+                            value={display.thumbFit}
+                            onValueChange={v =>
+                                patch({
+                                    thumbFit:
+                                        v as DisplayPreferences['thumbFit'],
+                                })
+                            }
                         >
-                            <TabsTrigger value="contain">
-                                <ScanIcon />{' '}
-                                {t('display.fit_contain', 'Whole image')}
-                            </TabsTrigger>
-                            <TabsTrigger value="cover">
-                                <CropIcon />{' '}
-                                {t('display.fit_cover', 'Fill (crop)')}
-                            </TabsTrigger>
-                        </TabsList>
-                    </Tabs>
-                </div>
+                            <TabsList
+                                className="w-full"
+                                aria-label={t(
+                                    'display.thumb_fit',
+                                    'Thumbnail fit'
+                                )}
+                            >
+                                <TabsTrigger value="contain">
+                                    <ScanIcon />{' '}
+                                    {t('display.fit_contain', 'Whole image')}
+                                </TabsTrigger>
+                                <TabsTrigger value="cover">
+                                    <CropIcon />{' '}
+                                    {t('display.fit_cover', 'Fill (crop)')}
+                                </TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+                    </div>
+                ) : null}
                 <div className="space-y-3 border-t pt-3">
                     <Row
                         label={t(

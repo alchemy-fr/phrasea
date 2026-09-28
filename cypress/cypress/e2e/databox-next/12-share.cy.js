@@ -65,8 +65,24 @@ describe('Share', () => {
     it('opens the shared page anonymously', () => {
         Cypress.session.clearCurrentSessionData();
         cy.visit(shareUrl);
-        cy.contains('E2E Shared', {timeout: 30000}).should('be.visible');
-        cy.get('img').should('be.visible');
+        cy.getBySel('share-asset-name', {timeout: 30000}).should('contain', 'E2E Shared');
+        cy.get('[data-testid=share-asset-view] img').should('be.visible');
+        // The header of the application, for an anonymous visitor
+        cy.getBySel('topbar').within(() => {
+            cy.contains('Databox').should('be.visible');
+            cy.getBySel('settings-menu').should('be.visible');
+            cy.getBySel('sign-in').should('be.visible');
+        });
+
+        // One line per rendition, identified by the rendition
+        cy.getBySel('share-download').click();
+        cy.dialog().within(() => {
+            cy.getBySel('share-download-rendition').should('have.length.at.least', 2);
+            cy.contains('button', /^Download$/).should('be.disabled');
+            cy.getBySel('share-download-rendition').first().click();
+            cy.contains('button', /^Download$/).should('not.be.disabled');
+        });
+        cy.get('body').type('{esc}');
     });
 
     it('revokes the link', () => {
@@ -112,5 +128,34 @@ describe('Share', () => {
         });
         cy.getBySel('share-asset', {timeout: 30000}).should('have.length', 2);
         cy.contains('E2E Shared').should('be.visible');
+
+        // Grid, masonry and list layouts
+        cy.getBySel('share-gallery').should('have.attr', 'data-layout', 'grid');
+        cy.getBySel('share-layout').find('[role=tab]').eq(1).click();
+        cy.getBySel('share-gallery').should('have.attr', 'data-layout', 'masonry');
+        cy.getBySel('share-layout').find('[role=tab]').eq(2).click();
+        cy.getBySel('share-gallery').should('have.attr', 'data-layout', 'list');
+        cy.getBySel('share-asset').should('have.length', 2);
+        cy.getBySel('share-layout').find('[role=tab]').eq(0).click();
+
+        // The viewer: linkable, walks the assets, closes back to the gallery
+        cy.getBySel('share-asset-title').contains('E2E Shared').click();
+        cy.getBySel('share-asset-name').should('contain', 'E2E Shared');
+        cy.location('search').should('contain', 'asset=');
+        cy.getBySel('share-view-next').should('not.be.disabled').click();
+        cy.getBySel('share-asset-name').should('not.contain', 'E2E Shared');
+        cy.getBySel('share-view-prev').click();
+        cy.getBySel('share-asset-name').should('contain', 'E2E Shared');
+        cy.getBySel('share-view-close').click();
+        cy.getBySel('share-gallery').should('be.visible');
+        cy.location('search').should('not.contain', 'asset=');
+
+        // Downloading several assets: a line per rendition name
+        cy.getBySel('share-download-all').click();
+        cy.dialog().within(() => {
+            cy.contains('Download 2 assets').should('be.visible');
+            cy.getBySel('share-download-rendition').should('have.length.at.least', 1);
+        });
+        cy.get('body').type('{esc}');
     });
 });

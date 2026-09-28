@@ -1,6 +1,6 @@
 'use client';
 
-import {Fragment} from 'react';
+import {Fragment, ReactNode} from 'react';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {useGuardedRouter} from '@/components/modals/UnsavedChangesGuard';
@@ -47,10 +47,26 @@ import {DisplayProfileMenuItem} from '@/features/profiles/DisplayProfileMenuItem
 import {ThemeMenu} from '@/features/theme/ThemeMenu';
 import {NotificationsMenu} from '@/features/notifications/NotificationsMenu';
 import {getAuthClient} from '@/lib/auth/client';
+import {useOptionalSearch} from '@/features/search/SearchProvider';
 import {cn} from '@/lib/utils/cn';
 
-export function TopBar() {
+/**
+ * The application header: the logo, where the user is and the way back, then
+ * the notifications, settings and user menus.
+ *
+ * The `public` variant heads the pages living outside of the application
+ * shell (public share): no side panel to toggle nor app screen trail, the
+ * `children` taking the middle of the row instead.
+ */
+export function TopBar({
+    variant = 'app',
+    children,
+}: {
+    variant?: 'app' | 'public';
+    children?: ReactNode;
+}) {
     const {t, i18n} = useTranslation();
+    const isPublic = variant === 'public';
     const {user, isAuthenticated, login, redirecting, logout, hasRole} =
         useAuth();
     const config = useConfig();
@@ -58,6 +74,9 @@ export function TopBar() {
     const pathname = usePathname();
     const toggleLeftPanel = useLayoutStore(s => s.toggleLeftPanel);
     const pageTrail = useLayoutStore(s => s.pageTrail);
+    // The way back from a screen stacked over the search: that search, as the
+    // user left it
+    const searchUrl = useOptionalSearch()?.url ?? routes.assets();
     const {openModal} = useModals();
     const isAdmin = hasRole(AppRole.DataboxAdmin) || hasRole(AppRole.Admin);
 
@@ -74,16 +93,20 @@ export function TopBar() {
                 topBarHeight
             )}
         >
-            <Tooltip content={t('layout.toggle_panel', 'Toggle side panel')}>
-                <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    data-testid="toggle-left-panel"
-                    onClick={() => toggleLeftPanel()}
+            {isPublic ? null : (
+                <Tooltip
+                    content={t('layout.toggle_panel', 'Toggle side panel')}
                 >
-                    <PanelLeftIcon />
-                </Button>
-            </Tooltip>
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        data-testid="toggle-left-panel"
+                        onClick={() => toggleLeftPanel()}
+                    >
+                        <PanelLeftIcon />
+                    </Button>
+                </Tooltip>
+            )}
             <Link
                 href={routes.assets()}
                 className="flex items-center gap-2 rounded-md px-2 py-1 font-semibold hover:bg-accent"
@@ -107,14 +130,19 @@ export function TopBar() {
 
             {/* A screen opened over the main view takes over this row: where
                 the user is, and the way back */}
-            {pageTrail.length > 0 ? (
+            {isPublic ? (
+                <div className="ml-1 flex min-w-0 flex-1 items-center gap-2">
+                    {children}
+                </div>
+            ) : pageTrail.length > 0 ? (
                 <nav
                     data-testid="page-trail"
                     aria-label={t('nav.breadcrumb', 'Breadcrumb')}
                     className="ml-1 flex min-w-0 flex-1 items-center gap-1 text-sm"
                 >
                     <Link
-                        href={routes.assets()}
+                        href={searchUrl}
+                        scroll={false}
                         data-testid="trail-root"
                         className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md px-2 font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground [&_svg]:size-4"
                     >
@@ -185,7 +213,9 @@ export function TopBar() {
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-60">
-                    {isAuthenticated ? <DisplayProfileMenuItem /> : null}
+                    {isAuthenticated && !isPublic ? (
+                        <DisplayProfileMenuItem />
+                    ) : null}
                     <ThemeMenu />
                     <DropdownMenuSub>
                         <DropdownMenuSubTrigger>

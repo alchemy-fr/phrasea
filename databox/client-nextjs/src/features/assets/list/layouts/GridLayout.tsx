@@ -14,37 +14,62 @@ import {Highlight} from '@/components/ui/highlight';
 import {TagChip, CollectionChip, PrivacyIcon} from '@/components/chips';
 import {GridCardZones, useGridProfileItems} from './GridCardZones';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
+import {Masonry} from '@/components/ui/masonry';
 
+/**
+ * Cards of a fixed height in a grid, every page and group of results in a
+ * section of its own; or — `masonry` layout — bare thumbnails keeping their
+ * aspect ratio, in columns, the pages following each other without divider
+ * (only groups make sections). Either way, loading more results never moves
+ * the cards already displayed.
+ */
 export function GridLayout(props: LayoutProps) {
-    const {pages, thumbSize, footer} = props;
-    const sections = useMemo(() => buildSections(pages), [pages]);
+    const {pages, thumbSize, footer, layout} = props;
+    const masonry = layout === 'masonry';
+    const sections = useMemo(
+        () => buildSections(masonry ? [pages.flat()] : pages),
+        [pages, masonry]
+    );
+
+    const renderItem = ({asset, index}: {asset: Asset; index: number}) => (
+        <GridItem
+            key={assetKey(asset)}
+            asset={asset}
+            index={index}
+            thumbSize={thumbSize}
+            masonry={masonry}
+            onItemClick={props.onItemClick}
+            onItemDoubleClick={props.onItemDoubleClick}
+            openAsset={props.openAsset}
+            itemOverlay={props.itemOverlay}
+            itemActions={props.itemActions}
+            searchQuery={props.searchQuery}
+        />
+    );
 
     return (
         <div className="pb-4">
             {sections.map(section => (
                 <div key={section.key}>
                     <SectionDivider section={section} />
-                    <div
-                        className="grid gap-3 p-3"
-                        style={{
-                            gridTemplateColumns: `repeat(auto-fill, minmax(${thumbSize}px, 1fr))`,
-                        }}
-                    >
-                        {section.items.map(({asset, index}) => (
-                            <GridItem
-                                key={assetKey(asset)}
-                                asset={asset}
-                                index={index}
-                                thumbSize={thumbSize}
-                                onItemClick={props.onItemClick}
-                                onItemDoubleClick={props.onItemDoubleClick}
-                                openAsset={props.openAsset}
-                                itemOverlay={props.itemOverlay}
-                                itemActions={props.itemActions}
-                                searchQuery={props.searchQuery}
-                            />
-                        ))}
-                    </div>
+                    {masonry ? (
+                        <Masonry
+                            className="p-3"
+                            items={section.items}
+                            columnWidth={thumbSize}
+                            getKey={({asset}) => assetKey(asset)}
+                            renderItem={renderItem}
+                        />
+                    ) : (
+                        <div
+                            className="grid gap-3 p-3"
+                            style={{
+                                gridTemplateColumns: `repeat(auto-fill, minmax(${thumbSize}px, 1fr))`,
+                            }}
+                        >
+                            {section.items.map(renderItem)}
+                        </div>
+                    )}
                 </div>
             ))}
             {footer}
@@ -61,12 +86,13 @@ type GridItemProps = Pick<
     | 'itemOverlay'
     | 'itemActions'
     | 'searchQuery'
-> & {asset: Asset; index: number};
+> & {asset: Asset; index: number; masonry?: boolean};
 
 const GridItem = memo(function GridItem({
     asset: initialAsset,
     index,
     thumbSize,
+    masonry,
     onItemClick,
     onItemDoubleClick,
     openAsset,
@@ -84,15 +110,22 @@ const GridItem = memo(function GridItem({
         <AssetContextMenu asset={asset} onOpen={() => openAsset(asset)}>
             <SelectableCard
                 asset={asset}
-                className="group/item relative flex flex-col overflow-hidden rounded-lg border bg-card text-card-foreground transition-shadow select-none hover:shadow-md"
+                // `isolate`: the overlays of the thumbnail stay under the
+                // sticky section dividers
+                className="group/item relative isolate flex flex-col overflow-hidden rounded-lg border bg-card text-card-foreground transition-shadow select-none hover:shadow-md"
                 onItemClick={onItemClick}
                 onItemDoubleClick={onItemDoubleClick}
             >
                 <div
                     className="relative overflow-hidden bg-media-bg"
-                    style={{height: thumbSize}}
+                    style={masonry ? undefined : {height: thumbSize}}
                 >
-                    <AssetThumb asset={asset} size={thumbSize} previewOnHover />
+                    <AssetThumb
+                        asset={asset}
+                        size={thumbSize}
+                        natural={masonry}
+                        previewOnHover
+                    />
                     <AssetItemControls
                         asset={asset}
                         actions={itemActions?.(asset)}
@@ -107,7 +140,8 @@ const GridItem = memo(function GridItem({
                         />
                     ) : null}
                 </div>
-                {hasProfile ? (
+                {/* Masonry: the thumbnail alone */}
+                {masonry ? null : hasProfile ? (
                     <GridCardZones
                         asset={asset}
                         items={gridItems}

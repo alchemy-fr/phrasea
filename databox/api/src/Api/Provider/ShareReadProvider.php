@@ -15,6 +15,7 @@ use App\Api\Traits\ItemProviderAwareTrait;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Share;
 use App\Entity\Core\TermsVersion;
 use App\Repository\Core\AssetRenditionRepository;
@@ -92,6 +93,7 @@ final class ShareReadProvider implements ProviderInterface
                 continue;
             }
             if ($this->isGranted(AbstractVoter::READ, $rendition)) {
+                $file = $rendition->getFile();
                 $item->alternateUrls[] = new ShareAlternateUrlOutput(
                     $definition->getName(),
                     $this->urlGenerator->generate('share_public_rendition', [
@@ -100,8 +102,12 @@ final class ShareReadProvider implements ProviderInterface
                         'asset' => $asset->getId(),
                         'token' => $item->getToken(),
                     ], UrlGeneratorInterface::ABS_URL),
-                    $rendition->getFile()->getType(),
+                    $file->getType(),
                     $asset->getId(),
+                    $rendition->getId(),
+                    $definition->getId(),
+                    $definition->getTranslatedField(RenditionDefinition::TR_FIELD_NAME, $this->getPreferredLocales($definition->getWorkspace()), $definition->getName()),
+                    null !== $file->getSize() ? (int) $file->getSize() : null,
                 );
             }
         }

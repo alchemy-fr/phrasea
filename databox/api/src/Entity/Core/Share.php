@@ -152,7 +152,7 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     /**
      * @var ShareAlternateUrlOutput[]
      */
-    #[Groups([self::GROUP_READ])]
+    #[Groups([self::GROUP_PUBLIC_READ, self::GROUP_READ])]
     public array $alternateUrls = [];
 
     /**

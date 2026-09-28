@@ -147,13 +147,15 @@ function AttributeSingleValue({
     );
 }
 
+/** One line per value, in the given display format (the default one if none) */
 export function formatValueForCopy(
     definition: AttributeDefinitionOrBuiltIn,
     attribute: Attribute | Attribute[],
-    ctx: ReturnType<typeof useFormatContext>
+    ctx: ReturnType<typeof useFormatContext>,
+    format?: string
 ): string {
     const list = Array.isArray(attribute) ? attribute : [attribute];
     const def = getAttributeType(definition.type);
 
-    return list.map(a => def.formatString(a.value, undefined, ctx)).join('\n');
+    return list.map(a => def.formatString(a.value, format, ctx)).join('\n');
 }

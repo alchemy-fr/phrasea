@@ -3,7 +3,7 @@ import {create} from 'zustand';
 import {api} from '@/lib/api/http';
 import {deepEquals} from '@/lib/utils/misc';
 
-export type LayoutMode = 'grid' | 'list';
+export type LayoutMode = 'grid' | 'masonry' | 'list';
 
 /** How thumbnails fill their box: `contain` keeps the whole image, `cover` crops it */
 export type ThumbFit = 'contain' | 'cover';

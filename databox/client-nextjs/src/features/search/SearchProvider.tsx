@@ -42,6 +42,11 @@ import {iri} from '@/lib/utils/iri';
 export type SearchContextValue = SearchState & {
     /** Stable checksum of the effective search (undefined when nothing is searched) */
     checksum: string;
+    /**
+     * URL of the search screen showing this search: the way back to it from
+     * any other route
+     */
+    url: string;
     reloadInc: number;
     hasSearch: boolean;
     /** ids of collections / workspaces currently filtered */
@@ -71,6 +76,12 @@ export type SearchContextValue = SearchState & {
 };
 
 const SearchContext = createContext<SearchContextValue | null>(null);
+
+function searchUrl(basePath: string, state: SearchState): string {
+    const qs = searchStateToParams(state).toString();
+
+    return qs ? `${basePath}?${qs}` : basePath;
+}
 
 export function SearchProvider({
     children,
@@ -106,15 +117,16 @@ export function SearchProvider({
 
     const commit = useCallback(
         (next: SearchState): boolean => {
-            const params = searchStateToParams(next);
-            const qs = params.toString();
-            const currentQs = searchStateToParams(stateRef.current).toString();
+            const url = searchUrl(basePath, next);
             const onSearchScreen = pathname === basePath;
-            if (qs === currentQs && onSearchScreen) {
+            if (
+                url === searchUrl(basePath, stateRef.current) &&
+                onSearchScreen
+            ) {
                 return false;
             }
             // From any other route (dialog, viewer...), go to the search screen
-            router.push(`${basePath}${qs ? `?${qs}` : ''}`, {scroll: false});
+            router.push(url, {scroll: false});
 
             return true;
         },
@@ -240,6 +252,7 @@ export function SearchProvider({
         return {
             ...state,
             checksum: searchChecksum(state),
+            url: searchUrl(basePath, state),
             reloadInc,
             hasSearch,
             collections: idsOf(BuiltInAttribute.Collection),
@@ -312,7 +325,16 @@ export function SearchProvider({
             },
             reload: () => setReloadInc(i => i + 1),
         };
-    }, [state, reloadInc, setQuery, update, commit, selectFilter, storeEntity]);
+    }, [
+        state,
+        basePath,
+        reloadInc,
+        setQuery,
+        update,
+        commit,
+        selectFilter,
+        storeEntity,
+    ]);
 
     return (
         <SearchContext.Provider value={value}>
