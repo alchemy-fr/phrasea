@@ -20,6 +20,7 @@ use App\Elasticsearch\BuiltInAttribute\CollectionBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\CreatedAtBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\DeletedBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\DirectCollectionBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\FileFamilyBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\WorkspaceBuiltInAttribute;
 use App\Entity\Core\Collection;
 use App\Tests\Attribute\Type\AttributeTypeRegistryTestFactory;
@@ -64,7 +65,7 @@ class AQLToESQueryTest extends TestCase
 
         $attributeTypeRegistry = AttributeTypeRegistryTestFactory::create();
 
-        $container = new class([WorkspaceBuiltInAttribute::getKey() => fn () => new WorkspaceBuiltInAttribute($em), AssetStatusBuiltInAttribute::getKey() => fn () => new AssetStatusBuiltInAttribute($translator), DeletedBuiltInAttribute::getKey() => fn () => new DeletedBuiltInAttribute(), CreatedAtBuiltInAttribute::getKey() => fn () => new CreatedAtBuiltInAttribute(), CollectionBuiltInAttribute::getKey() => fn () => new CollectionBuiltInAttribute($em, $security), DirectCollectionBuiltInAttribute::getKey() => fn () => new DirectCollectionBuiltInAttribute($em, $security)]) implements ServiceProviderInterface {
+        $container = new class([WorkspaceBuiltInAttribute::getKey() => fn () => new WorkspaceBuiltInAttribute($em), AssetStatusBuiltInAttribute::getKey() => fn () => new AssetStatusBuiltInAttribute($translator), DeletedBuiltInAttribute::getKey() => fn () => new DeletedBuiltInAttribute(), CreatedAtBuiltInAttribute::getKey() => fn () => new CreatedAtBuiltInAttribute(), CollectionBuiltInAttribute::getKey() => fn () => new CollectionBuiltInAttribute($em, $security), DirectCollectionBuiltInAttribute::getKey() => fn () => new DirectCollectionBuiltInAttribute($em, $security), FileFamilyBuiltInAttribute::getKey() => fn () => new FileFamilyBuiltInAttribute($translator)]) implements ServiceProviderInterface {
             use ServiceLocatorTrait;
         };
         $builtInAttributeRegistry = new BuiltInAttributeRegistry($container);
@@ -327,6 +328,12 @@ class AQLToESQueryTest extends TestCase
             ], 'fr'],
             ['@workspace="42"', [
                 'term' => ['workspaceId' => '42'],
+            ]],
+            ['@family="image"', [
+                'term' => ['fileFamily' => 'image'],
+            ]],
+            ['@family IN ("audio", "video")', [
+                'terms' => ['fileFamily' => ['audio', 'video']],
             ]],
             ['@workspace=SUBSTRING("42aa", 0, 2)', [
                 'term' => ['workspaceId' => '42'],

@@ -86,3 +86,60 @@ describe('SearchProvider', () => {
         });
     });
 });
+
+describe('SearchProvider.selectCollection', () => {
+    beforeEach(() => {
+        nav.push.mockReset();
+    });
+
+    const pushedFilters = (call = 0) => {
+        const url: string = nav.push.mock.calls[call][0];
+
+        return new URLSearchParams(url.split('?')[1] ?? '').getAll('f');
+    };
+
+    const collection = (extra: object = {}) =>
+        ({
+            '@id': '/collections/c1',
+            'id': 'c1',
+            'name': 'Folder',
+            ...extra,
+        }) as any;
+
+    it('filters by @collection for a regular collection', () => {
+        renderAt('/assets');
+        act(() => probe.current.selectCollection('c1', collection()));
+        expect(pushedFilters()).toEqual(['@collection:@collection = "c1"']);
+    });
+
+    it('filters by @story for a story collection', () => {
+        renderAt('/assets');
+        act(() =>
+            probe.current.selectCollection(
+                'c1',
+                collection({
+                    name: '',
+                    storyAsset: {
+                        '@id': '/assets/a1',
+                        'id': 'a1',
+                        'name': 'My story',
+                    },
+                })
+            )
+        );
+        expect(pushedFilters()).toEqual(['@story:@story = "a1"']);
+    });
+
+    it('replaces a story filter when selecting a collection', () => {
+        renderAt('/assets');
+        act(() =>
+            probe.current.selectCollection(
+                'c1',
+                collection({name: '', storyAsset: {id: 'a1'}})
+            )
+        );
+        expect(pushedFilters()).toEqual(['@story:@story = "a1"']);
+        act(() => probe.current.selectCollection('c2', collection({id: 'c2'})));
+        expect(pushedFilters(1)).toEqual(['@collection:@collection = "c2"']);
+    });
+});

@@ -550,6 +550,9 @@ importers:
       '@tanstack/react-virtual':
         specifier: ^3.14.11
         version: 3.14.11(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@wavesurfer/react':
+        specifier: ^1.0.12
+        version: 1.0.12(react@19.2.8)(wavesurfer.js@7.12.5)
       ace-builds:
         specifier: ^1.43.3
         version: 1.43.3
@@ -613,6 +616,9 @@ importers:
       vaul:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      wavesurfer.js:
+        specifier: ^7.12.5
+        version: 7.12.5
       zod:
         specifier: ^4.5.4
         version: 4.5.4
@@ -21171,6 +21177,11 @@ snapshots:
   '@wavesurfer/react@1.0.12(react@18.3.1)(wavesurfer.js@7.12.5)':
     dependencies:
       react: 18.3.1
+      wavesurfer.js: 7.12.5
+
+  '@wavesurfer/react@1.0.12(react@19.2.8)(wavesurfer.js@7.12.5)':
+    dependencies:
+      react: 19.2.8
       wavesurfer.js: 7.12.5
 
   '@webassemblyjs/ast@1.14.1':

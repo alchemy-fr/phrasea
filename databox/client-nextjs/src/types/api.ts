@@ -99,6 +99,8 @@ export enum AttributeType {
     DateTime = 'date_time',
     Duration = 'duration',
     Entity = 'entity',
+    /** Client-side type of the `@family` built-in (a keyword for the API) */
+    FileFamily = 'file_family',
     FileType = 'file_type',
     GeoPoint = 'geo_point',
     Html = 'html',

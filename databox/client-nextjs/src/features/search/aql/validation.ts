@@ -36,6 +36,7 @@ export const rawTypeMap: Record<AttributeType, RawType> = {
     [AttributeType.Rendition]: RawType.String,
     [AttributeType.FileSize]: RawType.Number,
     [AttributeType.FileType]: RawType.Keyword,
+    [AttributeType.FileFamily]: RawType.Keyword,
     [AttributeType.Tag]: RawType.Id,
     [AttributeType.Text]: RawType.String,
     [AttributeType.Textarea]: RawType.String,

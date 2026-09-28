@@ -7,6 +7,7 @@ export enum BuiltInAttribute {
     DocUniqueId = '@docUniqueId',
     EditedAt = '@editedAt',
     FileExtension = '@extension',
+    FileFamily = '@family',
     FileName = '@filename',
     HasSource = '@hasSource',
     FileSize = '@size',
