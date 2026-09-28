@@ -137,8 +137,16 @@ export function DisplayOptionsMenu({
                     />
                     <Row
                         label={t(
+                            'display.play_on_hover',
+                            'Play media on hover'
+                        )}
+                        checked={display.playOnHover}
+                        onChange={v => patch({playOnHover: v})}
+                    />
+                    <Row
+                        label={t(
                             'display.autoplay',
-                            'Auto play video previews'
+                            'Auto play media in preview'
                         )}
                         checked={display.playVideos}
                         onChange={v => patch({playVideos: v})}

@@ -13,6 +13,8 @@ export type RequestOptions = {
     json?: unknown;
     body?: BodyInit;
     timeout?: number | false;
+    /** Let the request outlive the page (sent while it unloads) */
+    keepalive?: boolean;
 };
 
 export class ApiError extends Error {
@@ -215,7 +217,16 @@ function isAbsolute(path: string): boolean {
 }
 
 function toKyOptions(
-    {params, anonymous, signal, headers, json, body, timeout}: RequestOptions,
+    {
+        params,
+        anonymous,
+        signal,
+        headers,
+        json,
+        body,
+        timeout,
+        keepalive,
+    }: RequestOptions,
     method: string,
     url: string
 ): Options {
@@ -234,6 +245,7 @@ function toKyOptions(
         json,
         body,
         timeout,
+        keepalive,
         context: {anonymous} satisfies Context,
         ...(isAbsolute(url) ? {prefix: ''} : {}),
     };

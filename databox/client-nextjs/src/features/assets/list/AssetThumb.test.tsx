@@ -3,6 +3,10 @@ import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {I18nextProvider} from 'react-i18next';
 import {createI18n} from '@/i18n';
+import {
+    defaultDisplayPreferences,
+    usePreferencesStore,
+} from '@/features/preferences/store';
 import type {Asset} from '@/types/api';
 import {AssetThumb} from './AssetThumb';
 
@@ -13,8 +17,18 @@ const api = vi.hoisted(() => ({
 }));
 vi.mock('@/lib/api/assets', () => api);
 vi.mock('@/features/assets/player/AudioPlayer', () => ({
-    AudioPlayer: ({controls}: {controls?: boolean}) => (
-        <div data-testid="audio-player" data-controls={controls ? '1' : '0'} />
+    AudioPlayer: ({
+        controls,
+        playing,
+    }: {
+        controls?: boolean;
+        playing?: boolean;
+    }) => (
+        <div
+            data-testid="audio-player"
+            data-controls={controls ? '1' : '0'}
+            data-playing={playing ? '1' : '0'}
+        />
     ),
 }));
 
@@ -31,6 +45,12 @@ function fakeAsset(extra: Partial<Asset>): Asset {
         workspace: {id: 'ws'},
         ...extra,
     } as unknown as Asset;
+}
+
+function setPlayOnHover(playOnHover: boolean) {
+    usePreferencesStore.setState({
+        preferences: {display: {...defaultDisplayPreferences, playOnHover}},
+    });
 }
 
 function renderThumb(asset: Asset) {
@@ -51,6 +71,7 @@ describe('AssetThumb', () => {
         play.mockClear();
         pause.mockClear();
         api.getStoryThumbnails.mockClear();
+        setPlayOnHover(true);
     });
 
     it('plays a video thumbnail only while hovered', () => {
@@ -73,7 +94,22 @@ describe('AssetThumb', () => {
         expect(pause).toHaveBeenCalled();
     });
 
-    it('shows a static waveform for an audio thumbnail', () => {
+    it('keeps a video thumbnail still when playing on hover is off', () => {
+        setPlayOnHover(false);
+        const {container} = renderThumb(
+            fakeAsset({
+                thumbnail: {
+                    id: 'r',
+                    file: {id: 'f', url: 'http://x/v.mp4', type: 'video/mp4'},
+                } as any,
+            })
+        );
+
+        fireEvent.mouseEnter(container.firstElementChild!);
+        expect(play).not.toHaveBeenCalled();
+    });
+
+    it('plays an audio thumbnail only while hovered', () => {
         const {container} = renderThumb(
             fakeAsset({
                 thumbnail: {
@@ -83,8 +119,31 @@ describe('AssetThumb', () => {
                 source: {id: 's', type: 'audio/mp3', extension: 'mp3'} as any,
             })
         );
-        expect(screen.getByTestId('audio-player').dataset.controls).toBe('0');
+        const player = screen.getByTestId('audio-player');
+        expect(player.dataset.controls).toBe('0');
+        expect(player.dataset.playing).toBe('0');
         expect(container.querySelector('img')).toBeNull();
+
+        fireEvent.mouseEnter(container.firstElementChild!);
+        expect(screen.getByTestId('audio-player').dataset.playing).toBe('1');
+        fireEvent.mouseLeave(container.firstElementChild!);
+        expect(screen.getByTestId('audio-player').dataset.playing).toBe('0');
+    });
+
+    it('shows a static waveform when playing on hover is off', () => {
+        setPlayOnHover(false);
+        const {container} = renderThumb(
+            fakeAsset({
+                thumbnail: {
+                    id: 'r',
+                    file: {id: 'f', url: 'http://x/a.mp3', type: 'audio/mp3'},
+                } as any,
+                source: {id: 's', type: 'audio/mp3', extension: 'mp3'} as any,
+            })
+        );
+
+        fireEvent.mouseEnter(container.firstElementChild!);
+        expect(screen.getByTestId('audio-player').dataset.playing).toBe('0');
     });
 
     it('loads and shows the story carousel on hover', async () => {

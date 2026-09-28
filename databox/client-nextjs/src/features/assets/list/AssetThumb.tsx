@@ -18,9 +18,10 @@ import {StoryThumb} from '@/features/assets/list/StoryThumb';
  * falling back to a file type icon. The image fills its box according to the
  * `thumbFit` display preference (whole image vs. cropped cover).
  *
- * Video thumbnails only play while hovered; audio thumbnails (the thumbnail
- * rendition of a sound is a sound) show a static waveform; a story shows the
- * carousel of its items' thumbnails while hovered (see `StoryThumb`).
+ * Video and audio thumbnails (the thumbnail rendition of a sound is a sound,
+ * drawn as a waveform) stay still, and play while hovered when the
+ * `playOnHover` display preference is on; a story shows the carousel of its
+ * items' thumbnails while hovered (see `StoryThumb`).
  *
  * With `previewOnHover`, hovering the file type chip opens the preview popover
  * (see `PreviewProvider`), anchored on the thumbnail; clicking the chip locks
@@ -46,7 +47,7 @@ export function AssetThumb({
 }) {
     const {t} = useTranslation();
     const [hover, setHover] = useState(false);
-    const {thumbFit} = useDisplayPreferences();
+    const {thumbFit, playOnHover} = useDisplayPreferences();
     const preview = usePreview();
     const container = useRef<HTMLDivElement>(null);
     const thumb = asset.thumbnail?.file;
@@ -65,21 +66,22 @@ export function AssetThumb({
     const isAudioThumb = !!url && thumbKind === FileKind.Audio;
     const storyCarousel = !!asset.storyCollection && !asset.deleted;
     const videoRef = useRef<HTMLVideoElement>(null);
+    const playing = hover && playOnHover;
 
-    // A video thumbnail only plays while hovered
+    // A video thumbnail only plays while hovered, when enabled
     useEffect(() => {
         const video = videoRef.current;
         if (!video) {
             return;
         }
-        if (hover) {
+        if (playing) {
             // jsdom has no `play()` implementation (returns undefined)
             video.play()?.catch(() => undefined);
         } else {
             video.pause();
             video.currentTime = 0;
         }
-    }, [hover, url]);
+    }, [playing, url]);
 
     return (
         <div
@@ -111,6 +113,7 @@ export function AssetThumb({
                     <AudioPlayer
                         src={url}
                         controls={false}
+                        playing={playing}
                         height={Math.round((size ?? 200) * 0.4)}
                         className="size-full px-2"
                     />
