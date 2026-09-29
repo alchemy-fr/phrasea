@@ -207,12 +207,12 @@ final readonly class AQLToESQuery
             ])),
             ConditionOperatorEnum::CONTAINS,
             ConditionOperatorEnum::NOT_CONTAINS => $this->wrapInNotQuery(
-                new Query\QueryString(sprintf('*%s*', $value))->setFields([$fieldRaw]),
+                $this->yieldShouldQuery($fieldRaw, $field['locales'], fn (string $fn) => new Query\Wildcard($fn, sprintf('*%s*', $this->escapeWildcard((string) $value)))),
                 ConditionOperatorEnum::NOT_CONTAINS === $operator
             ),
             ConditionOperatorEnum::STARTS_WITH,
             ConditionOperatorEnum::NOT_STARTS_WITH => $this->wrapInNotQuery(
-                new Query\Prefix()->setPrefix($fieldRaw, $value),
+                $this->yieldShouldQuery($fieldRaw, $field['locales'], fn (string $fn) => new Query\Prefix()->setPrefix($fn, $value)),
                 ConditionOperatorEnum::NOT_STARTS_WITH === $operator
             ),
             default => throw new BadRequestHttpException(sprintf('Operator "%s" not implemented', $operator->value)),
@@ -387,6 +387,11 @@ final readonly class AQLToESQuery
         }
 
         return $boolQuery;
+    }
+
+    private function escapeWildcard(string $value): string
+    {
+        return addcslashes($value, '\\*?');
     }
 
     private function createTermQuery(string $fieldName, mixed $value): Query\AbstractQuery

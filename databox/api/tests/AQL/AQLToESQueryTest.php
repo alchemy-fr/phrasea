@@ -430,6 +430,34 @@ class AQLToESQueryTest extends TestCase
                 ],
             ]],
             ['field IN (true, n1)', 'Unsupported operator "IN" in script conditions'],
+            ['field CONTAINS "big world"', [
+                'bool' => [
+                    'should' => [
+                        ['wildcard' => ['attrs.it.field_text_s.raw' => ['value' => '*big world*', 'boost' => 1.0]]],
+                        ['wildcard' => ['attrs.de.field_text_s.raw' => ['value' => '*big world*', 'boost' => 1.0]]],
+                        ['wildcard' => ['attrs._.field_text_s.raw' => ['value' => '*big world*', 'boost' => 1.0]]],
+                    ],
+                ],
+            ]],
+            ['field CONTAINS "a*b?c (d): e/f"', [
+                'wildcard' => ['attrs.fr.field_text_s.raw' => ['value' => '*a\\*b\\?c (d): e/f*', 'boost' => 1.0]],
+            ], 'fr'],
+            ['field DOES NOT CONTAIN "big world"', [
+                'bool' => [
+                    'must_not' => [
+                        ['wildcard' => ['attrs.fr.field_text_s.raw' => ['value' => '*big world*', 'boost' => 1.0]]],
+                    ],
+                ],
+            ], 'fr'],
+            ['field STARTS WITH "big world"', [
+                'bool' => [
+                    'should' => [
+                        ['prefix' => ['attrs.it.field_text_s.raw' => ['value' => 'big world', 'boost' => 1.0]]],
+                        ['prefix' => ['attrs.de.field_text_s.raw' => ['value' => 'big world', 'boost' => 1.0]]],
+                        ['prefix' => ['attrs._.field_text_s.raw' => ['value' => 'big world', 'boost' => 1.0]]],
+                    ],
+                ],
+            ]],
             ['number > othernumber', [
                 'script' => [
                     'script' => [
