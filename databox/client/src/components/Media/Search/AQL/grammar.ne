@@ -60,6 +60,7 @@ operator -> __ ("NOT" __):? "BETWEEN" __ value_expression __ "AND" __ value_expr
     | in_operator {% id %}
     | geo_operator {% id %}
     | simple_operator _ value_expression {% (data) => ({operator: data[0], rightOperand: data[2]}) %}
+    | text_operator _ value_expression (__ "CASE" __ "SENSITIVE"):? {% (data) => ({operator: data[0], rightOperand: data[2], ...(data[3] ? {caseSensitive: true} : {})}) %}
 
 
 geo_operator -> "WITHIN" __ (within_circle_operator | within_rectangle_operator) {% (data) => {
@@ -102,10 +103,11 @@ simple_operator -> "=" {% id %}
     | "<" {% id %}
     | ">=" {% id %}
     | "<=" {% id %}
-    | __ "CONTAINS" {% d => d[1] %}
-    | "DOES" __ "NOT" __ "CONTAIN" {% () => 'NOT_CONTAINS' %}
     | __ "MATCHES" {% d => d[1] %}
     | "DOES" __ "NOT" __ "MATCH" {% () => 'NOT_MATCHES' %}
+
+text_operator -> __ "CONTAINS" {% d => d[1] %}
+    | "DOES" __ "NOT" __ "CONTAIN" {% () => 'NOT_CONTAINS' %}
     | __ "STARTS" __ "WITH" {% () => 'STARTS_WITH' %}
     | "DOES" __ "NOT" __ "START" __ "WITH" {% () => 'NOT_STARTS_WITH' %}
 

@@ -2602,6 +2602,7 @@
         "builder": {
             "add_condition": "Add Condition",
             "add_condition_group": "Add Condition Group",
+            "case_sensitive": "Case sensitive",
             "field": "Field",
             "operator": {
                 "and": "AND",

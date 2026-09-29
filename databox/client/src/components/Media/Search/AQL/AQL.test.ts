@@ -223,6 +223,46 @@ it('parse AQL', function () {
             },
         },
         {
+            query: 'description CONTAINS "Foo Bar" CASE SENSITIVE',
+            result: {
+                expression: {
+                    leftOperand: {field: 'description'},
+                    operator: 'CONTAINS',
+                    rightOperand: {literal: 'Foo Bar'},
+                    caseSensitive: true,
+                },
+            },
+        },
+        {
+            query: 'title DOES NOT START WITH "A" CASE SENSITIVE AND f = 1',
+            result: {
+                expression: {
+                    operator: 'AND',
+                    conditions: [
+                        {
+                            leftOperand: {field: 'title'},
+                            operator: 'NOT_STARTS_WITH',
+                            rightOperand: {literal: 'A'},
+                            caseSensitive: true,
+                        },
+                        {
+                            leftOperand: {field: 'f'},
+                            operator: '=',
+                            rightOperand: 1,
+                        },
+                    ],
+                },
+            },
+        },
+        {
+            query: 'description MATCHES "foo" CASE SENSITIVE',
+            result: undefined,
+        },
+        {
+            query: 'description = "foo" CASE SENSITIVE',
+            result: undefined,
+        },
+        {
             query: 'number > other_number',
             result: {
                 expression: {
