@@ -1,0 +1,110 @@
+services:
+  mailpit:
+    profiles:
+      - parade
+    image: axllent/mailpit:v1.30.5
+    ports:
+      - "${PARADE_MAILPIT_SMTP_PORT:-1028}:1025"
+      - "${PARADE_MAILPIT_UI_PORT:-8028}:8025"
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "/mailpit", "readyz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  parade-migrate:
+    profiles:
+      - parade
+    image: ${PARADE_REGISTRY_NAMESPACE}parade-api:${PARADE_DOCKER_TAG}
+    env_file:
+      - path: ${PARADE_ENV_FILE:-.env}
+        required: false
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://phrasea_parade:phrasea_parade_local@postgres:5432/phrasea_parade}
+    command: ["node", "apps/api/scripts/run-migrations.mjs"]
+    networks:
+      - internal
+    depends_on:
+      - db
+
+  parade-api:
+    profiles:
+      - parade
+    image: ${PARADE_REGISTRY_NAMESPACE}parade-api:${PARADE_DOCKER_TAG}
+    env_file:
+      - path: ${PARADE_ENV_FILE:-.env}
+        required: false
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgres://phrasea_parade:phrasea_parade_local@postgres:5432/phrasea_parade}
+      SMTP_URL: ${SMTP_URL:-smtp://mailpit:1025}
+      MAIL_FROM: ${MAIL_FROM:-parade@example.test}
+      MAIL_FROM_DISPLAY_NAME: ${MAIL_FROM_DISPLAY_NAME_PARADE:-Phrasea Parade}
+      MAIL_REPLY_TO: ${MAIL_REPLY_TO:-}
+      MAIL_ALLOW_ADMIN_SMTP: ${MAIL_ALLOW_ADMIN_SMTP:-false}
+      MAIL_SETTINGS_ENCRYPTION_KEY: ${MAIL_SETTINGS_ENCRYPTION_KEY:-}
+      PARADE_LINK_SIGNING_KEY: ${PARADE_LINK_SIGNING_KEY:-}
+      PARADE_PUBLIC_API_URL: ${PARADE_PUBLIC_API_URL:-http://localhost:3000}
+      PARADE_PUBLIC_URL: ${PARADE_PUBLIC_URL:-http://localhost:5174}
+      PHRASEA_API_URL: ${PHRASEA_API_URL:-https://databox.phrasea.local}
+      KEYCLOAK_ISSUER_URL: ${KEYCLOAK_ISSUER_URL:-https://keycloak.phrasea.local/realms/phrasea}
+      PHRASEA_MEDIA_ALLOWED_HOSTS: ${PHRASEA_MEDIA_ALLOWED_HOSTS:-databox.phrasea.local,media.phrasea.local}
+      MATOMO_URL: ${MATOMO_URL:-https://matomo.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}}
+      MATOMO_SITE_ID: ${MATOMO_SITE_ID:-1}
+      CLIENT_ORIGINS: ${CLIENT_ORIGINS:-http://127.0.0.1:5174,http://localhost:5174}
+    volumes:
+      - ./config/branding.json:/app/config/branding.json:ro
+      - parade_export_data:/var/lib/phrasea-parade/exports
+    networks:
+      - internal
+    ports:
+      - "${PARADE_API_HOST_PORT:-3000}:${API_PORT:-3000}"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:'+(process.env.API_PORT||'3000')+'/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      parade-migrate:
+        condition: service_completed_successfully
+      mailpit:
+        condition: service_healthy
+
+  parade-client:
+    profiles:
+      - parade
+    image: ${PARADE_REGISTRY_NAMESPACE}parade-client:${PARADE_DOCKER_TAG}
+    environment:
+      PARADE_CLIENT_API_URL: ${PARADE_CLIENT_API_URL:-${VITE_API_URL:-http://localhost:3000}}
+      PARADE_CLIENT_KEYCLOAK_URL: ${PARADE_CLIENT_KEYCLOAK_URL:-${VITE_KEYCLOAK_URL:-}}
+      PARADE_CLIENT_KEYCLOAK_REALM: ${PARADE_CLIENT_KEYCLOAK_REALM:-${VITE_KEYCLOAK_REALM:-phrasea}}
+      PARADE_CLIENT_KEYCLOAK_CLIENT_ID: ${PARADE_CLIENT_KEYCLOAK_CLIENT_ID:-${VITE_KEYCLOAK_CLIENT_ID:-phrasea-front}}
+      PARADE_CLIENT_ADMIN_ROLE: ${PARADE_CLIENT_ADMIN_ROLE:-${VITE_PARADE_ADMIN_ROLE:-parade-admin}}
+      PARADE_CLIENT_FUNCTIONAL_ADMIN_ROLE: ${PARADE_CLIENT_FUNCTIONAL_ADMIN_ROLE:-${VITE_PARADE_FUNCTIONAL_ADMIN_ROLE:-parade-functional-admin}}
+      PARADE_CLIENT_TECHNICAL_ADMIN_ROLE: ${PARADE_CLIENT_TECHNICAL_ADMIN_ROLE:-${VITE_PARADE_TECHNICAL_ADMIN_ROLE:-parade-technical-admin}}
+      PARADE_CLIENT_SUPER_ADMIN_ROLE: ${PARADE_CLIENT_SUPER_ADMIN_ROLE:-${VITE_PARADE_SUPER_ADMIN_ROLE:-parade-super-admin}}
+    ports:
+      - "${PARADE_CLIENT_HOST_PORT:-5174}:8080"
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    depends_on:
+      parade-api:
+        condition: service_healthy
+
+volumes:
+  parade_export_data:
