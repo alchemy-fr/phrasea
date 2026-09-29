@@ -9,7 +9,7 @@ image:
                     - image/x-canon-cr2
                     - image/x-olympus-orf
                     - image/x-sony-arw
-                    - image/x-panasonic-raw2
+                    - image/x-panasonic-rw2
                     - image/x-nikon-nef
                     - image/x-adobe-dng
         -
