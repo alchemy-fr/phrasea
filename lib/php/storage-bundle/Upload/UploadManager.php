@@ -15,6 +15,12 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final readonly class UploadManager
 {
+    /**
+     * Part URLs are handed out all at once when the upload is created, so they
+     * must outlive the whole transfer (clients refresh them past this point).
+     */
+    public const string PART_URL_TTL = '+3 hours';
+
     public function __construct(
         private S3Client $client,
         private string $uploadBucket,
@@ -47,23 +53,36 @@ final readonly class UploadManager
 
     public function getSignedUrl(string $uploadId, string $path, int $partNumber): string
     {
-        $params = [
-            'Bucket' => $this->uploadBucket,
-            'Key' => $this->pathPrefix.$path,
-            'PartNumber' => $partNumber,
-            'UploadId' => $uploadId,
-        ];
-
-        $cmd = $this->client->getCommand('UploadPart', $params);
-
-        $request = $this->client->createPresignedRequest($cmd, '+30 minutes');
-
-        return (string) $request->getUri();
+        return $this->getSignedUrls($uploadId, $path, $partNumber, $partNumber)[$partNumber];
     }
 
     /**
-     * @param PartInput[] $parts
+     * Presigned PUT URLs for parts $from..$to (inclusive), keyed by part number.
+     * Signing is local (no S3 round trip), so handing out thousands is cheap.
+     *
+     * @return array<int, string>
      */
+    public function getSignedUrls(string $uploadId, string $path, int $from, int $to): array
+    {
+        if ($from < 1 || $to < $from) {
+            throw new \InvalidArgumentException(sprintf('Invalid part range %d..%d', $from, $to));
+        }
+
+        $urls = [];
+        for ($partNumber = $from; $partNumber <= $to; ++$partNumber) {
+            $cmd = $this->client->getCommand('UploadPart', [
+                'Bucket' => $this->uploadBucket,
+                'Key' => $this->pathPrefix.$path,
+                'PartNumber' => $partNumber,
+                'UploadId' => $uploadId,
+            ]);
+
+            $urls[$partNumber] = (string) $this->client->createPresignedRequest($cmd, self::PART_URL_TTL)->getUri();
+        }
+
+        return $urls;
+    }
+
     /**
      * @param PartInput[] $parts
      */

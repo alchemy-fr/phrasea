@@ -107,9 +107,6 @@ services:
       - CONFIGURATOR_S3_REGION=${S3_REGION}
       - CONFIGURATOR_S3_BUCKET_NAME
       - CONFIGURATOR_S3_USE_PATH_STYLE_ENDPOINT=${S3_USE_PATH_STYLE_ENDPOINT}
-      - S3_MULTIPART_MIN_CHUNK_SIZE
-      - S3_MULTIPART_MAX_CHUNK_SIZE
-      - S3_MULTIPART_MAX_PART_NUMBER
       - S3_MAX_OBJECT_SIZE
       - NOTIFICATIONS_ENABLED
       - SOKETI_KEY
@@ -199,6 +196,11 @@ services:
       - S3_SECRET_KEY
       - S3_REGION
       - S3_USE_PATH_STYLE_ENDPOINT
+      # Multipart upload plan: the API decides the part size and presigns every part
+      - S3_MULTIPART_MIN_CHUNK_SIZE
+      - S3_MULTIPART_MAX_CHUNK_SIZE
+      - S3_MULTIPART_MAX_PART_NUMBER
+      - S3_MAX_OBJECT_SIZE
 
   uploader-api-php:
     logging: *default-logging

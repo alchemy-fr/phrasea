@@ -86,9 +86,6 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
         sentryEnvironment: env.SENTRY_ENVIRONMENT,
         sentryRelease: env.SENTRY_RELEASE,
         upload: {
-            minChunkSize: castInteger(env.S3_MULTIPART_MIN_CHUNK_SIZE),
-            maxChunkSize: castInteger(env.S3_MULTIPART_MAX_CHUNK_SIZE),
-            maxPartNumber: castInteger(env.S3_MULTIPART_MAX_PART_NUMBER),
             maxFileSize:
                 castInteger(uploaderConfig.max_upload_file_size) ??
                 castInteger(env.S3_MAX_OBJECT_SIZE),

@@ -9,9 +9,6 @@ export type AnalyticsConfig = {
 };
 
 export type UploadConfig = {
-    minChunkSize?: Readonly<number>;
-    maxChunkSize?: Readonly<number>;
-    maxPartNumber?: Readonly<number>;
     allowedTypes: Readonly<Accept | undefined>;
     maxFileSize?: Readonly<number>;
 };

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integration\Phrasea\Expose;
 
+use Alchemy\CoreBundle\Upload\MultipartUploader;
 use Alchemy\CoreBundle\Util\LocaleUtil;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
@@ -19,7 +20,6 @@ use App\Integration\Phrasea\PhraseaClientFactory;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Asset\FileFetcher;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class ExposeClient
@@ -32,12 +32,7 @@ final readonly class ExposeClient
         private AttributesResolver $attributesResolver,
         private AttributeTypeRegistry $attributeTypeRegistry,
         private LocaleContext $localeContext,
-        #[Autowire(env: 'int:S3_MULTIPART_MIN_CHUNK_SIZE')]
-        private ?int $minChunkSize,
-        #[Autowire(env: 'int:S3_MULTIPART_MAX_CHUNK_SIZE')]
-        private ?int $maxChunkSize,
-        #[Autowire(env: 'int:S3_MULTIPART_MAX_PART_NUMBER')]
-        private ?int $maxPartNumber,
+        private MultipartUploader $multipartUploader,
     ) {
     }
 
@@ -233,83 +228,19 @@ final readonly class ExposeClient
     ): string {
         $source = $asset->getSource();
         $fetchedFilePath = $this->fileFetcher->getFile($source);
-        $fileSize = filesize($fetchedFilePath);
-
-        // @see https://docs.aws.amazon.com/AmazonS3/latest/userguide/qfacts.html
-        $partSize = 500 * 1024 * 1024; // 500Mb
-        if (null !== $this->minChunkSize) {
-            $partSize = max($partSize, $this->minChunkSize);
-        }
-        if (null !== $this->maxChunkSize) {
-            $partSize = min($partSize, $this->maxChunkSize);
-        }
-        if (null !== $this->maxPartNumber && ceil($fileSize / $partSize) > $this->maxPartNumber) {
-            $partSize = (int) ceil($fileSize / $this->maxPartNumber);
-        }
 
         try {
-            $uploadsData = [
-                'filename' => $source->getOriginalName() ?? 'file',
-                'type' => $source->getType(),
-                'size' => (int) $source->getSize(),
-            ];
-
-            $resUploads = $this->create($config, $integrationToken)
-                ->request('POST', '/uploads', [
-                    'json' => $uploadsData,
-                ])
-                ->toArray();
-
-            $mUploadId = $resUploads['id'];
-
-            $parts['Parts'] = [];
-
-            try {
-                $fd = fopen($fetchedFilePath, 'r');
-                $alreadyUploaded = 0;
-
-                $partNumber = 1;
-
-                $retryCount = 3;
-
-                while (($fileSize - $alreadyUploaded) > 0) {
-                    $resUploadPart = $this->create($config, $integrationToken)
-                        ->request('POST', '/uploads/'.$mUploadId.'/part', [
-                            'json' => ['part' => $partNumber],
-                        ])
-                        ->toArray();
-
-                    if (($fileSize - $alreadyUploaded) < $partSize) {
-                        $partSize = $fileSize - $alreadyUploaded;
-                    }
-
-                    $headerPutPart = $this->putPart($resUploadPart['url'], $fd, $partSize, $retryCount);
-
-                    $alreadyUploaded += $partSize;
-
-                    $parts['Parts'][$partNumber] = [
-                        'PartNumber' => $partNumber,
-                        'ETag' => current($headerPutPart['etag']),
-                    ];
-
-                    ++$partNumber;
-                }
-
-                fclose($fd);
-            } catch (\Throwable  $e) {
-                $this->create($config, $integrationToken)
-                    ->request('DELETE', '/uploads/'.$mUploadId);
-
-                throw $e;
-            }
+            $multipart = $this->multipartUploader->upload(
+                $this->create($config, $integrationToken),
+                $fetchedFilePath,
+                $source->getOriginalName() ?? 'file',
+                $source->getType(),
+            );
 
             $data = array_merge([
                 'publication_id' => $publicationId,
                 'asset_id' => $asset->getId(),
-                'multipart' => [
-                    'uploadId' => $mUploadId,
-                    'parts' => $parts['Parts'],
-                ],
+                'multipart' => $multipart,
             ], $properties);
 
             $pubAsset = $this->create($config, $integrationToken)
@@ -317,7 +248,6 @@ final readonly class ExposeClient
                     'json' => $data,
                 ])
                 ->toArray();
-
         } finally {
             @unlink($fetchedFilePath);
         }
@@ -392,36 +322,5 @@ final readonly class ExposeClient
     ): void {
         $this->create($config, $integrationToken)
             ->request('DELETE', '/sub-definitions/'.$subDefinitionId);
-    }
-
-    private function putPart(string $url, mixed &$handleFile, int $partSize, int $retryCount): array
-    {
-        if ($retryCount > 0) {
-            --$retryCount;
-            try {
-                $maxToRead = $partSize;
-                $alreadyRead = 0;
-
-                return $this->uploadClient->request('PUT', $url, [
-                    'headers' => [
-                        'Content-Length' => $partSize,
-                    ],
-                    'body' => function ($size) use (&$handleFile, $maxToRead, &$alreadyRead): mixed {
-                        $toRead = min($size, $maxToRead - $alreadyRead);
-                        $alreadyRead += $toRead;
-
-                        return fread($handleFile, $toRead);
-                    },
-                ])->getHeaders();
-            } catch (\Throwable $e) {
-                if (0 == $retryCount) {
-                    throw $e;
-                }
-
-                return $this->putPart($url, $handleFile, $partSize, $retryCount);
-            }
-        } else {
-            return [];
-        }
     }
 }

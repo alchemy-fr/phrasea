@@ -4,15 +4,20 @@ FROM ${REGISTRY_NAMESPACE}nodejs-base:${BASE_TAG} AS deps
 
 COPY --chown=node:node package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 COPY --chown=node:node ./databox/client-nextjs/package.json ./databox/client-nextjs/package.json
+# Workspace libraries (and the ones they depend on)
+COPY --chown=node:node ./lib/js/api/package.json ./lib/js/api/package.json
+COPY --chown=node:node ./lib/js/core/package.json ./lib/js/core/package.json
 
 USER node
-RUN pnpm install --filter databox-client-nextjs --frozen-lockfile \
+RUN pnpm install --filter "databox-client-nextjs..." --frozen-lockfile \
     && mkdir -p /srv/workspace/phrasea/databox/client-nextjs/.next
 
 ############
 
 FROM deps AS client-dev
 
+COPY --chown=node:node ./lib/js/api ./lib/js/api
+COPY --chown=node:node ./lib/js/core ./lib/js/core
 COPY --chown=node:node ./databox/client-nextjs ./databox/client-nextjs
 WORKDIR /srv/workspace/phrasea/databox/client-nextjs
 ENV NODE_OPTIONS=
@@ -23,6 +28,8 @@ CMD ["pnpm", "dev"]
 
 FROM deps AS client-build
 
+COPY --chown=node:node ./lib/js/api ./lib/js/api
+COPY --chown=node:node ./lib/js/core ./lib/js/core
 COPY --chown=node:node ./databox/client-nextjs ./databox/client-nextjs
 WORKDIR /srv/workspace/phrasea/databox/client-nextjs
 ENV NODE_OPTIONS=--max-old-space-size=4096 \

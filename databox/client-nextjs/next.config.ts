@@ -34,6 +34,8 @@ const nextConfig: NextConfig = {
         optimizePackageImports: ['lucide-react', 'radix-ui', 'date-fns'],
     },
     turbopack: {},
+    // Workspace libraries are shipped as TypeScript sources
+    transpilePackages: ['@alchemy/api'],
     async redirects() {
         return [
             {
