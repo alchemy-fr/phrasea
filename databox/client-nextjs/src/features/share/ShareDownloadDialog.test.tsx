@@ -121,7 +121,7 @@ describe('ShareDownloadDialog', () => {
         expect(screen.getAllByTestId('share-download-rendition')).toHaveLength(
             2
         );
-        expect(screen.getByText('2 file(s)')).toBeTruthy();
+        expect(screen.getByText('2 files')).toBeTruthy();
         act(() => {
             fireEvent.click(screen.getByRole('checkbox', {name: /Web/}));
         });

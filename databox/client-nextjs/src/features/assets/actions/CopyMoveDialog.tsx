@@ -51,7 +51,7 @@ export function CopyMoveDialog({
         if (mode === 'move') {
             await moveAssets(ids, destination!.iri);
             toast.success(
-                t('asset.move.done', '{{count}} asset(s) moved', {
+                t('asset.move.done', '{{count}} assets moved', {
                     count: ids.length,
                 })
             );
@@ -63,7 +63,7 @@ export function CopyMoveDialog({
                 {withAttributes, withTags}
             );
             toast.success(
-                t('asset.copy.done', '{{count}} asset(s) copied', {
+                t('asset.copy.done', '{{count}} assets copied', {
                     count: ids.length,
                 })
             );
@@ -79,10 +79,10 @@ export function CopyMoveDialog({
             size="md"
             title={
                 mode === 'move'
-                    ? t('asset.move.title', 'Move {{count}} asset(s)', {
+                    ? t('asset.move.title', 'Move {{count}} assets', {
                           count: ids.length,
                       })
-                    : t('asset.copy.title', 'Copy {{count}} asset(s)', {
+                    : t('asset.copy.title', 'Copy {{count}} assets', {
                           count: ids.length,
                       })
             }

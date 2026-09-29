@@ -15,6 +15,7 @@ use App\Entity\Discussion\Thread;
 use App\Repository\Discussion\ThreadRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Discussion\DiscussionPusher;
+use App\Service\Discussion\MessageAttachmentManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -27,6 +28,7 @@ class PostMessageProcessor implements ProcessorInterface
         private readonly MessageBusInterface $bus,
         private readonly ThreadRepository $threadRepository,
         private readonly DiscussionPusher $discussionPusher,
+        private readonly MessageAttachmentManager $attachmentManager,
     ) {
     }
 
@@ -56,8 +58,8 @@ class PostMessageProcessor implements ProcessorInterface
         $message = new Message();
         $message->setThread($thread);
         $message->setAuthorId($user->getId());
-        $message->setContent($data->content);
-        $message->setAttachments($data->attachments);
+        $message->setContent($data->content ?? '');
+        $message->setAttachments($this->attachmentManager->handleNewAttachments($thread, $data->attachments));
         $this->em->persist($message);
         $this->em->flush();
 

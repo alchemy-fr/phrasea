@@ -65,6 +65,7 @@ export function GlobalToasts() {
                                   'upload.toast.progress',
                                   '{{done}} / {{total}} uploaded',
                                   {
+                                      count: done,
                                       done,
                                       total,
                                   }

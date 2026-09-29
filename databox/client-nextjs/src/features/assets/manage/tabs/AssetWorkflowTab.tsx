@@ -96,8 +96,8 @@ export function AssetWorkflowTab({asset}: AssetTabProps) {
                                     'medium',
                                     i18n.language
                                 )}
-                                {w.completedAt
-                                    ? ` → ${formatDateTime(w.completedAt, 'medium', i18n.language)}`
+                                {w.endedAt
+                                    ? ` → ${formatDateTime(w.endedAt, 'medium', i18n.language)}`
                                     : ''}
                             </div>
                         </div>

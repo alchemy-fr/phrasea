@@ -6,7 +6,7 @@ import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query';
 import {
     MoreHorizontalIcon,
     PencilIcon,
-    SendIcon,
+    ReplyIcon,
     Trash2Icon,
 } from 'lucide-react';
 import {toast} from 'sonner';
@@ -19,7 +19,6 @@ import {
     putMessage,
 } from '@/lib/api/misc';
 import {Button} from '@/components/ui/button';
-import {Textarea} from '@/components/ui/input';
 import {Avatar, Skeleton} from '@/components/ui/misc';
 import {
     DropdownMenu,
@@ -34,8 +33,15 @@ import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {formatDateTime} from '@/lib/utils/format';
 import {cn} from '@/lib/utils/cn';
 import {useUnsavedChangesPrompt} from '@/lib/navigation/unsavedChanges';
-import {MentionTextarea} from './MentionTextarea';
+import {useAuth} from '@/lib/auth/AuthProvider';
 import {FormattedMessage} from './FormattedMessage';
+import {MessageComposer, MessageComposerHandle} from './MessageComposer';
+import {PostedAttachments} from './MessageAttachments';
+import type {FileAttachmentInput} from './messageAttachments';
+
+/** Message hover actions (always shown on touch screens) */
+const messageActionClass =
+    'opacity-0 group-hover/msg:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 pointer-coarse:opacity-100';
 
 /**
  * Comment thread attached to an entity (asset). Realtime updates through the
@@ -51,15 +57,20 @@ export function Discussion({
     const {t, i18n} = useTranslation();
     const queryClient = useQueryClient();
     const {openModal} = useModals();
+    const {user} = useAuth();
     const [threadId, setThreadId] = useState(initialThreadId);
+    /** The message being written, as stored (see `messageMarkup`) */
     const [draft, setDraft] = useState('');
+    const [attachmentCount, setAttachmentCount] = useState(0);
     const [sending, setSending] = useState(false);
     const [editing, setEditing] = useState<{
         id: string;
         content: string;
     } | null>(null);
+    const [savingEdit, setSavingEdit] = useState(false);
     const [selected, setSelected] = useState<string>();
     const listRef = useRef<HTMLDivElement>(null);
+    const composerRef = useRef<MessageComposerHandle>(null);
     const queryKey = ['thread', threadId];
 
     const messages = useInfiniteQuery({
@@ -73,7 +84,8 @@ export function Discussion({
 
     // A message being written (or edited) must not be lost when leaving
     useUnsavedChangesPrompt(
-        !!draft.trim() ||
+        !!draft ||
+            attachmentCount > 0 ||
             (!!editing &&
                 items.find(m => m.id === editing.id)?.content !==
                     editing.content)
@@ -149,8 +161,11 @@ export function Discussion({
         }
     }, [items.length]);
 
-    const send = async () => {
-        if (!draft.trim()) {
+    const send = async (
+        content: string,
+        attachments: FileAttachmentInput[]
+    ) => {
+        if ((!content && attachments.length === 0) || sending) {
             return;
         }
         setSending(true);
@@ -158,9 +173,10 @@ export function Discussion({
             const message = await postMessage({
                 threadKey,
                 threadId,
-                content: draft.trim(),
+                content,
+                attachments: attachments.length > 0 ? attachments : undefined,
             });
-            setDraft('');
+            composerRef.current?.clear();
             if (!threadId) {
                 // thread created lazily on the first message: reload from the asset
                 setThreadId((message as any).thread?.id ?? threadId);
@@ -175,15 +191,22 @@ export function Discussion({
         }
     };
 
-    const saveEdit = async () => {
-        if (!editing) {
+    const saveEdit = async (content: string) => {
+        if (!editing || !content || savingEdit) {
             return;
         }
-        const m = await putMessage(editing.id, {content: editing.content});
-        upsertLocal(m);
-        setEditing(null);
-        // The update payload is partial: reload the thread
-        void messages.refetch();
+        setSavingEdit(true);
+        try {
+            const m = await putMessage(editing.id, {content});
+            upsertLocal(m);
+            setEditing(null);
+            // The update payload is partial: reload the thread
+            void messages.refetch();
+        } catch (e: any) {
+            toast.error(e?.message);
+        } finally {
+            setSavingEdit(false);
+        }
     };
 
     return (
@@ -217,7 +240,9 @@ export function Discussion({
                         className={cn(
                             'group/msg flex gap-2 rounded-md p-1.5 transition-colors',
                             selected === m.id &&
-                                'bg-success/15 ring-1 ring-success'
+                                'bg-success/15 ring-1 ring-success',
+                            editing?.id === m.id &&
+                                'bg-primary/10 ring-1 ring-primary/40'
                         )}
                     >
                         <Avatar name={m.author?.username ?? '?'} size="sm" />
@@ -241,124 +266,135 @@ export function Discussion({
                                         )}
                                     </span>
                                 </Tooltip>
-                                {m.capabilities?.edit ||
-                                m.capabilities?.delete ? (
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon-xs"
-                                                className="ml-auto opacity-0 group-hover/msg:opacity-100 data-[state=open]:opacity-100"
-                                            >
-                                                <MoreHorizontalIcon />
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            {m.capabilities.edit ? (
-                                                <DropdownMenuItem
-                                                    onSelect={() =>
-                                                        setEditing({
-                                                            id: m.id,
-                                                            content: m.content,
-                                                        })
-                                                    }
-                                                >
-                                                    <PencilIcon />{' '}
-                                                    {t('common.edit', 'Edit')}
-                                                </DropdownMenuItem>
-                                            ) : null}
-                                            {m.capabilities.delete ? (
-                                                <DropdownMenuItem
-                                                    variant="destructive"
-                                                    onSelect={() =>
-                                                        openModal(
-                                                            ConfirmDialog,
-                                                            {
-                                                                title: t(
-                                                                    'discussion.delete.title',
-                                                                    'Delete this message?'
-                                                                ),
-                                                                destructive: true,
-                                                                onConfirm:
-                                                                    async () => {
-                                                                        await deleteMessage(
-                                                                            m.id
-                                                                        );
-                                                                        removeLocal(
-                                                                            m.id
-                                                                        );
-                                                                    },
-                                                            }
-                                                        )
-                                                    }
-                                                >
-                                                    <Trash2Icon />{' '}
-                                                    {t(
-                                                        'common.delete',
-                                                        'Delete'
-                                                    )}
-                                                </DropdownMenuItem>
-                                            ) : null}
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                ) : null}
-                            </div>
-                            {editing?.id === m.id ? (
-                                <div className="mt-1 space-y-1">
-                                    <Textarea
-                                        value={editing.content}
-                                        onChange={e =>
-                                            setEditing({
-                                                id: m.id,
-                                                content: e.target.value,
-                                            })
+                                <MessageActions
+                                    message={m}
+                                    onReply={() => {
+                                        // Replying to oneself quotes the
+                                        // message, to others mentions them
+                                        if (user && m.author?.id === user.id) {
+                                            composerRef.current?.quote(
+                                                m.content
+                                            );
+                                        } else if (m.author) {
+                                            composerRef.current?.mention(
+                                                m.author
+                                            );
                                         }
-                                        className="min-h-16 text-sm"
-                                        autoFocus
-                                    />
-                                    <div className="flex justify-end gap-1">
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => setEditing(null)}
-                                        >
-                                            {t('common.cancel', 'Cancel')}
-                                        </Button>
-                                        <Button size="sm" onClick={saveEdit}>
-                                            {t('common.save', 'Save')}
-                                        </Button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="text-sm">
-                                    <FormattedMessage content={m.content} />
-                                </div>
-                            )}
+                                    }}
+                                    onEdit={() =>
+                                        setEditing({
+                                            id: m.id,
+                                            content: m.content,
+                                        })
+                                    }
+                                    onDelete={() =>
+                                        openModal(ConfirmDialog, {
+                                            title: t(
+                                                'discussion.delete.title',
+                                                'Delete this message?'
+                                            ),
+                                            destructive: true,
+                                            onConfirm: async () => {
+                                                await deleteMessage(m.id);
+                                                removeLocal(m.id);
+                                                setEditing(e =>
+                                                    e?.id === m.id ? null : e
+                                                );
+                                            },
+                                        })
+                                    }
+                                />
+                            </div>
+                            <div className="text-sm">
+                                <FormattedMessage
+                                    content={m.content}
+                                    currentUserId={user?.id}
+                                />
+                                <PostedAttachments
+                                    attachments={m.attachments}
+                                />
+                            </div>
                         </div>
                     </div>
                 ))}
             </div>
-            <div className="space-y-2">
-                <MentionTextarea
-                    value={draft}
-                    onChange={setDraft}
-                    placeholder={t(
-                        'discussion.placeholder',
-                        'Write a message… (@ to mention, Ctrl+Enter to send)'
-                    )}
-                    onSubmit={send}
-                />
-                <div className="flex justify-end">
-                    <Button
-                        size="sm"
-                        onClick={send}
-                        disabled={!draft.trim()}
-                        loading={sending}
-                    >
-                        <SendIcon /> {t('discussion.send', 'Send')}
-                    </Button>
-                </div>
-            </div>
+            <MessageComposer
+                ref={composerRef}
+                onChange={content =>
+                    editing
+                        ? setEditing(e => (e ? {...e, content} : e))
+                        : setDraft(content)
+                }
+                onAttachmentsChange={setAttachmentCount}
+                onSubmit={send}
+                editing={editing}
+                onSaveEdit={saveEdit}
+                onCancelEdit={() => setEditing(null)}
+                sending={sending || savingEdit}
+                placeholder={t(
+                    'discussion.placeholder',
+                    'Write a message… (@ to mention, Enter to send, Shift+Enter for a new line)'
+                )}
+            />
+        </div>
+    );
+}
+
+function MessageActions({
+    message,
+    onReply,
+    onEdit,
+    onDelete,
+}: {
+    message: ThreadMessage;
+    onReply: () => void;
+    onEdit: () => void;
+    onDelete: () => void;
+}) {
+    const {t} = useTranslation();
+    const {capabilities} = message;
+
+    return (
+        <div className="ml-auto flex items-center">
+            <Tooltip content={t('discussion.reply', 'Reply')}>
+                <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label={t('discussion.reply', 'Reply')}
+                    className={messageActionClass}
+                    onClick={onReply}
+                >
+                    <ReplyIcon />
+                </Button>
+            </Tooltip>
+            {capabilities?.edit || capabilities?.delete ? (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            className={messageActionClass}
+                        >
+                            <MoreHorizontalIcon />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        {capabilities.edit ? (
+                            <DropdownMenuItem onSelect={onEdit}>
+                                <PencilIcon /> {t('common.edit', 'Edit')}
+                            </DropdownMenuItem>
+                        ) : null}
+                        {capabilities.delete ? (
+                            <DropdownMenuItem
+                                variant="destructive"
+                                onSelect={onDelete}
+                            >
+                                <Trash2Icon /> {t('common.delete', 'Delete')}
+                            </DropdownMenuItem>
+                        ) : null}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            ) : null}
         </div>
     );
 }

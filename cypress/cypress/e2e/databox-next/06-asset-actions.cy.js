@@ -80,7 +80,7 @@ describe('Asset actions', () => {
             pickTreeNode('collection', 'Entertainment');
             cy.contains('button', 'Copy').click();
         });
-        expectToastText('1 asset(s) copied');
+        expectToastText('1 asset copied');
         waitForIndexed({'workspaces[]': ctx.workspace.id, 'parents[]': ctx.entertainment.id}, 1);
     });
 
@@ -97,7 +97,7 @@ describe('Asset actions', () => {
             pickTreeNode('collection', 'Entertainment');
             cy.contains('button', 'Move').click();
         });
-        expectToastText('1 asset(s) moved');
+        expectToastText('1 asset moved');
         // The move is processed asynchronously
         waitForAsset(
             ctx.assets[2].id,

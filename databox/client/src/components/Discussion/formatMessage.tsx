@@ -1,43 +1,86 @@
-import nl2br from 'react-nl2br';
-import reactStringReplace from 'react-string-replace';
-import {FreeNode, replaceText} from '../../lib/reactText.tsx';
+import {Fragment, ReactNode} from 'react';
 import {styled} from '@mui/material/styles';
 import {alpha, Theme} from '@mui/material';
+import {BlockNode, InlineNode, parseMessage} from './messageMarkup.ts';
 
-export function formatMessage(value?: string): FreeNode {
+/**
+ * Renders a discussion message (see `messageMarkup.ts` for the format, shared
+ * with the Next.js client): mentions as tags, URLs as links, markdown basics,
+ * line breaks preserved. Only React elements are produced.
+ */
+export function formatMessage(value?: string): ReactNode {
     if (!value) {
-        return [];
+        return null;
     }
 
-    const replaced = reactStringReplace(
-        value,
-        /@\[(.+?)]\((?:.+?)\)/g,
-        (m, index) => {
-            return <UserTag key={index}>@{m}</UserTag>;
-        }
+    return (
+        <MessageBody>
+            {parseMessage(value).map((b, i) => (
+                <Fragment key={i}>{renderBlock(b)}</Fragment>
+            ))}
+        </MessageBody>
     );
+}
 
-    const linkReplaced = reactStringReplace(
-        replaced,
-        /(https?:\/\/\S+)/g,
-        (m, index) => {
-            const truncated = truncateUrl(m, 50);
-
+function renderBlock(block: BlockNode): ReactNode {
+    switch (block.type) {
+        case 'paragraph':
+            return <p>{renderInline(block.children)}</p>;
+        case 'quote':
+            return <blockquote>{renderInline(block.children)}</blockquote>;
+        case 'codeblock':
             return (
-                <a
-                    key={index}
-                    href={m}
-                    title={m}
-                    target="_blank"
-                    rel="noreferrer"
-                >
-                    {truncated}
-                </a>
+                <pre>
+                    <code>{block.text}</code>
+                </pre>
+            );
+        case 'list': {
+            const items = block.items.map((item, j) => (
+                <li key={j}>{renderInline(item)}</li>
+            ));
+
+            return block.ordered ? (
+                <ol start={block.start !== 1 ? block.start : undefined}>
+                    {items}
+                </ol>
+            ) : (
+                <ul>{items}</ul>
             );
         }
-    );
+    }
+}
 
-    return replaceText(linkReplaced, nl2br);
+function renderInline(nodes: InlineNode[]): ReactNode {
+    return nodes.map((n, i) => {
+        switch (n.type) {
+            case 'text':
+                return <Fragment key={i}>{n.text}</Fragment>;
+            case 'br':
+                return <br key={i} />;
+            case 'mention':
+                return <UserTag key={i}>@{n.username}</UserTag>;
+            case 'link':
+                return (
+                    <a
+                        key={i}
+                        href={n.href}
+                        title={n.href}
+                        target="_blank"
+                        rel="noreferrer"
+                    >
+                        {n.label === n.href ? truncateUrl(n.href, 50) : n.label}
+                    </a>
+                );
+            case 'code':
+                return <code key={i}>{n.text}</code>;
+            case 'strong':
+                return <strong key={i}>{renderInline(n.children)}</strong>;
+            case 'em':
+                return <em key={i}>{renderInline(n.children)}</em>;
+            case 'del':
+                return <del key={i}>{renderInline(n.children)}</del>;
+        }
+    });
 }
 
 export const createUserTagStyle = (theme: Theme) => ({
@@ -48,6 +91,42 @@ export const createUserTagStyle = (theme: Theme) => ({
 });
 
 const UserTag = styled('span')(({theme}) => createUserTagStyle(theme));
+
+const MessageBody = styled('div')(({theme}) => ({
+    'overflowWrap': 'anywhere',
+    '& p, & blockquote, & pre, & ul, & ol': {
+        margin: 0,
+        whiteSpace: 'pre-wrap',
+    },
+    '& > * + *': {
+        marginTop: theme.spacing(0.75),
+    },
+    '& ul, & ol': {
+        paddingLeft: theme.spacing(2.5),
+    },
+    '& blockquote': {
+        borderLeft: `2px solid ${theme.palette.divider}`,
+        paddingLeft: theme.spacing(1),
+        color: theme.palette.text.secondary,
+    },
+    '& code': {
+        fontFamily: 'monospace',
+        fontSize: '0.85em',
+        backgroundColor: theme.palette.action.hover,
+        borderRadius: 4,
+        padding: '1px 4px',
+    },
+    '& pre': {
+        'overflowX': 'auto',
+        'backgroundColor': theme.palette.action.hover,
+        'borderRadius': 4,
+        'padding': theme.spacing(0.75, 1),
+        '& code': {
+            backgroundColor: 'transparent',
+            padding: 0,
+        },
+    },
+}));
 
 function truncateUrl(url: string, maxLength: number): string {
     if (url.length <= maxLength) return url;

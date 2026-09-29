@@ -39,6 +39,7 @@ export function AssetToolbar() {
                               'list.selected_of_total',
                               '{{selected}} / {{total}} selected',
                               {
+                                  count: selection.selection.length,
                                   selected: formatNumber(
                                       selection.selection.length,
                                       i18n.language

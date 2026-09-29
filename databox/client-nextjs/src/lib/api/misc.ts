@@ -25,6 +25,7 @@ import {
     User,
     UserType,
     Workflow,
+    WorkflowDetail,
 } from '@/types/api';
 import type {MultipartUpload} from './upload';
 import type {SourceFileInput} from './assets';
@@ -454,7 +455,8 @@ export function postMessage(data: {
     threadKey: string;
     threadId?: string;
     content: string;
-    attachments?: ThreadMessage['attachments'];
+    /** `{type, content}`, or a file to create: `{type: 'file', multipart}` */
+    attachments?: ({type: string} & Record<string, unknown>)[];
 }): Promise<ThreadMessage> {
     return api.post<ThreadMessage>(`/${EntityName.Message}`, data);
 }
@@ -548,22 +550,22 @@ export async function getAssetWorkflows(
     );
 }
 
-export function getWorkflow(id: string): Promise<Workflow> {
-    return api.get<Workflow>(`/${EntityName.Workflow}/${id}`);
+export function getWorkflow(id: string): Promise<WorkflowDetail> {
+    return api.get<WorkflowDetail>(`/${EntityName.Workflow}/${id}`);
 }
 
 export function rerunWorkflowJob(
     workflowId: string,
     jobId: string
-): Promise<Workflow> {
-    return api.post<Workflow>(
+): Promise<WorkflowDetail> {
+    return api.post<WorkflowDetail>(
         `/${EntityName.Workflow}/${workflowId}/jobs/${jobId}/rerun`,
         {}
     );
 }
 
-export function cancelWorkflow(workflowId: string): Promise<Workflow> {
-    return api.post<Workflow>(
+export function cancelWorkflow(workflowId: string): Promise<WorkflowDetail> {
+    return api.post<WorkflowDetail>(
         `/${EntityName.Workflow}/${workflowId}/cancel`,
         {}
     );

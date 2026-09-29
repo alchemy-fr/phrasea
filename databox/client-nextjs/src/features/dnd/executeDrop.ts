@@ -98,7 +98,7 @@ async function dropAssets(
                 queryKey: ['basket-assets', basket.id],
             });
             toast.success(
-                t('basket.added', '{{count}} item(s) added to basket', {
+                t('basket.added', '{{count}} items added to basket', {
                     count,
                 })
             );
@@ -121,7 +121,7 @@ async function dropAssets(
             toast.success(
                 t(
                     'asset.copy.started',
-                    'Copying {{count}} asset(s) to {{name}}…',
+                    'Copying {{count}} assets to {{name}}…',
                     {
                         count,
                         name,
@@ -154,12 +154,12 @@ async function dropAssets(
                     target.type === 'story'
                         ? t(
                               'story.assets_added',
-                              '{{count}} asset(s) added to story {{name}}',
+                              '{{count}} assets added to story {{name}}',
                               {count, name}
                           )
                         : t(
                               'collection.assets_added',
-                              '{{count}} asset(s) added to {{name}}',
+                              '{{count}} assets added to {{name}}',
                               {count, name}
                           )
                 );
@@ -168,7 +168,7 @@ async function dropAssets(
                 toast.success(
                     t(
                         'asset.move.started',
-                        'Moving {{count}} asset(s) to {{name}}…',
+                        'Moving {{count}} assets to {{name}}…',
                         {
                             count,
                             name,
@@ -186,7 +186,7 @@ async function dropAssets(
                 toast.success(
                     t(
                         'asset.copy.started',
-                        'Copying {{count}} asset(s) to {{name}}…',
+                        'Copying {{count}} assets to {{name}}…',
                         {
                             count,
                             name,
@@ -237,7 +237,7 @@ async function confirmDuplication(
     return confirm({
         title: t(
             'asset.copy.confirm_workspace',
-            'Duplicate {{count}} asset(s) into "{{name}}"?',
+            'Duplicate {{count}} assets into "{{name}}"?',
             {
                 count: payload.assets.length,
                 name: targetName(target) || t('dnd.untitled', 'untitled'),

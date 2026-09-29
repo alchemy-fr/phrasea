@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import {Facet, FacetType} from '@/types/api';
 import {useResults} from '../ResultProvider';
-import {Input} from '@/components/ui/input';
+import {FilterInput} from '@/components/ui/filter-input';
 import {Button} from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -160,12 +160,7 @@ export function FacetsPanel() {
             {/* pt-1: the input focus ring would be clipped by the
                 overflowing panel it sits at the very top of. */}
             <div className="flex items-center gap-1 px-2 pt-1 pb-2">
-                <Input
-                    value={filter}
-                    onChange={e => setFilter(e.target.value)}
-                    placeholder={t('common.filter', 'Filter…')}
-                    className="h-8"
-                />
+                <FilterInput value={filter} onValueChange={setFilter} />
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button

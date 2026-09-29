@@ -2,20 +2,24 @@
 
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
-import {PlugIcon} from 'lucide-react';
 import type {ApiFile, Asset} from '@/types/api';
 import {
     getIntegrationsOfContext,
     IntegrationContext,
 } from '@/lib/api/integrations';
-import {InlineLoader} from '@/components/ui/loader';
-import {Badge} from '@/components/ui/misc';
+import {
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+    Badge,
+} from '@/components/ui/misc';
 import {IntegrationPanel} from './IntegrationPanel';
 import {integrationLabel} from '@/features/integrations/integrationLabel';
 
 /**
  * Integrations available for the displayed file (workspace integrations of
- * the `asset-view` context, filtered by supported file type).
+ * the `asset-view` context, filtered by supported file type): one section of
+ * the enclosing `Accordion` per integration, titled with its name.
  */
 export function FileIntegrations({asset, file}: {asset: Asset; file: ApiFile}) {
     const {t} = useTranslation();
@@ -29,44 +33,47 @@ export function FileIntegrations({asset, file}: {asset: Asset; file: ApiFile}) {
             ),
     });
 
-    if (integrations.isLoading) {
-        return <InlineLoader />;
-    }
-    const list = (integrations.data?.items ?? []).filter(
-        i => i.capabilities?.use !== false && i.supported !== false
-    );
-    if (list.length === 0) {
-        return (
-            <p className="text-sm text-muted-foreground">
-                {t(
-                    'integrations.none',
-                    'No integration available for this file'
-                )}
-            </p>
-        );
-    }
-
     return (
-        <div className="space-y-3">
-            {list.map(integration => (
-                <div key={integration.id} className="rounded-md border p-3">
-                    <div className="mb-2 flex items-center gap-2 text-sm font-medium">
-                        <PlugIcon className="size-4 text-muted-foreground" />
-                        {integrationLabel(integration)}
-                        {integration.name ? (
-                            <Badge variant="muted" className="ml-auto">
-                                {integration.integrationName ??
-                                    integration.integration}
-                            </Badge>
-                        ) : null}
-                    </div>
-                    <IntegrationPanel
-                        integration={integration}
-                        asset={asset}
-                        file={file}
-                    />
-                </div>
-            ))}
-        </div>
+        <>
+            {(integrations.data?.items ?? [])
+                .filter(i => i.supported !== false)
+                .map(integration => (
+                    <AccordionItem
+                        key={integration.id}
+                        value={`integration-${integration.id}`}
+                        data-testid="asset-integration"
+                    >
+                        <AccordionTrigger>
+                            <span className="flex min-w-0 flex-1 items-center gap-2">
+                                <span className="truncate">
+                                    {integrationLabel(integration)}
+                                </span>
+                                {integration.name ? (
+                                    <Badge variant="muted">
+                                        {integration.integrationName ??
+                                            integration.integration}
+                                    </Badge>
+                                ) : null}
+                            </span>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                            {integration.capabilities?.use !== false ? (
+                                <IntegrationPanel
+                                    integration={integration}
+                                    asset={asset}
+                                    file={file}
+                                />
+                            ) : (
+                                <p className="text-sm text-muted-foreground">
+                                    {t(
+                                        'integrations.not_allowed_for_use',
+                                        'You are not allowed to use this integration'
+                                    )}
+                                </p>
+                            )}
+                        </AccordionContent>
+                    </AccordionItem>
+                ))}
+        </>
     );
 }

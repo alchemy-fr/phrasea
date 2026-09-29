@@ -50,7 +50,7 @@ export function DragGhost() {
             <div className="min-w-0">
                 <div className="truncate text-sm font-medium">
                     {payload.type === 'assets'
-                        ? t('dnd.ghost.assets', '{{count}} asset(s)', {
+                        ? t('dnd.ghost.assets', '{{count}} assets', {
                               count: payload.assets.length,
                           })
                         : (payload.collection.displayName ??

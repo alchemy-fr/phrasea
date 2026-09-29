@@ -123,14 +123,11 @@ export function AssetSidePanel({
                 </AccordionItem>
             ) : null}
             {isAuthenticated && rendition?.file ? (
-                <AccordionItem value="integrations">
-                    <AccordionTrigger>
-                        {t('asset.view.integrations', 'Integrations')}
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        <FileIntegrations asset={asset} file={rendition.file} />
-                    </AccordionContent>
-                </AccordionItem>
+                <FileIntegrations
+                    key={rendition.file.id}
+                    asset={asset}
+                    file={rendition.file}
+                />
             ) : null}
         </Accordion>
     );

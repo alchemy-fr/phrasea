@@ -119,7 +119,7 @@ export function AssetOperationsTab({asset, refresh}: AssetTabProps) {
                                             toast.success(
                                                 t(
                                                     'asset.restore.done',
-                                                    '{{count}} asset(s) restored',
+                                                    '{{count}} assets restored',
                                                     {count: 1}
                                                 )
                                             );
@@ -140,12 +140,12 @@ export function AssetOperationsTab({asset, refresh}: AssetTabProps) {
                                     title: asset.deleted
                                         ? t(
                                               'asset.delete.title_permanent',
-                                              'Permanently delete {{count}} asset(s)?',
+                                              'Permanently delete {{count}} assets?',
                                               {count: 1}
                                           )
                                         : t(
                                               'asset.delete.title',
-                                              'Delete {{count}} asset(s)?',
+                                              'Delete {{count}} assets?',
                                               {count: 1}
                                           ),
                                     destructive: true,
@@ -161,7 +161,7 @@ export function AssetOperationsTab({asset, refresh}: AssetTabProps) {
                                         toast.success(
                                             t(
                                                 'asset.delete.done',
-                                                '{{count}} asset(s) moved to trash',
+                                                '{{count}} assets moved to trash',
                                                 {count: 1}
                                             )
                                         );

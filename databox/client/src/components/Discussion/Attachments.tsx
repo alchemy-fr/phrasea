@@ -1,6 +1,7 @@
 import {DeserializedMessageAttachment} from '../../types.ts';
 import {Box, Chip} from '@mui/material';
 import {OnAttachmentClick} from './MessageField.tsx';
+import {AttachmentType} from './discussion.ts';
 
 type Props = {
     attachments: DeserializedMessageAttachment[];
@@ -21,13 +22,28 @@ export default function Attachments({attachments, onDelete, onClick}: Props) {
             }}
         >
             {attachments?.map((attachment, index) => {
+                // Files attached from the new client: a download link
+                const fileUrl: string | undefined =
+                    attachment.type === AttachmentType.File
+                        ? attachment.data.url
+                        : undefined;
+
                 return (
                     <div key={index}>
                         <Chip
                             label={attachment.data.name! ?? 'Attachment'}
                             variant="outlined"
+                            {...(fileUrl
+                                ? {
+                                      component: 'a',
+                                      href: fileUrl,
+                                      target: '_blank',
+                                      rel: 'noreferrer',
+                                      clickable: true,
+                                  }
+                                : {})}
                             onClick={
-                                onClick
+                                !fileUrl && onClick
                                     ? () => onClick(attachment, attachments)
                                     : undefined
                             }

@@ -1,7 +1,7 @@
 'use client';
 
 import {ReactNode, useCallback, useState} from 'react';
-import {useTranslation} from 'react-i18next';
+import {Trans, useTranslation} from 'react-i18next';
 import {Input} from './input';
 import {FormDialog} from '@/components/modals/FormDialog';
 import {useModals, type ModalProps} from '@/components/modals/ModalProvider';
@@ -49,20 +49,11 @@ export function ConfirmDialog({
             <>
                 {children}
                 {textToType ? (
-                    <div>
-                        <p className="mb-2 text-sm text-muted-foreground">
-                            {t(
-                                'confirm.type_to_confirm',
-                                'Type "{{text}}" to confirm:',
-                                {text: textToType}
-                            )}
-                        </p>
-                        <Input
-                            autoFocus
-                            value={typed}
-                            onChange={e => setTyped(e.target.value)}
-                        />
-                    </div>
+                    <TypeToConfirm
+                        text={textToType}
+                        value={typed}
+                        onChange={setTyped}
+                    />
                 ) : null}
             </>
         ) : undefined;
@@ -88,6 +79,43 @@ export function ConfirmDialog({
         >
             {body}
         </FormDialog>
+    );
+}
+
+/**
+ * Field asking to type a word before a dangerous action. The word is in a
+ * `<code>` selected as a whole on click, to be copied at once.
+ */
+export function TypeToConfirm({
+    text,
+    value,
+    onChange,
+}: {
+    text: string;
+    value: string;
+    onChange: (value: string) => void;
+}) {
+    return (
+        <div>
+            <p className="mb-2 text-sm text-muted-foreground">
+                <Trans
+                    i18nKey="confirm.type_to_confirm"
+                    defaults="Type <code>{{text}}</code> to confirm:"
+                    values={{text}}
+                    components={{
+                        code: (
+                            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground select-all" />
+                        ),
+                    }}
+                />
+            </p>
+            <Input
+                autoFocus
+                autoComplete="off"
+                value={value}
+                onChange={e => onChange(e.target.value)}
+            />
+        </div>
     );
 }
 

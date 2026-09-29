@@ -9,6 +9,7 @@ use App\Api\Model\Output\ThreadMessageOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Discussion\Message;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Discussion\MessageAttachmentManager;
 use Doctrine\ORM\EntityManagerInterface;
 
 class ThreadMessageOutputTransformer implements OutputTransformerInterface
@@ -20,6 +21,7 @@ class ThreadMessageOutputTransformer implements OutputTransformerInterface
 
     public function __construct(
         private readonly EntityManagerInterface $em,
+        private readonly MessageAttachmentManager $attachmentManager,
     ) {
     }
 
@@ -39,7 +41,7 @@ class ThreadMessageOutputTransformer implements OutputTransformerInterface
         $output->setId($data->getId());
 
         $output->content = $data->getContent();
-        $output->attachments = $data->getAttachments();
+        $output->attachments = $this->attachmentManager->resolveAttachments($data->getAttachments(), $data->getThread());
         $output->thread = $data->getThread();
 
         if ($this->hasGroup([

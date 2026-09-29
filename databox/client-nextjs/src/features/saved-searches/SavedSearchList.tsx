@@ -14,7 +14,7 @@ import {
 import type {SavedSearch} from '@/types/api';
 import {deleteSavedSearch, getSavedSearches} from '@/lib/api/misc';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
-import {Input} from '@/components/ui/input';
+import {FilterInput} from '@/components/ui/filter-input';
 import {Button} from '@/components/ui/button';
 import {
     ContextMenu,
@@ -56,12 +56,7 @@ export function SavedSearchList() {
             defaultOpen
         >
             <div className="px-2 pb-2">
-                <Input
-                    value={filter}
-                    onChange={e => setFilter(e.target.value)}
-                    placeholder={t('common.filter', 'Filter…')}
-                    className="h-8"
-                />
+                <FilterInput value={filter} onValueChange={setFilter} />
             </div>
             {items.length === 0 && !list.isLoading ? (
                 <p className="px-3 pb-3 text-xs text-muted-foreground">

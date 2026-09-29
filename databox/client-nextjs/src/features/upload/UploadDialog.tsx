@@ -212,7 +212,7 @@ export function UploadDialog({
                 {quiet, story}
             );
             toast.success(
-                t('upload.imported', '{{count}} asset(s) imported', {
+                t('upload.imported', '{{count}} assets imported', {
                     count: created.length,
                 })
             );
@@ -266,7 +266,7 @@ export function UploadDialog({
             ).filter((a): a is Asset => !!a);
             if (created.length > 0) {
                 toast.success(
-                    t('upload.done', '{{count}} asset(s) uploaded', {
+                    t('upload.done', '{{count}} assets uploaded', {
                         count: created.length,
                     })
                 );
@@ -283,7 +283,7 @@ export function UploadDialog({
             size="xl"
             className="h-[90dvh]"
             title={t('upload.title', 'Add assets')}
-            submitLabel={t('upload.submit', 'Upload {{count}} file(s)', {
+            submitLabel={t('upload.submit', 'Upload {{count}} files', {
                 count,
             })}
             submitIcon={<UploadCloudIcon />}
@@ -361,7 +361,7 @@ export function UploadDialog({
                                         <span>
                                             {t(
                                                 'upload.file_count',
-                                                '{{count}} file(s)',
+                                                '{{count}} files',
                                                 {count: files.length}
                                             )}
                                         </span>
@@ -407,7 +407,7 @@ export function UploadDialog({
                                 <p className="text-xs text-destructive">
                                     {t(
                                         'upload.invalid_urls',
-                                        '{{count}} invalid URL(s)',
+                                        '{{count}} invalid URLs',
                                         {count: invalidUrls.length}
                                     )}
                                 </p>
@@ -415,7 +415,8 @@ export function UploadDialog({
                             <LabeledControl
                                 label={t(
                                     'upload.import_files',
-                                    'Import the file(s)'
+                                    'Import the files',
+                                    {count: urlList.length}
                                 )}
                                 description={t(
                                     'upload.import_files_help',

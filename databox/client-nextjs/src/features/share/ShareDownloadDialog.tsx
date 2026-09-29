@@ -222,7 +222,7 @@ export function ShareDownloadDialog({
                                         <span className="text-xs text-muted-foreground">
                                             {t(
                                                 'share.download.files',
-                                                '{{count}} file(s)',
+                                                '{{count}} files',
                                                 {count: c.count}
                                             )}
                                         </span>

@@ -80,6 +80,41 @@ export function emptyCondition(): AQLCondition {
     };
 }
 
+function rawTypeOf(
+    definition: AttributeDefinitionOrBuiltIn | undefined
+): RawType | undefined {
+    return definition?.type ? rawTypeMap[definition.type] : undefined;
+}
+
+/** Initial value of a new operand, e.g. `true` for a boolean field */
+function defaultValueFor(
+    definition: AttributeDefinitionOrBuiltIn | undefined
+): AQLValueExpr {
+    return rawTypeOf(definition) === RawType.Boolean ? true : {literal: ''};
+}
+
+/** Adapts the operands to the operator arity, filling the missing ones */
+export function fitValues(
+    values: AQLValueExpr[],
+    operator: AQLOperator,
+    definition: AttributeDefinitionOrBuiltIn | undefined
+): AQLCondition['rightOperand'] {
+    const arity = getOperatorArity(operator);
+    const fill = (i: number) => values[i] ?? defaultValueFor(definition);
+
+    if (arity === 0) {
+        return undefined;
+    }
+    if (arity === true) {
+        return values.length > 0 ? values : [fill(0)];
+    }
+    if (arity === 1) {
+        return fill(0);
+    }
+
+    return Array.from({length: arity}, (_, i) => fill(i));
+}
+
 /** Ensures the root is a logical group so conditions can be appended */
 export function normalizeExpression(
     expression: AQLExpression
@@ -252,23 +287,12 @@ function ConditionRow({
               ? condition.rightOperand
               : [condition.rightOperand];
 
-    const setOperator = (operator: AQLOperator) => {
-        const a = getOperatorArity(operator);
-        let rightOperand: AQLCondition['rightOperand'];
-        if (a === 0) {
-            rightOperand = undefined;
-        } else if (a === true) {
-            rightOperand = values.length > 0 ? values : [{literal: ''}];
-        } else if (a === 1) {
-            rightOperand = values[0] ?? {literal: ''};
-        } else {
-            rightOperand = Array.from(
-                {length: a},
-                (_, i) => values[i] ?? {literal: ''}
-            );
-        }
-        onChange({...condition, operator, rightOperand});
-    };
+    const setOperator = (operator: AQLOperator) =>
+        onChange({
+            ...condition,
+            operator,
+            rightOperand: fitValues(values, operator, definition),
+        });
 
     const setValue = (index: number, value: AQLValueExpr) => {
         if (arity === 1) {
@@ -291,14 +315,21 @@ function ConditionRow({
                     const operator = ops.includes(condition.operator)
                         ? condition.operator
                         : ops[0];
+                    // values typed for the previous field are meaningless
+                    // for a field of another type
+                    const sameType =
+                        rawTypeOf(def) === rawTypeOf(definition) &&
+                        def?.type === definition?.type;
                     onChange({
                         ...condition,
                         leftOperand: {field: slug},
                         operator,
+                        rightOperand: fitValues(
+                            sameType ? values : [],
+                            operator,
+                            def
+                        ),
                     });
-                    if (operator !== condition.operator) {
-                        setTimeout(() => setOperator(operator), 0);
-                    }
                 }}
             />
             <SimpleSelect
@@ -345,7 +376,10 @@ function ConditionRow({
                             onClick={() =>
                                 onChange({
                                     ...condition,
-                                    rightOperand: [...values, {literal: ''}],
+                                    rightOperand: [
+                                        ...values,
+                                        defaultValueFor(definition),
+                                    ],
                                 })
                             }
                         >
@@ -356,7 +390,7 @@ function ConditionRow({
                     Array.from({length: arity}, (_, i) => (
                         <ValueInput
                             key={i}
-                            value={values[i] ?? {literal: ''}}
+                            value={values[i] ?? defaultValueFor(definition)}
                             definition={definition}
                             label={argNames?.[i]}
                             onChange={nv => setValue(i, nv)}
@@ -499,6 +533,7 @@ function ValueInput({
     label?: string;
     onChange: (value: AQLValueExpr) => void;
 }) {
+    const {t} = useTranslation();
     const type = definition?.type;
     const raw = type ? rawTypeMap[type] : undefined;
     const text = valueToInput(value, raw);
@@ -522,6 +557,8 @@ function ValueInput({
             <SimpleSelect
                 size="sm"
                 className="w-28"
+                // anything else (e.g. an empty literal from a parsed query)
+                // shows the placeholder rather than a misleading "Yes"
                 value={
                     value === true
                         ? 'true'
@@ -529,16 +566,17 @@ function ValueInput({
                           ? 'false'
                           : value === null
                             ? 'null'
-                            : 'true'
+                            : undefined
                 }
                 onValueChange={v =>
                     onChange(v === 'true' ? true : v === 'false' ? false : null)
                 }
                 options={[
-                    {value: 'true', label: 'Yes'},
-                    {value: 'false', label: 'No'},
-                    {value: 'null', label: 'Null'},
+                    {value: 'true', label: t('common.yes', 'Yes')},
+                    {value: 'false', label: t('common.no', 'No')},
+                    {value: 'null', label: 'null'},
                 ]}
+                placeholder={t('common.select', 'Select…')}
             />
         );
     }

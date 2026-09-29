@@ -112,7 +112,7 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
                 queryKey: ['basket-assets', basketId],
             });
             toast.success(
-                t('basket.removed', '{{count}} item(s) removed from basket', {
+                t('basket.removed', '{{count}} items removed from basket', {
                     count: itemIds.length,
                 })
             );
@@ -149,7 +149,7 @@ export function BasketViewRoute({basketId}: {basketId: string}) {
                     {basket.data?.name ?? ''}
                 </h1>
                 <span className="text-sm text-muted-foreground">
-                    {t('basket.view.count', '{{count}} item(s)', {
+                    {t('basket.view.count', '{{count}} items', {
                         count: total,
                     })}
                 </span>

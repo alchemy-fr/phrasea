@@ -68,7 +68,7 @@ describe('Baskets', () => {
         assetItem('Alpha').click();
         assetItem('Bravo').click({ctrlKey: true});
         cy.getBySel('selection-actions').contains('button', basketName).click();
-        expectToastText('2 item(s) added to basket');
+        expectToastText('2 items added to basket');
     });
 
     it('adds an asset from the context menu and opens the basket view', () => {
@@ -76,13 +76,13 @@ describe('Baskets', () => {
         makeCurrent(basketName);
         openAssetContextMenu('Charlie');
         cy.menuItem('Add to basket').click();
-        expectToastText('1 item(s) added to basket');
+        expectToastText('1 item added to basket');
 
         openLeftPanelTab('Baskets');
         cy.getBySel('basket-item').contains(basketName).click();
         cy.getBySel('basket-view', {timeout: 30000}).within(() => {
             cy.contains(basketName).should('be.visible');
-            cy.contains('3 item(s)').should('be.visible');
+            cy.contains('3 items').should('be.visible');
             cy.getBySel('asset-item', {timeout: 30000}).should('have.length', 3);
         });
     });
@@ -94,7 +94,7 @@ describe('Baskets', () => {
             cy.getBySel('asset-item', {timeout: 30000}).contains('Charlie').closest('[data-testid=asset-item]').click();
             cy.contains('button', 'Remove from basket').click();
         });
-        expectToastText('1 item(s) removed from basket');
+        expectToastText('1 item removed from basket');
         cy.getBySel('basket-view').findBySel('asset-item').should('have.length', 2);
     });
 

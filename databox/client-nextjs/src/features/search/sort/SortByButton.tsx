@@ -31,7 +31,7 @@ import {
     PopoverTrigger,
 } from '@/components/ui/overlays';
 import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
-import {Input} from '@/components/ui/input';
+import {FilterInput} from '@/components/ui/filter-input';
 import {useSearch} from '../SearchProvider';
 import {BuiltInAttribute, isDefaultSortBy, resolveSortBy} from '../searchState';
 import {useDefinitionsBySearchSlug} from '@/features/attributes/definitionsStore';
@@ -184,11 +184,10 @@ function SortEditor({onClose}: {onClose: () => void}) {
                 <h3 className="text-sm font-semibold">
                     {t('search.sort.title', 'Sort by')}
                 </h3>
-                <Input
+                <FilterInput
                     value={filter}
-                    onChange={e => setFilter(e.target.value)}
-                    placeholder={t('common.filter', 'Filter…')}
-                    className="h-8 w-40"
+                    onValueChange={setFilter}
+                    className="w-40"
                 />
             </div>
             <div className="max-h-72 space-y-1 overflow-y-auto pr-1">

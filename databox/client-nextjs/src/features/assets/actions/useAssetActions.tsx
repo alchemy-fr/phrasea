@@ -177,7 +177,7 @@ export function useAssetActions(
                         toast.success(
                             t(
                                 'basket.added',
-                                '{{count}} item(s) added to basket',
+                                '{{count}} items added to basket',
                                 {count: ids.length}
                             )
                         );

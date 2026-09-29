@@ -523,8 +523,15 @@ export function AccordionContent({
                 'text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down',
                 clipped ? 'overflow-hidden' : 'overflow-visible'
             )}
-            onAnimationStart={() => setClipped(true)}
-            onAnimationEnd={() => setClipped(false)}
+            // Animation events bubble (through portals too): only the panel's
+            // own one counts. A nested infinite animation (a pulsing
+            // skeleton) would otherwise leave the content clipped for good.
+            onAnimationStart={e =>
+                e.target === e.currentTarget && setClipped(true)
+            }
+            onAnimationEnd={e =>
+                e.target === e.currentTarget && setClipped(false)
+            }
             {...props}
         >
             <div className={cn('pt-0 pb-3', className)}>{children}</div>

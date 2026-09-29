@@ -327,7 +327,7 @@ function EntityManager({
                                 openModal(ConfirmDialog, {
                                     title: t(
                                         'entity.delete_selected',
-                                        'Delete {{count}} value(s)?',
+                                        'Delete {{count}} values?',
                                         {count: selected.length}
                                     ),
                                     destructive: true,

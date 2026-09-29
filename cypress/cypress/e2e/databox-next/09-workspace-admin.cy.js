@@ -126,12 +126,13 @@ describe('Workspace administration', () => {
             cy.contains('button', 'Add condition').click();
             cy.getBySel('asset-policy-condition').should('contain', 'Collection');
             cy.getBySel('asset-policy-condition').contains('Sport').click();
-            cy.fieldByLabel('Hide attributes').click();
+            // Action: hide the attribute definition created above
+            cy.contains('button', 'Add action').click();
+            cy.getBySel('asset-policy-action').find('[role=combobox]').first().selectOption('Hide attribute');
+            cy.getBySel('asset-policy-action').find('[role=combobox]').eq(1).selectOption('Author');
         });
-        // Action: the attribute definition created above
-        cy.get('[cmdk-item]').contains('Author', {timeout: 20000}).click();
-        cy.get('body').type('{esc}');
         routeDialog().within(() => {
+            cy.getBySel('asset-policy-action').should('have.length', 1).and('contain', 'Author');
             cy.contains('button', 'Save').click();
         });
         expectToastText(/saved/);

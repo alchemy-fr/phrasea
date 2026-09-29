@@ -8,7 +8,7 @@ import {toast} from 'sonner';
 import type {Asset} from '@/types/api';
 import type {ModalProps} from '@/components/modals/ModalProvider';
 import {FormDialog} from '@/components/modals/FormDialog';
-import {Input} from '@/components/ui/input';
+import {TypeToConfirm} from '@/components/ui/confirm';
 import {
     Checkbox,
     LabeledControl,
@@ -75,10 +75,10 @@ export function DeleteAssetsDialog({
             hardDelete && mode === 'trash'
                 ? t(
                       'asset.delete.done_permanent',
-                      '{{count}} asset(s) permanently deleted',
+                      '{{count}} assets permanently deleted',
                       {count: ids.length}
                   )
-                : t('asset.delete.done', '{{count}} asset(s) moved to trash', {
+                : t('asset.delete.done', '{{count}} assets moved to trash', {
                       count: ids.length,
                   })
         );
@@ -94,10 +94,10 @@ export function DeleteAssetsDialog({
                 hardDelete
                     ? t(
                           'asset.delete.title_permanent',
-                          'Permanently delete {{count}} asset(s)?',
+                          'Permanently delete {{count}} assets?',
                           {count: ids.length}
                       )
-                    : t('asset.delete.title', 'Delete {{count}} asset(s)?', {
+                    : t('asset.delete.title', 'Delete {{count}} assets?', {
                           count: ids.length,
                       })
             }
@@ -129,7 +129,7 @@ export function DeleteAssetsDialog({
                 <Alert variant="warning" icon={<AlertTriangleIcon />}>
                     {t(
                         'asset.delete.shared_warning',
-                        '{{count}} asset(s) are currently shared with a public link.',
+                        '{{count}} assets are currently shared with a public link.',
                         {count: prepare.data.shareCount}
                     )}
                 </Alert>
@@ -185,20 +185,11 @@ export function DeleteAssetsDialog({
                 </RadioGroup>
             ) : null}
             {needsTyping ? (
-                <div>
-                    <p className="mb-1 text-sm text-muted-foreground">
-                        {t(
-                            'confirm.type_to_confirm',
-                            'Type "{{text}}" to confirm:',
-                            {text: confirmWord}
-                        )}
-                    </p>
-                    <Input
-                        autoFocus
-                        value={typed}
-                        onChange={e => setTyped(e.target.value)}
-                    />
-                </div>
+                <TypeToConfirm
+                    text={confirmWord}
+                    value={typed}
+                    onChange={setTyped}
+                />
             ) : null}
         </FormDialog>
     );

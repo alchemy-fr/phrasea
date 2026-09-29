@@ -61,7 +61,7 @@ export function DialogContent({
             >
                 {children}
                 {!hideClose ? (
-                    <DialogPrimitive.Close className="absolute top-3 right-3 rounded-sm p-1 opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:outline-none disabled:pointer-events-none">
+                    <DialogPrimitive.Close className="absolute top-3 right-3 rounded-md p-1 opacity-70 transition-[opacity,background-color] hover:bg-accent hover:opacity-100 focus-visible:ring-2 focus-visible:ring-ring focus:outline-none disabled:pointer-events-none">
                         <XIcon className="size-4" />
                         <span className="sr-only">Close</span>
                     </DialogPrimitive.Close>
@@ -89,7 +89,9 @@ export function DialogBody({className, ...props}: React.ComponentProps<'div'>) {
         <div
             data-slot="dialog-body"
             className={cn(
-                '-mx-6 min-h-0 flex-1 overflow-y-auto px-6',
+                // the vertical padding keeps the focus ring of the first and
+                // last fields out of the scroll clipping
+                '-mx-6 -my-1 min-h-0 flex-1 overflow-y-auto px-6 py-1',
                 className
             )}
             {...props}

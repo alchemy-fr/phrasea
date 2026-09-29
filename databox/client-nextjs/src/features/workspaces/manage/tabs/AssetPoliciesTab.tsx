@@ -25,7 +25,6 @@ import {SimpleSelect} from '@/components/ui/select';
 import {Badge} from '@/components/ui/misc';
 import {GroupSelect, UserSelect} from '@/components/form/selects';
 import {CollectionTreePicker} from '@/components/form/CollectionTreePicker';
-import {AsyncCombobox, ComboOption} from '@/components/form/AsyncCombobox';
 import {getRenditionDefinitions} from '@/lib/api/misc';
 import {getCollection} from '@/lib/api/collections';
 import {getWorkspaceAttributeDefinitions} from '@/lib/api/metadata';
@@ -33,12 +32,16 @@ import {iri, toIris} from '@/lib/utils/iri';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 type AssetPolicyCondition = {field?: string; operator: string; value: string};
+/** The actions `AssetPolicyManager::applyPolicyToOutput` applies */
 const HIDE_RENDITION = 'hide_rendition';
 const HIDE_ATTRIBUTE = 'hide_attribute';
-type ActionName = typeof HIDE_RENDITION | typeof HIDE_ATTRIBUTE;
-/** What `AssetPolicyManager` reads: the id of the definition to hide */
+const ACTION_NAMES: string[] = [HIDE_RENDITION, HIDE_ATTRIBUTE];
+/**
+ * What `AssetPolicyManager` reads: the action name and the id of the
+ * definition it hides. Other keys (actions saved by hand) are kept as is.
+ */
 type AssetPolicyAction = {
-    action: ActionName;
+    action: string;
     definitionId?: string;
     [k: string]: unknown;
 };
@@ -82,11 +85,9 @@ export function AssetPoliciesTab({workspace}: WorkspaceTabProps) {
                         </Badge>
                     ) : null}
                     <Badge variant="muted">
-                        {t(
-                            'asset_policy.actions_count',
-                            '{{count}} action(s)',
-                            {count: p.actions?.length ?? 0}
-                        )}
+                        {t('asset_policy.actions_count', {
+                            count: p.actions?.length ?? 0,
+                        })}
                     </Badge>
                 </span>
             )}
@@ -138,16 +139,12 @@ function PolicyForm({
     const [actions, setActions] = useState<AssetPolicyAction[]>(
         policy?.actions ?? []
     );
-    const hidden = (action: ActionName) =>
-        actions
-            .filter(a => a.action === action)
-            .map(a => definitionIdOf(a, renditions.data, attributes.data))
-            .filter((id): id is string => !!id);
-    const setHidden = (action: ActionName, ids: string[]) =>
-        setActions([
-            ...actions.filter(a => a.action !== action),
-            ...ids.map(definitionId => ({action, definitionId})),
-        ]);
+    const normalizedActions = actions.map(a =>
+        normalizeAction(a, renditions.data, attributes.data)
+    );
+    const incompleteActions = normalizedActions.some(
+        a => ACTION_NAMES.includes(a.action) && !a.definitionId
+    );
     const [saving, setSaving] = useState(false);
     const {markSaved} = useDirtyState({
         name,
@@ -167,11 +164,7 @@ function PolicyForm({
                 users,
                 groups,
                 conditions,
-                actions: (
-                    [HIDE_RENDITION, HIDE_ATTRIBUTE] as ActionName[]
-                ).flatMap(action =>
-                    hidden(action).map(definitionId => ({action, definitionId}))
-                ),
+                actions: normalizedActions,
                 workspace: iri(EntityName.Workspace, workspaceId),
             };
             const saved = policy
@@ -221,44 +214,30 @@ function PolicyForm({
                     workspaceId={workspaceId}
                 />
             </FormRow>
-            <div className="grid gap-3 sm:grid-cols-2">
-                <FormRow
-                    label={t(
-                        'asset_policy.hidden_renditions',
-                        'Hide renditions'
-                    )}
-                    htmlFor="asset-policy-renditions"
-                >
-                    <DefinitionMultiSelect
-                        id="asset-policy-renditions"
-                        options={(renditions.data?.items ?? []).map(r => ({
-                            value: r.id,
-                            label: r.displayName ?? r.name,
-                        }))}
-                        value={hidden(HIDE_RENDITION)}
-                        onChange={ids => setHidden(HIDE_RENDITION, ids)}
-                    />
-                </FormRow>
-                <FormRow
-                    label={t(
-                        'asset_policy.hidden_attributes',
-                        'Hide attributes'
-                    )}
-                    htmlFor="asset-policy-attributes"
-                >
-                    <DefinitionMultiSelect
-                        id="asset-policy-attributes"
-                        options={(attributes.data?.items ?? []).map(d => ({
-                            value: d.id,
-                            label: d.displayName ?? d.name,
-                        }))}
-                        value={hidden(HIDE_ATTRIBUTE)}
-                        onChange={ids => setHidden(HIDE_ATTRIBUTE, ids)}
-                    />
-                </FormRow>
-            </div>
+            <FormRow
+                label={t('asset_policy.actions', 'Actions')}
+                help={t(
+                    'asset_policy.actions_help',
+                    'At least one action is required'
+                )}
+            >
+                <PolicyActions
+                    actions={normalizedActions}
+                    onChange={setActions}
+                    renditions={renditions.data}
+                    attributes={attributes.data}
+                />
+            </FormRow>
             <div className="flex justify-end">
-                <Button onClick={save} loading={saving} disabled={!name.trim()}>
+                <Button
+                    onClick={save}
+                    loading={saving}
+                    disabled={
+                        !name.trim() ||
+                        actions.length === 0 ||
+                        incompleteActions
+                    }
+                >
                     <SaveIcon /> {t('common.save', 'Save')}
                 </Button>
             </div>
@@ -268,51 +247,146 @@ function PolicyForm({
 
 /**
  * Early versions of this screen stored the rendition name / attribute slug
- * (`rendition` / `attribute`) instead of the `definitionId` the API reads.
+ * (`rendition` / `attribute`) instead of the `definitionId` the API reads:
+ * resolved to the id once the definitions are loaded.
  */
-function definitionIdOf(
+function normalizeAction(
     a: AssetPolicyAction,
     renditions?: Page<RenditionDefinition>,
     attributes?: Page<AttributeDefinition>
-): string | undefined {
+): AssetPolicyAction {
     if (a.definitionId) {
-        return a.definitionId;
+        return a;
     }
-    if (a.action === HIDE_RENDITION && typeof a.rendition === 'string') {
-        return renditions?.items.find(r => r.name === a.rendition)?.id;
-    }
-    if (a.action === HIDE_ATTRIBUTE && typeof a.attribute === 'string') {
-        return attributes?.items.find(d => d.slug === a.attribute)?.id;
+    const {rendition, attribute, ...rest} = a;
+    let definitionId: string | undefined;
+    if (a.action === HIDE_RENDITION && typeof rendition === 'string') {
+        definitionId = renditions?.items.find(r => r.name === rendition)?.id;
+    } else if (a.action === HIDE_ATTRIBUTE && typeof attribute === 'string') {
+        definitionId = attributes?.items.find(d => d.slug === attribute)?.id;
     }
 
-    return undefined;
+    return definitionId ? {...rest, definitionId} : a;
 }
 
-function DefinitionMultiSelect({
-    id,
-    options,
-    value,
+/**
+ * Actions of a policy (as the legacy editor): each one picks its type, then
+ * the definition it applies to.
+ */
+function PolicyActions({
+    actions,
     onChange,
+    renditions,
+    attributes,
 }: {
-    id: string;
-    options: ComboOption[];
-    value: string[];
-    onChange: (ids: string[]) => void;
+    actions: AssetPolicyAction[];
+    onChange: (actions: AssetPolicyAction[]) => void;
+    renditions?: Page<RenditionDefinition>;
+    attributes?: Page<AttributeDefinition>;
 }) {
+    const {t} = useTranslation();
+    const update = (i: number, a: AssetPolicyAction) =>
+        onChange(actions.map((x, j) => (j === i ? a : x)));
+    const actionOptions = [
+        {
+            value: HIDE_RENDITION,
+            label: t('asset_policy.action.hide_rendition', 'Hide rendition'),
+        },
+        {
+            value: HIDE_ATTRIBUTE,
+            label: t('asset_policy.action.hide_attribute', 'Hide attribute'),
+        },
+    ];
+    const definitionOptions = (a: AssetPolicyAction) => {
+        const definitions =
+            a.action === HIDE_RENDITION ? renditions : attributes;
+        const options = (definitions?.items ?? []).map(d => ({
+            value: d.id,
+            label: d.displayName ?? d.name,
+        }));
+        // Deleted definition: its id, as is
+        if (
+            definitions &&
+            a.definitionId &&
+            !options.some(o => o.value === a.definitionId)
+        ) {
+            options.push({value: a.definitionId, label: a.definitionId});
+        }
+
+        return options;
+    };
+
     return (
-        <AsyncCombobox
-            id={id}
-            multiple
-            queryKey={['asset-policy-definitions', id, options]}
-            loadOptions={async query =>
-                options.filter(o =>
-                    o.label.toLowerCase().includes(query.toLowerCase())
-                )
-            }
-            resolveValue={async v => options.find(o => o.value === v)}
-            value={value}
-            onChange={onChange}
-        />
+        <div className="space-y-2">
+            {actions.map((a, i) => {
+                const known = ACTION_NAMES.includes(a.action);
+
+                return (
+                    <div
+                        key={i}
+                        className="flex flex-wrap items-center gap-2 rounded-md bg-muted/40 p-2"
+                        data-testid="asset-policy-action"
+                    >
+                        <SimpleSelect
+                            size="sm"
+                            className="w-44"
+                            value={a.action}
+                            onValueChange={action => update(i, {action})}
+                            options={[
+                                ...actionOptions,
+                                // Saved by hand, not applied: shown as is
+                                ...(!known
+                                    ? [{value: a.action, label: a.action}]
+                                    : []),
+                            ]}
+                        />
+                        {known ? (
+                            <SimpleSelect
+                                size="sm"
+                                className="min-w-56 flex-1"
+                                value={a.definitionId}
+                                onValueChange={definitionId =>
+                                    update(i, {...a, definitionId})
+                                }
+                                placeholder={
+                                    a.action === HIDE_RENDITION
+                                        ? t(
+                                              'asset_policy.pick_rendition',
+                                              'Select a rendition…'
+                                          )
+                                        : t(
+                                              'asset_policy.pick_attribute',
+                                              'Select an attribute…'
+                                          )
+                                }
+                                options={definitionOptions(a)}
+                            />
+                        ) : (
+                            <code className="min-w-56 flex-1 truncate text-xs text-muted-foreground">
+                                {JSON.stringify(a)}
+                            </code>
+                        )}
+                        <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() =>
+                                onChange(actions.filter((_, j) => j !== i))
+                            }
+                            aria-label={t('common.remove', 'Remove')}
+                        >
+                            <XIcon />
+                        </Button>
+                    </div>
+                );
+            })}
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onChange([...actions, {action: HIDE_RENDITION}])}
+            >
+                <PlusIcon /> {t('asset_policy.add_action', 'Add action')}
+            </Button>
+        </div>
     );
 }
 

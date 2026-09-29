@@ -53,7 +53,7 @@ import {belowTopBar} from '@/components/layout/chrome';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {debounce, deepEquals} from '@/lib/utils/misc';
 import {Flag} from '@/components/ui/flag';
-import {Input} from '@/components/ui/input';
+import {FilterInput} from '@/components/ui/filter-input';
 import {
     type ResolvedEntity,
     useEntitiesStore,
@@ -926,7 +926,7 @@ export function AttributeBatchEditorRoute() {
                                     ) : def.multiple ? (
                                         t(
                                             'batch_edit.values_count',
-                                            '{{count}} value(s)',
+                                            '{{count}} values',
                                             {count: vals.size}
                                         )
                                     ) : (
@@ -1436,12 +1436,7 @@ function ValuesSuggestions({
 
     return (
         <div className="space-y-2">
-            <Input
-                value={filter}
-                onChange={e => setFilter(e.target.value)}
-                placeholder={t('common.filter', 'Filter…')}
-                className="h-8"
-            />
+            <FilterInput value={filter} onValueChange={setFilter} />
             {distinct.length === 0 ? (
                 <p className="text-xs text-muted-foreground">
                     {t('batch_edit.no_values', 'No value yet')}
@@ -1540,8 +1535,13 @@ function SavePreviewDialog({
             title={t('batch_edit.confirm.title', 'Confirm changes?')}
             description={t(
                 'batch_edit.confirm.help',
-                '{{count}} change(s) on {{assets}} asset(s)',
-                {count: actions.length, assets: assetCount}
+                '{{count}} changes on {{assets}}',
+                {
+                    count: actions.length,
+                    assets: t('batch_edit.confirm.assets', '{{count}} assets', {
+                        count: assetCount,
+                    }),
+                }
             )}
             confirmLabel={t('common.save', 'Save')}
             onConfirm={onConfirm}
@@ -1577,7 +1577,7 @@ function SavePreviewDialog({
                         <span className="text-xs text-muted-foreground">
                             {t(
                                 'batch_edit.confirm.assets',
-                                '{{count}} asset(s)',
+                                '{{count}} assets',
                                 {count: a.assets.length}
                             )}
                         </span>

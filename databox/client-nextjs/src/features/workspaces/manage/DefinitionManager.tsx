@@ -20,7 +20,7 @@ import {
 import {CSS} from '@dnd-kit/utilities';
 import {toast} from 'sonner';
 import {Button} from '@/components/ui/button';
-import {Input} from '@/components/ui/input';
+import {FilterInput} from '@/components/ui/filter-input';
 import {Skeleton, EmptyState} from '@/components/ui/misc';
 import {useModals} from '@/components/modals/ModalProvider';
 import {ConfirmDialog} from '@/components/ui/confirm';
@@ -196,12 +196,7 @@ export function DefinitionManager<D extends DefinitionItem>({
                 )}
             >
                 <div className="flex items-center gap-2">
-                    <Input
-                        value={query}
-                        onChange={e => setQuery(e.target.value)}
-                        placeholder={t('common.filter', 'Filter…')}
-                        className="h-8"
-                    />
+                    <FilterInput value={query} onValueChange={setQuery} />
                     <Button
                         size="sm"
                         data-testid="definition-create"

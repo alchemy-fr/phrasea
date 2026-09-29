@@ -57,7 +57,7 @@ export function RestoreAssetsDialog({
         const ids = restorable.map(a => a.id);
         await restoreAssets(ids);
         toast.success(
-            t('asset.restore.done', '{{count}} asset(s) restored', {
+            t('asset.restore.done', '{{count}} assets restored', {
                 count: ids.length,
             })
         );
@@ -69,7 +69,7 @@ export function RestoreAssetsDialog({
         <FormDialog
             open={open}
             onOpenChange={onOpenChange}
-            title={t('asset.restore.title', 'Restore {{count}} asset(s)?', {
+            title={t('asset.restore.title', 'Restore {{count}} assets?', {
                 count: restorable.length,
             })}
             description={t(

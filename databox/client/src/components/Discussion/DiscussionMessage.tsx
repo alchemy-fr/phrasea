@@ -141,7 +141,7 @@ export default function DiscussionMessage({
                             />
                         ) : (
                             <>
-                                <Typography>
+                                <Typography component={'div'}>
                                     {formatMessage(message.content)}
                                 </Typography>
 

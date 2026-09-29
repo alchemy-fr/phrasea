@@ -828,24 +828,68 @@ export enum WorkflowStatus {
     Cancelled = 3,
 }
 
-export type WorkflowJob = Entity & {
+export enum JobStatus {
+    Triggered = 0,
+    Success = 1,
+    Failure = 2,
+    Skipped = 3,
+    Running = 4,
+    Error = 5,
+    Cancelled = 6,
+}
+
+/**
+ * A job of a workflow run, as dumped by `JsonWorkflowDumper`: the planned job
+ * merged with its last state, when it ran.
+ */
+export type WorkflowJob = {
+    jobId: string;
     name: string;
-    status: number;
-    startedAt?: string;
-    completedAt?: string;
-    errors?: string[];
     needs?: string[];
-    stage?: number;
+    if?: string;
+    with?: Record<string, unknown>;
+    disabled?: boolean;
+    disabledReason?: string;
+    /** Last state of the job, absent until it is triggered */
+    stateId?: string;
+    status?: JobStatus;
+    number?: number;
+    inputs?: Record<string, unknown> | unknown[];
+    outputs?: Record<string, unknown> | unknown[];
+    triggeredAt?: string;
+    startedAt?: string;
+    endedAt?: string;
+    /** Formatted by the API (e.g. `1.234s`, `02m05s`), `-` while running */
+    duration?: string;
+    errors?: string[];
 };
 
+export type WorkflowStage = {
+    stage: number;
+    jobs: WorkflowJob[];
+};
+
+/** Item of the workflow collection */
 export type Workflow = Entity & {
     name: string;
     status: WorkflowStatus;
     startedAt?: string;
-    completedAt?: string;
-    jobs?: WorkflowJob[];
-    stages?: {jobs: WorkflowJob[]}[];
-    event?: {name: string; inputs?: Record<string, unknown>};
+    endedAt?: string | null;
+};
+
+/** A workflow run with its plan (GET /workflows/{id}, rerun, cancel) */
+export type WorkflowDetail = {
+    id: string;
+    name: string;
+    status: WorkflowStatus;
+    startedAt: string;
+    endedAt?: string | null;
+    /** Formatted by the API, `-` while running */
+    duration?: string;
+    stages: WorkflowStage[];
+    context?: Record<string, unknown> | unknown[] | null;
+    outputs?: Record<string, unknown> | unknown[] | null;
+    event?: {name: string; inputs?: Record<string, unknown> | unknown[]};
 };
 
 export type IntegrationData = Entity & {

@@ -54,7 +54,7 @@ export function BasketSwitcher({
             try {
                 await addToCurrent(selection.map(a => a.id));
                 toast.success(
-                    t('basket.added', '{{count}} item(s) added to basket', {
+                    t('basket.added', '{{count}} items added to basket', {
                         count: selection.length,
                     })
                 );

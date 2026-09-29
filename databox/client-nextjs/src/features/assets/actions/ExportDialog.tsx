@@ -64,7 +64,7 @@ export function ExportDialog({
         <FormDialog
             open={open}
             onOpenChange={onOpenChange}
-            title={t('export.dialog.title', 'Export {{count}} asset(s)', {
+            title={t('export.dialog.title', 'Export {{count}} assets', {
                 count: assets.length,
             })}
             description={t(

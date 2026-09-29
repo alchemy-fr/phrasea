@@ -97,12 +97,12 @@ describe('Drag & drop', () => {
         cy.get('[data-testid=asset-item][data-selected=true]').should('have.length', 2);
 
         dragStart(assetItem('Alpha'));
-        cy.getBySel('drag-ghost').should('contain', '2 asset(s)');
+        cy.getBySel('drag-ghost').should('contain', '2 assets');
         dragOver(treeCollection(ctx.entertainment.id));
         cy.getBySel('drag-ghost').should('contain', 'Add to Entertainment');
         drop();
 
-        expectToastText('2 asset(s) added to Entertainment');
+        expectToastText('2 assets added to Entertainment');
         cy.get('[data-testid=asset-item][data-selected=true]').should('have.length', 2);
         cy.waitUntil(
             () => getAsset(ctx.assets[0].id).then(a => (a.collections ?? []).some(c => c.id === ctx.entertainment.id)),
@@ -118,7 +118,7 @@ describe('Drag & drop', () => {
         assetItem('Alpha').click();
 
         dragStart(assetItem('Bravo'));
-        cy.getBySel('drag-ghost').should('contain', '1 asset(s)');
+        cy.getBySel('drag-ghost').should('contain', '1 asset');
         // Hovering the tab trigger opens the baskets
         dragOver(cy.getBySel('left-panel').find('[role=tab][aria-label="Baskets"]'));
         cy.get(`[data-testid=basket-item][data-basket-id="${basket.id}"]`, {timeout: 20000}).should('be.visible');
@@ -126,7 +126,7 @@ describe('Drag & drop', () => {
         cy.getBySel('drag-ghost').should('contain', `Add to ${basketName}`);
         drop();
 
-        expectToastText('1 item(s) added to basket');
+        expectToastText('1 item added to basket');
         cy.get(`[data-testid=basket-item][data-basket-id="${basket.id}"]`).should('contain', '1');
         apiRequest({path: `/baskets/${basket.id}/assets`}).then(body => {
             expect((body['hydra:member'] ?? []).map(i => i.asset.name)).to.deep.equal(['Bravo']);
@@ -144,7 +144,7 @@ describe('Drag & drop', () => {
         cy.getBySel('drag-ghost').should('contain', 'Add to');
         drop();
 
-        expectToastText('1 asset(s) added to story');
+        expectToastText('1 asset added to story');
         cy.waitUntil(
             () => getAsset(ctx.assets[2].id).then(a => (a.collections ?? []).some(c => c.id === story.storyCollection.id)),
             {timeout: 30000, message: 'Charlie in the story'}
@@ -180,7 +180,7 @@ describe('Drag & drop', () => {
         cy.getBySel('drag-ghost').should('contain', 'Move to Sport');
         drop({shiftKey: true});
 
-        expectToastText('Moving 1 asset(s) to Sport');
+        expectToastText('Moving 1 asset to Sport');
         cy.waitUntil(
             () =>
                 getAsset(ctx.assets[1].id).then(a => {
