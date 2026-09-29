@@ -7,6 +7,11 @@ parameters:
     env(S3_PATH_PREFIX): ''
     env(VERIFY_SSL): true
     env(ALLOWED_FILE_TYPES): ''
+    # Multipart upload plan (see doc/tech/Storage/01_s3.md). Defaults match AWS S3 limits.
+    env(S3_MULTIPART_MIN_CHUNK_SIZE): '5242880'
+    env(S3_MULTIPART_MAX_CHUNK_SIZE): '5368709120'
+    env(S3_MULTIPART_MAX_PART_NUMBER): '10000'
+    env(S3_MAX_OBJECT_SIZE): '52776558133248'
     env(S3_ENDPOINT): 'http://localhost:9000'
     s3_endpoint: '%env(S3_ENDPOINT)%'
 
@@ -36,11 +41,22 @@ services:
             $uploadBucket: '%env(S3_BUCKET_NAME)%'
             $pathPrefix: '%env(S3_PATH_PREFIX)%'
 
+    Alchemy\StorageBundle\Upload\MultipartUploadPlanner:
+        arguments:
+            $minChunkSize: '%env(int:S3_MULTIPART_MIN_CHUNK_SIZE)%'
+            $maxChunkSize: '%env(int:S3_MULTIPART_MAX_CHUNK_SIZE)%'
+            $maxPartNumber: '%env(int:S3_MULTIPART_MAX_PART_NUMBER)%'
+            $maxObjectSize: '%env(int:S3_MAX_OBJECT_SIZE)%'
+
     Alchemy\StorageBundle\Command\PruneMultipartUploadsCommand:
         tags:
             - { name: console.command }
 
     Alchemy\StorageBundle\Controller\MultipartUploadPartAction:
+        tags:
+            - { name: controller.service_arguments }
+
+    Alchemy\StorageBundle\Controller\MultipartUploadPartsAction:
         tags:
             - { name: controller.service_arguments }
 

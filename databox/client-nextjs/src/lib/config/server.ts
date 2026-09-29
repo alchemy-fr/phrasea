@@ -92,9 +92,6 @@ export function getServerConfig(): AppConfig {
               }
             : undefined,
         upload: {
-            minChunkSize: int(env.S3_MULTIPART_MIN_CHUNK_SIZE),
-            maxChunkSize: int(env.S3_MULTIPART_MAX_CHUNK_SIZE),
-            maxPartNumber: int(env.S3_MULTIPART_MAX_PART_NUMBER),
             maxFileSize: int(env.S3_MAX_OBJECT_SIZE),
             allowedTypes: parseAllowedTypes(env.ALLOWED_FILE_TYPES),
         },

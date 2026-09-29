@@ -81,15 +81,6 @@ export type HttpClient = {
     setApiLocale: (locale: string) => void;
 } & AxiosInstance;
 
-export type MultipartUpload = {
-    uploadId: string;
-    parts: UploadPart[];
-};
-export type UploadPart = {
-    ETag: string;
-    PartNumber: number;
-};
-
 export interface ApiHydraObjectResponse {
     '@id': string;
     '@type': string;

@@ -62,6 +62,9 @@ services:
       target: client-dev
     volumes:
       - ./databox/client-nextjs:/srv/workspace/phrasea/databox/client-nextjs:rw
+      # Workspace libraries sources (their node_modules come from the image)
+      - ./lib/js/api/src:/srv/workspace/phrasea/lib/js/api/src:ro
+      - ./lib/js/api/index.ts:/srv/workspace/phrasea/lib/js/api/index.ts:ro
 
   expose-api-php:
     environment:

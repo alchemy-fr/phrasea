@@ -5,9 +5,6 @@
  * deployed against any stack.
  */
 export type UploadConfig = {
-    minChunkSize?: number;
-    maxChunkSize?: number;
-    maxPartNumber?: number;
     maxFileSize?: number;
     /** MIME type (may contain a wildcard) => list of allowed extensions */
     allowedTypes: Record<string, string[]>;

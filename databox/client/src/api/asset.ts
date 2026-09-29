@@ -25,9 +25,9 @@ import {
     NormalizedCollectionResponse,
 } from '@alchemy/api';
 import {
-    multipartUpload,
-    MultipartUploadOptions,
-} from '@alchemy/api/src/multiPartUpload.ts';
+    axiosMultipartUpload,
+    AxiosMultipartUploadOptions,
+} from '@alchemy/api/src/axiosMultipartUpload.ts';
 import {promiseConcurrency} from '../lib/promises.ts';
 import {useUploadStore} from '../store/uploadStore.ts';
 import {
@@ -627,24 +627,22 @@ export async function importAssets(
 export async function databoxMultipartUpload(
     apiClient: HttpClient,
     file: File,
-    options: MultipartUploadOptions = {}
+    options: AxiosMultipartUploadOptions = {}
 ): Promise<MultipartUpload> {
-    const {maxPartNumber, minChunkSize, maxChunkSize, maxFileSize} =
-        config.upload;
+    const {maxFileSize} = config.upload;
+    if (maxFileSize && file.size > maxFileSize) {
+        throw new Error(
+            `File size exceeds the maximum allowed size of ${maxFileSize} bytes`
+        );
+    }
 
-    return await multipartUpload(apiClient, file, {
-        ...options,
-        maxPartNumber,
-        minChunkSize,
-        maxChunkSize,
-        maxFileSize,
-    });
+    return await axiosMultipartUpload(apiClient, file, options);
 }
 
 export async function uploadAsset(
     data: InputUploadFile,
     options: CreateAssetsOptions = {},
-    multipartUploadOptions: MultipartUploadOptions = {}
+    multipartUploadOptions: AxiosMultipartUploadOptions = {}
 ): Promise<Asset> {
     const multipart = await databoxMultipartUpload(
         apiClient,

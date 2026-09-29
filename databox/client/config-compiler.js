@@ -120,9 +120,6 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
         pusherKey: env.SOKETI_KEY,
         notifications,
         upload: {
-            minChunkSize: castInteger(env.S3_MULTIPART_MIN_CHUNK_SIZE),
-            maxChunkSize: castInteger(env.S3_MULTIPART_MAX_CHUNK_SIZE),
-            maxPartNumber: castInteger(env.S3_MULTIPART_MAX_PART_NUMBER),
             maxFileSize: castInteger(env.S3_MAX_OBJECT_SIZE),
             allowedTypes: normalizeTypes(env.ALLOWED_FILE_TYPES),
         },

@@ -1,33 +1,34 @@
+import {
+    multipartUpload as runMultipartUpload,
+    type MultipartUpload,
+    type MultipartUploadInit,
+    type MultipartUploadPlan,
+    type MultipartUploadTransport,
+    type UploadPart,
+} from '@alchemy/api';
 import {api} from './http';
 import {getConfig} from '@/lib/config/ConfigProvider';
 import {getMimeTypeFromFile} from '@/lib/utils/mime';
 
-export type UploadPart = {ETag: string; PartNumber: number};
-export type MultipartUpload = {uploadId: string; parts: UploadPart[]};
+export type {MultipartUpload, UploadPart};
 
 export type UploadProgress = {loaded: number; total: number};
 
 export type MultipartUploadOptions = {
     onProgress?: (progress: UploadProgress) => void;
     signal?: AbortSignal;
+    /** Number of parts PUT in parallel */
+    concurrency?: number;
 };
 
-function resolveChunkSize(size: number): number {
-    const {upload} = getConfig();
-    const minChunkSize = upload.minChunkSize ?? 5 * 1024 * 1024;
-    const maxPartNumber = upload.maxPartNumber ?? 10000;
-
-    if (upload.maxFileSize && size > upload.maxFileSize) {
-        throw new Error(
-            `File size exceeds the maximum allowed size of ${upload.maxFileSize} bytes`
-        );
+class PartUploadError extends Error {
+    constructor(
+        message: string,
+        public readonly status: number
+    ) {
+        super(message);
+        this.name = 'PartUploadError';
     }
-    const chunk = Math.max(minChunkSize, Math.ceil(size / maxPartNumber));
-    if (upload.maxChunkSize && chunk > upload.maxChunkSize) {
-        throw new Error('File is too large to be uploaded in parts');
-    }
-
-    return chunk;
 }
 
 /**
@@ -37,13 +38,13 @@ function resolveChunkSize(size: number): number {
 function putBlob(
     url: string,
     blob: Blob,
-    onProgress?: (loaded: number) => void,
-    signal?: AbortSignal
+    onProgress: (loaded: number) => void,
+    signal: AbortSignal
 ): Promise<string> {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open('PUT', url, true);
-        xhr.upload.onprogress = e => onProgress?.(e.loaded);
+        xhr.upload.onprogress = e => onProgress(e.loaded);
         xhr.onerror = () => reject(new Error('Network error during upload'));
         xhr.onabort = () => reject(new DOMException('Aborted', 'AbortError'));
         xhr.onload = () => {
@@ -60,53 +61,59 @@ function putBlob(
                 }
                 resolve(etag);
             } else {
-                reject(new Error(`Upload failed with status ${xhr.status}`));
+                reject(
+                    new PartUploadError(
+                        `Upload failed with status ${xhr.status}`,
+                        xhr.status
+                    )
+                );
             }
         };
-        signal?.addEventListener('abort', () => xhr.abort());
+        if (signal.aborted) {
+            reject(new DOMException('Aborted', 'AbortError'));
+
+            return;
+        }
+        signal.addEventListener('abort', () => xhr.abort());
         xhr.send(blob);
     });
 }
 
+/** Plugs the shared multipart upload engine on the ky API client and XHR. */
+const transport: MultipartUploadTransport = {
+    createUpload: (input, signal) =>
+        api.post<MultipartUploadInit>('/uploads', input, {signal}),
+    getPartUrls: (uploadId, from, signal) =>
+        api.post<MultipartUploadPlan>(
+            `/uploads/${uploadId}/parts`,
+            {from},
+            {signal}
+        ),
+    putPart: (url, blob, {signal, onProgress}) =>
+        putBlob(url, blob, onProgress, signal),
+    isExpiredUrlError: e => e instanceof PartUploadError && e.status === 403,
+};
+
 export async function multipartUpload(
     file: File,
-    {onProgress, signal}: MultipartUploadOptions = {}
+    {onProgress, signal, concurrency}: MultipartUploadOptions = {}
 ): Promise<MultipartUpload> {
-    const size = file.size;
-    const chunkSize = resolveChunkSize(size);
-    const type = getMimeTypeFromFile(file);
-    if (!type) {
-        throw new Error(`Unable to determine MIME type for file: ${file.name}`);
+    const {upload} = getConfig();
+    if (upload.maxFileSize && file.size > upload.maxFileSize) {
+        throw new Error(
+            `File size exceeds the maximum allowed size of ${upload.maxFileSize} bytes`
+        );
     }
 
-    const init = await api.post<{id: string}>(
-        '/uploads',
-        {filename: file.name, type, size},
-        {signal}
-    );
-    const uploadId = init.id;
-    const parts: UploadPart[] = [];
-    const numChunks = Math.max(1, Math.ceil(size / chunkSize));
+    const result = await runMultipartUpload(transport, file, {
+        type: getMimeTypeFromFile(file),
+        signal,
+        concurrency,
+        onProgress: onProgress
+            ? ({loaded, total}) => onProgress({loaded, total})
+            : undefined,
+    });
+    onProgress?.({loaded: file.size, total: file.size});
 
-    for (let index = 1; index <= numChunks; index++) {
-        const start = (index - 1) * chunkSize;
-        const end = index * chunkSize;
-        const {url} = await api.post<{url: string}>(
-            `/uploads/${uploadId}/part`,
-            {part: index},
-            {signal}
-        );
-        const blob =
-            index < numChunks ? file.slice(start, end) : file.slice(start);
-        const etag = await putBlob(
-            url,
-            blob,
-            loaded => onProgress?.({loaded: start + loaded, total: size}),
-            signal
-        );
-        parts.push({ETag: etag, PartNumber: index});
-    }
-    onProgress?.({loaded: size, total: size});
-
-    return {uploadId, parts};
+    return result;
 }
