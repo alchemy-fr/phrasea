@@ -14,10 +14,8 @@ import {
 import {
     arrayMove,
     SortableContext,
-    useSortable,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {CSS} from '@dnd-kit/utilities';
 import {toast} from 'sonner';
 import {Button} from '@/components/ui/button';
 import {FilterInput} from '@/components/ui/filter-input';
@@ -25,6 +23,13 @@ import {Skeleton, EmptyState} from '@/components/ui/misc';
 import {useModals} from '@/components/modals/ModalProvider';
 import {ConfirmDialog} from '@/components/ui/confirm';
 import {cn} from '@/lib/utils/cn';
+import {
+    overlayRow,
+    SortableOverlay,
+    SortableRow,
+    sortableMeasuring,
+    useSortableRow,
+} from '@/components/ui/sortable';
 import {
     confirmLeave,
     UnsavedChangesScope,
@@ -221,6 +226,7 @@ export function DefinitionManager<D extends DefinitionItem>({
                     </p>
                 ) : (
                     <DndContext
+                        measuring={sortableMeasuring}
                         sensors={sensors}
                         collisionDetection={closestCenter}
                         onDragEnd={onDragEnd}
@@ -290,6 +296,27 @@ export function DefinitionManager<D extends DefinitionItem>({
                                 ))}
                             </ul>
                         </SortableContext>
+                        <SortableOverlay>
+                            {id => {
+                                const item = visible.find(i => i.id === id);
+
+                                return item ? (
+                                    // The same buttons, doing nothing
+                                    <RowView
+                                        drag={overlayRow}
+                                        sortable
+                                        active={selected === item.id}
+                                        onManage={
+                                            renderManage ? noop : undefined
+                                        }
+                                        manageLabel={manageLabel}
+                                        onDelete={onDelete ? noop : undefined}
+                                    >
+                                        {renderItem(item)}
+                                    </RowView>
+                                ) : null;
+                            }}
+                        </SortableOverlay>
                     </DndContext>
                 )}
             </div>
@@ -341,16 +368,7 @@ export function DefinitionManager<D extends DefinitionItem>({
     );
 }
 
-function Row({
-    id,
-    sortable,
-    active,
-    onClick,
-    onDelete,
-    onManage,
-    manageLabel,
-    children,
-}: {
+type RowProps = {
     id: string;
     sortable: boolean;
     active: boolean;
@@ -359,33 +377,55 @@ function Row({
     onManage?: () => void;
     manageLabel?: string;
     children: ReactNode;
-}) {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({id, disabled: !sortable});
+};
+
+const noop = () => undefined;
+
+function Row({id, sortable, ...props}: RowProps) {
+    const drag = useSortableRow(id, !sortable);
 
     return (
+        <RowView
+            {...props}
+            testId="definition-item"
+            drag={drag}
+            sortable={sortable}
+        />
+    );
+}
+
+/** A row of the list, also rendered as the copy following the pointer */
+function RowView({
+    drag,
+    testId,
+    sortable,
+    active,
+    onClick,
+    onDelete,
+    onManage,
+    manageLabel,
+    children,
+}: Omit<RowProps, 'id' | 'onClick'> & {
+    drag: SortableRow;
+    testId?: string;
+    onClick?: () => void;
+}) {
+    return (
         <li
-            data-testid="definition-item"
-            ref={setNodeRef}
-            style={{transform: CSS.Transform.toString(transform), transition}}
+            data-testid={testId}
+            ref={drag.nodeRef}
+            style={drag.style}
             className={cn(
-                'group/def flex items-center gap-1 rounded-md border bg-card pr-1 text-sm',
+                'group/def flex list-none items-center gap-1 rounded-md border bg-card pr-1 text-sm',
                 active && 'border-primary bg-primary/5',
-                isDragging && 'z-10 shadow-md'
+                drag.className
             )}
         >
             {sortable ? (
                 <button
                     type="button"
                     className="cursor-grab px-1 text-muted-foreground"
-                    {...attributes}
-                    {...listeners}
+                    {...drag.handle}
                     aria-label="Drag"
                 >
                     <GripVerticalIcon className="size-4" />

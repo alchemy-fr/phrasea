@@ -3,11 +3,24 @@
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
-import {SaveIcon, XIcon, GripVerticalIcon} from 'lucide-react';
+import {
+    FileTextIcon,
+    GripVerticalIcon,
+    SaveIcon,
+    UploadIcon,
+    XIcon,
+} from 'lucide-react';
 import {toast} from 'sonner';
 import {AssetStatus} from '@/types/api';
 import type {WorkspaceTabProps} from '../WorkspaceManageRoute';
-import {putWorkspace} from '@/lib/api/collections';
+import {
+    deleteWorkspaceLogo,
+    deleteWorkspaceTermsPdf,
+    getWorkspace,
+    putWorkspace,
+    uploadWorkspaceLogo,
+    uploadWorkspaceTermsPdf,
+} from '@/lib/api/collections';
 import {getLocales} from '@/lib/api/metadata';
 import {Button} from '@/components/ui/button';
 import {FormRow, Input} from '@/components/ui/input';
@@ -31,11 +44,16 @@ import {
     arrayMove,
     SortableContext,
     sortableKeyboardCoordinates,
-    useSortable,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {CSS} from '@dnd-kit/utilities';
 import {cn} from '@/lib/utils/cn';
+import {
+    overlayRow,
+    SortableOverlay,
+    SortableRow,
+    sortableMeasuring,
+    useSortableRow,
+} from '@/components/ui/sortable';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 export function WorkspaceEditTab({workspace, refresh}: WorkspaceTabProps) {
@@ -61,6 +79,18 @@ export function WorkspaceEditTab({workspace, refresh}: WorkspaceTabProps) {
     const [analysisRequired, setAnalysisRequired] = useState(
         !!workspace.fileAnalysisRequired
     );
+    const initialTerms = workspace.terms?.rawText ?? '';
+    const initialTermsTranslations = workspace.terms?.translations ?? {};
+    const [termsText, setTermsText] = useState(initialTerms);
+    const [termsTranslations, setTermsTranslations] = useState<
+        Record<string, string>
+    >(initialTermsTranslations);
+    const [attachTerms, setAttachTerms] = useState(
+        !!workspace.terms?.attachToExports
+    );
+    // A file to upload, '' to remove the current one, undefined: unchanged
+    const [termsPdf, setTermsPdf] = useState<File | ''>();
+    const [logo, setLogo] = useState<File | ''>();
     const [saving, setSaving] = useState(false);
     const {markSaved} = useDirtyState({
         name,
@@ -71,6 +101,11 @@ export function WorkspaceEditTab({workspace, refresh}: WorkspaceTabProps) {
         retention,
         defaultStatus,
         analysisRequired,
+        termsText,
+        termsTranslations,
+        attachTerms,
+        termsPdf,
+        logo,
     });
     const allLocales = useQuery({
         queryKey: ['locales'],
@@ -81,7 +116,17 @@ export function WorkspaceEditTab({workspace, refresh}: WorkspaceTabProps) {
     const save = async () => {
         setSaving(true);
         try {
-            const updated = await putWorkspace(workspace.id, {
+            // Changing the terms makes a new version, to sign again: only
+            // sent when edited
+            const termsChanged =
+                termsText !== initialTerms ||
+                JSON.stringify(termsTranslations) !==
+                    JSON.stringify(initialTermsTranslations);
+            let updated = await putWorkspace(workspace.id, {
+                ...(termsChanged
+                    ? {terms: termsText, termsTranslations}
+                    : undefined),
+                attachTermsToExports: attachTerms,
                 name,
                 translations: {name: translations},
                 public: isPublic,
@@ -91,6 +136,21 @@ export function WorkspaceEditTab({workspace, refresh}: WorkspaceTabProps) {
                 assetDefaultStatus: Number(defaultStatus) as AssetStatus,
                 fileAnalysisRequired: analysisRequired,
             } as any);
+            if (termsPdf) {
+                updated = await uploadWorkspaceTermsPdf(workspace.id, termsPdf);
+            } else if (termsPdf === '') {
+                await deleteWorkspaceTermsPdf(workspace.id);
+            }
+            if (logo) {
+                updated = await uploadWorkspaceLogo(workspace.id, logo);
+            } else if (logo === '') {
+                await deleteWorkspaceLogo(workspace.id);
+            }
+            if (termsPdf === '' || logo === '') {
+                updated = await getWorkspace(workspace.id);
+            }
+            setTermsPdf(undefined);
+            setLogo(undefined);
             upsert(updated);
             markSaved();
             refresh();
@@ -191,6 +251,109 @@ export function WorkspaceEditTab({workspace, refresh}: WorkspaceTabProps) {
                     onCheckedChange={setAnalysisRequired}
                 />
             </LabeledControl>
+            <FormRow
+                label={t('workspace.logo.label', 'Logo')}
+                help={t(
+                    'workspace.logo.help',
+                    'Custom workspace logo. When none is set, the default service logo is used.'
+                )}
+            >
+                <FilePicker
+                    testId="workspace-logo"
+                    accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
+                    value={logo}
+                    onChange={setLogo}
+                    current={
+                        workspace.logo ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                                src={workspace.logo}
+                                alt=""
+                                className="max-h-10 max-w-40"
+                            />
+                        ) : null
+                    }
+                    uploadLabel={t('workspace.logo.upload', 'Upload a logo')}
+                    removeLabel={t('workspace.logo.remove', 'Remove the logo')}
+                    removedLabel={t(
+                        'workspace.logo.removed',
+                        'The logo will be removed'
+                    )}
+                />
+            </FormRow>
+            <div className="space-y-4 border-t pt-4">
+                <h3 className="text-sm font-semibold">
+                    {t('workspace.terms.title', 'Terms & Conditions')}
+                </h3>
+                <TranslatableField
+                    id="workspace-terms"
+                    label={t('workspace.terms.text', 'Text')}
+                    multiline
+                    value={termsText}
+                    onChange={setTermsText}
+                    translations={termsTranslations}
+                    onTranslationsChange={setTermsTranslations}
+                    locales={locales}
+                    help={t(
+                        'workspace.terms.help',
+                        'Changing this text or its translations creates a new version: users who signed a previous version will be asked to sign again.'
+                    )}
+                />
+                <FormRow
+                    label={t('workspace.terms.pdf', 'PDF')}
+                    help={t(
+                        'workspace.terms.pdf_help',
+                        'You can provide the Terms & Conditions as a PDF instead: it takes precedence over the text above. A new PDF creates a new version.'
+                    )}
+                >
+                    <FilePicker
+                        testId="workspace-terms-pdf"
+                        accept="application/pdf"
+                        value={termsPdf}
+                        onChange={setTermsPdf}
+                        current={
+                            workspace.terms?.pdfUrl ? (
+                                <a
+                                    href={workspace.terms.pdfUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                                >
+                                    <FileTextIcon className="size-4" />
+                                    {t(
+                                        'workspace.terms.pdf_view',
+                                        'Current PDF (v{{version}})',
+                                        {version: workspace.terms.version}
+                                    )}
+                                </a>
+                            ) : null
+                        }
+                        uploadLabel={t(
+                            'workspace.terms.pdf_upload',
+                            'Upload a PDF'
+                        )}
+                        removeLabel={t(
+                            'workspace.terms.pdf_remove',
+                            'Remove the PDF'
+                        )}
+                        removedLabel={t(
+                            'workspace.terms.pdf_removed',
+                            'The PDF will be removed'
+                        )}
+                    />
+                </FormRow>
+                <LabeledControl
+                    label={t(
+                        'workspace.terms.attach',
+                        'Attach the Terms & Conditions PDF to exports'
+                    )}
+                >
+                    <Switch
+                        checked={attachTerms}
+                        onCheckedChange={setAttachTerms}
+                    />
+                </LabeledControl>
+            </div>
             <div className="flex justify-end">
                 <Button onClick={save} loading={saving} disabled={!name.trim()}>
                     <SaveIcon /> {t('common.save', 'Save')}
@@ -232,6 +395,7 @@ function LocaleList({
     return (
         <div className="space-y-2">
             <DndContext
+                measuring={sortableMeasuring}
                 sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragEnd={onDragEnd}
@@ -255,6 +419,18 @@ function LocaleList({
                         ))}
                     </ul>
                 </SortableContext>
+                <SortableOverlay>
+                    {id => (
+                        <LocaleRowView
+                            locale={id}
+                            label={
+                                options.find(o => o.value === id)?.label ?? id
+                            }
+                            drag={overlayRow}
+                            onRemove={() => undefined}
+                        />
+                    )}
+                </SortableOverlay>
             </DndContext>
             <AsyncCombobox
                 queryKey={['locale-options']}
@@ -275,39 +451,40 @@ function LocaleList({
     );
 }
 
-function LocaleRow({
-    locale,
-    label,
-    onRemove,
-}: {
+type LocaleRowProps = {
     locale: string;
     label: string;
     onRemove: () => void;
-}) {
+};
+
+function LocaleRow(props: LocaleRowProps) {
+    const drag = useSortableRow(props.locale);
+
+    return <LocaleRowView {...props} drag={drag} />;
+}
+
+/** A locale of the list, also rendered as the copy following the pointer */
+function LocaleRowView({
+    locale,
+    label,
+    onRemove,
+    drag,
+}: LocaleRowProps & {drag: SortableRow}) {
     const {t} = useTranslation();
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({id: locale});
 
     return (
         <li
-            ref={setNodeRef}
-            style={{transform: CSS.Transform.toString(transform), transition}}
+            ref={drag.nodeRef}
+            style={drag.style}
             className={cn(
-                'flex items-center gap-2 rounded-md border bg-card px-2 py-1 text-sm',
-                isDragging && 'relative z-10 shadow-md'
+                'flex list-none items-center gap-2 rounded-md border bg-card px-2 py-1 text-sm',
+                drag.className
             )}
         >
             <button
                 type="button"
                 className="cursor-grab text-muted-foreground"
-                {...attributes}
-                {...listeners}
+                {...drag.handle}
                 aria-label="Drag"
             >
                 <GripVerticalIcon className="size-4" />
@@ -323,5 +500,83 @@ function LocaleRow({
                 <XIcon />
             </Button>
         </li>
+    );
+}
+
+/**
+ * A file replacing the current one, or removing it, applied on save:
+ * `value` is the file picked, '' to remove the current one, undefined to
+ * keep it.
+ */
+function FilePicker({
+    accept,
+    value,
+    onChange,
+    current,
+    uploadLabel,
+    removeLabel,
+    removedLabel,
+    testId,
+}: {
+    accept: string;
+    value: File | '' | undefined;
+    onChange: (v: File | '' | undefined) => void;
+    current: React.ReactNode;
+    uploadLabel: string;
+    removeLabel: string;
+    removedLabel: string;
+    testId?: string;
+}) {
+    const {t} = useTranslation();
+
+    return (
+        <div className="flex flex-wrap items-center gap-3" data-testid={testId}>
+            {value === undefined ? current : null}
+            {value ? (
+                <span className="text-sm">
+                    {t('workspace.file.selected', 'New file: {{name}}', {
+                        name: value.name,
+                    })}
+                </span>
+            ) : null}
+            {value === '' ? (
+                <span className="text-sm text-destructive">{removedLabel}</span>
+            ) : null}
+            <Button variant="outline" size="sm" asChild>
+                <label className="cursor-pointer">
+                    <UploadIcon /> {uploadLabel}
+                    <input
+                        type="file"
+                        accept={accept}
+                        hidden
+                        onChange={e => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                                onChange(file);
+                            }
+                            e.target.value = '';
+                        }}
+                    />
+                </label>
+            </Button>
+            {value !== undefined ? (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onChange(undefined)}
+                >
+                    {t('workspace.file.cancel', 'Cancel the change')}
+                </Button>
+            ) : current ? (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive"
+                    onClick={() => onChange('')}
+                >
+                    {removeLabel}
+                </Button>
+            ) : null}
+        </div>
     );
 }

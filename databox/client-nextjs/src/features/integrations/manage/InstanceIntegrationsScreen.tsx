@@ -8,6 +8,7 @@ import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
 import {EmptyState} from '@/components/ui/misc';
 import {UrlPathProvider} from '@/lib/navigation/routePath';
 import {routes} from '@/lib/routes';
+import {usePageTrail} from '@/components/layout/layoutStore';
 import {IntegrationManager} from './IntegrationManager';
 
 /**
@@ -19,6 +20,12 @@ export function InstanceIntegrationsScreen() {
     const {hasRole} = useAuth();
     const isAdmin = hasRole(AppRole.DataboxAdmin) || hasRole(AppRole.Admin);
     const pathname = usePathname();
+
+    // Where the user is, shown in the top bar with the way back to the assets
+    usePageTrail(
+        t('integration.instance.title', 'Instance integrations'),
+        routes.instanceIntegrations()
+    );
 
     return (
         <RequireAuth>

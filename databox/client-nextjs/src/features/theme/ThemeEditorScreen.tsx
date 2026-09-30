@@ -49,6 +49,8 @@ import {ThemeSwatch} from './ThemeMenu';
 import {useThemeStore} from './themeStore';
 import {ColorInput} from '@/components/ui/color-input';
 import {useUnsavedChangesPrompt} from '@/lib/navigation/unsavedChanges';
+import {usePageTrail} from '@/components/layout/layoutStore';
+import {routes} from '@/lib/routes';
 
 type Palette = Record<ThemeColorToken, string>;
 
@@ -201,6 +203,13 @@ export function ThemeEditorScreen() {
     const [saving, setSaving] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const isAdmin = hasRole(AppRole.DataboxAdmin) || hasRole(AppRole.Admin);
+
+    // Where the user is, shown in the top bar with the way back to the assets
+    usePageTrail(
+        t('theme.editor.title', 'Organisation theme'),
+        routes.themeSettings()
+    );
+
     const query = useQuery({
         queryKey: ['client-theme'],
         queryFn: getClientTheme,

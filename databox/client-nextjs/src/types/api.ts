@@ -269,7 +269,24 @@ export interface Workspace
     owner?: User;
     createdAt: string;
     public: boolean;
+    /** Terms & Conditions to accept before accessing the content */
+    terms?: WorkspaceTerms | null;
+    termsUnsigned?: boolean;
+    /** Custom logo, the service one when none */
+    logo?: string | null;
 }
+
+export type WorkspaceTerms = {
+    /** Resolved for the current user's locale */
+    text: string | null;
+    /** Untranslated source text, to edit */
+    rawText?: string | null;
+    translations?: Record<string, string> | null;
+    version: number | null;
+    signed: boolean | null;
+    attachToExports: boolean;
+    pdfUrl?: string | null;
+};
 
 export interface Tag extends HydraObject, Entity {
     name: string;

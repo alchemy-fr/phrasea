@@ -19,10 +19,8 @@ import {
 import {
     arrayMove,
     SortableContext,
-    useSortable,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {CSS} from '@dnd-kit/utilities';
 import type {Facets} from '@/types/api';
 import type {ModalProps} from '@/components/modals/ModalProvider';
 import {FormDialog} from '@/components/modals/FormDialog';
@@ -33,6 +31,13 @@ import {
     usePreferencesStore,
 } from '@/features/preferences/store';
 import {cn} from '@/lib/utils/cn';
+import {
+    overlayRow,
+    SortableOverlay,
+    SortableRow,
+    sortableMeasuring,
+    useSortableRow,
+} from '@/components/ui/sortable';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
 type Row = {name: string; label: string; hidden: boolean};
@@ -138,6 +143,7 @@ export function FacetSettingsDialog({
             onSubmit={save}
         >
             <DndContext
+                measuring={sortableMeasuring}
                 sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragEnd={onDragEnd}
@@ -164,6 +170,19 @@ export function FacetSettingsDialog({
                         ))}
                     </ul>
                 </SortableContext>
+                <SortableOverlay>
+                    {id => {
+                        const row = visibleRows.find(r => r.name === id);
+
+                        return row ? (
+                            <FacetRowView
+                                row={row}
+                                drag={overlayRow}
+                                onToggle={() => undefined}
+                            />
+                        ) : null;
+                    }}
+                </SortableOverlay>
             </DndContext>
             {hiddenRows.length > 0 ? (
                 <div>
@@ -207,29 +226,34 @@ export function FacetSettingsDialog({
 }
 
 function FacetRow({row, onToggle}: {row: Row; onToggle: () => void}) {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({id: row.name});
+    const drag = useSortableRow(row.name);
 
+    return <FacetRowView row={row} drag={drag} onToggle={onToggle} />;
+}
+
+/** A facet of the list, also rendered as the copy following the pointer */
+function FacetRowView({
+    row,
+    drag,
+    onToggle,
+}: {
+    row: Row;
+    drag: SortableRow;
+    onToggle: () => void;
+}) {
     return (
         <li
-            ref={setNodeRef}
-            style={{transform: CSS.Transform.toString(transform), transition}}
+            ref={drag.nodeRef}
+            style={drag.style}
             className={cn(
-                'flex items-center gap-2 rounded-md border bg-background px-2 py-1 text-sm',
-                isDragging && 'z-10 shadow-md'
+                'flex list-none items-center gap-2 rounded-md border bg-background px-2 py-1 text-sm',
+                drag.className
             )}
         >
             <button
                 type="button"
                 className="cursor-grab text-muted-foreground"
-                {...attributes}
-                {...listeners}
+                {...drag.handle}
                 aria-label="Drag"
             >
                 <GripVerticalIcon className="size-4" />

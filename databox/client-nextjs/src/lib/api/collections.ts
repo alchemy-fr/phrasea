@@ -9,6 +9,7 @@ import {
     Workspace,
 } from '@/types/api';
 import {toIris} from '@/lib/utils/iri';
+import {multipartUpload} from './upload';
 
 export const collectionChildrenLimit = 20;
 export const collectionPageLimit = 30;
@@ -122,4 +123,35 @@ export function putWorkspace(
     data: Partial<Workspace>
 ): Promise<Workspace> {
     return api.put<Workspace>(`/${EntityName.Workspace}/${id}`, toIris(data));
+}
+
+/** A new PDF makes a new version of the terms, to sign again */
+export async function uploadWorkspaceTermsPdf(
+    id: string,
+    file: File
+): Promise<Workspace> {
+    const multipart = await multipartUpload(file);
+
+    return api.post<Workspace>(`/${EntityName.Workspace}/${id}/terms`, {
+        multipart,
+    });
+}
+
+export function deleteWorkspaceTermsPdf(id: string): Promise<void> {
+    return api.delete(`/${EntityName.Workspace}/${id}/terms`);
+}
+
+export async function uploadWorkspaceLogo(
+    id: string,
+    file: File
+): Promise<Workspace> {
+    const multipart = await multipartUpload(file);
+
+    return api.post<Workspace>(`/${EntityName.Workspace}/${id}/logo`, {
+        multipart,
+    });
+}
+
+export function deleteWorkspaceLogo(id: string): Promise<void> {
+    return api.delete(`/${EntityName.Workspace}/${id}/logo`);
 }

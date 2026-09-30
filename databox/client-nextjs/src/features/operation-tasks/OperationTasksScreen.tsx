@@ -36,6 +36,8 @@ import {
 } from '@/features/attributes/definitionsStore';
 import {useEffect} from 'react';
 import {cn} from '@/lib/utils/cn';
+import {usePageTrail} from '@/components/layout/layoutStore';
+import {routes} from '@/lib/routes';
 
 type TaskField = {
     name: string;
@@ -224,6 +226,9 @@ export function OperationTasksScreen() {
     });
     const types = useTaskTypes();
 
+    // Where the user is, shown in the top bar with the way back to the assets
+    usePageTrail(t('tasks.title', 'Operation tasks'), routes.operationTasks());
+
     return (
         <RequireAuth>
             {!hasRole(AppRole.DataboxAdmin) && !hasRole(AppRole.Admin) ? (
@@ -342,24 +347,37 @@ export function OperationTasksScreen() {
                     ) : null}
 
                     {view.type === 'catalog' ? (
-                        <div className="grid gap-3 sm:grid-cols-2">
-                            {types.map(tp => (
-                                <button
-                                    key={tp.id}
-                                    type="button"
-                                    className="rounded-md border bg-card p-4 text-left hover:border-primary hover:bg-accent/40"
-                                    onClick={() =>
-                                        setView({type: 'run', task: tp})
-                                    }
-                                >
-                                    <div className="mb-1 font-medium">
-                                        {tp.label}
-                                    </div>
-                                    <div className="text-sm text-muted-foreground">
-                                        {tp.description}
-                                    </div>
-                                </button>
-                            ))}
+                        <div className="space-y-3">
+                            <div data-testid="task-catalog-intro">
+                                <h2 className="font-semibold">
+                                    {t('tasks.new', 'New task')}
+                                </h2>
+                                <p className="text-sm text-muted-foreground">
+                                    {t(
+                                        'tasks.catalog.intro',
+                                        'You are about to start a new task. Choose the one to run from the catalog below.'
+                                    )}
+                                </p>
+                            </div>
+                            <div className="grid gap-3 sm:grid-cols-2">
+                                {types.map(tp => (
+                                    <button
+                                        key={tp.id}
+                                        type="button"
+                                        className="rounded-md border bg-card p-4 text-left hover:border-primary hover:bg-accent/40"
+                                        onClick={() =>
+                                            setView({type: 'run', task: tp})
+                                        }
+                                    >
+                                        <div className="mb-1 font-medium">
+                                            {tp.label}
+                                        </div>
+                                        <div className="text-sm text-muted-foreground">
+                                            {tp.description}
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     ) : null}
 

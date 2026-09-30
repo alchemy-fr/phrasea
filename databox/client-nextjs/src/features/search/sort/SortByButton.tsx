@@ -19,10 +19,8 @@ import {
 import {
     arrayMove,
     SortableContext,
-    useSortable,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {CSS} from '@dnd-kit/utilities';
 import type {SortBy} from '@/types/api';
 import {Button} from '@/components/ui/button';
 import {
@@ -36,6 +34,13 @@ import {useSearch} from '../SearchProvider';
 import {BuiltInAttribute, isDefaultSortBy, resolveSortBy} from '../searchState';
 import {useDefinitionsBySearchSlug} from '@/features/attributes/definitionsStore';
 import {cn} from '@/lib/utils/cn';
+import {
+    overlayRow,
+    SortableOverlay,
+    SortableRow,
+    sortableMeasuring,
+    useSortableRow,
+} from '@/components/ui/sortable';
 
 type Row = SortBy & {enabled: boolean};
 
@@ -192,6 +197,7 @@ function SortEditor({onClose}: {onClose: () => void}) {
             </div>
             <div className="max-h-72 space-y-1 overflow-y-auto pr-1">
                 <DndContext
+                    measuring={sortableMeasuring}
                     sensors={sensors}
                     collisionDetection={closestCenter}
                     onDragEnd={onDragEnd}
@@ -219,6 +225,24 @@ function SortEditor({onClose}: {onClose: () => void}) {
                             />
                         ))}
                     </SortableContext>
+                    <SortableOverlay>
+                        {id => {
+                            const row = visible.find(r => r.a === id);
+
+                            return row ? (
+                                <SortRowView
+                                    row={row}
+                                    drag={overlayRow}
+                                    label={
+                                        definitions[row.a]?.displayName ??
+                                        definitions[row.a]?.name ??
+                                        row.a
+                                    }
+                                    onChange={() => undefined}
+                                />
+                            ) : null;
+                        }}
+                    </SortableOverlay>
                 </DndContext>
             </div>
             <LabeledControl
@@ -253,39 +277,39 @@ function SortEditor({onClose}: {onClose: () => void}) {
     );
 }
 
-function SortRow({
-    row,
-    label,
-    onChange,
-}: {
+type SortRowProps = {
     row: Row;
     label: string;
     onChange: (row: Row) => void;
-}) {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({id: row.a});
+};
 
+function SortRow(props: SortRowProps) {
+    const drag = useSortableRow(props.row.a);
+
+    return <SortRowView {...props} drag={drag} />;
+}
+
+/** A criterion of the list, also rendered as the copy following the pointer */
+function SortRowView({
+    row,
+    label,
+    onChange,
+    drag,
+}: SortRowProps & {drag: SortableRow}) {
     return (
         <div
-            ref={setNodeRef}
-            style={{transform: CSS.Transform.toString(transform), transition}}
+            ref={drag.nodeRef}
+            style={drag.style}
             className={cn(
                 'flex items-center gap-2 rounded-md border bg-background px-2 py-1 text-sm',
                 !row.enabled && 'opacity-60',
-                isDragging && 'z-10 shadow-md'
+                drag.className
             )}
         >
             <button
                 type="button"
                 className="cursor-grab text-muted-foreground"
-                {...attributes}
-                {...listeners}
+                {...drag.handle}
                 aria-label="Drag"
             >
                 <GripVerticalIcon className="size-4" />

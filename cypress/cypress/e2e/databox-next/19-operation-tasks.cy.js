@@ -32,11 +32,16 @@ describe('Operation tasks', () => {
         cy.menuItem('Operation tasks').click();
         cy.url().should('include', '/admin/tasks');
         cy.contains('Operation tasks').should('be.visible');
+        // Where the user is, and the way back to the assets
+        cy.getBySel('page-title').should('have.text', 'Operation tasks');
+        cy.getBySel('trail-root').should('be.visible');
     });
 
     it('runs an "Index assets" task on the workspace', () => {
         cy.visit(`${databoxNextUrl}/admin/tasks`);
         cy.contains('button', 'New task').click();
+        cy.getBySel('task-catalog-intro')
+            .should('contain.text', 'You are about to start a new task');
         cy.contains('Index assets').click();
         cy.fieldByLabel('Workspace').selectOption(ctx.workspace.name);
         cy.contains('button', 'Run').click();

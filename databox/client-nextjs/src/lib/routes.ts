@@ -19,7 +19,7 @@ export const routes = {
     basketManage: (id: string, tab = 'info') => `/baskets/${id}/manage/${tab}`,
     savedSearchManage: (id: string, tab = 'info') =>
         `/saved-searches/${id}/manage/${tab}`,
-    profileManage: (id: string, tab = 'info') =>
+    profileManage: (id: string, tab = 'general') =>
         `/profiles/${id}/manage/${tab}`,
     workflow: (id: string) => `/workflows/${id}`,
     attributesEditor: () => '/attributes/editor',

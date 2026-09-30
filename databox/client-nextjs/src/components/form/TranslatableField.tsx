@@ -2,7 +2,7 @@
 
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {Input, Label} from '@/components/ui/input';
+import {FieldHelp, Input, Label, Textarea} from '@/components/ui/input';
 import {Tabs, TabsList, TabsTrigger} from '@/components/ui/misc';
 import {Flag} from '@/components/ui/flag';
 
@@ -65,6 +65,8 @@ export function TranslatableField({
     onTranslationsChange,
     locales,
     id = 'translatable',
+    multiline,
+    help,
 }: {
     label: string;
     value: string;
@@ -73,8 +75,12 @@ export function TranslatableField({
     onTranslationsChange: (v: Record<string, string>) => void;
     locales: string[];
     id?: string;
+    /** A text rather than a single line */
+    multiline?: boolean;
+    help?: React.ReactNode;
 }) {
     const [tab, setTab] = useState(NO_LOCALE);
+    const Field = multiline ? Textarea : Input;
 
     return (
         <div className="mb-4">
@@ -83,13 +89,13 @@ export function TranslatableField({
             </Label>
             <LocaleTabs value={tab} onChange={setTab} locales={locales} />
             {tab === NO_LOCALE ? (
-                <Input
+                <Field
                     id={id}
                     value={value}
                     onChange={e => onChange(e.target.value)}
                 />
             ) : (
-                <Input
+                <Field
                     id={id}
                     value={translations[tab] ?? ''}
                     placeholder={value}
@@ -104,6 +110,7 @@ export function TranslatableField({
                     }}
                 />
             )}
+            {help ? <FieldHelp>{help}</FieldHelp> : null}
         </div>
     );
 }

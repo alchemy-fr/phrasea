@@ -171,11 +171,66 @@ export function integrationPermissions(t: TFunction): PermissionDefinition[] {
     ];
 }
 
-export function renditionPolicyPermissions(
-    t: TFunction
+/**
+ * A public policy is visible to everyone: only editing is granted. A
+ * private one grants viewing as well.
+ */
+export function attributePolicyPermissions(
+    t: TFunction,
+    isPublic: boolean
 ): PermissionDefinition[] {
-    return [
-        mask(AclPermission.VIEW, t('acl.permission.view', 'View')),
-        mask(AclPermission.EDIT, t('acl.permission.edit', 'Edit')),
-    ];
+    const edit = mask(
+        AclPermission.EDIT,
+        t('acl.attribute_policy.edit', 'Edit'),
+        t(
+            'acl.attribute_policy.edit_desc',
+            'Edit the values of the attributes of this policy.'
+        )
+    );
+
+    return isPublic
+        ? [edit]
+        : [
+              mask(
+                  AclPermission.VIEW,
+                  t('acl.attribute_policy.view', 'View'),
+                  t(
+                      'acl.attribute_policy.view_desc',
+                      'View the values of the attributes of this policy.'
+                  )
+              ),
+              edit,
+          ];
+}
+
+/**
+ * The renditions of the policy are checked against the CHILD_* bits. As for
+ * {@link attributePolicyPermissions}, a public policy only grants editing.
+ */
+export function renditionPolicyPermissions(
+    t: TFunction,
+    isPublic: boolean
+): PermissionDefinition[] {
+    const edit = mask(
+        AclPermission.CHILD_EDIT,
+        t('acl.rendition_policy.edit', 'Edit'),
+        t(
+            'acl.rendition_policy.edit_desc',
+            'Edit the renditions of this policy.'
+        )
+    );
+
+    return isPublic
+        ? [edit]
+        : [
+              mask(
+                  AclPermission.CHILD_VIEW,
+                  t('acl.rendition_policy.view', 'View'),
+                  t(
+                      'acl.rendition_policy.view_desc',
+                      'View the renditions of this policy.'
+                  )
+              ),
+              edit,
+          ];
 }

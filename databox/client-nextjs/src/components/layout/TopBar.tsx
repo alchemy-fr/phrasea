@@ -43,7 +43,7 @@ import {supportedLanguages} from '@/i18n';
 import {routes} from '@/lib/routes';
 import {useModals} from '@/components/modals/ModalProvider';
 import {DataLocaleDialog} from '@/features/preferences/DataLocaleDialog';
-import {DisplayProfileMenuItem} from '@/features/profiles/DisplayProfileMenuItem';
+import {ProfileMenu} from '@/features/profiles/ProfileMenu';
 import {ThemeMenu} from '@/features/theme/ThemeMenu';
 import {NotificationsMenu} from '@/features/notifications/NotificationsMenu';
 import {getAuthClient} from '@/lib/auth/client';
@@ -212,10 +212,19 @@ export function TopBar({
                         <SettingsIcon />
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-60">
-                    {isAuthenticated && !isPublic ? (
-                        <DisplayProfileMenuItem />
-                    ) : null}
+                <DropdownMenuContent
+                    align="end"
+                    className="w-60"
+                    // An item opened a dialog, which took the focus: giving
+                    // it back to the trigger once the menu has faded out
+                    // would steal it (and the next key reopen the menu)
+                    onCloseAutoFocus={e => {
+                        if (document.activeElement?.closest('[role=dialog]')) {
+                            e.preventDefault();
+                        }
+                    }}
+                >
+                    {isAuthenticated && !isPublic ? <ProfileMenu /> : null}
                     <ThemeMenu />
                     <DropdownMenuSub>
                         <DropdownMenuSubTrigger>

@@ -5,13 +5,12 @@ import {useTranslation} from 'react-i18next';
 import {useRouter} from 'next/navigation';
 import {
     CheckIcon,
-    GlobeIcon,
+    InfoIcon,
     MoreVerticalIcon,
+    PencilIcon,
     PlusIcon,
-    RefreshCwIcon,
-    UserIcon,
+    Trash2Icon,
 } from 'lucide-react';
-import {toast} from 'sonner';
 import type {ModalProps} from '@/components/modals/ModalProvider';
 import {useModals} from '@/components/modals/ModalProvider';
 import {FormDialog} from '@/components/modals/FormDialog';
@@ -25,6 +24,8 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/menu';
 import {ConfirmDialog} from '@/components/ui/confirm';
+import {Tooltip} from '@/components/ui/overlays';
+import {ProfileOwnership} from './ProfileOwnership';
 import {useProfileStore} from './profileStore';
 import {usePreferencesStore} from '@/features/preferences/store';
 import {postProfile} from '@/lib/api/misc';
@@ -38,30 +39,23 @@ export function SelectProfileDialog({open, onOpenChange}: ModalProps) {
     const {user} = useAuth();
     const router = useRouter();
     const {openModal} = useModals();
-    const {
-        profiles,
-        current,
-        setCurrent,
-        remove,
-        syncPreferences,
-        isSynced,
-        next,
-        loadMore,
-    } = useProfileStore();
-    const autoSync = usePreferencesStore(s => s.preferences.autoSync ?? false);
-    const updatePreference = usePreferencesStore(s => s.updatePreference);
-    const synced = isSynced();
+    const {profiles, current, setCurrent, remove, next, loadMore} =
+        useProfileStore();
 
     const choose = async (profile: DisplayProfile | undefined) => {
         await setCurrent(profile);
         onOpenChange(false);
+    };
+    const edit = (id: string, tab?: string) => {
+        onOpenChange(false);
+        router.push(routes.profileManage(id, tab));
     };
 
     return (
         <FormDialog
             open={open}
             onOpenChange={onOpenChange}
-            title={t('profile.select.title', 'Display profile')}
+            title={t('profile.select.title', 'Display profiles')}
             hideCancel
             submitLabel={t('common.close', 'Close')}
             bodyClassName="space-y-2"
@@ -84,10 +78,7 @@ export function SelectProfileDialog({open, onOpenChange}: ModalProps) {
                 userId={user?.id}
                 onChoose={choose}
                 onDelete={remove}
-                onEdit={id => {
-                    onOpenChange(false);
-                    router.push(routes.profileManage(id, 'organize'));
-                }}
+                onEdit={edit}
             />
             {profiles.map(p => (
                 <ProfileRow
@@ -97,10 +88,7 @@ export function SelectProfileDialog({open, onOpenChange}: ModalProps) {
                     userId={user?.id}
                     onChoose={choose}
                     onDelete={remove}
-                    onEdit={id => {
-                        onOpenChange(false);
-                        router.push(routes.profileManage(id, 'organize'));
-                    }}
+                    onEdit={edit}
                 />
             ))}
             {next ? (
@@ -112,46 +100,6 @@ export function SelectProfileDialog({open, onOpenChange}: ModalProps) {
                 >
                     {t('common.load_more', 'Load more')}
                 </Button>
-            ) : null}
-            {current ? (
-                <div className="mt-4 space-y-2 rounded-md bg-muted/50 p-3">
-                    <LabeledControl
-                        label={t(
-                            'profile.auto_sync',
-                            'Auto-sync preferences to this profile'
-                        )}
-                        description={t(
-                            'profile.auto_sync_help',
-                            'Layout, thumbnail size, facets and theme changes are saved to the profile.'
-                        )}
-                    >
-                        <Switch
-                            checked={autoSync}
-                            disabled={!current.capabilities.edit}
-                            onCheckedChange={v =>
-                                updatePreference('autoSync', v)
-                            }
-                        />
-                    </LabeledControl>
-                    {!synced && current.capabilities.edit ? (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={async () => {
-                                await syncPreferences();
-                                toast.success(
-                                    t('profile.synced', 'Profile updated')
-                                );
-                            }}
-                        >
-                            <RefreshCwIcon />{' '}
-                            {t(
-                                'profile.sync_now',
-                                'Save current preferences to profile'
-                            )}
-                        </Button>
-                    ) : null}
-                </div>
             ) : null}
         </FormDialog>
     );
@@ -170,7 +118,7 @@ function ProfileRow({
     userId: string | undefined;
     onChoose: (profile: DisplayProfile | undefined) => void;
     onDelete: (id: string) => Promise<void>;
-    onEdit: (id: string) => void;
+    onEdit: (id: string, tab?: string) => void;
 }) {
     const {t} = useTranslation();
     const {openModal} = useModals();
@@ -179,6 +127,7 @@ function ProfileRow({
 
     return (
         <div
+            data-testid="profile-row"
             className={cn(
                 'flex items-center gap-2 rounded-md border px-3 py-2 text-sm',
                 active && 'border-primary bg-primary/5'
@@ -193,8 +142,13 @@ function ProfileRow({
                     {active ? (
                         <CheckIcon className="size-4 text-primary" />
                     ) : null}
-                    {profile?.name ??
-                        t('profile.default', 'Default display profile')}
+                    <span className="truncate">
+                        {profile?.name ??
+                            t('profile.default', 'Default display profile')}
+                    </span>
+                    {profile ? (
+                        <ProfileOwnership profile={profile} userId={userId} />
+                    ) : null}
                 </span>
                 {profile?.description ? (
                     <span className="text-xs text-muted-foreground">
@@ -202,12 +156,7 @@ function ProfileRow({
                     </span>
                 ) : null}
                 {shared ? (
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                        {profile.public ? (
-                            <GlobeIcon className="size-3" />
-                        ) : (
-                            <UserIcon className="size-3" />
-                        )}
+                    <span className="text-xs text-muted-foreground">
                         {t('profile.shared_by', 'Shared by {{owner}}', {
                             owner: profile.owner?.username,
                         })}
@@ -215,36 +164,74 @@ function ProfileRow({
                 ) : null}
             </button>
             {profile ? (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon-xs">
-                            <MoreVerticalIcon />
+                <>
+                    <Tooltip
+                        content={
+                            profile.capabilities.edit
+                                ? t('common.edit', 'Edit')
+                                : t('common.details', 'Details')
+                        }
+                    >
+                        <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            data-testid="profile-row-edit"
+                            aria-label={
+                                profile.capabilities.edit
+                                    ? t('common.edit', 'Edit')
+                                    : t('common.details', 'Details')
+                            }
+                            onClick={() =>
+                                onEdit(
+                                    profile.id,
+                                    profile.capabilities.edit
+                                        ? 'attributes'
+                                        : undefined
+                                )
+                            }
+                        >
+                            {profile.capabilities.edit ? (
+                                <PencilIcon />
+                            ) : (
+                                <InfoIcon />
+                            )}
                         </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuItem onSelect={() => onEdit(profile.id)}>
-                            {t('common.edit', 'Edit')}
-                        </DropdownMenuItem>
-                        {profile.capabilities.delete ? (
-                            <DropdownMenuItem
-                                variant="destructive"
-                                onSelect={() =>
-                                    openModal(ConfirmDialog, {
-                                        title: t(
-                                            'profile.delete.title',
-                                            'Delete profile "{{name}}"?',
-                                            {name: profile.name}
-                                        ),
-                                        destructive: true,
-                                        onConfirm: () => onDelete(profile.id),
-                                    })
-                                }
-                            >
-                                {t('common.delete', 'Delete')}
-                            </DropdownMenuItem>
-                        ) : null}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                    </Tooltip>
+                    {profile.capabilities.delete ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    data-testid="profile-row-menu"
+                                    aria-label={t('common.more', 'More')}
+                                >
+                                    <MoreVerticalIcon />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem
+                                    variant="destructive"
+                                    onSelect={() =>
+                                        openModal(ConfirmDialog, {
+                                            title: t(
+                                                'profile.delete.title',
+                                                'Delete profile "{{name}}"?',
+                                                {name: profile.name}
+                                            ),
+                                            destructive: true,
+                                            onConfirm: () =>
+                                                onDelete(profile.id),
+                                        })
+                                    }
+                                >
+                                    <Trash2Icon />{' '}
+                                    {t('common.delete', 'Delete')}
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : null}
+                </>
             ) : null}
         </div>
     );
@@ -279,7 +266,7 @@ export function CreateProfileDialog({
         await setCurrent(profile);
         resolve?.(profile);
         onCreated?.(profile);
-        router.push(routes.profileManage(profile.id, 'organize'));
+        router.push(routes.profileManage(profile.id, 'attributes'));
     };
 
     return (
