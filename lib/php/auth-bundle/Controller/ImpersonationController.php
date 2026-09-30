@@ -15,8 +15,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Lets admins pick the user to act as. These routes must be called as the
- * real admin (without the impersonation header).
+ * Lets impersonators pick the user to act as. These routes must be called as
+ * the real user (without the impersonation header).
  */
 #[Route(path: '/impersonation', name: 'impersonation_')]
 class ImpersonationController extends AbstractController
@@ -67,13 +67,9 @@ class ImpersonationController extends AbstractController
 
     private function denyUnlessAllowed(): void
     {
-        if (!$this->impersonator->isEnabled()) {
-            throw new NotFoundHttpException('Impersonation is disabled');
-        }
-
         $user = $this->getUser();
         if (!$user instanceof JwtUser || !$this->impersonator->canImpersonate($user)) {
-            throw new AccessDeniedHttpException('Only admins can impersonate users');
+            throw new AccessDeniedHttpException('Missing impersonation permission');
         }
     }
 }

@@ -13,7 +13,7 @@ use Psr\Log\NullLogger;
 
 class MetadataManipulator
 {
-    private static ?array $knownTagGroups = null;  // cache
+    private ?array $knownTagGroups = null;  // cache
     private readonly PHPExiftool $phpExifTool;
     private readonly LoggerInterface $logger;
 
@@ -30,13 +30,12 @@ class MetadataManipulator
         }
     }
 
-    public static function getKnownTagGroups(): array
+    /**
+     * @return string[] The known tag group ids (e.g. "IPTC:Keywords"), naturally sorted
+     */
+    public function getKnownTagGroups(): array
     {
-        if (null === self::$knownTagGroups) {
-            self::$knownTagGroups = PHPExiftool::getKnownTagGroups();
-        }
-
-        return self::$knownTagGroups;
+        return $this->knownTagGroups ??= array_keys($this->phpExifTool->getFactory()->getHelper()::getIndex());
     }
 
     public function createTagGroup(string $tagGroupName): TagGroupInterface

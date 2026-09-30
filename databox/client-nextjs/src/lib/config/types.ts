@@ -54,11 +54,6 @@ export type AppConfig = {
     };
     upload: UploadConfig;
     ticketing: TicketingConfig;
-    /**
-     * `DATABOX_IMPERSONATION_ENABLED`: admins can switch to another user's
-     * account to test permissions
-     */
-    impersonation: boolean;
     logo?: {
         src?: string;
         style?: string;

@@ -76,11 +76,17 @@ final readonly class JwtExtractor
             }
         }
 
+        $roles = $this->roleMapper->getRoles($idpRoles);
+        $clientRoles = $claims->get('resource_access', [])[Impersonator::KEYCLOAK_CLIENT]['roles'] ?? [];
+        if (in_array(Impersonator::KEYCLOAK_ROLE, $clientRoles, true)) {
+            $roles[] = JwtUser::ROLE_IMPERSONATOR;
+        }
+
         return new JwtUser(
             $token->toString(),
             $sub,
             $username,
-            $this->roleMapper->getRoles($idpRoles),
+            $roles,
             $claims->get('groups', []),
             $scopes,
         );

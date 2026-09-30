@@ -27,6 +27,9 @@ class KeycloakClientTestMock implements HttpClientInterface
         self::ADMIN_UID => [
             'username' => 'admin',
             'roles' => ['admin', 'databox', 'expose', 'uploader'],
+            'resource_access' => [
+                'realm-management' => ['roles' => ['impersonation']],
+            ],
         ],
         self::OTHER_USER_UID => [
             'username' => 'other_user',
@@ -60,6 +63,7 @@ class KeycloakClientTestMock implements HttpClientInterface
             ->withClaim('preferred_username', self::USERS[$userId]['username'])
             ->withClaim('roles', self::USERS[$userId]['roles'] ?? [])
             ->withClaim('groups', self::USERS[$userId]['groups'] ?? [])
+            ->withClaim('resource_access', self::USERS[$userId]['resource_access'] ?? [])
             ->getToken(new Sha256(), InMemory::file(__DIR__.'/key.pem'));
 
         return $token->toString();

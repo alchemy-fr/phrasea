@@ -1884,9 +1884,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     client_id?: scalar|Param|null, // Default: "%env(ADMIN_CLIENT_ID)%"
  *     client_secret?: scalar|Param|null, // Default: "%env(ADMIN_CLIENT_SECRET)%"
  *     required_roles?: list<scalar|Param|null>,
- *     impersonation?: array{ // Lets admins act as another user by sending the X-Impersonate-User header
- *         enabled?: bool|Param, // Default: false
- *     },
  * }
  * @psalm-type AlchemyAdminConfig = array{
  *     service?: array{

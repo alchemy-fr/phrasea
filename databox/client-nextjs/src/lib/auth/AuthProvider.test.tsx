@@ -20,7 +20,7 @@ Object.defineProperty(window, 'localStorage', {
     },
 });
 
-const config = vi.hoisted(() => ({impersonation: true}));
+const config = vi.hoisted(() => ({}));
 vi.mock('@/lib/config/ConfigProvider', () => ({
     useConfig: () => config,
     getConfig: () => config,
@@ -29,7 +29,13 @@ vi.mock('@/lib/config/ConfigProvider', () => ({
 const getImpersonationIdentity = vi.hoisted(() => vi.fn());
 vi.mock('@/lib/api/impersonation', () => ({getImpersonationIdentity}));
 
-type User = {id: string; username: string; roles: string[]; groups: string[]};
+type User = {
+    id: string;
+    username: string;
+    roles: string[];
+    groups: string[];
+    canImpersonate?: boolean;
+};
 
 const client = vi.hoisted(() => ({
     init: vi.fn(() => Promise.resolve()),
@@ -92,6 +98,7 @@ describe('AuthProvider impersonation', () => {
         username: 'admin',
         roles: ['admin', 'databox'],
         groups: [],
+        canImpersonate: true,
     };
     const alice: User = {
         id: 'alice-id',
@@ -118,6 +125,21 @@ describe('AuthProvider impersonation', () => {
             expect(result.current.user?.groups).toEqual(['g2'])
         );
         expect(getImpersonationIdentity).toHaveBeenCalledWith('alice-id');
+    });
+
+    it('does not allow admins without the impersonation role to switch user', async () => {
+        client.getUser.mockReturnValue({...admin, canImpersonate: false});
+        window.localStorage.setItem('dbx.impersonation', JSON.stringify(alice));
+        getImpersonationIdentity.mockClear();
+
+        const {result} = renderHook(() => useAuth(), {wrapper});
+
+        // The stored switch is dropped
+        await waitFor(() =>
+            expect(window.localStorage.getItem('dbx.impersonation')).toBeNull()
+        );
+        expect(result.current.canImpersonate).toBe(false);
+        expect(getImpersonationIdentity).not.toHaveBeenCalled();
     });
 
     it('does not allow non-admins to switch user', async () => {

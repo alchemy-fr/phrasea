@@ -53,7 +53,6 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
         $def->setArgument('$clientId', $config['client_id']);
 
         $def = $container->findDefinition(Impersonator::class);
-        $def->setArgument('$enabled', $config['impersonation']['enabled']);
         $def->setArgument('$requiredRoles', $config['required_roles']);
 
         $bundles = $container->getParameter('kernel.bundles');

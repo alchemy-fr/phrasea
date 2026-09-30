@@ -983,6 +983,17 @@ export type IntegrationType = {
     }[];
 };
 
+export type MetadataTag = {
+    /** Namespace (e.g. "IPTC") or namespaced tag (e.g. "IPTC:Keywords") */
+    id: string;
+    namespace: string;
+    /** Null for a namespace entry */
+    name?: string | null;
+    description?: string | null;
+    writable?: boolean | null;
+    multi?: boolean | null;
+};
+
 export type Locale = {
     id: string;
     language: string;

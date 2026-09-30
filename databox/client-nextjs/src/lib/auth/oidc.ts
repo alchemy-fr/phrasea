@@ -14,6 +14,8 @@ export type AuthUser = {
     name?: string;
     roles: string[];
     groups: string[];
+    /** Granted by the Keycloak `impersonation` role of `realm-management` */
+    canImpersonate?: boolean;
 };
 
 export type Tokens = {
@@ -216,6 +218,7 @@ export class OidcClient {
             groups?: string[];
             roles?: string[];
             realm_access?: {roles?: string[]};
+            resource_access?: Record<string, {roles?: string[]} | undefined>;
         }>(this.tokens.accessToken);
 
         return {
@@ -230,6 +233,10 @@ export class OidcClient {
                 ]),
             ],
             groups: claims.groups ?? [],
+            canImpersonate:
+                claims.resource_access?.['realm-management']?.roles?.includes(
+                    'impersonation'
+                ) ?? false,
         };
     }
 

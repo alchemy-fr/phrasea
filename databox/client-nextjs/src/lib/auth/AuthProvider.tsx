@@ -23,7 +23,6 @@ import {
     type ImpersonatedUser,
 } from './impersonation';
 import {toastError} from '@/lib/utils/errors';
-import {useConfig} from '@/lib/config/ConfigProvider';
 import {getImpersonationIdentity} from '@/lib/api/impersonation';
 import {isApiError} from '@/lib/api/http';
 
@@ -66,16 +65,7 @@ export enum AppRole {
     Tech = 'tech',
 }
 
-function isAdmin(user: AuthUser | undefined): boolean {
-    return (
-        !!user &&
-        (user.roles.includes(AppRole.Admin) ||
-            user.roles.includes(AppRole.DataboxAdmin))
-    );
-}
-
 export function AuthProvider({children}: PropsWithChildren) {
-    const config = useConfig();
     const [status, setStatus] = useState<AuthStatus>('loading');
     const [realUser, setRealUser] = useState<AuthUser | undefined>();
     const [impersonated, setImpersonated] = useState<
@@ -128,12 +118,12 @@ export function AuthProvider({children}: PropsWithChildren) {
     // no longer be allowed.
     const impersonatedId = impersonated?.id;
     const realUserId = realUser?.id;
-    const realUserIsAdmin = isAdmin(realUser);
+    const canImpersonate = !!realUser?.canImpersonate;
     useEffect(() => {
         if (!impersonatedId || !realUserId) {
             return;
         }
-        if (!config.impersonation || !realUserIsAdmin) {
+        if (!canImpersonate) {
             stopImpersonation();
 
             return;
@@ -155,7 +145,7 @@ export function AuthProvider({children}: PropsWithChildren) {
         return () => {
             cancelled = true;
         };
-    }, [impersonatedId, realUserId, realUserIsAdmin, config.impersonation]);
+    }, [impersonatedId, realUserId, canImpersonate]);
 
     // The page is restored from the back/forward cache when the user comes
     // back from Keycloak with the browser's back button: the redirection
@@ -195,7 +185,6 @@ export function AuthProvider({children}: PropsWithChildren) {
         void getAuthClient().logout();
     }, []);
 
-    const canImpersonate = config.impersonation && realUserIsAdmin;
     const user = realUser ? (impersonated ?? realUser) : undefined;
 
     const impersonate = useCallback(

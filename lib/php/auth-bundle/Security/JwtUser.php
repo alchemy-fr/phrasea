@@ -13,6 +13,10 @@ class JwtUser implements JwtInterface, JwtUserInterface
     final public const string IS_AUTHENTICATED_FULLY = 'IS_AUTHENTICATED_FULLY';
     final public const string ROLE_ADMIN = 'ROLE_ADMIN';
     final public const string ROLE_TECH = 'ROLE_TECH';
+    /**
+     * Granted by the Keycloak "impersonation" role of the "realm-management" client.
+     */
+    final public const string ROLE_IMPERSONATOR = 'ROLE_IMPERSONATOR';
 
     private ?string $refreshToken = null;
 

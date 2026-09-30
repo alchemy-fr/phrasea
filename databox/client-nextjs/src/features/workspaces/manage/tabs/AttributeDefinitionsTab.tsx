@@ -25,7 +25,7 @@ import {
 } from '@/lib/api/metadata';
 import {getRenditionDefinitions} from '@/lib/api/misc';
 import {Button} from '@/components/ui/button';
-import {FormRow, Input, Textarea} from '@/components/ui/input';
+import {FormRow, Input} from '@/components/ui/input';
 import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
 import {SimpleSelect} from '@/components/ui/select';
 import {Badge} from '@/components/ui/misc';
@@ -34,6 +34,7 @@ import {
     TranslatableField,
 } from '@/components/form/TranslatableField';
 import {LocalizedCodeField} from '@/components/form/code/LocalizedCodeField';
+import {MetadataTagsField} from '@/components/form/MetadataTagsField';
 import {iri} from '@/lib/utils/iri';
 import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
@@ -176,8 +177,8 @@ function DefinitionForm({
         facetEnabled: d?.facetEnabled ?? false,
         fallback: localized(d?.fallback),
         initialValues: localized(d?.initialValues),
-        readFromMetadata: (d?.readFromMetadata ?? []).join('\n'),
-        writeMetadata: (d?.writeMetadata ?? []).join('\n'),
+        readFromMetadata: d?.readFromMetadata ?? [],
+        writeMetadata: d?.writeMetadata ?? [],
         writeAllRenditions:
             !d?.writeMetadataRenditions ||
             d.writeMetadataRenditions.length === 0,
@@ -195,11 +196,6 @@ function DefinitionForm({
     const save = async () => {
         setSaving(true);
         try {
-            const lines = (s: string) =>
-                s
-                    .split('\n')
-                    .map(l => l.trim())
-                    .filter(Boolean);
             const data: Partial<AttributeDefinition> = {
                 name: form.name,
                 translations: {name: form.translations},
@@ -223,8 +219,8 @@ function DefinitionForm({
                 facetEnabled: form.facetEnabled,
                 fallback: form.fallback,
                 initialValues: form.initialValues,
-                readFromMetadata: lines(form.readFromMetadata),
-                writeMetadata: lines(form.writeMetadata),
+                readFromMetadata: form.readFromMetadata,
+                writeMetadata: form.writeMetadata,
                 writeMetadataRenditions: form.writeAllRenditions
                     ? []
                     : form.writeMetadataRenditions,
@@ -424,30 +420,35 @@ function DefinitionForm({
                 <FormRow
                     label={t(
                         'attribute_def.read_metadata',
-                        'Read from metadata (one tag per line)'
+                        'Read from metadata'
+                    )}
+                    help={t(
+                        'attribute_def.read_metadata_help',
+                        'The first tag found in the file initializes the attribute.'
                     )}
                 >
-                    <Textarea
+                    <MetadataTagsField
                         value={form.readFromMetadata}
-                        onChange={e => set('readFromMetadata', e.target.value)}
-                        className="font-mono text-xs"
+                        onChange={v => set('readFromMetadata', v)}
                         placeholder="IPTC:Headline"
                     />
                 </FormRow>
                 <FormRow
-                    label={t(
-                        'attribute_def.write_metadata',
-                        'Write metadata (one tag per line)'
+                    label={t('attribute_def.write_metadata', 'Write metadata')}
+                    help={t(
+                        'attribute_def.write_metadata_help',
+                        'Tags into which the value is written when the asset is exported.'
                     )}
                 >
-                    <Textarea
+                    <MetadataTagsField
                         value={form.writeMetadata}
-                        onChange={e => set('writeMetadata', e.target.value)}
-                        className="font-mono text-xs"
+                        onChange={v => set('writeMetadata', v)}
+                        placeholder="XMP-dc:Title"
+                        writableOnly
                     />
                 </FormRow>
             </div>
-            {form.writeMetadata.trim() ? (
+            {form.writeMetadata.length > 0 ? (
                 <div className="space-y-2">
                     <LabeledControl
                         label={t(

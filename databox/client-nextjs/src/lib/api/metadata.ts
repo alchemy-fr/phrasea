@@ -12,6 +12,7 @@ import {
     FieldType,
     HydraCollection,
     Locale,
+    MetadataTag,
     Page,
     Tag,
 } from '@/types/api';
@@ -356,4 +357,22 @@ export function putAssetDataTemplate(
 
 export async function getLocales(): Promise<Locale[]> {
     return toPage(await api.get<HydraCollection<Locale>>('/locales')).items;
+}
+
+// Metadata tags (exiftool dictionary) -------------------------------------
+
+/**
+ * Suggests the namespaces matching the query, or the tags of a namespace
+ * once the query contains a colon ("IPTC:Key").
+ */
+export async function getMetadataTags(
+    query: string,
+    signal?: AbortSignal
+): Promise<MetadataTag[]> {
+    return toPage(
+        await api.get<HydraCollection<MetadataTag>>('/metadata-tags', {
+            params: {query},
+            signal,
+        })
+    ).items;
 }

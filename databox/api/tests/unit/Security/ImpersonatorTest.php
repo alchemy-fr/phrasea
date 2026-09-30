@@ -55,11 +55,14 @@ class ImpersonatorTest extends TestCase
         $this->assertFalse($impersonator->canImpersonate($impersonated));
     }
 
-    public function testDisabledFeatureIsDenied(): void
+    public function testAdminWithoutImpersonationRoleIsDenied(): void
     {
         $this->expectException(AccessDeniedHttpException::class);
 
-        $this->createImpersonator(enabled: false)->impersonate($this->createAdmin(), self::TARGET_ID);
+        $this->createImpersonator()->impersonate(
+            new JwtUser('jwt', 'admin-id', 'admin', [JwtUser::ROLE_ADMIN], [], []),
+            self::TARGET_ID,
+        );
     }
 
     public function testTargetWithoutRequiredRoleIsDenied(): void
@@ -94,11 +97,10 @@ class ImpersonatorTest extends TestCase
 
     private function createAdmin(): JwtUser
     {
-        return new JwtUser('admin-jwt', self::ADMIN_ID, 'admin', [JwtUser::ROLE_ADMIN], ['admin-group'], ['openid']);
+        return new JwtUser('admin-jwt', self::ADMIN_ID, 'admin', [JwtUser::ROLE_IMPERSONATOR], ['admin-group'], ['openid']);
     }
 
     private function createImpersonator(
-        bool $enabled = true,
         ?array $target = ['username' => 'alice', 'enabled' => true],
         array $targetRoles = ['databox', 'tech'],
     ): Impersonator {
@@ -110,7 +112,6 @@ class ImpersonatorTest extends TestCase
         return new Impersonator(
             $repository,
             new RoleMapper('databox'),
-            $enabled,
             ['databox'],
         );
     }

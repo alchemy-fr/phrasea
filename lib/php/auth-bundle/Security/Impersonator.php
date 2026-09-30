@@ -8,42 +8,36 @@ use Alchemy\AuthBundle\Repository\UserRepositoryInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
- * Builds the user an admin acts as. The resulting user carries only the
- * target's roles and groups: the admin's own privileges are dropped, so
- * permissions are evaluated exactly as for the target.
+ * Builds the user an impersonator acts as. The resulting user carries only
+ * the target's roles and groups: the impersonator's own privileges are
+ * dropped, so permissions are evaluated exactly as for the target.
+ *
+ * Impersonating requires the Keycloak "impersonation" role of the
+ * "realm-management" client (see JwtExtractor).
  */
 final readonly class Impersonator
 {
     final public const string HEADER = 'X-Impersonate-User';
+    final public const string KEYCLOAK_CLIENT = 'realm-management';
+    final public const string KEYCLOAK_ROLE = 'impersonation';
 
     public function __construct(
         private UserRepositoryInterface $userRepository,
         private RoleMapper $roleMapper,
-        private bool $enabled = false,
         private array $requiredRoles = [],
     ) {
     }
 
-    public function isEnabled(): bool
-    {
-        return $this->enabled;
-    }
-
     public function canImpersonate(JwtUser $user): bool
     {
-        return $this->enabled
-            && !$user->isImpersonated()
-            && in_array(JwtUser::ROLE_ADMIN, $user->getRoles(), true);
+        return !$user->isImpersonated()
+            && in_array(JwtUser::ROLE_IMPERSONATOR, $user->getRoles(), true);
     }
 
     public function impersonate(JwtUser $impersonator, string $targetId): JwtUser
     {
-        if (!$this->enabled) {
-            throw new AccessDeniedHttpException('Impersonation is disabled');
-        }
-
         if (!$this->canImpersonate($impersonator)) {
-            throw new AccessDeniedHttpException('Only admins can impersonate users');
+            throw new AccessDeniedHttpException('Missing impersonation permission');
         }
 
         $identity = $this->getIdentity($targetId);
