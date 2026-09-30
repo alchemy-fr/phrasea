@@ -3,7 +3,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ApiIcon from '@mui/icons-material/Api';
 
 type Props = {
-    apiUrl: string;
+    apiUrl?: string;
     clientUrl: string;
     isAdmin?: boolean;
 } & ServiceBaseProps;
@@ -22,10 +22,12 @@ export default function ClientApp({
             title: `Admin of ${props.title}`,
         });
     }
-    links.push({
-        icon: <ApiIcon />,
-        href: apiUrl,
-        title: `API documentation of ${props.title}`,
-    });
+    if (apiUrl) {
+        links.push({
+            icon: <ApiIcon />,
+            href: apiUrl,
+            title: `API documentation of ${props.title}`,
+        });
+    }
     return <Service mainUrl={clientUrl} links={links} {...props} />;
 }

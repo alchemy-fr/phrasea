@@ -43,16 +43,13 @@ export default function Service({
                 md: 3,
                 xs: 6,
             }}
+            sx={{
+                justifyContent: 'stretch',
+            }}
         >
-            <Card
-                sx={{
-                    minHeight: {
-                        xs: 180,
-                        sm: 200,
-                        md: 300,
-                    },
-                }}
-            >
+            <Card sx={{
+                height: '100%',
+            }}>
                 <AnchorLink href={mainUrl}>
                     <CardMedia
                         sx={theme => ({
@@ -62,10 +59,18 @@ export default function Service({
                                 md: 140,
                             },
                             backgroundSize: 'contain',
+                            p: 1,
                             backgroundColor: theme.palette.background.default,
+                            'img': {
+                                height: '100%',
+                                width: 'auto',
+                                margin: '0 auto',
+                                display: 'block',
+                            }
                         })}
-                        image={logo}
-                    />
+                    >
+                        <img src={logo} alt="logo" />
+                    </CardMedia>
                 </AnchorLink>
                 <CardContent>
                     <AnchorLink href={mainUrl}>

@@ -6,6 +6,7 @@ declare global {
             AUTO_CONNECT_IDP: Readonly<string | undefined>;
             DATABOX_API_URL: Readonly<string>;
             DATABOX_CLIENT_URL: Readonly<string>;
+            PARADE_CLIENT_URL: Readonly<string>;
             DEV_MODE: Readonly<string>;
             DISPLAY_SERVICES_MENU: Readonly<string>;
             ELASTICHQ_URL: Readonly<string>;

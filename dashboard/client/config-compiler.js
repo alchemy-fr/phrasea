@@ -13,8 +13,6 @@
         return false;
     }
 
-    config = config || {};
-
     const analytics = {};
 
     if (env.MATOMO_URL && env.MATOMO_SITE_ID) {
@@ -28,6 +26,7 @@
     const whiteList = [
         'DATABOX_API_URL',
         'DATABOX_CLIENT_URL',
+        'PARADE_CLIENT_URL',
         'DEV_MODE',
         'DISPLAY_SERVICES_MENU',
         'ELASTICHQ_URL',
