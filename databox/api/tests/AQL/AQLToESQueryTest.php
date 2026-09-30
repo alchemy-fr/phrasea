@@ -430,6 +430,45 @@ class AQLToESQueryTest extends TestCase
                 ],
             ]],
             ['field IN (true, n1)', 'Unsupported operator "IN" in script conditions'],
+            ['field CONTAINS "big world"', [
+                'bool' => [
+                    'should' => [
+                        ['wildcard' => ['attrs.it.field_text_s.raw' => ['value' => '*big world*', 'boost' => 1.0, 'case_insensitive' => true]]],
+                        ['wildcard' => ['attrs.de.field_text_s.raw' => ['value' => '*big world*', 'boost' => 1.0, 'case_insensitive' => true]]],
+                        ['wildcard' => ['attrs._.field_text_s.raw' => ['value' => '*big world*', 'boost' => 1.0, 'case_insensitive' => true]]],
+                    ],
+                ],
+            ]],
+            ['field CONTAINS "a*b?c (d): e/f"', [
+                'wildcard' => ['attrs.fr.field_text_s.raw' => ['value' => '*a\\*b\\?c (d): e/f*', 'boost' => 1.0, 'case_insensitive' => true]],
+            ], 'fr'],
+            ['field DOES NOT CONTAIN "big world"', [
+                'bool' => [
+                    'must_not' => [
+                        ['wildcard' => ['attrs.fr.field_text_s.raw' => ['value' => '*big world*', 'boost' => 1.0, 'case_insensitive' => true]]],
+                    ],
+                ],
+            ], 'fr'],
+            ['field CONTAINS "Big World" CASE SENSITIVE', [
+                'wildcard' => ['attrs.fr.field_text_s.raw' => ['value' => '*Big World*', 'boost' => 1.0]],
+            ], 'fr'],
+            ['field DOES NOT START WITH "Big" CASE SENSITIVE', [
+                'bool' => [
+                    'must_not' => [
+                        ['prefix' => ['attrs.fr.field_text_s.raw' => ['value' => 'Big', 'boost' => 1.0]]],
+                    ],
+                ],
+            ], 'fr'],
+            ['field MATCHES "Big" CASE SENSITIVE', 'CASE SENSITIVE is not supported with operator "MATCHES"'],
+            ['field STARTS WITH "big world"', [
+                'bool' => [
+                    'should' => [
+                        ['prefix' => ['attrs.it.field_text_s.raw' => ['value' => 'big world', 'boost' => 1.0, 'case_insensitive' => true]]],
+                        ['prefix' => ['attrs.de.field_text_s.raw' => ['value' => 'big world', 'boost' => 1.0, 'case_insensitive' => true]]],
+                        ['prefix' => ['attrs._.field_text_s.raw' => ['value' => 'big world', 'boost' => 1.0, 'case_insensitive' => true]]],
+                    ],
+                ],
+            ]],
             ['number > othernumber', [
                 'script' => [
                     'script' => [

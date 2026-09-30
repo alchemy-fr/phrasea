@@ -131,6 +131,18 @@ final readonly class AQLToESQuery
 
         $this->validateOperator($operator, $type->getName());
 
+        $caseSensitive = $data['caseSensitive'] ?? false;
+        if ($caseSensitive && !in_array($operator, [
+            ConditionOperatorEnum::CONTAINS,
+            ConditionOperatorEnum::NOT_CONTAINS,
+            ConditionOperatorEnum::STARTS_WITH,
+            ConditionOperatorEnum::NOT_STARTS_WITH,
+        ], true)) {
+            throw new BadRequestHttpException(sprintf('CASE SENSITIVE is not supported with operator "%s"', $operator->value));
+        }
+        // Dates are switched to STARTS_WITH below, case is irrelevant for them.
+        $caseInsensitive = !$caseSensitive && in_array($type->getName(), [TextAttributeType::NAME, KeywordAttributeType::NAME], true);
+
         if (null !== $type->getElasticSearchRawField() && in_array($operator, $strictOperators, true)) {
             $fieldName .= '.'.$type->getElasticSearchRawField();
         } elseif (null !== $type->getElasticSearchTextSubField() && in_array($operator, $strictOperators + [
@@ -207,12 +219,12 @@ final readonly class AQLToESQuery
             ])),
             ConditionOperatorEnum::CONTAINS,
             ConditionOperatorEnum::NOT_CONTAINS => $this->wrapInNotQuery(
-                new Query\QueryString(sprintf('*%s*', $value))->setFields([$fieldRaw]),
+                $this->yieldShouldQuery($fieldRaw, $field['locales'], fn (string $fn) => $this->createContainsQuery($fn, (string) $value, $caseInsensitive)),
                 ConditionOperatorEnum::NOT_CONTAINS === $operator
             ),
             ConditionOperatorEnum::STARTS_WITH,
             ConditionOperatorEnum::NOT_STARTS_WITH => $this->wrapInNotQuery(
-                new Query\Prefix()->setPrefix($fieldRaw, $value),
+                $this->yieldShouldQuery($fieldRaw, $field['locales'], fn (string $fn) => $this->createPrefixQuery($fn, $value, $caseInsensitive)),
                 ConditionOperatorEnum::NOT_STARTS_WITH === $operator
             ),
             default => throw new BadRequestHttpException(sprintf('Operator "%s" not implemented', $operator->value)),
@@ -387,6 +399,26 @@ final readonly class AQLToESQuery
         }
 
         return $boolQuery;
+    }
+
+    private function createPrefixQuery(string $fieldName, mixed $value, bool $caseInsensitive): Query\Prefix
+    {
+        $params = ['value' => $value, 'boost' => 1.0];
+        if ($caseInsensitive) {
+            $params['case_insensitive'] = true;
+        }
+
+        return new Query\Prefix([$fieldName => $params]);
+    }
+
+    private function createContainsQuery(string $fieldName, string $value, bool $caseInsensitive): Query\Wildcard
+    {
+        $query = new Query\Wildcard($fieldName, sprintf('*%s*', addcslashes($value, '\\*?')));
+        if ($caseInsensitive) {
+            $query->setCaseInsensitive(true);
+        }
+
+        return $query;
     }
 
     private function createTermQuery(string $fieldName, mixed $value): Query\AbstractQuery

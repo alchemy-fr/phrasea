@@ -2227,6 +2227,7 @@
                 "placeholder": "Opérateur"
             },
             "add_condition": "Ajouter une condition",
+            "case_sensitive": "Respecter la casse",
             "field": "Champ",
             "value": "Valeur"
         },
