@@ -18,6 +18,8 @@ import {
     LanguagesIcon,
     ListChecksIcon,
     PlugIcon,
+    UserRoundCogIcon,
+    UndoIcon,
 } from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {
@@ -43,6 +45,7 @@ import {supportedLanguages} from '@/i18n';
 import {routes} from '@/lib/routes';
 import {useModals} from '@/components/modals/ModalProvider';
 import {DataLocaleDialog} from '@/features/preferences/DataLocaleDialog';
+import {SwitchUserDialog} from '@/features/impersonation/SwitchUserDialog';
 import {ProfileMenu} from '@/features/profiles/ProfileMenu';
 import {ThemeMenu} from '@/features/theme/ThemeMenu';
 import {NotificationsMenu} from '@/features/notifications/NotificationsMenu';
@@ -67,8 +70,18 @@ export function TopBar({
 }) {
     const {t, i18n} = useTranslation();
     const isPublic = variant === 'public';
-    const {user, isAuthenticated, login, redirecting, logout, hasRole} =
-        useAuth();
+    const {
+        user,
+        realUser,
+        impersonating,
+        canImpersonate,
+        stopImpersonating,
+        isAuthenticated,
+        login,
+        redirecting,
+        logout,
+        hasRole,
+    } = useAuth();
     const config = useConfig();
     const router = useGuardedRouter();
     const pathname = usePathname();
@@ -307,8 +320,40 @@ export function TopBar({
                                     {user.email}
                                 </div>
                             ) : null}
+                            {impersonating && realUser ? (
+                                <div
+                                    data-testid="impersonated-by"
+                                    className="truncate text-xs font-normal text-muted-foreground"
+                                >
+                                    {t('impersonation.via', 'via {{name}}', {
+                                        name:
+                                            realUser.name ?? realUser.username,
+                                    })}
+                                </div>
+                            ) : null}
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
+                        {canImpersonate ? (
+                            <DropdownMenuItem
+                                data-testid="switch-user"
+                                onSelect={() => openModal(SwitchUserDialog, {})}
+                            >
+                                <UserRoundCogIcon />{' '}
+                                {t('impersonation.switch', 'Switch user…')}
+                            </DropdownMenuItem>
+                        ) : null}
+                        {impersonating && realUser ? (
+                            <DropdownMenuItem
+                                data-testid="stop-impersonating"
+                                onSelect={stopImpersonating}
+                            >
+                                <UndoIcon />{' '}
+                                {t('impersonation.back', 'Back to {{name}}', {
+                                    name: realUser.name ?? realUser.username,
+                                })}
+                            </DropdownMenuItem>
+                        ) : null}
+                        {canImpersonate ? <DropdownMenuSeparator /> : null}
                         <DropdownMenuItem asChild>
                             <a
                                 href={getAuthClient().getAccountUrl(

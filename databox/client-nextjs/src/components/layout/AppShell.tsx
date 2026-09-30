@@ -11,6 +11,7 @@ import {NotificationUriListener} from '@/features/notifications/NotificationUriL
 import {TicketButton} from '@/features/ticketing/TicketButton';
 import {AppDndProvider} from '@/features/dnd/AppDndProvider';
 import {WorkspaceTermsGate} from '@/features/workspaces/terms/WorkspaceTermsGate';
+import {ImpersonationBanner} from '@/features/impersonation/ImpersonationBanner';
 
 export function AppShell({children}: PropsWithChildren) {
     const {status} = useAuth();
@@ -20,6 +21,7 @@ export function AppShell({children}: PropsWithChildren) {
         <AppDndProvider>
             <div className="flex h-[100dvh] w-full flex-col overflow-hidden">
                 <TopBar />
+                <ImpersonationBanner />
                 <div className="flex min-h-0 flex-1">
                     <aside
                         className={cn(

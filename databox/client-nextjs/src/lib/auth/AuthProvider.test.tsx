@@ -1,5 +1,5 @@
 import {describe, expect, it, vi} from 'vitest';
-import {act, renderHook} from '@testing-library/react';
+import {act, renderHook, waitFor} from '@testing-library/react';
 import type {PropsWithChildren} from 'react';
 
 vi.mock('next/navigation', () => ({
@@ -8,9 +8,32 @@ vi.mock('next/navigation', () => ({
 }));
 vi.mock('sonner', () => ({toast: {error: vi.fn()}}));
 
+// Node ships its own (broken, file-backed) localStorage that shadows jsdom's
+const storage = new Map<string, string>();
+Object.defineProperty(window, 'localStorage', {
+    configurable: true,
+    value: {
+        getItem: (k: string) => storage.get(k) ?? null,
+        setItem: (k: string, v: string) => storage.set(k, v),
+        removeItem: (k: string) => storage.delete(k),
+        clear: () => storage.clear(),
+    },
+});
+
+const config = vi.hoisted(() => ({impersonation: true}));
+vi.mock('@/lib/config/ConfigProvider', () => ({
+    useConfig: () => config,
+    getConfig: () => config,
+}));
+
+const getImpersonationIdentity = vi.hoisted(() => vi.fn());
+vi.mock('@/lib/api/impersonation', () => ({getImpersonationIdentity}));
+
+type User = {id: string; username: string; roles: string[]; groups: string[]};
+
 const client = vi.hoisted(() => ({
     init: vi.fn(() => Promise.resolve()),
-    getUser: vi.fn(() => undefined),
+    getUser: vi.fn<() => User | undefined>(() => undefined),
     subscribe: vi.fn(() => () => undefined),
     login: vi.fn<(redirectTo: string) => Promise<void>>(() =>
         Promise.resolve()
@@ -60,5 +83,51 @@ describe('AuthProvider login', () => {
 
         await act(async () => undefined);
         expect(result.current.redirecting).toBe(false);
+    });
+});
+
+describe('AuthProvider impersonation', () => {
+    const admin: User = {
+        id: 'admin-id',
+        username: 'admin',
+        roles: ['admin', 'databox'],
+        groups: [],
+    };
+    const alice: User = {
+        id: 'alice-id',
+        username: 'alice',
+        roles: ['databox'],
+        groups: ['g1'],
+    };
+
+    it('exposes the impersonated user as the effective one', async () => {
+        client.getUser.mockReturnValue(admin);
+        window.localStorage.setItem('dbx.impersonation', JSON.stringify(alice));
+        getImpersonationIdentity.mockResolvedValue({...alice, groups: ['g2']});
+
+        const {result} = renderHook(() => useAuth(), {wrapper});
+
+        await waitFor(() => expect(result.current.impersonating).toBe(true));
+        expect(result.current.realUser).toEqual(admin);
+        expect(result.current.user?.id).toBe('alice-id');
+        expect(result.current.canImpersonate).toBe(true);
+        expect(result.current.hasRole('admin')).toBe(false);
+
+        // The stored identity is refreshed
+        await waitFor(() =>
+            expect(result.current.user?.groups).toEqual(['g2'])
+        );
+        expect(getImpersonationIdentity).toHaveBeenCalledWith('alice-id');
+    });
+
+    it('does not allow non-admins to switch user', async () => {
+        client.getUser.mockReturnValue(alice);
+        window.localStorage.clear();
+
+        const {result} = renderHook(() => useAuth(), {wrapper});
+
+        await waitFor(() => expect(result.current.user).toEqual(alice));
+        expect(result.current.canImpersonate).toBe(false);
+        expect(result.current.impersonating).toBe(false);
     });
 });

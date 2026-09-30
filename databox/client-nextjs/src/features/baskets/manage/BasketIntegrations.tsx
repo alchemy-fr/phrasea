@@ -93,6 +93,8 @@ function useIntegrationAuth(integration: WorkspaceIntegration) {
     const valid = (tokens.data?.items ?? []).some(tk => !tk.expired);
 
     const authorize = async () => {
+        // A popup cannot carry the impersonation header: the authorization
+        // is always granted as the signed-in user.
         const token = await getAuthClient().getAccessToken();
         const url = `${config.apiUrl}/integrations/${integration.id}/auth?access_token=${encodeURIComponent(token ?? '')}`;
         const popup = window.open(

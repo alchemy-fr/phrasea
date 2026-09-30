@@ -5,7 +5,8 @@ import type {CreateTicketPayload, CreateTicketResult} from './types';
 
 /**
  * Posts the ticket to our own route handler, which is the only place holding
- * the JIRA credentials.
+ * the JIRA credentials. The reporter is the signed-in user, even while
+ * impersonating another one.
  */
 export async function createTicket(
     payload: CreateTicketPayload

@@ -1,6 +1,7 @@
 import ky, {HTTPError, isHTTPError, type KyInstance, type Options} from 'ky';
 import {getConfig} from '@/lib/config/ConfigProvider';
 import {getAuthClient} from '@/lib/auth/client';
+import {getImpersonation, IMPERSONATION_HEADER} from '@/lib/auth/impersonation';
 
 export type QueryParams = Record<string, unknown>;
 
@@ -8,6 +9,8 @@ export type RequestOptions = {
     params?: QueryParams;
     /** Do not attach the bearer token (e.g. S3 presigned URLs, public share) */
     anonymous?: boolean;
+    /** Act as the signed-in admin even while impersonating another user */
+    asRealUser?: boolean;
     signal?: AbortSignal;
     headers?: Record<string, string | undefined>;
     json?: unknown;
@@ -95,7 +98,7 @@ export function setApiLocales(locales: {
     }
 }
 
-type Context = {anonymous?: boolean; retried?: boolean};
+type Context = {anonymous?: boolean; asRealUser?: boolean; retried?: boolean};
 
 let instance: KyInstance | undefined;
 
@@ -123,6 +126,19 @@ function createInstance(): KyInstance {
                                 'Authorization',
                                 `Bearer ${token}`
                             );
+                            const impersonated = ctx.asRealUser
+                                ? undefined
+                                : getImpersonation();
+                            // Only the API knows the header (CORS)
+                            if (
+                                impersonated &&
+                                request.url.startsWith(config.apiUrl)
+                            ) {
+                                request.headers.set(
+                                    IMPERSONATION_HEADER,
+                                    impersonated.id
+                                );
+                            }
                         }
                     }
                     if (!request.headers.has('Accept')) {
@@ -220,6 +236,7 @@ function toKyOptions(
     {
         params,
         anonymous,
+        asRealUser,
         signal,
         headers,
         json,
@@ -246,7 +263,7 @@ function toKyOptions(
         body,
         timeout,
         keepalive,
-        context: {anonymous} satisfies Context,
+        context: {anonymous, asRealUser} satisfies Context,
         ...(isAbsolute(url) ? {prefix: ''} : {}),
     };
 }

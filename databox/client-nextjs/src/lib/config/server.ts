@@ -99,6 +99,7 @@ export function getServerConfig(): AppConfig {
             // JIRA credentials stay on the server (see lib/ticketing/config.ts)
             enabled: bool(env.DATABOX_TICKETING_ENABLED),
         },
+        impersonation: bool(env.DATABOX_IMPERSONATION_ENABLED),
         logo: env.APP_LOGO_SRC ? {src: env.APP_LOGO_SRC} : undefined,
     };
 }
