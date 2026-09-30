@@ -77,11 +77,18 @@ export async function searchAssets(
 
 export async function getSearchSuggestions(
     query: string,
+    options: {
+        /** Only the values of this attribute definition (an empty query lists them) */
+        definition?: string;
+    } = {},
     signal?: AbortSignal
 ): Promise<Page<SearchSuggestion> & {debug?: object}> {
     const res = await api.get<
         HydraCollection<SearchSuggestion, {'debug:es'?: {query: object}}>
-    >(`/${EntityName.Asset}/suggest`, {params: {query}, signal});
+    >(`/${EntityName.Asset}/suggest`, {
+        params: {query, definition: options.definition},
+        signal,
+    });
 
     return {...toPage(res), debug: res['debug:es']?.query};
 }

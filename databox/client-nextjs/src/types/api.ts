@@ -1007,9 +1007,14 @@ export type SearchSuggestion = {
     id: string;
     name: string;
     hl: string;
-    t: 'collection' | 'asset' | 'workspace';
+    /** Kind of the suggestion, or the id of the attribute definition of a value */
+    t: 'collection' | 'asset' | 'workspace' | string;
     tName: string;
     tId?: string;
+    /** Locale of an attribute value (translatable definitions) */
+    locale?: string;
+    /** Id of the entity behind an entity attribute value */
+    entityId?: string;
 };
 
 // ---------------------------------------------------------------------------

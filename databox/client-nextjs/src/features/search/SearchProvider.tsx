@@ -60,7 +60,13 @@ export type SearchContextValue = SearchState & {
     setQuery: (query: string) => void;
     setSortBy: (sortBy: SortBy[]) => void;
     setGeolocation: (position: string | undefined) => void;
-    upsertCondition: (condition: AQLQuery & {renewId?: boolean}) => void;
+    /**
+     * Adds or replaces a condition. `resetQuery` also clears the text query
+     * in the same navigation (a filter picked from the search input).
+     */
+    upsertCondition: (
+        condition: AQLQuery & {renewId?: boolean; resetQuery?: boolean}
+    ) => void;
     removeCondition: (id: string) => void;
     resetWithCondition: (condition: AQLQuery) => void;
     selectWorkspace: (id: string | undefined, workspace?: Workspace) => void;
@@ -266,12 +272,16 @@ export function SearchProvider({
             setSortBy: sortBy => update({sortBy}),
             setGeolocation: geolocation => update({geolocation}),
             upsertCondition: condition => {
-                const {renewId, ...c} = condition;
+                const {renewId, resetQuery, ...c} = condition;
+                if (resetQuery) {
+                    inputQuery.current = '';
+                }
                 update(prev => ({
                     conditions: upsertCondition(
                         prev.conditions,
                         renewId ? {...c, id: shortId()} : c
                     ),
+                    ...(resetQuery ? {query: ''} : {}),
                 }));
             },
             removeCondition: id =>

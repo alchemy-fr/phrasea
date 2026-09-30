@@ -224,6 +224,116 @@ class SuggestionSearchTest extends AbstractSearchTest
         ]), $this->suggestedValues('par', ['X-Data-Locale' => 'en']));
     }
 
+    public function testScopedToADefinitionOnlyItsValuesAreSuggested(): void
+    {
+        $em = $this->getEntityManager();
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $restrictedPolicy = $this->createAttributePolicy([
+            'workspace' => $workspace,
+            'name' => 'Restricted',
+            'public' => false,
+            'no_flush' => true,
+        ]);
+        $keywords = $this->createSuggestedDefinition($workspace, 'Keywords', ['multiple' => true]);
+        // Suggestions disabled: still listed when explicitly scoped
+        $city = $this->createAttributeDefinition([
+            'workspace' => $workspace,
+            'name' => 'City',
+            'no_flush' => true,
+        ]);
+        $restricted = $this->createAttributeDefinition([
+            'workspace' => $workspace,
+            'name' => 'Restricted',
+            'policy' => $restrictedPolicy,
+            'no_flush' => true,
+        ]);
+        $list = new EntityList();
+        $list->setName('Places');
+        $list->setWorkspace($workspace);
+        $em->persist($list);
+        $parc = $this->createEntity($list, 'Parc');
+        $parliament = $this->createEntity($list, 'Parliament');
+        $place = $this->createAttributeDefinition([
+            'workspace' => $workspace,
+            'name' => 'Place',
+            'type' => EntityAttributeType::getName(),
+            'list' => $list,
+            'multiple' => true,
+            'no_flush' => true,
+        ]);
+        $em->flush();
+
+        $this->createAsset([
+            'workspace' => $workspace,
+            'name' => 'Party',
+            'public' => true,
+            'attributes' => [
+                ['definition' => $keywords, 'value' => 'Paris'],
+                ['definition' => $city, 'value' => 'Paris'],
+                ['definition' => $restricted, 'value' => 'Paradise'],
+                ['definition' => $place, 'value' => $parc->getId()],
+                ['definition' => $place, 'value' => $parliament->getId()],
+            ],
+            'no_flush' => true,
+        ]);
+        $this->createAsset([
+            'workspace' => $workspace,
+            'name' => 'Second',
+            'public' => true,
+            'attributes' => [
+                ['definition' => $city, 'value' => 'Parade'],
+            ],
+            'no_flush' => true,
+        ]);
+        $this->createAsset([
+            'workspace' => $workspace,
+            'name' => 'Third',
+            'public' => true,
+            'attributes' => [
+                ['definition' => $city, 'value' => 'Lyon'],
+            ],
+            'no_flush' => true,
+        ]);
+        $this->createCollection([
+            'workspace' => $workspace,
+            'name' => 'Parking',
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $em->flush();
+        self::releaseIndex();
+
+        $scoped = fn (string $query, AttributeDefinition|string $definition): array => $this->suggest($query, [], [
+            'definition' => $definition instanceof AttributeDefinition ? $definition->getId() : $definition,
+        ]);
+
+        // Only the values of the definition: no other definition, no asset or collection name
+        $suggestions = $scoped('par', $city);
+        $this->assertSame(self::sorted([
+            [$city->getId(), 'Parade', 'City'],
+            [$city->getId(), 'Paris', 'City'],
+        ]), self::sorted(array_map(fn (array $s): array => [$s['t'], $s['name'], $s['tName']], $suggestions)));
+        foreach ($suggestions as $suggestion) {
+            $this->assertStringContainsString('[hl]', $suggestion['hl']);
+            $this->assertArrayNotHasKey('entityId', $suggestion);
+        }
+
+        // An empty query lists the values
+        $this->assertSame(['Lyon', 'Parade', 'Paris'], self::sorted(array_column($scoped('', $city), 'name')));
+
+        // Entities carry their ID
+        $this->assertSame(self::sorted([
+            ['Parc', $parc->getId()],
+            ['Parliament', $parliament->getId()],
+        ]), self::sorted(array_map(fn (array $s): array => [$s['name'], $s['entityId']], $scoped('par', $place))));
+
+        $this->assertSame([], $scoped('par', $restricted));
+        $this->assertSame([], $scoped('par', 'unknown'));
+    }
+
     private function createSuggestedDefinition(Workspace $workspace, string $name, array $options = []): AttributeDefinition
     {
         $definition = $this->createAttributeDefinition(array_merge([
@@ -252,11 +362,11 @@ class SuggestionSearchTest extends AbstractSearchTest
         return $entity;
     }
 
-    private function suggest(string $query, array $headers = []): array
+    private function suggest(string $query, array $headers = [], array $params = []): array
     {
         $client = self::createClient();
         $response = $client->request('GET', '/assets/suggest', [
-            'query' => ['query' => $query],
+            'query' => ['query' => $query] + $params,
             'headers' => $headers,
         ]);
 

@@ -87,6 +87,42 @@ describe('SearchProvider', () => {
     });
 });
 
+describe('SearchProvider.upsertCondition', () => {
+    beforeEach(() => {
+        nav.push.mockReset();
+    });
+
+    it('replaces the condition with the same id', () => {
+        renderAt('/assets', 'f=%40isStory%3A%40isStory+IS+false');
+        act(() =>
+            probe.current.upsertCondition({
+                id: '@isStory',
+                query: '@isStory IS true',
+            })
+        );
+        const url: string = nav.push.mock.calls[0][0];
+        const params = new URLSearchParams(url.split('?')[1]);
+        expect(params.getAll('f')).toEqual(['@isStory:@isStory IS true']);
+    });
+
+    it('clears the text query in the same navigation with resetQuery', () => {
+        renderAt('/assets', 'q=cat');
+        act(() =>
+            probe.current.upsertCondition({
+                id: '@isStory',
+                query: '@isStory IS true',
+                resetQuery: true,
+            })
+        );
+        expect(nav.push).toHaveBeenCalledTimes(1);
+        const url: string = nav.push.mock.calls[0][0];
+        const params = new URLSearchParams(url.split('?')[1]);
+        expect(params.get('q')).toBeNull();
+        expect(params.getAll('f')).toEqual(['@isStory:@isStory IS true']);
+        expect(probe.current.inputQuery.current).toBe('');
+    });
+});
+
 describe('SearchProvider.selectCollection', () => {
     beforeEach(() => {
         nav.push.mockReset();

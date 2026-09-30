@@ -3,7 +3,7 @@
 import {useTranslation} from 'react-i18next';
 import type {FacetWidgetProps} from '../FacetsPanel';
 import {useFacetCondition} from '../useFacetCondition';
-import {resolveBucket} from './ListFacet';
+import {resolveBucket} from '../buckets';
 import {Checkbox} from '@/components/ui/controls';
 import {formatNumber} from '@/lib/utils/format';
 import {cn} from '@/lib/utils/cn';

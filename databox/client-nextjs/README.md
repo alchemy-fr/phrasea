@@ -153,9 +153,11 @@ a screen opens over another).
 Implemented:
 
 - Search: full-text, AQL conditions (hand-written parser/serializer/validator,
-  builder UI), facets (list, boolean, date histogram, geo distance, settings
-  and ordering), sort & grouping, saved searches (privacy, management),
-  debug ES dialog, URL-addressable search state.
+  builder UI), filter suggestions in the search input (`@field:` → value →
+  condition, values from the client and `/assets/suggest?definition=`),
+  facets (list, boolean, date histogram, geo distance, settings and
+  ordering), sort & grouping, saved searches (privacy, management), debug ES
+  dialog, URL-addressable search state.
 - Results: grid & list layouts (virtualized), dividers, selection (Ctrl+A,
   ranges), hover preview, display options, context menu, infinite scroll.
 - Assets: viewer (image zoom/pan, video/audio, PDF), side panel resized on

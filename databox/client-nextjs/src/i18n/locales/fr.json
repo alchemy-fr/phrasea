@@ -959,6 +959,8 @@
     "search.sort.group_disabled": "Indisponible lors du tri par pertinence",
     "search.sort.group_help": "Ajoute des séparateurs selon le premier critère de tri",
     "search.sort.title": "Trier par",
+    "search.suggest.field_hint": "Filtrer par {{name}}",
+    "search.suggest.press_enter": "Entrée",
     "search.submit": "Rechercher",
     "settings.data_locale": "Langue des données…",
     "settings.data_locale_default": "Par défaut — utiliser la langue de l'interface",

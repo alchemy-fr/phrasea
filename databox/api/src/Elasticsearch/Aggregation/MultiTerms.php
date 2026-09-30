@@ -16,12 +16,17 @@ use Elastica\Aggregation\AbstractAggregation;
 final class MultiTerms extends AbstractAggregation
 {
     /**
-     * @param string[] $fields
+     * @param array<string|array{field: string, missing?: string}> $fields a field name, or a term definition
+     *                                                                     ("missing" keeps the documents lacking the field
+     *                                                                     under the given value instead of dropping them)
      */
     public function __construct(string $name, array $fields)
     {
         parent::__construct($name);
-        $this->setParam('terms', array_map(fn (string $field): array => ['field' => $field], $fields));
+        $this->setParam('terms', array_map(
+            fn (string|array $field): array => is_string($field) ? ['field' => $field] : $field,
+            $fields,
+        ));
     }
 
     public function setSize(int $size): self

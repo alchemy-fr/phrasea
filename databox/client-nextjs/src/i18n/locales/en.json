@@ -959,6 +959,8 @@
     "search.sort.group_disabled": "Not available when sorting by score",
     "search.sort.group_help": "Adds separators based on the first sort criterion",
     "search.sort.title": "Sort by",
+    "search.suggest.field_hint": "Filter by {{name}}",
+    "search.suggest.press_enter": "Enter",
     "search.submit": "Search",
     "settings.data_locale": "Data language…",
     "settings.data_locale_default": "Default — use UI language",
