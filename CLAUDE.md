@@ -87,7 +87,7 @@ dc run --rm dev pnpm build         # tsc + vite build across packages
 
 Per-client: `pnpm --filter databox-client <script>` (scripts: `lint`, `build`, `cs` = lint:fix + format).
 
-**Frontend tests use Vitest** (`databox/client`, `databox/indexer`, `lib/js/auth`, `lib/js/i18n`; `pnpm test` at the root runs them all through Turbo):
+**Frontend tests use Vitest** (`databox/client`, `databox/client-nextjs`, `databox/indexer`, `lib/js/api`, `lib/js/auth`, `lib/js/i18n`; `pnpm test` at the root runs them all through Turbo):
 
 ```bash
 dc run --rm dev pnpm --filter databox-client test                      # vitest run
