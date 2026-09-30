@@ -81,7 +81,7 @@ final readonly class AttributeEntityUpdateHandler
             'asset',
             [
                 'bool' => [
-                    'must' => [
+                    'filter' => [
                         [
                             'term' => [
                                 'workspaceId' => $workspaceId,
@@ -93,6 +93,7 @@ final readonly class AttributeEntityUpdateHandler
                             $field.'.id' => $id,
                         ],
                     ], array_keys($fields)),
+                    'minimum_should_match' => 1,
                 ],
             ],
             [

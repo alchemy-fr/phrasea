@@ -483,6 +483,70 @@ class AttributeEntityTest extends AbstractSearchTest
         $this->assertSuggestions([], [$definition->getId()], $esClient, $asset->getId());
     }
 
+    public function testAttributeEntityUpdateOnlyTouchesReferencingAssets(): void
+    {
+        $em = self::getEntityManager();
+
+        $list = new EntityList();
+        $list->setName('list3');
+        $list->setWorkspace($this->getOrCreateDefaultWorkspace());
+        $em->persist($list);
+
+        $entity = new AttributeEntity();
+        $entity->setList($list);
+        $entity->setValue('ae4');
+        $em->persist($entity);
+
+        $definition = $this->createAttributeDefinition([
+            'name' => 'Renamed',
+            'type' => EntityAttributeType::getName(),
+            'list' => $list,
+            'no_flush' => true,
+        ]);
+
+        $asset = $this->createAsset([
+            'name' => 'Referencing',
+            'attributes' => [
+                [
+                    'definition' => $definition,
+                    'value' => $entity->getId(),
+                ],
+            ],
+        ]);
+        // Same workspace, without the entity
+        $otherAsset = $this->createAsset([
+            'name' => 'Other',
+        ]);
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('asset');
+
+        $esClient = self::getService(ElasticSearchClient::class);
+        $assetIndexName = $esClient->getIndexName('asset');
+        $getSeqNo = fn (string $assetId): int => $esClient->request($assetIndexName.'/_search?seq_no_primary_term=true&q=_id:'.$assetId)
+            ->asArray()['hits']['hits'][0]['_seq_no'];
+        $otherSeqNo = $getSeqNo($otherAsset->getId());
+
+        $apiClient = static::createClient();
+        $apiClient->request('PUT', '/attribute-entities/'.$entity->getId(), [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+            'json' => [
+                'value' => 'ae4-bis',
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+        self::waitForESIndex('asset');
+
+        $this->assertSuggestions(
+            $this->entitySuggestions($definition->getId(), $entity->getId(), 'ae4-bis'),
+            [$definition->getId()],
+            $esClient,
+            $asset->getId(),
+        );
+        $this->assertSame($otherSeqNo, $getSeqNo($otherAsset->getId()), 'An asset without the entity must not be rewritten');
+    }
+
     /**
      * @param string[] $definitionIds the definitions to compare, the other ones (the asset name) being ignored
      */
