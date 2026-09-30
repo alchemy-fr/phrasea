@@ -178,8 +178,12 @@ export function Discussion({
             });
             composerRef.current?.clear();
             if (!threadId) {
-                // thread created lazily on the first message: reload from the asset
-                setThreadId((message as any).thread?.id ?? threadId);
+                // The thread is created lazily by the first message: the
+                // query of the new id loads it (refetching the current one
+                // would read `/threads/undefined/messages`)
+                setThreadId((message as any).thread?.id);
+
+                return;
             }
             upsertLocal(message);
             // The creation payload is partial: reload the thread
@@ -331,10 +335,7 @@ export function Discussion({
                 onSaveEdit={saveEdit}
                 onCancelEdit={() => setEditing(null)}
                 sending={sending || savingEdit}
-                placeholder={t(
-                    'discussion.placeholder',
-                    'Write a message… (@ to mention, Enter to send, Shift+Enter for a new line)'
-                )}
+                placeholder={t('discussion.placeholder', 'Write a message…')}
             />
         </div>
     );

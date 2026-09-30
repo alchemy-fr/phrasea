@@ -14,6 +14,7 @@ import {
 import {
     useAssetActions,
     type ActionContext,
+    type AssetAction,
 } from '@/features/assets/actions/useAssetActions';
 
 export function AssetContextMenu({
@@ -52,6 +53,18 @@ export function AssetMenuItems({
     context?: ActionContext;
 }) {
     const groups = useAssetActions([asset], {onOpen, context});
+
+    return <AssetActionItems groups={groups} variant={variant} />;
+}
+
+/** Menu items of actions already built (see {@link useAssetActions}) */
+export function AssetActionItems({
+    groups,
+    variant,
+}: {
+    groups: AssetAction[][];
+    variant: 'context' | 'dropdown';
+}) {
     const Item = variant === 'context' ? ContextMenuItem : DropdownMenuItem;
     const Sep =
         variant === 'context' ? ContextMenuSeparator : DropdownMenuSeparator;

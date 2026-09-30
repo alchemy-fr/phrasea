@@ -254,6 +254,14 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
         }
     }, [expanded, workspace.id, loadChildren]);
 
+    const caps = workspace.capabilities;
+    // Without any of them the menu would open empty
+    const hasMenu =
+        caps.createCollection ||
+        caps.createAsset ||
+        caps.edit ||
+        caps.editPermissions;
+
     const menu = (
         Item: typeof DropdownMenuItem,
         Sep: typeof DropdownMenuSeparator
@@ -288,7 +296,7 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
             {workspace.capabilities.edit ||
             workspace.capabilities.editPermissions ? (
                 <>
-                    <Sep />
+                    {caps.createCollection || caps.createAsset ? <Sep /> : null}
                     <Item
                         onSelect={() =>
                             router.push(
@@ -315,7 +323,7 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
     return (
         <div>
             <ContextMenu>
-                <ContextMenuTrigger asChild>
+                <ContextMenuTrigger asChild disabled={!hasMenu}>
                     <div
                         ref={drop.setNodeRef}
                         data-testid="workspace-item"
@@ -360,20 +368,25 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
                                 {workspace.displayName ?? workspace.name}
                             </span>
                         </button>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="ghost"
-                                    size="icon-xs"
-                                    className="opacity-0 group-hover/ws:opacity-100 data-[state=open]:opacity-100"
-                                >
-                                    <MoreVerticalIcon />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                {menu(DropdownMenuItem, DropdownMenuSeparator)}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        {hasMenu ? (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon-xs"
+                                        className="opacity-0 group-hover/ws:opacity-100 data-[state=open]:opacity-100"
+                                    >
+                                        <MoreVerticalIcon />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    {menu(
+                                        DropdownMenuItem,
+                                        DropdownMenuSeparator
+                                    )}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        ) : null}
                     </div>
                 </ContextMenuTrigger>
                 <ContextMenuContent>

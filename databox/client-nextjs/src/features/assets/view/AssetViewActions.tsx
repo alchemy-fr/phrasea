@@ -16,7 +16,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/menu';
 import {MoreHorizontalIcon} from 'lucide-react';
-import {AssetMenuItems} from '@/features/assets/list/AssetContextMenu';
+import {AssetActionItems} from '@/features/assets/list/AssetContextMenu';
 
 export function AssetViewActions({
     asset,
@@ -46,6 +46,9 @@ export function AssetViewActions({
             ['download', 'edit', 'share', 'delete', 'restore'].includes(a.id)
         )
         .map(a => (a.id === 'edit' ? {...a, run: onEdit} : a));
+    const menuGroups = useAssetActions([asset], {
+        context: {open: false, info: false, edit: false},
+    });
     void rendition;
 
     return (
@@ -98,24 +101,25 @@ export function AssetViewActions({
                     </Tooltip>
                 </Fragment>
             ))}
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                    <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label={t('common.more', 'More')}
-                    >
-                        <MoreHorizontalIcon />
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                    <AssetMenuItems
-                        asset={asset}
-                        variant="dropdown"
-                        context={{open: false, info: false, edit: false}}
-                    />
-                </DropdownMenuContent>
-            </DropdownMenu>
+            {menuGroups.length > 0 ? (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            aria-label={t('common.more', 'More')}
+                        >
+                            <MoreHorizontalIcon />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                        <AssetActionItems
+                            groups={menuGroups}
+                            variant="dropdown"
+                        />
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            ) : null}
             <Tooltip
                 content={
                     panelOpen

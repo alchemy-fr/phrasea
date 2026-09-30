@@ -5,6 +5,7 @@ import {createPortal} from 'react-dom';
 import {
     ClientRect,
     DragOverlay,
+    DropAnimation,
     getClientRect,
     MeasuringConfiguration,
     useDndContext,
@@ -77,6 +78,25 @@ function measureOverlay(node: HTMLElement): ClientRect {
     };
 }
 
+/**
+ * The default drop animation, its target corrected: the overlay is measured
+ * where it started (see {@link measureOverlay}), not where the drop leaves
+ * it, so dnd-kit would add the whole drag to the way back — the copy flew
+ * past the landing place before snapping onto it.
+ */
+const dropAnimation: DropAnimation = {
+    keyframes: ({transform: {initial, final}, active, dragOverlay}) => [
+        {transform: CSS.Transform.toString(initial)},
+        {
+            transform: CSS.Transform.toString({
+                ...final,
+                x: active.rect.left - dragOverlay.rect.left,
+                y: active.rect.top - dragOverlay.rect.top,
+            }),
+        },
+    ],
+};
+
 export const overlayRow: SortableRow = {
     className: 'cursor-grabbing shadow-lg',
 };
@@ -102,7 +122,11 @@ export function SortableOverlay({
 
     return createPortal(
         // Above the dialogs and popovers the list may live in
-        <DragOverlay zIndex={60} className={overlayClass}>
+        <DragOverlay
+            zIndex={60}
+            className={overlayClass}
+            dropAnimation={dropAnimation}
+        >
             {active ? children(String(active.id)) : null}
         </DragOverlay>,
         document.body

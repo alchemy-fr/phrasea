@@ -1,16 +1,13 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
-import {useTranslation} from 'react-i18next';
-import {MaximizeIcon, MinusIcon, PlusIcon, RotateCcwIcon} from 'lucide-react';
+import {useEffect, useRef} from 'react';
 import type {ApiFile} from '@/types/api';
 import {FileKind, getFileKind} from '@/lib/utils/mime';
 import {FileKindIcon} from '@/components/chips';
 import {AnalysisChip} from '@/features/assets/quarantine/AnalysisChip';
-import {Button} from '@/components/ui/button';
 import {cn} from '@/lib/utils/cn';
-import {clamp} from '@/lib/utils/misc';
 import {AudioPlayer} from '@/features/assets/player/AudioPlayer';
+import {ZoomableImage} from '@/features/assets/player/ZoomableImage';
 
 export type FilePlayerProps = {
     file: ApiFile;
@@ -60,6 +57,8 @@ export function FilePlayer({
         case FileKind.Image:
             return fit === 'zoom' ? (
                 <ZoomableImage
+                    // The view (zoom, rotation) belongs to one image
+                    key={file.id}
                     src={file.url}
                     alt={title ?? file.fileName}
                     className={className}
@@ -177,151 +176,5 @@ function PdfPlayer({src, className}: {src: string; className?: string}) {
             title="PDF"
             className={cn('size-full border-0 bg-white', className)}
         />
-    );
-}
-
-/**
- * Image with mouse-wheel zoom and drag panning. Double-click resets.
- */
-export function ZoomableImage({
-    src,
-    alt,
-    className,
-    onInteraction,
-}: {
-    src: string;
-    alt: string;
-    className?: string;
-    onInteraction?: () => void;
-}) {
-    const {t} = useTranslation();
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [scale, setScale] = useState(1);
-    const [offset, setOffset] = useState({x: 0, y: 0});
-    const drag = useRef<{x: number; y: number; ox: number; oy: number} | null>(
-        null
-    );
-
-    const reset = () => {
-        setScale(1);
-        setOffset({x: 0, y: 0});
-    };
-    const zoomBy = (factor: number, origin?: {x: number; y: number}) => {
-        setScale(prev => {
-            const next = clamp(prev * factor, 0.1, 20);
-            if (origin) {
-                const ratio = next / prev;
-                setOffset(o => ({
-                    x: origin.x - (origin.x - o.x) * ratio,
-                    y: origin.y - (origin.y - o.y) * ratio,
-                }));
-            }
-
-            return next;
-        });
-    };
-
-    return (
-        <div
-            ref={containerRef}
-            className={cn(
-                'relative size-full overflow-hidden select-none',
-                scale > 1
-                    ? 'cursor-grab active:cursor-grabbing'
-                    : 'cursor-zoom-in',
-                className
-            )}
-            onWheel={e => {
-                e.preventDefault();
-                const rect = containerRef.current!.getBoundingClientRect();
-                const origin = {
-                    x: e.clientX - rect.left - rect.width / 2,
-                    y: e.clientY - rect.top - rect.height / 2,
-                };
-                zoomBy(e.deltaY < 0 ? 1.15 : 1 / 1.15, origin);
-                onInteraction?.();
-            }}
-            onMouseDown={e => {
-                if (e.button !== 0) {
-                    return;
-                }
-                drag.current = {
-                    x: e.clientX,
-                    y: e.clientY,
-                    ox: offset.x,
-                    oy: offset.y,
-                };
-            }}
-            onMouseMove={e => {
-                if (!drag.current) {
-                    return;
-                }
-                setOffset({
-                    x: drag.current.ox + e.clientX - drag.current.x,
-                    y: drag.current.oy + e.clientY - drag.current.y,
-                });
-            }}
-            onMouseUp={() => (drag.current = null)}
-            onMouseLeave={() => (drag.current = null)}
-            onDoubleClick={() => {
-                if (scale === 1) {
-                    zoomBy(2);
-                } else {
-                    reset();
-                }
-                onInteraction?.();
-            }}
-        >
-            <div className="flex size-full items-center justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                    src={src}
-                    alt={alt}
-                    draggable={false}
-                    className="max-h-full max-w-full object-contain transition-transform duration-75"
-                    style={{
-                        transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
-                    }}
-                    onClick={onInteraction}
-                />
-            </div>
-            <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full border bg-background/90 p-1 shadow-md">
-                <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    onClick={() => zoomBy(1 / 1.25)}
-                    aria-label={t('player.zoom_out', 'Zoom out')}
-                >
-                    <MinusIcon />
-                </Button>
-                <span className="w-12 text-center font-mono text-xs">
-                    {Math.round(scale * 100)}%
-                </span>
-                <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    onClick={() => zoomBy(1.25)}
-                    aria-label={t('player.zoom_in', 'Zoom in')}
-                >
-                    <PlusIcon />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    onClick={reset}
-                    aria-label={t('player.fit', 'Fit to screen')}
-                >
-                    <MaximizeIcon />
-                </Button>
-                <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    onClick={reset}
-                    aria-label={t('common.reset', 'Reset')}
-                >
-                    <RotateCcwIcon />
-                </Button>
-            </div>
-        </div>
     );
 }
