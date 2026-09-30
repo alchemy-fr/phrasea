@@ -23,6 +23,12 @@ import {
     OAuthClient,
 } from '@alchemy/auth';
 import {MemoryStorage} from '@alchemy/storage';
+import {
+    multipartUpload,
+    MultipartUploadOptions,
+} from '@alchemy/api/src/multiPartUpload.ts';
+
+import {HttpClient} from '@alchemy/api/src/types';
 
 function createApiClient(
     baseURL: string,
@@ -67,6 +73,13 @@ type ClientParameters = {
     ownerId: string;
 };
 
+type MultipartConfig = {
+    maxPartNumber?: number;
+    minChunkSize?: number;
+    maxChunkSize?: number;
+    maxFileSize?: number;
+};
+
 const maxNameLength = 255;
 
 const collectionKeyMap: Record<string, string> = {};
@@ -102,7 +115,10 @@ export class DataboxClient {
     }
 
     async createAsset(
-        data: AssetInput
+        data: AssetInput,
+        file?: File,
+        multipartConfig?: MultipartConfig,
+        options: MultipartUploadOptions = {}
     ): Promise<AssetOutput | StoryAssetOutput> {
         if (data.workspaceId) {
             data.workspace = `/workspaces/${data.workspaceId}`;
@@ -118,8 +134,21 @@ export class DataboxClient {
             );
         }
 
+        let multipart = {};
+        if (file != undefined) {
+            multipart = await multipartUpload(this.client as HttpClient, file, {
+                ...options,
+                maxPartNumber: multipartConfig?.maxPartNumber,
+                minChunkSize: multipartConfig?.minChunkSize,
+                maxChunkSize: multipartConfig?.maxChunkSize,
+                maxFileSize: multipartConfig?.maxFileSize,
+            });
+            data.sourceFile = undefined;
+        }
+
         const a = await this.client.post(`/assets`, {
             ownerId: this.ownerId,
+            multipart: multipart,
             ...data,
         });
 

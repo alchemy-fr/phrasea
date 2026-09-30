@@ -45,6 +45,10 @@ export async function fsWatcher(
         chokidar
             .watch(watchDir, {
                 ignoreInitial: true,
+                awaitWriteFinish: {
+                    stabilityThreshold: 2000,
+                    pollInterval: 100,
+                },
             })
             .on('all', storeEvent);
     } catch (err: any) {

@@ -2,6 +2,8 @@ import {IndexAsset} from './types';
 import {getAlternateUrls} from '../../alternateUrl';
 import * as p from 'path';
 import {splitPath} from '../../lib/pathUtils';
+import fs from 'fs';
+import {getConfig, getStrict} from '../../configLoader';
 
 export const collectionBasedOnPathStrategy: IndexAsset = async (
     asset,
@@ -35,27 +37,51 @@ export const collectionBasedOnPathStrategy: IndexAsset = async (
     }
 
     try {
+        let file = undefined;
+        const importFiles: boolean = getConfig(
+            'importFiles',
+            false,
+            location.options
+        );
+
+        if (importFiles) {
+            const fileName = p.basename(path);
+            file = new File([fs.readFileSync(path)], fileName);
+        }
+
+        const multipartConfig = {
+            maxPartNumber: getStrict('maxPartNumber', location.options),
+            minChunkSize: getStrict('minChunkSize', location.options),
+            maxChunkSize: getStrict('maxChunkSize', location.options),
+            maxFileSize: getStrict('maxFileSize', location.options),
+        };
+
         // create real asset
         logger.info(`  original: "${collPath}"  (#${collId})`);
-        const assetOputput = await databoxClient.createAsset({
-            workspaceId: asset.workspaceId,
-            sourceFile: asset.publicUrl
-                ? {
-                      url: asset.publicUrl,
-                      isPrivate: asset.isPrivate,
-                      alternateUrls,
-                      importFile: asset.importFile,
-                  }
-                : undefined,
-            collection: collId ? '/collections/' + collId : undefined,
-            generateRenditions: asset.generateRenditions,
-            key: asset.key,
-            name: asset.name || p.basename(path),
-            attributes: asset.attributes,
-            tags: asset.tags,
-            renditions: asset.renditions,
-            isStory: asset.isStory,
-        });
+        const assetOputput = await databoxClient.createAsset(
+            {
+                workspaceId: asset.workspaceId,
+                sourceFile: asset.publicUrl
+                    ? {
+                          url: asset.publicUrl,
+                          isPrivate: asset.isPrivate,
+                          alternateUrls,
+                          importFile: asset.importFile,
+                      }
+                    : undefined,
+                collection: collId ? '/collections/' + collId : undefined,
+                generateRenditions: asset.generateRenditions,
+                key: asset.key,
+                name: asset.name || p.basename(path),
+                attributes: asset.attributes,
+                tags: asset.tags,
+                renditions: asset.renditions,
+                isStory: asset.isStory,
+            },
+            file,
+            multipartConfig
+        );
+
         const assetId = assetOputput.id;
         // also create links into collections
         for (const c of asset.shortcutIntoCollections ?? []) {
