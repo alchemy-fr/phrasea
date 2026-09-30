@@ -444,6 +444,94 @@ const grammar: Grammar = {
         },
         {
             name: 'operator$string$5',
+            symbols: [{literal: 'I'}, {literal: 'S'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'operator$string$6',
+            symbols: [
+                {literal: 'E'},
+                {literal: 'M'},
+                {literal: 'P'},
+                {literal: 'T'},
+                {literal: 'Y'},
+            ],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'operator',
+            symbols: ['__', 'operator$string$5', '__', 'operator$string$6'],
+            postprocess: () => ({operator: 'MISSING'}),
+        },
+        {
+            name: 'operator$string$7',
+            symbols: [{literal: 'I'}, {literal: 'S'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'operator$string$8',
+            symbols: [{literal: 'N'}, {literal: 'O'}, {literal: 'T'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'operator$string$9',
+            symbols: [
+                {literal: 'E'},
+                {literal: 'M'},
+                {literal: 'P'},
+                {literal: 'T'},
+                {literal: 'Y'},
+            ],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'operator',
+            symbols: [
+                '__',
+                'operator$string$7',
+                '__',
+                'operator$string$8',
+                '__',
+                'operator$string$9',
+            ],
+            postprocess: () => ({operator: 'EXISTS'}),
+        },
+        {
+            name: 'operator$string$10',
+            symbols: [{literal: 'I'}, {literal: 'S'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'operator$ebnf$2$subexpression$1$string$1',
+            symbols: [{literal: 'N'}, {literal: 'O'}, {literal: 'T'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'operator$ebnf$2$subexpression$1',
+            symbols: ['operator$ebnf$2$subexpression$1$string$1', '__'],
+        },
+        {
+            name: 'operator$ebnf$2',
+            symbols: ['operator$ebnf$2$subexpression$1'],
+            postprocess: id,
+        },
+        {name: 'operator$ebnf$2', symbols: [], postprocess: () => null},
+        {
+            name: 'operator',
+            symbols: [
+                '__',
+                'operator$string$10',
+                '__',
+                'operator$ebnf$2',
+                'value_expression',
+            ],
+            postprocess: data => ({
+                operator: data[3] ? '!=' : '=',
+                rightOperand: data[4],
+            }),
+        },
+        {
+            name: 'operator$string$11',
             symbols: [
                 {literal: 'E'},
                 {literal: 'X'},
@@ -456,7 +544,7 @@ const grammar: Grammar = {
         },
         {
             name: 'operator',
-            symbols: ['__', 'operator$string$5'],
+            symbols: ['__', 'operator$string$11'],
             postprocess: () => ({operator: 'EXISTS'}),
         },
         {name: 'operator', symbols: ['in_operator'], postprocess: id},
@@ -467,7 +555,7 @@ const grammar: Grammar = {
             postprocess: data => ({operator: data[0], rightOperand: data[2]}),
         },
         {
-            name: 'operator$ebnf$2$subexpression$1$string$1',
+            name: 'operator$ebnf$3$subexpression$1$string$1',
             symbols: [
                 {literal: 'C'},
                 {literal: 'A'},
@@ -477,7 +565,7 @@ const grammar: Grammar = {
             postprocess: d => d.join(''),
         },
         {
-            name: 'operator$ebnf$2$subexpression$1$string$2',
+            name: 'operator$ebnf$3$subexpression$1$string$2',
             symbols: [
                 {literal: 'S'},
                 {literal: 'E'},
@@ -492,27 +580,27 @@ const grammar: Grammar = {
             postprocess: d => d.join(''),
         },
         {
-            name: 'operator$ebnf$2$subexpression$1',
+            name: 'operator$ebnf$3$subexpression$1',
             symbols: [
                 '__',
-                'operator$ebnf$2$subexpression$1$string$1',
+                'operator$ebnf$3$subexpression$1$string$1',
                 '__',
-                'operator$ebnf$2$subexpression$1$string$2',
+                'operator$ebnf$3$subexpression$1$string$2',
             ],
         },
         {
-            name: 'operator$ebnf$2',
-            symbols: ['operator$ebnf$2$subexpression$1'],
+            name: 'operator$ebnf$3',
+            symbols: ['operator$ebnf$3$subexpression$1'],
             postprocess: id,
         },
-        {name: 'operator$ebnf$2', symbols: [], postprocess: () => null},
+        {name: 'operator$ebnf$3', symbols: [], postprocess: () => null},
         {
             name: 'operator',
             symbols: [
                 'text_operator',
                 '_',
                 'value_expression',
-                'operator$ebnf$2',
+                'operator$ebnf$3',
             ],
             postprocess: data => ({
                 operator: data[0],
@@ -634,36 +722,16 @@ const grammar: Grammar = {
                 };
             },
         },
-        {
-            name: 'in_operator$ebnf$1$subexpression$1$string$1',
-            symbols: [{literal: 'N'}, {literal: 'O'}, {literal: 'T'}],
-            postprocess: d => d.join(''),
-        },
+        {name: 'in_operator$ebnf$1', symbols: []},
         {
             name: 'in_operator$ebnf$1$subexpression$1',
-            symbols: ['in_operator$ebnf$1$subexpression$1$string$1', '__'],
-        },
-        {
-            name: 'in_operator$ebnf$1',
-            symbols: ['in_operator$ebnf$1$subexpression$1'],
-            postprocess: id,
-        },
-        {name: 'in_operator$ebnf$1', symbols: [], postprocess: () => null},
-        {
-            name: 'in_operator$string$1',
-            symbols: [{literal: 'I'}, {literal: 'N'}],
-            postprocess: d => d.join(''),
-        },
-        {name: 'in_operator$ebnf$2', symbols: []},
-        {
-            name: 'in_operator$ebnf$2$subexpression$1',
             symbols: ['_', {literal: ','}, '_', 'value_expression'],
         },
         {
-            name: 'in_operator$ebnf$2',
+            name: 'in_operator$ebnf$1',
             symbols: [
-                'in_operator$ebnf$2',
-                'in_operator$ebnf$2$subexpression$1',
+                'in_operator$ebnf$1',
+                'in_operator$ebnf$1$subexpression$1',
             ],
             postprocess: d => d[0].concat([d[1]]),
         },
@@ -671,22 +739,186 @@ const grammar: Grammar = {
             name: 'in_operator',
             symbols: [
                 '__',
-                'in_operator$ebnf$1',
-                'in_operator$string$1',
+                'in_keyword',
                 '_',
                 {literal: '('},
                 '_',
                 'value_expression',
-                'in_operator$ebnf$2',
+                'in_operator$ebnf$1',
                 '_',
                 {literal: ')'},
             ],
             postprocess: data => {
                 return {
-                    operator: data[1] ? 'NOT_IN' : 'IN',
-                    rightOperand: [data[6]].concat(data[7].map(d => d[3])),
+                    operator: data[1],
+                    rightOperand: [data[5]].concat(data[6].map(d => d[3])),
                 };
             },
+        },
+        {
+            name: 'in_keyword$string$1',
+            symbols: [{literal: 'I'}, {literal: 'N'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword',
+            symbols: ['in_keyword$string$1'],
+            postprocess: () => 'IN',
+        },
+        {
+            name: 'in_keyword$string$2',
+            symbols: [{literal: 'N'}, {literal: 'O'}, {literal: 'T'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword$string$3',
+            symbols: [{literal: 'I'}, {literal: 'N'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword',
+            symbols: ['in_keyword$string$2', '__', 'in_keyword$string$3'],
+            postprocess: () => 'NOT_IN',
+        },
+        {
+            name: 'in_keyword$string$4',
+            symbols: [{literal: 'I'}, {literal: 'S'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword$string$5',
+            symbols: [{literal: 'A'}, {literal: 'N'}, {literal: 'Y'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword$string$6',
+            symbols: [{literal: 'O'}, {literal: 'F'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword',
+            symbols: [
+                'in_keyword$string$4',
+                '__',
+                'in_keyword$string$5',
+                '__',
+                'in_keyword$string$6',
+            ],
+            postprocess: () => 'IN',
+        },
+        {
+            name: 'in_keyword$string$7',
+            symbols: [{literal: 'I'}, {literal: 'S'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword$string$8',
+            symbols: [
+                {literal: 'N'},
+                {literal: 'O'},
+                {literal: 'N'},
+                {literal: 'E'},
+            ],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword$string$9',
+            symbols: [{literal: 'O'}, {literal: 'F'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword',
+            symbols: [
+                'in_keyword$string$7',
+                '__',
+                'in_keyword$string$8',
+                '__',
+                'in_keyword$string$9',
+            ],
+            postprocess: () => 'NOT_IN',
+        },
+        {
+            name: 'in_keyword$string$10',
+            symbols: [{literal: 'H'}, {literal: 'A'}, {literal: 'S'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword$string$11',
+            symbols: [{literal: 'A'}, {literal: 'N'}, {literal: 'Y'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword$string$12',
+            symbols: [{literal: 'O'}, {literal: 'F'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword',
+            symbols: [
+                'in_keyword$string$10',
+                '__',
+                'in_keyword$string$11',
+                '__',
+                'in_keyword$string$12',
+            ],
+            postprocess: () => 'IN',
+        },
+        {
+            name: 'in_keyword$string$13',
+            symbols: [{literal: 'H'}, {literal: 'A'}, {literal: 'S'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword$string$14',
+            symbols: [
+                {literal: 'N'},
+                {literal: 'O'},
+                {literal: 'N'},
+                {literal: 'E'},
+            ],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword$string$15',
+            symbols: [{literal: 'O'}, {literal: 'F'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword',
+            symbols: [
+                'in_keyword$string$13',
+                '__',
+                'in_keyword$string$14',
+                '__',
+                'in_keyword$string$15',
+            ],
+            postprocess: () => 'NOT_IN',
+        },
+        {
+            name: 'in_keyword$string$16',
+            symbols: [{literal: 'H'}, {literal: 'A'}, {literal: 'S'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword$string$17',
+            symbols: [{literal: 'A'}, {literal: 'L'}, {literal: 'L'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword$string$18',
+            symbols: [{literal: 'O'}, {literal: 'F'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'in_keyword',
+            symbols: [
+                'in_keyword$string$16',
+                '__',
+                'in_keyword$string$17',
+                '__',
+                'in_keyword$string$18',
+            ],
+            postprocess: () => 'HAS_ALL_OF',
         },
         {name: 'simple_operator', symbols: [{literal: '='}], postprocess: id},
         {
@@ -914,6 +1146,79 @@ const grammar: Grammar = {
                 'text_operator$string$10',
             ],
             postprocess: () => 'NOT_STARTS_WITH',
+        },
+        {
+            name: 'text_operator$string$11',
+            symbols: [
+                {literal: 'E'},
+                {literal: 'N'},
+                {literal: 'D'},
+                {literal: 'S'},
+            ],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'text_operator$string$12',
+            symbols: [
+                {literal: 'W'},
+                {literal: 'I'},
+                {literal: 'T'},
+                {literal: 'H'},
+            ],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'text_operator',
+            symbols: [
+                '__',
+                'text_operator$string$11',
+                '__',
+                'text_operator$string$12',
+            ],
+            postprocess: () => 'ENDS_WITH',
+        },
+        {
+            name: 'text_operator$string$13',
+            symbols: [
+                {literal: 'D'},
+                {literal: 'O'},
+                {literal: 'E'},
+                {literal: 'S'},
+            ],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'text_operator$string$14',
+            symbols: [{literal: 'N'}, {literal: 'O'}, {literal: 'T'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'text_operator$string$15',
+            symbols: [{literal: 'E'}, {literal: 'N'}, {literal: 'D'}],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'text_operator$string$16',
+            symbols: [
+                {literal: 'W'},
+                {literal: 'I'},
+                {literal: 'T'},
+                {literal: 'H'},
+            ],
+            postprocess: d => d.join(''),
+        },
+        {
+            name: 'text_operator',
+            symbols: [
+                'text_operator$string$13',
+                '__',
+                'text_operator$string$14',
+                '__',
+                'text_operator$string$15',
+                '__',
+                'text_operator$string$16',
+            ],
+            postprocess: () => 'NOT_ENDS_WITH',
         },
         {
             name: 'function_call$ebnf$1',
@@ -1182,7 +1487,11 @@ const grammar: Grammar = {
         {
             name: 'field',
             symbols: ['identifier'],
-            postprocess: d => {
+            postprocess: (d, _location, reject) => {
+                // Keywords following IS (IS EMPTY, IS NOT …, IS ANY OF…) cannot be field names
+                if (['EMPTY', 'MISSING', 'NOT', 'ANY', 'NONE'].includes(d[0])) {
+                    return reject;
+                }
                 if ('true' === d[0]) {
                     return true;
                 } else if ('false' === d[0]) {

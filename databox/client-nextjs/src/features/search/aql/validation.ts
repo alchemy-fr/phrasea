@@ -59,6 +59,7 @@ export function getOperatorsForType(
         AQLOperator.NEQ,
         AQLOperator.IN,
         AQLOperator.NOT_IN,
+        AQLOperator.HAS_ALL_OF,
         AQLOperator.EXISTS,
         AQLOperator.MISSING,
     ];
@@ -72,6 +73,8 @@ export function getOperatorsForType(
                 AQLOperator.NOT_MATCHES,
                 AQLOperator.STARTS_WITH,
                 AQLOperator.NOT_STARTS_WITH,
+                AQLOperator.ENDS_WITH,
+                AQLOperator.NOT_ENDS_WITH,
             ];
         case RawType.Keyword:
             return [
@@ -80,6 +83,8 @@ export function getOperatorsForType(
                 AQLOperator.NOT_CONTAINS,
                 AQLOperator.STARTS_WITH,
                 AQLOperator.NOT_STARTS_WITH,
+                AQLOperator.ENDS_WITH,
+                AQLOperator.NOT_ENDS_WITH,
             ];
         case RawType.Number:
         case RawType.Date:
@@ -117,6 +122,7 @@ export function getOperatorArity(operator: AQLOperator): number | true {
     switch (operator) {
         case AQLOperator.IN:
         case AQLOperator.NOT_IN:
+        case AQLOperator.HAS_ALL_OF:
             return true;
         case AQLOperator.BETWEEN:
         case AQLOperator.NOT_BETWEEN:

@@ -24,6 +24,9 @@ enum ConditionOperatorEnum: string
     case NOT_CONTAINS = 'NOT_CONTAINS';
     case STARTS_WITH = 'STARTS_WITH';
     case NOT_STARTS_WITH = 'NOT_STARTS_WITH';
+    case ENDS_WITH = 'ENDS_WITH';
+    case NOT_ENDS_WITH = 'NOT_ENDS_WITH';
+    case HAS_ALL_OF = 'HAS_ALL_OF';
     case WITHIN_CIRCLE = 'WITHIN_CIRCLE';
     case WITHIN_RECTANGLE = 'WITHIN_RECTANGLE';
 }

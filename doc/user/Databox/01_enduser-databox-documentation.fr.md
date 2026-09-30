@@ -259,7 +259,7 @@ Cliquez sur: **“Ajouter une condition”**:
 
 * Sélection de l’opérateur
 
-Après avoir choisi le champ, choisir l’opérateur ( “commence avec”, “existe”, “contient”, “est égal à”,…: ces opérateurs changent en fonction de la condition choisie.
+Après avoir choisi le champ, choisir l’opérateur ( “est”, “est l’un de”, “est vide”, “contient”, “commence par”, “se termine par”, “est avant le”,… : ces opérateurs changent en fonction du type du champ choisi).
 
 * Sélection de la valeur
 

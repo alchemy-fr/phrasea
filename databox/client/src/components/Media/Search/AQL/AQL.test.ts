@@ -5,7 +5,7 @@ import {AQLQueryAST} from './aqlTypes.ts';
 it('parse AQL', function () {
     const dataSet = [
         {
-            query: '@tag = true',
+            query: '@tag IS true',
             result: {
                 expression: {
                     leftOperand: {field: '@tag'},
@@ -15,7 +15,7 @@ it('parse AQL', function () {
             },
         },
         {
-            query: '@tag = false',
+            query: '@tag IS false',
             result: {
                 expression: {
                     leftOperand: {field: '@tag'},
@@ -25,7 +25,7 @@ it('parse AQL', function () {
             },
         },
         {
-            query: '@tag = null',
+            query: '@tag IS null',
             result: {
                 expression: {
                     leftOperand: {field: '@tag'},
@@ -35,8 +35,8 @@ it('parse AQL', function () {
             },
         },
         {
-            query: '@tag = (1 + 2 )',
-            formattedQuery: '@tag = (1 + 2)',
+            query: '@tag IS (1 + 2 )',
+            formattedQuery: '@tag IS (1 + 2)',
             result: {
                 expression: {
                     leftOperand: {field: '@tag'},
@@ -92,7 +92,7 @@ it('parse AQL', function () {
             },
         },
         {
-            query: 'field1 = "foo" AND price > 42',
+            query: 'field1 IS "foo" AND price > 42',
             result: {
                 expression: {
                     operator: 'AND',
@@ -112,7 +112,7 @@ it('parse AQL', function () {
             },
         },
         {
-            query: '@createdAt != "foo"',
+            query: '@createdAt IS NOT "foo"',
             result: {
                 expression: {
                     leftOperand: {field: '@createdAt'},
@@ -122,7 +122,7 @@ it('parse AQL', function () {
             },
         },
         {
-            query: '@createdAt != "f\\"oo"',
+            query: '@createdAt IS NOT "f\\"oo"',
             result: {
                 expression: {
                     leftOperand: {field: '@createdAt'},
@@ -132,7 +132,7 @@ it('parse AQL', function () {
             },
         },
         {
-            query: '@createdAt != "f\\"oo\\""',
+            query: '@createdAt IS NOT "f\\"oo\\""',
             result: {
                 expression: {
                     leftOperand: {field: '@createdAt'},
@@ -142,7 +142,7 @@ it('parse AQL', function () {
             },
         },
         {
-            query: '@createdAt != "fo"o"',
+            query: '@createdAt IS NOT "fo"o"',
             result: undefined,
         },
         {
@@ -178,9 +178,9 @@ it('parse AQL', function () {
             },
         },
         {
-            query: '@tag IN ( "c333940d-9e5c-4f3c-b16a-77f8daabca87","6ee44526-3e8e-4412-8a9b-44b82fdce6bc" )',
+            query: '@tag IS ANY OF ( "c333940d-9e5c-4f3c-b16a-77f8daabca87","6ee44526-3e8e-4412-8a9b-44b82fdce6bc" )',
             formattedQuery:
-                '@tag IN ("c333940d-9e5c-4f3c-b16a-77f8daabca87", "6ee44526-3e8e-4412-8a9b-44b82fdce6bc")',
+                '@tag IS ANY OF ("c333940d-9e5c-4f3c-b16a-77f8daabca87", "6ee44526-3e8e-4412-8a9b-44b82fdce6bc")',
             result: {
                 expression: {
                     leftOperand: {field: '@tag'},
@@ -193,7 +193,7 @@ it('parse AQL', function () {
             },
         },
         {
-            query: '@tag IN (33, 22)',
+            query: '@tag IS ANY OF (33, 22)',
             result: {
                 expression: {
                     leftOperand: {field: '@tag'},
@@ -203,7 +203,7 @@ it('parse AQL', function () {
             },
         },
         {
-            query: '@tag NOT IN (true)',
+            query: '@tag IS NONE OF (true)',
             result: {
                 expression: {
                     leftOperand: {field: '@tag'},
@@ -234,7 +234,7 @@ it('parse AQL', function () {
             },
         },
         {
-            query: 'title DOES NOT START WITH "A" CASE SENSITIVE AND f = 1',
+            query: 'title DOES NOT START WITH "A" CASE SENSITIVE AND f IS 1',
             result: {
                 expression: {
                     operator: 'AND',
@@ -259,7 +259,7 @@ it('parse AQL', function () {
             result: undefined,
         },
         {
-            query: 'description = "foo" CASE SENSITIVE',
+            query: 'description IS "foo" CASE SENSITIVE',
             result: undefined,
         },
         {
@@ -273,7 +273,7 @@ it('parse AQL', function () {
             },
         },
         {
-            query: '(f1 = "1" AND f2 != "2") AND f3 != "3"',
+            query: '(f1 IS "1" AND f2 IS NOT "2") AND f3 IS NOT "3"',
             result: {
                 expression: {
                     operator: 'AND',
@@ -303,7 +303,7 @@ it('parse AQL', function () {
             },
         },
         {
-            query: '(f1 = "1" AND f2 != "2") OR f3 != "3"',
+            query: '(f1 IS "1" AND f2 IS NOT "2") OR f3 IS NOT "3"',
             result: {
                 expression: {
                     operator: 'OR',
@@ -333,7 +333,7 @@ it('parse AQL', function () {
             },
         },
         {
-            query: 'f1 = "1" AND (f2 != "2" AND f3 != "3")',
+            query: 'f1 IS "1" AND (f2 IS NOT "2" AND f3 IS NOT "3")',
             result: {
                 expression: {
                     operator: 'AND',
@@ -363,7 +363,7 @@ it('parse AQL', function () {
             },
         },
         {
-            query: 'f1 = "1" AND (f2 != "2" OR f3 != "3")',
+            query: 'f1 IS "1" AND (f2 IS NOT "2" OR f3 IS NOT "3")',
             result: {
                 expression: {
                     operator: 'AND',
@@ -393,7 +393,7 @@ it('parse AQL', function () {
             },
         },
         {
-            query: 'f1 = "1" OR (f2 != "2" AND f3 != "3")',
+            query: 'f1 IS "1" OR (f2 IS NOT "2" AND f3 IS NOT "3")',
             result: {
                 expression: {
                     operator: 'OR',
@@ -433,7 +433,7 @@ it('parse AQL', function () {
             },
         },
         {
-            query: 'b IN (true, false)',
+            query: 'b IS ANY OF (true, false)',
             result: {
                 expression: {
                     leftOperand: {field: 'b'},
@@ -452,5 +452,105 @@ it('parse AQL', function () {
                 formattedQuery ?? query
             );
         }
+    });
+});
+
+it('parse AQL new operators', function () {
+    const dataSet = [
+        {
+            query: 'title ENDS WITH "foo"',
+            result: {
+                expression: {
+                    leftOperand: {field: 'title'},
+                    operator: 'ENDS_WITH',
+                    rightOperand: {literal: 'foo'},
+                },
+            },
+        },
+        {
+            query: 'title DOES NOT END WITH "Foo" CASE SENSITIVE',
+            result: {
+                expression: {
+                    leftOperand: {field: 'title'},
+                    operator: 'NOT_ENDS_WITH',
+                    rightOperand: {literal: 'Foo'},
+                    caseSensitive: true,
+                },
+            },
+        },
+        {
+            query: '@tag HAS ALL OF ("a", "b")',
+            result: {
+                expression: {
+                    leftOperand: {field: '@tag'},
+                    operator: 'HAS_ALL_OF',
+                    rightOperand: [{literal: 'a'}, {literal: 'b'}],
+                },
+            },
+        },
+        {
+            query: 'title IS EMPTY',
+            result: {
+                expression: {
+                    leftOperand: {field: 'title'},
+                    operator: 'MISSING',
+                },
+            },
+        },
+        {
+            query: 'title IS NOT EMPTY',
+            result: {
+                expression: {
+                    leftOperand: {field: 'title'},
+                    operator: 'EXISTS',
+                },
+            },
+        },
+        {
+            query: 'title IS other_field',
+            result: {
+                expression: {
+                    leftOperand: {field: 'title'},
+                    operator: '=',
+                    rightOperand: {field: 'other_field'},
+                },
+            },
+        },
+        {
+            query: 'title IS ANY OF "a"',
+            result: undefined,
+        },
+        {
+            query: 'title HAS ALL OF',
+            result: undefined,
+        },
+    ];
+
+    dataSet.forEach(({query, result}) => {
+        const actual = parseAQLQuery(query);
+        expect(actual).toEqual(result);
+        if (result !== undefined) {
+            expect(astToString(result as AQLQueryAST)).toEqual(query);
+        }
+    });
+});
+
+it('parse AQL operator aliases', function () {
+    const aliases: [string, string][] = [
+        ['f = "a"', 'f IS "a"'],
+        ['f != "a"', 'f IS NOT "a"'],
+        ['f IN ("a", "b")', 'f IS ANY OF ("a", "b")'],
+        ['f HAS ANY OF ("a", "b")', 'f IS ANY OF ("a", "b")'],
+        ['f NOT IN ("a")', 'f IS NONE OF ("a")'],
+        ['f HAS NONE OF ("a")', 'f IS NONE OF ("a")'],
+        ['f IS MISSING', 'f IS EMPTY'],
+        ['f EXISTS', 'f IS NOT EMPTY'],
+    ];
+
+    aliases.forEach(([alias, canonical]) => {
+        const actual = parseAQLQuery(alias);
+        expect(actual).toBeDefined();
+        expect(actual).toEqual(parseAQLQuery(canonical));
+        expect(astToString(actual as AQLQueryAST)).toEqual(canonical);
     });
 });

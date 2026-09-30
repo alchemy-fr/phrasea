@@ -56,6 +56,9 @@ criteria -> field _ operator {%
 
 operator -> __ ("NOT" __):? "BETWEEN" __ value_expression __ "AND" __ value_expression {% (data) => ({operator: data[1] ? 'NOT_BETWEEN' : 'BETWEEN', rightOperand: [data[4], data[8]]}) %}
     | __ "IS" __ "MISSING" {% () => ({operator: 'MISSING'}) %}
+    | __ "IS" __ "EMPTY" {% () => ({operator: 'MISSING'}) %}
+    | __ "IS" __ "NOT" __ "EMPTY" {% () => ({operator: 'EXISTS'}) %}
+    | __ "IS" __ ("NOT" __):? value_expression {% (data) => ({operator: data[3] ? '!=' : '=', rightOperand: data[4]}) %}
     | __ "EXISTS" {% () => ({operator: 'EXISTS'}) %}
     | in_operator {% id %}
     | geo_operator {% id %}
@@ -90,12 +93,20 @@ within_rectangle_operator -> "RECTANGLE" _ "(" _ value_expression _ "," _ value_
     };
 } %}
 
-in_operator -> __ ("NOT" __):? "IN" _ "(" _ value_expression (_ "," _ value_expression):* _ ")" {% (data) => {
+in_operator -> __ in_keyword _ "(" _ value_expression (_ "," _ value_expression):* _ ")" {% (data) => {
     return {
-        operator: data[1] ? 'NOT_IN' : 'IN',
-        rightOperand: [data[6]].concat(data[7].map(d => d[3])),
+        operator: data[1],
+        rightOperand: [data[5]].concat(data[6].map(d => d[3])),
     };
  } %}
+
+in_keyword -> "IN" {% () => 'IN' %}
+    | "NOT" __ "IN" {% () => 'NOT_IN' %}
+    | "IS" __ "ANY" __ "OF" {% () => 'IN' %}
+    | "IS" __ "NONE" __ "OF" {% () => 'NOT_IN' %}
+    | "HAS" __ "ANY" __ "OF" {% () => 'IN' %}
+    | "HAS" __ "NONE" __ "OF" {% () => 'NOT_IN' %}
+    | "HAS" __ "ALL" __ "OF" {% () => 'HAS_ALL_OF' %}
 
 simple_operator -> "=" {% id %}
     | "!=" {% id %}
@@ -110,6 +121,8 @@ text_operator -> __ "CONTAINS" {% d => d[1] %}
     | "DOES" __ "NOT" __ "CONTAIN" {% () => 'NOT_CONTAINS' %}
     | __ "STARTS" __ "WITH" {% () => 'STARTS_WITH' %}
     | "DOES" __ "NOT" __ "START" __ "WITH" {% () => 'NOT_STARTS_WITH' %}
+    | __ "ENDS" __ "WITH" {% () => 'ENDS_WITH' %}
+    | "DOES" __ "NOT" __ "END" __ "WITH" {% () => 'NOT_ENDS_WITH' %}
 
 function_call -> identifier "(" _ value_expression:? (_ "," _ value_expression):* _ ")" {% (data) => {
     const args = [];
@@ -196,7 +209,11 @@ identifier -> [a-zA-Z_] [a-zA-Z0-9_-]:* {% d => d[0]+d[1].join('') %}
 builtin_field -> "@" identifier {% d => ({field: "@"+d[1]}) %}
 
 field -> builtin_field {% id %}
-    | identifier {% d => {
+    | identifier {% (d, _location, reject) => {
+    // Keywords following IS (IS EMPTY, IS NOT …, IS ANY OF…) cannot be field names
+    if (['EMPTY', 'MISSING', 'NOT', 'ANY', 'NONE'].includes(d[0])) {
+        return reject;
+    }
     if ('true' === d[0]) {
         return true;
     } else if ('false' === d[0]) {

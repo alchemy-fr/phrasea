@@ -17,22 +17,25 @@ import {
 } from './types';
 
 export const operatorLabels: Record<AQLOperator, string> = {
-    [AQLOperator.EQ]: '=',
-    [AQLOperator.NEQ]: '!=',
+    [AQLOperator.EQ]: 'IS',
+    [AQLOperator.NEQ]: 'IS NOT',
     [AQLOperator.GT]: '>',
     [AQLOperator.LT]: '<',
     [AQLOperator.GTE]: '>=',
     [AQLOperator.LTE]: '<=',
-    [AQLOperator.IN]: 'IN',
-    [AQLOperator.NOT_IN]: 'NOT IN',
-    [AQLOperator.MISSING]: 'IS MISSING',
-    [AQLOperator.EXISTS]: 'EXISTS',
+    [AQLOperator.IN]: 'IS ANY OF',
+    [AQLOperator.NOT_IN]: 'IS NONE OF',
+    [AQLOperator.HAS_ALL_OF]: 'HAS ALL OF',
+    [AQLOperator.MISSING]: 'IS EMPTY',
+    [AQLOperator.EXISTS]: 'IS NOT EMPTY',
     [AQLOperator.CONTAINS]: 'CONTAINS',
     [AQLOperator.NOT_CONTAINS]: 'DOES NOT CONTAIN',
     [AQLOperator.MATCHES]: 'MATCHES',
     [AQLOperator.NOT_MATCHES]: 'DOES NOT MATCH',
     [AQLOperator.STARTS_WITH]: 'STARTS WITH',
     [AQLOperator.NOT_STARTS_WITH]: 'DOES NOT START WITH',
+    [AQLOperator.ENDS_WITH]: 'ENDS WITH',
+    [AQLOperator.NOT_ENDS_WITH]: 'DOES NOT END WITH',
     [AQLOperator.BETWEEN]: 'BETWEEN',
     [AQLOperator.NOT_BETWEEN]: 'NOT BETWEEN',
     [AQLOperator.WITHIN_CIRCLE]: 'WITHIN CIRCLE',
@@ -161,7 +164,7 @@ export function resolveScalar(
 }
 
 /**
- * Builds simple `field IN (...)` / `field = x` / `field IS MISSING` conditions,
+ * Builds simple `field IS ANY OF (...)` / `field IS x` / `field IS EMPTY` conditions,
  * used by facets to toggle values.
  */
 export class ConditionBuilder {
@@ -245,12 +248,12 @@ export class ConditionBuilder {
             );
             parts.push(
                 this.values.length > 1
-                    ? `${this.field} IN (${serialized.join(', ')})`
-                    : `${this.field} = ${serialized[0]}`
+                    ? `${this.field} IS ANY OF (${serialized.join(', ')})`
+                    : `${this.field} IS ${serialized[0]}`
             );
         }
         if (this.includeMissing) {
-            parts.push(`${this.field} IS MISSING`);
+            parts.push(`${this.field} IS EMPTY`);
         }
 
         return parts.join(' OR ');

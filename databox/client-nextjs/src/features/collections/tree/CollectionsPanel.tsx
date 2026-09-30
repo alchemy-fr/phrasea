@@ -91,7 +91,7 @@ export function CollectionsPanel() {
     const selectTrash = () =>
         search?.resetWithCondition({
             id: BuiltInAttribute.Deleted,
-            query: `${BuiltInAttribute.Deleted} = true`,
+            query: `${BuiltInAttribute.Deleted} IS true`,
         });
     const selectQuarantine = () =>
         search?.resetWithCondition(quarantineCondition);
@@ -281,7 +281,7 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
                         onSelect={() =>
                             pin(workspace.displayName ?? workspace.name, {
                                 id: BuiltInAttribute.Workspace,
-                                query: `${BuiltInAttribute.Workspace} = ${quoteAQL(workspace.id)}`,
+                                query: `${BuiltInAttribute.Workspace} IS ${quoteAQL(workspace.id)}`,
                             })
                         }
                     >
@@ -738,7 +738,7 @@ function collectionFilter(collection: CollectionNode) {
     return collection.storyAsset
         ? {
               id: BuiltInAttribute.Story,
-              query: `${BuiltInAttribute.Story} = ${quoteAQL(collection.storyAsset.id)}`,
+              query: `${BuiltInAttribute.Story} IS ${quoteAQL(collection.storyAsset.id)}`,
           }
         : {
               id: BuiltInAttribute.Collection,

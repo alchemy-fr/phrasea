@@ -33,7 +33,7 @@ export function resolveNotificationUri(uri: string): string {
             conditions: [
                 {
                     id: BuiltInAttribute.Collection,
-                    query: `${BuiltInAttribute.Collection} = ${quoteAQL(id)}`,
+                    query: `${BuiltInAttribute.Collection} IS ${quoteAQL(id)}`,
                 },
             ],
         });

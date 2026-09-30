@@ -467,6 +467,73 @@ class AQLToESQueryTest extends TestCase
                 ],
             ], 'fr'],
             ['field MATCHES "Big" CASE SENSITIVE', 'CASE SENSITIVE is not supported with operator "MATCHES"'],
+            ['field MATCHES "big world"', [
+                'match' => ['attrs.fr.field_text_s' => ['query' => 'big world', 'operator' => 'and']],
+            ], 'fr'],
+            ['field DOES NOT MATCH "big world"', [
+                'bool' => [
+                    'must_not' => [
+                        ['match' => ['attrs.fr.field_text_s' => ['query' => 'big world', 'operator' => 'and']]],
+                    ],
+                ],
+            ], 'fr'],
+            ['field ENDS WITH "world"', [
+                'bool' => [
+                    'should' => [
+                        ['wildcard' => ['attrs.it.field_text_s.raw' => ['value' => '*world', 'boost' => 1.0, 'case_insensitive' => true]]],
+                        ['wildcard' => ['attrs.de.field_text_s.raw' => ['value' => '*world', 'boost' => 1.0, 'case_insensitive' => true]]],
+                        ['wildcard' => ['attrs._.field_text_s.raw' => ['value' => '*world', 'boost' => 1.0, 'case_insensitive' => true]]],
+                    ],
+                ],
+            ]],
+            ['field ENDS WITH "a*b?"', [
+                'wildcard' => ['attrs.fr.field_text_s.raw' => ['value' => '*a\\*b\\?', 'boost' => 1.0, 'case_insensitive' => true]],
+            ], 'fr'],
+            ['field DOES NOT END WITH "World" CASE SENSITIVE', [
+                'bool' => [
+                    'must_not' => [
+                        ['wildcard' => ['attrs.fr.field_text_s.raw' => ['value' => '*World', 'boost' => 1.0]]],
+                    ],
+                ],
+            ], 'fr'],
+            ['field HAS ALL OF ("a", "b")', [
+                'bool' => [
+                    'must' => [
+                        ['term' => ['attrs.fr.field_text_s.raw' => 'a']],
+                        ['term' => ['attrs.fr.field_text_s.raw' => 'b']],
+                    ],
+                ],
+            ], 'fr'],
+            ['field IS ANY OF ("a", "b")', [
+                'terms' => ['attrs.fr.field_text_s.raw' => ['a', 'b']],
+            ], 'fr'],
+            ['field IS NONE OF ("a")', [
+                'bool' => [
+                    'must_not' => [
+                        ['terms' => ['attrs.fr.field_text_s.raw' => ['a']]],
+                    ],
+                ],
+            ], 'fr'],
+            ['field IS "a"', [
+                'term' => ['attrs.fr.field_text_s.raw' => 'a'],
+            ], 'fr'],
+            ['field IS NOT "a"', [
+                'bool' => [
+                    'must_not' => [
+                        ['term' => ['attrs.fr.field_text_s.raw' => 'a']],
+                    ],
+                ],
+            ], 'fr'],
+            ['field IS EMPTY', [
+                'bool' => [
+                    'must_not' => [
+                        ['exists' => ['field' => 'attrs.fr.field_text_s']],
+                    ],
+                ],
+            ], 'fr'],
+            ['field IS NOT EMPTY', [
+                'exists' => ['field' => 'attrs.fr.field_text_s'],
+            ], 'fr'],
             ['field STARTS WITH "big world"', [
                 'bool' => [
                     'should' => [
@@ -520,6 +587,7 @@ class AQLToESQueryTest extends TestCase
                 'multi_match' => [
                     'query' => 'el',
                     'fields' => ['attrs.*.foo_text_s'],
+                    'operator' => 'and',
                 ],
             ]],
             ['@createdAt > DATE_ADD(NOW(), "PT1H")', [
@@ -678,6 +746,14 @@ class AQLToESQueryTest extends TestCase
             [
                 'date START WITH "2023-10-01"',
                 'Operator "STARTS_WITH" not supported for field type "date"',
+            ],
+            [
+                'date ENDS WITH "01"',
+                'Operator "ENDS_WITH" not supported for field type "date"',
+            ],
+            [
+                'number MATCHES "1"',
+                'Operator "MATCHES" not supported for field type "number"',
             ],
         ];
     }

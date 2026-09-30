@@ -75,7 +75,7 @@ export function resolveNotificationUri(
             [
                 {
                     id: 'collection',
-                    query: `${BuiltInAttributeEnum.Collection} = "${id}"`,
+                    query: `${BuiltInAttributeEnum.Collection} IS "${id}"`,
                 },
             ],
             [],

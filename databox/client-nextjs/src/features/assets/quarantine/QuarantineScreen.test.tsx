@@ -124,7 +124,7 @@ describe('QuarantineScreen', () => {
         // The queue only holds quarantined assets
         await waitFor(() => expect(queueItems()).toBe(2));
         expect(api.searchAssets).toHaveBeenCalledWith(
-            expect.objectContaining({conditions: ['@assetStatus = 2']})
+            expect.objectContaining({conditions: ['@assetStatus IS 2']})
         );
 
         // The head of the queue is the one being reviewed, with its report

@@ -37,4 +37,12 @@ export type OperatorChoice = {
     manyArgs?: ManyArgs;
     argNames?: ArgNames;
     supportedTypes?: RawType[];
+    /**
+     * Label overrides depending on the field type (e.g. "Is before" for dates)
+     */
+    typeLabels?: Partial<Record<RawType, string>>;
+    /**
+     * Only available on multi-valued fields
+     */
+    multipleOnly?: boolean;
 };

@@ -105,6 +105,8 @@ function validateConditionType(
                     AQLOperator.NOT_CONTAINS,
                     AQLOperator.STARTS_WITH,
                     AQLOperator.NOT_STARTS_WITH,
+                    AQLOperator.ENDS_WITH,
+                    AQLOperator.NOT_ENDS_WITH,
                 ].includes(op) &&
                 ![RawType.Keyword, RawType.String].includes(rawType)
             ) {

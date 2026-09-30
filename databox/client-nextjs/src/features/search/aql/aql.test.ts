@@ -18,9 +18,9 @@ describe('AQL parser', () => {
     });
 
     it('parses built-in fields, booleans, null and numbers', () => {
-        expect(roundTrip('@deleted = true')).toBe('@deleted = true');
-        expect(roundTrip('flag != false')).toBe('flag != false');
-        expect(roundTrip('value = null')).toBe('value = null');
+        expect(roundTrip('@deleted IS true')).toBe('@deleted IS true');
+        expect(roundTrip('flag IS NOT false')).toBe('flag IS NOT false');
+        expect(roundTrip('value IS null')).toBe('value IS null');
         expect(roundTrip('@size > 1024')).toBe('@size > 1024');
         expect(roundTrip('price <= 10.5')).toBe('price <= 10.5');
     });
@@ -34,23 +34,40 @@ describe('AQL parser', () => {
                 {operator: AQLLogical.AND},
             ],
         });
-        expect(roundTrip('(a = 1 OR b = 2) AND c = 3')).toBe(
-            '(a = 1 OR b = 2) AND c = 3'
+        expect(roundTrip('(a IS 1 OR b IS 2) AND c IS 3')).toBe(
+            '(a IS 1 OR b IS 2) AND c IS 3'
         );
-        expect(roundTrip('NOT a = 1')).toBe('NOT a = 1');
+        expect(roundTrip('NOT a IS 1')).toBe('NOT a IS 1');
     });
 
-    it('parses IN, NOT IN, BETWEEN, MISSING, EXISTS', () => {
-        expect(roundTrip('tag IN ("a", "b")')).toBe('tag IN ("a", "b")');
-        expect(roundTrip('tag NOT IN ("a")')).toBe('tag NOT IN ("a")');
+    it('parses IS ANY OF, IS NONE OF, HAS ALL OF, BETWEEN, IS [NOT] EMPTY', () => {
+        expect(roundTrip('tag IS ANY OF ("a", "b")')).toBe(
+            'tag IS ANY OF ("a", "b")'
+        );
+        expect(roundTrip('tag IS NONE OF ("a")')).toBe('tag IS NONE OF ("a")');
+        expect(roundTrip('tag HAS ALL OF ("a", "b")')).toBe(
+            'tag HAS ALL OF ("a", "b")'
+        );
         expect(roundTrip('@createdAt BETWEEN "2020" AND "2021"')).toBe(
             '@createdAt BETWEEN "2020" AND "2021"'
         );
         expect(roundTrip('x NOT BETWEEN 1 AND 2')).toBe(
             'x NOT BETWEEN 1 AND 2'
         );
-        expect(roundTrip('x IS MISSING')).toBe('x IS MISSING');
-        expect(roundTrip('x EXISTS')).toBe('x EXISTS');
+        expect(roundTrip('x IS EMPTY')).toBe('x IS EMPTY');
+        expect(roundTrip('x IS NOT EMPTY')).toBe('x IS NOT EMPTY');
+    });
+
+    it('parses legacy operators as aliases', () => {
+        expect(roundTrip('t = "a"')).toBe('t IS "a"');
+        expect(roundTrip('t != "a"')).toBe('t IS NOT "a"');
+        expect(roundTrip('tag IN ("a", "b")')).toBe('tag IS ANY OF ("a", "b")');
+        expect(roundTrip('tag HAS ANY OF ("a")')).toBe('tag IS ANY OF ("a")');
+        expect(roundTrip('tag NOT IN ("a")')).toBe('tag IS NONE OF ("a")');
+        expect(roundTrip('tag HAS NONE OF ("a")')).toBe('tag IS NONE OF ("a")');
+        expect(roundTrip('x IS MISSING')).toBe('x IS EMPTY');
+        expect(roundTrip('x EXISTS')).toBe('x IS NOT EMPTY');
+        expect(roundTrip('t is not other')).toBe('t IS NOT other');
     });
 
     it('parses text operators', () => {
@@ -63,6 +80,10 @@ describe('AQL parser', () => {
         expect(roundTrip('t STARTS WITH "a"')).toBe('t STARTS WITH "a"');
         expect(roundTrip('t DOES NOT START WITH "a"')).toBe(
             't DOES NOT START WITH "a"'
+        );
+        expect(roundTrip('t ENDS WITH "a"')).toBe('t ENDS WITH "a"');
+        expect(roundTrip('t DOES NOT END WITH "a"')).toBe(
+            't DOES NOT END WITH "a"'
         );
     });
 
@@ -79,9 +100,9 @@ describe('AQL parser', () => {
         expect(roundTrip('@createdAt > NOW() - 86400')).toBe(
             '@createdAt > NOW() - 86400'
         );
-        expect(roundTrip('x = (1 + 2) * 3')).toBe('x = (1 + 2) * 3');
-        expect(roundTrip('x = DATE("2020-01-01", 1)')).toBe(
-            'x = DATE("2020-01-01", 1)'
+        expect(roundTrip('x IS (1 + 2) * 3')).toBe('x IS (1 + 2) * 3');
+        expect(roundTrip('x IS DATE("2020-01-01", 1)')).toBe(
+            'x IS DATE("2020-01-01", 1)'
         );
     });
 
@@ -89,7 +110,7 @@ describe('AQL parser', () => {
         expect(parseAQL('t = "a \\"b\\" c"', true)!.expression).toMatchObject({
             rightOperand: {literal: 'a "b" c'},
         });
-        expect(roundTrip("t = 'abc'")).toBe('t = "abc"');
+        expect(roundTrip("t = 'abc'")).toBe('t IS "abc"');
     });
 
     it('parses entity references', () => {
@@ -97,7 +118,7 @@ describe('AQL parser', () => {
         expect(ast.expression).toMatchObject({
             rightOperand: {type: 'entity', id: '123', label: 'My tag'},
         });
-        expect(astToString(ast)).toBe('tag = @<123:My tag>');
+        expect(astToString(ast)).toBe('tag IS @<123:My tag>');
     });
 
     it('rejects invalid input', () => {
@@ -107,6 +128,9 @@ describe('AQL parser', () => {
             AQLSyntaxError
         );
         expect(parseAQL('a = ')).toBeUndefined();
+        expect(() => parseAQL('a IS ANY OF "x"', true)).toThrow(AQLSyntaxError);
+        expect(() => parseAQL('a HAS ALL OF', true)).toThrow(AQLSyntaxError);
+        expect(() => parseAQL('a IS', true)).toThrow(AQLSyntaxError);
     });
 });
 
@@ -119,16 +143,16 @@ describe('ConditionBuilder', () => {
         expect(b.getValues()).toEqual(['a', 'b']);
         expect(b.includeMissing).toBe(true);
         expect(b.toggleValue('a').toString()).toBe(
-            'tag = "b" OR tag IS MISSING'
+            'tag IS "b" OR tag IS EMPTY'
         );
     });
 
     it('serializes numbers and booleans', () => {
         expect(new ConditionBuilder('@privacy', [1, 2]).toString()).toBe(
-            '@privacy IN (1, 2)'
+            '@privacy IS ANY OF (1, 2)'
         );
         expect(new ConditionBuilder('flag', [true]).toString()).toBe(
-            'flag = true'
+            'flag IS true'
         );
     });
 });

@@ -176,7 +176,7 @@ export function SearchProvider({
                 if (id) {
                     conditions = upsertCondition(conditions, {
                         id: attribute,
-                        query: `${attribute} = ${quoteAQL(id)}`,
+                        query: `${attribute} IS ${quoteAQL(id)}`,
                     });
                 }
 

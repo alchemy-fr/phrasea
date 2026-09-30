@@ -24,48 +24,57 @@ export default function ConditionsBuilder({
     const gt = [RawType.Number, RawType.Date, RawType.DateTime];
     const text = [RawType.Keyword, RawType.String];
     const fullText = [RawType.String];
+    const dates = (label: string) => ({
+        [RawType.Date]: label,
+        [RawType.DateTime]: label,
+    });
 
     const operators: OperatorChoice[] = [
         {
             value: AQLOperator.EQ,
-            label: t('search_condition.builder.operator.equals', '= (Equals)'),
+            label: t('search_condition.builder.operator.is', 'Is'),
+            typeLabels: {[RawType.Number]: '='},
         },
         {
             value: AQLOperator.NEQ,
-            label: t(
-                'search_condition.builder.operator.not_equals',
-                '!= (Not equals)'
-            ),
-        },
-        {
-            value: AQLOperator.GT,
-            label: t(
-                'search_condition.builder.operator.greater_than',
-                '> (Greater than)'
-            ),
-            supportedTypes: gt,
-        },
-        {
-            value: AQLOperator.GTE,
-            label: t(
-                'search_condition.builder.operator.greater_than_or_equals',
-                '>= (Greater than or equals)'
-            ),
-            supportedTypes: gt,
+            label: t('search_condition.builder.operator.is_not', 'Is not'),
+            typeLabels: {[RawType.Number]: '≠'},
         },
         {
             value: AQLOperator.LT,
-            label: t(
-                'search_condition.builder.operator.less_than',
-                '< (Less than)'
+            label: '<',
+            typeLabels: dates(
+                t('search_condition.builder.operator.is_before', 'Is before')
             ),
             supportedTypes: gt,
         },
         {
             value: AQLOperator.LTE,
-            label: t(
-                'search_condition.builder.operator.less_than_or_equals',
-                '<= (Less than or equals)'
+            label: '≤',
+            typeLabels: dates(
+                t(
+                    'search_condition.builder.operator.is_on_or_before',
+                    'Is on or before'
+                )
+            ),
+            supportedTypes: gt,
+        },
+        {
+            value: AQLOperator.GT,
+            label: '>',
+            typeLabels: dates(
+                t('search_condition.builder.operator.is_after', 'Is after')
+            ),
+            supportedTypes: gt,
+        },
+        {
+            value: AQLOperator.GTE,
+            label: '≥',
+            typeLabels: dates(
+                t(
+                    'search_condition.builder.operator.is_on_or_after',
+                    'Is on or after'
+                )
             ),
             supportedTypes: gt,
         },
@@ -78,20 +87,23 @@ export default function ConditionsBuilder({
             value: AQLOperator.NOT_CONTAINS,
             label: t(
                 'search_condition.builder.operator.not_contains',
-                `Doesn't Contain`
+                'Does not contain'
             ),
             supportedTypes: text,
         },
         {
             value: AQLOperator.MATCHES,
-            label: t('search_condition.builder.operator.matches', 'Matches'),
+            label: t(
+                'search_condition.builder.operator.contains_words',
+                'Contains words'
+            ),
             supportedTypes: fullText,
         },
         {
             value: AQLOperator.NOT_MATCHES,
             label: t(
-                'search_condition.builder.operator.not_matches',
-                `Doesn't Match`
+                'search_condition.builder.operator.not_contains_words',
+                'Does not contain words'
             ),
             supportedTypes: fullText,
         },
@@ -99,7 +111,7 @@ export default function ConditionsBuilder({
             value: AQLOperator.STARTS_WITH,
             label: t(
                 'search_condition.builder.operator.starts_with',
-                'Starts With'
+                'Starts with'
             ),
             supportedTypes: text,
         },
@@ -107,50 +119,96 @@ export default function ConditionsBuilder({
             value: AQLOperator.NOT_STARTS_WITH,
             label: t(
                 'search_condition.builder.operator.not_starts_with',
-                `Doesn't Start With`
+                'Does not start with'
+            ),
+            supportedTypes: text,
+        },
+        {
+            value: AQLOperator.ENDS_WITH,
+            label: t(
+                'search_condition.builder.operator.ends_with',
+                'Ends with'
+            ),
+            supportedTypes: text,
+        },
+        {
+            value: AQLOperator.NOT_ENDS_WITH,
+            label: t(
+                'search_condition.builder.operator.not_ends_with',
+                'Does not end with'
             ),
             supportedTypes: text,
         },
         {
             value: AQLOperator.IN,
-            label: t('search_condition.builder.operator.in', 'In'),
+            label: t(
+                'search_condition.builder.operator.is_any_of',
+                'Is any of'
+            ),
             manyArgs: true,
         },
         {
             value: AQLOperator.NOT_IN,
-            label: t('search_condition.builder.operator.not_in', 'Not In'),
+            label: t(
+                'search_condition.builder.operator.is_none_of',
+                'Is none of'
+            ),
             manyArgs: true,
         },
         {
+            value: AQLOperator.HAS_ALL_OF,
+            label: t(
+                'search_condition.builder.operator.has_all_of',
+                'Has all of'
+            ),
+            manyArgs: true,
+            multipleOnly: true,
+        },
+        {
             value: AQLOperator.BETWEEN,
-            label: t('search_condition.builder.operator.between', 'Between'),
+            label: t(
+                'search_condition.builder.operator.is_between',
+                'Is between'
+            ),
+            typeLabels: dates(
+                t('search_condition.builder.operator.is_within', 'Is within')
+            ),
             manyArgs: 2,
             supportedTypes: gt,
         },
         {
             value: AQLOperator.NOT_BETWEEN,
             label: t(
-                'search_condition.builder.operator.not_between',
-                'Not Between'
+                'search_condition.builder.operator.is_not_between',
+                'Is not between'
+            ),
+            typeLabels: dates(
+                t(
+                    'search_condition.builder.operator.is_not_within',
+                    'Is not within'
+                )
             ),
             manyArgs: 2,
             supportedTypes: gt,
         },
         {
-            value: AQLOperator.EXISTS,
-            label: t('search_condition.builder.operator.exists', 'Exists'),
+            value: AQLOperator.MISSING,
+            label: t('search_condition.builder.operator.is_empty', 'Is empty'),
             manyArgs: 0,
         },
         {
-            value: AQLOperator.MISSING,
-            label: t('search_condition.builder.operator.missing', 'Missing'),
+            value: AQLOperator.EXISTS,
+            label: t(
+                'search_condition.builder.operator.is_not_empty',
+                'Is not empty'
+            ),
             manyArgs: 0,
         },
         {
             value: AQLOperator.WITHIN_CIRCLE,
             label: t(
                 'search_condition.builder.operator.within_circle',
-                'Within Circle'
+                'Is within circle'
             ),
             manyArgs: 3,
             argNames: [
@@ -173,7 +231,7 @@ export default function ConditionsBuilder({
             value: AQLOperator.WITHIN_RECTANGLE,
             label: t(
                 'search_condition.builder.operator.within_rectangle',
-                'Within Rectangle'
+                'Is within rectangle'
             ),
             manyArgs: 4,
             argNames: [

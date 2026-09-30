@@ -122,7 +122,7 @@ final readonly class AQLToESQuery
         $type = $field['type'];
         $fieldRaw = $fieldName.($type->getElasticSearchRawField() ? '.'.$type->getElasticSearchRawField() : '');
 
-        $strictOperators = [ConditionOperatorEnum::EQUALS, ConditionOperatorEnum::NOT_EQUALS, ConditionOperatorEnum::IN, ConditionOperatorEnum::NOT_IN];
+        $strictOperators = [ConditionOperatorEnum::EQUALS, ConditionOperatorEnum::NOT_EQUALS, ConditionOperatorEnum::IN, ConditionOperatorEnum::NOT_IN, ConditionOperatorEnum::HAS_ALL_OF];
 
         $operator = ConditionOperatorEnum::tryFrom($data['operator']);
         if (null === $operator) {
@@ -137,6 +137,8 @@ final readonly class AQLToESQuery
             ConditionOperatorEnum::NOT_CONTAINS,
             ConditionOperatorEnum::STARTS_WITH,
             ConditionOperatorEnum::NOT_STARTS_WITH,
+            ConditionOperatorEnum::ENDS_WITH,
+            ConditionOperatorEnum::NOT_ENDS_WITH,
         ], true)) {
             throw new BadRequestHttpException(sprintf('CASE SENSITIVE is not supported with operator "%s"', $operator->value));
         }
@@ -145,13 +147,16 @@ final readonly class AQLToESQuery
 
         if (null !== $type->getElasticSearchRawField() && in_array($operator, $strictOperators, true)) {
             $fieldName .= '.'.$type->getElasticSearchRawField();
-        } elseif (null !== $type->getElasticSearchTextSubField() && in_array($operator, $strictOperators + [
+        } elseif (null !== $type->getElasticSearchTextSubField() && in_array($operator, [
+            ...$strictOperators,
             ConditionOperatorEnum::MATCHES,
             ConditionOperatorEnum::NOT_MATCHES,
             ConditionOperatorEnum::CONTAINS,
             ConditionOperatorEnum::NOT_CONTAINS,
             ConditionOperatorEnum::STARTS_WITH,
             ConditionOperatorEnum::NOT_STARTS_WITH,
+            ConditionOperatorEnum::ENDS_WITH,
+            ConditionOperatorEnum::NOT_ENDS_WITH,
         ], true)) {
             $fieldName .= '.'.$type->getElasticSearchTextSubField();
         }
@@ -199,7 +204,9 @@ final readonly class AQLToESQuery
             ConditionOperatorEnum::BETWEEN, ConditionOperatorEnum::NOT_BETWEEN => $this->wrapInNotQuery(new Query\Range($fieldName, $this->createRangeParams($value, $type)), ConditionOperatorEnum::NOT_BETWEEN === $operator),
             ConditionOperatorEnum::MISSING, ConditionOperatorEnum::EXISTS => $this->wrapInNotQuery($this->yieldShouldQuery($fieldName, $field['locales'], fn (string $fn) => new Query\Exists($fn)), ConditionOperatorEnum::MISSING === $operator),
             ConditionOperatorEnum::IN, ConditionOperatorEnum::NOT_IN => $this->wrapInNotQuery($this->yieldShouldQuery($fieldName, $field['locales'], fn (string $fn) => new Query\Terms($fn, $value)), ConditionOperatorEnum::NOT_IN === $operator),
-            ConditionOperatorEnum::EQUALS, ConditionOperatorEnum::MATCHES, ConditionOperatorEnum::NOT_EQUALS, ConditionOperatorEnum::NOT_MATCHES => $this->wrapInNotQuery($this->createTermQuery($fieldName, $value), in_array($operator, [ConditionOperatorEnum::NOT_EQUALS, ConditionOperatorEnum::NOT_MATCHES], true)),
+            ConditionOperatorEnum::HAS_ALL_OF => $this->createHasAllOfQuery($fieldName, $field['locales'], $value),
+            ConditionOperatorEnum::EQUALS, ConditionOperatorEnum::NOT_EQUALS => $this->wrapInNotQuery($this->createTermQuery($fieldName, $value), ConditionOperatorEnum::NOT_EQUALS === $operator),
+            ConditionOperatorEnum::MATCHES, ConditionOperatorEnum::NOT_MATCHES => $this->wrapInNotQuery($this->createMatchQuery($fieldName, $value), ConditionOperatorEnum::NOT_MATCHES === $operator),
             ConditionOperatorEnum::LT => new Query\Range($fieldName, [
                 'lt' => $value,
             ]),
@@ -219,13 +226,18 @@ final readonly class AQLToESQuery
             ])),
             ConditionOperatorEnum::CONTAINS,
             ConditionOperatorEnum::NOT_CONTAINS => $this->wrapInNotQuery(
-                $this->yieldShouldQuery($fieldRaw, $field['locales'], fn (string $fn) => $this->createContainsQuery($fn, (string) $value, $caseInsensitive)),
+                $this->yieldShouldQuery($fieldRaw, $field['locales'], fn (string $fn) => $this->createWildcardQuery($fn, sprintf('*%s*', $this->escapeWildcard((string) $value)), $caseInsensitive)),
                 ConditionOperatorEnum::NOT_CONTAINS === $operator
             ),
             ConditionOperatorEnum::STARTS_WITH,
             ConditionOperatorEnum::NOT_STARTS_WITH => $this->wrapInNotQuery(
                 $this->yieldShouldQuery($fieldRaw, $field['locales'], fn (string $fn) => $this->createPrefixQuery($fn, $value, $caseInsensitive)),
                 ConditionOperatorEnum::NOT_STARTS_WITH === $operator
+            ),
+            ConditionOperatorEnum::ENDS_WITH,
+            ConditionOperatorEnum::NOT_ENDS_WITH => $this->wrapInNotQuery(
+                $this->yieldShouldQuery($fieldRaw, $field['locales'], fn (string $fn) => $this->createWildcardQuery($fn, '*'.$this->escapeWildcard((string) $value), $caseInsensitive)),
+                ConditionOperatorEnum::NOT_ENDS_WITH === $operator
             ),
             default => throw new BadRequestHttpException(sprintf('Operator "%s" not implemented', $operator->value)),
         };
@@ -257,6 +269,7 @@ final readonly class AQLToESQuery
             ConditionOperatorEnum::LTE->value => $gt,
             ConditionOperatorEnum::IN->value => null,
             ConditionOperatorEnum::NOT_IN->value => null,
+            ConditionOperatorEnum::HAS_ALL_OF->value => null,
             ConditionOperatorEnum::EXISTS->value => null,
             ConditionOperatorEnum::MISSING->value => null,
             ConditionOperatorEnum::BETWEEN->value => $gt,
@@ -267,6 +280,8 @@ final readonly class AQLToESQuery
             ConditionOperatorEnum::NOT_CONTAINS->value => $text,
             ConditionOperatorEnum::STARTS_WITH->value => $text,
             ConditionOperatorEnum::NOT_STARTS_WITH->value => $text,
+            ConditionOperatorEnum::ENDS_WITH->value => $text,
+            ConditionOperatorEnum::NOT_ENDS_WITH->value => $text,
             ConditionOperatorEnum::WITHIN_CIRCLE->value => $geo,
             ConditionOperatorEnum::WITHIN_RECTANGLE->value => $geo,
         ];
@@ -411,14 +426,43 @@ final readonly class AQLToESQuery
         return new Query\Prefix([$fieldName => $params]);
     }
 
-    private function createContainsQuery(string $fieldName, string $value, bool $caseInsensitive): Query\Wildcard
+    private function escapeWildcard(string $value): string
     {
-        $query = new Query\Wildcard($fieldName, sprintf('*%s*', addcslashes($value, '\\*?')));
+        return addcslashes($value, '\\*?');
+    }
+
+    private function createWildcardQuery(string $fieldName, string $pattern, bool $caseInsensitive): Query\Wildcard
+    {
+        $query = new Query\Wildcard($fieldName, $pattern);
         if ($caseInsensitive) {
             $query->setCaseInsensitive(true);
         }
 
         return $query;
+    }
+
+    private function createMatchQuery(string $fieldName, mixed $value): Query\AbstractQuery
+    {
+        if (str_contains($fieldName, '*')) {
+            return new Query\MultiMatch()
+                ->setQuery($value)
+                ->setFields([$fieldName])
+                ->setOperator(Query\MultiMatch::OPERATOR_AND);
+        }
+
+        return new Query\MatchQuery()
+            ->setFieldQuery($fieldName, $value)
+            ->setFieldOperator($fieldName, Query\MatchQuery::OPERATOR_AND);
+    }
+
+    private function createHasAllOfQuery(string $fieldName, array $locales, array $values): Query\BoolQuery
+    {
+        $boolQuery = new Query\BoolQuery();
+        foreach ($values as $value) {
+            $boolQuery->addMust($this->yieldShouldQuery($fieldName, $locales, fn (string $fn) => new Query\Term([$fn => $value])));
+        }
+
+        return $boolQuery;
     }
 
     private function createTermQuery(string $fieldName, mixed $value): Query\AbstractQuery

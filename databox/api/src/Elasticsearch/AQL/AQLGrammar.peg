@@ -109,7 +109,7 @@ const_null: "null" | "NULL"
         $result['data'] = null;
     }
 
-operator: ] op:between_operator | ] op:in_operator | ] op:geo_operator | ] op:ending_operator | > op:simple_operator | > op:keyword_operator
+operator: ] op:between_operator | ] op:in_operator | ] op:geo_operator | ] op:ending_operator | ] op:is_operator | > op:simple_operator | > op:keyword_operator
     function __finalise(&$result) {
         $result['data'] = $result['op']['data'];
         unset($result['op']);
@@ -157,18 +157,29 @@ between_operator: not:("NOT" ])? "BETWEEN" ] left:value_expression ] "AND" ] rig
         unset($result['left'], $result['right']);
     }
 
-ending_operator: ("IS" ] "MISSING") | "EXISTS"
+ending_operator: op:/(IS\s+NOT\s+EMPTY|IS\s+EMPTY|IS\s+MISSING|EXISTS)\b/
     function __finalise(&$result) {
-        $assoc = [
-            'IS_MISSING' => 'MISSING',
-            'EXISTS' => 'EXISTS',
-        ];
         $result['data'] = [
-            'operator' => $assoc[preg_replace('#\s+#', '_', $result['text'])],
+            'operator' => match (preg_replace('#\s+#', '_', $result['op']['text'])) {
+                'IS_MISSING', 'IS_EMPTY' => 'MISSING',
+                'EXISTS', 'IS_NOT_EMPTY' => 'EXISTS',
+            },
         ];
+        unset($result['op']);
     }
 
-in_operator: not:("NOT" ] )? "IN" > '(' > first:value_expression (> ',' > others:value_expression)* > ')'
+is_operator: "IS" ] not:("NOT" ])? !is_reserved v:value_expression
+    function __finalise(&$result) {
+        $result['data'] = [
+            'operator' => isset($result['not']) ? '!=' : '=',
+            'rightOperand' => $result['v']['data'],
+        ];
+        unset($result['not'], $result['v']);
+    }
+
+is_reserved: /(EMPTY|MISSING|ANY|NONE)\b/
+
+in_operator: op:/(NOT\s+IN|IN|IS\s+ANY\s+OF|IS\s+NONE\s+OF|HAS\s+ANY\s+OF|HAS\s+NONE\s+OF|HAS\s+ALL\s+OF)\b/ > '(' > first:value_expression (> ',' > others:value_expression)* > ')'
     function __finalise(&$result) {
         $values = [$result['first']['data']];
 
@@ -181,10 +192,14 @@ in_operator: not:("NOT" ] )? "IN" > '(' > first:value_expression (> ',' > others
         }
 
         $result['data'] = [
-            'operator' => isset($result['not']) ? 'NOT_IN' : 'IN',
+            'operator' => match (preg_replace('#\s+#', '_', $result['op']['text'])) {
+                'IN', 'IS_ANY_OF', 'HAS_ANY_OF' => 'IN',
+                'NOT_IN', 'IS_NONE_OF', 'HAS_NONE_OF' => 'NOT_IN',
+                'HAS_ALL_OF' => 'HAS_ALL_OF',
+            },
             'rightOperand' => $values,
         ];
-        unset($result['first'], $result['others']);
+        unset($result['op'], $result['first'], $result['others']);
     }
 
 simple_operator: op:/([<>]?=|!=|[<>])/ > v:value_expression
@@ -210,13 +225,14 @@ keyword_operator: op:op_keyword ] v:value_expression (] cs:case_sensitive)?
 
 case_sensitive: "CASE" ] "SENSITIVE"
 
-op_keyword: not:/(DO(ES)?\s+NOT\s+)/? key:/(CONTAINS?|MATCH(ES)?|STARTS?\s+WITH)/
+op_keyword: not:/(DO(ES)?\s+NOT\s+)/? key:/(CONTAINS?|MATCH(ES)?|STARTS?\s+WITH|ENDS?\s+WITH)/
     function __finalise(&$result) {
         $key = preg_replace('#\s+#', '_', $result['key']['text']);
         $result['data'] = (isset($result['not']) ? 'NOT_' : '').match ($key) {
             'CONTAINS', 'CONTAIN' => 'CONTAINS',
             'MATCHES', 'MATCH' => 'MATCHES',
             'STARTS_WITH', 'START_WITH' => 'STARTS_WITH',
+            'ENDS_WITH', 'END_WITH' => 'ENDS_WITH',
         };
         unset($result['not'], $result['key']);
     }

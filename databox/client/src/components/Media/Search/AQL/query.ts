@@ -103,7 +103,13 @@ function operandToString(
 
     if (typeof operand === 'object') {
         if (operator && Array.isArray(operand)) {
-            if ([AQLOperator.IN, AQLOperator.NOT_IN].includes(operator)) {
+            if (
+                [
+                    AQLOperator.IN,
+                    AQLOperator.NOT_IN,
+                    AQLOperator.HAS_ALL_OF,
+                ].includes(operator)
+            ) {
                 return `(${operand.map(o => operandToString(o)).join(', ')})`;
             } else if (
                 [AQLOperator.BETWEEN, AQLOperator.NOT_BETWEEN].includes(
@@ -131,22 +137,25 @@ function operandToString(
 
 function operatorToString(operator: AQLOperator): string {
     const map: Record<AQLOperator, string> = {
-        [AQLOperator.EQ]: '=',
-        [AQLOperator.NEQ]: '!=',
+        [AQLOperator.EQ]: 'IS',
+        [AQLOperator.NEQ]: 'IS NOT',
         [AQLOperator.GT]: '>',
         [AQLOperator.LT]: '<',
         [AQLOperator.GTE]: '>=',
         [AQLOperator.LTE]: '<=',
-        [AQLOperator.IN]: 'IN',
-        [AQLOperator.NOT_IN]: 'NOT IN',
-        [AQLOperator.MISSING]: 'IS MISSING',
-        [AQLOperator.EXISTS]: 'EXISTS',
+        [AQLOperator.IN]: 'IS ANY OF',
+        [AQLOperator.NOT_IN]: 'IS NONE OF',
+        [AQLOperator.HAS_ALL_OF]: 'HAS ALL OF',
+        [AQLOperator.MISSING]: 'IS EMPTY',
+        [AQLOperator.EXISTS]: 'IS NOT EMPTY',
         [AQLOperator.CONTAINS]: 'CONTAINS',
         [AQLOperator.NOT_CONTAINS]: 'DOES NOT CONTAIN',
         [AQLOperator.MATCHES]: 'MATCHES',
         [AQLOperator.NOT_MATCHES]: 'DOES NOT MATCH',
         [AQLOperator.STARTS_WITH]: 'STARTS WITH',
         [AQLOperator.NOT_STARTS_WITH]: 'DOES NOT START WITH',
+        [AQLOperator.ENDS_WITH]: 'ENDS WITH',
+        [AQLOperator.NOT_ENDS_WITH]: 'DOES NOT END WITH',
         [AQLOperator.BETWEEN]: 'BETWEEN',
         [AQLOperator.NOT_BETWEEN]: 'NOT BETWEEN',
         [AQLOperator.WITHIN_CIRCLE]: 'WITHIN CIRCLE',

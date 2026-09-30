@@ -15,6 +15,9 @@ export enum AQLOperator {
     NOT_MATCHES = 'NOT_MATCHES',
     STARTS_WITH = 'STARTS_WITH',
     NOT_STARTS_WITH = 'NOT_STARTS_WITH',
+    ENDS_WITH = 'ENDS_WITH',
+    NOT_ENDS_WITH = 'NOT_ENDS_WITH',
+    HAS_ALL_OF = 'HAS_ALL_OF',
     BETWEEN = 'BETWEEN',
     NOT_BETWEEN = 'NOT_BETWEEN',
     WITHIN_CIRCLE = 'WITHIN_CIRCLE',
@@ -26,6 +29,8 @@ export const caseSensitiveOperators: AQLOperator[] = [
     AQLOperator.NOT_CONTAINS,
     AQLOperator.STARTS_WITH,
     AQLOperator.NOT_STARTS_WITH,
+    AQLOperator.ENDS_WITH,
+    AQLOperator.NOT_ENDS_WITH,
 ];
 
 export enum AQLConstant {

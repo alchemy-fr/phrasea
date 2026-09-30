@@ -135,7 +135,7 @@ export default function SearchProvider({children}: Props) {
 
                     return replaceConditionHelper(newConditions, {
                         id: BuiltInAttributeEnum.Workspace,
-                        query: `${BuiltInAttributeEnum.Workspace} = "${id}"`,
+                        query: `${BuiltInAttributeEnum.Workspace} IS "${id}"`,
                     });
                 }) &&
                 forceReload
@@ -167,7 +167,7 @@ export default function SearchProvider({children}: Props) {
 
                     return replaceConditionHelper(newConditions, {
                         id: BuiltInAttributeEnum.Collection,
-                        query: `${BuiltInAttributeEnum.Collection} = "${id}"`,
+                        query: `${BuiltInAttributeEnum.Collection} IS "${id}"`,
                     });
                 }) &&
                 forceReload

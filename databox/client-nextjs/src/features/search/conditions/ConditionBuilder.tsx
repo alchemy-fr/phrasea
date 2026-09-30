@@ -28,7 +28,8 @@ import {
     isLiteral,
     isLogical,
 } from '../aql/types';
-import {operatorLabels, valueToString} from '../aql/serializer';
+import {valueToString} from '../aql/serializer';
+import {getOperatorLabel} from '../aql/operatorLabel';
 import {parseAQL} from '../aql/parser';
 import {
     getOperatorArgNames,
@@ -277,7 +278,10 @@ function ConditionRow({
         ? condition.leftOperand.field
         : '';
     const definition = definitions[field];
-    const operators = getOperatorsForType(definition?.type);
+    const operators = getOperatorsForType(definition?.type).filter(
+        // "Has all of" only makes sense on multi-valued fields
+        op => op !== AQLOperator.HAS_ALL_OF || definition?.multiple
+    );
     const arity = getOperatorArity(condition.operator);
     const argNames = getOperatorArgNames(condition.operator);
     const values: AQLValueExpr[] =
@@ -339,7 +343,7 @@ function ConditionRow({
                 onValueChange={op => setOperator(op as AQLOperator)}
                 options={operators.map(op => ({
                     value: op,
-                    label: operatorLabels[op],
+                    label: getOperatorLabel(t, op, rawTypeOf(definition)),
                 }))}
             />
             <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">

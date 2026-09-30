@@ -34,7 +34,7 @@ export default function ListFacet({facet, name, itemComponent}: Props) {
     const missingOnClick = () => {
         upsertCondition({
             id: name,
-            query: `${fieldName} IS MISSING`,
+            query: `${fieldName} IS EMPTY`,
         });
     };
     const missingSelected = Boolean(

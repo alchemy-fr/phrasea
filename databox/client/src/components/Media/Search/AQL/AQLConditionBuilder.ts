@@ -55,7 +55,7 @@ export class AQLConditionBuilder {
 
         if (this.values.length > 0) {
             conditions.push(
-                `${this.field} ${this.values.length > 1 ? 'IN (' : '= '}${this.values
+                `${this.field} ${this.values.length > 1 ? 'IS ANY OF (' : 'IS '}${this.values
                     .map(v => {
                         return typeof v === 'string' ? `"${v}"` : v;
                     })
@@ -64,7 +64,7 @@ export class AQLConditionBuilder {
         }
 
         if (this.includeMissing) {
-            conditions.push(`${this.field} IS MISSING`);
+            conditions.push(`${this.field} IS EMPTY`);
         }
 
         if (conditions.length === 0) {

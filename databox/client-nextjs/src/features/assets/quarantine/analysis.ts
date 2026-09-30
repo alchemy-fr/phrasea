@@ -66,5 +66,5 @@ export function hasAnalysisReport(asset: Asset): boolean {
  */
 export const quarantineCondition = {
     id: BuiltInAttribute.AssetStatus,
-    query: `${BuiltInAttribute.AssetStatus} = ${AssetStatus.Quarantined}`,
+    query: `${BuiltInAttribute.AssetStatus} IS ${AssetStatus.Quarantined}`,
 };

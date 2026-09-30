@@ -55,7 +55,7 @@ describe('Filter rules', () => {
             cy.contains('button', /^Add$/).click();
         });
         routeDialog().within(() => {
-            cy.getBySel('filter-rule-form-condition').should('contain', 'title = "Alpha"');
+            cy.getBySel('filter-rule-form-condition').should('contain', 'title IS "Alpha"');
             cy.contains('button', 'Save').click();
         });
         expectToastText('Rule saved');

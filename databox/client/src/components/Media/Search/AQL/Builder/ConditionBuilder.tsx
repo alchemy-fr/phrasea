@@ -110,14 +110,24 @@ export default function ConditionBuilder({
                         'Operator'
                     )}
                     name={'operator'}
-                    options={operators.filter(
-                        ({supportedTypes}: OperatorChoice) => {
-                            return (
-                                !supportedTypes ||
-                                supportedTypes.includes(rawType!)
-                            );
-                        }
-                    )}
+                    options={operators
+                        .filter(
+                            ({
+                                supportedTypes,
+                                multipleOnly,
+                            }: OperatorChoice) => {
+                                return (
+                                    (!supportedTypes ||
+                                        supportedTypes.includes(rawType!)) &&
+                                    (!multipleOnly || field?.multiple)
+                                );
+                            }
+                        )
+                        .map(o => ({
+                            ...o,
+                            label:
+                                (rawType && o.typeLabels?.[rawType]) || o.label,
+                        }))}
                     value={expression.operator as any}
                     onChange={newValue => {
                         setExpression(p => {

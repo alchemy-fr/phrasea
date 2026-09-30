@@ -11,7 +11,9 @@ import {
 import type {AQLQuery} from '@/types/api';
 import {useSearch} from '../SearchProvider';
 import {parseAQL} from '../aql/parser';
-import {operatorLabels, valueToString} from '../aql/serializer';
+import {valueToString} from '../aql/serializer';
+import {getOperatorLabel} from '../aql/operatorLabel';
+import {rawTypeMap} from '../aql/validation';
 import {
     AQLCondition,
     AQLExpression,
@@ -198,7 +200,13 @@ function HumanizedCondition({condition}: {condition: AQLCondition}) {
     return (
         <>
             <span className="font-medium">{label}</span>{' '}
-            <Keyword>{operatorLabels[condition.operator]}</Keyword>{' '}
+            <Keyword>
+                {getOperatorLabel(
+                    t,
+                    condition.operator,
+                    definition?.type ? rawTypeMap[definition.type] : undefined
+                )}
+            </Keyword>{' '}
             {values.length > 1 && !isBetween ? '(' : ''}
             {values.map((v, i) => (
                 <Fragment key={i}>

@@ -6,11 +6,14 @@
  *   andExpr      := unary ( AND unary )*
  *   unary        := NOT unary | "(" expression ")" | criteria
  *   criteria     := field operatorClause
- *   operator     := [NOT] BETWEEN value AND value | IS MISSING | EXISTS
- *                 | [NOT] IN "(" value ("," value)* ")"
+ *   operator     := [NOT] BETWEEN value AND value
+ *                 | IS [NOT] EMPTY | IS MISSING | EXISTS
+ *                 | ( [NOT] IN | IS ANY OF | IS NONE OF | HAS ANY OF | HAS NONE OF | HAS ALL OF )
+ *                   "(" value ("," value)* ")"
  *                 | WITHIN CIRCLE "(" v "," v "," v ")" | WITHIN RECTANGLE "(" v "," v "," v "," v ")"
- *                 | ( = | != | > | < | >= | <= | CONTAINS | DOES NOT CONTAIN | MATCHES
- *                   | DOES NOT MATCH | STARTS WITH | DOES NOT START WITH ) value
+ *                 | ( IS [NOT] | = | != | > | < | >= | <= | CONTAINS | DOES NOT CONTAIN | MATCHES
+ *                   | DOES NOT MATCH | STARTS WITH | DOES NOT START WITH
+ *                   | ENDS WITH | DOES NOT END WITH ) value
  *   value        := sum ; sum := product (("+"|"-") product)* ; product := atom (("*"|"/") atom)*
  *   atom         := number | string | true | false | null | entity | identifier "(" args ")" | field | "(" value ")"
  */
@@ -316,9 +319,43 @@ class Parser {
             return {leftOperand, ...this.inOperands(AQLOperator.IN)};
         }
         if (this.acceptKeyword('IS')) {
-            this.expectKeyword('MISSING');
+            if (this.acceptKeyword('MISSING') || this.acceptKeyword('EMPTY')) {
+                return {leftOperand, operator: AQLOperator.MISSING};
+            }
+            if (this.acceptKeyword('ANY')) {
+                this.expectKeyword('OF');
 
-            return {leftOperand, operator: AQLOperator.MISSING};
+                return {leftOperand, ...this.inOperands(AQLOperator.IN)};
+            }
+            if (this.acceptKeyword('NONE')) {
+                this.expectKeyword('OF');
+
+                return {leftOperand, ...this.inOperands(AQLOperator.NOT_IN)};
+            }
+            const not = this.acceptKeyword('NOT');
+            if (not && this.acceptKeyword('EMPTY')) {
+                return {leftOperand, operator: AQLOperator.EXISTS};
+            }
+
+            return {
+                leftOperand,
+                operator: not ? AQLOperator.NEQ : AQLOperator.EQ,
+                rightOperand: this.value(),
+            };
+        }
+        if (this.acceptKeyword('HAS')) {
+            let operator: AQLOperator;
+            if (this.acceptKeyword('ANY')) {
+                operator = AQLOperator.IN;
+            } else if (this.acceptKeyword('NONE')) {
+                operator = AQLOperator.NOT_IN;
+            } else {
+                this.expectKeyword('ALL');
+                operator = AQLOperator.HAS_ALL_OF;
+            }
+            this.expectKeyword('OF');
+
+            return {leftOperand, ...this.inOperands(operator)};
         }
         if (this.acceptKeyword('EXISTS')) {
             return {leftOperand, operator: AQLOperator.EXISTS};
@@ -366,6 +403,15 @@ class Parser {
                 rightOperand: this.value(),
             };
         }
+        if (this.acceptKeyword('ENDS')) {
+            this.expectKeyword('WITH');
+
+            return {
+                leftOperand,
+                operator: AQLOperator.ENDS_WITH,
+                rightOperand: this.value(),
+            };
+        }
         if (this.acceptKeyword('DOES')) {
             this.expectKeyword('NOT');
             if (this.acceptKeyword('CONTAIN')) {
@@ -391,8 +437,17 @@ class Parser {
                     rightOperand: this.value(),
                 };
             }
+            if (this.acceptKeyword('END')) {
+                this.expectKeyword('WITH');
+
+                return {
+                    leftOperand,
+                    operator: AQLOperator.NOT_ENDS_WITH,
+                    rightOperand: this.value(),
+                };
+            }
             throw new AQLSyntaxError(
-                'Expected CONTAIN, MATCH or START WITH',
+                'Expected CONTAIN, MATCH, START WITH or END WITH',
                 this.peek().pos
             );
         }
