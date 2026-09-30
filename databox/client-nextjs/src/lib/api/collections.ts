@@ -125,6 +125,11 @@ export function putWorkspace(
     return api.put<Workspace>(`/${EntityName.Workspace}/${id}`, toIris(data));
 }
 
+/** Signs the current version of the workspace Terms & Conditions */
+export function signWorkspaceTerms(id: string): Promise<Workspace> {
+    return api.post<Workspace>(`/${EntityName.Workspace}/${id}/terms/sign`);
+}
+
 /** A new PDF makes a new version of the terms, to sign again */
 export async function uploadWorkspaceTermsPdf(
     id: string,

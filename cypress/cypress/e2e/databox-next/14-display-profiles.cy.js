@@ -14,14 +14,16 @@ const pointer = {button: 0, buttons: 1, isPrimary: true, pointerId: 1, pointerTy
 function point($el, where = 'center') {
     const r = $el[0].getBoundingClientRect();
 
-    return {x: r.left + r.width / 2, y: where === 'top' ? r.top + 3 : r.top + r.height / 2};
+    const y = {top: r.top + 3, bottom: r.bottom - 4}[where] ?? r.top + r.height / 2;
+
+    return {x: r.left + r.width / 2, y};
 }
 
 function move(x, y) {
     cy.get('body', {withinSubject: null}).trigger('pointermove', {...pointer, clientX: x, clientY: y, eventConstructor: 'PointerEvent'});
 }
 
-/** Drags `source` onto `target` (its center, or near its top edge) */
+/** Drags `source` onto `target` (its center, or near its top or bottom edge) */
 function dragTo(source, target, where = 'center') {
     source.scrollIntoView().then($src => {
         const {x, y} = point($src);
@@ -119,6 +121,7 @@ describe('Display profiles', () => {
         cy.intercept('POST', '**/profiles/*/items').as('add');
         cy.intercept('POST', '**/profiles/*/sort').as('sort');
         cy.intercept('POST', '**/profiles/*/remove').as('remove');
+        cy.intercept('PUT', '**/profiles/*/items/*').as('putItem');
         openProfileMenu();
         cy.getBySel('profile-edit-current').click();
         routeDialog().within(() => {
@@ -139,12 +142,47 @@ describe('Display profiles', () => {
             dragTo(displayedRow('last'), cy.get('[data-testid=dialog-tab-attributes] [data-testid=profile-palette]'));
             cy.wait(['@sort', '@remove']);
             cy.getBySel('profile-displayed-item').should('have.length', 1).first().should('contain', 'Description');
+            // A workspace attribute (at the bottom of the scrolled palette)
+            // dropped at the very bottom of the list: last
+            dragTo(paletteEntry('attributes', 'Title'), cy.getBySel('profile-displayed'), 'bottom');
+            cy.wait(['@add', '@sort']);
+            cy.getBySel('profile-displayed-item').should('have.length', 2).last().should('contain', 'Title');
+            // A divider with a title, on top
+            dragTo(cy.get('[data-testid=dialog-tab-attributes] [data-key="l:divider"]'), cy.getBySel('profile-displayed-item').first(), 'top');
+            cy.wait(['@add', '@sort']);
+            cy.getBySel('profile-displayed-item').first().contains('button', 'Divider').click();
+            cy.getBySel('profile-divider-title').type('Main info{enter}');
+            cy.wait('@putItem').its('request.body').should('include', {key: 'Main info', type: 2});
+            cy.getBySel('profile-displayed-item').first().should('contain', 'Main info');
         });
         // Persisted
         cy.reload();
         routeDialog().within(() => {
-            cy.getBySel('profile-displayed-item').should('have.length', 1).first().should('contain', 'Description');
+            cy.getBySel('profile-displayed-item').should('have.length', 3);
+            cy.getBySel('profile-displayed-item').eq(0).should('contain', 'Main info');
+            cy.getBySel('profile-displayed-item').eq(1).should('contain', 'Description');
+            cy.getBySel('profile-displayed-item').eq(2).should('contain', 'Title');
         });
+    });
+
+    it('makes the profile public from the permissions', () => {
+        cy.intercept('PUT', '**/profiles/*').as('putProfile');
+        openProfileMenu();
+        cy.getBySel('profile-edit-current').click();
+        routeDialog().within(() => {
+            cy.contains('[role=tab]', 'Permissions').click();
+            cy.getBySel('profile-public').should('have.attr', 'aria-checked', 'false').click();
+            cy.wait('@putProfile').its('request.body').should('deep.equal', {public: true});
+        });
+        cy.contains('[data-sonner-toast]', 'The profile is now public').should('exist');
+        routeDialog().within(() => {
+            cy.contains('[role=tab]', 'General').click();
+            cy.get('[data-testid=dialog-tab-general]').should('contain', 'Public');
+            cy.contains('[role=tab]', 'Permissions').click();
+            cy.getBySel('profile-public').click();
+            cy.wait('@putProfile');
+        });
+        cy.contains('[data-sonner-toast]', 'The profile is now private').should('exist');
     });
 
     it('lays out the grid card by drag & drop', () => {
@@ -169,6 +207,7 @@ describe('Display profiles', () => {
         cy.getBySel('asset-view', {timeout: 30000}).within(() => {
             cy.contains('Description').should('be.visible');
             cy.contains('description').should('be.visible');
+            cy.getBySel('attribute-divider').should('contain', 'Main info');
         });
         cy.get('body').type('{esc}');
     });

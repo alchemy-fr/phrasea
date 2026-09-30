@@ -34,6 +34,8 @@ type Item = {
     attribute?: ReturnType<typeof groupAttributes>[number]['attribute'];
     builtInValue?: unknown;
     format?: string;
+    /** Of a divider */
+    title?: string;
 };
 
 type Props = {
@@ -134,7 +136,7 @@ export function AttributeList({
                     });
                 }
             } else if (item.type === ProfileItemType.Divider) {
-                out.push({id: item.id, kind: 'divider'});
+                out.push({id: item.id, kind: 'divider', title: item.key});
             } else if (item.type === ProfileItemType.Spacer) {
                 out.push({id: item.id, kind: 'spacer'});
             }
@@ -173,7 +175,24 @@ export function AttributeList({
         >
             {items.map(item => {
                 if (item.kind === 'divider') {
-                    return <Separator key={item.id} className="my-1" />;
+                    return item.title ? (
+                        <div
+                            key={item.id}
+                            data-testid="attribute-divider"
+                            className="mt-1 flex items-center gap-2"
+                        >
+                            <span className="shrink-0 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+                                {item.title}
+                            </span>
+                            <Separator className="min-w-0 flex-1 data-[orientation=horizontal]:w-auto" />
+                        </div>
+                    ) : (
+                        <Separator
+                            key={item.id}
+                            data-testid="attribute-divider"
+                            className="my-1"
+                        />
+                    );
                 }
                 if (item.kind === 'spacer') {
                     return <div key={item.id} className="h-3" />;

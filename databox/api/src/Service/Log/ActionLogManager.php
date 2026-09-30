@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Log;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Mapping\ObjectMapping;
 use Alchemy\TrackBundle\AlchemyTrackBundle;
@@ -39,6 +40,11 @@ final readonly class ActionLogManager extends AbstractLogManager
         $log->setObjectId($object->getId());
         $log->setObjectType($this->objectMapping->getObjectKey($object));
         $log->setData($data);
+
+        $user = $this->security->getUser();
+        if ($user instanceof JwtUser && $user->isImpersonated()) {
+            $log->setImpersonatorId($user->getImpersonatorId());
+        }
 
         $this->fillLog($log, $meta, persist: true, inOnFlush: $inOnFlush);
 

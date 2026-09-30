@@ -106,6 +106,18 @@ class KeycloakClientTestMock implements HttpClientInterface
             ]);
         }
 
+        if (1 === preg_match('#/admin/realms/phrasea/users/([^/]+)/role-mappings/realm/composite$#', $url, $match)) {
+            return $this->createResponse($args, 200, array_map(fn (string $role): array => [
+                'name' => $role,
+            ], self::USERS[$match[1]]['roles'] ?? []));
+        }
+
+        if (1 === preg_match('#/admin/realms/phrasea/users/([^/]+)/groups$#', $url, $match)) {
+            return $this->createResponse($args, 200, array_map(fn (string $group): array => [
+                'id' => $group,
+            ], self::USERS[$match[1]]['groups'] ?? []));
+        }
+
         if (1 === preg_match('#/admin/realms/phrasea/users/(\d+)$#', $url, $match)) {
             return $this->createResponse($args, 200, array_merge(self::USERS[$match[1]], [
                 'id' => $match[1],

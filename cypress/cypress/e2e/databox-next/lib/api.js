@@ -171,6 +171,26 @@ export function ensureUser(username) {
     );
 }
 
+/**
+ * Keycloak id of a user, which is also its Databox user id (`ownerId`...).
+ */
+export function getUserId(username) {
+    return getAdminToken().then(token =>
+        cy
+            .request({
+                method: 'GET',
+                url: `${keycloakUrl}/admin/realms/${keycloakRealm}/users`,
+                qs: {username, exact: true},
+                auth: {bearer: token},
+            })
+            .then(res => {
+                expect(res.body, `user ${username}`).to.have.length(1);
+
+                return res.body[0].id;
+            })
+    );
+}
+
 export function uniqueName(prefix) {
     return `${prefix} ${Date.now().toString(36)}${Math.floor(Math.random() * 1000)}`;
 }

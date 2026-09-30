@@ -15,7 +15,12 @@ import {
 } from '@/components/ui/dialog';
 import type {ShareTerms} from '@/types/api';
 
-function TermsContent({terms}: {terms: ShareTerms}) {
+/** The terms text, or a link to their PDF when provided instead */
+export function TermsContent({
+    terms,
+}: {
+    terms: {text?: string | null; pdfUrl?: string | null};
+}) {
     const {t} = useTranslation();
 
     return terms.pdfUrl ? (

@@ -10,6 +10,7 @@ import {GlobalToasts} from '@/features/upload/GlobalToasts';
 import {NotificationUriListener} from '@/features/notifications/NotificationUriListener';
 import {TicketButton} from '@/features/ticketing/TicketButton';
 import {AppDndProvider} from '@/features/dnd/AppDndProvider';
+import {WorkspaceTermsGate} from '@/features/workspaces/terms/WorkspaceTermsGate';
 
 export function AppShell({children}: PropsWithChildren) {
     const {status} = useAuth();
@@ -39,6 +40,7 @@ export function AppShell({children}: PropsWithChildren) {
                         <GlobalToasts />
                         <NotificationUriListener />
                         <TicketButton />
+                        <WorkspaceTermsGate />
                     </>
                 ) : null}
             </div>

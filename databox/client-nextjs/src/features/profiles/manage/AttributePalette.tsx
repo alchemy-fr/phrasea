@@ -97,7 +97,7 @@ export function useProfileDefinitions() {
     const labelOf = useCallback(
         (item: PaletteItem): string => {
             if (item.type === ProfileItemType.Divider) {
-                return t('profile.divider', 'Divider');
+                return item.key || t('profile.divider', 'Divider');
             }
             if (item.type === ProfileItemType.Spacer) {
                 return t('profile.spacer', 'Spacer');
@@ -331,7 +331,7 @@ function PaletteRow({
             {...listeners}
             onDoubleClick={onAdd}
             className={cn(
-                'group/pe flex cursor-grab touch-none items-center gap-1.5 rounded-md py-1 pr-1 pl-0.5 text-sm select-none hover:bg-background focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none active:cursor-grabbing',
+                'group/pe flex scroll-mt-8 cursor-grab touch-none items-center gap-1.5 rounded-md py-1 pr-1 pl-0.5 text-sm select-none hover:bg-background focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none active:cursor-grabbing',
                 isDragging && 'opacity-40'
             )}
         >

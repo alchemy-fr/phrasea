@@ -32,6 +32,13 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()
                     ->end()
                 ->end()
+                ->arrayNode('impersonation')
+                    ->info('Lets admins act as another user by sending the X-Impersonate-User header')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->booleanNode('enabled')->defaultFalse()->end()
+                    ->end()
+                ->end()
             ->end()
         ;
 

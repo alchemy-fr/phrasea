@@ -150,6 +150,30 @@ final readonly class KeycloakClient
         return $indexedUsers;
     }
 
+    /**
+     * Effective realm roles of the user (composites and group roles included).
+     */
+    public function getUserEffectiveRealmRoles(string $accessToken, string $userId): array
+    {
+        return $this->get(sprintf('%s/%s/role-mappings/realm/composite', $this->urlGenerator->getUsersApiUrl(), $userId), [
+            'access_token' => $accessToken,
+            'query' => [
+                'briefRepresentation' => 'true',
+            ],
+        ]);
+    }
+
+    public function getUserGroups(string $accessToken, string $userId): array
+    {
+        return $this->get(sprintf('%s/%s/groups', $this->urlGenerator->getUsersApiUrl(), $userId), [
+            'access_token' => $accessToken,
+            'query' => [
+                'briefRepresentation' => 'true',
+                'max' => 1000,
+            ],
+        ]);
+    }
+
     public function getGroups(string $accessToken, array $options = []): array
     {
         return $this->get($this->urlGenerator->getGroupsApiUrl(), [

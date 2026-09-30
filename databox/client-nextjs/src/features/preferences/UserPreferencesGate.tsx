@@ -8,14 +8,16 @@ import {usePreferencesStore} from './store';
 import {FullPageLoader} from '@/components/ui/loader';
 import {setApiLocales} from '@/lib/api/http';
 import {useThemeStore} from '@/features/theme/themeStore';
+import {useProfileStore} from '@/features/profiles/profileStore';
 
 /**
  * Loads server-side user preferences once the session is known, then applies
- * the persisted theme / data locale before rendering the app.
+ * the persisted theme / data locale before rendering the app, and loads the
+ * display profile they select (the attribute lists and grid cards follow it).
  */
 export function UserPreferencesGate({children}: PropsWithChildren) {
     const {status} = useAuth();
-    const {loaded, load, preferences} = usePreferencesStore();
+    const {loaded, load, preferences, authenticated} = usePreferencesStore();
     const {setTheme} = useTheme();
     const {t} = useTranslation();
 
@@ -24,6 +26,14 @@ export function UserPreferencesGate({children}: PropsWithChildren) {
             void load(status === 'authenticated');
         }
     }, [status, load]);
+
+    // The profile store reads the selected profile from the preferences
+    const loadProfiles = useProfileStore(s => s.load);
+    useEffect(() => {
+        if (loaded && authenticated) {
+            void loadProfiles();
+        }
+    }, [loaded, authenticated, loadProfiles]);
 
     // Each persisted value is applied once: next-themes's setTheme changes
     // identity with the current theme, re-running these effects would revert

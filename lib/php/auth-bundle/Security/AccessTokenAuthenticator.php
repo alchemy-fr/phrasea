@@ -25,6 +25,7 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
     public function __construct(
         private readonly JwtValidatorInterface $jwtValidator,
         private readonly JwtExtractor $jwtExtractor,
+        private readonly Impersonator $impersonator,
     ) {
     }
 
@@ -54,6 +55,11 @@ class AccessTokenAuthenticator extends AbstractAuthenticator
 
         $accessTokenBadge = new AccessTokenBadge($accessToken);
         $user = $this->jwtExtractor->getUserFromToken($token);
+
+        $impersonatedId = $request->headers->get(Impersonator::HEADER);
+        if (!empty($impersonatedId) && $user instanceof JwtUser) {
+            $user = $this->impersonator->impersonate($user, $impersonatedId);
+        }
 
         return new SelfValidatingPassport(new UserBadge($user->getUserIdentifier(), function () use ($user): JwtUser|JwtOauthClient {
             return $user;

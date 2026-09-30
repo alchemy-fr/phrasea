@@ -14,6 +14,7 @@ import {
 } from '@/components/chips';
 import {formatDateTime, formatFileSize} from '@/lib/utils/format';
 import {routes} from '@/lib/routes';
+import {useCollectionStore} from '@/features/collections/collectionStore';
 
 export function InfoRow({
     label,
@@ -42,6 +43,20 @@ export function InfoRow({
 
 export function AssetInfoList({asset}: {asset: Asset}) {
     const {t, i18n} = useTranslation();
+    // The workspace and collection embedded in the asset carry no
+    // capabilities: rely on the tree's copies to land on the Edit tab.
+    const canEditWorkspace = useCollectionStore(
+        s =>
+            !!s.workspaces.find(w => w.id === asset.workspace.id)?.capabilities
+                .edit
+    );
+    const canEditCollection = useCollectionStore(
+        s =>
+            !!(
+                asset.referenceCollection &&
+                s.collections[asset.referenceCollection.id]?.capabilities.edit
+            )
+    );
     const dt = (v: string | undefined) =>
         v ? formatDateTime(v, 'medium', i18n.language) : '—';
 
@@ -68,7 +83,15 @@ export function AssetInfoList({asset}: {asset: Asset}) {
                 <PrivacyChip privacy={asset.privacy} size="sm" />
             </InfoRow>
             <InfoRow label={t('asset.info.workspace', 'Workspace')}>
-                <WorkspaceChip workspace={asset.workspace} size="sm" />
+                <Link
+                    href={routes.workspaceManage(
+                        asset.workspace.id,
+                        canEditWorkspace ? 'edit' : 'info'
+                    )}
+                    className="inline-flex max-w-full hover:opacity-80"
+                >
+                    <WorkspaceChip workspace={asset.workspace} size="sm" />
+                </Link>
             </InfoRow>
             {asset.referenceCollection ? (
                 <InfoRow
@@ -77,11 +100,19 @@ export function AssetInfoList({asset}: {asset: Asset}) {
                         'Reference collection'
                     )}
                 >
-                    <CollectionChip
-                        collection={asset.referenceCollection}
-                        absolute
-                        size="sm"
-                    />
+                    <Link
+                        href={routes.collectionManage(
+                            asset.referenceCollection.id,
+                            canEditCollection ? 'edit' : 'info'
+                        )}
+                        className="inline-flex max-w-full hover:opacity-80"
+                    >
+                        <CollectionChip
+                            collection={asset.referenceCollection}
+                            absolute
+                            size="sm"
+                        />
+                    </Link>
                 </InfoRow>
             ) : null}
             {asset.source ? (

@@ -5,6 +5,7 @@ namespace Alchemy\AuthBundle\DependencyInjection;
 use Alchemy\AuthBundle\Client\KeycloakClient;
 use Alchemy\AuthBundle\Client\KeycloakUrlGenerator;
 use Alchemy\AuthBundle\Listener\LogoutListener;
+use Alchemy\AuthBundle\Security\Impersonator;
 use Alchemy\AuthBundle\Security\JwtExtractor;
 use Alchemy\AuthBundle\Security\JwtUserProvider;
 use Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator;
@@ -50,6 +51,10 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
 
         $def = $container->findDefinition(OAuthAuthorizationAuthenticator::class);
         $def->setArgument('$clientId', $config['client_id']);
+
+        $def = $container->findDefinition(Impersonator::class);
+        $def->setArgument('$enabled', $config['impersonation']['enabled']);
+        $def->setArgument('$requiredRoles', $config['required_roles']);
 
         $bundles = $container->getParameter('kernel.bundles');
         if (isset($bundles['AlchemyAclBundle'])) {

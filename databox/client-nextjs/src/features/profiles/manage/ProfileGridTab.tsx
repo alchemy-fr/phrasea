@@ -30,7 +30,7 @@ import {
     sortableKeyboardCoordinates,
     useSortable,
 } from '@dnd-kit/sortable';
-import {CSS, getEventCoordinates} from '@dnd-kit/utilities';
+import {CSS} from '@dnd-kit/utilities';
 import type {
     AttributeDefinitionOrBuiltIn,
     GridAnchor,
@@ -61,6 +61,7 @@ import {
 import {
     PALETTE_ZONE,
     paletteKeyOf,
+    useDragPosition,
     zoneCollision,
     type ZoneData,
     type ZoneItemData,
@@ -141,6 +142,7 @@ export function ProfileGridTab({profile}: ProfileTabProps) {
     const [query, setQuery] = useState('');
     const [dragging, setDragging] = useState<string | null>(null);
     const [overCell, setOverCell] = useState<string | null>(null);
+    const dragPosition = useDragPosition();
     const pointerX = useRef(0);
     const sensors = useSensors(
         useSensor(PointerSensor, {activationConstraint: {distance: 4}}),
@@ -230,9 +232,8 @@ export function ProfileGridTab({profile}: ProfileTabProps) {
         const item = items.find(i => i.id === active.id);
         setDragging(entry?.label ?? (item ? labelOf(item) : ''));
     };
-    const onDragMove = ({over, activatorEvent, delta}: DragMoveEvent) => {
-        pointerX.current =
-            (getEventCoordinates(activatorEvent)?.x ?? 0) + delta.x;
+    const onDragMove = ({active, over, activatorEvent}: DragMoveEvent) => {
+        pointerX.current = dragPosition(active, activatorEvent).x;
         const cell = cellOf(over);
         const id = cell ? cellId(cell) : null;
         if (id !== overCell) {
@@ -243,8 +244,9 @@ export function ProfileGridTab({profile}: ProfileTabProps) {
         setDragging(null);
         setOverCell(null);
     };
-    const onDragEnd = ({active, over}: DragEndEvent) => {
+    const onDragEnd = ({active, over, activatorEvent}: DragEndEvent) => {
         reset();
+        pointerX.current = dragPosition(active, activatorEvent).x;
         if (!over) {
             return;
         }

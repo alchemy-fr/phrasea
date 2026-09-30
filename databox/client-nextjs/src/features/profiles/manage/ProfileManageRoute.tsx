@@ -2,7 +2,7 @@
 
 import {useState, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useQuery} from '@tanstack/react-query';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {
     InfoIcon,
     LayoutGridIcon,
@@ -82,7 +82,7 @@ function useTabs(profile?: DisplayProfile): DialogTab<ProfileTabProps>[] {
             title: t('collection.manage.permissions', 'Permissions'),
             icon: <ShieldIcon />,
             component: PermissionsTab,
-            enabled: !!profile?.capabilities.editPermissions,
+            enabled: canEdit || !!profile?.capabilities.editPermissions,
         },
     ];
 }
@@ -164,9 +164,8 @@ function SettingsForm({profile, refresh}: ProfileTabProps) {
     const upsert = useProfileStore(s => s.upsert);
     const [name, setName] = useState(profile.name);
     const [description, setDescription] = useState(profile.description ?? '');
-    const [isPublic, setIsPublic] = useState(!!profile.public);
     const [saving, setSaving] = useState(false);
-    const {markSaved} = useDirtyState({name, description, isPublic});
+    const {markSaved} = useDirtyState({name, description});
 
     const save = async () => {
         setSaving(true);
@@ -174,7 +173,6 @@ function SettingsForm({profile, refresh}: ProfileTabProps) {
             const saved = await putProfile(profile.id, {
                 name,
                 description,
-                public: isPublic,
             });
             upsert(saved);
             markSaved();
@@ -212,15 +210,6 @@ function SettingsForm({profile, refresh}: ProfileTabProps) {
                     onChange={e => setDescription(e.target.value)}
                 />
             </FormRow>
-            <LabeledControl
-                label={t('common.public', 'Public')}
-                description={t(
-                    'profile.public_help',
-                    'Every user can select a public profile.'
-                )}
-            >
-                <Switch checked={isPublic} onCheckedChange={setIsPublic} />
-            </LabeledControl>
             <div className="flex justify-end">
                 <Button type="submit" loading={saving} disabled={!name.trim()}>
                     <SaveIcon /> {t('common.save', 'Save')}
@@ -230,14 +219,73 @@ function SettingsForm({profile, refresh}: ProfileTabProps) {
     );
 }
 
+/**
+ * Who sees the profile: public or not (saved at once), then the ACL. The
+ * visibility only takes the edit right, the ACL the permissions one.
+ */
 function PermissionsTab({profile}: ProfileTabProps) {
     const {t} = useTranslation();
+    const queryClient = useQueryClient();
+    const upsert = useProfileStore(s => s.upsert);
+    const [isPublic, setIsPublic] = useState(!!profile.public);
+    const [saving, setSaving] = useState(false);
+
+    const changePublic = async (value: boolean) => {
+        setIsPublic(value);
+        setSaving(true);
+        try {
+            const saved = await putProfile(profile.id, {public: value});
+            upsert(saved);
+            // The items may have edits in flight: only the visibility changes
+            queryClient.setQueryData<DisplayProfile>(
+                profileQueryKey(profile.id),
+                p =>
+                    p && {
+                        ...p,
+                        public: saved.public,
+                        updatedAt: saved.updatedAt,
+                    }
+            );
+            toast.success(
+                value
+                    ? t('profile.now_public', 'The profile is now public')
+                    : t('profile.now_private', 'The profile is now private')
+            );
+        } catch (e: any) {
+            setIsPublic(!value);
+            toast.error(e?.message);
+        } finally {
+            setSaving(false);
+        }
+    };
 
     return (
-        <AclEditor
-            objectType={PermissionObject.Profile}
-            objectId={profile.id}
-            definitions={genericPermissions(t)}
-        />
+        <div className="space-y-6">
+            {profile.capabilities.edit ? (
+                <section className="max-w-2xl rounded-lg border p-3">
+                    <LabeledControl
+                        label={t('common.public', 'Public')}
+                        description={t(
+                            'profile.public_help',
+                            'Every user can select a public profile.'
+                        )}
+                    >
+                        <Switch
+                            data-testid="profile-public"
+                            checked={isPublic}
+                            disabled={saving}
+                            onCheckedChange={v => void changePublic(v)}
+                        />
+                    </LabeledControl>
+                </section>
+            ) : null}
+            {profile.capabilities.editPermissions ? (
+                <AclEditor
+                    objectType={PermissionObject.Profile}
+                    objectId={profile.id}
+                    definitions={genericPermissions(t)}
+                />
+            ) : null}
+        </div>
     );
 }

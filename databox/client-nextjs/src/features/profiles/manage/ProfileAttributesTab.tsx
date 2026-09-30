@@ -28,11 +28,12 @@ import {
     useSortable,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {CSS, getEventCoordinates} from '@dnd-kit/utilities';
+import {CSS} from '@dnd-kit/utilities';
 import type {AttributeDefinitionOrBuiltIn, ProfileItem} from '@/types/api';
 import {ProfileItemSection, ProfileItemType} from '@/types/api';
 import {Button} from '@/components/ui/button';
 import {Badge} from '@/components/ui/misc';
+import {Input} from '@/components/ui/input';
 import {Checkbox, LabeledControl} from '@/components/ui/controls';
 import {SimpleSelect} from '@/components/ui/select';
 import {getAttributeType} from '@/features/attributes/types/registry';
@@ -48,7 +49,12 @@ import {
     useProfileDefinitions,
     type PaletteEntry,
 } from './AttributePalette';
-import {PALETTE_ZONE, paletteKeyOf, zoneCollision} from './profileDnd';
+import {
+    PALETTE_ZONE,
+    paletteKeyOf,
+    useDragPosition,
+    zoneCollision,
+} from './profileDnd';
 import type {ZoneData, ZoneItemData} from './profileDnd';
 import {useProfileEditing} from './useProfileEditing';
 
@@ -99,8 +105,9 @@ export function ProfileAttributesTab({profile}: ProfileTabProps) {
                 : undefined
         );
 
-    // The pointer, to tell whether a palette entry lands above or below the
-    // row it hovers
+    // Where the drag is, to tell whether a palette entry lands above or
+    // below the row it hovers
+    const dragPosition = useDragPosition();
     const pointerY = useRef(0);
     const insertionAt = (over: Over | null): number | null => {
         if (over?.id === LIST_ZONE) {
@@ -120,17 +127,11 @@ export function ProfileAttributesTab({profile}: ProfileTabProps) {
         setDragging(entry?.label ?? (item ? labelOf(item) : ''));
     };
     // `over` may lag one move behind: tracked on both events
-    const onDragMove = ({
-        active,
-        over,
-        activatorEvent,
-        delta,
-    }: DragMoveEvent) => {
+    const onDragMove = ({active, over, activatorEvent}: DragMoveEvent) => {
         if (!paletteKeyOf(active.id)) {
             return;
         }
-        pointerY.current =
-            (getEventCoordinates(activatorEvent)?.y ?? 0) + delta.y;
+        pointerY.current = dragPosition(active, activatorEvent).y;
         const next = insertionAt(over);
         setInsertion(prev => (prev === next ? prev : next));
     };
@@ -138,12 +139,13 @@ export function ProfileAttributesTab({profile}: ProfileTabProps) {
         setDragging(null);
         setInsertion(null);
     };
-    const onDragEnd = ({active, over}: DragEndEvent) => {
+    const onDragEnd = ({active, over, activatorEvent}: DragEndEvent) => {
         reset();
         if (!over) {
             return;
         }
         if (paletteKeyOf(active.id)) {
+            pointerY.current = dragPosition(active, activatorEvent).y;
             const at = insertionAt(over);
             if (at !== null) {
                 void add(active.data.current?.entry as PaletteEntry, at);
@@ -329,7 +331,6 @@ function DisplayedRow({
         id: item.id,
         data: {kind: 'item', zone: LIST_ZONE} satisfies ZoneItemData,
     });
-    const layout = isLayoutItem(item);
     const type = attributeTypeOf(definition);
 
     return (
@@ -365,11 +366,28 @@ function DisplayedRow({
                         <GripVerticalIcon className="size-4 self-center" />
                     </span>
                     {item.type === ProfileItemType.Divider ? (
-                        <span className="flex min-w-0 flex-1 items-center gap-2 py-2 text-xs text-muted-foreground">
-                            <span className="h-px flex-1 bg-border" />
-                            {label}
-                            <span className="h-px flex-1 bg-border" />
-                        </span>
+                        <button
+                            type="button"
+                            className="flex min-w-0 flex-1 items-center gap-2 py-2 text-xs text-muted-foreground"
+                            onClick={onToggle}
+                            aria-expanded={expanded}
+                        >
+                            <span className="h-px min-w-4 flex-1 bg-border" />
+                            {item.key ? (
+                                <span className="max-w-[70%] truncate font-semibold tracking-wide text-foreground uppercase">
+                                    {item.key}
+                                </span>
+                            ) : (
+                                <span className="italic">{label}</span>
+                            )}
+                            <span className="h-px min-w-4 flex-1 bg-border" />
+                            <ChevronDownIcon
+                                className={cn(
+                                    'size-4 shrink-0 transition-transform',
+                                    expanded && 'rotate-180'
+                                )}
+                            />
+                        </button>
                     ) : item.type === ProfileItemType.Spacer ? (
                         <span className="my-1 flex min-w-0 flex-1 items-center justify-center rounded border border-dashed py-1 text-xs text-muted-foreground">
                             {label}
@@ -423,7 +441,9 @@ function DisplayedRow({
                         <XIcon />
                     </Button>
                 </div>
-                {expanded && !layout ? (
+                {!expanded ? null : item.type === ProfileItemType.Divider ? (
+                    <DividerOptions item={item} onChange={onChange} />
+                ) : item.type !== ProfileItemType.Spacer ? (
                     <ItemOptions item={item} type={type} onChange={onChange} />
                 ) : null}
             </div>
@@ -441,6 +461,47 @@ function InsertionMark({position}: {position: 'top' | 'bottom'}) {
                 position === 'top' ? '-top-px' : '-bottom-px'
             )}
         />
+    );
+}
+
+/** The title of a divider, saved when leaving the field */
+function DividerOptions({
+    item,
+    onChange,
+}: {
+    item: ProfileItem;
+    onChange: (data: Partial<ProfileItem>) => void;
+}) {
+    const {t} = useTranslation();
+    const [title, setTitle] = useState(item.key ?? '');
+    const save = () => {
+        const value = title.trim();
+        if (value !== (item.key ?? '')) {
+            onChange({key: value});
+        }
+    };
+
+    return (
+        <div className="border-t bg-muted/30 px-3 py-2">
+            <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                {t('profile.divider.title', 'Title')}
+                <Input
+                    data-testid="profile-divider-title"
+                    className="h-8 flex-1 bg-background"
+                    autoFocus
+                    value={title}
+                    placeholder={t('profile.divider.no_title', 'No title')}
+                    onChange={e => setTitle(e.target.value)}
+                    onBlur={save}
+                    onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            save();
+                        }
+                    }}
+                />
+            </label>
+        </div>
     );
 }
 

@@ -1,6 +1,8 @@
+import {useEffect, useRef} from 'react';
 import {
     closestCenter,
     pointerWithin,
+    type Active,
     type CollisionDetection,
     type UniqueIdentifier,
 } from '@dnd-kit/core';
@@ -59,3 +61,47 @@ export const zoneCollision: CollisionDetection = args => {
 
     return closestCenter({...args, droppableContainers: items});
 };
+
+/**
+ * Where the drag is, to place a drop before or after the item hovered: the
+ * pointer, followed on the window. The `delta` of the drag events cannot
+ * tell: dnd-kit adjusts it with the scroll of the containers under the
+ * pointer, and moving from the scrolled palette to a list drops the palette
+ * scroll from it (the pointer then seems higher than it is). A keyboard drag
+ * has no pointer: the center of the dragged rect.
+ */
+export function useDragPosition() {
+    const pointer = useRef<{x: number; y: number} | null>(null);
+
+    useEffect(() => {
+        const onMove = (e: PointerEvent) => {
+            pointer.current = {x: e.clientX, y: e.clientY};
+        };
+        window.addEventListener('pointermove', onMove, {
+            capture: true,
+            passive: true,
+        });
+
+        return () =>
+            window.removeEventListener('pointermove', onMove, {capture: true});
+    }, []);
+
+    return (active: Active, activatorEvent: Event | null) => {
+        const rect = active.rect.current.translated;
+        if (
+            (activatorEvent &&
+                typeof KeyboardEvent !== 'undefined' &&
+                activatorEvent instanceof KeyboardEvent) ||
+            !pointer.current
+        ) {
+            return rect
+                ? {
+                      x: rect.left + rect.width / 2,
+                      y: rect.top + rect.height / 2,
+                  }
+                : {x: 0, y: 0};
+        }
+
+        return pointer.current;
+    };
+}
