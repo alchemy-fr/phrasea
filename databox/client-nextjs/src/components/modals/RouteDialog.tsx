@@ -197,6 +197,14 @@ export function RouteDialog({
     const history = useContext(RouteHistoryContext);
     const [screen] = useState(() => routeKey ?? pathname);
     const returnUrl = useScreenOrigin(screen, pathname);
+    // In place of another screen of the `@modal` slot (e.g. the asset viewer
+    // a run is opened from), already gone: an enter animation would uncover
+    // the page underneath
+    const [replacesScreen] = useState(() => {
+        const previous = history?.lastUrl.current;
+
+        return !!previous && isStackedRoute(pathOf(previous));
+    });
     const [open, setOpen] = useState(true);
     const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
     const scope = useUnsavedChangesChildScope();
@@ -241,6 +249,7 @@ export function RouteDialog({
                 size={size}
                 className={className}
                 hideClose={hideClose}
+                animateIn={!replacesScreen}
                 onEscapeKeyDown={e => {
                     if (!closeOnEscape) {
                         e.preventDefault();

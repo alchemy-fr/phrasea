@@ -1,6 +1,13 @@
 'use client';
 
-import {memo, useEffect, useMemo, useRef, useState} from 'react';
+import {
+    memo,
+    useEffect,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 import {useTranslation} from 'react-i18next';
 import ReactFlow, {
     Background,
@@ -127,9 +134,22 @@ export function WorkflowGraph({
 
     const container = useRef<HTMLDivElement>(null);
     const [instance, setInstance] = useState<ReactFlowInstance>();
+    // Until the user interacts with the graph, it is fitted to its container
+    const autoFit = useRef(true);
+    const stopAutoFit = () => {
+        autoFit.current = false;
+    };
+    // Before the job panel opening resizes the container
+    useLayoutEffect(() => {
+        if (selectedJobId) {
+            autoFit.current = false;
+        }
+    }, [selectedJobId]);
 
-    // The dialog is still settling when the graph is first laid out: fit the
-    // graph again whenever its container is resized.
+    // The dialog is still settling when the graph is first laid out (the runs
+    // panel shows up once the run is loaded): fit the graph again whenever its
+    // container is resized. Afterwards the zoom and the area shown are kept,
+    // e.g. while the job panel opens, closes or is resized.
     useEffect(() => {
         const el = container.current;
         if (!instance || !el) {
@@ -138,9 +158,11 @@ export function WorkflowGraph({
         let frame = 0;
         const observer = new ResizeObserver(() => {
             cancelAnimationFrame(frame);
-            frame = requestAnimationFrame(() =>
-                instance.fitView(fitViewOptions)
-            );
+            frame = requestAnimationFrame(() => {
+                if (autoFit.current) {
+                    instance.fitView(fitViewOptions);
+                }
+            });
         });
         observer.observe(el);
 
@@ -162,7 +184,12 @@ export function WorkflowGraph({
     };
 
     return (
-        <div ref={container} className="workflow-graph size-full bg-background">
+        <div
+            ref={container}
+            onPointerDownCapture={stopAutoFit}
+            onWheelCapture={stopAutoFit}
+            className="workflow-graph size-full bg-background"
+        >
             <ReactFlow
                 nodes={nodes}
                 edges={edges}

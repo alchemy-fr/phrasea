@@ -1237,6 +1237,8 @@
     "workflow.name.attributes_update": "Attributes update",
     "workflow.name.incoming_uploader_file": "Upload",
     "workflow.needs": "needs",
+    "workflow.no_inputs": "No input",
+    "workflow.no_outputs": "No output",
     "workflow.rerun": "Rerun",
     "workflow.resize_job_panel": "Resize the job panel",
     "workflow.run_new": "Run a new workflow",

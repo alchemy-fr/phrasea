@@ -1237,6 +1237,8 @@
     "workflow.name.attributes_update": "Mise à jour des attributs",
     "workflow.name.incoming_uploader_file": "Dépôt",
     "workflow.needs": "dépend de",
+    "workflow.no_inputs": "Aucune entrée",
+    "workflow.no_outputs": "Aucune sortie",
     "workflow.rerun": "Relancer",
     "workflow.resize_job_panel": "Redimensionner le panneau du job",
     "workflow.run_new": "Lancer un nouveau workflow",

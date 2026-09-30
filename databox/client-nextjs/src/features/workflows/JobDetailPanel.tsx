@@ -5,7 +5,7 @@ import {useTranslation} from 'react-i18next';
 import {BanIcon, RotateCcwIcon, XIcon} from 'lucide-react';
 import type {WorkflowJob} from '@/types/api';
 import {Button} from '@/components/ui/button';
-import {CopiableText} from '@/components/ui/copy-button';
+import {CopiableText, CopyButton} from '@/components/ui/copy-button';
 import {
     DetailFields,
     DetailSection,
@@ -16,7 +16,6 @@ import {
     JobStatusDot,
     canRerunJob,
     formatJobDuration,
-    hasData,
     jobStatusLabel,
 } from './jobStatus';
 
@@ -129,26 +128,39 @@ export function JobDetailPanel({
                         </pre>
                     </DetailSection>
                 ) : null}
-                {hasData(job.inputs) ? (
-                    <JsonSection
-                        title={t('workflow.field.inputs', 'Inputs')}
-                        data={job.inputs}
-                    />
-                ) : null}
-                {hasData(job.outputs) ? (
-                    <JsonSection
-                        title={t('workflow.field.outputs', 'Outputs')}
-                        data={job.outputs}
-                    />
+                {/* Only a job that ran has inputs and outputs, even empty */}
+                {job.stateId ? (
+                    <>
+                        <JsonSection
+                            title={t('workflow.field.inputs', 'Inputs')}
+                            data={job.inputs}
+                            empty={t('workflow.no_inputs', 'No input')}
+                        />
+                        <JsonSection
+                            title={t('workflow.field.outputs', 'Outputs')}
+                            data={job.outputs}
+                            empty={t('workflow.no_outputs', 'No output')}
+                        />
+                    </>
                 ) : null}
                 {job.errors?.length ? (
-                    <DetailSection title={t('workflow.field.errors', 'Errors')}>
+                    <DetailSection
+                        title={t('workflow.field.errors', 'Errors')}
+                        actions={<CopyButton value={job.errors.join('\n\n')} />}
+                    >
                         <ul className="space-y-2">
                             {job.errors.map((e, i) => (
-                                <li key={i}>
+                                <li key={i} className="group/error relative">
                                     <pre className="max-h-80 overflow-auto rounded-md bg-destructive/10 p-3 font-mono text-xs whitespace-pre-wrap text-destructive">
                                         {e}
                                     </pre>
+                                    {/* The header one copies them all */}
+                                    {job.errors!.length > 1 ? (
+                                        <CopyButton
+                                            value={e}
+                                            className="absolute top-1 right-3 bg-card opacity-0 group-hover/error:opacity-100 focus-visible:opacity-100"
+                                        />
+                                    ) : null}
                                 </li>
                             ))}
                         </ul>

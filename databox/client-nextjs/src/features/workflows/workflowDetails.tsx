@@ -6,6 +6,7 @@ import {Tooltip} from '@/components/ui/overlays';
 import {CopyButton} from '@/components/ui/copy-button';
 import {formatDateTime} from '@/lib/utils/format';
 import {cn} from '@/lib/utils/cn';
+import {hasData} from './jobStatus';
 
 /** Label / value pairs laid out in a row (the legacy `HorizontalTable`) */
 export function DetailFields({
@@ -65,8 +66,26 @@ export function DetailSection({
     );
 }
 
-/** Inputs, outputs, context… pretty printed */
-export function JsonSection({title, data}: {title: ReactNode; data: unknown}) {
+/**
+ * Inputs, outputs, context… pretty printed, `empty` in their place when there
+ * is none
+ */
+export function JsonSection({
+    title,
+    data,
+    empty,
+}: {
+    title: ReactNode;
+    data: unknown;
+    empty?: ReactNode;
+}) {
+    if (empty !== undefined && !hasData(data)) {
+        return (
+            <DetailSection title={title}>
+                <p className="text-sm text-muted-foreground">{empty}</p>
+            </DetailSection>
+        );
+    }
     const json = JSON.stringify(data, null, 4);
 
     return (
