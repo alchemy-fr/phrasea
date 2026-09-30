@@ -361,6 +361,29 @@ export function addAssetsToCollection(
     });
 }
 
+/**
+ * Moves an asset to a zero-based rank inside a collection (or a story, given
+ * the story asset's IRI).
+ */
+export function setAssetPosition(
+    id: string,
+    destination: string,
+    position: number
+): Promise<void> {
+    return api.put(`/${EntityName.Asset}/${id}/position`, {
+        destination,
+        position,
+    });
+}
+
+/** Unlinks an asset from a collection (or from a story's collection) */
+export function removeAssetFromCollection(
+    id: string,
+    collectionId: string
+): Promise<void> {
+    return api.delete(`/${EntityName.Asset}/${id}/collections/${collectionId}`);
+}
+
 export function bypassQuarantine(id: string): Promise<Asset> {
     return api.post<Asset>(`/${EntityName.Asset}/${id}/quarantine-bypass`, {});
 }

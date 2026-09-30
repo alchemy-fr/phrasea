@@ -36,8 +36,14 @@ describe('Impersonation', () => {
         waitForResults(1);
         cy.getBySel('impersonation-banner').should('not.exist');
 
+        // Ctrl+U opens the dialog as well as the user menu entry
+        cy.get('body').type('{ctrl}u');
+        cy.getBySel('switch-user-dialog').should('be.visible');
+        cy.get('body').type('{esc}');
+        cy.getBySel('switch-user-dialog').should('not.exist');
+
         cy.getBySel('user-menu').click();
-        cy.getBySel('switch-user').click();
+        cy.getBySel('switch-user').should('contain', 'Ctrl+U').click();
         cy.getBySel('switch-user-dialog').within(() => {
             cy.get('[cmdk-input]').type('alice');
             cy.getBySel('switch-user-alice', {timeout: 20000}).click();

@@ -30,6 +30,7 @@ import {
     DropdownMenuRadioGroup,
     DropdownMenuRadioItem,
     DropdownMenuSeparator,
+    DropdownMenuShortcut,
     DropdownMenuSub,
     DropdownMenuSubContent,
     DropdownMenuSubTrigger,
@@ -45,7 +46,10 @@ import {supportedLanguages} from '@/i18n';
 import {routes} from '@/lib/routes';
 import {useModals} from '@/components/modals/ModalProvider';
 import {DataLocaleDialog} from '@/features/preferences/DataLocaleDialog';
-import {SwitchUserDialog} from '@/features/impersonation/SwitchUserDialog';
+import {
+    SWITCH_USER_SHORTCUT,
+    useSwitchUserShortcut,
+} from '@/features/impersonation/useSwitchUserShortcut';
 import {ProfileMenu} from '@/features/profiles/ProfileMenu';
 import {ThemeMenu} from '@/features/theme/ThemeMenu';
 import {NotificationsMenu} from '@/features/notifications/NotificationsMenu';
@@ -91,6 +95,7 @@ export function TopBar({
     // user left it
     const searchUrl = useOptionalSearch()?.url ?? routes.assets();
     const {openModal} = useModals();
+    const openSwitchUser = useSwitchUserShortcut();
     const isAdmin = hasRole(AppRole.DataboxAdmin) || hasRole(AppRole.Admin);
 
     const changeLanguage = (lng: string) => {
@@ -333,13 +338,16 @@ export function TopBar({
                             ) : null}
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        {canImpersonate ? (
+                        {openSwitchUser ? (
                             <DropdownMenuItem
                                 data-testid="switch-user"
-                                onSelect={() => openModal(SwitchUserDialog, {})}
+                                onSelect={openSwitchUser}
                             >
                                 <UserRoundCogIcon />{' '}
                                 {t('impersonation.switch', 'Switch user…')}
+                                <DropdownMenuShortcut>
+                                    {SWITCH_USER_SHORTCUT}
+                                </DropdownMenuShortcut>
                             </DropdownMenuItem>
                         ) : null}
                         {impersonating && realUser ? (

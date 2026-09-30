@@ -100,7 +100,10 @@ export const useProfileStore = create<State>((set, get) => ({
         set(s => ({profiles: [...s.profiles, ...page.items], next: page.next}));
     },
 
-    setCurrent: async profile => {
+    setCurrent: async listed => {
+        // A profile of the list has neither its items nor its data
+        const profile =
+            listed && !listed.items ? await getProfile(listed.id) : listed;
         set({current: profile});
         const prefs = usePreferencesStore.getState();
         if (profile) {

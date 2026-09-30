@@ -64,7 +64,7 @@ export function DisplayOptionsMenu({
                     <SlidersHorizontalIcon />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-72 space-y-4">
+            <PopoverContent align="end" className="w-95 space-y-4">
                 <div>
                     <Label className="mb-2">
                         {t('display.layout', 'Layout')}
@@ -132,7 +132,7 @@ export function DisplayOptionsMenu({
                                 </TabsTrigger>
                                 <TabsTrigger value="cover">
                                     <CropIcon />{' '}
-                                    {t('display.fit_cover', 'Fill (crop)')}
+                                    {t('display.fit_cover', 'Fill')}
                                 </TabsTrigger>
                             </TabsList>
                         </Tabs>

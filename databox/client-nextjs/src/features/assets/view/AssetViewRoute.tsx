@@ -64,7 +64,8 @@ export function AssetViewRoute({
     const [assetId, setAssetId] = useState(initialAssetId);
     const [renditionId, setRenditionId] = useState(initialRenditionId);
     // The story being browsed, kept while switching between its items
-    const [storyId, setStoryId] = useState<string>();
+    const [storyAsset, setStoryAsset] = useState<Asset>();
+    const storyId = storyAsset?.id;
     // The hash is not sent to the server: the panel tab or mode it asks for
     // is read after hydration.
     const [panelTab, setPanelTab] =
@@ -73,7 +74,7 @@ export function AssetViewRoute({
     useEffect(() => {
         setAssetId(initialAssetId);
         setRenditionId(initialRenditionId);
-        setStoryId(undefined);
+        setStoryAsset(undefined);
         const hashTarget = panelTargetFromHash();
         setEditing(hashTarget === editPanelTarget);
         if (hashTarget !== editPanelTarget) {
@@ -134,7 +135,7 @@ export function AssetViewRoute({
     // somewhere else (the items of a story are plain assets).
     useEffect(() => {
         if (asset?.storyCollection) {
-            setStoryId(asset.id);
+            setStoryAsset(asset);
         }
     }, [asset]);
     const story = useStoryAssets(storyId);
@@ -237,7 +238,7 @@ export function AssetViewRoute({
 
             return;
         }
-        setStoryId(undefined);
+        setStoryAsset(undefined);
         go(outerId);
     };
     const selectPanelTab = (tab: AssetPanelTab) => {
@@ -474,9 +475,9 @@ export function AssetViewRoute({
                             <QuarantineBanner asset={asset} />
                         </div>
                     ) : null}
-                    {storyId ? (
+                    {storyAsset ? (
                         <StoryCarousel
-                            storyId={storyId}
+                            story={storyAsset}
                             currentAssetId={assetId}
                             onSelect={id => go(id)}
                         />

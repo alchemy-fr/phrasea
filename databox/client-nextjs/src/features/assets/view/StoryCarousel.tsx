@@ -1,25 +1,77 @@
 'use client';
 
-import {useMemo} from 'react';
+import {useMemo, useRef} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useInfiniteQuery} from '@tanstack/react-query';
-import {LayersIcon} from 'lucide-react';
-import {searchAssets} from '@/lib/api/assets';
+import {
+    InfiniteData,
+    useInfiniteQuery,
+    useQueryClient,
+} from '@tanstack/react-query';
+import {
+    ArrowLeftToLineIcon,
+    ArrowRightToLineIcon,
+    LayersIcon,
+    UnlinkIcon,
+} from 'lucide-react';
+import {
+    closestCenter,
+    DndContext,
+    DragEndEvent,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    horizontalListSortingStrategy,
+    SortableContext,
+} from '@dnd-kit/sortable';
+import {toast} from 'sonner';
+import type {Asset} from '@/types/api';
+import {EntityName} from '@/types/api';
+import {
+    removeAssetFromCollection,
+    searchAssets,
+    SearchAssetsResult,
+    setAssetPosition,
+} from '@/lib/api/assets';
 import {AssetThumb} from '@/features/assets/list/AssetThumb';
+import {AssetMenuItems} from '@/features/assets/list/AssetContextMenu';
 import {Button} from '@/components/ui/button';
 import {Skeleton} from '@/components/ui/misc';
+import {
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuSeparator,
+    ContextMenuTrigger,
+} from '@/components/ui/menu';
+import {
+    overlayRow,
+    SortableOverlay,
+    sortableMeasuring,
+    SortableRow,
+    useSortableRow,
+} from '@/components/ui/sortable';
+import {iri} from '@/lib/utils/iri';
+import {toastError} from '@/lib/utils/errors';
 import {cn} from '@/lib/utils/cn';
 
 /**
- * Assets contained in a story. Shared by the carousel and the viewer (which
- * falls back to the first item when the story itself has no rendition): same
- * query key, one request.
+ * Assets contained in a story, in their stored order. Shared by the carousel
+ * and the viewer (which falls back to the first item when the story itself
+ * has no rendition): same query key, one request.
  */
 export function useStoryAssets(storyId?: string) {
     const query = useInfiniteQuery({
-        queryKey: ['story-assets', storyId],
+        queryKey: storyAssetsKey(storyId),
         queryFn: ({pageParam}) =>
-            searchAssets({url: pageParam, story: storyId!, limit: 30}),
+            searchAssets({
+                url: pageParam,
+                story: storyId!,
+                order: {'@position': 'asc'},
+                limit: 30,
+            }),
         initialPageParam: undefined as string | undefined,
         getNextPageParam: last => last.next,
         enabled: !!storyId,
@@ -30,26 +82,142 @@ export function useStoryAssets(storyId?: string) {
     return {...query, items, total: pages?.[0]?.total ?? 0};
 }
 
+function storyAssetsKey(storyId?: string) {
+    return ['story-assets', storyId];
+}
+
+type StoryPages = InfiniteData<SearchAssetsResult, string | undefined>;
+
+/**
+ * Rewrites the loaded items of a story, the pages keeping their size: the
+ * index is re-read by the search asynchronously, refetching would bring the
+ * previous order back.
+ */
+export function rewriteItems(
+    data: StoryPages | undefined,
+    rewrite: (items: Asset[]) => Asset[],
+    removed: number
+): StoryPages | undefined {
+    if (!data) {
+        return data;
+    }
+    const after = rewrite(data.pages.flatMap(p => p.items));
+    let offset = 0;
+
+    return {
+        ...data,
+        pages: data.pages.map((p, i) => {
+            const size =
+                i === data.pages.length - 1
+                    ? after.length - offset
+                    : p.items.length;
+            const items = after.slice(offset, offset + size);
+            offset += size;
+
+            return {...p, items, total: p.total - removed};
+        }),
+    };
+}
+
 /**
  * Horizontal strip of the assets contained in a story.
  *
  * Selecting one switches the asset displayed by the viewer in place
  * (`onSelect`) instead of navigating: the story context — this strip and the
  * previous / next navigation inside the story — is kept.
+ *
+ * Who may edit the story reorders its items by dragging them, and moves or
+ * removes them from their context menu.
  */
 export function StoryCarousel({
-    storyId,
+    story,
     currentAssetId,
     onSelect,
 }: {
-    storyId: string;
+    story: Asset;
     /** The asset currently displayed, the story itself or one of its items */
     currentAssetId: string;
     onSelect: (assetId: string) => void;
 }) {
     const {t} = useTranslation();
+    const queryClient = useQueryClient();
+    const storyId = story.id;
     const query = useStoryAssets(storyId);
     const {items, total} = query;
+    const storyCollectionId = story.storyCollection?.id;
+    const editable = !!story.capabilities.edit && !!storyCollectionId;
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {activationConstraint: {distance: 6}})
+    );
+    // The click ending a drag must not select the dropped item
+    const justDragged = useRef(false);
+
+    const updateCache = (rewrite: (items: Asset[]) => Asset[], removed = 0) =>
+        queryClient.setQueryData<StoryPages>(storyAssetsKey(storyId), data =>
+            rewriteItems(data, rewrite, removed)
+        );
+    const restore = (e: unknown) => {
+        toastError(e);
+        void queryClient.invalidateQueries({
+            queryKey: storyAssetsKey(storyId),
+        });
+    };
+
+    const move = (assetId: string, position: number) => {
+        const from = items.findIndex(a => a.id === assetId);
+        if (from < 0 || from === position) {
+            return;
+        }
+        updateCache(list =>
+            position < list.length
+                ? arrayMove(list, from, position)
+                : // Beyond the loaded pages: shows up when they are
+                  list.filter(a => a.id !== assetId)
+        );
+        setAssetPosition(
+            assetId,
+            iri(EntityName.Asset, storyId),
+            position
+        ).catch(restore);
+    };
+
+    const remove = (asset: Asset) => {
+        updateCache(list => list.filter(a => a.id !== asset.id), 1);
+        if (asset.id === currentAssetId) {
+            onSelect(storyId);
+        }
+        removeAssetFromCollection(asset.id, storyCollectionId!)
+            .then(() => {
+                void queryClient.invalidateQueries({
+                    queryKey: ['story-thumbnails', storyId],
+                });
+                toast.success(
+                    t('story.asset_removed', '{{name}} removed from story', {
+                        name: asset.name ?? '',
+                    })
+                );
+            })
+            .catch(restore);
+    };
+
+    const onDragEnd = ({active, over}: DragEndEvent) => {
+        justDragged.current = true;
+        setTimeout(() => (justDragged.current = false));
+        if (!over || active.id === over.id) {
+            return;
+        }
+        move(
+            String(active.id),
+            items.findIndex(a => a.id === over.id)
+        );
+    };
+
+    const selectItem = (id: string) => {
+        if (!justDragged.current) {
+            onSelect(id);
+        }
+    };
 
     return (
         <div
@@ -78,21 +246,97 @@ export function StoryCarousel({
                       <Skeleton key={i} className="size-20 shrink-0" />
                   ))
                 : null}
-            {items.map(child => (
-                <button
-                    key={child.id}
-                    type="button"
-                    aria-current={child.id === currentAssetId}
-                    className={cn(
-                        'size-20 shrink-0 overflow-hidden rounded-md border bg-media-bg hover:ring-2 hover:ring-primary',
-                        child.id === currentAssetId && 'ring-2 ring-primary'
-                    )}
-                    onClick={() => onSelect(child.id)}
-                    title={child.name}
+            <DndContext
+                measuring={sortableMeasuring}
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={onDragEnd}
+            >
+                <SortableContext
+                    items={items.map(a => a.id)}
+                    strategy={horizontalListSortingStrategy}
+                    disabled={!editable}
                 >
-                    <AssetThumb asset={child} size={80} />
-                </button>
-            ))}
+                    {items.map((child, index) => (
+                        <ContextMenu key={child.id}>
+                            <ContextMenuTrigger asChild>
+                                <div className="shrink-0">
+                                    <SortableStoryItem
+                                        asset={child}
+                                        current={child.id === currentAssetId}
+                                        onClick={() => selectItem(child.id)}
+                                    />
+                                </div>
+                            </ContextMenuTrigger>
+                            <ContextMenuContent className="w-56">
+                                {editable ? (
+                                    <>
+                                        <ContextMenuItem
+                                            data-testid="story-item-move-first"
+                                            disabled={index === 0}
+                                            onSelect={() => move(child.id, 0)}
+                                        >
+                                            <ArrowLeftToLineIcon />
+                                            {t(
+                                                'story.item.move_first',
+                                                'Move to start'
+                                            )}
+                                        </ContextMenuItem>
+                                        <ContextMenuItem
+                                            data-testid="story-item-move-last"
+                                            disabled={index === total - 1}
+                                            onSelect={() =>
+                                                move(child.id, total - 1)
+                                            }
+                                        >
+                                            <ArrowRightToLineIcon />
+                                            {t(
+                                                'story.item.move_last',
+                                                'Move to end'
+                                            )}
+                                        </ContextMenuItem>
+                                        <ContextMenuItem
+                                            data-testid="story-item-remove"
+                                            variant="destructive"
+                                            disabled={
+                                                child.referenceCollection
+                                                    ?.id === storyCollectionId
+                                            }
+                                            onSelect={() => remove(child)}
+                                        >
+                                            <UnlinkIcon />
+                                            {t(
+                                                'story.item.remove',
+                                                'Remove from story'
+                                            )}
+                                        </ContextMenuItem>
+                                        <ContextMenuSeparator />
+                                    </>
+                                ) : null}
+                                <AssetMenuItems
+                                    asset={child}
+                                    variant="context"
+                                    onOpen={() => onSelect(child.id)}
+                                />
+                            </ContextMenuContent>
+                        </ContextMenu>
+                    ))}
+                </SortableContext>
+                <SortableOverlay>
+                    {id => {
+                        const child = items.find(a => a.id === id);
+
+                        return child ? (
+                            <StoryItem
+                                asset={child}
+                                current={child.id === currentAssetId}
+                                drag={overlayRow}
+                                onClick={() => undefined}
+                            />
+                        ) : null;
+                    }}
+                </SortableOverlay>
+            </DndContext>
             {query.hasNextPage ? (
                 <Button
                     variant="outline"
@@ -105,5 +349,41 @@ export function StoryCarousel({
                 </Button>
             ) : null}
         </div>
+    );
+}
+
+type StoryItemProps = {
+    asset: Asset;
+    current: boolean;
+    drag: SortableRow;
+    onClick: () => void;
+};
+
+function SortableStoryItem(props: Omit<StoryItemProps, 'drag'>) {
+    const drag = useSortableRow(props.asset.id);
+
+    return <StoryItem {...props} drag={drag} />;
+}
+
+/** An item of the strip, also rendered as the copy following the pointer */
+function StoryItem({asset, current, drag, onClick}: StoryItemProps) {
+    return (
+        <button
+            ref={drag.nodeRef}
+            type="button"
+            data-testid="story-item"
+            aria-current={current}
+            style={drag.style}
+            {...drag.handle}
+            className={cn(
+                'block size-20 overflow-hidden rounded-md border bg-media-bg hover:ring-2 hover:ring-primary',
+                current && 'ring-2 ring-primary',
+                drag.className
+            )}
+            onClick={onClick}
+            title={asset.name}
+        >
+            <AssetThumb asset={asset} size={80} />
+        </button>
     );
 }
