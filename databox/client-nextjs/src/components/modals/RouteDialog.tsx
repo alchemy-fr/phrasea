@@ -16,7 +16,7 @@ import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {Dialog, DialogContent, DialogSize} from '@/components/ui/dialog';
 import {modalExitDuration} from './ModalProvider';
 import {pathOf, RouteOrigins} from './routeOrigins';
-import {routes} from '@/lib/routes';
+import {isStackedRoute, routes} from '@/lib/routes';
 import {
     askDiscardChanges,
     hasUnsavedChanges,
@@ -162,7 +162,8 @@ function useOpenedFrom(screen?: string): string {
 
 /**
  * Dialog bound to a route: closing it leaves the route, once the exit
- * animation had a chance to play.
+ * animation had a chance to play — right away when it leads to another screen
+ * of the `@modal` slot, which then replaces it.
  */
 export function RouteDialog({
     children,
@@ -215,8 +216,16 @@ export function RouteDialog({
                         returnUrl
                     );
                 }
-                setOpen(false);
                 onClose?.();
+                if (isStackedRoute(pathOf(url))) {
+                    // Another screen of the `@modal` slot takes our place: an
+                    // exit animation would uncover the page underneath before
+                    // it shows up
+                    router.push(url, {scroll: false});
+
+                    return;
+                }
+                setOpen(false);
                 timer.current = setTimeout(
                     () => router.push(url, {scroll: false}),
                     modalExitDuration

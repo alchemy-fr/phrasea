@@ -120,7 +120,7 @@ describe('Asset viewer', () => {
 
         // Drag the handle to the left: the panel gets wider
         cy.getBySel('asset-panel').invoke('outerWidth').should('be.lessThan', 500);
-        cy.get('[data-resize-handle]')
+        cy.get('[data-testid=asset-view] [data-resize-handle]')
             .trigger('pointerdown', {pointerId: 1, force: true})
             .trigger('pointermove', {pointerId: 1, clientX: 700, force: true})
             .trigger('pointerup', {pointerId: 1, force: true});
@@ -133,7 +133,7 @@ describe('Asset viewer', () => {
 
         const drag = clientX =>
             cy
-                .get('[data-resize-handle]')
+                .get('[data-testid=asset-view] [data-resize-handle]')
                 .trigger('pointerdown', {pointerId: 1, force: true})
                 .trigger('pointermove', {pointerId: 1, clientX, force: true})
                 .trigger('pointerup', {pointerId: 1, force: true});

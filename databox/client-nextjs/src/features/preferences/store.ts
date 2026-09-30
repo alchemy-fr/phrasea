@@ -2,6 +2,7 @@ import {useMemo} from 'react';
 import {create} from 'zustand';
 import {api} from '@/lib/api/http';
 import {deepEquals} from '@/lib/utils/misc';
+import type {SidebarSectionId} from '@/components/layout/sidebarSections';
 
 export type LayoutMode = 'grid' | 'masonry' | 'list';
 
@@ -46,6 +47,8 @@ export type UserPreferences = {
     display?: DisplayPreferences;
     displayBatchEdit?: DisplayPreferences;
     facets?: FacetPreference[];
+    /** Order of the sections of the "Browse" tab of the left panel */
+    sidebarSections?: SidebarSectionId[];
 };
 
 export const defaultDisplayPreferences: DisplayPreferences = {

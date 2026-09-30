@@ -202,4 +202,43 @@ describe('RouteDialog', () => {
             vi.useRealTimers();
         }
     });
+
+    it('leaves right away for another dialog, after the exit animation for the page', () => {
+        vi.useFakeTimers();
+        try {
+            const {rerender} = render(<App />);
+            const go = (url: string) => {
+                const [pathname, search = ''] = url.split('?');
+                nav.pathname = pathname;
+                nav.search = search;
+                act(() => rerender(<App />));
+            };
+            const close = () => {
+                nav.push.mockClear();
+                act(() => screen.getByRole('button', {name: 'Close'}).click());
+            };
+
+            go('/assets?query=cats');
+            go('/assets/a/manage/open');
+            go('/files/f/manage/info');
+
+            // Nothing uncovers the page underneath before the dialog shows up
+            close();
+            expect(nav.push).toHaveBeenCalledExactlyOnceWith(
+                '/assets/a/manage/open',
+                {scroll: false}
+            );
+            go('/assets/a/manage/open');
+
+            close();
+            expect(nav.push).not.toHaveBeenCalled();
+            act(() => vi.advanceTimersByTime(modalExitDuration));
+            expect(nav.push).toHaveBeenCalledExactlyOnceWith(
+                '/assets?query=cats',
+                {scroll: false}
+            );
+        } finally {
+            vi.useRealTimers();
+        }
+    });
 });

@@ -37,6 +37,8 @@ import {quarantineQueueKey, useQuarantineQueueStore} from './quarantineQueue';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {cn} from '@/lib/utils/cn';
+import {useResizablePanel} from '@/hooks/useResizablePanel';
+import {ResizeHandle} from '@/components/ui/resize-handle';
 
 const pageSize = 30;
 
@@ -58,6 +60,7 @@ export function QuarantineScreen() {
     const linkedId = searchParams.get('asset') ?? undefined;
     const [selectedId, setSelectedId] = useState<string | undefined>(linkedId);
     const resolved = useQuarantineQueueStore(s => s.resolved);
+    const queuePanel = useResizablePanel('quarantine');
     const resetResolved = useQuarantineQueueStore(s => s.reset);
 
     // Where the user is, shown in the top bar with the way back to the
@@ -214,7 +217,8 @@ export function QuarantineScreen() {
 
                 <div className="flex min-h-0 flex-1">
                     <aside
-                        className="flex w-[280px] shrink-0 flex-col overflow-y-auto border-r"
+                        style={{width: queuePanel.width}}
+                        className="flex shrink-0 flex-col overflow-y-auto border-r"
                         data-testid="quarantine-queue"
                     >
                         {queue.isLoading ? (
@@ -272,6 +276,10 @@ export function QuarantineScreen() {
                             </Button>
                         ) : null}
                     </aside>
+                    <ResizeHandle
+                        panel={queuePanel}
+                        data-testid="quarantine-queue-resize"
+                    />
 
                     <div className="min-w-0 flex-1 overflow-y-auto">
                         {asset ? (

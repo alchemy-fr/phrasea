@@ -22,6 +22,7 @@ import {
     BookOpenIcon,
     SettingsIcon,
     ListIcon,
+    PinIcon,
 } from 'lucide-react';
 import type {Workspace} from '@/types/api';
 import {
@@ -67,6 +68,7 @@ import {useDebouncedValue} from '@/hooks/useDebouncedValue';
 import {Highlight} from '@/components/ui/highlight';
 import {WorkspaceChip} from '@/components/chips';
 import {PanelSection} from '@/components/layout/PanelSection';
+import {usePinAsSavedSearch} from '@/features/saved-searches/usePinAsSavedSearch';
 
 export function CollectionsPanel() {
     const {t} = useTranslation();
@@ -239,6 +241,8 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
     const router = useRouter();
     const search = useOptionalSearch();
     const {openModal} = useModals();
+    const {isAuthenticated} = useAuth();
+    const pin = usePinAsSavedSearch();
     const {pagers, collections, loadChildren, loadMore} = useCollectionStore();
     const key = pagerKey(workspace.id);
     const pager = pagers[key];
@@ -258,6 +262,7 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
     const caps = workspace.capabilities;
     // Without any of them the menu has no item
     const hasMenu =
+        isAuthenticated ||
         caps.createCollection ||
         caps.createAsset ||
         caps.edit ||
@@ -269,6 +274,27 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
     ) => (
         <>
             {!hasMenu ? <MenuEmpty /> : null}
+            {isAuthenticated ? (
+                <>
+                    <Item
+                        data-testid="pin-workspace"
+                        onSelect={() =>
+                            pin(workspace.displayName ?? workspace.name, {
+                                id: BuiltInAttribute.Workspace,
+                                query: `${BuiltInAttribute.Workspace} = ${quoteAQL(workspace.id)}`,
+                            })
+                        }
+                    >
+                        <PinIcon /> {t('collections.menu.pin', 'Pin')}
+                    </Item>
+                    {caps.createCollection ||
+                    caps.createAsset ||
+                    caps.edit ||
+                    caps.editPermissions ? (
+                        <Sep />
+                    ) : null}
+                </>
+            ) : null}
             {workspace.capabilities.createCollection ? (
                 <Item
                     onSelect={() =>
@@ -436,6 +462,8 @@ function CollectionItem({
     const router = useRouter();
     const search = useOptionalSearch();
     const {openModal} = useModals();
+    const {isAuthenticated} = useAuth();
+    const pin = usePinAsSavedSearch();
     const {pagers, collections, loadChildren, loadMore} = useCollectionStore();
     const key = pagerKey(collection.workspaceId, collection.id);
     const pager = pagers[key];
@@ -462,6 +490,22 @@ function CollectionItem({
         Sep: typeof DropdownMenuSeparator
     ) => (
         <>
+            {isAuthenticated ? (
+                <>
+                    <Item
+                        data-testid="pin-collection"
+                        onSelect={() =>
+                            pin(
+                                collection.displayName ?? collection.name,
+                                collectionFilter(collection)
+                            )
+                        }
+                    >
+                        <PinIcon /> {t('collections.menu.pin', 'Pin')}
+                    </Item>
+                    <Sep />
+                </>
+            ) : null}
             <Item
                 onSelect={() =>
                     router.push(
@@ -684,4 +728,20 @@ function CollectionItem({
 
 export function collectionCondition(id: string): string {
     return `${BuiltInAttribute.Collection} = ${quoteAQL(id)}`;
+}
+
+/**
+ * The condition filtering on a collection, as `selectCollection` builds it: a
+ * story collection is searched through its story asset.
+ */
+function collectionFilter(collection: CollectionNode) {
+    return collection.storyAsset
+        ? {
+              id: BuiltInAttribute.Story,
+              query: `${BuiltInAttribute.Story} = ${quoteAQL(collection.storyAsset.id)}`,
+          }
+        : {
+              id: BuiltInAttribute.Collection,
+              query: collectionCondition(collection.id),
+          };
 }

@@ -137,7 +137,11 @@ describe('Drag & drop', () => {
         openAssetContextMenu('E2E Story');
         cy.menuItem('Pin story').click();
         openLeftPanelTab('Navigation');
-        cy.get(`[data-testid=pinned-story-item][data-story-id="${story.id}"]`).scrollIntoView().should('be.visible');
+        // Centered: at the top of the scrolled panel, the row would be in the
+        // auto-scroll zone and slide away from the pointer during the drag
+        cy.get(`[data-testid=pinned-story-item][data-story-id="${story.id}"]`)
+            .then($row => $row[0].scrollIntoView({block: 'center'}))
+            .should('be.visible');
 
         dragStart(assetItem('Charlie'));
         dragOver(cy.get(`[data-testid=pinned-story-item][data-story-id="${story.id}"]`));

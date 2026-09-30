@@ -5,6 +5,7 @@ import {
     PropsWithChildren,
     useCallback,
     useEffect,
+    useMemo,
     useRef,
     useState,
 } from 'react';
@@ -26,6 +27,9 @@ import {PinnedStoriesPanel} from '@/features/stories/PinnedStoriesPanel';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
 import {useDropTarget} from '@/features/dnd/useDropTarget';
 import type {DragSource} from '@/features/dnd/types';
+import {usePreferencesStore} from '@/features/preferences/store';
+import {SortableSections} from './SortableSections';
+import {resolveSidebarSections, SidebarSectionId} from './sidebarSections';
 
 export function LeftPanel() {
     const {t} = useTranslation();
@@ -103,13 +107,7 @@ export function LeftPanel() {
                 {search ? <FacetsPanel /> : null}
             </TabsContent>
             <DroppablePanel value="tree">
-                <CollectionsPanel />
-                {isAuthenticated ? (
-                    <>
-                        <PinnedStoriesPanel />
-                        <SavedSearchList />
-                    </>
-                ) : null}
+                {isAuthenticated ? <BrowseSections /> : <CollectionsPanel />}
             </DroppablePanel>
             {isAuthenticated ? (
                 <DroppablePanel value="baskets">
@@ -117,6 +115,42 @@ export function LeftPanel() {
                 </DroppablePanel>
             ) : null}
         </Tabs>
+    );
+}
+
+/**
+ * The sections of the "Browse" tab, in the order chosen by the user: saved in
+ * the preferences, and so in the profile when it is synced.
+ */
+function BrowseSections() {
+    const {t} = useTranslation();
+    const saved = usePreferencesStore(s => s.preferences.sidebarSections);
+    const updatePreference = usePreferencesStore(s => s.updatePreference);
+    const order = useMemo(() => resolveSidebarSections(saved), [saved]);
+    const onReorder = useCallback(
+        (next: SidebarSectionId[]) =>
+            void updatePreference('sidebarSections', next),
+        [updatePreference]
+    );
+
+    return (
+        <SortableSections
+            order={order}
+            onReorder={onReorder}
+            sections={{
+                pinnedStories: <PinnedStoriesPanel />,
+                savedSearches: <SavedSearchList />,
+                collections: <CollectionsPanel />,
+            }}
+            labels={{
+                pinnedStories: t('story.pinned.title', 'Pinned stories'),
+                savedSearches: t('saved_search.list.title', 'Saved searches'),
+                collections: t(
+                    'collections.panel.title',
+                    'Workspaces & collections'
+                ),
+            }}
+        />
     );
 }
 
