@@ -6,45 +6,16 @@ import {useQuery} from '@tanstack/react-query';
 import {ExternalLinkIcon, PlayIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {AssetTabProps} from '../types';
-import {WorkflowStatus} from '@/types/api';
 import {getAssetWorkflows} from '@/lib/api/misc';
 import {triggerAssetWorkflow} from '@/lib/api/assets';
 import {Button} from '@/components/ui/button';
-import {Badge, Skeleton} from '@/components/ui/misc';
+import {Skeleton} from '@/components/ui/misc';
 import {formatDateTime} from '@/lib/utils/format';
 import {routes} from '@/lib/routes';
-
-export function workflowStatusBadge(
-    status: WorkflowStatus,
-    t: (k: string, d: string) => string
-) {
-    switch (status) {
-        case WorkflowStatus.Success:
-            return (
-                <Badge variant="success">
-                    {t('workflow.status.success', 'Success')}
-                </Badge>
-            );
-        case WorkflowStatus.Failure:
-            return (
-                <Badge variant="destructive">
-                    {t('workflow.status.failure', 'Failure')}
-                </Badge>
-            );
-        case WorkflowStatus.Cancelled:
-            return (
-                <Badge variant="muted">
-                    {t('workflow.status.cancelled', 'Cancelled')}
-                </Badge>
-            );
-        default:
-            return (
-                <Badge variant="warning">
-                    {t('workflow.status.started', 'Started')}
-                </Badge>
-            );
-    }
-}
+import {
+    workflowStatusBadge,
+    workflowTitle,
+} from '@/features/workflows/workflowLabel';
 
 export function AssetWorkflowTab({asset}: AssetTabProps) {
     const {t, i18n} = useTranslation();
@@ -89,7 +60,9 @@ export function AssetWorkflowTab({asset}: AssetTabProps) {
                         className="flex items-center gap-3 rounded-md border p-3 text-sm"
                     >
                         <div className="min-w-0 flex-1">
-                            <div className="font-medium">{w.name}</div>
+                            <div className="font-medium" title={w.name}>
+                                {workflowTitle(w, t)}
+                            </div>
                             <div className="text-xs text-muted-foreground">
                                 {formatDateTime(
                                     w.startedAt,

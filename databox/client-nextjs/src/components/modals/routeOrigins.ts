@@ -1,6 +1,6 @@
 import {routes} from '@/lib/routes';
 
-const pathOf = (url: string): string => url.split(/[?#]/)[0];
+export const pathOf = (url: string): string => url.split(/[?#]/)[0];
 
 /**
  * Remembers where each route screen (a dialog, a viewer) was opened from, so
@@ -19,6 +19,10 @@ const pathOf = (url: string): string => url.split(/[?#]/)[0];
 export class RouteOrigins {
     private readonly origins = new Map<string, string>();
     private readonly screenOfPath = new Map<string, string>();
+    private readonly handedOver = new Map<
+        string,
+        {from: string; origin: string}
+    >();
 
     /** Declares that `pathname` is displayed by `screen`. */
     register(pathname: string, screen: string): void {
@@ -35,6 +39,16 @@ export class RouteOrigins {
         if (previousUrl === undefined) {
             return this.origins.get(screen) ?? routes.assets();
         }
+
+        const handed = this.handedOver.get(screen);
+        if (handed && handed.from === pathOf(previousUrl)) {
+            // Kept (not consumed): the screen may be resolved again from
+            // there (strict mode)
+            this.origins.set(screen, handed.origin);
+
+            return handed.origin;
+        }
+        this.handedOver.delete(screen);
 
         const visited = new Set<string>();
         let current = this.screenOfPath.get(pathOf(previousUrl));
@@ -53,5 +67,14 @@ export class RouteOrigins {
         this.origins.set(screen, previousUrl);
 
         return previousUrl;
+    }
+
+    /**
+     * The screen at `from` is left for `screen`, which takes its place — and
+     * its origin: closing `screen` then leads where `from` would have, instead
+     * of back to `from`.
+     */
+    handOver(screen: string, from: string, origin: string): void {
+        this.handedOver.set(screen, {from: pathOf(from), origin});
     }
 }

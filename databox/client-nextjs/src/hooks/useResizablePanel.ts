@@ -9,20 +9,24 @@ import {
 } from 'react';
 
 /**
- * The side panel of the asset view has two uses with very different needs —
- * reading the information of the asset, and editing its attributes — so each
- * one is resized and remembered on its own. `info` keeps the historical key.
+ * Each resizable panel keeps its own width. The side panel of the asset view
+ * has two uses with very different needs — reading the information of the
+ * asset (`info`, which keeps the historical key), and editing its attributes
+ * (`edit`) — so each one is resized and remembered on its own. `workflow-job`
+ * is the details of the job selected in a workflow graph.
  */
-export type PanelVariant = 'info' | 'edit';
+export type PanelVariant = 'info' | 'edit' | 'workflow-job';
 
 const storageKeys: Record<PanelVariant, string> = {
-    info: 'dbx.assetPanelWidth',
-    edit: 'dbx.assetPanelWidth.edit',
+    'info': 'dbx.assetPanelWidth',
+    'edit': 'dbx.assetPanelWidth.edit',
+    'workflow-job': 'dbx.workflowJobPanelWidth',
 };
 
 const defaultWidths: Record<PanelVariant, number> = {
-    info: 400,
-    edit: 560,
+    'info': 400,
+    'edit': 560,
+    'workflow-job': 448,
 };
 
 const variants = Object.keys(storageKeys) as PanelVariant[];

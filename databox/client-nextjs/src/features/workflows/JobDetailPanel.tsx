@@ -1,5 +1,6 @@
 'use client';
 
+import type {CSSProperties} from 'react';
 import {useTranslation} from 'react-i18next';
 import {BanIcon, RotateCcwIcon, XIcon} from 'lucide-react';
 import type {WorkflowJob} from '@/types/api';
@@ -22,13 +23,17 @@ import {
 /**
  * Details of the job selected in the graph (the legacy `JobDetail`): status,
  * timing, condition, inputs, outputs and errors, with the rerun action.
+ *
+ * Docked beside the graph, `width` wide; over it on small screens.
  */
 export function JobDetailPanel({
     job,
+    width,
     onRerun,
     onClose,
 }: {
     job: WorkflowJob;
+    width: number;
     onRerun: (jobId: string) => Promise<void>;
     onClose: () => void;
 }) {
@@ -37,7 +42,8 @@ export function JobDetailPanel({
     return (
         <aside
             data-testid="workflow-job-detail"
-            className="absolute inset-y-0 right-0 z-10 flex w-full flex-col border-l bg-card text-card-foreground shadow-lg sm:w-[28rem]"
+            style={{'--panel-width': `${width}px`} as CSSProperties}
+            className="absolute inset-0 z-10 flex flex-col bg-card text-card-foreground sm:static sm:z-auto sm:w-(--panel-width) sm:shrink-0"
         >
             <div className="flex items-center gap-2 border-b px-4 py-3">
                 <JobStatusDot status={job.status} />

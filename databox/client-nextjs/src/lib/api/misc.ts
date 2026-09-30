@@ -26,6 +26,7 @@ import {
     UserType,
     Workflow,
     WorkflowDetail,
+    WorkflowStatus,
 } from '@/types/api';
 import type {MultipartUpload} from './upload';
 import type {SourceFileInput} from './assets';
@@ -463,7 +464,12 @@ export function postMessage(data: {
 
 export function putMessage(
     id: string,
-    data: {content: string}
+    data: {
+        /** Unchanged when omitted */
+        content?: string;
+        /** Attachments to remove, by the `id` of their content */
+        removeAttachments?: string[];
+    }
 ): Promise<ThreadMessage> {
     return api.put<ThreadMessage>(`/${EntityName.Message}/${id}`, data);
 }
@@ -543,9 +549,32 @@ export function deleteAce(data: {
 export async function getAssetWorkflows(
     assetId: string
 ): Promise<Page<Workflow>> {
+    return getWorkflows({asset: assetId});
+}
+
+/**
+ * Workflow runs, the last started first. Without `asset`, only admins get
+ * any. `url` is the `next` link of a previous page.
+ */
+export async function getWorkflows({
+    asset,
+    status,
+    url,
+}: {
+    asset?: string;
+    status?: WorkflowStatus;
+    url?: string;
+} = {}): Promise<Page<Workflow>> {
+    if (url) {
+        return toPage(await api.get<HydraCollection<Workflow>>(url));
+    }
+
     return toPage(
         await api.get<HydraCollection<Workflow>>(`/${EntityName.Workflow}`, {
-            params: {asset: `/${EntityName.Asset}/${assetId}`},
+            params: {
+                ...(asset ? {asset: `/${EntityName.Asset}/${asset}`} : {}),
+                ...(status !== undefined ? {status} : {}),
+            },
         })
     );
 }

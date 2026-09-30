@@ -9,6 +9,7 @@ use Alchemy\Workflow\Planner\WorkflowPlanner;
 use Alchemy\Workflow\Repository\WorkflowRepositoryInterface;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use App\Entity\Workflow\WorkflowState;
+use App\Service\Asset\Attribute\AssetNameResolver;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -17,6 +18,7 @@ final readonly class GetWorkflowAction
     public function __construct(
         private StateRepositoryInterface $stateRepository,
         private WorkflowRepositoryInterface $workflowRepository,
+        private AssetNameResolver $assetNameResolver,
     ) {
     }
 
@@ -33,6 +35,15 @@ final readonly class GetWorkflowAction
 
         $dumper->dumpWorkflow($workflowState, $plan, $output);
 
-        return new JsonResponse($output->fetch(), 200, [], true);
+        $asset = $data->getAsset();
+        // Decoded as objects: empty inputs/outputs stay `{}`
+        $json = json_decode($output->fetch(), false, 512, JSON_THROW_ON_ERROR);
+        $json->number = $data->getNumber();
+        $json->asset = null !== $asset ? [
+            'id' => $asset->getId(),
+            'name' => $this->assetNameResolver->resolveNameAsString($asset),
+        ] : null;
+
+        return new JsonResponse($json);
     }
 }

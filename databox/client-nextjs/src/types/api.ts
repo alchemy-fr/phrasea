@@ -888,10 +888,18 @@ export type WorkflowStage = {
 
 /** Item of the workflow collection */
 export type Workflow = Entity & {
+    /** `<workflow>:<workspace id>` for the workflows run on assets */
     name: string;
     status: WorkflowStatus;
+    /** Rank among the runs of the same workflow on its asset, from 1 */
+    number?: number | null;
+    eventName?: string | null;
     startedAt?: string;
     endedAt?: string | null;
+    /** Formatted by the API, `-` while running */
+    duration?: string | null;
+    assetId?: string | null;
+    assetName?: string | null;
 };
 
 /** A workflow run with its plan (GET /workflows/{id}, rerun, cancel) */
@@ -907,6 +915,9 @@ export type WorkflowDetail = {
     context?: Record<string, unknown> | unknown[] | null;
     outputs?: Record<string, unknown> | unknown[] | null;
     event?: {name: string; inputs?: Record<string, unknown> | unknown[]};
+    number?: number | null;
+    /** The asset the workflow ran on */
+    asset?: {id: string; name?: string | null} | null;
 };
 
 export type IntegrationData = Entity & {

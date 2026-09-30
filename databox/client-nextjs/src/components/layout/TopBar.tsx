@@ -20,6 +20,7 @@ import {
     PlugIcon,
     UserRoundCogIcon,
     UndoIcon,
+    WorkflowIcon,
 } from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {
@@ -285,6 +286,13 @@ export function TopBar({
                                     'settings.operation_tasks',
                                     'Operation tasks'
                                 )}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                data-testid="settings-workflows"
+                                onSelect={() => router.push(routes.workflows())}
+                            >
+                                <WorkflowIcon />{' '}
+                                {t('settings.workflows', 'Workflows')}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 onSelect={() =>

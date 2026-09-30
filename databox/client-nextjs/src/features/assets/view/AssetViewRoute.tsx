@@ -30,7 +30,7 @@ import {useAssetStore} from '@/features/assets/assetStore';
 import {useCloseRoute} from '@/components/modals/RouteDialog';
 import {QuarantineBanner} from '@/features/assets/quarantine/QuarantineBanner';
 import {StoryCarousel, useStoryAssets} from './StoryCarousel';
-import {useResizablePanel} from './useResizablePanel';
+import {useResizablePanel} from '@/hooks/useResizablePanel';
 import {belowTopBar} from '@/components/layout/chrome';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {cn} from '@/lib/utils/cn';

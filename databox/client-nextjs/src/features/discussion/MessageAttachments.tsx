@@ -6,14 +6,23 @@ import type {MessageAttachment} from '@/types/api';
 import {Tooltip} from '@/components/ui/overlays';
 import {formatFileSize} from '@/lib/utils/format';
 import {cn} from '@/lib/utils/cn';
-import {getFileAttachments, isImage} from './messageAttachments';
+import {
+    getFileAttachments,
+    isImage,
+    type FileAttachment,
+} from './messageAttachments';
 import type {PendingAttachment} from './usePendingAttachments';
 
-/** Files of a posted message: image thumbnails, name + download otherwise. */
+/**
+ * Files of a posted message: image thumbnails, name + download otherwise.
+ * `onRemove` offers to remove each of them (who may edit the message).
+ */
 export function PostedAttachments({
     attachments,
+    onRemove,
 }: {
     attachments?: MessageAttachment[] | null;
+    onRemove?: (file: FileAttachment) => void;
 }) {
     const {t, i18n} = useTranslation();
     const files = getFileAttachments(attachments);
@@ -27,7 +36,11 @@ export function PostedAttachments({
                 const label = f.name || t('discussion.attachment', 'File');
 
                 return (
-                    <li key={f.id ?? i} className="max-w-full">
+                    <li
+                        key={f.id ?? i}
+                        data-testid="message-attachment"
+                        className="group/att relative max-w-full"
+                    >
                         {f.url && isImage(f) ? (
                             <a
                                 href={f.url}
@@ -76,6 +89,29 @@ export function PostedAttachments({
                                 ) : null}
                             </a>
                         )}
+                        {onRemove && f.id ? (
+                            <Tooltip
+                                content={t(
+                                    'discussion.attachment_remove',
+                                    'Remove {{name}}',
+                                    {name: label}
+                                )}
+                            >
+                                <button
+                                    type="button"
+                                    data-testid="message-attachment-remove"
+                                    onClick={() => onRemove(f)}
+                                    aria-label={t(
+                                        'discussion.attachment_remove',
+                                        'Remove {{name}}',
+                                        {name: label}
+                                    )}
+                                    className="absolute -top-1.5 -right-1.5 rounded-full border bg-background p-0.5 text-muted-foreground opacity-0 shadow-sm group-hover/att:opacity-100 hover:text-destructive focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
+                                >
+                                    <XIcon className="size-3" />
+                                </button>
+                            </Tooltip>
+                        ) : null}
                     </li>
                 );
             })}

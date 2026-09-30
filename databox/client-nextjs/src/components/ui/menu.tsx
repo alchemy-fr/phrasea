@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import {useTranslation} from 'react-i18next';
 import {DropdownMenu as DM, ContextMenu as CM} from 'radix-ui';
 import {CheckIcon, ChevronRightIcon, CircleIcon} from 'lucide-react';
 import {cn} from '@/lib/utils/cn';
@@ -12,6 +13,27 @@ const itemClass =
 const labelClass = 'px-2 py-1.5 text-xs font-medium text-muted-foreground';
 const separatorClass = '-mx-1 my-1 h-px bg-border';
 const shortcutClass = 'ml-auto text-xs tracking-widest text-muted-foreground';
+
+/**
+ * Stands in for the items of a menu left without any (no permission…): the
+ * menu still opens, saying so. Not an item, for context and dropdown menus.
+ */
+export function MenuEmpty({className, ...props}: React.ComponentProps<'div'>) {
+    const {t} = useTranslation();
+
+    return (
+        <div
+            data-testid="menu-empty"
+            className={cn(
+                'px-2 py-1.5 text-sm text-muted-foreground italic',
+                className
+            )}
+            {...props}
+        >
+            {t('menu.empty', 'No action available')}
+        </div>
+    );
+}
 
 // ---------------------------------------------------------------------------
 // Dropdown menu

@@ -89,6 +89,76 @@ final readonly class MessageAttachmentManager
     }
 
     /**
+     * Removes the attachments whose content `id` is listed. The files they
+     * stored go with them: an attached file belongs to its message only.
+     */
+    public function removeAttachments(Thread $thread, ?array $attachments, array $ids): ?array
+    {
+        [$kept, $removed] = self::partitionAttachments($attachments ?? [], $ids);
+
+        $workspaceId = false;
+        foreach ($removed as $attachment) {
+            if (self::TYPE_FILE !== ($attachment['type'] ?? null)) {
+                continue;
+            }
+
+            $file = $this->em->find(File::class, self::getAttachmentId($attachment));
+            if (!$file instanceof File) {
+                continue;
+            }
+
+            if (false === $workspaceId) {
+                try {
+                    $workspaceId = $this->getThreadWorkspace($thread)->getId();
+                } catch (\Throwable) {
+                    $workspaceId = null;
+                }
+            }
+            // A file of another workspace was not uploaded for this message
+            if (null !== $workspaceId && $file->getWorkspaceId() === $workspaceId) {
+                $this->em->remove($file);
+            }
+        }
+
+        return empty($kept) ? null : $kept;
+    }
+
+    /**
+     * Splits the attachments into the kept ones and the ones whose content
+     * `id` is listed.
+     *
+     * @param string[] $ids
+     *
+     * @return array{0: array, 1: array}
+     */
+    public static function partitionAttachments(array $attachments, array $ids): array
+    {
+        $kept = [];
+        $removed = [];
+        foreach ($attachments as $attachment) {
+            $id = self::getAttachmentId($attachment);
+            if (null !== $id && in_array($id, $ids, true)) {
+                $removed[] = $attachment;
+            } else {
+                $kept[] = $attachment;
+            }
+        }
+
+        return [$kept, $removed];
+    }
+
+    private static function getAttachmentId(mixed $attachment): ?string
+    {
+        if (!is_array($attachment) || !is_string($attachment['content'] ?? null)) {
+            return null;
+        }
+        $data = json_decode($attachment['content'], true);
+        $id = is_array($data) ? ($data['id'] ?? null) : null;
+
+        return is_string($id) || is_int($id) ? (string) $id : null;
+    }
+
+    /**
      * Adds the (signed) download URL to the file attachments.
      */
     public function resolveAttachments(?array $attachments, ?Thread $thread): ?array

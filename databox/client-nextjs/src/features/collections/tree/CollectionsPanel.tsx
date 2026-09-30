@@ -49,6 +49,7 @@ import {
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
+    MenuEmpty,
 } from '@/components/ui/menu';
 import {Skeleton} from '@/components/ui/misc';
 import {useModals} from '@/components/modals/ModalProvider';
@@ -255,7 +256,7 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
     }, [expanded, workspace.id, loadChildren]);
 
     const caps = workspace.capabilities;
-    // Without any of them the menu would open empty
+    // Without any of them the menu has no item
     const hasMenu =
         caps.createCollection ||
         caps.createAsset ||
@@ -267,6 +268,7 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
         Sep: typeof DropdownMenuSeparator
     ) => (
         <>
+            {!hasMenu ? <MenuEmpty /> : null}
             {workspace.capabilities.createCollection ? (
                 <Item
                     onSelect={() =>
@@ -323,7 +325,7 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
     return (
         <div>
             <ContextMenu>
-                <ContextMenuTrigger asChild disabled={!hasMenu}>
+                <ContextMenuTrigger asChild>
                     <div
                         ref={drop.setNodeRef}
                         data-testid="workspace-item"
@@ -368,25 +370,20 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
                                 {workspace.displayName ?? workspace.name}
                             </span>
                         </button>
-                        {hasMenu ? (
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon-xs"
-                                        className="opacity-0 group-hover/ws:opacity-100 data-[state=open]:opacity-100"
-                                    >
-                                        <MoreVerticalIcon />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    {menu(
-                                        DropdownMenuItem,
-                                        DropdownMenuSeparator
-                                    )}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        ) : null}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    className="opacity-0 group-hover/ws:opacity-100 data-[state=open]:opacity-100"
+                                >
+                                    <MoreVerticalIcon />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                {menu(DropdownMenuItem, DropdownMenuSeparator)}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </ContextMenuTrigger>
                 <ContextMenuContent>

@@ -15,7 +15,7 @@ import {
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {Dialog, DialogContent, DialogSize} from '@/components/ui/dialog';
 import {modalExitDuration} from './ModalProvider';
-import {RouteOrigins} from './routeOrigins';
+import {pathOf, RouteOrigins} from './routeOrigins';
 import {routes} from '@/lib/routes';
 import {
     askDiscardChanges,
@@ -38,6 +38,28 @@ const RouteHistoryContext = createContext<RouteHistory | null>(null);
  * on every tab change.
  */
 const ReturnUrl = createContext<string | null>(null);
+
+/** URL of the screen the enclosing `RouteDialog` was opened from */
+export function useRouteDialogOrigin(): string {
+    return useContext(ReturnUrl) ?? routes.assets();
+}
+
+/** Closes the enclosing `RouteDialog`, see `useCloseRouteDialog` */
+const CloseDialog = createContext<((url?: string) => void) | null>(null);
+
+/**
+ * Closes the enclosing `RouteDialog` (with its exit animation) for `url`, or
+ * for where it closes to by default. The screen at `url` takes over the
+ * dialog's origin: closing it leads where the dialog would have.
+ */
+export function useCloseRouteDialog(): (url?: string) => void {
+    const close = useContext(CloseDialog);
+    if (!close) {
+        throw new Error('useCloseRouteDialog must be used in a RouteDialog');
+    }
+
+    return close;
+}
 
 /**
  * Tracks the navigation so that a screen bound to a route knows where to send
@@ -150,6 +172,7 @@ export function RouteDialog({
     hideClose,
     closeOnEscape = true,
     onClose,
+    closeTo,
 }: {
     children: ReactNode;
     /**
@@ -162,9 +185,15 @@ export function RouteDialog({
     hideClose?: boolean;
     closeOnEscape?: boolean;
     onClose?: () => void;
+    /**
+     * Where closing leads, given the screen the dialog was opened from
+     * (default: that screen).
+     */
+    closeTo?: (origin: string) => string;
 }) {
     const router = useRouter();
     const pathname = usePathname();
+    const history = useContext(RouteHistoryContext);
     const [screen] = useState(() => routeKey ?? pathname);
     const returnUrl = useScreenOrigin(screen, pathname);
     const [open, setOpen] = useState(true);
@@ -176,16 +205,24 @@ export function RouteDialog({
     useEffect(() => () => clearTimeout(timer.current), []);
 
     const close = useCallback(
-        () =>
+        (target?: string) =>
             whenLeaving(scope, () => {
+                const url = target ?? closeTo?.(returnUrl) ?? returnUrl;
+                if (pathOf(url) !== pathOf(returnUrl)) {
+                    history?.origins.handOver(
+                        pathOf(url),
+                        window.location.pathname,
+                        returnUrl
+                    );
+                }
                 setOpen(false);
                 onClose?.();
                 timer.current = setTimeout(
-                    () => router.push(returnUrl, {scroll: false}),
+                    () => router.push(url, {scroll: false}),
                     modalExitDuration
                 );
             }),
-        [router, returnUrl, onClose, scope]
+        [router, returnUrl, onClose, closeTo, history, scope]
     );
 
     return (
@@ -202,9 +239,11 @@ export function RouteDialog({
                 }}
             >
                 <ReturnUrl.Provider value={returnUrl}>
-                    <UnsavedChangesScope.Provider value={scope}>
-                        {children}
-                    </UnsavedChangesScope.Provider>
+                    <CloseDialog.Provider value={close}>
+                        <UnsavedChangesScope.Provider value={scope}>
+                            {children}
+                        </UnsavedChangesScope.Provider>
+                    </CloseDialog.Provider>
                 </ReturnUrl.Provider>
             </DialogContent>
         </Dialog>

@@ -37,7 +37,7 @@ import {useAuth} from '@/lib/auth/AuthProvider';
 import {FormattedMessage} from './FormattedMessage';
 import {MessageComposer, MessageComposerHandle} from './MessageComposer';
 import {PostedAttachments} from './MessageAttachments';
-import type {FileAttachmentInput} from './messageAttachments';
+import type {FileAttachment, FileAttachmentInput} from './messageAttachments';
 
 /** Message hover actions (always shown on touch screens) */
 const messageActionClass =
@@ -213,6 +213,41 @@ export function Discussion({
         }
     };
 
+    const confirmDelete = (m: ThreadMessage) =>
+        openModal(ConfirmDialog, {
+            title: t('discussion.delete.title', 'Delete this message?'),
+            destructive: true,
+            onConfirm: async () => {
+                await deleteMessage(m.id);
+                removeLocal(m.id);
+                setEditing(e => (e?.id === m.id ? null : e));
+            },
+        });
+
+    const removeAttachment = (m: ThreadMessage, file: FileAttachment) => {
+        // Its last attachment gone, a message without text would be empty
+        if (!m.content.trim() && (m.attachments?.length ?? 0) <= 1) {
+            confirmDelete(m);
+
+            return;
+        }
+        openModal(ConfirmDialog, {
+            title: t(
+                'discussion.attachment_remove.title',
+                'Remove "{{name}}" from the message?',
+                {name: file.name}
+            ),
+            destructive: true,
+            onConfirm: async () => {
+                upsertLocal(
+                    await putMessage(m.id, {removeAttachments: [file.id!]})
+                );
+                // The update payload is partial: reload the thread
+                void messages.refetch();
+            },
+        });
+    };
+
     return (
         <div className="space-y-3">
             <div ref={listRef} className="space-y-3">
@@ -291,22 +326,7 @@ export function Discussion({
                                             content: m.content,
                                         })
                                     }
-                                    onDelete={() =>
-                                        openModal(ConfirmDialog, {
-                                            title: t(
-                                                'discussion.delete.title',
-                                                'Delete this message?'
-                                            ),
-                                            destructive: true,
-                                            onConfirm: async () => {
-                                                await deleteMessage(m.id);
-                                                removeLocal(m.id);
-                                                setEditing(e =>
-                                                    e?.id === m.id ? null : e
-                                                );
-                                            },
-                                        })
-                                    }
+                                    onDelete={() => confirmDelete(m)}
                                 />
                             </div>
                             <div className="text-sm">
@@ -316,6 +336,11 @@ export function Discussion({
                                 />
                                 <PostedAttachments
                                     attachments={m.attachments}
+                                    onRemove={
+                                        m.capabilities?.edit
+                                            ? file => removeAttachment(m, file)
+                                            : undefined
+                                    }
                                 />
                             </div>
                         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import {useMemo, useRef} from 'react';
+import {useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
     InfiniteData,
@@ -143,7 +143,12 @@ export function StoryCarousel({
     const queryClient = useQueryClient();
     const storyId = story.id;
     const query = useStoryAssets(storyId);
-    const {items, total} = query;
+    const {items: loaded, total} = query;
+    // The query cache notifies its observers asynchronously: a drop reorders
+    // the strip in its own render, or the drop animation would measure the
+    // item at its former place and fly back there
+    const [dropped, setDropped] = useState<{of: Asset[]; items: Asset[]}>();
+    const items = dropped?.of === loaded ? dropped.items : loaded;
     const storyCollectionId = story.storyCollection?.id;
     const editable = !!story.capabilities.edit && !!storyCollectionId;
 
@@ -207,10 +212,10 @@ export function StoryCarousel({
         if (!over || active.id === over.id) {
             return;
         }
-        move(
-            String(active.id),
-            items.findIndex(a => a.id === over.id)
-        );
+        const from = items.findIndex(a => a.id === active.id);
+        const to = items.findIndex(a => a.id === over.id);
+        setDropped({of: loaded, items: arrayMove(items, from, to)});
+        move(String(active.id), to);
     };
 
     const selectItem = (id: string) => {

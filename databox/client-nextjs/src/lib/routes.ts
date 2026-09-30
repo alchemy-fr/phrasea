@@ -22,6 +22,8 @@ export const routes = {
     profileManage: (id: string, tab = 'general') =>
         `/profiles/${id}/manage/${tab}`,
     workflow: (id: string) => `/workflows/${id}`,
+    /** Every workflow run (admins) */
+    workflows: () => '/admin/workflows',
     attributesEditor: () => '/attributes/editor',
     quarantine: (assetId?: string) =>
         assetId ? `/quarantine?asset=${assetId}` : '/quarantine',

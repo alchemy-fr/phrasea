@@ -33,7 +33,7 @@ const sizeClasses: Record<DialogSize, string> = {
     md: 'sm:max-w-xl',
     lg: 'sm:max-w-3xl',
     xl: 'sm:max-w-6xl',
-    full: 'h-[100dvh] w-screen max-w-none rounded-none sm:max-w-none',
+    full: 'h-[100dvh] max-h-none w-screen max-w-none rounded-none border-0 sm:max-w-none',
 };
 
 export function DialogContent({

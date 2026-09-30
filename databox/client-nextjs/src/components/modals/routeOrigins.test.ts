@@ -72,4 +72,25 @@ describe('RouteOrigins', () => {
             open(o, asset, `${asset}/info`, '/assets/fa440/manage/info')
         ).toBe('/assets/fa440/manage/info');
     });
+
+    it('hands the origin of a screen over to the one replacing it', () => {
+        const o = new RouteOrigins();
+        const workflow = '/workflows';
+        const viewer = '/assets/fa44/_';
+        expect(open(o, workflow, `${workflow}/1`, '/admin/workflows')).toBe(
+            '/admin/workflows'
+        );
+
+        // The workflow closes to its asset, which then closes to the list
+        o.handOver(viewer, `${workflow}/1`, '/admin/workflows');
+        expect(open(o, viewer, viewer, `${workflow}/1`)).toBe(
+            '/admin/workflows'
+        );
+        expect(open(o, viewer, viewer, `${workflow}/1`)).toBe(
+            '/admin/workflows'
+        );
+
+        // Opened from elsewhere, it has its own origin again
+        expect(open(o, viewer, viewer, '/assets?q=x')).toBe('/assets?q=x');
+    });
 });

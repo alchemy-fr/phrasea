@@ -13,7 +13,9 @@ use App\Entity\Discussion\Message;
 use App\Repository\Discussion\MessageRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Discussion\DiscussionPusher;
+use App\Service\Discussion\MessageAttachmentManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class PutMessageProcessor implements ProcessorInterface
 {
@@ -23,6 +25,7 @@ class PutMessageProcessor implements ProcessorInterface
         private readonly EntityManagerInterface $em,
         private readonly MessageRepository $messageRepository,
         private readonly DiscussionPusher $discussionPusher,
+        private readonly MessageAttachmentManager $attachmentManager,
     ) {
     }
 
@@ -36,7 +39,20 @@ class PutMessageProcessor implements ProcessorInterface
 
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $message);
 
-        $message->setContent($data->content);
+        if (null !== $data->content) {
+            $message->setContent($data->content);
+        }
+        if (!empty($data->removeAttachments)) {
+            $message->setAttachments($this->attachmentManager->removeAttachments(
+                $message->getThread(),
+                $message->getAttachments(),
+                $data->removeAttachments,
+            ));
+        }
+        if ('' === trim((string) $message->getContent()) && empty($message->getAttachments())) {
+            throw new BadRequestHttpException('A message cannot be empty, delete it instead');
+        }
+
         $this->em->persist($message);
         $this->em->flush();
 

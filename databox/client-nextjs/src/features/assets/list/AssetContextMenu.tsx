@@ -10,6 +10,7 @@ import {
     ContextMenuTrigger,
     DropdownMenuItem,
     DropdownMenuSeparator,
+    MenuEmpty,
 } from '@/components/ui/menu';
 import {
     useAssetActions,
@@ -68,6 +69,10 @@ export function AssetActionItems({
     const Item = variant === 'context' ? ContextMenuItem : DropdownMenuItem;
     const Sep =
         variant === 'context' ? ContextMenuSeparator : DropdownMenuSeparator;
+
+    if (groups.length === 0) {
+        return <MenuEmpty />;
+    }
 
     return (
         <>
