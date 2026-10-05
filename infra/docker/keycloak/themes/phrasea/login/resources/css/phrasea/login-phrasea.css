@@ -601,3 +601,32 @@ li {
 /* Update-profile-ra */
 
 /* END Update-profile-ra */
+
+/* Parade per-client login welcome text (see login/template.ftl) */
+
+.parade-login-welcome {
+    font-family: "Lexend Deca", sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 25px;
+    color: #444444;
+    margin: 0 0 12px;
+    text-align: center;
+}
+
+/* END Parade per-client login welcome text */
+
+/* Parade per-client login logo, positioned inside the card (see login/template.ftl) */
+
+.parade-login-form-logo {
+    display: block;
+    margin: 0 auto 12px;
+    /* Bounded by the room available rather than a stored height: the logo
+       keeps its proportions on a phone as on a wide screen. */
+    max-height: clamp(1.75rem, 8vh, 3.5rem);
+    max-width: 60%;
+    object-fit: contain;
+}
+
+/* END Parade per-client login logo */
