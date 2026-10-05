@@ -28,11 +28,11 @@ final readonly class FilenameAnalyzer extends AbstractAnalyzer
     {
         $builder
             ->arrayNode('allowed_patterns')
-                ->info('One or more regex patterns that the filename can match.')
-            ->prototype('scalar')->end()
+                ->info('One or more regex patterns that the filename must match (e.g. "^PHOTO_.*"). Delimiters are optional.')
+                ->prototype('scalar')->end()
             ->end()
             ->arrayNode('disallowed_patterns')
-                ->info('One or more regex patterns that the filename cannot match.')
+                ->info('One or more regex patterns that the filename cannot match (e.g. "\\.tmp$"). Delimiters are optional.')
                 ->prototype('scalar')->end()
             ->end()
             ->arrayNode('allowed_extensions')
@@ -52,6 +52,15 @@ final readonly class FilenameAnalyzer extends AbstractAnalyzer
                 ->prototype('scalar')->end()
             ->end()
         ;
+    }
+
+    public function validateConfiguration(array $config): void
+    {
+        foreach (['allowed_patterns', 'disallowed_patterns'] as $key) {
+            foreach ($config[$key] ?? [] as $pattern) {
+                $this->normalizePattern((string) $pattern, $key);
+            }
+        }
     }
 
     public function analyzeFile(File $file, ?string $path, array $config): AnalysisOutput
@@ -84,7 +93,7 @@ final readonly class FilenameAnalyzer extends AbstractAnalyzer
 
         if (!empty($config['disallowed_patterns'])) {
             foreach ($config['disallowed_patterns'] as $disallowedPattern) {
-                if (preg_match($disallowedPattern, (string) $filename)) {
+                if (preg_match($this->normalizePattern((string) $disallowedPattern, 'disallowed_patterns'), (string) $filename)) {
                     $output->addMessage(LogLevelEnum::Critical, self::TYPE_PATTERN_IS_DISALLOWED, [
                         'disallowed_pattern' => $disallowedPattern,
                     ]);
@@ -95,7 +104,7 @@ final readonly class FilenameAnalyzer extends AbstractAnalyzer
         if (!empty($config['allowed_patterns'])) {
             $matchesAllowed = false;
             foreach ($config['allowed_patterns'] as $allowedPattern) {
-                if (preg_match($allowedPattern, (string) $filename)) {
+                if (preg_match($this->normalizePattern((string) $allowedPattern, 'allowed_patterns'), (string) $filename)) {
                     $matchesAllowed = true;
                     break;
                 }
@@ -115,6 +124,27 @@ final readonly class FilenameAnalyzer extends AbstractAnalyzer
     public function requiresFileContent(File $file, array $config): bool
     {
         return false;
+    }
+
+    /**
+     * Returns a pattern usable by preg_match().
+     *
+     * Patterns written without delimiters (e.g. "^PHOTO_.*") are wrapped in "/" delimiters;
+     * patterns that are invalid even after wrapping raise an exception instead of silently
+     * never matching (preg_match() returns false on an invalid pattern).
+     */
+    private function normalizePattern(string $pattern, string $option): string
+    {
+        if (false !== @preg_match($pattern, '')) {
+            return $pattern;
+        }
+
+        $wrapped = '/'.str_replace('/', '\\/', $pattern).'/';
+        if (false !== @preg_match($wrapped, '')) {
+            return $wrapped;
+        }
+
+        throw new \InvalidArgumentException(sprintf('Invalid regex pattern "%s" in "%s": %s', $pattern, $option, preg_last_error_msg()));
     }
 
     protected function getDocumentationHeader(): string

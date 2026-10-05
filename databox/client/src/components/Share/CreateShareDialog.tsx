@@ -10,12 +10,12 @@ import {RemoteErrors} from '@alchemy/react-form';
 import {dateToStringDate} from '../../lib/date.ts';
 
 type Props = {
-    asset: Asset;
+    assets: Asset[];
     onSuccess: (share: Share) => void;
 } & StackedModalProps;
 
 export default function CreateShareDialog({
-    asset,
+    assets,
     onSuccess,
     ...modalProps
 }: Props) {
@@ -36,11 +36,14 @@ export default function CreateShareDialog({
             expiresAt: '',
         },
         onSubmit: async data => {
-            return await createAssetShare(asset.id, {
-                ...data,
-                startsAt: dateToStringDate(data.startsAt || null),
-                expiresAt: dateToStringDate(data.expiresAt || null),
-            });
+            return await createAssetShare(
+                assets.map(a => a.id),
+                {
+                    ...data,
+                    startsAt: dateToStringDate(data.startsAt || null),
+                    expiresAt: dateToStringDate(data.expiresAt || null),
+                }
+            );
         },
         onSuccess: (d: Share) => {
             onSuccess(d);

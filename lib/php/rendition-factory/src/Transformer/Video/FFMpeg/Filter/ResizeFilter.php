@@ -60,7 +60,7 @@ class ResizeFilter implements VideoFilterInterface
                 '-i', $video->getPathfile(),
             ];
             $r = json_decode($video->getFFProbe()->getFFProbeDriver()->command($command), true, 16, JSON_THROW_ON_ERROR);
-            $rotation = (int) $r['streams'][0]['side_data_list'][0]['rotation'];
+            $rotation = (int) ($r['streams'][0]['side_data_list'][0]['rotation'] ?? 0);
         } catch (\Exception $e) {
             // ignore (failed to get orientation)
         }

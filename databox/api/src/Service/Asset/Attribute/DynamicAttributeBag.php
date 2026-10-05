@@ -9,7 +9,7 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Service\Asset\Attribute\Index\AttributeIndex;
 
-class DynamicAttributeBag
+final class DynamicAttributeBag
 {
     private $resolve;
     private readonly array $locales;
@@ -28,14 +28,10 @@ class DynamicAttributeBag
         $this->locales = array_unique([$locale, AttributeInterface::NO_LOCALE]);
     }
 
-    public function __call(string $name, $args): ?string
+    public function __call(string $name, $args): string|array|null
     {
         $def = $this->definitions[$name] ?? null;
         if (null === $def) {
-            return null;
-        }
-
-        if ($def->isMultiple()) {
             return null;
         }
 
@@ -44,19 +40,38 @@ class DynamicAttributeBag
             throw new \RuntimeException(sprintf('Circular reference detected for attribute definition "%s"', $def->getSlug()));
         }
 
-        foreach ($this->locales as $l) {
-            if (null !== $attr = $this->attributes->getAttribute($defId, $l)) {
-                return $attr->getValue();
+        $isMultiple = $def->isMultiple();
+
+        if ($isMultiple) {
+            $values = [];
+            foreach ($this->locales as $l) {
+                if (null !== $attrs = $this->attributes->getAttributes($defId, $l)) {
+                    foreach ($attrs as $attr) {
+                        $values[] = $attr->getValue();
+                    }
+                }
+            }
+            if (!empty($values)) {
+                return $values;
+            }
+        } else {
+            foreach ($this->locales as $l) {
+                if (null !== $attr = $this->attributes->getAttribute($defId, $l)) {
+                    return $attr->getValue();
+                }
             }
         }
 
         $resolve = $this->resolve;
-        $attr = $resolve($def);
+        /** @var Attribute[] $attributes */
+        $attributes = $resolve($def);
 
-        if ($attr instanceof Attribute) {
-            return $attr->getValue();
+        if ($isMultiple) {
+            return array_map(fn (Attribute $attr): ?string => $attr->getValue(), $attributes);
         }
 
-        return null;
+        $attribute = array_first($attributes);
+
+        return $attribute instanceof Attribute ? $attribute->getValue() : null;
     }
 }

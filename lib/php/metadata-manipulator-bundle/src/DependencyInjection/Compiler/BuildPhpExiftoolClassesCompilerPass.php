@@ -3,8 +3,8 @@
 namespace Alchemy\MetadataManipulatorBundle\DependencyInjection\Compiler;
 
 use Alchemy\MetadataManipulatorBundle\Exception\BadConfigurationException;
-use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use PHPExiftool\InformationDumper;
+use PHPExiftool\PHPExiftool;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -19,11 +19,15 @@ class BuildPhpExiftoolClassesCompilerPass implements CompilerPassInterface
             throw new BadConfigurationException(sprintf('Cannot access/create classes_directory "%s".', $dir));
         }
 
-        /** @var MetadataManipulator $mm */
-        $mm = $container->get(MetadataManipulator::class);
+        // Built by hand instead of $container->get(MetadataManipulator::class): fetching a
+        // service from the ContainerBuilder instantiates a whole branch of the service graph
+        // while the container is still being compiled, at a point where "%env(...)%" values
+        // are unresolved placeholders. Any service reachable from here (the logger and its
+        // Monolog handlers, for instance) would then be forbidden from using env variables.
+        $phpExifTool = new PHPExiftool($dir);
 
-        if (!file_exists($mm->getClassesDirectory().'/TagGroup/Helper.php')) {
-            $mm->getPhpExifTool()->generateClasses([InformationDumper::LISTOPTION_MWG]);
+        if (!file_exists($phpExifTool->getClassesRootDirectory().'/TagGroup/Helper.php')) {
+            $phpExifTool->generateClasses([InformationDumper::LISTOPTION_MWG]);
         }
     }
 }

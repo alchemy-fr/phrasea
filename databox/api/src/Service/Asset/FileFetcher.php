@@ -7,6 +7,7 @@ namespace App\Service\Asset;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Border\UriDownloader;
 use App\Entity\Core\File;
+use App\Service\Asset\Exception\PrivateFileException;
 
 readonly class FileFetcher
 {
@@ -17,10 +18,19 @@ readonly class FileFetcher
     ) {
     }
 
+    /**
+     * Whether the file content can be retrieved by the platform: either stored on
+     * the main storage, or a remote URL declared as publicly reachable.
+     */
+    public function isFetchable(File $file): bool
+    {
+        return File::STORAGE_S3_MAIN === $file->getStorage() || $file->isPathPublic();
+    }
+
     public function getFile(File $file, ?string $path = null): string
     {
-        if (!$file->isPathPublic()) {
-            throw new \InvalidArgumentException(sprintf('File "%s" has a private path', $file->getId()));
+        if (!$this->isFetchable($file)) {
+            throw new PrivateFileException($file);
         }
 
         if (null === $path && $file->localTmpPath && file_exists($file->localTmpPath)) {
@@ -42,7 +52,7 @@ readonly class FileFetcher
     public function downloadFile(File $file, array &$headers = []): string
     {
         if (!$file->isPathPublic()) {
-            throw new \LogicException(sprintf('File "%s" has a private path', $file->getId()));
+            throw new PrivateFileException($file);
         }
 
         if (File::STORAGE_URL !== $file->getStorage()) {

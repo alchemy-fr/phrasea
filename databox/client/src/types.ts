@@ -13,14 +13,16 @@ import {DefinitionBase} from './components/Dialog/Workspace/DefinitionManager/ma
 import {UserPreferences} from './store/userPreferencesStore.ts';
 import {BuiltInAttributeEnum} from './components/Media/Search/search.ts';
 import {AttributeWidgetOptions} from './components/Media/Asset/Attribute/types/types';
+import {
+    FileAnalysis,
+    FileAnalysisState,
+} from './components/Media/Asset/Quarantine/analysisTypes.ts';
 
 export type AlternateUrl = {
     type: string;
     url: string;
     label?: string;
 };
-
-export type FileAnalysis = Record<string, any>;
 
 export type FileUsageType = 'source' | 'version' | 'rendition';
 
@@ -42,8 +44,12 @@ export interface ApiFile extends Entity {
     fileName: string;
     metadata?: Record<string, any>;
     accepted?: boolean;
+    analyzedAt?: string | null;
+    // Only present on file resources and on rejected files
     analysis?: FileAnalysis | null | undefined;
     analysisPending: boolean;
+    analysisState: FileAnalysisState;
+    analysisEnforced: boolean;
     usages?: FileUsage[];
 }
 
@@ -63,18 +69,50 @@ export type ShareAlternateUrl = {
     name: string;
     url: string;
     type: string | undefined;
+    assetId?: string | null;
+};
+
+export type ShareAttachment = {
+    id: string;
+    name: string | null;
+    assetId: string;
+    url: string;
+    type: string | null;
+    size: number | null;
+};
+
+export type ShareTerms = {
+    text: string | null;
+    version: number;
+    workspaceName: string;
+    pdfUrl?: string | null;
 };
 
 export type Share = {
     name?: string | undefined;
-    asset: Asset;
+    assets: Asset[];
     token: string;
     startsAt?: string | undefined | null;
     expiresAt?: string | undefined | null;
     updatedAt: Readonly<string>;
     createdAt: Readonly<string>;
     alternateUrls: ShareAlternateUrl[];
+    attachments?: ShareAttachment[];
+    terms?: ShareTerms | null;
+    logo?: string | null;
 } & Entity;
+
+export type WorkspaceTerms = {
+    // Resolved for the current user's locale
+    text: string | null;
+    // Untranslated source text (for editing)
+    rawText?: string | null;
+    translations?: Record<string, string> | null;
+    version: number | null;
+    signed: boolean | null;
+    attachToExports: boolean;
+    pdfUrl?: string | null;
+};
 
 export type ESDocumentState = {
     synced: boolean;
@@ -221,6 +259,7 @@ export interface AttributeDefinition
     initialValues: Record<string, string>;
     readFromMetadata?: string[];
     writeMetadata?: string[];
+    writeMetadataRenditions?: string[];
     workspace: Workspace | string;
     policy: AttributePolicy | string | null;
     lastErrors?: LastErrors;
@@ -308,7 +347,7 @@ export interface AssetRendition extends ApiHydraObjectResponse, Entity {
     projection?: boolean;
     locked: boolean;
     substituted: boolean;
-    definition: Pick<RenditionDefinition, 'id' | 'substitutable'>;
+    definition: Pick<RenditionDefinition, 'id' | 'substitutable'> | null;
 }
 
 export interface RenditionPolicy extends ApiHydraObjectResponse, Entity {
@@ -340,15 +379,11 @@ export interface IPermissions<
     capabilities: TPermission<E>;
 }
 
-export interface TagFilterRule extends ApiHydraObjectResponse, Entity {
-    userId?: string;
-    username?: string;
-    groupId?: string;
-    groupName?: string;
+export interface AttributeFilterRule extends ApiHydraObjectResponse, Entity {
+    users: {id: string; name: string}[];
+    groups: {id: string; name: string}[];
     workspaceId?: string;
-    collectionId?: string;
-    include: Tag[];
-    exclude: Tag[];
+    condition: string;
 }
 
 export type KeyTranslations = {
@@ -664,6 +699,15 @@ export interface Workspace
     owner?: User;
     createdAt: string;
     public: boolean;
+    terms?: WorkspaceTerms | null;
+    termsUnsigned?: boolean;
+    logo?: string | null;
+    // Form-only fields (mapped to the API on submit)
+    termsText?: string;
+    // undefined = untouched, '' = remove, File = multipart upload on submit
+    termsPdf?: File | '';
+    logoUpload?: File | '';
+    attachTermsToExports?: boolean;
 }
 
 export type IntegrationData = {
@@ -703,11 +747,24 @@ export interface WorkspaceIntegration
     lastErrors?: LastErrors;
 }
 
+export interface ReferenceSection {
+    name: string;
+    description?: string | null;
+    reference: string;
+}
+
 export interface IntegrationType {
     id: string;
     displayName: string;
     name: string;
     reference: string;
+    references: ReferenceSection[];
+}
+
+export interface RenditionBuildReference {
+    id: string;
+    reference: string;
+    references: ReferenceSection[];
 }
 
 export type IntegrationToken = {
@@ -766,7 +823,8 @@ export interface Entity {
     id: string;
 }
 
-export type TopicSubscriptions<T extends string = string> = Record<T, boolean>;
+// List of events the current user is subscribed to for the object
+export type TopicSubscriptions<T extends string = string> = T[];
 
 export enum ExportStatusEnum {
     Pending = 0,

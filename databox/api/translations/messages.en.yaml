@@ -65,6 +65,8 @@ facet:
         name: Asset Status
 
 built_in_attribute:
+    collectionPositions:
+        name: Position
     _score:
         name: Score
     _id:
@@ -73,6 +75,8 @@ built_in_attribute:
         name: Name
     collectionPaths:
         name: Collections
+        raw:
+            name: Direct Collections
     workspaceId:
         name: Workspace
     ownerId:

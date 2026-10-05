@@ -7,6 +7,7 @@ namespace App\Integration\Phrasea\Expose;
 use Alchemy\CoreBundle\Lock\LockTrait;
 use App\Entity\Basket\Basket;
 use App\Entity\Integration\IntegrationData;
+use App\Integration\Auth\MissingIntegrationTokenException;
 use App\Integration\IntegrationManager;
 use App\Integration\Phrasea\Expose\Sync\AssetToSync;
 use App\Integration\Phrasea\Expose\Sync\ExposeAsset;
@@ -43,7 +44,7 @@ final class ExposeSynchronizer
         $config = $this->integrationManager->getIntegrationConfiguration($basketData->getIntegration());
         $token = $this->integrationTokenRepository->getLastValidUserToken($config->getIntegrationId(), $basketData->getUserId());
         if (!$token) {
-            throw new \InvalidArgumentException('No valid token');
+            throw new MissingIntegrationTokenException($basketData->getUserId(), ExposeIntegration::getDisplayName(), 'Your Expose access has expired: the basket synchronization was stopped. Please authenticate again from the Expose integration panel and run a synchronization.');
         }
 
         $publicationId = $basketData->getValue();

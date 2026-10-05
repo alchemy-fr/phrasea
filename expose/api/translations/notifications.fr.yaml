@@ -1,0 +1,14 @@
+download:
+    link:
+        email:
+            subject: 'Votre téléchargement est prêt'
+            body: '<p>Votre téléchargement est prêt.</p><p><a href="%url%">Télécharger</a></p><p>Ce lien est valable pour une durée limitée.</p>'
+        sms:
+            body: 'Votre téléchargement est prêt : %url%'
+    zippy_link:
+        email:
+            subject: 'Votre archive est en cours de préparation'
+            body: '<p>Votre archive est en cours de préparation et sera bientôt disponible.</p><p><a href="%url%">Télécharger l''archive</a></p>'
+            validity: 'Ce lien est valable %count% jour.|Ce lien est valable %count% jours.'
+        sms:
+            body: 'Votre archive est prête (%count% jour) : %url%|Votre archive est prête (%count% jours) : %url%'

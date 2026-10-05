@@ -127,19 +127,21 @@ final class SearchIndexer
                     ->getQuery()
                     ->getResult();
 
-                if (empty($objects)) {
-                    $this->logger->alert('No document found for index', [
+                // Entities may legitimately disappear between the scheduling of the
+                // indexation and its consumption (asset or workspace deleted meanwhile):
+                // make the index converge by removing their documents instead of alerting.
+                $foundIds = array_map(fn (object $object): string => (string) $object->getId(), $objects);
+                $missingIds = array_values(array_diff(array_map(strval(...), $ids), $foundIds));
+                if (!empty($missingIds)) {
+                    $this->logger->info(empty($objects) ? 'No document found for index' : 'Some documents were not found for index', [
                         'class' => $class,
-                        'ids' => implode(', ', $ids),
+                        'ids' => implode(', ', $missingIds),
                     ]);
-
-                    return;
+                    $this->indexPersister->deleteManyByIdentifiers($class, $missingIds);
                 }
 
-                if (count($objects) !== count($ids)) {
-                    $this->logger->alert('Some documents were not found for index', [
-                        'class' => $class,
-                    ]);
+                if (empty($objects)) {
+                    return;
                 }
 
                 if (Operation::Insert === $operation) {

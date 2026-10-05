@@ -152,6 +152,9 @@ class AssetCopier
         $copy = new AssetRendition();
         $copy->setAsset($target);
         $copy->setDefinition($rendition->getDefinition());
+        $copy->setName($rendition->isDynamic() ? $rendition->getName() : null);
+        $copy->setBuildDefinition($rendition->getBuildDefinition());
+        $copy->setBuildOptions($rendition->getBuildOptions());
 
         if (null !== $file = $rendition->getFile()) {
             $copy->setFile($this->copyFile($file, $target->getWorkspace()));

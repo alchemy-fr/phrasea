@@ -88,7 +88,9 @@ function conditionToString(condition: AQLCondition): string {
     const left = operandToString(condition.leftOperand);
     const right = operandToString(condition.rightOperand, condition.operator);
 
-    return `${left} ${operatorToString(condition.operator)} ${right}`.trim();
+    const caseSensitive = condition.caseSensitive ? ' CASE SENSITIVE' : '';
+
+    return `${left} ${operatorToString(condition.operator)} ${right}${caseSensitive}`.trim();
 }
 
 function operandToString(

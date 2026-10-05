@@ -23,20 +23,23 @@ class ShareRepository extends ServiceEntityRepository
     public function getSharesOfAssets(array $assetIds): array
     {
         return $this->createQueryBuilder('s')
-            ->andWhere('s.asset IN (:assetIds)')
+            ->innerJoin('s.assets', 'a')
+            ->andWhere('a.id IN (:assetIds)')
             ->setParameter('assetIds', $assetIds)
+            ->orderBy('s.createdAt', 'DESC')
             ->getQuery()
             ->getResult();
     }
 
     public function getShareCount(array $assetIds): int
     {
-        return $this->createQueryBuilder('s')
-            ->select('COUNT(DISTINCT s.asset)')
-            ->andWhere('s.asset IN (:assetIds)')
+        return (int) ($this->createQueryBuilder('s')
+            ->select('COUNT(DISTINCT a.id)')
+            ->innerJoin('s.assets', 'a')
+            ->andWhere('a.id IN (:assetIds)')
             ->setParameter('assetIds', $assetIds)
             ->setMaxResults(1)
             ->getQuery()
-            ->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR) ?? 0;
+            ->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR) ?? 0);
     }
 }

@@ -127,9 +127,12 @@ export type SearchSuggestion = {
     id: string;
     name: string;
     hl: string;
-    t: 'collection' | 'asset' | 'workspace';
+    // "collection", "asset" or an attribute definition ID
+    t: string;
     tName: string;
     tId?: string;
+    // Locale of the suggested attribute value, when localized
+    locale?: string;
 };
 
 export async function getSearchSuggestions(
@@ -186,10 +189,7 @@ export async function bypassQuarantine(id: string): Promise<Asset> {
 }
 
 export type DuplicateAsset = {
-    id: string;
-    title: string | null;
-    thumbnailUrl: string | null;
-    createdAt: string | null;
+    asset: Asset;
     analyzers: string[];
 };
 
@@ -261,13 +261,14 @@ export async function getPublicShare(
 }
 
 export async function createAssetShare(
-    assetId: string,
+    assetIds: string | string[],
     data: Partial<Share> = {}
 ): Promise<Share> {
+    const ids = Array.isArray(assetIds) ? assetIds : [assetIds];
     const res = (
         await apiClient.post(`/shares`, {
             ...data,
-            asset: `/${EntityName.Asset}/${assetId}`,
+            assets: ids.map(id => `/${EntityName.Asset}/${id}`),
         })
     ).data;
 

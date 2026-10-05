@@ -6,7 +6,7 @@ namespace App\Api\OutputTransformer;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use Alchemy\NotifyBundle\Notification\NotifierInterface;
+use Alchemy\NotifierBundle\Manager\SubscriptionManager;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Attribute\AttributeTypeRegistry;
@@ -47,7 +47,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         private readonly BuiltInAttributeRegistry $builtInAttributeRegistry,
         private readonly AttributeTypeRegistry $attributeTypeRegistry,
         private readonly DiscussionManager $discussionManager,
-        private readonly NotifierInterface $notifier,
+        private readonly SubscriptionManager $subscriptionManager,
         #[Autowire(env: 'API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE')]
         private readonly string $ownerPropertyRequiredRole,
         private readonly ClientUrlHelper $clientUrlHelper,
@@ -89,23 +89,28 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
         $output->setSource($data->getSource());
 
-        $assetPolicyFilter = $this->assetPolicyManager->getPolicyApplicationFilter($data);
-
-        if ($this->hasGroup([
+        // Full representation (list/read/share…) vs. the story-only context,
+        // where an embedded story asset only exposes its name.
+        $fullOutput = $this->hasGroup([
             Asset::GROUP_LIST,
-            Asset::GROUP_STORY,
             Share::GROUP_READ,
             Share::GROUP_PUBLIC_READ,
             ResolveEntitiesOutput::GROUP_READ,
-        ], $context)) {
-            $attributesIndex = $data->attributesIndex ?? $this->attributesResolver->resolveAssetAttributes($data, true);
-            $attributes = array_values(array_filter($attributesIndex->getFlattenAttributes(), fn (Attribute $attribute): bool => !in_array($attribute->getDefinition()->getId(), $assetPolicyFilter->getFilteredAttributes(), true)));
+        ], $context);
 
+        if ($fullOutput || $this->hasGroup(Asset::GROUP_STORY, $context)) {
+            $attributesIndex = $data->attributesIndex ?? $this->attributesResolver->resolveAssetAttributes($data, true);
             $highlights = $data->getElasticHighlights();
-            if (!empty($highlights)) {
-                $this->attributesResolver->assignHighlight($attributes, $highlights);
+
+            if ($fullOutput) {
+                $assetPolicyFilter = $this->assetPolicyManager->getPolicyApplicationFilter($data);
+                $attributes = array_values(array_filter($attributesIndex->getFlattenAttributes(), fn (Attribute $attribute): bool => !in_array($attribute->getDefinition()->getId(), $assetPolicyFilter->getFilteredAttributes(), true)));
+
+                if (!empty($highlights)) {
+                    $this->attributesResolver->assignHighlight($attributes, $highlights);
+                }
+                $output->setAttributes($attributes);
             }
-            $output->setAttributes($attributes);
 
             $nameAttribute = $this->assetNameResolver->resolveName($data, $attributesIndex);
             if ($nameAttribute instanceof Attribute) {
@@ -119,13 +124,16 @@ class AssetOutputTransformer implements OutputTransformerInterface
             }
 
             $output->setGroupValue($data->groupValue);
+        }
+
+        if ($fullOutput) {
             $output->setPrivacy($data->getPrivacy());
             $output->setTags($data->getTags()->getValues());
             $output->setWorkspace($data->getWorkspace());
 
             $renditions = $this->em
                 ->getRepository(AssetRendition::class)
-                ->findAssetRenditions($data->getId(), [
+                ->getCachedAssetRenditions($data->getId(), [
                     AssetRenditionRepository::OPT_USED_AS => true,
                     AssetRenditionRepository::OPT_EXCLUDE_DEFINITIONS => $assetPolicyFilter->getFilteredRenditions(),
                 ]);
@@ -183,9 +191,10 @@ class AssetOutputTransformer implements OutputTransformerInterface
 
         if ($this->hasGroup([Asset::GROUP_READ], $context)) {
             if ($user instanceof JwtUser) {
-                $output->topicSubscriptions = $this->notifier->getTopicSubscriptions(
-                    $data->getTopicKeys(),
+                $output->topicSubscriptions = $this->subscriptionManager->getSubscribedEvents(
                     $user->getId(),
+                    $data->getObjectType(),
+                    $data->getId(),
                 );
             }
 
@@ -204,7 +213,7 @@ class AssetOutputTransformer implements OutputTransformerInterface
         string $type,
     ): ?AssetRendition {
         foreach ($assetRenditions as $rendition) {
-            if ($rendition->getDefinition()->{'isUseAs'.ucfirst($type)}()) {
+            if ($rendition->getDefinition()?->{'isUseAs'.ucfirst($type)}()) {
                 // Return the first viewable sub def for user
                 if ($this->isGranted(AbstractVoter::READ, $rendition)) {
                     return $rendition;

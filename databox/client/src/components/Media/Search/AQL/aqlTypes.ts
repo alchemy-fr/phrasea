@@ -21,6 +21,13 @@ export enum AQLOperator {
     WITHIN_RECTANGLE = 'WITHIN_RECTANGLE',
 }
 
+export const caseSensitiveOperators: AQLOperator[] = [
+    AQLOperator.CONTAINS,
+    AQLOperator.NOT_CONTAINS,
+    AQLOperator.STARTS_WITH,
+    AQLOperator.NOT_STARTS_WITH,
+];
+
 export enum AQLConstant {
     Null = 'null',
     True = 'true',
@@ -71,6 +78,7 @@ export type AQLCondition = {
     leftOperand: AQLOperand;
     rightOperand: RightOperand;
     operator: AQLOperator;
+    caseSensitive?: boolean;
 };
 export type AQLExpression = AQLAndOrExpression | AQLCondition;
 

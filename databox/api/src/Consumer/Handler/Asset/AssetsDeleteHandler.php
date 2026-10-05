@@ -7,10 +7,12 @@ namespace App\Consumer\Handler\Asset;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use App\Consumer\Handler\Collection\CollectionsMoveToTrash;
+use App\Consumer\Handler\File\ReevaluateFileAnalyses;
 use App\Doctrine\Delete\AssetDelete;
 use App\Elasticsearch\ElasticSearchClient;
 use App\Entity\Core\Asset;
 use App\Entity\Core\CollectionAsset;
+use App\Repository\Core\FileDuplicateRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -23,6 +25,7 @@ readonly class AssetsDeleteHandler
         private MessageBusInterface $bus,
         private ElasticSearchClient $elasticSearchClient,
         private AssetDelete $assetDelete,
+        private FileDuplicateRepository $fileDuplicateRepository,
     ) {
     }
 
@@ -51,10 +54,14 @@ readonly class AssetsDeleteHandler
         $assets = DoctrineUtil::iterateIds($this->em->getRepository(Asset::class), $message->getIds());
         DeferredIndexListener::disable();
         $collections = [];
+        $sourceFileIds = [];
         try {
             foreach ($assets as $asset) {
                 if ($asset->getStoryCollection()) {
                     $collections[$asset->getStoryCollection()->getId()] = true;
+                }
+                if (null !== $asset->getSource()) {
+                    $sourceFileIds[$asset->getSource()->getId()] = true;
                 }
                 $asset->setDeletedAt(new \DateTimeImmutable());
                 $this->em->persist($asset);
@@ -66,6 +73,12 @@ readonly class AssetsDeleteHandler
 
         if (!empty($collections)) {
             $this->bus->dispatch(new CollectionsMoveToTrash(array_keys($collections)));
+        }
+
+        // Trashed assets' source files no longer count as duplicates: re-evaluate the analyses referencing them.
+        $ownerFileIds = $this->fileDuplicateRepository->findOwnerFileIdsByDuplicateFileIds(array_keys($sourceFileIds));
+        if (!empty($ownerFileIds)) {
+            $this->bus->dispatch(new ReevaluateFileAnalyses($ownerFileIds));
         }
 
         $this->elasticSearchClient->updateByQuery(

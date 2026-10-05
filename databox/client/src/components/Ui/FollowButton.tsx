@@ -44,7 +44,7 @@ export default function FollowButton({
         const s: Subscriptions = {};
 
         topics.forEach((t: Topic) => {
-            s[t.key] = Boolean(initialSubscriptions[t.key]);
+            s[t.key] = initialSubscriptions.includes(t.key);
         });
 
         return s;

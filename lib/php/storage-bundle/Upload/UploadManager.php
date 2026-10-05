@@ -64,8 +64,14 @@ final readonly class UploadManager
     /**
      * @param PartInput[] $parts
      */
+    /**
+     * @param PartInput[] $parts
+     */
     public function markComplete(string $uploadId, string $filename, array $parts): void
     {
+        // S3 requires the parts in ascending PartNumber order.
+        usort($parts, fn (PartInput $a, PartInput $b): int => (int) $a->PartNumber <=> (int) $b->PartNumber);
+
         $params = [
             'Bucket' => $this->uploadBucket,
             'Key' => $this->pathPrefix.$filename,
@@ -73,7 +79,7 @@ final readonly class UploadManager
                 'Parts' => array_map(function (PartInput $part): array {
                     return [
                         'ETag' => $part->ETag,
-                        'PartNumber' => $part->PartNumber,
+                        'PartNumber' => (int) $part->PartNumber,
                     ];
                 }, $parts),
             ],

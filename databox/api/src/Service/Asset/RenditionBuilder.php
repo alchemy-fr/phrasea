@@ -8,16 +8,20 @@ use Alchemy\RenditionFactory\Config\YamlLoader;
 use Alchemy\RenditionFactory\DTO\CreateRenditionOptions;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Exception\NoBuildConfigException;
+use Alchemy\RenditionFactory\Exception\UnsupportedSourceFileException;
 use Alchemy\RenditionFactory\RenditionCreator;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Entity\Core\RenditionDefinition;
 use App\Integration\Core\Rendition\AssetMetadataContainer;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Asset\RenditionBuild\Exception\RenditionBuildException;
+use App\Service\Metadata\AssetMetadataFileWriter;
 use App\Service\Storage\FileManager;
 use App\Service\Storage\RenditionManager;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 
 final readonly class RenditionBuilder
@@ -32,6 +36,7 @@ final readonly class RenditionBuilder
         private FileManager $fileManager,
         private RenditionCreator $renditionCreator,
         private FileFetcher $fileFetcher,
+        private AssetMetadataFileWriter $assetMetadataFileWriter,
     ) {
     }
 
@@ -98,7 +103,7 @@ final readonly class RenditionBuilder
         try {
             try {
                 $outputFile = $this->createRendition($source, $buildDef, $metadataContainer);
-            } catch (NoBuildConfigException $e) {
+            } catch (NoBuildConfigException|UnsupportedSourceFileException $e) {
                 throw new RenditionBuildException(true, $e->getMessage(), $e->getCode(), $e);
             }
 
@@ -118,6 +123,13 @@ final readonly class RenditionBuilder
 
             $file->setNoAnalysisNeeded();
 
+            // Building can take minutes: the asset may have been deleted meanwhile while
+            // it is still held in the identity map. Check the database before writing
+            // a rendition that would violate the asset FK (and close the EntityManager).
+            if (!$this->assetStillExists($asset)) {
+                throw new RenditionBuildException(true, sprintf('Asset "%s" was deleted while building rendition "%s"', $asset->getId(), $renditionDefinition->getName()));
+            }
+
             $this->renditionManager->createOrReplaceRenditionFile(
                 $asset,
                 $renditionDefinition,
@@ -126,10 +138,88 @@ final readonly class RenditionBuilder
                 $outputFile?->getBuildHashes(),
                 projection: $isProjection,
             );
+
+            try {
+                $this->em->flush();
+            } catch (ForeignKeyConstraintViolationException $e) {
+                throw new RenditionBuildException(true, sprintf('Asset "%s" was deleted while building rendition "%s"', $asset->getId(), $renditionDefinition->getName()), $e->getCode(), $e);
+            }
+        } finally {
+            $this->renditionCreator->cleanUp();
+        }
+    }
+
+    public function buildDynamicRendition(AssetRendition $rendition): void
+    {
+        $asset = $rendition->getAsset();
+        $buildDef = $rendition->getBuildDefinition();
+        if (empty($buildDef)) {
+            throw new RenditionBuildException(true, sprintf('Dynamic rendition "%s" has no build definition', $rendition->getId()));
+        }
+
+        $source = $this->resolveDynamicRenditionSource($rendition);
+        $metadataContainer = new AssetMetadataContainer($asset, $this->attributesResolver, $this->assetNameResolver);
+
+        try {
+            try {
+                $outputFile = $this->createRendition($source, $buildDef, $metadataContainer);
+            } catch (NoBuildConfigException|UnsupportedSourceFileException $e) {
+                throw new RenditionBuildException(true, $e->getMessage(), $e->getCode(), $e);
+            }
+
+            if (null !== $outputFile) {
+                if ($rendition->isWriteMetadata()) {
+                    $this->assetMetadataFileWriter->writeAssetMetadata($outputFile->getPath(), $asset, $rendition->getDefinition());
+                }
+
+                $file = $this->fileManager->createFileFromPath(
+                    $asset->getWorkspace(),
+                    $outputFile->getPath(),
+                    $outputFile->getType()
+                );
+            } else {
+                $file = $source;
+            }
+
+            $file->setNoAnalysisNeeded();
+
+            $this->renditionManager->attachRenditionFile(
+                $rendition,
+                $file,
+                $this->buildHashManager->getDynamicBuildHash($source, $rendition),
+                $outputFile?->getBuildHashes(),
+                $outputFile?->isProjection() ?? true,
+            );
             $this->em->flush();
         } finally {
             $this->renditionCreator->cleanUp();
         }
+    }
+
+    private function resolveDynamicRenditionSource(AssetRendition $rendition): File
+    {
+        $asset = $rendition->getAsset();
+
+        if (null !== $sourceRenditionId = $rendition->getSourceRenditionId()) {
+            $sourceRendition = $this->em->find(AssetRendition::class, $sourceRenditionId);
+            if (null === $sourceRendition || $sourceRendition->getAsset()->getId() !== $asset->getId()) {
+                throw new RenditionBuildException(true, sprintf('Source rendition "%s" not found for asset "%s"', $sourceRenditionId, $asset->getId()));
+            }
+
+            $source = $sourceRendition->getFile();
+            if (null === $source) {
+                throw new RenditionBuildException(false, sprintf('Source rendition "%s" of asset "%s" has no file', $sourceRenditionId, $asset->getId()));
+            }
+
+            return $source;
+        }
+
+        $source = $asset->getSource();
+        if (null === $source) {
+            throw new RenditionBuildException(false, sprintf('Asset "%s" has no source file', $asset->getId()));
+        }
+
+        return $source;
     }
 
     private function createRendition(File $source, string $buildDef, AssetMetadataContainer $metadataContainer): ?OutputFileInterface
@@ -150,5 +240,16 @@ final readonly class RenditionBuilder
         }
 
         return $outputFile;
+    }
+
+    private function assetStillExists(Asset $asset): bool
+    {
+        return (int) $this->em->createQueryBuilder()
+            ->select('COUNT(a.id)')
+            ->from(Asset::class, 'a')
+            ->andWhere('a.id = :id')
+            ->setParameter('id', $asset->getId())
+            ->getQuery()
+            ->getSingleScalarResult() > 0;
     }
 }

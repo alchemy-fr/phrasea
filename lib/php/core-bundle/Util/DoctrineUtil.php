@@ -69,6 +69,14 @@ final readonly class DoctrineUtil
 
     public static function iterateIds(EntityRepository $repo, array $ids): iterable
     {
+        // An empty or non-scalar id reaches Postgres as an invalid uuid literal
+        // and aborts the whole batch, so drop those before querying.
+        $ids = array_values(array_filter($ids, static fn ($v): bool => \is_scalar($v) && '' !== (string) $v));
+
+        if (empty($ids)) {
+            return [];
+        }
+
         return $repo->createQueryBuilder('o')
             ->select('o')
             ->where('o.id IN (:ids)')

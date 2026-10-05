@@ -17,6 +17,19 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
 {
     private const string TYPE_DUPLICATE_DOC_UNIQUE_ID = 'duplicate_doc_unique_id';
 
+    /**
+     * The metadata tags carrying a document unique id, used as the default for both
+     * `read_from` and `write_to`.
+     */
+    final public const array TAGS = [
+        'XMP-exif:ImageUniqueID',
+        'SigmaRaw:ImageUniqueID',
+        'IPTC:UniqueDocumentID',
+        'ExifIFD:ImageUniqueID',
+        'Canon:ImageUniqueID',
+        'XMP-xmpMM:DocumentID',
+    ];
+
     public function __construct(
         private EntityManagerInterface $em,
         private FileRepository $fileRepository,
@@ -33,31 +46,22 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
         // @formatter:off
         $builder
             ->arrayNode('read_from')
-                ->defaultValue([
-                    'XMP-exif:ImageUniqueID',
-                    'SigmaRaw:ImageUniqueID',
-                    'IPTC:UniqueDocumentID',
-                    'ExifIFD:ImageUniqueID',
-                    'Canon:ImageUniqueID',
-                    'XMP-xmpMM:DocumentID',
-                ])
+                ->defaultValue(self::TAGS)
                 ->scalarPrototype()
                 ->end()
             ->end()
             ->booleanNode('write')
+                ->info('Store the document unique id in the file overridden metadata, so that it is embedded into renditions and exports.')
                 ->defaultTrue()
             ->end()
             ->arrayNode('write_to')
-                ->defaultValue([
-                    'XMP-exif:ImageUniqueID',
-                    'SigmaRaw:ImageUniqueID',
-                    'IPTC:UniqueDocumentID',
-                    'ExifIFD:ImageUniqueID',
-                    'Canon:ImageUniqueID',
-                    'XMP-xmpMM:DocumentID',
-                ])
+                ->defaultValue(self::TAGS)
                 ->scalarPrototype()
                 ->end()
+            ->end()
+            ->booleanNode('treatDuplicateAsError')
+                ->info('Deprecated and ignored: a duplicate is always reported as a critical message.')
+                ->setDeprecated('alchemy/databox', '4.0', 'The "%node%" option is deprecated and ignored.')
             ->end()
             ->booleanNode('findDuplicates')
                 ->defaultTrue()
@@ -65,10 +69,6 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
             ->integerNode('duplicatesLimit')
                 ->info('The maximum number of duplicates to check for. If more than this number of duplicates are found, only the first N will be returned.')
                 ->defaultValue(10)
-            ->end()
-            ->booleanNode('treatDuplicateAsError')
-                ->defaultFalse()
-            ->info('Whether to treat duplicate files as errors instead of warnings.')
             ->end()
             ->booleanNode('generate')
                 ->defaultTrue()
@@ -124,9 +124,13 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
         $data['duid'] = $duid;
         $file->setDocUniqueId($duid);
 
-        if (null !== $duid && $config['write']) {
+        if ($config['write']) {
             foreach ($config['write_to'] as $key) {
-                $file->setMetadataValue($key, $duid);
+                if (null === $duid) {
+                    $file->removeMetadataValue($key);
+                } else {
+                    $file->setMetadataValue($key, $duid);
+                }
             }
         }
 
@@ -154,7 +158,7 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
     protected function getDocumentationHeader(): string
     {
         return <<<HEADER
-        This analyzer checks for a unique identifier in the file\'s metadata.
+        This analyzer checks for a unique identifier in the file's metadata.
         If you enable this analyzer, the `File Analyzer` integration must then need a `Read Metadata` integration to be processed before it.
         HEADER;
     }

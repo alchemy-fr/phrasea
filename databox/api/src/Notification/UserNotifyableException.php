@@ -9,7 +9,7 @@ use Alchemy\CoreBundle\Exception\IgnoreSentryExceptionInterface;
 class UserNotifyableException extends \RuntimeException implements IgnoreSentryExceptionInterface
 {
     private array $subscribers = [];
-    private string $notificationId = 'databox-user-exception';
+    private string $notificationId = 'user:exception';
 
     public function __construct(?string $userId, private readonly string $subject, string $message = '', int $code = 0, ?\Throwable $previous = null)
     {

@@ -144,7 +144,7 @@ class FormSchema extends AbstractUuidEntity implements AclObjectInterface
         return $this->target;
     }
 
-    public function setTarget(Target $target): void
+    public function setTarget(?Target $target): void
     {
         $this->target = $target;
     }

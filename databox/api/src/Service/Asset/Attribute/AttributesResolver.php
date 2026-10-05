@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Asset\Attribute;
 
+use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Attribute\AttributeInterface;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\Asset;
@@ -15,16 +16,21 @@ use App\Security\Voter\AttributeDefinitionVoter;
 use App\Service\Asset\Attribute\Index\AttributeIndex;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Contracts\Cache\CacheInterface;
 
 readonly class AttributesResolver
 {
+    private CacheInterface $definitionPermissionCache;
+
     public function __construct(
         private EntityManagerInterface $em,
         private FieldNameResolver $fieldNameResolver,
         private FallbackResolver $fallbackResolver,
         private Security $security,
         private ExceptionNotifier $exceptionNotifier,
+        TemporaryCacheFactory $cacheFactory,
     ) {
+        $this->definitionPermissionCache = $cacheFactory->createCache();
     }
 
     public function resolveAssetAttributes(Asset $asset, bool $applyPermissions): AttributeIndex
@@ -43,7 +49,7 @@ readonly class AttributesResolver
         if ($applyPermissions) {
             foreach ($index->getDefinitions() as $definitionIndex) {
                 $definition = $definitionIndex->getDefinition();
-                if (!$this->security->isGranted(AttributeDefinitionVoter::VIEW_ATTRIBUTES, $definition)) {
+                if (!$this->canViewDefinitionAttributes($definition)) {
                     $index->removeDefinition($definition->getId());
                 }
             }
@@ -52,6 +58,20 @@ readonly class AttributesResolver
         }
 
         return $index;
+    }
+
+    /**
+     * The decision only depends on the definition policy and the current user,
+     * so it is taken once per definition and request instead of once per asset.
+     */
+    private function canViewDefinitionAttributes(AttributeDefinition $definition): bool
+    {
+        $key = $definition->getId().'_'.($this->security->getUser()?->getUserIdentifier() ?? '_anon');
+
+        return $this->definitionPermissionCache->get(
+            $key,
+            fn (): bool => $this->security->isGranted(AttributeDefinitionVoter::VIEW_ATTRIBUTES, $definition)
+        );
     }
 
     /**
@@ -75,35 +95,28 @@ readonly class AttributesResolver
             ->getWorkspaceFallbackDefinitions($asset->getWorkspaceId());
 
         foreach ($fbDefinitions as $definition) {
-            if ($definition->isMultiple() || !$definition->isEnabled()) {
+            $fallbacks = $definition->getFallback();
+            if (null === $fallbacks) {
                 continue;
             }
-            $k = $definition->getId();
 
-            $fallbacks = $definition->getFallback();
-            if (null !== $fallbacks) {
-                foreach ($fallbacks as $locale => $fb) {
-                    if (null === $attributes->getAttribute($k, $locale)) {
-                        try {
-                            $attr = $this->fallbackResolver->resolveAttrFallback(
-                                $asset,
-                                $locale,
-                                $definition,
-                                $attributes
-                            );
-                        } catch (\Throwable $e) {
-                            if ($e instanceof UserNotifyableException) {
-                                $this->exceptionNotifier->notifyException($e);
-                                continue;
-                            }
-
-                            throw $e;
-                        }
-
-                        if (null !== $attr) {
-                            $attributes->addAttribute($attr);
-                        }
+            // The resolver skips disabled definitions, empty templates and definitions
+            // already holding a value, and indexes the attributes it creates itself.
+            foreach (array_keys($fallbacks) as $locale) {
+                try {
+                    $this->fallbackResolver->resolveAttrFallback(
+                        $asset,
+                        (string) $locale,
+                        $definition,
+                        $attributes
+                    );
+                } catch (\Throwable $e) {
+                    if ($e instanceof UserNotifyableException) {
+                        $this->exceptionNotifier->notifyException($e);
+                        continue;
                     }
+
+                    throw $e;
                 }
             }
         }

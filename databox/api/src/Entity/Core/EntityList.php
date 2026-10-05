@@ -23,7 +23,9 @@ use App\Api\Model\Input\ImportEntitiesInput;
 use App\Api\Processor\ClearEntitiesProcessor;
 use App\Api\Processor\ExportEntitiesProcessor;
 use App\Api\Processor\ImportEntitiesProcessor;
+use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\WorkspaceTrait;
+use App\Listener\OwnerPersistableInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -86,9 +88,10 @@ use Symfony\Component\Validator\Constraints as Assert;
     fields: ['workspace', 'name'],
     message: 'This entity type already exists in the workspace.'
 )]
-class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterface, \Stringable
+class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterface, OwnerPersistableInterface, \Stringable
 {
     use CreatedAtTrait;
+    use OwnerIdTrait;
     use UpdatedAtTrait;
     use WorkspaceTrait;
     final public const int OBJECT_INDEX = 15;
@@ -108,6 +111,10 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
         self::GROUP_LIST,
         AttributeDefinition::GROUP_LIST,
     ];
+
+    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
+    // Nullable because lists may be created without a user (fixtures, workspace templates)
+    protected ?string $ownerId = null;
 
     #[ORM\Column(type: Types::STRING, length: 100, nullable: false)]
     #[Groups([self::GROUP_LIST, self::GROUP_READ])]

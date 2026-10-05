@@ -32,6 +32,27 @@ class IntegrationTokenRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    /**
+     * Tokens whose refresh token is still valid but expires within $threshold seconds:
+     * renewing them now extends their lifetime.
+     *
+     * @return IntegrationToken[]
+     */
+    public function getRenewableTokens(int $threshold): array
+    {
+        $now = new \DateTimeImmutable();
+
+        return $this
+            ->createQueryBuilder('it')
+            ->andWhere('it.hasRefreshToken = true')
+            ->andWhere('it.expiresAt > :now')
+            ->andWhere('it.expiresAt <= :limit')
+            ->setParameter('now', $now)
+            ->setParameter('limit', $now->modify(sprintf('+%d seconds', $threshold)))
+            ->getQuery()
+            ->getResult();
+    }
+
     private function createValidTokenQueryBuilder(string $integrationId, string $userId): QueryBuilder
     {
         return $this

@@ -23,10 +23,6 @@ framework:
             remove_bg.client:
                 base_uri: https://api.remove.bg
                 verify_peer: true
-            zippy.client:
-                base_uri: '%env(ZIPPY_URL)%'
-                headers:
-                    Authorization: '%env(ZIPPY_CLIENT_ID)%:%env(ZIPPY_CLIENT_SECRET)%'
 
 when@test:
     framework:

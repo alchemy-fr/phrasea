@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace App\Configurator\Vendor\Minio;
 
 use App\Configurator\ConfiguratorInterface;
-use App\Configurator\Vendor\RabbitMq\RabbitMqConfigurator;
-use App\Configurator\Vendor\RabbitMq\RabbitMqManager;
 use App\Util\EnvHelper;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -14,7 +12,6 @@ final readonly class MinioConfigurator implements ConfiguratorInterface
 {
     public function __construct(
         private MinioManager $minioManager,
-        private RabbitMqManager $rabbitMqManager,
     ) {
     }
 
@@ -38,8 +35,7 @@ final readonly class MinioConfigurator implements ConfiguratorInterface
         }
 
         $this->minioManager->awaitService($output);
-        $this->rabbitMqManager->awaitService($output);
-        $this->minioManager->configureAmqpNotification($output, $bucketName, RabbitMqConfigurator::S3_EVENTS_VHOST);
+        $this->minioManager->configureAmqpNotification($bucketName);
         $output->writeln('Minio AMQP notification configured.');
     }
 }

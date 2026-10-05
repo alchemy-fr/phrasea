@@ -15,7 +15,6 @@ services:
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
         bind:
             string $defaultLocale: '%default_locale%'
-            string $zippyBaseUrl: '%env(ZIPPY_URL)%'
             string $databoxBaseUrl: '%env(DATABOX_API_URL)%'
             string $databoxClientBaseUrl: '%env(DATABOX_CLIENT_URL)%'
             string $matomoSiteId: '%env(MATOMO_SITE_ID)%'
@@ -24,9 +23,9 @@ services:
             ApiPlatform\State\ProviderInterface $collectionProvider: '@api_platform.doctrine.orm.state.collection_provider'
             bool $useAlias: '%elastica.use_alias%'
             string $kernelEnv: '%kernel.environment%'
+            string $redisDsn: '%env(REDIS_URL)%'
             Elastica\Index $assetIndex: '@fos_elastica.index.asset'
             Elastica\Index $collectionIndex: '@fos_elastica.index.collection'
-            Elastica\Index $attributeIndex: '@fos_elastica.index.attribute'
             Elastica\Index $attributeEntityIndex: '@fos_elastica.index.attribute_entity'
 
     _instanceof:
@@ -114,3 +113,20 @@ services:
     App\Validator\ValidRenditionDefinitionConstraintValidator: ~
 
     Alchemy\CoreBundle\Documentation\ApiDocumentationGenerator: ~
+
+when@test:
+    services:
+        # Object storage is not reachable from the test runner: store files locally.
+        test.storage.local_adapter:
+            class: League\Flysystem\Local\LocalFilesystemAdapter
+            arguments:
+                - '%kernel.cache_dir%/storage'
+
+        test.storage.local_filesystem:
+            class: League\Flysystem\Filesystem
+            arguments:
+                - '@test.storage.local_adapter'
+
+        Alchemy\StorageBundle\Storage\FileStorageManager:
+            arguments:
+                $filesystem: '@test.storage.local_filesystem'

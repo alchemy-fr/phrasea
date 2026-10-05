@@ -14,6 +14,10 @@ fos_elastica:
             index_name: "%es_index_prefix%asset_%kernel.environment%"
             settings:
                 index:
+                    # Dynamically adjust replicas count to the number of ES data nodes,
+                    # instead of a static number_of_replicas, to avoid keeping it in sync
+                    # manually with the Elasticsearch Helm chart node count.
+                    auto_expand_replicas: "0-2"
                     analysis:
                         analyzer:
                             collection_path:
@@ -69,6 +73,22 @@ fos_elastica:
                             term_vector: with_positions_offsets
                 !php/const App\Attribute\AttributeInterface::ATTRIBUTES_FIELD:
                     type: object
+                # Distinct attribute values of the asset, for the search suggestions (see SuggestionSearch)
+                !php/const App\Attribute\AttributeInterface::SUGGESTIONS_FIELD:
+                    property_path: false
+                    type: nested
+                    properties:
+                        definitionId:
+                            type: keyword
+                        entityId:
+                            type: keyword
+                        locale:
+                            type: keyword
+                        value:
+                            type: keyword
+                            ignore_above: 300
+                            fields:
+                                suggest: *suggest_field
                 referenceCollectionId:
                     type: keyword
                 referenceCollectionPath:
@@ -93,6 +113,14 @@ fos_elastica:
                 stories:
                     property_path: false
                     type: keyword
+                collectionPositions:
+                    property_path: false
+                    type: nested
+                    properties:
+                        collection:
+                            type: keyword
+                        position:
+                            type: integer
                 isStory:
                     type: boolean
                 renditions:
@@ -186,6 +214,7 @@ fos_elastica:
             index_name: "%es_index_prefix%collection_%kernel.environment%"
             settings:
                 index:
+                    auto_expand_replicas: "0-2"
                     analysis:
                         analyzer:
                             collection_path:
@@ -246,60 +275,12 @@ fos_elastica:
                 provider:
                     query_builder_method: getESQueryBuilder
 
-        attribute:
-            use_alias: '%elastica.use_alias%'
-            index_name: "%es_index_prefix%attribute_%kernel.environment%"
-            indexable_callback: [ '@App\Elasticsearch\AttributeIndexable', 'isAttributeIndexable' ]
-            settings:
-                index:
-                    analysis:
-                        analyzer:
-                            text: *text_analyzer
-                            partial_words: *partial_words_analyzer
-                        tokenizer:
-                            edge_ngram: *edge_ngram_tokenizer
-                        filter:
-                            worddelimiter: *worddelimiter_filter
-            properties:
-                suggestion:
-                    property_path: value
-                    type: text
-                    analyzer: text
-                    fields:
-                        raw:
-                            type: keyword
-                            ignore_above: 200
-                        suggest: *suggest_field
-                entityId:
-                    property_path: false
-                    type: keyword
-                privacy:
-                    property_path: false
-                    type: byte
-                definitionId:
-                    type: keyword
-                workspaceId:
-                    type: keyword
-                ownerId:
-                    type: keyword
-                users:
-                    property_path: false
-                    type: keyword
-                groups:
-                    property_path: false
-                    type: keyword
-                createdAt:
-                    type: date
-            persistence:
-                driver: orm
-                model: App\Entity\Core\Attribute
-                listener: { enabled: false }
-                provider:
-                    service: App\Elasticsearch\Provider\AttributeProvider
-
         asset_data_template:
             use_alias: '%elastica.use_alias%'
             index_name: "%es_index_prefix%asset_data_template_%kernel.environment%"
+            settings:
+                index:
+                    auto_expand_replicas: "0-2"
             properties:
                 name:
                     type: text
@@ -334,6 +315,7 @@ fos_elastica:
         basket:
             settings:
                 index:
+                    auto_expand_replicas: "0-2"
                     analysis:
                         analyzer:
                             text: *text_analyzer
@@ -358,6 +340,8 @@ fos_elastica:
                     type: keyword
                 isArchived:
                     type: boolean
+                createdAt:
+                    type: date
             persistence:
                 driver: orm
                 model: App\Entity\Basket\Basket
@@ -368,6 +352,7 @@ fos_elastica:
         attribute_entity:
             settings:
                 index:
+                    auto_expand_replicas: "0-2"
                     analysis:
                         analyzer:
                             text: *text_analyzer
@@ -400,6 +385,7 @@ fos_elastica:
         tag:
             settings:
                 index:
+                    auto_expand_replicas: "0-2"
                     analysis:
                         analyzer:
                             text: *text_analyzer
@@ -430,6 +416,7 @@ fos_elastica:
         message:
             settings:
                 index:
+                    auto_expand_replicas: "0-2"
                     analysis:
                         analyzer:
                             text: *text_analyzer

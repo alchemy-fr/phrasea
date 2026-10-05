@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Consumer\Middleware;
 
-use Alchemy\NotifyBundle\Notification\NotifierInterface;
+use Alchemy\NotifierBundle\NotifierState;
 use Alchemy\WebhookBundle\Doctrine\Listener\EntityListener;
 use App\Consumer\Stamp\QuietContextStamp;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -17,7 +17,7 @@ final readonly class QuietContextMiddleware implements MiddlewareInterface
 {
     public function __construct(
         private RequestStack $requestStack,
-        private NotifierInterface $notifier,
+        private NotifierState $notifierState,
     ) {
     }
 
@@ -36,20 +36,20 @@ final readonly class QuietContextMiddleware implements MiddlewareInterface
         }
 
         $webhookEnabled = EntityListener::$enabled;
-        $notificationEnabled = $this->notifier->isEnabled();
+        $notificationEnabled = $this->notifierState->isEnabled();
 
         if ($contextStamp->isNoWebhook()) {
             EntityListener::$enabled = false;
         }
         if ($contextStamp->isNoNotification()) {
-            $this->notifier->setEnabled(false);
+            $this->notifierState->setEnabled(false);
         }
 
         try {
             return $stack->next()->handle($envelope, $stack);
         } finally {
             EntityListener::$enabled = $webhookEnabled;
-            $this->notifier->setEnabled($notificationEnabled);
+            $this->notifierState->setEnabled($notificationEnabled);
         }
     }
 }

@@ -5,6 +5,7 @@ namespace Alchemy\MetadataManipulatorBundle;
 use PHPExiftool\Driver\Metadata\Metadata;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Driver\TagGroupInterface;
+use PHPExiftool\Exception\ExceptionInterface as PHPExiftoolExceptionInterface;
 use PHPExiftool\PHPExiftool;
 use PHPExiftool\Writer;
 use Psr\Log\LoggerInterface;
@@ -54,7 +55,18 @@ class MetadataManipulator
 
         $reader->files($file->getRealPath());
 
-        return $reader->first()->getMetadatas();
+        try {
+            return $reader->first()->getMetadatas();
+        } catch (PHPExiftoolExceptionInterface $e) {
+            // exiftool exits with an error (and no output) on empty, truncated or
+            // unknown files: treat it as "no metadata" rather than failing the caller.
+            $this->logger->warning('Unable to read metadata with exiftool, returning an empty bag', [
+                'file' => $file->getRealPath(),
+                'error' => $e->getMessage(),
+            ]);
+
+            return new MetadataBag();
+        }
     }
 
     public function createWriter(): Writer

@@ -14,6 +14,7 @@ import ImageDimensionResult from './analyzers/ImageDimensionResult.tsx';
 import GenericResult from './analyzers/GenericResult.tsx';
 
 type Props = {
+    fileId: string;
     result: AnalyzerResultType;
 };
 
@@ -22,21 +23,29 @@ type Props = {
  * Components are referenced statically (not looked up in a variable) so they
  * stay stable across renders.
  */
-function AnalyzerBody({name, output}: {name: string; output: AnalyzerOutput}) {
+function AnalyzerBody({
+    fileId,
+    name,
+    output,
+}: {
+    fileId: string;
+    name: string;
+    output: AnalyzerOutput;
+}) {
     switch (name) {
         case 'checksum':
-            return <ChecksumResult output={output} />;
+            return <ChecksumResult fileId={fileId} output={output} />;
         case 'doc_unique_id':
-            return <DocUniqueIdResult output={output} />;
+            return <DocUniqueIdResult fileId={fileId} output={output} />;
         case 'filename':
-            return <FilenameResult output={output} />;
+            return <FilenameResult fileId={fileId} output={output} />;
         case 'image_colorspace':
-            return <ImageColorspaceResult output={output} />;
+            return <ImageColorspaceResult fileId={fileId} output={output} />;
         case 'image_dimension':
-            return <ImageDimensionResult output={output} />;
+            return <ImageDimensionResult fileId={fileId} output={output} />;
         default:
             // debug + any analyzer without a dedicated component
-            return <GenericResult output={output} />;
+            return <GenericResult fileId={fileId} output={output} />;
     }
 }
 
@@ -44,7 +53,7 @@ function AnalyzerBody({name, output}: {name: string; output: AnalyzerOutput}) {
  * Renders a single analyzer's result: a titled, severity-colored card whose
  * body is delegated to the analyzer-specific component.
  */
-export default function AnalyzerResult({result}: Props) {
+export default function AnalyzerResult({fileId, result}: Props) {
     const {t} = useTranslation();
 
     const analyzerLabels: Record<string, string> = useMemo(
@@ -73,7 +82,11 @@ export default function AnalyzerResult({result}: Props) {
             title={analyzerLabels[result.name] ?? result.name}
             severity={getOutputSeverity(result.output)}
         >
-            <AnalyzerBody name={result.name} output={result.output} />
+            <AnalyzerBody
+                fileId={fileId}
+                name={result.name}
+                output={result.output}
+            />
         </AnalyzerCard>
     );
 }

@@ -21,8 +21,10 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\Group\GroupValue;
+use App\Api\Model\Input\AddAssetsToCollectionInput;
 use App\Api\Model\Input\AssetAddAsVersionInput;
 use App\Api\Model\Input\AssetInput;
+use App\Api\Model\Input\AssetPositionInput;
 use App\Api\Model\Input\AssetsDeleteInput;
 use App\Api\Model\Input\AssetsRestoreInput;
 use App\Api\Model\Input\Attribute\AssetAttributeBatchUpdateInput;
@@ -40,11 +42,13 @@ use App\Api\Model\Output\PrepareDeleteAssetsOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Model\Output\StoryThumbnailsOutput;
 use App\Api\Processor\AddAsAssetVersionProcessor;
+use App\Api\Processor\AddAssetsToCollectionProcessor;
 use App\Api\Processor\AssetAttributeBatchUpdateProcessor;
 use App\Api\Processor\AssetsDeleteProcessor;
 use App\Api\Processor\AssetsRestoreProcessor;
 use App\Api\Processor\BypassQuarantineProcessor;
 use App\Api\Processor\CopyAssetProcessor;
+use App\Api\Processor\CreateAssetProcessor;
 use App\Api\Processor\DeleteAssetProcessor;
 use App\Api\Processor\FollowProcessor;
 use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
@@ -53,6 +57,7 @@ use App\Api\Processor\MultipleAssetCreateProcessor;
 use App\Api\Processor\PrepareDeleteAssetProcessor;
 use App\Api\Processor\RemoveAssetFromCollectionProcessor;
 use App\Api\Processor\ResolveEntitiesProcessor;
+use App\Api\Processor\SetAssetPositionProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Processor\UnfollowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
@@ -161,6 +166,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
             processor: TriggerAssetWorkflowProcessor::class,
         ),
+        new Put(
+            uriTemplate: '/assets/{id}/position',
+            description: 'Move the asset to a given rank inside a collection or a story',
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: AssetPositionInput::class,
+            name: 'asset_set_position',
+            processor: SetAssetPositionProcessor::class,
+        ),
         new Post(
             uriTemplate: '/assets/{id}/quarantine-bypass',
             input: false,
@@ -176,7 +189,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(
             uriTemplate: '/assets/{id}/duplicates',
             normalizationContext: [
-                'groups' => [self::GROUP_LIST],
+                'groups' => [self::GROUP_LIST, 'dates'],
             ],
             output: AssetDuplicateOutput::class,
             name: 'duplicates',
@@ -192,7 +205,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'groups' => [self::GROUP_LIST],
             ],
             parameters: [
-                'collection' => new QueryParameter(),
+                'collection' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Collection the assets directly belong to (use "parent" to span the sub-tree)',
+                ),
                 'conditions' => new QueryParameter(
                     schema: ['type' => 'array<string>'],
                     description: 'Use AQL condition to filter assets',
@@ -211,11 +227,19 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ),
                 'parents' => new QueryParameter(
                     schema: ['type' => 'array<string>'],
-                    description: 'Parent collections',
+                    description: 'Parent collections ID. Recursive: also matches assets belonging to any descendant collection',
                 ),
                 'parent' => new QueryParameter(
                     schema: ['type' => 'string'],
-                    description: 'Parent collection',
+                    description: 'Parent collection ID. Recursive: also matches assets belonging to any descendant collection',
+                ),
+                'directCollections' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Collections ID. Matches assets directly belonging to at least one of these collections, excluding their descendant collections. Equivalent to the "@directCollection IN (...)" AQL condition',
+                ),
+                'story' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Story asset ID',
                 ),
                 'query' => new QueryParameter(
                     schema: ['type' => 'string'],
@@ -226,6 +250,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Post(
             securityPostDenormalize: 'is_granted("CREATE", object)',
             validate: true,
+            processor: CreateAssetProcessor::class,
         ),
         new Post(
             uriTemplate: '/assets/multiple',
@@ -268,6 +293,14 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: CopyAssetInput::class,
             name: 'post_copy',
             processor: CopyAssetProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/assets/add-to-collection',
+            description: 'Add multiple assets to a collection or a story. Assets already in the destination are ignored.',
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            input: AddAssetsToCollectionInput::class,
+            name: 'asset_add_to_collection',
+            processor: AddAssetsToCollectionProcessor::class,
         ),
         new Delete(
             uriTemplate: '/assets-by-keys',
@@ -327,6 +360,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_ws_key', columns: ['workspace_id', 'key'])]
 #[ORM\Index(columns: ['created_at'], name: 'asset_created_at_idx')]
+#[ORM\Index(columns: ['created_at', 'id'], name: 'asset_created_at_id_idx')]
 #[ORM\Entity(repositoryClass: AssetRepository::class)]
 class Asset extends AbstractUuidEntity implements FollowableInterface, HighlightableModelInterface, WithOwnerIdInterface, AclObjectInterface, TranslatableInterface, WorkspaceItemPrivacyInterface, ESIndexableInterface, ESIndexableDependencyInterface, \Stringable
 {
@@ -348,9 +382,9 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
     final public const string GROUP_LIST = 'asset:i';
     final public const string GROUP_WRITE = 'asset:w';
 
-    final public const string EVENT_UPDATE = 'update';
-    final public const string EVENT_DELETE = 'delete';
-    final public const string EVENT_NEW_COMMENT = 'new_comment';
+    final public const string EVENT_UPDATE = 'asset:update';
+    final public const string EVENT_DELETE = 'asset:delete';
+    final public const string EVENT_NEW_COMMENT = 'asset:new_comment';
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $microseconds = 0;
@@ -727,20 +761,18 @@ class Asset extends AbstractUuidEntity implements FollowableInterface, Highlight
         return $this->microseconds;
     }
 
-    public function getTopicKeys(): array
+    public function getFollowEvents(): array
     {
-        $id = $this->getId();
-
         return [
-            self::getTopicKey(self::EVENT_UPDATE, $id),
-            self::getTopicKey(self::EVENT_DELETE, $id),
-            self::getTopicKey(self::EVENT_NEW_COMMENT, $id),
+            self::EVENT_UPDATE,
+            self::EVENT_DELETE,
+            self::EVENT_NEW_COMMENT,
         ];
     }
 
-    public static function getTopicKey(string $event, string $id): string
+    public function getObjectType(): string
     {
-        return 'asset:'.$id.':'.$event;
+        return self::OBJECT_TYPE;
     }
 
     /**

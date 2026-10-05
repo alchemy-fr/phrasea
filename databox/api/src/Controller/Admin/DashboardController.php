@@ -8,6 +8,8 @@ use Alchemy\AdminBundle\Controller\AbstractAdminDashboardController;
 use Alchemy\AdminBundle\Controller\Acl\AccessControlEntryCrudController;
 use Alchemy\AdminBundle\Controller\MultipartUploadCrudController;
 use Alchemy\ConfiguratorBundle\Controller\ConfiguratorEntryCrudController;
+use Alchemy\ESBundle\Admin\ESAdminMenu;
+use Alchemy\NotifierBundle\Admin\NotifierAdminMenu;
 use Alchemy\TrackBundle\Controller\ChangeLogCrudController;
 use Alchemy\WebhookBundle\Controller\WebhookCrudController;
 use Alchemy\WebhookBundle\Controller\WebhookLogCrudController;
@@ -61,7 +63,7 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkTo(AssetPolicyCrudController::class, 'Asset Policy'),
             MenuItem::linkTo(AttributePolicyCrudController::class, 'Attribute Policy'),
             MenuItem::linkTo(TagCrudController::class, 'Tag'),
-            MenuItem::linkTo(TagFilterRuleCrudController::class, 'Tag Filter Rule'),
+            MenuItem::linkTo(AttributeFilterRuleCrudController::class, 'Attribute Filter Rule'),
             MenuItem::linkTo(AssetRenditionCrudController::class, 'Asset Rendition'),
             MenuItem::linkTo(RenditionDefinitionCrudController::class, 'Rendition Definition'),
             MenuItem::linkTo(RenditionPolicyCrudController::class, 'Rendition Policy'),
@@ -97,7 +99,7 @@ class DashboardController extends AbstractAdminDashboardController
         $submenuAdmin = [
             MenuItem::linkTo(OperationTaskCrudController::class, 'Operation Task'),
             MenuItem::linkTo(PopulatePassCrudController::class, 'Populate Pass'),
-            MenuItem::linkTo(ESIndexStateCrudController::class, 'ES Index State'),
+            ESAdminMenu::createMenuItem(),
         ];
 
         $submenuIntegration = [
@@ -141,7 +143,7 @@ class DashboardController extends AbstractAdminDashboardController
         yield MenuItem::subMenu('Webhook', 'fas fa-network-wired')->setSubItems($webhookSubMenu);
         yield MenuItem::subMenu('Discussions', 'fas fa-message')->setSubItems($discussions);
         yield MenuItem::subMenu('Logs', 'fa fa-history')->setSubItems($logs);
-        yield MenuItem::linkToRoute('Notification', 'fas fa-bell', 'alchemy_notify_admin_index');
+        yield NotifierAdminMenu::createMenuItem();
         yield MenuItem::linkTo(ConfiguratorEntryCrudController::class, 'Global Config', 'fa fa-gear');
         yield $this->createDevMenu();
     }

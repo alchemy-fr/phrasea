@@ -24,7 +24,7 @@ abstract class FileAnalyzerConfigHelper
                 ->defaultValue($name)
             ->end()
             ->enumNode(self::MAX_SEVERITY)
-                ->defaultValue(LogLevelEnum::Critical->name)
+                ->defaultValue(strtolower(LogLevelEnum::Critical->name))
                 ->values(LogLevelEnum::getNames())
             ->end()
             ->arrayNode('actions_on_reject')

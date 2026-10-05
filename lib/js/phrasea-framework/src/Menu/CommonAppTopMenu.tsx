@@ -11,6 +11,8 @@ import UserMenu from './UserMenu';
 
 export function CommonAppTopMenu({
     notificationUriHandler,
+    apiClient,
+    registerNotificationRealtime,
     keycloakClient,
     config,
     settingsTopActions,
@@ -31,13 +33,12 @@ export function CommonAppTopMenu({
                 gap: 1,
             }}
         >
-            {user && config.notifications ? (
+            {user && config.notifications && apiClient ? (
                 <Notifications
-                    appIdentifier={config.notifications.appIdentifier}
+                    apiClient={apiClient}
                     userId={user.id}
-                    socketUrl={config.notifications.socketUrl}
-                    apiUrl={config.notifications.apiUrl}
                     uriHandler={notificationUriHandler}
+                    registerRealtime={registerNotificationRealtime}
                     popoverProps={{
                         anchorOrigin: {
                             vertical: 'bottom',

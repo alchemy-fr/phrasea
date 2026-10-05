@@ -6,8 +6,10 @@ namespace Alchemy\AuthBundle\Security;
 
 use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Encoding\CannotDecodeContent;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Token\InvalidTokenStructure;
 use Lcobucci\JWT\UnencryptedToken;
 use Lcobucci\JWT\Validation\Constraint;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -63,7 +65,13 @@ final readonly class UriJwtManager
     public function validateJWT(string $identifier, string $jwt, array $extraConstraints = []): UnencryptedToken
     {
         $config = $this->getConfig();
-        $token = $config->parser()->parse($jwt);
+
+        try {
+            $token = $config->parser()->parse($jwt);
+        } catch (InvalidTokenStructure|CannotDecodeContent $e) {
+            // A truncated or hand-crafted token is a rejected request, not a server error.
+            throw new AccessDeniedHttpException('Invalid JWT', $e);
+        }
         assert($token instanceof UnencryptedToken);
 
         $config = $config->withValidationConstraints(

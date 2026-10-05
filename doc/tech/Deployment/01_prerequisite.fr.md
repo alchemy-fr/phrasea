@@ -93,17 +93,10 @@ Il est fortement recommandé de déléguer les **datastores principaux**—tels 
   Zippy est dédié à l’export de fichiers vers plusieurs destinations, par exemple des fichiers zip téléchargeables.
   Dépôt source GitHub Zippy : [Zippy](https://github.com/alchemy-fr/zippy-svc).  
 
-* **Service de notification Novu**
+* **Envoi d’emails (SMTP)**
 
-  - [Novu-bridge](https://hub.docker.com/r/alchemyfr/ps-novu-bridge/tags) 
-
-  Pour les notifications envoyées par l’application, Phrasea utilise le service Novu Notification. Ce service est divisé en deux parties distinctes : l’infrastructure backend et le Novu bridge, qui communique avec le backend Novu.
-
-  - Le conteneur Novu-bridge doit être déployé dans la stack.
-  - Pour le service backend, vous pouvez utiliser l’offre SaaS Novu  
-  - ou déployer votre propre stack backend Novu (pas de déploiement Helm fourni, uniquement Docker Compose pour le développement et les tests).
-
-   Plus d’informations sur Novu et son implémentation dans Phrasea [ici](../../user/Databox/02_%20novu_in_phrasea.md)
+  Les notifications envoyées par l’application sont délivrées par email via Symfony Mailer.
+  Configurez un `MAILER_DSN` (SMTP ou autre transport) pour chaque API qui envoie des notifications.
 
 * **Service Report**  
   - [API Report](https://hub.docker.com/r/alchemyfr/ps-report-api/tags)
@@ -142,7 +135,7 @@ Pour le contexte **Kubernetes**, consultez [values.yaml](https://github.com/alch
 - **MariaDB** – serveur de base de données relationnelle utilisé pour le déploiement local de la stack Matomo.
 - **PgAdmin** – outil de gestion pour PostgreSQL.
 - **phpMyAdmin** – outil de gestion pour MySQL/MariaDB.
-- **Mailhog** – serveur SMTP et interface client mail pour capturer les emails en développement.
+- **Mailpit** – serveur SMTP et interface client mail pour capturer les emails en développement.
 - **Elasticsearch-HQ** – interface pour interroger Elasticsearch.
 - **k6** – outil de test de charge et de performance.
 - **InfluxDB** – base de données de séries temporelles utilisée par k6.
@@ -150,7 +143,6 @@ Pour le contexte **Kubernetes**, consultez [values.yaml](https://github.com/alch
 - **Mendhak** – service d’écho HTTP/HTTPS pour les tests.
 - **Jwilder** – Dockerize, utilitaire pour orchestrer les services Docker.
 - **Minio-MC** – MinIO Client, utilitaire de gestion pour MinIO.
-- **Novu** – infrastructure backend du framework de notification Novu.
 
 ## Technologies utilisées
 

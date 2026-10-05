@@ -14,6 +14,8 @@ RUN apk add --no-cache --virtual .persistent-deps \
 
 ENV APP_ENV=prod \
     PHP_MEMORY_LIMIT=132M \
+    LOG_ACTION_LEVEL=error \
+    WORKER_VERBOSITY= \
     APCU_VERSION=5.1.28 \
     AMQP_VERSION=2.2.0 \
     XDEBUG_VERSION=3.5.0 \
@@ -75,6 +77,9 @@ RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
     && wget -O /usr/local/bin/php-fpm-healthcheck https://raw.githubusercontent.com/renatomefi/php-fpm-healthcheck/v0.5.0/php-fpm-healthcheck \
     && chmod +x /usr/local/bin/php-fpm-healthcheck \
     && printf "pm.status_path = /status\n" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
+    # Keep the FPM access log for real traffic only: the container healthcheck polls
+    # /status every minute and NGINX already logs everything else.
+    && printf "access.suppress_path[] = /status\naccess.suppress_path[] = /ping\n" >> /usr/local/etc/php-fpm.d/zz-docker.conf \
     && mkdir -p /docker/entrypoint.d \
       /docker/app/conf.d \
       /etc/supervisor.d \

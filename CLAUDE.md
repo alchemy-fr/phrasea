@@ -104,12 +104,30 @@ dc run --rm databox-api-php composer test       # full check
 dc run --rm databox-api-php composer phpstan     # static analysis only
 dc run --rm databox-api-php composer cs          # php-cs-fixer
 dc run --rm databox-api-php composer phpunit     # resets test DB + elastica, then PHPUnit
+dc run --rm databox-api-php composer phpunit:compact   # same, agent-friendly output (PREFER THIS)
 ```
+
+**Prefer `composer phpunit:compact`** (databox, expose, uploader): same run as
+`composer phpunit` but with `Alchemy\ApiTest\PHPUnit\CompactResultPrinter` — no
+per-test dot progress, full error/failure traces, and a final one-line-per-defect
+recap, so even `| tail -50` shows the counts and every failing test name. For a
+direct `bin/phpunit` call, add
+`--printer 'Alchemy\ApiTest\PHPUnit\CompactResultPrinter'`.
+
+**PHPUnit needs 1G of memory.** The `composer phpunit` scripts already pass
+`-d memory_limit=1024M`; when calling `bin/phpunit` directly, pass it yourself —
+the databox suite peaks above 512M and dies with an "Allowed memory size
+exhausted" fatal partway through.
+
+**`cache:clear` also needs 1G of memory.** The Twig template warmup blows the
+default 128M limit; run it as
+`bin/console cache:clear` → `php -d memory_limit=1G bin/console cache:clear`
+inside the API containers.
 
 Single PHP test (PHPUnit filter):
 
 ```bash
-dc run --rm -e APP_ENV=test databox-api-php bin/phpunit --filter SomeTest tests/Path/SomeTest.php
+dc run --rm -e APP_ENV=test databox-api-php php -d memory_limit=1024M bin/phpunit --filter SomeTest tests/Path/SomeTest.php
 ```
 
 Symfony console: `dc run --rm databox-api-php bin/console <cmd>`.
@@ -134,3 +152,4 @@ The canonical project lists (used by the whole-repo scripts) live in `bin/vars.s
 - Frontend: React 18 + TypeScript + Vite, MUI (`@mui/material`) for UI, TanStack React Query for data, i18next for translations (`pnpm translate` runs the i18next scanner).
 - A **pre-commit hook** (Husky + lint-staged) runs formatting/CS on staged files; keep code lint-clean.
 - New PHP shared bundles use the modern structure (`src/` + `config/` + an `AbstractBundle` class) rather than the legacy layout.
+- **Doctrine migrations must be plain SQL.** Put schema changes _and_ data backfills in `up()`/`down()` via `addSql()` (or `$this->connection` for row-by-row transforms). Avoid `postUp()`/`preUp()` and never load entities, repositories, or services (`AbstractServiceContainerMigration`, `getEntityManager()`, `DeferredIndexListener`, …) from a migration: a migration is replayed on fresh installs long after the code it references has changed, and it breaks as soon as an entity method or column disappears (`Version20260713140456` used to call `FileMetadata::getChecksum()`, which was later removed). If a value can only be computed in PHP, read rows with `$this->connection` and write them back with parameterized SQL.

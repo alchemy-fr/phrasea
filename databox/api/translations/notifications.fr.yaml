@@ -1,0 +1,93 @@
+asset:
+    new_comment:
+        email:
+            subject: 'Nouveau commentaire sur %name%'
+            body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a commenté <a href="%url%">%name%</a>.</p>'
+        email_digest:
+            subject: '%count% nouveaux commentaires sur vos assets'
+            group: '<p><strong>%authors%</strong> a commenté <a href="%url%">%name%</a>.</p>|<p><strong>%count%</strong> nouveaux commentaires sur <a href="%url%">%name%</a> par %authors%.</p>'
+        in_app:
+            subject: 'Nouveau commentaire'
+            body: '%author% a commenté %name%.'
+        sms:
+            body: '%author% a commenté %name%.'
+    delete:
+        email:
+            subject: 'Asset supprimé : %name%'
+            body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a supprimé <em>%name%</em>.</p>'
+        in_app:
+            subject: 'Asset supprimé'
+            body: '%author% a supprimé %name%.'
+        sms:
+            body: '%author% a supprimé %name%.'
+    update:
+        email:
+            subject: 'Asset mis à jour : %name%'
+            body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a mis à jour <a href="%url%">%name%</a>.</p>'
+            body_with_collection: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a mis à jour <a href="%url%">%name%</a> dans <em>%collection%</em>.</p>'
+        in_app:
+            subject: 'Asset mis à jour'
+            body: '%author% a mis à jour %name%.'
+        sms:
+            body: '%author% a mis à jour %name%.'
+collection:
+    asset_add:
+        email:
+            subject: 'Nouvel asset dans %collectionName%'
+            body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a ajouté <a href="%url%">%assetName%</a> à <em>%collectionName%</em>.</p>'
+        email_digest:
+            subject: '%count% assets ajoutés à vos collections'
+            group: '<p>%count% asset ajouté à <a href="%url%"><em>%collectionName%</em></a> :</p>|<p>%count% assets ajoutés à <a href="%url%"><em>%collectionName%</em></a> :</p>'
+            item: '<strong>%assetName%</strong> — ajouté par %author%'
+        in_app:
+            subject: 'Nouvel asset dans %collectionName%'
+            body: '%author% a ajouté <strong>%assetName%</strong> à %collectionName%.'
+        sms:
+            body: '%author% a ajouté %assetName% à %collectionName%.'
+    asset_remove:
+        email:
+            subject: 'Asset retiré de %collectionName%'
+            body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a retiré <em>%assetName%</em> de <em>%collectionName%</em>.</p>'
+        email_digest:
+            subject: '%count% assets retirés de vos collections'
+            group: '<p>%count% asset retiré de <a href="%url%"><em>%collectionName%</em></a> :</p>|<p>%count% assets retirés de <a href="%url%"><em>%collectionName%</em></a> :</p>'
+            item: '<strong>%assetName%</strong> — retiré par %author%'
+        in_app:
+            subject: 'Asset retiré'
+            body: '%author% a retiré %assetName% de %collectionName%.'
+        sms:
+            body: '%author% a retiré %assetName% de %collectionName%.'
+discussion:
+    new_comment:
+        email:
+            subject: 'Nouveau commentaire sur %object%'
+            body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a commenté <a href="%url%">%object%</a>.</p>'
+        email_digest:
+            subject: '%count% nouveaux commentaires'
+            group: '<p><strong>%authors%</strong> a commenté <a href="%url%">%object%</a>.</p>|<p><strong>%count%</strong> nouveaux commentaires sur <a href="%url%">%object%</a> par %authors%.</p>'
+        in_app:
+            subject: 'Nouveau commentaire'
+            body: '%author% a commenté %object%.'
+        sms:
+            body: '%author% a commenté %object%.'
+entity_list:
+    pending_value:
+        email:
+            subject: 'Nouvelle valeur en attente de validation dans %listName%'
+            body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a ajouté la valeur <strong>%value%</strong> à <a href="%url%"><em>%listName%</em></a>. Elle est en attente de votre validation.</p>'
+        in_app:
+            subject: 'Nouvelle valeur en attente de validation dans %listName%'
+            body: '%author% a ajouté <strong>%value%</strong> à %listName%. Elle est en attente de votre validation.'
+        sms:
+            body: '%author% a ajouté %value% à %listName%. Elle est en attente de votre validation.'
+notification_digest:
+    greeting: '<p>Bonjour %recipient%,</p>'
+    more: '<p>…et %count% de plus.</p>'
+    more_items: '…et %count% de plus'
+user:
+    exception:
+        email:
+            subject: 'Une erreur est survenue'
+            greeting: 'Bonjour %recipient%,'
+        in_app:
+            subject: 'Une erreur est survenue'

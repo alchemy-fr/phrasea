@@ -1,6 +1,7 @@
 import AnalysisData from '../AnalysisData.tsx';
 import AnalysisMessages, {MessageResolver} from '../AnalysisMessages.tsx';
-import DuplicateList from '../DuplicateList.tsx';
+import DuplicateAssets from '../DuplicateAssets.tsx';
+import {outputHasDuplicates} from '../analysisTypes.ts';
 import {AnalyzerComponentProps} from './types.ts';
 
 /**
@@ -17,7 +18,10 @@ const resolve: MessageResolver = (_t, type, payload) => {
     return `${type} — ${JSON.stringify(payload)}`;
 };
 
-export default function GenericResult({output}: AnalyzerComponentProps) {
+export default function GenericResult({
+    fileId,
+    output,
+}: AnalyzerComponentProps) {
     const data = output.data ?? {};
 
     return (
@@ -32,7 +36,9 @@ export default function GenericResult({output}: AnalyzerComponentProps) {
                             : String(value),
                 }))}
             />
-            <DuplicateList duplicates={output.duplicates} />
+            {outputHasDuplicates(output) ? (
+                <DuplicateAssets fileId={fileId} />
+            ) : null}
         </>
     );
 }

@@ -5,11 +5,13 @@ import {Dimensions} from '@alchemy/core';
 import {
     Box,
     Chip,
+    CircularProgress,
     Divider,
     ListItemIcon,
     ListItemText,
     MenuItem,
     Tooltip,
+    Typography,
 } from '@mui/material';
 import byteSize from 'byte-size';
 import SaveAsButton from '../../../Media/Asset/Actions/SaveAsButton.tsx';
@@ -51,6 +53,8 @@ export function Rendition({
     const navigateToModal = useNavigateToModal();
     const {displayName, file, dirty, substituted, projection, locked} =
         rendition;
+    const isDynamic = !rendition.definition;
+    const generating = isDynamic && !file;
 
     const deleteRendition = async () => {
         setDeleting(true);
@@ -136,6 +140,22 @@ export function Rendition({
                         autoPlayable={false}
                         controls={true}
                     />
+                ) : generating ? (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 1,
+                            height: dimensions.height,
+                        }}
+                    >
+                        <CircularProgress />
+                        <Typography variant={'body2'}>
+                            {t('renditions.generating', 'Generating…')}
+                        </Typography>
+                    </Box>
                 ) : undefined
             }
             info={
@@ -212,7 +232,7 @@ export function Rendition({
 
                             if (
                                 asset.capabilities.edit &&
-                                rendition.definition.substitutable
+                                rendition.definition?.substitutable
                             ) {
                                 actions.push(
                                     <MenuItem
@@ -242,7 +262,7 @@ export function Rendition({
                                     Component={MenuItem}
                                 />
                             );
-                        } else if (asset.capabilities.edit) {
+                        } else if (asset.capabilities.edit && !isDynamic) {
                             actions.push(
                                 <MenuItem
                                     key={'upload'}

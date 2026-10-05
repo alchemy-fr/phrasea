@@ -106,7 +106,7 @@
     "starttls": "false",
     "auth": "true",
     "port": "1025",
-    "host": "mailhog",
+    "host": "mailpit",
     "replyTo": "",
     "from": "noreply@phrasea.local",
     "fromDisplayName": "Phrasea",

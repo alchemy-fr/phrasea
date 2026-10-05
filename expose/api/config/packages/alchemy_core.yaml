@@ -2,3 +2,9 @@ alchemy_core:
     app_name: expose
     app_url: '%env(EXPOSE_API_URL)%'
     healthcheck: ~
+    pusher: ~
+
+when@test:
+    alchemy_core:
+        pusher:
+            disabled: true

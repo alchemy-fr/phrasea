@@ -398,6 +398,32 @@ class AQLParserTest extends TestCase
                 'leftOperand' => ['field' => 'my_field'],
                 'rightOperand' => ['literal' => '.'],
             ]],
+            ['my_field CONTAINS "A b" CASE SENSITIVE', [
+                'type' => 'criteria',
+                'operator' => 'CONTAINS',
+                'leftOperand' => ['field' => 'my_field'],
+                'rightOperand' => ['literal' => 'A b'],
+                'caseSensitive' => true,
+            ]],
+            ['my_field DOES NOT START WITH "A" CASE SENSITIVE AND other = 1', [
+                'type' => 'expression',
+                'operator' => 'AND',
+                'conditions' => [
+                    [
+                        'type' => 'criteria',
+                        'operator' => 'NOT_STARTS_WITH',
+                        'leftOperand' => ['field' => 'my_field'],
+                        'rightOperand' => ['literal' => 'A'],
+                        'caseSensitive' => true,
+                    ],
+                    [
+                        'type' => 'criteria',
+                        'operator' => '=',
+                        'leftOperand' => ['field' => 'other'],
+                        'rightOperand' => 1,
+                    ],
+                ],
+            ]],
             ['my_field MATCHES "."', [
                 'type' => 'criteria',
                 'operator' => 'MATCHES',

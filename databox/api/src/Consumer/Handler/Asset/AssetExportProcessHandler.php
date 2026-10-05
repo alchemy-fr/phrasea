@@ -14,17 +14,23 @@ use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use Alchemy\StorageBundle\Storage\UrlSigner;
 use Alchemy\StorageBundle\Util\FileUtil;
 use Alchemy\Zippy\Zippy;
+use App\Entity\Core\Asset;
+use App\Entity\Core\AssetAttachment;
 use App\Entity\Core\AssetExport;
 use App\Entity\Core\AssetRendition;
-use App\Entity\Core\RenditionDefinition;
+use App\Entity\Core\Workspace;
 use App\Integration\PusherTrait;
 use App\Model\ExportStatusEnum;
+use App\Model\UserData;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributeMetadataEmbedder;
 use App\Service\Asset\FileFetcher;
+use App\Service\Metadata\FileMetadataEmbedder;
 use App\Service\Metadata\RenditionDefinitionMetadataEmbedder;
+use App\Service\Workspace\TermsManager;
+use App\Service\Workspace\TermsPdfGenerator;
 use Doctrine\ORM\EntityManagerInterface;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use Psr\Log\LoggerInterface;
@@ -42,10 +48,13 @@ class AssetExportProcessHandler
         private readonly FileFetcher $fileFetcher,
         private readonly MetadataManipulator $metadataManipulator,
         private readonly RenditionDefinitionMetadataEmbedder $definitionMetadataEmbedder,
+        private readonly FileMetadataEmbedder $fileMetadataEmbedder,
         private readonly FileStorageManager $fileStorageManager,
         private readonly PathGeneratorInterface $pathGenerator,
         private readonly UrlSigner $urlSigner,
         private readonly AttributeMetadataEmbedder $attributeMetadataEmbedder,
+        private readonly TermsManager $termsManager,
+        private readonly TermsPdfGenerator $termsPdfGenerator,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -76,6 +85,7 @@ class AssetExportProcessHandler
 
             // Hardcoded metadata depends only on the rendition definition: resolve lazily, once per definition.
             $definitionMetadataCache = [];
+            $workspaceIds = [];
 
             try {
                 foreach ($assets as $assetId) {
@@ -84,8 +94,10 @@ class AssetExportProcessHandler
                         AssetRenditionRepository::OPT_WITH_FILE => true,
                     ]);
 
-                    // Attribute values to embed depend only on the asset: resolve once for all its renditions.
-                    $attributeMetadata = false;
+                    // The attribute values depend on the rendition definition, and the source
+                    // overrides on the exported file: cache both by what they depend on.
+                    $sourceMetadataCache = [];
+                    $attributeMetadataCache = [];
 
                     /** @var AssetRendition[] $renditions */
                     foreach ($renditions as $rendition) {
@@ -107,29 +119,26 @@ class AssetExportProcessHandler
 
                         $definition = $rendition->getDefinition();
 
-                        if ($definition->isWriteMetadata()) {
+                        if ($definition?->isWriteMetadata()) {
                             $bag = new MetadataBag();
 
-                            if ($definition->getBuildMode() === RenditionDefinition::BUILD_MODE_PICK_SOURCE) {
-                                foreach ($file->getMetadataValues() as $tagGroupId => $values) {
-                                    $meta = $this->metadataManipulator->createMetadata($tagGroupId);
-                                    $tagGroup = $meta->getTagGroup();
-                                    if (!$tagGroup->isWritable() || str_starts_with($tagGroupId, 'System:')) {
-                                        continue;
-                                    }
+                            // the metadata the application overrode on the source file, and only
+                            // when that very file is the one being exported
+                            if (!array_key_exists($file->getId(), $sourceMetadataCache)) {
+                                $sourceMetadataCache[$file->getId()] = $this->fileMetadataEmbedder->buildExportedFileMetadataBag($asset, $file);
+                            }
+                            $sourceMetadata = $sourceMetadataCache[$file->getId()];
 
-                                    if ($tagGroup->isMulti()) {
-                                        $meta->setValue($values);
-                                    } else {
-                                        $meta->setValue(reset($values));
-                                    }
-                                    $bag->set($tagGroup->getId(), $meta);
+                            if ($sourceMetadata instanceof MetadataBag) {
+                                foreach ($sourceMetadata as $meta) {
+                                    $bag->set($meta->getTagGroup()->getId(), $meta);
                                 }
                             }
 
-                            if (false === $attributeMetadata) {
-                                $attributeMetadata = $this->attributeMetadataEmbedder->buildMetadataBag($asset);
+                            if (!array_key_exists($definition->getId(), $attributeMetadataCache)) {
+                                $attributeMetadataCache[$definition->getId()] = $this->attributeMetadataEmbedder->buildMetadataBag($asset, $definition);
                             }
+                            $attributeMetadata = $attributeMetadataCache[$definition->getId()];
 
                             if ($attributeMetadata instanceof MetadataBag) {
                                 foreach ($attributeMetadata as $meta) {
@@ -150,6 +159,7 @@ class AssetExportProcessHandler
                             if ($bag->count() > 0) {
                                 try {
                                     $writer = $this->metadataManipulator->createWriter();
+                                    $writer->disableConversion();
 
                                     $tmpFile = sys_get_temp_dir().'/'.uniqid('metadata-file');
                                     $writer->write($path, $bag, destination: $tmpFile);
@@ -167,7 +177,10 @@ class AssetExportProcessHandler
                         }
 
                         ++$fileCount;
+                        $workspaceIds[$asset->getWorkspaceId()] = true;
                     }
+
+                    $fileCount += $this->exportAttachments($assetId, $userData, $archiveDir);
 
                     $this->em->clear();
 
@@ -189,6 +202,8 @@ class AssetExportProcessHandler
 
                     return;
                 }
+
+                $this->exportTermsPdf(array_keys($workspaceIds), $archiveDir);
 
                 $archivePath = $this->pathGenerator->generatePath('zip', 'exports/');
                 $archiveSrc = sys_get_temp_dir().'/'.uniqid('archive-file').'.zip';
@@ -232,6 +247,88 @@ class AssetExportProcessHandler
             $this->triggerExportPush($export->getId(), 'error', [
                 'error' => 'Unexpected error while preparing export.',
             ]);
+        }
+    }
+
+    private function exportAttachments(string $assetId, UserData $userData, string $archiveDir): int
+    {
+        $count = 0;
+
+        $asset = $this->em->find(Asset::class, $assetId);
+        if (!$asset instanceof Asset || !$this->isGrantedForUser($userData, AbstractVoter::READ, $asset)) {
+            return $count;
+        }
+
+        /** @var AssetAttachment[] $attachments */
+        $attachments = $this->em->getRepository(AssetAttachment::class)->findBy([
+            'asset' => $assetId,
+        ], [
+            'priority' => 'DESC',
+        ]);
+
+        foreach ($attachments as $attachment) {
+            $attachedAsset = $attachment->getAttachment();
+            $file = $attachedAsset?->getSource();
+            if (null === $file) {
+                continue;
+            }
+
+            if (!$this->isGrantedForUser($userData, AbstractVoter::READ, $attachedAsset)) {
+                continue;
+            }
+
+            $extension = FileUtil::getExtensionFromType($file->getType());
+            $ext = $extension ? '.'.$extension : '';
+
+            $name = $attachment->getName() ?: pathinfo($file->getFileName(), PATHINFO_FILENAME);
+
+            $dir = $archiveDir.'/attachments';
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+
+            $path = sprintf('%s/%s-%s%s', $dir, StringUtil::slugify($name), $attachment->getId(), $ext);
+
+            try {
+                $this->fileFetcher->getFile($file, path: $path);
+                ++$count;
+            } catch (\Throwable $e) {
+                $this->logger->error('Failed to fetch attachment file for export', [
+                    'exception' => $e,
+                    'assetId' => $assetId,
+                    'attachmentId' => $attachment->getId(),
+                ]);
+            }
+        }
+
+        return $count;
+    }
+
+    /**
+     * @param string[] $workspaceIds
+     */
+    private function exportTermsPdf(array $workspaceIds, string $archiveDir): void
+    {
+        foreach ($workspaceIds as $workspaceId) {
+            $workspace = $this->em->find(Workspace::class, $workspaceId);
+            if (!$workspace instanceof Workspace || !$workspace->isAttachTermsToExports()) {
+                continue;
+            }
+
+            $terms = $this->termsManager->getCurrentTerms($workspace);
+            if (null === $terms) {
+                continue;
+            }
+
+            try {
+                $pdf = $this->termsManager->getPdfContent($terms) ?? $this->termsPdfGenerator->generatePdf($terms);
+                file_put_contents(sprintf('%s/terms-%s-v%d.pdf', $archiveDir, StringUtil::slugify($workspace->getSlug()), $terms->getVersion()), $pdf);
+            } catch (\Throwable $e) {
+                $this->logger->error('Failed to generate Terms & Conditions PDF for export', [
+                    'exception' => $e,
+                    'workspaceId' => $workspaceId,
+                ]);
+            }
         }
     }
 

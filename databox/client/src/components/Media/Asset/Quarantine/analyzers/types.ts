@@ -1,6 +1,7 @@
 import {AnalyzerOutput} from '../analysisTypes.ts';
 
 export type AnalyzerComponentProps = {
+    fileId: string;
     output: AnalyzerOutput;
 };
 

@@ -16,19 +16,12 @@ class FileMetadata extends AbstractUuidEntity
     use CreatedAtTrait;
     use UpdatedAtTrait;
 
-    private ?string $cachedChecksum = null;
-
     /**
-     * Normalized metadata.
+     * Normalized metadata, as read from the file. The application never writes into it:
+     * values it wants to embed into renditions or exports are computed at write time.
      */
     #[ORM\Column(type: Types::JSON, nullable: false)]
     private array $metadata = [];
-
-    /**
-     * Original metadata checksum.
-     */
-    #[ORM\Column(type: Types::STRING, length: 64, nullable: false)]
-    private ?string $checksum = null;
 
     public function getMetadata(): array
     {
@@ -38,10 +31,6 @@ class FileMetadata extends AbstractUuidEntity
     public function setMetadata(array $metadata): void
     {
         $this->metadata = $metadata;
-        $this->cachedChecksum = null;
-        if (null === $this->checksum) {
-            $this->checksum = $this->getComputedChecksum();
-        }
     }
 
     public function getMetadataNameValues(string $name): ?array
@@ -64,40 +53,5 @@ class FileMetadata extends AbstractUuidEntity
         }
 
         return $result;
-    }
-
-    public function setMetadataValue(string $name, mixed $value, bool $append = false): void
-    {
-        [$group, $tag] = array_pad(explode(':', $name, 2), 2, null);
-        if (null === $tag) {
-            throw new \InvalidArgumentException(sprintf('Metadata name "%s" must be a namespaced tag id (e.g. "IPTC:Keywords").', $name));
-        }
-
-        $this->metadata[$group][$tag] ??= [];
-
-        if ($append) {
-            $this->metadata[$group][$tag][] = $value;
-        } else {
-            $this->metadata[$group][$tag] = [$value];
-        }
-    }
-
-    public function getChecksum(): ?string
-    {
-        return $this->checksum;
-    }
-
-    public function metadataHasChanged(): bool
-    {
-        return $this->checksum !== $this->getComputedChecksum();
-    }
-
-    private function getComputedChecksum(): string
-    {
-        if (null === $this->cachedChecksum) {
-            $this->cachedChecksum = hash('sha256', serialize($this->metadata));
-        }
-
-        return $this->cachedChecksum;
     }
 }

@@ -41,6 +41,14 @@ class IntegrationType
     #[Groups(self::GROUP_READ)]
     public string $reference = '';
 
+    /**
+     * Extra reference sections (e.g. sub-modules documentation).
+     *
+     * @var array<array{name: string, description: string|null, reference: string}>
+     */
+    #[Groups(self::GROUP_READ)]
+    public array $references = [];
+
     public function getId(): ?string
     {
         return $this->id;

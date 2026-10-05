@@ -6,16 +6,19 @@ import {
     MenuOrientation,
     NavMenu,
 } from '@alchemy/phrasea-framework';
-import {config, keycloakClient} from '../../../../init.ts';
+import {apiClient, config, keycloakClient} from '../../../../init.ts';
 import {appLocales} from '../../../../../translations/locales.ts';
 import {FlexRow} from '@alchemy/phrasea-ui';
 import {routes} from '../../../../routes.ts';
 import {getPath, useNavigate} from '@alchemy/navigation';
+import {registerWs} from '../../../../lib/pusher.ts';
+import {useNotificationUriHandler} from '../../../../hooks/useNotificationUriHandler.ts';
 
 type Props = PropsWithChildren<HeaderBarWidgetProps>;
 
 export default function HeaderBar({title, position, links}: Props) {
     const navigate = useNavigate();
+    const notificationUriHandler = useNotificationUriHandler();
 
     return (
         <>
@@ -26,6 +29,9 @@ export default function HeaderBar({title, position, links}: Props) {
                 commonMenuProps={{
                     appLocales,
                     keycloakClient,
+                    apiClient,
+                    registerNotificationRealtime: registerWs,
+                    notificationUriHandler,
                 }}
             >
                 <FlexRow

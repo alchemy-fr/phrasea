@@ -55,9 +55,14 @@ class FileOutputTransformer implements OutputTransformerInterface
         $output->setSize((int) $data->getSize());
         $output->checksum = $data->getChecksum();
         $output->docUniqueId = $data->getDocUniqueId();
-        $output->analysis = $data->getAnalysis();
+        $output->analysisState = $data->getAnalysisState();
+        $output->analysisEnforced = $data->getWorkspace()->isFileAnalysisRequired();
+        $output->analyzedAt = $data->getAnalyzedAt();
 
-        if ($data->getWorkspace()->isFileAnalysisRequired()) {
+        // Kept for backward compatibility with `accepted`/`analysisPending`:
+        // `null` still means "pending". Acceptance stays owned by File::isAccepted(),
+        // the same method the analyzer workflow uses, so the two cannot drift.
+        if ($output->analysisEnforced) {
             if ($data->isAnalyzed()) {
                 $output->accepted = $data->isAccepted();
             }
@@ -65,13 +70,17 @@ class FileOutputTransformer implements OutputTransformerInterface
             $output->accepted = true;
         }
 
-        if (!$data->isAccepted()) {
-            $output->analysis = $data->getAnalysis();
-        }
-
         if ($this->hasGroup(File::GROUP_METADATA, $context)) {
             $output->metadata = $data->getMetadata();
-            $output->analysis = $data->getAnalysis();
+        }
+
+        // The full report is only worth its payload on the single-file views
+        // (GET /files/{id} normalizes with GROUP_LIST), or when embedded in an
+        // asset/rendition that has something to report.
+        if ($this->hasGroup([File::GROUP_LIST, File::GROUP_READ, File::GROUP_METADATA], $context)
+            || !$data->isAccepted()
+        ) {
+            $output->analysis = $data->getAnalysis()?->toArray();
         }
 
         // Only resolved when the file is the root resource (GET /files/{id}),
@@ -145,7 +154,7 @@ class FileOutputTransformer implements OutputTransformerInterface
                 'type' => 'rendition',
                 'assetId' => $asset->getId(),
                 'assetTitle' => $this->assetNameResolver->resolveNameAsString($asset),
-                'name' => $rendition->getDefinition()->getName(),
+                'name' => $rendition->getName(),
             ];
         }
 
@@ -154,7 +163,7 @@ class FileOutputTransformer implements OutputTransformerInterface
 
     private function resolveAlternateUrlLabel(string $workspaceId, string $type): ?string
     {
-        return $this->cache->get(sprintf('%s_%s', $workspaceId, $type), function () use ($workspaceId, $type): ?string {
+        return $this->cache->get(sprintf('a.%s_%s', $workspaceId, $type), function () use ($workspaceId, $type): ?string {
             /** @var AlternateUrl|null $label */
             $label = $this->em->getRepository(AlternateUrl::class)
                 ->findOneBy([

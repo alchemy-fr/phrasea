@@ -5,29 +5,27 @@ declare(strict_types=1);
 namespace App\Doctrine\Listener;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
-use App\Consumer\Handler\Search\IndexAssetAttributes;
+use App\Consumer\Handler\File\ReevaluateFileAnalyses;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetFileVersion;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\File;
 use App\Model\ActionLogTypeEnum;
+use App\Repository\Core\FileDuplicateRepository;
 use App\Service\Asset\Attribute\AssetNameFiller;
 use App\Service\Log\ActionLogManager;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\OnFlushEventArgs;
-use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::onFlush)]
-#[AsDoctrineListener(Events::postUpdate)]
 class AssetListener
 {
-    use ChangeFieldListenerTrait;
-
     public function __construct(
         private readonly PostFlushStack $postFlushStack,
         private readonly ActionLogManager $actionLogManager,
         private readonly AssetNameFiller $assetNameFiller,
+        private readonly FileDuplicateRepository $fileDuplicateRepository,
     ) {
     }
 
@@ -82,6 +80,12 @@ class AssetListener
 
                         $metadata = $em->getClassMetadata($assetFileVersion::class);
                         $uow->computeChangeSet($metadata, $assetFileVersion);
+
+                        // The old source usually stops being an asset source: re-evaluate analyses referencing it as duplicate.
+                        $ownerFileIds = $this->fileDuplicateRepository->findOwnerFileIdsByDuplicateFileIds([$fileChange[0]->getId()]);
+                        if (!empty($ownerFileIds)) {
+                            $this->postFlushStack->addBusMessage(new ReevaluateFileAnalyses($ownerFileIds));
+                        }
                     }
                 }
 
@@ -99,24 +103,5 @@ class AssetListener
                 }
             }
         }
-    }
-
-    public function postUpdate(PostUpdateEventArgs $args): void
-    {
-        $entity = $args->getObject();
-
-        if (!$entity instanceof Asset) {
-            return;
-        }
-
-        if (!$this->hasChangedField([
-            'privacy',
-            'owner',
-            'referenceCollection',
-        ], $args->getObjectManager(), $entity)) {
-            return;
-        }
-
-        $this->postFlushStack->addBusMessage(new IndexAssetAttributes($entity->getId()));
     }
 }

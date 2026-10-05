@@ -1,12 +1,19 @@
 import {RSelectWidget, SelectOption} from '@alchemy/react-form';
 import React from 'react';
 import {useTranslation} from 'react-i18next';
-import {Grid2 as Grid, IconButton, useTheme} from '@mui/material';
+import {
+    Grid2 as Grid,
+    IconButton,
+    ToggleButton,
+    Tooltip,
+    useTheme,
+} from '@mui/material';
 import {
     AQLField,
     AQLOperator,
     AQLValue,
     ArgNames,
+    caseSensitiveOperators,
     ManyArgs,
     RawType,
 } from '../aqlTypes.ts';
@@ -55,6 +62,9 @@ export default function ConditionBuilder({
     const rawType: RawType | undefined = field
         ? typeMap[field.type]
         : undefined;
+    const supportsCaseSensitive = caseSensitiveOperators.includes(
+        expression.operator
+    );
 
     return (
         <Grid container spacing={1}>
@@ -149,8 +159,14 @@ export default function ConditionBuilder({
                                 }
                             }
 
+                            const {caseSensitive, ...rest} = p;
+
                             return {
-                                ...p,
+                                ...rest,
+                                ...(caseSensitive &&
+                                caseSensitiveOperators.includes(op)
+                                    ? {caseSensitive}
+                                    : {}),
                                 operator: op,
                                 rightOperand:
                                     Array.isArray(rightOperand) &&
@@ -162,7 +178,7 @@ export default function ConditionBuilder({
                     }}
                 />
             </Grid>
-            <Grid size={4}>
+            <Grid size={supportsCaseSensitive ? 3 : 4}>
                 <ValueBuilder
                     type={field?.type}
                     widgetOptions={field?.widgetOptions}
@@ -173,6 +189,31 @@ export default function ConditionBuilder({
                     setExpression={setExpression}
                 />
             </Grid>
+            {supportsCaseSensitive && (
+                <Grid size={1}>
+                    <Tooltip
+                        title={t(
+                            'search_condition.builder.case_sensitive',
+                            'Case sensitive'
+                        )}
+                    >
+                        <ToggleButton
+                            value={'case_sensitive'}
+                            size={'small'}
+                            selected={!!expression.caseSensitive}
+                            onChange={() => {
+                                setExpression(({caseSensitive, ...p}) =>
+                                    caseSensitive
+                                        ? p
+                                        : {...p, caseSensitive: true}
+                                );
+                            }}
+                        >
+                            Aa
+                        </ToggleButton>
+                    </Tooltip>
+                </Grid>
+            )}
             <Grid size={1}>
                 <IconButton
                     onClick={() => {

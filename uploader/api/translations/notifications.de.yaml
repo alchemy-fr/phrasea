@@ -1,0 +1,11 @@
+commit:
+    acknowledged:
+        email:
+            subject: 'Ihr Upload wurde verarbeitet'
+            greeting: 'Hallo %recipient%,'
+            body: 'Ihr Upload von %count% Datei wurde bestätigt und verarbeitet.|Ihr Upload von %count% Dateien wurde bestätigt und verarbeitet.'
+        in_app:
+            subject: 'Upload verarbeitet'
+            body: 'Ihr Upload von %count% Datei wurde verarbeitet.|Ihr Upload von %count% Dateien wurde verarbeitet.'
+        sms:
+            body: 'Ihr Upload von %count% Datei wurde verarbeitet.|Ihr Upload von %count% Dateien wurde verarbeitet.'

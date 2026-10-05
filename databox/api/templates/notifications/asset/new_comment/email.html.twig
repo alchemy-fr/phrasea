@@ -1,0 +1,8 @@
+{% block subject %}{{ 'asset.new_comment.email.subject'|trans({'%name%': name}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}{{ 'asset.new_comment.email.body'|trans({
+    '%recipient%': (recipient.displayName|default(recipient.email))|e,
+    '%author%': author|e,
+    '%name%': name|e,
+    '%url%': notification_url(url)|e('html_attr'),
+}, 'notifications')|raw }}{% endblock %}

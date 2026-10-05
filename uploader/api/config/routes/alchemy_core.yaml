@@ -4,3 +4,6 @@ alchemy_core_healthcheck:
 alchemy_core_sentry_test:
     resource: Alchemy\CoreBundle\Controller\SentryTestController
     type: attribute
+alchemy_core_pusher_auth:
+    resource: Alchemy\CoreBundle\Controller\RealtimeAuthController
+    type: attribute

@@ -160,6 +160,35 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     }
 
     /**
+     * Returns every searchable attribute definition, regardless of user permissions.
+     * Filter rule conditions are authored by workspace admins and must resolve
+     * even when the target user cannot read the referenced attributes.
+     */
+    public function getAllSearchableAttributes(): iterable
+    {
+        $queryBuilder = $this
+            ->createQueryBuilder('t')
+            ->innerJoin('t.workspace', 'w')
+            ->select('t.type')
+            ->addSelect('t.slug')
+            ->addSelect('t.multiple')
+            ->addSelect('t.searchBoost')
+            ->addSelect('t.translatable')
+            ->addSelect('w.id AS workspaceId')
+            ->addSelect('w.enabledLocales AS enabledLocales')
+            ->andWhere('t.searchable = true')
+        ;
+
+        foreach ($queryBuilder
+                     ->getQuery()
+                     ->toIterable() as $row) {
+            $row['allowed'] = true;
+
+            yield $row;
+        }
+    }
+
+    /**
      * @return AttributeDefinition[]
      */
     public function getSearchableAttributes(?string $userId, array $groupIds, array $options = []): array
@@ -270,13 +299,30 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     /**
      * @return AttributeDefinition[]
      */
-    public function getWorkspaceWriteMetadataDefinitions(string $workspaceId): array
+    /**
+     * @param string|null $renditionDefinitionId the rendition being written, if any. Definitions
+     *                                           scoped to other renditions are left out; a null id
+     *                                           (dynamic rendition) only matches unscoped ones.
+     *
+     * @return AttributeDefinition[]
+     */
+    public function getWorkspaceWriteMetadataDefinitions(string $workspaceId, ?string $renditionDefinitionId = null): array
     {
-        return $this
+        $qb = $this
             ->createQueryBuilder('d')
             ->andWhere('d.workspace = :workspace')
             ->andWhere('d.writeMetadata IS NOT NULL')
-            ->setParameter('workspace', $workspaceId)
+            ->setParameter('workspace', $workspaceId);
+
+        if (null === $renditionDefinitionId) {
+            $qb->andWhere('SIZE(d.writeMetadataRenditions) = 0');
+        } else {
+            $qb
+                ->andWhere('SIZE(d.writeMetadataRenditions) = 0 OR :renditionDefinition MEMBER OF d.writeMetadataRenditions')
+                ->setParameter('renditionDefinition', $renditionDefinitionId);
+        }
+
+        return $qb
             ->getQuery()
             ->getResult();
     }

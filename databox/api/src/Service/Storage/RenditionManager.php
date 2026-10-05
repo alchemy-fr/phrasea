@@ -97,6 +97,38 @@ final class RenditionManager
         return $rendition;
     }
 
+    /**
+     * Attach a built file to an existing (dynamic) rendition and notify clients.
+     */
+    public function attachRenditionFile(
+        AssetRendition $rendition,
+        File $file,
+        ?string $buildHash,
+        ?array $moduleHashes,
+        ?bool $projection = null,
+    ): void {
+        $rendition->setFile($file);
+        $rendition->setBuildHash($buildHash);
+        $rendition->setModuleHashes($moduleHashes);
+        $rendition->setProjection($projection);
+        $this->em->persist($rendition);
+
+        $this->pushRenditionUpdate($rendition);
+    }
+
+    public function pushRenditionUpdate(AssetRendition $rendition): void
+    {
+        $this->postFlushStack->addBusMessage($this->pusherManager->createBusMessage(
+            'assets',
+            'rendition-update',
+            [
+                'assetId' => $rendition->getAsset()->getId(),
+                'definition' => $rendition->getDefinition()?->getId(),
+                'name' => $rendition->getName(),
+            ]
+        ));
+    }
+
     public function validateSubstitution(
         Asset $asset,
         RenditionDefinition $definition,

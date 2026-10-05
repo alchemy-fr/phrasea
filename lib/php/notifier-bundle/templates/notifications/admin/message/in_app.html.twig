@@ -1,0 +1,5 @@
+{% block subject %}{{ subject|default('') }}{% endblock %}
+
+{% block body %}{{ body|default('')|raw }}{% endblock %}
+
+{% block uri %}{{ url|default('') }}{% endblock %}

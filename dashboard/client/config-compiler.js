@@ -34,7 +34,7 @@
         'EXPOSE_API_URL',
         'EXPOSE_CLIENT_URL',
         'KEYCLOAK_URL',
-        'MAILHOG_URL',
+        'MAILPIT_URL',
         'MATOMO_URL',
         'PGADMIN_URL',
         'PHPMYADMIN_URL',

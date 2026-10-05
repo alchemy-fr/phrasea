@@ -24,13 +24,22 @@ class RenditionCollectionProvider extends AbstractAssetFilteredCollectionProvide
             ->createQueryBuilder('t')
             ->andWhere('t.asset = :a')
             ->setParameter('a', $asset->getId())
-            ->innerJoin('t.definition', 'd')
+            ->leftJoin('t.definition', 'd')
             ->addOrderBy('d.priority', 'DESC')
+            ->addOrderBy('t.createdAt', 'ASC')
             ->getQuery()
             ->getResult();
 
         $assetPolicyFilter = $this->assetPolicyManager->getPolicyApplicationFilter($asset);
 
-        return array_filter($renditions, fn (AssetRendition $rendition): bool => $this->security->isGranted(AbstractVoter::READ, $rendition) && !in_array($rendition->getDefinition()->getId(), $assetPolicyFilter->getFilteredRenditions(), true));
+        return array_filter($renditions, function (AssetRendition $rendition) use ($assetPolicyFilter): bool {
+            if (!$this->security->isGranted(AbstractVoter::READ, $rendition)) {
+                return false;
+            }
+
+            $definition = $rendition->getDefinition();
+
+            return null === $definition || !in_array($definition->getId(), $assetPolicyFilter->getFilteredRenditions(), true);
+        });
     }
 }

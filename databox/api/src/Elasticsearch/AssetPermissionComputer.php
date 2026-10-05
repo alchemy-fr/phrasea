@@ -19,6 +19,10 @@ use Symfony\Contracts\Cache\CacheInterface;
 
 final class AssetPermissionComputer
 {
+    private const string CACHE_KEY_PREFIX_ASSET = 'a.';
+    private const string CACHE_KEY_PREFIX_COLLECTION = 'c.';
+    private const string CACHE_KEY_PREFIX_WORKSPACE = 'w.';
+
     private ?CacheInterface $workspaceCache = null;
     private ?CacheInterface $collectionCache = null;
     private ?CacheInterface $assetCache = null;
@@ -74,7 +78,7 @@ final class AssetPermissionComputer
             return $this->doGetAssetPermissionFields($asset);
         }
 
-        return $this->assetCache->get($asset->getId(), fn (): AssetPermissionsDTO => $this->doGetAssetPermissionFields($asset));
+        return $this->assetCache->get(self::CACHE_KEY_PREFIX_ASSET.$asset->getId(), fn (): AssetPermissionsDTO => $this->doGetAssetPermissionFields($asset));
     }
 
     private function doGetAssetPermissionFields(Asset $asset): AssetPermissionsDTO
@@ -178,7 +182,7 @@ final class AssetPermissionComputer
             return $this->doGetWorkspaceHierarchyInfo($workspace);
         }
 
-        return $this->workspaceCache->get($workspace->getId(), fn (): PermissionsDTO => $this->doGetWorkspaceHierarchyInfo($workspace));
+        return $this->workspaceCache->get(self::CACHE_KEY_PREFIX_WORKSPACE.$workspace->getId(), fn (): PermissionsDTO => $this->doGetWorkspaceHierarchyInfo($workspace));
     }
 
     private function doGetWorkspaceHierarchyInfo(Workspace $workspace): PermissionsDTO
@@ -231,7 +235,7 @@ final class AssetPermissionComputer
             return $this->doGetCollectionHierarchyInfo($collection);
         }
 
-        return $this->collectionCache->get($collection->getId(), fn (): CollectionPermissionsDTO => $this->doGetCollectionHierarchyInfo($collection));
+        return $this->collectionCache->get(self::CACHE_KEY_PREFIX_COLLECTION.$collection->getId(), fn (): CollectionPermissionsDTO => $this->doGetCollectionHierarchyInfo($collection));
     }
 
     private function doGetCollectionHierarchyInfo(Collection $collection): CollectionPermissionsDTO

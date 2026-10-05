@@ -63,7 +63,7 @@ condition: '(' > e:expression > ')'
         unset($result['e']);
     }
 
-not_expression: "NOT" __ e:expression
+not_expression: "NOT" ] e:expression
     function __finalise(&$result) {
         $result['data'] = [
             'type' => 'expression',
@@ -196,14 +196,19 @@ simple_operator: op:/([<>]?=|!=|[<>])/ > v:value_expression
         unset($result['op'], $result['v']);
     }
 
-keyword_operator: op:op_keyword ] v:value_expression
+keyword_operator: op:op_keyword ] v:value_expression (] cs:case_sensitive)?
     function __finalise(&$result) {
         $result['data'] = [
             'operator' => $result['op']['data'],
             'rightOperand' => $result['v']['data'],
         ];
-        unset($result['op'], $result['v']);
+        if (isset($result['cs'])) {
+            $result['data']['caseSensitive'] = true;
+        }
+        unset($result['op'], $result['v'], $result['cs']);
     }
+
+case_sensitive: "CASE" ] "SENSITIVE"
 
 op_keyword: not:/(DO(ES)?\s+NOT\s+)/? key:/(CONTAINS?|MATCH(ES)?|STARTS?\s+WITH)/
     function __finalise(&$result) {

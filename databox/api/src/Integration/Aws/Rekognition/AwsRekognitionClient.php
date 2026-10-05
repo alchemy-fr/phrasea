@@ -9,6 +9,21 @@ use Aws\Rekognition\RekognitionClient;
 
 final readonly class AwsRekognitionClient
 {
+    /**
+     * Hard limit of the Rekognition API for Image.Bytes.
+     */
+    private const int MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+    private function readImage(string $path): string
+    {
+        $size = filesize($path);
+        if (false === $size || $size > self::MAX_IMAGE_BYTES) {
+            throw new \InvalidArgumentException(sprintf('Image is %s bytes: AWS Rekognition accepts at most %d bytes. Configure the integration to send a smaller rendition.', false === $size ? 'unknown' : (string) $size, self::MAX_IMAGE_BYTES));
+        }
+
+        return file_get_contents($path);
+    }
+
     private function createClient(IntegrationConfig $options): RekognitionClient
     {
         return new RekognitionClient([
@@ -27,7 +42,7 @@ final readonly class AwsRekognitionClient
 
         $res = $client->detectLabels([
             'Image' => [
-                'Bytes' => file_get_contents($path),
+                'Bytes' => $this->readImage($path),
             ],
         ]);
 
@@ -40,7 +55,7 @@ final readonly class AwsRekognitionClient
 
         $res = $client->detectText([
             'Image' => [
-                'Bytes' => file_get_contents($path),
+                'Bytes' => $this->readImage($path),
             ],
         ]);
 
@@ -54,7 +69,7 @@ final readonly class AwsRekognitionClient
         $res = $client->detectFaces([
             'Attributes' => ['ALL'],
             'Image' => [
-                'Bytes' => file_get_contents($path),
+                'Bytes' => $this->readImage($path),
             ],
         ]);
 

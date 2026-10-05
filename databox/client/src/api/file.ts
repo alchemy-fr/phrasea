@@ -1,10 +1,17 @@
 import {apiClient} from '../init.ts';
 import {AlternateUrl, ApiFile} from '../types';
 import {AttributeBatchAction} from './types.ts';
+import {DuplicateAsset} from './asset.ts';
 import {AxiosRequestConfig} from 'axios';
 
 export async function getFile(id: string): Promise<ApiFile> {
     return (await apiClient.get(`/files/${id}`)).data;
+}
+
+export async function getFileDuplicates(id: string): Promise<DuplicateAsset[]> {
+    const res = await apiClient.get(`/files/${id}/duplicates`);
+
+    return res.data.duplicates ?? [];
 }
 
 export async function getFileMetadata(id: string): Promise<ApiFile> {

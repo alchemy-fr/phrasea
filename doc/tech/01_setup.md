@@ -83,7 +83,13 @@ LETS_ENCRYPT_CA_SERVER=https://acme-v02.api.letsencrypt.org/directory
 
 You may want to setup cron jobs to run periodic tasks (like cleaning old data).
 If you plan to deploy the stack with docker-compose on a single host machine,
-you can use the provided `bin/ops/cron-script.sh` script to add cron jobs to your host machine.
+you can use the provided scripts to add cron jobs to your host machine:
+
+- `bin/ops/cron-script-daily.sh` — run it **every day**: housekeeping tasks
+  (e.g. emptying the databox trash);
+- `bin/ops/cron-script-hourly.sh` — run it **every hour**: it flushes the
+  notification digests whose window has elapsed (safety net for the delayed
+  Messenger probes).
 
 ### Changing ports
 
@@ -95,7 +101,7 @@ You may want to populate databases with a set of fixtures:
 
 ```bash
 # Warning! This will empty the databases, insert fixtures, and run bin/setup.sh again.
-bin/install-fixtures.sh
+bin/dev/reset-db-fixtures.sh
 ```
 
 * Read the documentation for each group of services to customize environment variables:

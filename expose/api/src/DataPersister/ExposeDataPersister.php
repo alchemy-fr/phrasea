@@ -10,8 +10,10 @@ use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Entity\PublicationProfile;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 final readonly class ExposeDataPersister implements ProcessorInterface
 {
@@ -47,7 +49,17 @@ final readonly class ExposeDataPersister implements ProcessorInterface
             }
         }
 
-        $this->decorated->process($data, $operation, $uriVariables, $context);
+        try {
+            $this->decorated->process($data, $operation, $uriVariables, $context);
+        } catch (UniqueConstraintViolationException $e) {
+            // Validation (UniqueEntity) catches the usual case; this covers the race
+            // between two concurrent writes with the same slug.
+            if ($data instanceof Publication && null !== $data->getSlug()) {
+                throw new ConflictHttpException(sprintf('Slug "%s" is already used by another publication', $data->getSlug()), $e);
+            }
+
+            throw $e;
+        }
 
         return $data;
     }

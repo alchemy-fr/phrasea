@@ -75,14 +75,7 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
 </script>`;
     }
 
-    let notifications = undefined;
-    if (env.NOTIFICATIONS_ENABLED) {
-        notifications = {
-            appIdentifier: env.NOVU_APPLICATION_IDENTIFIER,
-            socketUrl: env.NOVU_WS_URL,
-            apiUrl: env.NOVU_API_URL,
-        };
-    }
+    const notifications = castBoolean(env.NOTIFICATIONS_ENABLED);
 
     const realmName = env.KEYCLOAK_REALM_NAME;
     const autoConnectIdP = env.AUTO_CONNECT_IDP;

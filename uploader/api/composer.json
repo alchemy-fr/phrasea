@@ -39,7 +39,7 @@
         },
         {
             "type": "path",
-            "url": "../../lib/php/notify-bundle",
+            "url": "../../lib/php/notifier-bundle",
             "options": {
                 "symlink": true
             }
@@ -92,7 +92,7 @@
         "alchemy/configurator-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
         "alchemy/messenger-bundle": "@dev",
-        "alchemy/notify-bundle": "@dev",
+        "alchemy/notifier-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
         "alchemy/storage-bundle": "@dev",
         "api-platform/core": "^3.1",
@@ -106,6 +106,7 @@
         "nyholm/psr7": "^1.1",
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",
+        "pusher/pusher-php-server": "^7.2.4",
         "ramsey/uuid": "^4.2.3",
         "ramsey/uuid-doctrine": "^1.5",
         "stof/doctrine-extensions-bundle": "^1.7",
@@ -202,7 +203,11 @@
         ],
         "phpunit": [
             "@pre-phpunit",
-            "php -d memory_limit=512M ./bin/phpunit"
+            "php -d memory_limit=1024M ./bin/phpunit"
+        ],
+        "phpunit:compact": [
+            "@pre-phpunit",
+            "php -d memory_limit=1024M ./bin/phpunit --printer 'Alchemy\\ApiTest\\PHPUnit\\CompactResultPrinter'"
         ],
         "test": [
             "vendor/bin/var-dump-check --symfony src",

@@ -12,6 +12,7 @@ final readonly class FieldInfoDto
         public string $name,
         public AttributeTypeInterface $type,
         public bool $enabled,
+        public bool $builtIn = false,
     ) {
     }
 }

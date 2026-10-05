@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\Workflow\State\Repository;
 
 use Alchemy\Workflow\Exception\LockException;
+use Alchemy\Workflow\Exception\WorkflowStateNotFoundException;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\WorkflowState;
 
@@ -34,7 +35,7 @@ class FileSystemStateRepository implements LockAwareStateRepositoryInterface
     {
         $path = $this->getWorkflowPath($id, self::WORKFLOW_FILENAME);
         if (!file_exists($path)) {
-            throw new \InvalidArgumentException(sprintf('Workflow state "%s" does not exist', $id));
+            throw new WorkflowStateNotFoundException($id);
         }
 
         /** @var WorkflowState $state */

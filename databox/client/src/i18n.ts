@@ -4,12 +4,14 @@ import * as appLangs from '../translations';
 import {initReactI18next} from 'react-i18next';
 import {apiClient} from './init.ts';
 import moment from 'moment';
-import 'moment/dist/locale/zh-cn.js';
-import 'moment/dist/locale/de.js';
-import 'moment/dist/locale/es.js';
-import 'moment/dist/locale/it.js';
-import 'moment/dist/locale/fr.js';
-import 'moment/dist/locale/pt.js';
+// CJS locale paths: the ESM builds (moment/dist/locale/*) cannot be
+// resolved by Node when moment is externalized during SSR
+import 'moment/locale/zh-cn';
+import 'moment/locale/de';
+import 'moment/locale/es';
+import 'moment/locale/it';
+import 'moment/locale/fr';
+import 'moment/locale/pt';
 
 const i18n = createI18N({
     initReactI18next,

@@ -22,41 +22,42 @@ readonly class IndexCleaner
     public function removeWorkspaceFromIndex(string $workspaceId): void
     {
         foreach ([$this->assetIndex, $this->collectionIndex] as $index) {
-            $indexName = $index->getName();
-
-            $request = $this->createRequest(
-                'POST',
-                $indexName.'/_delete_by_query',
-                [
-                    'Content-Type' => 'application/json',
+            $this->deleteByQuery($index->getName(), [
+                'term' => [
+                    'workspaceId' => $workspaceId,
                 ],
-                [
-                    'query' => [
-                        'term' => [
-                            'workspaceId' => $workspaceId,
-                        ],
-                    ],
-                ]
-            );
-
-            $this->client->sendRequest($request);
+            ]);
         }
     }
 
     public function removeCollectionFromIndex(string $collectionId): void
     {
-        $request = $this->createRequest('POST', $this->assetIndex->getName().'/_delete_by_query',
+        $this->deleteByQuery($this->assetIndex->getName(), [
+            'term' => [
+                'referenceCollectionId' => $collectionId,
+            ],
+        ]);
+    }
+
+    /**
+     * Cleaning up an index is best-effort: the entity is already gone from the
+     * database. `ignore_unavailable` covers an index that was never created (or
+     * already dropped) and `conflicts=proceed` covers documents concurrently
+     * reindexed — neither should abort a deletion.
+     */
+    private function deleteByQuery(string $indexName, array $query): void
+    {
+        $request = $this->createRequest(
+            'POST',
+            $indexName.'/_delete_by_query?conflicts=proceed&ignore_unavailable=true',
             [
                 'Content-Type' => 'application/json',
             ],
             [
-                'query' => [
-                    'term' => [
-                        'referenceCollectionId' => $collectionId,
-                    ],
-                ],
+                'query' => $query,
             ]
         );
+
         $this->client->sendRequest($request);
     }
 }

@@ -22,7 +22,7 @@ return [
     Alchemy\AclBundle\AlchemyAclBundle::class => ['all' => true],
     Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle::class => ['all' => true],
     Exercise\HTMLPurifierBundle\ExerciseHTMLPurifierBundle::class => ['all' => true],
-    Alchemy\NotifyBundle\AlchemyNotifyBundle::class => ['all' => true],
+    Alchemy\NotifierBundle\AlchemyNotifierBundle::class => ['all' => true],
     Symfony\Bundle\MonologBundle\MonologBundle::class => ['all' => true],
     Sentry\SentryBundle\SentryBundle::class => ['all' => true],
     Alchemy\MessengerBundle\AlchemyMessengerBundle::class => ['all' => true],

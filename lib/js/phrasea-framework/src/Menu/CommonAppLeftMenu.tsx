@@ -14,6 +14,8 @@ import UserMenu from './UserMenu';
 export function CommonAppLeftMenu({
     topChildren,
     notificationUriHandler,
+    apiClient,
+    registerNotificationRealtime,
     keycloakClient,
     config,
     settingsTopActions,
@@ -37,13 +39,12 @@ export function CommonAppLeftMenu({
             }}
         >
             {topChildren}
-            {user && config.notifications ? (
+            {user && config.notifications && apiClient ? (
                 <Notifications
-                    appIdentifier={config.notifications.appIdentifier}
+                    apiClient={apiClient}
                     userId={user.id}
-                    socketUrl={config.notifications.socketUrl}
-                    apiUrl={config.notifications.apiUrl}
                     uriHandler={notificationUriHandler}
+                    registerRealtime={registerNotificationRealtime}
                 >
                     {({open, onClick, bellIcon}) => {
                         return (

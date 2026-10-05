@@ -1,0 +1,86 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% set es_route = 'easyadmin_es_' %}
+
+{% macro confirm_form(action, id, label, variant, title, description, icon, size, fields) %}
+    {# A POST form with CSRF token, submitted only after confirmation in the shared modal #}
+    <form method="post" action="{{ action }}" id="{{ id }}" class="d-inline es-action-form">
+        <input type="hidden" name="token" value="{{ csrf_token(constant('Alchemy\\ESBundle\\Controller\\Admin\\ESIndexAdminController::CSRF_TOKEN_ID')) }}">
+        {% for name, value in fields|default({}) %}
+            <input type="hidden" name="{{ name }}" value="{{ value }}">
+        {% endfor %}
+        <button type="button"
+                class="btn btn-{{ size|default('sm') }} btn-{{ variant|default('secondary') }} js-es-confirm"
+                data-form="{{ id }}"
+                data-title="{{ title|e('html_attr') }}"
+                data-description="{{ description|e('html_attr') }}"
+                data-variant="{{ variant|default('primary') }}">
+            {% if icon %}<i class="{{ icon }}"></i> {% endif %}{{ label }}
+        </button>
+    </form>
+{% endmacro %}
+
+{% block main %}
+    {% block es_main %}{% endblock %}
+
+    {# Hidden trigger: EasyAdmin bundles Bootstrap 5 whose data-API handles it, whatever `window.bootstrap` ends up being #}
+    <button type="button" class="d-none" id="es-confirm-trigger" data-bs-toggle="modal" data-bs-target="#es-confirm-modal" aria-hidden="true"></button>
+    <twig:ea:Modal id="es-confirm-modal" topIcon="internal:circle-exclamation">
+        <twig:block name="body">
+            <h4 id="es-confirm-title"></h4>
+            <p id="es-confirm-description"></p>
+        </twig:block>
+        <twig:block name="footer">
+            <twig:ea:Modal:Close>Cancel</twig:ea:Modal:Close>
+            <twig:ea:Button type="button" variant="danger" id="es-confirm-button">Confirm</twig:ea:Button>
+        </twig:block>
+    </twig:ea:Modal>
+{% endblock %}
+
+{% block body_javascript %}
+    {{ parent() }}
+    <script>
+        (function () {
+            var modalEl = document.getElementById('es-confirm-modal');
+            var triggerEl = document.getElementById('es-confirm-trigger');
+            var titleEl = document.getElementById('es-confirm-title');
+            var descEl = document.getElementById('es-confirm-description');
+            var confirmBtn = document.getElementById('es-confirm-button');
+            var pendingForm = null;
+
+            document.querySelectorAll('.js-es-confirm').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    pendingForm = document.getElementById(btn.dataset.form);
+                    titleEl.textContent = btn.dataset.title;
+                    descEl.textContent = btn.dataset.description;
+                    confirmBtn.className = 'btn btn-' + (btn.dataset.variant || 'primary');
+                    showModal();
+                });
+            });
+
+            function showModal() {
+                // 1. Bootstrap 5 data-API (EasyAdmin's bundled Bootstrap)
+                triggerEl.click();
+                if (modalEl.classList.contains('show') || modalEl.style.display === 'block') {
+                    return;
+                }
+                // 2. Bootstrap 5 global
+                if (window.bootstrap && window.bootstrap.Modal && typeof window.bootstrap.Modal.getOrCreateInstance === 'function') {
+                    window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                    return;
+                }
+                // 3. Bootstrap 4 + jQuery (loaded by the AlchemyAdmin layout)
+                if (window.jQuery && window.jQuery.fn && window.jQuery.fn.modal) {
+                    window.jQuery(modalEl).modal('show');
+                }
+            }
+
+            confirmBtn.addEventListener('click', function () {
+                if (pendingForm) {
+                    confirmBtn.disabled = true;
+                    pendingForm.submit();
+                }
+            });
+        })();
+    </script>
+{% endblock %}

@@ -110,6 +110,9 @@ class AttributeDefinitionCrudController extends AbstractAdminCrudController
         yield ArrayField::new('writeMetadata')
             ->hideOnIndex()
             ->setHelp('Metadata tag names into which the attribute value is written on export, e.g. IPTC:Keywords');
+        yield AssociationField::new('writeMetadataRenditions')
+            ->hideOnIndex()
+            ->setHelp('Renditions the attribute is written into. Leave empty to write it into every rendition.');
         yield TextareaField::new('fallbackAll')
             ->hideOnIndex()
             ->setHelp('e.g. twig variable: {{file.type}} {{file.size}} {{file.checksum}} {{file.originalName}} {{file.extension}} {{asset.name}} {{attr.photographer}}');

@@ -4,7 +4,7 @@ namespace Alchemy\WorkflowBundle\DependencyInjection;
 
 use Alchemy\Workflow\Doctrine\Entity\WorkflowState;
 use Alchemy\WorkflowBundle\Doctrine\EntityLoadListener;
-use Alchemy\WorkflowBundle\Listener\PusherListener;
+use Alchemy\WorkflowBundle\Message\JobUpdatePusherHandler;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -30,7 +30,7 @@ class AlchemyWorkflowExtension extends Extension implements PrependExtensionInte
 
         if ($config['pusher']['enabled']) {
             $loader->load('pusher.yaml');
-            $def = $container->getDefinition(PusherListener::class);
+            $def = $container->getDefinition(JobUpdatePusherHandler::class);
             $def->setArgument('$channelPrefix', $config['pusher']['channel_prefix']);
         }
 

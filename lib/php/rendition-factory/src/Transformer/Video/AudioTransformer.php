@@ -34,6 +34,11 @@ class AudioTransformer
         $resolverContext = $transformationContext->getTemplatingContext();
 
         if ($audioCodec = $this->optionsResolver->resolveOption($options['audio_codec'] ?? null, $resolverContext)) {
+            $normalizedCodec = AudioCodecNormalizer::normalize($audioCodec);
+            if ($normalizedCodec !== $audioCodec) {
+                $transformationContext->log(sprintf('Audio codec "%s" is not available, using "%s"', $audioCodec, $normalizedCodec));
+                $audioCodec = $normalizedCodec;
+            }
             if (!in_array($audioCodec, $FFMpegFormat->getAvailableAudioCodecs())) {
                 throw new \InvalidArgumentException(sprintf('Invalid audio codec %s for format %s', $audioCodec, $format));
             }

@@ -141,5 +141,6 @@ services:
     Alchemy\RenditionFactory\Config\ModuleOptionsResolver: ~
 
     Alchemy\RenditionFactory\RenditionBuilderTransformersDocumentation: ~
+    Alchemy\RenditionFactory\BuildConfigDocumentation: ~
 
     Alchemy\RenditionFactory\Config\BuildConfigValidator: ~

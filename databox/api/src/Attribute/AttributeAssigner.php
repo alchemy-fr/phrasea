@@ -14,6 +14,7 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Repository\Core\AttributeRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 final readonly class AttributeAssigner
 {
@@ -48,7 +49,7 @@ final readonly class AttributeAssigner
                 if (false !== $k = array_search($data->origin, Attribute::ORIGIN_LABELS, true)) {
                     $attribute->setOrigin($k);
                 } else {
-                    throw new \InvalidArgumentException(sprintf('Invalid origin value "%s", allowed ones are: %s', $data->origin, implode(', ', Attribute::ORIGIN_LABELS)));
+                    throw new BadRequestHttpException(sprintf('Invalid origin value "%s", allowed ones are: %s', $data->origin, implode(', ', Attribute::ORIGIN_LABELS)));
                 }
             } elseif (!$attribute->hasOrigin()) {
                 $attribute->setOrigin(Attribute::ORIGIN_MACHINE);
@@ -58,7 +59,7 @@ final readonly class AttributeAssigner
                 if (false !== $k = array_search($data->status, Attribute::STATUS_LABELS, true)) {
                     $attribute->setStatus($k);
                 } else {
-                    throw new \InvalidArgumentException(sprintf('Invalid status value "%s", allowed ones are: %s', $data->status, implode(', ', Attribute::STATUS_LABELS)));
+                    throw new BadRequestHttpException(sprintf('Invalid status value "%s", allowed ones are: %s', $data->status, implode(', ', Attribute::STATUS_LABELS)));
                 }
             }
             $attribute->setOriginUserId($data->originUserId);

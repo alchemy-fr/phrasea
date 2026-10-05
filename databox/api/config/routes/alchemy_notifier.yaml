@@ -1,0 +1,5 @@
+alchemy_notifier:
+  resource:
+      path: '@AlchemyNotifierBundle/src/Controller/'
+      namespace: Alchemy\NotifierBundle\Controller
+  type: attribute

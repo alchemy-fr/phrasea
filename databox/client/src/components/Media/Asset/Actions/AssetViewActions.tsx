@@ -52,7 +52,7 @@ export default function AssetViewActions({asset, file}: Props) {
                         subscriptions={asset.topicSubscriptions}
                         topics={[
                             {
-                                key: `asset:${asset.id}:update`,
+                                key: 'asset:update',
                                 label: t(
                                     'notification.topics.asset.update.label',
                                     'Update'
@@ -63,7 +63,7 @@ export default function AssetViewActions({asset, file}: Props) {
                                 ),
                             },
                             {
-                                key: `asset:${asset.id}:delete`,
+                                key: 'asset:delete',
                                 label: t(
                                     'notification.topics.asset.delete.label',
                                     'Delete'
@@ -74,7 +74,7 @@ export default function AssetViewActions({asset, file}: Props) {
                                 ),
                             },
                             {
-                                key: `asset:${asset.id}:new_comment`,
+                                key: 'asset:new_comment',
                                 label: t(
                                     'notification.topics.asset.new_comment.label',
                                     'Discussion'

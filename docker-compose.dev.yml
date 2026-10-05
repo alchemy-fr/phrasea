@@ -12,7 +12,7 @@ services:
   dashboard-client:
     extends:
       service: a_client
-    image: ${REGISTRY_NAMESPACE}dashboard-dev:${DOCKER_TAG}
+    image: localhost:5000/dashboard-client-dev:${DOCKER_TAG}
     build:
       target: client-build
     volumes:
@@ -24,7 +24,7 @@ services:
   uploader-client:
     extends:
       service: a_client
-    image: ${REGISTRY_NAMESPACE}uploader-client-dev:${DOCKER_TAG}
+    image: localhost:5000/uploader-client-dev:${DOCKER_TAG}
     build:
       target: client-build
     volumes:
@@ -35,7 +35,7 @@ services:
   expose-client:
     extends:
       service: a_client
-    image: ${REGISTRY_NAMESPACE}expose-client-dev:${DOCKER_TAG}
+    image: localhost:5000/expose-client-dev:${DOCKER_TAG}
     build:
       target: client-build
     volumes:
@@ -46,7 +46,7 @@ services:
   databox-client:
     extends:
       service: a_client
-    image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
+    image: localhost:5000/databox-client-dev:${DOCKER_TAG}
     build:
       target: client-build
     volumes:
@@ -71,6 +71,8 @@ services:
       - ./expose/api/docker/nginx/entrypoint.sh:/entrypoint.sh
 
   expose-worker:
+    environment:
+      - WORKER_VERBOSITY=${WORKER_VERBOSITY:--vv}
     volumes:
       - ./expose/api:/srv/app
       - ./lib/php:/lib/php
@@ -86,6 +88,8 @@ services:
       - ./lib/php:/lib/php
 
   uploader-worker:
+    environment:
+      - WORKER_VERBOSITY=${WORKER_VERBOSITY:--vv}
     volumes:
       - ./uploader/api:/srv/app
       - ./lib/php:/lib/php
@@ -112,6 +116,8 @@ services:
       - ./databox/api/public:/srv/app/public
 
   databox-worker:
+    environment:
+      - WORKER_VERBOSITY=${WORKER_VERBOSITY:--vv}
     volumes:
       - ./databox/api:/srv/app
       - ./lib/php:/lib/php
@@ -129,8 +135,6 @@ services:
     stdin_open: true
     tty: true
     hostname: local
-    ports:
-      - "0.0.0.0:4000:4000"
     environment:
       - APP_ENV
       - SYMFONY_DEPRECATIONS_HELPER=disabled
@@ -175,6 +179,7 @@ services:
       - ALLOWED_FILE_TYPES=${DATABOX_ALLOWED_FILE_TYPES}
       - ADMIN_CLIENT_ID=${DATABOX_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
+      - NOTIFICATIONS_ENABLED
       - MAILER_DSN
       - MAIL_FROM
       - MAIL_FROM_DISPLAY_NAME
@@ -267,8 +272,8 @@ services:
       - api-uploader.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - bridge-novu.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - soketi.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   report-api:
     volumes:

@@ -22,6 +22,9 @@ import UploadRenditionDialog from '../../../Media/Asset/Actions/UploadRenditionD
 import {useChannelRegistration} from '../../../../lib/pusher.ts';
 import {RenditionPlaceholder} from './RenditionPlaceholder.tsx';
 import {ChannelEvent, ChannelType} from '../../../../api/channels.ts';
+import CreateDynamicRenditionDialog from './CreateDynamicRenditionDialog.tsx';
+import {Box, Button} from '@mui/material';
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 
 type Props = {
     data: Asset;
@@ -93,10 +96,21 @@ export default function Renditions({data, onClose, minHeight}: Props) {
     };
 
     const onUpload = async (rendition: AssetRendition) => {
+        if (!rendition.definition) {
+            return;
+        }
         openModal(UploadRenditionDialog, {
             asset: data,
             renditionName: rendition.displayName,
             definitionId: rendition.definition.id,
+        });
+    };
+
+    const onCreateDynamicRendition = () => {
+        openModal(CreateDynamicRenditionDialog, {
+            asset: data,
+            renditions: renditions ?? [],
+            onCreated: () => load(),
         });
     };
 
@@ -109,7 +123,7 @@ export default function Renditions({data, onClose, minHeight}: Props) {
     };
 
     const remainingDefinitions = definitions?.filter(
-        d => !renditions?.some(r => r.definition.id === d.id)
+        d => !renditions?.some(r => r.definition?.id === d.id)
     );
 
     return (
@@ -119,6 +133,26 @@ export default function Renditions({data, onClose, minHeight}: Props) {
             disableGutters={true}
             loading={loading}
         >
+            {data.capabilities.edit && renditions && (
+                <Box
+                    sx={{
+                        mb: 2,
+                        display: 'flex',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Button
+                        startIcon={<AddPhotoAlternateIcon />}
+                        variant={'outlined'}
+                        onClick={onCreateDynamicRendition}
+                    >
+                        {t(
+                            'renditions.create_custom',
+                            'Create custom rendition'
+                        )}
+                    </Button>
+                </Box>
+            )}
             {renditions &&
                 renditions.map(r => {
                     return (

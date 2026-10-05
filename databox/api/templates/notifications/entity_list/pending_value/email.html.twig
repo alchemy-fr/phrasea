@@ -1,0 +1,9 @@
+{% block subject %}{{ 'entity_list.pending_value.email.subject'|trans({'%listName%': listName}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}{{ 'entity_list.pending_value.email.body'|trans({
+    '%recipient%': (recipient.displayName|default(recipient.email))|e,
+    '%author%': author|e,
+    '%value%': value|e,
+    '%listName%': listName|e,
+    '%url%': notification_url(url)|e('html_attr'),
+}, 'notifications')|raw }}{% endblock %}

@@ -188,6 +188,172 @@ class AssetSearchTest extends AbstractSearchTest
         ];
     }
 
+    /**
+     * An attribute definition holding no value at all has no leaf in the ES mapping,
+     * because those leaves are only created by dynamic templates once a document
+     * actually carries a value. Sorting on it used to make Elasticsearch reject the
+     * whole query ("No mapping found for [attrs._.city_text_s.raw] in order to sort on").
+     */
+    public function testSortOnDefinitionWithoutAnyValue(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $this->createAttributeDefinition([
+            'workspace' => $workspace,
+            'name' => 'City',
+            'no_flush' => true,
+        ]);
+        $this->createAsset([
+            'workspace' => $workspace,
+            'name' => 'Lonely',
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $this->getEntityManager()->flush();
+        self::releaseIndex();
+
+        $this->assertSortedNames(['city_text_s' => 'asc'], ['Lonely']);
+    }
+
+    /**
+     * Same as above for a multi-valued definition: the leaf is suffixed "_m",
+     * which is the exact field of the reported error (attrs._.city_text_m.raw).
+     */
+    public function testSortOnMultipleDefinitionWithoutAnyValue(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $this->createAttributeDefinition([
+            'workspace' => $workspace,
+            'name' => 'City',
+            'multiple' => true,
+            'no_flush' => true,
+        ]);
+        $this->createAsset([
+            'workspace' => $workspace,
+            'name' => 'Lonely',
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $this->getEntityManager()->flush();
+        self::releaseIndex();
+
+        $this->assertSortedNames(['city_text_m' => 'asc'], ['Lonely']);
+    }
+
+    public function testSortOnDefinitionWithValuesStillOrders(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $city = $this->createAttributeDefinition([
+            'workspace' => $workspace,
+            'name' => 'City',
+            'no_flush' => true,
+        ]);
+        $this->getEntityManager()->flush();
+
+        foreach ([
+            'PARIS' => 'Paris',
+            'AMSTERDAM' => 'Amsterdam',
+        ] as $name => $value) {
+            $this->createAsset([
+                'workspace' => $workspace,
+                'name' => $name,
+                'public' => true,
+                'attributes' => [
+                    [
+                        'definition' => $city,
+                        'value' => $value,
+                    ],
+                ],
+                'no_flush' => true,
+            ]);
+        }
+        $this->getEntityManager()->flush();
+        self::releaseIndex();
+
+        $this->assertSortedNames(['city_text_s' => 'asc'], ['AMSTERDAM', 'PARIS']);
+        $this->assertSortedNames(['city_text_s' => 'desc'], ['PARIS', 'AMSTERDAM']);
+    }
+
+    /**
+     * Built-in fields are root index properties and must keep a bare sort clause:
+     * Elasticsearch rejects any option (such as unmapped_type) on a "_score" sort.
+     */
+    public function testSortOnBuiltInField(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $this->createAsset([
+            'workspace' => $workspace,
+            'name' => 'Lonely',
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $this->getEntityManager()->flush();
+        self::releaseIndex();
+
+        foreach ($this->getBuiltInSortCases() as [$field, $way]) {
+            $this->assertSortedNames([$field => $way], ['Lonely']);
+        }
+    }
+
+    public function getBuiltInSortCases(): array
+    {
+        return [
+            ['@score', 'desc'],
+            ['@createdAt', 'desc'],
+            ['@createdAt', 'asc'],
+        ];
+    }
+
+    public function testSortOnNeverDefinedAttributeSlug(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $this->createAsset([
+            'workspace' => $workspace,
+            'name' => 'Lonely',
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $this->getEntityManager()->flush();
+        self::releaseIndex();
+
+        $this->assertSortedNames(['ghost_text_s' => 'asc'], ['Lonely']);
+    }
+
+    /**
+     * @param array<string, string> $order
+     * @param list<string>          $expectedNames
+     */
+    private function assertSortedNames(array $order, array $expectedNames): void
+    {
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets', [
+            'query' => [
+                'order' => $order,
+            ],
+        ]);
+
+        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+
+        $this->assertSame($expectedNames, array_map(
+            fn (array $r): ?string => $r['name'] ?? null,
+            $data
+        ), sprintf('Invalid result order for sort %s', json_encode($order)));
+    }
+
     private function assertSearchResults(string $queryString, array $expectedResults): void
     {
         $client = self::createClient();

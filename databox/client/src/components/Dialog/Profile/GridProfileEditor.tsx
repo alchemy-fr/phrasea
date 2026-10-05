@@ -814,7 +814,7 @@ function ConfigPanel({
             <Divider sx={{my: 1}} />
 
             <Typography variant="caption" color="text.secondary">
-                {t('grid_editor.config.variant', 'Display as')}
+                {t('grid_editor.config.variant.label', 'Display as')}
             </Typography>
             <ToggleButtonGroup
                 size="small"
@@ -842,7 +842,7 @@ function ConfigPanel({
             {availableFormats.length > 0 && (
                 <>
                     <Typography variant="caption" color="text.secondary">
-                        {t('grid_editor.config.format', 'Format')}
+                        {t('grid_editor.config.format.label', 'Format')}
                     </Typography>
                     <TextField
                         select
@@ -865,7 +865,7 @@ function ConfigPanel({
             )}
 
             <Typography variant="caption" color="text.secondary">
-                {t('grid_editor.config.size', 'Size')}
+                {t('grid_editor.config.size.label', 'Size')}
             </Typography>
             <ToggleButtonGroup
                 size="small"

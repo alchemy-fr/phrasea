@@ -64,6 +64,7 @@ class TagSearch extends AbstractSearch
         $data = $this->finder->findPaginated($query);
         $data->setMaxPerPage((int) $limit);
         $data->setCurrentPage((int) ($options['page'] ?? 1));
+        $this->executeSearch($data->getCurrentPageResults(...));
 
         return $data;
     }

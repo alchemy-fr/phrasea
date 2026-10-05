@@ -61,6 +61,7 @@ class CollectionSearch extends AbstractSearch
         $data = $this->finder->findPaginated($query);
         $data->setMaxPerPage((int) $limit);
         $data->setCurrentPage((int) ($options['page'] ?? 1));
+        $this->executeSearch($data->getCurrentPageResults(...));
 
         return $data;
     }
@@ -113,8 +114,8 @@ class CollectionSearch extends AbstractSearch
             $options['parents'] = [$options['parent']];
         }
 
-        if (!empty($options['parents'])) {
-            $parentCollections = DoctrineUtil::getFromIds($this->collectionRepository, $options['parents']);
+        if (!empty($parentIds = self::toIdList($options['parents'] ?? null))) {
+            $parentCollections = DoctrineUtil::getFromIds($this->collectionRepository, $parentIds);
             $parentsBoolQuery = new Query\BoolQuery();
             array_map(function (Collection $parentCollection) use ($parentsBoolQuery, $deep): void {
                 $q = new Query\BoolQuery();
@@ -133,9 +134,9 @@ class CollectionSearch extends AbstractSearch
             $boolQuery->addFilter(new Query\Term(['pathDepth' => 0]));
         }
 
-        if (isset($options['workspaces'])) {
+        if (!empty($workspaceIds = self::toIdList($options['workspaces'] ?? null))) {
             $boolQuery->addFilter(
-                new Query\Terms('workspaceId', $options['workspaces'])
+                new Query\Terms('workspaceId', $workspaceIds)
             );
         }
     }
