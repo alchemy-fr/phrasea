@@ -17,7 +17,6 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\AttributeFilterRuleInput;
 use App\Api\Model\Output\AttributeFilterRuleOutput;
-use App\Api\Provider\AttributeFilterRuleCollectionProvider;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeFilterRuleRepository;
 use App\Validator\ValidAQLConstraint;
@@ -33,6 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(security: 'is_granted("READ", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
+        // Restricted to the editable workspaces by AttributeFilterRuleExtension
         new GetCollection(),
         new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
     ],
@@ -42,7 +42,6 @@ use Symfony\Component\Validator\Constraints as Assert;
     input: AttributeFilterRuleInput::class,
     output: AttributeFilterRuleOutput::class,
     security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
-    provider: AttributeFilterRuleCollectionProvider::class,
 )]
 #[ORM\Table]
 #[ORM\Entity(repositoryClass: AttributeFilterRuleRepository::class)]

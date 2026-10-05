@@ -175,8 +175,6 @@ final class AttributeFilterRuleApiTest extends AbstractDataboxTestCase
 
     public function testListIsRestrictedToEditableWorkspaces(): void
     {
-        $this->markTestIncomplete('BUG: GET /attribute-filter-rules returns the rules of every workspace (targets and conditions included) to any authenticated user: AttributeFilterRuleCollectionProvider applies no permission check (src/Api/Provider/AttributeFilterRuleCollectionProvider.php:23)');
-
         $this->setUpScene();
         $rule = $this->createRule();
         $foreignRule = $this->createRule($this->createOtherWorkspace());
