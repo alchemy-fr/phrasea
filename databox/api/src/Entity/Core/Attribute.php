@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'attribute',
     operations: [
-        new Get(),
+        new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),

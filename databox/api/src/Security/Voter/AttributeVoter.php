@@ -27,17 +27,16 @@ class AttributeVoter extends AbstractVoter
     protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
     {
         $attributeDefinition = $subject->getDefinition();
-        if (!$attributeDefinition->isEditable()) {
-            return false;
-        }
 
         return match ($attribute) {
+            // A non editable definition still exposes its values
             self::READ => $this->security->isGranted(self::READ, $subject->getAsset())
                 && (
                     $attributeDefinition->getPolicy()->isPublic()
                     || $this->hasAcl(PermissionInterface::VIEW, $attributeDefinition->getPolicy(), $token)
                 ),
-            self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $subject->getAsset())
+            self::CREATE, self::EDIT, self::DELETE => $attributeDefinition->isEditable()
+                && $this->security->isGranted(AssetVoter::EDIT_ATTRIBUTES, $subject->getAsset())
                 && (
                     $attributeDefinition->getPolicy()->isEditable()
                     || $this->hasAcl(PermissionInterface::EDIT, $attributeDefinition->getPolicy(), $token)

@@ -172,8 +172,6 @@ final class AttributeTest extends AbstractDataboxTestCase
 
     public function testAttributesOfANonPublicPolicyAreHiddenFromTheList(): void
     {
-        $this->markTestIncomplete('BUG: GET /attributes?assetId= returns every attribute of the asset, ignoring the definition policy (AttributeCollectionProvider does not filter on AttributeDefinitionVoter::VIEW_ATTRIBUTES)');
-
         $this->setUpScene();
         $secret = $this->createAttributeDefinition(['name' => 'Secret', 'policy' => $this->createSecretPolicy()]);
         $this->createAttribute($this->title, 'Public value');
@@ -219,8 +217,6 @@ final class AttributeTest extends AbstractDataboxTestCase
 
     public function testGetItemIsDeniedToAnonymous(): void
     {
-        $this->markTestIncomplete('BUG: GET /attributes/{id} has no security expression (src/Entity/Core/Attribute.php:35 "new Get()"): anyone, even anonymous, reads any attribute value');
-
         $this->setUpScene();
         $private = $this->createAsset(['ownerId' => self::USER]);
         $attribute = $this->createAttribute($this->title, 'The title');
@@ -233,8 +229,6 @@ final class AttributeTest extends AbstractDataboxTestCase
 
     public function testGetItemOfANonPublicPolicyIsDenied(): void
     {
-        $this->markTestIncomplete('BUG: GET /attributes/{id} has no security expression (src/Entity/Core/Attribute.php:35 "new Get()"): the policy visibility (AttributeVoter READ) is never checked');
-
         $this->setUpScene();
         $secret = $this->createAttributeDefinition(['name' => 'Secret', 'policy' => $this->createSecretPolicy()]);
         $attribute = $this->createAttribute($secret, 'Secret value');
@@ -544,8 +538,6 @@ final class AttributeTest extends AbstractDataboxTestCase
 
     public function testADefinitionOfAnotherWorkspaceIsRejected(): void
     {
-        $this->markTestIncomplete('BUG: POST /attributes accepts a definition of another workspace than the asset one: AttributeInputTransformer calls getAttributeDefinitionFromInput() without workspace (src/Api/InputTransformer/AttributeInputTransformer.php:37), so the "Workspace inconsistency" check of AttributeInputTrait is skipped');
-
         $this->setUpScene();
         $otherWorkspace = $this->createOtherWorkspace(['ownerId' => self::USER]);
         $foreign = $this->createAttributeDefinition([

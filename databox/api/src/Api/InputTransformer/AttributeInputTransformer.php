@@ -34,7 +34,11 @@ class AttributeInputTransformer extends AbstractInputTransformer
 
         if ($isNew) {
             $object->setAsset($data->asset);
-            $object->setDefinition($this->getAttributeDefinitionFromInput($data, null, $context));
+            $object->setDefinition($this->getAttributeDefinitionFromInput(
+                $data,
+                $object->getAsset()?->getWorkspace(),
+                $context
+            ));
         }
 
         $normalizedValue = $this->attributeAssigner->normalizeValue($object->getDefinition(), $data->value);
