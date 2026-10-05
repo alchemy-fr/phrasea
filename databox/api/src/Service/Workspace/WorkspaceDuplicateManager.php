@@ -4,123 +4,30 @@ declare(strict_types=1);
 
 namespace App\Service\Workspace;
 
-use App\Entity\Core\AttributeFilterRule;
-use App\Entity\Core\RenditionDefinition;
-use App\Entity\Core\RenditionPolicy;
-use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
-use App\Entity\Integration\WorkspaceIntegration;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\Workspace\Template\WorkspaceTemplateOptions;
 
+/**
+ * Creates a new workspace with the whole configuration of an existing one (see WorkspaceTemplater),
+ * including the instance-bound data (ACEs, owners, secrets). Content (assets, collections) is not copied.
+ */
 readonly class WorkspaceDuplicateManager
 {
-    public function __construct(private EntityManagerInterface $em)
+    public function __construct(private WorkspaceTemplater $workspaceTemplater)
     {
     }
 
     public function duplicateWorkspace(Workspace $workspace, string $newSlug): Workspace
     {
+        $data = $this->workspaceTemplater->export($workspace, WorkspaceTemplateOptions::full());
+
         $newWorkspace = new Workspace();
         $newWorkspace->setSlug($newSlug);
         $newWorkspace->setName($workspace->getName());
         $newWorkspace->setOwnerId($workspace->getOwnerId());
-        $newWorkspace->setConfig($workspace->getConfig());
-        $newWorkspace->setEnabledLocales($workspace->getEnabledLocales());
 
-        $this->copyIntegrations($workspace, $newWorkspace);
-        $this->copyRenditionDefinitions($workspace, $newWorkspace);
-        $this->copyTags($workspace, $newWorkspace);
-
-        $this->em->persist($newWorkspace);
+        $this->workspaceTemplater->importToWorkspace($newWorkspace, $data);
 
         return $newWorkspace;
-    }
-
-    private function copyRenditionDefinitions(Workspace $from, Workspace $to): void
-    {
-        /** @var RenditionPolicy[] $items */
-        $items = $this->em->getRepository(RenditionPolicy::class)->findBy([
-            'workspace' => $from->getId(),
-        ]);
-        $classMap = [];
-        foreach ($items as $item) {
-            $i = new RenditionPolicy();
-            $i->setName($item->getName());
-            $i->setPublic($item->isPublic());
-            $i->setEditable($item->isEditable());
-            $i->setWorkspace($to);
-            $this->em->persist($i);
-            $classMap[$item->getId()] = $i;
-        }
-
-        /** @var RenditionDefinition[] $items */
-        $items = $this->em->getRepository(RenditionDefinition::class)->findBy([
-            'workspace' => $from->getId(),
-        ]);
-        foreach ($items as $item) {
-            $i = new RenditionDefinition();
-            $i->setName($item->getName());
-            $i->setWorkspace($to);
-            $i->setPolicy($classMap[$item->getPolicy()->getId()]);
-            $i->setPriority($item->getPriority());
-            $i->setKey($item->getKey());
-            $i->setUseAsMain($item->isUseAsMain());
-            $i->setUseAsPreview($item->isUseAsPreview());
-            $i->setUseAsThumbnail($item->isUseAsThumbnail());
-            $i->setUseAsAnimatedThumbnail($item->isUseAsAnimatedThumbnail());
-            $i->setDefinition($item->getDefinition());
-            $this->em->persist($i);
-        }
-    }
-
-    private function copyTags(Workspace $from, Workspace $to): void
-    {
-        /** @var Tag[] $items */
-        $items = $this->em->getRepository(Tag::class)->findBy([
-            'workspace' => $from->getId(),
-        ]);
-        $tagIdMap = [];
-        foreach ($items as $item) {
-            $i = new Tag();
-            $i->setWorkspace($to);
-            $i->setName($item->getName());
-            $i->setLocale($item->getLocale());
-            $this->em->persist($i);
-            $tagIdMap[$item->getId()] = $i->getId();
-        }
-
-        /** @var AttributeFilterRule[] $items */
-        $items = $this->em->getRepository(AttributeFilterRule::class)->findBy([
-            'workspace' => $from->getId(),
-        ]);
-
-        // @tag references embedded in the AQL condition are remapped to the duplicated tags.
-        // Other entity UUIDs (e.g. collections) are not duplicated: such rules fail closed.
-        foreach ($items as $item) {
-            $i = new AttributeFilterRule();
-            $i->setCondition(strtr($item->getCondition(), $tagIdMap));
-            $i->setWorkspace($to);
-            $i->setTargets($item->getUserIds(), $item->getGroupIds());
-            $this->em->persist($i);
-        }
-    }
-
-    private function copyIntegrations(Workspace $from, Workspace $to): void
-    {
-        /** @var WorkspaceIntegration[] $items */
-        $items = $this->em->getRepository(WorkspaceIntegration::class)->findBy([
-            'workspace' => $from->getId(),
-        ]);
-        foreach ($items as $item) {
-            $i = new WorkspaceIntegration();
-            $i->setName($item->getName());
-            $i->setIntegration($item->getIntegration());
-            $i->setPublic($item->getPublic());
-            $i->setOwnerId($item->getOwnerId());
-            $i->setEnabled($item->isEnabled());
-            $i->setConfig($item->getConfig());
-            $i->setWorkspace($to);
-            $this->em->persist($i);
-        }
     }
 }
