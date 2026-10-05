@@ -39,7 +39,8 @@ class ProfileVoter extends AbstractVoter
 
         return match ($attribute) {
             self::CREATE => $this->isAuthenticated(),
-            self::READ => $isOwner()
+            self::READ => $subject->isPublic()
+                || $isOwner()
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),
             self::EDIT => $isOwner()
                 || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),

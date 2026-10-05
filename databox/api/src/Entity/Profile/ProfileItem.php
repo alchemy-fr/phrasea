@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\ProfileItemInput;
 use App\Api\Model\Output\ProfileItemOutput;
 use App\Api\Processor\PutProfileItemProcessor;
+use App\Api\Provider\ProfileItemCollectionProvider;
 use App\Entity\Core\AttributeDefinition;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
@@ -23,7 +24,9 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[ApiResource(
     uriTemplate: '/profiles/{id}/items',
     operations: [
-        new GetCollection(),
+        new GetCollection(
+            provider: ProfileItemCollectionProvider::class,
+        ),
         new Put(
             uriTemplate: '/profiles/{id}/items/{itemId}',
             security: 'is_granted("'.AbstractVoter::EDIT.'", object.getProfile())',

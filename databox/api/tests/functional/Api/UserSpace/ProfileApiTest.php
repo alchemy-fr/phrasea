@@ -119,8 +119,6 @@ final class ProfileApiTest extends AbstractDataboxTestCase
 
     public function testPrivateProfileIsNotReadableByOthers(): void
     {
-        $this->markTestIncomplete('BUG: GET /profiles/{id} and GET /profiles/{id}/items have no security: any user (even anonymous) can read a private profile and its items. Note ProfileVoter::READ ignores the "public" flag, so it must be fixed together (src/Entity/Profile/Profile.php:41, src/Entity/Profile/ProfileItem.php:25)');
-
         $profile = $this->createProfile('Private', self::USER);
 
         $this->assertStatus(403, 'GET', '/profiles/'.$profile->getId(), self::OTHER);
