@@ -19,7 +19,6 @@ use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Share;
 use App\Entity\Core\TermsVersion;
 use App\Repository\Core\AssetRenditionRepository;
-use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\FileUrlResolver;
 use App\Service\Workspace\LogoManager;
 use App\Service\Workspace\TermsManager;
@@ -89,10 +88,7 @@ final class ShareReadProvider implements ProviderInterface
 
         foreach ($renditions as $rendition) {
             $definition = $rendition->getDefinition();
-            if (null === $definition) {
-                continue;
-            }
-            if ($this->isGranted(AbstractVoter::READ, $rendition)) {
+            if (null !== $definition && self::isRenditionShared($rendition)) {
                 $file = $rendition->getFile();
                 $item->alternateUrls[] = new ShareAlternateUrlOutput(
                     $definition->getName(),
@@ -111,6 +107,16 @@ final class ShareReadProvider implements ProviderInterface
                 );
             }
         }
+    }
+
+    /**
+     * Whether a share link exposes this rendition. A link is opened anonymously
+     * with its token: the rule must only depend on the rendition definition,
+     * never on the rights of the current user.
+     */
+    public static function isRenditionShared(AssetRendition $rendition): bool
+    {
+        return true === $rendition->getDefinition()?->getPolicy()?->isPublic();
     }
 
     private function provideAssetAttachments(Share $item, Asset $asset): void

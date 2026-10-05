@@ -263,9 +263,6 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         $share = $this->createShare(self::USER, [$this->asset]);
 
         $client->request('GET', sprintf('/s/%s/r/%s?token=%s', $share->getId(), $restricted->getId(), $share->getToken()));
-        if (302 === $client->getResponse()->getStatusCode()) {
-            $this->markTestIncomplete('BUG: ShareRenditionProvider (src/Api/Provider/ShareRenditionProvider.php:62) never checks READ on the AssetRendition: a rendition hidden from the share (non-public rendition policy, not listed in alternateUrls) is still downloadable by guessing its definition id.');
-        }
         $this->assertResponseStatusCodeSame(404);
     }
 

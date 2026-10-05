@@ -66,7 +66,12 @@ final class ShareRenditionProvider implements ProviderInterface
             'createdAt' => 'DESC',
         ]);
 
-        if (null !== $file = $rendition?->getFile()) {
+        // Same rule as the share's alternateUrls: only public policies are exposed
+        if (null === $rendition || !ShareReadProvider::isRenditionShared($rendition)) {
+            return $this->createNotFoundResponse();
+        }
+
+        if (null !== $file = $rendition->getFile()) {
             // Tracking is optional: without MATOMO_URL the tracker falls back to
             // localhost and its failure must never break the share itself.
             if ('' !== trim($this->matomoUrl)) {
