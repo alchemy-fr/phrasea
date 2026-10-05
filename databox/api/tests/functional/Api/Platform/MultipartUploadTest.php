@@ -203,8 +203,6 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
 
     public function testAnonymousCannotStartAnUpload(): void
     {
-        $this->markTestIncomplete('BUG: POST /uploads has no security: an anonymous request starts an S3 multipart upload and gets presigned PUT URLs (lib/php/storage-bundle/Entity/MultipartUpload.php:27).');
-
         $this->client->request('POST', '/uploads', [
             'json' => [
                 'filename' => 'photo.jpg',

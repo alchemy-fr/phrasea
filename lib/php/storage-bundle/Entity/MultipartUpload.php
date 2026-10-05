@@ -22,9 +22,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource(
     shortName: 'Upload',
     operations: [
-        new Get(),
+        new Get(security: 'is_granted("IS_AUTHENTICATED_FULLY")'),
         new Post(
             normalizationContext: ['groups' => ['upload:read', 'upload:urls']],
+            security: 'is_granted("IS_AUTHENTICATED_FULLY")',
             openapiContext: [
                 'summary' => 'Create a multi part upload.',
                 'description' => 'The server decides the part size ("chunkSize") from the file size and returns the presigned PUT URLs of every part ("urls", keyed by part number). URLs are valid for 3 hours; ask "/uploads/{id}/parts" for fresh ones.',
@@ -32,6 +33,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
         new Post(
             uriTemplate: '/uploads/{id}/parts',
+            security: 'is_granted("IS_AUTHENTICATED_FULLY")',
             controller: MultipartUploadPartsAction::class,
             openapiContext: [
                 'summary' => 'Get the presigned upload URLs of all the remaining parts.',
@@ -83,6 +85,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
             ]),
         new Post(
             uriTemplate: '/uploads/{id}/part',
+            security: 'is_granted("IS_AUTHENTICATED_FULLY")',
             controller: MultipartUploadPartAction::class,
             deprecationReason: 'Use the "urls" returned when creating the upload, or POST /uploads/{id}/parts.',
             openapiContext: [
@@ -129,6 +132,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
             ]),
         new Delete(
             controller: MultipartUploadCancelAction::class,
+            security: 'is_granted("IS_AUTHENTICATED_FULLY")',
             openapiContext: [
                 'summary' => 'Cancel an upload',
                 'description' => 'Cancel an upload.',
