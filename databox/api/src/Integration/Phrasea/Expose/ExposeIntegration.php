@@ -19,6 +19,7 @@ use App\Integration\IntegrationDataTransformerInterface;
 use App\Integration\Phrasea\Expose\Message\SyncBasket;
 use App\Integration\Phrasea\PhraseaClientFactory;
 use App\Integration\UserActionsIntegrationInterface;
+use App\Security\Voter\AbstractVoter;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -81,6 +82,8 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
 
                 $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
                 $basket = DoctrineUtil::findStrict($this->em, Basket::class, $data['basketId']);
+                // The basket assets are published: it must be one the user can read
+                $this->denyAccessUnlessGranted(AbstractVoter::READ, $basket);
                 $response = $this->exposeClient->createPublication($config, $integrationToken, $data);
 
                 $publicationId = $response['id'];
