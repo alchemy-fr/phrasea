@@ -121,8 +121,6 @@ final class PageApiTest extends AbstractDataboxTestCase
 
     public function testPrivatePageIsNotReadableBySlugByStrangers(): void
     {
-        $this->markTestIncomplete('BUG: GET /page-by-slug/{slug} has no security: a private (non-public) enabled page is readable by anonymous users; PageVoter::READ is never evaluated, see src/Entity/Page/Page.php:36-47');
-
         $page = $this->createPage('Private', 'private', self::ADMIN, public: false, enabled: true);
 
         $this->assertStatus(401, 'GET', '/page-by-slug/private', null);
@@ -142,8 +140,6 @@ final class PageApiTest extends AbstractDataboxTestCase
 
     public function testPrivateOrDisabledPageIsNotReadableByIdByStrangers(): void
     {
-        $this->markTestIncomplete('BUG: GET /pages/{id} has no security: private or disabled pages are readable by anyone, including anonymous users (PageVoter::READ is never evaluated), see src/Entity/Page/Page.php:35');
-
         $private = $this->createPage('Private', 'private', self::ADMIN, public: false, enabled: true);
         $disabled = $this->createPage('Disabled', 'disabled', self::ADMIN, public: true, enabled: false);
 
@@ -155,8 +151,6 @@ final class PageApiTest extends AbstractDataboxTestCase
 
     public function testListContainsReadablePagesOnly(): void
     {
-        $this->markTestIncomplete('BUG: GET /pages lists every page (private, disabled, of any owner) to anyone, including anonymous users: the collection uses the default Doctrine provider and PageRepository::createQueryBuilderAcl() is never used, see src/Entity/Page/Page.php:31');
-
         $public = $this->createPage('Public', 'public', self::ADMIN, public: true, enabled: true);
         $this->createPage('Private', 'private', self::ADMIN, public: false, enabled: true);
         $mine = $this->createPage('Mine', 'mine', self::USER, public: false, enabled: false);
@@ -216,8 +210,6 @@ final class PageApiTest extends AbstractDataboxTestCase
     {
         $page = $this->createPage('P', 'p', self::USER);
         $this->grantUserOnObject(self::OTHER, $page, PermissionInterface::EDIT);
-
-        $this->markTestIncomplete('BUG: Page has no input DTO nor denormalization groups, so "ownerId" (and "options") are writable through PUT/POST: a user with only EDIT permission can take ownership of the page (then delete it / edit its permissions), see src/Entity/Page/Page.php:28-60');
 
         $this->api('PUT', '/pages/'.$page->getId(), self::OTHER, ['ownerId' => self::OTHER]);
 

@@ -32,17 +32,21 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: [
                 'groups' => [self::GROUP_LIST],
             ]),
-        new Get(),
+        new Get(
+            security: 'is_granted("'.AbstractVoter::READ.'", object)',
+        ),
         new Get(
             uriTemplate: '/page-by-slug/{slug}',
             uriVariables: [
                 'slug' => 'slug',
             ],
+            security: 'is_granted("'.AbstractVoter::READ.'", object)',
             name: 'get_page_by_slug',
             provider: PageBySlugProvider::class
         ),
         new Get(
             uriTemplate: '/page-by-slug/',
+            security: 'is_granted("'.AbstractVoter::READ.'", object)',
             name: 'get_home_page',
             provider: PageBySlugProvider::class
         ),
@@ -56,6 +60,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     normalizationContext: [
         'groups' => [self::GROUP_LIST, self::GROUP_READ],
+    ],
+    denormalizationContext: [
+        'groups' => [self::GROUP_WRITE],
     ],
 )]
 #[ORM\Entity(repositoryClass: PageRepository::class)]
