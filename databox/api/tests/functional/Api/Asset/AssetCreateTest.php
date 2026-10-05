@@ -434,8 +434,6 @@ final class AssetCreateTest extends AbstractDataboxTestCase
      */
     public function testKeyOfAnAssetTheUserCannotEditIsNotOverwritable(): void
     {
-        $this->markTestIncomplete('BUG: AssetInputTransformer::transform() loads the existing asset by key and the POST only checks CREATE (on the workspace/collection), not EDIT on that asset: a mere contributor overwrites a secret asset of somebody else (src/Api/InputTransformer/AssetInputTransformer.php:64-72).');
-
         $workspace = $this->createOwnedWorkspace();
         $existing = $this->createAsset(['ownerId' => self::OWNER, 'name' => 'Original', 'no_flush' => true]);
         $existing->setKey('secret-key');

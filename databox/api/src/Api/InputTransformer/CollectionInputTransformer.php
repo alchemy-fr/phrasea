@@ -8,6 +8,8 @@ use App\Api\Model\Input\CollectionInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
+use App\Security\Voter\AbstractVoter;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
@@ -46,6 +48,12 @@ class CollectionInputTransformer extends AbstractInputTransformer
                     ->findByKey($data->key, $workspace->getId());
 
                 if ($collection) {
+                    // The POST operation only checks CREATE on the container:
+                    // upserting an existing collection by its key requires EDIT on it.
+                    if (!$this->isGranted(AbstractVoter::EDIT, $collection)) {
+                        throw new AccessDeniedHttpException(sprintf('Not allowed to update collection with key "%s"', $data->key));
+                    }
+
                     $isNew = false;
                     $object = $collection;
                 }

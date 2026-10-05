@@ -374,6 +374,48 @@ final class CollectionWriteTest extends AbstractDataboxTestCase
         $this->assertSame('Renamed', $updated->getName());
     }
 
+    /**
+     * Reusing the key of a collection the user cannot edit must not let him
+     * overwrite it: CREATE_COLLECTION on the workspace is not EDIT on it.
+     */
+    public function testKeyOfACollectionTheUserCannotEditIsNotOverwritable(): void
+    {
+        $workspace = $this->createTestWorkspace(['members' => [self::OTHER]]);
+        $this->grantUserOnObject(self::USER, $workspace, PermissionInterface::VIEW | PermissionInterface::CREATE);
+        $collection = $this->createCollection(['workspace' => $workspace, 'name' => 'Theirs', 'ownerId' => self::OTHER]);
+        $collection->setKey('their-key');
+        self::getEntityManager()->flush();
+
+        $this->request('POST', '/collections', self::USER, [
+            'json' => [
+                'name' => 'Hijacked',
+                'key' => 'their-key',
+                'workspace' => '/workspaces/'.$workspace->getId(),
+                'extraMetadata' => ['hijacked' => true],
+                'translations' => ['name' => ['fr' => 'Piratée']],
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+
+        $collection = $this->findCollection($collection->getId());
+        $this->assertSame('Theirs', $collection->getName());
+        $this->assertSame([], $collection->getExtraMetadata());
+        $this->assertSame([], $collection->getTranslations() ?? []);
+
+        // EDIT on the collection allows the upsert
+        $this->grantUserOnObject(self::USER, $collection, PermissionInterface::EDIT);
+        $this->request('POST', '/collections', self::USER, [
+            'json' => [
+                'name' => 'Theirs',
+                'key' => 'their-key',
+                'workspace' => '/workspaces/'.$workspace->getId(),
+                'extraMetadata' => ['updated' => true],
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(['updated' => true], $this->findCollection($collection->getId())->getExtraMetadata());
+    }
+
     public function testCreateWithTranslationsAndExtraMetadata(): void
     {
         $workspace = $this->createTestWorkspace(['ownerId' => self::USER]);

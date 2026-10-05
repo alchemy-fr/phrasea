@@ -13,9 +13,11 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\AssetManager;
 use App\Service\Asset\Attribute\AssetNameFiller;
 use App\Service\Asset\PickSourceRenditionManager;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
 class AssetInputTransformer extends AbstractFileInputTransformer
@@ -69,6 +71,12 @@ class AssetInputTransformer extends AbstractFileInputTransformer
                     ]);
 
                 if ($asset) {
+                    // The POST operation only checks CREATE on the container:
+                    // upserting an existing asset by its key requires EDIT on it.
+                    if (!$this->isGranted(AbstractVoter::EDIT, $asset)) {
+                        throw new AccessDeniedHttpException(sprintf('Not allowed to update asset with key "%s"', $data->key));
+                    }
+
                     $isNew = false;
                     $object = $asset;
                 }
