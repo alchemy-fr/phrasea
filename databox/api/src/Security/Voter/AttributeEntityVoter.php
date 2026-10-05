@@ -43,7 +43,7 @@ class AttributeEntityVoter extends AbstractVoter
         return match ($attribute) {
             self::CREATE => $isTypeEditor() || $subject->getList()->isAllowNewValues(),
             self::EDIT, self::DELETE => $isTypeEditor() || ($isCreator() && !$subject->isApproved()),
-            self::READ => $isTypeReader() && ($subject->isApproved() || $isCreator()),
+            self::READ => $isTypeEditor() || ($isTypeReader() && ($subject->isApproved() || $isCreator())),
             default => false,
         };
     }

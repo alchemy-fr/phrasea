@@ -11,6 +11,7 @@ use Alchemy\CoreBundle\Util\LocaleUtil;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -36,7 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'attribute-entity',
     operations: [
-        new Get(),
+        new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
@@ -143,10 +144,14 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $position = 0;
 
+    /**
+     * Only the list moderators (its editors) change the status: a change by anyone else is reverted.
+     */
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     #[Groups([
         self::GROUP_LIST,
     ])]
+    #[ApiProperty(securityPostDenormalize: 'is_granted("EDIT", object.getList())')]
     private int $status = self::STATUS_APPROVED;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
@@ -160,7 +165,11 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     ])]
     private ?array $translations = null;
 
+    /**
+     * Set on creation (AddAttributeEntityProcessor), never from the input.
+     */
     #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
+    #[ApiProperty(writable: false)]
     protected ?string $creatorId = null;
 
     public function getValue(): ?string

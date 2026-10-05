@@ -154,8 +154,6 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
 
     public function testGetItemIsRestricted(): void
     {
-        $this->markTestIncomplete('BUG: GET /attribute-entities/{id} has no security expression (src/Entity/Core/AttributeEntity.php:39 "new Get()"): anyone reads the values of any list, including pending/rejected proposals of other users');
-
         $this->setUpScene();
         $pending = $this->createEntity($this->list, 'Pending', ['status' => AttributeEntity::STATUS_PENDING, 'creatorId' => 'someone']);
         $foreignList = $this->createEntityList(['name' => 'Foreign', 'workspace' => $this->createOtherWorkspace()]);
@@ -167,6 +165,10 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(401);
         $this->api('GET', '/attribute-entities/'.$pending->getId(), self::OTHER);
         $this->assertResponseStatusCodeSame(403);
+
+        // The list editor moderates the proposals of others
+        $this->api('GET', '/attribute-entities/'.$pending->getId(), self::USER);
+        $this->assertResponseStatusCodeSame(200);
     }
 
     public function testAnEditorCreatesApprovedValues(): void
@@ -329,8 +331,6 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
 
     public function testACreatorCannotApproveItsOwnProposal(): void
     {
-        $this->markTestIncomplete('BUG: the creator of a pending value may approve it himself with PUT {"status": 0}: AttributeEntity has no denormalization groups, so "status" (and "creatorId") are writable by anyone allowed to EDIT (src/Entity/Core/AttributeEntity.php:36, AttributeEntityVoter grants EDIT to the creator of a non approved value)');
-
         $this->setUpScene(['allowNewValues' => true]);
         $mine = $this->createEntity($this->list, 'Mine', ['status' => AttributeEntity::STATUS_PENDING, 'creatorId' => self::OTHER]);
 
