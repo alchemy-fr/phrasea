@@ -12,6 +12,7 @@ use App\Entity\Core\Collection;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -45,8 +46,11 @@ class MoveCollectionProcessor implements ProcessorInterface
             $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $destination);
         }
 
-        if ($destination === $data) {
-            throw new \InvalidArgumentException('Cannot reference parent to itself!');
+        // A cycle would make every parent walk (permissions, paths, indexing) loop forever
+        for ($ancestor = $destination; null !== $ancestor; $ancestor = $ancestor->getParent()) {
+            if ($ancestor === $data) {
+                throw new BadRequestHttpException('Cannot move a collection into itself or one of its descendants');
+            }
         }
 
         $data->setParent($destination);

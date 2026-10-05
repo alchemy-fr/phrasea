@@ -100,7 +100,6 @@ final class CollectionMoveTest extends AbstractDataboxTestCase
 
     public function testMoveIntoItselfIsRejected(): void
     {
-        $this->markTestIncomplete('BUG: MoveCollectionProcessor (src/Api/Processor/MoveCollectionProcessor.php:49) throws a plain \InvalidArgumentException, which gives a 500 instead of a 400');
 
         $workspace = $this->createTestWorkspace(['ownerId' => self::USER]);
         $collection = $this->createCollection(['workspace' => $workspace, 'name' => 'C']);
@@ -114,7 +113,6 @@ final class CollectionMoveTest extends AbstractDataboxTestCase
 
     public function testMoveIntoOwnDescendantIsRejected(): void
     {
-        $this->markTestIncomplete('BUG: MoveCollectionProcessor (src/Api/Processor/MoveCollectionProcessor.php:48) only rejects the collection itself: moving a collection under one of its descendants is accepted and creates a parent cycle, then IndexCollectionBranchHandler::handleChildren() (src/Consumer/Handler/Search/IndexCollectionBranchHandler.php:39) recurses forever (the PHP process crashes, do not run this test without the fix)');
 
         $workspace = $this->createTestWorkspace(['ownerId' => self::USER]);
         $a = $this->createCollection(['workspace' => $workspace, 'name' => 'A']);
