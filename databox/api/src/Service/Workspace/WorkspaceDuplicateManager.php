@@ -46,6 +46,8 @@ readonly class WorkspaceDuplicateManager
         foreach ($items as $item) {
             $i = new RenditionPolicy();
             $i->setName($item->getName());
+            $i->setPublic($item->isPublic());
+            $i->setEditable($item->isEditable());
             $i->setWorkspace($to);
             $this->em->persist($i);
             $classMap[$item->getId()] = $i;
@@ -77,12 +79,14 @@ readonly class WorkspaceDuplicateManager
         $items = $this->em->getRepository(Tag::class)->findBy([
             'workspace' => $from->getId(),
         ]);
+        $tagIdMap = [];
         foreach ($items as $item) {
             $i = new Tag();
             $i->setWorkspace($to);
             $i->setName($item->getName());
             $i->setLocale($item->getLocale());
             $this->em->persist($i);
+            $tagIdMap[$item->getId()] = $i->getId();
         }
 
         /** @var AttributeFilterRule[] $items */
@@ -90,11 +94,11 @@ readonly class WorkspaceDuplicateManager
             'workspace' => $from->getId(),
         ]);
 
-        // Entity UUIDs embedded in the AQL condition (e.g. @tag references) are NOT
-        // remapped to the duplicated workspace's entities: such rules fail closed.
+        // @tag references embedded in the AQL condition are remapped to the duplicated tags.
+        // Other entity UUIDs (e.g. collections) are not duplicated: such rules fail closed.
         foreach ($items as $item) {
             $i = new AttributeFilterRule();
-            $i->setCondition($item->getCondition());
+            $i->setCondition(strtr($item->getCondition(), $tagIdMap));
             $i->setWorkspace($to);
             $i->setTargets($item->getUserIds(), $item->getGroupIds());
             $this->em->persist($i);
@@ -111,6 +115,8 @@ readonly class WorkspaceDuplicateManager
             $i = new WorkspaceIntegration();
             $i->setName($item->getName());
             $i->setIntegration($item->getIntegration());
+            $i->setPublic($item->getPublic());
+            $i->setOwnerId($item->getOwnerId());
             $i->setEnabled($item->isEnabled());
             $i->setConfig($item->getConfig());
             $i->setWorkspace($to);

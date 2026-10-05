@@ -287,7 +287,11 @@ class AssetSearch extends AbstractSearch
     private function buildAttributeFilterQuery(?string $userId, array $groupIds, array $options): ?Query\BoolQuery
     {
         $ruleSet = $this->attributeFilterManager->getUserRules($userId, $groupIds);
+        if (empty($ruleSet)) {
+            return null;
+        }
 
+        $attributeGroups = $this->attributeSearch->buildAllAttributeDefinitionsGroups();
         $query = new Query\BoolQuery();
         $hasConditions = false;
 
@@ -295,7 +299,7 @@ class AssetSearch extends AbstractSearch
             foreach ($conditions as $condition) {
                 try {
                     $conditionQuery = $this->attributeSearch->buildConditionQuery(
-                        $this->attributeSearch->buildAllAttributeDefinitionsGroups(),
+                        $attributeGroups,
                         $condition,
                         $options
                     );

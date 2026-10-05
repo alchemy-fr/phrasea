@@ -25,6 +25,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'attribute-filter-rule',
@@ -64,6 +65,7 @@ class AttributeFilterRule extends AbstractUuidEntity implements LoggableChangeSe
     protected ?DoctrineCollection $targets = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank]
     #[ValidAQLConstraint]
     protected ?string $condition = null;
 
