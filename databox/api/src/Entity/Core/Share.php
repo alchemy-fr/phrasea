@@ -106,6 +106,9 @@ use Symfony\Component\String\ByteString;
     normalizationContext: [
         'groups' => [self::GROUP_READ],
     ],
+    denormalizationContext: [
+        'groups' => [self::GROUP_WRITE],
+    ],
 )]
 #[ORM\Entity(repositoryClass: ShareRepository::class)]
 class Share extends AbstractUuidEntity implements OwnerPersistableInterface
@@ -115,13 +118,14 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     use OwnerIdTrait;
     final public const string GROUP_READ = 'share:read';
     final public const string GROUP_PUBLIC_READ = 'share:public';
+    final public const string GROUP_WRITE = 'share:write';
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    #[Groups([self::GROUP_READ])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
-    #[Groups([self::GROUP_READ])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private bool $enabled = true;
 
     /**
@@ -131,15 +135,15 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     #[ORM\JoinTable(name: 'share_asset')]
     #[ORM\JoinColumn(onDelete: 'CASCADE')]
     #[ORM\InverseJoinColumn(onDelete: 'CASCADE')]
-    #[Groups([self::GROUP_PUBLIC_READ, self::GROUP_READ])]
+    #[Groups([self::GROUP_PUBLIC_READ, self::GROUP_READ, self::GROUP_WRITE])]
     private DoctrineCollection $assets;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups([self::GROUP_READ])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     protected ?\DateTimeImmutable $startsAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups([self::GROUP_READ])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     protected ?\DateTimeImmutable $expiresAt = null;
 
     #[ORM\Column(type: Types::STRING, length: 64, nullable: false)]
@@ -147,6 +151,7 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     private ?string $token = null;
 
     #[ORM\Column(type: Types::JSON, nullable: false)]
+    #[Groups([self::GROUP_WRITE])]
     private array $config = [];
 
     /**

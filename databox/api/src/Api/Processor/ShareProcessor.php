@@ -10,7 +10,10 @@ use ApiPlatform\State\ProcessorInterface;
 use ApiPlatform\Validator\ValidatorInterface;
 use App\Api\Provider\ShareReadProvider;
 use App\Entity\Core\Share;
+use App\Security\Voter\AssetVoter;
+use Doctrine\ORM\PersistentCollection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ShareProcessor implements ProcessorInterface
@@ -40,6 +43,16 @@ class ShareProcessor implements ProcessorInterface
         foreach ($assets as $asset) {
             if ($asset->getWorkspaceId() !== $workspaceId) {
                 throw new BadRequestHttpException('All shared assets must belong to the same workspace');
+            }
+        }
+
+        // On update, EDIT is granted on the share before the payload is read:
+        // the assets it adds must be readable and shareable, as on creation.
+        $collection = $data->getAssets();
+        $addedAssets = $collection instanceof PersistentCollection ? $collection->getInsertDiff() : $assets;
+        foreach ($addedAssets as $asset) {
+            if (!$this->isGranted(AssetVoter::READ, $asset) || !$this->isGranted(AssetVoter::SHARE, $asset)) {
+                throw new AccessDeniedHttpException(sprintf('You are not allowed to share asset "%s"', $asset->getId()));
             }
         }
 
