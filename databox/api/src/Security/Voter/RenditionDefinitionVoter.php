@@ -35,7 +35,6 @@ class RenditionDefinitionVoter extends AbstractVoter
             self::CREATE, self::DELETE, self::EDIT => $isWorkspaceEditor() || $this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX),
             self::READ_ADMIN => $isWorkspaceEditor()
                 || $this->tokenHasScope($token, self::READ, self::SCOPE_PREFIX),
-            // Same rule as the collection (RenditionDefinitionRepository::addAclConditions())
             self::READ => $isWorkspaceEditor()
                 || $this->tokenHasScope($token, self::READ, self::SCOPE_PREFIX)
                 || (

@@ -151,7 +151,6 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     private ?string $token = null;
 
     #[ORM\Column(type: Types::JSON, nullable: false)]
-    #[Groups([self::GROUP_WRITE])]
     private array $config = [];
 
     /**

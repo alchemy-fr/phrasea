@@ -29,7 +29,6 @@ class AttributeVoter extends AbstractVoter
         $attributeDefinition = $subject->getDefinition();
 
         return match ($attribute) {
-            // A non editable definition still exposes its values
             self::READ => $this->security->isGranted(self::READ, $subject->getAsset())
                 && (
                     $attributeDefinition->getPolicy()->isPublic()
