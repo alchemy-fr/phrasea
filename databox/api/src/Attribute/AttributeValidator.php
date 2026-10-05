@@ -114,6 +114,12 @@ final readonly class AttributeValidator
         );
 
         foreach ($attributes as $i => $attributeInput) {
+            // Writers resolve the definition from "definitionId" first: the one validated here must be the same
+            if ($attributeInput->definition && $attributeInput->definitionId
+                && $attributeInput->definition->getId() !== $attributeInput->definitionId) {
+                throw new BadRequestHttpException(sprintf('"definition" and "definitionId" do not match in %s #%d', $contextName, $i));
+            }
+
             $definition = null;
             if ($attributeInput->definition) {
                 $definition = $attributeInput->definition;
