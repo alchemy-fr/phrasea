@@ -7,6 +7,7 @@ namespace App\Repository\Core;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetFileVersion;
 use App\Entity\Core\File;
+use App\Entity\Integration\WorkspaceIntegration;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\Persistence\ManagerRegistry;
@@ -176,5 +177,34 @@ class FileRepository extends ServiceEntityRepository
         foreach ($result as $row) {
             yield $row['fileId'];
         }
+    }
+
+    /**
+     * Source files of live assets whose analysis has still not completed, in
+     * workspaces running a file analyzer integration (elsewhere files are never
+     * analyzed, so a null analyzedAt is the normal state). Oldest first.
+     *
+     * @return File[]
+     */
+    public function findPendingAnalysisSourceFiles(\DateTimeImmutable $createdBefore, string $analyzerIntegrationName, int $limit): array
+    {
+        return $this->createQueryBuilder('f')
+            ->andWhere('f.analyzedAt IS NULL')
+            ->andWhere('f.createdAt < :before')
+            ->andWhere(sprintf(
+                'EXISTS (SELECT a.id FROM %s a WHERE a.source = f AND a.deletedAt IS NULL)',
+                Asset::class
+            ))
+            ->andWhere(sprintf(
+                'EXISTS (SELECT wi.id FROM %s wi WHERE wi.workspace = f.workspace AND wi.integration = :integration AND wi.enabled = true)',
+                WorkspaceIntegration::class
+            ))
+            ->setParameter('before', $createdBefore)
+            ->setParameter('integration', $analyzerIntegrationName)
+            ->orderBy('f.createdAt', 'ASC')
+            ->addOrderBy('f.id', 'ASC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
     }
 }

@@ -89,7 +89,9 @@ you can use the provided scripts to add cron jobs to your host machine:
   (e.g. emptying the databox trash);
 - `bin/ops/cron-script-hourly.sh` — run it **every hour**: it flushes the
   notification digests whose window has elapsed (safety net for the delayed
-  Messenger probes).
+  Messenger probes), renews the integration tokens about to expire and
+  re-triggers the file analyses stuck in the pending state
+  (`app:file:unblock-analyses`, see `doc/tech/Databox/FileAnalyzers.mdx`).
 
 ### Changing ports
 
