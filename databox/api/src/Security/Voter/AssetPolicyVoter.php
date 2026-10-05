@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 class AssetPolicyVoter extends AbstractVoter
 {
     final public const string READ_ADMIN = 'READ_ADMIN';
-    private const string SCOPE_PREFIX = 'asset-policy:';
+    final public const string SCOPE_PREFIX = 'asset-policy:';
 
     protected function supports(string $attribute, $subject): bool
     {

@@ -24,14 +24,27 @@ class AssetPolicyTest extends AbstractSearchTestCase
         ]);
         $this->assertResponseStatusCodeSame(400);
 
+        $workspaceId = $this->findOneBy(Workspace::class, [
+            'slug' => 'test-workspace',
+        ])->getId();
+
+        // A mere reader of the workspace cannot read its policies
         $client->request('GET', '/asset-policies', [
             'headers' => [
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             ],
             'query' => [
-                'workspaceId' => $this->findOneBy(Workspace::class, [
-                    'slug' => 'test-workspace',
-                ])->getId(),
+                'workspaceId' => $workspaceId,
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+
+        $client->request('GET', '/asset-policies', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+            ],
+            'query' => [
+                'workspaceId' => $workspaceId,
             ],
         ]);
 

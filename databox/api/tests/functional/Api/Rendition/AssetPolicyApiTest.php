@@ -70,8 +70,6 @@ final class AssetPolicyApiTest extends AbstractDataboxTestCase
 
     public function testWorkspaceReaderCannotListPolicies(): void
     {
-        $this->markTestIncomplete('BUG: AssetPolicyCollectionProvider only requires READ on the workspace (src/Api/Provider/AbstractWorkspaceFilteredCollectionProvider.php:29), whereas AssetPolicyVoter restricts READ of a policy to workspace editors: a mere reader can list all policies (targeted users, actions) while GET /asset-policies/{id} is denied.');
-
         [$ws] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
         $this->addUserOnWorkspace(self::READER, $ws->getId());
         $this->createAssetPolicy($ws, 'Hide', [self::READER], [['action' => 'hide_rendition', 'definitionId' => 'x']]);
