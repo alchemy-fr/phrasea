@@ -88,6 +88,7 @@ services:
       - internal
     environment:
       - DEV_MODE
+      - DEBUG_STACK_CONFIG
       - KEYCLOAK_URL
       - KEYCLOAK_REALM_NAME
       - DISPLAY_SERVICES_MENU
@@ -136,6 +137,7 @@ services:
       - APP_ENV
       - LOG_ACTION_LEVEL
       - WORKER_VERBOSITY
+      - DEBUG_STACK_CONFIG
       - FIXTURES_GENERATE_IMAGES
       - TRUSTED_PROXIES
       - VERIFY_SSL
