@@ -25,25 +25,29 @@ final readonly class FileMetadataAccessorWrapper
             return isset($args[0]) ? $this->getMetadata((string) $args[0]) : null;
         }
 
+        // Templates may only read the file: its setters are never reachable
         $methods = [
-            $method,
             'get'.ucfirst($method),
             'is'.ucfirst($method),
         ];
+        if (preg_match('#^(get|is|has)[A-Z0-9_]#', $method)) {
+            array_unshift($methods, $method);
+        }
 
+        $resolved = null;
         foreach ($methods as $m) {
             if (method_exists(File::class, $m)) {
-                $method = $m;
+                $resolved = $m;
                 break;
             }
         }
 
-        if (!method_exists(File::class, $method)) {
+        if (null === $resolved) {
             throw new SyntaxError(sprintf('Unknown method "%s" on file', $method));
         }
 
         if ($this->file) {
-            return call_user_func_array([$this->file, $method], $args);
+            return call_user_func_array([$this->file, $resolved], $args);
         }
 
         return null;
