@@ -19,6 +19,7 @@ use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Share;
 use App\Entity\Core\TermsVersion;
 use App\Repository\Core\AssetRenditionRepository;
+use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use App\Service\Asset\FileUrlResolver;
 use App\Service\Workspace\LogoManager;
 use App\Service\Workspace\TermsManager;
@@ -36,6 +37,7 @@ final class ShareReadProvider implements ProviderInterface
         private readonly TermsManager $termsManager,
         private readonly LogoManager $logoManager,
         private readonly FileUrlResolver $fileUrlResolver,
+        private readonly AssetPolicyManager $assetPolicyManager,
     ) {
     }
 
@@ -54,7 +56,7 @@ final class ShareReadProvider implements ProviderInterface
         $item->alternateUrls = [];
         $item->attachments = [];
 
-        foreach ($item->getAssetsList() as $asset) {
+        foreach ($item->getDeliverableAssets() as $asset) {
             $this->provideAssetAlternateUrls($item, $asset);
             $this->provideAssetAttachments($item, $asset);
         }
@@ -81,6 +83,7 @@ final class ShareReadProvider implements ProviderInterface
     {
         $options = [
             AssetRenditionRepository::OPT_WITH_FILE => true,
+            AssetRenditionRepository::OPT_EXCLUDE_DEFINITIONS => $this->assetPolicyManager->getPolicyApplicationFilter($asset)->getFilteredRenditions(),
         ];
 
         /** @var AssetRendition[] $renditions */

@@ -31,6 +31,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\String\ByteString;
 
 #[ApiResource(
@@ -135,7 +136,7 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     #[ORM\JoinTable(name: 'share_asset')]
     #[ORM\JoinColumn(onDelete: 'CASCADE')]
     #[ORM\InverseJoinColumn(onDelete: 'CASCADE')]
-    #[Groups([self::GROUP_PUBLIC_READ, self::GROUP_READ, self::GROUP_WRITE])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private DoctrineCollection $assets;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
@@ -204,6 +205,22 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     public function getAssetsList(): array
     {
         return $this->assets->getValues();
+    }
+
+    /**
+     * The assets a share link may still deliver: trashed or quarantined
+     * assets stay attached to the share, but are no longer served.
+     *
+     * @return Asset[]
+     */
+    #[Groups([self::GROUP_PUBLIC_READ])]
+    #[SerializedName('assets')]
+    public function getDeliverableAssets(): array
+    {
+        return array_values(array_filter(
+            $this->assets->getValues(),
+            fn (Asset $asset): bool => !$asset->isDeleted() && AssetStatusEnum::Accepted === $asset->getStatus(),
+        ));
     }
 
     public function getWorkspace(): ?Workspace

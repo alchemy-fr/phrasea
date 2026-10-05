@@ -44,7 +44,7 @@ final class ShareAttachmentProvider implements ProviderInterface
         }
 
         $belongsToShare = false;
-        foreach ($item->getAssetsList() as $asset) {
+        foreach ($item->getDeliverableAssets() as $asset) {
             if ($attachment->getAsset()?->getId() === $asset->getId()) {
                 $belongsToShare = true;
                 break;

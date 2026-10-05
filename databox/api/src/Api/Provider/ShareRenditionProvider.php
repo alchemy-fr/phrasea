@@ -13,6 +13,7 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Share;
 use App\Repository\Core\ShareRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\FileUrlResolver;
 use App\Service\Storage\RenditionManager;
@@ -39,6 +40,7 @@ final class ShareRenditionProvider implements ProviderInterface
         #[Autowire(env: 'MATOMO_URL')]
         private string $matomoUrl,
         private readonly LoggerInterface $logger,
+        private readonly AssetPolicyManager $assetPolicyManager,
     ) {
     }
 
@@ -59,6 +61,11 @@ final class ShareRenditionProvider implements ProviderInterface
         }
 
         $defId = $uriVariables['rendition'];
+        // Same filtering as the share's alternateUrls (see ShareReadProvider)
+        if (in_array($defId, $this->assetPolicyManager->getPolicyApplicationFilter($asset)->getFilteredRenditions(), true)) {
+            return $this->createNotFoundResponse();
+        }
+
         $rendition = $this->em->getRepository(AssetRendition::class)->findOneBy([
             'asset' => $asset->getId(),
             'definition' => $defId,
@@ -100,12 +107,10 @@ final class ShareRenditionProvider implements ProviderInterface
     {
         $assetId = $this->requestStack->getCurrentRequest()?->query->get('asset');
         if (null === $assetId || '' === $assetId) {
-            $first = $share->getAssets()->first();
-
-            return $first instanceof Asset ? $first : null;
+            return $share->getDeliverableAssets()[0] ?? null;
         }
 
-        foreach ($share->getAssetsList() as $asset) {
+        foreach ($share->getDeliverableAssets() as $asset) {
             if ($asset->getId() === $assetId) {
                 return $asset;
             }

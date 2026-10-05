@@ -88,7 +88,15 @@ class AssetOutputTransformer implements OutputTransformerInterface
         $output->editedAt = $data->getEditedAt();
         $output->attributesEditedAt = $data->getAttributesEditedAt();
 
-        $output->setSource($data->getSource());
+        $source = $data->getSource();
+        if (null !== $source && $this->hasGroup(Share::GROUP_PUBLIC_READ, $context)) {
+            // A share link delivers the renditions its policies allow, never the original:
+            // keep the file description, drop its URLs.
+            $source = clone $source;
+            $source->setPathPublic(false);
+            $source->setAlternateUrls(null);
+        }
+        $output->setSource($source);
 
         // Full representation (list/read/share…) vs. the story-only context,
         // where an embedded story asset only exposes its name.
