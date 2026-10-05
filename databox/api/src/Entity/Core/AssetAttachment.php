@@ -14,6 +14,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\AssetAttachmentInput;
+use App\Api\Provider\AssetAttachmentCollectionProvider;
 use App\Entity\Traits\ExtraMetadataTrait;
 use App\Security\Voter\AbstractVoter;
 use App\Validator\SameWorkspaceConstraint;
@@ -36,6 +37,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
                     AssetAttachment::GROUP_LIST,
                 ],
             ],
+            provider: AssetAttachmentCollectionProvider::class,
         ),
     ],
     normalizationContext: [

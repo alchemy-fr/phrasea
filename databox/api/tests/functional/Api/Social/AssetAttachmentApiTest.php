@@ -16,7 +16,8 @@ use App\Tests\Functional\AbstractDataboxTestCase;
  * asset): `GET|POST /attachments`, `GET|PUT|DELETE /attachments/{id}`.
  *
  * Rights (AssetAttachmentVoter) follow the host asset: READ to read,
- * EDIT to create/update/delete.
+ * EDIT to create/update/delete; creating also needs READ on the attached
+ * asset. The collection is scoped to one readable asset (`?assetId=`).
  *
  * Setup: USER owns the workspace and the assets, OTHER_USER is a member who
  * only reads the "public in workspace" assets.
@@ -153,9 +154,6 @@ final class AssetAttachmentApiTest extends AbstractDataboxTestCase
         $client->request('POST', '/attachments', self::auth(self::OTHER, [
             'json' => ['assetId' => $own->getId(), 'attachmentId' => $this->secret->getId()],
         ]));
-        if (201 === $client->getResponse()->getStatusCode()) {
-            $this->markTestIncomplete('BUG: POST /attachments only checks EDIT on the host asset (src/Security/Voter/AssetAttachmentVoter.php:30), never READ on the attached one: any editor can attach an asset he cannot read, then download its source through a share of his own asset (/s/{id}/a/{attachment}).');
-        }
         $this->assertResponseStatusCodeSame(403);
     }
 
@@ -240,17 +238,27 @@ final class AssetAttachmentApiTest extends AbstractDataboxTestCase
         $hidden = $this->createAssetAttachment($this->secret, $this->document, 'confidential');
 
         foreach ([self::OTHER, null] as $userId) {
-            $response = $client->request('GET', '/attachments', self::auth($userId));
-            $status = $response->getStatusCode();
-            if (200 === $status) {
-                $ids = array_column($response->toArray()['hydra:member'], 'id');
-                if (in_array($hidden->getId(), $ids, true)) {
-                    $this->markTestIncomplete('BUG: GET /attachments (src/Entity/Core/AssetAttachment.php:33) has no security, provider nor Doctrine extension: anyone, even anonymous, lists every attachment of every workspace (names, host and attached assets).');
-                }
-                $this->assertNotContains($hidden->getId(), $ids);
-            } else {
-                $this->assertContains($status, [401, 403]);
-            }
+            // The collection is scoped to one asset...
+            $client->request('GET', '/attachments', self::auth($userId));
+            $this->assertResponseStatusCodeSame(400);
+
+            // ...which must be readable
+            $response = $client->request('GET', '/attachments?assetId='.$this->secret->getId(), self::auth($userId));
+            $this->assertResponseStatusCodeSame(403);
+            $this->assertStringNotContainsString($hidden->getId(), $response->getContent(false));
         }
+    }
+
+    public function testListAttachmentsOfAnAsset(): void
+    {
+        $client = static::createClient();
+        $this->setUpWorkspace();
+        $visible = $this->createAssetAttachment($this->host, $this->document, 'visible');
+        $this->createAssetAttachment($this->secret, $this->document, 'confidential');
+
+        $data = $client->request('GET', '/attachments?assetId='.$this->host->getId(), self::auth(self::OTHER))->toArray();
+        $this->assertResponseIsSuccessful();
+        $this->assertSame([$visible->getId()], array_column($data['hydra:member'], 'id'));
+        $this->assertSame('visible', $data['hydra:member'][0]['name']);
     }
 }
