@@ -70,8 +70,8 @@ class AssetVoter extends AbstractVoter
                     $isOwner()
                     || $isWorkspaceOwnerFast()
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
-                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
-                    || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE
+                    // Anonymous users only get PUBLIC items (as in AbstractSearch::createACLBoolQuery())
+                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
                     || $this->hasAcl([
                         PermissionInterface::VIEW,
                         PermissionInterface::OWNER,

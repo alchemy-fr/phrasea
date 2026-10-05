@@ -7,6 +7,7 @@ namespace App\Tests\Functional\Api\Asset;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
+use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Tests\Functional\AbstractDataboxTestCase;
 
@@ -159,15 +160,56 @@ final class AssetReadTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(401);
     }
 
-    public function testAnonymousCannotReadAnAssetReservedToAuthenticatedUsers(): void
+    /**
+     * @return iterable<string, array{int}>
+     */
+    public static function nonPublicPrivacyProvider(): iterable
     {
-        $this->markTestIncomplete('BUG: AssetVoter::READ grants "public_for_users" (and "public_in_workspace"/"private") assets of a public workspace to anonymous users through the `privacy >= PUBLIC_IN_WORKSPACE` branch, while the search (AbstractSearch::createACLBoolQuery) only exposes privacy >= PUBLIC to them (src/Security/Voter/AssetVoter.php:74 vs src/Elasticsearch/AbstractSearch.php:124).');
+        yield 'public_in_workspace' => [WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE];
+        yield 'private' => [WorkspaceItemPrivacyInterface::PRIVATE];
+        yield 'public_for_users' => [WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS];
+    }
 
+    /**
+     * As in the search, anonymous users only read PUBLIC assets.
+     *
+     * @dataProvider nonPublicPrivacyProvider
+     */
+    public function testAnonymousCannotReadANonPublicAssetOfAPublicWorkspace(int $privacy): void
+    {
         $this->createOwnedWorkspace(self::OWNER, ['public' => true]);
-        $asset = $this->createPrivacyAsset(WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS);
+        $asset = $this->createPrivacyAsset($privacy);
 
         $this->request('GET', '/assets/'.$asset->getId(), null);
         $this->assertResponseStatusCodeSame(401);
+    }
+
+    /**
+     * A non-public collection does not open its assets to anonymous users
+     * (whereas a public one does), but still opens them to authenticated users.
+     *
+     * @dataProvider nonPublicPrivacyProvider
+     */
+    public function testAnonymousCannotReadTheAssetsOfANonPublicCollection(int $privacy): void
+    {
+        $this->createOwnedWorkspace(self::OWNER, ['public' => true]);
+        $collection = $this->createCollection(['ownerId' => self::OWNER]);
+        $collection->setPrivacy($privacy);
+        $asset = $this->createAsset(['ownerId' => self::OWNER, 'collectionId' => $collection->getId()]);
+        self::getEntityManager()->flush();
+
+        $this->request('GET', '/assets/'.$asset->getId(), null);
+        $this->assertResponseStatusCodeSame(401);
+
+        $this->request('GET', '/assets/'.$asset->getId(), self::OTHER);
+        $this->assertResponseIsSuccessful();
+
+        $collection = self::getEntityManager()->find(Collection::class, $collection->getId());
+        $collection->setPrivacy(WorkspaceItemPrivacyInterface::PUBLIC);
+        self::getEntityManager()->flush();
+
+        $this->request('GET', '/assets/'.$asset->getId(), null);
+        $this->assertResponseIsSuccessful();
     }
 
     public function testAuthenticatedUserReadsAnAssetOfAPublicWorkspace(): void

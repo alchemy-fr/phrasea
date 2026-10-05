@@ -89,19 +89,25 @@ final class CollectionReadTest extends AbstractDataboxTestCase
 
     public function testAnonymousCannotReadNonPublicCollectionOfPublicWorkspace(): void
     {
-        $this->markTestIncomplete('BUG: CollectionVoter READ (src/Security/Voter/CollectionVoter.php:92) grants any privacy >= PRIVATE_IN_WORKSPACE without checking the user, which makes the "$userId &&" guard of line 91 dead code: anonymous users read PRIVATE_IN_WORKSPACE/PRIVATE/PUBLIC_FOR_USERS collections of a public workspace, whereas the search only lists PUBLIC ones to them');
-
         $workspace = $this->createTestWorkspace(['public' => true]);
-        foreach ([Privacy::PRIVATE_IN_WORKSPACE, Privacy::PRIVATE, Privacy::PUBLIC_FOR_USERS] as $privacy) {
+        $collectionIds = [];
+        foreach ([Privacy::PRIVATE_IN_WORKSPACE, Privacy::PUBLIC_IN_WORKSPACE, Privacy::PRIVATE, Privacy::PUBLIC_FOR_USERS] as $privacy) {
             $collection = $this->createCollection([
                 'workspace' => $workspace,
                 'name' => 'C'.$privacy,
                 'ownerId' => 'coll_owner',
             ]);
             $this->setCollectionPrivacy($collection, $privacy);
+            $collectionIds[] = $collection->getId();
+        }
 
-            $this->request('GET', '/collections/'.$collection->getId(), self::ANONYMOUS);
+        foreach ($collectionIds as $id) {
+            $this->request('GET', '/collections/'.$id, self::ANONYMOUS);
             $this->assertResponseStatusCodeSame(401);
+
+            // Authenticated users keep reading them
+            $this->request('GET', '/collections/'.$id, self::OTHER);
+            $this->assertResponseStatusCodeSame(200);
         }
     }
 

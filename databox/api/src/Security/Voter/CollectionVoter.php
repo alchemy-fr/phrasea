@@ -88,8 +88,8 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 && (
                     $isCreator()
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
-                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE)
-                    || ($subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
+                    // Anonymous users only get PUBLIC items (as in AbstractSearch::createACLBoolQuery())
+                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
                     || $this->hasAcl([
                         PermissionInterface::VIEW,
                         PermissionInterface::OWNER,
@@ -103,8 +103,8 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 && (
                     $isCreator()
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
-                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
-                    || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE
+                    // Anonymous users only get assets of PUBLIC collections (as in AbstractSearch::createACLBoolQuery())
+                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
                     || $this->parentIsGranted($attribute, $subject)
                     || $this->hasAcl([
                         PermissionInterface::VIEW,
