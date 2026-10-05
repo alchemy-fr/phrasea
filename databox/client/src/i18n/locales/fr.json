@@ -78,6 +78,8 @@
     "asset.actions.replace_source": "Remplacer le fichier source",
     "asset.actions.restore": "Restaurer",
     "asset.actions.save_as": "Enregistrer sous…",
+    "asset.actions.selection_count_one": "{{count}} asset sélectionné",
+    "asset.actions.selection_count_other": "{{count}} assets sélectionnés",
     "asset.actions.share": "Partager",
     "asset.attachments.add": "Ajouter une pièce jointe",
     "asset.attachments.added": "Pièce jointe ajoutée",

@@ -1,6 +1,7 @@
 'use client';
 
 import {Fragment, PropsWithChildren, useCallback, useState} from 'react';
+import {useTranslation} from 'react-i18next';
 import type {Asset} from '@/types/api';
 import {
     assetKey,
@@ -11,9 +12,11 @@ import {
     ContextMenu,
     ContextMenuContent,
     ContextMenuItem,
+    ContextMenuLabel,
     ContextMenuSeparator,
     ContextMenuTrigger,
     DropdownMenuItem,
+    DropdownMenuLabel,
     DropdownMenuSeparator,
     MenuEmpty,
 } from '@/components/ui/menu';
@@ -86,7 +89,8 @@ export function AssetContextMenu({
 
 /**
  * Shared list of actions on one or several assets, rendered either in a
- * context menu or in a dropdown menu.
+ * context menu or in a dropdown menu. Several assets get a header giving
+ * their count above the actions.
  */
 export function AssetMenuItems({
     assets,
@@ -101,9 +105,29 @@ export function AssetMenuItems({
     /** Actions that do not make sense where the menu is rendered */
     context?: ActionContext;
 }) {
+    const {t} = useTranslation();
     const groups = useAssetActions(assets, {onOpen, context});
+    const Label = variant === 'context' ? ContextMenuLabel : DropdownMenuLabel;
+    const Sep =
+        variant === 'context' ? ContextMenuSeparator : DropdownMenuSeparator;
 
-    return <AssetActionItems groups={groups} variant={variant} />;
+    return (
+        <>
+            {assets.length > 1 ? (
+                <>
+                    <Label data-testid="menu-selection-count">
+                        {t(
+                            'asset.actions.selection_count',
+                            '{{count}} assets selected',
+                            {count: assets.length}
+                        )}
+                    </Label>
+                    <Sep />
+                </>
+            ) : null}
+            <AssetActionItems groups={groups} variant={variant} />
+        </>
+    );
 }
 
 /** Menu items of actions already built (see {@link useAssetActions}) */

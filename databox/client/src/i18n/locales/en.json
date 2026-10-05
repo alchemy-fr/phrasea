@@ -78,6 +78,8 @@
     "asset.actions.replace_source": "Replace source file",
     "asset.actions.restore": "Restore",
     "asset.actions.save_as": "Save as…",
+    "asset.actions.selection_count_one": "{{count}} asset selected",
+    "asset.actions.selection_count_other": "{{count}} assets selected",
     "asset.actions.share": "Share",
     "asset.attachments.add": "Add attachment",
     "asset.attachments.added": "Attachment added",
