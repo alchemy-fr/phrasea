@@ -97,7 +97,10 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
             $integration = $config->getIntegration();
             $output->integrationName = $integration->getDisplayName();
             $output->setConfig($integration->resolveClientConfiguration($data, $config));
-            $output->configInfo = $integration->getConfigurationInfo($config);
+            if ($this->isGranted(AbstractVoter::EDIT, $data)) {
+                // May hold secrets (e.g. the Uploader security key)
+                $output->configInfo = $integration->getConfigurationInfo($config);
+            }
         } catch (\Throwable $e) {
             $output->lastErrors ??= [];
             $output->lastErrors[] = [
