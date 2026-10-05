@@ -9,7 +9,7 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
 class EntityListVoter extends AbstractVoter
 {
-    private const string SCOPE_PREFIX = 'entity-list:';
+    final public const string SCOPE_PREFIX = 'entity-list:';
 
     protected function supports(string $attribute, $subject): bool
     {

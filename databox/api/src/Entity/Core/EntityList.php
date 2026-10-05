@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity\Core;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
@@ -37,11 +38,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'entity-list',
     operations: [
-        new Get(),
+        new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
-        new GetCollection(),
+        // Restricted to the readable workspaces by EntityListExtension
+        new GetCollection(security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")'),
         new Post(
             securityPostDenormalize: 'is_granted("CREATE", object)'
         ),

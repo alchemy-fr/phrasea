@@ -95,8 +95,6 @@ final class EntityListTest extends AbstractDataboxTestCase
 
     public function testListIsRestrictedToReadableWorkspaces(): void
     {
-        $this->markTestIncomplete('BUG: GET /entity-lists returns the lists of every workspace, to anyone: no security, provider nor Doctrine extension restricts EntityList (src/Entity/Core/EntityList.php:44 "new GetCollection()")');
-
         $this->setUpScene();
         $this->createEntityList(['name' => 'Colors']);
         $this->createEntityList(['name' => 'Foreign', 'workspace' => $this->createOtherWorkspace()]);
@@ -138,8 +136,6 @@ final class EntityListTest extends AbstractDataboxTestCase
 
     public function testGetItemIsRestricted(): void
     {
-        $this->markTestIncomplete('BUG: GET /entity-lists/{id} has no security expression (src/Entity/Core/EntityList.php:40 "new Get()"): anyone reads the lists of any workspace');
-
         $this->setUpScene();
         $foreign = $this->createEntityList(['name' => 'Foreign', 'workspace' => $this->createOtherWorkspace()]);
 
