@@ -1,6 +1,7 @@
 # Tier "release": the standard pipeline plus the heavy suites (Doctrine
 # migrations replay, indexer end-to-end), then the Docker Hub publication when
-# the ref is a tag. Also played every weekday night on master, and on demand.
+# the ref is a tag. Also played every weekday night on master (unless master has
+# not moved since the last successful run), and on demand.
 # See doc/tech/Development/ci.md for the three tiers.
 name: Release
 
@@ -17,8 +18,41 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # The nightly is skipped when master has not moved since the last successful
+  # release run on it (nightly or workflow_dispatch). A failed run does not
+  # count, so an unchanged master keeps being retried until it goes green.
+  changes:
+    name: 'Changes since last release run'
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+    outputs:
+      run: ${{ steps.check.outputs.run }}
+    steps:
+      - name: Compare with the last successful run
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # On an API error LAST_SHA stays empty and the pipeline runs.
+          LAST_SHA=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow release.yaml \
+            --branch "$GITHUB_REF_NAME" --status success --limit 1 \
+            --json headSha --jq '.[0].headSha // ""') || LAST_SHA=
+          if [ "$LAST_SHA" = "$GITHUB_SHA" ]; then
+            echo "Nothing changed since the last successful run on ${GITHUB_SHA}, skipping."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Last successful run on '${LAST_SHA:-none}', now on ${GITHUB_SHA}."
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
   pipeline:
     name: 'Pipeline'
+    needs: changes
+    # `changes` only runs on schedule; `!cancelled()` lets its skip through.
+    if: ${{ !cancelled() && (github.event_name != 'schedule' || needs.changes.outputs.run != 'false') }}
     uses: ./.github/workflows/ci.yaml
     with:
       tier: release

@@ -7,7 +7,7 @@ script that runs the same way locally (in Docker) and in GitHub Actions.
 |---|---|---|---|---|
 | **quick** | every push on every branch (`quick.yaml`); pull requests from forks | static checks and unit tests | none | < 8 min |
 | **standard** | pull requests and pushes on `master` and `release/**`, `workflow_dispatch` (`ci.yaml`) | image builds, full PHP suites, Cypress smoke, GHCR/ECR push | full | ≈ 20 min |
-| **release** | tags, nightly on `master` (weekdays 03:00 UTC), `workflow_dispatch` (`release.yaml`) | standard + Doctrine migrations replay + indexer end-to-end; Docker Hub publication on tags only | full + `indexer` profile | ≈ 30 min |
+| **release** | tags, nightly on `master` (weekdays 03:00 UTC, skipped when `master` has not moved since the last successful release run), `workflow_dispatch` (`release.yaml`) | standard + Doctrine migrations replay + indexer end-to-end; Docker Hub publication on tags only | full + `indexer` profile | ≈ 30 min |
 
 ## What each tier runs
 
