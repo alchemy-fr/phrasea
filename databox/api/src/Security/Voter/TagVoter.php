@@ -28,6 +28,7 @@ class TagVoter extends AbstractVoter
         return match ($attribute) {
             self::READ => $this->isGranted(self::READ, $subject->getWorkspace()),
             self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(self::EDIT, $subject->getWorkspace()),
+            default => false,
         };
     }
 }

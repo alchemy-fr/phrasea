@@ -58,6 +58,30 @@ class TagTest extends AbstractSearchTestCase
         $this->assertMatchesResourceCollectionJsonSchema(Tag::class);
     }
 
+    public function testGetTagRequiresToReadItsWorkspace(): void
+    {
+        $client = static::createClient();
+        $workspace = $this->createWorkspace(['ownerId' => KeycloakClientTestMock::ADMIN_UID]);
+        $tag = new Tag();
+        $tag->setName('Confidential');
+        $tag->setWorkspace($workspace);
+        $em = self::getEntityManager();
+        $em->persist($tag);
+        $em->flush();
+
+        $client->request('GET', '/tags/'.$tag->getId());
+        $this->assertContains($client->getResponse()->getStatusCode(), [401, 403]);
+
+        $headers = ['Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID)];
+        $client->request('GET', '/tags/'.$tag->getId(), ['headers' => $headers]);
+        $this->assertResponseStatusCodeSame(403);
+
+        $this->addUserOnWorkspace(KeycloakClientTestMock::USER_UID, $workspace->getId());
+        $client->request('GET', '/tags/'.$tag->getId(), ['headers' => $headers]);
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains(['name' => 'Confidential']);
+    }
+
     public function testCreateTag(): void
     {
         self::enableFixtures();

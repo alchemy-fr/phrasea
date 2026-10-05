@@ -39,6 +39,7 @@ use Symfony\Component\Validator\Constraints\Length;
                 '_',
                 Tag::GROUP_READ,
             ]],
+            security: 'is_granted("'.AbstractVoter::READ.'", object)',
         ),
         new GetCollection(),
         new Post(
