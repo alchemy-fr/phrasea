@@ -73,16 +73,12 @@ final class PositionBuiltInAttribute extends AbstractBuiltInAttribute implements
             return $storyCollection;
         }
 
-        $collectionIds = match (true) {
-            isset($options['collection']) => [$options['collection']],
-            isset($options['parent']) => [$options['parent']],
-            default => $options['parents'] ?? [],
-        };
-        if (1 !== count($collectionIds)) {
-            throw new BadRequestHttpException(sprintf('Sorting by "%s" requires the search to be narrowed down to a single collection ("collection" or "parent") or story ("story")', self::getKey()));
+        // "parent" spans the sub-tree, where the assets of a sub-collection have no rank in the parent
+        if (!isset($options['collection'])) {
+            throw new BadRequestHttpException(sprintf('Sorting by "%s" requires the search to be narrowed down to a single collection ("collection") or story ("story")', self::getKey()));
         }
 
-        $collection = $this->collectionRepository->find(reset($collectionIds));
+        $collection = $this->collectionRepository->find($options['collection']);
         if (!$collection instanceof Collection) {
             throw new BadRequestHttpException('Collection not found');
         }

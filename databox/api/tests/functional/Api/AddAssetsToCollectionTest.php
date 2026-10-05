@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Api;
 
+use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Entity\Core\Asset;
@@ -56,6 +57,37 @@ class AddAssetsToCollectionTest extends AbstractSearchTestCase
 
         $this->addToDestination($client, '/assets/'.$storyAssetId, $assetIds);
         $this->assertEqualsCanonicalizing($assetIds, $this->getCollectionAssetIds($storyCollectionId));
+    }
+
+    public function testAddAssetsToStoryIsGrantedByEditOnTheStoryAsset(): void
+    {
+        self::enableFixtures();
+
+        $client = static::createClient();
+        [$storyAssetId, $storyCollectionId] = $this->createStory($client);
+        $request = fn () => $client->request('POST', '/assets/add-to-collection', [
+            'headers' => [
+                'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
+            ],
+            'json' => [
+                'destination' => '/assets/'.$storyAssetId,
+                'ids' => [$this->getAssetId('foo')],
+            ],
+        ]);
+
+        $request();
+        $this->assertResponseStatusCodeSame(403);
+
+        // The hidden story collection stays secret: editing the story asset is enough
+        $this->grantUserOnObject(
+            KeycloakClientTestMock::USER_UID,
+            self::getEntityManager()->find(Asset::class, $storyAssetId),
+            PermissionInterface::OPERATOR,
+        );
+
+        $request();
+        $this->assertResponseStatusCodeSame(204);
+        $this->assertSame([$this->getAssetId('foo')], $this->getCollectionAssetIds($storyCollectionId));
     }
 
     public function testAddStoryToItself(): void

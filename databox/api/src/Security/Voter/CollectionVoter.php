@@ -49,6 +49,12 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
             return true;
         }
 
+        if (null !== $storyAsset = $subject->getStoryAsset()) {
+            if (null !== $storyAttribute = $this->getStoryAssetAttribute($attribute)) {
+                return $this->security->isGranted($storyAttribute, $storyAsset);
+            }
+        }
+
         $workspace = $subject->getWorkspace();
         if (!$this->security->isGranted(AbstractVoter::READ, $workspace)) {
             return false;
@@ -205,6 +211,21 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 || $this->parentIsGranted($attribute, $subject)
                 || $isWorkspaceOwnerSlow(),
             default => false,
+        };
+    }
+
+    /**
+     * A story's hidden collection is secret and carries no ACL of its own:
+     * reading and editing its content is governed by the story asset.
+     */
+    private function getStoryAssetAttribute(string $attribute): ?string
+    {
+        return match ($attribute) {
+            AbstractVoter::READ => AbstractVoter::READ,
+            AbstractVoter::EDIT,
+            AssetContainerVoterInterface::ASSET_CREATE,
+            AssetContainerVoterInterface::ASSET_DELETE => AbstractVoter::EDIT,
+            default => null,
         };
     }
 

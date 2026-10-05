@@ -17,11 +17,11 @@ class AssetPositionSortTest extends AbstractSearchTest
         $client = self::createClient();
 
         $this->assertSame([$a, $b, $c], $this->search($client, [
-            'parent' => $collection->getId(),
+            'collection' => $collection->getId(),
             'order' => ['@position' => 'ASC'],
         ]));
         $this->assertSame([$c, $b, $a], $this->search($client, [
-            'parent' => $collection->getId(),
+            'collection' => $collection->getId(),
             'order' => ['@position' => 'DESC'],
         ]));
     }
@@ -42,7 +42,7 @@ class AssetPositionSortTest extends AbstractSearchTest
         self::releaseIndex();
 
         $this->assertSame([$c, $b, $a], $this->search(self::createClient(), [
-            'parent' => $collection->getId(),
+            'collection' => $collection->getId(),
             'order' => ['@position' => 'ASC'],
         ]));
     }
@@ -52,6 +52,18 @@ class AssetPositionSortTest extends AbstractSearchTest
         $this->createOrderedCollection();
 
         self::createClient()->request('GET', '/assets?order[@position]=ASC');
+        $this->assertResponseStatusCodeSame(400);
+    }
+
+    public function testSortByPositionAcrossASubTree(): void
+    {
+        [$collection] = $this->createOrderedCollection();
+
+        // "parent" spans the sub-collections, whose assets have no rank in the parent
+        self::createClient()->request('GET', '/assets?'.http_build_query([
+            'parent' => $collection->getId(),
+            'order' => ['@position' => 'ASC'],
+        ]));
         $this->assertResponseStatusCodeSame(400);
     }
 

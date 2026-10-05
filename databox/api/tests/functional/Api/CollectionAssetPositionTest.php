@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Api;
 
+use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use ApiPlatform\Symfony\Bundle\Test\Client;
 use App\Entity\Core\Asset;
@@ -73,6 +74,51 @@ class CollectionAssetPositionTest extends AbstractSearchTestCase
 
         // The story is addressed by its asset IRI, not by its hidden collection
         $this->move($client, $second, $storyIri, 0);
+
+        $this->assertSame([
+            [$second, 0],
+            [$first, 1],
+        ], $this->listOrder($client, '/assets/'.$storyAssetId.'/story-assets'));
+    }
+
+    public function testStoryContentIsGrantedByTheStoryAsset(): void
+    {
+        self::enableFixtures();
+
+        $client = static::createClient();
+        [$storyAssetId, $storyCollectionId] = $this->createStory($client);
+        [$first, $second] = $this->seedCollection($client, '/collections/'.$storyCollectionId, 2);
+        $userJwt = KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID);
+
+        $client->request('GET', '/assets/'.$storyAssetId.'/story-assets', [
+            'headers' => ['Authorization' => 'Bearer '.$userJwt],
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+
+        // The hidden story collection stays secret: the rights on the story asset are enough
+        $storyAsset = self::getEntityManager()->find(Asset::class, $storyAssetId);
+        $this->grantUserOnObject(KeycloakClientTestMock::USER_UID, $storyAsset, PermissionInterface::VIEW);
+
+        $response = $client->request('GET', '/assets/'.$storyAssetId.'/story-assets', [
+            'headers' => ['Authorization' => 'Bearer '.$userJwt],
+        ]);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertCount(2, $response->toArray()['hydra:member']);
+
+        $client->request('PUT', '/assets/'.$second.'/position', [
+            'headers' => ['Authorization' => 'Bearer '.$userJwt],
+            'json' => ['destination' => '/assets/'.$storyAssetId, 'position' => 0],
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+
+        $this->grantUserOnObject(KeycloakClientTestMock::USER_UID, $storyAsset, PermissionInterface::OPERATOR);
+
+        $client->request('PUT', '/assets/'.$second.'/position', [
+            'headers' => ['Authorization' => 'Bearer '.$userJwt],
+            'json' => ['destination' => '/assets/'.$storyAssetId, 'position' => 0],
+        ]);
+        $this->assertResponseStatusCodeSame(204);
+        self::releaseIndex();
 
         $this->assertSame([
             [$second, 0],
