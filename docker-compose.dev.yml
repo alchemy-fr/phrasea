@@ -29,6 +29,7 @@ services:
       target: client-build
     volumes:
       - ./uploader/client:/srv/workspace/phrasea/uploader/client:rw
+      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
     environment:
       - WDS_SOCKET_PORT=443
 
@@ -40,6 +41,7 @@ services:
       target: client-build
     volumes:
       - ./expose/client:/srv/workspace/phrasea/expose/client:rw
+      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
     environment:
       - WDS_SOCKET_PORT=443
 
@@ -51,9 +53,7 @@ services:
       target: client-dev
     volumes:
       - ./databox/client:/srv/workspace/phrasea/databox/client:rw
-      # Workspace libraries sources (their node_modules come from the image)
-      - ./lib/js/api/src:/srv/workspace/phrasea/lib/js/api/src:ro
-      - ./lib/js/api/index.ts:/srv/workspace/phrasea/lib/js/api/index.ts:ro
+      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
 
   expose-api-php:
     environment:
