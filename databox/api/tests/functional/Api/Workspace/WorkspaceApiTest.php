@@ -150,8 +150,6 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
 
     public function testSoftDeletedWorkspaceIsNeitherListedNorReadable(): void
     {
-        $this->markTestIncomplete('BUG: no SoftDeleteable SQL filter is enabled and WorkspaceExtension/voter ignore deletedAt: a soft-deleted workspace (waiting for the async DeleteWorkspace hard delete) stays listed, readable and editable');
-
         $ws = $this->createWs('public-ws', ['public' => true]);
         $id = $ws->getId();
 

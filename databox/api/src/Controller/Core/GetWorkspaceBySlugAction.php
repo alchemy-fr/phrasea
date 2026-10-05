@@ -21,6 +21,7 @@ class GetWorkspaceBySlugAction extends AbstractController
         $workspace = $this->em->getRepository(Workspace::class)
             ->findOneBy([
                 'slug' => $slug,
+                'deletedAt' => null,
             ]);
 
         if (!$workspace instanceof Workspace) {
