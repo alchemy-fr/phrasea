@@ -42,7 +42,7 @@ class AssetDataTemplateVoter extends AbstractVoter
             self::EDIT => $isOwner() || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
             self::EDIT_PERMISSIONS => $isOwner() || $this->hasAcl(PermissionInterface::OWNER, $subject, $token),
             self::DELETE => $isOwner() || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
-            self::CREATE => (bool) $userId,
+            self::CREATE => $userId && $this->security->isGranted(self::READ, $subject->getWorkspace()),
             default => false,
         };
     }

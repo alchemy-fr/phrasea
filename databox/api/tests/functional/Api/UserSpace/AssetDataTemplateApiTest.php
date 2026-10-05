@@ -121,8 +121,6 @@ final class AssetDataTemplateApiTest extends AbstractDataboxTestCase
 
     public function testCreateInUnreadableWorkspaceIsForbidden(): void
     {
-        $this->markTestIncomplete('BUG: any authenticated user can create a template in a workspace they cannot read: AssetDataTemplateVoter::CREATE only checks authentication and the workspace IRI is denormalized without security, see src/Security/Voter/AssetDataTemplateVoter.php:45');
-
         $foreign = $this->createOtherWorkspace('stranger', 'stranger-ws');
 
         $this->assertStatus(403, 'POST', '/asset-data-templates', self::USER, [
