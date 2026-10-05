@@ -150,6 +150,19 @@ final class AssetDataTemplateApiTest extends AbstractDataboxTestCase
         ];
     }
 
+    public function testPublicTemplatesStayWithinTheirWorkspace(): void
+    {
+        $visible = $this->createTemplate('Visible', self::USER, public: true);
+        // A workspace OTHER is not a member of
+        $this->workspace = $this->createOtherWorkspace(self::USER, 'secret');
+        $hidden = $this->createTemplate('Hidden', self::USER, public: true);
+
+        // The listing (Elasticsearch) filters its results with the same voter
+        $this->assertStatus(200, 'GET', '/asset-data-templates/'.$visible->getId(), self::OTHER);
+        $this->assertStatus(403, 'GET', '/asset-data-templates/'.$hidden->getId(), self::OTHER);
+        $this->assertStatus(200, 'GET', '/asset-data-templates/'.$hidden->getId(), self::USER);
+    }
+
     public function testPrivateTemplateSharedThroughAcl(): void
     {
         $template = $this->createTemplate('T', self::USER);

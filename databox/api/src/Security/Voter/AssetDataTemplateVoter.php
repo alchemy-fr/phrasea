@@ -37,12 +37,18 @@ class AssetDataTemplateVoter extends AbstractVoter
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
 
+        // Templates are scoped to their workspace: out of it, being public or owned is meaningless
+        $workspace = $subject->getWorkspace();
+        if (null === $workspace || !$this->security->isGranted(self::READ, $workspace)) {
+            return false;
+        }
+
         return match ($attribute) {
             self::READ => $subject->isPublic() || $isOwner() || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),
             self::EDIT => $isOwner() || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
             self::EDIT_PERMISSIONS => $isOwner() || $this->hasAcl(PermissionInterface::OWNER, $subject, $token),
             self::DELETE => $isOwner() || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
-            self::CREATE => $userId && $this->security->isGranted(self::READ, $subject->getWorkspace()),
+            self::CREATE => (bool) $userId,
             default => false,
         };
     }
