@@ -10,12 +10,15 @@ use Alchemy\StorageBundle\Upload\UploadManager;
 use Alchemy\StorageBundle\Util\FileUtil;
 use App\Api\Model\Input\FileSourceInput;
 use App\Consumer\Handler\File\ImportFile;
+use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Http\FileUploadManager;
+use App\Security\Voter\AbstractVoter;
 use App\Service\Storage\RenditionManager;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Contracts\Service\Attribute\Required;
 
@@ -38,7 +41,26 @@ abstract class AbstractFileInputTransformer extends AbstractInputTransformer
             throw new BadRequestHttpException(sprintf('Copy error: File "%s" does not belong to workspace "%s"', $fileId, $workspace->getId()));
         }
 
+        // A file of an asset (source or rendition) is copied only if the user can read it.
+        // Files not used yet (integration outputs to be saved as an asset) have no asset to check.
+        if ($this->isUsedByAnAsset($file) && !$this->isGranted(AbstractVoter::READ, $file)) {
+            throw new AccessDeniedHttpException(sprintf('Copy error: Cannot read file "%s"', $fileId));
+        }
+
         return $file;
+    }
+
+    private function isUsedByAnAsset(File $file): bool
+    {
+        return null !== $this->em->createQueryBuilder()
+            ->select('a.id')
+            ->from(Asset::class, 'a')
+            ->leftJoin('a.renditions', 'r')
+            ->andWhere('a.source = :f OR r.file = :f')
+            ->setParameter('f', $file->getId())
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 
     protected function handleUpload(?MultipartUploadInput $multipart, Workspace $workspace): ?File
