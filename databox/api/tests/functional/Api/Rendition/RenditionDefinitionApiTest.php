@@ -167,8 +167,6 @@ YAML;
 
     public function testGetDefinitionOfAPrivateWorkspaceIsNotReadableByOutsiders(): void
     {
-        $this->markTestIncomplete('BUG: RenditionDefinitionVoter grants READ to anyone (even anonymous) on GET /rendition-definitions/{id}, while the collection applies the workspace/policy ACL.');
-
         [$ws] = $this->createWorkspaceWithDefaults('ws-b', 'someone-else');
         $restricted = $this->createRenditionPolicy($ws, 'Restricted', false, false);
         $secret = $this->createRenditionDefinition($ws, $restricted, 'secret');
