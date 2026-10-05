@@ -166,8 +166,6 @@ final class AssetExportApiTest extends AbstractDataboxTestCase
 
     public function testExportOfAnotherUserIsNotReadable(): void
     {
-        $this->markTestIncomplete('BUG: GET /asset-exports/{id} has no object-level security (src/Entity/Core/AssetExport.php:27): any authenticated user can read the export of another user, including its signed downloadUrl.');
-
         [$assetId, $definitionId] = $this->createExportableAsset();
         $this->interceptP1();
         $exportId = $this->jsonRequest('POST', '/asset-exports', self::OWNER, [
