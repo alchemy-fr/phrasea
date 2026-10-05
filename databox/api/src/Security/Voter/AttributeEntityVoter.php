@@ -41,7 +41,8 @@ class AttributeEntityVoter extends AbstractVoter
         };
 
         return match ($attribute) {
-            self::CREATE => $isTypeEditor() || $subject->getList()->isAllowNewValues(),
+            // An open list takes new values from its readers, not from anyone
+            self::CREATE => $isTypeEditor() || ($subject->getList()->isAllowNewValues() && $isTypeReader()),
             self::EDIT, self::DELETE => $isTypeEditor() || ($isCreator() && !$subject->isApproved()),
             self::READ => $isTypeEditor() || ($isTypeReader() && ($subject->isApproved() || $isCreator())),
             default => false,

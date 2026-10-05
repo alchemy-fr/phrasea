@@ -318,6 +318,19 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
         $this->assertSame('/entity-lists/'.$list->getId(), $response->toArray()['entityList']['@id'] ?? $response->toArray()['entityList']);
     }
 
+    public function testTheEntityListMustBelongToTheWorkspace(): void
+    {
+        $this->setUpScene();
+        $foreignWorkspace = $this->createOtherWorkspace(['ownerId' => self::USER]);
+        $foreignList = $this->createEntityList(['name' => 'Foreign', 'workspace' => $foreignWorkspace]);
+
+        $this->api('POST', '/attribute-definitions', self::USER, $this->definitionPayload([
+            'type' => EntityAttributeType::NAME,
+            'entityList' => '/entity-lists/'.$foreignList->getId(),
+        ]));
+        $this->assertResponseStatusCodeSame(422);
+    }
+
     public function testAnUnknownTypeIsRejected(): void
     {
         $this->markTestIncomplete('BUG: an unknown attribute type answers 500: AttributeDefinition::$type has no Choice constraint (src/Entity/Core/AttributeDefinition.php:202), so the definition is stored and AttributeTypeRegistry::getStrictType() throws when the output is built');

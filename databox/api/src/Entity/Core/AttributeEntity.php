@@ -39,8 +39,15 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        // Moving a value to another list takes the edition of both lists
+        new Put(
+            security: 'is_granted("EDIT", object)',
+            securityPostDenormalize: self::LIST_CHANGE_SECURITY,
+        ),
+        new Patch(
+            security: 'is_granted("EDIT", object)',
+            securityPostDenormalize: self::LIST_CHANGE_SECURITY,
+        ),
         new GetCollection(
             normalizationContext: [
                 'groups' => [
@@ -95,6 +102,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
 
     final public const string GROUP_READ = 'attr-ent:r';
     final public const string GROUP_LIST = 'attr-ent:i';
+    private const string LIST_CHANGE_SECURITY = 'object.getListId() == previous_object.getListId() or (is_granted("EDIT", previous_object.getList()) and is_granted("EDIT", object.getList()))';
 
     final public const int STATUS_APPROVED = 0;
     final public const int STATUS_PENDING = 1;

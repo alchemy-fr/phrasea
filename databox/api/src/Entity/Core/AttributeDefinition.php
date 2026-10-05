@@ -133,6 +133,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     properties: [
         'workspace',
         'policy.workspace',
+        'entityList.workspace',
     ],
 )]
 #[UniqueEntity(

@@ -209,6 +209,19 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(401);
     }
 
+    public function testOnlyMembersProposeValuesToAnOpenList(): void
+    {
+        $this->workspace = $this->getOrCreateDefaultWorkspace(['ownerId' => self::USER]);
+        $this->list = $this->createEntityList(['name' => 'Colors', 'allowNewValues' => true]);
+
+        $this->postEntity(self::OTHER, ['value' => 'Spam']);
+        $this->assertResponseStatusCodeSame(403);
+
+        $this->addUserOnWorkspace(self::OTHER, $this->workspace->getId());
+        $this->postEntity(self::OTHER, ['value' => 'Red']);
+        $this->assertResponseStatusCodeSame(201);
+    }
+
     public function testAMemberProposalIsPendingUntilApproved(): void
     {
         $this->setUpScene(['allowNewValues' => true, 'approveNewValues' => false]);
@@ -336,6 +349,26 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
 
         $this->api('PUT', '/attribute-entities/'.$mine->getId(), self::OTHER, ['status' => AttributeEntity::STATUS_APPROVED]);
         $this->assertSame(AttributeEntity::STATUS_PENDING, $this->findEntity($mine->getId())->getStatus());
+    }
+
+    public function testACreatorCannotMoveItsProposalToAnotherList(): void
+    {
+        $this->setUpScene(['allowNewValues' => true]);
+        $closed = $this->createEntityList(['name' => 'Closed', 'allowNewValues' => false]);
+        $mine = $this->createEntity($this->list, 'Mine', ['status' => AttributeEntity::STATUS_PENDING, 'creatorId' => self::OTHER]);
+
+        $this->api('PUT', '/attribute-entities/'.$mine->getId(), self::OTHER, [
+            'list' => '/entity-lists/'.$closed->getId(),
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+        $this->assertSame($this->list->getId(), $this->findEntity($mine->getId())->getList()->getId());
+
+        // The list editors do
+        $this->api('PUT', '/attribute-entities/'.$mine->getId(), self::USER, [
+            'list' => '/entity-lists/'.$closed->getId(),
+        ]);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame($closed->getId(), $this->findEntity($mine->getId())->getList()->getId());
     }
 
     public function testAnEntityCannotBeMovedToAListOfAnotherWorkspace(): void
