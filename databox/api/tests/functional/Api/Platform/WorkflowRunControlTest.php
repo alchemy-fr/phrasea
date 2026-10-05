@@ -247,8 +247,6 @@ final class WorkflowRunControlTest extends AbstractDataboxTestCase
      */
     public function testOnlyTheAssetEditorsCanCancelARun(?string $userId, int $expectedCode): void
     {
-        $this->markTestIncomplete('BUG: POST /workflows/{id}/cancel has no security: anyone, even anonymous, cancels any workflow run (src/Entity/Workflow/WorkflowState.php:41-46, missing `security: \'is_granted("EDIT", object)\'`).');
-
         $state = $this->startIngest();
 
         static::createClient()->request('POST', '/workflows/'.$state->getId().'/cancel', [
@@ -264,8 +262,6 @@ final class WorkflowRunControlTest extends AbstractDataboxTestCase
      */
     public function testOnlyTheAssetEditorsCanRerunAJob(?string $userId, int $expectedCode): void
     {
-        $this->markTestIncomplete('BUG: POST /workflows/{id}/jobs/{jobId}/rerun has no security: anyone, even anonymous, re-triggers any job of any run (src/Entity/Workflow/WorkflowState.php:35-40).');
-
         $state = $this->startIngest();
         $jobId = $this->getFirstJobId($this->getRun(self::OWNER, $state->getId()));
         $this->getStateRepository()->persistJobState(new JobState($state->getId(), $jobId, JobState::STATUS_FAILURE));

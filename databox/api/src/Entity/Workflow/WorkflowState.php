@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use App\Api\Model\Output\WorkflowStateOutput;
 use App\Controller\Workflow\CancelWorkflowAction;
@@ -33,14 +34,22 @@ use Doctrine\ORM\Mapping as ORM;
         ),
         new Post(
             uriTemplate: '/workflows/{id}/jobs/{jobId}/rerun',
-            uriVariables: [],
+            uriVariables: [
+                'id' => new Link(fromClass: self::class, identifiers: ['id']),
+            ],
+            read: true,
             controller: RerunJobAction::class,
+            security: 'is_granted("EDIT", object)',
             deserialize: false,
         ),
         new Post(
             uriTemplate: '/workflows/{id}/cancel',
-            uriVariables: [],
+            uriVariables: [
+                'id' => new Link(fromClass: self::class, identifiers: ['id']),
+            ],
+            read: true,
             controller: CancelWorkflowAction::class,
+            security: 'is_granted("EDIT", object)',
             deserialize: false,
         ),
         new GetCollection(
