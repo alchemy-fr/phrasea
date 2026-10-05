@@ -112,6 +112,33 @@ describe('Results list', () => {
         cy.get('body').type('{esc}');
     });
 
+    it('right-click on an unselected asset selects it alone', () => {
+        assetItem('Alpha').click();
+        openAssetContextMenu('Bravo');
+        assetItem('Alpha').should('not.have.attr', 'data-selected');
+        assetItem('Bravo').should('have.attr', 'data-selected', 'true');
+        cy.menuItem('Download').should('be.visible');
+        cy.menuItem('Open').should('not.have.attr', 'aria-disabled', 'true');
+        cy.get('body').type('{esc}');
+        cy.getBySel('results-count').should('contain', '1 / 5');
+    });
+
+    it('right-click on a selected asset opens the menu on the whole selection', () => {
+        assetItem('Alpha').click();
+        assetItem('Bravo').click({ctrlKey: true});
+        openAssetContextMenu('Alpha');
+        cy.get('[data-testid=asset-item][data-selected=true]').should('have.length', 2);
+        // Bulk labels, single-asset actions greyed out
+        cy.menuItem('Export').should('be.visible');
+        cy.menuItem('Edit attributes').should('be.visible');
+        cy.menuItem('Delete').should('be.visible').and('not.have.attr', 'aria-disabled', 'true');
+        cy.menuItem('Open').should('have.attr', 'aria-disabled', 'true');
+        cy.menuItem('Info').should('have.attr', 'aria-disabled', 'true');
+        cy.get('body').type('{esc}');
+        cy.get('[data-testid=asset-item][data-selected=true]').should('have.length', 2);
+        cy.getBySel('results-count').should('contain', '2 / 5');
+    });
+
     it('displays tags and collections on the cards', () => {
         assetItem('Bravo').should('contain', 'online');
         assetItem('Alpha').should('contain', 'offline');

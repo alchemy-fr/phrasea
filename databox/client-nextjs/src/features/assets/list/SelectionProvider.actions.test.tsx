@@ -2,7 +2,11 @@ import {describe, expect, it} from 'vitest';
 import {act, renderHook} from '@testing-library/react';
 import type {PropsWithChildren} from 'react';
 import type {Asset} from '@/types/api';
-import {SelectionProvider, useSelectionActions} from './SelectionProvider';
+import {
+    SelectionProvider,
+    selectionTargets,
+    useSelectionActions,
+} from './SelectionProvider';
 
 const assets = ['a', 'b', 'c'].map(id => ({id}) as Asset);
 const wrapper = ({children}: PropsWithChildren) => (
@@ -24,5 +28,19 @@ describe('SelectionActions.getSelection', () => {
 
         act(() => actions.clear());
         expect(actions.getSelection()).toEqual([]);
+    });
+});
+
+describe('selectionTargets', () => {
+    it('stands for the whole selection when the item is selected', () => {
+        expect(selectionTargets(assets[1], [assets[0], assets[1]])).toEqual([
+            assets[0],
+            assets[1],
+        ]);
+    });
+
+    it('stands alone when the item is not selected', () => {
+        expect(selectionTargets(assets[2], [assets[0]])).toEqual([assets[2]]);
+        expect(selectionTargets(assets[2], [])).toEqual([assets[2]]);
     });
 });

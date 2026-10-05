@@ -31,26 +31,6 @@ type Props = {
 };
 
 /**
- * The field lives in dialogs whose scroll lock (react-remove-scroll) cancels
- * the wheel events of the portaled list: scroll it by hand.
- */
-function wheelScroll(list: HTMLDivElement | null) {
-    if (!list) {
-        return;
-    }
-    const onWheel = (e: WheelEvent) => {
-        e.preventDefault();
-        list.scrollTop +=
-            e.deltaMode === WheelEvent.DOM_DELTA_LINE
-                ? e.deltaY * 16
-                : e.deltaY;
-    };
-    list.addEventListener('wheel', onWheel, {passive: false});
-
-    return () => list.removeEventListener('wheel', onWheel);
-}
-
-/**
  * Ordered list of metadata tag names (e.g. "IPTC:Keywords") with suggestions
  * from the exiftool dictionary: the namespaces first, then the tags of the
  * namespace once it is picked (or typed followed by a colon).
@@ -164,7 +144,7 @@ export function MetadataTagsField({
                         }
                     }}
                 >
-                    <CommandList ref={wheelScroll}>
+                    <CommandList>
                         {suggestions.isLoading ? (
                             <div className="flex justify-center py-4">
                                 <Spinner />

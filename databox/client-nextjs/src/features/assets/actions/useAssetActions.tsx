@@ -91,7 +91,12 @@ type Options = {
 
 /**
  * Builds the actions available for one or several assets, grouped for menus.
- * Availability follows asset capabilities and the action context of the list.
+ *
+ * An action is left out only where the action context excludes it, where the
+ * user is not authenticated, or where the deleted state of the assets rules
+ * it out (restore in the trash only). It is disabled — listed, greyed out —
+ * when it cannot apply to these assets: a single-asset action on several
+ * assets, a capability missing on at least one of them, no source file.
  */
 export function useAssetActions(
     assets: Asset[],
@@ -131,22 +136,37 @@ export function useAssetActions(
         const manage: AssetAction[] = [];
         const danger: AssetAction[] = [];
 
-        if (single && ctx.open) {
+        if (ctx.open) {
             nav.push({
                 id: 'open',
                 label: t('asset.actions.open', 'Open'),
                 icon: <ExpandIcon />,
-                run: () => (onOpen ? onOpen() : openAsset(single)),
+                disabled: !single,
+                run: () => {
+                    if (!single) {
+                        return;
+                    }
+                    if (onOpen) {
+                        onOpen();
+                    } else {
+                        openAsset(single);
+                    }
+                },
             });
         }
-        if (single && ctx.info) {
+        if (ctx.info) {
             nav.push({
                 id: 'info',
                 label: t('asset.actions.info', 'Info'),
                 icon: <InfoIcon />,
+                disabled: !single,
                 // The tabs of the former manage dialog live in the side
                 // panel of the viewer
-                run: () => router.push(routes.assetView(single.id)),
+                run: () => {
+                    if (single) {
+                        router.push(routes.assetView(single.id));
+                    }
+                },
             });
         }
         if (
@@ -188,10 +208,11 @@ export function useAssetActions(
                 },
             });
         }
-        if (ctx.export && assets.some(a => a.source)) {
+        if (ctx.export) {
             nav.push({
                 id: 'download',
                 bulk: true,
+                disabled: !assets.some(a => a.source),
                 label: single
                     ? t('asset.actions.download', 'Download')
                     : t('asset.actions.export', 'Export'),
@@ -199,16 +220,20 @@ export function useAssetActions(
                 run: () => openModal(ExportDialog, {assets}),
             });
         }
-        if (single && ctx.saveAs && single.source?.url && isAuthenticated) {
+        if (ctx.saveAs && isAuthenticated) {
             nav.push({
                 id: 'save-as',
                 label: t('asset.actions.save_as', 'Save as…'),
                 icon: <SaveIcon />,
-                run: () =>
-                    openModal(SaveAsDialog, {
-                        asset: single,
-                        file: single.source!,
-                    }),
+                disabled: !single?.source?.url,
+                run: () => {
+                    if (single?.source?.url) {
+                        openModal(SaveAsDialog, {
+                            asset: single,
+                            file: single.source,
+                        });
+                    }
+                },
             });
         }
         if (single?.source?.alternateUrls?.length) {
@@ -225,10 +250,11 @@ export function useAssetActions(
         groups.push(nav);
 
         if (isAuthenticated && !anyDeleted) {
-            if (ctx.edit && can('editAttributes')) {
+            if (ctx.edit) {
                 manage.push({
                     id: 'edit',
                     bulk: true,
+                    disabled: !can('editAttributes'),
                     label: single
                         ? t('common.edit', 'Edit')
                         : t('asset.actions.edit_attributes', 'Edit attributes'),
@@ -265,10 +291,11 @@ export function useAssetActions(
                     },
                 });
             }
-            if (ctx.share && can('share')) {
+            if (ctx.share) {
                 manage.push({
                     id: 'share',
                     bulk: true,
+                    disabled: !can('share'),
                     label: t('asset.actions.share', 'Share'),
                     icon: <ShareIcon />,
                     run: () => {
@@ -287,10 +314,11 @@ export function useAssetActions(
                     },
                 });
             }
-            if (ctx.move && can('edit')) {
+            if (ctx.move) {
                 manage.push({
                     id: 'move',
                     bulk: true,
+                    disabled: !can('edit'),
                     label: t('asset.actions.move', 'Move'),
                     icon: <FolderInputIcon />,
                     run: () =>
@@ -315,7 +343,7 @@ export function useAssetActions(
                         }),
                 });
             }
-            if (single && ctx.replace && single.capabilities.edit) {
+            if (ctx.replace) {
                 manage.push({
                     id: 'replace',
                     label: t(
@@ -323,11 +351,15 @@ export function useAssetActions(
                         'Replace source file'
                     ),
                     icon: <RefreshCwIcon />,
-                    run: () =>
-                        openModal(ReplaceSourceDialog, {
-                            asset: single,
-                            onComplete: complete,
-                        }),
+                    disabled: !single?.capabilities.edit,
+                    run: () => {
+                        if (single) {
+                            openModal(ReplaceSourceDialog, {
+                                asset: single,
+                                onComplete: complete,
+                            });
+                        }
+                    },
                 });
             }
         }
@@ -336,10 +368,11 @@ export function useAssetActions(
         }
 
         if (isAuthenticated) {
-            if (ctx.restore && allDeleted && can('delete')) {
+            if (ctx.restore && allDeleted) {
                 danger.push({
                     id: 'restore',
                     bulk: true,
+                    disabled: !can('delete'),
                     label: t('asset.actions.restore', 'Restore'),
                     icon: <RotateCcwIcon />,
                     run: () =>
@@ -349,11 +382,12 @@ export function useAssetActions(
                         }),
                 });
             }
-            if (ctx.delete && can('delete')) {
+            if (ctx.delete) {
                 danger.push({
                     id: 'delete',
                     bulk: true,
                     destructive: true,
+                    disabled: !can('delete'),
                     label: allDeleted
                         ? t(
                               'asset.actions.delete_permanently',

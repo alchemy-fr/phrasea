@@ -14,11 +14,12 @@ import {
     useIsAssetSelected,
     useSelectionActions,
 } from './SelectionProvider';
-import {AssetMenuItems} from './AssetContextMenu';
+import {AssetMenuItems, useSelectionMenuTargets} from './AssetContextMenu';
 import {cn} from '@/lib/utils/cn';
 
 /**
  * Hover controls shown over a thumbnail: selection checkbox and actions menu.
+ * The menu acts on the selection, like the right-click one.
  */
 export function AssetItemControls({
     asset,
@@ -27,6 +28,8 @@ export function AssetItemControls({
     asset: Asset;
     actions?: ReactNode;
 }) {
+    const {targets, onOpenChange} = useSelectionMenuTargets(asset);
+
     return (
         <>
             <SelectionCheckbox asset={asset} />
@@ -36,7 +39,7 @@ export function AssetItemControls({
                 onDoubleClick={e => e.stopPropagation()}
             >
                 {actions}
-                <DropdownMenu>
+                <DropdownMenu onOpenChange={onOpenChange}>
                     <DropdownMenuTrigger asChild>
                         <Button
                             variant="secondary"
@@ -48,7 +51,7 @@ export function AssetItemControls({
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
-                        <AssetMenuItems asset={asset} variant="dropdown" />
+                        <AssetMenuItems assets={targets} variant="dropdown" />
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>

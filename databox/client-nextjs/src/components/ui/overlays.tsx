@@ -8,6 +8,8 @@ import {
 } from 'radix-ui';
 import {XIcon} from 'lucide-react';
 import {cn} from '@/lib/utils/cn';
+import {mergeRefs} from '@/lib/utils/refs';
+import {scrollThroughLock} from '@/lib/utils/scrollThroughLock';
 
 // ---------------------------------------------------------------------------
 // Popover
@@ -17,19 +19,30 @@ export const PopoverTrigger = PopoverPrimitive.Trigger;
 export const PopoverAnchor = PopoverPrimitive.Anchor;
 export const PopoverClose = PopoverPrimitive.Close;
 
+/**
+ * Scrolls up to the viewport edge, and still scrolls when opened from a
+ * dialog, whose scroll lock cancels the wheel events of the portaled content.
+ */
 export function PopoverContent({
     className,
     align = 'center',
     sideOffset = 4,
+    ref,
     ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Content>) {
+    const contentRef = React.useMemo(
+        () => mergeRefs<HTMLDivElement>(ref, scrollThroughLock),
+        [ref]
+    );
+
     return (
         <PopoverPrimitive.Portal>
             <PopoverPrimitive.Content
+                ref={contentRef}
                 align={align}
                 sideOffset={sideOffset}
                 className={cn(
-                    'z-50 w-72 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fill-mode-forwards data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+                    'z-50 max-h-(--radix-popover-content-available-height) w-72 overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fill-mode-forwards data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
                     className
                 )}
                 {...props}

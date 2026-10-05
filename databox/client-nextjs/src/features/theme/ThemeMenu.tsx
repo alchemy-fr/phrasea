@@ -78,7 +78,7 @@ export function ThemeMenu() {
             <DropdownMenuSubTrigger data-testid="theme-menu">
                 <PaletteIcon /> {t('settings.theme', 'Theme')}
             </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent className="max-h-[80vh] overflow-y-auto">
+            <DropdownMenuSubContent>
                 <DropdownMenuLabel>
                     {t('theme.appearance_label', 'Appearance')}
                 </DropdownMenuLabel>

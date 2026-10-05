@@ -31,7 +31,7 @@ import {
     emptyDragOver,
     type DragOverState,
 } from './DragContext';
-import {assetKey} from '@/features/assets/list/SelectionProvider';
+import {selectionTargets} from '@/features/assets/list/SelectionProvider';
 import {DragGhost} from './DragGhost';
 import {canDrop} from './canDrop';
 import {mostSpecificPointerWithin} from './collision';
@@ -214,12 +214,9 @@ export function resolvePayload(
     if (source.kind === 'collection-source') {
         return {type: 'collection', collection: source.collection};
     }
-    const selection = source.getSelection();
-    const assets = (
-        selection.some(a => assetKey(a) === assetKey(source.asset))
-            ? selection
-            : [source.asset]
-    ).filter(a => !a.deleted);
+    const assets = selectionTargets(source.asset, source.getSelection()).filter(
+        a => !a.deleted
+    );
     if (assets.length === 0) {
         return null;
     }

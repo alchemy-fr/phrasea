@@ -13,6 +13,7 @@ import {
     buildFilterCondition,
     clientValueSuggestions,
     findConditionId,
+    isApiSuggestable,
     isFieldToken,
     mergeValueSuggestions,
     parseSearchInput,
@@ -77,6 +78,8 @@ const hidden = attribute('secret', 'Story secret', AttributeType.Text, {
 });
 const place = attribute('place', 'Place', AttributeType.Entity);
 const shot = attribute('shot', 'Shot date', AttributeType.Date);
+const notes = attribute('notes', 'Story notes', AttributeType.Textarea);
+const body = attribute('body', 'History body', AttributeType.Html);
 
 const definitions: AttributeDefinitionOrBuiltIn[] = [
     title,
@@ -89,6 +92,8 @@ const definitions: AttributeDefinitionOrBuiltIn[] = [
     tag,
     place,
     shot,
+    notes,
+    body,
 ];
 
 describe('parseSearchInput', () => {
@@ -140,6 +145,13 @@ describe('suggestFields', () => {
         expect(items[0].text).toBe('@story:');
         expect(items[0].hl).toBe('@[hl]story[/hl]:');
         expect(items[1].hl).toBe('@is[hl]Story[/hl]:');
+    });
+
+    it('excludes long text fields', () => {
+        expect(suggestFields('notes', definitions)).toEqual([]);
+        expect(suggestFields('body', definitions)).toEqual([]);
+        expect(isApiSuggestable(notes)).toBe(false);
+        expect(isApiSuggestable(title)).toBe(true);
     });
 
     it('excludes non-searchable attributes and matches names', () => {
@@ -194,6 +206,34 @@ describe('clientValueSuggestions', () => {
                 s => s.value
             )
         ).toEqual([false]);
+    });
+
+    it('suggests the workspaces from the store', () => {
+        const workspace = builtIn(
+            '@workspace',
+            'Workspace',
+            AttributeType.Workspace
+        );
+        const workspaces = [
+            {id: 'w1', name: 'Newspaper', displayName: 'Newspaper'},
+            {id: 'w2', name: 'Photos'},
+        ] as any;
+        expect(
+            clientValueSuggestions({
+                definition: workspace,
+                prefix: 'ph',
+                workspaces,
+                t,
+            }).map(s => [s.value, s.label, s.query])
+        ).toEqual([['w2', 'Photos', '@workspace IS "w2"']]);
+        expect(
+            clientValueSuggestions({
+                definition: workspace,
+                prefix: '',
+                workspaces,
+                t,
+            })
+        ).toHaveLength(2);
     });
 
     it('suggests the privacy levels with their numeric value', () => {

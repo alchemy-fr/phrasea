@@ -110,7 +110,7 @@ export function AssetViewActions({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                     <AssetMenuItems
-                        asset={asset}
+                        assets={[asset]}
                         variant="dropdown"
                         context={{open: false, info: false, edit: false}}
                     />

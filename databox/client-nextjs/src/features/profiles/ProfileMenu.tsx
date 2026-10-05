@@ -86,7 +86,7 @@ export function ProfileMenu() {
                     </span>
                 </span>
             </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent className="max-h-[80vh] w-64 overflow-y-auto">
+            <DropdownMenuSubContent className="w-64">
                 <DropdownMenuLabel>
                     {t('profile.menu.switch', 'Switch profile')}
                 </DropdownMenuLabel>

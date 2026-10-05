@@ -34,9 +34,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * attribute definitions the user is allowed to read and only in the locales relevant to the user
  * (see getSuggestedDefinitions()).
  *
- * Scoped to one attribute definition (the "definition" option), only the values of that definition
- * are suggested, whatever its "suggest" flag, and an empty query lists them: the search bar uses it
- * to offer the values of a field being filtered.
+ * Scoped to attribute definitions (the "definition" option, comma-separated IDs), only their values
+ * are suggested, whatever their "suggest" flag, and an empty query lists them: the search bar uses
+ * it to offer the values of a field being filtered (the same attribute across workspaces).
  */
 class SuggestionSearch extends AbstractSearch
 {
@@ -84,14 +84,16 @@ class SuggestionSearch extends AbstractSearch
                 |> (fn (string $x): string => preg_replace('#^"(.*)$#', '$1', $x))
                 |> (fn (string $x): string => preg_replace('#(.*)"$#', '$1', $x));
 
-        $definitionId = trim((string) ($options['definition'] ?? ''));
-        if ('' !== $definitionId) {
+        // One or several (comma-separated) definition IDs: the same attribute across workspaces
+        $definitionIds = array_values(array_filter(array_map('trim', explode(',', (string) ($options['definition'] ?? '')))));
+        if (!empty($definitionIds)) {
             // Not a UUID: no such definition (and no SQL error on the uuid column)
-            if (!Uuid::isValid($definitionId)) {
+            $definitionIds = array_filter($definitionIds, Uuid::isValid(...));
+            if (empty($definitionIds)) {
                 return [new Pagerfanta(new ArrayAdapter([])), [], 0.0];
             }
 
-            return $this->searchDefinitionValues($userId, $groupIds, $options, $queryString, $definitionId);
+            return $this->searchDefinitionValues($userId, $groupIds, $options, $queryString, $definitionIds);
         }
 
         $definitions = $this->getSuggestedDefinitions($userId, $groupIds);
@@ -124,8 +126,10 @@ class SuggestionSearch extends AbstractSearch
     }
 
     /**
-     * Values of a single attribute definition, whatever its "suggest" flag (the permissions and the
-     * "searchable" flag still apply). An empty query lists the values.
+     * Values of the given attribute definitions only, whatever their "suggest" flag (the
+     * permissions and the "searchable" flag still apply). An empty query lists the values.
+     *
+     * @param string[] $definitionIds
      *
      * @return array{0: Pagerfanta, 1: array, 2: float}
      */
@@ -134,9 +138,9 @@ class SuggestionSearch extends AbstractSearch
         array $groupIds,
         array $options,
         string $queryString,
-        string $definitionId,
+        array $definitionIds,
     ): array {
-        $definitions = $this->getSuggestedDefinitions($userId, $groupIds, $definitionId);
+        $definitions = $this->getSuggestedDefinitions($userId, $groupIds, $definitionIds);
         if (empty($definitions)) {
             return [new Pagerfanta(new ArrayAdapter([])), [], 0.0];
         }
@@ -161,7 +165,7 @@ class SuggestionSearch extends AbstractSearch
 
     /**
      * Definitions with suggestions enabled that the user is allowed to read (or the given
-     * definition only, whatever its "suggest" flag), with their display name and the locales of
+     * definitions only, whatever their "suggest" flag), with their display name and the locales of
      * the values to suggest (see AssetPostTransformListener for the indexing side):
      * - entity: exactly the user's best workspace locale, so that each entity yields one label;
      * - translatable text or keyword: the best workspace locale plus the untranslated values;
@@ -169,10 +173,10 @@ class SuggestionSearch extends AbstractSearch
      *
      * @return array<string, array{name: string, locales: string[], locale: ?string}> indexed by definition ID
      */
-    private function getSuggestedDefinitions(?string $userId, array $groupIds, ?string $definitionId = null): array
+    private function getSuggestedDefinitions(?string $userId, array $groupIds, ?array $definitionIds = null): array
     {
-        $repositoryOptions = null !== $definitionId
-            ? [AttributeDefinitionRepository::OPT_IDS => [$definitionId]]
+        $repositoryOptions = null !== $definitionIds
+            ? [AttributeDefinitionRepository::OPT_IDS => $definitionIds]
             : [AttributeDefinitionRepository::OPT_SUGGEST_ENABLED => true];
 
         $bestLocales = [];

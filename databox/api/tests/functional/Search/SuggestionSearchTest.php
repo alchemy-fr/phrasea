@@ -332,6 +332,16 @@ class SuggestionSearchTest extends AbstractSearchTest
 
         $this->assertSame([], $scoped('par', $restricted));
         $this->assertSame([], $scoped('par', 'unknown'));
+
+        // Several definitions at once (the same attribute across workspaces)
+        $this->assertSame(self::sorted([
+            [$city->getId(), 'Parade'],
+            [$city->getId(), 'Paris'],
+            [$keywords->getId(), 'Paris'],
+        ]), self::sorted(array_map(
+            fn (array $s): array => [$s['t'], $s['name']],
+            $scoped('par', $city->getId().','.$keywords->getId().',unknown'),
+        )));
     }
 
     private function createSuggestedDefinition(Workspace $workspace, string $name, array $options = []): AttributeDefinition

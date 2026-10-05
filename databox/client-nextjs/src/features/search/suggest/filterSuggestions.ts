@@ -7,6 +7,7 @@ import {
     Facets,
     FacetType,
     SearchSuggestion,
+    Workspace,
 } from '@/types/api';
 import {aqlKey} from '@/features/attributes/definitionsStore';
 import {
@@ -86,8 +87,25 @@ export function isFieldToken(text: string): boolean {
     return FIELD_TOKEN.test(text) && (text === '@' || text.length >= 2);
 }
 
+/** Long texts: neither worth filtering on from the search bar nor suggesting values for */
+const LONG_TEXT_TYPES: AttributeType[] = [
+    AttributeType.Textarea,
+    AttributeType.Html,
+    AttributeType.Code,
+    AttributeType.Json,
+    AttributeType.WebVtt,
+];
+
+export function isLongTextField(d: AttributeDefinitionOrBuiltIn): boolean {
+    return LONG_TEXT_TYPES.includes(d.type);
+}
+
 function isSuggestableField(d: AttributeDefinitionOrBuiltIn): boolean {
-    return d.enabled !== false && (!!d.builtIn || d.searchable);
+    return (
+        d.enabled !== false &&
+        (!!d.builtIn || d.searchable) &&
+        !isLongTextField(d)
+    );
 }
 
 function highlightKey(key: string, needle: string): string {
@@ -181,20 +199,20 @@ export function isEntityField(
 export function isApiSuggestable(
     definition: AttributeDefinitionOrBuiltIn
 ): boolean {
-    if (definition.builtIn) {
+    if (definition.builtIn || isLongTextField(definition)) {
         return false;
     }
 
     return [
         AttributeType.Text,
-        AttributeType.Textarea,
         AttributeType.Keyword,
         AttributeType.Color,
         AttributeType.Entity,
     ].includes(definition.type);
 }
 
-type Candidate = {value: ScalarValue; label: string; hl?: string};
+/** A value to suggest, before being turned into a condition */
+export type Candidate = {value: ScalarValue; label: string; hl?: string};
 
 function facetOf(
     definition: AttributeDefinitionOrBuiltIn,
@@ -218,9 +236,18 @@ function facetOf(
 function clientCandidates(
     definition: AttributeDefinitionOrBuiltIn,
     facets: Facets | undefined,
+    workspaces: Workspace[] | undefined,
     t: TFunction
 ): Candidate[] {
     switch (definition.type) {
+        case AttributeType.Workspace:
+            if (workspaces?.length) {
+                return workspaces.map(w => ({
+                    value: w.id,
+                    label: w.displayName ?? w.name,
+                }));
+            }
+            break;
         case AttributeType.Boolean:
             return [
                 {value: true, label: t('common.yes', 'Yes')},
@@ -285,7 +312,7 @@ function matchRank(candidate: Candidate, prefix: string): number {
     return -1;
 }
 
-function toValueSuggestion(
+export function candidateToValueSuggestion(
     definition: AttributeDefinitionOrBuiltIn,
     candidate: Candidate
 ): ValueSuggestion | null {
@@ -306,23 +333,25 @@ function toValueSuggestion(
 }
 
 /**
- * Values known on the client: booleans, fixed enumerations and the facet
- * buckets of the current results, filtered by the typed prefix.
+ * Values known on the client: booleans, fixed enumerations, the workspaces
+ * and the facet buckets of the current results, filtered by the typed prefix.
  */
 export function clientValueSuggestions({
     definition,
     prefix,
     facets,
+    workspaces,
     t,
 }: {
     definition: AttributeDefinitionOrBuiltIn;
     prefix: string;
     facets?: Facets;
+    workspaces?: Workspace[];
     t: TFunction;
 }): ValueSuggestion[] {
     const needle = prefix.trim().toLowerCase();
 
-    return clientCandidates(definition, facets, t)
+    return clientCandidates(definition, facets, workspaces, t)
         .map((candidate, index) => ({
             candidate,
             index,
@@ -330,7 +359,7 @@ export function clientValueSuggestions({
         }))
         .filter(c => c.rank >= 0)
         .sort((a, b) => a.rank - b.rank || a.index - b.index)
-        .map(c => toValueSuggestion(definition, c.candidate))
+        .map(c => candidateToValueSuggestion(definition, c.candidate))
         .filter((s): s is ValueSuggestion => s !== null);
 }
 
@@ -344,7 +373,7 @@ export function apiItemToValueSuggestion(
         return null;
     }
 
-    return toValueSuggestion(definition, {
+    return candidateToValueSuggestion(definition, {
         value: entity ? item.entityId! : item.name,
         label: item.name,
         hl: item.hl,

@@ -110,8 +110,8 @@ describe('Asset actions', () => {
         visitWorkspace(ctx.workspace.id);
         waitForResults();
         openAssetContextMenu('Delta');
-        // Assets without a source file cannot be exported: the action is absent
-        cy.get('[role=menu]').contains('Export').should('not.exist');
+        // Assets without a source file cannot be exported: the action is greyed out
+        cy.menuItem('Download').should('have.attr', 'aria-disabled', 'true');
         cy.get('body').type('{esc}');
     });
 

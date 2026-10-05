@@ -6,8 +6,17 @@ import {DropdownMenu as DM, ContextMenu as CM} from 'radix-ui';
 import {CheckIcon, ChevronRightIcon, CircleIcon} from 'lucide-react';
 import {cn} from '@/lib/utils/cn';
 
+// Capped to the room left in the viewport, scrolling past it
 const contentClass =
-    'z-50 min-w-[10rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fill-mode-forwards data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95';
+    'z-50 min-w-[10rem] overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fill-mode-forwards data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95';
+const dropdownContentClass = cn(
+    contentClass,
+    'max-h-(--radix-dropdown-menu-content-available-height)'
+);
+const contextContentClass = cn(
+    contentClass,
+    'max-h-(--radix-context-menu-content-available-height)'
+);
 const itemClass =
     "relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:text-destructive data-[variant=destructive]:data-[highlighted]:bg-destructive/10";
 const labelClass = 'px-2 py-1.5 text-xs font-medium text-muted-foreground';
@@ -53,7 +62,7 @@ export function DropdownMenuContent({
         <DM.Portal>
             <DM.Content
                 sideOffset={sideOffset}
-                className={cn(contentClass, className)}
+                className={cn(dropdownContentClass, className)}
                 {...props}
             />
         </DM.Portal>
@@ -163,7 +172,10 @@ export function DropdownMenuSubContent({
 }: React.ComponentProps<typeof DM.SubContent>) {
     return (
         <DM.Portal>
-            <DM.SubContent className={cn(contentClass, className)} {...props} />
+            <DM.SubContent
+                className={cn(dropdownContentClass, className)}
+                {...props}
+            />
         </DM.Portal>
     );
 }
@@ -182,7 +194,10 @@ export function ContextMenuContent({
 }: React.ComponentProps<typeof CM.Content>) {
     return (
         <CM.Portal>
-            <CM.Content className={cn(contentClass, className)} {...props} />
+            <CM.Content
+                className={cn(contextContentClass, className)}
+                {...props}
+            />
         </CM.Portal>
     );
 }
@@ -260,7 +275,10 @@ export function ContextMenuSubContent({
 }: React.ComponentProps<typeof CM.SubContent>) {
     return (
         <CM.Portal>
-            <CM.SubContent className={cn(contentClass, className)} {...props} />
+            <CM.SubContent
+                className={cn(contextContentClass, className)}
+                {...props}
+            />
         </CM.Portal>
     );
 }

@@ -35,6 +35,16 @@ export function assetKey(asset: Asset): string {
     return asset.basketItemId ?? asset.id;
 }
 
+/**
+ * The items an action on `asset` applies to: a selected item stands for the
+ * whole selection, an unselected one stands alone (drag, context menu…).
+ */
+export function selectionTargets(asset: Asset, selection: Asset[]): Asset[] {
+    return selection.some(a => assetKey(a) === assetKey(asset))
+        ? selection
+        : [asset];
+}
+
 const SelectionContext = createContext<SelectionContextValue | null>(null);
 
 /**

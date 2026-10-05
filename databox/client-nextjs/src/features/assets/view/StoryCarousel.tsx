@@ -319,7 +319,7 @@ export function StoryCarousel({
                                     </>
                                 ) : null}
                                 <AssetMenuItems
-                                    asset={child}
+                                    assets={[child]}
                                     variant="context"
                                     onOpen={() => onSelect(child.id)}
                                 />

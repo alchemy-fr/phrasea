@@ -279,6 +279,13 @@ function SuggestionRow({
     onSelect: () => void;
 }) {
     const {t} = useTranslation();
+    const ref = useRef<HTMLLIElement>(null);
+    // Keyboard navigation: keep the highlighted item visible in the list
+    useEffect(() => {
+        if (active) {
+            ref.current?.scrollIntoView?.({block: 'nearest'});
+        }
+    }, [active]);
 
     let icon: ReactNode;
     let main: ReactNode;
@@ -330,6 +337,7 @@ function SuggestionRow({
 
     return (
         <li
+            ref={ref}
             role="option"
             aria-selected={active}
             title={title}

@@ -2,13 +2,15 @@ import {useEffect, useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery} from '@tanstack/react-query';
 import type {AttributeDefinitionOrBuiltIn, Facets} from '@/types/api';
-import {getSearchSuggestions} from '@/lib/api/assets';
-import {useDefinitionsBySlug} from '@/features/attributes/definitionsStore';
+import {
+    useDefinitionsBySlug,
+    useDefinitionsStore,
+} from '@/features/attributes/definitionsStore';
+import {useCollectionStore} from '@/features/collections/collectionStore';
 import {debounce} from '@/lib/utils/misc';
 import {
-    apiItemToValueSuggestion,
+    candidateToValueSuggestion,
     clientValueSuggestions,
-    isApiSuggestable,
     isFieldToken,
     mergeValueSuggestions,
     parseSearchInput,
@@ -17,6 +19,9 @@ import {
     SuggestionItem,
     ValueSuggestion,
 } from './filterSuggestions';
+import {fetchRemoteValues, hasRemoteValues} from './remoteValues';
+import {getSearchSuggestions} from '@/lib/api/assets';
+import {AttributeType} from '@/types/api';
 
 const DEBOUNCE_MS = 200;
 
@@ -37,6 +42,9 @@ export function useSearchSuggestions(
 } {
     const {t} = useTranslation();
     const bySlug = useDefinitionsBySlug();
+    const definitions = useDefinitionsStore(s => s.definitions);
+    const workspaces = useCollectionStore(s => s.workspaces);
+    const loadWorkspaces = useCollectionStore(s => s.loadWorkspaces);
     const [debounced, setDebounced] = useState(input);
     const setDebouncedInput = useRef(
         debounce((q: string) => setDebounced(q), DEBOUNCE_MS)
@@ -57,25 +65,45 @@ export function useSearchSuggestions(
         parsed.mode === 'field'
             ? (bySlug[parsed.field] ?? bySlug[`@${parsed.field}`])
             : undefined;
-    // The API is scoped on the definition of the debounced input, as long as
-    // it is still the field being typed
     const debouncedFieldDefinition =
         debouncedParsed.mode === 'field'
             ? (bySlug[debouncedParsed.field] ??
               bySlug[`@${debouncedParsed.field}`])
             : undefined;
-    const apiField = useMemo(
+
+    // `@workspace:` lists the workspaces from the store
+    const wantsWorkspaces =
+        enabled && fieldDefinition?.type === AttributeType.Workspace;
+    useEffect(() => {
+        if (wantsWorkspaces) {
+            void loadWorkspaces();
+        }
+    }, [wantsWorkspaces, loadWorkspaces]);
+
+    // Remote values are fetched for the definition of the debounced input, as
+    // long as it is still the field being typed
+    const remote = useMemo(
         () =>
             fieldDefinition &&
             debouncedParsed.mode === 'field' &&
             debouncedFieldDefinition === fieldDefinition &&
-            isApiSuggestable(fieldDefinition)
+            hasRemoteValues(fieldDefinition)
                 ? {
                       definition: fieldDefinition,
+                      definitionIds: fieldDefinition.builtIn
+                          ? []
+                          : definitions
+                                .filter(d => d.slug === fieldDefinition.slug)
+                                .map(d => d.id),
                       prefix: debouncedParsed.valuePrefix,
                   }
                 : undefined,
-        [fieldDefinition, debouncedFieldDefinition, debouncedParsed]
+        [
+            fieldDefinition,
+            debouncedFieldDefinition,
+            debouncedParsed,
+            definitions,
+        ]
     );
 
     const textQuery =
@@ -91,22 +119,17 @@ export function useSearchSuggestions(
         select: r => r.items,
     });
 
-    const valueSuggestions = useQuery({
+    const remoteValues = useQuery({
         queryKey: [
             'suggest',
-            'definition',
-            apiField?.definition.id,
-            apiField?.prefix,
+            'values',
+            remote?.definition.id,
+            remote?.definitionIds,
+            remote?.prefix,
         ],
-        queryFn: ({signal}) =>
-            getSearchSuggestions(
-                apiField!.prefix,
-                {definition: apiField!.definition.id},
-                signal
-            ),
-        enabled: enabled && !!apiField,
+        queryFn: ({signal}) => fetchRemoteValues({...remote!, signal}),
+        enabled: enabled && !!remote,
         staleTime: 30_000,
-        select: r => r.items,
     });
 
     const items = useMemo((): SuggestionItem[] => {
@@ -121,12 +144,13 @@ export function useSearchSuggestions(
                 definition: fieldDefinition,
                 prefix: parsed.valuePrefix,
                 facets,
+                workspaces,
                 t,
             });
-            const api: ValueSuggestion[] = apiField
-                ? (valueSuggestions.data ?? [])
-                      .map(item =>
-                          apiItemToValueSuggestion(item, fieldDefinition)
+            const api: ValueSuggestion[] = remote
+                ? (remoteValues.data ?? [])
+                      .map(candidate =>
+                          candidateToValueSuggestion(fieldDefinition, candidate)
                       )
                       .filter((s): s is ValueSuggestion => s !== null)
                 : [];
@@ -157,9 +181,10 @@ export function useSearchSuggestions(
         parsed,
         fieldDefinition,
         facets,
+        workspaces,
         t,
-        apiField,
-        valueSuggestions.data,
+        remote,
+        remoteValues.data,
         bySlug,
         textQuery,
         textSuggestions.data,
