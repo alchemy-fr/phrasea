@@ -47,6 +47,7 @@ final class AssetActionsTest extends AbstractDataboxTestCase
         $this->assertSame('Mine', $entities['/collections/'.$collection->getId()]['name']);
         $this->assertNull($entities[$unknown]);
         $this->assertArrayHasKey('/users/'.self::OWNER, $entities);
+        $this->assertNotSame(['notAllowed' => true], $entities['/users/'.self::OWNER]);
     }
 
     public function testResolveEntitiesAsAnonymous(): void
@@ -56,12 +57,14 @@ final class AssetActionsTest extends AbstractDataboxTestCase
         $secret = $this->createAsset(['ownerId' => self::OWNER]);
 
         $entities = $this->request('POST', '/assets/entities', null, [
-            'entities' => ['/assets/'.$public->getId(), '/assets/'.$secret->getId()],
+            'entities' => ['/assets/'.$public->getId(), '/assets/'.$secret->getId(), '/users/'.self::OWNER],
         ])->toArray()['entities'];
 
         $this->assertResponseStatusCodeSame(201);
         $this->assertSame($public->getId(), $entities['/assets/'.$public->getId()]['id']);
         $this->assertSame(['notAllowed' => true], $entities['/assets/'.$secret->getId()]);
+        // Users are not disclosed to anonymous visitors
+        $this->assertSame(['notAllowed' => true], $entities['/users/'.self::OWNER]);
     }
 
     public function testResolveEntitiesRejectsNonStringEntities(): void
