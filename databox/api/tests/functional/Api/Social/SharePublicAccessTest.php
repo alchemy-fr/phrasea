@@ -157,6 +157,25 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         $this->assertNotSame($restricted->getId(), $urls['web']['definitionId']);
     }
 
+    public function testSharedAssetExposesItsPublicPreviewToAnonymousViewers(): void
+    {
+        $client = static::createClient();
+        $this->setUpWorkspace();
+        $public = $this->createPublicRendition();
+        $restricted = $this->createRestrictedRendition();
+        $em = self::getEntityManager();
+        self::managed($public)->setUseAsPreview(true);
+        self::managed($restricted)->setUseAsThumbnail(true);
+        $em->flush();
+        $share = $this->createShare(self::USER, [$this->asset]);
+
+        // The viewer cannot read the asset: the share token alone exposes its public renditions
+        $data = $client->request('GET', self::publicUri($share, $share->getToken()))->toArray();
+
+        $this->assertSame(self::PREVIEW_URL, $data['assets'][0]['preview']['file']['url'] ?? null);
+        $this->assertArrayNotHasKey('thumbnail', $data['assets'][0], 'A rendition of a non-public policy is not shared');
+    }
+
     public function testRenditionRedirectsToTheFile(): void
     {
         $client = static::createClient();

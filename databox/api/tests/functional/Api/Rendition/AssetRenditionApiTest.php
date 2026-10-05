@@ -116,8 +116,6 @@ YAML;
 
     public function testRenditionOfAnUnreadableAssetIsNotReadable(): void
     {
-        $this->markTestIncomplete('BUG: AssetRenditionVoter::doVote() only checks the rendition policy for READ (src/Security/Voter/AssetRenditionVoter.php:61), never the asset: anyone (even anonymous) can GET /renditions/{id} — file URL included — of a private asset in a private workspace when the policy is public.');
-
         [$wsB, $defaultsB] = $this->createWorkspaceWithDefaults('ws-b', 'someone-else');
         $asset = $this->createAsset(['workspace' => $wsB, 'ownerId' => 'someone-else']);
         $rendition = $this->createAssetRendition($asset, $defaultsB->renditionDefinitions['main'], $this->createUrlFile($wsB));

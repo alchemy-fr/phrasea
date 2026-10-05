@@ -57,7 +57,7 @@ class AssetRenditionVoter extends AbstractVoter
         $isEditable = fn (): bool => $renditionPolicy->isEditable() || $this->hasAcl(PermissionInterface::CHILD_EDIT, $renditionPolicy, $token);
 
         return match ($attribute) {
-            self::READ => $isRead(),
+            self::READ => $isRead() && $this->security->isGranted(self::READ, $subject->getAsset()),
             self::CREATE,
             self::EDIT,
             self::DELETE => $isEditable() && $this->security->isGranted(AssetVoter::EDIT, $subject->getAsset()),

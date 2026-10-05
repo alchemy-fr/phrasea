@@ -9,6 +9,7 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\NotifierBundle\Manager\SubscriptionManager;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
+use App\Api\Provider\ShareReadProvider;
 use App\Attribute\AttributeTypeRegistry;
 use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
@@ -138,8 +139,10 @@ class AssetOutputTransformer implements OutputTransformerInterface
                     AssetRenditionRepository::OPT_EXCLUDE_DEFINITIONS => $assetPolicyFilter->getFilteredRenditions(),
                 ]);
 
+            // A share link is opened with its token by viewers who may not read the asset
+            $sharedPublicly = $this->hasGroup(Share::GROUP_PUBLIC_READ, $context);
             foreach (RenditionDefinition::BUILT_IN_RENDITIONS as $type) {
-                if (null !== $file = $this->getRenditionUsedAsType($renditions, $type)) {
+                if (null !== $file = $this->getRenditionUsedAsType($renditions, $type, $sharedPublicly)) {
                     $output->{'set'.ucfirst($type)}($file);
                 }
             }
@@ -211,11 +214,12 @@ class AssetOutputTransformer implements OutputTransformerInterface
     private function getRenditionUsedAsType(
         array $assetRenditions,
         string $type,
+        bool $sharedPublicly,
     ): ?AssetRendition {
         foreach ($assetRenditions as $rendition) {
             if ($rendition->getDefinition()?->{'isUseAs'.ucfirst($type)}()) {
-                // Return the first viewable sub def for user
-                if ($this->isGranted(AbstractVoter::READ, $rendition)) {
+                // Return the first viewable sub def for user (or for the share link)
+                if ($sharedPublicly ? ShareReadProvider::isRenditionShared($rendition) : $this->isGranted(AbstractVoter::READ, $rendition)) {
                     return $rendition;
                 }
             }
