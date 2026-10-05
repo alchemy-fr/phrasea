@@ -81,7 +81,8 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 )
                 || $this->parentIsGranted($attribute, $subject)
                 || $isWorkspaceOwnerSlow()
-                || $isOwnerSlow()
+                // Not the collection itself: its creator sets its owner (ownerId)
+                || $this->parentIsGranted(AbstractVoter::OWNER, $subject)
             ,
             // View collection name but not necessary its assets
             AbstractVoter::READ => (!$subject->isDeleted() || $this->security->isGranted(AbstractVoter::DELETE, $subject))
