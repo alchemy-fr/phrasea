@@ -24,7 +24,7 @@ Every lib in `lib/php/*` runs its own `composer test` (var-dump-check, plus
 PHPUnit for the libs that have tests).
 
 JS (`pnpm test:quick`): `pnpm lint` (eslint), `pnpm typecheck` (`tsc`) and
-`pnpm test` (vitest: `databox/client`, `databox/client-nextjs`, `databox/indexer`
+`pnpm test` (vitest: `databox/client`, `databox/indexer`
 unit suite, `@alchemy/api`, `@alchemy/auth`, `@alchemy/i18n`).
 
 In CI the PHP part runs on the runner with `setup-php` and a Composer cache,

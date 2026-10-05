@@ -8,9 +8,9 @@ export const adminPassword = Cypress.env('ADMIN_PASSWORD');
 export const exposeAdminClientId = Cypress.env('EXPOSE_ADMIN_CLIENT_ID');
 export const exposeAdminClientSecret = Cypress.env('EXPOSE_ADMIN_CLIENT_SECRET');
 
-// Databox (Next.js client)
-export const databoxNextUrl = Cypress.env('DATABOX_NEXT_CLIENT_URL');
+// Databox
+export const databoxUrl = Cypress.env('DATABOX_CLIENT_URL');
 export const databoxApiUrl = Cypress.env('DATABOX_API_URL');
-export const databoxNextClientId = Cypress.env('DATABOX_NEXT_CLIENT_ID');
+export const databoxClientId = Cypress.env('DATABOX_CLIENT_ID');
 export const databoxAdminClientId = Cypress.env('DATABOX_ADMIN_CLIENT_ID');
 export const databoxAdminClientSecret = Cypress.env('DATABOX_ADMIN_CLIENT_SECRET');

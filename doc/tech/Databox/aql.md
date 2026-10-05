@@ -72,13 +72,11 @@ depends on the type of the field:
 
 ## Implementations
 
-AQL is parsed in three places, which must stay in sync:
+AQL is parsed in two places, which must stay in sync:
 
 - API: `databox/api/src/Elasticsearch/AQL/AQLGrammar.peg`, compiled into
   `AQLGrammar.php` (committed). Running `tests/unit/AQL/AQLParserTest.php`
   regenerates it. `AQLToESQuery` turns the AST into an Elasticsearch query.
-- Legacy client: `databox/client/src/components/Media/Search/AQL/grammar.ne`
-  (nearley), compiled with `pnpm --filter databox-client compile-grammar`.
-- Next.js client: `databox/client-nextjs/src/features/search/aql/parser.ts`.
+- Client: `databox/client/src/features/search/aql/parser.ts`.
 
 See also [Asset collection filters](./asset_collection_filters.md).

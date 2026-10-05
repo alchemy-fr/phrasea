@@ -13,7 +13,7 @@ load-env
 
 docker compose build cypress &
 docker compose up -d --wait expose-api-php --wait-timeout 200 &
-docker compose up -d --wait databox-client-next databox-api-php soketi --wait-timeout 200 &
+docker compose up -d --wait databox-client databox-api-php soketi --wait-timeout 200 &
 wait
 
 # The expose specs rely on the "test-pub" publication of expose/api/fixtures/Tests.yaml

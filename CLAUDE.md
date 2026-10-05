@@ -33,7 +33,7 @@ The applications:
 
 ## Repository layout
 
-- `databox/`, `expose/`, `uploader/` — each has `api/` (Symfony) and `client/` (React/Vite).
+- `databox/`, `expose/`, `uploader/` — each has `api/` (Symfony) and `client/` (React; Next.js for databox, Vite for the others).
 - `dashboard/client/` — React client only.
 - `lib/php/*` — shared Symfony bundles (e.g. `core-bundle`, `auth-bundle`, `configurator-bundle`, `storage-bundle`, `es-bundle`, `notifier-bundle`, `report-bundle`, `workflow-bundle`, `rendition-factory`). Consumed by the API apps as Composer **`type: path` repositories, symlinked** — editing a bundle immediately affects the apps that depend on it.
 - `lib/js/*` — shared React/TS packages published under the **`@alchemy/*`** scope (e.g. `@alchemy/core`, `@alchemy/auth`, `@alchemy/api`, `@alchemy/phrasea-ui`, `@alchemy/react-hooks`). Consumed via pnpm `workspace:*`.
@@ -87,7 +87,7 @@ dc run --rm dev pnpm build         # tsc + vite build across packages
 
 Per-client: `pnpm --filter databox-client <script>` (scripts: `lint`, `build`, `cs` = lint:fix + format).
 
-**Frontend tests use Vitest** (`databox/client`, `databox/client-nextjs`, `databox/indexer`, `lib/js/api`, `lib/js/auth`, `lib/js/i18n`; `pnpm test` at the root runs them all through Turbo):
+**Frontend tests use Vitest** (`databox/client`, `databox/indexer`, `lib/js/api`, `lib/js/auth`, `lib/js/i18n`; `pnpm test` at the root runs them all through Turbo):
 
 ```bash
 dc run --rm dev pnpm --filter databox-client test                      # vitest run
@@ -152,11 +152,12 @@ The canonical project lists (used by the whole-repo scripts) live in `bin/vars.s
 - **API pattern:** Doctrine entities in `src/Entity`, exposed as API Platform resources; async processing via Messenger consumers (`src/Consumer`) reading from RabbitMQ; search backed by Elasticsearch through `es-bundle`/FOS Elastica. Files and renditions go through `storage-bundle` and `rendition-factory`.
 - **Shared code first:** cross-app concerns (auth, config, storage, notifications, reporting, workflow) live in `lib/php/*` bundles and `lib/js/*` packages rather than being duplicated per app. When a behavior spans multiple apps, the change usually belongs in a lib, not in one app.
 - **Auth** is centralized (Keycloak-based; see `lib/php/auth-bundle`, `lib/js/auth`, and `doc/tech/Authentication/`).
-- **databox client search** uses a custom AQL grammar built with nearley: `src/components/Media/Search/AQL/grammar.ne` compiled via `pnpm compile-grammar` (do not hand-edit the generated `grammar.ts`).
+- **databox client search** uses AQL, parsed client-side by `databox/client/src/features/search/aql/parser.ts` and server-side by the PEG grammar in `databox/api/src/Elasticsearch/AQL/` (see `doc/tech/Databox/aql.md`); keep both in sync.
 
 ## Conventions
 
-- Frontend: React 18 + TypeScript + Vite, MUI (`@mui/material`) for UI, TanStack React Query for data, i18next for translations (`pnpm translate` runs the i18next scanner).
+- Frontend (expose, uploader, dashboard): React 18 + TypeScript + Vite, MUI (`@mui/material`) for UI, TanStack React Query for data, i18next for translations (`pnpm translate` runs the i18next scanner).
+- Frontend (databox): Next.js (App Router) + React 19 + TypeScript, Tailwind CSS v4 + Radix primitives, TanStack Query, Zustand; see `databox/client/README.md`.
 - A **pre-commit hook** (Husky + lint-staged) runs formatting/CS on staged files; keep code lint-clean.
 - New PHP shared bundles use the modern structure (`src/` + `config/` + an `AbstractBundle` class) rather than the legacy layout.
 - **Doctrine migrations must be plain SQL.** Put schema changes _and_ data backfills in `up()`/`down()` via `addSql()` (or `$this->connection` for row-by-row transforms). Avoid `postUp()`/`preUp()` and never load entities, repositories, or services (`AbstractServiceContainerMigration`, `getEntityManager()`, `DeferredIndexListener`, …) from a migration: a migration is replayed on fresh installs long after the code it references has changed, and it breaks as soon as an entity method or column disappears (`Version20260713140456` used to call `FileMetadata::getChecksum()`, which was later removed). If a value can only be computed in PHP, read rows with `$this->connection` and write them back with parameterized SQL.

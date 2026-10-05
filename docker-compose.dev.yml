@@ -46,22 +46,11 @@ services:
   databox-client:
     extends:
       service: a_client
-    image: localhost:5000/databox-client-dev:${DOCKER_TAG}
-    build:
-      target: client-build
-    volumes:
-      - ./databox/client:/srv/workspace/phrasea/databox/client:rw
-    environment:
-      - WDS_SOCKET_PORT=443
-
-  databox-client-next:
-    extends:
-      service: a_client
-    image: ${REGISTRY_NAMESPACE}databox-client-next-dev:${DOCKER_TAG}
+    image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
       target: client-dev
     volumes:
-      - ./databox/client-nextjs:/srv/workspace/phrasea/databox/client-nextjs:rw
+      - ./databox/client:/srv/workspace/phrasea/databox/client:rw
       # Workspace libraries sources (their node_modules come from the image)
       - ./lib/js/api/src:/srv/workspace/phrasea/lib/js/api/src:ro
       - ./lib/js/api/index.ts:/srv/workspace/phrasea/lib/js/api/index.ts:ro

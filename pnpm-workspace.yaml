@@ -1,6 +1,5 @@
 packages:
   - 'databox/client'
-  - 'databox/client-nextjs'
   - 'databox/indexer'
   - 'expose/client'
   - 'uploader/client'

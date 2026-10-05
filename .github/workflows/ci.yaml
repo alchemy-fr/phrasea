@@ -37,7 +37,7 @@ env:
   DOCKER_TAG: ${{ github.sha }}
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   VERIFY_SSL: "false"
-  COMPOSE_PROFILES: databox,databox-next,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard,soketi
+  COMPOSE_PROFILES: databox,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard,soketi
   FIXTURES_GENERATE_IMAGES: "true"
   CYPRESS_CPU_LIMIT: '4'
   CYPRESS_MEMORY_LIMIT: '16G'
@@ -137,18 +137,6 @@ jobs:
     secrets: inherit
     needs:
       - build_nodejs-base
-      - build_nginx-client-base
-
-  build_databox_client_next:
-    name: 'Build Databox Client Next'
-    uses: ./.github/workflows/build.yaml
-    with:
-      image: databox-client-next
-      context: ./databox/client-nextjs
-      withLibs: true
-    secrets: inherit
-    needs:
-      - build_nodejs-base
 
   build_databox_indexer:
     name: 'Build Databox Indexer'
@@ -228,7 +216,6 @@ jobs:
       - build_dashboard
       - build_databox_api
       - build_databox_client
-      - build_databox_client_next
       - build_databox_indexer
       - build_expose_api
       - build_expose_client
