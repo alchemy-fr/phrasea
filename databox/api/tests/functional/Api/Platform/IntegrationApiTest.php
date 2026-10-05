@@ -254,8 +254,6 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
 
     public function testAnIntegrationOfAnotherWorkspaceCannotBeRead(): void
     {
-        $this->markTestIncomplete('BUG: GET /integrations/{id} has no security: any authenticated user reads any integration (name, type, workspace, enabled state, client config) even without access to its workspace (src/Entity/Integration/WorkspaceIntegration.php:45, `new Get()`).');
-
         $hidden = $this->createOtherWorkspace();
         $integration = $this->createIntegration($hidden, 'remove.bg', ['apiKey' => 'k'], public: false, ownerId: 'someone-else');
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Integration\WorkspaceIntegration;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 
@@ -49,7 +50,12 @@ class WorkspaceIntegrationVoter extends AbstractVoter
             self::EDIT => $isWorkspaceEditor() || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
             self::DELETE => $isWorkspaceEditor() || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
             self::READ => $isWorkspaceReader()
-        || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),
+                || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
+                // Public or own instance-wide integrations are listed to every user (baskets)
+                || (null === $workspace && $this->isAuthenticated() && (
+                    true === $subject->getPublic()
+                    || ($token->getUser() instanceof JwtUser && $token->getUser()->getId() === $subject->getOwnerId())
+                )),
             self::READ_DATA => $this->isAuthenticated()
                 && (true === $subject->getPublic() || $this->hasAcl(PermissionInterface::CHILD_VIEW, $subject, $token)),
             self::INTERACT => $this->isAuthenticated() && $this->hasAcl(PermissionInterface::CHILD_EDIT, $subject, $token),

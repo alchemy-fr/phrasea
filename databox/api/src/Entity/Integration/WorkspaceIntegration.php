@@ -42,7 +42,7 @@ use Symfony\Component\Yaml\Yaml;
 #[ApiResource(
     shortName: 'integration',
     operations: [
-        new Get(),
+        new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Put(security: 'is_granted("EDIT", object)'),
         new GetCollection(),
