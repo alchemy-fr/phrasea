@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace App\Api\Provider;
 
+use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use App\Api\Traits\CollectionProviderAwareTrait;
+use App\Entity\Integration\IntegrationToken;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -15,7 +16,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class IntegrationTokenDataProvider implements ProviderInterface
 {
-    use CollectionProviderAwareTrait;
     use SecurityAwareTrait;
 
     public function __construct(
@@ -33,10 +33,17 @@ final class IntegrationTokenDataProvider implements ProviderInterface
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $integration->getWorkspace());
         }
 
-        $filters = $context['filters'] ?? [];
-        $filters['integrationId'] = $integrationId;
-        $context['filters'] = $filters;
+        // Tokens are personal: only list the ones of the current user
+        $user = $this->security->getUser();
+        if (!$user instanceof JwtUser) {
+            return [];
+        }
 
-        return $this->collectionProvider->provide($operation, $uriVariables, $context);
+        return $this->em->getRepository(IntegrationToken::class)->findBy([
+            'integration' => $integration->getId(),
+            'userId' => $user->getId(),
+        ], [
+            'createdAt' => 'ASC',
+        ]);
     }
 }

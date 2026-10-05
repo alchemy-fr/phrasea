@@ -139,8 +139,6 @@ final class IntegrationDataTest extends AbstractDataboxTestCase
 
     public function testUsersOnlyListTheirOwnTokens(): void
     {
-        $this->markTestIncomplete('BUG: GET /integrations/{id}/tokens lists the tokens of every user of the integration ("integrationId" filter only, not restricted to the current user as getValidUserTokens() does): the basket UI then considers itself authorized with someone else\'s valid token (src/Api/Provider/IntegrationTokenDataProvider.php:36).');
-
         $workspace = $this->createSharedWorkspace();
         $integration = $this->createIntegration($workspace, 'phrasea.expose', self::EXPOSE_CONFIG, public: true);
         $mine = $this->createIntegrationToken($integration, self::MEMBER);
