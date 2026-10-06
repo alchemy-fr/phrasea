@@ -11,16 +11,21 @@ use ApiPlatform\Metadata\OpenApiParameterFilterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Parameter;
 use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
+use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
+use App\Elasticsearch\Filter\EsFieldTrait;
+use App\Elasticsearch\Filter\SearchQuery;
 use Doctrine\ORM\QueryBuilder;
+use Elastica\Query;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Filters by a list of workspace IDs, given as a list or as a comma-separated string.
  */
-final class InWorkspacesFilter implements FilterInterface, OpenApiParameterFilterInterface
+final class InWorkspacesFilter implements FilterInterface, OpenApiParameterFilterInterface, ElasticsearchFilterInterface
 {
     use BackwardCompatibleFilterDescriptionTrait;
+    use EsFieldTrait;
 
     public function apply(
         QueryBuilder $queryBuilder,
@@ -31,25 +36,50 @@ final class InWorkspacesFilter implements FilterInterface, OpenApiParameterFilte
     ): void {
         $parameter = $context['parameter'];
         $property = $parameter->getProperty() ?? 'workspace';
-        $value = $parameter->getValue();
-        if (empty($value)) {
+        $ids = self::normalizeIds($parameter->getValue());
+        if (empty($ids)) {
             return;
+        }
+
+        $parameterName = $queryNameGenerator->generateParameterName($property);
+        $queryBuilder
+            ->andWhere(sprintf('%s.%s IN (:%s)', $queryBuilder->getRootAliases()[0], $property, $parameterName))
+            ->setParameter($parameterName, $ids);
+    }
+
+    public function applyToElasticsearch(SearchQuery $query, string $resourceClass, ?Operation $operation = null, array $context = []): void
+    {
+        $parameter = $context['parameter'];
+        $ids = self::normalizeIds($parameter->getValue());
+        if (empty($ids)) {
+            return;
+        }
+
+        $query->bool->addFilter(new Query\Terms(self::getEsField($parameter), $ids));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function normalizeIds(mixed $value): array
+    {
+        if (empty($value)) {
+            return [];
         }
 
         if (is_string($value)) {
             $value = explode(',', trim($value));
         }
 
-        foreach ($value as $id) {
-            if (!Uuid::isValid($id)) {
-                throw new BadRequestHttpException(sprintf('Invalid ID: "%s"', $id));
+        $ids = [];
+        foreach ((array) $value as $id) {
+            if (!is_string($id) || !Uuid::isValid($id)) {
+                throw new BadRequestHttpException(sprintf('Invalid ID: "%s"', is_scalar($id) ? $id : get_debug_type($id)));
             }
+            $ids[] = $id;
         }
 
-        $parameterName = $queryNameGenerator->generateParameterName($property);
-        $queryBuilder
-            ->andWhere(sprintf('%s.%s IN (:%s)', $queryBuilder->getRootAliases()[0], $property, $parameterName))
-            ->setParameter($parameterName, $value);
+        return $ids;
     }
 
     public function getOpenApiParameters(Parameter $parameter): OpenApiParameter

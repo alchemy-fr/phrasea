@@ -13,8 +13,12 @@ use ApiPlatform\Metadata\OpenApiParameterFilterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Parameter;
 use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
+use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
+use App\Elasticsearch\Filter\EsFieldTrait;
+use App\Elasticsearch\Filter\SearchQuery;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\QueryBuilder;
+use Elastica\Query;
 
 /**
  * The "exact" strategy of the legacy SearchFilter, as a parameter filter.
@@ -25,10 +29,14 @@ use Doctrine\ORM\QueryBuilder;
  *
  * API Platform leaves the `<key>[]` variants out of hydra:search: declare a
  * `<key>[]` QueryParameter without filter next to it to keep them documented.
+ *
+ * On Elasticsearch, the values become a terms query on the `es_field` of the parameter
+ * (e.g. `workspaceId` for the `workspace` relation).
  */
-final class ExactSearchFilter implements FilterInterface, OpenApiParameterFilterInterface
+final class ExactSearchFilter implements FilterInterface, OpenApiParameterFilterInterface, ElasticsearchFilterInterface
 {
     use BackwardCompatibleFilterDescriptionTrait;
+    use EsFieldTrait;
 
     public function __construct(
         private readonly IriConverterInterface $iriConverter,
@@ -45,11 +53,7 @@ final class ExactSearchFilter implements FilterInterface, OpenApiParameterFilter
         $parameter = $context['parameter'];
         $property = $parameter->getProperty() ?? throw new InvalidArgumentException(sprintf('The filter parameter "%s" must specify a property.', $parameter->getKey()));
 
-        $values = array_values(array_filter(
-            (array) $parameter->getValue(),
-            static fn (mixed $value, int|string $key): bool => \is_int($key) && (\is_string($value) || \is_int($value)),
-            ARRAY_FILTER_USE_BOTH,
-        ));
+        $values = self::normalizeValues($parameter->getValue());
         if (empty($values)) {
             return;
         }
@@ -76,7 +80,32 @@ final class ExactSearchFilter implements FilterInterface, OpenApiParameterFilter
             ->setParameter($parameterName, $values);
     }
 
-    private function getIdFromValue(string|int $value, ClassMetadata $targetMetadata): string|int
+    public function applyToElasticsearch(SearchQuery $query, string $resourceClass, ?Operation $operation = null, array $context = []): void
+    {
+        $parameter = $context['parameter'];
+        $values = self::normalizeValues($parameter->getValue());
+        if (empty($values)) {
+            return;
+        }
+
+        $values = array_map(fn (string|int $value): string|int => $this->getIdFromValue($value), $values);
+
+        $query->bool->addFilter(new Query\Terms(self::getEsField($parameter), array_map(strval(...), $values)));
+    }
+
+    /**
+     * @return list<string|int> the scalar values of the list, ignoring operator maps (`key[gte]=…`)
+     */
+    private static function normalizeValues(mixed $value): array
+    {
+        return array_values(array_filter(
+            (array) $value,
+            static fn (mixed $value, int|string $key): bool => \is_int($key) && (\is_string($value) || \is_int($value)),
+            ARRAY_FILTER_USE_BOTH,
+        ));
+    }
+
+    private function getIdFromValue(string|int $value, ?ClassMetadata $targetMetadata = null): string|int
     {
         if (is_numeric($value)) {
             return $value;
@@ -89,9 +118,17 @@ final class ExactSearchFilter implements FilterInterface, OpenApiParameterFilter
             return $value;
         }
 
-        $ids = $targetMetadata->getIdentifierValues($item);
+        if (null !== $targetMetadata) {
+            $ids = $targetMetadata->getIdentifierValues($item);
 
-        return (string) reset($ids);
+            return (string) reset($ids);
+        }
+
+        if (method_exists($item, 'getId')) {
+            return (string) $item->getId();
+        }
+
+        return $value;
     }
 
     public function getOpenApiParameters(Parameter $parameter): array
