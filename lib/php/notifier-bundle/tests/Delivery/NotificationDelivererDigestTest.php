@@ -109,10 +109,10 @@ final class NotificationDelivererDigestTest extends TestCase
 
         $preferenceRepository = $this->createMock(NotificationPreferenceRepository::class);
         $preferenceRepository->method('findOneForChannel')->willReturn(null);
-        $preferenceManager = new PreferenceManager($this->createMock(EntityManagerInterface::class), $preferenceRepository, $topicRegistry);
+        $preferenceManager = new PreferenceManager($this->createStub(EntityManagerInterface::class), $preferenceRepository, $topicRegistry);
 
         return new NotificationDeliverer(
-            $this->createMock(SubscriberManager::class),
+            $this->createStub(SubscriberManager::class),
             $preferenceManager,
             new ChannelRegistry([
                 $this->channel(ChannelType::Email, $supports),

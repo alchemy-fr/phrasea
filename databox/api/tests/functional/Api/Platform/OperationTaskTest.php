@@ -9,6 +9,7 @@ use Alchemy\MessengerBundle\Transport\TestTransport;
 use App\Consumer\Handler\RunOperationTask;
 use App\Entity\Admin\OperationTask;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Admin operation tasks (/operation-tasks): long running maintenance jobs
@@ -50,9 +51,7 @@ final class OperationTaskTest extends AbstractDataboxTestCase
         yield 'user create' => [KeycloakClientTestMock::USER_UID, 'POST', '/operation-tasks', 403];
     }
 
-    /**
-     * @dataProvider getForbiddenCalls
-     */
+    #[DataProvider('getForbiddenCalls')]
     public function testOperationTasksAreReservedToAdmins(?string $userId, string $method, string $uri, int $expectedCode): void
     {
         static::createClient()->request($method, $uri, [

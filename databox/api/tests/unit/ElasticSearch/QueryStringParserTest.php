@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Tests\Unit\ElasticSearch;
 
 use App\Elasticsearch\QueryStringParser;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class QueryStringParserTest extends TestCase
 {
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testParser(string $query, array $expectedMust, string $expectedShould): void
     {
         $parser = new QueryStringParser();
@@ -22,7 +21,7 @@ class QueryStringParserTest extends TestCase
         $this->assertEquals($expectedShould, $parsed['should']);
     }
 
-    public function getCases(): array
+    public static function getCases(): array
     {
         return [
             ['', [], ''],

@@ -12,6 +12,7 @@ use App\Entity\Asset;
 use App\Entity\Target;
 use App\Storage\AssetManager;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -21,9 +22,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class DownloadHandlerTest extends TestCase
 {
-    /**
-     * @dataProvider downloadProvider
-     */
+    #[DataProvider('downloadProvider')]
     public function testDownload(
         string $url,
         MockResponse $response,
@@ -41,7 +40,7 @@ class DownloadHandlerTest extends TestCase
         ;
 
         /** @var FileStorageManager|MockObject $storageStub */
-        $storageStub = $this->createMock(FileStorageManager::class);
+        $storageStub = $this->createStub(FileStorageManager::class);
         /** @var PathGeneratorInterface|MockObject $pathGeneratorStub */
         $pathGeneratorStub = $this->createMock(PathGeneratorInterface::class);
         /** @var AssetManager|MockObject $assetManagerStub */
@@ -98,7 +97,7 @@ class DownloadHandlerTest extends TestCase
         $consumer($message);
     }
 
-    public function downloadProvider(): array
+    public static function downloadProvider(): array
     {
         return [
             [

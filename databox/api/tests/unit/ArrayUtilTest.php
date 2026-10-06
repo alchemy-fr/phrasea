@@ -10,9 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class ArrayUtilTest extends TestCase
 {
-    /**
-     * @dataProvider arraysAreSameProvider
-     */
+    #[DataProvider('arraysAreSameProvider')]
     public function testArraysAreSame(array $a, array $b, bool $expected): void
     {
         $this->assertSame($expected, ArrayUtil::arrayAreSame($a, $b));

@@ -9,7 +9,7 @@ use App\Entity\Commit;
 use App\Storage\AssetManager;
 use App\Tests\Functional\AbstractUploaderTestCase;
 
-abstract class AbstractAssetTest extends AbstractUploaderTestCase
+abstract class AbstractAssetTestCase extends AbstractUploaderTestCase
 {
     final public const string SAMPLE_FILE = __DIR__.'/../../fixtures/32x32.jpg';
     protected $assetId;

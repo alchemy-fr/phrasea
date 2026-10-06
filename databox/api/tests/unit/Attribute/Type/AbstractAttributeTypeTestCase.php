@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Attribute\Type;
 
 use App\Attribute\Type\AttributeTypeInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class DummyString implements \Stringable
@@ -19,13 +20,11 @@ class DummyString implements \Stringable
     }
 }
 
-abstract class AbstractAttributeTypeTest extends TestCase
+abstract class AbstractAttributeTypeTestCase extends TestCase
 {
     abstract protected function getType(): AttributeTypeInterface;
 
-    /**
-     * @dataProvider getValidationCases
-     */
+    #[DataProvider('getValidationCases')]
     public function testValidation($value, ?array $expected): void
     {
         $type = $this->getType();
@@ -39,9 +38,7 @@ abstract class AbstractAttributeTypeTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider getNormalizationCases
-     */
+    #[DataProvider('getNormalizationCases')]
     public function testNormalization($value, $expected): void
     {
         $type = $this->getType();
@@ -54,9 +51,7 @@ abstract class AbstractAttributeTypeTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider getConvertToDbValueCases
-     */
+    #[DataProvider('getConvertToDbValueCases')]
     public function testConvertToDbValue($value, $expected): void
     {
         $type = $this->getType();
@@ -64,9 +59,7 @@ abstract class AbstractAttributeTypeTest extends TestCase
         $this->assertSame($expected, $type->convertToDbValue($type->normalizeValue($value)));
     }
 
-    /**
-     * @dataProvider getDenormalizationCases
-     */
+    #[DataProvider('getDenormalizationCases')]
     public function testDenormalization(?string $value, $expected): void
     {
         $type = $this->getType();
@@ -79,9 +72,7 @@ abstract class AbstractAttributeTypeTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider getElasticsearchNormalizationCases
-     */
+    #[DataProvider('getElasticsearchNormalizationCases')]
     public function testElasticsearchNormalization(?string $value, $expected): void
     {
         $type = $this->getType();
@@ -89,7 +80,7 @@ abstract class AbstractAttributeTypeTest extends TestCase
         $this->assertSame($expected, $type->normalizeElasticsearchValue($value));
     }
 
-    public function getValidationCases(): array
+    public static function getValidationCases(): array
     {
         return [
             'null' => [null, null],
@@ -98,7 +89,7 @@ abstract class AbstractAttributeTypeTest extends TestCase
         ];
     }
 
-    public function getNormalizationCases(): array
+    public static function getNormalizationCases(): array
     {
         return [
             'null' => [null, null],
@@ -124,7 +115,7 @@ abstract class AbstractAttributeTypeTest extends TestCase
         ];
     }
 
-    public function getConvertToDbValueCases(): array
+    public static function getConvertToDbValueCases(): array
     {
         return [
             'null' => [null, null],
@@ -152,7 +143,7 @@ abstract class AbstractAttributeTypeTest extends TestCase
         ];
     }
 
-    public function getDenormalizationCases(): array
+    public static function getDenormalizationCases(): array
     {
         return [
             'null' => [null, null],
@@ -161,7 +152,7 @@ abstract class AbstractAttributeTypeTest extends TestCase
         ];
     }
 
-    public function getElasticsearchNormalizationCases(): array
+    public static function getElasticsearchNormalizationCases(): array
     {
         return [
             'null' => [null, null],

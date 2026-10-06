@@ -11,6 +11,7 @@ use Alchemy\NotifierBundle\Entity\Subscriber;
 use Alchemy\NotifierBundle\Repository\NotificationDigestRepository;
 use Alchemy\NotifierBundle\Topic\BuiltInTopic;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -86,9 +87,7 @@ final class NotificationApiTest extends AbstractDataboxTestCase
         yield 'patch preferences' => ['PATCH', '/notification-preferences'];
     }
 
-    /**
-     * @dataProvider endpointProvider
-     */
+    #[DataProvider('endpointProvider')]
     public function testRequiresAuthentication(string $method, string $uri): void
     {
         $client = static::createClient();
@@ -341,9 +340,7 @@ final class NotificationApiTest extends AbstractDataboxTestCase
         yield 'unknown channel' => [['topic' => 'asset:update', 'channel' => 'pigeon', 'enabled' => true]];
     }
 
-    /**
-     * @dataProvider invalidPreferencesProvider
-     */
+    #[DataProvider('invalidPreferencesProvider')]
     public function testInvalidPreferencesAreRejected(array $payload): void
     {
         $client = static::createClient();

@@ -141,7 +141,7 @@
         "hautelook/alice-bundle": "^2.17",
         "php-parallel-lint/php-var-dump-check": "v0.5",
         "phpstan/phpstan": "^2.1.33",
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "^11.5",
         "rector/rector": "^2.3.0",
         "symfony/browser-kit": "^7.4",
         "symfony/css-selector": "^7.4",
@@ -208,7 +208,7 @@
         ],
         "phpunit:compact": [
             "@pre-phpunit",
-            "php -d memory_limit=1024M ./bin/phpunit --printer 'Alchemy\\ApiTest\\PHPUnit\\CompactResultPrinter'"
+            "php -d memory_limit=1024M ./bin/phpunit --extension 'Alchemy\\ApiTest\\PHPUnit\\CompactResultExtension'"
         ],
         "var-dump-check": "vendor/bin/var-dump-check --symfony src",
         "cs:check": "vendor/bin/php-cs-fixer fix --dry-run --diff",

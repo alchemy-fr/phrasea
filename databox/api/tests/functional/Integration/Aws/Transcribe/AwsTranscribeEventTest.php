@@ -22,6 +22,8 @@ class AwsTranscribeEventTest extends ApiTestCase
     use TestServicesTrait;
     use FixturesTrait;
 
+    protected static ?bool $alwaysBootKernel = true;
+
     public function testSubscriptionUrlWillBeConfirmed(): void
     {
         self::enableFixtures();

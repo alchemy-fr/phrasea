@@ -7,10 +7,10 @@ namespace App\Tests\Functional\Attribute;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
 use App\Service\Asset\Attribute\AttributeEntity\Importer\CsvAttributeEntityImporter;
-use App\Tests\Functional\Search\AbstractSearchTest;
+use App\Tests\Functional\AbstractSearchTestCase;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-class AttributeEntityCsvImportTest extends AbstractSearchTest
+class AttributeEntityCsvImportTest extends AbstractSearchTestCase
 {
     public function testImportCreatesAndUpdatesEntities(): void
     {

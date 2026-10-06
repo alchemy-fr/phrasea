@@ -9,6 +9,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Workspace;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Read side of /workspaces: visibility rules (public, owner, user/group ACL,
@@ -192,9 +193,7 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
         ];
     }
 
-    /**
-     * @dataProvider getItemAccessProvider
-     */
+    #[DataProvider('getItemAccessProvider')]
     public function testGetItemAccess(string $slug, ?string $userId, int $expectedStatus): void
     {
         $this->createVisibilityMatrix();
@@ -210,9 +209,7 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
         }
     }
 
-    /**
-     * @dataProvider getItemAccessProvider
-     */
+    #[DataProvider('getItemAccessProvider')]
     public function testGetBySlugAccess(string $slug, ?string $userId, int $expectedStatus): void
     {
         $this->createVisibilityMatrix();
@@ -328,9 +325,7 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
         ];
     }
 
-    /**
-     * @dataProvider capabilitiesProvider
-     */
+    #[DataProvider('capabilitiesProvider')]
     public function testCapabilities(string $case, ?string $userId, array $expected): void
     {
         $ws = match ($case) {

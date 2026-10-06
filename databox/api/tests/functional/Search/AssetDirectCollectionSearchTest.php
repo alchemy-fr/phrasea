@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Search;
 
+use App\Tests\Functional\AbstractSearchTestCase;
+
 /**
  * "@collection" / "parents" match an asset of a collection or of any of its
  * descendants, whereas "@directCollection" / "directCollections" only match
  * assets directly attached to one of the requested collections.
  */
-class AssetDirectCollectionSearchTest extends AbstractSearchTest
+class AssetDirectCollectionSearchTest extends AbstractSearchTestCase
 {
     private static function releaseIndex(): void
     {

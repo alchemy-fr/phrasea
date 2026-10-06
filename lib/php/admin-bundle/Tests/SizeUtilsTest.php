@@ -5,19 +5,18 @@ declare(strict_types=1);
 namespace Alchemy\AdminBundle\Tests;
 
 use Alchemy\AdminBundle\Utils\SizeUtils;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class SizeUtilsTest extends TestCase
 {
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testFormatSize(?string $expected, $size, bool $si): void
     {
         $this->assertEquals($expected, SizeUtils::formatSize($size, $si));
     }
 
-    public function getCases(): array
+    public static function getCases(): array
     {
         return [
             [null, null, false],

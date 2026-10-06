@@ -27,6 +27,8 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
     use FileUploadTrait;
     use TestServicesTrait;
 
+    protected static ?bool $alwaysBootKernel = true;
+
     #[\Override]
     protected static function bootKernel(array $options = []): KernelInterface
     {

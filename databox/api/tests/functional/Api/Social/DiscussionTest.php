@@ -15,6 +15,7 @@ use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Entity\Discussion\Message;
 use App\Entity\Discussion\Thread;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Discussions on assets: `POST /messages`, `GET|PUT|DELETE /messages/{id}`,
@@ -205,9 +206,7 @@ final class DiscussionTest extends AbstractDataboxTestCase
         yield 'unknown object' => ['asset:'.self::UNKNOWN_ID];
     }
 
-    /**
-     * @dataProvider invalidThreadKeyProvider
-     */
+    #[DataProvider('invalidThreadKeyProvider')]
     public function testInvalidThreadKeyIsRejected(string $threadKey): void
     {
         $client = static::createClient();
@@ -231,9 +230,7 @@ final class DiscussionTest extends AbstractDataboxTestCase
         yield 'file posted by id' => [[['type' => 'file', 'content' => '{"id": "'.self::UNKNOWN_ID.'"}']]];
     }
 
-    /**
-     * @dataProvider invalidAttachmentProvider
-     */
+    #[DataProvider('invalidAttachmentProvider')]
     public function testInvalidAttachmentsAreRejected(array $attachments): void
     {
         $client = static::createClient();

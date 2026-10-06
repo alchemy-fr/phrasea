@@ -14,6 +14,7 @@ use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 use App\Model\AssetTypeEnum;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * /attribute-definitions: the attribute schema of a workspace.
@@ -467,9 +468,7 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(401);
     }
 
-    /**
-     * @dataProvider getTypeChangeCases
-     */
+    #[DataProvider('getTypeChangeCases')]
     public function testTypeChange(string $from, string $to, int $expectedCode): void
     {
         $this->setUpScene();

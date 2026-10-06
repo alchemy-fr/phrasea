@@ -9,6 +9,7 @@ use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Entity\Workflow\WorkflowState;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -137,9 +138,7 @@ final class AssetActionsTest extends AbstractDataboxTestCase
         yield 'quarantine-bypass' => ['quarantine-bypass', self::ADMIN, null];
     }
 
-    /**
-     * @dataProvider postActionOnUnknownAssetProvider
-     */
+    #[DataProvider('postActionOnUnknownAssetProvider')]
     public function testPostActionOnAnUnknownAssetIs404(string $action, string $userId, ?array $payload): void
     {
         $this->markTestIncomplete('BUG: API Platform does not answer 404 when the item of a POST operation is not found: the processors get a null asset (FollowProcessor/UnfollowProcessor deny with a 403, BypassQuarantineProcessor crashes with a 500 "getSource() on null" for an admin, src/Api/Processor/BypassQuarantineProcessor.php:37).');

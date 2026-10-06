@@ -17,6 +17,7 @@ use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Write side of /workspaces: who may create/update/delete, input validation
@@ -137,9 +138,7 @@ final class WorkspaceWriteTest extends AbstractDataboxTestCase
         ];
     }
 
-    /**
-     * @dataProvider invalidPayloadProvider
-     */
+    #[DataProvider('invalidPayloadProvider')]
     public function testCreateValidation(array $payload, string $propertyPath): void
     {
         $response = static::createClient()->request('POST', '/workspaces', [
@@ -204,9 +203,7 @@ final class WorkspaceWriteTest extends AbstractDataboxTestCase
         ];
     }
 
-    /**
-     * @dataProvider updateAccessProvider
-     */
+    #[DataProvider('updateAccessProvider')]
     public function testUpdateAccess(?string $userId, ?int $mask, int $expectedStatus): void
     {
         $isOwner = 'owner' === $userId;
@@ -350,9 +347,7 @@ final class WorkspaceWriteTest extends AbstractDataboxTestCase
         ];
     }
 
-    /**
-     * @dataProvider deleteAccessProvider
-     */
+    #[DataProvider('deleteAccessProvider')]
     public function testDeleteAccess(?string $userId, ?int $mask, int $expectedStatus): void
     {
         $isOwner = 'owner' === $userId;

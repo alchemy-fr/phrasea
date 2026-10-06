@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\Core\AssetFileVersion;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * PUT/PATCH /assets/{id}.
@@ -131,9 +132,7 @@ final class AssetUpdateTest extends AbstractDataboxTestCase
         yield 'OWNER' => [PermissionInterface::OWNER, 200];
     }
 
-    /**
-     * @dataProvider assetAclProvider
-     */
+    #[DataProvider('assetAclProvider')]
     public function testUpdateRequiresOperatorOnTheAsset(int $mask, int $expectedStatus): void
     {
         $workspace = $this->createOwnedWorkspace();
@@ -268,9 +267,8 @@ final class AssetUpdateTest extends AbstractDataboxTestCase
     /**
      * POST /assets/{id}/attributes needs EDIT_ATTRIBUTES (the EDIT bit), not
      * the OPERATOR one used by PUT.
-     *
-     * @dataProvider attributesAclProvider
      */
+    #[DataProvider('attributesAclProvider')]
     public function testBatchAttributesRequireEditAttributes(int $mask, int $expectedStatus): void
     {
         $workspace = $this->createOwnedWorkspace();

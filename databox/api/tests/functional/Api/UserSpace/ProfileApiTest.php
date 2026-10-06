@@ -10,6 +10,7 @@ use App\Entity\Core\Workspace;
 use App\Entity\Profile\Profile;
 use App\Entity\Profile\ProfileItem;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Profiles (display profiles) and their items.
@@ -280,9 +281,7 @@ final class ProfileApiTest extends AbstractDataboxTestCase
         $this->assertFalse($item['displayEmpty']);
     }
 
-    /**
-     * @dataProvider getInvalidItems
-     */
+    #[DataProvider('getInvalidItems')]
     public function testAddItemsValidation(array $item): void
     {
         $profile = $this->createProfile('P', self::USER);

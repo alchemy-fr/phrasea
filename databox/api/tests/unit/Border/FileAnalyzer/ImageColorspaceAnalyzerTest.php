@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Border\FileAnalyzer;
 
 use App\Border\FileAnalyzer\Analyzer\ImageColorspaceAnalyzer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ImageColorspaceAnalyzerTest extends TestCase
 {
-    /**
-     * @dataProvider validColorspacesProvider
-     */
+    #[DataProvider('validColorspacesProvider')]
     public function testValidateConfigurationAcceptsDocumentedColorspaceNames(string $colorspace): void
     {
         (new ImageColorspaceAnalyzer())->validateConfiguration([
@@ -31,9 +30,7 @@ class ImageColorspaceAnalyzerTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider invalidColorspacesProvider
-     */
+    #[DataProvider('invalidColorspacesProvider')]
     public function testValidateConfigurationRejectsUnknownColorspaces(mixed $colorspace): void
     {
         $this->expectException(\InvalidArgumentException::class);

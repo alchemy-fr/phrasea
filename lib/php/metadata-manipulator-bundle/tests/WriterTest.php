@@ -7,8 +7,11 @@ namespace App\Tests\MetadataManipulator;
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Exception\TagUnknown;
+use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\TestCase;
 
+#[CoversMethod(MetadataManipulator::class, 'createMetadata')]
+#[CoversMethod(MetadataManipulator::class, 'getReader')]
 class WriterTest extends TestCase
 {
     final public const TEST_IMAGE_FILE = __DIR__.'/fixtures/image.jpg';
@@ -16,9 +19,6 @@ class WriterTest extends TestCase
 
     private ?MetadataManipulator $service = null;
 
-    /**
-     * @covers \MetadataManipulator::createMetadata
-     */
     public function testWrite(): void
     {
         $file = new \SplFileObject(self::TEST_IMAGE_WRITABLE_FILE);
@@ -41,9 +41,6 @@ class WriterTest extends TestCase
         $this->assertSame('John Lennon ; Paul McCartney ; George Harrison ; Ringo Starr', $keywords->getValue()->asString());
     }
 
-    /**
-     * @covers \MetadataManipulator::createMetadata
-     */
     public function testWriteUnknown(): void
     {
         $this->expectException(TagUnknown::class);
@@ -61,9 +58,6 @@ class WriterTest extends TestCase
         unlink(self::TEST_IMAGE_WRITABLE_FILE);
     }
 
-    /**
-     * @covers \MetadataManipulator::getReader
-     */
     protected function setup(): void
     {
         $this->service = new MetadataManipulator(sys_get_temp_dir());

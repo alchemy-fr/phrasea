@@ -10,6 +10,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\WorkspaceItemPrivacyInterface as Privacy;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * POST /collections, PUT/PATCH/DELETE /collections/{id}.
@@ -569,9 +570,7 @@ final class CollectionWriteTest extends AbstractDataboxTestCase
         yield 'admin' => ['admin', 200];
     }
 
-    /**
-     * @dataProvider getEditMatrix
-     */
+    #[DataProvider('getEditMatrix')]
     public function testEditPermissions(int|string $grant, int $expectedCode): void
     {
         $workspace = $this->createTestWorkspace(['members' => [self::USER]]);
@@ -624,9 +623,7 @@ final class CollectionWriteTest extends AbstractDataboxTestCase
         yield 'admin' => ['admin', 204];
     }
 
-    /**
-     * @dataProvider getDeleteMatrix
-     */
+    #[DataProvider('getDeleteMatrix')]
     public function testDeletePermissions(int|string $grant, int $expectedCode): void
     {
         $workspace = $this->createTestWorkspace(['members' => [self::USER]]);

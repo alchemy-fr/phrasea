@@ -12,6 +12,7 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributePolicy;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * /attributes: the attribute values of an asset, one row per value (and per locale).
@@ -283,9 +284,7 @@ final class AttributeTest extends AbstractDataboxTestCase
         $this->assertSame(42, $data['value']);
     }
 
-    /**
-     * @dataProvider getInvalidMetaCases
-     */
+    #[DataProvider('getInvalidMetaCases')]
     public function testCreateRejectsAnInvalidOriginOrStatus(array $extra): void
     {
         $this->setUpScene();

@@ -7,6 +7,7 @@ namespace App\Tests\Functional\Api\Collection;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\Core\WorkspaceItemPrivacyInterface as Privacy;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * GET /collections/{id}, /collections/{id}/ascendants and /collections/{id}/privacy.
@@ -37,9 +38,7 @@ final class CollectionReadTest extends AbstractDataboxTestCase
         }
     }
 
-    /**
-     * @dataProvider getReadMatrix
-     */
+    #[DataProvider('getReadMatrix')]
     public function testReadDependsOnPrivacyInPrivateWorkspace(int $privacy, string $userId, int $expectedCode): void
     {
         $workspace = $this->createTestWorkspace(['members' => [self::USER]]);
@@ -70,9 +69,7 @@ final class CollectionReadTest extends AbstractDataboxTestCase
         yield 'public / anonymous' => [Privacy::PUBLIC, self::ANONYMOUS, 200];
     }
 
-    /**
-     * @dataProvider getPublicWorkspaceReadMatrix
-     */
+    #[DataProvider('getPublicWorkspaceReadMatrix')]
     public function testReadDependsOnPrivacyInPublicWorkspace(int $privacy, string $userId, int $expectedCode): void
     {
         $workspace = $this->createTestWorkspace(['public' => true]);
@@ -299,9 +296,7 @@ final class CollectionReadTest extends AbstractDataboxTestCase
         ]];
     }
 
-    /**
-     * @dataProvider getCapabilitiesMatrix
-     */
+    #[DataProvider('getCapabilitiesMatrix')]
     public function testCapabilitiesFollowAcl(int $mask, array $expectedCapabilities): void
     {
         $workspace = $this->createTestWorkspace(['members' => [self::USER]]);

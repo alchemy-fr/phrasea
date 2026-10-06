@@ -9,6 +9,7 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Attribute\Type\DateTimeAttributeType;
 use App\Entity\Core\Asset;
 use App\Tests\Functional\AbstractSearchTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
@@ -112,9 +113,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
         $this->assertResponseStatusCodeSame(400);
     }
 
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testAssetAttributesBatchUpdateOK(array $actions, array $expectedValues): void
     {
         $response = $this->assetBatchAction($actions);
@@ -163,7 +162,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
         ]);
     }
 
-    public function getCases(): array
+    public static function getCases(): array
     {
         $withoutKeywords = $withoutDesc = self::$defaultAttributes;
         unset($withoutDesc['Description']);

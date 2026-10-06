@@ -7,13 +7,12 @@ namespace App\Tests\Functional\Api;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Attribute\Type\TextAttributeType;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 final class CrudTest extends AbstractDataboxTestCase
 {
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testCrud(
         string $method,
         string $uri,
@@ -100,7 +99,7 @@ final class CrudTest extends AbstractDataboxTestCase
         return $input;
     }
 
-    public function getCases(): array
+    public static function getCases(): array
     {
         $createAttributePolicy = ['POST', '/attribute-policies', KeycloakClientTestMock::ADMIN_UID, [
             'workspace' => '/workspaces/{workspaceId}',

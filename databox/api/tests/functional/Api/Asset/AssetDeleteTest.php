@@ -10,6 +10,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * DELETE /assets/{id} (hard delete), POST /assets/delete-multiple (trash,
@@ -50,9 +51,7 @@ final class AssetDeleteTest extends AbstractDataboxTestCase
         yield 'OWNER' => [PermissionInterface::OWNER, 204];
     }
 
-    /**
-     * @dataProvider deleteAclProvider
-     */
+    #[DataProvider('deleteAclProvider')]
     public function testDeleteRequiresTheDeletePermission(int $mask, int $expectedStatus): void
     {
         $workspace = $this->createOwnedWorkspace();

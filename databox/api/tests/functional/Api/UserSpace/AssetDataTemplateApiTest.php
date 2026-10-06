@@ -11,6 +11,7 @@ use App\Entity\Core\Workspace;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Asset data templates (item operations) and template attributes.
@@ -129,9 +130,7 @@ final class AssetDataTemplateApiTest extends AbstractDataboxTestCase
         ]);
     }
 
-    /**
-     * @dataProvider getReadMatrix
-     */
+    #[DataProvider('getReadMatrix')]
     public function testReadMatrix(bool $public, ?string $userId, int $expectedStatus): void
     {
         $template = $this->createTemplate('T', self::USER, public: $public);

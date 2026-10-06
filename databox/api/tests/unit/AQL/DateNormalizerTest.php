@@ -5,14 +5,13 @@ declare(strict_types=1);
 namespace App\Tests\Unit\AQL;
 
 use App\Elasticsearch\AQL\DateNormalizer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class DateNormalizerTest extends TestCase
 {
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testDateNormalize(string $expression, string|int $expectedResult): void
     {
         $normalizer = new DateNormalizer();
@@ -25,7 +24,7 @@ class DateNormalizerTest extends TestCase
         }
     }
 
-    public function getCases(): array
+    public static function getCases(): array
     {
         return [
             ['YYYY-88-88', 'Invalid date value "YYYY-88-88"'],

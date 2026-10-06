@@ -5,21 +5,21 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Integration\Aws\Transcribe;
 
 use App\Integration\Aws\Transcribe\Consumer\AwsTranscribeEventHandler;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class SnsSubscriptionUrlTest extends TestCase
 {
     /**
      * The (unauthenticated) SNS endpoint makes the worker request the subscription URL.
-     *
-     * @dataProvider getSubscribeUrls
      */
+    #[DataProvider('getSubscribeUrls')]
     public function testSnsSubscriptionUrlMustBeAnAwsOne(string $url, bool $expected): void
     {
         $this->assertSame($expected, AwsTranscribeEventHandler::isSnsUrl($url));
     }
 
-    public function getSubscribeUrls(): array
+    public static function getSubscribeUrls(): array
     {
         return [
             ['https://sns.eu-west-3.amazonaws.com/?Action=ConfirmSubscription&Token=x', true],

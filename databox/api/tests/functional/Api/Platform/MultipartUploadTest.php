@@ -12,6 +12,7 @@ use Aws\CommandInterface;
 use Aws\Result;
 use Aws\S3\S3Client;
 use GuzzleHttp\Promise\Create;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * S3 multipart uploads (/uploads).
@@ -186,9 +187,7 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         yield 'size above the maximum object size' => [['filename' => 'a.jpg', 'type' => 'image/jpeg', 'size' => 52_776_558_133_249], 400];
     }
 
-    /**
-     * @dataProvider getInvalidUploads
-     */
+    #[DataProvider('getInvalidUploads')]
     public function testInvalidUploadsAreRejectedBeforeReachingS3(array $payload, int $expectedCode): void
     {
         $this->client->request('POST', '/uploads', [
@@ -302,9 +301,7 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         yield 'float' => [1.5];
     }
 
-    /**
-     * @dataProvider getInvalidFromValues
-     */
+    #[DataProvider('getInvalidFromValues')]
     public function testInvalidFromIsRejected(mixed $from): void
     {
         $upload = $this->persistUpload();
@@ -336,9 +333,7 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         yield 'part (deprecated)' => ['part', ['part' => 1]];
     }
 
-    /**
-     * @dataProvider getPartRoutes
-     */
+    #[DataProvider('getPartRoutes')]
     public function testPartUrlsOfAnUnknownUploadAre404(string $route, array $payload): void
     {
         $this->client->request('POST', '/uploads/00000000-0000-4000-8000-000000000000/'.$route, [

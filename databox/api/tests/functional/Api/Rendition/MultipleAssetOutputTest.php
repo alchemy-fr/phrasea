@@ -6,6 +6,7 @@ namespace App\Tests\Functional\Api\Rendition;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * MultipleAssetOutput is the output DTO of POST /assets/multiple. Because
@@ -31,9 +32,7 @@ final class MultipleAssetOutputTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
-    /**
-     * @dataProvider getWriteMethods
-     */
+    #[DataProvider('getWriteMethods')]
     public function testWriteMethodsAreNotServed(string $method, ?array $body): void
     {
         $this->markTestIncomplete('BUG: MultipleAssetOutput is an output DTO exposed by a bare #[ApiResource] (src/Api/Model/Output/MultipleAssetOutput.php:11): POST/PUT/PATCH/DELETE /multiple-asset-outputs answer 500 ("No input transformer found" / unresolvable $data) instead of 404/405.');
@@ -42,7 +41,7 @@ final class MultipleAssetOutputTest extends AbstractDataboxTestCase
         $this->assertContains($response->getStatusCode(), [404, 405]);
     }
 
-    public function getWriteMethods(): array
+    public static function getWriteMethods(): array
     {
         return [
             'POST' => ['POST', ['assets' => []]],
