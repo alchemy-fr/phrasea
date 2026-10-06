@@ -6,6 +6,8 @@ namespace App\Api\Provider;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
+use App\Api\Traits\ParameterValuesTrait;
+use App\Elasticsearch\AbstractSearch;
 use App\Elasticsearch\CollectionSearch;
 use App\Elasticsearch\NoWorkspaceAllowedException;
 use App\Repository\Core\CollectionRepository;
@@ -15,6 +17,7 @@ use App\Security\Voter\CollectionVoter;
 
 class CollectionProvider extends AbstractCollectionProvider
 {
+    use ParameterValuesTrait;
     use SecurityAwareTrait;
 
     public function __construct(
@@ -29,7 +32,7 @@ class CollectionProvider extends AbstractCollectionProvider
         array $uriVariables = [],
         array $context = [],
     ): array|object {
-        $filters = $context['filters'] ?? [];
+        $filters = self::getParameterValues($operation);
 
         if (
             empty($filters['parent'])
@@ -43,15 +46,15 @@ class CollectionProvider extends AbstractCollectionProvider
             } else {
                 $allowedWorkspaces = $this->workspaceRepository->getPublicWorkspaceIds();
             }
-            if (!empty($filters['workspaces'])) {
-                $allowedWorkspaces = array_intersect($allowedWorkspaces, $filters['workspaces']);
+            if (!empty($workspaceIds = AbstractSearch::toIdList($filters['workspaces'] ?? null))) {
+                $allowedWorkspaces = array_values(array_intersect($allowedWorkspaces, $workspaceIds));
             }
 
             return $this->collectionRepository->getRootCollections($allowedWorkspaces, $context['userId'], $context['groupIds']);
         }
 
         try {
-            $result = $this->search->search($context['userId'], $context['groupIds'], $filters);
+            $result = $this->search->search($context['userId'], $context['groupIds'], $filters, $operation);
         } catch (NoWorkspaceAllowedException) {
             return [];
         }
