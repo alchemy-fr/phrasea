@@ -18,6 +18,7 @@ use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Model\Input\AssetRenditionInput;
 use App\Api\Model\Output\AssetRenditionOutput;
 use App\Api\Processor\DeleteAssetRenditionProcessor;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\RenditionCollectionProvider;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
@@ -36,7 +37,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
             security: 'is_granted("'.AbstractVoter::DELETE.'", object)',
             processor: DeleteAssetRenditionProcessor::class,
         ),
-        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
+        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)', processor: InputMapperProcessor::class),
         new GetCollection(
             order: ['definition.position' => 'ASC'],
         ),
@@ -133,10 +134,11 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                     ]),
                 ),
             ),
-            securityPostDenormalize: 'is_granted("CREATE", object)',
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
             validationContext: [
                 'groups' => ['Default'],
             ],
+            processor: InputMapperProcessor::class,
         ),
     ],
     normalizationContext: [

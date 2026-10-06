@@ -2,16 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Workspace;
 use App\Service\Workspace\TermsManager;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class WorkspaceInputTransformer extends AbstractInputTransformer
+#[AsTaggedItem(index: WorkspaceInput::class)]
+class WorkspaceInputMapper extends AbstractInputMapper implements InputMapperInterface
 {
     use WithOwnerIdProcessorTrait;
 
@@ -23,13 +24,11 @@ class WorkspaceInputTransformer extends AbstractInputTransformer
     /**
      * @param WorkspaceInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function map(object $data, ?object $target, array $context = []): ?object
     {
-        $this->validator->validate($data, $context);
-
-        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
+        $isNew = null === $target;
         /** @var Workspace $object */
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new Workspace();
+        $object = $target ?? new Workspace();
         if (null !== $data->name) {
             $object->setName($data->name);
         }
@@ -71,10 +70,5 @@ class WorkspaceInputTransformer extends AbstractInputTransformer
         }
 
         return $this->processOwnerId($object);
-    }
-
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return Workspace::class === $resourceClass && $data instanceof WorkspaceInput;
     }
 }

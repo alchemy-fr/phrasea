@@ -2,30 +2,24 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\MultipleAssetInput;
-use App\Entity\Core\Asset;
 
-class MultipleAssetInputTransformer extends AbstractFileInputTransformer
+class MultipleAssetInputMapper extends AbstractFileInputMapper
 {
-    public function __construct(private readonly AssetInputTransformer $assetInputTransformer)
+    public function __construct(private readonly AssetInputMapper $assetInputMapper)
     {
-    }
-
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return Asset::class === $resourceClass && $data instanceof MultipleAssetInput;
     }
 
     /**
      * @param MultipleAssetInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function map(object $data, array $context = []): array
     {
         $assets = [];
-        $context[AssetInputTransformer::CONTEXT_CREATION_MICRO_TIME] = microtime(true);
+        $context[AssetInputMapper::CONTEXT_CREATION_MICRO_TIME] = microtime(true);
 
         if ($data->isStory && !empty($data->assets)) {
             $ref = $data->assets[0];
@@ -38,7 +32,7 @@ class MultipleAssetInputTransformer extends AbstractFileInputTransformer
             $storyAssetInput->collection = $ref->collection;
             $storyAssetInput->destinations = $ref->destinations;
 
-            $storyAsset = $this->assetInputTransformer->transform($storyAssetInput, $storyAssetInput::class, $context);
+            $storyAsset = $this->assetInputMapper->map($storyAssetInput, null, $context);
             $assets[] = $storyAsset;
         }
 
@@ -48,7 +42,7 @@ class MultipleAssetInputTransformer extends AbstractFileInputTransformer
                 $asset->collection = $storyAsset->getStoryCollection();
             }
 
-            $assets[] = $this->assetInputTransformer->transform($asset, $asset::class, $context);
+            $assets[] = $this->assetInputMapper->map($asset, null, $context);
         }
 
         return $assets;

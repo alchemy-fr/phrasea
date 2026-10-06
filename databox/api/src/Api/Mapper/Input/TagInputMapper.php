@@ -2,28 +2,24 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use App\Api\Model\Input\TagInput;
 use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class TagInputTransformer extends AbstractInputTransformer
+#[AsTaggedItem(index: TagInput::class)]
+class TagInputMapper extends AbstractInputMapper implements InputMapperInterface
 {
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return Tag::class === $resourceClass && $data instanceof TagInput;
-    }
-
     /**
      * @param TagInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): Tag
+    public function map(object $data, ?object $target, array $context = []): Tag
     {
-        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new Tag();
+        $isNew = null === $target;
+        $object = $target ?? new Tag();
 
         if ($isNew) {
             if (!$data->workspace instanceof Workspace) {

@@ -23,6 +23,7 @@ use App\Api\Filter\PartialSearchFilter;
 use App\Api\Filter\SearchFilter;
 use App\Api\Model\Input\RenditionDefinitionInput;
 use App\Api\Model\Output\RenditionDefinitionOutput;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\Sort\RenditionDefinitionSortProcessor;
 use App\Entity\Traits\AssetTypeTargetTrait;
 use App\Entity\Traits\TranslationsTrait;
@@ -52,6 +53,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
             security: 'is_granted("EDIT", object)',
             input: RenditionDefinitionInput::class,
+            processor: InputMapperProcessor::class,
         ),
         new GetCollection(
             parameters: [
@@ -75,7 +77,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: [
                 'groups' => [RenditionDefinition::GROUP_READ],
             ],
-            securityPostDenormalize: 'is_granted("CREATE", object)'
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Post(
             uriTemplate: '/rendition-definitions/sort',

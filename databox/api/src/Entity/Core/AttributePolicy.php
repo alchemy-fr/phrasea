@@ -16,6 +16,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Api\Model\Input\AttributePolicyInput;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\AttributePolicyCollectionProvider;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -31,9 +32,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)', processor: InputMapperProcessor::class),
         new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new Post(extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'], processor: InputMapperProcessor::class),
     ],
     normalizationContext: [
         'groups' => [AttributePolicy::GROUP_LIST],

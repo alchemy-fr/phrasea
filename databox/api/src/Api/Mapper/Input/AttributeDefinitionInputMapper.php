@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Api\Model\Input\AttributeDefinitionInput;
@@ -14,10 +14,11 @@ use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Workspace;
 use App\Model\AssetTypeEnum;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class AttributeDefinitionInputTransformer extends AbstractInputTransformer
+#[AsTaggedItem(index: AttributeDefinitionInput::class)]
+class AttributeDefinitionInputMapper extends AbstractInputMapper implements InputMapperInterface
 {
     public function __construct(
         private readonly AttributeTypeChangeService $attributeTypeChangeService,
@@ -26,21 +27,14 @@ class AttributeDefinitionInputTransformer extends AbstractInputTransformer
     ) {
     }
 
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return AttributeDefinition::class === $resourceClass && $data instanceof AttributeDefinitionInput;
-    }
-
     /**
      * @param AttributeDefinitionInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function map(object $data, ?object $target, array $context = []): ?object
     {
-        $this->validator->validate($data, $context);
-
-        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
+        $isNew = null === $target;
         /** @var AttributeDefinition $object */
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new AttributeDefinition();
+        $object = $target ?? new AttributeDefinition();
 
         $workspace = null;
         if ($data->workspace) {

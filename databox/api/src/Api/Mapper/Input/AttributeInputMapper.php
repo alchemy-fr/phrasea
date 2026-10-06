@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Attribute\AttributeAssigner;
 use App\Entity\Core\Attribute;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class AttributeInputTransformer extends AbstractInputTransformer
+#[AsTaggedItem(index: AttributeInput::class)]
+class AttributeInputMapper extends AbstractInputMapper implements InputMapperInterface
 {
     use AttributeInputTrait;
 
@@ -18,19 +19,14 @@ class AttributeInputTransformer extends AbstractInputTransformer
     {
     }
 
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return Attribute::class === $resourceClass && $data instanceof AttributeInput;
-    }
-
     /**
      * @param AttributeInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable|null
+    public function map(object $data, ?object $target, array $context = []): ?object
     {
-        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
+        $isNew = null === $target;
         /** @var Attribute $object */
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new Attribute();
+        $object = $target ?? new Attribute();
 
         if ($isNew) {
             $object->setAsset($data->asset);

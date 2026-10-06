@@ -2,30 +2,26 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use App\Api\Model\Input\RenditionDefinitionInput;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use App\Model\AssetTypeEnum;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class RenditionDefinitionInputTransformer extends AbstractInputTransformer
+#[AsTaggedItem(index: RenditionDefinitionInput::class)]
+class RenditionDefinitionInputMapper extends AbstractInputMapper implements InputMapperInterface
 {
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return RenditionDefinition::class === $resourceClass && $data instanceof RenditionDefinitionInput;
-    }
-
     /**
      * @param RenditionDefinitionInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function map(object $data, ?object $target, array $context = []): ?object
     {
-        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
+        $isNew = null === $target;
         /** @var RenditionDefinition $object */
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new RenditionDefinition();
+        $object = $target ?? new RenditionDefinition();
 
         $workspace = null;
         if ($data->workspace) {

@@ -18,6 +18,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Api\Model\Input\Template\AssetDataTemplateInput;
 use App\Api\Model\Output\Template\AssetDataTemplateOutput;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\AssetDataTemplateCollectionProvider;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Tag;
@@ -55,11 +56,13 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ],
             ],
             security: 'is_granted("EDIT", object)',
+            processor: InputMapperProcessor::class,
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new GetCollection(),
         new Post(
-            securityPostDenormalize: 'is_granted("CREATE", object)',
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
+            processor: InputMapperProcessor::class,
         ),
     ],
     normalizationContext: [

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use App\Api\Model\Input\WorkspaceIntegrationInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
@@ -10,12 +10,13 @@ use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\IntegrationInterface;
 use App\Integration\IntegrationRegistry;
 use App\Model\IntegrationType;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
-class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
+#[AsTaggedItem(index: WorkspaceIntegrationInput::class)]
+class WorkspaceIntegrationInputMapper extends AbstractInputMapper implements InputMapperInterface
 {
     use WithOwnerIdProcessorTrait;
 
@@ -27,13 +28,11 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
     /**
      * @param WorkspaceIntegrationInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function map(object $data, ?object $target, array $context = []): ?object
     {
-        $this->validator->validate($data, $context);
-
-        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
+        $isNew = null === $target;
         /** @var WorkspaceIntegration $object */
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new WorkspaceIntegration();
+        $object = $target ?? new WorkspaceIntegration();
         if (null !== $data->name) {
             $object->setName($data->name);
         }
@@ -93,10 +92,5 @@ class WorkspaceIntegrationInputTransformer extends AbstractInputTransformer
         }
 
         return $object;
-    }
-
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return WorkspaceIntegration::class === $resourceClass && $data instanceof WorkspaceIntegrationInput;
     }
 }
