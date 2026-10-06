@@ -66,9 +66,6 @@ final readonly class WorkspaceDelete
 
         $this->em->beginTransaction();
 
-        $configuration = $this->em->getConnection()->getConfiguration();
-        $sqlLogger = $configuration->getSQLLogger();
-        $configuration->setSQLLogger();
         try {
             // first, delete story collections to avoid "collection not found" later
             $storyCollections = $this->em->getRepository(Collection::class)
@@ -151,7 +148,6 @@ final readonly class WorkspaceDelete
             DeferredIndexListener::enable();
             $this->softDeleteToggler->enable();
             $this->collectionListener->softDeleteEnabled = true;
-            $configuration->setSQLLogger($sqlLogger);
         }
     }
 
