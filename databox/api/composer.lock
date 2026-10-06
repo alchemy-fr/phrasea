@@ -960,7 +960,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow",
-                "reference": "5c98737af5825ed2167b12be51aeb6019aa609f2"
+                "reference": "37db515485bcc2f7acfecdca3777ef64559149b0"
             },
             "require": {
                 "ext-json": "*",
@@ -974,7 +974,6 @@
             },
             "require-dev": {
                 "colinodell/psr-testlogger": "^1.2",
-                "doctrine/orm": "^2.14 || ^3",
                 "friendsofphp/php-cs-fixer": "^3.17",
                 "php-parallel-lint/php-var-dump-check": "v0.5",
                 "phpunit/phpunit": "^9.5",
@@ -1027,10 +1026,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../lib/php/workflow-bundle",
-                "reference": "a841b8e5c9c4c3e606457fed036cb8c4bd69683a"
+                "reference": "51b3bc2d2e7d8910dca6cf029ce74f82c10c50d7"
             },
             "require": {
                 "alchemy/workflow": "@dev",
+                "doctrine/doctrine-bundle": "^3.0",
+                "doctrine/orm": "^3.3",
                 "php": "^8.5",
                 "ramsey/uuid": "^4.2",
                 "symfony/config": "^7.4",

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Entity\Workflow;
 
 use Alchemy\AuthBundle\Security\JwtUser;
-use Alchemy\Workflow\Doctrine\Entity\WorkflowState as BaseWorkflowState;
 use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
+use Alchemy\WorkflowBundle\Entity\WorkflowState as BaseWorkflowState;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;

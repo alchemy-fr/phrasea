@@ -2,8 +2,8 @@
 
 namespace Alchemy\WorkflowBundle\DependencyInjection;
 
-use Alchemy\Workflow\Doctrine\Entity\WorkflowState;
 use Alchemy\WorkflowBundle\Doctrine\EntityLoadListener;
+use Alchemy\WorkflowBundle\Entity\WorkflowState;
 use Alchemy\WorkflowBundle\Message\JobUpdatePusherHandler;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -59,9 +59,10 @@ class AlchemyWorkflowExtension extends Extension implements PrependExtensionInte
                 'orm' => [
                     'mappings' => [
                         'AlchemyWorkflowBundle' => [
-                            'type' => 'xml',
+                            'type' => 'attribute',
                             'is_bundle' => true,
-                            'prefix' => 'Alchemy\\Workflow\\Doctrine\\Entity',
+                            'dir' => 'Entity',
+                            'prefix' => 'Alchemy\\WorkflowBundle\\Entity',
                         ],
                     ],
                 ],

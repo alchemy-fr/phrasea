@@ -42,7 +42,6 @@
         "phpunit/phpunit": "^9.5",
         "symfony/http-kernel": "^6 || ^7",
         "symfony/var-dumper": "^5.4",
-        "doctrine/orm": "^2.14 || ^3",
         "symfony/messenger": "^6.4",
         "rector/rector": "^2.3.0",
         "colinodell/psr-testlogger": "^1.2",
