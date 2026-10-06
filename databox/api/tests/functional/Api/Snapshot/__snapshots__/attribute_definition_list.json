@@ -202,12 +202,6 @@
             },
             {
                 "@type": "IriTemplateMapping",
-                "property": "searchable",
-                "required": false,
-                "variable": "searchable"
-            },
-            {
-                "@type": "IriTemplateMapping",
                 "property": "workspace",
                 "required": false,
                 "variable": "workspaceIds"
@@ -219,7 +213,7 @@
                 "variable": "target"
             }
         ],
-        "template": "/attribute-definitions{?searchable,facetEnabled,translatable,multiple,enabled,searchable,workspaceIds,target}",
+        "template": "/attribute-definitions{?searchable,facetEnabled,translatable,multiple,enabled,workspaceIds,target}",
         "variableRepresentation": "BasicRepresentation"
     },
     "totalItems": 3,

@@ -8,14 +8,14 @@ use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\ExactSearchFilter;
 use App\Api\Model\Input\Template\AssetDataTemplateInput;
 use App\Api\Model\Output\Template\AssetDataTemplateOutput;
 use App\Api\Processor\InputMapperProcessor;
@@ -59,7 +59,15 @@ use Symfony\Component\Validator\Constraints as Assert;
             processor: InputMapperProcessor::class,
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'workspace' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'workspace',
+                ),
+                'workspace[]' => new QueryParameter(property: 'workspace', openApi: false),
+            ],
+        ),
         new Post(
             extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
             processor: InputMapperProcessor::class,
@@ -72,7 +80,6 @@ use Symfony\Component\Validator\Constraints as Assert;
     output: AssetDataTemplateOutput::class,
     provider: AssetDataTemplateCollectionProvider::class,
 )]
-#[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'tags.workspace', 'collection.workspace', 'attributes.workspace']
 )]
