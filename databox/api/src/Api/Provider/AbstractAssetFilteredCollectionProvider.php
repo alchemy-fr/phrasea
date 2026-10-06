@@ -23,14 +23,8 @@ abstract class AbstractAssetFilteredCollectionProvider extends AbstractCollectio
      */
     protected function getAsset(Operation $operation): Asset
     {
-        $assetId = self::getParameterValue($operation, 'assetId') ?? self::getParameterValue($operation, 'asset');
-        if (\is_array($assetId)) {
-            $assetId = reset($assetId);
-        }
-        if (!\is_string($assetId) || '' === $assetId) {
-            throw new BadRequestHttpException('You must provide "assetId" to filter out results');
-        }
-        $assetId = basename($assetId);
+        $assetId = self::getParameterId($operation, 'assetId') ?? self::getParameterId($operation, 'asset')
+            ?? throw new BadRequestHttpException('You must provide "assetId" to filter out results');
 
         $asset = $this->em->find(Asset::class, $assetId);
         if (!$asset instanceof Asset) {

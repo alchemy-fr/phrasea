@@ -38,7 +38,7 @@ final class AttributeFilterRuleExtension implements QueryCollectionExtensionInte
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        if (null !== $operation && null !== $workspaceId = self::getParameterValue($operation, 'workspaceId')) {
+        if (null !== $operation && null !== $workspaceId = self::getParameterId($operation, 'workspaceId')) {
             $param = $queryNameGenerator->generateParameterName('workspaceId');
             $queryBuilder
                 ->andWhere(sprintf('%s.workspace = :%s', $rootAlias, $param))

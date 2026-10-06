@@ -42,7 +42,7 @@ class AttributeEntityExtension implements QueryCollectionExtensionInterface
         if (!empty($listIds)) {
             $editsEveryList = true;
             foreach ($listIds as $listId) {
-                $list = DoctrineUtil::findStrict($this->em, EntityList::class, (string) $listId, throw404: true);
+                $list = DoctrineUtil::findStrict($this->em, EntityList::class, basename((string) $listId), throw404: true);
                 $editsEveryList = $editsEveryList && $this->isGranted(AbstractVoter::EDIT, $list);
             }
             if ($editsEveryList) {

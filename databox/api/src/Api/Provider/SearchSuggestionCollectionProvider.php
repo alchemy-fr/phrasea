@@ -32,7 +32,7 @@ class SearchSuggestionCollectionProvider implements ProviderInterface
         $groupIds = $user?->getGroups() ?? [];
 
         try {
-            [$result, $queryJson, $searchTime] = $this->suggestionSearch->search($userId, $groupIds, self::getParameterValues($operation), $operation);
+            [$result, $queryJson, $searchTime] = $this->suggestionSearch->search($userId, $groupIds, self::getParameterValues($operation));
         } catch (NoWorkspaceAllowedException) {
             return [];
         } catch (MissingSearchIndexException $e) {

@@ -47,4 +47,17 @@ trait ParameterValuesTrait
 
         return $value;
     }
+
+    /**
+     * The ID a parameter carries, given as an ID or an IRI, once (`?x=a`) or as a list (`?x[]=a`: its first value).
+     */
+    protected static function getParameterId(Operation $operation, string $key): ?string
+    {
+        $value = self::getParameterValue($operation, $key);
+        if (\is_array($value)) {
+            $value = reset($value);
+        }
+
+        return \is_string($value) && '' !== $value ? basename($value) : null;
+    }
 }

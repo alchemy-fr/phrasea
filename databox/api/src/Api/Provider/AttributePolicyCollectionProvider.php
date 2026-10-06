@@ -32,10 +32,10 @@ class AttributePolicyCollectionProvider extends AbstractCollectionProvider
             ->createQueryBuilder('t')
             ->innerJoin('t.workspace', 'w');
 
-        if (null !== $workspaceId = self::getParameterValue($operation, 'workspaceId')) {
+        if (null !== $workspaceId = self::getParameterId($operation, 'workspaceId')) {
             $queryBuilder
                 ->andWhere('w.id = :ws')
-                ->setParameter('ws', basename((string) (\is_array($workspaceId) ? reset($workspaceId) : $workspaceId)));
+                ->setParameter('ws', $workspaceId);
         }
 
         if (!$this->isAdmin()) {

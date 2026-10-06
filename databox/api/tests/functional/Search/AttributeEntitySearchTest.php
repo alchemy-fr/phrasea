@@ -79,6 +79,20 @@ final class AttributeEntitySearchTest extends AbstractSearchTestCase
         ]));
     }
 
+    public function testQueryIgnoresTheOrmOnlySorts(): void
+    {
+        $this->setUpScene();
+
+        $this->assertEqualsCanonicalizing(['Dark blue', 'Light blue', 'Blue square'], $this->searchValues(self::OTHER, [
+            'query' => 'blu',
+            'order' => ['createdAt' => 'desc'],
+        ]));
+        $this->assertEqualsCanonicalizing(['Dark blue', 'Light blue', 'Blue square'], $this->searchValues(self::OTHER, [
+            'query' => 'blu',
+            'order' => ['position' => 'asc'],
+        ]));
+    }
+
     public function testQueryIsRestrictedToReadableWorkspaces(): void
     {
         $this->setUpScene();
