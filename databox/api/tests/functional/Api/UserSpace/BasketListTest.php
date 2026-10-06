@@ -18,8 +18,7 @@ final class BasketListTest extends AbstractSearchTestCase
 
     public function testListRequiresAuthentication(): void
     {
-        // The provider runs before the operation security and rejects the anonymous user itself
-        $this->assertStatus(403, 'GET', '/baskets', null);
+        $this->assertStatus(401, 'GET', '/baskets', null);
     }
 
     public function testArchivedBasketsAreExcludedByDefault(): void
@@ -134,7 +133,7 @@ final class BasketListTest extends AbstractSearchTestCase
 
         $data = $this->apiJson('GET', '/baskets', self::USER, query: ['limit' => 2]);
         $this->assertCount(2, $this->members($data));
-        $this->assertSame(3, $data['hydra:totalItems']);
+        $this->assertSame(3, $data['totalItems']);
 
         $page2 = $this->apiJson('GET', '/baskets', self::USER, query: ['limit' => 2, 'page' => 2]);
         $this->assertCount(1, $this->members($page2));

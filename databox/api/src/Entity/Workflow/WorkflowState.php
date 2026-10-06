@@ -15,9 +15,9 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use App\Api\Model\Output\WorkflowStateOutput;
-use App\Controller\Workflow\CancelWorkflowAction;
-use App\Controller\Workflow\GetWorkflowAction;
-use App\Controller\Workflow\RerunJobAction;
+use App\Api\Processor\CancelWorkflowProcessor;
+use App\Api\Processor\RerunWorkflowJobProcessor;
+use App\Api\Serializer\Normalizer\WorkflowStateDumpNormalizer;
 use App\Entity\Core\Asset;
 use App\Service\Workflow\Event\IncomingUploaderFileWorkflowEvent;
 use Doctrine\DBAL\Types\Types;
@@ -28,29 +28,32 @@ use Doctrine\ORM\Mapping as ORM;
     shortName: 'workflows',
     operations: [
         new Get(
-            controller: GetWorkflowAction::class,
+            normalizationContext: [WorkflowStateDumpNormalizer::CONTEXT_KEY => true],
             security: 'is_granted("READ", object)',
-            output: false
         ),
         new Post(
             uriTemplate: '/workflows/{id}/jobs/{jobId}/rerun',
+            throwOnNotFound: true,
             uriVariables: [
                 'id' => new Link(fromClass: self::class, identifiers: ['id']),
             ],
-            read: true,
-            controller: RerunJobAction::class,
+            status: 200,
+            normalizationContext: [WorkflowStateDumpNormalizer::CONTEXT_KEY => true],
             security: 'is_granted("EDIT", object)',
-            deserialize: false,
+            input: false,
+            processor: RerunWorkflowJobProcessor::class,
         ),
         new Post(
             uriTemplate: '/workflows/{id}/cancel',
+            throwOnNotFound: true,
             uriVariables: [
                 'id' => new Link(fromClass: self::class, identifiers: ['id']),
             ],
-            read: true,
-            controller: CancelWorkflowAction::class,
+            status: 200,
+            normalizationContext: [WorkflowStateDumpNormalizer::CONTEXT_KEY => true],
             security: 'is_granted("EDIT", object)',
-            deserialize: false,
+            input: false,
+            processor: CancelWorkflowProcessor::class,
         ),
         new GetCollection(
             normalizationContext: [

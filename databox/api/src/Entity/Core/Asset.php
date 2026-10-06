@@ -50,6 +50,7 @@ use App\Api\Processor\BypassQuarantineProcessor;
 use App\Api\Processor\CopyAssetProcessor;
 use App\Api\Processor\CreateAssetProcessor;
 use App\Api\Processor\DeleteAssetProcessor;
+use App\Api\Processor\DeleteAssetsByKeysProcessor;
 use App\Api\Processor\FollowProcessor;
 use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveAssetProcessor;
@@ -66,7 +67,6 @@ use App\Api\Provider\AssetMetricsProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Api\Provider\StoryThumbnailsProvider;
-use App\Controller\Core\DeleteAssetByKeysAction;
 use App\Entity\FollowableInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\ExtraMetadataTrait;
@@ -301,7 +301,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Delete(
             uriTemplate: '/assets-by-keys',
-            controller: DeleteAssetByKeysAction::class,
+            processor: DeleteAssetsByKeysProcessor::class,
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             name: 'asset_delete_by_key',
         ),

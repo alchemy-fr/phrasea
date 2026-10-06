@@ -23,7 +23,7 @@ use App\Api\Filter\PartialSearchFilter;
 use App\Api\Filter\SearchFilter;
 use App\Api\Model\Input\RenditionDefinitionInput;
 use App\Api\Model\Output\RenditionDefinitionOutput;
-use App\Controller\Core\RenditionDefinitionSortAction;
+use App\Api\Processor\Sort\RenditionDefinitionSortProcessor;
 use App\Entity\Traits\AssetTypeTargetTrait;
 use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -79,7 +79,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             uriTemplate: '/rendition-definitions/sort',
-            controller: RenditionDefinitionSortAction::class,
+            status: 200,
+            processor: RenditionDefinitionSortProcessor::class,
             openapi: new OpenApiOperation(
                 summary: 'Reorder items',
                 description: 'Reorder items',

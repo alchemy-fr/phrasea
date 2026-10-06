@@ -26,8 +26,8 @@ use App\Api\Filter\PartialSearchFilter;
 use App\Api\Filter\SearchFilter;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
+use App\Api\Processor\Sort\AttributeDefinitionSortProcessor;
 use App\Attribute\AttributeInterface;
-use App\Controller\Core\AttributeDefinitionSortAction;
 use App\Entity\Traits\AssetTypeTargetTrait;
 use App\Entity\Traits\ErrorDisableInterface;
 use App\Entity\Traits\ErrorDisableTrait;
@@ -88,7 +88,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             uriTemplate: '/attribute-definitions/sort',
-            controller: AttributeDefinitionSortAction::class,
+            status: 200,
+            processor: AttributeDefinitionSortProcessor::class,
             openapi: new OpenApiOperation(
                 summary: 'Reorder items',
                 description: 'Reorder items',

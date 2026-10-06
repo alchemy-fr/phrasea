@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Controller\Traits;
+namespace App\Service\Storage;
 
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
@@ -16,22 +16,25 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * ({"multipart": {"uploadId": "...", "parts": [...]}}) and finalizes it
  * on S3 unless it was already completed (idempotent retries).
  */
-trait MultipartUploadResolverTrait
+final readonly class MultipartUploadResolver
 {
-    protected function resolveMultipartUpload(
-        Request $request,
-        EntityManagerInterface $em,
-        UploadManager $uploadManager,
-    ): MultipartUpload {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private UploadManager $uploadManager,
+    ) {
+    }
+
+    public function resolveFromRequest(Request $request): MultipartUpload
+    {
         $input = MultipartUploadInput::fromArray($request->toArray()['multipart'] ?? []);
 
-        $upload = $em->find(MultipartUpload::class, $input->uploadId);
+        $upload = $this->em->find(MultipartUpload::class, $input->uploadId);
         if (!$upload instanceof MultipartUpload) {
             throw new NotFoundHttpException(sprintf('Multipart upload "%s" not found', $input->uploadId));
         }
 
         if (!$upload->isComplete()) {
-            $upload = $uploadManager->handleMultipartUpload($input);
+            $upload = $this->uploadManager->handleMultipartUpload($input);
         }
 
         return $upload;
