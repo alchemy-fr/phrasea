@@ -20,6 +20,7 @@ use App\Api\Model\Input\Template\AssetDataTemplateInput;
 use App\Api\Model\Output\Template\AssetDataTemplateOutput;
 use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\AssetDataTemplateCollectionProvider;
+use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Tag;
 use App\Entity\Traits\OwnerIdTrait;
@@ -64,8 +65,29 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'workspace' => new QueryParameter(
                     filter: ExactSearchFilter::class,
                     property: 'workspace',
+                    description: 'Workspace ID or IRI (mandatory without "collection")',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'workspaceId'],
                 ),
                 'workspace[]' => new QueryParameter(property: 'workspace', openApi: false),
+                'collection' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Collection ID or IRI: templates of this collection, of its ancestors (when they include their children) and of the workspace',
+                    castToArray: false,
+                ),
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Search query on the name',
+                    castToArray: false,
+                ),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (max 50)',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
+                ),
             ],
         ),
         new Post(

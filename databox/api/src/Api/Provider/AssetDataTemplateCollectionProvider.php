@@ -6,11 +6,14 @@ namespace App\Api\Provider;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\Operation;
+use App\Api\Traits\ParameterValuesTrait;
 use App\Elasticsearch\AssetDataTemplateSearch;
 use Symfony\Bundle\SecurityBundle\Security;
 
 class AssetDataTemplateCollectionProvider extends AbstractCollectionProvider
 {
+    use ParameterValuesTrait;
+
     public function __construct(private readonly AssetDataTemplateSearch $search, private readonly Security $security)
     {
     }
@@ -24,6 +27,6 @@ class AssetDataTemplateCollectionProvider extends AbstractCollectionProvider
         $userId = $user instanceof JwtUser ? $user->getId() : null;
         $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
 
-        return $this->search->search($userId, $groupIds, $context['filters'] ?? []);
+        return $this->search->search($userId, $groupIds, self::getParameterValues($operation), $operation);
     }
 }
