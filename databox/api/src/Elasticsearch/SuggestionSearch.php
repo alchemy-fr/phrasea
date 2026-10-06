@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Util\LocaleUtil;
+use ApiPlatform\Metadata\Operation;
 use App\Api\Traits\UserLocaleTrait;
 use App\Attribute\AttributeInterface;
 use App\Attribute\AttributeTypeRegistry;
@@ -79,6 +80,7 @@ class SuggestionSearch extends AbstractSearch
         ?string $userId,
         array $groupIds,
         array $options = [],
+        ?Operation $operation = null,
     ): array {
         $queryString = trim($options['query'] ?? '')
                 |> (fn (string $x): string => preg_replace('#^"(.*)$#', '$1', $x))

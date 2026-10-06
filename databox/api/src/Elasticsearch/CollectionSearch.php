@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\Collection;
 use App\Repository\Core\CollectionRepository;
 use App\Security\Voter\AbstractVoter;
@@ -28,6 +29,7 @@ class CollectionSearch extends AbstractSearch
         ?string $userId,
         array $groupIds,
         array $options = [],
+        ?Operation $operation = null,
     ): Pagerfanta {
         $maxLimit = 50;
         $limit = $options['limit'] ?? $maxLimit;

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use ApiPlatform\Metadata\Operation;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use Pagerfanta\Pagerfanta;
@@ -20,6 +21,7 @@ class AttributeEntitySearch extends AbstractSearch
     public function search(
         array $workspaceIds,
         array $options = [],
+        ?Operation $operation = null,
     ): Pagerfanta {
         $maxLimit = 50;
         $filterQuery = new Query\BoolQuery();
