@@ -6,12 +6,14 @@ namespace App\Entity;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
 use App\DataProvider\TargetDataProvider;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -28,6 +30,15 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             provider: TargetDataProvider::class,
+            parameters: [
+                'query' => new QueryParameter(
+                    filter: new PartialSearchFilter(),
+                    property: 'name',
+                    schema: ['type' => 'string'],
+                    description: 'Search query on the name',
+                    castToArray: false,
+                ),
+            ],
         ),
     ],
     normalizationContext: [
