@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "510a8e361222443405d38e0b6acf089c",
+    "content-hash": "2124dac3cab77b8cc0a38746dc1a5f9e",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
-            "version": "dev-symfony-8",
+            "version": "1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alchemy-fr/acl-bundle.git",
-                "reference": "c648261cef7c7eb438d97fe40207cb8be2d621a1"
+                "reference": "eb2caa41bd384a6352352ca021baa4f1edd39537"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/c648261cef7c7eb438d97fe40207cb8be2d621a1",
-                "reference": "c648261cef7c7eb438d97fe40207cb8be2d621a1",
+                "url": "https://api.github.com/repos/alchemy-fr/acl-bundle/zipball/eb2caa41bd384a6352352ca021baa4f1edd39537",
+                "reference": "eb2caa41bd384a6352352ca021baa4f1edd39537",
                 "shasum": ""
             },
             "require": {
@@ -46,32 +46,17 @@
                     "/Tests/"
                 ]
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "Alchemy\\AclBundle\\Tests\\": "tests"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "vendor/bin/phpunit"
-                ],
-                "cs": [
-                    "PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix"
-                ],
-                "rector": [
-                    "vendor/bin/rector"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
             "description": "Symfony ACL bundle",
             "homepage": "https://www.alchemy.fr/",
             "support": {
-                "source": "https://github.com/alchemy-fr/acl-bundle/tree/symfony-8",
-                "issues": "https://github.com/alchemy-fr/acl-bundle/issues"
+                "issues": "https://github.com/alchemy-fr/acl-bundle/issues",
+                "source": "https://github.com/alchemy-fr/acl-bundle/tree/1.5.0"
             },
-            "time": "2026-10-06T06:08:21+00:00"
+            "time": "2026-10-06T16:27:21+00:00"
         },
         {
             "name": "alchemy/admin-bundle",
@@ -16120,17 +16105,9 @@
             "time": "2025-11-17T20:03:58+00:00"
         }
     ],
-    "aliases": [
-        {
-            "package": "alchemy/acl-bundle",
-            "version": "dev-symfony-8",
-            "alias": "1.4.0",
-            "alias_normalized": "1.4.0.0"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "alchemy/acl-bundle": 20,
         "alchemy/admin-bundle": 20,
         "alchemy/api-test": 20,
         "alchemy/auth-bundle": 20,
