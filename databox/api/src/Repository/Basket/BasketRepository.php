@@ -28,22 +28,20 @@ class BasketRepository extends ServiceEntityRepository
 
     public function removeFromBasket(string $basketId, array $itemIds): void
     {
-        $this->_em->createQueryBuilder('t')
+        $this->getEntityManager()->createQueryBuilder('t')
             ->delete()
             ->from(BasketAsset::class, 't')
             ->andWhere('t.basket = :bid')
             ->andWhere('t.id IN (:ids)')
-            ->setParameters([
-                'bid' => $basketId,
-                'ids' => $itemIds,
-            ])
+            ->setParameter('bid', $basketId)
+            ->setParameter('ids', $itemIds)
             ->getQuery()
             ->execute();
     }
 
     public function getMaxPosition(string $basketId): int
     {
-        return $this->_em->createQueryBuilder()
+        return $this->getEntityManager()->createQueryBuilder()
             ->select('MAX(t.position) as m')
             ->from(BasketAsset::class, 't')
             ->andWhere('t.basket = :b')

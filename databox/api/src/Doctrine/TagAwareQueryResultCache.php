@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace App\Doctrine;
 
-use App\Annotation\IgnoreAutowire;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use Symfony\Component\DependencyInjection\Attribute\Exclude;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
-/**
- * @IgnoreAutowire
- */
+#[Exclude]
 class TagAwareQueryResultCache implements CacheItemPoolInterface
 {
     public function __construct(private readonly TagAwareCacheInterface $cache, private readonly array $tags)

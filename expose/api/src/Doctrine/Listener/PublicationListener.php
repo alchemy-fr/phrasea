@@ -9,14 +9,13 @@ use App\Entity\PublicationProfile;
 use App\Security\Voter\PublicationProfileVoter;
 use App\Security\Voter\PublicationVoter;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 #[AsDoctrineListener(Events::onFlush)]
-readonly class PublicationListener implements EventSubscriber
+readonly class PublicationListener
 {
     public function __construct(private Security $security)
     {
@@ -42,12 +41,5 @@ readonly class PublicationListener implements EventSubscriber
                 }
             }
         }
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::onFlush,
-        ];
     }
 }

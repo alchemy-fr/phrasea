@@ -59,7 +59,7 @@ class AlchemyWorkflowExtension extends Extension implements PrependExtensionInte
                 'orm' => [
                     'mappings' => [
                         'AlchemyWorkflowBundle' => [
-                            'type' => 'yml',
+                            'type' => 'xml',
                             'is_bundle' => true,
                             'prefix' => 'Alchemy\\Workflow\\Doctrine\\Entity',
                         ],

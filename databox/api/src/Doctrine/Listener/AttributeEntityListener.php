@@ -10,12 +10,11 @@ use App\Consumer\Handler\Search\AttributeEntityDelete;
 use App\Consumer\Handler\Search\AttributeEntityUpdate;
 use App\Entity\Core\AttributeEntity;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::onFlush)]
-final class AttributeEntityListener implements EventSubscriber
+final class AttributeEntityListener
 {
     public bool $disabled = false;
 
@@ -85,12 +84,5 @@ final class AttributeEntityListener implements EventSubscriber
         }
 
         return $locales;
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::onFlush,
-        ];
     }
 }

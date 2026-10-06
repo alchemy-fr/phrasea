@@ -48,7 +48,7 @@ class FileRepository extends ServiceEntityRepository
      */
     public function findDuplicatesByDocUniqueId(File $file, int $limit = 1): array
     {
-        $assetId = $this->_em->createQueryBuilder()
+        $assetId = $this->getEntityManager()->createQueryBuilder()
             ->select('a.id')
             ->from(Asset::class, 'a')
             ->andWhere('a.source = :fileId')
@@ -83,7 +83,7 @@ class FileRepository extends ServiceEntityRepository
 
     public function isActiveSourceFile(string $fileId): bool
     {
-        return null !== $this->_em->createQueryBuilder()
+        return null !== $this->getEntityManager()->createQueryBuilder()
             ->select('1')
             ->from(Asset::class, 'a')
             ->andWhere('a.source = :fileId')
@@ -139,7 +139,7 @@ class FileRepository extends ServiceEntityRepository
             ->setParameter('ws', $file->getWorkspaceId())
             ->setParameter('duid', $file->getDocUniqueId());
 
-        $versionAssetIds = $this->_em->createQueryBuilder()
+        $versionAssetIds = $this->getEntityManager()->createQueryBuilder()
             ->select('IDENTITY(afv.asset) AS assetId')
             ->from(AssetFileVersion::class, 'afv')
             ->andWhere('afv.file = :fileId')

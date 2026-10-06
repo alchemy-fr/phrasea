@@ -11,14 +11,13 @@ use App\Consumer\Handler\Collection\NotifyCollectionTopic;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::postPersist)]
 #[AsDoctrineListener(Events::preRemove)]
-class CollectionAssetListener implements EventSubscriber
+class CollectionAssetListener
 {
     use SecurityAwareTrait;
     use ChangeFieldListenerTrait;
@@ -63,13 +62,5 @@ class CollectionAssetListener implements EventSubscriber
             $user->getId(),
             $collectionAsset->getAsset()->getId(),
         ));
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::postPersist,
-            Events::preRemove,
-        ];
     }
 }

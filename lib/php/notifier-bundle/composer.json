@@ -30,7 +30,7 @@
         "php": "^8.4",
         "alchemy/auth-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
-        "doctrine/doctrine-bundle": "^2.11",
+        "doctrine/doctrine-bundle": "^2.11 || ^3",
         "doctrine/orm": "^2.7 || ^3",
         "ramsey/uuid-doctrine": "^1.5 || ^2.0",
         "symfony/clock": "^7.4",

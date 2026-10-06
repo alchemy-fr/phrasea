@@ -10,7 +10,6 @@ use App\Entity\Publication;
 use App\Entity\PublicationProfile;
 use App\Http\Cache\ProxyCachePurger;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
 use Doctrine\ORM\Event\PreRemoveEventArgs;
@@ -20,7 +19,7 @@ use Doctrine\Persistence\Event\LifecycleEventArgs;
 #[AsDoctrineListener(Events::postUpdate)]
 #[AsDoctrineListener(Events::postPersist)]
 #[AsDoctrineListener(Events::preRemove)]
-final readonly class EntityHttpCacheListener implements EventSubscriber
+final readonly class EntityHttpCacheListener
 {
     public function __construct(private ProxyCachePurger $proxyCachePurger)
     {
@@ -85,14 +84,5 @@ final readonly class EntityHttpCacheListener implements EventSubscriber
     public function preRemove(PreRemoveEventArgs $args): void
     {
         $this->handle($args);
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::postUpdate,
-            Events::postPersist,
-            Events::preRemove,
-        ];
     }
 }

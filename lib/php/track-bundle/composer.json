@@ -24,8 +24,8 @@
     ],
     "require": {
         "php": "^8.5",
-        "doctrine/doctrine-bundle": "^2.9",
-        "doctrine/orm": "^2.7",
+        "doctrine/doctrine-bundle": "^2.9 || ^3",
+        "doctrine/orm": "^2.7 || ^3",
         "alchemy/core-bundle": "@dev"
     },
     "config": {

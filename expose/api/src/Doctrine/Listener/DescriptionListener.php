@@ -10,14 +10,13 @@ use App\Entity\PublicationConfig;
 use App\Entity\PublicationProfile;
 use App\Entity\TermsConfig;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::prePersist)]
 #[AsDoctrineListener(Events::preUpdate)]
-readonly class DescriptionListener implements EventSubscriber
+readonly class DescriptionListener
 {
     public function __construct(private \HTMLPurifier $purifier)
     {
@@ -67,13 +66,5 @@ readonly class DescriptionListener implements EventSubscriber
         }
 
         return $this->purifier->purify($data);
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::prePersist,
-            Events::preUpdate,
-        ];
     }
 }

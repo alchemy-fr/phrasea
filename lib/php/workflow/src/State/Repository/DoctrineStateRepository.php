@@ -135,10 +135,8 @@ class DoctrineStateRepository implements LockAwareStateRepositoryInterface, Tran
             ->select('t')
             ->andWhere('t.workflow = :w')
             ->andWhere('t.jobId = :j')
-            ->setParameters([
-                'w' => $workflowId,
-                'j' => $jobId,
-            ]);
+            ->setParameter('w', $workflowId)
+            ->setParameter('j', $jobId);
     }
 
     public function releaseJobLock(string $workflowId, string $jobStateId): void
