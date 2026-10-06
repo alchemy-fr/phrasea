@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\IriConverterInterface;
@@ -16,10 +16,12 @@ use App\Security\Voter\WorkspaceIntegrationVoter;
 use Arthem\ObjectReferenceBundle\Mapper\ObjectMapper;
 use Doctrine\ORM\EntityManagerInterface;
 use GuzzleHttp\Psr7\Query;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Yaml\Yaml;
 
-class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterface
+#[AsTaggedItem(index: WorkspaceIntegrationOutput::class)]
+class WorkspaceIntegrationOutputMapper implements OutputMapperInterface
 {
     use SecurityAwareTrait;
     use GroupsHelperTrait;
@@ -34,15 +36,15 @@ class WorkspaceIntegrationOutputTransformer implements OutputTransformerInterfac
     ) {
     }
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return WorkspaceIntegrationOutput::class === $outputClass && $data instanceof WorkspaceIntegration;
+        return $data instanceof WorkspaceIntegration;
     }
 
     /**
      * @param WorkspaceIntegration $data
      */
-    public function transform(object $data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $output = new WorkspaceIntegrationOutput();
         $output->setCreatedAt($data->getCreatedAt());

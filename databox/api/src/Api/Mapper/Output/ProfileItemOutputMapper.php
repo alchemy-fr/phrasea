@@ -2,22 +2,24 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use App\Api\Model\Output\ProfileItemOutput;
 use App\Entity\Profile\ProfileItem;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class ProfileItemOutputTransformer implements OutputTransformerInterface
+#[AsTaggedItem(index: ProfileItemOutput::class)]
+class ProfileItemOutputMapper implements OutputMapperInterface
 {
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return ProfileItemOutput::class === $outputClass && $data instanceof ProfileItem;
+        return $data instanceof ProfileItem;
     }
 
     /**
      * @param ProfileItem $data
      */
-    public function transform(object $data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         return $this->createOutput($data);
     }

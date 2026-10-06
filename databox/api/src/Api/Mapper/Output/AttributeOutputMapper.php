@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\AttributeOutput;
@@ -11,8 +11,10 @@ use App\Attribute\AttributeTypeRegistry;
 use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class AttributeOutputTransformer implements OutputTransformerInterface
+#[AsTaggedItem(index: AttributeOutput::class)]
+class AttributeOutputMapper implements OutputMapperInterface
 {
     use SecurityAwareTrait;
 
@@ -20,15 +22,15 @@ class AttributeOutputTransformer implements OutputTransformerInterface
     {
     }
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return AttributeOutput::class === $outputClass && $data instanceof AbstractBaseAttribute;
+        return $data instanceof AbstractBaseAttribute;
     }
 
     /**
      * @param AbstractBaseAttribute $data
      */
-    public function transform(object $data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $type = $this->attributeTypeRegistry->getStrictType($data->getDefinition()->getType());
 

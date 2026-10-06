@@ -2,28 +2,30 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use App\Api\Model\Output\WorkflowStateOutput;
 use App\Entity\Workflow\WorkflowState;
 use App\Service\Asset\Attribute\AssetNameResolver;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-final readonly class WorkflowStateOutputTransformer implements OutputTransformerInterface
+#[AsTaggedItem(index: WorkflowStateOutput::class)]
+final readonly class WorkflowStateOutputMapper implements OutputMapperInterface
 {
     public function __construct(
         private AssetNameResolver $assetNameResolver,
     ) {
     }
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return WorkflowStateOutput::class === $outputClass && $data instanceof WorkflowState;
+        return $data instanceof WorkflowState;
     }
 
     /**
      * @param WorkflowState $data
      */
-    public function transform(object $data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $output = new WorkflowStateOutput();
         $output->id = $data->getId();

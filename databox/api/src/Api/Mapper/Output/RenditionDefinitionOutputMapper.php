@@ -2,28 +2,30 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\RenditionDefinitionOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\RenditionDefinition;
 use App\Security\Voter\RenditionDefinitionVoter;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class RenditionDefinitionOutputTransformer implements OutputTransformerInterface
+#[AsTaggedItem(index: RenditionDefinitionOutput::class)]
+class RenditionDefinitionOutputMapper implements OutputMapperInterface
 {
     use SecurityAwareTrait;
     use UserLocaleTrait;
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return RenditionDefinitionOutput::class === $outputClass && $data instanceof RenditionDefinition;
+        return $data instanceof RenditionDefinition;
     }
 
     /**
      * @param RenditionDefinition $data
      */
-    public function transform(object $data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $output = new RenditionDefinitionOutput();
         $output->setCreatedAt($data->getCreatedAt());

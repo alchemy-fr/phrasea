@@ -2,14 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AuthBundle\Repository\GroupRepository;
 use Alchemy\AuthBundle\Repository\UserRepository;
 use App\Api\Model\Output\AttributeFilterRuleOutput;
 use App\Entity\Core\AttributeFilterRule;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-final readonly class AttributeFilterRuleOutputProcessor implements OutputTransformerInterface
+#[AsTaggedItem(index: AttributeFilterRuleOutput::class)]
+final readonly class AttributeFilterRuleOutputMapper implements OutputMapperInterface
 {
     public function __construct(
         private UserRepository $userRepository,
@@ -17,15 +19,15 @@ final readonly class AttributeFilterRuleOutputProcessor implements OutputTransfo
     ) {
     }
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return AttributeFilterRuleOutput::class === $outputClass && $data instanceof AttributeFilterRule;
+        return $data instanceof AttributeFilterRule;
     }
 
     /**
      * @param AttributeFilterRule $data
      */
-    public function transform(object $data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $output = new AttributeFilterRuleOutput();
         $output->setId($data->getId());

@@ -2,25 +2,27 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use App\Api\Model\Output\TagOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\Tag;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class TagOutputTransformer implements OutputTransformerInterface
+#[AsTaggedItem(index: TagOutput::class)]
+class TagOutputMapper implements OutputMapperInterface
 {
     use UserLocaleTrait;
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return TagOutput::class === $outputClass && $data instanceof Tag;
+        return $data instanceof Tag;
     }
 
     /**
      * @param Tag $data
      */
-    public function transform(object $data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $preferredLocales = $this->getPreferredLocales($data->getWorkspace());
 

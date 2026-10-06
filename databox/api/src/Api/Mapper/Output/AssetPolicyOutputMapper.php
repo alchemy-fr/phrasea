@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\AssetPolicyOutput;
@@ -11,23 +11,25 @@ use App\Api\Model\Output\UserOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\AssetPolicy\AssetPolicy;
 use App\Entity\Core\AssetPolicy\AssetPolicyUser;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class AssetPolicyOutputTransformer implements OutputTransformerInterface
+#[AsTaggedItem(index: AssetPolicyOutput::class)]
+class AssetPolicyOutputMapper implements OutputMapperInterface
 {
     use SecurityAwareTrait;
     use UserLocaleTrait;
-    use UserOutputTransformerTrait;
-    use GroupOutputTransformerTrait;
+    use UserOutputTrait;
+    use GroupOutputTrait;
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return AssetPolicyOutput::class === $outputClass && $data instanceof AssetPolicy;
+        return $data instanceof AssetPolicy;
     }
 
     /**
      * @param AssetPolicy $data
      */
-    public function transform(object $data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $output = new AssetPolicyOutput();
         $output->setCreatedAt($data->getCreatedAt());

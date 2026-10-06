@@ -171,7 +171,7 @@ final class AssetFileTest extends AbstractDataboxTestCase
 
     public function testFileKeptAsAVersionIsReadable(): void
     {
-        $this->markTestIncomplete('BUG: FileVoter only looks for assets using the file as source or rendition, not as an AssetFileVersion: a previous source of an asset cannot be read through GET /files/{id} by the asset owner, although FileOutputTransformer::resolveUsages() lists "version" usages (src/Security/Voter/FileVoter.php:34).');
+        $this->markTestIncomplete('BUG: FileVoter only looks for assets using the file as source or rendition, not as an AssetFileVersion: a previous source of an asset cannot be read through GET /files/{id} by the asset owner, although FileOutputMapper::resolveUsages() lists "version" usages (src/Security/Voter/FileVoter.php:34).');
 
         $workspace = $this->createOwnedWorkspace();
         [, $version] = $this->createAssetWithVersions($workspace);

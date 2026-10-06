@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\ThreadMessageOutput;
@@ -11,11 +11,13 @@ use App\Entity\Discussion\Message;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Discussion\MessageAttachmentManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class ThreadMessageOutputTransformer implements OutputTransformerInterface
+#[AsTaggedItem(index: ThreadMessageOutput::class)]
+class ThreadMessageOutputMapper implements OutputMapperInterface
 {
     use SecurityAwareTrait;
-    use UserOutputTransformerTrait;
+    use UserOutputTrait;
     use UserLocaleTrait;
     use GroupsHelperTrait;
 
@@ -25,15 +27,15 @@ class ThreadMessageOutputTransformer implements OutputTransformerInterface
     ) {
     }
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return ThreadMessageOutput::class === $outputClass && $data instanceof Message;
+        return $data instanceof Message;
     }
 
     /**
      * @param Message $data
      */
-    public function transform(object $data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $output = new ThreadMessageOutput();
         $output->setCreatedAt($data->getCreatedAt());

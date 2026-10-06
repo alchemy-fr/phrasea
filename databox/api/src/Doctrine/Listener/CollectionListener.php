@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Doctrine\Listener;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
-use App\Api\OutputTransformer\CollectionOutputTransformer;
+use App\Api\Mapper\Output\CollectionOutputMapper;
 use App\Consumer\Handler\Collection\DeleteCollection;
 use App\Consumer\Handler\Search\ComputeCollectionBranch;
 use App\Consumer\Handler\Search\IndexCollectionBranch;
@@ -40,7 +40,7 @@ class CollectionListener implements EventSubscriber
             return;
         }
 
-        $this->collectionCache->invalidateTags([CollectionOutputTransformer::COLLECTION_CACHE_NS]);
+        $this->collectionCache->invalidateTags([CollectionOutputMapper::COLLECTION_CACHE_NS]);
 
         $this->postFlushStack->addBusMessage(new ComputeCollectionBranch($entity->getId()));
     }
@@ -61,7 +61,7 @@ class CollectionListener implements EventSubscriber
             return;
         }
 
-        $this->collectionCache->invalidateTags([CollectionOutputTransformer::COLLECTION_CACHE_NS]);
+        $this->collectionCache->invalidateTags([CollectionOutputMapper::COLLECTION_CACHE_NS]);
 
         $this->postFlushStack->addBusMessage(new ComputeCollectionBranch($entity->getId()));
         $this->postFlushStack->addBusMessage(new IndexCollectionBranch($entity->getId(), true));

@@ -2,15 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\Template\AssetDataTemplateOutput;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
 use App\Security\Voter\AbstractVoter;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class AssetDataTemplateProvider implements OutputTransformerInterface
+#[AsTaggedItem(index: AssetDataTemplateOutput::class)]
+class AssetDataTemplateOutputMapper implements OutputMapperInterface
 {
     use SecurityAwareTrait;
     use GroupsHelperTrait;
@@ -18,7 +20,7 @@ class AssetDataTemplateProvider implements OutputTransformerInterface
     /**
      * @param AssetDataTemplate $data
      */
-    public function transform(object $data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $output = new AssetDataTemplateOutput();
         $output->name = $data->getName();
@@ -48,8 +50,8 @@ class AssetDataTemplateProvider implements OutputTransformerInterface
         return $output;
     }
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return AssetDataTemplateOutput::class === $outputClass && $data instanceof AssetDataTemplate;
+        return $data instanceof AssetDataTemplate;
     }
 }

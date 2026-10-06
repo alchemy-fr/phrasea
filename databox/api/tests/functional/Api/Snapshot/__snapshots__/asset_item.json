@@ -170,8 +170,8 @@
     "id": "<asset>",
     "name": "Photo",
     "owner": {
-        "@id": "/assets/<asset>",
-        "@type": "asset",
+        "@id": "<genid>",
+        "@type": "UserOutput",
         "id": "<uuid>",
         "removed": false,
         "username": "user"
