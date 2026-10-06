@@ -13,7 +13,7 @@ use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\Collection;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class WorkspaceOutput extends AbstractUuidOutput
 {

@@ -6,7 +6,7 @@ namespace App\Tests\Functional;
 
 use Alchemy\ApiTest\ApiTestTrait;
 use Alchemy\TestBundle\Helper\FixturesTrait;
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use ApiPlatform\Test\ApiTestCase;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 abstract class AbstractDataboxTestCase extends ApiTestCase

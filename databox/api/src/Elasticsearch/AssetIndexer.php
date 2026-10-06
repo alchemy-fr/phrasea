@@ -57,9 +57,9 @@ final readonly class AssetIndexer
             ->addOrderBy('a.createdAt', 'DESC')
             ->addOrderBy('a.id', 'ASC');
 
-        $this->assetPermissionComputer->setWorkspaceCache(new ArrayAdapter(storeSerialized: false));
-        $this->assetPermissionComputer->setCollectionCache(new ArrayAdapter(storeSerialized: false));
-        $this->assetPermissionComputer->setAssetCache(new ArrayAdapter(storeSerialized: false));
+        $this->assetPermissionComputer->setWorkspaceCache(new ArrayAdapter(deepClone: false));
+        $this->assetPermissionComputer->setCollectionCache(new ArrayAdapter(deepClone: false));
+        $this->assetPermissionComputer->setAssetCache(new ArrayAdapter(deepClone: false));
 
         $maxResults = 500;
 

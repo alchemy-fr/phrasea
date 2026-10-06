@@ -7,6 +7,7 @@ namespace App\Security\Voter;
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Discussion\Message;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class ThreadMessageVoter extends AbstractVoter
 {
@@ -24,7 +25,7 @@ class ThreadMessageVoter extends AbstractVoter
     /**
      * @param Message $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         switch ($attribute) {
             case self::READ:

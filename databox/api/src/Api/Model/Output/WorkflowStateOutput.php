@@ -6,7 +6,7 @@ namespace App\Api\Model\Output;
 
 use ApiPlatform\Metadata\ApiProperty;
 use App\Entity\Workflow\WorkflowState;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class WorkflowStateOutput
 {

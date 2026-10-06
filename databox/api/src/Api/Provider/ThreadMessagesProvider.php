@@ -25,7 +25,7 @@ final class ThreadMessagesProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $threadId = $uriVariables['threadId'];
+        $threadId = (string) $uriVariables['threadId'];
         $thread = $this->em->find(Thread::class, $threadId)
             ?? throw new NotFoundHttpException(sprintf('Thread %s not found', $threadId));
 

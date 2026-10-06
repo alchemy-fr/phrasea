@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Discussion\Thread;
 use App\Service\Discussion\DiscussionManager;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class ThreadVoter extends AbstractVoter
 {
@@ -30,7 +31,7 @@ class ThreadVoter extends AbstractVoter
     /**
      * @param Thread $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $object = $this->discussionManager->getThreadObject($subject);
 

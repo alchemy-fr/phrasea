@@ -21,7 +21,7 @@ abstract class FileAnalyzerConfigHelper
             ->scalarNode('name')
                 ->cannotBeEmpty()
                 ->isRequired()
-                ->defaultValue($name)
+                ->example($name)
             ->end()
             ->enumNode(self::MAX_SEVERITY)
                 ->defaultValue(strtolower(LogLevelEnum::Critical->name))

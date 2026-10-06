@@ -27,17 +27,17 @@
         "alchemy/core-bundle": "@dev",
         "aws/aws-sdk-php": "^3.360",
         "doctrine/doctrine-bundle": "^3.0",
-        "doctrine/doctrine-migrations-bundle": "^3.7",
+        "doctrine/doctrine-migrations-bundle": "^4.0",
         "doctrine/orm": "^3.3",
         "gedmo/doctrine-extensions": "^3.17",
         "stof/doctrine-extensions-bundle": "^1.15",
-        "symfony/console": "^7.4",
-        "symfony/dotenv": "^7.4",
+        "symfony/console": "^8.1",
+        "symfony/dotenv": "^8.1",
         "symfony/flex": "^2",
-        "symfony/framework-bundle": "^7.4",
-        "symfony/http-client": "^7.4",
-        "symfony/runtime": "^7.4",
-        "symfony/yaml": "^7.4"
+        "symfony/framework-bundle": "^8.1",
+        "symfony/http-client": "^8.1",
+        "symfony/runtime": "^8.1",
+        "symfony/yaml": "^8.1"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.17",
@@ -102,7 +102,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "^7.4"
+            "require": "^8.1"
         }
     }
 }

@@ -4,6 +4,10 @@
     "license": "proprietary",
     "repositories": [
         {
+            "type": "vcs",
+            "url": "https://github.com/alchemy-fr/acl-bundle"
+        },
+        {
             "type": "path",
             "url": "../../lib/php/admin-bundle",
             "options": {
@@ -81,7 +85,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
-        "alchemy/acl-bundle": "^1.2",
+        "alchemy/acl-bundle": "dev-symfony-8 as 1.4.0",
         "alchemy/admin-bundle": "@dev",
         "alchemy/configurator-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
@@ -89,12 +93,12 @@
         "alchemy/notifier-bundle": "@dev",
         "alchemy/report-bundle": "@dev",
         "alchemy/storage-bundle": "@dev",
-        "api-platform/core": "^4.4",
+        "api-platform/core": "^5.0",
         "composer/package-versions-deprecated": "1.11.99.3",
         "doctrine/common": "^3.4.3",
         "doctrine/dbal": "^4.0",
         "doctrine/doctrine-bundle": "^3.0",
-        "doctrine/doctrine-migrations-bundle": "^3.7",
+        "doctrine/doctrine-migrations-bundle": "^4.0",
         "doctrine/orm": "^3.3",
         "exercise/htmlpurifier-bundle": "^5.2",
         "hautelook/alice-bundle": "^2.17",
@@ -105,22 +109,22 @@
         "pusher/pusher-php-server": "^7.2.4",
         "ramsey/uuid-doctrine": "^2.0",
         "stof/doctrine-extensions-bundle": "^1.15",
-        "symfony/amqp-messenger": "^7.4",
-        "symfony/asset": "^7.4",
-        "symfony/console": "^7.4",
-        "symfony/dotenv": "^7.4",
-        "symfony/expression-language": "^7.4",
+        "symfony/amqp-messenger": "^8.1",
+        "symfony/asset": "^8.1",
+        "symfony/console": "^8.1",
+        "symfony/dotenv": "^8.1",
+        "symfony/expression-language": "^8.1",
         "symfony/flex": "^2.10",
-        "symfony/framework-bundle": "^7.4",
-        "symfony/property-access": "^7.4",
-        "symfony/property-info": "^7.4",
-        "symfony/psr-http-message-bridge": "^7.4",
-        "symfony/runtime": "^7.4",
-        "symfony/security-bundle": "^7.4",
-        "symfony/serializer": "^7.4",
-        "symfony/twig-bundle": "^7.4",
-        "symfony/validator": "^7.4",
-        "symfony/yaml": "^7.4"
+        "symfony/framework-bundle": "^8.1",
+        "symfony/property-access": "^8.1",
+        "symfony/property-info": "^8.1",
+        "symfony/psr-http-message-bridge": "^8.1",
+        "symfony/runtime": "^8.1",
+        "symfony/security-bundle": "^8.1",
+        "symfony/serializer": "^8.1",
+        "symfony/twig-bundle": "^8.1",
+        "symfony/validator": "^8.1",
+        "symfony/yaml": "^8.1"
     },
     "require-dev": {
         "alchemy/api-test": "@dev",
@@ -129,14 +133,14 @@
         "phpstan/phpstan": "^2.1.33",
         "phpunit/phpunit": "^11.5",
         "rector/rector": "^2.3.0",
-        "symfony/browser-kit": "^7.4",
-        "symfony/css-selector": "^7.4",
-        "symfony/debug-bundle": "^7.4",
+        "symfony/browser-kit": "^8.1",
+        "symfony/css-selector": "^8.1",
+        "symfony/debug-bundle": "^8.1",
         "symfony/monolog-bundle": "^4.0",
-        "symfony/phpunit-bridge": "^7.4",
-        "symfony/stopwatch": "^7.4",
-        "symfony/var-dumper": "^7.4",
-        "symfony/web-profiler-bundle": "^7.4"
+        "symfony/phpunit-bridge": "^8.1",
+        "symfony/stopwatch": "^8.1",
+        "symfony/var-dumper": "^8.1",
+        "symfony/web-profiler-bundle": "^8.1"
     },
     "config": {
         "preferred-install": {
@@ -222,7 +226,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "^7.4"
+            "require": "^8.1"
         }
     }
 }

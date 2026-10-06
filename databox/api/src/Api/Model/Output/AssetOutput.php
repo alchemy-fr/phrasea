@@ -19,7 +19,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Entity\Core\Share;
 use App\Entity\Discussion\Thread;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\MaxDepth;
 
 class AssetOutput extends AbstractUuidOutput

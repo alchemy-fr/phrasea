@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Model\Output;
 
 use App\Entity\Profile\Profile;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 final readonly class ProfileItemOutput
 {

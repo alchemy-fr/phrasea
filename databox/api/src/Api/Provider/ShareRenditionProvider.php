@@ -46,7 +46,7 @@ final class ShareRenditionProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object
     {
-        $item = $this->shareRepository->find($uriVariables['id']);
+        $item = $this->shareRepository->find((string) $uriVariables['id']);
         if (!$item instanceof Share) {
             return $this->createNotFoundResponse();
         }
@@ -60,7 +60,7 @@ final class ShareRenditionProvider implements ProviderInterface
             return $this->createNotFoundResponse();
         }
 
-        $defId = $uriVariables['rendition'];
+        $defId = (string) $uriVariables['rendition'];
         // Same filtering as the share's alternateUrls (see ShareReadProvider)
         if (in_array($defId, $this->assetPolicyManager->getPolicyApplicationFilter($asset)->getFilteredRenditions(), true)) {
             return $this->createNotFoundResponse();

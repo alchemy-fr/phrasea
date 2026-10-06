@@ -25,7 +25,7 @@ final class IntegrationTokenDataProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $integrationId = $uriVariables['integrationId'];
+        $integrationId = (string) $uriVariables['integrationId'];
         $integration = $this->em->find(WorkspaceIntegration::class, $integrationId)
             ?? throw new NotFoundHttpException(sprintf('WorkspaceIntegration %s not found', $integrationId));
 

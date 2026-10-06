@@ -32,7 +32,7 @@ class RemoveFromBasketProcessor implements ProcessorInterface
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): Basket
     {
-        $basketId = $uriVariables['id'];
+        $basketId = (string) $uriVariables['id'];
         $basket = DoctrineUtil::findStrictByRepo($this->basketRepository, $basketId);
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $basket);
 

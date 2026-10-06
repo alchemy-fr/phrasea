@@ -7,7 +7,7 @@ namespace App\Tests\Functional\Api\Social;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\CoreBundle\Message\PusherMessage;
 use Alchemy\MessengerBundle\Transport\TestTransport;
-use ApiPlatform\Symfony\Bundle\Test\Client;
+use ApiPlatform\Test\Client;
 use App\Consumer\Handler\Discussion\PostDiscussionMessage;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Workspace;

@@ -7,13 +7,13 @@ use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
-use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 readonly class BuildConfigValidator
 {
     public function __construct(
-        #[TaggedLocator(TransformerModuleInterface::TAG, defaultIndexMethod: 'getName')]
+        #[AutowireLocator(TransformerModuleInterface::TAG, defaultIndexMethod: 'getName')]
         private ServiceLocator $transformers,
     ) {
     }

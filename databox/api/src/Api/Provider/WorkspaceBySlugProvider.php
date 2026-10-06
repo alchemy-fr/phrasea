@@ -19,7 +19,7 @@ final readonly class WorkspaceBySlugProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): Workspace
     {
-        $slug = $uriVariables['slug'];
+        $slug = (string) $uriVariables['slug'];
         $workspace = $this->workspaceRepository->findOneBy([
             'slug' => $slug,
             'deletedAt' => null,

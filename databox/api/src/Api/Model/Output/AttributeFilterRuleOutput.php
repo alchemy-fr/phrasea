@@ -6,7 +6,7 @@ namespace App\Api\Model\Output;
 
 use App\Api\Model\Output\Traits\CreatedAtDTOTrait;
 use App\Entity\Core\AttributeFilterRule;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class AttributeFilterRuleOutput extends AbstractUuidOutput
 {

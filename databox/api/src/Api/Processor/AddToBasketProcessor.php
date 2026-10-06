@@ -39,7 +39,7 @@ class AddToBasketProcessor implements ProcessorInterface
     {
         $user = $this->getStrictUser();
         if (isset($uriVariables['id'])) {
-            $basketId = $uriVariables['id'];
+            $basketId = (string) $uriVariables['id'];
             $basket = DoctrineUtil::findStrictByRepo($this->basketRepository, $basketId);
             $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $basket);
         } else {

@@ -26,8 +26,8 @@ class PutProfileItemProcessor implements ProcessorInterface
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): ProfileItem
     {
-        $profileId = $uriVariables['id'];
-        $itemId = $uriVariables['itemId'];
+        $profileId = (string) $uriVariables['id'];
+        $itemId = (string) $uriVariables['itemId'];
 
         $item = $this->em->getRepository(ProfileItem::class)->findOneBy([
             'id' => $itemId,

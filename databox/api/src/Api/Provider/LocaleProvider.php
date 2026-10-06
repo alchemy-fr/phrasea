@@ -28,7 +28,7 @@ final readonly class LocaleProvider implements ProviderInterface
             }, array_keys(Locales::getNames()));
         }
 
-        $locale = $uriVariables['id'];
+        $locale = (string) $uriVariables['id'];
         if (!Locales::exists($locale)) {
             return null;
         }

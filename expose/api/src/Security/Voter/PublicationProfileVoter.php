@@ -10,6 +10,7 @@ use Alchemy\AuthBundle\Security\Voter\AbstractVoter;
 use App\Entity\PublicationProfile;
 use App\Security\ScopeInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class PublicationProfileVoter extends AbstractVoter
 {
@@ -24,7 +25,7 @@ class PublicationProfileVoter extends AbstractVoter
     /**
      * @param PublicationProfile|null $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $isAdmin = $this->hasScope(ScopeInterface::SCOPE_PUBLISH, '', false)
             || $this->isAdmin();

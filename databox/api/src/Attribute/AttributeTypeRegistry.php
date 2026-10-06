@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Attribute;
 
 use App\Attribute\Type\AttributeTypeInterface;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 class AttributeTypeRegistry
 {
@@ -15,7 +15,7 @@ class AttributeTypeRegistry
     private array $types;
 
     public function __construct(
-        #[TaggedIterator(AttributeTypeInterface::TAG, defaultIndexMethod: 'getName')]
+        #[AutowireIterator(AttributeTypeInterface::TAG, defaultIndexMethod: 'getName')]
         iterable $types,
     ) {
         $this->types = iterator_to_array($types);
