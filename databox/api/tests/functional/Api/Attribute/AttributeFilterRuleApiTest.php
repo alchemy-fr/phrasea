@@ -171,6 +171,8 @@ final class AttributeFilterRuleApiTest extends AbstractDataboxTestCase
 
         $this->assertEqualsCanonicalizing([$rule->getId(), $otherRule->getId()], $this->listIds(self::USER));
         $this->assertSame([$otherRule->getId()], $this->listIds(self::USER, ['workspaceId' => $otherWorkspace->getId()]));
+        $this->assertSame([$otherRule->getId()], $this->listIds(self::USER, ['workspaceId' => '/workspaces/'.$otherWorkspace->getId()]));
+        $this->assertSame([$otherRule->getId()], $this->listIds(self::USER, ['workspaceId' => [$otherWorkspace->getId(), $this->workspace->getId()]]));
     }
 
     public function testListIsRestrictedToEditableWorkspaces(): void

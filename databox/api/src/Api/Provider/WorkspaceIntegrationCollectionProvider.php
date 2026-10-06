@@ -53,12 +53,7 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
             ->addOrderBy('t.createdAt', 'ASC');
 
         $workspace = null;
-        $workspaceFilter = self::getParameterValue($operation, 'workspace');
-        if (\is_array($workspaceFilter)) {
-            $workspaceFilter = reset($workspaceFilter);
-        }
-        if (\is_string($workspaceFilter) && '' !== $workspaceFilter) {
-            $workspaceId = basename($workspaceFilter);
+        if (null !== $workspaceId = self::getParameterId($operation, 'workspace')) {
             $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $workspaceId);
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $workspace);
         }

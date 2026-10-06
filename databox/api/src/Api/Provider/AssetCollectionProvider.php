@@ -31,7 +31,7 @@ class AssetCollectionProvider extends AbstractCollectionProvider
         $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
 
         try {
-            [$result, $facets, $queryJson, $searchTime] = $this->assetSearch->search($userId, $groupIds, self::getParameterValues($operation), $operation);
+            [$result, $facets, $queryJson, $searchTime] = $this->assetSearch->search($userId, $groupIds, self::getParameterValues($operation));
         } catch (NoWorkspaceAllowedException) {
             return [];
         }

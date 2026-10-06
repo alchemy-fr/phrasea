@@ -22,14 +22,8 @@ abstract class AbstractWorkspaceFilteredCollectionProvider extends AbstractColle
      */
     protected function getWorkspace(Operation $operation): Workspace
     {
-        $workspaceId = self::getParameterValue($operation, 'workspaceId');
-        if (\is_array($workspaceId)) {
-            $workspaceId = reset($workspaceId);
-        }
-        if (!\is_string($workspaceId) || '' === $workspaceId) {
-            throw new BadRequestHttpException('You must provide "workspaceId" to filter out results');
-        }
-        $workspaceId = basename($workspaceId);
+        $workspaceId = self::getParameterId($operation, 'workspaceId')
+            ?? throw new BadRequestHttpException('You must provide "workspaceId" to filter out results');
 
         $workspace = $this->em->find(Workspace::class, $workspaceId);
         if (!$workspace instanceof Workspace) {

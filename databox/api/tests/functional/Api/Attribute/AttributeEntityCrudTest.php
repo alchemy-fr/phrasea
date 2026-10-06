@@ -74,6 +74,10 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
             ['Approved', 'Pending by OTHER', 'Pending by someone', 'Rejected'],
             $this->listValues(self::USER, ['list' => $this->list->getId()]),
         );
+        $this->assertEqualsCanonicalizing(
+            ['Approved', 'Pending by OTHER', 'Pending by someone', 'Rejected'],
+            $this->listValues(self::USER, ['list' => '/entity-lists/'.$this->list->getId()]),
+        );
         // ...not a mere member
         $this->assertEqualsCanonicalizing(
             ['Approved', 'Pending by OTHER'],

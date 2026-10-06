@@ -55,7 +55,7 @@ abstract class AbstractCollectionAssetCollectionProvider extends AbstractCollect
         ]);
 
         try {
-            [$result] = $this->assetSearch->search($userId, $groupIds, $options, $operation);
+            [$result] = $this->assetSearch->search($userId, $groupIds, $options);
         } catch (NoWorkspaceAllowedException) {
             return [];
         }

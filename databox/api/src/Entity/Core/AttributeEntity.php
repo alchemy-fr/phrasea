@@ -8,6 +8,7 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\CoreBundle\Util\LocaleUtil;
+use ApiPlatform\Doctrine\Orm\Filter\SortFilter as OrmSortFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -87,8 +88,8 @@ use Symfony\Component\Validator\Constraints as Assert;
                     castToArray: false,
                 ),
                 // createdAt and position are not indexed: ORM only (ignored on a "query" search)
-                'order[createdAt]' => new QueryParameter(filter: new SortFilter(), property: 'createdAt', castToArray: false),
-                'order[position]' => new QueryParameter(filter: new SortFilter(), property: 'position', castToArray: false),
+                'order[createdAt]' => new QueryParameter(filter: new OrmSortFilter(), property: 'createdAt', castToArray: false),
+                'order[position]' => new QueryParameter(filter: new OrmSortFilter(), property: 'position', castToArray: false),
                 'limit' => new QueryParameter(
                     schema: ['type' => 'integer'],
                     description: 'Page size (max 50 on a "query" search)',

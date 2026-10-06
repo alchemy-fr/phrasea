@@ -22,8 +22,8 @@ class RenditionPolicyCollectionProvider extends AbstractCollectionProvider
         array $context = [],
     ): array|object {
         $criteria = [];
-        if (null !== $workspaceId = self::getParameterValue($operation, 'workspaceId')) {
-            $criteria['workspace'] = basename((string) (\is_array($workspaceId) ? reset($workspaceId) : $workspaceId));
+        if (null !== $workspaceId = self::getParameterId($operation, 'workspaceId')) {
+            $criteria['workspace'] = $workspaceId;
         }
 
         $policies = $this->em->getRepository(RenditionPolicy::class)->findBy($criteria);
