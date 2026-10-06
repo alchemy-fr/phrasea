@@ -8,7 +8,7 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
 use Alchemy\Workflow\Message\JobConsumer;
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use ApiPlatform\Test\ApiTestCase;
 use App\Consumer\Handler\Phraseanet\PhraseanetDownloadSubdef;
 use App\Controller\Integration\PhraseanetIntegrationController;
 use App\Entity\Core\Workspace;

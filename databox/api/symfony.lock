@@ -803,9 +803,6 @@
     "symfony/string": {
         "version": "v5.1.5"
     },
-    "symfony/templating": {
-        "version": "v5.2.0"
-    },
     "symfony/translation": {
         "version": "3.3",
         "recipe": {

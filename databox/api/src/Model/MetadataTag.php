@@ -9,7 +9,7 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use App\Api\Provider\MetadataTagProvider;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 /**
  * A metadata tag namespace (e.g. "IPTC") or tag (e.g. "IPTC:Keywords") known by exiftool,

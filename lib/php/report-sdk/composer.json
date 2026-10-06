@@ -8,7 +8,7 @@
     "require": {
         "php": "^8.5",
         "opis/json-schema": "^1.0",
-        "symfony/http-client": "^7"
+        "symfony/http-client": "^7.4 || ^8.0"
     },
     "config": {
         "sort-packages": true

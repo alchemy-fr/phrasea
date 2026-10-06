@@ -11,6 +11,7 @@ use App\Security\Authentication\AssetToken;
 use App\Security\ScopeInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class CommitVoter extends Voter
@@ -32,7 +33,7 @@ class CommitVoter extends Voter
      * @param AssetToken $token
      * @param Commit     $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if (null === $subject->getToken()) {
             return false;

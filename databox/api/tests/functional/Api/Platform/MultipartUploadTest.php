@@ -6,7 +6,7 @@ namespace App\Tests\Functional\Api\Platform;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
-use ApiPlatform\Symfony\Bundle\Test\Client;
+use ApiPlatform\Test\Client;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use Aws\CommandInterface;
 use Aws\Result;

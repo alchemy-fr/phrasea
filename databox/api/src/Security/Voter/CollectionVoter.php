@@ -10,6 +10,7 @@ use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Contracts\Cache\CacheInterface;
 
 class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterface
@@ -38,7 +39,7 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
     /**
      * @param Collection $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         return $this->cache->get(sprintf('%s_%s_%s', $attribute, $subject->getId(), spl_object_id($token)), fn (): bool => $this->doVote($attribute, $subject, $token));
     }

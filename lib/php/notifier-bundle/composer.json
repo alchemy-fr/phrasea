@@ -33,13 +33,13 @@
         "doctrine/doctrine-bundle": "^2.11 || ^3",
         "doctrine/orm": "^2.7 || ^3",
         "ramsey/uuid-doctrine": "^1.5 || ^2.0",
-        "symfony/clock": "^7.4",
-        "symfony/framework-bundle": "^7.4",
-        "symfony/mailer": "^7.4",
-        "symfony/messenger": "^7.4",
-        "symfony/notifier": "^7.4",
-        "symfony/translation": "^7.4",
-        "symfony/twig-bundle": "^7.4"
+        "symfony/clock": "^7.4 || ^8.0",
+        "symfony/framework-bundle": "^7.4 || ^8.0",
+        "symfony/mailer": "^7.4 || ^8.0",
+        "symfony/messenger": "^7.4 || ^8.0",
+        "symfony/notifier": "^7.4 || ^8.0",
+        "symfony/translation": "^7.4 || ^8.0",
+        "symfony/twig-bundle": "^7.4 || ^8.0"
     },
     "config": {
         "sort-packages": true

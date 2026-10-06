@@ -5,13 +5,13 @@ namespace Alchemy\RenditionFactory;
 use Alchemy\RenditionFactory\Transformer\Documentation;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Symfony\Component\Config\Definition\Dumper\YamlReferenceDumper;
-use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 final readonly class RenditionBuilderTransformersDocumentation
 {
     public function __construct(
-        #[TaggedLocator(TransformerModuleInterface::TAG, defaultIndexMethod: 'getName')]
+        #[AutowireLocator(TransformerModuleInterface::TAG, defaultIndexMethod: 'getName')]
         private ServiceLocator $transformers,
     ) {
     }

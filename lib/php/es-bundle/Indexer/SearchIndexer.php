@@ -9,7 +9,7 @@ use Alchemy\ESBundle\Util\ClassUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\ConsoleEvents;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
@@ -30,7 +30,7 @@ final class SearchIndexer
         private readonly EntityManagerInterface $em,
         private LoggerInterface $logger,
         private readonly IndexPersister $indexPersister,
-        #[TaggedIterator(IndexableDependenciesResolverInterface::TAG)]
+        #[AutowireIterator(IndexableDependenciesResolverInterface::TAG)]
         private readonly iterable $dependenciesResolvers,
         private readonly bool $direct,
         private readonly int $maxDependencyStacksCount = 5,

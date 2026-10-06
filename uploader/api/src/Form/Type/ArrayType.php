@@ -11,10 +11,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ArrayType extends AbstractType implements DataTransformerInterface
 {
-    /**
-     * @return void
-     */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $resizeListener = new ArrayResizeFormListener(
             $options['entry_type'],
@@ -57,10 +54,7 @@ class ArrayType extends AbstractType implements DataTransformerInterface
         return $value;
     }
 
-    /**
-     * @return void
-     */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'entry_type' => TextType::class,

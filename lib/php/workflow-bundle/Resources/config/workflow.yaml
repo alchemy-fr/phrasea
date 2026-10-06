@@ -46,9 +46,6 @@ services:
     Alchemy\Workflow\Executor\Adapter\PhpExecutor:
         tags:
             - { name: alchemy_workflow.executor }
-    Alchemy\Workflow\Executor\Adapter\Service\ServiceExecutor:
-        tags:
-            - { name: alchemy_workflow.executor }
 
     Alchemy\Workflow\Executor\JobStateManager: ~
     

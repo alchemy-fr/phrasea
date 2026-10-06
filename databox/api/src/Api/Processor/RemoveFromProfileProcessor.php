@@ -31,7 +31,7 @@ class RemoveFromProfileProcessor implements ProcessorInterface
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): Profile
     {
-        $id = $uriVariables['id'];
+        $id = (string) $uriVariables['id'];
         $profile = DoctrineUtil::findStrictByRepo($this->repository, $id);
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $profile);
 

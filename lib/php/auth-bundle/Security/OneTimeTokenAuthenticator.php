@@ -4,6 +4,7 @@ namespace Alchemy\AuthBundle\Security;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Util\RandomUtil;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -15,6 +16,7 @@ final class OneTimeTokenAuthenticator
     private const string CACHE_KEY_PREFIX = 'ott.';
 
     public function __construct(
+        #[Target]
         private readonly CacheInterface $oneTimeTokenCache,
     ) {
     }

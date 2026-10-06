@@ -35,7 +35,7 @@ class PutMessageProcessor implements ProcessorInterface
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): Message
     {
         /** @var Message $message */
-        $message = DoctrineUtil::findStrictByRepo($this->messageRepository, $uriVariables['id']);
+        $message = DoctrineUtil::findStrictByRepo($this->messageRepository, (string) $uriVariables['id']);
 
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $message);
 

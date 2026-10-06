@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Api;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
-use ApiPlatform\Symfony\Bundle\Test\Client;
+use ApiPlatform\Test\Client;
 use App\Entity\Core\Asset;
 use App\Tests\Functional\AbstractSearchTestCase;
 

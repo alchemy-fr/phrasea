@@ -33,7 +33,7 @@ class MergeAttributeEntitiesProcessor implements ProcessorInterface
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): AttributeEntity
     {
-        $mainEntity = DoctrineUtil::findStrict($this->em, AttributeEntity::class, $uriVariables['id']);
+        $mainEntity = DoctrineUtil::findStrict($this->em, AttributeEntity::class, (string) $uriVariables['id']);
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $mainEntity);
 
         $locales = [

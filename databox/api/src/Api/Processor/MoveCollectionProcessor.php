@@ -33,7 +33,7 @@ class MoveCollectionProcessor implements ProcessorInterface
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): Response
     {
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $data);
-        $dest = $uriVariables['dest'];
+        $dest = (string) $uriVariables['dest'];
         $isRoot = 'root' === $dest;
 
         if ($isRoot) {

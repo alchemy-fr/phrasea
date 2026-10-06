@@ -6,7 +6,7 @@ namespace App\Tests\Functional\Integration\Phrasea\Uploader;
 
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use ApiPlatform\Test\ApiTestCase;
 use App\Border\UploaderClient;
 use App\Border\UploaderClientMock;
 use App\Entity\Core\Asset;

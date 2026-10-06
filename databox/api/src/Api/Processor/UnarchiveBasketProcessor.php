@@ -20,7 +20,7 @@ final readonly class UnarchiveBasketProcessor implements ProcessorInterface
 
     public function process($data, $operation, array $uriVariables = [], array $context = []): Basket
     {
-        $basketId = $uriVariables['id'];
+        $basketId = (string) $uriVariables['id'];
         /** @var Basket $basket */
         $basket = DoctrineUtil::findStrictByRepo($this->basketRepository, $basketId);
 

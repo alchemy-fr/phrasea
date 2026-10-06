@@ -136,8 +136,6 @@ services:
     Imagine\Image\ImagineInterface: '@Imagine\Imagick\Imagine'
 
     Alchemy\RenditionFactory\MimeType\MimeTypeGuesser: ~
-    Alchemy\RenditionFactory\Format\FormatGuesser: ~
-    Alchemy\RenditionFactory\Format\FormatFactory: ~
     Alchemy\RenditionFactory\Config\ModuleOptionsResolver: ~
 
     Alchemy\RenditionFactory\RenditionBuilderTransformersDocumentation: ~

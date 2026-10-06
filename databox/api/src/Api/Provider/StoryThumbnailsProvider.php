@@ -30,7 +30,7 @@ class StoryThumbnailsProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $storyAsset = $this->assetRepository->find($uriVariables['id']);
+        $storyAsset = $this->assetRepository->find((string) $uriVariables['id']);
         if (!$storyAsset instanceof Asset) {
             return null;
         }

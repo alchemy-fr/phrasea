@@ -7,6 +7,7 @@ namespace App\Security\Voter;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\Template\TemplateAttribute;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class TemplateAttributeVoter extends AbstractVoter
 {
@@ -24,7 +25,7 @@ class TemplateAttributeVoter extends AbstractVoter
     /**
      * @param TemplateAttribute $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         return match ($attribute) {
             self::READ => $this->security->isGranted(self::READ, $subject->getTemplate())

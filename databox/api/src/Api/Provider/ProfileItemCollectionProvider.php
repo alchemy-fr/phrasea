@@ -22,7 +22,7 @@ class ProfileItemCollectionProvider extends AbstractCollectionProvider
 
     protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array|object
     {
-        $profile = DoctrineUtil::findStrictByRepo($this->repository, $uriVariables['id'], throw404: true);
+        $profile = DoctrineUtil::findStrictByRepo($this->repository, (string) $uriVariables['id'], throw404: true);
         $this->denyAccessUnlessGranted(AbstractVoter::READ, $profile);
 
         return $this->collectionProvider->provide($operation, $uriVariables, $context);

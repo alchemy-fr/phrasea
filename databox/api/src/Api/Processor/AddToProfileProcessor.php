@@ -38,7 +38,7 @@ class AddToProfileProcessor implements ProcessorInterface
     {
         $user = $this->getStrictUser();
         if (isset($uriVariables['id'])) {
-            $profileId = $uriVariables['id'];
+            $profileId = (string) $uriVariables['id'];
             $profile = DoctrineUtil::findStrictByRepo($this->profileRepository, $profileId);
             $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $profile);
         } else {

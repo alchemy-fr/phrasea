@@ -7,14 +7,14 @@ namespace App\Entity\Traits;
 use App\Entity\Core\AssetRendition;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 trait AssetAnnotationsTrait
 {
     #[Assert\Collection(
         fields: [
-            'type' => new Assert\Choice(AssetAnnotationsInterface::TYPES),
+            'type' => new Assert\Choice(choices: AssetAnnotationsInterface::TYPES),
         ],
         allowExtraFields: true,
     )]

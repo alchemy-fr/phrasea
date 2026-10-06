@@ -9,6 +9,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Model\SavedSearchPrivacyEnum;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class SavedSearchVoter extends AbstractVoter
 {
@@ -28,7 +29,7 @@ class SavedSearchVoter extends AbstractVoter
     /**
      * @param SavedSearch $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;

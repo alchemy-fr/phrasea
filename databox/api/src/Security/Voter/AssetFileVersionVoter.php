@@ -6,6 +6,7 @@ namespace App\Security\Voter;
 
 use App\Entity\Core\AssetFileVersion;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class AssetFileVersionVoter extends AbstractVoter
 {
@@ -23,7 +24,7 @@ class AssetFileVersionVoter extends AbstractVoter
     /**
      * @param AssetFileVersion $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         return match ($attribute) {
             self::READ => $this->security->isGranted(self::READ, $subject->getAsset()),

@@ -184,7 +184,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
                 $root
                     ->info('Clip the video before applying other filters')
                     ->children()
-                        ->scalarNode('name')->isRequired()->defaultValue('pre_clip')->end()
+                        ->scalarNode('name')->isRequired()->example('pre_clip')->end()
                         ->scalarNode('enabled')->defaultTrue()->end()
                         ->scalarNode('start')
                             ->defaultValue(0)
@@ -202,7 +202,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
                 $root
                     ->info('Clip the video or audio')
                     ->children()
-                        ->scalarNode('name')->isRequired()->defaultValue('clip')->end()
+                        ->scalarNode('name')->isRequired()->example('clip')->end()
                         ->scalarNode('enabled')->defaultTrue()->end()
                         ->scalarNode('start')
                             ->defaultValue(0)
@@ -220,7 +220,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
                 $root
                     ->info('Remove the audio from the video')
                     ->children()
-                        ->scalarNode('name')->isRequired()->defaultValue('remove_audio')->end()
+                        ->scalarNode('name')->isRequired()->example('remove_audio')->end()
                         ->scalarNode('enabled')->defaultTrue()->end()
                     ->end();
             },
@@ -228,16 +228,16 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
                 $root
                     ->info('Resample the audio')
                     ->children()
-                        ->scalarNode('name')->isRequired()->defaultValue('resample_audio')->end()
+                        ->scalarNode('name')->isRequired()->example('resample_audio')->end()
                         ->scalarNode('enabled')->defaultTrue()->end()
-                        ->scalarNode('rate')->isRequired()->defaultValue('44100')->end()
+                        ->scalarNode('rate')->isRequired()->example('44100')->end()
                     ->end();
             },
             'resize' => function (ArrayNodeDefinition $root): void {
                 $root
                     ->info('Resize the video')
                     ->children()
-                        ->scalarNode('name')->isRequired()->defaultValue('resize')->end()
+                        ->scalarNode('name')->isRequired()->example('resize')->end()
                         ->scalarNode('enabled')->defaultTrue()->end()
                         ->scalarNode('width')
                             ->isRequired()
@@ -262,7 +262,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
                 $root
                     ->info('Rotate the video')
                     ->children()
-                        ->scalarNode('name')->isRequired()->defaultValue('rotate')->end()
+                        ->scalarNode('name')->isRequired()->example('rotate')->end()
                         ->scalarNode('enabled')->defaultTrue()->end()
                         ->scalarNode('angle')
                             ->isRequired()
@@ -275,7 +275,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
                 $root
                     ->info('Pad the video')
                     ->children()
-                        ->scalarNode('name')->isRequired()->defaultValue('pad')->end()
+                        ->scalarNode('name')->isRequired()->example('pad')->end()
                         ->scalarNode('enabled')->defaultTrue()->end()
                         ->scalarNode('width')
                             ->isRequired()
@@ -291,7 +291,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
                 $root
                     ->info('Crop the video')
                     ->children()
-                        ->scalarNode('name')->isRequired()->defaultValue('crop')->end()
+                        ->scalarNode('name')->isRequired()->example('crop')->end()
                         ->scalarNode('enabled')->defaultTrue()->end()
                         ->scalarNode('x')
                             ->isRequired()
@@ -315,7 +315,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
                 $root
                     ->info('Apply a watermark on the video')
                     ->children()
-                        ->scalarNode('name')->isRequired()->defaultValue('watermark')->end()
+                        ->scalarNode('name')->isRequired()->example('watermark')->end()
                         ->scalarNode('enabled')->defaultTrue()->end()
                         ->scalarNode('position')
                             ->isRequired()
@@ -349,7 +349,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
                 $root
                     ->info('Change the framerate')
                     ->children()
-                        ->scalarNode('name')->isRequired()->defaultValue('framerate')->end()
+                        ->scalarNode('name')->isRequired()->example('framerate')->end()
                         ->scalarNode('enabled')->defaultTrue()->end()
                         ->scalarNode('framerate')
                             ->isRequired()
@@ -364,7 +364,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
                 $root
                     ->info('re-synchronize audio and video')
                     ->children()
-                        ->scalarNode('name')->isRequired()->defaultValue('synchronize')->end()
+                        ->scalarNode('name')->isRequired()->example('synchronize')->end()
                         ->scalarNode('enabled')->defaultTrue()->end()
                     ->end();
             },

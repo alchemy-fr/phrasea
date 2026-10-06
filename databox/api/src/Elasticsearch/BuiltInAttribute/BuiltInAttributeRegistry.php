@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\BuiltInAttribute;
 
-use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 
 final readonly class BuiltInAttributeRegistry
 {
     public function __construct(
-        #[TaggedLocator(BuiltInAttributeInterface::TAG, defaultIndexMethod: 'getKey')]
+        #[AutowireLocator(BuiltInAttributeInterface::TAG, defaultIndexMethod: 'getKey')]
         private ServiceProviderInterface $items,
     ) {
     }
