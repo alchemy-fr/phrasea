@@ -160,7 +160,7 @@
     "threadKey": "asset:<asset>",
     "topicSubscriptions": [],
     "updatedAt": "<date>",
-    "webUrl": "https://databox.phrasea-bis.local/assets/<asset>/_",
+    "webUrl": "<client-url>/assets/<asset>/_",
     "workspace": {
         "capabilities": [],
         "createdAt": "<date>",

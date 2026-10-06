@@ -88,7 +88,7 @@
                 "tags": [],
                 "threadKey": "asset:<other>",
                 "updatedAt": "<date>",
-                "webUrl": "https://databox.phrasea-bis.local/assets/<other>/_",
+                "webUrl": "<client-url>/assets/<other>/_",
                 "workspace": {
                     "@id": "/workspaces/<workspace>",
                     "@type": "workspace",

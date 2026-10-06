@@ -202,8 +202,9 @@ final class JsonLdSnapshotTest extends AbstractSearchTestCase
     }
 
     /**
-     * Fixture IDs become "<name>", other UUIDs "<uuid>"; dates, signatures and
-     * generated IDs are masked and keys are sorted.
+     * Fixture IDs become "<name>", other UUIDs "<uuid>"; the client URL (which
+     * depends on the environment), dates, signatures and generated IDs are
+     * masked and keys are sorted.
      */
     private static function normalize(mixed $data): mixed
     {
@@ -225,6 +226,7 @@ final class JsonLdSnapshotTest extends AbstractSearchTestCase
             return $data;
         }
 
+        $data = str_replace($_SERVER['DATABOX_CLIENT_URL'], '<client-url>', $data);
         $data = str_replace(array_values(self::IDS), array_map(static fn (string $name): string => '<'.$name.'>', array_keys(self::IDS)), $data);
         $data = preg_replace('/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/', '<uuid>', $data);
         $data = preg_replace('#/\.well-known/genid/[0-9a-f]+#', '<genid>', $data);
