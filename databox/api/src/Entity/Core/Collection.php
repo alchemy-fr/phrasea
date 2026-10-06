@@ -129,6 +129,26 @@ use Symfony\Component\Validator\Constraints as Assert;
                     schema: ['type' => 'string'],
                     description: 'Parent collection',
                 ),
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Search query on the name ("in:trash", "in:all" to include deleted collections); searches the whole sub-tree of the parent',
+                    castToArray: false,
+                ),
+                'deep' => new QueryParameter(
+                    schema: ['type' => 'boolean'],
+                    description: 'With "parent"/"parents": also list the descendants (default: only with a "query")',
+                    castToNativeType: true,
+                    castToArray: false,
+                ),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (max 50)',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
+                ),
             ],
         ),
         new Post(

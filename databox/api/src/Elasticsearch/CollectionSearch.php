@@ -6,6 +6,7 @@ namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Operation;
+use App\Elasticsearch\Filter\SearchQuery;
 use App\Entity\Core\Collection;
 use App\Repository\Core\CollectionRepository;
 use App\Security\Voter\AbstractVoter;
@@ -32,18 +33,17 @@ class CollectionSearch extends AbstractSearch
         ?Operation $operation = null,
     ): Pagerfanta {
         $maxLimit = 50;
-        $limit = $options['limit'] ?? $maxLimit;
-        if ($limit > $maxLimit) {
-            $limit = $maxLimit;
-        }
 
         $filterQuery = new Query\BoolQuery();
         $this->applyFilters($filterQuery, $userId, $groupIds, $options);
 
+        $searchQuery = new SearchQuery($filterQuery);
+        $this->applyParameters($searchQuery, Collection::class, $operation, $options);
+
         $query = new Query();
         $query->setQuery($filterQuery);
         $query->setTrackTotalHits();
-        $query->setSort([
+        $query->setSort($searchQuery->hasSort() ? $searchQuery->getSort() : [
             'sortName' => ['order' => 'asc'],
         ]);
 
@@ -61,8 +61,7 @@ class CollectionSearch extends AbstractSearch
         }
 
         $data = $this->finder->findPaginated($query);
-        $data->setMaxPerPage((int) $limit);
-        $data->setCurrentPage((int) ($options['page'] ?? 1));
+        self::applyPagination($data, $options, $maxLimit);
         $this->executeSearch($data->getCurrentPageResults(...));
 
         return $data;
@@ -76,9 +75,10 @@ class CollectionSearch extends AbstractSearch
     ): void {
         $aclBoolQuery = $this->createACLBoolQuery($userId, $groupIds);
 
-        $queryString = trim($options['query'] ?? '');
+        $queryString = trim((string) ($options['query'] ?? ''));
         $parsed = $this->queryStringParser->parseQuery($queryString);
-        $deep = $options['deep'] ?? !empty($queryString);
+        // "deep" is a boolean parameter on the API; callers from PHP may pass any truthy/falsy value
+        $deep = filter_var($options['deep'] ?? !empty($queryString), FILTER_VALIDATE_BOOLEAN);
 
         if (!empty($parsed['should'])) {
             $searchBool = new Query\BoolQuery();

@@ -195,6 +195,35 @@ final class CollectionListTest extends AbstractSearchTestCase
         $this->assertSame([], $response->toArray()['member']);
     }
 
+    public function testScalarWorkspacesFilterOnUserRootCollections(): void
+    {
+        $ws1 = $this->createTestWorkspace(['members' => [self::USER]]);
+        $ws2 = $this->createTestWorkspace(['members' => [self::USER]]);
+        $c1 = $this->createCollection(['workspace' => $ws1, 'name' => 'In 1', 'ownerId' => self::USER]);
+        $c2 = $this->createCollection(['workspace' => $ws2, 'name' => 'In 2', 'ownerId' => self::USER]);
+        $this->createCollectionAccess($c1, self::USER, Privacy::SECRET);
+        $this->createCollectionAccess($c2, self::USER, Privacy::SECRET);
+
+        // A plain string is accepted on the root listing (no Elasticsearch) as well
+        $this->assertSame(['In 2'], $this->listNames(self::USER, ['workspaces' => $ws2->getId()]));
+    }
+
+    public function testDeepListsTheDescendantsOfTheParent(): void
+    {
+        $workspace = $this->createTestWorkspace(['ownerId' => self::USER]);
+        $root = $this->createCollection(['workspace' => $workspace, 'name' => 'Root']);
+        $child = $this->createCollection(['workspace' => $workspace, 'name' => 'Child', 'parent' => $root]);
+        $this->createCollection(['workspace' => $workspace, 'name' => 'Grand child', 'parent' => $child]);
+        $this->reindex();
+
+        $this->assertSame(['Child'], $this->listNames(self::USER, ['parent' => $root->getId(), 'deep' => 'false']));
+        $this->assertSame(['Child', 'Grand child'], $this->listNames(self::USER, ['parent' => $root->getId(), 'deep' => 'true']));
+        $this->assertSame(['Child'], $this->listNames(self::USER, ['parent' => $root->getId(), 'query' => 'child', 'deep' => 'false']));
+
+        $this->request('GET', '/collections', self::USER, ['query' => ['parent' => $root->getId(), 'deep' => 'maybe']]);
+        $this->assertResponseStatusCodeSame(422);
+    }
+
     public function testParentFilterListsDirectChildrenOnly(): void
     {
         $workspace = $this->createTestWorkspace(['ownerId' => self::USER]);
