@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use App\Api\Model\Output\ApiMetaWrapperOutput;
+use App\Api\Traits\ParameterValuesTrait;
 use App\Elasticsearch\Exception\MissingSearchIndexException;
 use App\Elasticsearch\NoWorkspaceAllowedException;
 use App\Elasticsearch\SuggestionSearch;
@@ -15,6 +16,7 @@ use Psr\Log\LoggerInterface;
 
 class SearchSuggestionCollectionProvider implements ProviderInterface
 {
+    use ParameterValuesTrait;
     use SecurityAwareTrait;
 
     public function __construct(
@@ -30,7 +32,7 @@ class SearchSuggestionCollectionProvider implements ProviderInterface
         $groupIds = $user?->getGroups() ?? [];
 
         try {
-            [$result, $queryJson, $searchTime] = $this->suggestionSearch->search($userId, $groupIds, $context['filters'] ?? []);
+            [$result, $queryJson, $searchTime] = $this->suggestionSearch->search($userId, $groupIds, self::getParameterValues($operation), $operation);
         } catch (NoWorkspaceAllowedException) {
             return [];
         } catch (MissingSearchIndexException $e) {

@@ -7,6 +7,7 @@ namespace App\Api\Provider;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
+use App\Api\Traits\ParameterValuesTrait;
 use App\Elasticsearch\AssetSearch;
 use App\Elasticsearch\BuiltInAttribute\PositionBuiltInAttribute;
 use App\Elasticsearch\MappedPager;
@@ -29,6 +30,7 @@ use Symfony\Contracts\Service\Attribute\Required;
  */
 abstract class AbstractCollectionAssetCollectionProvider extends AbstractCollectionProvider
 {
+    use ParameterValuesTrait;
     use SecurityAwareTrait;
 
     protected AssetSearch $assetSearch;
@@ -48,12 +50,12 @@ abstract class AbstractCollectionAssetCollectionProvider extends AbstractCollect
         $userId = $user instanceof JwtUser ? $user->getId() : null;
         $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
 
-        $options = array_merge($context['filters'] ?? [], $scope, [
+        $options = array_merge(self::getParameterValues($operation), $scope, [
             'order' => [PositionBuiltInAttribute::getKey() => 'ASC'],
         ]);
 
         try {
-            [$result] = $this->assetSearch->search($userId, $groupIds, $options);
+            [$result] = $this->assetSearch->search($userId, $groupIds, $options, $operation);
         } catch (NoWorkspaceAllowedException) {
             return [];
         }

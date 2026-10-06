@@ -158,7 +158,7 @@
         "ext-intl": "*",
         "ext-json": "*",
         "ext-sodium": "*",
-        "alchemy/acl-bundle": "dev-symfony-8 as 1.4.0",
+        "alchemy/acl-bundle": "^1.5.0",
         "alchemy/admin-bundle": "@dev",
         "alchemy/auth-bundle": "*",
         "alchemy/configurator-bundle": "@dev",
