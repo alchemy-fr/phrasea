@@ -336,6 +336,20 @@ class AssetSearchTest extends AbstractSearchTestCase
 
     public function testUndeclaredParametersAreIgnoredAndAnInvalidOrderIsRejected(): void
     {
+        $workspace = $this->createWorkspace([
+            'no_acl' => true,
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        foreach (['A', 'B'] as $name) {
+            $this->createAsset([
+                'public' => true,
+                'workspace' => $workspace,
+                'name' => $name,
+            ]);
+        }
+        self::releaseIndex();
+
         $client = self::createClient();
         $response = $client->request('GET', '/assets', ['query' => ['unknown' => '1', 'limit' => '1']]);
         $this->assertCount(1, $this->getDataFromResponse($response, 200)['member']);
