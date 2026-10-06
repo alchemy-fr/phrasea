@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Admin;
 
-use Alchemy\AdminBundle\Tests\AbstractAdminTest;
+use Alchemy\AdminBundle\Tests\AbstractAdminTestCase;
 use FOS\ElasticaBundle\Elastica\Client;
 use Symfony\Component\DomCrawler\Crawler;
 
-class ESAdminTest extends AbstractAdminTest
+class ESAdminTest extends AbstractAdminTestCase
 {
     private const string TMP_INDEX = 'alchemy_es_admin_test_tmp';
     private const string TMP_ALIAS = 'alchemy_es_admin_test_alias';
