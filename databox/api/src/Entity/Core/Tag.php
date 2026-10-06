@@ -8,14 +8,14 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\TrackBundle\LoggableChangeSetInterface;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\ExactSearchFilter;
 use App\Api\Model\Input\TagInput;
 use App\Api\Model\Output\TagOutput;
 use App\Api\Processor\InputMapperProcessor;
@@ -42,7 +42,15 @@ use Symfony\Component\Validator\Constraints\Length;
             ]],
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
         ),
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'workspace' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'workspace',
+                ),
+                'workspace[]' => new QueryParameter(property: 'workspace', openApi: false),
+            ],
+        ),
         new Post(
             normalizationContext: ['groups' => [
                 '_',
@@ -81,7 +89,6 @@ use Symfony\Component\Validator\Constraints\Length;
     errorPath: 'name',
 )]
 #[ORM\Entity(repositoryClass: TagRepository::class)]
-#[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: ['workspace'])]
 class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringable, LoggableChangeSetInterface
 {
     use CreatedAtTrait;

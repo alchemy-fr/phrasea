@@ -82,6 +82,24 @@ class TagTest extends AbstractSearchTestCase
         $this->assertJsonContains(['name' => 'Confidential']);
     }
 
+    public function testListIsRestrictedToReadableWorkspaces(): void
+    {
+        self::enableFixtures();
+        $client = static::createClient();
+        $this->findOrCreateTagByName('Confidential', $this->createWorkspace(['ownerId' => KeycloakClientTestMock::ADMIN_UID]));
+
+        $listNames = static function (string $userId) use ($client): array {
+            $response = $client->request('GET', '/tags', [
+                'headers' => ['Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor($userId)],
+            ]);
+
+            return array_column($response->toArray()['member'], 'name');
+        };
+
+        $this->assertEqualsCanonicalizing(['foo', 'bar'], $listNames(KeycloakClientTestMock::USER_UID));
+        $this->assertEqualsCanonicalizing(['foo', 'bar', 'Confidential'], $listNames(KeycloakClientTestMock::ADMIN_UID));
+    }
+
     public function testCreateTag(): void
     {
         self::enableFixtures();

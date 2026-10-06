@@ -6,14 +6,14 @@ namespace App\Entity\Core;
 
 use Alchemy\CoreBundle\Util\LocaleUtil;
 use Alchemy\ESBundle\Indexer\ESIndexableDeleteDependencyInterface;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\ExactSearchFilter;
 use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\AttributeOutput;
@@ -35,7 +35,15 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Patch(security: 'is_granted("EDIT", object)', processor: InputMapperProcessor::class),
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'asset' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'asset',
+                ),
+                'asset[]' => new QueryParameter(property: 'asset', openApi: false),
+            ],
+        ),
         new Post(
             extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
             processor: InputMapperProcessor::class,
@@ -59,7 +67,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 
 #[ORM\Entity(repositoryClass: AttributeRepository::class)]
-#[ApiFilter(filterClass: SearchFilter::class, properties: ['asset' => 'exact'])]
 #[UniqueAttributeConstraint]
 class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDependencyInterface
 {

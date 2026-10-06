@@ -7,13 +7,13 @@ namespace App\Entity\Workflow;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 use Alchemy\WorkflowBundle\Entity\WorkflowState as BaseWorkflowState;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\ExactSearchFilter;
 use App\Api\Model\Output\WorkflowStateOutput;
 use App\Api\Processor\CancelWorkflowProcessor;
 use App\Api\Processor\RerunWorkflowJobProcessor;
@@ -61,10 +61,22 @@ use Doctrine\ORM\Mapping as ORM;
             ],
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             output: WorkflowStateOutput::class,
+            parameters: [
+                'asset' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'asset',
+                ),
+                'asset[]' => new QueryParameter(property: 'asset', openApi: false),
+                'status' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'status',
+                    schema: ['type' => 'integer'],
+                ),
+                'status[]' => new QueryParameter(property: 'status', openApi: false),
+            ],
         )],
 )]
 #[ORM\Entity]
-#[ApiFilter(filterClass: SearchFilter::class, properties: ['asset' => 'exact', 'status' => 'exact'])]
 class WorkflowState extends BaseWorkflowState
 {
     final public const string INITIATOR_ID = 'initiatorId';

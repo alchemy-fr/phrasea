@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace App\Api\Traits;
 
 use ApiPlatform\Metadata\Exception\ItemNotFoundException;
+use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 trait WorkspaceCollectionTrait
 {
-    protected function resolveAllowedWorkspaces(array &$context): array
+    protected function resolveAllowedWorkspaces(Operation $operation, array &$context): array
     {
         $filter = $context['filters']['workspace'] ?? null;
 
@@ -38,6 +39,10 @@ trait WorkspaceCollectionTrait
                 $workspaces[] = $workspace->getId();
             }
         }
+
+        // Restricts the collection to these workspaces through the "workspace" filter parameter
+        $workspaceParameter = $operation->getParameters()?->get('workspace') ?? throw new \LogicException('Missing "workspace" parameter on the collection');
+        $workspaceParameter->setValue($workspaces);
 
         return $context['filters']['workspace'] = $workspaces;
     }

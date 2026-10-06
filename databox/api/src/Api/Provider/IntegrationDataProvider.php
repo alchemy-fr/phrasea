@@ -31,12 +31,11 @@ final class IntegrationDataProvider implements ProviderInterface
 
         $this->denyAccessUnlessGranted(AbstractVoter::READ, $integration->getWorkspace());
 
-        $filters = $context['filters'] ?? [];
-
         if (!$this->security->isGranted(AbstractVoter::EDIT, $integration)) {
-            $filters['userId'] = $this->getStrictUserOrOAuthClient()->getUserIdentifier();
+            // Only the user's own data: the "userId" filter parameter applies this value whatever the query string says
+            $userIdParameter = $operation->getParameters()?->get('userId') ?? throw new \LogicException('Missing "userId" parameter on the integration data collection');
+            $userIdParameter->setValue($this->getStrictUserOrOAuthClient()->getUserIdentifier());
         }
-        $context['filters'] = $filters;
 
         return $this->collectionProvider->provide($operation, $uriVariables, $context);
     }

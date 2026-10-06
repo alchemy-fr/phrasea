@@ -9,8 +9,8 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\TrackBundle\LoggableChangeSetInterface;
-use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
-use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -22,8 +22,6 @@ use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Filter\AssetTypeTargetFilter;
 use App\Api\Filter\InWorkspacesFilter;
-use App\Api\Filter\PartialSearchFilter;
-use App\Api\Filter\SearchFilter;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
 use App\Api\Processor\InputMapperProcessor;
@@ -62,17 +60,61 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
             parameters: [
                 'searchable' => new QueryParameter(
-                    filter: BooleanFilter::class,
+                    filter: new ExactFilter(),
                     property: 'searchable',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
+                ),
+                'facetEnabled' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'facetEnabled',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
+                ),
+                'translatable' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'translatable',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
+                ),
+                'multiple' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'multiple',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
+                ),
+                'enabled' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'enabled',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
                 ),
                 'name' => new QueryParameter(
-                    filter: PartialSearchFilter::class,
+                    filter: new PartialSearchFilter(),
                     property: 'name',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
                 ),
                 'type' => new QueryParameter(
-                    filter: SearchFilter::class, property: 'type'),
+                    filter: new ExactFilter(),
+                    property: 'type',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
+                ),
                 'workspaceId' => new QueryParameter(
-                    filter: SearchFilter::class, property: 'workspace'),
+                    filter: new ExactFilter(),
+                    property: 'workspace',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
+                ),
                 'workspaceIds' => new QueryParameter(
                     filter: InWorkspacesFilter::class,
                     property: 'workspace',
@@ -141,7 +183,6 @@ use Symfony\Component\Validator\Constraints as Assert;
     fields: ['workspace', 'name'],
     errorPath: 'name',
 )]
-#[ApiFilter(BooleanFilter::class, properties: ['searchable', 'facetEnabled', 'translatable', 'multiple', 'enabled'])]
 class AttributeDefinition extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface, LoggableChangeSetInterface
 {
     use CreatedAtTrait;

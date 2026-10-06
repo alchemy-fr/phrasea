@@ -25,7 +25,7 @@ final class TagCollectionProvider extends AbstractCollectionProvider
 
     protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array|object
     {
-        $workspaces = $this->resolveAllowedWorkspaces($context);
+        $workspaces = $this->resolveAllowedWorkspaces($operation, $context);
         if (empty($workspaces)) {
             return [];
         }
