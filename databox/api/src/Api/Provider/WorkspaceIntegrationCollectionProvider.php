@@ -10,6 +10,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Operation;
+use App\Api\Traits\ParameterValuesTrait;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\IntegrationContext;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
 {
+    use ParameterValuesTrait;
     use SecurityAwareTrait;
 
     public function __construct(
@@ -37,24 +39,26 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
             return [];
         }
 
-        $filters = $context['filters'] ?? [];
-
         $queryBuilder = $this->em->getRepository(WorkspaceIntegration::class)
             ->createQueryBuilder('t')
         ;
 
-        if (null !== ($filters['enabled'] ?? null)) {
+        if (null !== $enabled = self::getParameterValue($operation, 'enabled')) {
             $queryBuilder
                 ->andWhere('t.enabled = :enabled')
-                ->setParameter('enabled', $filters['enabled']);
+                ->setParameter('enabled', (bool) $enabled);
         }
 
         $queryBuilder
             ->addOrderBy('t.createdAt', 'ASC');
 
         $workspace = null;
-        if ($filters['workspace'] ?? false) {
-            $workspaceId = str_replace('/workspaces/', '', $filters['workspace']);
+        $workspaceFilter = self::getParameterValue($operation, 'workspace');
+        if (\is_array($workspaceFilter)) {
+            $workspaceFilter = reset($workspaceFilter);
+        }
+        if (\is_string($workspaceFilter) && '' !== $workspaceFilter) {
+            $workspaceId = basename($workspaceFilter);
             $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $workspaceId);
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $workspace);
         }
@@ -77,9 +81,9 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
                 ->setParameter('uid', $user->getId());
         }
 
-        $context = $filters['context'] ?? null;
-        if (null !== $context) {
-            $context = IntegrationContext::tryFrom($context) ?? throw new BadRequestHttpException(sprintf('Invalid context "%s"', $context));
+        $integrationContext = self::getParameterValue($operation, 'context');
+        if (\is_string($integrationContext) && '' !== $integrationContext) {
+            $context = IntegrationContext::tryFrom($integrationContext) ?? throw new BadRequestHttpException(sprintf('Invalid context "%s"', $integrationContext));
             $supportedIntegrations = array_map(
                 fn (IntegrationInterface $integration): string => $integration::getName(),
                 $this->integrationRegistry->getSupportingIntegrations($context)
@@ -95,7 +99,7 @@ class WorkspaceIntegrationCollectionProvider extends AbstractCollectionProvider
             $queryBuilder
                 ->andWhere('t.workspace = :ws')
                 ->setParameter('ws', $workspace->getId());
-        } elseif (filter_var($filters['global'] ?? false, FILTER_VALIDATE_BOOL)) {
+        } elseif (self::getParameterValue($operation, 'global', false)) {
             $queryBuilder->andWhere('t.workspace IS NULL');
         } else {
             $queryBuilder

@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\AssetPolicyInput;
 use App\Api\Model\Output\AssetPolicyOutput;
 use App\Api\Processor\InputMapperProcessor;
@@ -44,7 +45,15 @@ use Ramsey\Uuid\UuidInterface;
                 'groups' => [
                     AssetPolicy::GROUP_LIST,
                 ],
-            ], ),
+            ],
+            parameters: [
+                'workspaceId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Workspace ID (mandatory)',
+                    castToArray: false,
+                ),
+            ],
+        ),
     ],
     normalizationContext: [
         'groups' => [

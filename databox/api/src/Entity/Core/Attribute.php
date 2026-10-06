@@ -42,6 +42,11 @@ use Symfony\Component\Validator\Constraints as Assert;
                     property: 'asset',
                 ),
                 'asset[]' => new QueryParameter(property: 'asset', openApi: false),
+                'assetId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Asset ID (mandatory, "asset" is accepted as well)',
+                    castToArray: false,
+                ),
             ],
         ),
         new Post(

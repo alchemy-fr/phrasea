@@ -18,7 +18,7 @@ class AttributeCollectionProvider extends AbstractAssetFilteredCollectionProvide
 
     protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array
     {
-        $asset = $this->getAsset($context);
+        $asset = $this->getAsset($operation);
 
         $attributes = $this->em->getRepository(Attribute::class)
             ->getCachedAssetAttributes($asset->getId())

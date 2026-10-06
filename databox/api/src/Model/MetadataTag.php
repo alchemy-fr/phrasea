@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Provider\MetadataTagProvider;
 use Symfony\Component\Serializer\Attribute\Groups;
 
@@ -21,7 +22,15 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ApiResource(
     shortName: 'metadata-tag',
     operations: [
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Namespace prefix, or "<namespace>:<tag prefix>" to list the tags of a namespace',
+                    castToArray: false,
+                ),
+            ],
+        ),
     ],
     normalizationContext: [
         'groups' => [self::GROUP_READ],

@@ -15,6 +15,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\AttributeFilterRuleInput;
 use App\Api\Model\Output\AttributeFilterRuleOutput;
 use App\Api\Processor\InputMapperProcessor;
@@ -34,7 +35,15 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Patch(security: 'is_granted("EDIT", object)', processor: InputMapperProcessor::class),
         new Delete(security: 'is_granted("DELETE", object)'),
         // Restricted to the editable workspaces by AttributeFilterRuleExtension
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'workspaceId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Workspace ID (mandatory)',
+                    castToArray: false,
+                ),
+            ],
+        ),
         new Post(extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'], processor: InputMapperProcessor::class),
     ],
     normalizationContext: ['groups' => ['_',

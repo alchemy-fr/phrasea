@@ -6,11 +6,14 @@ namespace App\Api\Provider;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
+use App\Api\Traits\ParameterValuesTrait;
 use App\Entity\Core\RenditionPolicy;
 use App\Security\Voter\AbstractVoter;
 
 class RenditionPolicyCollectionProvider extends AbstractCollectionProvider
 {
+    use ParameterValuesTrait;
+
     use SecurityAwareTrait;
 
     protected function provideCollection(
@@ -19,10 +22,8 @@ class RenditionPolicyCollectionProvider extends AbstractCollectionProvider
         array $context = [],
     ): array|object {
         $criteria = [];
-        $filters = $context['filters'] ?? [];
-
-        if (isset($filters['workspaceId'])) {
-            $criteria['workspace'] = $filters['workspaceId'];
+        if (null !== $workspaceId = self::getParameterValue($operation, 'workspaceId')) {
+            $criteria['workspace'] = basename((string) (\is_array($workspaceId) ? reset($workspaceId) : $workspaceId));
         }
 
         $policies = $this->em->getRepository(RenditionPolicy::class)->findBy($criteria);

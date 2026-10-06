@@ -15,6 +15,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\AttributePolicyInput;
 use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\AttributePolicyCollectionProvider;
@@ -33,7 +34,15 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Patch(security: 'is_granted("EDIT", object)', processor: InputMapperProcessor::class),
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'workspaceId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Workspace ID (mandatory)',
+                    castToArray: false,
+                ),
+            ],
+        ),
         new Post(extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'], processor: InputMapperProcessor::class),
     ],
     normalizationContext: [

@@ -18,7 +18,7 @@ class RenditionCollectionProvider extends AbstractAssetFilteredCollectionProvide
 
     public function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array
     {
-        $asset = $this->getAsset($context);
+        $asset = $this->getAsset($operation);
 
         $renditions = $this->em->getRepository(AssetRendition::class)
             ->createQueryBuilder('t')

@@ -11,7 +11,7 @@ class AssetFileVersionCollectionProvider extends AbstractAssetFilteredCollection
 {
     public function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array
     {
-        $asset = $this->getAsset($context);
+        $asset = $this->getAsset($operation);
 
         return $this->em->getRepository(AssetFileVersion::class)
             ->createQueryBuilder('t')

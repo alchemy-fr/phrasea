@@ -7,11 +7,14 @@ namespace App\Api\Provider;
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use App\Api\Traits\ParameterValuesTrait;
 use App\Model\MetadataTag;
 use PHPExiftool\Exception\TagUnknown;
 
 final readonly class MetadataTagProvider implements ProviderInterface
 {
+    use ParameterValuesTrait;
+
     private const int LIMIT = 50;
 
     public function __construct(
@@ -24,7 +27,7 @@ final readonly class MetadataTagProvider implements ProviderInterface
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): array
     {
-        $query = trim((string) ($context['filters']['query'] ?? ''));
+        $query = trim((string) self::getParameterValue($operation, 'query', ''));
 
         if (str_contains($query, ':')) {
             [$namespace, $name] = explode(':', $query, 2);

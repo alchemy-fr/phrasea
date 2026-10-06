@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\AssetAttachmentInput;
 use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\AssetAttachmentCollectionProvider;
@@ -40,6 +41,13 @@ use Symfony\Component\Serializer\Attribute\Groups;
                 ],
             ],
             provider: AssetAttachmentCollectionProvider::class,
+            parameters: [
+                'assetId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Asset ID (mandatory)',
+                    castToArray: false,
+                ),
+            ],
         ),
     ],
     normalizationContext: [

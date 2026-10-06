@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Api\Provider;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use ApiPlatform\Metadata\Operation;
+use App\Api\Traits\ParameterValuesTrait;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -12,18 +14,26 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 abstract class AbstractWorkspaceFilteredCollectionProvider extends AbstractCollectionProvider
 {
+    use ParameterValuesTrait;
     use SecurityAwareTrait;
 
-    protected function getWorkspace(array $context): Workspace
+    /**
+     * The workspace of the "workspaceId" parameter (an ID or IRI), which is mandatory.
+     */
+    protected function getWorkspace(Operation $operation): Workspace
     {
-        $filters = $context['filters'] ?? [];
-        if (!isset($filters['workspaceId'])) {
+        $workspaceId = self::getParameterValue($operation, 'workspaceId');
+        if (\is_array($workspaceId)) {
+            $workspaceId = reset($workspaceId);
+        }
+        if (!\is_string($workspaceId) || '' === $workspaceId) {
             throw new BadRequestHttpException('You must provide "workspaceId" to filter out results');
         }
+        $workspaceId = basename($workspaceId);
 
-        $workspace = $this->em->find(Workspace::class, $filters['workspaceId']);
+        $workspace = $this->em->find(Workspace::class, $workspaceId);
         if (!$workspace instanceof Workspace) {
-            throw new NotFoundHttpException(sprintf('Workspace "%s" does not exist', $workspace));
+            throw new NotFoundHttpException(sprintf('Workspace "%s" does not exist', $workspaceId));
         }
 
         $this->denyAccessUnlessGranted(AbstractVoter::READ, $workspace, 'Cannot read Workspace');

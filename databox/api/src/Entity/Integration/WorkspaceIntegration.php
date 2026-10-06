@@ -53,6 +53,22 @@ use Symfony\Component\Yaml\Yaml;
                     property: 'workspace',
                 ),
                 'workspace[]' => new QueryParameter(property: 'workspace', openApi: false),
+                'enabled' => new QueryParameter(
+                    schema: ['type' => 'boolean'],
+                    castToNativeType: true,
+                    castToArray: false,
+                ),
+                'global' => new QueryParameter(
+                    schema: ['type' => 'boolean'],
+                    description: 'Integrations of no workspace (ignored with "workspace")',
+                    castToNativeType: true,
+                    castToArray: false,
+                ),
+                'context' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Integrations supporting this context',
+                    castToArray: false,
+                ),
             ],
         ),
         new Post(

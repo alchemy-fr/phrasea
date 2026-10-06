@@ -14,7 +14,7 @@ final class AssetAttachmentCollectionProvider extends AbstractAssetFilteredColle
 {
     protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array
     {
-        $asset = $this->getAsset($context);
+        $asset = $this->getAsset($operation);
 
         return $this->em->getRepository(AssetAttachment::class)
             ->createQueryBuilder('t')
