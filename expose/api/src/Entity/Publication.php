@@ -92,6 +92,13 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                     schema: ['type' => 'string'],
                     castToArray: false,
                 ),
+                'query' => new QueryParameter(
+                    filter: new PartialSearchFilter(),
+                    property: 'title',
+                    schema: ['type' => 'string'],
+                    description: 'Search query on the title',
+                    castToArray: false,
+                ),
             ],
         ),
         new Post(
