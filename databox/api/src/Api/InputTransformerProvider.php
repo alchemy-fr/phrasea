@@ -36,7 +36,9 @@ final readonly class InputTransformerProvider implements ProviderInterface
             return $data;
         }
 
-        if (!is_object($data)
+        // Only transform a deserialized request body (the main provider chain also runs on reads)
+        if (!$operation->canDeserialize()
+            || !is_object($data)
             || $data instanceof Entrypoint
             || $data instanceof OpenApi
             || $data instanceof Documentation

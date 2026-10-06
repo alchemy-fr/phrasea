@@ -23,8 +23,8 @@ use App\Api\Model\Input\RemoveFromProfileInput;
 use App\Api\Model\Output\ProfileOutput;
 use App\Api\Processor\AddToProfileProcessor;
 use App\Api\Processor\RemoveFromProfileProcessor;
+use App\Api\Processor\Sort\ProfileItemSortProcessor;
 use App\Api\Provider\ProfileCollectionProvider;
-use App\Controller\Core\ProfileItemSortAction;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Profile\ProfileRepository;
@@ -49,7 +49,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
         new Post(
             uriTemplate: '/profiles/{id}/sort',
-            controller: ProfileItemSortAction::class,
+            status: 200,
+            processor: ProfileItemSortProcessor::class,
             openapi: new OpenApiOperation(
                 summary: 'Reorder items',
                 description: 'Reorder items',

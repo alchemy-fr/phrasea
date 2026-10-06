@@ -4,44 +4,28 @@ declare(strict_types=1);
 
 namespace App\Doctrine\Listener;
 
-use Alchemy\AuthBundle\Security\JwtUser;
-use ApiPlatform\Symfony\EventListener\EventPriorities;
 use App\Listener\OwnerPersistableInterface;
+use App\Security\OwnerAssigner;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\PrePersistEventArgs;
-use Symfony\Bundle\SecurityBundle\Security;
-use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
-use Symfony\Component\HttpKernel\Event\ViewEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * Owner of the entities created outside of the API (the API assigns it before
+ * validation, see OwnerAssignmentProvider).
+ */
 #[AsDoctrineListener(event: 'prePersist')]
-#[AsEventListener(event: KernelEvents::VIEW, method: 'preValidate', priority: EventPriorities::PRE_VALIDATE)]
 final readonly class OwnerPersistableListener
 {
     public function __construct(
-        private Security $security,
+        private OwnerAssigner $ownerAssigner,
     ) {
-    }
-
-    public function preValidate(ViewEvent $event): void
-    {
-        $this->handleEntity($event->getControllerResult());
     }
 
     public function prePersist(PrePersistEventArgs $args): void
     {
-        $this->handleEntity($args->getObject());
-    }
-
-    private function handleEntity($entity): void
-    {
+        $entity = $args->getObject();
         if ($entity instanceof OwnerPersistableInterface) {
-            if (null === $entity->getOwnerId()) {
-                $user = $this->security->getUser();
-                if ($user instanceof JwtUser) {
-                    $entity->setOwnerId($user->getId());
-                }
-            }
+            $this->ownerAssigner->assignIfMissing($entity);
         }
     }
 }
