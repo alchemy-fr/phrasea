@@ -6,9 +6,8 @@ namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\AuthBundle\Security\Voter\AbstractVoter;
-use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SortFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -16,6 +15,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Entity\Traits\CapabilitiesTrait;
 use App\Entity\Traits\ClientAnnotationsTrait;
 use App\Security\Voter\PublicationProfileVoter;
@@ -37,6 +37,15 @@ use Symfony\Component\Serializer\Attribute\Groups;
             normalizationContext: [
                 'groups' => [self::GROUP_INDEX],
             ],
+            parameters: [
+                'order[name]' => new QueryParameter(filter: new SortFilter(), property: 'name', castToArray: false),
+                'name' => new QueryParameter(
+                    filter: new PartialSearchFilter(),
+                    property: 'name',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                ),
+            ],
         ),
         new Post(security: 'is_granted("'.PublicationProfileVoter::CREATE_PROFILE.'")'),
     ],
@@ -53,10 +62,6 @@ use Symfony\Component\Serializer\Attribute\Groups;
     ]
 )]
 #[ORM\Entity]
-#[ApiFilter(OrderFilter::class, properties: [
-    'name' => 'ASC',
-])]
-#[ApiFilter(filterClass: SearchFilter::class, properties: ['name' => 'ipartial'])]
 class PublicationProfile implements AclObjectInterface, \Stringable
 {
     use CapabilitiesTrait;
