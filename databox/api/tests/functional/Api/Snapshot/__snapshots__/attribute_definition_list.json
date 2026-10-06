@@ -1,0 +1,230 @@
+{
+    "@context": "/contexts/attribute-definition",
+    "@id": "/attribute-definitions",
+    "@type": "Collection",
+    "member": [
+        {
+            "@id": "/attribute-definitions/<keywordsDef>",
+            "@type": "attribute-definition",
+            "allowInvalid": false,
+            "canEdit": true,
+            "createdAt": "<date>",
+            "displayName": "Keywords",
+            "editable": true,
+            "editableInGui": true,
+            "enabled": true,
+            "facetEnabled": false,
+            "fillFromName": false,
+            "id": "<keywordsDef>",
+            "lastErrors": [],
+            "multiple": true,
+            "name": "Keywords",
+            "policy": {
+                "@id": "/attribute-policies/<policy>",
+                "@type": "attribute-policy",
+                "createdAt": "<date>",
+                "id": "<policy>",
+                "name": "Snapshot policy",
+                "workspace": {
+                    "@id": "/workspaces/<workspace>",
+                    "@type": "workspace",
+                    "capabilities": [],
+                    "createdAt": "<date>",
+                    "displayName": "Snapshot workspace",
+                    "id": "<workspace>",
+                    "name": "Snapshot workspace"
+                }
+            },
+            "position": 0,
+            "required": false,
+            "searchSlug": "keywords_text_m",
+            "searchable": true,
+            "slug": "keywords",
+            "sortable": false,
+            "suggest": false,
+            "target": 1,
+            "translatable": false,
+            "type": "text",
+            "updatedAt": "<date>",
+            "workspace": {
+                "@id": "/workspaces/<workspace>",
+                "@type": "workspace",
+                "capabilities": [],
+                "createdAt": "<date>",
+                "displayName": "Snapshot workspace",
+                "id": "<workspace>",
+                "name": "Snapshot workspace"
+            },
+            "writeMetadataRenditions": []
+        },
+        {
+            "@id": "/attribute-definitions/<uuid>",
+            "@type": "attribute-definition",
+            "allowInvalid": false,
+            "canEdit": true,
+            "createdAt": "<date>",
+            "displayName": "Name",
+            "editable": true,
+            "editableInGui": true,
+            "enabled": true,
+            "facetEnabled": false,
+            "fillFromName": true,
+            "id": "<uuid>",
+            "lastErrors": [],
+            "multiple": false,
+            "name": "Name",
+            "namePriority": 0,
+            "policy": {
+                "@id": "/attribute-policies/<uuid>",
+                "@type": "attribute-policy",
+                "createdAt": "<date>",
+                "id": "<uuid>",
+                "name": "Public",
+                "workspace": {
+                    "@id": "/workspaces/<workspace>",
+                    "@type": "workspace",
+                    "capabilities": [],
+                    "createdAt": "<date>",
+                    "displayName": "Snapshot workspace",
+                    "id": "<workspace>",
+                    "name": "Snapshot workspace"
+                }
+            },
+            "position": 0,
+            "required": false,
+            "searchSlug": "name_text_s",
+            "searchable": true,
+            "slug": "name",
+            "sortable": false,
+            "suggest": false,
+            "target": 3,
+            "translatable": false,
+            "type": "text",
+            "updatedAt": "<date>",
+            "workspace": {
+                "@id": "/workspaces/<workspace>",
+                "@type": "workspace",
+                "capabilities": [],
+                "createdAt": "<date>",
+                "displayName": "Snapshot workspace",
+                "id": "<workspace>",
+                "name": "Snapshot workspace"
+            },
+            "writeMetadataRenditions": []
+        },
+        {
+            "@id": "/attribute-definitions/<titleDef>",
+            "@type": "attribute-definition",
+            "allowInvalid": false,
+            "canEdit": true,
+            "createdAt": "<date>",
+            "displayName": "Title",
+            "editable": true,
+            "editableInGui": true,
+            "enabled": true,
+            "facetEnabled": false,
+            "fillFromName": false,
+            "id": "<titleDef>",
+            "lastErrors": [],
+            "multiple": false,
+            "name": "Title",
+            "policy": {
+                "@id": "/attribute-policies/<policy>",
+                "@type": "attribute-policy",
+                "createdAt": "<date>",
+                "id": "<policy>",
+                "name": "Snapshot policy",
+                "workspace": {
+                    "@id": "/workspaces/<workspace>",
+                    "@type": "workspace",
+                    "capabilities": [],
+                    "createdAt": "<date>",
+                    "displayName": "Snapshot workspace",
+                    "id": "<workspace>",
+                    "name": "Snapshot workspace"
+                }
+            },
+            "position": 0,
+            "required": false,
+            "searchSlug": "title_text_s",
+            "searchable": true,
+            "slug": "title",
+            "sortable": false,
+            "suggest": false,
+            "target": 1,
+            "translatable": false,
+            "type": "text",
+            "updatedAt": "<date>",
+            "workspace": {
+                "@id": "/workspaces/<workspace>",
+                "@type": "workspace",
+                "capabilities": [],
+                "createdAt": "<date>",
+                "displayName": "Snapshot workspace",
+                "id": "<workspace>",
+                "name": "Snapshot workspace"
+            },
+            "writeMetadataRenditions": []
+        }
+    ],
+    "search": {
+        "@type": "IriTemplate",
+        "mapping": [
+            {
+                "@type": "IriTemplateMapping",
+                "property": "searchable",
+                "required": false,
+                "variable": "searchable"
+            },
+            {
+                "@type": "IriTemplateMapping",
+                "property": "facetEnabled",
+                "required": false,
+                "variable": "facetEnabled"
+            },
+            {
+                "@type": "IriTemplateMapping",
+                "property": "translatable",
+                "required": false,
+                "variable": "translatable"
+            },
+            {
+                "@type": "IriTemplateMapping",
+                "property": "multiple",
+                "required": false,
+                "variable": "multiple"
+            },
+            {
+                "@type": "IriTemplateMapping",
+                "property": "enabled",
+                "required": false,
+                "variable": "enabled"
+            },
+            {
+                "@type": "IriTemplateMapping",
+                "property": "searchable",
+                "required": false,
+                "variable": "searchable"
+            },
+            {
+                "@type": "IriTemplateMapping",
+                "property": "workspace",
+                "required": false,
+                "variable": "workspaceIds"
+            },
+            {
+                "@type": "IriTemplateMapping",
+                "property": "target",
+                "required": false,
+                "variable": "target"
+            }
+        ],
+        "template": "/attribute-definitions{?searchable,facetEnabled,translatable,multiple,enabled,searchable,workspaceIds,target}",
+        "variableRepresentation": "BasicRepresentation"
+    },
+    "totalItems": 3,
+    "view": {
+        "@id": "/attribute-definitions?workspaceId=<workspace>",
+        "@type": "PartialCollectionView"
+    }
+}
