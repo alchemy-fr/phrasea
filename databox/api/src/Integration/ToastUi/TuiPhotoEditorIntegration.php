@@ -12,10 +12,12 @@ use App\Integration\IntegrationContext;
 use App\Integration\IntegrationDataTransformerInterface;
 use App\Integration\PusherTrait;
 use App\Integration\UserActionsIntegrationInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
+#[AsTaggedItem(index: 'tui.photo-editor')]
 class TuiPhotoEditorIntegration extends AbstractIntegration implements UserActionsIntegrationInterface, IntegrationDataTransformerInterface
 {
     use PusherTrait;

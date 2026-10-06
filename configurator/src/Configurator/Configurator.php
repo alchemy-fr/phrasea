@@ -18,7 +18,7 @@ final readonly class Configurator
     private iterable $configurators;
 
     public function __construct(
-        #[AutowireIterator('app.configurator', defaultPriorityMethod: 'getPriority')]
+        #[AutowireIterator('app.configurator')]
         iterable $configurators,
     ) {
         $this->configurators = $configurators;

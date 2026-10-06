@@ -10,7 +10,7 @@ use Symfony\Contracts\Service\ServiceProviderInterface;
 final readonly class BuiltInAttributeRegistry
 {
     public function __construct(
-        #[AutowireLocator(BuiltInAttributeInterface::TAG, defaultIndexMethod: 'getKey')]
+        #[AutowireLocator(BuiltInAttributeInterface::TAG)]
         private ServiceProviderInterface $items,
     ) {
     }

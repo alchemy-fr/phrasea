@@ -11,7 +11,9 @@ use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'aws.translate')]
 class AwsTranslateIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface
 {
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable

@@ -21,12 +21,14 @@ use App\Integration\Phrasea\PhraseaClientFactory;
 use App\Integration\UserActionsIntegrationInterface;
 use App\Security\Voter\AbstractVoter;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
 
+#[AsTaggedItem(index: 'phrasea.expose')]
 class ExposeIntegration extends AbstractIntegration implements UserActionsIntegrationInterface, IntegrationDataTransformerInterface, BasketUpdateHandlerIntegrationInterface, IntegrationTokenRenewerInterface
 {
     use IntegrationTokenTrait;

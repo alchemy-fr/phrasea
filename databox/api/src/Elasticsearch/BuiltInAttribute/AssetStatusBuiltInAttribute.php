@@ -11,8 +11,10 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[AsTaggedItem(index: '@assetStatus')]
 final class AssetStatusBuiltInAttribute extends AbstractLabelledBuiltInAttribute implements CustomFilterQueryBuiltInAttributeInterface
 {
     public function __construct(private readonly TranslatorInterface $translator)

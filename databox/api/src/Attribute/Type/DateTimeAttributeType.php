@@ -8,7 +8,9 @@ use App\Attribute\AttributeInterface;
 use App\Elasticsearch\ESFacetInterface;
 use App\Elasticsearch\SearchType;
 use App\Util\DateUtil;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 class DateTimeAttributeType extends AbstractAttributeType
 {
     public const string NAME = 'date_time';

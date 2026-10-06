@@ -6,7 +6,9 @@ namespace App\Elasticsearch\BuiltInAttribute;
 
 use App\Entity\Core\Asset;
 use App\Entity\Core\RenditionDefinition;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: '@rendition')]
 final class RenditionBuiltInAttribute extends AbstractEntityBuiltInAttribute
 {
     protected function getEntityClass(): string

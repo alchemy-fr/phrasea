@@ -15,7 +15,7 @@ class AttributeTypeRegistry
     private array $types;
 
     public function __construct(
-        #[AutowireIterator(AttributeTypeInterface::TAG, defaultIndexMethod: 'getName')]
+        #[AutowireIterator(AttributeTypeInterface::TAG, indexAttribute: 'key')]
         iterable $types,
     ) {
         $this->types = iterator_to_array($types);

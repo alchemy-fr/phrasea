@@ -30,7 +30,7 @@ class ExportEntitiesProcessor implements ProcessorInterface
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly AttributeEntityRepository $attributeEntityRepository,
-        #[AutowireLocator(AttributeEntityExporterInterface::TAG, defaultIndexMethod: 'getName')]
+        #[AutowireLocator(AttributeEntityExporterInterface::TAG)]
         private readonly ServiceProviderInterface $exporters,
     ) {
     }

@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 readonly class BuildConfigValidator
 {
     public function __construct(
-        #[AutowireLocator(TransformerModuleInterface::TAG, defaultIndexMethod: 'getName')]
+        #[AutowireLocator(TransformerModuleInterface::TAG)]
         private ServiceLocator $transformers,
     ) {
     }

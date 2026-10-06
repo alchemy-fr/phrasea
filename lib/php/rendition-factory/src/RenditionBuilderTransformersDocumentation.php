@@ -11,7 +11,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 final readonly class RenditionBuilderTransformersDocumentation
 {
     public function __construct(
-        #[AutowireLocator(TransformerModuleInterface::TAG, defaultIndexMethod: 'getName')]
+        #[AutowireLocator(TransformerModuleInterface::TAG)]
         private ServiceLocator $transformers,
     ) {
     }

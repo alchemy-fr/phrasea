@@ -13,7 +13,9 @@ use App\Integration\WorkflowIntegrationInterface;
 use App\Service\Workflow\Action\InitializeAttributesAction;
 use App\Service\Workflow\Action\ReadMetadataAction;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'core.read_metadata')]
 class ReadMetadataIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable

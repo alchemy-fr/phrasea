@@ -10,7 +10,9 @@ use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use PHPExiftool\Exiftool;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'extract_embedded_preview')]
 final readonly class ExtractEmbeddedPreviewTransformerModule implements TransformerModuleInterface
 {
     public function __construct(

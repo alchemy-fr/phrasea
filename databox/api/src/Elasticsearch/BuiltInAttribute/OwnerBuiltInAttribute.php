@@ -8,8 +8,10 @@ use Alchemy\AuthBundle\Repository\UserRepositoryInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Attribute\Type\KeywordAttributeType;
 use App\Entity\Core\Asset;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
+#[AsTaggedItem(index: '@owner')]
 final class OwnerBuiltInAttribute extends AbstractBuiltInAttribute
 {
     use SecurityAwareTrait;

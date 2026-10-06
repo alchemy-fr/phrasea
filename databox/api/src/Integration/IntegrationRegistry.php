@@ -14,7 +14,7 @@ class IntegrationRegistry
     private array $integrations;
 
     public function __construct(
-        #[AutowireIterator(tag: 'app.integration', defaultIndexMethod: 'getName')]
+        #[AutowireIterator(tag: 'app.integration', indexAttribute: 'key')]
         iterable $integrations,
     ) {
         $this->integrations = $integrations instanceof \Traversable ? iterator_to_array($integrations) : $integrations;
