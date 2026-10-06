@@ -18,6 +18,7 @@ use App\Api\Model\Input\Attribute\AttributeBatchUpdateInput;
 use App\Api\Model\Input\Attribute\AttributeInput;
 use App\Api\Model\Output\AttributeOutput;
 use App\Api\Processor\BatchAttributeUpdateProcessor;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\AttributeCollectionProvider;
 use App\Attribute\AttributeInterface;
 use App\Entity\Traits\AssetAnnotationsTrait;
@@ -33,10 +34,11 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)', processor: InputMapperProcessor::class),
         new GetCollection(),
         new Post(
-            securityPostDenormalize: 'is_granted("CREATE", object)'
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Post(
             uriTemplate: '/attributes/batch-update',

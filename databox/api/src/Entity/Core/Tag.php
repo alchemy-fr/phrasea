@@ -18,6 +18,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Api\Model\Input\TagInput;
 use App\Api\Model\Output\TagOutput;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\TagCollectionProvider;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\TranslationsTrait;
@@ -47,7 +48,8 @@ use Symfony\Component\Validator\Constraints\Length;
                 '_',
                 Tag::GROUP_READ,
             ]],
-            securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("'.AbstractVoter::CREATE.'", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Patch(
             normalizationContext: ['groups' => [
@@ -55,6 +57,7 @@ use Symfony\Component\Validator\Constraints\Length;
                 Tag::GROUP_READ,
             ]],
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            processor: InputMapperProcessor::class,
         ),
         new Delete(
             security: 'is_granted("'.AbstractVoter::DELETE.'", object)',

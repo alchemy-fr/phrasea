@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
@@ -22,7 +22,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Contracts\Service\Attribute\Required;
 
-abstract class AbstractFileInputTransformer extends AbstractInputTransformer
+abstract class AbstractFileInputMapper extends AbstractInputMapper
 {
     protected PostFlushStack $postFlushStackListener;
     protected RenditionManager $renditionManager;

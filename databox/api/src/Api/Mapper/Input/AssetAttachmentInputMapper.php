@@ -2,27 +2,23 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use App\Api\Model\Input\AssetAttachmentInput;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetAttachment;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class AssetAttachmentInputTransformer extends AbstractFileInputTransformer
+#[AsTaggedItem(index: AssetAttachmentInput::class)]
+class AssetAttachmentInputMapper extends AbstractFileInputMapper implements InputMapperInterface
 {
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return AssetAttachment::class === $resourceClass && $data instanceof AssetAttachmentInput;
-    }
-
     /**
      * @param AssetAttachmentInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function map(object $data, ?object $target, array $context = []): ?object
     {
         /** @var AssetAttachment $object */
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? null;
+        $object = $target;
         $isNew = null === $object;
         if ($isNew) {
             $object = new AssetAttachment();

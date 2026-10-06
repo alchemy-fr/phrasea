@@ -22,6 +22,7 @@ use App\Api\Model\Input\ProfileInput;
 use App\Api\Model\Input\RemoveFromProfileInput;
 use App\Api\Model\Output\ProfileOutput;
 use App\Api\Processor\AddToProfileProcessor;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\RemoveFromProfileProcessor;
 use App\Api\Processor\Sort\ProfileItemSortProcessor;
 use App\Api\Provider\ProfileCollectionProvider;
@@ -76,13 +77,15 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'groups' => [self::GROUP_READ],
             ],
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            processor: InputMapperProcessor::class,
         ),
         new Post(
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
-            securityPostValidation: 'is_granted("'.AbstractVoter::CREATE.'", object)'
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY_POST_VALIDATION => 'is_granted("'.AbstractVoter::CREATE.'", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Post(
             uriTemplate: '/profiles/default/items',

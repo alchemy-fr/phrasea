@@ -2,29 +2,25 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use App\Api\Model\Input\BasketInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Basket\Basket;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class BasketInputTransformer extends AbstractInputTransformer
+#[AsTaggedItem(index: BasketInput::class)]
+class BasketInputMapper extends AbstractInputMapper implements InputMapperInterface
 {
     use WithOwnerIdProcessorTrait;
-
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return Basket::class === $resourceClass && $data instanceof BasketInput;
-    }
 
     /**
      * @param BasketInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function map(object $data, ?object $target, array $context = []): ?object
     {
         /** @var Basket $object */
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new Basket();
+        $object = $target ?? new Basket();
 
         if (null !== $data->name) {
             $object->setName($data->name);

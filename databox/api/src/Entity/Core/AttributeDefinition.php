@@ -26,6 +26,7 @@ use App\Api\Filter\PartialSearchFilter;
 use App\Api\Filter\SearchFilter;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\Sort\AttributeDefinitionSortProcessor;
 use App\Attribute\AttributeInterface;
 use App\Entity\Traits\AssetTypeTargetTrait;
@@ -53,7 +54,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
+        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)', processor: InputMapperProcessor::class),
         new GetCollection(
             order: ['workspace' => 'ASC', 'position' => 'ASC', 'name' => 'ASC'],
             normalizationContext: [
@@ -84,7 +85,8 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
-            securityPostDenormalize: 'is_granted("CREATE", object)',
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Post(
             uriTemplate: '/attribute-definitions/sort',

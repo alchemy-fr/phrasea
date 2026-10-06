@@ -2,33 +2,29 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use App\Api\Model\Input\CollectionInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class CollectionInputTransformer extends AbstractInputTransformer
+#[AsTaggedItem(index: CollectionInput::class)]
+class CollectionInputMapper extends AbstractInputMapper implements InputMapperInterface
 {
     use WithOwnerIdProcessorTrait;
-
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return Collection::class === $resourceClass && $data instanceof CollectionInput;
-    }
 
     /**
      * @param CollectionInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function map(object $data, ?object $target, array $context = []): ?object
     {
-        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new Collection();
+        $isNew = null === $target;
+        $object = $target ?? new Collection();
         $object->setName($data->name);
 
         $workspace = null;

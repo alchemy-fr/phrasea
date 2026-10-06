@@ -2,41 +2,32 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
-use ApiPlatform\Metadata\Operation;
 use App\Api\EntityIriConverter;
 use App\Api\Model\Input\AssetPolicyInput;
 use App\Entity\Core\AssetPolicy\AssetPolicy;
 use App\Entity\Core\AssetPolicy\AssetPolicyUser;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class AssetPolicyInputTransformer extends AbstractInputTransformer
+#[AsTaggedItem(index: AssetPolicyInput::class)]
+class AssetPolicyInputMapper extends AbstractInputMapper implements InputMapperInterface
 {
     public function __construct(
         private readonly EntityIriConverter $iriConverter,
     ) {
     }
 
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return AssetPolicy::class === $resourceClass && $data instanceof AssetPolicyInput;
-    }
-
     /**
      * @param AssetPolicyInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function map(object $data, ?object $target, array $context = []): ?object
     {
-        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
-        $entity = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new AssetPolicy();
-        /** @var Operation $operation */
-        $operation = $context['operation'];
-        $this->validator->validate($data, $operation->getValidationContext() ?? []);
-
+        $isNew = null === $target;
+        $entity = $target ?? new AssetPolicy();
         if ($isNew) {
             $user = $this->getStrictUser();
             $entity->setOwnerId($user->getUserIdentifier());

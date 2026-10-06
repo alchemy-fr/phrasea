@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
@@ -11,9 +11,10 @@ use App\Entity\Core\AttributeFilterRule;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class AttributeFilterRuleInputTransformer implements InputTransformerInterface
+#[AsTaggedItem(index: AttributeFilterRuleInput::class)]
+class AttributeFilterRuleInputMapper implements InputMapperInterface
 {
     use SecurityAwareTrait;
 
@@ -25,10 +26,10 @@ class AttributeFilterRuleInputTransformer implements InputTransformerInterface
     /**
      * @param AttributeFilterRuleInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function map(object $data, ?object $target, array $context = []): ?object
     {
-        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
-        $attributeFilterRule = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new AttributeFilterRule();
+        $isNew = null === $target;
+        $attributeFilterRule = $target ?? new AttributeFilterRule();
 
         if ($data->workspaceId) {
             $workspace = DoctrineUtil::findStrict($this->em, Workspace::class, $data->workspaceId);
@@ -47,10 +48,5 @@ class AttributeFilterRuleInputTransformer implements InputTransformerInterface
         }
 
         return $attributeFilterRule;
-    }
-
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return AttributeFilterRule::class === $resourceClass && $data instanceof AttributeFilterRuleInput;
     }
 }

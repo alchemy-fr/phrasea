@@ -33,6 +33,7 @@ use App\Api\Model\Output\ESDocumentStateOutput;
 use App\Api\Processor\CollectionsDeleteProcessor;
 use App\Api\Processor\CollectionsRestoreProcessor;
 use App\Api\Processor\FollowProcessor;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveCollectionProcessor;
 use App\Api\Processor\UnfollowProcessor;
@@ -85,7 +86,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             name: 'collection_ascendants',
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)', processor: InputMapperProcessor::class),
         new Put(
             uriTemplate: '/collections/{id}/move/{dest}',
             uriVariables: [
@@ -131,7 +132,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
         ),
         new Post(
-            securityPostDenormalize: 'is_granted("CREATE", object)'
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Get(
             uriTemplate: '/collections/{id}/es-document',
@@ -148,6 +150,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             uriTemplate: '/collections/{id}/es-document-sync',
+            input: false,
             validate: false,
             name: 'collection_sync_es_document',
             processor: ItemElasticsearchDocumentSyncProcessor::class,

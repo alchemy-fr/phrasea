@@ -2,14 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use App\Api\Model\Input\AssetInput;
 use App\Api\Model\Input\AssetRelationshipInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRelationship;
-use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
@@ -17,10 +16,11 @@ use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\AssetManager;
 use App\Service\Asset\Attribute\AssetNameFiller;
 use App\Service\Asset\PickSourceRenditionManager;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class AssetInputTransformer extends AbstractFileInputTransformer
+#[AsTaggedItem(index: AssetInput::class)]
+class AssetInputMapper extends AbstractFileInputMapper implements InputMapperInterface
 {
     use WithOwnerIdProcessorTrait;
     use AttributeInputTrait;
@@ -29,16 +29,11 @@ class AssetInputTransformer extends AbstractFileInputTransformer
 
     public function __construct(
         private readonly PickSourceRenditionManager $pickSourceRenditionManager,
-        private readonly AttributeInputTransformer $attributeInputProcessor,
+        private readonly AttributeInputMapper $attributeInputProcessor,
         private readonly AssetManager $assetManager,
-        private readonly AssetRenditionInputTransformer $renditionInputTransformer,
+        private readonly AssetRenditionInputMapper $renditionInputMapper,
         private readonly AssetNameFiller $assetNameFiller,
     ) {
-    }
-
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return Asset::class === $resourceClass && $data instanceof AssetInput;
     }
 
     /**
@@ -46,7 +41,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
      *
      * @return Asset
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function map(object $data, ?object $target, array $context = []): ?object
     {
         $workspace = null;
         if ($data->workspace) {
@@ -55,9 +50,9 @@ class AssetInputTransformer extends AbstractFileInputTransformer
             $workspace = $data->collection->getWorkspace();
         }
 
-        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
+        $isNew = null === $target;
         /** @var Asset $object */
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new Asset(
+        $object = $target ?? new Asset(
             $context[self::CONTEXT_CREATION_MICRO_TIME] ?? null,
             $data->sequence
         );
@@ -132,10 +127,7 @@ class AssetInputTransformer extends AbstractFileInputTransformer
 
         if (!empty($data->renditions)) {
             foreach ($data->renditions as $renditionInput) {
-                $rendition = $this->renditionInputTransformer->transform(
-                    $renditionInput,
-                    AssetRendition::class,
-                    ['asset' => $object]
+                $rendition = $this->renditionInputMapper->map($renditionInput, null, ['asset' => $object]
                 );
                 $this->em->persist($rendition);
             }

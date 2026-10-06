@@ -2,29 +2,25 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use App\Api\Model\Input\AttributePolicyInput;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\Workspace;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class AttributePolicyInputTransformer extends AbstractInputTransformer
+#[AsTaggedItem(index: AttributePolicyInput::class)]
+class AttributePolicyInputMapper extends AbstractInputMapper implements InputMapperInterface
 {
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return AttributePolicy::class === $resourceClass && $data instanceof AttributePolicyInput;
-    }
-
     /**
      * @param AttributePolicyInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function map(object $data, ?object $target, array $context = []): ?object
     {
-        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
+        $isNew = null === $target;
         /** @var AttributePolicy $object */
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new AttributePolicy();
+        $object = $target ?? new AttributePolicy();
 
         $workspace = null;
         if ($data->workspace) {

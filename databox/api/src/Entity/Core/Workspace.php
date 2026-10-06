@@ -21,6 +21,7 @@ use App\Api\Model\Output\WorkspaceOutput;
 use App\Api\Processor\DeleteWorkspaceLogoProcessor;
 use App\Api\Processor\DeleteWorkspaceTermsPdfProcessor;
 use App\Api\Processor\FlushWorkspaceProcessor;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\SignWorkspaceTermsProcessor;
 use App\Api\Processor\UploadWorkspaceLogoProcessor;
 use App\Api\Processor\UploadWorkspaceTermsPdfProcessor;
@@ -47,7 +48,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("READ_NO_TERMS", object)'
         ),
         new Patch(
-            securityPostDenormalize: 'is_granted("EDIT", object)'
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("EDIT", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Post(
@@ -109,7 +111,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             name: 'get_by_slug'
         ),
         new Post(
-            securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("'.AbstractVoter::CREATE.'", object)'],
+            processor: InputMapperProcessor::class,
         ),
     ],
     normalizationContext: [

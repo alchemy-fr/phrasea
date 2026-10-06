@@ -8,9 +8,9 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
-use App\Api\InputTransformer\TemplateAttributeInputTransformer;
-use App\Api\Model\Input\Attribute\AttributeInput;
+use App\Api\Model\Input\Template\TemplateAttributeInput;
 use App\Api\Model\Output\AttributeOutput;
+use App\Api\Processor\InputMapperProcessor;
 use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -25,14 +25,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)', processor: InputMapperProcessor::class),
     ],
     normalizationContext: [
         'groups' => [Attribute::GROUP_LIST],
     ],
-    input: AttributeInput::class,
+    input: TemplateAttributeInput::class,
     output: AttributeOutput::class,
-    processor: TemplateAttributeInputTransformer::class,
 )]
 #[ORM\Entity]
 class TemplateAttribute extends AbstractBaseAttribute

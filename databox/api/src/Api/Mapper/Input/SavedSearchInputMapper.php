@@ -2,30 +2,26 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use App\Api\Model\Input\SavedSearchInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Model\SavedSearchPrivacyEnum;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class SavedSearchInputTransformer extends AbstractFileInputTransformer
+#[AsTaggedItem(index: SavedSearchInput::class)]
+class SavedSearchInputMapper extends AbstractFileInputMapper implements InputMapperInterface
 {
     use WithOwnerIdProcessorTrait;
-
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return SavedSearch::class === $resourceClass && $data instanceof SavedSearchInput;
-    }
 
     /**
      * @param SavedSearchInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function map(object $data, ?object $target, array $context = []): ?object
     {
         /** @var SavedSearch $object */
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new SavedSearch();
+        $object = $target ?? new SavedSearch();
 
         if (null !== $data->privacy) {
             $object->setPrivacy(SavedSearchPrivacyEnum::from($data->privacy));

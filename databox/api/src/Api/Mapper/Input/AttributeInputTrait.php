@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use App\Api\Model\Input\Attribute\AbstractBaseAttributeInput;
 use App\Api\Model\Input\Attribute\AttributeInput;
@@ -17,11 +17,10 @@ use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
 use App\Repository\Core\AttributeDefinitionRepository;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Contracts\Service\Attribute\Required;
 
 /**
- * @extends AbstractInputTransformer
+ * @extends AbstractInputMapper
  */
 trait AttributeInputTrait
 {
@@ -66,13 +65,11 @@ trait AttributeInputTrait
      */
     protected function assignAttributes(
         string $workspaceId,
-        AbstractInputTransformer $attributeInputProcessor,
+        AbstractInputMapper $attributeInputProcessor,
         Asset|AssetDataTemplate $object,
         iterable $attributes,
         array $context,
     ): void {
-        unset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
-
         $this->attributeValidator->validateAttributeInputs($workspaceId, $attributes, 'attributes');
 
         foreach ($attributes as $attribute) {
@@ -99,7 +96,7 @@ trait AttributeInputTrait
                         $attr->value = $value;
 
                         /** @var Attribute|TemplateAttribute $returnedAttribute */
-                        $returnedAttribute = $attributeInputProcessor->transform($attr, Attribute::class, $subContext);
+                        $returnedAttribute = $attributeInputProcessor->map($attr, null, $subContext);
                         if (null !== $returnedAttribute) {
                             $object->addAttribute($returnedAttribute);
                         }
@@ -111,7 +108,7 @@ trait AttributeInputTrait
             }
 
             /** @var Attribute|TemplateAttribute $returnedAttribute */
-            $returnedAttribute = $attributeInputProcessor->transform($attribute, Attribute::class, $subContext);
+            $returnedAttribute = $attributeInputProcessor->map($attribute, null, $subContext);
             if (null !== $returnedAttribute) {
                 $object->addAttribute($returnedAttribute);
             }

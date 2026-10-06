@@ -23,6 +23,7 @@ use App\Api\Model\Input\RemoveFromBasketInput;
 use App\Api\Model\Output\BasketOutput;
 use App\Api\Processor\AddToBasketProcessor;
 use App\Api\Processor\ArchiveBasketProcessor;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\RemoveFromBasketProcessor;
 use App\Api\Processor\UnarchiveBasketProcessor;
 use App\Api\Provider\BasketCollectionProvider;
@@ -65,6 +66,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'groups' => [self::GROUP_READ],
             ],
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            processor: InputMapperProcessor::class,
         ),
         new Post(
             uriTemplate: '/baskets/{id}/archive',
@@ -88,7 +90,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
-            securityPostValidation: 'is_granted("'.AbstractVoter::CREATE.'", object)'
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY_POST_VALIDATION => 'is_granted("'.AbstractVoter::CREATE.'", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Post(
             uriTemplate: '/baskets/default/assets',

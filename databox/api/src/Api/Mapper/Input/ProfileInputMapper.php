@@ -2,29 +2,25 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use App\Api\Model\Input\ProfileInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Profile\Profile;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class ProfileInputTransformer extends AbstractFileInputTransformer
+#[AsTaggedItem(index: ProfileInput::class)]
+class ProfileInputMapper extends AbstractFileInputMapper implements InputMapperInterface
 {
     use WithOwnerIdProcessorTrait;
-
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return Profile::class === $resourceClass && $data instanceof ProfileInput;
-    }
 
     /**
      * @param ProfileInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function map(object $data, ?object $target, array $context = []): ?object
     {
         /** @var Profile $object */
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new Profile();
+        $object = $target ?? new Profile();
 
         if (null !== $data->public) {
             $object->setPublic($data->public);

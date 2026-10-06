@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use App\Api\Model\Input\Template\TemplateAttributeInput;
 use App\Attribute\AttributeAssigner;
 use App\Entity\Template\TemplateAttribute;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class TemplateAttributeInputTransformer extends AbstractInputTransformer
+#[AsTaggedItem(index: TemplateAttributeInput::class)]
+class TemplateAttributeInputMapper extends AbstractInputMapper implements InputMapperInterface
 {
     use AttributeInputTrait;
 
@@ -17,19 +18,14 @@ class TemplateAttributeInputTransformer extends AbstractInputTransformer
     {
     }
 
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return TemplateAttribute::class === $resourceClass && $data instanceof TemplateAttributeInput;
-    }
-
     /**
      * @param TemplateAttributeInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable|null
+    public function map(object $data, ?object $target, array $context = []): ?object
     {
-        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
+        $isNew = null === $target;
         /** @var TemplateAttribute $object */
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new TemplateAttribute();
+        $object = $target ?? new TemplateAttribute();
 
         if ($isNew) {
             $object->setTemplate($data->template);

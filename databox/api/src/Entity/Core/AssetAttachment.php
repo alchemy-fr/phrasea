@@ -14,6 +14,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Api\Model\Input\AssetAttachmentInput;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\AssetAttachmentCollectionProvider;
 use App\Entity\Traits\ExtraMetadataTrait;
 use App\Security\Voter\AbstractVoter;
@@ -27,10 +28,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
     operations: [
         new Get(security: 'is_granted("'.AbstractVoter::READ.'", object)'),
         new Post(
-            securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("'.AbstractVoter::CREATE.'", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
-        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
+        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)', processor: InputMapperProcessor::class),
         new GetCollection(
             normalizationContext: [
                 'groups' => [

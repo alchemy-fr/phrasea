@@ -217,8 +217,6 @@ final class AssetCreateTest extends AbstractDataboxTestCase
 
     public function testNameIsLimitedTo255Characters(): void
     {
-        $this->markTestIncomplete('BUG: the constraints of AssetInput (Length(max: 255) on name, NotNull on workspace) are never validated: only the Asset entity built by AssetInputTransformer is, so a 256 chars name is accepted (src/Api/Model/Input/AssetInput.php:20).');
-
         $workspace = $this->createOwnedWorkspace();
 
         $this->request('POST', '/assets', self::OWNER, [

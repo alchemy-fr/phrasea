@@ -14,6 +14,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Api\Model\Input\AssetPolicyInput;
 use App\Api\Model\Output\AssetPolicyOutput;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\AssetPolicyCollectionProvider;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -31,10 +32,12 @@ use Ramsey\Uuid\UuidInterface;
     shortName: 'asset-policy',
     operations: [
         new Get(security: 'is_granted("'.AbstractVoter::READ.'", object)'),
-        new Post(securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)', validationContext: [
+        new Post(extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("'.AbstractVoter::CREATE.'", object)'], validationContext: [
             'groups' => ['Default', 'create'],
-        ]),
-        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
+        ],
+            processor: InputMapperProcessor::class,
+        ),
+        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)', processor: InputMapperProcessor::class),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
         new GetCollection(
             normalizationContext: [

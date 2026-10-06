@@ -20,6 +20,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\Api\Model\Input\WorkspaceIntegrationInput;
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\WorkspaceIntegrationCollectionProvider;
 use App\Entity\Core\Workspace;
 use App\Entity\Traits\ErrorDisableInterface;
@@ -44,11 +45,12 @@ use Symfony\Component\Yaml\Yaml;
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)', processor: InputMapperProcessor::class),
         new GetCollection(),
         new Post(
-            securityPostDenormalize: 'is_granted("CREATE", object)',
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
             validationContext: ['Default', 'create'],
+            processor: InputMapperProcessor::class,
         ),
     ],
     normalizationContext: [

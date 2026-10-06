@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Input\AssetRenditionInput;
@@ -12,10 +12,11 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\RenditionDefinition;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class AssetRenditionInputTransformer extends AbstractFileInputTransformer
+#[AsTaggedItem(index: AssetRenditionInput::class)]
+class AssetRenditionInputMapper extends AbstractFileInputMapper implements InputMapperInterface
 {
     use SecurityAwareTrait;
 
@@ -24,22 +25,17 @@ class AssetRenditionInputTransformer extends AbstractFileInputTransformer
     ) {
     }
 
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return AssetRendition::class === $resourceClass && $data instanceof AssetRenditionInput;
-    }
-
     /**
      * @param AssetRenditionInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function map(object $data, ?object $target, array $context = []): ?object
     {
         if (null !== $data->buildDefinition) {
-            return $this->transformDynamicRendition($data, $context);
+            return $this->transformDynamicRendition($data, $target, $context);
         }
 
         /** @var AssetRendition $object */
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? null;
+        $object = $target;
         $isNew = null === $object;
 
         if ($isNew) {
@@ -82,9 +78,9 @@ class AssetRenditionInputTransformer extends AbstractFileInputTransformer
         );
     }
 
-    private function transformDynamicRendition(AssetRenditionInput $data, array $context): AssetRendition
+    private function transformDynamicRendition(AssetRenditionInput $data, ?object $target, array $context): AssetRendition
     {
-        if (null !== ($context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? null)) {
+        if (null !== $target) {
             throw new BadRequestHttpException('"buildDefinition" is only supported on creation');
         }
         if (empty($data->name)) {

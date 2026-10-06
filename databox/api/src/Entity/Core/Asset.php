@@ -52,6 +52,7 @@ use App\Api\Processor\CreateAssetProcessor;
 use App\Api\Processor\DeleteAssetProcessor;
 use App\Api\Processor\DeleteAssetsByKeysProcessor;
 use App\Api\Processor\FollowProcessor;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveAssetProcessor;
 use App\Api\Processor\MultipleAssetCreateProcessor;
@@ -157,9 +158,11 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Patch(
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            processor: InputMapperProcessor::class,
         ),
         new Put(
             uriTemplate: '/assets/{id}/trigger-workflow',
+            input: false,
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
             processor: TriggerAssetWorkflowProcessor::class,
         ),
@@ -245,8 +248,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             ]
         ),
         new Post(
-            securityPostDenormalize: 'is_granted("CREATE", object)',
-            validate: true,
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
             processor: CreateAssetProcessor::class,
         ),
         new Post(
@@ -329,6 +331,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             uriTemplate: '/assets/{id}/es-document-sync',
+            input: false,
             name: 'asset_sync_es_document',
             processor: ItemElasticsearchDocumentSyncProcessor::class,
         ),

@@ -2,37 +2,33 @@
 
 declare(strict_types=1);
 
-namespace App\Api\InputTransformer;
+namespace App\Api\Mapper\Input;
 
 use App\Api\Model\Input\Template\AssetDataTemplateInput;
 use App\Api\Processor\WithOwnerIdProcessorTrait;
 use App\Entity\Template\AssetDataTemplate;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 
-class AssetDataTemplateInputTransformer extends AbstractInputTransformer
+#[AsTaggedItem(index: AssetDataTemplateInput::class)]
+class AssetDataTemplateInputMapper extends AbstractInputMapper implements InputMapperInterface
 {
     use WithOwnerIdProcessorTrait;
     use AttributeInputTrait;
 
-    public function __construct(private readonly TemplateAttributeInputTransformer $templateAttributeInputProcessor)
+    public function __construct(private readonly TemplateAttributeInputMapper $templateAttributeInputProcessor)
     {
-    }
-
-    public function supports(string $resourceClass, object $data): bool
-    {
-        return AssetDataTemplate::class === $resourceClass && $data instanceof AssetDataTemplateInput;
     }
 
     /**
      * @param AssetDataTemplateInput $data
      */
-    public function transform(object $data, string $resourceClass, array $context = []): object|iterable
+    public function map(object $data, ?object $target, array $context = []): ?object
     {
-        $isNew = !isset($context[AbstractNormalizer::OBJECT_TO_POPULATE]);
+        $isNew = null === $target;
         /** @var AssetDataTemplate $object */
-        $object = $context[AbstractNormalizer::OBJECT_TO_POPULATE] ?? new AssetDataTemplate();
+        $object = $target ?? new AssetDataTemplate();
 
         $workspace = null;
         if ($data->workspace) {

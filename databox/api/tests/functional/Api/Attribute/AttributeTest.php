@@ -316,8 +316,6 @@ final class AttributeTest extends AbstractDataboxTestCase
 
     public function testCreateWithAnEmptyValueIsABadRequest(): void
     {
-        $this->markTestIncomplete('BUG: POST /attributes with an empty value answers 403: AttributeInputTransformer::transform() returns null, then securityPostDenormalize is_granted("CREATE", null) is denied (src/Api/InputTransformer/AttributeInputTransformer.php:46)');
-
         $this->setUpScene();
 
         $this->postAttribute(self::USER, $this->title, '   ');
