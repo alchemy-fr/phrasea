@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Admin;
 
-use Alchemy\AdminBundle\Tests\AbstractAdminTest;
+use Alchemy\AdminBundle\Tests\AbstractAdminTestCase;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\MessengerBundle\Transport\TestTransport;
 use Alchemy\NotifierBundle\Channel\ChannelType;
@@ -14,7 +14,7 @@ use Alchemy\NotifierBundle\Subscriber\KeycloakUserDirectory;
 use Alchemy\NotifierBundle\Topic\BuiltInTopic;
 use Doctrine\ORM\EntityManagerInterface;
 
-class NotificationBroadcastAdminTest extends AbstractAdminTest
+class NotificationBroadcastAdminTest extends AbstractAdminTestCase
 {
     public function testBroadcastHistoryPageRenders(): void
     {
