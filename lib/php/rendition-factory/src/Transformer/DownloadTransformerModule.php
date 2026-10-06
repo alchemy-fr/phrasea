@@ -8,7 +8,9 @@ use Alchemy\RenditionFactory\DTO\OutputFile;
 use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\FileFamilyGuesser;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'download')]
 final readonly class DownloadTransformerModule implements TransformerModuleInterface
 {
     public function __construct(private FileFamilyGuesser $fileFamilyGuesser)

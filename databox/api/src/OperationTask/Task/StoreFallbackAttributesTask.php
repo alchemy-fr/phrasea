@@ -7,12 +7,14 @@ namespace App\OperationTask\Task;
 use App\OperationTask\OperationTaskInterface;
 use App\OperationTask\RunContext;
 use App\Service\Asset\Attribute\AttributeDefinitionOperationRunner;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Materialize an AttributeDefinition's fallback value into a stored Attribute for every
  * asset of its workspace that has no value yet for that definition.
  */
+#[AsTaggedItem(index: 'store_fallback_attributes')]
 final readonly class StoreFallbackAttributesTask implements OperationTaskInterface
 {
     public function __construct(

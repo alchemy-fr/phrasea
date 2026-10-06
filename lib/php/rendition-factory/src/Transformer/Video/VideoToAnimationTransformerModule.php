@@ -18,12 +18,14 @@ use Alchemy\RenditionFactory\Transformer\Video\Format\FormatInterface;
 use Alchemy\RenditionFactory\Transformer\Video\Format\OutputFormatsDocumentation;
 use FFMpeg;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
+#[AsTaggedItem(index: 'video_to_animation')]
 final readonly class VideoToAnimationTransformerModule implements TransformerModuleInterface
 {
-    public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats,
+    public function __construct(#[AutowireLocator(FormatInterface::TAG)] private ServiceLocator $formats,
         private ModuleOptionsResolver $optionsResolver,
         private OutputFormatsDocumentation $outputFormatsDocumentation,
     ) {

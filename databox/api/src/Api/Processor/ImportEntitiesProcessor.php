@@ -24,7 +24,7 @@ class ImportEntitiesProcessor implements ProcessorInterface
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        #[AutowireLocator(AttributeEntityImporterInterface::TAG, defaultIndexMethod: 'getName')]
+        #[AutowireLocator(AttributeEntityImporterInterface::TAG)]
         private readonly ServiceProviderInterface $importers,
     ) {
     }

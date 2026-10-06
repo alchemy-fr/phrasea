@@ -18,7 +18,9 @@ use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'aws.transcribe')]
 class AwsTranscribeIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface
 {
     private const string VERSION = '1.0';

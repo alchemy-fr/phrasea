@@ -8,9 +8,11 @@ use App\Integration\AbstractIntegration;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
 
+#[AsTaggedItem(index: 'phrasea.uploader')]
 class UploaderIntegration extends AbstractIntegration
 {
     public function __construct(

@@ -7,8 +7,10 @@ namespace App\Elasticsearch\BuiltInAttribute;
 use App\Attribute\Type\PrivacyAttributeType;
 use App\Entity\Core\Asset;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[AsTaggedItem(index: '@privacy')]
 final class PrivacyBuiltInAttribute extends AbstractLabelledBuiltInAttribute
 {
     public function __construct(private readonly TranslatorInterface $translator)

@@ -8,7 +8,7 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 final readonly class OperationTaskRegistry
 {
     public function __construct(
-        #[AutowireLocator(services: OperationTaskInterface::TAG, defaultIndexMethod: 'getName')]
+        #[AutowireLocator(services: OperationTaskInterface::TAG)]
         private ContainerInterface $tasks,
     ) {
     }

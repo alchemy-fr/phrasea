@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch\BuiltInAttribute;
 
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
+
 /**
  * Matches assets **directly** attached to one of the given collections.
  *
@@ -17,6 +19,7 @@ namespace App\Elasticsearch\BuiltInAttribute;
  *
  *     @directCollection IN ("<collectionId1>", "<collectionId2>")
  */
+#[AsTaggedItem(index: '@directCollection')]
 final class DirectCollectionBuiltInAttribute extends AbstractCollectionBuiltInAttribute
 {
     public static function getName(): string

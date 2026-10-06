@@ -27,10 +27,12 @@ use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+#[AsTaggedItem(index: 'aws.rekognition')]
 class AwsRekognitionIntegration extends AbstractAwsIntegration implements FilterNeedIntegrationInterface, WorkflowIntegrationInterface, UserActionsIntegrationInterface
 {
     use FileUserActionsTrait;

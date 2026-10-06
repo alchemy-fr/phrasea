@@ -9,6 +9,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Repository\Core\AssetRepository;
 use App\Repository\Core\CollectionRepository;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -17,6 +18,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * An asset holds one position per collection it belongs to, so this only sorts
  * when the search is narrowed down to a single container.
  */
+#[AsTaggedItem(index: '@position')]
 final class PositionBuiltInAttribute extends AbstractBuiltInAttribute implements CustomSortBuiltInAttributeInterface
 {
     public const string ES_FIELD = 'collectionPositions';

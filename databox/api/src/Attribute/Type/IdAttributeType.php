@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Attribute\Type;
 
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
+
+#[AsTaggedItem(index: self::NAME)]
 class IdAttributeType extends KeywordAttributeType
 {
     public const string NAME = 'id';

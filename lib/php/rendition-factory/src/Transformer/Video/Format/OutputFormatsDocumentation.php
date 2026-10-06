@@ -8,7 +8,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 final readonly class OutputFormatsDocumentation
 {
     public function __construct(
-        #[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')]
+        #[AutowireLocator(FormatInterface::TAG)]
         private ServiceLocator $formats,
     ) {
     }

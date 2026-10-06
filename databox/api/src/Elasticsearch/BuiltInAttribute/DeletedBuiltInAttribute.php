@@ -9,7 +9,9 @@ use App\Elasticsearch\AbstractSearch;
 use App\Elasticsearch\AQL\ConditionOperatorEnum;
 use App\Entity\Core\Asset;
 use Elastica\Query;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: '@deleted')]
 final class DeletedBuiltInAttribute extends AbstractBuiltInAttribute implements CustomFilterQueryBuiltInAttributeInterface
 {
     protected function getAggregationTranslationKey(): string

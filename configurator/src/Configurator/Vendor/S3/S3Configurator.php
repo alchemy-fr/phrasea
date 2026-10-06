@@ -7,7 +7,9 @@ namespace App\Configurator\Vendor\S3;
 use App\Configurator\ConfiguratorInterface;
 use App\Util\EnvHelper;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(priority: 0)]
 final readonly class S3Configurator implements ConfiguratorInterface
 {
     public function __construct(
@@ -19,11 +21,6 @@ final readonly class S3Configurator implements ConfiguratorInterface
     public static function getName(): string
     {
         return 's3';
-    }
-
-    public static function getPriority(): int
-    {
-        return 0;
     }
 
     public function configure(OutputInterface $output, array $presets): void

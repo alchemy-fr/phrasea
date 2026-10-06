@@ -7,8 +7,10 @@ namespace App\OperationTask\Task;
 use App\OperationTask\OperationTaskInterface;
 use App\OperationTask\RunContext;
 use App\Service\Asset\WorkspaceAssetIngester;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
+#[AsTaggedItem(index: 'ingest_workspace_assets')]
 final readonly class IngestWorkspaceAssetsTask implements OperationTaskInterface
 {
     public function __construct(

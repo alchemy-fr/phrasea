@@ -12,7 +12,9 @@ use App\Elasticsearch\ESFacetInterface;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeEntityRepository;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 final class EntityAttributeType extends TextAttributeType
 {
     use UserLocaleTrait;

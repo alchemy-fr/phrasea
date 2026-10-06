@@ -7,7 +7,9 @@ namespace App\Attribute\Type;
 use Alchemy\CoreBundle\Util\LocaleUtil;
 use App\Attribute\AttributeLocaleInterface;
 use App\Elasticsearch\SearchType;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 class TextAttributeType extends AbstractAttributeType
 {
     public const string NAME = 'text';

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 class PrivacyAttributeType extends KeywordAttributeType
 {
     public const string NAME = 'privacy';

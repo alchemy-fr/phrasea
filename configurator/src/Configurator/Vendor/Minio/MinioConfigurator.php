@@ -7,7 +7,9 @@ namespace App\Configurator\Vendor\Minio;
 use App\Configurator\ConfiguratorInterface;
 use App\Util\EnvHelper;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(priority: -200)]
 final readonly class MinioConfigurator implements ConfiguratorInterface
 {
     public function __construct(
@@ -18,11 +20,6 @@ final readonly class MinioConfigurator implements ConfiguratorInterface
     public static function getName(): string
     {
         return 'minio';
-    }
-
-    public static function getPriority(): int
-    {
-        return -200;
     }
 
     public function configure(OutputInterface $output, array $presets): void

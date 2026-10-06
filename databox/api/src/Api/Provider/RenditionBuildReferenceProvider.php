@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 final readonly class RenditionBuildReferenceProvider implements ProviderInterface
 {
     public function __construct(
-        #[AutowireLocator(TransformerModuleInterface::TAG, defaultIndexMethod: 'getName')]
+        #[AutowireLocator(TransformerModuleInterface::TAG)]
         private ServiceLocator $transformers,
         private BuildConfigDocumentation $buildConfigDocumentation,
         private ConfigurationReferenceDumper $referenceDumper,

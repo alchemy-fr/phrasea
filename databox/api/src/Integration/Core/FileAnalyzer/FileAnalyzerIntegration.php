@@ -16,7 +16,9 @@ use App\Integration\WorkflowIntegrationInterface;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'core.file_analyzer')]
 class FileAnalyzerIntegration extends AbstractIntegration implements WorkflowIntegrationInterface, ExtraReferenceIntegrationInterface
 {
     public function __construct(

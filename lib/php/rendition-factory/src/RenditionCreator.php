@@ -27,7 +27,7 @@ final class RenditionCreator
         private readonly TransformationContextFactory $contextFactory,
         private readonly FileFamilyGuesser $fileFamilyGuesser,
         /** @var TransformerModuleInterface[] */
-        #[AutowireLocator(TransformerModuleInterface::TAG, defaultIndexMethod: 'getName')]
+        #[AutowireLocator(TransformerModuleInterface::TAG)]
         private readonly ServiceLocator $transformers,
     ) {
     }

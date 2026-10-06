@@ -5,7 +5,9 @@ namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use FFMpeg\Format\Audio\Mp3;
 use FFMpeg\Format\AudioInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'audio-mp3')]
 class Mp3Format implements FormatInterface
 {
     private AudioInterface $format;

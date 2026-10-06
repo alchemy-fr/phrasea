@@ -5,7 +5,9 @@ namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Alchemy\RenditionFactory\Transformer\Video\Format\Audio\Aac;
 use FFMpeg\Format\AudioInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'audio-aac')]
 class AacFormat implements FormatInterface
 {
     private AudioInterface $format;

@@ -13,7 +13,9 @@ use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Spatie\PdfToImage\Enums\OutputFormat;
 use Spatie\PdfToImage\Pdf;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'pdf_to_image')]
 final readonly class PdfToImageTransformerModule implements TransformerModuleInterface
 {
     public static function getName(): string

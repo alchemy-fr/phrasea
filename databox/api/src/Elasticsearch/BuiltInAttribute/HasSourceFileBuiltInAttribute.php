@@ -6,7 +6,9 @@ namespace App\Elasticsearch\BuiltInAttribute;
 
 use App\Attribute\Type\BooleanAttributeType;
 use App\Entity\Core\Asset;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: '@hasSource')]
 final class HasSourceFileBuiltInAttribute extends AbstractBuiltInAttribute
 {
     protected function getAggregationTranslationKey(): string

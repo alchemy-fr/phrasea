@@ -14,7 +14,9 @@ use App\Integration\WorkflowIntegrationInterface;
 use App\Service\Storage\RenditionManager;
 use Ramsey\Uuid\Nonstandard\Uuid;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'core.rendition')]
 class RenditionIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
     public function __construct(
