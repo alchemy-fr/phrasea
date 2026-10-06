@@ -28,7 +28,7 @@ services:
         class: Alchemy\Workflow\Validator\EventValidator
 
     alchemy.workflow.state_repository:
-        class: Alchemy\Workflow\State\Repository\DoctrineStateRepository
+        class: Alchemy\WorkflowBundle\Doctrine\DoctrineStateRepository
 
     alchemy.workflow.job_trigger:
         class: Alchemy\Workflow\Trigger\MessengerJobTrigger

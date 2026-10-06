@@ -2242,8 +2242,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  * }
  * @psalm-type AlchemyWorkflowConfig = array{
  *     doctrine?: array{
- *         workflow_state_entity?: scalar|Param|null, // Default: "Alchemy\\Workflow\\Doctrine\\Entity\\WorkflowState"
- *         job_state_entity?: scalar|Param|null, // Default: "Alchemy\\Workflow\\Doctrine\\Entity\\JobState"
+ *         workflow_state_entity?: scalar|Param|null, // Default: "Alchemy\\WorkflowBundle\\Entity\\WorkflowState"
+ *         job_state_entity?: scalar|Param|null, // Default: "Alchemy\\WorkflowBundle\\Entity\\JobState"
  *     },
  *     workflows_dirs?: scalar|Param|null, // Default: ["%kernel.project_dir%/config/workflows"]
  *     pusher?: bool|array{
