@@ -450,7 +450,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $names = array_map(fn (array $asset): string => $asset['name'], $data);
         sort($names);
         sort($expectedResults);
@@ -519,7 +519,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $names = array_map(fn (array $asset): string => $asset['name'], $data);
         sort($names);
 

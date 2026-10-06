@@ -389,18 +389,18 @@ describe('idempotent sub-resource creation', () => {
 });
 
 describe('collection endpoints returning hydra collections', () => {
-    it('unwraps hydra:member for tags', async () => {
+    it('unwraps member for tags', async () => {
         mock.onGet('/tags').reply(200, {
-            'hydra:member': [{id: 't1'}, {id: 't2'}],
+            member: [{id: 't1'}, {id: 't2'}],
         });
 
         expect(await client.getTags('ws-1')).toEqual([{id: 't1'}, {id: 't2'}]);
         expect(mock.history.get[0].params).toEqual({workspaceId: 'ws-1'});
     });
 
-    it('unwraps hydra:member for rendition policies', async () => {
+    it('unwraps member for rendition policies', async () => {
         mock.onGet('/rendition-policies').reply(200, {
-            'hydra:member': [{id: 'p1'}],
+            member: [{id: 'p1'}],
         });
 
         expect(await client.getRenditionPolicies('ws-1')).toEqual([{id: 'p1'}]);

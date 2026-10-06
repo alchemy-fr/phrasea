@@ -80,7 +80,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
     {
         $this->assetBatchAction([]);
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
     }
 
     public function testAssetAttributesBatchUpdateWithInvalidAttributeName(): void
@@ -120,7 +120,7 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
         $response = $this->assetBatchAction($actions);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
 
         $attrAssertions = [];
 

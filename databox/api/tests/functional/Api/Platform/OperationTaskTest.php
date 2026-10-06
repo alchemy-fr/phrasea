@@ -86,11 +86,11 @@ final class OperationTaskTest extends AbstractDataboxTestCase
 
         $this->assertResponseIsSuccessful();
         $data = $response->toArray();
-        $this->assertSame(2, $data['hydra:totalItems']);
-        $this->assertSame([$recent->getId(), $old->getId()], array_column($data['hydra:member'], 'id'));
-        $this->assertSame('recompute_initial_values', $data['hydra:member'][0]['task']);
-        $this->assertSame(OperationTask::STATUS_COMPLETED, $data['hydra:member'][0]['status']);
-        $this->assertSame(['definitionId' => 'x'], $data['hydra:member'][0]['payload']);
+        $this->assertSame(2, $data['totalItems']);
+        $this->assertSame([$recent->getId(), $old->getId()], array_column($data['member'], 'id'));
+        $this->assertSame('recompute_initial_values', $data['member'][0]['task']);
+        $this->assertSame(OperationTask::STATUS_COMPLETED, $data['member'][0]['status']);
+        $this->assertSame(['definitionId' => 'x'], $data['member'][0]['payload']);
     }
 
     public function testAdminsReadATask(): void
@@ -169,7 +169,7 @@ final class OperationTaskTest extends AbstractDataboxTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(400);
-        $this->assertSame('toLocale is required', $response->toArray(false)['hydra:description']);
+        $this->assertSame('toLocale is required', $response->toArray(false)['description']);
         $this->assertSame(0, self::getEntityManager()->getRepository(OperationTask::class)->count([]));
     }
 

@@ -106,8 +106,8 @@ final class WorkspaceFlushTest extends AbstractDataboxTestCase
         $this->grantUser(self::USER, $ws);
 
         $client = static::createClient();
-        $client->request('PUT', self::iri($ws), [
-            'headers' => self::authHeaders(self::ADMIN),
+        $client->request('PATCH', self::iri($ws), [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + self::authHeaders(self::ADMIN),
             'json' => ['terms' => 'Be nice.', 'termsTranslations' => ['fr' => 'Soyez sympa.']],
         ]);
         $this->assertResponseIsSuccessful();

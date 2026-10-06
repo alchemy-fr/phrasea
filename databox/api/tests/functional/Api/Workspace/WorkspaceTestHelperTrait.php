@@ -104,7 +104,7 @@ trait WorkspaceTestHelperTrait
      */
     private static function listedSlugs(array $data): array
     {
-        $slugs = array_map(static fn (array $w): string => $w['slug'], $data['hydra:member']);
+        $slugs = array_map(static fn (array $w): string => $w['slug'], $data['member']);
         sort($slugs);
 
         return $slugs;

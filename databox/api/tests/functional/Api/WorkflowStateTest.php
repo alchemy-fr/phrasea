@@ -59,7 +59,7 @@ class WorkflowStateTest extends AbstractDataboxTestCase
         ]);
         $this->assertResponseIsSuccessful();
         $numbers = [];
-        foreach ($response->toArray()['hydra:member'] as $item) {
+        foreach ($response->toArray()['member'] as $item) {
             $numbers[$item['id']] = $item['number'];
         }
         $expected = [
@@ -77,21 +77,21 @@ class WorkflowStateTest extends AbstractDataboxTestCase
             'headers' => $this->headers(KeycloakClientTestMock::USER_UID),
         ]);
         $this->assertResponseIsSuccessful();
-        $this->assertCount(0, $response->toArray()['hydra:member']);
+        $this->assertCount(0, $response->toArray()['member']);
 
         $response = $client->request('GET', '/workflows', [
             'query' => ['asset' => '/assets/'.$otherAsset->getId()],
             'headers' => $this->headers(KeycloakClientTestMock::USER_UID),
         ]);
         $this->assertResponseIsSuccessful();
-        $this->assertCount(0, $response->toArray()['hydra:member']);
+        $this->assertCount(0, $response->toArray()['member']);
 
         $response = $client->request('GET', '/workflows', [
             'query' => ['asset' => '/assets/'.$asset->getId()],
             'headers' => $this->headers(KeycloakClientTestMock::USER_UID),
         ]);
         $this->assertResponseIsSuccessful();
-        $items = $response->toArray()['hydra:member'];
+        $items = $response->toArray()['member'];
         $this->assertEqualsCanonicalizing([$ingest2, $update1, $ingest1], array_column($items, 'id'));
         $item = $items[array_search($ingest2, array_column($items, 'id'), true)];
         $this->assertSame('asset-ingest:'.$asset->getWorkspaceId(), $item['name']);

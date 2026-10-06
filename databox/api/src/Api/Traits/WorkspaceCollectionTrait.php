@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Api\Traits;
 
-use ApiPlatform\Exception\ItemNotFoundException;
+use ApiPlatform\Metadata\Exception\ItemNotFoundException;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;

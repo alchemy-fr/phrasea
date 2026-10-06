@@ -44,6 +44,9 @@ trait AssetApiTestTrait
     {
         self::getEntityManager()->clear();
         $options['headers'] = array_merge(self::authHeaders($userId), $options['headers'] ?? []);
+        if ('PATCH' === $method) {
+            $options['headers']['Content-Type'] ??= 'application/merge-patch+json';
+        }
         if (null !== $json) {
             $options['json'] = $json;
         }
@@ -55,7 +58,7 @@ trait AssetApiTestTrait
     {
         $data = $response->toArray(false);
 
-        return $data['detail'] ?? $data['hydra:description'] ?? '';
+        return $data['detail'] ?? $data['description'] ?? '';
     }
 
     /**

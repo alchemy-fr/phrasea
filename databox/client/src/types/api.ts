@@ -13,13 +13,13 @@ export interface Entity {
 }
 
 export type HydraCollection<T, E extends object = object> = {
-    'hydra:totalItems': number;
-    'hydra:member': T[];
-    'hydra:view'?: {
-        'hydra:first'?: string;
-        'hydra:previous'?: string;
-        'hydra:next'?: string;
-        'hydra:last'?: string;
+    totalItems: number;
+    member: T[];
+    view?: {
+        first?: string;
+        previous?: string;
+        next?: string;
+        last?: string;
     };
 } & E;
 

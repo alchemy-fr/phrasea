@@ -72,7 +72,7 @@ export function putAttributeDefinition(
 ): Promise<AttributeDefinition> {
     const {workspace: _w, ...rest} = data;
 
-    return api.put<AttributeDefinition>(
+    return api.patch<AttributeDefinition>(
         `/${EntityName.AttributeDefinition}/${id}`,
         toIris(rest)
     );
@@ -121,7 +121,7 @@ export function putAttributePolicy(
 ): Promise<AttributePolicy> {
     const {workspace: _w, ...rest} = data;
 
-    return api.put<AttributePolicy>(
+    return api.patch<AttributePolicy>(
         `/${EntityName.AttributePolicy}/${id}`,
         rest
     );
@@ -166,7 +166,7 @@ export function postTag(data: Partial<Tag>): Promise<Tag> {
 }
 
 export function putTag(id: string, data: Partial<Tag>): Promise<Tag> {
-    return api.put<Tag>(`/${EntityName.Tag}/${id}`, toIris(data));
+    return api.patch<Tag>(`/${EntityName.Tag}/${id}`, toIris(data));
 }
 
 export function deleteTag(id: string): Promise<void> {
@@ -210,7 +210,7 @@ export function putEntityList(
     id: string,
     data: Partial<EntityList>
 ): Promise<EntityList> {
-    return api.put<EntityList>(`/${EntityName.EntityList}/${id}`, toIris(data));
+    return api.patch<EntityList>(`/${EntityName.EntityList}/${id}`, toIris(data));
 }
 
 export function deleteEntityList(id: string): Promise<void> {
@@ -286,7 +286,7 @@ export function putAttributeEntity(
     id: string,
     data: Partial<AttributeEntity>
 ): Promise<AttributeEntity> {
-    return api.put<AttributeEntity>(
+    return api.patch<AttributeEntity>(
         `/${EntityName.AttributeEntity}/${id}`,
         toIris(data)
     );
@@ -347,7 +347,7 @@ export function putAssetDataTemplate(
     id: string,
     data: Partial<AssetDataTemplate>
 ): Promise<AssetDataTemplate> {
-    return api.put<AssetDataTemplate>(
+    return api.patch<AssetDataTemplate>(
         `/${EntityName.AssetDataTemplate}/${id}`,
         data
     );

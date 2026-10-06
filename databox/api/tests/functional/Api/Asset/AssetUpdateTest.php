@@ -23,7 +23,7 @@ final class AssetUpdateTest extends AbstractDataboxTestCase
         $asset = $this->createAsset(['ownerId' => self::OWNER, 'tags' => ['old']]);
         $tag = $this->findOrCreateTagByName('new', $workspace);
 
-        $data = $this->request('PUT', '/assets/'.$asset->getId(), self::OWNER, [
+        $data = $this->request('PATCH', '/assets/'.$asset->getId(), self::OWNER, [
             'extraMetadata' => ['foo' => 'bar'],
             'externalId' => 'ext-2',
             'tags' => ['/tags/'.$tag->getId()],
@@ -53,7 +53,9 @@ final class AssetUpdateTest extends AbstractDataboxTestCase
         $this->assertSame('patched', $data['trackingId']);
         $this->assertSame('kept', $data['externalId']);
 
-        $this->request('PATCH', '/assets/'.$asset->getId(), self::OWNER, ['trackingId' => 'plain json']);
+        $this->request('PATCH', '/assets/'.$asset->getId(), self::OWNER, ['trackingId' => 'plain json'], [
+            'headers' => ['Content-Type' => 'application/json'],
+        ]);
         $this->assertResponseStatusCodeSame(415);
     }
 
@@ -63,12 +65,12 @@ final class AssetUpdateTest extends AbstractDataboxTestCase
         $asset = $this->createAsset(['ownerId' => self::OWNER, 'tags' => ['foo', 'bar']]);
         $other = $this->createAsset(['ownerId' => self::OWNER, 'tags' => ['foo']]);
 
-        $data = $this->request('PUT', '/assets/'.$asset->getId(), self::OWNER, ['tags' => []])->toArray();
+        $data = $this->request('PATCH', '/assets/'.$asset->getId(), self::OWNER, ['tags' => []])->toArray();
         $this->assertResponseIsSuccessful();
         $this->assertSame([], $data['tags']);
 
         // Omitting them keeps them
-        $data = $this->request('PUT', '/assets/'.$other->getId(), self::OWNER, ['extraMetadata' => ['a' => 1]])->toArray();
+        $data = $this->request('PATCH', '/assets/'.$other->getId(), self::OWNER, ['extraMetadata' => ['a' => 1]])->toArray();
         $this->assertSame(['foo'], array_column($data['tags'], 'name'));
     }
 
@@ -83,7 +85,7 @@ final class AssetUpdateTest extends AbstractDataboxTestCase
         $collection = $this->createCollection(['ownerId' => self::OWNER]);
         $asset = $this->createAsset(['ownerId' => self::OWNER]);
 
-        $this->request('PUT', '/assets/'.$asset->getId(), self::OWNER, [
+        $this->request('PATCH', '/assets/'.$asset->getId(), self::OWNER, [
             'workspace' => '/workspaces/'.$otherWorkspace->getId(),
             'collection' => '/collections/'.$collection->getId(),
             'key' => 'late-key',
@@ -108,11 +110,11 @@ final class AssetUpdateTest extends AbstractDataboxTestCase
         $titled = $this->createAsset(['ownerId' => self::OWNER, 'name' => 'Original']);
         $untitled = $this->createAsset(['ownerId' => self::OWNER]);
 
-        $data = $this->request('PUT', '/assets/'.$titled->getId(), self::OWNER, ['name' => 'Renamed'])->toArray();
+        $data = $this->request('PATCH', '/assets/'.$titled->getId(), self::OWNER, ['name' => 'Renamed'])->toArray();
         $this->assertResponseIsSuccessful();
         $this->assertSame('Original', $data['name']);
 
-        $data = $this->request('PUT', '/assets/'.$untitled->getId(), self::OWNER, ['name' => 'Named'])->toArray();
+        $data = $this->request('PATCH', '/assets/'.$untitled->getId(), self::OWNER, ['name' => 'Named'])->toArray();
         $this->assertResponseIsSuccessful();
         $this->assertSame('Named', $data['name']);
     }
@@ -139,7 +141,7 @@ final class AssetUpdateTest extends AbstractDataboxTestCase
         $asset = $this->createAsset(['ownerId' => self::OWNER]);
         $this->grantUserOnObject(self::OTHER, $asset, $mask);
 
-        $this->request('PUT', '/assets/'.$asset->getId(), self::OTHER, ['extraMetadata' => ['by' => 'other']]);
+        $this->request('PATCH', '/assets/'.$asset->getId(), self::OTHER, ['extraMetadata' => ['by' => 'other']]);
 
         $this->assertResponseStatusCodeSame($expectedStatus);
         $this->assertSame(200 === $expectedStatus ? ['by' => 'other'] : [], $this->reloadAsset($asset->getId())->getExtraMetadata());
@@ -151,11 +153,11 @@ final class AssetUpdateTest extends AbstractDataboxTestCase
         $asset = $this->createAsset(['ownerId' => self::OWNER]);
         $this->grantUserOnObject(self::OTHER, $workspace, PermissionInterface::VIEW);
 
-        $this->request('PUT', '/assets/'.$asset->getId(), self::OTHER, ['extraMetadata' => ['a' => 1]]);
+        $this->request('PATCH', '/assets/'.$asset->getId(), self::OTHER, ['extraMetadata' => ['a' => 1]]);
         $this->assertResponseStatusCodeSame(403);
 
         $this->grantUserOnObject(self::OTHER, $workspace, PermissionInterface::VIEW | PermissionInterface::CHILD_OPERATOR);
-        $this->request('PUT', '/assets/'.$asset->getId(), self::OTHER, ['extraMetadata' => ['a' => 1]]);
+        $this->request('PATCH', '/assets/'.$asset->getId(), self::OTHER, ['extraMetadata' => ['a' => 1]]);
         $this->assertResponseIsSuccessful();
     }
 
@@ -167,7 +169,7 @@ final class AssetUpdateTest extends AbstractDataboxTestCase
         $asset = $this->createAsset(['ownerId' => self::OWNER, 'collectionId' => $collection->getId()]);
         $this->grantUserOnObject(self::OTHER, $collection, PermissionInterface::CHILD_OPERATOR);
 
-        $this->request('PUT', '/assets/'.$asset->getId(), self::OTHER, ['extraMetadata' => ['a' => 1]]);
+        $this->request('PATCH', '/assets/'.$asset->getId(), self::OTHER, ['extraMetadata' => ['a' => 1]]);
         $this->assertResponseIsSuccessful();
     }
 
@@ -176,10 +178,10 @@ final class AssetUpdateTest extends AbstractDataboxTestCase
         $this->createOwnedWorkspace(self::OWNER, ['public' => true]);
         $asset = $this->createAsset(['ownerId' => self::OWNER, 'public' => true]);
 
-        $this->request('PUT', '/assets/'.$asset->getId(), null, ['extraMetadata' => ['a' => 1]]);
+        $this->request('PATCH', '/assets/'.$asset->getId(), null, ['extraMetadata' => ['a' => 1]]);
         $this->assertResponseStatusCodeSame(401);
 
-        $this->request('PUT', '/assets/7b2d1d6e-0f9a-4b1c-9c41-1f0d6d0c2f11', self::OWNER, ['extraMetadata' => ['a' => 1]]);
+        $this->request('PATCH', '/assets/7b2d1d6e-0f9a-4b1c-9c41-1f0d6d0c2f11', self::OWNER, ['extraMetadata' => ['a' => 1]]);
         $this->assertResponseStatusCodeSame(404);
     }
 
@@ -193,13 +195,13 @@ final class AssetUpdateTest extends AbstractDataboxTestCase
         $this->addUserOnWorkspace(self::OWNER, $workspace->getId());
         $asset = $this->createAsset(['ownerId' => self::OWNER]);
 
-        $data = $this->request('PUT', '/assets/'.$asset->getId(), self::OWNER, [
+        $data = $this->request('PATCH', '/assets/'.$asset->getId(), self::OWNER, [
             'privacy' => WorkspaceItemPrivacyInterface::PUBLIC,
         ])->toArray();
         $this->assertResponseIsSuccessful();
         $this->assertSame(WorkspaceItemPrivacyInterface::SECRET, $data['privacy']);
 
-        $data = $this->request('PUT', '/assets/'.$asset->getId(), self::ADMIN, [
+        $data = $this->request('PATCH', '/assets/'.$asset->getId(), self::ADMIN, [
             'privacyLabel' => 'public_in_workspace',
         ])->toArray();
         $this->assertResponseIsSuccessful();
@@ -215,7 +217,7 @@ final class AssetUpdateTest extends AbstractDataboxTestCase
         $asset->setSource($oldFile);
         self::getEntityManager()->flush();
 
-        $data = $this->request('PUT', '/assets/'.$asset->getId(), self::OWNER, [
+        $data = $this->request('PATCH', '/assets/'.$asset->getId(), self::OWNER, [
             'sourceFile' => [
                 'url' => 'https://example.com/new.png',
             ],
@@ -241,7 +243,7 @@ final class AssetUpdateTest extends AbstractDataboxTestCase
         ])->toArray();
         $this->assertResponseStatusCodeSame(201);
 
-        $data = $this->request('PUT', '/assets/'.$story['id'], self::OWNER, [
+        $data = $this->request('PATCH', '/assets/'.$story['id'], self::OWNER, [
             'extraMetadata' => ['chapter' => 1],
             // Turning it into a story again (or not) at update is ignored
             'isStory' => false,

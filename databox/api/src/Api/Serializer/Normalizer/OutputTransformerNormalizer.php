@@ -56,20 +56,24 @@ final class OutputTransformerNormalizer implements NormalizerInterface, Denormal
             }
 
             // Second pass on an output DTO (API Platform unsets "output" and normalizes the DTO
-            // as an anonymous resource): expose the original entity IRI so that "@id" does not
-            // fall back to a "/.well-known/genid/" URI.
-            if (null !== $this->iriConverter
-                && isset($context['api_platform_output_class'], $context['api_resource'])
+            // as an anonymous resource): expose the original entity IRI and type so that "@id"
+            // does not fall back to a "/.well-known/genid/" URI and "@type" to the DTO class name.
+            if (isset($context['api_platform_output_class'], $context['api_resource'])
                 && $data::class === $context['api_platform_output_class']
-                && !isset($context['output']['iri'])
+                && !isset($context['output']['types'])
             ) {
-                try {
-                    $context['output']['iri'] = $this->iriConverter->getIriFromResource($context['api_resource']);
-                    $context['output']['gen_id'] = false;
-                    // Prevent the JsonLd normalizer from resetting the IRI of collection members
-                    unset($context['api_collection_sub_level']);
-                } catch (\Exception) {
-                    // Keep the generated id when the entity has no IRI
+                $resource = $context['api_resource'];
+                $context['output']['types'] = [$this->resourceMetadataCollectionFactory->create($this->getObjectClass($resource))[0]->getShortName()];
+
+                if (null !== $this->iriConverter) {
+                    try {
+                        $context['output']['iri'] = $this->iriConverter->getIriFromResource($resource);
+                        $context['output']['gen_id'] = false;
+                        // Prevent the JsonLd normalizer from resetting the IRI of collection members
+                        unset($context['api_collection_sub_level']);
+                    } catch (\Exception) {
+                        // Keep the generated id when the entity has no IRI
+                    }
                 }
             }
         }

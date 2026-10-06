@@ -49,7 +49,7 @@ class AssetPolicyTest extends AbstractSearchTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@context' => '/contexts/asset-policy',
             '@id' => '/asset-policies',
@@ -80,7 +80,7 @@ class AssetPolicyTest extends AbstractSearchTestCase
             ],
         ]);
         $this->assertResponseIsSuccessful();
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@context' => '/contexts/asset-policy',
             '@id' => '/asset-policies',
@@ -138,7 +138,7 @@ actions: This collection should contain 1 element or more.', $response->toArray(
             ],
         ]);
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@type' => 'asset-policy',
             'name' => 'Foo',

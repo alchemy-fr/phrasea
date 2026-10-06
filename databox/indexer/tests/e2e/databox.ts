@@ -128,9 +128,9 @@ async function get<T>(path: string): Promise<T> {
 }
 
 async function members<T>(path: string): Promise<T[]> {
-    const body = await get<{'hydra:member'?: T[]}>(path);
+    const body = await get<{member?: T[]}>(path);
 
-    return body['hydra:member'] ?? [];
+    return body.member ?? [];
 }
 
 /**

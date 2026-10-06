@@ -27,7 +27,7 @@ class ProfileTest extends AbstractDataboxTestCase
 
         $this->assertResponseStatusCodeSame(201);
         $id = $response->toArray()['id'];
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@type' => 'profile',
             'name' => 'Foo',

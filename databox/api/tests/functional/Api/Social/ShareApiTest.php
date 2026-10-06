@@ -226,7 +226,8 @@ final class ShareApiTest extends AbstractDataboxTestCase
         $this->assertResponseIsSuccessful();
 
         // ...but never write access
-        $client->request('PUT', '/shares/'.$share->getId().'?token='.$share->getToken(), [
+        $client->request('PATCH', '/shares/'.$share->getId().'?token='.$share->getToken(), [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
             'json' => ['name' => 'hijacked'],
         ]);
         $this->assertResponseStatusCodeSame(401);
@@ -249,7 +250,7 @@ final class ShareApiTest extends AbstractDataboxTestCase
         $share = $this->createShare(self::USER, [$this->asset]);
         $token = $share->getToken();
 
-        $response = $client->request('PUT', '/shares/'.$share->getId(), self::auth(self::USER, [
+        $response = $client->request('PATCH', '/shares/'.$share->getId(), self::patchOptions(self::USER, [
             'json' => [
                 'name' => 'Renamed',
                 'enabled' => false,
@@ -275,7 +276,7 @@ final class ShareApiTest extends AbstractDataboxTestCase
         $this->setUpWorkspace();
         $share = $this->createShare(self::USER, [$this->asset], ['name' => 'original']);
 
-        $client->request('PUT', '/shares/'.$share->getId(), self::auth(self::OTHER, [
+        $client->request('PATCH', '/shares/'.$share->getId(), self::patchOptions(self::OTHER, [
             'json' => ['name' => 'hijacked'],
         ]));
         $this->assertResponseStatusCodeSame(403);
@@ -303,7 +304,7 @@ final class ShareApiTest extends AbstractDataboxTestCase
         $client->request('GET', '/shares/'.$share->getId(), self::auth(self::USER));
         $this->assertResponseIsSuccessful();
 
-        $client->request('PUT', '/shares/'.$share->getId(), self::auth(self::USER, [
+        $client->request('PATCH', '/shares/'.$share->getId(), self::patchOptions(self::USER, [
             'json' => ['name' => 'moderated'],
         ]));
         $this->assertResponseIsSuccessful();
@@ -327,7 +328,7 @@ final class ShareApiTest extends AbstractDataboxTestCase
         ]);
         $share = $this->createShare(self::OTHER, [$own]);
 
-        $client->request('PUT', '/shares/'.$share->getId(), self::auth(self::OTHER, [
+        $client->request('PATCH', '/shares/'.$share->getId(), self::patchOptions(self::OTHER, [
             'json' => ['assets' => [self::assetIri($own), self::assetIri($secret)]],
         ]));
         $this->assertResponseStatusCodeSame(403);
@@ -340,7 +341,7 @@ final class ShareApiTest extends AbstractDataboxTestCase
             'workspace' => self::managed($this->workspace),
             'ownerId' => self::OTHER,
         ]);
-        $response = $client->request('PUT', '/shares/'.$share->getId(), self::auth(self::OTHER, [
+        $response = $client->request('PATCH', '/shares/'.$share->getId(), self::patchOptions(self::OTHER, [
             'json' => ['assets' => [self::assetIri($own), self::assetIri($ownToo)]],
         ]));
         $this->assertResponseIsSuccessful();
@@ -367,7 +368,7 @@ final class ShareApiTest extends AbstractDataboxTestCase
         $this->assertSame(self::USER, $share->getOwnerId(), 'The share belongs to its creator');
         $token = $share->getToken();
 
-        $client->request('PUT', '/shares/'.$share->getId(), self::auth(self::USER, [
+        $client->request('PATCH', '/shares/'.$share->getId(), self::patchOptions(self::USER, [
             'json' => [
                 'ownerId' => self::OTHER,
                 'token' => $forgedToken,
@@ -447,11 +448,11 @@ final class ShareApiTest extends AbstractDataboxTestCase
         $this->assertResponseIsSuccessful();
         $data = $response->toArray();
 
-        $this->assertSame(2, $data['hydra:totalItems']);
-        $names = array_column($data['hydra:member'], 'name');
+        $this->assertSame(2, $data['totalItems']);
+        $names = array_column($data['member'], 'name');
         sort($names);
         $this->assertSame(['first', 'second'], $names);
-        $ids = array_column($data['hydra:member'], 'id');
+        $ids = array_column($data['member'], 'id');
         $this->assertContains($first->getId(), $ids);
         $this->assertContains($second->getId(), $ids);
     }
@@ -472,7 +473,7 @@ final class ShareApiTest extends AbstractDataboxTestCase
 
         $response = $client->request('GET', '/shares?assetId='.$this->asset->getId(), self::auth(self::OTHER));
         $this->assertResponseIsSuccessful();
-        $tokens = array_column($response->toArray()['hydra:member'], 'token');
+        $tokens = array_column($response->toArray()['member'], 'token');
         $this->assertSame([], $tokens);
     }
 }

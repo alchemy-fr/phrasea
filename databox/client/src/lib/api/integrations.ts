@@ -133,7 +133,7 @@ export function putIntegration(
 ): Promise<WorkspaceIntegration> {
     const {workspace: _w, ...rest} = data;
 
-    return api.put<WorkspaceIntegration>(
+    return api.patch<WorkspaceIntegration>(
         `/${EntityName.Integration}/${id}`,
         toIris(rest)
     );
@@ -177,7 +177,7 @@ export function saveAttributeFilterRule(data: {
     const {id, ...payload} = data;
 
     return id
-        ? api.put<AttributeFilterRule>(`/attribute-filter-rules/${id}`, payload)
+        ? api.patch<AttributeFilterRule>(`/attribute-filter-rules/${id}`, payload)
         : api.post<AttributeFilterRule>('/attribute-filter-rules', payload);
 }
 

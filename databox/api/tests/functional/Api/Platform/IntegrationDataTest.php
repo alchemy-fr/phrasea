@@ -29,7 +29,7 @@ final class IntegrationDataTest extends AbstractDataboxTestCase
         ]);
         $this->assertResponseIsSuccessful();
 
-        return $response->toArray()['hydra:member'];
+        return $response->toArray()['member'];
     }
 
     private function findData(string $id): ?IntegrationData
@@ -128,7 +128,7 @@ final class IntegrationDataTest extends AbstractDataboxTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-        $items = array_column($response->toArray()['hydra:member'], null, 'id');
+        $items = array_column($response->toArray()['member'], null, 'id');
         $this->assertEqualsCanonicalizing([$valid->getId(), $expired->getId()], array_keys($items));
         $this->assertFalse($items[$valid->getId()]['expired']);
         $this->assertTrue($items[$expired->getId()]['expired']);
@@ -149,7 +149,7 @@ final class IntegrationDataTest extends AbstractDataboxTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame([$mine->getId()], array_column($response->toArray()['hydra:member'], 'id'));
+        $this->assertSame([$mine->getId()], array_column($response->toArray()['member'], 'id'));
     }
 
     public function testTokensOfAnInaccessibleWorkspaceCannotBeListed(): void
@@ -183,8 +183,8 @@ final class IntegrationDataTest extends AbstractDataboxTestCase
 
         $client->request('GET', '/integration-datas/'.$id, ['headers' => $this->headers(self::OWNER)]);
         $this->assertResponseStatusCodeSame(403);
-        $client->request('PUT', '/integration-datas/'.$id, [
-            'headers' => $this->headers(self::OWNER),
+        $client->request('PATCH', '/integration-datas/'.$id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->headers(self::OWNER),
             'json' => ['value' => 'hacked'],
         ]);
         $this->assertResponseStatusCodeSame(403);
@@ -202,8 +202,8 @@ final class IntegrationDataTest extends AbstractDataboxTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSame(['name' => 'note', 'value' => 'v1', 'id' => $id], array_intersect_key($response->toArray(), ['name' => 1, 'value' => 1, 'id' => 1]));
 
-        $client->request('PUT', '/integration-datas/'.$id, [
-            'headers' => $admin,
+        $client->request('PATCH', '/integration-datas/'.$id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $admin,
             'json' => ['value' => 'v2'],
         ]);
         $this->assertResponseIsSuccessful();
@@ -312,7 +312,7 @@ final class IntegrationDataTest extends AbstractDataboxTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(403);
-        $this->assertSame('Cannot interact with this integration', $response->toArray(false)['hydra:description']);
+        $this->assertSame('Cannot interact with this integration', $response->toArray(false)['detail']);
     }
 
     public function testAnActionRequiresEditingTheFile(): void
@@ -370,7 +370,7 @@ final class IntegrationDataTest extends AbstractDataboxTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(400);
-        $this->assertSame('Missing "id"', $response->toArray(false)['hydra:description']);
+        $this->assertSame('Missing "id"', $response->toArray(false)['detail']);
     }
 
     public static function getInvalidActionCalls(): iterable

@@ -127,7 +127,7 @@ class AssetDirectCollectionSearchTest extends AbstractSearchTest
             'query' => $query,
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $names = array_map(fn (array $asset): ?string => $asset['name'] ?? null, $data);
         sort($names);
 

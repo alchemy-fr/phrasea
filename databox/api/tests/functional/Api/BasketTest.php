@@ -35,7 +35,7 @@ class BasketTest extends AbstractSearchTestCase
             ],
         ]);
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame([$id], array_column($response->toArray()['hydra:member'], 'id'));
+        $this->assertSame([$id], array_column($response->toArray()['member'], 'id'));
 
         // Other user does not see it in the list
         $response = $client->request('GET', '/baskets', [
@@ -44,7 +44,7 @@ class BasketTest extends AbstractSearchTestCase
             ],
         ]);
         $this->assertResponseStatusCodeSame(200);
-        $this->assertSame([], array_column($response->toArray()['hydra:member'], 'id'));
+        $this->assertSame([], array_column($response->toArray()['member'], 'id'));
 
         // Other user cannot read it
         $client->request('GET', '/baskets/'.$id, [

@@ -28,7 +28,7 @@ final class AssetReadTest extends AbstractDataboxTestCase
         $response = $this->request('GET', '/assets/'.$asset->getId(), self::OWNER);
 
         $this->assertResponseIsSuccessful();
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $data = $response->toArray();
         $this->assertSame('/assets/'.$asset->getId(), $data['@id']);
         $this->assertSame('asset', $data['@type']);
