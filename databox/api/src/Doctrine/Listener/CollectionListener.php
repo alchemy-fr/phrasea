@@ -11,7 +11,6 @@ use App\Consumer\Handler\Search\ComputeCollectionBranch;
 use App\Consumer\Handler\Search\IndexCollectionBranch;
 use App\Entity\Core\Collection;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostPersistEventArgs;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
@@ -21,7 +20,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 #[AsDoctrineListener(Events::postUpdate)]
 #[AsDoctrineListener(Events::postPersist)]
 #[AsDoctrineListener(Events::onFlush)]
-class CollectionListener implements EventSubscriber
+class CollectionListener
 {
     use ChangeFieldListenerTrait;
 
@@ -87,12 +86,5 @@ class CollectionListener implements EventSubscriber
                 $this->postFlushStack->addBusMessage(new DeleteCollection($entity->getId()));
             }
         }
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::postUpdate,
-        ];
     }
 }

@@ -11,14 +11,13 @@ use Alchemy\StorageBundle\Upload\UploadManager;
 use Alchemy\StorageBundle\Util\FileUtil;
 use Aws\S3\Exception\S3Exception;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PostRemoveEventArgs;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::postRemove)]
 #[AsDoctrineListener(Events::prePersist)]
-final readonly class MultipartUploadListener implements EventSubscriber
+final readonly class MultipartUploadListener
 {
     public function __construct(
         private UploadManager $uploadManager,
@@ -63,13 +62,5 @@ final readonly class MultipartUploadListener implements EventSubscriber
                 $this->planner->getPartCount($entity->getSize(), $chunkSize),
             ));
         }
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::postRemove,
-            Events::prePersist,
-        ];
     }
 }

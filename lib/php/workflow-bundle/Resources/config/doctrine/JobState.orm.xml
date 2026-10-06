@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping https://www.doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+    <!-- The "workflow" relation is mapped by EntityLoadListener, towards the configured workflow state entity -->
+    <entity name="Alchemy\Workflow\Doctrine\Entity\JobState" table="job_state">
+        <indexes>
+            <index name="workflow_job" columns="workflow_id,job_id"/>
+        </indexes>
+        <id name="id" type="string" length="36"/>
+        <field name="state" type="text"/>
+        <field name="jobId" type="string" length="100"/>
+        <field name="triggeredAt" type="datetime_immutable"/>
+        <field name="startedAt" type="datetime_immutable" nullable="true"/>
+        <field name="endedAt" type="datetime_immutable" nullable="true"/>
+        <field name="status" type="smallint"/>
+        <field name="number" type="smallint"/>
+    </entity>
+</doctrine-mapping>

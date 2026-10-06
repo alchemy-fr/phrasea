@@ -27,7 +27,7 @@ class AssetRepository extends EntityRepository
     public function findAssetPublicationOwnedBy(Asset $asset, string $ownerId): ?Publication
     {
         return $this
-            ->_em
+            ->getEntityManager()
             ->createQueryBuilder('p')
             ->select('p')
             ->from(Publication::class, 'p')

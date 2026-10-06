@@ -9,7 +9,6 @@ use App\Consumer\Handler\DeleteAsset;
 use App\Entity\Asset;
 use App\Entity\SubDefinition;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PrePersistEventArgs;
@@ -18,7 +17,7 @@ use Doctrine\Persistence\ObjectManager;
 
 #[AsDoctrineListener(Events::onFlush)]
 #[AsDoctrineListener(Events::prePersist)]
-class AssetListener implements EventSubscriber
+class AssetListener
 {
     private array $positionCache = [];
 
@@ -66,7 +65,7 @@ class AssetListener implements EventSubscriber
 
     public function onFlush(OnFlushEventArgs $args): void
     {
-        $em = $args->getEntityManager();
+        $em = $args->getObjectManager();
         $uow = $em->getUnitOfWork();
 
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
@@ -74,13 +73,5 @@ class AssetListener implements EventSubscriber
                 $this->postFlushStack->addBusMessage(new DeleteAsset($entity->getPath()));
             }
         }
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::onFlush,
-            Events::prePersist,
-        ];
     }
 }

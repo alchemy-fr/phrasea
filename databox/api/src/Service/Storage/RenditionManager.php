@@ -202,10 +202,8 @@ final class RenditionManager
             ->innerJoin('r.definition', 'd')
             ->andWhere('r.asset = :asset')
             ->andWhere('d.name = :name')
-            ->setParameters([
-                'asset' => $assetId,
-                'name' => $renditionName,
-            ])
+            ->setParameter('asset', $assetId)
+            ->setParameter('name', $renditionName)
             ->getQuery()
             ->getOneOrNullResult();
     }
@@ -221,10 +219,8 @@ final class RenditionManager
             ->andWhere('r.asset = :asset')
             ->andWhere('p.public = true')
             ->andWhere(sprintf('d.useAs%s = :as', ucfirst($as)))
-            ->setParameters([
-                'asset' => $assetId,
-                'as' => true,
-            ])
+            ->setParameter('asset', $assetId)
+            ->setParameter('as', true)
             ->addOrderBy('d.priority', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
@@ -245,10 +241,8 @@ final class RenditionManager
             ->andWhere('r.asset = :asset')
             ->andWhere('p.public = true')
             ->andWhere(sprintf('d.useAs%s = :as', ucfirst($as)))
-            ->setParameters([
-                'asset' => $assetId,
-                'as' => true,
-            ])
+            ->setParameter('asset', $assetId)
+            ->setParameter('as', true)
             ->addOrderBy('d.priority', 'DESC')
             ->getQuery()
             ->getResult();

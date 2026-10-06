@@ -7,13 +7,12 @@ namespace App\Listener\Doctrine;
 use App\Consumer\Handler\DeleteAssetFile;
 use App\Entity\Asset;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PostRemoveEventArgs;
 use Doctrine\ORM\Events;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 #[AsDoctrineListener(Events::postRemove)]
-readonly class AssetListener implements EventSubscriber
+readonly class AssetListener
 {
     public function __construct(private MessageBusInterface $bus)
     {
@@ -27,12 +26,5 @@ readonly class AssetListener implements EventSubscriber
         }
 
         $this->bus->dispatch(new DeleteAssetFile($asset->getPath()));
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::postRemove,
-        ];
     }
 }

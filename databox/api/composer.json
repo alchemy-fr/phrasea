@@ -7,6 +7,10 @@
             "url": "https://github.com/alchemy-fr/PHPExiftool"
         },
         {
+            "type": "vcs",
+            "url": "https://github.com/alchemy-fr/Zippy"
+        },
+        {
             "type": "package",
             "package": {
                 "name": "exiftool/exiftool",
@@ -17,10 +21,6 @@
                     "reference": "13.59"
                 }
             }
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/4rthem/DoctrineExtensions.git"
         },
         {
             "type": "path",
@@ -159,6 +159,7 @@
         "alchemy/messenger-bundle": "@dev",
         "alchemy/metadata-manipulator-bundle": "@dev",
         "alchemy/notifier-bundle": "@dev",
+        "alchemy/phpexiftool": "dev-symfony-8 as 4.3.0",
         "alchemy/rendition-factory": "@dev",
         "alchemy/rendition-factory-bundle": "@dev",
         "alchemy/storage-bundle": "*",
@@ -166,22 +167,20 @@
         "alchemy/track-bundle": "@dev",
         "alchemy/webhook-bundle": "@dev",
         "alchemy/workflow-bundle": "@dev",
-        "alchemy/zippy": "^2.0",
+        "alchemy/zippy": "dev-symfony-8 as 2.1.0",
         "api-platform/core": "^4.4",
         "arthem/object-reference-bundle": "^1.0.0",
-        "beberlei/doctrineextensions": "dev-regex-replace-flags",
         "cocur/slugify": "^4.1",
         "composer/package-versions-deprecated": "^1.11",
-        "doctrine/annotations": "^2.0",
-        "doctrine/dbal": "^3.6",
-        "doctrine/doctrine-bundle": "^2.9",
-        "doctrine/doctrine-migrations-bundle": "^3.0",
-        "doctrine/orm": "^2.7",
+        "doctrine/dbal": "^4.0",
+        "doctrine/doctrine-bundle": "^3.0",
+        "doctrine/doctrine-migrations-bundle": "^3.7",
+        "doctrine/orm": "^3.3",
         "dompdf/dompdf": "^3.1",
         "exercise/htmlpurifier-bundle": "^5.2",
         "friendsofsymfony/elastica-bundle": "^7.2",
-        "gedmo/doctrine-extensions": "^3.5",
-        "hautelook/alice-bundle": "^2.10",
+        "gedmo/doctrine-extensions": "^3.17",
+        "hautelook/alice-bundle": "^2.17",
         "intervention/image": "^2.7",
         "kornrunner/blurhash": "^1.2",
         "lcobucci/clock": "^3.2",
@@ -195,7 +194,7 @@
         "pusher/pusher-php-server": "^7.2.4",
         "ramsey/uuid-doctrine": "^2.0",
         "smuuf/php-peg": "^3.1",
-        "stof/doctrine-extensions-bundle": "^1.7",
+        "stof/doctrine-extensions-bundle": "^1.15",
         "symfony/amqp-messenger": "^7.4",
         "symfony/asset": "^7.4",
         "symfony/console": "^7.4",
