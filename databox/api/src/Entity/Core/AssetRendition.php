@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Model\Input\AssetRenditionInput;
@@ -40,6 +41,13 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
         new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)', processor: InputMapperProcessor::class),
         new GetCollection(
             order: ['definition.position' => 'ASC'],
+            parameters: [
+                'assetId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Asset ID (mandatory)',
+                    castToArray: false,
+                ),
+            ],
         ),
         new Post(
             openapi: new OpenApiOperation(

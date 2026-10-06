@@ -31,11 +31,7 @@ final class ThreadMessagesProvider implements ProviderInterface
 
         $this->denyAccessUnlessGranted(AbstractVoter::READ, $thread);
 
-        $filters = $context['filters'] ?? [];
-        $filters['threadId'] = $threadId;
-
-        $context['filters'] = $filters;
-
+        // The "threadId" URI variable restricts the collection to the thread
         return $this->collectionProvider->provide($operation, $uriVariables, $context);
     }
 }

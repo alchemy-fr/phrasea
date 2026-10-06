@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Output\ShareAlternateUrlOutput;
 use App\Api\Model\Output\ShareAttachmentOutput;
 use App\Api\Model\Output\ShareTermsOutput;
@@ -96,6 +97,13 @@ use Symfony\Component\String\ByteString;
         ),
         new GetCollection(
             provider: ShareCollectionProvider::class,
+            parameters: [
+                'assetId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Asset ID (mandatory)',
+                    castToArray: false,
+                ),
+            ],
         ),
         new Post(
             securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',
