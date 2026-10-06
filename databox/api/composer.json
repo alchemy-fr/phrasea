@@ -7,10 +7,6 @@
             "url": "https://github.com/4rthem/object-reference-bundle"
         },
         {
-            "type": "vcs",
-            "url": "https://github.com/alchemy-fr/acl-bundle"
-        },
-        {
             "type": "git",
             "url": "https://github.com/alchemy-fr/PHPExiftool"
         },

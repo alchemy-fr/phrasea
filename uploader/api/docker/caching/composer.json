@@ -3,10 +3,6 @@
     "license": "proprietary",
     "repositories": [
         {
-            "type": "vcs",
-            "url": "https://github.com/alchemy-fr/acl-bundle"
-        },
-        {
             "type": "path",
             "url": "../../lib/php/admin-bundle",
             "options": {
@@ -90,7 +86,7 @@
         "php": "^8.5",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "alchemy/acl-bundle": "dev-symfony-8 as 1.4.0",
+        "alchemy/acl-bundle": "^1.5.0",
         "api-platform/core": "^5.0",
         "doctrine/common": "^3",
         "doctrine/doctrine-bundle": "^3.0",
