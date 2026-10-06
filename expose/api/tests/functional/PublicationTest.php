@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Publication;
 use App\Entity\PublicationProfile;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
@@ -330,9 +331,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertNotNull($json['assets'][0]['id']);
     }
 
-    /**
-     * @dataProvider publicationAndProfilesProvider
-     */
+    #[DataProvider('publicationAndProfilesProvider')]
     public function testPublicationConfig(array $publicationOptions, array $profileOptions, array $expectations): void
     {
         $profile = new PublicationProfile();
@@ -352,7 +351,7 @@ class PublicationTest extends AbstractExposeTestCase
         }
     }
 
-    public function publicationAndProfilesProvider(): array
+    public static function publicationAndProfilesProvider(): array
     {
         return [
             [
@@ -576,9 +575,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(401, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider getPublicationVisibilityData
-     */
+    #[DataProvider('getPublicationVisibilityData')]
     public function testPublicationVisibility(bool $enabled, ?string $start, ?string $end, bool $shouldBeVisible): void
     {
         $options = [
@@ -595,7 +592,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals($shouldBeVisible ? 200 : 401, $response->getStatusCode());
     }
 
-    public function getPublicationVisibilityData(): array
+    public static function getPublicationVisibilityData(): array
     {
         return [
             [false, null, null, false],
@@ -607,9 +604,7 @@ class PublicationTest extends AbstractExposeTestCase
         ];
     }
 
-    /**
-     * @dataProvider getPublicationPubliclyListedData
-     */
+    #[DataProvider('getPublicationPubliclyListedData')]
     public function testPublicationPubliclyListed(bool $listed, bool $enabled, ?string $start, ?string $end, bool $shouldBeVisible): void
     {
         $options = [
@@ -629,7 +624,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertCount($shouldBeVisible ? 1 : 0, $json);
     }
 
-    public function getPublicationPubliclyListedData(): array
+    public static function getPublicationPubliclyListedData(): array
     {
         return [
             [true, false, null, null, false],

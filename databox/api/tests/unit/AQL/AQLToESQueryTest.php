@@ -25,6 +25,7 @@ use App\Elasticsearch\BuiltInAttribute\WorkspaceBuiltInAttribute;
 use App\Entity\Core\Collection;
 use App\Tests\Unit\Attribute\Type\AttributeTypeRegistryTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Contracts\Service\ServiceLocatorTrait;
@@ -48,17 +49,15 @@ class AQLToESQueryTest extends TestCase
         self::COLL_B => '/'.self::COLL_A.'/'.self::COLL_B,
     ];
 
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testAQLToQuery(string $expression, string|array $expectedQuery, ?string $locale = null): void
     {
         $parser = new AQLParser();
         $result = $parser->parse($expression);
         $em = $this->createMock(EntityManagerInterface::class);
         $em->method('find')->willReturnCallback(fn (string $class, mixed $id): ?Collection => $this->createCollectionStub($class, $id));
-        $translator = $this->createMock(TranslatorInterface::class);
-        $security = $this->createMock(Security::class);
+        $translator = $this->createStub(TranslatorInterface::class);
+        $security = $this->createStub(Security::class);
 
         $functionRegistry = new AQLFunctionRegistry();
         $functionRegistry->register(new MockNowFunction());
@@ -156,7 +155,7 @@ class AQLToESQueryTest extends TestCase
         return $collection;
     }
 
-    public function getCases(): array
+    public static function getCases(): array
     {
         return [
             // @collection is recursive: the "collectionPaths" field is analyzed

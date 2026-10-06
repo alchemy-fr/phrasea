@@ -7,7 +7,7 @@ namespace App\Tests\Functional\Asset;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-class AssetGetTest extends AbstractAssetTest
+class AssetGetTest extends AbstractAssetTestCase
 {
     public function testAssetGetOK(): void
     {

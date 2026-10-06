@@ -9,8 +9,9 @@ use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\Workspace;
+use App\Tests\Functional\AbstractSearchTestCase;
 
-class SuggestionSearchTest extends AbstractSearchTest
+class SuggestionSearchTest extends AbstractSearchTestCase
 {
     private static function releaseIndex(): void
     {

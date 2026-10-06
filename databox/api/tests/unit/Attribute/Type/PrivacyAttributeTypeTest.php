@@ -8,7 +8,7 @@ use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\PrivacyAttributeType;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 
-class PrivacyAttributeTypeTest extends AbstractAttributeTypeTest
+class PrivacyAttributeTypeTest extends AbstractAttributeTypeTestCase
 {
     protected function getType(): AttributeTypeInterface
     {
@@ -16,7 +16,7 @@ class PrivacyAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getValidationCases(): array
+    public static function getValidationCases(): array
     {
         return [
             ...parent::getValidationCases(),
@@ -34,7 +34,7 @@ class PrivacyAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getNormalizationCases(): array
+    public static function getNormalizationCases(): array
     {
         return [
             ...parent::getNormalizationCases(),

@@ -5,27 +5,24 @@ declare(strict_types=1);
 namespace Alchemy\StorageBundle\Tests;
 
 use Alchemy\StorageBundle\Util\FileUtil;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class FileUtilTest extends TestCase
 {
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testGetExtensionFromPath(?string $expectedExtension, string $path): void
     {
         $this->assertEquals($expectedExtension, FileUtil::getExtensionFromPath($path));
     }
 
-    /**
-     * @dataProvider getTypeCases
-     */
+    #[DataProvider('getTypeCases')]
     public function testGetTypeFromExtension(?string $expectedType, ?string $extension): void
     {
         $this->assertEquals($expectedType, FileUtil::getTypeFromExtension($extension));
     }
 
-    public function getTypeCases(): array
+    public static function getTypeCases(): array
     {
         return [
             ['image/jpeg', 'jpg'],
@@ -39,15 +36,13 @@ class FileUtilTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getStripExtensionCases
-     */
+    #[DataProvider('getStripExtensionCases')]
     public function testStripExtension(string $expected, string $filename): void
     {
         $this->assertEquals($expected, FileUtil::stripExtension($filename));
     }
 
-    public function getStripExtensionCases(): array
+    public static function getStripExtensionCases(): array
     {
         return [
             ['foo', 'foo.jpg'],
@@ -63,7 +58,7 @@ class FileUtilTest extends TestCase
         ];
     }
 
-    public function getCases(): array
+    public static function getCases(): array
     {
         return [
             ['jpg', 'foo.jpg'],

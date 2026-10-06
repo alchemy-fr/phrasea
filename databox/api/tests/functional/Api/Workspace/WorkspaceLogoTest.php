@@ -11,6 +11,7 @@ use Alchemy\StorageBundle\Storage\FileStorageManager;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * POST/DELETE /workspaces/{id}/logo, complementing WorkspaceTermsTest::testWorkspaceLogoUpload
@@ -143,9 +144,7 @@ final class WorkspaceLogoTest extends AbstractDataboxTestCase
         ];
     }
 
-    /**
-     * @dataProvider accessProvider
-     */
+    #[DataProvider('accessProvider')]
     public function testUploadAccess(?string $userId, ?int $mask, int $expectedStatus): void
     {
         $ws = $this->createWs('ws', ['public' => true]);
@@ -166,9 +165,7 @@ final class WorkspaceLogoTest extends AbstractDataboxTestCase
         }
     }
 
-    /**
-     * @dataProvider accessProvider
-     */
+    #[DataProvider('accessProvider')]
     public function testDeleteAccess(?string $userId, ?int $mask, int $expectedStatus): void
     {
         $ws = $this->createWs('ws', ['public' => true, 'ownerId' => self::ADMIN]);

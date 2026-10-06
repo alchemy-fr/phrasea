@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class ValidateTest extends AbstractUploaderTestCase
 {
@@ -45,9 +46,7 @@ class ValidateTest extends AbstractUploaderTestCase
         $this->assertEquals(401, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider formDataProvider
-     */
+    #[DataProvider('formDataProvider')]
     public function testValidateGivesErrors(array $data, array $exceptedErrors): void
     {
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/form/validate', [
@@ -60,7 +59,7 @@ class ValidateTest extends AbstractUploaderTestCase
         $this->assertEquals(['errors' => $exceptedErrors], $json);
     }
 
-    public function formDataProvider(): array
+    public static function formDataProvider(): array
     {
         return [
             [[

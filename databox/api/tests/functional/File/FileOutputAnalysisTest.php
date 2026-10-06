@@ -11,6 +11,7 @@ use App\Entity\Core\File;
 use App\Entity\Core\FileAnalysisStateEnum;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use App\Tests\Unit\File\FileAnalysisTrait;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * How the analysis state of a file is exposed by the API (the entity-level
@@ -39,9 +40,7 @@ class FileOutputAnalysisTest extends AbstractDataboxTestCase
         yield 'not enforced, failed' => [false, ['status' => File::ANALYSIS_FAILED], true];
     }
 
-    /**
-     * @dataProvider acceptedProvider
-     */
+    #[DataProvider('acceptedProvider')]
     public function testAcceptedAndPendingAreUnchanged(bool $enforced, ?array $analysis, ?bool $expectedAccepted): void
     {
         $output = $this->transform($this->createAnalyzedFile($enforced, $analysis), [File::GROUP_LIST]);

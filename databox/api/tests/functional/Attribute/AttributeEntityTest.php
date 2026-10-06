@@ -11,9 +11,9 @@ use App\Elasticsearch\ElasticSearchClient;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
-use App\Tests\Functional\Search\AbstractSearchTest;
+use App\Tests\Functional\AbstractSearchTestCase;
 
-class AttributeEntityTest extends AbstractSearchTest
+class AttributeEntityTest extends AbstractSearchTestCase
 {
     public function testAttributeEntityMerge(): void
     {

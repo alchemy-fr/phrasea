@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\StorageBundle\Tests;
 
 use Alchemy\StorageBundle\Api\Dto\PartInput;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -18,9 +19,7 @@ class PartInputTest extends TestCase
         $this->assertSame('"abc"', $part->ETag);
     }
 
-    /**
-     * @dataProvider invalidPartProvider
-     */
+    #[DataProvider('invalidPartProvider')]
     public function testInvalidPartIsRejected(array $data): void
     {
         $this->expectException(BadRequestHttpException::class);
@@ -28,7 +27,7 @@ class PartInputTest extends TestCase
         PartInput::fromArray($data);
     }
 
-    public function invalidPartProvider(): array
+    public static function invalidPartProvider(): array
     {
         return [
             'missing ETag' => [['PartNumber' => 1]],

@@ -6,6 +6,7 @@ namespace App\Tests\Functional\Api\Workspace;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Read-only reference resources computed in memory (no database row):
@@ -28,9 +29,7 @@ final class ReferenceDataTest extends AbstractDataboxTestCase
         ];
     }
 
-    /**
-     * @dataProvider referenceCollectionsProvider
-     */
+    #[DataProvider('referenceCollectionsProvider')]
     public function testReferenceCollectionsArePublic(string $uri, string $type): void
     {
         $client = static::createClient();

@@ -11,6 +11,7 @@ use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface as Privacy;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * POST /collection-assets, DELETE /collection-assets/{id}
@@ -63,9 +64,7 @@ final class CollectionAssetRelationTest extends AbstractDataboxTestCase
         yield 'anonymous' => ['anonymous', 401];
     }
 
-    /**
-     * @dataProvider getCreateMatrix
-     */
+    #[DataProvider('getCreateMatrix')]
     public function testAddRequiresAssetCreateOnCollection(int|string $grant, int $expectedCode): void
     {
         [$collection, $asset] = $this->createFixtures([
@@ -179,9 +178,7 @@ final class CollectionAssetRelationTest extends AbstractDataboxTestCase
         yield 'admin' => ['admin', 204];
     }
 
-    /**
-     * @dataProvider getDeleteMatrix
-     */
+    #[DataProvider('getDeleteMatrix')]
     public function testRemoveAssetFromCollection(int|string $grant, int $expectedCode): void
     {
         [$collection, $asset] = $this->createFixtures([

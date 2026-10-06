@@ -7,7 +7,7 @@ namespace App\Tests\Unit\Attribute\Type;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\ColorAttributeType;
 
-class ColorAttributeTypeTest extends AbstractAttributeTypeTest
+class ColorAttributeTypeTest extends AbstractAttributeTypeTestCase
 {
     protected function getType(): AttributeTypeInterface
     {
@@ -15,7 +15,7 @@ class ColorAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getValidationCases(): array
+    public static function getValidationCases(): array
     {
         return [
             ...parent::getValidationCases(),
@@ -28,7 +28,7 @@ class ColorAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getConvertToDbValueCases(): array
+    public static function getConvertToDbValueCases(): array
     {
         return [
             ...parent::getConvertToDbValueCases(),

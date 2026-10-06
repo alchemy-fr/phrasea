@@ -12,6 +12,7 @@ use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\IntegrationToken;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * What integrations store (data, OAuth tokens) and the user actions they
@@ -381,9 +382,7 @@ final class IntegrationDataTest extends AbstractDataboxTestCase
         yield 'integration without user actions' => ['webhook', 'delete', 400];
     }
 
-    /**
-     * @dataProvider getInvalidActionCalls
-     */
+    #[DataProvider('getInvalidActionCalls')]
     public function testInvalidActionCallsAreRejectedCleanly(string $target, string $action, int $expectedCode): void
     {
         $this->markTestIncomplete('BUG: the integration action endpoint turns client errors into 500: unknown integration (IntegrationManager::loadIntegration throws \InvalidArgumentException, src/Integration/IntegrationManager.php:62), integration without user actions (src/Integration/IntegrationManager.php:49), unknown action (\InvalidArgumentException in TuiPhotoEditorIntegration::handleUserAction, src/Integration/ToastUi/TuiPhotoEditorIntegration.php:65, same in RemoveBgIntegration) and missing "fileId" (TypeError in FileUserActionsTrait::getFile, src/Integration/Action/FileUserActionsTrait.php:36).');

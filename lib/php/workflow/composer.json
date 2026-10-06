@@ -39,7 +39,7 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.17",
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "^11.5",
         "symfony/http-kernel": "^6 || ^7",
         "symfony/var-dumper": "^5.4",
         "symfony/messenger": "^6.4",

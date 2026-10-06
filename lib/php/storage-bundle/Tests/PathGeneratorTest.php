@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace Alchemy\StorageBundle\Tests;
 
 use Alchemy\StorageBundle\Storage\PathGenerator;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class PathGeneratorTest extends TestCase
 {
-    /**
-     * @dataProvider extensionProvider
-     */
+    #[DataProvider('extensionProvider')]
     public function testGeneratedPathIsSane(?string $extension, string $expectedSuffix): void
     {
         $path = new PathGenerator()->generatePath($extension, 'files/');
@@ -20,7 +19,7 @@ class PathGeneratorTest extends TestCase
         $this->assertSame($path, trim($path));
     }
 
-    public function extensionProvider(): array
+    public static function extensionProvider(): array
     {
         return [
             ['jpg', '.jpg'],

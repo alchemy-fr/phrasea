@@ -92,7 +92,7 @@ final class InAppChannelPushTest extends TestCase
             '@notifications/asset/comment/in_app.html.twig' => '{% block body %}Hello{% endblock %}',
         ])));
 
-        $em = $this->createMock(EntityManagerInterface::class);
+        $em = $this->createStub(EntityManagerInterface::class);
 
         $channel = new InAppChannel($em, $pusherManager, 'private-user-', 'notification', $renderer);
 

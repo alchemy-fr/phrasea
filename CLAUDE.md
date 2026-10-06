@@ -108,11 +108,15 @@ dc run --rm databox-api-php composer phpunit:compact   # same, agent-friendly ou
 ```
 
 **Prefer `composer phpunit:compact`** (databox, expose, uploader): same run as
-`composer phpunit` but with `Alchemy\ApiTest\PHPUnit\CompactResultPrinter` — no
-per-test dot progress, full error/failure traces, and a final one-line-per-defect
-recap, so even `| tail -50` shows the counts and every failing test name. For a
-direct `bin/phpunit` call, add
-`--printer 'Alchemy\ApiTest\PHPUnit\CompactResultPrinter'`.
+`composer phpunit` but with the `Alchemy\ApiTest\PHPUnit\CompactResultExtension`
+PHPUnit extension — no per-test dot progress, full error/failure traces, and a
+final one-line-per-defect recap, so even `| tail -50` shows the counts and every
+failing test name. For a direct `bin/phpunit` call, add
+`--extension 'Alchemy\ApiTest\PHPUnit\CompactResultExtension'`.
+
+PHPUnit is 11.5: data providers are `public static` methods referenced with
+`#[DataProvider('name')]` (no `@dataProvider` annotation), and abstract test base
+classes are named `*TestCase` (PHPUnit warns about abstract `*Test` classes).
 
 **PHPUnit needs 1G of memory.** The `composer phpunit` scripts already pass
 `-d memory_limit=1024M`; when calling `bin/phpunit` directly, pass it yourself —

@@ -9,6 +9,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Workspace;
 use App\Tests\Functional\AbstractSearchTestCase;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class AttributeBatchUpdateTest extends AbstractSearchTestCase
@@ -52,9 +53,7 @@ class AttributeBatchUpdateTest extends AbstractSearchTestCase
         $this->assertResponseStatusCodeSame(400);
     }
 
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testAttributesBatchUpdateOK(array $actions, array $expectedAssets): void
     {
         $response = $this->batchAction($actions);
@@ -128,7 +127,7 @@ class AttributeBatchUpdateTest extends AbstractSearchTestCase
         ]);
     }
 
-    public function getCases(): array
+    public static function getCases(): array
     {
         return [
             [

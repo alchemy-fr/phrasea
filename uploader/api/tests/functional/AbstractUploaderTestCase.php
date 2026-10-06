@@ -16,6 +16,8 @@ abstract class AbstractUploaderTestCase extends ApiTestCase
     use FixturesTrait;
     use ApiTestTrait;
 
+    protected static ?bool $alwaysBootKernel = true;
+
     protected static function bootKernel(array $options = []): KernelInterface
     {
         return static::bootKernelWithFixtures($options);

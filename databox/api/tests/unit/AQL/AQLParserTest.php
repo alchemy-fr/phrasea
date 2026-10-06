@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Tests\Unit\AQL;
 
 use App\Elasticsearch\AQL\AQLParser;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class AQLParserTest extends TestCase
 {
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testParse(string $expression, ?array $expectedData): void
     {
         $parser = new AQLParser(true);
@@ -25,7 +24,7 @@ class AQLParserTest extends TestCase
         }
     }
 
-    public function getCases(): array
+    public static function getCases(): array
     {
         $fooEqualsBar = [
             'type' => 'criteria',

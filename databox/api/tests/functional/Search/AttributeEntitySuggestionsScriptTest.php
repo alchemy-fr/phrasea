@@ -7,13 +7,14 @@ namespace App\Tests\Functional\Search;
 use App\Attribute\AttributeInterface;
 use App\Consumer\Handler\Search\AttributeEntitySuggestionsScript;
 use App\Elasticsearch\ElasticSearchClient;
+use App\Tests\Functional\AbstractSearchTestCase;
 use Ramsey\Uuid\Uuid;
 
 /**
  * Runs the Painless scripts of the attribute entity handlers against Elasticsearch,
  * on hand-made asset documents.
  */
-class AttributeEntitySuggestionsScriptTest extends AbstractSearchTest
+class AttributeEntitySuggestionsScriptTest extends AbstractSearchTestCase
 {
     private const string DEFINITION_A = 'definition-a';
     private const string DEFINITION_B = 'definition-b';

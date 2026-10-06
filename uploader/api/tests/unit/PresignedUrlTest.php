@@ -7,13 +7,12 @@ namespace App\Tests\Unit;
 use Alchemy\StorageBundle\Cdn\CloudFrontUrlGenerator;
 use Alchemy\StorageBundle\Storage\UrlSigner;
 use Aws\S3\S3Client;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class PresignedUrlTest extends TestCase
 {
-    /**
-     * @dataProvider getConfigs
-     */
+    #[DataProvider('getConfigs')]
     public function testPresignedURLWithMinio(
         string $expected,
         ?string $storageBaseUrl,
@@ -54,7 +53,7 @@ class PresignedUrlTest extends TestCase
         ), (string) $request->getUri());
 
         /** @var CloudFrontUrlGenerator $cloudFrontUrlGenerator */
-        $cloudFrontUrlGenerator = $this->createMock(CloudFrontUrlGenerator::class);
+        $cloudFrontUrlGenerator = $this->createStub(CloudFrontUrlGenerator::class);
         $urlSigner = new UrlSigner($s3Client, $bucketName, 15, $cloudFrontUrlGenerator);
 
         $this->assertStringStartsWith(sprintf(
@@ -64,7 +63,7 @@ class PresignedUrlTest extends TestCase
         ), $urlSigner->getSignedUrl($filePath));
     }
 
-    public function getConfigs(): array
+    public static function getConfigs(): array
     {
         return [
             ['https://minio.phrasea.local/%s/%s?', 'https://minio.phrasea.local', 'ue-west-1', 'uploader-deposit', true],

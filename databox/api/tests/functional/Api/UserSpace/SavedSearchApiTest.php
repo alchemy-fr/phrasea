@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Model\SavedSearchPrivacyEnum;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class SavedSearchApiTest extends AbstractDataboxTestCase
 {
@@ -44,9 +45,7 @@ final class SavedSearchApiTest extends AbstractDataboxTestCase
         $this->assertStatus(401, 'POST', '/saved-searches', null, ['name' => 'Anon', 'data' => []]);
     }
 
-    /**
-     * @dataProvider getInvalidPayloads
-     */
+    #[DataProvider('getInvalidPayloads')]
     public function testCreateValidation(array $payload): void
     {
         $this->assertStatus(422, 'POST', '/saved-searches', self::USER, $payload);
@@ -106,9 +105,7 @@ final class SavedSearchApiTest extends AbstractDataboxTestCase
         $this->assertSame([$a->getId(), $b->getId()], $this->memberIds($this->apiJson('GET', '/saved-searches', self::USER)));
     }
 
-    /**
-     * @dataProvider getReadMatrix
-     */
+    #[DataProvider('getReadMatrix')]
     public function testReadMatrix(SavedSearchPrivacyEnum $privacy, ?string $userId, int $expectedStatus): void
     {
         $search = $this->createSavedSearch('S', self::USER, $privacy);

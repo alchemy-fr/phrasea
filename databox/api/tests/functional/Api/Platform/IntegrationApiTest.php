@@ -10,6 +10,7 @@ use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\IntegrationToken;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Integrations (/integrations): who sees and manages them, what they expose.
@@ -94,9 +95,7 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         yield 'missing public flag' => [['integration' => 'remove.bg'], 422, 'public'];
     }
 
-    /**
-     * @dataProvider getInvalidIntegrations
-     */
+    #[DataProvider('getInvalidIntegrations')]
     public function testInvalidIntegrationsAreRejected(array $payload, int $expectedCode, string $path): void
     {
         $workspace = $this->createSharedWorkspace();

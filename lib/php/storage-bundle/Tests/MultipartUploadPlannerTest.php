@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\StorageBundle\Tests;
 
 use Alchemy\StorageBundle\Upload\MultipartUploadPlanner;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -22,9 +23,7 @@ class MultipartUploadPlannerTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider chunkSizeProvider
-     */
+    #[DataProvider('chunkSizeProvider')]
     public function testResolveChunkSize(int $size, int $expectedChunkSize, int $expectedPartCount): void
     {
         $planner = $this->createPlanner();
@@ -35,7 +34,7 @@ class MultipartUploadPlannerTest extends TestCase
         $this->assertSame($expectedPartCount, $planner->getPartCount($size, $chunkSize));
     }
 
-    public function chunkSizeProvider(): array
+    public static function chunkSizeProvider(): array
     {
         return [
             'empty file still has one part' => [0, 20 * self::MB, 1],

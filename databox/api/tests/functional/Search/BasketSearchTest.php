@@ -6,9 +6,10 @@ namespace App\Tests\Functional\Search;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Basket\Basket;
+use App\Tests\Functional\AbstractSearchTestCase;
 use Elastica\Document;
 
-class BasketSearchTest extends AbstractSearchTest
+class BasketSearchTest extends AbstractSearchTestCase
 {
     private const string USER_ID = KeycloakClientTestMock::USER_UID;
 

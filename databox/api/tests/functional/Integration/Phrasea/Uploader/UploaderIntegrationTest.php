@@ -26,6 +26,8 @@ class UploaderIntegrationTest extends ApiTestCase
     use FileUploadTrait;
     use TestServicesTrait;
 
+    protected static ?bool $alwaysBootKernel = true;
+
     public function testUploaderCanTriggerIntegrationEndpoint(): void
     {
         self::enableFixtures();

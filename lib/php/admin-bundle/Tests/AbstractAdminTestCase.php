@@ -11,7 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-abstract class AbstractAdminTest extends WebTestCase
+abstract class AbstractAdminTestCase extends WebTestCase
 {
     protected KernelBrowser $client;
 

@@ -13,6 +13,7 @@ use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
 use App\Entity\Core\Asset;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Workflow runs: reading one, cancelling it, re-running one of its jobs.
@@ -242,9 +243,7 @@ final class WorkflowRunControlTest extends AbstractDataboxTestCase
         yield 'user who cannot edit the asset' => [self::OTHER, 403];
     }
 
-    /**
-     * @dataProvider getUnauthorizedCallers
-     */
+    #[DataProvider('getUnauthorizedCallers')]
     public function testOnlyTheAssetEditorsCanCancelARun(?string $userId, int $expectedCode): void
     {
         $state = $this->startIngest();
@@ -257,9 +256,7 @@ final class WorkflowRunControlTest extends AbstractDataboxTestCase
         $this->assertSame(ModelWorkflowState::STATUS_STARTED, $this->getStateRepository()->getWorkflowState($state->getId())->getStatus());
     }
 
-    /**
-     * @dataProvider getUnauthorizedCallers
-     */
+    #[DataProvider('getUnauthorizedCallers')]
     public function testOnlyTheAssetEditorsCanRerunAJob(?string $userId, int $expectedCode): void
     {
         $state = $this->startIngest();

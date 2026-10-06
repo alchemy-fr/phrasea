@@ -9,9 +9,9 @@ use Alchemy\Workflow\State\Inputs;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState;
-use Alchemy\Workflow\Tests\AbstractWorkflowTest;
+use Alchemy\Workflow\Tests\AbstractWorkflowTestCase;
 
-abstract class AbstractDumperTest extends AbstractWorkflowTest
+abstract class AbstractDumperTestCase extends AbstractWorkflowTestCase
 {
     protected function createWorkflowState(string $workflowId): WorkflowState
     {
@@ -42,7 +42,7 @@ abstract class AbstractDumperTest extends AbstractWorkflowTest
         $stateRepository
             ->expects($this->exactly(count($jobMap)))
             ->method('getLastJobState')
-            ->will($this->returnValueMap($jobMap));
+            ->willReturnMap($jobMap);
 
         return new WorkflowState($stateRepository, 'foo', null, $workflowId);
     }

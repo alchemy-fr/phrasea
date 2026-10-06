@@ -18,6 +18,7 @@ use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Service\Workspace\WorkspaceCreator;
 use App\Tests\Functional\AbstractSearchTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Safety net of the JSON shape of the main read endpoints.
@@ -61,9 +62,7 @@ final class JsonLdSnapshotTest extends AbstractSearchTestCase
         yield 'asset item as json' => ['/assets/{asset}', 'application/json'];
     }
 
-    /**
-     * @dataProvider getEndpoints
-     */
+    #[DataProvider('getEndpoints')]
     public function testResponseShape(string $uri, string $accept = 'application/ld+json'): void
     {
         $this->createScene();

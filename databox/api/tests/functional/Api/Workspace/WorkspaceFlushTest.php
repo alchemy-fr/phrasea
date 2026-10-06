@@ -12,6 +12,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * POST /workspaces/{id}/flush: empties a workspace by replacing it with a fresh
@@ -149,9 +150,7 @@ final class WorkspaceFlushTest extends AbstractDataboxTestCase
         ];
     }
 
-    /**
-     * @dataProvider flushAccessProvider
-     */
+    #[DataProvider('flushAccessProvider')]
     public function testFlushAccess(?string $userId, ?int $mask, int $expectedStatus): void
     {
         $ws = $this->createWs('ws', ['public' => true]);

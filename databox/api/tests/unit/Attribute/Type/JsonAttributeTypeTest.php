@@ -16,7 +16,7 @@ class JsonAttributeTypeTest extends CodeAttributeTypeTest
     }
 
     #[\Override]
-    public function getValidationCases(): array
+    public static function getValidationCases(): array
     {
         return [
             ...parent::getValidationCases(),
@@ -39,7 +39,7 @@ class JsonAttributeTypeTest extends CodeAttributeTypeTest
     }
 
     #[\Override]
-    public function getConvertToDbValueCases(): array
+    public static function getConvertToDbValueCases(): array
     {
         return [
             ...parent::getConvertToDbValueCases(),

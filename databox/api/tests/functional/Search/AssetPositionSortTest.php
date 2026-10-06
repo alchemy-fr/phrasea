@@ -6,8 +6,9 @@ namespace App\Tests\Functional\Search;
 
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
+use App\Tests\Functional\AbstractSearchTestCase;
 
-class AssetPositionSortTest extends AbstractSearchTest
+class AssetPositionSortTest extends AbstractSearchTestCase
 {
     public function testSortByPositionInCollection(): void
     {

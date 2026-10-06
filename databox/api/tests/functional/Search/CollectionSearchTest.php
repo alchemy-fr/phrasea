@@ -8,8 +8,9 @@ use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use App\Tests\Functional\AbstractSearchTestCase;
 
-class CollectionSearchTest extends AbstractSearchTest
+class CollectionSearchTest extends AbstractSearchTestCase
 {
     private static function releaseIndex(): void
     {

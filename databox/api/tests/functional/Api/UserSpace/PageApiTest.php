@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\Page\Page;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Landing pages.
@@ -66,9 +67,7 @@ final class PageApiTest extends AbstractDataboxTestCase
         $this->assertSame(self::ADMIN, $page->getOwnerId());
     }
 
-    /**
-     * @dataProvider getInvalidPayloads
-     */
+    #[DataProvider('getInvalidPayloads')]
     public function testCreateValidation(array $payload): void
     {
         $this->createPage('Existing', 'existing', self::ADMIN);

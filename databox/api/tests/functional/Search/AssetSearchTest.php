@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Search;
 
 use App\Attribute\Type\DateTimeAttributeType;
+use App\Tests\Functional\AbstractSearchTestCase;
 
-class AssetSearchTest extends AbstractSearchTest
+class AssetSearchTest extends AbstractSearchTestCase
 {
     public function testAssetSearchInPublicWorkspace(): void
     {
