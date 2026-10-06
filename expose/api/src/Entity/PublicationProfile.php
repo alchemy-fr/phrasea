@@ -45,6 +45,13 @@ use Symfony\Component\Serializer\Attribute\Groups;
                     schema: ['type' => 'string'],
                     castToArray: false,
                 ),
+                'query' => new QueryParameter(
+                    filter: new PartialSearchFilter(),
+                    property: 'name',
+                    schema: ['type' => 'string'],
+                    description: 'Search query on the name',
+                    castToArray: false,
+                ),
             ],
         ),
         new Post(security: 'is_granted("'.PublicationProfileVoter::CREATE_PROFILE.'")'),
