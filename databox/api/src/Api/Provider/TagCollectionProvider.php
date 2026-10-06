@@ -25,15 +25,15 @@ final class TagCollectionProvider extends AbstractCollectionProvider
 
     protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array|object
     {
-        $workspaces = $this->resolveAllowedWorkspaces($operation, $context);
+        $workspaces = $this->resolveAllowedWorkspaces($operation);
         if (empty($workspaces)) {
             return [];
         }
 
-        $queryString = $context['filters']['query'] ?? null;
-
-        if (!empty($queryString)) {
-            return $this->tagSearch->search($workspaces, $context['filters']);
+        // A search-as-you-type query goes to Elasticsearch, a plain listing to the ORM
+        $queryString = self::getParameterValue($operation, 'query');
+        if (\is_string($queryString) && '' !== trim($queryString)) {
+            return $this->tagSearch->search($workspaces, self::getParameterValues($operation), $operation);
         }
 
         return $this->collectionProvider->provide($operation, $uriVariables, $context);

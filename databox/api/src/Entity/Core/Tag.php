@@ -20,6 +20,8 @@ use App\Api\Model\Input\TagInput;
 use App\Api\Model\Output\TagOutput;
 use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\TagCollectionProvider;
+use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
+use App\Elasticsearch\Filter\SuggestQueryFilter;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -47,8 +49,25 @@ use Symfony\Component\Validator\Constraints\Length;
                 'workspace' => new QueryParameter(
                     filter: ExactSearchFilter::class,
                     property: 'workspace',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'workspaceId'],
                 ),
                 'workspace[]' => new QueryParameter(property: 'workspace', openApi: false),
+                'query' => new QueryParameter(
+                    filter: new SuggestQueryFilter(),
+                    schema: ['type' => 'string'],
+                    description: 'Search-as-you-type on the name (switches the search to Elasticsearch)',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'name'],
+                    castToArray: false,
+                ),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (max 50 on a "query" search)',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
+                ),
             ],
         ),
         new Post(

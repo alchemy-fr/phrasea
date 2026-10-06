@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use ApiPlatform\Metadata\Operation;
+use App\Elasticsearch\Filter\SearchQuery;
+use App\Entity\Core\Tag;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use Pagerfanta\Pagerfanta;
@@ -27,28 +29,14 @@ class TagSearch extends AbstractSearch
         $filterQuery = new Query\BoolQuery();
         $filterQuery->addFilter(new Query\Terms('workspaceId', $workspaceIds));
 
-        $queryString = trim($options['query'] ?? '');
-        if (!empty($queryString)) {
-            $match = new Query\MultiMatch();
-            $match->setQuery($queryString);
-            $match->setType('bool_prefix');
-            $match->setFields([
-                'name.suggest',
-                'name.suggest._2gram',
-                'name.suggest._3gram',
-            ]);
-            $filterQuery->addMust($match);
-        }
-
-        $limit = $options['limit'] ?? $maxLimit;
-        if ($limit > $maxLimit) {
-            $limit = $maxLimit;
-        }
+        // query (SuggestQueryFilter), workspace (ExactSearchFilter)...
+        $searchQuery = new SearchQuery($filterQuery);
+        $this->applyParameters($searchQuery, Tag::class, $operation, $options);
 
         $query = new Query();
         $query->setTrackTotalHits();
         $query->setQuery($filterQuery);
-        $query->setSort([
+        $query->setSort($searchQuery->hasSort() ? $searchQuery->getSort() : [
             '_score' => 'DESC',
             'name.raw' => 'ASC',
         ]);
@@ -64,8 +52,7 @@ class TagSearch extends AbstractSearch
         ]);
 
         $data = $this->finder->findPaginated($query);
-        $data->setMaxPerPage((int) $limit);
-        $data->setCurrentPage((int) ($options['page'] ?? 1));
+        self::applyPagination($data, $options, $maxLimit);
         $this->executeSearch($data->getCurrentPageResults(...));
 
         return $data;

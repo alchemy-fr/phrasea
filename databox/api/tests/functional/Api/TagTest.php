@@ -100,6 +100,45 @@ class TagTest extends AbstractSearchTestCase
         $this->assertEqualsCanonicalizing(['foo', 'bar', 'Confidential'], $listNames(KeycloakClientTestMock::ADMIN_UID));
     }
 
+    /**
+     * A "query" switches the listing to the Elasticsearch search-as-you-type, with the
+     * same workspace restriction as the plain (ORM) listing.
+     */
+    public function testSearchAsYouTypeIsRestrictedToReadableWorkspaces(): void
+    {
+        self::enableFixtures();
+        $client = static::createClient();
+        $foreignWorkspace = $this->createWorkspace(['ownerId' => KeycloakClientTestMock::ADMIN_UID]);
+        $this->findOrCreateTagByName('Confidential', $foreignWorkspace);
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('tag');
+
+        $search = static function (string $userId, array $query) use ($client): array {
+            $response = $client->request('GET', '/tags', [
+                'query' => $query,
+                'headers' => ['Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor($userId)],
+            ]);
+
+            return array_column($response->toArray()['member'], 'name');
+        };
+
+        $this->assertSame(['foo'], $search(KeycloakClientTestMock::USER_UID, ['query' => 'fo']));
+        $this->assertSame([], $search(KeycloakClientTestMock::USER_UID, ['query' => 'Conf']));
+        $this->assertSame(['Confidential'], $search(KeycloakClientTestMock::ADMIN_UID, ['query' => 'Conf']));
+        $this->assertSame(['Confidential'], $search(KeycloakClientTestMock::ADMIN_UID, [
+            'query' => 'Conf',
+            'workspace' => ['/workspaces/'.$foreignWorkspace->getId()],
+        ]));
+        $this->assertSame(['bar'], $search(KeycloakClientTestMock::USER_UID, ['query' => 'b', 'limit' => 1]));
+        $this->assertSame([], $search(KeycloakClientTestMock::USER_UID, ['query' => 'b', 'limit' => 1, 'page' => 2]));
+
+        $client->request('GET', '/tags', [
+            'query' => ['query' => 'Conf', 'workspace' => '/workspaces/'.$foreignWorkspace->getId()],
+            'headers' => ['Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID)],
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
     public function testCreateTag(): void
     {
         self::enableFixtures();
