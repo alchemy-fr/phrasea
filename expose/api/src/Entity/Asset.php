@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SortFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -14,6 +13,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Controller\CreateAssetAction;
@@ -164,7 +164,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             ),
             deserialize: false
         ),
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'order[title]' => new QueryParameter(filter: new SortFilter(), property: 'title', castToArray: false),
+                'order[position]' => new QueryParameter(filter: new SortFilter(), property: 'position', castToArray: false),
+                'order[createdAt]' => new QueryParameter(filter: new SortFilter(), property: 'createdAt', castToArray: false),
+            ],
+        ),
     ],
     normalizationContext: [
         'groups' => [self::GROUP_READ],
@@ -174,7 +180,13 @@ use Symfony\Component\Validator\Constraints as Assert;
     uriTemplate: '/publications/{id}/assets.{_format}',
     shortName: 'asset',
     operations: [
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'order[title]' => new QueryParameter(filter: new SortFilter(), property: 'title', castToArray: false),
+                'order[position]' => new QueryParameter(filter: new SortFilter(), property: 'position', castToArray: false),
+                'order[createdAt]' => new QueryParameter(filter: new SortFilter(), property: 'createdAt', castToArray: false),
+            ],
+        ),
         new Post(
             controller: CreateAssetAction::class,
             // The controller resolves the publication itself; without this, API Platform
@@ -289,7 +301,6 @@ use Symfony\Component\Validator\Constraints as Assert;
         'id' => new Link(toProperty: 'publication', fromClass: Publication::class, identifiers: ['id']),
     ],
 )]
-#[ApiFilter(filterClass: OrderFilter::class, properties: ['title', 'position' => 'ASC', 'createdAt' => 'ASC'], arguments: ['orderParameterName' => 'order'])]
 class Asset implements MediaInterface, \Stringable
 {
     use ClientAnnotationsTrait;

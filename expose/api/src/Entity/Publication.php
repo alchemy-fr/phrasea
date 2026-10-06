@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\AclBundle\AclObjectInterface;
-use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SortFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -15,6 +14,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
 use ApiPlatform\OpenApi\Model\Response as OpenApiResponse;
@@ -64,6 +64,35 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
             normalizationContext: [
                 'groups' => [self::GROUP_INDEX],
             ],
+            parameters: [
+                'order[title]' => new QueryParameter(filter: new SortFilter(), property: 'title', castToArray: false),
+                'order[createdAt]' => new QueryParameter(filter: new SortFilter(), property: 'createdAt', castToArray: false),
+                'flatten' => new QueryParameter(
+                    filter: PublicationFilter::class,
+                    property: 'flatten',
+                    // Applies the "root publications only" default
+                    default: false,
+                ),
+                'parentId' => new QueryParameter(filter: PublicationFilter::class, property: 'parentId'),
+                'profileId' => new QueryParameter(filter: PublicationFilter::class, property: 'profileId'),
+                'mine' => new QueryParameter(filter: PublicationFilter::class, property: 'mine'),
+                'editable' => new QueryParameter(filter: PublicationFilter::class, property: 'editable'),
+                'expired' => new QueryParameter(filter: PublicationFilter::class, property: 'expired'),
+                'empty' => new QueryParameter(filter: PublicationFilter::class, property: 'empty'),
+                'disabled' => new QueryParameter(filter: PublicationFilter::class, property: 'disabled'),
+                'title' => new QueryParameter(
+                    filter: new PartialSearchFilter(),
+                    property: 'title',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                ),
+                'description' => new QueryParameter(
+                    filter: new PartialSearchFilter(),
+                    property: 'description',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                ),
+            ],
         ),
         new Post(
             securityPostDenormalize: 'is_granted("'.PublicationVoter::CREATE.'", object)'
@@ -110,10 +139,6 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 )]
 #[ORM\Entity]
 #[UniqueEntity(fields: ['slug'], message: 'This slug is already used by another publication.')]
-#[ApiFilter(filterClass: OrderFilter::class, properties: ['title' => 'ASC', 'createdAt' => 'DESC', 'updatedAt' => 'DESC'], arguments: ['orderParameterName' => 'order'])]
-#[ApiFilter(filterClass: PublicationFilter::class, properties: ['flatten', 'parentId', 'profileId', 'mine', 'expired'])]
-#[ApiFilter(filterClass: PublicationFilter::class, properties: ['flatten', 'parentId', 'profileId', 'mine', 'expired'])]
-#[ApiFilter(filterClass: SearchFilter::class, properties: ['title' => 'ipartial', 'description' => 'ipartial'])]
 class Publication implements AclObjectInterface, \Stringable
 {
     use CapabilitiesTrait;
