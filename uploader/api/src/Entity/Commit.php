@@ -7,14 +7,14 @@ namespace App\Entity;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Voter\ScopeVoter;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
-use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\ExactSearchFilter;
 use App\Consumer\Handler\CommitMessage;
 use App\Controller\CommitAckAction;
 use App\Controller\CommitAction;
@@ -42,7 +42,21 @@ use Symfony\Component\Validator\Constraints as Assert;
             controller: CommitAction::class
         ),
         new GetCollection(
-            security: 'is_granted("'.ScopeVoter::PREFIX.ScopeInterface::SCOPE_COMMIT_LIST.'") or is_granted("'.JwtUser::ROLE_ADMIN.'")'
+            security: 'is_granted("'.ScopeVoter::PREFIX.ScopeInterface::SCOPE_COMMIT_LIST.'") or is_granted("'.JwtUser::ROLE_ADMIN.'")',
+            parameters: [
+                'target' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'target',
+                ),
+                'target[]' => new QueryParameter(property: 'target', openApi: false),
+                'acknowledged' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'acknowledged',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
+                ),
+            ],
         ),
     ],
     normalizationContext: ['groups' => [self::GROUP_READ]],
@@ -69,7 +83,6 @@ class Commit extends AbstractUuidEntity
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
     #[Groups(['asset:read', self::GROUP_READ, self::GROUP_WRITE])]
-    #[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: ['target'])]
     private ?Target $target = null;
 
     #[ApiProperty(writable: false)]
@@ -104,7 +117,6 @@ class Commit extends AbstractUuidEntity
     #[ApiProperty(writable: false)]
     #[ORM\Column(type: Types::BOOLEAN)]
     #[Groups(['asset:read', self::GROUP_READ])]
-    #[ApiFilter(filterClass: BooleanFilter::class)]
     private bool $acknowledged = false;
 
     /**
