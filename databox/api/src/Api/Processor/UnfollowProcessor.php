@@ -12,6 +12,7 @@ use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\FollowInput;
 use App\Entity\FollowableInterface;
 use App\Security\Voter\AbstractVoter;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class UnfollowProcessor implements ProcessorInterface
 {
@@ -29,8 +30,10 @@ class UnfollowProcessor implements ProcessorInterface
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): FollowableInterface
     {
         $user = $this->getStrictUser();
-        $object = $context['previous_data'];
-        assert($object instanceof FollowableInterface);
+        $object = $context['previous_data'] ?? null;
+        if (!$object instanceof FollowableInterface) {
+            throw new AccessDeniedException('Access denied.');
+        }
         $this->denyAccessUnlessGranted(AbstractVoter::READ, $object);
 
         foreach ($this->resolveEvents($object, $data->key) as $event) {

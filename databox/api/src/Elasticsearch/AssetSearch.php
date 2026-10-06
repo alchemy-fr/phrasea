@@ -337,6 +337,9 @@ class AssetSearch extends AbstractSearch
     {
         $sort = [];
         if (isset($options['order'])) {
+            if (!is_array($options['order'])) {
+                throw new BadRequestHttpException('Invalid sort: expected order[<field>]=asc|desc');
+            }
             foreach ($options['order'] as $field => $way) {
                 if (!is_string($field)) {
                     throw new BadRequestHttpException(sprintf('Invalid sort field "%s"', $field));

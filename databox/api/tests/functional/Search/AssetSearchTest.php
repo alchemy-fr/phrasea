@@ -334,10 +334,19 @@ class AssetSearchTest extends AbstractSearchTestCase
         $this->assertSortedNames(['ghost_text_s' => 'asc'], ['Lonely']);
     }
 
-    /**
-     * @param array<string, string> $order
-     * @param list<string>          $expectedNames
-     */
+    public function testUndeclaredParametersAreIgnoredAndAnInvalidOrderIsRejected(): void
+    {
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets', ['query' => ['unknown' => '1', 'limit' => '1']]);
+        $this->assertCount(1, $this->getDataFromResponse($response, 200)['member']);
+
+        $client->request('GET', '/assets', ['query' => ['order' => 'foo']]);
+        $this->assertResponseStatusCodeSame(400);
+
+        $client->request('GET', '/assets', ['query' => ['order' => ['@createdAt' => 'sideways']]]);
+        $this->assertResponseStatusCodeSame(400);
+    }
+
     private function assertSortedNames(array $order, array $expectedNames): void
     {
         $client = self::createClient();

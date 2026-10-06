@@ -20,6 +20,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
+use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
 use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Input\AddAssetsToCollectionInput;
 use App\Api\Model\Input\AssetAddAsVersionInput;
@@ -101,6 +102,22 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
             name: 'suggestions',
             provider: SearchSuggestionCollectionProvider::class,
+            parameters: [
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Text to complete',
+                    castToArray: false,
+                ),
+                'definition' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Attribute definition ID(s), comma-separated: suggest the values of these attributes only',
+                    castToArray: false,
+                ),
+                'workspaces' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Workspaces ID',
+                ),
+            ],
         ),
         new Get(
             normalizationContext: [
@@ -244,6 +261,42 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'query' => new QueryParameter(
                     schema: ['type' => 'string'],
                     description: 'Search query',
+                ),
+                'savedSearch' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Saved search ID: its query, conditions and order are merged in',
+                    castToArray: false,
+                ),
+                'order' => new QueryParameter(
+                    schema: ['type' => 'object', 'additionalProperties' => ['type' => 'string', 'enum' => ['asc', 'desc', 'ASC', 'DESC']]],
+                    description: 'Sort: order[<attribute slug or @built-in>]=asc|desc',
+                    openApi: new OpenApiParameter(name: 'order', in: 'query', style: 'deepObject', explode: true, schema: ['type' => 'object', 'additionalProperties' => ['type' => 'string', 'enum' => ['asc', 'desc']]]),
+                ),
+                'group' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Attribute slug or @built-in to group the sorted results by',
+                ),
+                'tags_must' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Tags ID the assets must have',
+                ),
+                'tags_must_not' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Tags ID the assets must not have',
+                ),
+                'context' => new QueryParameter(
+                    schema: ['type' => 'object', 'properties' => ['position' => ['type' => 'string']]],
+                    description: 'Search context: context[position]=<collection or story ID> for the @position sort',
+                    openApi: new OpenApiParameter(name: 'context', in: 'query', style: 'deepObject', explode: true, schema: ['type' => 'object', 'properties' => ['position' => ['type' => 'string']]]),
+                ),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (max 50, 500 with "ids")',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
                 ),
             ]
         ),
