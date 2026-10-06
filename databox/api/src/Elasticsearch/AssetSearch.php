@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
+use ApiPlatform\Metadata\Operation;
 use App\Attribute\AttributeInterface;
 use App\Elasticsearch\AQL\ConditionOperatorEnum;
 use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
@@ -55,6 +56,7 @@ class AssetSearch extends AbstractSearch
         ?string $userId,
         array $groupIds,
         array $options = [],
+        ?Operation $operation = null,
     ): array {
         $maxLimit = 50;
         $options['userId'] = $userId;

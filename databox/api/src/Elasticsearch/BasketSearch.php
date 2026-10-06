@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use ApiPlatform\Metadata\Operation;
 use App\Entity\Basket\Basket;
 use App\Security\Voter\AbstractVoter;
 use Elastica\Query;
@@ -35,6 +36,7 @@ class BasketSearch extends AbstractSearch
         string $userId,
         array $groupIds,
         array $options = [],
+        ?Operation $operation = null,
     ): Pagerfanta {
         $filterQueries = [];
 

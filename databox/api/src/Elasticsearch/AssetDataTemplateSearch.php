@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use ApiPlatform\Metadata\Operation;
 use App\Api\EntityIriConverter;
-use App\Elasticsearch\Exception\MissingSearchIndexException;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\AssetDataTemplate;
@@ -14,17 +14,15 @@ use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-final readonly class AssetDataTemplateSearch
+final class AssetDataTemplateSearch extends AbstractSearch
 {
     public function __construct(
         #[Autowire(service: 'fos_elastica.finder.asset_data_template')]
-        private PaginatedFinderInterface $finder,
-        private Security $security,
-        private EntityIriConverter $iriConverter,
+        private readonly PaginatedFinderInterface $finder,
+        private readonly EntityIriConverter $iriConverter,
     ) {
     }
 
@@ -32,6 +30,7 @@ final readonly class AssetDataTemplateSearch
         ?string $userId,
         array $groupIds,
         array $filters = [],
+        ?Operation $operation = null,
     ): Pagerfanta {
         $filterQueries = [];
 
@@ -40,7 +39,7 @@ final readonly class AssetDataTemplateSearch
             $collection = $this->iriConverter->getItemFromIri(Collection::class, $collection);
         }
 
-        $aclBoolQuery = $this->createACLBoolQuery($filters, $userId, $groupIds, $collection);
+        $aclBoolQuery = $this->createTemplateACLBoolQuery($filters, $userId, $groupIds, $collection);
         $filterQueries[] = $aclBoolQuery;
 
         $queryString = trim($filters['query'] ?? '');
@@ -102,20 +101,12 @@ final readonly class AssetDataTemplateSearch
         }
 
         // Force query so a missing index surfaces here, not during serialization.
-        try {
-            $result->getCurrentPageResults();
-        } catch (\Throwable $e) {
-            if (null !== $missing = MissingSearchIndexException::tryFrom($e)) {
-                throw $missing;
-            }
-
-            throw $e;
-        }
+        $this->executeSearch($result->getCurrentPageResults(...));
 
         return $result;
     }
 
-    private function createACLBoolQuery(array $filters, ?string $userId, array $groupIds, ?Collection $collection): Query\BoolQuery
+    private function createTemplateACLBoolQuery(array $filters, ?string $userId, array $groupIds, ?Collection $collection): Query\BoolQuery
     {
         $workspaceId = $filters['workspace'] ?? $collection?->getWorkspaceId() ?? null;
 
