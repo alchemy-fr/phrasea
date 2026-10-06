@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
@@ -32,12 +32,14 @@ use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
 use App\Service\Discussion\DiscussionManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-class AssetOutputTransformer implements OutputTransformerInterface
+#[AsTaggedItem(index: AssetOutput::class)]
+class AssetOutputMapper implements OutputMapperInterface
 {
     use SecurityAwareTrait;
-    use UserOutputTransformerTrait;
+    use UserOutputTrait;
     use GroupsHelperTrait;
 
     public function __construct(
@@ -56,15 +58,15 @@ class AssetOutputTransformer implements OutputTransformerInterface
     ) {
     }
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return AssetOutput::class === $outputClass && $data instanceof Asset;
+        return $data instanceof Asset;
     }
 
     /**
      * @param Asset $data
      */
-    public function transform(object $data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $output = new AssetOutput();
         $output->setId($data->getId());

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
@@ -13,8 +13,10 @@ use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\RenditionDefinition;
 use App\Security\Voter\AbstractVoter;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
+#[AsTaggedItem(index: AttributeDefinitionOutput::class)]
+class AttributeDefinitionOutputMapper implements OutputMapperInterface
 {
     use SecurityAwareTrait;
     use UserLocaleTrait;
@@ -26,15 +28,15 @@ class AttributeDefinitionOutputTransformer implements OutputTransformerInterface
     ) {
     }
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return AttributeDefinitionOutput::class === $outputClass && $data instanceof AttributeDefinition;
+        return $data instanceof AttributeDefinition;
     }
 
     /**
      * @param AttributeDefinition $data
      */
-    public function transform(object $data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $output = new AttributeDefinitionOutput();
         $output->setCreatedAt($data->getCreatedAt());

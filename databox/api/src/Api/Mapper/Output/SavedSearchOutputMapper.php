@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\SavedSearchOutput;
@@ -10,11 +10,13 @@ use App\Api\Traits\UserLocaleTrait;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class SavedSearchOutputTransformer implements OutputTransformerInterface
+#[AsTaggedItem(index: SavedSearchOutput::class)]
+class SavedSearchOutputMapper implements OutputMapperInterface
 {
     use SecurityAwareTrait;
-    use UserOutputTransformerTrait;
+    use UserOutputTrait;
     use UserLocaleTrait;
     use GroupsHelperTrait;
 
@@ -23,15 +25,15 @@ class SavedSearchOutputTransformer implements OutputTransformerInterface
     ) {
     }
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return SavedSearchOutput::class === $outputClass && $data instanceof SavedSearch;
+        return $data instanceof SavedSearch;
     }
 
     /**
      * @param SavedSearch $data
      */
-    public function transform(object $data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $output = new SavedSearchOutput();
         $output->setCreatedAt($data->getCreatedAt());

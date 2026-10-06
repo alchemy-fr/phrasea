@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\AssetRenditionOutput;
@@ -10,8 +10,10 @@ use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\RenditionDefinition;
 use App\Service\Asset\RenditionBuildHashManager;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-final class AssetRenditionOutputTransformer implements OutputTransformerInterface
+#[AsTaggedItem(index: AssetRenditionOutput::class)]
+final class AssetRenditionOutputMapper implements OutputMapperInterface
 {
     use GroupsHelperTrait;
     use SecurityAwareTrait;
@@ -22,15 +24,15 @@ final class AssetRenditionOutputTransformer implements OutputTransformerInterfac
     ) {
     }
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return AssetRenditionOutput::class === $outputClass && $data instanceof AssetRendition;
+        return $data instanceof AssetRendition;
     }
 
     /**
      * @param AssetRendition $data
      */
-    public function transform($data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $output = new AssetRenditionOutput();
         $output->setId($data->getId());

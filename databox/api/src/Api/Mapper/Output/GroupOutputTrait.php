@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AuthBundle\Repository\GroupRepositoryInterface;
 use App\Api\Model\Output\GroupOutput;
 use Symfony\Contracts\Service\Attribute\Required;
 
-trait GroupOutputTransformerTrait
+trait GroupOutputTrait
 {
     private GroupRepositoryInterface $groupRepository;
 

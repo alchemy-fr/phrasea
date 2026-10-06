@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
@@ -17,9 +17,11 @@ use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\FileUrlResolver;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Contracts\Cache\CacheInterface;
 
-class FileOutputTransformer implements OutputTransformerInterface
+#[AsTaggedItem(index: FileOutput::class)]
+class FileOutputMapper implements OutputMapperInterface
 {
     use SecurityAwareTrait;
     use GroupsHelperTrait;
@@ -35,15 +37,15 @@ class FileOutputTransformer implements OutputTransformerInterface
         $this->cache = $temporaryCacheFactory->createCache();
     }
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return FileOutput::class === $outputClass && $data instanceof File;
+        return $data instanceof File;
     }
 
     /**
      * @param File $data
      */
-    public function transform(object $data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $output = new FileOutput();
         $output->setCreatedAt($data->getCreatedAt());

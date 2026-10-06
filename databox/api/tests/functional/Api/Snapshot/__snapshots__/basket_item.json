@@ -30,8 +30,8 @@
     "name": "My basket",
     "nameHighlight": "My basket",
     "owner": {
-        "@id": "/baskets/<basket>",
-        "@type": "basket",
+        "@id": "<genid>",
+        "@type": "UserOutput",
         "id": "<uuid>",
         "removed": false,
         "username": "user"

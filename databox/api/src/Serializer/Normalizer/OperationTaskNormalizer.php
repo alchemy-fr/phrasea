@@ -2,7 +2,7 @@
 
 namespace App\Serializer\Normalizer;
 
-use App\Api\OutputTransformer\UserOutputTransformerTrait;
+use App\Api\Mapper\Output\UserOutputTrait;
 use App\Entity\Admin\OperationTask;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
@@ -15,7 +15,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 class OperationTaskNormalizer implements NormalizerInterface, NormalizerAwareInterface
 {
     use NormalizerAwareTrait;
-    use UserOutputTransformerTrait;
+    use UserOutputTrait;
 
     private const string ALREADY_CALLED = self::class.'_AC';
 

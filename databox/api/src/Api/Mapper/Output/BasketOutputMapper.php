@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\BasketOutput;
@@ -12,11 +12,13 @@ use App\Entity\Basket\BasketAsset;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\BasketVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class BasketOutputTransformer implements OutputTransformerInterface
+#[AsTaggedItem(index: BasketOutput::class)]
+class BasketOutputMapper implements OutputMapperInterface
 {
     use SecurityAwareTrait;
-    use UserOutputTransformerTrait;
+    use UserOutputTrait;
     use UserLocaleTrait;
     use GroupsHelperTrait;
 
@@ -25,15 +27,15 @@ class BasketOutputTransformer implements OutputTransformerInterface
     ) {
     }
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return BasketOutput::class === $outputClass && $data instanceof Basket;
+        return $data instanceof Basket;
     }
 
     /**
      * @param Basket $data
      */
-    public function transform(object $data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $output = new BasketOutput();
         $output->setCreatedAt($data->getCreatedAt());

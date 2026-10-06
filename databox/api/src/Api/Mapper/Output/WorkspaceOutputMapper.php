@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
@@ -18,14 +18,16 @@ use App\Security\Voter\WorkspaceVoter;
 use App\Service\Asset\FileUrlResolver;
 use App\Service\Workspace\LogoManager;
 use App\Service\Workspace\TermsManager;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Contracts\Cache\CacheInterface;
 
-class WorkspaceOutputTransformer implements OutputTransformerInterface
+#[AsTaggedItem(index: WorkspaceOutput::class)]
+class WorkspaceOutputMapper implements OutputMapperInterface
 {
     use SecurityAwareTrait;
     use GroupsHelperTrait;
     use UserLocaleTrait;
-    use UserOutputTransformerTrait;
+    use UserOutputTrait;
 
     private CacheInterface $capCache;
 
@@ -38,15 +40,15 @@ class WorkspaceOutputTransformer implements OutputTransformerInterface
         $this->capCache = $cacheFactory->createCache();
     }
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return WorkspaceOutput::class === $outputClass && $data instanceof Workspace;
+        return $data instanceof Workspace;
     }
 
     /**
      * @param Workspace $data
      */
-    public function transform($data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $output = new WorkspaceOutput();
         $output->setId($data->getId());

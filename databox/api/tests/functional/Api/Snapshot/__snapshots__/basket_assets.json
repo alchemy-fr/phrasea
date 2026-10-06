@@ -63,8 +63,8 @@
                 "id": "<other>",
                 "name": "Other",
                 "owner": {
-                    "@id": "/assets/<other>",
-                    "@type": "asset",
+                    "@id": "<genid>",
+                    "@type": "UserOutput",
                     "id": "<uuid>",
                     "removed": false,
                     "username": "user"

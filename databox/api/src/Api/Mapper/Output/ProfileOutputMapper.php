@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Output\ProfileOutput;
@@ -11,29 +11,31 @@ use App\Entity\Profile\Profile;
 use App\Entity\Profile\ProfileItem;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-class ProfileOutputTransformer implements OutputTransformerInterface
+#[AsTaggedItem(index: ProfileOutput::class)]
+class ProfileOutputMapper implements OutputMapperInterface
 {
     use SecurityAwareTrait;
-    use UserOutputTransformerTrait;
+    use UserOutputTrait;
     use UserLocaleTrait;
     use GroupsHelperTrait;
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly ProfileItemOutputTransformer $profileItemOutputTransformer,
+        private readonly ProfileItemOutputMapper $profileItemOutputMapper,
     ) {
     }
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return ProfileOutput::class === $outputClass && $data instanceof Profile;
+        return $data instanceof Profile;
     }
 
     /**
      * @param Profile $data
      */
-    public function transform(object $data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $output = new ProfileOutput();
         $output->setCreatedAt($data->getCreatedAt());
@@ -62,7 +64,7 @@ class ProfileOutputTransformer implements OutputTransformerInterface
                         continue;
                     }
                 }
-                $output->items[] = $this->profileItemOutputTransformer->createOutput($item);
+                $output->items[] = $this->profileItemOutputMapper->createOutput($item);
             }
         }
 

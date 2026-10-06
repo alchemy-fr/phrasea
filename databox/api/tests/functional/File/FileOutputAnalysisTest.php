@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\File;
 
+use App\Api\Mapper\Output\FileOutputMapper;
 use App\Api\Model\Output\FileOutput;
-use App\Api\OutputTransformer\FileOutputTransformer;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Core\FileAnalysisStateEnum;
@@ -109,8 +109,8 @@ class FileOutputAnalysisTest extends AbstractDataboxTestCase
         $context = ['groups' => $groups];
 
         /** @var FileOutput $output */
-        $output = self::getService(FileOutputTransformer::class)
-            ->transform($file, FileOutput::class, $context);
+        $output = self::getService(FileOutputMapper::class)
+            ->map($file, $context);
 
         return $output;
     }

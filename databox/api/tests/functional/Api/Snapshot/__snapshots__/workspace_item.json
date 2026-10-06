@@ -43,8 +43,8 @@
     ],
     "name": "Snapshot workspace",
     "owner": {
-        "@id": "/workspaces/<workspace>",
-        "@type": "workspace",
+        "@id": "<genid>",
+        "@type": "UserOutput",
         "id": "<uuid>",
         "removed": false,
         "username": "user"

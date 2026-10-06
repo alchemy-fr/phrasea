@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AclBundle\Security\PermissionManager;
@@ -19,16 +19,18 @@ use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetContainerVoterInterface;
 use App\Security\Voter\CollectionVoter;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
-class CollectionOutputTransformer implements OutputTransformerInterface
+#[AsTaggedItem(index: CollectionOutput::class)]
+class CollectionOutputMapper implements OutputMapperInterface
 {
     use GroupsHelperTrait;
-    use UserOutputTransformerTrait;
+    use UserOutputTrait;
     use SecurityAwareTrait;
     use UserLocaleTrait;
 
@@ -50,15 +52,15 @@ class CollectionOutputTransformer implements OutputTransformerInterface
         $this->visibilityRequestCache = $cacheFactory->createCache();
     }
 
-    public function supports(string $outputClass, object $data): bool
+    public function supports(object $data): bool
     {
-        return CollectionOutput::class === $outputClass && $data instanceof Collection;
+        return $data instanceof Collection;
     }
 
     /**
      * @param Collection $data
      */
-    public function transform($data, string $outputClass, array &$context = []): object
+    public function map(object $data, array $context = []): object
     {
         $preferredLocales = $this->getPreferredLocales($data->getWorkspace());
 

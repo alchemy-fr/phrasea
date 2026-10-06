@@ -60,8 +60,8 @@ use Doctrine\ORM\Mapping as ORM;
                 'groups' => [self::GROUP_LIST],
             ],
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            output: WorkflowStateOutput::class,
         )],
-    output: WorkflowStateOutput::class,
 )]
 #[ORM\Entity]
 #[ApiFilter(filterClass: SearchFilter::class, properties: ['asset' => 'exact', 'status' => 'exact'])]

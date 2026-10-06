@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Api\OutputTransformer;
+namespace App\Api\Mapper\Output;
 
 use Alchemy\AuthBundle\Repository\UserRepositoryInterface;
 use App\Api\Model\Output\UserOutput;
 use Symfony\Contracts\Service\Attribute\Required;
 
-trait UserOutputTransformerTrait
+trait UserOutputTrait
 {
     private UserRepositoryInterface $userRepository;
 
