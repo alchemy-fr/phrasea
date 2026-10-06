@@ -321,7 +321,7 @@
             "tags": [],
             "threadKey": "asset:<other>",
             "updatedAt": "<date>",
-            "webUrl": "https://databox.phrasea-bis.local/assets/<other>/_",
+            "webUrl": "<client-url>/assets/<other>/_",
             "workspace": {
                 "@id": "/workspaces/<workspace>",
                 "@type": "workspace",
@@ -513,7 +513,7 @@
             ],
             "threadKey": "asset:<asset>",
             "updatedAt": "<date>",
-            "webUrl": "https://databox.phrasea-bis.local/assets/<asset>/_",
+            "webUrl": "<client-url>/assets/<asset>/_",
             "workspace": {
                 "@id": "/workspaces/<workspace>",
                 "@type": "workspace",
