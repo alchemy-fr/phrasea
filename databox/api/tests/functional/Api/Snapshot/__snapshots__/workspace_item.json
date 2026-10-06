@@ -1,0 +1,57 @@
+{
+    "@context": {
+        "@vocab": "http://localhost/docs.jsonld#",
+        "assetDefaultStatus": "WorkspaceOutput/assetDefaultStatus",
+        "capabilities": "WorkspaceOutput/capabilities",
+        "createdAt": "WorkspaceOutput/createdAt",
+        "displayName": "WorkspaceOutput/displayName",
+        "enabledLocales": "WorkspaceOutput/enabledLocales",
+        "fileAnalysisRequired": "WorkspaceOutput/fileAnalysisRequired",
+        "hydra": "http://www.w3.org/ns/hydra/core#",
+        "localeFallbacks": "WorkspaceOutput/localeFallbacks",
+        "logo": "WorkspaceOutput/logo",
+        "name": "WorkspaceOutput/name",
+        "owner": "WorkspaceOutput/owner",
+        "ownerId": "WorkspaceOutput/ownerId",
+        "public": "WorkspaceOutput/public",
+        "slug": "WorkspaceOutput/slug",
+        "terms": "WorkspaceOutput/terms",
+        "termsUnsigned": "WorkspaceOutput/termsUnsigned",
+        "translations": "WorkspaceOutput/translations",
+        "trashRetentionDelay": "WorkspaceOutput/trashRetentionDelay"
+    },
+    "@id": "/workspaces/<workspace>",
+    "@type": "workspace",
+    "assetDefaultStatus": 0,
+    "capabilities": {
+        "createAsset": true,
+        "createCollection": true,
+        "delete": true,
+        "edit": true,
+        "editPermissions": true
+    },
+    "createdAt": "<date>",
+    "displayName": "Snapshot workspace",
+    "enabledLocales": [
+        "en",
+        "fr"
+    ],
+    "fileAnalysisRequired": false,
+    "id": "<workspace>",
+    "localeFallbacks": [
+        "en"
+    ],
+    "name": "Snapshot workspace",
+    "owner": {
+        "@id": "/workspaces/<workspace>",
+        "@type": "workspace",
+        "id": "<uuid>",
+        "removed": false,
+        "username": "user"
+    },
+    "ownerId": "<uuid>",
+    "public": false,
+    "slug": "snapshot-workspace",
+    "termsUnsigned": false,
+    "trashRetentionDelay": 30
+}

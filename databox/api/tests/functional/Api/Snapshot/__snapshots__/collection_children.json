@@ -1,0 +1,64 @@
+{
+    "@context": "/contexts/collection",
+    "@id": "/collections",
+    "@type": "Collection",
+    "member": [
+        {
+            "@id": "/collections/<child>",
+            "@type": "collection",
+            "capabilities": {
+                "createAsset": true,
+                "createCollection": true,
+                "delete": true,
+                "edit": true,
+                "editPermissions": true
+            },
+            "children": [],
+            "createdAt": "<date>",
+            "deleted": false,
+            "displayName": "Child",
+            "extraMetadata": [],
+            "id": "<child>",
+            "inheritedPrivacy": 0,
+            "name": "Child",
+            "privacy": 0,
+            "public": false,
+            "relationExtraMetadata": [],
+            "shared": false,
+            "updatedAt": "<date>",
+            "workspace": {
+                "@id": "/workspaces/<workspace>",
+                "@type": "workspace",
+                "capabilities": {
+                    "createAsset": true,
+                    "createCollection": true,
+                    "delete": true,
+                    "edit": true,
+                    "editPermissions": true
+                },
+                "createdAt": "<date>",
+                "displayName": "Snapshot workspace",
+                "id": "<workspace>",
+                "name": "Snapshot workspace"
+            }
+        }
+    ],
+    "search": {
+        "@type": "IriTemplate",
+        "mapping": [
+            {
+                "@type": "IriTemplateMapping",
+                "property": "parent",
+                "required": false,
+                "variable": "parent"
+            }
+        ],
+        "template": "/collections{?parent}",
+        "variableRepresentation": "BasicRepresentation"
+    },
+    "totalItems": 1,
+    "view": {
+        "@id": "/collections?parent=<root>",
+        "@type": "PartialCollectionView"
+    }
+}

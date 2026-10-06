@@ -1,0 +1,40 @@
+{
+    "@context": {
+        "@vocab": "http://localhost/docs.jsonld#",
+        "archived": "BasketOutput/archived",
+        "assetCount": "BasketOutput/assetCount",
+        "assets": "BasketOutput/assets",
+        "capabilities": "BasketOutput/capabilities",
+        "createdAt": "BasketOutput/createdAt",
+        "description": "BasketOutput/description",
+        "descriptionHighlight": "BasketOutput/descriptionHighlight",
+        "hydra": "http://www.w3.org/ns/hydra/core#",
+        "isArchived": "BasketOutput/isArchived",
+        "name": "BasketOutput/name",
+        "nameHighlight": "BasketOutput/nameHighlight",
+        "owner": "BasketOutput/owner",
+        "updatedAt": "BasketOutput/updatedAt"
+    },
+    "@id": "/baskets/<basket>",
+    "@type": "basket",
+    "assetCount": 1,
+    "capabilities": {
+        "delete": true,
+        "edit": true,
+        "editPermissions": true,
+        "share": true
+    },
+    "createdAt": "<date>",
+    "id": "<basket>",
+    "isArchived": false,
+    "name": "My basket",
+    "nameHighlight": "My basket",
+    "owner": {
+        "@id": "/baskets/<basket>",
+        "@type": "basket",
+        "id": "<uuid>",
+        "removed": false,
+        "username": "user"
+    },
+    "updatedAt": "<date>"
+}
