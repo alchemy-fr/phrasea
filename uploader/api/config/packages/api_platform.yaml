@@ -1,4 +1,7 @@
 api_platform:
+    jsonapi:
+        # Keep IRIs as JSON:API "id" (the default changes to false in API Platform 5)
+        use_iri_as_id: true
     use_symfony_listeners: true
     version: '1.0.0'
     mapping:

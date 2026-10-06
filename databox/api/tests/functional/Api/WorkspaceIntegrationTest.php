@@ -105,7 +105,7 @@ class WorkspaceIntegrationTest extends AbstractDataboxTestCase
         $ids = array_column($client->request('GET', '/integrations', [
             'headers' => $headers,
             'query' => ['global' => 1],
-        ])->toArray()['hydra:member'], 'id');
+        ])->toArray()['member'], 'id');
 
         $this->assertContains($global['id'], $ids);
         $this->assertNotContains($scoped['id'], $ids);

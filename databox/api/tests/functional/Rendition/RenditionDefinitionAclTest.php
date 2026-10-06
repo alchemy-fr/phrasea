@@ -83,6 +83,6 @@ class RenditionDefinitionAclTest extends AbstractDataboxTestCase
             ],
         ]);
 
-        return array_column($this->getDataFromResponse($response, 200)['hydra:member'], 'id');
+        return array_column($this->getDataFromResponse($response, 200)['member'], 'id');
     }
 }

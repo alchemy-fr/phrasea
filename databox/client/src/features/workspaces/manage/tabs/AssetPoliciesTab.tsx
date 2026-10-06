@@ -168,7 +168,7 @@ function PolicyForm({
                 workspace: iri(EntityName.Workspace, workspaceId),
             };
             const saved = policy
-                ? await api.put<AssetPolicy>(
+                ? await api.patch<AssetPolicy>(
                       `${endpoint}/${policy.id}`,
                       toIris(data)
                   )

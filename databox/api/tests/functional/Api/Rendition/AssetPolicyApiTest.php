@@ -125,11 +125,11 @@ final class AssetPolicyApiTest extends AbstractDataboxTestCase
 
         $response = $this->jsonRequest('POST', '/asset-policies', self::EDITOR, array_diff_key($payload, ['workspace' => true]));
         $this->assertResponseStatusCodeSame(422);
-        $this->assertStringContainsString('workspace', $response->toArray(false)['hydra:description']);
+        $this->assertStringContainsString('workspace', $response->toArray(false)['description']);
 
         $response = $this->jsonRequest('POST', '/asset-policies', self::EDITOR, array_merge($payload, ['name' => '']));
         $this->assertResponseStatusCodeSame(422);
-        $this->assertStringContainsString('name', $response->toArray(false)['hydra:description']);
+        $this->assertStringContainsString('name', $response->toArray(false)['description']);
 
         $tooManyUsers = array_map(fn (int $i): string => 'user-'.$i, range(1, 31));
         $this->jsonRequest('POST', '/asset-policies', self::EDITOR, array_merge($payload, ['users' => $tooManyUsers]));
@@ -137,7 +137,7 @@ final class AssetPolicyApiTest extends AbstractDataboxTestCase
 
         $response = $this->jsonRequest('POST', '/asset-policies', self::EDITOR, array_merge($payload, ['users' => [], 'groups' => []]));
         $this->assertResponseStatusCodeSame(422);
-        $this->assertStringContainsString('At least one user or one group is required.', $response->toArray(false)['hydra:description']);
+        $this->assertStringContainsString('At least one user or one group is required.', $response->toArray(false)['description']);
 
         $this->jsonRequest('POST', '/asset-policies', self::EDITOR, $payload);
         $this->assertResponseStatusCodeSame(201);
@@ -174,11 +174,11 @@ final class AssetPolicyApiTest extends AbstractDataboxTestCase
         $policy = $this->createAssetPolicy($ws, 'Hide', [self::READER], [['action' => 'hide_rendition', 'definitionId' => 'x']]);
         $iri = '/asset-policies/'.$policy->getId();
 
-        $this->jsonRequest('PUT', $iri, self::READER, ['name' => 'x']);
+        $this->jsonRequest('PATCH', $iri, self::READER, ['name' => 'x']);
         $this->assertResponseStatusCodeSame(403);
 
         // Partial update: users are kept when neither users nor groups are given
-        $this->jsonRequest('PUT', $iri, self::EDITOR, ['name' => 'Renamed', 'enabled' => false]);
+        $this->jsonRequest('PATCH', $iri, self::EDITOR, ['name' => 'Renamed', 'enabled' => false]);
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
             'name' => 'Renamed',
@@ -188,16 +188,13 @@ final class AssetPolicyApiTest extends AbstractDataboxTestCase
         ]);
 
         // Giving users (or groups) replaces the whole audience
-        $response = $this->jsonRequest('PUT', $iri, self::EDITOR, ['users' => [self::EDITOR]]);
+        $response = $this->jsonRequest('PATCH', $iri, self::EDITOR, ['users' => [self::EDITOR]]);
         $this->assertResponseIsSuccessful();
         $this->assertSame([self::EDITOR], array_column($response->toArray()['users'], 'id'));
 
         // Cannot move the policy into a workspace the user cannot edit
-        $this->jsonRequest('PUT', $iri, self::EDITOR, ['workspace' => '/workspaces/'.$wsB->getId()]);
+        $this->jsonRequest('PATCH', $iri, self::EDITOR, ['workspace' => '/workspaces/'.$wsB->getId()]);
         $this->assertResponseStatusCodeSame(403);
-
-        $this->jsonRequest('PATCH', $iri, self::EDITOR, ['name' => 'Patched']);
-        $this->assertResponseStatusCodeSame(405);
     }
 
     public function testDelete(): void

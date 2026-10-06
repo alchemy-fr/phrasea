@@ -38,6 +38,18 @@ trait SocialTestTrait
     }
 
     /**
+     * Same as auth(), for a JSON Merge Patch (PATCH) request.
+     *
+     * @return array<string, array<string, string>>
+     */
+    private static function patchOptions(?string $userId, array $options = []): array
+    {
+        $options['headers'] = ($options['headers'] ?? []) + ['Content-Type' => 'application/merge-patch+json'];
+
+        return self::auth($userId, $options);
+    }
+
+    /**
      * Workspaces created by the shared helper all get the same slug, which is unique.
      */
     private function createNamedWorkspace(string $ownerId, string $slug, bool $public = false): Workspace

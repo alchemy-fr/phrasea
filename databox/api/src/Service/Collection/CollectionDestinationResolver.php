@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\Collection;
 
-use ApiPlatform\Api\IriConverterInterface;
+use ApiPlatform\Metadata\IriConverterInterface;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;

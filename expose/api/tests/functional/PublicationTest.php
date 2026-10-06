@@ -24,7 +24,7 @@ class PublicationTest extends AbstractExposeTestCase
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(201, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
@@ -62,7 +62,7 @@ class PublicationTest extends AbstractExposeTestCase
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(201, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
@@ -117,7 +117,7 @@ class PublicationTest extends AbstractExposeTestCase
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertCount(2, $json);
         $this->assertEquals('Pub #1', $json[0]['title']);
@@ -216,7 +216,7 @@ class PublicationTest extends AbstractExposeTestCase
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertCount(2, $json);
         $this->assertEquals('Pub #1', $json[0]['title']);
@@ -242,7 +242,7 @@ class PublicationTest extends AbstractExposeTestCase
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertCount(2, $json);
         $this->assertEquals('Pub #1', $json[0]['title']);
@@ -296,7 +296,7 @@ class PublicationTest extends AbstractExposeTestCase
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
@@ -320,7 +320,7 @@ class PublicationTest extends AbstractExposeTestCase
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/publications/foo');
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
@@ -546,7 +546,7 @@ class PublicationTest extends AbstractExposeTestCase
         $response = $this->request(null, 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertArrayNotHasKey('ownerId', $json);
         $this->assertArrayHasKey('id', $json);
@@ -562,7 +562,7 @@ class PublicationTest extends AbstractExposeTestCase
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertEquals('user42', $json['ownerId']);
         $this->assertArrayHasKey('id', $json);

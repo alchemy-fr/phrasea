@@ -346,7 +346,7 @@ class AssetSearchTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
 
         $this->assertSame($expectedNames, array_map(
             fn (array $r): ?string => $r['name'] ?? null,

@@ -21,7 +21,7 @@ class CollectionTest extends AbstractSearchTestCase
             ],
         ]);
         $this->assertResponseIsSuccessful();
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@context' => '/contexts/collection',
             '@id' => '/collections',
@@ -40,7 +40,7 @@ class CollectionTest extends AbstractSearchTestCase
             ],
         ]);
         $this->assertResponseIsSuccessful();
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@context' => '/contexts/collection',
             '@id' => '/collections',

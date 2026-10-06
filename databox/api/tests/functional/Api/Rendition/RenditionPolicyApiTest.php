@@ -125,7 +125,7 @@ final class RenditionPolicyApiTest extends AbstractDataboxTestCase
         $policy = $this->createRenditionPolicy($ws, 'Restricted', false, false);
         $iri = '/rendition-policies/'.$policy->getId();
 
-        $this->jsonRequest('PUT', $iri, self::READER, ['name' => 'x']);
+        $this->jsonRequest('PATCH', $iri, self::READER, ['name' => 'x']);
         $this->assertResponseStatusCodeSame(403);
         $this->jsonRequest('PATCH', $iri, self::READER, ['name' => 'x']);
         $this->assertResponseStatusCodeSame(403);
@@ -136,7 +136,7 @@ final class RenditionPolicyApiTest extends AbstractDataboxTestCase
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains(['name' => 'Restricted', 'public' => true, 'editable' => false]);
 
-        $this->jsonRequest('PUT', $iri, self::EDITOR, ['name' => 'Renamed']);
+        $this->jsonRequest('PATCH', $iri, self::EDITOR, ['name' => 'Renamed']);
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains(['name' => 'Renamed', 'public' => true]);
 
@@ -175,7 +175,7 @@ final class RenditionPolicyApiTest extends AbstractDataboxTestCase
         $hd = $this->createAssetRendition($asset, $hdDefinition, $file);
 
         $listedIds = fn (string $userId): array => array_column(
-            $this->jsonRequest('GET', '/renditions', $userId, options: ['query' => ['assetId' => $asset->getId()]])->toArray()['hydra:member'],
+            $this->jsonRequest('GET', '/renditions', $userId, options: ['query' => ['assetId' => $asset->getId()]])->toArray()['member'],
             'id'
         );
 

@@ -21,7 +21,7 @@ final class MetadataTagApiTest extends AbstractDataboxTestCase
         ]);
         $this->assertResponseStatusCodeSame(200);
 
-        return array_column($response->toArray()['hydra:member'], 'id');
+        return array_column($response->toArray()['member'], 'id');
     }
 
     public function testWithoutQueryTheNamespacesAreLimited(): void

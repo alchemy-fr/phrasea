@@ -380,7 +380,7 @@ class SuggestionSearchTest extends AbstractSearchTest
             'headers' => $headers,
         ]);
 
-        return $this->getDataFromResponse($response, 200)['hydra:member'];
+        return $this->getDataFromResponse($response, 200)['member'];
     }
 
     /**

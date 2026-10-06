@@ -31,7 +31,7 @@ final class AssetFileTest extends AbstractDataboxTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-        $members = $response->toArray()['hydra:member'];
+        $members = $response->toArray()['member'];
         // Most recent first
         $this->assertSame([$v2->getId(), $v1->getId()], array_column($members, 'id'));
         $this->assertSame('/assets/'.$asset->getId(), $members[0]['asset']['@id']);

@@ -128,7 +128,7 @@ final class WorkspaceLogoTest extends AbstractDataboxTestCase
         $this->assertNotEmpty($response->toArray()['logo']);
 
         $response = $client->request('GET', '/workspaces');
-        $this->assertNotEmpty($response->toArray()['hydra:member'][0]['logo']);
+        $this->assertNotEmpty($response->toArray()['member'][0]['logo']);
     }
 
     public static function accessProvider(): array

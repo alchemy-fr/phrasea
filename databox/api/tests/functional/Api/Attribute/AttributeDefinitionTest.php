@@ -56,7 +56,7 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
 
         // Every workspace comes with a "Name" definition (see WorkspaceCreator), ignored here
         return array_values(array_filter(
-            array_column($response->toArray()['hydra:member'], 'name'),
+            array_column($response->toArray()['member'], 'name'),
             fn (string $name): bool => 'Name' !== $name,
         ));
     }
@@ -257,7 +257,7 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
         unset($payload['workspace']);
         $this->api('POST', '/attribute-definitions', self::USER, $payload);
         $this->assertResponseStatusCodeSame(400);
-        $this->assertJsonContains(['hydra:description' => 'Missing workspace']);
+        $this->assertJsonContains(['description' => 'Missing workspace']);
     }
 
     public function testThePolicyMustBelongToTheSameWorkspace(): void
@@ -272,7 +272,7 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(422);
 
         $definition = $this->createAttributeDefinition(['name' => 'Title']);
-        $this->api('PUT', '/attribute-definitions/'.$definition->getId(), self::USER, [
+        $this->api('PATCH', '/attribute-definitions/'.$definition->getId(), self::USER, [
             'policy' => '/attribute-policies/'.$foreignPolicy->getId(),
         ]);
         $this->assertResponseStatusCodeSame(422);
@@ -398,7 +398,7 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
         $definition = $this->createAttributeDefinition(['name' => 'Title']);
         $iri = '/attribute-definitions/'.$definition->getId();
 
-        $this->api('PUT', $iri, self::USER, [
+        $this->api('PATCH', $iri, self::USER, [
             'name' => 'Main title',
             'searchable' => false,
             'multiple' => true,
@@ -425,7 +425,7 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
         $definition = $this->createAttributeDefinition(['name' => 'Title']);
         $otherWorkspace = $this->createOtherWorkspace(['ownerId' => self::USER]);
 
-        $this->api('PUT', '/attribute-definitions/'.$definition->getId(), self::USER, [
+        $this->api('PATCH', '/attribute-definitions/'.$definition->getId(), self::USER, [
             'workspace' => '/workspaces/'.$otherWorkspace->getId(),
         ]);
         $this->assertResponseIsSuccessful();
@@ -444,7 +444,7 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
         $this->setUpScene();
         $definition = $this->createAttributeDefinition(['name' => 'Title', 'allow_invalid' => true]);
 
-        $this->api('PUT', '/attribute-definitions/'.$definition->getId(), self::USER, [
+        $this->api('PATCH', '/attribute-definitions/'.$definition->getId(), self::USER, [
             'allowInvalid' => false,
         ]);
         $this->assertResponseStatusCodeSame(200);
@@ -457,7 +457,7 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
         $definition = $this->createAttributeDefinition(['name' => 'Title']);
         $iri = '/attribute-definitions/'.$definition->getId();
 
-        $this->api('PUT', $iri, self::OTHER, ['name' => 'Hacked']);
+        $this->api('PATCH', $iri, self::OTHER, ['name' => 'Hacked']);
         $this->assertResponseStatusCodeSame(403);
         $this->api('PATCH', $iri, self::OTHER, ['name' => 'Hacked']);
         $this->assertResponseStatusCodeSame(403);
@@ -475,7 +475,7 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
         $this->setUpScene();
         $definition = $this->createAttributeDefinition(['name' => 'Field', 'type' => $from]);
 
-        $this->api('PUT', '/attribute-definitions/'.$definition->getId(), self::USER, [
+        $this->api('PATCH', '/attribute-definitions/'.$definition->getId(), self::USER, [
             'type' => $to,
         ]);
         $this->assertResponseStatusCodeSame($expectedCode);

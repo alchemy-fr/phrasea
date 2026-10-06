@@ -149,6 +149,6 @@ trait RenditionTestTrait
      */
     private function memberIds(ResponseInterface $response): array
     {
-        return array_column($response->toArray()['hydra:member'], 'id');
+        return array_column($response->toArray()['member'], 'id');
     }
 }

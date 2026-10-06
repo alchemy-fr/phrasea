@@ -38,7 +38,7 @@ class LongTextTest extends AbstractSearchTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@type' => 'asset',
         ]);

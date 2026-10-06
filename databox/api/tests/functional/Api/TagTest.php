@@ -38,7 +38,7 @@ class TagTest extends AbstractSearchTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $resultCount = 2;
         $this->assertJsonContains([
             '@context' => '/contexts/tag',
@@ -99,7 +99,7 @@ class TagTest extends AbstractSearchTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@type' => 'tag',
             'name' => 'Foo',
@@ -130,7 +130,7 @@ class TagTest extends AbstractSearchTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             'name' => 'Foo translation',
             'displayName' => 'Foo translation',
@@ -155,7 +155,7 @@ class TagTest extends AbstractSearchTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(400);
-        $this->assertResponseHeaderSame('content-type', 'application/problem+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/problem+json');
 
         $this->assertJsonContains([
             '@type' => 'Error',

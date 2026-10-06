@@ -235,7 +235,7 @@ export class DataboxClient {
             },
         });
 
-        return res.data['hydra:member'];
+        return res.data.member;
     }
 
     async createAttributePolicy(
@@ -262,7 +262,7 @@ export class DataboxClient {
             },
         });
 
-        return res.data['hydra:member'];
+        return res.data.member;
     }
 
     async createRenditionDefinition(data: object): Promise<string> {

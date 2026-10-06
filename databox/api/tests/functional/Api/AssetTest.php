@@ -25,7 +25,7 @@ class AssetTest extends AbstractSearchTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@context' => '/contexts/asset',
             '@id' => '/assets',
@@ -59,7 +59,7 @@ class AssetTest extends AbstractSearchTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@context' => '/contexts/asset',
             '@id' => '/assets',
@@ -104,7 +104,7 @@ class AssetTest extends AbstractSearchTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@type' => 'asset',
             'name' => 'Dummy asset',
@@ -202,7 +202,7 @@ class AssetTest extends AbstractSearchTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@type' => 'asset',
             'name' => 'Dummy asset',

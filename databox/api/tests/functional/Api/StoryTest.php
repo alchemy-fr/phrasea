@@ -98,7 +98,7 @@ class StoryTest extends AbstractSearchTestCase
             ],
         ]);
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $data = $response->toArray();
         $this->assertArrayHasKey('storyCollection', $data);
         $this->assertIsArray($data['storyCollection']);

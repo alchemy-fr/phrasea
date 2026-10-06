@@ -114,11 +114,11 @@ class BasketSearchTest extends AbstractSearchTest
         self::releaseIndex();
 
         $client = self::createClient();
-        $client->request('PUT', '/baskets/'.$old->getId(), [
+        $client->request('PATCH', '/baskets/'.$old->getId(), [
             'json' => [
                 'name' => 'Old (renamed)',
             ],
-            'headers' => $this->getAuthHeaders(),
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->getAuthHeaders(),
         ]);
         $this->assertResponseIsSuccessful();
         self::releaseIndex();
@@ -181,7 +181,7 @@ class BasketSearchTest extends AbstractSearchTest
         ]);
         $this->assertResponseIsSuccessful();
 
-        return $response->toArray()['hydra:member'];
+        return $response->toArray()['member'];
     }
 
     private function assertBasketNames(array $expectedNames, array $baskets): void

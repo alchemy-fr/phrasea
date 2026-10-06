@@ -66,6 +66,6 @@ class MetadataTagTest extends AbstractDataboxTestCase
         ]);
         $this->assertResponseIsSuccessful();
 
-        return $response->toArray()['hydra:member'];
+        return $response->toArray()['member'];
     }
 }

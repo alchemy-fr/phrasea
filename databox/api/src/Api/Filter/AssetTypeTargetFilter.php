@@ -24,7 +24,7 @@ final class AssetTypeTargetFilter extends AbstractFilter
             return;
         }
 
-        if (!in_array($property, $this->getProperties(), true)) {
+        if (!array_key_exists($property, $this->getProperties())) {
             return;
         }
 

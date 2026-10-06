@@ -319,7 +319,7 @@ final class NotificationApiTest extends AbstractDataboxTestCase
         $this->assertContains(['topic' => 'asset:update', 'channel' => 'in_app', 'enabled' => false], $items);
 
         // A single preference object, re-enabling one channel (PATCH)
-        $items = $client->request('PATCH', '/notification-preferences', self::auth(self::USER, [
+        $items = $client->request('PATCH', '/notification-preferences', self::patchOptions(self::USER, [
             'json' => ['topic' => 'asset:update', 'channel' => 'in_app', 'enabled' => true],
         ]))->toArray()['items'];
         $this->assertContains(['topic' => 'asset:update', 'channel' => 'in_app', 'enabled' => true], $items);

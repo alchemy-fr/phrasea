@@ -184,10 +184,10 @@ final class AssetAttachmentApiTest extends AbstractDataboxTestCase
         $attachment = $this->createAssetAttachment($this->host, $this->document, 'before');
         $uri = '/attachments/'.$attachment->getId();
 
-        $client->request('PUT', $uri, self::auth(self::OTHER, ['json' => ['name' => 'hijacked']]));
+        $client->request('PATCH', $uri, self::patchOptions(self::OTHER, ['json' => ['name' => 'hijacked']]));
         $this->assertResponseStatusCodeSame(403);
 
-        $data = $client->request('PUT', $uri, self::auth(self::USER, [
+        $data = $client->request('PATCH', $uri, self::patchOptions(self::USER, [
             'json' => [
                 'name' => 'after',
                 'priority' => 7,
@@ -206,7 +206,7 @@ final class AssetAttachmentApiTest extends AbstractDataboxTestCase
         $this->assertSame($this->document->getId(), $reloaded->getAttachment()->getId());
 
         // An empty name clears it
-        $data = $client->request('PUT', $uri, self::auth(self::USER, ['json' => ['name' => '']]))->toArray();
+        $data = $client->request('PATCH', $uri, self::patchOptions(self::USER, ['json' => ['name' => '']]))->toArray();
         $this->assertArrayNotHasKey('name', $data);
     }
 
@@ -258,7 +258,7 @@ final class AssetAttachmentApiTest extends AbstractDataboxTestCase
 
         $data = $client->request('GET', '/attachments?assetId='.$this->host->getId(), self::auth(self::OTHER))->toArray();
         $this->assertResponseIsSuccessful();
-        $this->assertSame([$visible->getId()], array_column($data['hydra:member'], 'id'));
-        $this->assertSame('visible', $data['hydra:member'][0]['name']);
+        $this->assertSame([$visible->getId()], array_column($data['member'], 'id'));
+        $this->assertSame('visible', $data['member'][0]['name']);
     }
 }

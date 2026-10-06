@@ -6,7 +6,7 @@ namespace App\Api\OutputTransformer;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
-use ApiPlatform\Api\IriConverterInterface;
+use ApiPlatform\Metadata\IriConverterInterface;
 use App\Api\Model\Output\AttributeDefinitionOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Elasticsearch\Mapping\FieldNameResolver;

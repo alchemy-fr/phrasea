@@ -6,7 +6,6 @@ namespace App\Api\Serializer;
 
 use ApiPlatform\JsonLd\AnonymousContextBuilderInterface;
 use ApiPlatform\Metadata\IriConverterInterface;
-use ApiPlatform\Metadata\Resource\Factory\ResourceMetadataCollectionFactoryInterface;
 use ApiPlatform\Metadata\UrlGeneratorInterface;
 use ApiPlatform\Metadata\Util\ClassInfoTrait;
 use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
@@ -28,7 +27,6 @@ final class FastAnonymousContextBuilder implements AnonymousContextBuilderInterf
         #[AutowireDecorated]
         private readonly AnonymousContextBuilderInterface $decorated,
         private readonly IriConverterInterface $iriConverter,
-        private readonly ResourceMetadataCollectionFactoryInterface $resourceMetadataFactory,
     ) {
     }
 
@@ -63,16 +61,17 @@ final class FastAnonymousContextBuilder implements AnonymousContextBuilderInterf
             ? $context['operation']->getShortName()
             : (new \ReflectionClass($this->getObjectClass($object)))->getShortName();
 
-        $jsonLdContext = ['@type' => $shortName];
+        $types = $context['types'] ?? null;
+        if (\is_array($types) && 1 === \count($types)) {
+            $types = $types[0];
+        }
+
+        $jsonLdContext = ['@type' => $types ?? $shortName];
 
         if (isset($context['iri'])) {
             $jsonLdContext['@id'] = $context['iri'];
         } elseif (true === ($context['gen_id'] ?? true)) {
             $jsonLdContext['@id'] = $this->iriConverter->getIriFromResource($object);
-        }
-
-        if (isset($context['api_resource'])) {
-            $jsonLdContext['@type'] = $this->resourceMetadataFactory->create($this->getObjectClass($context['api_resource']))[0]->getShortName();
         }
 
         return $jsonLdContext;

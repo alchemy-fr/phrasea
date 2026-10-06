@@ -145,7 +145,7 @@ final class ProfileApiTest extends AbstractDataboxTestCase
         $profile = $this->createProfile('P', self::USER);
         $uri = '/profiles/'.$profile->getId();
 
-        $data = $this->apiJson('PUT', $uri, self::USER, ['public' => true, 'data' => ['k' => 1]]);
+        $data = $this->apiJson('PATCH', $uri, self::USER, ['public' => true, 'data' => ['k' => 1]]);
         $this->assertSame('P', $data['name']);
         $this->assertSame(['k' => 1], $data['data']);
 
@@ -154,7 +154,7 @@ final class ProfileApiTest extends AbstractDataboxTestCase
         $this->assertTrue($profile->isPublic());
         $this->assertSame('P', $profile->getName());
 
-        $this->assertStatus(422, 'PUT', $uri, self::USER, ['name' => '']);
+        $this->assertStatus(422, 'PATCH', $uri, self::USER, ['name' => '']);
     }
 
     public function testUpdateAccessMatrix(): void
@@ -163,12 +163,12 @@ final class ProfileApiTest extends AbstractDataboxTestCase
         $uri = '/profiles/'.$profile->getId();
 
         // Public does not mean editable
-        $this->assertStatus(403, 'PUT', $uri, self::OTHER, ['name' => 'Hijack']);
-        $this->assertStatus(401, 'PUT', $uri, null, ['name' => 'Hijack']);
-        $this->assertStatus(200, 'PUT', $uri, self::ADMIN, ['name' => 'By admin']);
+        $this->assertStatus(403, 'PATCH', $uri, self::OTHER, ['name' => 'Hijack']);
+        $this->assertStatus(401, 'PATCH', $uri, null, ['name' => 'Hijack']);
+        $this->assertStatus(200, 'PATCH', $uri, self::ADMIN, ['name' => 'By admin']);
 
         $this->grantUserOnObject(self::OTHER, $profile, PermissionInterface::EDIT);
-        $this->assertSame('By other', $this->apiJson('PUT', $uri, self::OTHER, ['name' => 'By other'])['name']);
+        $this->assertSame('By other', $this->apiJson('PATCH', $uri, self::OTHER, ['name' => 'By other'])['name']);
         $this->assertStatus(403, 'DELETE', $uri, self::OTHER);
     }
 

@@ -203,8 +203,8 @@ function createInstance(): KyInstance {
                     const data: any =
                         typeof error.data === 'object' ? error.data : undefined;
                     const message =
-                        data?.['hydra:description'] ??
                         data?.detail ??
+                        data?.description ??
                         data?.message ??
                         data?.error_description ??
                         (typeof error.data === 'string' && error.data

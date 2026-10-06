@@ -41,10 +41,10 @@ class CreateAssetWithAttributeTest extends AbstractSearchTestCase
         ]);
 
         if (null === $expectedValues) {
-            $this->assertResponseHeaderSame('content-type', 'application/problem+json; charset=utf-8');
+            $this->assertResponseHeaderSame('content-type', 'application/problem+json');
             $this->assertResponseStatusCodeSame(422);
         } else {
-            $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+            $this->assertResponseHeaderSame('content-type', 'application/ld+json');
             $this->assertResponseStatusCodeSame(201);
 
             $attrAssertions = [];

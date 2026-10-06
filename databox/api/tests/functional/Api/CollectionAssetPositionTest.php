@@ -103,7 +103,7 @@ class CollectionAssetPositionTest extends AbstractSearchTestCase
             'headers' => ['Authorization' => 'Bearer '.$userJwt],
         ]);
         $this->assertResponseStatusCodeSame(200);
-        $this->assertCount(2, $response->toArray()['hydra:member']);
+        $this->assertCount(2, $response->toArray()['member']);
 
         $client->request('PUT', '/assets/'.$second.'/position', [
             'headers' => ['Authorization' => 'Bearer '.$userJwt],
@@ -262,7 +262,7 @@ class CollectionAssetPositionTest extends AbstractSearchTestCase
         return array_map(fn (array $item): array => [
             $this->getId($item['asset']['@id']),
             $item['position'],
-        ], $response->toArray()['hydra:member']);
+        ], $response->toArray()['member']);
     }
 
     /**

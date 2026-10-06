@@ -97,7 +97,7 @@ final class BasketApiTest extends AbstractDataboxTestCase
         // Assets can be listed by a granted user
         $this->assertStatus(200, 'GET', $uri.'/assets', self::OTHER);
 
-        $this->assertStatus(403, 'PUT', $uri, self::OTHER, ['name' => 'Hijacked']);
+        $this->assertStatus(403, 'PATCH', $uri, self::OTHER, ['name' => 'Hijacked']);
         $this->assertStatus(403, 'DELETE', $uri, self::OTHER);
         $this->assertStatus(403, 'POST', $uri.'/assets', self::OTHER, ['assets' => [['id' => $asset->getId()]]]);
         $this->assertStatus(403, 'POST', $uri.'/remove', self::OTHER, ['items' => []]);
@@ -119,7 +119,7 @@ final class BasketApiTest extends AbstractDataboxTestCase
         $this->assertTrue($data['capabilities']['edit']);
         $this->assertFalse($data['capabilities']['delete']);
 
-        $data = $this->apiJson('PUT', $uri, self::OTHER, ['name' => 'Renamed by other']);
+        $data = $this->apiJson('PATCH', $uri, self::OTHER, ['name' => 'Renamed by other']);
         $this->assertSame('Renamed by other', $data['name']);
 
         $data = $this->apiJson('POST', $uri.'/assets', self::OTHER, ['assets' => [['id' => $asset->getId()]]]);
@@ -143,7 +143,7 @@ final class BasketApiTest extends AbstractDataboxTestCase
         $basket = $this->createBasket(['name' => 'Name', 'description' => 'Initial description', 'ownerId' => self::USER]);
         $uri = '/baskets/'.$basket->getId();
 
-        $data = $this->apiJson('PUT', $uri, self::USER, ['name' => 'New name']);
+        $data = $this->apiJson('PATCH', $uri, self::USER, ['name' => 'New name']);
         $this->assertSame('New name', $data['name']);
 
         self::getEntityManager()->clear();
@@ -152,7 +152,7 @@ final class BasketApiTest extends AbstractDataboxTestCase
         // Omitted fields are left untouched
         $this->assertSame('Initial description', $basket->getDescription());
 
-        $this->apiJson('PUT', $uri, self::USER, ['description' => 'Updated description']);
+        $this->apiJson('PATCH', $uri, self::USER, ['description' => 'Updated description']);
         self::getEntityManager()->clear();
         $basket = self::getEntityManager()->find(Basket::class, $basket->getId());
         $this->assertSame('New name', $basket->getName());
@@ -163,14 +163,14 @@ final class BasketApiTest extends AbstractDataboxTestCase
     {
         $basket = $this->createBasket(['name' => 'Name', 'ownerId' => self::USER]);
 
-        $this->assertStatus(422, 'PUT', '/baskets/'.$basket->getId(), self::USER, ['name' => '']);
+        $this->assertStatus(422, 'PATCH', '/baskets/'.$basket->getId(), self::USER, ['name' => '']);
     }
 
     public function testUpdateCannotTransferOwnership(): void
     {
         $basket = $this->createBasket(['name' => 'Name', 'ownerId' => self::USER]);
 
-        $this->apiJson('PUT', '/baskets/'.$basket->getId(), self::USER, ['ownerId' => self::OTHER]);
+        $this->apiJson('PATCH', '/baskets/'.$basket->getId(), self::USER, ['ownerId' => self::OTHER]);
 
         self::getEntityManager()->clear();
         $this->assertSame(self::USER, self::getEntityManager()->find(Basket::class, $basket->getId())->getOwnerId());
