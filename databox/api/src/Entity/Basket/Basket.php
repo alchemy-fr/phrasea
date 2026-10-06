@@ -51,6 +51,31 @@ use Symfony\Component\Validator\Constraints as Assert;
                         'type' => 'string',
                         'enum' => BasketSearch::ORDERS,
                     ],
+                    description: 'Sort (default: by name)',
+                ),
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Search query on the name and description',
+                    castToArray: false,
+                ),
+                'archived' => new QueryParameter(
+                    schema: ['type' => 'boolean'],
+                    description: 'List the archived baskets instead of the active ones',
+                    castToArray: false,
+                ),
+                'includeArchived' => new QueryParameter(
+                    schema: ['type' => 'boolean'],
+                    description: 'List both the active and the archived baskets',
+                    castToArray: false,
+                ),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (max 30)',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
                 ),
             ],
         ),

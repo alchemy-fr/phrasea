@@ -6,6 +6,7 @@ namespace App\Elasticsearch;
 
 use ApiPlatform\Metadata\Operation;
 use App\Api\EntityIriConverter;
+use App\Elasticsearch\Filter\SearchQuery;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\AssetDataTemplate;
@@ -34,7 +35,7 @@ final class AssetDataTemplateSearch extends AbstractSearch
     ): Pagerfanta {
         $filterQueries = [];
 
-        $collection = $filters['collection'] ?? null;
+        $collection = self::firstScalar($filters['collection'] ?? null);
         if (null !== $collection) {
             $collection = $this->iriConverter->getItemFromIri(Collection::class, $collection);
         }
@@ -42,7 +43,7 @@ final class AssetDataTemplateSearch extends AbstractSearch
         $aclBoolQuery = $this->createTemplateACLBoolQuery($filters, $userId, $groupIds, $collection);
         $filterQueries[] = $aclBoolQuery;
 
-        $queryString = trim($filters['query'] ?? '');
+        $queryString = trim((string) ($filters['query'] ?? ''));
         if (!empty($queryString)) {
             $queryBool = new Query\BoolQuery();
             $queryBool->addShould(new Query\MatchQuery('name', $queryString));
@@ -50,15 +51,15 @@ final class AssetDataTemplateSearch extends AbstractSearch
         }
 
         $maxLimit = 50;
-        $limit = $filters['limit'] ?? $maxLimit;
-        if ($limit > $maxLimit) {
-            $limit = $maxLimit;
-        }
 
         $rootQuery = new Query\BoolQuery();
         foreach ($filterQueries as $query) {
             $rootQuery->addFilter($query);
         }
+
+        // workspace (ExactSearchFilter)
+        $searchQuery = new SearchQuery($rootQuery);
+        $this->applyParameters($searchQuery, AssetDataTemplate::class, $operation, $filters);
 
         if ($collection instanceof Collection) {
             $collectionQuery = new Query\BoolQuery();
@@ -86,7 +87,7 @@ final class AssetDataTemplateSearch extends AbstractSearch
         $query = new Query();
         $query->setTrackTotalHits();
         $query->setQuery($rootQuery);
-        $query->setSort([
+        $query->setSort($searchQuery->hasSort() ? $searchQuery->getSort() : [
             'collectionDepth' => 'asc',
             '_score' => 'desc',
             'name.raw' => 'asc',
@@ -95,10 +96,7 @@ final class AssetDataTemplateSearch extends AbstractSearch
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
         $result = new Pagerfanta(new FilteredPager(fn (AssetDataTemplate $template): bool => $this->security->isGranted(AbstractVoter::READ, $template), $adapter));
-        $result->setMaxPerPage((int) $limit);
-        if ($filters['page'] ?? false) {
-            $result->setCurrentPage((int) $filters['page']);
-        }
+        self::applyPagination($result, $filters, $maxLimit);
 
         // Force query so a missing index surfaces here, not during serialization.
         $this->executeSearch($result->getCurrentPageResults(...));
@@ -106,9 +104,21 @@ final class AssetDataTemplateSearch extends AbstractSearch
         return $result;
     }
 
+    /**
+     * A parameter given once (`?x=a`) or as a list (`?x[]=a`): its first value.
+     */
+    private static function firstScalar(mixed $value): ?string
+    {
+        if (\is_array($value)) {
+            $value = reset($value);
+        }
+
+        return \is_scalar($value) && '' !== (string) $value ? (string) $value : null;
+    }
+
     private function createTemplateACLBoolQuery(array $filters, ?string $userId, array $groupIds, ?Collection $collection): Query\BoolQuery
     {
-        $workspaceId = $filters['workspace'] ?? $collection?->getWorkspaceId() ?? null;
+        $workspaceId = self::firstScalar($filters['workspace'] ?? null) ?? $collection?->getWorkspaceId();
 
         if (empty($workspaceId)) {
             throw new BadRequestHttpException('"workspace" filter is mandatory');
