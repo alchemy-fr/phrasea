@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -20,7 +21,7 @@ final class Version20220808123353 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf('postgresql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'postgresql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform, 'Migration can only be executed safely on \'postgresql\'.');
 
         $this->addSql('ALTER TABLE target ADD description TEXT DEFAULT NULL');
         $this->addSql('ALTER TABLE target ADD default_destination VARCHAR(255) DEFAULT NULL');
@@ -29,7 +30,7 @@ final class Version20220808123353 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf('postgresql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'postgresql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform, 'Migration can only be executed safely on \'postgresql\'.');
 
         $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE target DROP description');

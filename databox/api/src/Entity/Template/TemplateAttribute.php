@@ -40,7 +40,7 @@ class TemplateAttribute extends AbstractBaseAttribute
     #[ORM\JoinColumn(nullable: false)]
     private ?AssetDataTemplate $template = null;
 
-    #[ORM\ManyToOne(targetEntity: AttributeDefinition::class, inversedBy: 'attributes')]
+    #[ORM\ManyToOne(targetEntity: AttributeDefinition::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Groups([AssetDataTemplate::GROUP_READ])]
     protected ?AttributeDefinition $definition = null;
