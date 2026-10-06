@@ -9,6 +9,7 @@ use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
+use App\Api\Traits\ParameterValuesTrait;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
 use App\Security\Voter\AbstractVoter;
@@ -17,6 +18,7 @@ use Doctrine\ORM\QueryBuilder;
 
 class AttributeEntityExtension implements QueryCollectionExtensionInterface
 {
+    use ParameterValuesTrait;
     use SecurityAwareTrait;
 
     public function __construct(
@@ -35,10 +37,15 @@ class AttributeEntityExtension implements QueryCollectionExtensionInterface
             return;
         }
 
-        $listId = $context['filters']['list'] ?? null;
-        if (isset($listId)) {
-            $list = DoctrineUtil::findStrict($this->em, EntityList::class, $listId, throw404: true);
-            if ($this->isGranted(AbstractVoter::EDIT, $list)) {
+        // The editors of the requested list(s) also see the pending values
+        $listIds = null !== $operation ? (array) self::getParameterValue($operation, 'list', []) : [];
+        if (!empty($listIds)) {
+            $editsEveryList = true;
+            foreach ($listIds as $listId) {
+                $list = DoctrineUtil::findStrict($this->em, EntityList::class, (string) $listId, throw404: true);
+                $editsEveryList = $editsEveryList && $this->isGranted(AbstractVoter::EDIT, $list);
+            }
+            if ($editsEveryList) {
                 return;
             }
         }
