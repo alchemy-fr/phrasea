@@ -49,7 +49,7 @@ describe('Upload', () => {
     });
 
     it('uploads a large file in parts with the URLs given at creation', () => {
-        // Several parts with the dev minimum part size (5 MiB)
+        // Several parts with the e2e minimum part size (S3_MULTIPART_MIN_CHUNK_SIZE: 5 MiB in the CI)
         const size = 12 * 1024 * 1024;
         cy.intercept('POST', /\/uploads$/).as('createUpload');
         cy.intercept('POST', /\/uploads\/[^/]+\/parts?$/, cy.spy().as('partUrlRequest'));
