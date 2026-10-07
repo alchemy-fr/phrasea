@@ -210,9 +210,19 @@ export function putProfileItem(
     itemId: string,
     data: Partial<ProfileItem>
 ): Promise<ProfileItem> {
+    // The item is identified by the URL. On PUT, API Platform resolves an "id"
+    // or "@id" of the body as the object to replace, and fails on this route.
+    const {
+        'id': _id,
+        '@id': _iri,
+        '@type': _type,
+        '@context': _context,
+        ...body
+    } = data as Partial<ProfileItem> & Record<string, unknown>;
+
     return api.put<ProfileItem>(
         `/${EntityName.Profile}/${profileId}/items/${itemId}`,
-        data
+        body
     );
 }
 
