@@ -3,10 +3,12 @@ name: CI
 on:
   push:
     branches:
+      - next
       - master
       - 'release/**'
   pull_request:
     branches:
+      - next
       - master
       - 'release/**'
   workflow_dispatch:
