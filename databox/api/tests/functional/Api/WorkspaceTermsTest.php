@@ -212,6 +212,32 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $this->assertArrayNotHasKey('pdfUrl', $data['terms'] ?? []);
     }
 
+    public function testTextIsKeptAlongsideThePdf(): void
+    {
+        self::enableFixtures();
+        $client = static::createClient();
+        $iri = $this->findIriBy(Workspace::class, ['slug' => 'test-workspace']);
+
+        $client->request('PATCH', $iri, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->adminHeaders(),
+            'json' => ['terms' => 'Use these assets wisely.'],
+        ]);
+        $this->assertResponseIsSuccessful();
+
+        $response = $client->request('POST', $iri.'/terms', [
+            'headers' => $this->adminHeaders(),
+            'json' => [
+                'multipart' => $this->createCompletedUpload('%PDF-1.4 fake terms pdf', 'terms.pdf', 'application/pdf'),
+            ],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $terms = $response->toArray()['terms'];
+        $this->assertSame(2, $terms['version']);
+        $this->assertNotEmpty($terms['pdfUrl']);
+        $this->assertSame('Use these assets wisely.', $terms['text']);
+        $this->assertSame('Use these assets wisely.', $terms['rawText']);
+    }
+
     public function testWorkspaceLogoUpload(): void
     {
         self::enableFixtures();

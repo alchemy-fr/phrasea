@@ -75,12 +75,12 @@ class WorkspaceOutputMapper implements OutputMapperInterface
             if (null !== $currentTerms) {
                 $userId = $this->getUser()?->getId();
                 $output->terms = new WorkspaceTermsOutput(
-                    $currentTerms->hasFile() ? null : $currentTerms->getTranslatedField(TermsVersion::TR_FIELD_TEXT, $this->getPreferredLocales($data), $currentTerms->getText()),
+                    $currentTerms->getTranslatedField(TermsVersion::TR_FIELD_TEXT, $this->getPreferredLocales($data), $currentTerms->getText()) ?: null,
                     $currentTerms->getVersion(),
                     null !== $userId ? $this->termsManager->hasSigned($currentTerms, $userId) : null,
                     $data->isAttachTermsToExports(),
                     $currentTerms->hasFile() ? $this->fileUrlResolver->resolveUrl($currentTerms->getFile()) : null,
-                    $currentTerms->hasFile() ? null : $currentTerms->getText(),
+                    $currentTerms->getText() ?: null,
                     $currentTerms->getFieldTranslations(TermsVersion::TR_FIELD_TEXT) ?: null,
                 );
             }
