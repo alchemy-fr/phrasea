@@ -218,8 +218,8 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $client = static::createClient();
         $iri = $this->findIriBy(Workspace::class, ['slug' => 'test-workspace']);
 
-        $client->request('PUT', $iri, [
-            'headers' => $this->adminHeaders(),
+        $client->request('PATCH', $iri, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->adminHeaders(),
             'json' => ['terms' => 'Use these assets wisely.'],
         ]);
         $this->assertResponseIsSuccessful();
