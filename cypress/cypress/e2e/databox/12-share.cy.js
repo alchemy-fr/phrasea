@@ -138,14 +138,21 @@ describe('Share', () => {
         cy.getBySel('share-asset').should('have.length', 2);
         cy.getBySel('share-layout').find('[role=tab]').eq(0).click();
 
-        // The viewer: linkable, walks the assets, closes back to the gallery
-        cy.getBySel('share-asset-title').contains('E2E Shared').click();
-        cy.getBySel('share-asset-name').should('contain', 'E2E Shared');
-        cy.location('search').should('contain', 'asset=');
-        cy.getBySel('share-view-next').should('not.be.disabled').click();
-        cy.getBySel('share-asset-name').should('not.contain', 'E2E Shared');
-        cy.getBySel('share-view-prev').click();
-        cy.getBySel('share-asset-name').should('contain', 'E2E Shared');
+        // The viewer: linkable, walks the assets, closes back to the gallery.
+        // The order of the assets of a share is not defined: start from the first one.
+        cy.getBySel('share-asset-title')
+            .first()
+            .invoke('text')
+            .then(firstTitle => {
+                cy.getBySel('share-asset-title').first().click();
+                cy.getBySel('share-asset-name').should('contain', firstTitle);
+                cy.location('search').should('contain', 'asset=');
+                cy.getBySel('share-view-prev').should('be.disabled');
+                cy.getBySel('share-view-next').should('not.be.disabled').click();
+                cy.getBySel('share-asset-name').should('not.contain', firstTitle);
+                cy.getBySel('share-view-prev').should('not.be.disabled').click();
+                cy.getBySel('share-asset-name').should('contain', firstTitle);
+            });
         cy.getBySel('share-view-close').click();
         cy.getBySel('share-gallery').should('be.visible');
         cy.location('search').should('not.contain', 'asset=');
