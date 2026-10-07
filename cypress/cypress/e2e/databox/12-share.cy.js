@@ -148,9 +148,10 @@ describe('Share', () => {
                 cy.getBySel('share-asset-title').first().click();
                 cy.getBySel('share-asset-name').should('contain', firstTitle);
                 cy.location('search').should('contain', 'asset=');
+                cy.getBySel('share-view-prev').should('be.disabled');
                 cy.getBySel('share-view-next').should('not.be.disabled').click();
                 cy.getBySel('share-asset-name').should('not.contain', firstTitle);
-                cy.getBySel('share-view-prev').click();
+                cy.getBySel('share-view-prev').should('not.be.disabled').click();
                 cy.getBySel('share-asset-name').should('contain', firstTitle);
             });
         cy.getBySel('share-view-close').click();
