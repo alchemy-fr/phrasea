@@ -13,10 +13,12 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\AttributeFilterRuleInput;
 use App\Api\Model\Output\AttributeFilterRuleOutput;
+use App\Api\Processor\InputMapperProcessor;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeFilterRuleRepository;
 use App\Validator\ValidAQLConstraint;
@@ -30,11 +32,19 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'attribute-filter-rule',
     operations: [
         new Get(security: 'is_granted("READ", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)', processor: InputMapperProcessor::class),
         new Delete(security: 'is_granted("DELETE", object)'),
         // Restricted to the editable workspaces by AttributeFilterRuleExtension
-        new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        new GetCollection(
+            parameters: [
+                'workspaceId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Workspace ID (mandatory)',
+                    castToArray: false,
+                ),
+            ],
+        ),
+        new Post(extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'], processor: InputMapperProcessor::class),
     ],
     normalizationContext: ['groups' => ['_',
         AttributeFilterRule::GROUP_READ],

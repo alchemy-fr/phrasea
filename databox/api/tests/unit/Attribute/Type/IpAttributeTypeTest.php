@@ -7,7 +7,7 @@ namespace App\Tests\Unit\Attribute\Type;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\IpAttributeType;
 
-class IpAttributeTypeTest extends AbstractAttributeTypeTest
+class IpAttributeTypeTest extends AbstractAttributeTypeTestCase
 {
     protected function getType(): AttributeTypeInterface
     {
@@ -15,7 +15,7 @@ class IpAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getValidationCases(): array
+    public static function getValidationCases(): array
     {
         return [
             ...parent::getValidationCases(),
@@ -31,7 +31,7 @@ class IpAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getConvertToDbValueCases(): array
+    public static function getConvertToDbValueCases(): array
     {
         return [
             ...parent::getConvertToDbValueCases(),
@@ -43,7 +43,7 @@ class IpAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getDenormalizationCases(): array
+    public static function getDenormalizationCases(): array
     {
         return [
             ...parent::getDenormalizationCases(),

@@ -7,6 +7,7 @@ namespace App\Tests\Functional\Api\Workspace;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\UserPreference;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * GET/PUT /preferences (UpdateUserPreferenceAction): a per-user key/value store,
@@ -113,9 +114,7 @@ final class PreferencesTest extends AbstractDataboxTestCase
         ];
     }
 
-    /**
-     * @dataProvider invalidPayloadProvider
-     */
+    #[DataProvider('invalidPayloadProvider')]
     public function testInvalidPayload(string $body): void
     {
         $this->put(self::USER, $body);

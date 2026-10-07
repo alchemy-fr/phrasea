@@ -17,6 +17,7 @@ use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Write side of /workspaces: who may create/update/delete, input validation
@@ -91,7 +92,7 @@ final class WorkspaceWriteTest extends AbstractDataboxTestCase
             'headers' => self::authHeaders(self::USER),
         ]);
         $this->assertSame(['for-user'], self::listedSlugs($response->toArray()));
-        $this->assertTrue($response->toArray()['hydra:member'][0]['capabilities']['edit']);
+        $this->assertTrue($response->toArray()['member'][0]['capabilities']['edit']);
     }
 
     public function testNonAdminCannotCreateWorkspace(): void
@@ -137,9 +138,7 @@ final class WorkspaceWriteTest extends AbstractDataboxTestCase
         ];
     }
 
-    /**
-     * @dataProvider invalidPayloadProvider
-     */
+    #[DataProvider('invalidPayloadProvider')]
     public function testCreateValidation(array $payload, string $propertyPath): void
     {
         $response = static::createClient()->request('POST', '/workspaces', [
@@ -175,15 +174,15 @@ final class WorkspaceWriteTest extends AbstractDataboxTestCase
 
         // Same on update
         $other = $this->createWs('other');
-        $client->request('PUT', self::iri($other), [
-            'headers' => self::authHeaders(self::ADMIN),
+        $client->request('PATCH', self::iri($other), [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + self::authHeaders(self::ADMIN),
             'json' => ['slug' => 'taken'],
         ]);
         $this->assertResponseStatusCodeSame(422);
 
         // Keeping its own slug is fine
-        $client->request('PUT', self::iri($other), [
-            'headers' => self::authHeaders(self::ADMIN),
+        $client->request('PATCH', self::iri($other), [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + self::authHeaders(self::ADMIN),
             'json' => ['slug' => 'other', 'name' => 'Renamed'],
         ]);
         $this->assertResponseIsSuccessful();
@@ -204,9 +203,7 @@ final class WorkspaceWriteTest extends AbstractDataboxTestCase
         ];
     }
 
-    /**
-     * @dataProvider updateAccessProvider
-     */
+    #[DataProvider('updateAccessProvider')]
     public function testUpdateAccess(?string $userId, ?int $mask, int $expectedStatus): void
     {
         $isOwner = 'owner' === $userId;
@@ -218,8 +215,8 @@ final class WorkspaceWriteTest extends AbstractDataboxTestCase
             $this->grantUser($userId, $ws, $mask);
         }
 
-        $response = static::createClient()->request('PUT', self::iri($ws), [
-            'headers' => self::authHeaders($isOwner ? self::OTHER : $userId),
+        $response = static::createClient()->request('PATCH', self::iri($ws), [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + self::authHeaders($isOwner ? self::OTHER : $userId),
             'json' => ['name' => 'Updated'],
         ]);
 
@@ -242,8 +239,8 @@ final class WorkspaceWriteTest extends AbstractDataboxTestCase
         ]);
 
         $client = static::createClient();
-        $response = $client->request('PUT', self::iri($ws), [
-            'headers' => self::authHeaders(self::ADMIN),
+        $response = $client->request('PATCH', self::iri($ws), [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + self::authHeaders(self::ADMIN),
             'json' => [
                 'public' => true,
                 'trashRetentionDelay' => '15',
@@ -266,8 +263,8 @@ final class WorkspaceWriteTest extends AbstractDataboxTestCase
         $this->assertSame(['name' => ['fr' => 'Originel']], $data['translations']);
 
         // Reverting the config to its defaults removes the keys from the stored config
-        $response = $client->request('PUT', self::iri($ws), [
-            'headers' => self::authHeaders(self::ADMIN),
+        $response = $client->request('PATCH', self::iri($ws), [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + self::authHeaders(self::ADMIN),
             'json' => [
                 'assetDefaultStatus' => 0,
                 'fileAnalysisRequired' => false,
@@ -290,8 +287,8 @@ final class WorkspaceWriteTest extends AbstractDataboxTestCase
     {
         $ws = $this->createWs('ws');
 
-        $response = static::createClient()->request('PUT', self::iri($ws), [
-            'headers' => self::authHeaders(self::ADMIN),
+        $response = static::createClient()->request('PATCH', self::iri($ws), [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + self::authHeaders(self::ADMIN),
             'json' => ['assetDefaultStatus' => 999],
         ]);
 
@@ -309,8 +306,8 @@ final class WorkspaceWriteTest extends AbstractDataboxTestCase
             ['enabledLocales' => ['english']],
             ['trashRetentionDelay' => 1000],
         ] as $payload) {
-            $client->request('PUT', self::iri($ws), [
-                'headers' => self::authHeaders(self::ADMIN),
+            $client->request('PATCH', self::iri($ws), [
+                'headers' => ['Content-Type' => 'application/merge-patch+json'] + self::authHeaders(self::ADMIN),
                 'json' => $payload,
             ]);
             $this->assertResponseStatusCodeSame(422, json_encode($payload));
@@ -325,8 +322,8 @@ final class WorkspaceWriteTest extends AbstractDataboxTestCase
     {
         $ws = $this->createWs('ws', ['ownerId' => self::USER]);
 
-        $response = static::createClient()->request('PUT', self::iri($ws), [
-            'headers' => self::authHeaders(self::USER),
+        $response = static::createClient()->request('PATCH', self::iri($ws), [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + self::authHeaders(self::USER),
             'json' => ['ownerId' => self::OTHER, 'name' => 'Still mine'],
         ]);
 
@@ -350,9 +347,7 @@ final class WorkspaceWriteTest extends AbstractDataboxTestCase
         ];
     }
 
-    /**
-     * @dataProvider deleteAccessProvider
-     */
+    #[DataProvider('deleteAccessProvider')]
     public function testDeleteAccess(?string $userId, ?int $mask, int $expectedStatus): void
     {
         $isOwner = 'owner' === $userId;

@@ -19,10 +19,6 @@ final readonly class AssetTokenUser implements UserInterface
         ];
     }
 
-    public function eraseCredentials(): void
-    {
-    }
-
     public function getUserIdentifier(): string
     {
         return self::class;

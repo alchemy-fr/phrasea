@@ -13,16 +13,19 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Model\Input\AddToProfileInput;
 use App\Api\Model\Input\ProfileInput;
 use App\Api\Model\Input\RemoveFromProfileInput;
 use App\Api\Model\Output\ProfileOutput;
 use App\Api\Processor\AddToProfileProcessor;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\RemoveFromProfileProcessor;
+use App\Api\Processor\Sort\ProfileItemSortProcessor;
 use App\Api\Provider\ProfileCollectionProvider;
-use App\Controller\Core\ProfileItemSortAction;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Entity\WithOwnerIdInterface;
 use App\Repository\Profile\ProfileRepository;
@@ -47,12 +50,13 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
         new Post(
             uriTemplate: '/profiles/{id}/sort',
-            controller: ProfileItemSortAction::class,
-            openapiContext: [
-                'summary' => 'Reorder items',
-                'description' => 'Reorder items',
-                'requestBody' => [
-                    'content' => [
+            status: 200,
+            processor: ProfileItemSortProcessor::class,
+            openapi: new OpenApiOperation(
+                summary: 'Reorder items',
+                description: 'Reorder items',
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
                         'application/json' => [
                             'schema' => [
                                 'description' => 'Ordered list of IDs',
@@ -60,26 +64,28 @@ use Symfony\Component\Validator\Constraints as Assert;
                                 'items' => ['type' => 'string'],
                             ],
                         ],
-                    ],
-                ],
-            ],
+                    ]),
+                ),
+            ),
             input: false,
             output: false,
             read: false,
             name: 'profile_item_post_sort'
         ),
-        new Put(
+        new Patch(
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            processor: InputMapperProcessor::class,
         ),
         new Post(
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
-            securityPostValidation: 'is_granted("'.AbstractVoter::CREATE.'", object)'
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY_POST_VALIDATION => 'is_granted("'.AbstractVoter::CREATE.'", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Post(
             uriTemplate: '/profiles/default/items',

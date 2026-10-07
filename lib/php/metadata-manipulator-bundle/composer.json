@@ -25,9 +25,8 @@
     ],
     "require": {
         "php": "^8.5",
-        "symfony/process": "^5 || ^6 || ^7",
-        "symfony/framework-bundle": "^4.4 || ^5.0 || ^5 || ^6 || ^7",
-        "symfony/templating": "^4.4 || ^5.0 || ^6 || ^7",
+        "symfony/process": "^7.4 || ^8.0",
+        "symfony/framework-bundle": "^7.4 || ^8.0",
         "alchemy/phpexiftool": "^4.2.0"
     },
     "config": {
@@ -57,7 +56,7 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.17",
         "php-parallel-lint/php-var-dump-check": "v0.5",
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "^11.5",
         "rector/rector": "^2.3.0"
     }
 }

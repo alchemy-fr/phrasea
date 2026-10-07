@@ -9,9 +9,9 @@
     "license": "MIT",
     "require": {
         "php": "^8.5",
-        "symfony/framework-bundle": "^7",
+        "symfony/framework-bundle": "^7.4 || ^8.0",
         "friendsofsymfony/elastica-bundle": "^7.1",
-        "symfony/messenger": "^7.4"
+        "symfony/messenger": "^7.4 || ^8.0"
     },
     "config": {
         "sort-packages": true,
@@ -42,8 +42,8 @@
     "require-dev": {
         "php-parallel-lint/php-var-dump-check": "v0.5",
         "friendsofphp/php-cs-fixer": "^v3.50",
-        "phpunit/phpunit": "^9.5",
-        "doctrine/orm": "^2.7",
+        "phpunit/phpunit": "^11.5",
+        "doctrine/orm": "^2.7 || ^3",
         "ramsey/uuid": "^4.0",
         "colinodell/psr-testlogger": "^1.2"
     }

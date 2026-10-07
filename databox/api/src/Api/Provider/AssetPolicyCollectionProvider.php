@@ -13,7 +13,7 @@ class AssetPolicyCollectionProvider extends AbstractWorkspaceFilteredCollectionP
 {
     public function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array
     {
-        $workspace = $this->getWorkspace($context);
+        $workspace = $this->getWorkspace($operation);
         // Reading a policy is restricted to workspace editors (see AssetPolicyVoter)
         if (!$this->hasScope(AbstractVoter::LIST, AssetPolicyVoter::SCOPE_PREFIX)) {
             $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $workspace, 'Cannot read asset policies of this workspace');

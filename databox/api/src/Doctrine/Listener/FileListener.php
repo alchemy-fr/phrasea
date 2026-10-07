@@ -14,12 +14,11 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Repository\Core\FileDuplicateRepository;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::preRemove)]
-readonly class FileListener implements EventSubscriber
+readonly class FileListener
 {
     public function __construct(
         private PostFlushStack $postFlushStack,
@@ -65,12 +64,5 @@ readonly class FileListener implements EventSubscriber
         }
 
         $this->postFlushStack->addBusMessage(new DeleteFilesIfOrphan([$file->getId()]));
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::preRemove,
-        ];
     }
 }

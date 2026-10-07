@@ -12,6 +12,7 @@ use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributePolicy;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * /attributes: the attribute values of an asset, one row per value (and per locale).
@@ -75,7 +76,7 @@ final class AttributeTest extends AbstractDataboxTestCase
         ]);
         $this->assertResponseStatusCodeSame(200);
 
-        return array_map(fn (array $a): string => (string) $a['value'], $response->toArray()['hydra:member']);
+        return array_map(fn (array $a): string => (string) $a['value'], $response->toArray()['member']);
     }
 
     private function createSecretPolicy(): AttributePolicy
@@ -283,9 +284,7 @@ final class AttributeTest extends AbstractDataboxTestCase
         $this->assertSame(42, $data['value']);
     }
 
-    /**
-     * @dataProvider getInvalidMetaCases
-     */
+    #[DataProvider('getInvalidMetaCases')]
     public function testCreateRejectsAnInvalidOriginOrStatus(array $extra): void
     {
         $this->setUpScene();
@@ -311,13 +310,11 @@ final class AttributeTest extends AbstractDataboxTestCase
             'value' => 'Hello',
         ]);
         $this->assertResponseStatusCodeSame(400);
-        $this->assertJsonContains(['hydra:description' => 'Missing Attribute definition']);
+        $this->assertJsonContains(['description' => 'Missing Attribute definition']);
     }
 
     public function testCreateWithAnEmptyValueIsABadRequest(): void
     {
-        $this->markTestIncomplete('BUG: POST /attributes with an empty value answers 403: AttributeInputTransformer::transform() returns null, then securityPostDenormalize is_granted("CREATE", null) is denied (src/Api/InputTransformer/AttributeInputTransformer.php:46)');
-
         $this->setUpScene();
 
         $this->postAttribute(self::USER, $this->title, '   ');
@@ -427,7 +424,7 @@ final class AttributeTest extends AbstractDataboxTestCase
         // OTHER can read the (public) asset but not edit it
         $this->postAttribute(self::OTHER, $this->createAttributeDefinition(['name' => 'Other']), 'x');
         $this->assertResponseStatusCodeSame(403);
-        $this->api('PUT', '/attributes/'.$attribute->getId(), self::OTHER, ['value' => 'Hacked']);
+        $this->api('PATCH', '/attributes/'.$attribute->getId(), self::OTHER, ['value' => 'Hacked']);
         $this->assertResponseStatusCodeSame(403);
         $this->api('PATCH', '/attributes/'.$attribute->getId(), self::OTHER, ['value' => 'Hacked']);
         $this->assertResponseStatusCodeSame(403);
@@ -451,7 +448,7 @@ final class AttributeTest extends AbstractDataboxTestCase
 
         $this->postAttribute(self::USER, $lockedMulti, 'x');
         $this->assertResponseStatusCodeSame(403);
-        $this->api('PUT', '/attributes/'.$attribute->getId(), self::USER, ['value' => 'Changed']);
+        $this->api('PATCH', '/attributes/'.$attribute->getId(), self::USER, ['value' => 'Changed']);
         $this->assertResponseStatusCodeSame(403);
         $this->api('DELETE', '/attributes/'.$attribute->getId(), self::USER);
         $this->assertResponseStatusCodeSame(403);
@@ -463,7 +460,7 @@ final class AttributeTest extends AbstractDataboxTestCase
         $this->grantUserOnObject(self::USER, $policy, PermissionInterface::EDIT);
         $this->postAttribute(self::USER, $lockedMulti, 'granted');
         $this->assertResponseStatusCodeSame(201);
-        $this->api('PUT', '/attributes/'.$attribute->getId(), self::USER, ['value' => 'Changed']);
+        $this->api('PATCH', '/attributes/'.$attribute->getId(), self::USER, ['value' => 'Changed']);
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonContains(['value' => 'Changed']);
     }
@@ -477,7 +474,7 @@ final class AttributeTest extends AbstractDataboxTestCase
         self::getEntityManager()->persist($this->title);
         self::getEntityManager()->flush();
 
-        $this->api('PUT', '/attributes/'.$attribute->getId(), self::USER, ['value' => 'Changed']);
+        $this->api('PATCH', '/attributes/'.$attribute->getId(), self::USER, ['value' => 'Changed']);
         $this->assertResponseStatusCodeSame(403);
         $this->api('DELETE', '/attributes/'.$attribute->getId(), self::USER);
         $this->assertResponseStatusCodeSame(403);
@@ -488,7 +485,7 @@ final class AttributeTest extends AbstractDataboxTestCase
         $this->setUpScene();
         $attribute = $this->createAttribute($this->title, 'The title');
 
-        $this->api('PUT', '/attributes/'.$attribute->getId(), self::USER, [
+        $this->api('PATCH', '/attributes/'.$attribute->getId(), self::USER, [
             'value' => 'New title',
             'origin' => 'machine',
             'originVendor' => 'ai',
@@ -515,7 +512,7 @@ final class AttributeTest extends AbstractDataboxTestCase
         $this->setUpScene();
         $attribute = $this->createAttribute($this->title, 'The title');
 
-        $this->api('PUT', '/attributes/'.$attribute->getId(), self::USER, ['value' => '']);
+        $this->api('PATCH', '/attributes/'.$attribute->getId(), self::USER, ['value' => '']);
         $this->assertResponseIsSuccessful();
 
         self::getEntityManager()->clear();

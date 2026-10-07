@@ -14,7 +14,7 @@ use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\Attribute\AttributeEntity\Importer\AttributeEntityImporterInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Contracts\Service\ServiceProviderInterface;
 
@@ -24,7 +24,7 @@ class ImportEntitiesProcessor implements ProcessorInterface
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        #[TaggedLocator(AttributeEntityImporterInterface::TAG, defaultIndexMethod: 'getName')]
+        #[AutowireLocator(AttributeEntityImporterInterface::TAG)]
         private readonly ServiceProviderInterface $importers,
     ) {
     }
@@ -34,7 +34,7 @@ class ImportEntitiesProcessor implements ProcessorInterface
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): EntityList
     {
-        $listId = $uriVariables['id'];
+        $listId = (string) $uriVariables['id'];
         $list = DoctrineUtil::findStrict($this->em, EntityList::class, $listId);
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $list);
 

@@ -38,9 +38,7 @@ final class OrphanFileRemover
                     ->addSelect('1')
                     ->from($cnx->quoteIdentifier($table))
                     ->andWhere(sprintf('%s = :id', $cnx->quoteIdentifier($col)))
-                    ->setParameters([
-                        'id' => $fileId,
-                    ])
+                    ->setParameter('id', $fileId)
                     ->setMaxResults(1)
                     ->executeQuery();
 

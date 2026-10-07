@@ -6,7 +6,7 @@ namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
-use ApiPlatform\Api\IriConverterInterface;
+use ApiPlatform\Metadata\IriConverterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\AddToBasketInput;
@@ -39,7 +39,7 @@ class AddToBasketProcessor implements ProcessorInterface
     {
         $user = $this->getStrictUser();
         if (isset($uriVariables['id'])) {
-            $basketId = $uriVariables['id'];
+            $basketId = (string) $uriVariables['id'];
             $basket = DoctrineUtil::findStrictByRepo($this->basketRepository, $basketId);
             $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $basket);
         } else {

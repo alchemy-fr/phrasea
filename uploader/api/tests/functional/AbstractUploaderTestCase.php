@@ -6,7 +6,7 @@ namespace App\Tests\Functional;
 
 use Alchemy\ApiTest\ApiTestTrait;
 use Alchemy\TestBundle\Helper\FixturesTrait;
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use ApiPlatform\Test\ApiTestCase;
 use App\Entity\Target;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -15,6 +15,8 @@ abstract class AbstractUploaderTestCase extends ApiTestCase
 {
     use FixturesTrait;
     use ApiTestTrait;
+
+    protected static ?bool $alwaysBootKernel = true;
 
     protected static function bootKernel(array $options = []): KernelInterface
     {
@@ -59,6 +61,9 @@ abstract class AbstractUploaderTestCase extends ApiTestCase
                 'Authorization' => $accessToken ? 'Bearer '.$accessToken : null,
             ],
         ];
+        if ('PATCH' === $method) {
+            $options['headers']['Content-Type'] = 'application/merge-patch+json';
+        }
         if (null !== $data) {
             $options['json'] = $data;
         }

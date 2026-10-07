@@ -40,7 +40,7 @@ final readonly class AssetDataTemplatePostTransformListener implements EventSubs
         $document->set('groups', array_values(array_unique($groups)));
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             PostTransformEvent::class => 'hydrateDocument',

@@ -94,7 +94,7 @@ final class CollectionMoveTest extends AbstractDataboxTestCase
             'json' => [],
         ]);
         $this->assertResponseStatusCodeSame(400);
-        $this->assertJsonContains(['hydra:description' => 'Cannot add a sub-collection in a different workspace']);
+        $this->assertJsonContains(['description' => 'Cannot add a sub-collection in a different workspace']);
         $this->assertNull($this->findCollection($collection->getId())->getParent());
     }
 

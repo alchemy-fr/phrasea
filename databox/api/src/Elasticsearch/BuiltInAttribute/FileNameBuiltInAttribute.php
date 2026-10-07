@@ -6,7 +6,9 @@ namespace App\Elasticsearch\BuiltInAttribute;
 
 use App\Attribute\Type\TextAttributeType;
 use App\Entity\Core\Asset;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: '@filename')]
 final class FileNameBuiltInAttribute extends AbstractBuiltInAttribute
 {
     protected function getAggregationTranslationKey(): string

@@ -6,6 +6,7 @@ namespace App\Security\Voter;
 
 use App\Entity\Core\RenditionPolicy;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class RenditionPolicyVoter extends AbstractVoter
 {
@@ -26,7 +27,7 @@ class RenditionPolicyVoter extends AbstractVoter
     /**
      * @param RenditionPolicy $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;

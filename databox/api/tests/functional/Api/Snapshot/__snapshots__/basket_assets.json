@@ -1,0 +1,109 @@
+{
+    "@context": "/contexts/BasketAsset",
+    "@id": "/baskets/<basket>/assets",
+    "@type": "Collection",
+    "member": [
+        {
+            "@id": "/basket-assets/<basketAsset>",
+            "@type": "BasketAsset",
+            "asset": {
+                "@id": "/assets/<other>",
+                "@type": "asset",
+                "attributes": [
+                    {
+                        "@id": "/attributes/<uuid>",
+                        "@type": "attribute",
+                        "createdAt": "<date>",
+                        "definition": {
+                            "@id": "/attribute-definitions/<uuid>",
+                            "@type": "attribute-definition",
+                            "createdAt": "<date>",
+                            "displayName": "Name",
+                            "id": "<uuid>",
+                            "multiple": false,
+                            "name": "Name",
+                            "searchSlug": "name_text_s",
+                            "slug": "name",
+                            "translatable": false,
+                            "type": "text",
+                            "updatedAt": "<date>"
+                        },
+                        "id": "<uuid>",
+                        "invalid": false,
+                        "locale": "_",
+                        "updatedAt": "<date>",
+                        "value": "Other"
+                    }
+                ],
+                "attributesEditedAt": "<date>",
+                "capabilities": {
+                    "delete": true,
+                    "edit": true,
+                    "editAttributes": true,
+                    "share": true
+                },
+                "collections": [
+                    {
+                        "@id": "/collections/<root>",
+                        "@type": "collection",
+                        "createdAt": "<date>",
+                        "deleted": false,
+                        "displayName": "Root",
+                        "extraMetadata": [],
+                        "id": "<root>",
+                        "name": "Root",
+                        "relationExtraMetadata": [],
+                        "updatedAt": "<date>"
+                    }
+                ],
+                "createdAt": "<date>",
+                "deleted": false,
+                "editedAt": "<date>",
+                "extraMetadata": [],
+                "id": "<other>",
+                "name": "Other",
+                "owner": {
+                    "@id": "<genid>",
+                    "@type": "UserOutput",
+                    "id": "<uuid>",
+                    "removed": false,
+                    "username": "user"
+                },
+                "privacy": 0,
+                "referenceCollection": {
+                    "@id": "/collections/<root>",
+                    "@type": "collection",
+                    "createdAt": "<date>",
+                    "deleted": false,
+                    "displayName": "Root",
+                    "extraMetadata": [],
+                    "id": "<root>",
+                    "name": "Root",
+                    "relationExtraMetadata": [],
+                    "updatedAt": "<date>"
+                },
+                "resolvedName": "Other",
+                "resolvedTrackingId": "<other>",
+                "status": 0,
+                "tags": [],
+                "threadKey": "asset:<other>",
+                "updatedAt": "<date>",
+                "webUrl": "<client-url>/assets/<other>/_",
+                "workspace": {
+                    "@id": "/workspaces/<workspace>",
+                    "@type": "workspace",
+                    "capabilities": [],
+                    "createdAt": "<date>",
+                    "displayName": "Snapshot workspace",
+                    "id": "<workspace>",
+                    "name": "Snapshot workspace"
+                }
+            },
+            "context": [],
+            "createdAt": "<date>",
+            "id": "<basketAsset>",
+            "position": 0
+        }
+    ],
+    "totalItems": 1
+}

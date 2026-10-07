@@ -29,7 +29,7 @@ final class AssetAttributeBatchUpdateProcessor implements ProcessorInterface
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): Asset
     {
-        $asset = DoctrineUtil::findStrict($this->em, Asset::class, $uriVariables['id']);
+        $asset = DoctrineUtil::findStrict($this->em, Asset::class, (string) $uriVariables['id']);
         $this->denyAccessUnlessGranted(AssetVoter::EDIT_ATTRIBUTES, $asset);
 
         $this->batchAttributeManager->validate($asset->getWorkspaceId(), [$asset->getId()], $data);

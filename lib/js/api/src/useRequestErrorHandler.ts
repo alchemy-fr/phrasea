@@ -79,14 +79,14 @@ export default function useRequestErrorHandler({onError, logout}: Options) {
                 break;
             case 400:
                 onError(
-                    error.response?.data[ApiConstant.HydraDescription] ??
+                    error.response?.data[ApiConstant.ErrorDescription] ??
                         t('lib.api.error.http_bad_request', 'Bad Request'),
                     defaultOptions
                 );
                 break;
             case 404:
                 onError(
-                    error.response?.data[ApiConstant.HydraDescription] ??
+                    error.response?.data[ApiConstant.ErrorDescription] ??
                         t('lib.api.error.http_not_found', 'Not Found'),
                     defaultOptions
                 );
@@ -96,7 +96,7 @@ export default function useRequestErrorHandler({onError, logout}: Options) {
                 break;
             case 429:
                 onError(
-                    data?.[ApiConstant.HydraDescription] ||
+                    data?.[ApiConstant.ErrorDescription] ||
                         data?.detail ||
                         t('lib.api.http_error.429', {
                             defaultValue:

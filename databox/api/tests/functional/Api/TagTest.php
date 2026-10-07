@@ -38,20 +38,20 @@ class TagTest extends AbstractSearchTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $resultCount = 2;
         $this->assertJsonContains([
             '@context' => '/contexts/tag',
             '@id' => '/tags',
-            '@type' => 'hydra:Collection',
-            'hydra:totalItems' => $resultCount,
-            'hydra:view' => [
-                '@type' => 'hydra:PartialCollectionView',
+            '@type' => 'Collection',
+            'totalItems' => $resultCount,
+            'view' => [
+                '@type' => 'PartialCollectionView',
             ],
         ]);
 
         // Because test fixtures are automatically loaded between each test, you can assert on them
-        $this->assertCount($resultCount, $response->toArray()['hydra:member']);
+        $this->assertCount($resultCount, $response->toArray()['member']);
 
         // Asserts that the returned JSON is validated by the JSON Schema generated for this resource by API Platform
         // This generated JSON Schema is also used in the OpenAPI spec!
@@ -82,6 +82,63 @@ class TagTest extends AbstractSearchTestCase
         $this->assertJsonContains(['name' => 'Confidential']);
     }
 
+    public function testListIsRestrictedToReadableWorkspaces(): void
+    {
+        self::enableFixtures();
+        $client = static::createClient();
+        $this->findOrCreateTagByName('Confidential', $this->createWorkspace(['ownerId' => KeycloakClientTestMock::ADMIN_UID]));
+
+        $listNames = static function (string $userId) use ($client): array {
+            $response = $client->request('GET', '/tags', [
+                'headers' => ['Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor($userId)],
+            ]);
+
+            return array_column($response->toArray()['member'], 'name');
+        };
+
+        $this->assertEqualsCanonicalizing(['foo', 'bar'], $listNames(KeycloakClientTestMock::USER_UID));
+        $this->assertEqualsCanonicalizing(['foo', 'bar', 'Confidential'], $listNames(KeycloakClientTestMock::ADMIN_UID));
+    }
+
+    /**
+     * A "query" switches the listing to the Elasticsearch search-as-you-type, with the
+     * same workspace restriction as the plain (ORM) listing.
+     */
+    public function testSearchAsYouTypeIsRestrictedToReadableWorkspaces(): void
+    {
+        self::enableFixtures();
+        $client = static::createClient();
+        $foreignWorkspace = $this->createWorkspace(['ownerId' => KeycloakClientTestMock::ADMIN_UID]);
+        $this->findOrCreateTagByName('Confidential', $foreignWorkspace);
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('tag');
+
+        $search = static function (string $userId, array $query) use ($client): array {
+            $response = $client->request('GET', '/tags', [
+                'query' => $query,
+                'headers' => ['Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor($userId)],
+            ]);
+
+            return array_column($response->toArray()['member'], 'name');
+        };
+
+        $this->assertSame(['foo'], $search(KeycloakClientTestMock::USER_UID, ['query' => 'fo']));
+        $this->assertSame([], $search(KeycloakClientTestMock::USER_UID, ['query' => 'Conf']));
+        $this->assertSame(['Confidential'], $search(KeycloakClientTestMock::ADMIN_UID, ['query' => 'Conf']));
+        $this->assertSame(['Confidential'], $search(KeycloakClientTestMock::ADMIN_UID, [
+            'query' => 'Conf',
+            'workspace' => ['/workspaces/'.$foreignWorkspace->getId()],
+        ]));
+        $this->assertSame(['bar'], $search(KeycloakClientTestMock::USER_UID, ['query' => 'b', 'limit' => 1]));
+        $this->assertSame([], $search(KeycloakClientTestMock::USER_UID, ['query' => 'b', 'limit' => 1, 'page' => 2]));
+
+        $client->request('GET', '/tags', [
+            'query' => ['query' => 'Conf', 'workspace' => '/workspaces/'.$foreignWorkspace->getId()],
+            'headers' => ['Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID)],
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+    }
+
     public function testCreateTag(): void
     {
         self::enableFixtures();
@@ -99,7 +156,7 @@ class TagTest extends AbstractSearchTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@type' => 'tag',
             'name' => 'Foo',
@@ -130,7 +187,7 @@ class TagTest extends AbstractSearchTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             'name' => 'Foo translation',
             'displayName' => 'Foo translation',
@@ -155,12 +212,12 @@ class TagTest extends AbstractSearchTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(400);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/problem+json');
 
         $this->assertJsonContains([
-            '@type' => 'hydra:Error',
-            'hydra:title' => 'An error occurred',
-            'hydra:description' => 'Missing workspace',
+            '@type' => 'Error',
+            'title' => 'An error occurred',
+            'description' => 'Missing workspace',
         ]);
     }
 
@@ -173,8 +230,9 @@ class TagTest extends AbstractSearchTestCase
         // Because Alice use a seeded pseudo-random number generator, we're sure that this ISBN will always be generated.
         $iri = $this->findIriBy(Tag::class, ['name' => 'foo']);
 
-        $client->request('PUT', $iri, [
+        $client->request('PATCH', $iri, [
             'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             ],
             'json' => [
@@ -184,8 +242,9 @@ class TagTest extends AbstractSearchTestCase
 
         $this->assertResponseStatusCodeSame(403);
 
-        $client->request('PUT', $iri, [
+        $client->request('PATCH', $iri, [
             'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [

@@ -20,6 +20,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
+use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
 use App\Api\Filter\Group\GroupValue;
 use App\Api\Model\Input\AddAssetsToCollectionInput;
 use App\Api\Model\Input\AssetAddAsVersionInput;
@@ -50,7 +51,9 @@ use App\Api\Processor\BypassQuarantineProcessor;
 use App\Api\Processor\CopyAssetProcessor;
 use App\Api\Processor\CreateAssetProcessor;
 use App\Api\Processor\DeleteAssetProcessor;
+use App\Api\Processor\DeleteAssetsByKeysProcessor;
 use App\Api\Processor\FollowProcessor;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveAssetProcessor;
 use App\Api\Processor\MultipleAssetCreateProcessor;
@@ -66,7 +69,6 @@ use App\Api\Provider\AssetMetricsProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
 use App\Api\Provider\StoryThumbnailsProvider;
-use App\Controller\Core\DeleteAssetByKeysAction;
 use App\Entity\FollowableInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\ExtraMetadataTrait;
@@ -86,7 +88,7 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\ElasticaBundle\Transformer\HighlightableModelInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -100,6 +102,22 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
             name: 'suggestions',
             provider: SearchSuggestionCollectionProvider::class,
+            parameters: [
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Text to complete',
+                    castToArray: false,
+                ),
+                'definition' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Attribute definition ID(s), comma-separated: suggest the values of these attributes only',
+                    castToArray: false,
+                ),
+                'workspaces' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Workspaces ID',
+                ),
+            ],
         ),
         new Get(
             normalizationContext: [
@@ -155,14 +173,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("'.AbstractVoter::DELETE.'", object)',
             processor: DeleteAssetProcessor::class,
         ),
-        new Put(
-            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
-        ),
         new Patch(
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            processor: InputMapperProcessor::class,
         ),
         new Put(
             uriTemplate: '/assets/{id}/trigger-workflow',
+            input: false,
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
             processor: TriggerAssetWorkflowProcessor::class,
         ),
@@ -245,11 +262,46 @@ use Symfony\Component\Validator\Constraints as Assert;
                     schema: ['type' => 'string'],
                     description: 'Search query',
                 ),
+                'savedSearch' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Saved search ID: its query, conditions and order are merged in',
+                    castToArray: false,
+                ),
+                'order' => new QueryParameter(
+                    schema: ['type' => 'object', 'additionalProperties' => ['type' => 'string', 'enum' => ['asc', 'desc', 'ASC', 'DESC']]],
+                    description: 'Sort: order[<attribute slug or @built-in>]=asc|desc',
+                    openApi: new OpenApiParameter(name: 'order', in: 'query', style: 'deepObject', explode: true, schema: ['type' => 'object', 'additionalProperties' => ['type' => 'string', 'enum' => ['asc', 'desc']]]),
+                ),
+                'group' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Attribute slug or @built-in to group the sorted results by',
+                ),
+                'tags_must' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Tags ID the assets must have',
+                ),
+                'tags_must_not' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Tags ID the assets must not have',
+                ),
+                'context' => new QueryParameter(
+                    schema: ['type' => 'object', 'properties' => ['position' => ['type' => 'string']]],
+                    description: 'Search context: context[position]=<collection or story ID> for the @position sort',
+                    openApi: new OpenApiParameter(name: 'context', in: 'query', style: 'deepObject', explode: true, schema: ['type' => 'object', 'properties' => ['position' => ['type' => 'string']]]),
+                ),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (max 50, 500 with "ids")',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
+                ),
             ]
         ),
         new Post(
-            securityPostDenormalize: 'is_granted("CREATE", object)',
-            validate: true,
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
             processor: CreateAssetProcessor::class,
         ),
         new Post(
@@ -304,7 +356,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Delete(
             uriTemplate: '/assets-by-keys',
-            controller: DeleteAssetByKeysAction::class,
+            processor: DeleteAssetsByKeysProcessor::class,
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             name: 'asset_delete_by_key',
         ),
@@ -332,6 +384,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             uriTemplate: '/assets/{id}/es-document-sync',
+            input: false,
             name: 'asset_sync_es_document',
             processor: ItemElasticsearchDocumentSyncProcessor::class,
         ),

@@ -8,7 +8,7 @@ use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\GeoPointAttributeType;
 use App\Model\GeoPoint;
 
-class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
+class GeoPointAttributeTypeTest extends AbstractAttributeTypeTestCase
 {
     protected function getType(): AttributeTypeInterface
     {
@@ -16,7 +16,7 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getValidationCases(): array
+    public static function getValidationCases(): array
     {
         return [
             ...parent::getValidationCases(),
@@ -35,7 +35,7 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getNormalizationCases(): array
+    public static function getNormalizationCases(): array
     {
         return [
             ...parent::getNormalizationCases(),
@@ -52,7 +52,7 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getConvertToDbValueCases(): array
+    public static function getConvertToDbValueCases(): array
     {
         return [
             ...parent::getConvertToDbValueCases(),
@@ -69,7 +69,7 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getDenormalizationCases(): array
+    public static function getDenormalizationCases(): array
     {
         return [
             ...parent::getDenormalizationCases(),
@@ -81,7 +81,7 @@ class GeoPointAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getElasticsearchNormalizationCases(): array
+    public static function getElasticsearchNormalizationCases(): array
     {
         return [
             ...parent::getElasticsearchNormalizationCases(),

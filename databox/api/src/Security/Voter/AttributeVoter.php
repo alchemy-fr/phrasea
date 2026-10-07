@@ -7,6 +7,7 @@ namespace App\Security\Voter;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\Core\Attribute;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class AttributeVoter extends AbstractVoter
 {
@@ -24,7 +25,7 @@ class AttributeVoter extends AbstractVoter
     /**
      * @param Attribute $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $attributeDefinition = $subject->getDefinition();
 

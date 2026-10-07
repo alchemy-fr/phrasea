@@ -6,6 +6,7 @@ namespace Alchemy\AuthBundle\Security\Voter;
 
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Contracts\Service\Attribute\Required;
 
@@ -31,7 +32,7 @@ final class AdminVoter extends Voter
         return self::ROLE !== $attribute;
     }
 
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         return $this->security->isGranted(self::ROLE);
     }

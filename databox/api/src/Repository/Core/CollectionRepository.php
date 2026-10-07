@@ -57,12 +57,12 @@ class CollectionRepository extends ServiceEntityRepository
      */
     public function getRootCollections(array $allowedWorkspaces, ?string $userId, array $groups): array
     {
-        $supportsLTree = $this->_em->getConnection()->getDatabasePlatform() instanceof PostgreSQLPlatform;
-        $expr = $this->_em->getExpressionBuilder();
+        $supportsLTree = $this->getEntityManager()->getConnection()->getDatabasePlatform() instanceof PostgreSQLPlatform;
+        $expr = $this->getEntityManager()->getExpressionBuilder();
 
         $createUserCondition = fn (string $alias) => null !== $userId ? $alias.'.userId IN (:users) OR '.$alias.'.privacy > 0' : $alias.'.privacy > 0';
 
-        $sub = $this->_em->createQueryBuilder()
+        $sub = $this->getEntityManager()->createQueryBuilder()
             ->select('1')
             ->from(CollectionAccess::class, 'a')
             ->andWhere('a.workspace IN (:ws)')
@@ -80,7 +80,7 @@ class CollectionRepository extends ServiceEntityRepository
             ->createQueryBuilder('t')
             ->where($expr->in(
                 't.id',
-                $this->_em->createQueryBuilder()
+                $this->getEntityManager()->createQueryBuilder()
                     ->select('DISTINCT IDENTITY(ca.collection)')
                     ->from(CollectionAccess::class, 'ca')
                     ->andWhere('ca.workspace IN (:ws)')

@@ -30,7 +30,7 @@ class AssetUploadTest extends AbstractExposeTestCase
         }
 
         $this->assertEquals(201, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
         $this->assertMatchesUuid($json['id']);

@@ -8,7 +8,7 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
 use Alchemy\Workflow\Message\JobConsumer;
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use ApiPlatform\Test\ApiTestCase;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Phraseanet\PhraseanetApiClientFactory;
@@ -23,6 +23,8 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
     use FixturesTrait;
     use FileUploadTrait;
     use TestServicesTrait;
+
+    protected static ?bool $alwaysBootKernel = true;
 
     #[\Override]
     protected static function bootKernel(array $options = []): KernelInterface
@@ -87,7 +89,7 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
             ],
         ]);
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@type' => 'asset',
             'name' => 'Dummy asset',

@@ -9,17 +9,18 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\TrackBundle\LoggableChangeSetInterface;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\ExactSearchFilter;
 use App\Api\Model\Input\WorkspaceIntegrationInput;
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\WorkspaceIntegrationCollectionProvider;
 use App\Entity\Core\Workspace;
 use App\Entity\Traits\ErrorDisableInterface;
@@ -44,11 +45,36 @@ use Symfony\Component\Yaml\Yaml;
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
-        new GetCollection(),
+        new Patch(security: 'is_granted("EDIT", object)', processor: InputMapperProcessor::class),
+        new GetCollection(
+            parameters: [
+                'workspace' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'workspace',
+                ),
+                'workspace[]' => new QueryParameter(property: 'workspace', openApi: false),
+                'enabled' => new QueryParameter(
+                    schema: ['type' => 'boolean'],
+                    castToNativeType: true,
+                    castToArray: false,
+                ),
+                'global' => new QueryParameter(
+                    schema: ['type' => 'boolean'],
+                    description: 'Integrations of no workspace (ignored with "workspace")',
+                    castToNativeType: true,
+                    castToArray: false,
+                ),
+                'context' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Integrations supporting this context',
+                    castToArray: false,
+                ),
+            ],
+        ),
         new Post(
-            securityPostDenormalize: 'is_granted("CREATE", object)',
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
             validationContext: ['Default', 'create'],
+            processor: InputMapperProcessor::class,
         ),
     ],
     normalizationContext: [
@@ -61,7 +87,6 @@ use Symfony\Component\Yaml\Yaml;
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_integration_key', columns: ['workspace_id', 'name', 'integration'])]
 #[ORM\Entity]
-#[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 #[ValidIntegrationOptionsConstraint]
 class WorkspaceIntegration extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface, WithOwnerIdInterface, LoggableChangeSetInterface, AclObjectInterface
 {

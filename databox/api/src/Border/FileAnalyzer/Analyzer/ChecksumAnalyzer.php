@@ -13,7 +13,9 @@ use App\Repository\Core\FileRepository;
 use PHPExiftool\Driver\Metadata\MetadataBag;
 use PHPExiftool\Exception\ExceptionInterface as PHPExiftoolExceptionInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'checksum')]
 final readonly class ChecksumAnalyzer extends AbstractAnalyzer
 {
     private const string SHA_256 = 'sha256';

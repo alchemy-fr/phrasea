@@ -21,6 +21,8 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
 use App\Api\Model\Input\CollectionInput;
 use App\Api\Model\Input\CollectionsDeleteInput;
 use App\Api\Model\Input\CollectionsRestoreInput;
@@ -31,6 +33,7 @@ use App\Api\Model\Output\ESDocumentStateOutput;
 use App\Api\Processor\CollectionsDeleteProcessor;
 use App\Api\Processor\CollectionsRestoreProcessor;
 use App\Api\Processor\FollowProcessor;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\ItemElasticsearchDocumentSyncProcessor;
 use App\Api\Processor\MoveCollectionProcessor;
 use App\Api\Processor\UnfollowProcessor;
@@ -57,8 +60,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use FOS\ElasticaBundle\Transformer\HighlightableModelInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Serializer\Annotation\MaxDepth;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\MaxDepth;
 use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -83,26 +86,23 @@ use Symfony\Component\Validator\Constraints as Assert;
             name: 'collection_ascendants',
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(
-            security: 'is_granted("EDIT", object)',
-        ),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)', processor: InputMapperProcessor::class),
         new Put(
             uriTemplate: '/collections/{id}/move/{dest}',
             uriVariables: [
                 'dest' => new Link(fromClass: Collection::class, identifiers: ['id'], expandedValue: '{dest}'),
                 'id' => new Link(fromClass: Collection::class, identifiers: ['id']),
             ],
-            openapiContext: [
-                'parameters' => [
-                    [
-                        'name' => 'dest',
-                        'in' => 'path',
-                        'required' => true,
-                        'description' => 'The destination collection ID',
-                    ],
+            openapi: new OpenApiOperation(
+                parameters: [
+                    new OpenApiParameter(
+                        name: 'dest',
+                        in: 'path',
+                        description: 'The destination collection ID',
+                        required: true,
+                    ),
                 ],
-            ],
+            ),
             security: 'is_granted("EDIT", object)',
             deserialize: false,
             name: 'put_move',
@@ -129,10 +129,31 @@ use Symfony\Component\Validator\Constraints as Assert;
                     schema: ['type' => 'string'],
                     description: 'Parent collection',
                 ),
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Search query on the name ("in:trash", "in:all" to include deleted collections); searches the whole sub-tree of the parent',
+                    castToArray: false,
+                ),
+                'deep' => new QueryParameter(
+                    schema: ['type' => 'boolean'],
+                    description: 'With "parent"/"parents": also list the descendants (default: only with a "query")',
+                    castToNativeType: true,
+                    castToArray: false,
+                ),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (max 50)',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
+                ),
             ],
         ),
         new Post(
-            securityPostDenormalize: 'is_granted("CREATE", object)'
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Get(
             uriTemplate: '/collections/{id}/es-document',
@@ -149,6 +170,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             uriTemplate: '/collections/{id}/es-document-sync',
+            input: false,
             validate: false,
             name: 'collection_sync_es_document',
             processor: ItemElasticsearchDocumentSyncProcessor::class,

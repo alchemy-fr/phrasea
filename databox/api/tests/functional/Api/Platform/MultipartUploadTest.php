@@ -6,12 +6,13 @@ namespace App\Tests\Functional\Api\Platform;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\StorageBundle\Entity\MultipartUpload;
-use ApiPlatform\Symfony\Bundle\Test\Client;
+use ApiPlatform\Test\Client;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use Aws\CommandInterface;
 use Aws\Result;
 use Aws\S3\S3Client;
 use GuzzleHttp\Promise\Create;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * S3 multipart uploads (/uploads).
@@ -186,9 +187,7 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         yield 'size above the maximum object size' => [['filename' => 'a.jpg', 'type' => 'image/jpeg', 'size' => 52_776_558_133_249], 400];
     }
 
-    /**
-     * @dataProvider getInvalidUploads
-     */
+    #[DataProvider('getInvalidUploads')]
     public function testInvalidUploadsAreRejectedBeforeReachingS3(array $payload, int $expectedCode): void
     {
         $this->client->request('POST', '/uploads', [
@@ -228,7 +227,7 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
             'headers' => $this->headers(KeycloakClientTestMock::ADMIN_UID),
         ]);
         $this->assertResponseIsSuccessful();
-        $this->assertContains($data['id'], array_column($response->toArray()['hydra:member'], 'id'));
+        $this->assertContains($data['id'], array_column($response->toArray()['member'], 'id'));
     }
 
     public function testRemainingPartUrlsCanBeRequestedToResumeAnUpload(): void
@@ -302,9 +301,7 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         yield 'float' => [1.5];
     }
 
-    /**
-     * @dataProvider getInvalidFromValues
-     */
+    #[DataProvider('getInvalidFromValues')]
     public function testInvalidFromIsRejected(mixed $from): void
     {
         $upload = $this->persistUpload();
@@ -327,7 +324,7 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(400);
-        $this->assertStringContainsString('already complete', $response->toArray(false)['hydra:description']);
+        $this->assertStringContainsString('already complete', $response->toArray(false)['description']);
     }
 
     public static function getPartRoutes(): iterable
@@ -336,13 +333,9 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         yield 'part (deprecated)' => ['part', ['part' => 1]];
     }
 
-    /**
-     * @dataProvider getPartRoutes
-     */
+    #[DataProvider('getPartRoutes')]
     public function testPartUrlsOfAnUnknownUploadAre404(string $route, array $payload): void
     {
-        $this->markTestIncomplete('BUG: on these POST item operations API Platform does not 404 on an unknown id: a blank MultipartUpload reaches the controller and accessing its uninitialized $uploadId gives a 500 (lib/php/storage-bundle/Entity/MultipartUpload.php:31-82, controllers MultipartUploadPartsAction/MultipartUploadPartAction).');
-
         $this->client->request('POST', '/uploads/00000000-0000-4000-8000-000000000000/'.$route, [
             'headers' => $this->headers(),
             'json' => $payload,
@@ -376,7 +369,7 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(400);
-        $this->assertSame('Missing part', $response->toArray(false)['hydra:description']);
+        $this->assertSame('Missing part', $response->toArray(false)['description']);
     }
 
     public function testCancellingAnUploadAbortsItOnS3(): void
@@ -396,8 +389,6 @@ final class MultipartUploadTest extends AbstractDataboxTestCase
 
     public function testACancelledUploadIsRemoved(): void
     {
-        $this->markTestIncomplete('BUG: DELETE /uploads/{id} answers 204 and aborts the S3 upload, but MultipartUploadCancelAction only calls $em->remove() without flushing (and returns null): the row survives and GET /uploads/{id} still returns it (lib/php/storage-bundle/Controller/MultipartUploadCancelAction.php:27).');
-
         $data = $this->createUpload();
 
         $this->client->request('DELETE', '/uploads/'.$data['id'], [

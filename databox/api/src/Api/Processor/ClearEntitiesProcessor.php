@@ -26,7 +26,7 @@ class ClearEntitiesProcessor implements ProcessorInterface
 
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): EntityList
     {
-        $list = DoctrineUtil::findStrict($this->em, EntityList::class, $uriVariables['id']);
+        $list = DoctrineUtil::findStrict($this->em, EntityList::class, (string) $uriVariables['id']);
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $list);
 
         $this->bus->dispatch(new AttributeEntityListClear($list->getId(), $list->getWorkspace()->getId()));

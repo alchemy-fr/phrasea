@@ -13,9 +13,11 @@ use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Email;
 
+#[AsTaggedItem(index: 'core.moderation')]
 class ModerationIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
     public function buildConfiguration(NodeBuilder $builder): void

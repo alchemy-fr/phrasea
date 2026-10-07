@@ -10,6 +10,7 @@ use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\IntegrationToken;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Integrations (/integrations): who sees and manages them, what they expose.
@@ -94,9 +95,7 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         yield 'missing public flag' => [['integration' => 'remove.bg'], 422, 'public'];
     }
 
-    /**
-     * @dataProvider getInvalidIntegrations
-     */
+    #[DataProvider('getInvalidIntegrations')]
     public function testInvalidIntegrationsAreRejected(array $payload, int $expectedCode, string $path): void
     {
         $workspace = $this->createSharedWorkspace();
@@ -128,7 +127,7 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(400);
-        $this->assertStringContainsString('Invalid YAML configuration', $response->toArray(false)['hydra:description']);
+        $this->assertStringContainsString('Invalid YAML configuration', $response->toArray(false)['description']);
     }
 
     public function testTheConfigurationIsOnlyShownToWhoCanEditTheIntegration(): void
@@ -225,7 +224,7 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         $response = static::createClient()->request('GET', '/integrations');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSame(0, $response->toArray()['hydra:totalItems']);
+        $this->assertSame(0, $response->toArray()['totalItems']);
     }
 
     public function testIntegrationsAreFilteredByContextAndState(): void
@@ -249,7 +248,7 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
             'query' => ['context' => 'nowhere'],
         ]);
         $this->assertResponseStatusCodeSame(400);
-        $this->assertSame('Invalid context "nowhere"', $response->toArray(false)['hydra:description']);
+        $this->assertSame('Invalid context "nowhere"', $response->toArray(false)['description']);
     }
 
     public function testAnIntegrationOfAnotherWorkspaceCannotBeRead(): void
@@ -270,8 +269,8 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         $integration = $this->createIntegration($workspace, 'remove.bg', ['apiKey' => 'k1'], public: false);
         $id = $integration->getId();
 
-        $response = static::createClient()->request('PUT', '/integrations/'.$id, [
-            'headers' => $this->headers(self::OWNER),
+        $response = static::createClient()->request('PATCH', '/integrations/'.$id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->headers(self::OWNER),
             'json' => [
                 'integration' => 'remove.bg',
                 'name' => 'Renamed',
@@ -302,8 +301,8 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         $integration = $this->createIntegration($workspace, 'remove.bg', public: true);
         $id = $integration->getId();
 
-        static::createClient()->request('PUT', '/integrations/'.$id, [
-            'headers' => $this->headers(self::MEMBER),
+        static::createClient()->request('PATCH', '/integrations/'.$id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->headers(self::MEMBER),
             'json' => ['integration' => 'remove.bg', 'name' => 'Hacked'],
         ]);
         $this->assertResponseStatusCodeSame(403);
@@ -323,8 +322,8 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         $this->grantUserOnObject(self::MEMBER, $integration, PermissionInterface::EDIT | PermissionInterface::DELETE);
         $id = $integration->getId();
 
-        static::createClient()->request('PUT', '/integrations/'.$id, [
-            'headers' => $this->headers(self::MEMBER),
+        static::createClient()->request('PATCH', '/integrations/'.$id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->headers(self::MEMBER),
             'json' => ['integration' => 'remove.bg', 'name' => 'Delegated'],
         ]);
         $this->assertResponseIsSuccessful();
@@ -345,22 +344,22 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         $aIri = '/integrations/'.$a->getId();
         $bIri = '/integrations/'.$b->getId();
 
-        $response = static::createClient()->request('PUT', $aIri, [
-            'headers' => $this->headers(self::OWNER),
+        $response = static::createClient()->request('PATCH', $aIri, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->headers(self::OWNER),
             'json' => ['integration' => 'remove.bg', 'needs' => [$bIri]],
         ]);
         $this->assertResponseIsSuccessful();
         $this->assertSame([$bIri], $response->toArray()['needs']);
 
-        $response = static::createClient()->request('PUT', $bIri, [
-            'headers' => $this->headers(self::OWNER),
+        $response = static::createClient()->request('PATCH', $bIri, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->headers(self::OWNER),
             'json' => ['integration' => 'remove.bg', 'needs' => [$aIri]],
         ]);
         $this->assertResponseStatusCodeSame(422);
         $this->assertSame('Circular Needs detected', $response->toArray(false)['violations'][0]['message']);
 
-        $response = static::createClient()->request('PUT', $bIri, [
-            'headers' => $this->headers(self::OWNER),
+        $response = static::createClient()->request('PATCH', $bIri, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->headers(self::OWNER),
             'json' => ['integration' => 'remove.bg', 'needs' => [$bIri]],
         ]);
         $this->assertResponseStatusCodeSame(422);
@@ -403,8 +402,8 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         $this->assertSame([], $data['config']);
         $this->assertStringNotContainsString('api-expose.phrasea.test', $response->getContent());
 
-        static::createClient()->request('PUT', '/integrations/'.$id, [
-            'headers' => $this->headers(self::MEMBER),
+        static::createClient()->request('PATCH', '/integrations/'.$id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->headers(self::MEMBER),
             'json' => ['integration' => 'phrasea.expose', 'name' => 'Mine'],
         ]);
         $this->assertResponseStatusCodeSame(403);
@@ -414,8 +413,8 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         ]);
         $this->assertResponseStatusCodeSame(403);
 
-        static::createClient()->request('PUT', '/integrations/'.$id, [
-            'headers' => $this->headers(KeycloakClientTestMock::ADMIN_UID),
+        static::createClient()->request('PATCH', '/integrations/'.$id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->headers(KeycloakClientTestMock::ADMIN_UID),
             'json' => ['integration' => 'phrasea.expose', 'name' => 'Expose prod'],
         ]);
         $this->assertResponseIsSuccessful();
@@ -454,7 +453,7 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-        $types = array_column($response->toArray()['hydra:member'], null, 'id');
+        $types = array_column($response->toArray()['member'], null, 'id');
         $this->assertArrayHasKey('phrasea--expose', $types);
         $this->assertArrayHasKey('remove--bg', $types);
         $this->assertSame('remove.bg', $types['remove--bg']['name']);
@@ -482,7 +481,7 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         ]);
         $this->assertResponseIsSuccessful();
 
-        return array_column($response->toArray()['hydra:member'], 'id');
+        return array_column($response->toArray()['member'], 'id');
     }
 
     private function listIntegrationTypes(string $userId, array $query = []): array
@@ -493,7 +492,7 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         ]);
         $this->assertResponseIsSuccessful();
 
-        return array_column($response->toArray()['hydra:member'], 'integration');
+        return array_column($response->toArray()['member'], 'integration');
     }
 
     private function findIntegration(string $id): ?WorkspaceIntegration

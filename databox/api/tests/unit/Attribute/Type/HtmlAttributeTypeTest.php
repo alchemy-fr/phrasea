@@ -16,7 +16,7 @@ class HtmlAttributeTypeTest extends TextAttributeTypeTest
     }
 
     #[\Override]
-    public function getNormalizationCases(): array
+    public static function getNormalizationCases(): array
     {
         return [
             ...parent::getNormalizationCases(),
@@ -28,7 +28,7 @@ class HtmlAttributeTypeTest extends TextAttributeTypeTest
     }
 
     #[\Override]
-    public function getDenormalizationCases(): array
+    public static function getDenormalizationCases(): array
     {
         return [
             ...parent::getDenormalizationCases(),
@@ -40,7 +40,7 @@ class HtmlAttributeTypeTest extends TextAttributeTypeTest
     }
 
     #[\Override]
-    public function getElasticsearchNormalizationCases(): array
+    public static function getElasticsearchNormalizationCases(): array
     {
         return [
             ...parent::getElasticsearchNormalizationCases(),

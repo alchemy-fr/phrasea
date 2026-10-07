@@ -7,8 +7,10 @@ namespace App\Tests\Functional\Search;
 use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use App\Tests\Functional\AbstractSearchTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
-class AssetSearchPermissionsTest extends AbstractSearchTest
+class AssetSearchPermissionsTest extends AbstractSearchTestCase
 {
     private static function releaseIndex(): void
     {
@@ -32,7 +34,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         $client = self::createClient();
         $response = $client->request('GET', '/assets');
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertCount(1, $data);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['name']);
@@ -50,7 +52,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
 
         $client = self::createClient();
         $response = $client->request('GET', '/assets');
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertEmpty($data);
     }
 
@@ -75,7 +77,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID),
             ],
         ]);
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['name']);
@@ -97,7 +99,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertEmpty($data);
     }
 
@@ -125,7 +127,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['name']);
@@ -150,7 +152,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertEmpty($data);
     }
 
@@ -184,7 +186,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['name']);
@@ -222,7 +224,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['name']);
@@ -260,7 +262,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['name']);
@@ -298,15 +300,13 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertEquals(1, is_countable($data) ? count($data) : 0);
         $this->assertEquals($asset->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['name']);
     }
 
-    /**
-     * @dataProvider getAssetTagsDataSet
-     */
+    #[DataProvider('getAssetTagsDataSet')]
     public function testSearchAssetsWithAttributeFilterRuleOnTags(
         array $assets,
         array $include,
@@ -363,7 +363,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
 
         $this->assertSameSize($expectedResults, $data);
         $hasNamedAsset = function (string $name) use ($data): bool {
@@ -380,7 +380,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         }
     }
 
-    public function getAssetTagsDataSet(): array
+    public static function getAssetTagsDataSet(): array
     {
         return [
             [['Foo' => ['tag1'], 'Bar' => []], [], [], ['Foo', 'Bar']],
@@ -397,9 +397,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         ];
     }
 
-    /**
-     * @dataProvider getAttributeConditionsDataSet
-     */
+    #[DataProvider('getAttributeConditionsDataSet')]
     public function testSearchAssetsWithAttributeFilterRuleOnAttribute(
         string $condition,
         array $expectedResults,
@@ -450,7 +448,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $names = array_map(fn (array $asset): string => $asset['name'], $data);
         sort($names);
         sort($expectedResults);
@@ -458,7 +456,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         $this->assertSame($expectedResults, $names);
     }
 
-    public function getAttributeConditionsDataSet(): array
+    public static function getAttributeConditionsDataSet(): array
     {
         return [
             'equals' => ['category = "press"', ['Press']],
@@ -469,9 +467,7 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
         ];
     }
 
-    /**
-     * @dataProvider getTargetingDataSet
-     */
+    #[DataProvider('getTargetingDataSet')]
     public function testAttributeFilterRuleTargeting(array $userIds, bool $applies): void
     {
         $workspace = $this->createWorkspace([
@@ -519,14 +515,14 @@ class AssetSearchPermissionsTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $names = array_map(fn (array $asset): string => $asset['name'], $data);
         sort($names);
 
         $this->assertSame($applies ? ['Press'] : ['Internal', 'Press'], $names);
     }
 
-    public function getTargetingDataSet(): array
+    public static function getTargetingDataSet(): array
     {
         return [
             'no target applies to everyone' => [[], true],

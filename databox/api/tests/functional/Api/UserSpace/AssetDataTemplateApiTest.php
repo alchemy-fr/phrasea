@@ -11,6 +11,7 @@ use App\Entity\Core\Workspace;
 use App\Entity\Template\AssetDataTemplate;
 use App\Entity\Template\TemplateAttribute;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Asset data templates (item operations) and template attributes.
@@ -129,9 +130,7 @@ final class AssetDataTemplateApiTest extends AbstractDataboxTestCase
         ]);
     }
 
-    /**
-     * @dataProvider getReadMatrix
-     */
+    #[DataProvider('getReadMatrix')]
     public function testReadMatrix(bool $public, ?string $userId, int $expectedStatus): void
     {
         $template = $this->createTemplate('T', self::USER, public: $public);
@@ -196,7 +195,7 @@ final class AssetDataTemplateApiTest extends AbstractDataboxTestCase
         $template = $this->createTemplate('T', self::USER, attributes: [[$definition, 'old']]);
         $uri = '/asset-data-templates/'.$template->getId();
 
-        $data = $this->apiJson('PUT', $uri, self::USER, ['name' => 'Renamed']);
+        $data = $this->apiJson('PATCH', $uri, self::USER, ['name' => 'Renamed']);
         $this->assertSame('Renamed', $data['name']);
         // Attributes are kept when omitted
         $this->assertSame(['old'], array_column(array_values($data['attributes']), 'value'));
@@ -209,7 +208,7 @@ final class AssetDataTemplateApiTest extends AbstractDataboxTestCase
         $definition = $this->createDefinition('Title');
         $template = $this->createTemplate('T', self::USER, attributes: [[$definition, 'old']]);
 
-        $data = $this->apiJson('PUT', '/asset-data-templates/'.$template->getId(), self::USER, ['attributes' => [
+        $data = $this->apiJson('PATCH', '/asset-data-templates/'.$template->getId(), self::USER, ['attributes' => [
             ['definitionId' => $definition->getId(), 'value' => 'new'],
         ]]);
         $this->assertSame(['new'], array_column(array_values($data['attributes']), 'value'));
@@ -225,7 +224,7 @@ final class AssetDataTemplateApiTest extends AbstractDataboxTestCase
         $collection = $this->createCollection(['workspace' => $this->workspace, 'ownerId' => self::USER]);
         $template = $this->createTemplate('T', self::USER, collection: $collection, includeChildren: true);
 
-        $this->apiJson('PUT', '/asset-data-templates/'.$template->getId(), self::USER, ['name' => 'Renamed']);
+        $this->apiJson('PATCH', '/asset-data-templates/'.$template->getId(), self::USER, ['name' => 'Renamed']);
 
         self::getEntityManager()->clear();
         $this->assertTrue(self::getEntityManager()->find(AssetDataTemplate::class, $template->getId())->isIncludeCollectionChildren());
@@ -237,11 +236,11 @@ final class AssetDataTemplateApiTest extends AbstractDataboxTestCase
         $uri = '/asset-data-templates/'.$template->getId();
 
         // Public does not mean editable
-        $this->assertStatus(403, 'PUT', $uri, self::OTHER, ['name' => 'Hijack']);
-        $this->assertStatus(401, 'PUT', $uri, null, ['name' => 'Hijack']);
+        $this->assertStatus(403, 'PATCH', $uri, self::OTHER, ['name' => 'Hijack']);
+        $this->assertStatus(401, 'PATCH', $uri, null, ['name' => 'Hijack']);
 
         $this->grantUserOnObject(self::OTHER, $template, PermissionInterface::EDIT);
-        $this->assertSame('By other', $this->apiJson('PUT', $uri, self::OTHER, ['name' => 'By other'])['name']);
+        $this->assertSame('By other', $this->apiJson('PATCH', $uri, self::OTHER, ['name' => 'By other'])['name']);
         $this->assertStatus(403, 'DELETE', $uri, self::OTHER);
 
         self::getEntityManager()->clear();
@@ -294,7 +293,7 @@ final class AssetDataTemplateApiTest extends AbstractDataboxTestCase
         [$attr] = $this->getTemplateAttributes($template);
         $uri = '/template-attributes/'.$attr->getId();
 
-        $this->assertStatus(403, 'PUT', $uri, self::OTHER, ['value' => 'Hijack']);
+        $this->assertStatus(403, 'PATCH', $uri, self::OTHER, ['value' => 'Hijack']);
         $this->assertStatus(403, 'DELETE', $uri, self::OTHER);
         $response = static::createClient()->request('PATCH', $uri, [
             'headers' => array_merge(self::authHeaders(self::OTHER), ['Content-Type' => 'application/merge-patch+json']),
@@ -312,7 +311,7 @@ final class AssetDataTemplateApiTest extends AbstractDataboxTestCase
         [$attr] = $this->getTemplateAttributes($template);
         $uri = '/template-attributes/'.$attr->getId();
 
-        $this->assertSame('updated', $this->apiJson('PUT', $uri, self::USER, ['value' => 'updated'])['value']);
+        $this->assertSame('updated', $this->apiJson('PATCH', $uri, self::USER, ['value' => 'updated'])['value']);
 
         $response = static::createClient()->request('PATCH', $uri, [
             'headers' => array_merge(self::authHeaders(self::USER), ['Content-Type' => 'application/merge-patch+json']),

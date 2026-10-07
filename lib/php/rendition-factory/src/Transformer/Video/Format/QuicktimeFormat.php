@@ -5,7 +5,9 @@ namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use FFMpeg\Format\Video\X264;
 use FFMpeg\Format\VideoInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'video-quicktime')]
 class QuicktimeFormat implements FormatInterface
 {
     private VideoInterface $format;

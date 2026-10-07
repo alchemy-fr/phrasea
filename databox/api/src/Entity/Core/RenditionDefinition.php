@@ -8,21 +8,23 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\TrackBundle\LoggableChangeSetInterface;
+use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Filter\AssetTypeTargetFilter;
 use App\Api\Filter\InWorkspacesFilter;
-use App\Api\Filter\PartialSearchFilter;
-use App\Api\Filter\SearchFilter;
 use App\Api\Model\Input\RenditionDefinitionInput;
 use App\Api\Model\Output\RenditionDefinitionOutput;
-use App\Controller\Core\RenditionDefinitionSortAction;
+use App\Api\Processor\InputMapperProcessor;
+use App\Api\Processor\Sort\RenditionDefinitionSortProcessor;
 use App\Entity\Traits\AssetTypeTargetTrait;
 use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -45,22 +47,30 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("READ", object)'
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(
+        new Patch(
             normalizationContext: [
                 'groups' => [RenditionDefinition::GROUP_READ],
             ],
             security: 'is_granted("EDIT", object)',
             input: RenditionDefinitionInput::class,
+            processor: InputMapperProcessor::class,
         ),
-        new Patch(security: 'is_granted("EDIT", object)'),
         new GetCollection(
             parameters: [
                 'name' => new QueryParameter(
-                    filter: PartialSearchFilter::class,
+                    filter: new PartialSearchFilter(),
                     property: 'name',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
                 ),
                 'workspaceId' => new QueryParameter(
-                    filter: SearchFilter::class, property: 'workspace'),
+                    filter: new ExactFilter(),
+                    property: 'workspace',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
+                ),
                 'workspaceIds' => new QueryParameter(
                     filter: InWorkspacesFilter::class,
                     property: 'workspace',
@@ -75,16 +85,18 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: [
                 'groups' => [RenditionDefinition::GROUP_READ],
             ],
-            securityPostDenormalize: 'is_granted("CREATE", object)'
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Post(
             uriTemplate: '/rendition-definitions/sort',
-            controller: RenditionDefinitionSortAction::class,
-            openapiContext: [
-                'summary' => 'Reorder items',
-                'description' => 'Reorder items',
-                'requestBody' => [
-                    'content' => [
+            status: 200,
+            processor: RenditionDefinitionSortProcessor::class,
+            openapi: new OpenApiOperation(
+                summary: 'Reorder items',
+                description: 'Reorder items',
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
                         'application/json' => [
                             'schema' => [
                                 'description' => 'Ordered list of IDs',
@@ -92,9 +104,9 @@ use Symfony\Component\Validator\Constraints as Assert;
                                 'items' => ['type' => 'string'],
                             ],
                         ],
-                    ],
-                ],
-            ],
+                    ]),
+                ),
+            ),
             input: false,
             output: false,
             read: false,

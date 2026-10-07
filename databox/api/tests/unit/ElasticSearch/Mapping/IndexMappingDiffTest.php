@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace App\Tests\Unit\ElasticSearch\Mapping;
 
 use App\Elasticsearch\Mapping\IndexMappingDiff;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class IndexMappingDiffTest extends TestCase
 {
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testShouldReindex(bool $expected, array $indexedMapping, array $newMapping): void
     {
         $differ = new IndexMappingDiff();
@@ -67,7 +66,7 @@ class IndexMappingDiffTest extends TestCase
         $this->assertEquals($expected, $differ->shouldReindex($indexedMappingWrapped, $newMappingWrapped));
     }
 
-    public function getCases(): array
+    public static function getCases(): array
     {
         $attributes = [
             'a' => [

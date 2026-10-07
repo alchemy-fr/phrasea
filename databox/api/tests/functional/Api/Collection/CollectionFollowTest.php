@@ -139,7 +139,7 @@ final class CollectionFollowTest extends AbstractDataboxTestCase
             ]);
             // Denied by SecurityAwareTrait::getStrictUser() (403, not 401)
             $this->assertResponseStatusCodeSame(403, $action);
-            $this->assertJsonContains(['hydra:description' => 'User must be authenticated']);
+            $this->assertJsonContains(['description' => 'User must be authenticated']);
         }
     }
 

@@ -20,12 +20,14 @@ use Alchemy\RenditionFactory\Transformer\Video\Format\PngFormat;
 use Alchemy\RenditionFactory\Transformer\Video\Format\TiffFormat;
 use FFMpeg\Media\Video;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
+#[AsTaggedItem(index: 'video_to_frame')]
 final readonly class VideoToFrameTransformerModule implements TransformerModuleInterface
 {
-    public function __construct(#[AutowireLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')] private ServiceLocator $formats,
+    public function __construct(#[AutowireLocator(FormatInterface::TAG)] private ServiceLocator $formats,
         private ModuleOptionsResolver $optionsResolver,
         private OutputFormatsDocumentation $outputFormatsDocumentation,
     ) {

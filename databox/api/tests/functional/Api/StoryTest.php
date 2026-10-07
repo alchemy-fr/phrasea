@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Api;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
-use ApiPlatform\Symfony\Bundle\Test\Client;
+use ApiPlatform\Test\Client;
 use App\Entity\Core\Workspace;
 use App\Tests\Functional\AbstractSearchTestCase;
 
@@ -98,7 +98,7 @@ class StoryTest extends AbstractSearchTestCase
             ],
         ]);
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $data = $response->toArray();
         $this->assertArrayHasKey('storyCollection', $data);
         $this->assertIsArray($data['storyCollection']);

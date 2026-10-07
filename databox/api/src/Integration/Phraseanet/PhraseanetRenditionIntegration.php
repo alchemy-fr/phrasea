@@ -12,9 +12,11 @@ use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
 
+#[AsTaggedItem(index: 'phraseanet.renditions')]
 class PhraseanetRenditionIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
     final public const string METHOD_ENQUEUE = 'enqueue';

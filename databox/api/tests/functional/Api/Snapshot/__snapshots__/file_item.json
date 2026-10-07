@@ -1,0 +1,46 @@
+{
+    "@context": {
+        "@vocab": "http://localhost/docs.jsonld#",
+        "accepted": "FileOutput/accepted",
+        "alternateUrls": "FileOutput/alternateUrls",
+        "analysis": "FileOutput/analysis",
+        "analysisEnforced": "FileOutput/analysisEnforced",
+        "analysisPending": "FileOutput/analysisPending",
+        "analysisState": "FileOutput/analysisState",
+        "analyzedAt": "FileOutput/analyzedAt",
+        "checksum": "FileOutput/checksum",
+        "createdAt": "FileOutput/createdAt",
+        "docUniqueId": "FileOutput/docUniqueId",
+        "extension": "FileOutput/extension",
+        "fileName": "FileOutput/fileName",
+        "hydra": "http://www.w3.org/ns/hydra/core#",
+        "metadata": "FileOutput/metadata",
+        "size": "FileOutput/size",
+        "type": "FileOutput/type",
+        "updatedAt": "FileOutput/updatedAt",
+        "url": "FileOutput/url",
+        "usages": "FileOutput/usages"
+    },
+    "@id": "/files/<file>",
+    "@type": "file",
+    "accepted": true,
+    "alternateUrls": [],
+    "analysisEnforced": false,
+    "analysisPending": false,
+    "analysisState": "not_analyzed",
+    "createdAt": "<date>",
+    "extension": "jpg",
+    "fileName": "photo.jpg",
+    "id": "<file>",
+    "size": 1234,
+    "type": "image/jpeg",
+    "updatedAt": "<date>",
+    "url": "https://example.com/photo.jpg",
+    "usages": [
+        {
+            "assetId": "<asset>",
+            "assetTitle": "Photo",
+            "type": "source"
+        }
+    ]
+}

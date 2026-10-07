@@ -21,7 +21,7 @@ describe('Workspace terms', () => {
     let ws;
 
     const setTerms = terms =>
-        apiRequest({method: 'PUT', path: `/workspaces/${ws.id}`, body: {terms}});
+        apiRequest({method: 'PATCH', path: `/workspaces/${ws.id}`, body: {terms}});
     const getWorkspace = () => apiRequest({path: `/workspaces/${ws.id}`});
 
     before(() => {

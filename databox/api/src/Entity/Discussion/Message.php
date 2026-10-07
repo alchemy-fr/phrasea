@@ -7,15 +7,15 @@ namespace App\Entity\Discussion;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\ExactSearchFilter;
 use App\Api\Model\Input\EditThreadMessageInput;
 use App\Api\Model\Input\ThreadMessageInput;
 use App\Api\Model\Output\ThreadMessageOutput;
@@ -43,7 +43,7 @@ use Doctrine\ORM\Mapping as ORM;
             input: ThreadMessageInput::class,
             processor: PostMessageProcessor::class,
         ),
-        new Put(
+        new Patch(
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
@@ -66,6 +66,13 @@ use Doctrine\ORM\Mapping as ORM;
     operations: [
         new GetCollection(
             provider: ThreadMessagesProvider::class,
+            parameters: [
+                'thread' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'thread',
+                ),
+                'thread[]' => new QueryParameter(property: 'thread', openApi: false),
+            ],
         ),
     ],
     uriVariables: [
@@ -79,9 +86,6 @@ use Doctrine\ORM\Mapping as ORM;
     ],
     order: ['createdAt' => 'ASC'],
 )]
-#[ApiFilter(SearchFilter::class, properties: [
-    'thread' => 'exact',
-])]
 #[ORM\Table]
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
 class Message extends AbstractUuidEntity

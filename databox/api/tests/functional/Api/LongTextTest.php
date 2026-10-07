@@ -38,7 +38,7 @@ class LongTextTest extends AbstractSearchTestCase
         ]);
 
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@type' => 'asset',
         ]);
@@ -56,7 +56,7 @@ class LongTextTest extends AbstractSearchTestCase
         ]);
         $this->assertSame(200, $response->getStatusCode());
         $data = $response->toArray();
-        $assetResult = $data['hydra:member'][0];
+        $assetResult = $data['member'][0];
         $this->assertEquals($longText, $assetResult['attributes'][0]['value']);
     }
 }

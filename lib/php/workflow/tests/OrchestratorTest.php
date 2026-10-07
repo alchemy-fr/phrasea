@@ -10,7 +10,7 @@ use Alchemy\Workflow\State\WorkflowState;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class OrchestratorTest extends AbstractWorkflowTest
+class OrchestratorTest extends AbstractWorkflowTestCase
 {
     public function testEndToEndEchoerWorkflow(): void
     {

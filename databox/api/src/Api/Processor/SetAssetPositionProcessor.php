@@ -44,9 +44,9 @@ class SetAssetPositionProcessor implements ProcessorInterface
         /** @var CollectionAssetRepository $repository */
         $repository = $this->em->getRepository(CollectionAsset::class);
 
-        $collectionAsset = $repository->findCollectionAsset($uriVariables['id'], $collection->getId());
+        $collectionAsset = $repository->findCollectionAsset((string) $uriVariables['id'], $collection->getId());
         if (!$collectionAsset instanceof CollectionAsset) {
-            throw new NotFoundHttpException(sprintf('Asset "%s" is not part of %s', $uriVariables['id'], $this->describe($collection)));
+            throw new NotFoundHttpException(sprintf('Asset "%s" is not part of %s', (string) $uriVariables['id'], $this->describe($collection)));
         }
 
         $this->em->wrapInTransaction(function () use ($repository, $collection, $collectionAsset, $data): void {

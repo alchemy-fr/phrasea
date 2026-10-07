@@ -15,7 +15,7 @@ class ConfigurationKeyType extends AbstractType
     ) {
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $choices = [];
         $visitor = function (SchemaProperty $prop, array &$choices, ?string $parentPath = null) use (&$visitor): void {
@@ -48,7 +48,7 @@ class ConfigurationKeyType extends AbstractType
         ]);
     }
 
-    public function getParent()
+    public function getParent(): ?string
     {
         return ChoiceType::class;
     }

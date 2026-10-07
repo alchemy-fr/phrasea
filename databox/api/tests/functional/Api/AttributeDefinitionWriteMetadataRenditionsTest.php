@@ -30,8 +30,8 @@ class AttributeDefinitionWriteMetadataRenditionsTest extends AbstractDataboxTest
         $mainIri = '/rendition-definitions/'.$main->getId();
         $thumbnailIri = '/rendition-definitions/'.$thumbnail->getId();
 
-        $response = $client->request('PUT', '/attribute-definitions/'.$definition->getId(), [
-            'headers' => $this->getAuthHeaders(),
+        $response = $client->request('PATCH', '/attribute-definitions/'.$definition->getId(), [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->getAuthHeaders(),
             'json' => [
                 'writeMetadata' => ['IPTC:Credit'],
                 'writeMetadataRenditions' => [$mainIri, $thumbnailIri],
@@ -73,15 +73,15 @@ class AttributeDefinitionWriteMetadataRenditionsTest extends AbstractDataboxTest
         $client = static::createClient();
         $mainIri = '/rendition-definitions/'.$main->getId();
 
-        $response = $client->request('PUT', '/attribute-definitions/'.$definition->getId(), [
-            'headers' => $this->getAuthHeaders(),
+        $response = $client->request('PATCH', '/attribute-definitions/'.$definition->getId(), [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->getAuthHeaders(),
             'json' => ['writeMetadataRenditions' => [$mainIri]],
         ]);
         $this->assertSame([$mainIri], $response->toArray()['writeMetadataRenditions']);
 
         static::getEntityManager()->clear();
-        $response = $client->request('PUT', '/attribute-definitions/'.$definition->getId(), [
-            'headers' => $this->getAuthHeaders(),
+        $response = $client->request('PATCH', '/attribute-definitions/'.$definition->getId(), [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->getAuthHeaders(),
             'json' => ['writeMetadataRenditions' => []],
         ]);
         $this->assertSame([], $response->toArray()['writeMetadataRenditions'], 'an empty scope means all renditions');

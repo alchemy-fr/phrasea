@@ -10,6 +10,7 @@ use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * GET /assets/{id}: who can read an asset (owner, ACL, privacy, collections,
@@ -28,7 +29,7 @@ final class AssetReadTest extends AbstractDataboxTestCase
         $response = $this->request('GET', '/assets/'.$asset->getId(), self::OWNER);
 
         $this->assertResponseIsSuccessful();
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $data = $response->toArray();
         $this->assertSame('/assets/'.$asset->getId(), $data['@id']);
         $this->assertSame('asset', $data['@type']);
@@ -92,9 +93,8 @@ final class AssetReadTest extends AbstractDataboxTestCase
     /**
      * A member of the workspace (VIEW on the workspace) reads assets from
      * "public in workspace" upward; below that, only granted users can.
-     *
-     * @dataProvider memberPrivacyProvider
      */
+    #[DataProvider('memberPrivacyProvider')]
     public function testWorkspaceMemberAccessDependsOnPrivacy(int $privacy, bool $granted): void
     {
         $workspace = $this->createOwnedWorkspace();
@@ -116,9 +116,7 @@ final class AssetReadTest extends AbstractDataboxTestCase
         }
     }
 
-    /**
-     * @dataProvider memberPrivacyProvider
-     */
+    #[DataProvider('memberPrivacyProvider')]
     public function testUserOutsideOfAPrivateWorkspaceNeverReadsItsAssets(int $privacy): void
     {
         $this->createOwnedWorkspace();
@@ -172,9 +170,8 @@ final class AssetReadTest extends AbstractDataboxTestCase
 
     /**
      * As in the search, anonymous users only read PUBLIC assets.
-     *
-     * @dataProvider nonPublicPrivacyProvider
      */
+    #[DataProvider('nonPublicPrivacyProvider')]
     public function testAnonymousCannotReadANonPublicAssetOfAPublicWorkspace(int $privacy): void
     {
         $this->createOwnedWorkspace(self::OWNER, ['public' => true]);
@@ -187,9 +184,8 @@ final class AssetReadTest extends AbstractDataboxTestCase
     /**
      * A non-public collection does not open its assets to anonymous users
      * (whereas a public one does), but still opens them to authenticated users.
-     *
-     * @dataProvider nonPublicPrivacyProvider
      */
+    #[DataProvider('nonPublicPrivacyProvider')]
     public function testAnonymousCannotReadTheAssetsOfANonPublicCollection(int $privacy): void
     {
         $this->createOwnedWorkspace(self::OWNER, ['public' => true]);
@@ -241,9 +237,8 @@ final class AssetReadTest extends AbstractDataboxTestCase
 
     /**
      * ACEs on the asset itself open a secret asset and drive the capabilities.
-     *
-     * @dataProvider aclProvider
      */
+    #[DataProvider('aclProvider')]
     public function testAclOnTheAssetDrivesReadAndCapabilities(int $mask, array $expectedCapabilities): void
     {
         $workspace = $this->createOwnedWorkspace();
@@ -364,9 +359,7 @@ final class AssetReadTest extends AbstractDataboxTestCase
         yield 'quarantined' => [AssetStatusEnum::Quarantined];
     }
 
-    /**
-     * @dataProvider hiddenStatusProvider
-     */
+    #[DataProvider('hiddenStatusProvider')]
     public function testNonAcceptedAssetIsHiddenFromReaders(AssetStatusEnum $status): void
     {
         $workspace = $this->createOwnedWorkspace('custom_owner');

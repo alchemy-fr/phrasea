@@ -7,6 +7,7 @@ namespace App\Tests\Functional\Api\Collection;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\Core\WorkspaceItemPrivacyInterface as Privacy;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * POST /collections/delete-multiple and /collections/restore-multiple.
@@ -119,9 +120,7 @@ final class CollectionTrashTest extends AbstractDataboxTestCase
         yield 'admin' => ['admin', 204];
     }
 
-    /**
-     * @dataProvider getPermissionMatrix
-     */
+    #[DataProvider('getPermissionMatrix')]
     public function testDeleteAndRestorePermissions(int|string $grant, int $expectedCode): void
     {
         $workspace = $this->createTestWorkspace(['members' => [self::USER]]);

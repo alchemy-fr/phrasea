@@ -9,6 +9,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Workspace;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Read side of /workspaces: visibility rules (public, owner, user/group ACL,
@@ -49,7 +50,7 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
         $this->assertResponseIsSuccessful();
         $data = $response->toArray();
         $this->assertSame(['public-ws'], self::listedSlugs($data));
-        $this->assertSame(1, $data['hydra:totalItems']);
+        $this->assertSame(1, $data['totalItems']);
     }
 
     public function testUserListsPublicOwnedAndGrantedWorkspaces(): void
@@ -99,7 +100,7 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
             'headers' => self::authHeaders(self::OTHER),
         ]);
         $this->assertResponseIsSuccessful();
-        $this->assertCount(7, $response->toArray()['hydra:member']);
+        $this->assertCount(7, $response->toArray()['member']);
 
         $client->request('GET', self::iri($this->findOneBy(Workspace::class, ['slug' => 'private-ws'])), [
             'headers' => self::authHeaders(self::OTHER),
@@ -192,9 +193,7 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
         ];
     }
 
-    /**
-     * @dataProvider getItemAccessProvider
-     */
+    #[DataProvider('getItemAccessProvider')]
     public function testGetItemAccess(string $slug, ?string $userId, int $expectedStatus): void
     {
         $this->createVisibilityMatrix();
@@ -210,9 +209,7 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
         }
     }
 
-    /**
-     * @dataProvider getItemAccessProvider
-     */
+    #[DataProvider('getItemAccessProvider')]
     public function testGetBySlugAccess(string $slug, ?string $userId, int $expectedStatus): void
     {
         $this->createVisibilityMatrix();
@@ -293,7 +290,7 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
         $response = $client->request('GET', '/workspaces', [
             'headers' => self::authHeaders(self::USER),
         ]);
-        $listed = $response->toArray()['hydra:member'][0];
+        $listed = $response->toArray()['member'][0];
         $this->assertSame('detailed-ws', $listed['slug']);
         $this->assertSame(['fr', 'en'], $listed['enabledLocales']);
         $this->assertArrayHasKey('capabilities', $listed);
@@ -328,9 +325,7 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
         ];
     }
 
-    /**
-     * @dataProvider capabilitiesProvider
-     */
+    #[DataProvider('capabilitiesProvider')]
     public function testCapabilities(string $case, ?string $userId, array $expected): void
     {
         $ws = match ($case) {
@@ -366,7 +361,7 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
         $response = $client->request('GET', '/workspaces', [
             'headers' => self::authHeaders($userId),
         ]);
-        $capabilities = $response->toArray()['hydra:member'][0]['capabilities'];
+        $capabilities = $response->toArray()['member'][0]['capabilities'];
         ksort($capabilities);
         $this->assertSame($expected, $capabilities);
     }
@@ -412,8 +407,8 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
         $this->grantUser(self::USER, $ws);
 
         $client = static::createClient();
-        $client->request('PUT', self::iri($ws), [
-            'headers' => self::authHeaders(self::ADMIN),
+        $client->request('PATCH', self::iri($ws), [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + self::authHeaders(self::ADMIN),
             'json' => ['terms' => 'Accept me.'],
         ]);
         $this->assertResponseIsSuccessful();
@@ -431,7 +426,7 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
         $response = $client->request('GET', '/workspaces', [
             'headers' => self::authHeaders(self::USER),
         ]);
-        $this->assertTrue($response->toArray()['hydra:member'][0]['termsUnsigned']);
+        $this->assertTrue($response->toArray()['member'][0]['termsUnsigned']);
 
         // Anonymous users are never asked to sign
         $em = self::getEntityManager();

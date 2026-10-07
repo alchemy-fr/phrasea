@@ -8,11 +8,12 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\ConfiguratorBundle\Entity\ConfiguratorEntry;
 use Alchemy\ConfiguratorBundle\Message\DeployConfig;
 use Alchemy\MessengerBundle\Transport\TestTransport;
-use ApiPlatform\Symfony\Bundle\Test\Client;
+use ApiPlatform\Test\Client;
 use App\Config\Schema\DataboxConfigSchema;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
@@ -182,9 +183,7 @@ class ClientThemeTest extends AbstractDataboxTestCase
         self::assertSame('null', $response->getContent());
     }
 
-    /**
-     * @dataProvider invalidThemeProvider
-     */
+    #[DataProvider('invalidThemeProvider')]
     public function testRejectsInvalidThemes(array $theme, string $propertyPath): void
     {
         $client = $this->client;

@@ -5,19 +5,21 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
-use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
-use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Controller\AssetAckAction;
 use App\Controller\CreateAssetAction;
 use App\Security\Voter\AssetVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     shortName: 'asset',
@@ -30,13 +32,23 @@ use Symfony\Component\Serializer\Annotation\Groups;
             deserialize: false,
             name: 'post_ack',
         ),
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'acknowledged' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'acknowledged',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
+                ),
+            ],
+        ),
         new Post(
             defaults: ['_api_receive' => false],
             controller: CreateAssetAction::class,
-            openapiContext: [
-                'requestBody' => [
-                    'content' => [
+            openapi: new OpenApiOperation(
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
                         'application/json' => [
                             'examples' => [
                                 'Multipart upload' => [
@@ -111,9 +123,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
                                 ],
                             ],
                         ],
-                    ],
-                ],
-            ],
+                    ]),
+                ),
+            ),
             validationContext: [
                 'groups' => [
                     'Default',
@@ -173,7 +185,6 @@ class Asset extends AbstractUuidEntity
 
     #[ORM\Column(type: Types::BOOLEAN)]
     #[Groups(self::GROUP_READ)]
-    #[ApiFilter(filterClass: BooleanFilter::class)]
     private bool $acknowledged = false;
 
     #[ApiProperty]

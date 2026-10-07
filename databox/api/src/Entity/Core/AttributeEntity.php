@@ -8,9 +8,7 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\CoreBundle\Util\LocaleUtil;
-use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SortFilter as OrmSortFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -19,11 +17,17 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\ExactSearchFilter;
+use App\Api\Filter\PartialSearchFilter;
+use App\Api\Filter\SortFilter;
 use App\Api\Model\Input\MergeAttributeEntitiesInput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Processor\AddAttributeEntityProcessor;
 use App\Api\Processor\MergeAttributeEntitiesProcessor;
 use App\Api\Provider\AttributeEntityCollectionProvider;
+use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
+use App\Elasticsearch\Filter\SuggestQueryFilter;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeEntityRepository;
 use App\Validator\SameWorkspaceConstraint;
@@ -40,10 +44,6 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
         // Moving a value to another list takes the edition of both lists
-        new Put(
-            security: 'is_granted("EDIT", object)',
-            securityPostDenormalize: self::LIST_CHANGE_SECURITY,
-        ),
         new Patch(
             security: 'is_granted("EDIT", object)',
             securityPostDenormalize: self::LIST_CHANGE_SECURITY,
@@ -53,6 +53,52 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'groups' => [
                     self::GROUP_LIST,
                 ],
+            ],
+            parameters: [
+                'workspace' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'workspace',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'workspaceId'],
+                ),
+                'workspace[]' => new QueryParameter(property: 'workspace', openApi: false),
+                'list' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'list',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'listId'],
+                ),
+                'list[]' => new QueryParameter(property: 'list', openApi: false),
+                'value' => new QueryParameter(
+                    filter: new PartialSearchFilter(),
+                    property: 'value',
+                    schema: ['type' => 'string'],
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'value.raw'],
+                    castToArray: false,
+                ),
+                'query' => new QueryParameter(
+                    filter: new SuggestQueryFilter(),
+                    schema: ['type' => 'string'],
+                    description: 'Search-as-you-type on the value (switches the search to Elasticsearch)',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'value'],
+                    castToArray: false,
+                ),
+                'order[value]' => new QueryParameter(
+                    filter: new SortFilter(),
+                    property: 'value',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'value.raw'],
+                    castToArray: false,
+                ),
+                // createdAt and position are not indexed: ORM only (ignored on a "query" search)
+                'order[createdAt]' => new QueryParameter(filter: new OrmSortFilter(), property: 'createdAt', castToArray: false),
+                'order[position]' => new QueryParameter(filter: new OrmSortFilter(), property: 'position', castToArray: false),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (max 50 on a "query" search)',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
+                ),
             ],
         ),
         new Post(
@@ -76,16 +122,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 
 #[ORM\Entity(repositoryClass: AttributeEntityRepository::class)]
-#[ApiFilter(filterClass: SearchFilter::class, properties: [
-    'workspace' => 'exact',
-    'list' => 'exact',
-    'value' => 'ipartial',
-])]
-#[ApiFilter(filterClass: OrderFilter::class, properties: [
-    'value',
-    'createdAt',
-    'position',
-])]
 #[ORM\Index(columns: ['list_id'], name: 'entity_list_idx')]
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'list.workspace'],

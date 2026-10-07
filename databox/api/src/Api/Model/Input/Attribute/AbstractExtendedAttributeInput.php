@@ -27,7 +27,7 @@ abstract class AbstractExtendedAttributeInput extends AbstractBaseAttributeInput
      */
     #[Assert\Collection(
         fields: [
-            'type' => new Assert\Choice(AssetAnnotationsInterface::TYPES),
+            'type' => new Assert\Choice(choices: AssetAnnotationsInterface::TYPES),
         ],
         allowExtraFields: true,
     )]

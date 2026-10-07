@@ -12,7 +12,7 @@ class FormSchemaTest extends AbstractUploaderTestCase
     {
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/form-schemas');
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals([], $response->toArray()['hydra:member']);
+        $this->assertEquals([], $response->toArray()['member']);
 
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'POST', '/form-schemas', [
             'target' => '/targets/'.$this->getOrCreateDefaultTarget()->getId(),
@@ -28,10 +28,10 @@ class FormSchemaTest extends AbstractUploaderTestCase
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/form-schemas');
         $this->assertEquals(200, $response->getStatusCode());
         $data = $response->toArray();
-        $this->assertCount(1, $data['hydra:member']);
+        $this->assertCount(1, $data['member']);
         $this->assertEquals([
             'foo' => 'bar',
-        ], $data['hydra:member'][0]['data']);
+        ], $data['member'][0]['data']);
     }
 
     public function testFormSchemaPostWithANonAdminUser(): void

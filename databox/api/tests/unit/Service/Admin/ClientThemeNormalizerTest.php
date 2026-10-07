@@ -6,6 +6,7 @@ namespace App\Tests\Unit\Service\Admin;
 
 use App\Service\Admin\ClientThemeNormalizer;
 use App\Service\Admin\InvalidClientThemeException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -100,9 +101,7 @@ class ClientThemeNormalizerTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider invalidThemeProvider
-     */
+    #[DataProvider('invalidThemeProvider')]
     public function testRejectsInvalidThemes(array $theme, string $propertyPath): void
     {
         try {

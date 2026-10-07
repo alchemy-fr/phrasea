@@ -6,7 +6,7 @@ namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
-use ApiPlatform\Api\IriConverterInterface;
+use ApiPlatform\Metadata\IriConverterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\RemoveFromBasketInput;
@@ -32,7 +32,7 @@ class RemoveFromBasketProcessor implements ProcessorInterface
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): Basket
     {
-        $basketId = $uriVariables['id'];
+        $basketId = (string) $uriVariables['id'];
         $basket = DoctrineUtil::findStrictByRepo($this->basketRepository, $basketId);
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $basket);
 

@@ -11,6 +11,7 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
+use App\Api\Traits\ParameterValuesTrait;
 use App\Entity\Core\AttributeFilterRule;
 use App\Entity\Core\Workspace;
 use Doctrine\ORM\QueryBuilder;
@@ -21,6 +22,7 @@ use Doctrine\ORM\QueryBuilder;
  */
 final class AttributeFilterRuleExtension implements QueryCollectionExtensionInterface
 {
+    use ParameterValuesTrait;
     use SecurityAwareTrait;
 
     public function applyToCollection(
@@ -36,7 +38,7 @@ final class AttributeFilterRuleExtension implements QueryCollectionExtensionInte
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
 
-        if (null !== $workspaceId = $context['filters']['workspaceId'] ?? null) {
+        if (null !== $operation && null !== $workspaceId = self::getParameterId($operation, 'workspaceId')) {
             $param = $queryNameGenerator->generateParameterName('workspaceId');
             $queryBuilder
                 ->andWhere(sprintf('%s.workspace = :%s', $rootAlias, $param))

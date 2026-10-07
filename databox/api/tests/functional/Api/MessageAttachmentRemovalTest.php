@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Api;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
-use ApiPlatform\Symfony\Bundle\Test\Client;
+use ApiPlatform\Test\Client;
 use App\Entity\Core\Asset;
 use App\Tests\Functional\AbstractSearchTestCase;
 
@@ -92,8 +92,8 @@ class MessageAttachmentRemovalTest extends AbstractSearchTestCase
 
     private function putMessage(Client $client, string $id, array $data, string $userId = KeycloakClientTestMock::ADMIN_UID): array
     {
-        return $client->request('PUT', '/messages/'.$id, [
-            'headers' => [
+        return $client->request('PATCH', '/messages/'.$id, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + [
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor($userId),
             ],
             'json' => $data,

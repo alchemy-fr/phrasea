@@ -28,7 +28,7 @@ final class SubscriptionManagerTest extends TestCase
             ->with($subscriber, 'asset', '42')
             ->willReturn(['asset:update', 'asset:delete']);
 
-        $manager = new SubscriptionManager($this->createMock(EntityManagerInterface::class), $repository, $subscriberManager);
+        $manager = new SubscriptionManager($this->createStub(EntityManagerInterface::class), $repository, $subscriberManager);
 
         self::assertSame(['asset:update', 'asset:delete'], $manager->getSubscribedEvents(self::USER_ID, 'asset', '42'));
     }
@@ -41,7 +41,7 @@ final class SubscriptionManagerTest extends TestCase
         $repository = $this->createMock(SubscriptionRepository::class);
         $repository->expects(self::never())->method('findSubscribedEvents');
 
-        $manager = new SubscriptionManager($this->createMock(EntityManagerInterface::class), $repository, $subscriberManager);
+        $manager = new SubscriptionManager($this->createStub(EntityManagerInterface::class), $repository, $subscriberManager);
 
         self::assertSame([], $manager->getSubscribedEvents(self::USER_ID, 'asset', '42'));
     }

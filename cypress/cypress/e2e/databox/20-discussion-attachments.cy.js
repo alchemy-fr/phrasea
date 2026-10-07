@@ -5,6 +5,9 @@ import {deleteWorkspace, seedWorkspace} from './lib/api';
 import {expectToastText, login} from './lib/app';
 import {databoxUrl} from '../lib/urls';
 
+const composer = () => cy.getBySel('asset-view').find('[role=textbox][aria-label^="Write a message"]');
+const message = (text, options) => cy.getBySel('asset-view').contains('[data-message-id]', text, options);
+
 describe('Discussion & attachments', () => {
     let ctx;
 
@@ -30,44 +33,41 @@ describe('Discussion & attachments', () => {
 
     it('suggests users to mention, out of the panel', () => {
         const admin = Cypress.env('ADMIN_USERNAME');
-        cy.getBySel('asset-view').find('textarea[placeholder*="Write a message"]').type(`Hello @${admin.slice(0, 4)}`);
+        composer().type(`Hello @${admin.slice(0, 4)}`);
         // Portalled next to the field: the scrolling panel does not clip it
         cy.getBySel('mention-suggestions', {timeout: 20000}).should('be.visible').and('contain', `@${admin}`);
     });
 
     it('posts, edits and deletes a message', () => {
-        cy.getBySel('asset-view').within(() => {
-            cy.get('textarea[placeholder*="Write a message"]').type('Hello from Cypress');
-            cy.contains('button', 'Send').click();
-            cy.contains('Hello from Cypress', {timeout: 20000}).should('be.visible');
+        composer().type('Hello from Cypress');
+        cy.getBySel('asset-view').find('button[aria-label="Send"]').click();
+        message('Hello from Cypress', {timeout: 20000}).should('be.visible');
+        composer().should('have.text', '');
 
-            cy.contains('[data-message-id]', 'Hello from Cypress').find('button').last().click({force: true});
-        });
+        message('Hello from Cypress').find('button').last().click({force: true});
         cy.menuItem('Edit').click();
-        cy.getBySel('asset-view').within(() => {
-            // The thread re-renders while the editor is open, which detaches
-            // the textarea: query it again for every step
-            cy.get('[data-message-id] textarea').should('have.value', 'Hello from Cypress');
-            cy.wait(1000);
-            cy.get('[data-message-id] textarea').type('{selectall}{del}Edited from Cypress');
-            cy.get('[data-message-id] textarea').should('have.value', 'Edited from Cypress');
-            cy.contains('button', 'Save').click();
-            cy.contains('Edited from Cypress', {timeout: 20000}).should('be.visible');
-            // Let the thread reload settle before opening the row menu
-            cy.wait(1500);
-            cy.contains('[data-message-id]', 'Edited from Cypress').find('button').last().click({force: true});
-        });
+        // The message is edited in the composer
+        composer().should('have.text', 'Hello from Cypress');
+        // The thread re-renders once the edition starts, which resets the
+        // composer content: let it settle before typing
+        cy.wait(1000);
+        composer().type('{selectall}{del}Edited from Cypress');
+        composer().should('have.text', 'Edited from Cypress');
+        cy.getBySel('asset-view').find('button[aria-label="Save"]').click();
+        message('Edited from Cypress', {timeout: 20000}).should('be.visible');
+        // Let the thread reload settle before opening the row menu
+        cy.wait(1500);
+
+        message('Edited from Cypress').find('button').last().click({force: true});
         cy.menuItem('Delete').click();
         cy.dialog().contains('button', /Confirm|Delete/).click();
-        cy.getBySel('asset-view').contains('Edited from Cypress').should('not.exist');
+        cy.getBySel('asset-view').find('[data-message-id]').should('not.exist');
     });
 
     it('sends a message with the keyboard shortcut', () => {
-        cy.getBySel('asset-view').within(() => {
-            cy.get('textarea[placeholder*="Write a message"]').type('Sent with Ctrl+Enter{ctrl}{enter}');
-            cy.contains('Sent with Ctrl+Enter', {timeout: 20000}).should('be.visible');
-            cy.get('textarea[placeholder*="Write a message"]').should('have.value', '');
-        });
+        composer().type('Sent with Ctrl+Enter{ctrl}{enter}');
+        message('Sent with Ctrl+Enter', {timeout: 20000}).should('be.visible');
+        composer().should('have.text', '');
     });
 
     it('attaches another asset and detaches it', () => {

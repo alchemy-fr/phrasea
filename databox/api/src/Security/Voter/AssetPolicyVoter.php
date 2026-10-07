@@ -6,6 +6,7 @@ namespace App\Security\Voter;
 
 use App\Entity\Core\AssetPolicy\AssetPolicy;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class AssetPolicyVoter extends AbstractVoter
 {
@@ -26,7 +27,7 @@ class AssetPolicyVoter extends AbstractVoter
     /**
      * @param AssetPolicy $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;

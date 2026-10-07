@@ -9,10 +9,8 @@ use Alchemy\ESBundle\Indexer\ESIndexableDependencyInterface;
 use Alchemy\ESBundle\Indexer\ESIndexableInterface;
 use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
+use Alchemy\ESBundle\Util\ClassUtil;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\Util\ClassUtils;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Event\TransactionRollBackEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Event\PostPersistEventArgs;
@@ -54,16 +52,14 @@ final class DeferredIndexListener
 
     public function __construct(
         private readonly SearchIndexer $searchIndexer,
-        private readonly Connection $connection,
     ) {
-        $this->connection->getEventManager()->addEventListener(\Doctrine\DBAL\Events::onTransactionRollBack, $this);
     }
 
     private function handlesEntity(object $entity): bool
     {
         return $entity instanceof ESIndexableDependencyInterface
             || $entity instanceof ESIndexableInterface
-            || $this->searchIndexer->hasObjectPersisterFor(ClassUtils::getRealClass($entity::class));
+            || $this->searchIndexer->hasObjectPersisterFor(ClassUtil::getRealClass($entity::class));
     }
 
     /**
@@ -114,7 +110,10 @@ final class DeferredIndexListener
         }
     }
 
-    public function onTransactionRollBack(TransactionRollBackEventArgs $args): void
+    /**
+     * @see \Alchemy\ESBundle\Doctrine\TransactionRollbackMiddleware
+     */
+    public function onTransactionRollBack(): void
     {
         $this->scheduledForDeletion = [];
         $this->scheduledForInsertion = [];
@@ -195,7 +194,7 @@ final class DeferredIndexListener
 
     private function scheduleForDeletion(object $entity): void
     {
-        $class = ClassUtils::getRealClass($entity::class);
+        $class = ClassUtil::getRealClass($entity::class);
         if (!isset($this->scheduledForDeletion[$class])) {
             $this->scheduledForDeletion[$class] = [];
         }

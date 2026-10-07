@@ -29,7 +29,7 @@ final class FileDuplicatesProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): ?AssetDuplicateOutput
     {
-        $file = $this->fileRepository->find($uriVariables['id']);
+        $file = $this->fileRepository->find((string) $uriVariables['id']);
         if (!$file instanceof File) {
             return null;
         }

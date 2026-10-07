@@ -11,26 +11,29 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\AssetAttachmentInput;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\AssetAttachmentCollectionProvider;
 use App\Entity\Traits\ExtraMetadataTrait;
 use App\Security\Voter\AbstractVoter;
 use App\Validator\SameWorkspaceConstraint;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     shortName: 'attachment',
     operations: [
         new Get(security: 'is_granted("'.AbstractVoter::READ.'", object)'),
         new Post(
-            securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("'.AbstractVoter::CREATE.'", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
-        new Put(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
+        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)', processor: InputMapperProcessor::class),
         new GetCollection(
             normalizationContext: [
                 'groups' => [
@@ -38,6 +41,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
                 ],
             ],
             provider: AssetAttachmentCollectionProvider::class,
+            parameters: [
+                'assetId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Asset ID (mandatory)',
+                    castToArray: false,
+                ),
+            ],
         ),
     ],
     normalizationContext: [

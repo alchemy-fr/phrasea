@@ -3,7 +3,9 @@
 namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'animated-gif')]
 class AnimatedGifFormat implements FormatInterface
 {
     public static function getAllowedExtensions(): array

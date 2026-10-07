@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use ApiPlatform\Metadata\Operation;
+use App\Elasticsearch\Filter\SearchQuery;
 use App\Entity\Basket\Basket;
 use App\Security\Voter\AbstractVoter;
 use Elastica\Query;
@@ -35,6 +37,7 @@ class BasketSearch extends AbstractSearch
         string $userId,
         array $groupIds,
         array $options = [],
+        ?Operation $operation = null,
     ): Pagerfanta {
         $filterQueries = [];
 
@@ -54,17 +57,13 @@ class BasketSearch extends AbstractSearch
         }
 
         $maxLimit = 30;
-        $limit = $options['limit'] ?? $maxLimit;
-        if ($limit > $maxLimit) {
-            $limit = $maxLimit;
-        }
 
         $rootQuery = new Query\BoolQuery();
         foreach ($filterQueries as $query) {
             $rootQuery->addFilter($query);
         }
 
-        $queryString = trim($options['query'] ?? '');
+        $queryString = trim((string) ($options['query'] ?? ''));
 
         if (!empty($queryString)) {
             $searchQuery = new Query\BoolQuery();
@@ -87,10 +86,17 @@ class BasketSearch extends AbstractSearch
             $rootQuery->addMust($searchQuery);
         }
 
+        $searchQuery = new SearchQuery($rootQuery);
+        $this->applyParameters($searchQuery, Basket::class, $operation, $options);
+
         $query = new Query();
         $query->setTrackTotalHits();
         $query->setQuery($rootQuery);
-        $this->applySort($query, $options);
+        if ($searchQuery->hasSort()) {
+            $query->setSort($searchQuery->getSort());
+        } else {
+            $this->applySort($query, $options);
+        }
 
         $query->setHighlight([
             'pre_tags' => ['[hl]'],
@@ -110,11 +116,7 @@ class BasketSearch extends AbstractSearch
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
         $result = new Pagerfanta(new FilteredPager(fn (Basket $basket): bool => $this->isGranted(AbstractVoter::READ, $basket), $adapter));
-        $result->setMaxPerPage((int) $limit);
-        if ($options['page'] ?? false) {
-            $result->setAllowOutOfRangePages(true);
-            $result->setCurrentPage((int) $options['page']);
-        }
+        self::applyPagination($result, $options, $maxLimit);
         $this->executeSearch($result->getCurrentPageResults(...));
 
         return $result;

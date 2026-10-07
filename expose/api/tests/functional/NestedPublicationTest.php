@@ -28,7 +28,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(201, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
@@ -194,7 +194,7 @@ class NestedPublicationTest extends AbstractExposeTestCase
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertCount(2, $json);
         $this->assertEquals('p1', $json[0]['title']);

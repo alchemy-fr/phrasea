@@ -6,13 +6,12 @@ namespace Alchemy\Workflow\Tests\Date;
 
 use Alchemy\Workflow\Date\MicroDateTime;
 use Alchemy\Workflow\State\StateUtil;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class MicroDateTimeTest extends TestCase
 {
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testDuration(string $expectedDiff, string $d1, int $nano1, string $d2, int $nano2): void
     {
         $d1 = new MicroDateTime($d1, $nano1);
@@ -21,7 +20,7 @@ class MicroDateTimeTest extends TestCase
         $this->assertEquals($expectedDiff, StateUtil::getFormattedDuration($d2->getDiff($d1)));
     }
 
-    public function getCases(): array
+    public static function getCases(): array
     {
         return [
             ['01h00m00s', '2023-04-12 12:42:45', 0, '2023-04-12 13:42:45', 0],
@@ -53,9 +52,7 @@ class MicroDateTimeTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getMicroDates
-     */
+    #[DataProvider('getMicroDates')]
     public function testMicroDateTimeSerialization(MicroDateTime $dateTime): void
     {
         $serialized = serialize($dateTime);
@@ -70,7 +67,7 @@ class MicroDateTimeTest extends TestCase
         $this->assertEquals($dateTime, unserialize($serialized));
     }
 
-    public function getMicroDates(): array
+    public static function getMicroDates(): array
     {
         return [
             [new MicroDateTime('2023-04-12T12:42:43', 414243)],

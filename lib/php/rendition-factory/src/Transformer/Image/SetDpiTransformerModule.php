@@ -15,7 +15,9 @@ use PHPExiftool\Exiftool;
 use PHPExiftool\Writer;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'set_dpi')]
 final readonly class SetDpiTransformerModule implements TransformerModuleInterface
 {
     public function __construct(private LoggerInterface $logger)

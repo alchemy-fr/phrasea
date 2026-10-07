@@ -7,7 +7,7 @@ namespace App\Tests\Unit\Attribute\Type;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\TextAttributeType;
 
-class TextAttributeTypeTest extends AbstractAttributeTypeTest
+class TextAttributeTypeTest extends AbstractAttributeTypeTestCase
 {
     protected function getType(): AttributeTypeInterface
     {
@@ -15,7 +15,7 @@ class TextAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getValidationCases(): array
+    public static function getValidationCases(): array
     {
         return [
             ...parent::getValidationCases(),

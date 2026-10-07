@@ -14,8 +14,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\AddToBasketInput;
 use App\Api\Model\Input\BasketInput;
@@ -23,6 +23,7 @@ use App\Api\Model\Input\RemoveFromBasketInput;
 use App\Api\Model\Output\BasketOutput;
 use App\Api\Processor\AddToBasketProcessor;
 use App\Api\Processor\ArchiveBasketProcessor;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\RemoveFromBasketProcessor;
 use App\Api\Processor\UnarchiveBasketProcessor;
 use App\Api\Provider\BasketCollectionProvider;
@@ -50,6 +51,31 @@ use Symfony\Component\Validator\Constraints as Assert;
                         'type' => 'string',
                         'enum' => BasketSearch::ORDERS,
                     ],
+                    description: 'Sort (default: by name)',
+                ),
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Search query on the name and description',
+                    castToArray: false,
+                ),
+                'archived' => new QueryParameter(
+                    schema: ['type' => 'boolean'],
+                    description: 'List the archived baskets instead of the active ones',
+                    castToArray: false,
+                ),
+                'includeArchived' => new QueryParameter(
+                    schema: ['type' => 'boolean'],
+                    description: 'List both the active and the archived baskets',
+                    castToArray: false,
+                ),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (max 30)',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
                 ),
             ],
         ),
@@ -60,11 +86,12 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
         ),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
-        new Put(
+        new Patch(
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            processor: InputMapperProcessor::class,
         ),
         new Post(
             uriTemplate: '/baskets/{id}/archive',
@@ -88,7 +115,8 @@ use Symfony\Component\Validator\Constraints as Assert;
             normalizationContext: [
                 'groups' => [self::GROUP_READ],
             ],
-            securityPostValidation: 'is_granted("'.AbstractVoter::CREATE.'", object)'
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY_POST_VALIDATION => 'is_granted("'.AbstractVoter::CREATE.'", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Post(
             uriTemplate: '/baskets/default/assets',

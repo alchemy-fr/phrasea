@@ -1,0 +1,129 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Api\Mapper\Output;
+
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use ApiPlatform\Metadata\IriConverterInterface;
+use App\Api\Model\Output\WorkspaceIntegrationOutput;
+use App\Entity\Integration\WorkspaceIntegration;
+use App\Integration\IntegrationDataManager;
+use App\Integration\IntegrationManager;
+use App\Repository\Integration\IntegrationTokenRepository;
+use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\WorkspaceIntegrationVoter;
+use Arthem\ObjectReferenceBundle\Mapper\ObjectMapper;
+use Doctrine\ORM\EntityManagerInterface;
+use GuzzleHttp\Psr7\Query;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Yaml\Yaml;
+
+#[AsTaggedItem(index: WorkspaceIntegrationOutput::class)]
+class WorkspaceIntegrationOutputMapper implements OutputMapperInterface
+{
+    use SecurityAwareTrait;
+    use GroupsHelperTrait;
+
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly IntegrationManager $integrationManager,
+        private readonly IntegrationDataManager $integrationDataManager,
+        private readonly IntegrationTokenRepository $integrationTokenRepository,
+        private readonly ObjectMapper $objectMapper,
+        private readonly IriConverterInterface $iriConverter,
+    ) {
+    }
+
+    public function supports(object $data): bool
+    {
+        return $data instanceof WorkspaceIntegration;
+    }
+
+    /**
+     * @param WorkspaceIntegration $data
+     */
+    public function map(object $data, array $context = []): object
+    {
+        $output = new WorkspaceIntegrationOutput();
+        $output->setCreatedAt($data->getCreatedAt());
+        $output->setUpdatedAt($data->getUpdatedAt());
+        $output->setId($data->getId());
+        $output->setName($data->getName());
+        $output->setEnabled($data->isEnabled());
+        $output->setIntegration($data->getIntegration());
+        $output->public = $data->getPublic();
+        $output->workspace = $data->getWorkspace();
+        $output->needs = array_map(fn (WorkspaceIntegration $wi): string => $this->iriConverter->getIriFromResource($wi), $data->getNeeds()->getValues());
+        $output->if = $data->getIf();
+        if ($this->isGranted(AbstractVoter::EDIT, $data)) {
+            $output->lastErrors = $data->getLastErrors();
+        }
+
+        $uri = $context['request_uri'] ?? '';
+        $qs = parse_url((string) $uri, PHP_URL_QUERY) ?? '';
+        $filters = Query::parse($qs);
+
+        $objectId = $filters['objectId'] ?? null;
+        if (null !== $objectId) {
+            $objectType = $filters['objectType'] ?? throw new BadRequestHttpException('Missing "objectType" to fetch data');
+            $class = $this->objectMapper->getClassName($objectType);
+
+            $object = $this->em->getRepository($class)->find($objectId);
+            if (null === $object) {
+                throw new \InvalidArgumentException(sprintf('%s "%s" not found', $class, $objectId));
+            }
+            $this->denyAccessUnlessGranted(AbstractVoter::READ, $object);
+
+            $criteria = [
+                'integration' => $data->getId(),
+                'objectType' => $objectType,
+                'objectId' => $object->getId(),
+            ];
+
+            if (!$this->security->isGranted(AbstractVoter::EDIT, $object)) {
+                $criteria['userId'] = $this->getStrictUserOrOAuthClient()->getUserIdentifier();
+            }
+
+            $subData = $this->integrationDataManager
+                ->findBy($criteria, [
+                    'createdAt' => 'DESC',
+                ], 200);
+
+            $output->setData($subData);
+        }
+
+        try {
+            $config = $this->integrationManager->getIntegrationConfiguration($data);
+            $integration = $config->getIntegration();
+            $output->integrationName = $integration->getDisplayName();
+            $output->setConfig($integration->resolveClientConfiguration($data, $config));
+            if ($this->isGranted(AbstractVoter::EDIT, $data)) {
+                // May hold secrets (e.g. the Uploader security key)
+                $output->configInfo = $integration->getConfigurationInfo($config);
+            }
+        } catch (\Throwable $e) {
+            $output->lastErrors ??= [];
+            $output->lastErrors[] = [
+                'message' => $e->getMessage(),
+            ];
+        }
+
+        if ($this->isGranted(AbstractVoter::EDIT, $data) && isset($integration)) {
+            $output->configYaml = Yaml::dump($integration->denormalizeConfiguration($data->getConfig(), $data->getWorkspace()), 4);
+        }
+
+        $tokens = $this->integrationTokenRepository->getValidUserTokens($data->getId(), $this->getStrictUserOrOAuthClient()->getUserIdentifier());
+        $output->setTokens($tokens);
+
+        if ($this->hasGroup([WorkspaceIntegration::GROUP_LIST], $context)) {
+            $output->setCapabilities([
+                'use' => $this->isGranted(WorkspaceIntegrationVoter::READ_DATA, $data),
+                'interact' => $this->isGranted(WorkspaceIntegrationVoter::INTERACT, $data),
+            ]);
+        }
+
+        return $output;
+    }
+}

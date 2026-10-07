@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Model\SavedSearchPrivacyEnum;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 final class SavedSearchApiTest extends AbstractDataboxTestCase
 {
@@ -44,9 +45,7 @@ final class SavedSearchApiTest extends AbstractDataboxTestCase
         $this->assertStatus(401, 'POST', '/saved-searches', null, ['name' => 'Anon', 'data' => []]);
     }
 
-    /**
-     * @dataProvider getInvalidPayloads
-     */
+    #[DataProvider('getInvalidPayloads')]
     public function testCreateValidation(array $payload): void
     {
         $this->assertStatus(422, 'POST', '/saved-searches', self::USER, $payload);
@@ -74,7 +73,7 @@ final class SavedSearchApiTest extends AbstractDataboxTestCase
 
         $this->assertStatus(422, 'POST', '/saved-searches', self::USER, ['name' => 'N', 'data' => self::QUERY, 'privacy' => 42]);
         $search = $this->createSavedSearch('S', self::USER);
-        $this->assertStatus(422, 'PUT', '/saved-searches/'.$search->getId(), self::USER, ['privacy' => 9]);
+        $this->assertStatus(422, 'PATCH', '/saved-searches/'.$search->getId(), self::USER, ['privacy' => 9]);
     }
 
     public function testListVisibility(): void
@@ -106,9 +105,7 @@ final class SavedSearchApiTest extends AbstractDataboxTestCase
         $this->assertSame([$a->getId(), $b->getId()], $this->memberIds($this->apiJson('GET', '/saved-searches', self::USER)));
     }
 
-    /**
-     * @dataProvider getReadMatrix
-     */
+    #[DataProvider('getReadMatrix')]
     public function testReadMatrix(SavedSearchPrivacyEnum $privacy, ?string $userId, int $expectedStatus): void
     {
         $search = $this->createSavedSearch('S', self::USER, $privacy);
@@ -150,7 +147,7 @@ final class SavedSearchApiTest extends AbstractDataboxTestCase
         $search = $this->createSavedSearch('S', self::USER);
         $uri = '/saved-searches/'.$search->getId();
 
-        $data = $this->apiJson('PUT', $uri, self::USER, [
+        $data = $this->apiJson('PATCH', $uri, self::USER, [
             'name' => 'Renamed',
             'privacy' => SavedSearchPrivacyEnum::Public->value,
             'data' => ['query' => 'dogs'],
@@ -160,12 +157,12 @@ final class SavedSearchApiTest extends AbstractDataboxTestCase
         $this->assertSame(['query' => 'dogs'], $data['data']);
 
         // Partial update: omitted fields are kept
-        $data = $this->apiJson('PUT', $uri, self::USER, ['privacy' => SavedSearchPrivacyEnum::Private->value]);
+        $data = $this->apiJson('PATCH', $uri, self::USER, ['privacy' => SavedSearchPrivacyEnum::Private->value]);
         $this->assertSame('Renamed', $data['name']);
         $this->assertSame(['query' => 'dogs'], $data['data']);
         $this->assertSame(SavedSearchPrivacyEnum::Private->value, $data['privacy']);
 
-        $this->assertStatus(422, 'PUT', $uri, self::USER, ['name' => '']);
+        $this->assertStatus(422, 'PATCH', $uri, self::USER, ['name' => '']);
     }
 
     public function testUpdateAccessMatrix(): void
@@ -175,11 +172,11 @@ final class SavedSearchApiTest extends AbstractDataboxTestCase
         $payload = ['name' => 'Hijack', 'data' => []];
 
         // Public does not mean editable
-        $this->assertStatus(403, 'PUT', $uri, self::OTHER, $payload);
-        $this->assertStatus(401, 'PUT', $uri, null, $payload);
+        $this->assertStatus(403, 'PATCH', $uri, self::OTHER, $payload);
+        $this->assertStatus(401, 'PATCH', $uri, null, $payload);
 
         $this->grantUserOnObject(self::OTHER, $search, PermissionInterface::EDIT);
-        $this->assertSame('By other', $this->apiJson('PUT', $uri, self::OTHER, ['name' => 'By other', 'data' => []])['name']);
+        $this->assertSame('By other', $this->apiJson('PATCH', $uri, self::OTHER, ['name' => 'By other', 'data' => []])['name']);
 
         self::getEntityManager()->clear();
         // Editing does not transfer ownership

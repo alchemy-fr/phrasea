@@ -2,13 +2,13 @@
 
 namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 
-use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 final readonly class OutputFormatsDocumentation
 {
     public function __construct(
-        #[TaggedLocator(FormatInterface::TAG, defaultIndexMethod: 'getFormat')]
+        #[AutowireLocator(FormatInterface::TAG)]
         private ServiceLocator $formats,
     ) {
     }

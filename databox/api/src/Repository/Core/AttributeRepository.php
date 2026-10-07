@@ -123,7 +123,7 @@ class AttributeRepository extends ServiceEntityRepository
 
     public function deleteByAttributeEntity(string $entityId, string $workspaceId, string $entityListId): void
     {
-        $expr = $this->_em->getExpressionBuilder();
+        $expr = $this->getEntityManager()->getExpressionBuilder();
         $this
             ->createQueryBuilder('t')
             ->delete()
@@ -149,7 +149,7 @@ class AttributeRepository extends ServiceEntityRepository
 
     public function deleteByAttributeEntityList(string $entityListId, string $workspaceId): void
     {
-        $expr = $this->_em->getExpressionBuilder();
+        $expr = $this->getEntityManager()->getExpressionBuilder();
         $this
             ->createQueryBuilder('t')
             ->delete()
@@ -173,7 +173,7 @@ class AttributeRepository extends ServiceEntityRepository
 
     public function replaceAttributeEntity(string $workspaceId, string $entityListId, $newId, array $previousIds): void
     {
-        $expr = $this->_em->getExpressionBuilder();
+        $expr = $this->getEntityManager()->getExpressionBuilder();
         $this
             ->createQueryBuilder('t')
             ->update()

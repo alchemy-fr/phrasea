@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Alchemy\ESBundle\Indexer;
 
 use Alchemy\ESBundle\Message\ESIndex;
-use Doctrine\Common\Util\ClassUtils;
+use Alchemy\ESBundle\Util\ClassUtil;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\ConsoleEvents;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
@@ -30,7 +30,7 @@ final class SearchIndexer
         private readonly EntityManagerInterface $em,
         private LoggerInterface $logger,
         private readonly IndexPersister $indexPersister,
-        #[TaggedIterator(IndexableDependenciesResolverInterface::TAG)]
+        #[AutowireIterator(IndexableDependenciesResolverInterface::TAG)]
         private readonly iterable $dependenciesResolvers,
         private readonly bool $direct,
         private readonly int $maxDependencyStacksCount = 5,
@@ -107,7 +107,7 @@ final class SearchIndexer
 
     private function indexClass(string $class, array $ids, Operation $operation, int $depth, array $currentBatch, array $parents): void
     {
-        $class = ClassUtils::getRealClass($class);
+        $class = ClassUtil::getRealClass($class);
         $ids = array_unique($ids);
 
         $this->logger->debug(sprintf('ES index %s %s: ("%s")', $class, $operation->name, implode('", "', $ids)));
@@ -211,7 +211,7 @@ final class SearchIndexer
             if (is_array($entity)) {
                 [$class, $id] = $entity;
             } else {
-                $class = ClassUtils::getRealClass($entity::class);
+                $class = ClassUtil::getRealClass($entity::class);
                 $id = $entity->getId();
             }
 

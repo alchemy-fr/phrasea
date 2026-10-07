@@ -49,11 +49,11 @@ class AssetPolicyTest extends AbstractSearchTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@context' => '/contexts/asset-policy',
             '@id' => '/asset-policies',
-            '@type' => 'hydra:Collection',
+            '@type' => 'Collection',
         ]);
     }
 
@@ -80,11 +80,11 @@ class AssetPolicyTest extends AbstractSearchTestCase
             ],
         ]);
         $this->assertResponseIsSuccessful();
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@context' => '/contexts/asset-policy',
             '@id' => '/asset-policies',
-            '@type' => 'hydra:Collection',
+            '@type' => 'Collection',
         ]);
     }
 
@@ -111,7 +111,7 @@ class AssetPolicyTest extends AbstractSearchTestCase
         ]);
         $this->assertResponseStatusCodeSame(422);
         $this->assertSame('users: At least one user or one group is required.
-actions: This collection should contain 1 element or more.', $response->toArray(false)['hydra:description']);
+actions: This collection should contain 1 element or more.', $response->toArray(false)['description']);
 
         $rendition = $this->findOneBy(RenditionDefinition::class, [
             'name' => 'preview',
@@ -138,7 +138,7 @@ actions: This collection should contain 1 element or more.', $response->toArray(
             ],
         ]);
         $this->assertResponseStatusCodeSame(201);
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@type' => 'asset-policy',
             'name' => 'Foo',

@@ -40,7 +40,7 @@ final class AddAsAssetVersionProcessor implements ProcessorInterface
      */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Asset
     {
-        $quarantined = DoctrineUtil::findStrict($this->em, Asset::class, $uriVariables['id']);
+        $quarantined = DoctrineUtil::findStrict($this->em, Asset::class, (string) $uriVariables['id']);
         $this->denyAccessUnlessGranted(AssetVoter::QUARANTINE_BYPASS, $quarantined);
 
         $target = DoctrineUtil::findStrict($this->em, Asset::class, $data->targetAssetId);

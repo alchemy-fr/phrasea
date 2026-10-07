@@ -14,6 +14,10 @@ export function createHttpClient(
         baseURL,
     }) as HttpClient;
 
+    // API Platform expects JSON Merge Patch for PATCH operations
+    client.defaults.headers.patch['Content-Type'] =
+        'application/merge-patch+json';
+
     client.interceptors.request.use(config => {
         // to avoid overwriting if another interceptor
         // already defined the same object (meta)

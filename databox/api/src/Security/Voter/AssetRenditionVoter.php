@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Entity\Core\AssetRendition;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Contracts\Cache\CacheInterface;
 
 class AssetRenditionVoter extends AbstractVoter
@@ -34,7 +35,7 @@ class AssetRenditionVoter extends AbstractVoter
     /**
      * @param AssetRendition $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         return $this->cache->get(sprintf('%s,%s,%s', $attribute, $subject->getId(), spl_object_id($token)), fn () => $this->doVote($attribute, $subject, $token));
     }

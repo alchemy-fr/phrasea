@@ -6,8 +6,9 @@ namespace App\Tests\Unit\Attribute\Type;
 
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\CollectionPathAttributeType;
+use PHPUnit\Framework\Attributes\DataProvider;
 
-class CollectionPathAttributeTypeTest extends AbstractAttributeTypeTest
+class CollectionPathAttributeTypeTest extends AbstractAttributeTypeTestCase
 {
     protected function getType(): AttributeTypeInterface
     {
@@ -15,14 +16,24 @@ class CollectionPathAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getValidationCases(): array
+    #[DataProvider('getValidationCases')]
+    public function testValidation($value, ?array $expected): void
     {
-        // Validation should not be called for this type
-        return [];
+        $this->expectException(\LogicException::class);
+        $this->getType()->validate($value);
     }
 
     #[\Override]
-    public function getConvertToDbValueCases(): array
+    public static function getValidationCases(): array
+    {
+        // Validation must never be called for this type
+        return [
+            'path' => ['/a/b', null],
+        ];
+    }
+
+    #[\Override]
+    public static function getConvertToDbValueCases(): array
     {
         return [
             ...parent::getConvertToDbValueCases(),
@@ -31,7 +42,7 @@ class CollectionPathAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getDenormalizationCases(): array
+    public static function getDenormalizationCases(): array
     {
         return [
             ...parent::getDenormalizationCases(),

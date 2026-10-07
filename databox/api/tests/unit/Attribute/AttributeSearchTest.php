@@ -16,14 +16,13 @@ use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use App\Elasticsearch\Mapping\FieldNameResolver;
 use App\Tests\Unit\Attribute\Type\AttributeTypeRegistryTestFactory;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 class AttributeSearchTest extends TestCase
 {
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testAttributeClustering(array $definitions, array $expectedClusters): void
     {
         $attributeTypeRegistry = AttributeTypeRegistryTestFactory::create();
@@ -44,7 +43,7 @@ class AttributeSearchTest extends TestCase
 
         $as = new AttributeSearch(
             $fieldNameResolver,
-            $this->createMock(EntityManagerInterface::class),
+            $this->createStub(EntityManagerInterface::class),
             $attributeTypeRegistry,
             $aqlParser,
             $aqlToESQuery,
@@ -66,7 +65,7 @@ class AttributeSearchTest extends TestCase
         $this->assertEquals($expectedClusters, $clusters);
     }
 
-    public function getCases(): array
+    public static function getCases(): array
     {
         $createField = (fn (bool $allowed, string $wsId, string $slug, ?int $boost = null, $type = TextAttributeType::NAME, bool $multiple = false, bool $translatable = false): array => [
             'allowed' => $allowed,

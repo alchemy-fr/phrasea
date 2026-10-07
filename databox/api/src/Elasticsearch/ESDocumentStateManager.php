@@ -9,7 +9,7 @@ use App\Api\Model\Output\ESDocumentStateOutput;
 use App\Util\ArrayUtil;
 use FOS\ElasticaBundle\Persister\ObjectPersister;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 final readonly class ESDocumentStateManager
 {
@@ -17,7 +17,7 @@ final readonly class ESDocumentStateManager
      * @param ObjectPersisterInterface[] $objectPersisters
      */
     public function __construct(
-        #[TaggedIterator(tag: 'fos_elastica.persister')]
+        #[AutowireIterator(tag: 'fos_elastica.persister')]
         private iterable $objectPersisters,
         private ElasticSearchClient $elasticSearchClient,
 

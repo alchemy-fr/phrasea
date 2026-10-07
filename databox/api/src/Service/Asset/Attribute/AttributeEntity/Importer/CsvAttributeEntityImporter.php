@@ -10,9 +10,11 @@ use App\Entity\Core\EntityList;
 use App\Repository\Core\AttributeEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Ramsey\Uuid\Nonstandard\Uuid;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+#[AsTaggedItem(index: 'csv')]
 final readonly class CsvAttributeEntityImporter implements AttributeEntityImporterInterface
 {
     final public const string TRANSLATION_PREFIX = 'translation_';

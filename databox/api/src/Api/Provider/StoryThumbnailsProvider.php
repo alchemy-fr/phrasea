@@ -30,7 +30,7 @@ class StoryThumbnailsProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $storyAsset = $this->assetRepository->find($uriVariables['id']);
+        $storyAsset = $this->assetRepository->find((string) $uriVariables['id']);
         if (!$storyAsset instanceof Asset) {
             return null;
         }
@@ -43,10 +43,9 @@ class StoryThumbnailsProvider implements ProviderInterface
         $userId = $user instanceof JwtUser ? $user->getId() : null;
         $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
 
-        $options = $context['filters'] ?? [];
-        $options['story'] = $storyAsset->getId();
-
-        [$result] = $this->assetSearch->search($userId, $groupIds, $options);
+        [$result] = $this->assetSearch->search($userId, $groupIds, [
+            'story' => $storyAsset->getId(),
+        ]);
         $thumbnails = [];
         foreach ($result as $asset) {
             $renditions = $this->renditionManager->getAssetRenditionsUsedAs('thumbnail', $asset->getId());

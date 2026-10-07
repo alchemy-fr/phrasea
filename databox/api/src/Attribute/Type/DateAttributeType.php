@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Attribute\Type;
 
 use App\Attribute\AttributeInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 class DateAttributeType extends DateTimeAttributeType
 {
     public const string NAME = 'date';

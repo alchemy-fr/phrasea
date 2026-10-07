@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\ConfiguratorBundle;
 
+use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\ConfiguratorBundle\Command\PushConfigToBucketCommand;
 use Alchemy\ConfiguratorBundle\Controller\ConfiguratorEntryCrudController;
 use Alchemy\ConfiguratorBundle\Documentation\AppConfigDocumentationGenerator;
@@ -114,13 +115,16 @@ class AlchemyConfiguratorBundle extends AbstractBundle
         $storage = $config['storage'];
         $s3ClientId = 'alchemy_configurator.s3_client';
 
-        $services->set(ConfiguratorEntryCrudController::class)->public();
+        // The admin CRUD (and its form type) needs alchemy/admin-bundle, which only the APIs install
+        if (class_exists(AbstractAdminCrudController::class)) {
+            $services->set(ConfiguratorEntryCrudController::class)->public();
+            $services->set(ConfigurationKeyType::class);
+        }
 
         $services->set(ConfiguratorEntryRepository::class);
         $services->set(PushConfigToBucketCommand::class);
         $services->set(ValidConfigurationEntryConstraintValidator::class);
         $services->set(JsonDumper::class);
-        $services->set(ConfigurationKeyType::class);
         $services->set(ConfigurationReference::class);
         $services->set(GlobalConfigurationSchema::class)
             ->tag(SchemaProviderInterface::TAG)

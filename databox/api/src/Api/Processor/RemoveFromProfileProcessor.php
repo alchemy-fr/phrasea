@@ -6,7 +6,7 @@ namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
-use ApiPlatform\Api\IriConverterInterface;
+use ApiPlatform\Metadata\IriConverterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\RemoveFromProfileInput;
@@ -31,7 +31,7 @@ class RemoveFromProfileProcessor implements ProcessorInterface
      */
     public function process($data, Operation $operation, array $uriVariables = [], array $context = []): Profile
     {
-        $id = $uriVariables['id'];
+        $id = (string) $uriVariables['id'];
         $profile = DoctrineUtil::findStrictByRepo($this->repository, $id);
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $profile);
 

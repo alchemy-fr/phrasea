@@ -10,6 +10,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * POST /assets and POST /assets/multiple.
@@ -217,8 +218,6 @@ final class AssetCreateTest extends AbstractDataboxTestCase
 
     public function testNameIsLimitedTo255Characters(): void
     {
-        $this->markTestIncomplete('BUG: the constraints of AssetInput (Length(max: 255) on name, NotNull on workspace) are never validated: only the Asset entity built by AssetInputTransformer is, so a 256 chars name is accepted (src/Api/Model/Input/AssetInput.php:20).');
-
         $workspace = $this->createOwnedWorkspace();
 
         $this->request('POST', '/assets', self::OWNER, [
@@ -240,9 +239,7 @@ final class AssetCreateTest extends AbstractDataboxTestCase
         yield 'none' => [[], WorkspaceItemPrivacyInterface::SECRET];
     }
 
-    /**
-     * @dataProvider privacyProvider
-     */
+    #[DataProvider('privacyProvider')]
     public function testWorkspaceOwnerSetsThePrivacy(array $payload, int $expectedPrivacy): void
     {
         $workspace = $this->createOwnedWorkspace();

@@ -81,40 +81,39 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "ext-json": "*",
-        "alchemy/acl-bundle": "^1.2",
-        "api-platform/core": "^3.1",
+        "alchemy/acl-bundle": "^1.5.0",
+        "api-platform/core": "^5.0",
         "composer/package-versions-deprecated": "1.11.99.3",
-        "doctrine/annotations": "^2.0",
         "doctrine/common": "^3.4.3",
-        "doctrine/dbal": "^3.6",
-        "doctrine/doctrine-bundle": "^2.9",
-        "doctrine/doctrine-migrations-bundle": "^3",
-        "doctrine/orm": "^2",
+        "doctrine/dbal": "^4.0",
+        "doctrine/doctrine-bundle": "^3.0",
+        "doctrine/doctrine-migrations-bundle": "^4.0",
+        "doctrine/orm": "^3.3",
         "exercise/htmlpurifier-bundle": "^5.2",
-        "hautelook/alice-bundle": "^2.10",
+        "hautelook/alice-bundle": "^2.17",
         "lcobucci/clock": "^3.2",
         "nelmio/cors-bundle": "^2.1",
         "phpdocumentor/reflection-docblock": "^5.2",
         "predis/predis": "^1.1",
         "pusher/pusher-php-server": "^7.2.4",
-        "ramsey/uuid-doctrine": "^1.5",
+        "ramsey/uuid-doctrine": "^2.0",
         "stof/doctrine-extensions-bundle": "^1.15",
-        "symfony/amqp-messenger": "^7.4",
-        "symfony/asset": "^7.4",
-        "symfony/console": "^7.4",
-        "symfony/dotenv": "^7.4",
-        "symfony/expression-language": "^7.4",
+        "symfony/amqp-messenger": "^8.1",
+        "symfony/asset": "^8.1",
+        "symfony/console": "^8.1",
+        "symfony/dotenv": "^8.1",
+        "symfony/expression-language": "^8.1",
         "symfony/flex": "^2.10",
-        "symfony/framework-bundle": "^7.4",
-        "symfony/property-access": "^7.4",
-        "symfony/property-info": "^7.4",
-        "symfony/psr-http-message-bridge": "^7.4",
-        "symfony/runtime": "^7.4",
-        "symfony/security-bundle": "^7.4",
-        "symfony/serializer": "^7.4",
-        "symfony/twig-bundle": "^7.4",
-        "symfony/validator": "^7.4",
-        "symfony/yaml": "^7.4",
+        "symfony/framework-bundle": "^8.1",
+        "symfony/property-access": "^8.1",
+        "symfony/property-info": "^8.1",
+        "symfony/psr-http-message-bridge": "^8.1",
+        "symfony/runtime": "^8.1",
+        "symfony/security-bundle": "^8.1",
+        "symfony/serializer": "^8.1",
+        "symfony/twig-bundle": "^8.1",
+        "symfony/validator": "^8.1",
+        "symfony/yaml": "^8.1",
         "easycorp/easyadmin-bundle": "^5.0.13",
         "php-amqplib/php-amqplib": "^3.7",
         "symfony/ux-twig-component": "^2.36.0",
@@ -122,35 +121,37 @@
         "ramsey/uuid": "^4.2.3",
         "oneup/flysystem-bundle": "^4.4",
         "league/flysystem-aws-s3-v3": "^3.0",
-        "symfony/mime": "^6|^7",
+        "symfony/mime": "^7.4 || ^8.0",
         "lcobucci/jwt": "^5.0",
-        "symfony/http-client": "^7",
-        "symfony/messenger": "^7.4",
-        "symfony/doctrine-messenger": "^7.4",
+        "symfony/http-client": "^7.4 || ^8.0",
+        "symfony/messenger": "^7.4 || ^8.0",
+        "symfony/doctrine-messenger": "^7.4 || ^8.0",
         "opis/json-schema": "^1.0",
-        "symfony/string": "^4.0 || ^5 || ^6 || ^7",
+        "symfony/string": "^7.4 || ^8.0",
+        "symfony/http-client-contracts": "^3.0",
         "symfony/monolog-bundle": "^4.0",
         "sentry/sentry-symfony": "^5.10",
-        "symfony/clock": "^7.4",
-        "symfony/mailer": "^7.4",
-        "symfony/notifier": "^7.4",
-        "symfony/translation": "^7.4"
+        "phpunit/phpunit": "^11.5",
+        "symfony/clock": "^7.4 || ^8.0",
+        "symfony/mailer": "^7.4 || ^8.0",
+        "symfony/notifier": "^7.4 || ^8.0",
+        "symfony/translation": "^7.4 || ^8.0"
     },
     "require-dev": {
         "alchemy/api-test": "@dev",
         "friendsofphp/php-cs-fixer": "^3.17",
         "php-parallel-lint/php-var-dump-check": "v0.5",
         "phpstan/phpstan": "^2.1.33",
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "^11.5",
         "rector/rector": "^2.3.0",
-        "symfony/browser-kit": "^7.4",
-        "symfony/css-selector": "^7.4",
-        "symfony/debug-bundle": "^7.4",
+        "symfony/browser-kit": "^8.1",
+        "symfony/css-selector": "^8.1",
+        "symfony/debug-bundle": "^8.1",
         "symfony/monolog-bundle": "^4.0",
-        "symfony/phpunit-bridge": "^7.4",
-        "symfony/stopwatch": "^7.4",
-        "symfony/var-dumper": "^7.4",
-        "symfony/web-profiler-bundle": "^7.4"
+        "symfony/phpunit-bridge": "^8.1",
+        "symfony/stopwatch": "^8.1",
+        "symfony/var-dumper": "^8.1",
+        "symfony/web-profiler-bundle": "^8.1"
     },
     "config": {
         "preferred-install": {
@@ -170,7 +171,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "App\\Tests\\": "tests/"
+            "App\\Tests\\Functional\\": "tests/functional/"
         }
     },
     "replace": {
@@ -207,11 +208,26 @@
         ],
         "phpunit:compact": [
             "@pre-phpunit",
-            "php -d memory_limit=1024M ./bin/phpunit --printer 'Alchemy\\ApiTest\\PHPUnit\\CompactResultPrinter'"
+            "php -d memory_limit=1024M ./bin/phpunit --extension 'Alchemy\\ApiTest\\PHPUnit\\CompactResultExtension'"
+        ],
+        "var-dump-check": "vendor/bin/var-dump-check --symfony src",
+        "cs:check": "vendor/bin/php-cs-fixer fix --dry-run --diff",
+        "lint": [
+            "@var-dump-check",
+            "@phpstan",
+            "@cs:check"
+        ],
+        "phpunit:unit": "echo 'expose/api: no unit suite yet (see phpunit.xml.dist)'",
+        "phpunit:functional": [
+            "@pre-phpunit",
+            "php -d memory_limit=1024M ./bin/phpunit --testsuite functional"
+        ],
+        "test:quick": [
+            "@lint",
+            "@phpunit:unit"
         ],
         "test": [
-            "vendor/bin/var-dump-check --symfony src",
-            "@phpstan",
+            "@lint",
             "@phpunit"
         ]
     },
@@ -221,7 +237,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "^7.4"
+            "require": "^8.1"
         }
     }
 }

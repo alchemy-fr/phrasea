@@ -108,11 +108,15 @@ dc run --rm databox-api-php composer phpunit:compact   # same, agent-friendly ou
 ```
 
 **Prefer `composer phpunit:compact`** (databox, expose, uploader): same run as
-`composer phpunit` but with `Alchemy\ApiTest\PHPUnit\CompactResultPrinter` — no
-per-test dot progress, full error/failure traces, and a final one-line-per-defect
-recap, so even `| tail -50` shows the counts and every failing test name. For a
-direct `bin/phpunit` call, add
-`--printer 'Alchemy\ApiTest\PHPUnit\CompactResultPrinter'`.
+`composer phpunit` but with the `Alchemy\ApiTest\PHPUnit\CompactResultExtension`
+PHPUnit extension — no per-test dot progress, full error/failure traces, and a
+final one-line-per-defect recap, so even `| tail -50` shows the counts and every
+failing test name. For a direct `bin/phpunit` call, add
+`--extension 'Alchemy\ApiTest\PHPUnit\CompactResultExtension'`.
+
+PHPUnit is 11.5: data providers are `public static` methods referenced with
+`#[DataProvider('name')]` (no `@dataProvider` annotation), and abstract test base
+classes are named `*TestCase` (PHPUnit warns about abstract `*Test` classes).
 
 **PHPUnit needs 1G of memory.** The `composer phpunit` scripts already pass
 `-d memory_limit=1024M`; when calling `bin/phpunit` directly, pass it yourself —
@@ -150,6 +154,8 @@ The canonical project lists (used by the whole-repo scripts) live in `bin/vars.s
 ## Architecture notes
 
 - **API pattern:** Doctrine entities in `src/Entity`, exposed as API Platform resources; async processing via Messenger consumers (`src/Consumer`) reading from RabbitMQ; search backed by Elasticsearch through `es-bundle`/FOS Elastica. Files and renditions go through `storage-bundle` and `rendition-factory`.
+- **Stack versions:** Symfony 8.1, API Platform 5, Doctrine ORM 3 / DBAL 4, PHPUnit 11.5. Doctrine mapping is attribute-only (no YAML/XML driver), including in `lib/php/*` bundles.
+- **databox API DTOs:** databox runs API Platform with `use_symfony_listeners: false` (expose and uploader keep the Symfony listeners). Input DTOs become entities in `src/Api/Mapper/Input/*InputMapper`, applied by `InputMapperProcessor` set on each write operation; checks on the resulting entity go in `extraProperties` (`InputMapperProcessor::ENTITY_SECURITY`, `ENTITY_SECURITY_POST_VALIDATION`), since `securityPostDenormalize` would see the DTO. Entities become output DTOs in `src/Api/Mapper/Output/*OutputMapper`, applied in every format (plain JSON included) by `OutputMapperProcessor` (root) and `EmbeddedOutputNormalizer` (nested). There are no Input/OutputTransformers any more.
 - **Shared code first:** cross-app concerns (auth, config, storage, notifications, reporting, workflow) live in `lib/php/*` bundles and `lib/js/*` packages rather than being duplicated per app. When a behavior spans multiple apps, the change usually belongs in a lib, not in one app.
 - **Auth** is centralized (Keycloak-based; see `lib/php/auth-bundle`, `lib/js/auth`, and `doc/tech/Authentication/`).
 - **databox client search** uses AQL, parsed client-side by `databox/client/src/features/search/aql/parser.ts` and server-side by the PEG grammar in `databox/api/src/Elasticsearch/AQL/` (see `doc/tech/Databox/aql.md`); keep both in sync.
