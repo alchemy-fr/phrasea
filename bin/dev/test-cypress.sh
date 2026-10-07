@@ -11,6 +11,11 @@ set -ex
 
 load-env
 
+# The cypress image is built with `network: host`. Compose drives Bake with
+# --progress=rawjson and cannot grant it the network.host entitlement, which
+# buildx >= 0.37.2 then rejects: use the Compose builder instead.
+export COMPOSE_BAKE=false
+
 docker compose build cypress &
 docker compose up -d --wait expose-api-php --wait-timeout 200 &
 docker compose up -d --wait databox-client databox-api-php soketi --wait-timeout 200 &
