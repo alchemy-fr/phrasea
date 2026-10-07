@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "91965eed68838a2b47013f317b485d0d",
+    "content-hash": "5ba1ddf23e182052e5b4ee429c358a60",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -1374,49 +1374,50 @@
         },
         {
             "name": "arthem/object-reference-bundle",
-            "version": "dev-symfony-8",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/4rthem/object-reference-bundle.git",
-                "reference": "2e449b1b97e5d9f10f56c2ee90f17be8f2a95c7b"
+                "reference": "c8704b6e1c57c6aabcbcb1b5fd18c5331fa76758"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/4rthem/object-reference-bundle/zipball/2e449b1b97e5d9f10f56c2ee90f17be8f2a95c7b",
-                "reference": "2e449b1b97e5d9f10f56c2ee90f17be8f2a95c7b",
+                "url": "https://api.github.com/repos/4rthem/object-reference-bundle/zipball/c8704b6e1c57c6aabcbcb1b5fd18c5331fa76758",
+                "reference": "c8704b6e1c57c6aabcbcb1b5fd18c5331fa76758",
                 "shasum": ""
             },
             "require": {
                 "doctrine/doctrine-bundle": "^2.9 || ^3",
-                "doctrine/orm": "^2.5 || ^3",
+                "doctrine/orm": "^2.16 || ^3",
                 "php": "^8.5",
                 "symfony/framework-bundle": "^6.4 || ^7.0 || ^8.0"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^v3.58.1",
                 "phpunit/phpunit": "^11.1.3",
-                "ramsey/uuid": "^4.7"
+                "ramsey/uuid": "^4.7",
+                "symfony/cache": "^6.4 || ^7.0 || ^8.0"
             },
             "type": "symfony-bundle",
             "autoload": {
                 "psr-4": {
-                    "Arthem\\ObjectReferenceBundle\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
+                    "Arthem\\ObjectReferenceBundle\\": "src/"
+                }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Alchemy\\Bundle\\ObjectReferenceBundle\\Tests\\": "/Tests/"
+                    "Arthem\\ObjectReferenceBundle\\Tests\\": "tests/"
                 }
             },
             "scripts": {
                 "test": [
-                    "./vendor/bin/phpunit"
+                    "vendor/bin/phpunit"
                 ],
                 "cs": [
                     "vendor/bin/php-cs-fixer fix"
+                ],
+                "cs-check": [
+                    "vendor/bin/php-cs-fixer fix --dry-run --diff"
                 ]
             },
             "license": [
@@ -1424,10 +1425,10 @@
             ],
             "description": "Object reference bundle",
             "support": {
-                "source": "https://github.com/4rthem/object-reference-bundle/tree/symfony-8",
+                "source": "https://github.com/4rthem/object-reference-bundle/tree/1.1.1",
                 "issues": "https://github.com/4rthem/object-reference-bundle/issues"
             },
-            "time": "2026-10-06T06:07:55+00:00"
+            "time": "2026-10-07T21:08:11+00:00"
         },
         {
             "name": "aws/aws-crt-php",
@@ -18552,12 +18553,6 @@
             "version": "dev-symfony-8",
             "alias": "2.1.0",
             "alias_normalized": "2.1.0.0"
-        },
-        {
-            "package": "arthem/object-reference-bundle",
-            "version": "dev-symfony-8",
-            "alias": "1.0.0",
-            "alias_normalized": "1.0.0.0"
         }
     ],
     "minimum-stability": "dev",
@@ -18577,8 +18572,7 @@
         "alchemy/track-bundle": 20,
         "alchemy/webhook-bundle": 20,
         "alchemy/workflow-bundle": 20,
-        "alchemy/zippy": 20,
-        "arthem/object-reference-bundle": 20
+        "alchemy/zippy": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

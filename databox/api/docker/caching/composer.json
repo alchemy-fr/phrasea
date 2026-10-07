@@ -158,7 +158,7 @@
         "alchemy/phpexiftool": "dev-symfony-8 as 4.3.0",
         "alchemy/zippy": "dev-symfony-8 as 2.1.0",
         "api-platform/core": "^5.0",
-        "arthem/object-reference-bundle": "dev-symfony-8 as 1.0.0",
+        "arthem/object-reference-bundle": "^1.1.1",
         "cocur/slugify": "^4.1",
         "composer/package-versions-deprecated": "^1.11",
         "doctrine/dbal": "^4.0",
