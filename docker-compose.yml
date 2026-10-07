@@ -1189,7 +1189,6 @@ services:
     logging: *default-logging
     build:
       context: ./cypress
-      network: host
     profiles:
       - cypress
     deploy:

@@ -11,15 +11,14 @@ set -ex
 
 load-env
 
-# The cypress image is built with `network: host`. Compose drives Bake with
-# --progress=rawjson and cannot grant it the network.host entitlement, which
-# buildx >= 0.37.2 then rejects: use the Compose builder instead.
-export COMPOSE_BAKE=false
-
-docker compose build cypress &
-docker compose up -d --wait expose-api-php --wait-timeout 200 &
-docker compose up -d --wait databox-client databox-api-php soketi --wait-timeout 200 &
-wait
+pids=()
+docker compose build cypress & pids+=($!)
+docker compose up -d --wait expose-api-php --wait-timeout 200 & pids+=($!)
+docker compose up -d --wait databox-client databox-api-php soketi --wait-timeout 200 & pids+=($!)
+# A bare `wait` always returns 0: wait for each job to propagate its failure.
+for pid in "${pids[@]}"; do
+    wait "$pid"
+done
 
 # The expose specs rely on the "test-pub" publication of expose/api/fixtures/Tests.yaml
 docker compose exec -T expose-api-php bin/console hautelook:fixtures:load -n
