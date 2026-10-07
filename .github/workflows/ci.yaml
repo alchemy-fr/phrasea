@@ -39,6 +39,8 @@ env:
   VERIFY_SSL: "false"
   COMPOSE_PROFILES: databox,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard,soketi
   FIXTURES_GENERATE_IMAGES: "true"
+  # The S3 minimum part size, so that the e2e uploads span several parts
+  S3_MULTIPART_MIN_CHUNK_SIZE: '5242880'
   CYPRESS_CPU_LIMIT: '4'
   CYPRESS_MEMORY_LIMIT: '16G'
 
