@@ -58,7 +58,7 @@ final class AttributeFilterRuleApiTest extends AbstractDataboxTestCase
         $response = $this->api('GET', '/attribute-filter-rules', $userId, options: ['query' => $query]);
         $this->assertResponseStatusCodeSame(200);
 
-        return array_column($response->toArray()['hydra:member'], 'id');
+        return array_column($response->toArray()['member'], 'id');
     }
 
     public function testAnonymousIsDenied(): void
@@ -171,6 +171,8 @@ final class AttributeFilterRuleApiTest extends AbstractDataboxTestCase
 
         $this->assertEqualsCanonicalizing([$rule->getId(), $otherRule->getId()], $this->listIds(self::USER));
         $this->assertSame([$otherRule->getId()], $this->listIds(self::USER, ['workspaceId' => $otherWorkspace->getId()]));
+        $this->assertSame([$otherRule->getId()], $this->listIds(self::USER, ['workspaceId' => '/workspaces/'.$otherWorkspace->getId()]));
+        $this->assertSame([$otherRule->getId()], $this->listIds(self::USER, ['workspaceId' => [$otherWorkspace->getId(), $this->workspace->getId()]]));
     }
 
     public function testListIsRestrictedToEditableWorkspaces(): void
@@ -193,7 +195,7 @@ final class AttributeFilterRuleApiTest extends AbstractDataboxTestCase
         $newCondition = sprintf('@tag != "%s"', $this->findOrCreateTagByName('foo', $this->workspace)->getId());
 
         // Omitted targets are kept
-        $this->api('PUT', $iri, self::USER, ['condition' => $newCondition]);
+        $this->api('PATCH', $iri, self::USER, ['condition' => $newCondition]);
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonContains([
             'condition' => $newCondition,
@@ -201,7 +203,7 @@ final class AttributeFilterRuleApiTest extends AbstractDataboxTestCase
         ]);
 
         // Sent targets replace the previous ones
-        $response = $this->api('PUT', $iri, self::USER, ['userIds' => [self::ADMIN]]);
+        $response = $this->api('PATCH', $iri, self::USER, ['userIds' => [self::ADMIN]]);
         $this->assertResponseStatusCodeSame(200);
         $data = $response->toArray();
         $this->assertSame([self::ADMIN], array_column($data['users'], 'id'));
@@ -215,7 +217,7 @@ final class AttributeFilterRuleApiTest extends AbstractDataboxTestCase
         $rule = $this->createRule();
         $iri = '/attribute-filter-rules/'.$rule->getId();
 
-        $this->api('PUT', $iri, self::OTHER, ['userIds' => []]);
+        $this->api('PATCH', $iri, self::OTHER, ['userIds' => []]);
         $this->assertResponseStatusCodeSame(403);
         $this->api('DELETE', $iri, self::OTHER);
         $this->assertResponseStatusCodeSame(403);
@@ -232,7 +234,7 @@ final class AttributeFilterRuleApiTest extends AbstractDataboxTestCase
         $rule = $this->createRule();
         $foreignWorkspace = $this->createOtherWorkspace();
 
-        $this->api('PUT', '/attribute-filter-rules/'.$rule->getId(), self::USER, [
+        $this->api('PATCH', '/attribute-filter-rules/'.$rule->getId(), self::USER, [
             'workspaceId' => $foreignWorkspace->getId(),
         ]);
         $this->assertResponseStatusCodeSame(403);

@@ -7,6 +7,7 @@ namespace App\Tests\Unit\Integration\Auth;
 use App\Entity\Integration\IntegrationToken;
 use App\Integration\Auth\IntegrationTokenManager;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -30,7 +31,7 @@ class IntegrationTokenManagerTest extends TestCase
 
     public function testGetAccessTokenRenewsOnlyWhenAccessTokenIsExpired(): void
     {
-        $em = $this->createMock(EntityManagerInterface::class);
+        $em = $this->createStub(EntityManagerInterface::class);
         $manager = new IntegrationTokenManager($em);
 
         $valid = $this->createToken(accessExpiresIn: 3600);
@@ -73,9 +74,7 @@ class IntegrationTokenManagerTest extends TestCase
         $this->assertFalse($renewed->isAccessTokenExpired());
     }
 
-    /**
-     * @dataProvider revokedStatusProvider
-     */
+    #[DataProvider('revokedStatusProvider')]
     public function testRevokedRefreshTokenIsRemoved(int $status): void
     {
         $em = $this->createMock(EntityManagerInterface::class);
@@ -101,7 +100,7 @@ class IntegrationTokenManagerTest extends TestCase
         $manager->renewToken($token, fn () => throw $exception);
     }
 
-    public function revokedStatusProvider(): array
+    public static function revokedStatusProvider(): array
     {
         return [[400], [401]];
     }

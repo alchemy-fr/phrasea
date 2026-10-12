@@ -129,7 +129,7 @@ describe('Drag & drop', () => {
         expectToastText('1 item added to basket');
         cy.get(`[data-testid=basket-item][data-basket-id="${basket.id}"]`).should('contain', '1');
         apiRequest({path: `/baskets/${basket.id}/assets`}).then(body => {
-            expect((body['hydra:member'] ?? []).map(i => i.asset.name)).to.deep.equal(['Bravo']);
+            expect((body.member ?? []).map(i => i.asset.name)).to.deep.equal(['Bravo']);
         });
     });
 

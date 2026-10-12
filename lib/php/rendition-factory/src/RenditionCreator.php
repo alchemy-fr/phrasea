@@ -15,7 +15,7 @@ use Alchemy\RenditionFactory\DTO\OutputFileInterface;
 use Alchemy\RenditionFactory\Exception\NoBuildConfigException;
 use Alchemy\RenditionFactory\Transformer\BuildHashDiffInterface;
 use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
-use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 final class RenditionCreator
@@ -27,7 +27,7 @@ final class RenditionCreator
         private readonly TransformationContextFactory $contextFactory,
         private readonly FileFamilyGuesser $fileFamilyGuesser,
         /** @var TransformerModuleInterface[] */
-        #[TaggedLocator(TransformerModuleInterface::TAG, defaultIndexMethod: 'getName')]
+        #[AutowireLocator(TransformerModuleInterface::TAG)]
         private readonly ServiceLocator $transformers,
     ) {
     }

@@ -59,8 +59,12 @@ services:
         abstract: true
         autoconfigure: false
 
+    App\Serializer\ItemNormalizerDecorator:
+        abstract: true
+        autoconfigure: false
+
     app.serializer.decorated_item:
-        class: App\Serializer\NormalizerDecorator
+        class: App\Serializer\ItemNormalizerDecorator
         decorates: 'api_platform.serializer.normalizer.item'
         arguments: [ '@app.serializer.decorated_item.inner' ]
         tags:

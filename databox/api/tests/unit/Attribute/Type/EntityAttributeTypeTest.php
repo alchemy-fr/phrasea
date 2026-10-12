@@ -10,7 +10,7 @@ use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeEntityRepository;
 
-class EntityAttributeTypeTest extends AbstractAttributeTypeTest
+class EntityAttributeTypeTest extends AbstractAttributeTypeTestCase
 {
     private AttributeEntityRepository $repository;
 
@@ -25,7 +25,7 @@ class EntityAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getDenormalizationCases(): array
+    public static function getDenormalizationCases(): array
     {
         return [
             ...parent::getDenormalizationCases(),
@@ -35,7 +35,7 @@ class EntityAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getElasticsearchNormalizationCases(): array
+    public static function getElasticsearchNormalizationCases(): array
     {
         return [
             ...parent::getElasticsearchNormalizationCases(),
@@ -45,7 +45,7 @@ class EntityAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getValidationCases(): array
+    public static function getValidationCases(): array
     {
         return [
             ...parent::getValidationCases(),

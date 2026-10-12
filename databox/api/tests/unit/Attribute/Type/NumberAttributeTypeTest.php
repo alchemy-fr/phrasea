@@ -7,7 +7,7 @@ namespace App\Tests\Unit\Attribute\Type;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\NumberAttributeType;
 
-class NumberAttributeTypeTest extends AbstractAttributeTypeTest
+class NumberAttributeTypeTest extends AbstractAttributeTypeTestCase
 {
     protected function getType(): AttributeTypeInterface
     {
@@ -15,7 +15,7 @@ class NumberAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getValidationCases(): array
+    public static function getValidationCases(): array
     {
         return [
             ...parent::getValidationCases(),
@@ -49,7 +49,7 @@ class NumberAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getNormalizationCases(): array
+    public static function getNormalizationCases(): array
     {
         return [
             ...parent::getNormalizationCases(),
@@ -66,7 +66,7 @@ class NumberAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getConvertToDbValueCases(): array
+    public static function getConvertToDbValueCases(): array
     {
         return [
             ...parent::getConvertToDbValueCases(),
@@ -80,7 +80,7 @@ class NumberAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getDenormalizationCases(): array
+    public static function getDenormalizationCases(): array
     {
         return [
             ...parent::getDenormalizationCases(),
@@ -97,7 +97,7 @@ class NumberAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getElasticsearchNormalizationCases(): array
+    public static function getElasticsearchNormalizationCases(): array
     {
         return [
             [null, null],

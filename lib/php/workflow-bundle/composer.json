@@ -16,9 +16,11 @@
     ],
     "require": {
         "php": "^8.5",
-        "symfony/framework-bundle": "^7.4",
+        "doctrine/doctrine-bundle": "^3.0",
+        "doctrine/orm": "^3.3",
+        "symfony/framework-bundle": "^7.4 || ^8.0",
         "symfony/monolog-bundle": "^4.0.2",
-        "symfony/config": "^7.4",
+        "symfony/config": "^7.4 || ^8.0",
         "ramsey/uuid": "^4.2",
         "alchemy/workflow": "@dev"
     },
@@ -48,7 +50,7 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.17",
         "php-parallel-lint/php-var-dump-check": "v0.5",
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "^11.5",
         "rector/rector": "^2.3.0"
     }
 }

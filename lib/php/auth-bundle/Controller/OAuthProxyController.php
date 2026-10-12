@@ -6,6 +6,7 @@ namespace Alchemy\AuthBundle\Controller;
 
 use Alchemy\AuthBundle\Client\KeycloakUrlGenerator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -16,6 +17,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 class OAuthProxyController extends AbstractController
 {
     public function __construct(
+        #[Target]
         private HttpClientInterface $keycloakClient,
         private KeycloakUrlGenerator $urlGenerator,
     ) {
@@ -37,9 +39,9 @@ class OAuthProxyController extends AbstractController
     public function authorizeAction(Request $request): Response
     {
         return $this->redirect($this->urlGenerator->getAuthorizeUrl(
-            $request->get('client_id', ''),
-            $request->get('redirect_uri', ''),
-            $request->get('state', '')
+            $request->query->get('client_id', ''),
+            $request->query->get('redirect_uri', ''),
+            $request->query->get('state', '')
         ));
     }
 }

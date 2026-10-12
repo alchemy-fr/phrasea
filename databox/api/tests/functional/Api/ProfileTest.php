@@ -27,7 +27,7 @@ class ProfileTest extends AbstractDataboxTestCase
 
         $this->assertResponseStatusCodeSame(201);
         $id = $response->toArray()['id'];
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json');
         $this->assertJsonContains([
             '@type' => 'profile',
             'name' => 'Foo',
@@ -35,8 +35,9 @@ class ProfileTest extends AbstractDataboxTestCase
         ]);
         $this->assertMatchesResourceItemJsonSchema(Profile::class);
 
-        $client->request('PUT', '/profiles/'.$id, [
+        $client->request('PATCH', '/profiles/'.$id, [
             'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [

@@ -11,7 +11,9 @@ use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'happyscribe')]
 class HappyscribeIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
     final public const array ALLOWED_EXTENSIONS = ['srt', 'txt', 'json', 'vtt', 'docx', 'pdf', 'html'];

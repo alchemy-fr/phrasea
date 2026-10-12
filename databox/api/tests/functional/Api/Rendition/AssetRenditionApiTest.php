@@ -75,7 +75,7 @@ YAML;
 
         $response = $this->jsonRequest('GET', '/renditions', self::EDITOR, options: ['query' => ['assetId' => $asset->getId()]]);
         $this->assertResponseIsSuccessful();
-        $members = $response->toArray()['hydra:member'];
+        $members = $response->toArray()['member'];
         $this->assertSame([$highRendition->getId(), $lowRendition->getId()], array_column($members, 'id'));
 
         $this->assertSame('high', $members[0]['name']);
@@ -235,7 +235,7 @@ YAML;
             'sourceFile' => self::sourceFile(),
         ]);
         $this->assertResponseStatusCodeSame(422);
-        $this->assertStringContainsString('same workspace', $response->toArray(false)['hydra:description']);
+        $this->assertStringContainsString('same workspace', $response->toArray(false)['description']);
     }
 
     public function testUploadWithAnUnknownDefinitionNameIsABadRequest(): void
@@ -329,10 +329,10 @@ YAML;
         $rendition = $this->createAssetRendition($asset, $defaults->renditionDefinitions['preview'], $this->createUrlFile($ws));
         $iri = '/renditions/'.$rendition->getId();
 
-        $this->jsonRequest('PUT', $iri, self::READER, ['sourceFile' => self::sourceFile('https://cdn.example.com/put.jpg')]);
+        $this->jsonRequest('PATCH', $iri, self::READER, ['sourceFile' => self::sourceFile('https://cdn.example.com/put.jpg')]);
         $this->assertResponseStatusCodeSame(403);
 
-        $response = $this->jsonRequest('PUT', $iri, self::EDITOR, [
+        $response = $this->jsonRequest('PATCH', $iri, self::EDITOR, [
             'substituted' => true,
             'sourceFile' => self::sourceFile('https://cdn.example.com/put.jpg'),
         ]);

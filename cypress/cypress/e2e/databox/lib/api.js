@@ -401,7 +401,7 @@ export function searchAssets(qs) {
 
 export function waitForIndexed(qs, expectedCount, options = {}) {
     return cy.waitUntil(
-        () => searchAssets(qs).then(body => body['hydra:totalItems'] >= expectedCount),
+        () => searchAssets(qs).then(body => body.totalItems >= expectedCount),
         {timeout: 90000, message: `${expectedCount} indexed asset(s) for ${JSON.stringify(qs)}`, ...options}
     );
 }
@@ -414,7 +414,7 @@ export function waitForBasketListed(name) {
     return cy.waitUntil(
         () =>
             apiRequest({path: '/baskets'}).then(body =>
-                (body['hydra:member'] ?? []).some(b => b.name === name)
+                (body.member ?? []).some(b => b.name === name)
             ),
         {timeout: 60000, message: `basket "${name}" indexed`}
     );

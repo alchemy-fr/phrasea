@@ -47,7 +47,7 @@ final class AttributePolicyTest extends AbstractDataboxTestCase
 
         // Every workspace comes with a "Public" policy (see WorkspaceCreator), ignored here
         return array_values(array_filter(
-            array_column($response->toArray()['hydra:member'], 'name'),
+            array_column($response->toArray()['member'], 'name'),
             fn (string $name): bool => 'Public' !== $name,
         ));
     }
@@ -63,7 +63,7 @@ final class AttributePolicyTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(401);
         $this->api('POST', '/attribute-policies', null, $this->policyPayload());
         $this->assertResponseStatusCodeSame(401);
-        $this->api('PUT', '/attribute-policies/'.$policy->getId(), null, ['name' => 'Anonymous']);
+        $this->api('PATCH', '/attribute-policies/'.$policy->getId(), null, ['name' => 'Anonymous']);
         $this->assertResponseStatusCodeSame(401);
         $this->api('DELETE', '/attribute-policies/'.$policy->getId());
         $this->assertResponseStatusCodeSame(401);
@@ -161,7 +161,7 @@ final class AttributePolicyTest extends AbstractDataboxTestCase
         unset($payload['workspace']);
         $this->api('POST', '/attribute-policies', self::USER, $payload);
         $this->assertResponseStatusCodeSame(400);
-        $this->assertJsonContains(['hydra:description' => 'Missing workspace']);
+        $this->assertJsonContains(['description' => 'Missing workspace']);
 
         $this->api('POST', '/attribute-policies', self::USER, $this->policyPayload(['name' => null]));
         $this->assertResponseStatusCodeSame(422);
@@ -209,7 +209,7 @@ final class AttributePolicyTest extends AbstractDataboxTestCase
         $policy = $this->createAttributePolicy(['name' => 'Restricted', 'public' => true, 'editable' => true]);
         $iri = '/attribute-policies/'.$policy->getId();
 
-        $this->api('PUT', $iri, self::USER, ['name' => 'Locked', 'editable' => false]);
+        $this->api('PATCH', $iri, self::USER, ['name' => 'Locked', 'editable' => false]);
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonContains(['name' => 'Locked', 'public' => true, 'editable' => false]);
 
@@ -224,7 +224,7 @@ final class AttributePolicyTest extends AbstractDataboxTestCase
         $policy = $this->createAttributePolicy(['name' => 'Restricted']);
         $otherWorkspace = $this->createOtherWorkspace(['ownerId' => self::USER]);
 
-        $this->api('PUT', '/attribute-policies/'.$policy->getId(), self::USER, [
+        $this->api('PATCH', '/attribute-policies/'.$policy->getId(), self::USER, [
             'workspace' => '/workspaces/'.$otherWorkspace->getId(),
         ]);
         $this->assertResponseIsSuccessful();
@@ -239,7 +239,7 @@ final class AttributePolicyTest extends AbstractDataboxTestCase
         $policy = $this->createAttributePolicy(['name' => 'Restricted']);
         $iri = '/attribute-policies/'.$policy->getId();
 
-        $this->api('PUT', $iri, self::OTHER, ['name' => 'Hacked']);
+        $this->api('PATCH', $iri, self::OTHER, ['name' => 'Hacked']);
         $this->assertResponseStatusCodeSame(403);
         $this->api('PATCH', $iri, self::OTHER, ['name' => 'Hacked']);
         $this->assertResponseStatusCodeSame(403);

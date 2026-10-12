@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Target;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
 class TargetVoter extends Voter
@@ -27,7 +28,7 @@ class TargetVoter extends Voter
     /**
      * @param Target $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if ($this->security->isGranted(JwtUser::ROLE_ADMIN)) {
             return true;

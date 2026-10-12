@@ -21,7 +21,7 @@ final class ShareCollectionProvider extends AbstractAssetFilteredCollectionProvi
         array $context = [],
     ): array {
 
-        $asset = $this->getAsset($context);
+        $asset = $this->getAsset($operation);
 
         // Reading the asset is not enough: only the shares the user may manage
         // (his own, or those whose every asset he can share) are listed, as

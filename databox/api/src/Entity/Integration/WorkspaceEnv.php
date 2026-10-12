@@ -8,18 +8,15 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\TrackBundle\LoggableChangeSetInterface;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
 use App\Entity\Traits\NullableWorkspaceTrait;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table]
 #[ORM\UniqueConstraint(name: 'uniq_env_key', columns: ['workspace_id', 'name'])]
 #[ORM\Entity]
-#[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 class WorkspaceEnv extends AbstractUuidEntity implements LoggableChangeSetInterface
 {
     use CreatedAtTrait;

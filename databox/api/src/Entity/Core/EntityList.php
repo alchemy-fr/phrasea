@@ -9,16 +9,16 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\TrackBundle\LoggableChangeSetInterface;
-use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SortFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\ExactSearchFilter;
 use App\Api\Model\Input\ExportEntitiesInput;
 use App\Api\Model\Input\ImportEntitiesInput;
 use App\Api\Processor\ClearEntitiesProcessor;
@@ -40,10 +40,26 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
         // Restricted to the readable workspaces by EntityListExtension
-        new GetCollection(security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")'),
+        new GetCollection(
+            security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
+            parameters: [
+                'workspace' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'workspace',
+                ),
+                'workspace[]' => new QueryParameter(property: 'workspace', openApi: false),
+                'name' => new QueryParameter(
+                    filter: new PartialSearchFilter(),
+                    property: 'name',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                ),
+                'order[name]' => new QueryParameter(filter: new SortFilter(), property: 'name', castToArray: false),
+                'order[createdAt]' => new QueryParameter(filter: new SortFilter(), property: 'createdAt', castToArray: false),
+            ],
+        ),
         new Post(
             securityPostDenormalize: 'is_granted("CREATE", object)'
         ),
@@ -77,14 +93,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 
 #[ORM\Entity]
-#[ApiFilter(filterClass: SearchFilter::class, properties: [
-    'workspace' => 'exact',
-    'name' => 'ipartial',
-])]
-#[ApiFilter(filterClass: OrderFilter::class, properties: [
-    'name',
-    'createdAt',
-])]
 #[ORM\UniqueConstraint(name: 'uniq_ws_type', columns: ['workspace_id', 'name'])]
 #[UniqueEntity(
     fields: ['workspace', 'name'],

@@ -38,6 +38,9 @@ trait UserSpaceTestTrait
         $options = [
             'headers' => array_merge(self::authHeaders($userId), $headers),
         ];
+        if ('PATCH' === $method) {
+            $options['headers']['Content-Type'] ??= 'application/merge-patch+json';
+        }
         if (null !== $json) {
             $options['json'] = $json;
         }
@@ -83,7 +86,7 @@ trait UserSpaceTestTrait
      */
     protected function members(array $collection): array
     {
-        return $collection['hydra:member'] ?? $collection['member'] ?? [];
+        return $collection['member'] ?? $collection['member'] ?? [];
     }
 
     protected function memberIds(array $collection): array

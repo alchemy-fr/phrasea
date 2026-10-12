@@ -15,7 +15,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Provider\RenditionPolicyCollectionProvider;
 use App\Entity\Traits\WorkspaceTrait;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -23,7 +23,7 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -31,9 +31,16 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
         new Patch(security: 'is_granted("EDIT", object)'),
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'workspaceId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Workspace ID (mandatory)',
+                    castToArray: false,
+                ),
+            ],
+        ),
         new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
     ],
     normalizationContext: [

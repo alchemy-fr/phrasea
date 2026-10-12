@@ -10,6 +10,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class AssetVoter extends AbstractVoter
 {
@@ -43,7 +44,7 @@ class AssetVoter extends AbstractVoter
     /**
      * @param Asset $subject
      */
-    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;

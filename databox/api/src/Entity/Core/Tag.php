@@ -8,17 +8,20 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\TrackBundle\LoggableChangeSetInterface;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\ExactSearchFilter;
 use App\Api\Model\Input\TagInput;
 use App\Api\Model\Output\TagOutput;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\TagCollectionProvider;
+use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
+use App\Elasticsearch\Filter\SuggestQueryFilter;
 use App\Entity\Traits\LocaleTrait;
 use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
@@ -28,7 +31,7 @@ use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints\Length;
 
 #[ApiResource(
@@ -41,20 +44,47 @@ use Symfony\Component\Validator\Constraints\Length;
             ]],
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
         ),
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'workspace' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'workspace',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'workspaceId'],
+                ),
+                'workspace[]' => new QueryParameter(property: 'workspace', openApi: false),
+                'query' => new QueryParameter(
+                    filter: new SuggestQueryFilter(),
+                    schema: ['type' => 'string'],
+                    description: 'Search-as-you-type on the name (switches the search to Elasticsearch)',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'name'],
+                    castToArray: false,
+                ),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (max 50 on a "query" search)',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
+                ),
+            ],
+        ),
         new Post(
             normalizationContext: ['groups' => [
                 '_',
                 Tag::GROUP_READ,
             ]],
-            securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("'.AbstractVoter::CREATE.'", object)'],
+            processor: InputMapperProcessor::class,
         ),
-        new Put(
+        new Patch(
             normalizationContext: ['groups' => [
                 '_',
                 Tag::GROUP_READ,
             ]],
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            processor: InputMapperProcessor::class,
         ),
         new Delete(
             security: 'is_granted("'.AbstractVoter::DELETE.'", object)',
@@ -78,7 +108,6 @@ use Symfony\Component\Validator\Constraints\Length;
     errorPath: 'name',
 )]
 #[ORM\Entity(repositoryClass: TagRepository::class)]
-#[ApiFilter(filterClass: SearchFilter::class, strategy: 'exact', properties: ['workspace'])]
 class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringable, LoggableChangeSetInterface
 {
     use CreatedAtTrait;

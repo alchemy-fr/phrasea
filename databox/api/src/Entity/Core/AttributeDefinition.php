@@ -9,24 +9,24 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\TrackBundle\LoggableChangeSetInterface;
-use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
-use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\QueryParameter;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Filter\AssetTypeTargetFilter;
 use App\Api\Filter\InWorkspacesFilter;
-use App\Api\Filter\PartialSearchFilter;
-use App\Api\Filter\SearchFilter;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
+use App\Api\Processor\InputMapperProcessor;
+use App\Api\Processor\Sort\AttributeDefinitionSortProcessor;
 use App\Attribute\AttributeInterface;
-use App\Controller\Core\AttributeDefinitionSortAction;
 use App\Entity\Traits\AssetTypeTargetTrait;
 use App\Entity\Traits\ErrorDisableInterface;
 use App\Entity\Traits\ErrorDisableTrait;
@@ -52,10 +52,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(
-            security: 'is_granted("'.AbstractVoter::EDIT.'", object)'
-        ),
-        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
+        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)', processor: InputMapperProcessor::class),
         new GetCollection(
             order: ['workspace' => 'ASC', 'position' => 'ASC', 'name' => 'ASC'],
             normalizationContext: [
@@ -63,17 +60,61 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
             parameters: [
                 'searchable' => new QueryParameter(
-                    filter: BooleanFilter::class,
+                    filter: new ExactFilter(),
                     property: 'searchable',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
+                ),
+                'facetEnabled' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'facetEnabled',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
+                ),
+                'translatable' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'translatable',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
+                ),
+                'multiple' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'multiple',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
+                ),
+                'enabled' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'enabled',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
                 ),
                 'name' => new QueryParameter(
-                    filter: PartialSearchFilter::class,
+                    filter: new PartialSearchFilter(),
                     property: 'name',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
                 ),
                 'type' => new QueryParameter(
-                    filter: SearchFilter::class, property: 'type'),
+                    filter: new ExactFilter(),
+                    property: 'type',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
+                ),
                 'workspaceId' => new QueryParameter(
-                    filter: SearchFilter::class, property: 'workspace'),
+                    filter: new ExactFilter(),
+                    property: 'workspace',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
+                ),
                 'workspaceIds' => new QueryParameter(
                     filter: InWorkspacesFilter::class,
                     property: 'workspace',
@@ -86,16 +127,18 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Post(
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
-            securityPostDenormalize: 'is_granted("CREATE", object)',
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Post(
             uriTemplate: '/attribute-definitions/sort',
-            controller: AttributeDefinitionSortAction::class,
-            openapiContext: [
-                'summary' => 'Reorder items',
-                'description' => 'Reorder items',
-                'requestBody' => [
-                    'content' => [
+            status: 200,
+            processor: AttributeDefinitionSortProcessor::class,
+            openapi: new OpenApiOperation(
+                summary: 'Reorder items',
+                description: 'Reorder items',
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
                         'application/json' => [
                             'schema' => [
                                 'description' => 'Ordered list of IDs',
@@ -103,9 +146,9 @@ use Symfony\Component\Validator\Constraints as Assert;
                                 'items' => ['type' => 'string'],
                             ],
                         ],
-                    ],
-                ],
-            ],
+                    ]),
+                ),
+            ),
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             input: false,
             output: false,
@@ -140,7 +183,6 @@ use Symfony\Component\Validator\Constraints as Assert;
     fields: ['workspace', 'name'],
     errorPath: 'name',
 )]
-#[ApiFilter(BooleanFilter::class, properties: ['searchable', 'facetEnabled', 'translatable', 'multiple', 'enabled'])]
 class AttributeDefinition extends AbstractUuidEntity implements \Stringable, ErrorDisableInterface, LoggableChangeSetInterface
 {
     use CreatedAtTrait;

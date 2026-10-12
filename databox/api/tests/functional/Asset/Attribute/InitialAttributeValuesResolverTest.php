@@ -49,16 +49,15 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
     }
 
     /**
-     * @dataProvider dataProvider
-     *
      * @param array<string, string|string[]> $metadata
      */
+    #[DataProvider('dataProvider')]
     public function testResolveInitialAttributes(array $definitions, ?array $metadata, array $expected): void
     {
         $attributeDefinitions = [];
 
         $workspace = $this->createMock(Workspace::class);
-        $workspace->expects($this->any())->method('getId')
+        $workspace->method('getId')
             ->willReturn(Uuid::uuid4()->toString());
 
         foreach ($definitions as $name => $definition) {
@@ -66,33 +65,33 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
                 $initialValues = is_array($initialValues) ? $initialValues : ['_' => $initialValues];
             }
             $ad = $this->createMock(AttributeDefinition::class);
-            $ad->expects($this->any())->method('getName')
+            $ad->method('getName')
                 ->willReturn($name);
-            $ad->expects($this->any())->method('isEnabled')
+            $ad->method('isEnabled')
                 ->willReturn(true);
-            $ad->expects($this->any())->method('getWorkspace')
+            $ad->method('getWorkspace')
                 ->willReturn($workspace);
-            $ad->expects($this->any())->method('isMultiple')
+            $ad->method('isMultiple')
                 ->willReturn($definition['isMultiple'] ?? false);
-            $ad->expects($this->any())->method('isTranslatable')
+            $ad->method('isTranslatable')
                 ->willReturn($definition['isTranslatable'] ?? false);
-            $ad->expects($this->any())->method('getInitialValues')
+            $ad->method('getInitialValues')
                 ->willReturn($initialValues);
-            $ad->expects($this->any())->method('getReadFromMetadata')
+            $ad->method('getReadFromMetadata')
                 ->willReturn($definition['readFromMetadata'] ?? null);
-            $ad->expects($this->any())->method('getType')
+            $ad->method('getType')
                 ->willReturn($definition['type'] ?? TextAttributeType::NAME);
             $attributeDefinitions[] = $ad;
         }
 
         /** @var AttributeDefinitionRepository $adr */
         $adr = $this->createMock(AttributeDefinitionRepository::class);
-        $adr->expects($this->any())
+        $adr
             ->method('getWorkspaceInitializeDefinitions')
             ->willReturn($attributeDefinitions);
 
         $fileMock = $this->createMock(File::class);
-        $fileMock->expects($this->any())
+        $fileMock
             ->method('getMetadata')
             ->willReturnCallback(function (?string $name) use ($metadata) {
                 if (null === $name) {
@@ -101,7 +100,7 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
 
                 return $metadata[$name] ?? null;
             });
-        $fileMock->expects($this->any())
+        $fileMock
             ->method('getMetadataNameValues')
             ->willReturnCallback(function (string $name) use ($metadata) {
                 return $metadata[$name] ?? null;
@@ -109,11 +108,9 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
 
         $assetMock = $this->createMock(Asset::class);
         $assetMock
-            ->expects($this->any())
             ->method('getSource')
             ->willReturn($fileMock);
         $assetMock
-            ->expects($this->any())
             ->method('getId')
             ->willReturn(Uuid::uuid4()->toString());
 
@@ -122,7 +119,7 @@ class InitialAttributeValuesResolverTest extends KernelTestCase
         $attributeTypeRegistry = $this->createMock(AttributeTypeRegistry::class);
         $textAttributeType = new TextAttributeType();
 
-        $attributeTypeRegistry->expects($this->any())
+        $attributeTypeRegistry
             ->method('getType')
             ->willReturn($textAttributeType);
 

@@ -7,6 +7,7 @@ namespace App\OperationTask\Task;
 use App\OperationTask\OperationTaskInterface;
 use App\OperationTask\RunContext;
 use App\Service\Asset\Attribute\AttributeDefinitionOperationRunner;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -14,6 +15,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * and/or readFromMetadata) for every asset of its workspace, overwriting the previously
  * stored attributes for that definition.
  */
+#[AsTaggedItem(index: 'recompute_initial_values')]
 final readonly class RecomputeInitialValuesTask implements OperationTaskInterface
 {
     public function __construct(

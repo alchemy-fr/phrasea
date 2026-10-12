@@ -82,7 +82,7 @@ tier_standard() {
   docker compose run --rm dockerize
 
   for s in ${SF_SERVICES}; do
-    APP_ENV=test docker compose run --rm -T ${s} su app -c "rm -rf bin/.phpunit && composer install --no-interaction && composer test"
+    APP_ENV=test docker compose run --rm -T ${s} su app -c "composer install --no-interaction && composer test"
   done
   APP_ENV=test docker compose run --rm -T --no-deps configurator su app -c "composer install --no-interaction && composer test"
 

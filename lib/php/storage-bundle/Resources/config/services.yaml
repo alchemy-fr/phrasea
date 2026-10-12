@@ -52,17 +52,8 @@ services:
         tags:
             - { name: console.command }
 
-    Alchemy\StorageBundle\Controller\MultipartUploadPartAction:
-        tags:
-            - { name: controller.service_arguments }
-
-    Alchemy\StorageBundle\Controller\MultipartUploadPartsAction:
-        tags:
-            - { name: controller.service_arguments }
-
-    Alchemy\StorageBundle\Controller\MultipartUploadCancelAction:
-        tags:
-            - { name: controller.service_arguments }
+    Alchemy\StorageBundle\Api\Processor\:
+        resource: '../../Api/Processor/'
 
     Alchemy\StorageBundle\Doctrine\MultipartUploadListener: ~
 

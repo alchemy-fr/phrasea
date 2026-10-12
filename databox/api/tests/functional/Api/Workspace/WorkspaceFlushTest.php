@@ -12,6 +12,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * POST /workspaces/{id}/flush: empties a workspace by replacing it with a fresh
@@ -106,8 +107,8 @@ final class WorkspaceFlushTest extends AbstractDataboxTestCase
         $this->grantUser(self::USER, $ws);
 
         $client = static::createClient();
-        $client->request('PUT', self::iri($ws), [
-            'headers' => self::authHeaders(self::ADMIN),
+        $client->request('PATCH', self::iri($ws), [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + self::authHeaders(self::ADMIN),
             'json' => ['terms' => 'Be nice.', 'termsTranslations' => ['fr' => 'Soyez sympa.']],
         ]);
         $this->assertResponseIsSuccessful();
@@ -149,9 +150,7 @@ final class WorkspaceFlushTest extends AbstractDataboxTestCase
         ];
     }
 
-    /**
-     * @dataProvider flushAccessProvider
-     */
+    #[DataProvider('flushAccessProvider')]
     public function testFlushAccess(?string $userId, ?int $mask, int $expectedStatus): void
     {
         $ws = $this->createWs('ws', ['public' => true]);

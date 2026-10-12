@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\Voter\AbstractVoter;
 use Alchemy\AuthBundle\Security\Voter\JwtVoterTrait;
 use App\Entity\Asset;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class AssetVoter extends AbstractVoter
 {
@@ -26,7 +27,7 @@ class AssetVoter extends AbstractVoter
     /**
      * @param Asset $subject
      */
-    protected function voteOnAttribute($attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         return match ($attribute) {
             self::READ => $this->isValidJWTForRequest()

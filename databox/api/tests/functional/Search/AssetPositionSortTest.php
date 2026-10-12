@@ -6,8 +6,9 @@ namespace App\Tests\Functional\Search;
 
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
+use App\Tests\Functional\AbstractSearchTestCase;
 
-class AssetPositionSortTest extends AbstractSearchTest
+class AssetPositionSortTest extends AbstractSearchTestCase
 {
     public function testSortByPositionInCollection(): void
     {
@@ -103,7 +104,7 @@ class AssetPositionSortTest extends AbstractSearchTest
     private function search(object $client, array $query): array
     {
         $response = $client->request('GET', '/assets?'.http_build_query($query));
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
 
         return array_map(fn (array $item): string => $item['id'], $data);
     }

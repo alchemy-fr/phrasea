@@ -7,7 +7,7 @@ namespace App\Tests\Unit\Attribute\Type;
 use App\Attribute\Type\AttributeTypeInterface;
 use App\Attribute\Type\DateTimeAttributeType;
 
-class DateTimeAttributeTypeTest extends AbstractAttributeTypeTest
+class DateTimeAttributeTypeTest extends AbstractAttributeTypeTestCase
 {
     protected function getType(): AttributeTypeInterface
     {
@@ -15,7 +15,7 @@ class DateTimeAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getValidationCases(): array
+    public static function getValidationCases(): array
     {
         return [
             ...parent::getValidationCases(),
@@ -33,7 +33,7 @@ class DateTimeAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getNormalizationCases(): array
+    public static function getNormalizationCases(): array
     {
         return [
             ...parent::getNormalizationCases(),
@@ -53,7 +53,7 @@ class DateTimeAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getConvertToDbValueCases(): array
+    public static function getConvertToDbValueCases(): array
     {
         return [
             ...parent::getConvertToDbValueCases(),
@@ -73,7 +73,7 @@ class DateTimeAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getDenormalizationCases(): array
+    public static function getDenormalizationCases(): array
     {
         return [
             ...parent::getDenormalizationCases(),
@@ -90,7 +90,7 @@ class DateTimeAttributeTypeTest extends AbstractAttributeTypeTest
     }
 
     #[\Override]
-    public function getElasticsearchNormalizationCases(): array
+    public static function getElasticsearchNormalizationCases(): array
     {
         return [
             ...parent::getElasticsearchNormalizationCases(),

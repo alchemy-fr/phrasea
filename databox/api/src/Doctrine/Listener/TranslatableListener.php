@@ -6,12 +6,11 @@ namespace App\Doctrine\Listener;
 
 use App\Entity\TranslatableInterface;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::prePersist)]
-readonly class TranslatableListener implements EventSubscriber
+readonly class TranslatableListener
 {
     public function __construct(private string $defaultLocale)
     {
@@ -26,12 +25,5 @@ readonly class TranslatableListener implements EventSubscriber
                 $object->setLocale($this->defaultLocale);
             }
         }
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::prePersist,
-        ];
     }
 }

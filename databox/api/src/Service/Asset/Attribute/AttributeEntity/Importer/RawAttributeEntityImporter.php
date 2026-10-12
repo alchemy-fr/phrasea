@@ -9,7 +9,9 @@ use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
 use App\Repository\Core\AttributeEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'raw')]
 final readonly class RawAttributeEntityImporter implements AttributeEntityImporterInterface
 {
     public function __construct(

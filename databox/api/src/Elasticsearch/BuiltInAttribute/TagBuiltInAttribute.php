@@ -7,7 +7,9 @@ namespace App\Elasticsearch\BuiltInAttribute;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Tag;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: '@tag')]
 final class TagBuiltInAttribute extends AbstractEntityBuiltInAttribute
 {
     use UserLocaleTrait;

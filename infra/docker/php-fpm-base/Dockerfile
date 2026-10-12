@@ -91,6 +91,7 @@ COPY entrypoint.sh /docker/entrypoint.sh
 COPY entrypoint.d/*.sh /docker/entrypoint.d/
 COPY supervisor/* /etc/supervisor.d/
 COPY worker/* /docker/worker/
+COPY bin/* /usr/local/bin/
 
 ENV SUPERVISOR_START_SECS=2 \
     SUPERVISOR_START_RETRIES=10 \

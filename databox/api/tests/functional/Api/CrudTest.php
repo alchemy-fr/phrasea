@@ -7,13 +7,12 @@ namespace App\Tests\Functional\Api;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Attribute\Type\TextAttributeType;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 final class CrudTest extends AbstractDataboxTestCase
 {
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testCrud(
         string $method,
         string $uri,
@@ -65,6 +64,10 @@ final class CrudTest extends AbstractDataboxTestCase
             $defaultOptions['json'] = $data;
         }
 
+        if ('PATCH' === $method) {
+            $defaultOptions['headers']['Content-Type'] = 'application/merge-patch+json';
+        }
+
         $httpOptions = $replacePH(array_merge_recursive($defaultOptions, $options['request'] ?? []));
 
         $client = self::createClient();
@@ -96,7 +99,7 @@ final class CrudTest extends AbstractDataboxTestCase
         return $input;
     }
 
-    public function getCases(): array
+    public static function getCases(): array
     {
         $createAttributePolicy = ['POST', '/attribute-policies', KeycloakClientTestMock::ADMIN_UID, [
             'workspace' => '/workspaces/{workspaceId}',
@@ -148,7 +151,7 @@ final class CrudTest extends AbstractDataboxTestCase
 
             $createAttributePolicy,
 
-            ['PUT', '/attribute-policies/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
+            ['PATCH', '/attribute-policies/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
                 'name' => 'AttrClass Test 2',
                 'public' => false,
                 'editable' => true,
@@ -182,7 +185,7 @@ final class CrudTest extends AbstractDataboxTestCase
 
             $createRenditionPolicy,
 
-            ['PUT', '/rendition-policies/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
+            ['PATCH', '/rendition-policies/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
                 'name' => 'RendClass Test 2',
                 'public' => false,
             ], [], [
@@ -246,7 +249,7 @@ final class CrudTest extends AbstractDataboxTestCase
 
             $createAttributeDefinition,
 
-            ['PUT', '/attribute-definitions/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
+            ['PATCH', '/attribute-definitions/{lastId}', KeycloakClientTestMock::ADMIN_UID, [
                 'name' => 'AttrDef Test 2',
             ], [], [
                 'createItem' => $createAttributeDefinition,

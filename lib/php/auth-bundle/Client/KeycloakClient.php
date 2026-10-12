@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Client;
 
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -16,8 +17,10 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 final readonly class KeycloakClient
 {
     public function __construct(
+        #[Target]
         private HttpClientInterface $keycloakClient,
         private KeycloakUrlGenerator $urlGenerator,
+        #[Target]
         private CacheInterface $keycloakRealmCache,
         private string $clientId,
         private string $clientSecret,

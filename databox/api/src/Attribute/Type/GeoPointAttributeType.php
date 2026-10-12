@@ -6,7 +6,9 @@ namespace App\Attribute\Type;
 
 use App\Elasticsearch\ESFacetInterface;
 use App\Model\GeoPoint;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: self::NAME)]
 final class GeoPointAttributeType extends AbstractAttributeType
 {
     final public const string NAME = 'geo_point';

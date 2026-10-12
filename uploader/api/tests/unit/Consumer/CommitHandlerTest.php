@@ -31,10 +31,10 @@ class CommitHandlerTest extends TestCase
 
         $em = $this->createMock(EntityManagerInterface::class);
         $em->method('getRepository')
-            ->will($this->returnValueMap([
+            ->willReturnMap([
                 [Asset::class, $assetRepo],
                 [TargetParams::class, $targetParamsRepo],
-            ]));
+            ]);
         $em->method('getReference')
             ->with(Target::class, '5c7bf71b-d78e-4fef-ab03-cfd0e7142d09')
             ->willReturn(new Target());

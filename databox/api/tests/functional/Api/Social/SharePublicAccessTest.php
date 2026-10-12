@@ -11,6 +11,7 @@ use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Share;
 use App\Entity\Core\Workspace;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Anonymous access through a share link: `GET /shares/{id}/public`,
@@ -112,9 +113,7 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         yield 'not started yet' => [['startsAt' => '+1 hour']];
     }
 
-    /**
-     * @dataProvider unavailableShareProvider
-     */
+    #[DataProvider('unavailableShareProvider')]
     public function testUnavailableShareRejectsItsToken(array $options): void
     {
         $client = static::createClient();

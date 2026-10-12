@@ -8,8 +8,9 @@ use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
+use App\Tests\Functional\AbstractSearchTestCase;
 
-class CollectionSearchTest extends AbstractSearchTest
+class CollectionSearchTest extends AbstractSearchTestCase
 {
     private static function releaseIndex(): void
     {
@@ -31,7 +32,7 @@ class CollectionSearchTest extends AbstractSearchTest
 
         $client = self::createClient();
         $response = $client->request('GET', '/collections');
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertCount(0, $data);
     }
 
@@ -55,7 +56,7 @@ class CollectionSearchTest extends AbstractSearchTest
         $client = self::createClient();
         $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertCount(0, $data);
     }
 
@@ -85,7 +86,7 @@ class CollectionSearchTest extends AbstractSearchTest
         $client = self::createClient();
         $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertCount(1, $data);
         $this->assertSame('B', $data[0]['name']);
     }
@@ -117,7 +118,7 @@ class CollectionSearchTest extends AbstractSearchTest
         $client = self::createClient();
         $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertCount(1, $data);
         $this->assertSame('A', $data[0]['name']);
     }
@@ -133,7 +134,7 @@ class CollectionSearchTest extends AbstractSearchTest
         $client = self::createClient();
         $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertCount(0, $data);
     }
 
@@ -155,7 +156,7 @@ class CollectionSearchTest extends AbstractSearchTest
         $client = self::createClient();
         $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertCount(1, $data);
         $this->assertEquals($collection->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['name']);
@@ -174,7 +175,7 @@ class CollectionSearchTest extends AbstractSearchTest
         $client = self::createClient();
         $response = $client->request('GET', '/collections');
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertEmpty($data);
     }
 
@@ -197,7 +198,7 @@ class CollectionSearchTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertCount(1, $data);
         $this->assertEquals($collection->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['name']);
@@ -219,7 +220,7 @@ class CollectionSearchTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertCount(0, $data);
     }
 
@@ -239,7 +240,7 @@ class CollectionSearchTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertEmpty($data);
     }
 
@@ -269,7 +270,7 @@ class CollectionSearchTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertCount(1, $data);
         $this->assertEquals($collection->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['name']);
@@ -301,7 +302,7 @@ class CollectionSearchTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertCount(1, $data);
         $this->assertEquals($collection->getId(), $data[0]['id']);
         $this->assertEquals('Foo', $data[0]['name']);

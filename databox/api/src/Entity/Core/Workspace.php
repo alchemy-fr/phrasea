@@ -14,17 +14,18 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Model\Output\WorkspaceOutput;
-use App\Controller\Core\DeleteWorkspaceLogoAction;
-use App\Controller\Core\DeleteWorkspaceTermsPdfAction;
-use App\Controller\Core\FlushWorkspaceAction;
-use App\Controller\Core\GetWorkspaceBySlugAction;
-use App\Controller\Core\SignWorkspaceTermsAction;
-use App\Controller\Core\UploadWorkspaceLogoAction;
-use App\Controller\Core\UploadWorkspaceTermsPdfAction;
+use App\Api\Processor\DeleteWorkspaceLogoProcessor;
+use App\Api\Processor\DeleteWorkspaceTermsPdfProcessor;
+use App\Api\Processor\FlushWorkspaceProcessor;
+use App\Api\Processor\InputMapperProcessor;
+use App\Api\Processor\SignWorkspaceTermsProcessor;
+use App\Api\Processor\UploadWorkspaceLogoProcessor;
+use App\Api\Processor\UploadWorkspaceTermsPdfProcessor;
+use App\Api\Provider\WorkspaceBySlugProvider;
 use App\Doctrine\Listener\SoftDeleteableInterface;
 use App\Entity\Traits\DeletedAtTrait;
 use App\Entity\Traits\OwnerIdTrait;
@@ -46,56 +47,53 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(
             security: 'is_granted("READ_NO_TERMS", object)'
         ),
-        new Put(
-            securityPostDenormalize: 'is_granted("EDIT", object)'
+        new Patch(
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("EDIT", object)'],
+            processor: InputMapperProcessor::class,
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Post(
             uriTemplate: '/workspaces/{id}/flush',
-            controller: FlushWorkspaceAction::class,
+            throwOnNotFound: true,
             security: 'is_granted("EDIT", object)',
-            read: true,
+            input: false,
+            processor: FlushWorkspaceProcessor::class,
             name: 'flush'
         ),
         new Post(
             uriTemplate: '/workspaces/{id}/terms/sign',
-            controller: SignWorkspaceTermsAction::class,
+            throwOnNotFound: true,
             security: 'is_granted("READ_NO_TERMS", object)',
-            read: true,
-            deserialize: false,
-            validate: false,
+            input: false,
+            processor: SignWorkspaceTermsProcessor::class,
             name: 'sign_terms'
         ),
         new Post(
             uriTemplate: '/workspaces/{id}/terms',
-            controller: UploadWorkspaceTermsPdfAction::class,
             security: 'is_granted("EDIT", object)',
-            read: true,
-            deserialize: false,
-            validate: false,
+            input: false,
+            throwOnNotFound: true,
+            processor: UploadWorkspaceTermsPdfProcessor::class,
             name: 'upload_terms_pdf'
         ),
         new Delete(
             uriTemplate: '/workspaces/{id}/terms',
-            controller: DeleteWorkspaceTermsPdfAction::class,
             security: 'is_granted("EDIT", object)',
-            read: true,
+            processor: DeleteWorkspaceTermsPdfProcessor::class,
             name: 'delete_terms_pdf'
         ),
         new Post(
             uriTemplate: '/workspaces/{id}/logo',
-            controller: UploadWorkspaceLogoAction::class,
             security: 'is_granted("EDIT", object)',
-            read: true,
-            deserialize: false,
-            validate: false,
+            input: false,
+            throwOnNotFound: true,
+            processor: UploadWorkspaceLogoProcessor::class,
             name: 'upload_logo'
         ),
         new Delete(
             uriTemplate: '/workspaces/{id}/logo',
-            controller: DeleteWorkspaceLogoAction::class,
             security: 'is_granted("EDIT", object)',
-            read: true,
+            processor: DeleteWorkspaceLogoProcessor::class,
             name: 'delete_logo'
         ),
         new GetCollection(
@@ -108,11 +106,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             uriVariables: [
                 'slug' => 'slug',
             ],
-            controller: GetWorkspaceBySlugAction::class,
+            security: 'is_granted("READ_NO_TERMS", object)',
+            provider: WorkspaceBySlugProvider::class,
             name: 'get_by_slug'
         ),
         new Post(
-            securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("'.AbstractVoter::CREATE.'", object)'],
+            processor: InputMapperProcessor::class,
         ),
     ],
     normalizationContext: [

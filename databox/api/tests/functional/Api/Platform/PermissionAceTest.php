@@ -12,6 +12,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\DataboxExtraPermissionInterface;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * ACE management API (acl-bundle): /permissions/ace(s), and its aliases /ace(s).
@@ -117,9 +118,7 @@ final class PermissionAceTest extends AbstractDataboxTestCase
         yield 'root aliases' => ['/ace', '/aces'];
     }
 
-    /**
-     * @dataProvider getAceRoutes
-     */
+    #[DataProvider('getAceRoutes')]
     public function testWorkspaceOwnerManagesTheAcesOfItsWorkspace(string $aceUri, string $acesUri): void
     {
         $workspace = $this->createSharedWorkspace();
@@ -432,9 +431,7 @@ final class PermissionAceTest extends AbstractDataboxTestCase
         yield 'GET with an unknown object type' => ['GET', ['objectType' => 'unknown'] + $base];
     }
 
-    /**
-     * @dataProvider getMalformedAceRequests
-     */
+    #[DataProvider('getMalformedAceRequests')]
     public function testMalformedAceRequestsAreRejectedCleanly(string $method, array $payload): void
     {
         $this->markTestIncomplete('BUG: PermissionController does not validate its input: an unknown objectType (ObjectMapping::getClassName throws \InvalidArgumentException), an unknown/missing userType (AccessControlEntry::getUserTypeFromString) or a missing userId (typed string arguments) end in a 500 instead of a 400 (vendor/alchemy/acl-bundle/src/Controller/PermissionController.php:41,68,128).');

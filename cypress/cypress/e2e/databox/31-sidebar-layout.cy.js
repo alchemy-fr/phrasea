@@ -27,7 +27,7 @@ const grip = section =>
         `[data-testid=sortable-section][data-section-id=${section}] [data-testid=section-grip]`
     );
 
-const members = res => res['hydra:member'] ?? res.member ?? [];
+const members = res => res.member ?? [];
 
 describe('Sidebar layout', () => {
     let ctx;

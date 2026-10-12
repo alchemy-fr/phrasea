@@ -122,9 +122,9 @@ final class BroadcastNotificationHandlerTest extends TestCase
         $handler = new BroadcastNotificationHandler(
             $this->registry([new DirectoryUser('u1', $info)]),
             $subscriberManager,
-            $this->createMock(NotificationDeliverer::class),
+            $this->createStub(NotificationDeliverer::class),
             $this->broadcastRepository($broadcast),
-            $this->createMock(EntityManagerInterface::class),
+            $this->createStub(EntityManagerInterface::class),
         );
 
         $handler(new BroadcastNotification($broadcast->getId()));
@@ -175,7 +175,7 @@ final class BroadcastNotificationHandlerTest extends TestCase
             $subscriberManager,
             $deliverer,
             $this->broadcastRepository($broadcast),
-            $this->createMock(EntityManagerInterface::class),
+            $this->createStub(EntityManagerInterface::class),
         );
     }
 

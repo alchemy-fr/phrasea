@@ -6,9 +6,10 @@ namespace App\Tests\Functional\Search;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Basket\Basket;
+use App\Tests\Functional\AbstractSearchTestCase;
 use Elastica\Document;
 
-class BasketSearchTest extends AbstractSearchTest
+class BasketSearchTest extends AbstractSearchTestCase
 {
     private const string USER_ID = KeycloakClientTestMock::USER_UID;
 
@@ -114,11 +115,11 @@ class BasketSearchTest extends AbstractSearchTest
         self::releaseIndex();
 
         $client = self::createClient();
-        $client->request('PUT', '/baskets/'.$old->getId(), [
+        $client->request('PATCH', '/baskets/'.$old->getId(), [
             'json' => [
                 'name' => 'Old (renamed)',
             ],
-            'headers' => $this->getAuthHeaders(),
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->getAuthHeaders(),
         ]);
         $this->assertResponseIsSuccessful();
         self::releaseIndex();
@@ -181,7 +182,7 @@ class BasketSearchTest extends AbstractSearchTest
         ]);
         $this->assertResponseIsSuccessful();
 
-        return $response->toArray()['hydra:member'];
+        return $response->toArray()['member'];
     }
 
     private function assertBasketNames(array $expectedNames, array $baskets): void

@@ -10,6 +10,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
 use App\Entity\Core\WorkspaceItemPrivacyInterface as Privacy;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * POST /collections, PUT/PATCH/DELETE /collections/{id}.
@@ -95,7 +96,7 @@ final class CollectionWriteTest extends AbstractDataboxTestCase
             ],
         ]);
         $this->assertResponseStatusCodeSame(400);
-        $this->assertJsonContains(['hydra:description' => 'You must provide "ownerId" as your access token is not associated to a user.']);
+        $this->assertJsonContains(['description' => 'You must provide "ownerId" as your access token is not associated to a user.']);
 
         // ...then the voter denies the creation
         $this->request('POST', '/collections', self::ANONYMOUS, [
@@ -171,7 +172,7 @@ final class CollectionWriteTest extends AbstractDataboxTestCase
             ],
         ]);
         $this->assertResponseStatusCodeSame(400);
-        $this->assertJsonContains(['hydra:description' => 'Cannot add a sub-collection in a different workspace']);
+        $this->assertJsonContains(['description' => 'Cannot add a sub-collection in a different workspace']);
     }
 
     public function testCreateWithoutWorkspace(): void
@@ -182,7 +183,7 @@ final class CollectionWriteTest extends AbstractDataboxTestCase
             ],
         ]);
         $this->assertResponseStatusCodeSame(400);
-        $this->assertJsonContains(['hydra:description' => 'Missing workspace']);
+        $this->assertJsonContains(['description' => 'Missing workspace']);
     }
 
     public function testCreateWithUnknownWorkspace(): void
@@ -267,7 +268,7 @@ final class CollectionWriteTest extends AbstractDataboxTestCase
             ],
         ]);
         $this->assertResponseStatusCodeSame(400);
-        $this->assertJsonContains(['hydra:description' => 'Invalid privacyLabel "top_secret"']);
+        $this->assertJsonContains(['description' => 'Invalid privacyLabel "top_secret"']);
     }
 
     public function testOutOfRangePrivacyIsRejected(): void
@@ -302,7 +303,7 @@ final class CollectionWriteTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(201);
         $this->assertSame(Privacy::SECRET, $response->toArray()['privacy']);
 
-        $this->request('PUT', '/collections/'.$parent->getId(), self::USER, [
+        $this->request('PATCH', '/collections/'.$parent->getId(), self::USER, [
             'json' => [
                 'name' => 'Parent',
                 'privacy' => Privacy::PUBLIC,
@@ -460,7 +461,7 @@ final class CollectionWriteTest extends AbstractDataboxTestCase
         $workspace = $this->createTestWorkspace(['members' => [self::USER]]);
         $collection = $this->createCollection(['workspace' => $workspace, 'name' => 'Old', 'ownerId' => self::USER]);
 
-        $this->request('PUT', '/collections/'.$collection->getId(), self::USER, [
+        $this->request('PATCH', '/collections/'.$collection->getId(), self::USER, [
             'json' => [
                 'name' => 'New',
                 'translations' => ['name' => ['fr' => 'Nouveau']],
@@ -482,7 +483,7 @@ final class CollectionWriteTest extends AbstractDataboxTestCase
         $workspace = $this->createTestWorkspace(['members' => [self::USER]]);
         $collection = $this->createCollection(['workspace' => $workspace, 'name' => 'Old', 'ownerId' => self::USER]);
 
-        $this->request('PUT', '/collections/'.$collection->getId(), self::USER, [
+        $this->request('PATCH', '/collections/'.$collection->getId(), self::USER, [
             'json' => [
                 'name' => '',
             ],
@@ -528,7 +529,7 @@ final class CollectionWriteTest extends AbstractDataboxTestCase
         $collection = $this->createCollection(['workspace' => $workspace, 'name' => 'C']);
         $other = $this->createCollection(['workspace' => $workspace, 'name' => 'Other']);
 
-        $this->request('PUT', '/collections/'.$collection->getId(), self::USER, [
+        $this->request('PATCH', '/collections/'.$collection->getId(), self::USER, [
             'json' => [
                 'name' => 'C',
                 'parent' => '/collections/'.$other->getId(),
@@ -536,7 +537,7 @@ final class CollectionWriteTest extends AbstractDataboxTestCase
         ]);
         $this->assertResponseStatusCodeSame(400);
         $this->assertJsonContains([
-            'hydra:description' => sprintf('Cannot change parent. Use POST /collections/%s/move', $collection->getId()),
+            'description' => sprintf('Cannot change parent. Use POST /collections/%s/move', $collection->getId()),
         ]);
         $this->assertNull($this->findCollection($collection->getId())->getParent());
     }
@@ -547,7 +548,7 @@ final class CollectionWriteTest extends AbstractDataboxTestCase
         $otherWorkspace = $this->createTestWorkspace(['ownerId' => self::USER]);
         $collection = $this->createCollection(['workspace' => $workspace, 'name' => 'C']);
 
-        $this->request('PUT', '/collections/'.$collection->getId(), self::USER, [
+        $this->request('PATCH', '/collections/'.$collection->getId(), self::USER, [
             'json' => [
                 'name' => 'C',
                 'workspace' => '/workspaces/'.$otherWorkspace->getId(),
@@ -569,9 +570,7 @@ final class CollectionWriteTest extends AbstractDataboxTestCase
         yield 'admin' => ['admin', 200];
     }
 
-    /**
-     * @dataProvider getEditMatrix
-     */
+    #[DataProvider('getEditMatrix')]
     public function testEditPermissions(int|string $grant, int $expectedCode): void
     {
         $workspace = $this->createTestWorkspace(['members' => [self::USER]]);
@@ -597,7 +596,7 @@ final class CollectionWriteTest extends AbstractDataboxTestCase
             $userId = self::ADMIN;
         }
 
-        foreach (['PUT', 'PATCH'] as $method) {
+        foreach (['PATCH'] as $method) {
             $this->request($method, '/collections/'.$collection->getId(), $userId, [
                 'json' => [
                     'name' => 'Renamed by '.$method,
@@ -624,9 +623,7 @@ final class CollectionWriteTest extends AbstractDataboxTestCase
         yield 'admin' => ['admin', 204];
     }
 
-    /**
-     * @dataProvider getDeleteMatrix
-     */
+    #[DataProvider('getDeleteMatrix')]
     public function testDeletePermissions(int|string $grant, int $expectedCode): void
     {
         $workspace = $this->createTestWorkspace(['members' => [self::USER]]);

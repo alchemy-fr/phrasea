@@ -38,7 +38,7 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
         $response = $this->api('GET', '/attribute-entities', $userId, options: ['query' => $query]);
         $this->assertResponseStatusCodeSame(200);
 
-        return array_column($response->toArray()['hydra:member'], 'value');
+        return array_column($response->toArray()['member'], 'value');
     }
 
     private function postEntity(string $userId, array $data): array
@@ -73,6 +73,10 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
         $this->assertEqualsCanonicalizing(
             ['Approved', 'Pending by OTHER', 'Pending by someone', 'Rejected'],
             $this->listValues(self::USER, ['list' => $this->list->getId()]),
+        );
+        $this->assertEqualsCanonicalizing(
+            ['Approved', 'Pending by OTHER', 'Pending by someone', 'Rejected'],
+            $this->listValues(self::USER, ['list' => '/entity-lists/'.$this->list->getId()]),
         );
         // ...not a mere member
         $this->assertEqualsCanonicalizing(
@@ -233,7 +237,7 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
         $this->assertSame(self::OTHER, $this->findEntity($data['id'])->getCreatorId());
 
         // The editor approves it
-        $this->api('PUT', '/attribute-entities/'.$data['id'], self::USER, ['status' => AttributeEntity::STATUS_APPROVED]);
+        $this->api('PATCH', '/attribute-entities/'.$data['id'], self::USER, ['status' => AttributeEntity::STATUS_APPROVED]);
         $this->assertResponseStatusCodeSame(200);
         $this->assertSame(AttributeEntity::STATUS_APPROVED, $this->findEntity($data['id'])->getStatus());
     }
@@ -296,7 +300,7 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
         $entity = $this->createEntity($this->list, 'Red', ['creatorId' => 'someone']);
         $iri = '/attribute-entities/'.$entity->getId();
 
-        $this->api('PUT', $iri, self::USER, ['value' => 'Dark red', 'translations' => ['fr' => 'Rouge foncé']]);
+        $this->api('PATCH', $iri, self::USER, ['value' => 'Dark red', 'translations' => ['fr' => 'Rouge foncé']]);
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonContains(['value' => 'Dark red', 'translations' => ['fr' => 'Rouge foncé']]);
 
@@ -315,7 +319,7 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
         $mine = $this->createEntity($this->list, 'Mine', ['creatorId' => self::OTHER]);
         $iri = '/attribute-entities/'.$mine->getId();
 
-        $this->api('PUT', $iri, self::OTHER, ['value' => 'Changed']);
+        $this->api('PATCH', $iri, self::OTHER, ['value' => 'Changed']);
         $this->assertResponseStatusCodeSame(403);
         $this->api('PATCH', $iri, self::OTHER, ['value' => 'Changed']);
         $this->assertResponseStatusCodeSame(403);
@@ -329,12 +333,12 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
         $mine = $this->createEntity($this->list, 'Mine', ['status' => AttributeEntity::STATUS_PENDING, 'creatorId' => self::OTHER]);
         $notMine = $this->createEntity($this->list, 'Not mine', ['status' => AttributeEntity::STATUS_PENDING, 'creatorId' => 'someone']);
 
-        $this->api('PUT', '/attribute-entities/'.$notMine->getId(), self::OTHER, ['value' => 'Changed']);
+        $this->api('PATCH', '/attribute-entities/'.$notMine->getId(), self::OTHER, ['value' => 'Changed']);
         $this->assertResponseStatusCodeSame(403);
         $this->api('DELETE', '/attribute-entities/'.$notMine->getId(), self::OTHER);
         $this->assertResponseStatusCodeSame(403);
 
-        $this->api('PUT', '/attribute-entities/'.$mine->getId(), self::OTHER, ['value' => 'Mine, fixed']);
+        $this->api('PATCH', '/attribute-entities/'.$mine->getId(), self::OTHER, ['value' => 'Mine, fixed']);
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonContains(['value' => 'Mine, fixed']);
 
@@ -347,7 +351,7 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
         $this->setUpScene(['allowNewValues' => true]);
         $mine = $this->createEntity($this->list, 'Mine', ['status' => AttributeEntity::STATUS_PENDING, 'creatorId' => self::OTHER]);
 
-        $this->api('PUT', '/attribute-entities/'.$mine->getId(), self::OTHER, ['status' => AttributeEntity::STATUS_APPROVED]);
+        $this->api('PATCH', '/attribute-entities/'.$mine->getId(), self::OTHER, ['status' => AttributeEntity::STATUS_APPROVED]);
         $this->assertSame(AttributeEntity::STATUS_PENDING, $this->findEntity($mine->getId())->getStatus());
     }
 
@@ -357,14 +361,14 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
         $closed = $this->createEntityList(['name' => 'Closed', 'allowNewValues' => false]);
         $mine = $this->createEntity($this->list, 'Mine', ['status' => AttributeEntity::STATUS_PENDING, 'creatorId' => self::OTHER]);
 
-        $this->api('PUT', '/attribute-entities/'.$mine->getId(), self::OTHER, [
+        $this->api('PATCH', '/attribute-entities/'.$mine->getId(), self::OTHER, [
             'list' => '/entity-lists/'.$closed->getId(),
         ]);
         $this->assertResponseStatusCodeSame(403);
         $this->assertSame($this->list->getId(), $this->findEntity($mine->getId())->getList()->getId());
 
         // The list editors do
-        $this->api('PUT', '/attribute-entities/'.$mine->getId(), self::USER, [
+        $this->api('PATCH', '/attribute-entities/'.$mine->getId(), self::USER, [
             'list' => '/entity-lists/'.$closed->getId(),
         ]);
         $this->assertResponseStatusCodeSame(200);
@@ -378,7 +382,7 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
         $foreignWorkspace = $this->createOtherWorkspace(['ownerId' => self::USER]);
         $foreignList = $this->createEntityList(['name' => 'Foreign', 'workspace' => $foreignWorkspace]);
 
-        $this->api('PUT', '/attribute-entities/'.$entity->getId(), self::USER, [
+        $this->api('PATCH', '/attribute-entities/'.$entity->getId(), self::USER, [
             'list' => '/entity-lists/'.$foreignList->getId(),
         ]);
         $this->assertResponseStatusCodeSame(422);

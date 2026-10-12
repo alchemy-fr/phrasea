@@ -14,7 +14,7 @@ use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\EntityList;
 use App\Entity\Core\Share;
 use App\Entity\Core\Workspace;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class AttributeDefinitionOutput extends AbstractUuidOutput
 {

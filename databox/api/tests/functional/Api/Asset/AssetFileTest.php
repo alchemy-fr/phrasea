@@ -31,7 +31,7 @@ final class AssetFileTest extends AbstractDataboxTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-        $members = $response->toArray()['hydra:member'];
+        $members = $response->toArray()['member'];
         // Most recent first
         $this->assertSame([$v2->getId(), $v1->getId()], array_column($members, 'id'));
         $this->assertSame('/assets/'.$asset->getId(), $members[0]['asset']['@id']);
@@ -171,7 +171,7 @@ final class AssetFileTest extends AbstractDataboxTestCase
 
     public function testFileKeptAsAVersionIsReadable(): void
     {
-        $this->markTestIncomplete('BUG: FileVoter only looks for assets using the file as source or rendition, not as an AssetFileVersion: a previous source of an asset cannot be read through GET /files/{id} by the asset owner, although FileOutputTransformer::resolveUsages() lists "version" usages (src/Security/Voter/FileVoter.php:34).');
+        $this->markTestIncomplete('BUG: FileVoter only looks for assets using the file as source or rendition, not as an AssetFileVersion: a previous source of an asset cannot be read through GET /files/{id} by the asset owner, although FileOutputMapper::resolveUsages() lists "version" usages (src/Security/Voter/FileVoter.php:34).');
 
         $workspace = $this->createOwnedWorkspace();
         [, $version] = $this->createAssetWithVersions($workspace);

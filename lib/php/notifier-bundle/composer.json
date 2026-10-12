@@ -30,16 +30,16 @@
         "php": "^8.4",
         "alchemy/auth-bundle": "@dev",
         "alchemy/core-bundle": "@dev",
-        "doctrine/doctrine-bundle": "^2.11",
+        "doctrine/doctrine-bundle": "^2.11 || ^3",
         "doctrine/orm": "^2.7 || ^3",
         "ramsey/uuid-doctrine": "^1.5 || ^2.0",
-        "symfony/clock": "^7.4",
-        "symfony/framework-bundle": "^7.4",
-        "symfony/mailer": "^7.4",
-        "symfony/messenger": "^7.4",
-        "symfony/notifier": "^7.4",
-        "symfony/translation": "^7.4",
-        "symfony/twig-bundle": "^7.4"
+        "symfony/clock": "^7.4 || ^8.0",
+        "symfony/framework-bundle": "^7.4 || ^8.0",
+        "symfony/mailer": "^7.4 || ^8.0",
+        "symfony/messenger": "^7.4 || ^8.0",
+        "symfony/notifier": "^7.4 || ^8.0",
+        "symfony/translation": "^7.4 || ^8.0",
+        "symfony/twig-bundle": "^7.4 || ^8.0"
     },
     "config": {
         "sort-packages": true
@@ -65,7 +65,7 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.17",
         "php-parallel-lint/php-var-dump-check": "v0.5",
-        "phpunit/phpunit": "^11.3.2",
+        "phpunit/phpunit": "^11.5",
         "pusher/pusher-php-server": "^7.2.4",
         "rector/rector": "^2.3.0"
     }

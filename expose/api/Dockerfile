@@ -26,11 +26,12 @@ RUN apk add --no-cache \
 
 USER app
 
-# Warm up composer cache for faster builds
-COPY ./expose/api/docker/caching/composer.* ./
-RUN composer install --prefer-dist --no-dev --no-progress --classmap-authoritative --no-interaction --no-scripts \
+# Warm up the Composer cache with the dependencies of the lock, without the
+# local packages, so that changes in lib/php or in the app keep this layer.
+COPY --chown=app:app ./expose/api/composer.json ./expose/api/composer.lock ./
+RUN composer-strip-path-packages \
+    && composer install --prefer-dist --no-dev --no-progress --no-interaction --no-scripts --no-plugins --no-autoloader \
     && rm -rf vendor composer.*
-# End warm up
 
 COPY ./lib/bash/configurator /docker/configurator
 COPY --chown=app:app lib/php /lib/php

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Model\Input;
 
 use App\Entity\Core\Asset;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class AttributeFilterRuleInput
 {

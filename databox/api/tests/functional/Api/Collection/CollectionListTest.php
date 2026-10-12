@@ -31,11 +31,11 @@ final class CollectionListTest extends AbstractSearchTestCase
         $response = $this->request('GET', '/collections', self::ADMIN);
         $this->assertResponseStatusCodeSame(200);
         $data = $response->toArray();
-        $this->assertSame(2, $data['hydra:totalItems']);
+        $this->assertSame(2, $data['totalItems']);
         // Sorted by name, case insensitive
-        $this->assertSame(['A root', 'b root'], array_column($data['hydra:member'], 'name'));
+        $this->assertSame(['A root', 'b root'], array_column($data['member'], 'name'));
 
-        [$first, $second] = $data['hydra:member'];
+        [$first, $second] = $data['member'];
         $this->assertSame(['A1', 'A2', 'A3'], array_column($first['children'], 'name'));
         $this->assertSame([], $second['children']);
         // Children are embedded on one level only
@@ -49,7 +49,7 @@ final class CollectionListTest extends AbstractSearchTestCase
         $this->assertSame($b->getId(), $second['id']);
 
         $response = $this->request('GET', '/collections?childrenLimit=2', self::ADMIN);
-        $this->assertSame(['A1', 'A2'], array_column($response->toArray()['hydra:member'][0]['children'], 'name'));
+        $this->assertSame(['A1', 'A2'], array_column($response->toArray()['member'][0]['children'], 'name'));
     }
 
     public function testChildCreatedThroughApiIsEmbeddedInItsParent(): void
@@ -139,12 +139,12 @@ final class CollectionListTest extends AbstractSearchTestCase
 
         $response = $this->request('GET', '/collections?limit=2', self::ADMIN);
         $data = $response->toArray();
-        $this->assertSame(3, $data['hydra:totalItems']);
-        $this->assertSame(['A', 'B'], array_column($data['hydra:member'], 'name'));
-        $this->assertArrayHasKey('hydra:next', $data['hydra:view']);
+        $this->assertSame(3, $data['totalItems']);
+        $this->assertSame(['A', 'B'], array_column($data['member'], 'name'));
+        $this->assertArrayHasKey('next', $data['view']);
 
         $response = $this->request('GET', '/collections?limit=2&page=2', self::ADMIN);
-        $this->assertSame(['C'], array_column($response->toArray()['hydra:member'], 'name'));
+        $this->assertSame(['C'], array_column($response->toArray()['member'], 'name'));
     }
 
     public function testWorkspacesFilter(): void
@@ -158,11 +158,11 @@ final class CollectionListTest extends AbstractSearchTestCase
         $response = $this->request('GET', '/collections', self::ADMIN, [
             'query' => ['workspaces' => [$ws2->getId()]],
         ]);
-        $this->assertSame(['In 2'], array_column($response->toArray()['hydra:member'], 'name'));
+        $this->assertSame(['In 2'], array_column($response->toArray()['member'], 'name'));
 
         // A plain string is accepted as well
         $response = $this->request('GET', '/collections?workspaces='.$ws1->getId(), self::ADMIN);
-        $this->assertSame(['In 1'], array_column($response->toArray()['hydra:member'], 'name'));
+        $this->assertSame(['In 1'], array_column($response->toArray()['member'], 'name'));
     }
 
     public function testWorkspacesFilterOnUserRootCollections(): void
@@ -176,14 +176,14 @@ final class CollectionListTest extends AbstractSearchTestCase
         $this->createCollectionAccess($c2, self::USER, Privacy::SECRET);
 
         $response = $this->request('GET', '/collections', self::USER);
-        $names = array_column($response->toArray()['hydra:member'], 'name');
+        $names = array_column($response->toArray()['member'], 'name');
         sort($names);
         $this->assertSame(['In 1', 'In 2'], $names);
 
         $response = $this->request('GET', '/collections', self::USER, [
             'query' => ['workspaces' => [$ws2->getId()]],
         ]);
-        $this->assertSame(['In 2'], array_column($response->toArray()['hydra:member'], 'name'));
+        $this->assertSame(['In 2'], array_column($response->toArray()['member'], 'name'));
 
         // Workspaces the user is not allowed in are ignored
         $ws3 = $this->createTestWorkspace();
@@ -192,7 +192,36 @@ final class CollectionListTest extends AbstractSearchTestCase
         $response = $this->request('GET', '/collections', self::USER, [
             'query' => ['workspaces' => [$ws3->getId()]],
         ]);
-        $this->assertSame([], $response->toArray()['hydra:member']);
+        $this->assertSame([], $response->toArray()['member']);
+    }
+
+    public function testScalarWorkspacesFilterOnUserRootCollections(): void
+    {
+        $ws1 = $this->createTestWorkspace(['members' => [self::USER]]);
+        $ws2 = $this->createTestWorkspace(['members' => [self::USER]]);
+        $c1 = $this->createCollection(['workspace' => $ws1, 'name' => 'In 1', 'ownerId' => self::USER]);
+        $c2 = $this->createCollection(['workspace' => $ws2, 'name' => 'In 2', 'ownerId' => self::USER]);
+        $this->createCollectionAccess($c1, self::USER, Privacy::SECRET);
+        $this->createCollectionAccess($c2, self::USER, Privacy::SECRET);
+
+        // A plain string is accepted on the root listing (no Elasticsearch) as well
+        $this->assertSame(['In 2'], $this->listNames(self::USER, ['workspaces' => $ws2->getId()]));
+    }
+
+    public function testDeepListsTheDescendantsOfTheParent(): void
+    {
+        $workspace = $this->createTestWorkspace(['ownerId' => self::USER]);
+        $root = $this->createCollection(['workspace' => $workspace, 'name' => 'Root']);
+        $child = $this->createCollection(['workspace' => $workspace, 'name' => 'Child', 'parent' => $root]);
+        $this->createCollection(['workspace' => $workspace, 'name' => 'Grand child', 'parent' => $child]);
+        $this->reindex();
+
+        $this->assertSame(['Child'], $this->listNames(self::USER, ['parent' => $root->getId(), 'deep' => 'false']));
+        $this->assertSame(['Child', 'Grand child'], $this->listNames(self::USER, ['parent' => $root->getId(), 'deep' => 'true']));
+        $this->assertSame(['Child'], $this->listNames(self::USER, ['parent' => $root->getId(), 'query' => 'child', 'deep' => 'false']));
+
+        $this->request('GET', '/collections', self::USER, ['query' => ['parent' => $root->getId(), 'deep' => 'maybe']]);
+        $this->assertResponseStatusCodeSame(422);
     }
 
     public function testParentFilterListsDirectChildrenOnly(): void
@@ -209,14 +238,14 @@ final class CollectionListTest extends AbstractSearchTestCase
         ]);
         $this->assertResponseStatusCodeSame(200);
         $data = $response->toArray();
-        $this->assertSame(['Child'], array_column($data['hydra:member'], 'name'));
-        $this->assertSame(['Grand child'], array_column($data['hydra:member'][0]['children'], 'name'));
+        $this->assertSame(['Child'], array_column($data['member'], 'name'));
+        $this->assertSame(['Grand child'], array_column($data['member'][0]['children'], 'name'));
 
         // "parents" with a single value is equivalent
         $response = $this->request('GET', '/collections', self::USER, [
             'query' => ['parents' => [$child->getId()]],
         ]);
-        $this->assertSame(['Grand child'], array_column($response->toArray()['hydra:member'], 'name'));
+        $this->assertSame(['Grand child'], array_column($response->toArray()['member'], 'name'));
     }
 
     public function testParentFilterAppliesPermissions(): void
@@ -283,7 +312,7 @@ final class CollectionListTest extends AbstractSearchTestCase
             'query' => ['parent' => $root->getId(), 'query' => 'holidays'],
         ]);
         $this->assertResponseStatusCodeSame(200);
-        $members = $response->toArray()['hydra:member'];
+        $members = $response->toArray()['member'];
         $this->assertSame(['Beach holidays', 'Summer holidays'], array_column($members, 'name'));
         $this->assertStringContainsString('[hl]', $members[0]['nameHighlight']);
     }
@@ -351,7 +380,7 @@ final class CollectionListTest extends AbstractSearchTestCase
         ]);
         $this->assertResponseStatusCodeSame(200);
 
-        return $response->toArray()['hydra:member'];
+        return $response->toArray()['member'];
     }
 
     /**
@@ -364,7 +393,7 @@ final class CollectionListTest extends AbstractSearchTestCase
         ]);
         $this->assertResponseStatusCodeSame(200);
 
-        $names = array_column($response->toArray()['hydra:member'], 'name');
+        $names = array_column($response->toArray()['member'], 'name');
         sort($names);
 
         return $names;

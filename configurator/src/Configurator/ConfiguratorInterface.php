@@ -13,6 +13,4 @@ interface ConfiguratorInterface
     public function configure(OutputInterface $output, array $presets): void;
 
     public static function getName(): string;
-
-    public static function getPriority(): int;
 }

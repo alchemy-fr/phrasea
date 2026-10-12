@@ -9,6 +9,7 @@ use Alchemy\AclBundle\Model\AclUserInterface;
 use Alchemy\AclBundle\Security\Voter\SetPermissionVoter as BaseSetPermissionVoter;
 use Symfony\Component\DependencyInjection\Attribute\AsDecorator;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 #[AsDecorator(BaseSetPermissionVoter::class)]
 class SetPermissionVoter extends AbstractVoter
@@ -48,7 +49,7 @@ class SetPermissionVoter extends AbstractVoter
     /**
      * @param AclObjectInterface $subject
      */
-    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $user = $token->getUser();
         if (!$user instanceof AclUserInterface) {

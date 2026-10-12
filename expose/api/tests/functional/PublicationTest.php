@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Publication;
 use App\Entity\PublicationProfile;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 
@@ -24,7 +25,7 @@ class PublicationTest extends AbstractExposeTestCase
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(201, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
@@ -62,7 +63,7 @@ class PublicationTest extends AbstractExposeTestCase
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(201, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
@@ -117,7 +118,7 @@ class PublicationTest extends AbstractExposeTestCase
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertCount(2, $json);
         $this->assertEquals('Pub #1', $json[0]['title']);
@@ -216,7 +217,7 @@ class PublicationTest extends AbstractExposeTestCase
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertCount(2, $json);
         $this->assertEquals('Pub #1', $json[0]['title']);
@@ -242,7 +243,7 @@ class PublicationTest extends AbstractExposeTestCase
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertCount(2, $json);
         $this->assertEquals('Pub #1', $json[0]['title']);
@@ -262,7 +263,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(201, $response->getStatusCode());
         $this->assertEquals('2042-12-12T00:00:00+00:00', $json['config']['beginsAt']);
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'PUT', '/publications/'.$json['id'], [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'PATCH', '/publications/'.$json['id'], [
             'title' => 'Foo',
             'config' => [
                 'layout' => 'download',
@@ -296,7 +297,7 @@ class PublicationTest extends AbstractExposeTestCase
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
@@ -320,7 +321,7 @@ class PublicationTest extends AbstractExposeTestCase
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/publications/foo');
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('title', $json);
@@ -330,9 +331,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertNotNull($json['assets'][0]['id']);
     }
 
-    /**
-     * @dataProvider publicationAndProfilesProvider
-     */
+    #[DataProvider('publicationAndProfilesProvider')]
     public function testPublicationConfig(array $publicationOptions, array $profileOptions, array $expectations): void
     {
         $profile = new PublicationProfile();
@@ -352,7 +351,7 @@ class PublicationTest extends AbstractExposeTestCase
         }
     }
 
-    public function publicationAndProfilesProvider(): array
+    public static function publicationAndProfilesProvider(): array
     {
         return [
             [
@@ -546,7 +545,7 @@ class PublicationTest extends AbstractExposeTestCase
         $response = $this->request(null, 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertArrayNotHasKey('ownerId', $json);
         $this->assertArrayHasKey('id', $json);
@@ -562,7 +561,7 @@ class PublicationTest extends AbstractExposeTestCase
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/publications/'.$id);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertEquals('user42', $json['ownerId']);
         $this->assertArrayHasKey('id', $json);
@@ -576,9 +575,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(401, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider getPublicationVisibilityData
-     */
+    #[DataProvider('getPublicationVisibilityData')]
     public function testPublicationVisibility(bool $enabled, ?string $start, ?string $end, bool $shouldBeVisible): void
     {
         $options = [
@@ -595,7 +592,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals($shouldBeVisible ? 200 : 401, $response->getStatusCode());
     }
 
-    public function getPublicationVisibilityData(): array
+    public static function getPublicationVisibilityData(): array
     {
         return [
             [false, null, null, false],
@@ -607,9 +604,7 @@ class PublicationTest extends AbstractExposeTestCase
         ];
     }
 
-    /**
-     * @dataProvider getPublicationPubliclyListedData
-     */
+    #[DataProvider('getPublicationPubliclyListedData')]
     public function testPublicationPubliclyListed(bool $listed, bool $enabled, ?string $start, ?string $end, bool $shouldBeVisible): void
     {
         $options = [
@@ -629,7 +624,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertCount($shouldBeVisible ? 1 : 0, $json);
     }
 
-    public function getPublicationPubliclyListedData(): array
+    public static function getPublicationPubliclyListedData(): array
     {
         return [
             [true, false, null, null, false],
@@ -663,7 +658,7 @@ class PublicationTest extends AbstractExposeTestCase
             'enabled' => false,
         ])->getId();
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'PUT', '/publications/'.$id, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'PATCH', '/publications/'.$id, [
             'title' => 'Foo',
             'config' => [
                 'enabled' => true,
@@ -683,7 +678,7 @@ class PublicationTest extends AbstractExposeTestCase
             'enabled' => false,
         ])->getId();
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PUT', '/publications/'.$id, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PATCH', '/publications/'.$id, [
             'title' => 'Foo',
             'config' => [
                 'enabled' => true,
@@ -700,7 +695,7 @@ class PublicationTest extends AbstractExposeTestCase
             'enabled' => false,
         ])->getId();
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PUT', '/publications/'.$id, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PATCH', '/publications/'.$id, [
             'title' => 'Foo',
             'config' => [
                 'enabled' => true,
@@ -728,7 +723,7 @@ class PublicationTest extends AbstractExposeTestCase
             'enabled' => false,
         ]);
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PUT', '/publications/'.$publicationId, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PATCH', '/publications/'.$publicationId, [
             'profile' => '/publication-profiles/'.$profileId,
         ]);
         // Cannot change profile of publication
@@ -743,7 +738,7 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
         $this->assertEquals(200, $aclRes->getStatusCode());
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PUT', '/publications/'.$publicationId, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PATCH', '/publications/'.$publicationId, [
             'profile' => '/publication-profiles/'.$profileId,
         ]);
         // Still cannot change profile of publication with EDIT permission (need OPERATOR)
@@ -758,7 +753,7 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
         $this->assertEquals(200, $aclRes->getStatusCode());
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PUT', '/publications/'.$publicationId, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PATCH', '/publications/'.$publicationId, [
             'profile' => '/publication-profiles/'.$profileId,
         ]);
         // Cannot read this profile
@@ -773,7 +768,7 @@ class PublicationTest extends AbstractExposeTestCase
         ]);
         $this->assertEquals(200, $aclRes->getStatusCode());
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PUT', '/publications/'.$publicationId, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PATCH', '/publications/'.$publicationId, [
             'profile' => '/publication-profiles/'.$profileId,
         ]);
         $this->assertEquals(200, $response->getStatusCode());
@@ -807,7 +802,7 @@ class PublicationTest extends AbstractExposeTestCase
         $this->assertEquals(false, $json['config']['enabled']);
         $id = $json['id'];
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PUT', '/publications/'.$id, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PATCH', '/publications/'.$id, [
             'title' => 'Foo',
             'config' => [
                 'enabled' => true,
@@ -865,7 +860,7 @@ class PublicationTest extends AbstractExposeTestCase
         }
         $this->assertEquals(201, $response->getStatusCode());
 
-        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PUT', '/publications/'.$id, [
+        $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'PATCH', '/publications/'.$id, [
             'title' => 'Foo',
             'config' => [
                 'enabled' => true,

@@ -7,7 +7,9 @@ namespace App\Elasticsearch\BuiltInAttribute;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Workspace;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: '@workspace')]
 final class WorkspaceBuiltInAttribute extends AbstractEntityBuiltInAttribute
 {
     use UserLocaleTrait;

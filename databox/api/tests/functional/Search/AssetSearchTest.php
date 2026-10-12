@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Search;
 
 use App\Attribute\Type\DateTimeAttributeType;
+use App\Tests\Functional\AbstractSearchTestCase;
 
-class AssetSearchTest extends AbstractSearchTest
+class AssetSearchTest extends AbstractSearchTestCase
 {
     public function testAssetSearchInPublicWorkspace(): void
     {
@@ -23,7 +24,7 @@ class AssetSearchTest extends AbstractSearchTest
 
         $client = self::createClient();
         $response = $client->request('GET', '/assets');
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertCount(1, $data);
     }
 
@@ -42,7 +43,7 @@ class AssetSearchTest extends AbstractSearchTest
         $client = self::createClient();
         $response = $client->request('GET', '/assets');
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertCount(0, $data);
     }
 
@@ -333,10 +334,33 @@ class AssetSearchTest extends AbstractSearchTest
         $this->assertSortedNames(['ghost_text_s' => 'asc'], ['Lonely']);
     }
 
-    /**
-     * @param array<string, string> $order
-     * @param list<string>          $expectedNames
-     */
+    public function testUndeclaredParametersAreIgnoredAndAnInvalidOrderIsRejected(): void
+    {
+        $workspace = $this->createWorkspace([
+            'no_acl' => true,
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        foreach (['A', 'B'] as $name) {
+            $this->createAsset([
+                'public' => true,
+                'workspace' => $workspace,
+                'name' => $name,
+            ]);
+        }
+        self::releaseIndex();
+
+        $client = self::createClient();
+        $response = $client->request('GET', '/assets', ['query' => ['unknown' => '1', 'limit' => '1']]);
+        $this->assertCount(1, $this->getDataFromResponse($response, 200)['member']);
+
+        $client->request('GET', '/assets', ['query' => ['order' => 'foo']]);
+        $this->assertResponseStatusCodeSame(400);
+
+        $client->request('GET', '/assets', ['query' => ['order' => ['@createdAt' => 'sideways']]]);
+        $this->assertResponseStatusCodeSame(400);
+    }
+
     private function assertSortedNames(array $order, array $expectedNames): void
     {
         $client = self::createClient();
@@ -346,7 +370,7 @@ class AssetSearchTest extends AbstractSearchTest
             ],
         ]);
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
 
         $this->assertSame($expectedNames, array_map(
             fn (array $r): ?string => $r['name'] ?? null,
@@ -369,7 +393,7 @@ class AssetSearchTest extends AbstractSearchTest
             implode('", "', $expectedResults)
         );
 
-        $data = $this->getDataFromResponse($response, 200)['hydra:member'];
+        $data = $this->getDataFromResponse($response, 200)['member'];
         $this->assertSameSize($expectedResults, $data, $getMessage('Invalid result count'));
         foreach ($expectedResults as $expectedResult) {
             $r = array_shift($data);

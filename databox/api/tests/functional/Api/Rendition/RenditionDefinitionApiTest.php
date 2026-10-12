@@ -102,7 +102,7 @@ YAML;
         $this->assertNotContains($assetOnly->getId(), $byTarget);
 
         $byWorkspace = $this->jsonRequest('GET', '/rendition-definitions', self::EDITOR, options: ['query' => ['workspaceId' => $ws->getId()]]);
-        $this->assertSame(5, $byWorkspace->toArray()['hydra:totalItems']);
+        $this->assertSame(5, $byWorkspace->toArray()['totalItems']);
     }
 
     public function testListIsOrderedByPriority(): void
@@ -146,7 +146,7 @@ YAML;
         [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
         $preview = $defaults->renditionDefinitions['preview'];
 
-        $this->jsonRequest('PUT', '/rendition-definitions/'.$preview->getId(), self::EDITOR, [
+        $this->jsonRequest('PATCH', '/rendition-definitions/'.$preview->getId(), self::EDITOR, [
             'translations' => ['name' => ['fr' => 'Aperçu', 'en' => '']],
         ]);
         $this->assertResponseIsSuccessful();
@@ -248,7 +248,7 @@ YAML;
             'policy' => '/rendition-policies/'.$defaultsB->renditionPolicy->getId(),
         ]);
         $this->assertResponseStatusCodeSame(422);
-        $this->assertStringContainsString('same workspace', $response->toArray(false)['hydra:description']);
+        $this->assertStringContainsString('same workspace', $response->toArray(false)['description']);
 
         $this->jsonRequest('POST', '/rendition-definitions', self::EDITOR, [
             'workspace' => $workspaceIri,
@@ -284,7 +284,7 @@ YAML;
         $this->assertSame('Preview v2', $response->toArray()['name']);
 
         $list = $this->jsonRequest('GET', '/rendition-definitions', self::EDITOR, options: ['query' => ['workspaceId' => $ws->getId()]]);
-        $this->assertSame(3, $list->toArray()['hydra:totalItems']);
+        $this->assertSame(3, $list->toArray()['totalItems']);
     }
 
     public function testPatchOnlyChangesProvidedFields(): void
@@ -344,16 +344,16 @@ YAML;
         $thumbnail = $defaults->renditionDefinitions['thumbnail'];
         $iri = '/rendition-definitions/'.$thumbnail->getId();
 
-        $this->jsonRequest('PUT', $iri, null, ['name' => 'x']);
+        $this->jsonRequest('PATCH', $iri, null, ['name' => 'x']);
         $this->assertResponseStatusCodeSame(401);
-        $this->jsonRequest('PUT', $iri, self::READER, ['name' => 'x']);
+        $this->jsonRequest('PATCH', $iri, self::READER, ['name' => 'x']);
         $this->assertResponseStatusCodeSame(403);
         $this->jsonRequest('PATCH', $iri, self::READER, ['name' => 'x']);
         $this->assertResponseStatusCodeSame(403);
         $this->jsonRequest('DELETE', $iri, self::READER);
         $this->assertResponseStatusCodeSame(403);
 
-        $this->jsonRequest('PUT', $iri, self::EDITOR, ['name' => 'Thumb']);
+        $this->jsonRequest('PATCH', $iri, self::EDITOR, ['name' => 'Thumb']);
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains(['name' => 'Thumb']);
 

@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use ApiPlatform\Metadata\Operation;
 use App\Api\EntityIriConverter;
-use App\Elasticsearch\Exception\MissingSearchIndexException;
+use App\Elasticsearch\Filter\SearchQuery;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\AssetDataTemplate;
@@ -14,17 +15,15 @@ use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-final readonly class AssetDataTemplateSearch
+final class AssetDataTemplateSearch extends AbstractSearch
 {
     public function __construct(
         #[Autowire(service: 'fos_elastica.finder.asset_data_template')]
-        private PaginatedFinderInterface $finder,
-        private Security $security,
-        private EntityIriConverter $iriConverter,
+        private readonly PaginatedFinderInterface $finder,
+        private readonly EntityIriConverter $iriConverter,
     ) {
     }
 
@@ -32,18 +31,19 @@ final readonly class AssetDataTemplateSearch
         ?string $userId,
         array $groupIds,
         array $filters = [],
+        ?Operation $operation = null,
     ): Pagerfanta {
         $filterQueries = [];
 
-        $collection = $filters['collection'] ?? null;
+        $collection = self::firstScalar($filters['collection'] ?? null);
         if (null !== $collection) {
             $collection = $this->iriConverter->getItemFromIri(Collection::class, $collection);
         }
 
-        $aclBoolQuery = $this->createACLBoolQuery($filters, $userId, $groupIds, $collection);
+        $aclBoolQuery = $this->createTemplateACLBoolQuery($filters, $userId, $groupIds, $collection);
         $filterQueries[] = $aclBoolQuery;
 
-        $queryString = trim($filters['query'] ?? '');
+        $queryString = trim((string) ($filters['query'] ?? ''));
         if (!empty($queryString)) {
             $queryBool = new Query\BoolQuery();
             $queryBool->addShould(new Query\MatchQuery('name', $queryString));
@@ -51,15 +51,15 @@ final readonly class AssetDataTemplateSearch
         }
 
         $maxLimit = 50;
-        $limit = $filters['limit'] ?? $maxLimit;
-        if ($limit > $maxLimit) {
-            $limit = $maxLimit;
-        }
 
         $rootQuery = new Query\BoolQuery();
         foreach ($filterQueries as $query) {
             $rootQuery->addFilter($query);
         }
+
+        // workspace (ExactSearchFilter)
+        $searchQuery = new SearchQuery($rootQuery);
+        $this->applyParameters($searchQuery, AssetDataTemplate::class, $operation, $filters);
 
         if ($collection instanceof Collection) {
             $collectionQuery = new Query\BoolQuery();
@@ -87,7 +87,7 @@ final readonly class AssetDataTemplateSearch
         $query = new Query();
         $query->setTrackTotalHits();
         $query->setQuery($rootQuery);
-        $query->setSort([
+        $query->setSort($searchQuery->hasSort() ? $searchQuery->getSort() : [
             'collectionDepth' => 'asc',
             '_score' => 'desc',
             'name.raw' => 'asc',
@@ -96,28 +96,29 @@ final readonly class AssetDataTemplateSearch
         /** @var FantaPaginatorAdapter $adapter */
         $adapter = $this->finder->findPaginated($query)->getAdapter();
         $result = new Pagerfanta(new FilteredPager(fn (AssetDataTemplate $template): bool => $this->security->isGranted(AbstractVoter::READ, $template), $adapter));
-        $result->setMaxPerPage((int) $limit);
-        if ($filters['page'] ?? false) {
-            $result->setCurrentPage((int) $filters['page']);
-        }
+        self::applyPagination($result, $filters, $maxLimit);
 
         // Force query so a missing index surfaces here, not during serialization.
-        try {
-            $result->getCurrentPageResults();
-        } catch (\Throwable $e) {
-            if (null !== $missing = MissingSearchIndexException::tryFrom($e)) {
-                throw $missing;
-            }
-
-            throw $e;
-        }
+        $this->executeSearch($result->getCurrentPageResults(...));
 
         return $result;
     }
 
-    private function createACLBoolQuery(array $filters, ?string $userId, array $groupIds, ?Collection $collection): Query\BoolQuery
+    /**
+     * A parameter given once (`?x=a`) or as a list (`?x[]=a`): its first value.
+     */
+    private static function firstScalar(mixed $value): ?string
     {
-        $workspaceId = $filters['workspace'] ?? $collection?->getWorkspaceId() ?? null;
+        if (\is_array($value)) {
+            $value = reset($value);
+        }
+
+        return \is_scalar($value) && '' !== (string) $value ? (string) $value : null;
+    }
+
+    private function createTemplateACLBoolQuery(array $filters, ?string $userId, array $groupIds, ?Collection $collection): Query\BoolQuery
+    {
+        $workspaceId = self::firstScalar($filters['workspace'] ?? null) ?? $collection?->getWorkspaceId();
 
         if (empty($workspaceId)) {
             throw new BadRequestHttpException('"workspace" filter is mandatory');

@@ -9,12 +9,11 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Workspace;
 use App\Tests\Functional\AbstractSearchTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class CreateAssetWithAttributeTest extends AbstractSearchTestCase
 {
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testAssetCreateWithAttributes(array $attributes, ?array $expectedValues): void
     {
         self::enableFixtures();
@@ -40,10 +39,11 @@ class CreateAssetWithAttributeTest extends AbstractSearchTestCase
             ],
         ]);
 
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
         if (null === $expectedValues) {
+            $this->assertResponseHeaderSame('content-type', 'application/problem+json');
             $this->assertResponseStatusCodeSame(422);
         } else {
+            $this->assertResponseHeaderSame('content-type', 'application/ld+json');
             $this->assertResponseStatusCodeSame(201);
 
             $attrAssertions = [];
@@ -70,7 +70,7 @@ class CreateAssetWithAttributeTest extends AbstractSearchTestCase
         }
     }
 
-    public function getCases(): array
+    public static function getCases(): array
     {
         return [
             [['description' => 'Foo bar', 'keywords' => ['KW #1']], ['description' => 'Foo bar', 'keywords' => ['KW #1']]],

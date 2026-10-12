@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use App\Entity\Page\Page;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Landing pages.
@@ -49,7 +50,7 @@ final class PageApiTest extends AbstractDataboxTestCase
         $this->assertFalse($page->isHomepage());
 
         // The creator owns the page and can edit it afterwards
-        $this->assertSame('Updated', $this->apiJson('PUT', '/pages/'.$data['id'], self::USER, ['title' => 'Updated'])['title']);
+        $this->assertSame('Updated', $this->apiJson('PATCH', '/pages/'.$data['id'], self::USER, ['title' => 'Updated'])['title']);
     }
 
     public function testCreateDefaults(): void
@@ -66,9 +67,7 @@ final class PageApiTest extends AbstractDataboxTestCase
         $this->assertSame(self::ADMIN, $page->getOwnerId());
     }
 
-    /**
-     * @dataProvider getInvalidPayloads
-     */
+    #[DataProvider('getInvalidPayloads')]
     public function testCreateValidation(array $payload): void
     {
         $this->createPage('Existing', 'existing', self::ADMIN);
@@ -180,18 +179,18 @@ final class PageApiTest extends AbstractDataboxTestCase
         $page = $this->createPage('P', 'p', self::USER, public: true, enabled: true);
         $uri = '/pages/'.$page->getId();
 
-        $this->assertStatus(403, 'PUT', $uri, self::OTHER, ['title' => 'Hijack']);
-        $this->assertStatus(401, 'PUT', $uri, null, ['title' => 'Hijack']);
+        $this->assertStatus(403, 'PATCH', $uri, self::OTHER, ['title' => 'Hijack']);
+        $this->assertStatus(401, 'PATCH', $uri, null, ['title' => 'Hijack']);
 
-        $data = $this->apiJson('PUT', $uri, self::USER, ['enabled' => false]);
+        $data = $this->apiJson('PATCH', $uri, self::USER, ['enabled' => false]);
         $this->assertFalse($data['enabled']);
         $this->assertSame('P', $data['title']);
 
         $this->grantUserOnObject(self::OTHER, $page, PermissionInterface::EDIT);
-        $this->assertSame('By other', $this->apiJson('PUT', $uri, self::OTHER, ['title' => 'By other'])['title']);
+        $this->assertSame('By other', $this->apiJson('PATCH', $uri, self::OTHER, ['title' => 'By other'])['title']);
         $this->assertStatus(403, 'DELETE', $uri, self::OTHER);
 
-        $this->assertStatus(200, 'PUT', $uri, self::ADMIN, ['title' => 'By admin']);
+        $this->assertStatus(200, 'PATCH', $uri, self::ADMIN, ['title' => 'By admin']);
     }
 
     public function testUpdateValidation(): void
@@ -200,10 +199,10 @@ final class PageApiTest extends AbstractDataboxTestCase
         $page = $this->createPage('P', 'p', self::USER);
         $uri = '/pages/'.$page->getId();
 
-        $this->assertStatus(422, 'PUT', $uri, self::USER, ['slug' => 'taken']);
-        $this->assertStatus(422, 'PUT', $uri, self::USER, ['title' => '']);
+        $this->assertStatus(422, 'PATCH', $uri, self::USER, ['slug' => 'taken']);
+        $this->assertStatus(422, 'PATCH', $uri, self::USER, ['title' => '']);
         // Keeping its own slug is fine
-        $this->assertStatus(200, 'PUT', $uri, self::USER, ['slug' => 'p', 'title' => 'Same slug']);
+        $this->assertStatus(200, 'PATCH', $uri, self::USER, ['slug' => 'p', 'title' => 'Same slug']);
     }
 
     public function testOwnershipCannotBeChangedByOtherEditor(): void
@@ -211,7 +210,7 @@ final class PageApiTest extends AbstractDataboxTestCase
         $page = $this->createPage('P', 'p', self::USER);
         $this->grantUserOnObject(self::OTHER, $page, PermissionInterface::EDIT);
 
-        $this->api('PUT', '/pages/'.$page->getId(), self::OTHER, ['ownerId' => self::OTHER]);
+        $this->api('PATCH', '/pages/'.$page->getId(), self::OTHER, ['ownerId' => self::OTHER]);
 
         self::getEntityManager()->clear();
         $this->assertSame(self::USER, self::getEntityManager()->find(Page::class, $page->getId())->getOwnerId());

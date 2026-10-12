@@ -7,7 +7,7 @@ namespace App\Tests\Functional\Asset;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
-class AssetGetTest extends AbstractAssetTest
+class AssetGetTest extends AbstractAssetTestCase
 {
     public function testAssetGetOK(): void
     {
@@ -16,7 +16,7 @@ class AssetGetTest extends AbstractAssetTest
 
         $this->assertEquals(200, $response->getStatusCode());
         $contents = $response->toArray();
-        $this->assertEquals('application/ld+json; charset=utf-8', $response->getHeaders()['content-type'][0]);
+        $this->assertEquals('application/ld+json', $response->getHeaders()['content-type'][0]);
         $this->assertEquals('foo.jpg', $contents['originalName']);
         $this->assertEquals(['foo' => 'bar'], $contents['formData']);
         $this->assertEquals(846, $contents['size']);

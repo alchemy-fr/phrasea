@@ -66,7 +66,7 @@ export function putCollection(
     id: string,
     data: CollectionInput
 ): Promise<Collection> {
-    return api.put<Collection>(`/${EntityName.Collection}/${id}`, toIris(data));
+    return api.patch<Collection>(`/${EntityName.Collection}/${id}`, toIris(data));
 }
 
 export function postCollection(data: CollectionInput): Promise<Collection> {
@@ -122,7 +122,7 @@ export function putWorkspace(
     id: string,
     data: Partial<Workspace>
 ): Promise<Workspace> {
-    return api.put<Workspace>(`/${EntityName.Workspace}/${id}`, toIris(data));
+    return api.patch<Workspace>(`/${EntityName.Workspace}/${id}`, toIris(data));
 }
 
 /** Signs the current version of the workspace Terms & Conditions */

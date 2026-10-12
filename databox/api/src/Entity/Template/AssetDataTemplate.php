@@ -8,17 +8,19 @@ use Alchemy\AclBundle\AclObjectInterface;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\ExactSearchFilter;
 use App\Api\Model\Input\Template\AssetDataTemplateInput;
 use App\Api\Model\Output\Template\AssetDataTemplateOutput;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\AssetDataTemplateCollectionProvider;
+use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
 use App\Entity\Core\Collection;
 use App\Entity\Core\Tag;
 use App\Entity\Traits\OwnerIdTrait;
@@ -30,7 +32,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table]
@@ -47,7 +49,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
             security: 'is_granted("READ", object)'
         ),
-        new Put(
+        new Patch(
             normalizationContext: [
                 'groups' => [
                     AssetDataTemplate::GROUP_LIST,
@@ -55,11 +57,42 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ],
             ],
             security: 'is_granted("EDIT", object)',
+            processor: InputMapperProcessor::class,
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'workspace' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'workspace',
+                    description: 'Workspace ID or IRI (mandatory without "collection")',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'workspaceId'],
+                ),
+                'workspace[]' => new QueryParameter(property: 'workspace', openApi: false),
+                'collection' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Collection ID or IRI: templates of this collection, of its ancestors (when they include their children) and of the workspace',
+                    castToArray: false,
+                ),
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Search query on the name',
+                    castToArray: false,
+                ),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (max 50)',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
+                ),
+            ],
+        ),
         new Post(
-            securityPostDenormalize: 'is_granted("CREATE", object)',
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
+            processor: InputMapperProcessor::class,
         ),
     ],
     normalizationContext: [
@@ -69,7 +102,6 @@ use Symfony\Component\Validator\Constraints as Assert;
     output: AssetDataTemplateOutput::class,
     provider: AssetDataTemplateCollectionProvider::class,
 )]
-#[ApiFilter(SearchFilter::class, properties: ['workspace' => 'exact'])]
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'tags.workspace', 'collection.workspace', 'attributes.workspace']
 )]

@@ -19,7 +19,7 @@ use App\Entity\Core\Collection;
 use App\Entity\Core\File;
 use App\Entity\Core\Share;
 use App\Entity\Discussion\Thread;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Serializer\Attribute\MaxDepth;
 
 class AssetOutput extends AbstractUuidOutput
@@ -52,11 +52,11 @@ class AssetOutput extends AbstractUuidOutput
     protected ?array $attributes = null;
 
     /**
-     * @var AssetAttachment[]
+     * @var AssetAttachment[]|null
      */
     #[Groups([Asset::GROUP_READ])]
     #[MaxDepth(1)]
-    public $attachments;
+    public ?array $attachments = null;
 
     #[Groups([
         Asset::GROUP_LIST,

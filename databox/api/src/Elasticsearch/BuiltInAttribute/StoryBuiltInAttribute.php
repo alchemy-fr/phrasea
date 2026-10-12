@@ -8,7 +8,9 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\CollectionAsset;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: '@story')]
 final class StoryBuiltInAttribute extends AbstractEntityBuiltInAttribute
 {
     public function __construct(

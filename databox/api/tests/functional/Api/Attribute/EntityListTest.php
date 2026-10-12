@@ -37,7 +37,7 @@ final class EntityListTest extends AbstractDataboxTestCase
         $response = $this->api('GET', '/entity-lists', $userId, options: ['query' => $query]);
         $this->assertResponseStatusCodeSame(200);
 
-        return array_column($response->toArray()['hydra:member'], 'name');
+        return array_column($response->toArray()['member'], 'name');
     }
 
     private function listPayload(array $data = []): array
@@ -209,7 +209,7 @@ final class EntityListTest extends AbstractDataboxTestCase
         $list = $this->createEntityList(['name' => 'Colors']);
         $iri = '/entity-lists/'.$list->getId();
 
-        $this->api('PUT', $iri, self::USER, ['name' => 'Palette', 'withEmojis' => true]);
+        $this->api('PATCH', $iri, self::USER, ['name' => 'Palette', 'withEmojis' => true]);
         $this->assertResponseStatusCodeSame(200);
         $this->assertJsonContains(['name' => 'Palette', 'withEmojis' => true]);
 
@@ -224,7 +224,7 @@ final class EntityListTest extends AbstractDataboxTestCase
         $list = $this->createEntityList(['name' => 'Colors']);
         $iri = '/entity-lists/'.$list->getId();
 
-        $this->api('PUT', $iri, self::OTHER, ['name' => 'Hacked']);
+        $this->api('PATCH', $iri, self::OTHER, ['name' => 'Hacked']);
         $this->assertResponseStatusCodeSame(403);
         $this->api('PATCH', $iri, self::OTHER, ['name' => 'Hacked']);
         $this->assertResponseStatusCodeSame(403);
@@ -324,7 +324,7 @@ final class EntityListTest extends AbstractDataboxTestCase
 
         $this->api('POST', $iri, self::USER, ['format' => 'xml', 'data' => '<colors/>']);
         $this->assertResponseStatusCodeSame(400);
-        $this->assertJsonContains(['hydra:description' => 'Unsupported import format "xml".']);
+        $this->assertJsonContains(['description' => 'Unsupported import format "xml".']);
 
         $this->api('POST', $iri, self::USER, ['format' => 'raw', 'data' => '']);
         $this->assertResponseStatusCodeSame(422);
@@ -397,7 +397,7 @@ final class EntityListTest extends AbstractDataboxTestCase
 
         $this->export(self::USER, $list, ['format' => 'xml']);
         $this->assertResponseStatusCodeSame(400);
-        $this->assertJsonContains(['hydra:description' => 'Unsupported export format "xml".']);
+        $this->assertJsonContains(['description' => 'Unsupported export format "xml".']);
 
         $this->export(self::USER, $list, []);
         $this->assertResponseStatusCodeSame(422);

@@ -1,4 +1,8 @@
 api_platform:
+    jsonapi:
+        # Keep IRIs as JSON:API "id" (the default changes to false in API Platform 5)
+        use_iri_as_id: true
+    use_symfony_listeners: true
     version: '1.0.0'
     mapping:
         paths:
@@ -14,3 +18,5 @@ api_platform:
         csv:      ['text/csv']
         html:     ['text/html']
         multipart: ['multipart/form-data']
+    patch_formats:
+        json: ['application/merge-patch+json']

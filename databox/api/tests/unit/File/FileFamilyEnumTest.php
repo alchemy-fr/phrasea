@@ -6,6 +6,7 @@ namespace App\Tests\Unit\File;
 
 use App\Entity\Core\File;
 use App\Entity\Core\FileFamilyEnum;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class FileFamilyEnumTest extends TestCase
@@ -33,9 +34,7 @@ class FileFamilyEnumTest extends TestCase
         yield 'null' => [null, FileFamilyEnum::Other];
     }
 
-    /**
-     * @dataProvider mimeTypeProvider
-     */
+    #[DataProvider('mimeTypeProvider')]
     public function testFromMimeType(?string $mimeType, FileFamilyEnum $expected): void
     {
         $this->assertSame($expected, FileFamilyEnum::fromMimeType($mimeType));

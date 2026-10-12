@@ -7,7 +7,7 @@ namespace App\Tests\Functional\Api\Social;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\CoreBundle\Message\PusherMessage;
 use Alchemy\MessengerBundle\Transport\TestTransport;
-use ApiPlatform\Symfony\Bundle\Test\Client;
+use ApiPlatform\Test\Client;
 use App\Consumer\Handler\Discussion\PostDiscussionMessage;
 use App\Entity\Core\Asset;
 use App\Entity\Core\Workspace;
@@ -15,6 +15,7 @@ use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Entity\Discussion\Message;
 use App\Entity\Discussion\Thread;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Discussions on assets: `POST /messages`, `GET|PUT|DELETE /messages/{id}`,
@@ -205,9 +206,7 @@ final class DiscussionTest extends AbstractDataboxTestCase
         yield 'unknown object' => ['asset:'.self::UNKNOWN_ID];
     }
 
-    /**
-     * @dataProvider invalidThreadKeyProvider
-     */
+    #[DataProvider('invalidThreadKeyProvider')]
     public function testInvalidThreadKeyIsRejected(string $threadKey): void
     {
         $client = static::createClient();
@@ -231,9 +230,7 @@ final class DiscussionTest extends AbstractDataboxTestCase
         yield 'file posted by id' => [[['type' => 'file', 'content' => '{"id": "'.self::UNKNOWN_ID.'"}']]];
     }
 
-    /**
-     * @dataProvider invalidAttachmentProvider
-     */
+    #[DataProvider('invalidAttachmentProvider')]
     public function testInvalidAttachmentsAreRejected(array $attachments): void
     {
         $client = static::createClient();
@@ -340,10 +337,10 @@ final class DiscussionTest extends AbstractDataboxTestCase
         }
 
         $data = $client->request('GET', sprintf('/threads/%s/messages', $thread->getId()), self::auth(self::OTHER))->toArray();
-        $this->assertSame(3, $data['hydra:totalItems']);
-        $this->assertSame(['one', 'two', 'three'], array_column($data['hydra:member'], 'content'), 'Oldest first');
-        $this->assertSame([self::USER, self::OTHER, self::USER], array_map(static fn (array $m): string => $m['author']['id'], $data['hydra:member']));
-        $this->assertSame([false, true, false], array_map(static fn (array $m): bool => $m['capabilities']['edit'], $data['hydra:member']));
+        $this->assertSame(3, $data['totalItems']);
+        $this->assertSame(['one', 'two', 'three'], array_column($data['member'], 'content'), 'Oldest first');
+        $this->assertSame([self::USER, self::OTHER, self::USER], array_map(static fn (array $m): string => $m['author']['id'], $data['member']));
+        $this->assertSame([false, true, false], array_map(static fn (array $m): bool => $m['capabilities']['edit'], $data['member']));
     }
 
     public function testListMessagesOfAnInvisibleThreadIsDenied(): void
@@ -383,8 +380,8 @@ final class DiscussionTest extends AbstractDataboxTestCase
         $thread = $this->findThread($this->asset);
 
         $data = $client->request('GET', sprintf('/threads/%s/messages', $thread->getId()))->toArray();
-        $this->assertSame(['Public talk'], array_column($data['hydra:member'], 'content'));
-        $this->assertSame(['edit' => false, 'delete' => false], $data['hydra:member'][0]['capabilities']);
+        $this->assertSame(['Public talk'], array_column($data['member'], 'content'));
+        $this->assertSame(['edit' => false, 'delete' => false], $data['member'][0]['capabilities']);
 
         $this->post($client, null, ['threadId' => $thread->getId(), 'content' => 'Anonymous']);
         $this->assertResponseStatusCodeSame(403);
@@ -396,17 +393,17 @@ final class DiscussionTest extends AbstractDataboxTestCase
         $this->setUpWorkspace();
         $id = $this->postOn($client, self::OTHER, $this->asset, 'Typo')['id'];
 
-        $data = $client->request('PUT', '/messages/'.$id, self::auth(self::OTHER, [
+        $data = $client->request('PATCH', '/messages/'.$id, self::patchOptions(self::OTHER, [
             'json' => ['content' => 'Fixed'],
         ]))->toArray();
         $this->assertResponseIsSuccessful();
         $this->assertSame('Fixed', $data['content']);
 
         // An empty edit (no content, nothing removed) changes nothing
-        $data = $client->request('PUT', '/messages/'.$id, self::auth(self::OTHER, ['json' => []]))->toArray();
+        $data = $client->request('PATCH', '/messages/'.$id, self::patchOptions(self::OTHER, ['json' => []]))->toArray();
         $this->assertSame('Fixed', $data['content']);
 
-        $client->request('PUT', '/messages/'.$id, self::auth(self::OTHER, ['json' => ['content' => '']]));
+        $client->request('PATCH', '/messages/'.$id, self::patchOptions(self::OTHER, ['json' => ['content' => '']]));
         $this->assertResponseStatusCodeSame(400);
 
         $client->request('DELETE', '/messages/'.$id, self::auth(self::OTHER));
@@ -423,7 +420,7 @@ final class DiscussionTest extends AbstractDataboxTestCase
         // USER owns the workspace and the asset, yet does not own OTHER's words
         $id = $this->postOn($client, self::OTHER, $this->asset, 'Mine')['id'];
 
-        $client->request('PUT', '/messages/'.$id, self::auth(self::USER, [
+        $client->request('PATCH', '/messages/'.$id, self::patchOptions(self::USER, [
             'json' => ['content' => 'Rewritten'],
         ]));
         $this->assertResponseStatusCodeSame(403);
@@ -431,7 +428,7 @@ final class DiscussionTest extends AbstractDataboxTestCase
         $client->request('DELETE', '/messages/'.$id, self::auth(self::USER));
         $this->assertResponseStatusCodeSame(403);
 
-        $client->request('PUT', '/messages/'.$id, ['json' => ['content' => 'Rewritten']]);
+        $client->request('PATCH', '/messages/'.$id, self::patchOptions(null, ['json' => ['content' => 'Rewritten']]));
         $this->assertResponseStatusCodeSame(401);
 
         $data = $client->request('GET', '/messages/'.$id, self::auth(self::USER))->toArray();

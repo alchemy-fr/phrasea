@@ -166,13 +166,13 @@ describe('Display profiles', () => {
     });
 
     it('makes the profile public from the permissions', () => {
-        cy.intercept('PUT', '**/profiles/*').as('putProfile');
+        cy.intercept('PATCH', '**/profiles/*').as('patchProfile');
         openProfileMenu();
         cy.getBySel('profile-edit-current').click();
         routeDialog().within(() => {
             cy.contains('[role=tab]', 'Permissions').click();
             cy.getBySel('profile-public').should('have.attr', 'aria-checked', 'false').click();
-            cy.wait('@putProfile').its('request.body').should('deep.equal', {public: true});
+            cy.wait('@patchProfile').its('request.body').should('deep.equal', {public: true});
         });
         cy.contains('[data-sonner-toast]', 'The profile is now public').should('exist');
         routeDialog().within(() => {
@@ -180,7 +180,7 @@ describe('Display profiles', () => {
             cy.get('[data-testid=dialog-tab-general]').should('contain', 'Public');
             cy.contains('[role=tab]', 'Permissions').click();
             cy.getBySel('profile-public').click();
-            cy.wait('@putProfile');
+            cy.wait('@patchProfile');
         });
         cy.contains('[data-sonner-toast]', 'The profile is now private').should('exist');
     });

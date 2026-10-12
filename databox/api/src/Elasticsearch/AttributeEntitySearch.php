@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Elasticsearch;
 
+use ApiPlatform\Metadata\Operation;
+use App\Elasticsearch\Filter\SearchQuery;
+use App\Entity\Core\AttributeEntity;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use Pagerfanta\Pagerfanta;
@@ -20,38 +23,20 @@ class AttributeEntitySearch extends AbstractSearch
     public function search(
         array $workspaceIds,
         array $options = [],
+        ?Operation $operation = null,
     ): Pagerfanta {
         $maxLimit = 50;
         $filterQuery = new Query\BoolQuery();
         $filterQuery->addFilter(new Query\Terms('workspaceId', $workspaceIds));
 
-        $queryString = trim($options['query'] ?? '');
-        if (!empty($queryString)) {
-            $match = new Query\MultiMatch();
-            $match->setQuery($queryString);
-            $match->setType('bool_prefix');
-            $match->setFields([
-                'value.suggest',
-                'value.suggest._2gram',
-                'value.suggest._3gram',
-            ]);
-            $filterQuery->addMust($match);
-        }
-
-        $list = trim($options['list'] ?? '');
-        if (!empty($list)) {
-            $filterQuery->addFilter(new Query\Term(['listId' => $list]));
-        }
-
-        $limit = $options['limit'] ?? $maxLimit;
-        if ($limit > $maxLimit) {
-            $limit = $maxLimit;
-        }
+        // query (SuggestQueryFilter), list/workspace (ExactSearchFilter), value (PartialSearchFilter), order[value] (SortFilter)
+        $searchQuery = new SearchQuery($filterQuery);
+        $this->applyParameters($searchQuery, AttributeEntity::class, $operation, $options);
 
         $query = new Query();
         $query->setTrackTotalHits();
         $query->setQuery($filterQuery);
-        $query->setSort([
+        $query->setSort($searchQuery->hasSort() ? $searchQuery->getSort() : [
             '_score' => 'DESC',
             'value.raw' => 'ASC',
         ]);
@@ -67,8 +52,7 @@ class AttributeEntitySearch extends AbstractSearch
         ]);
 
         $data = $this->finder->findPaginated($query);
-        $data->setMaxPerPage((int) $limit);
-        $data->setCurrentPage((int) ($options['page'] ?? 1));
+        self::applyPagination($data, $options, $maxLimit);
         $this->executeSearch($data->getCurrentPageResults(...));
 
         return $data;

@@ -6,6 +6,7 @@ namespace App\Tests\Unit\File;
 
 use App\Entity\Core\File;
 use App\Entity\Core\FileAnalysisStateEnum;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class FileAnalysisStateTest extends TestCase
@@ -26,9 +27,7 @@ class FileAnalysisStateTest extends TestCase
         yield 'unknown status' => [['status' => 'whatever'], FileAnalysisStateEnum::NotApplicable];
     }
 
-    /**
-     * @dataProvider analysisStateProvider
-     */
+    #[DataProvider('analysisStateProvider')]
     public function testGetAnalysisState(?array $analysis, FileAnalysisStateEnum $expected): void
     {
         $file = new File();

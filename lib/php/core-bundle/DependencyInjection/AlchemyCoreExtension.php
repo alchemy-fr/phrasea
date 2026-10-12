@@ -9,8 +9,7 @@ use Alchemy\CoreBundle\Message\Debug\SentryDebugHandler;
 use Alchemy\CoreBundle\Message\PusherHandler;
 use Alchemy\CoreBundle\Pusher\PusherFactory;
 use Alchemy\CoreBundle\Pusher\PusherManager;
-use ApiPlatform\Symfony\Security\Exception\AccessDeniedException;
-use ApiPlatform\Symfony\Validator\Exception\ValidationException as DeprecatedValidationException;
+use ApiPlatform\Metadata\Exception\AccessDeniedException;
 use ApiPlatform\Validator\Exception\ValidationException;
 use Doctrine\DBAL\Types\ConversionException;
 use Monolog\Processor\PsrLogMessageProcessor;
@@ -22,10 +21,10 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
+use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -227,7 +226,6 @@ class AlchemyCoreExtension extends Extension implements PrependExtensionInterfac
                         NotFoundHttpException::class,
                         AccessDeniedHttpException::class,
                         UnsupportedFormatException::class,
-                        DeprecatedValidationException::class,
                         ValidationException::class,
                         UnauthorizedHttpException::class,
                         AccessDeniedException::class,

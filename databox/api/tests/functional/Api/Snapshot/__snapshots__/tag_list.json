@@ -1,0 +1,38 @@
+{
+    "@context": "/contexts/tag",
+    "@id": "/tags",
+    "@type": "Collection",
+    "member": [
+        {
+            "@id": "/tags/<tag>",
+            "@type": "tag",
+            "displayName": "Nature",
+            "id": "<tag>",
+            "name": "Nature"
+        }
+    ],
+    "search": {
+        "@type": "IriTemplate",
+        "mapping": [
+            {
+                "@type": "IriTemplateMapping",
+                "property": "workspace",
+                "required": false,
+                "variable": "workspace"
+            },
+            {
+                "@type": "IriTemplateMapping",
+                "property": "workspace",
+                "required": false,
+                "variable": "workspace[]"
+            }
+        ],
+        "template": "/tags{?workspace,workspace[]}",
+        "variableRepresentation": "BasicRepresentation"
+    },
+    "totalItems": 1,
+    "view": {
+        "@id": "/tags?workspace=<workspace>",
+        "@type": "PartialCollectionView"
+    }
+}

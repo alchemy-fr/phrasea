@@ -9,7 +9,9 @@ use App\Border\FileAnalyzer\Dto\AnalysisOutput;
 use App\Border\FileAnalyzer\Dto\LogLevelEnum;
 use App\Entity\Core\File;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'image_dimension')]
 final readonly class ImageDimensionAnalyzer extends AbstractAnalyzer
 {
     private const string TYPE_NOT_AN_IMAGE = 'not_an_image';

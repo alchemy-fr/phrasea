@@ -28,7 +28,7 @@ class ProxyCachePurger
     {
         if (null === $this->purgeStack) {
             $this->purgeStack = [];
-            $this->terminateStackListener->addCallback(function () use ($uri): void {
+            $this->terminateStackListener->addCallback(function (): void {
                 $stack = array_unique($this->purgeStack);
                 $this->purgeStack = null;
 

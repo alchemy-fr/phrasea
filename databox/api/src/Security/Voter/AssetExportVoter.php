@@ -7,6 +7,7 @@ namespace App\Security\Voter;
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Core\AssetExport;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class AssetExportVoter extends AbstractVoter
 {
@@ -24,7 +25,7 @@ class AssetExportVoter extends AbstractVoter
     /**
      * @param AssetExport $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $user = $token->getUser();
 

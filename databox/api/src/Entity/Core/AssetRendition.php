@@ -13,10 +13,13 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Model\Input\AssetRenditionInput;
 use App\Api\Model\Output\AssetRenditionOutput;
 use App\Api\Processor\DeleteAssetRenditionProcessor;
+use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\RenditionCollectionProvider;
 use App\Repository\Core\AssetRenditionRepository;
 use App\Security\Voter\AbstractVoter;
@@ -35,15 +38,21 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
             security: 'is_granted("'.AbstractVoter::DELETE.'", object)',
             processor: DeleteAssetRenditionProcessor::class,
         ),
-        new Put(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
-        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)'),
+        new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)', processor: InputMapperProcessor::class),
         new GetCollection(
             order: ['definition.position' => 'ASC'],
+            parameters: [
+                'assetId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Asset ID (mandatory)',
+                    castToArray: false,
+                ),
+            ],
         ),
         new Post(
-            openapiContext: [
-                'requestBody' => [
-                    'content' => [
+            openapi: new OpenApiOperation(
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
                         'application/json' => [
                             'examples' => [
                                 'Dynamic rendition (built from an inline specification)' => [
@@ -130,13 +139,14 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
                                 ],
                             ],
                         ],
-                    ],
-                ],
-            ],
-            securityPostDenormalize: 'is_granted("CREATE", object)',
+                    ]),
+                ),
+            ),
+            extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'],
             validationContext: [
                 'groups' => ['Default'],
             ],
+            processor: InputMapperProcessor::class,
         ),
     ],
     normalizationContext: [

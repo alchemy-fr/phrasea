@@ -27,7 +27,7 @@ class CommitTest extends AbstractUploaderTestCase
         $this->assertEquals(200, $response->getStatusCode());
         $data = $response->toArray();
 
-        $this->assertEquals('application/ld+json; charset=utf-8', $response->getHeaders()['content-type'][0]);
+        $this->assertEquals('application/ld+json', $response->getHeaders()['content-type'][0]);
         $this->assertEquals($assetId, $data['assets'][0]['id']);
     }
 
@@ -45,8 +45,8 @@ class CommitTest extends AbstractUploaderTestCase
         );
         $this->assertEquals(200, $response->getStatusCode());
         $data = $response->toArray();
-        $this->assertEquals('application/ld+json; charset=utf-8', $response->getHeaders()['content-type'][0]);
-        $this->assertEmpty($data['hydra:member']);
+        $this->assertEquals('application/ld+json', $response->getHeaders()['content-type'][0]);
+        $this->assertEmpty($data['member']);
     }
 
     public function testGetCommitListWithAnonymousUser(): void

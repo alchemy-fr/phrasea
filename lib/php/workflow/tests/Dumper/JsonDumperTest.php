@@ -9,7 +9,7 @@ use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\WorkflowState;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-class JsonDumperTest extends AbstractDumperTest
+class JsonDumperTest extends AbstractDumperTestCase
 {
     public function testJsonDumper(): void
     {

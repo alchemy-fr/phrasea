@@ -36,7 +36,6 @@ class AssetInput extends AbstractOwnerIdInput
     /**
      * @var Workspace
      */
-    #[Assert\NotNull]
     public $workspace;
 
     public ?Collection $collection = null;

@@ -9,6 +9,7 @@ use App\Entity\Core\File;
 use App\File\FileMetadataAccessorWrapper;
 use App\Service\Asset\Attribute\TemplateResolver;
 use App\Validator\TwigConstraint;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Validator\Validation;
 use Twig\Error\Error;
@@ -19,15 +20,13 @@ use Twig\Error\Error;
  */
 class TemplateSandboxTest extends TestCase
 {
-    /**
-     * @dataProvider getLegitTemplates
-     */
+    #[DataProvider('getLegitTemplates')]
     public function testLegitTemplatesAreRendered(string $template, string $expected): void
     {
         $this->assertSame($expected, new TemplateResolver()->resolve($template, $this->createValues()));
     }
 
-    public function getLegitTemplates(): array
+    public static function getLegitTemplates(): array
     {
         return [
             ['{{ asset.ownerId }}', 'owner'],
@@ -40,9 +39,7 @@ class TemplateSandboxTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getMaliciousTemplates
-     */
+    #[DataProvider('getMaliciousTemplates')]
     public function testMaliciousTemplatesAreRejected(string $template): void
     {
         $values = $this->createValues();
@@ -56,7 +53,7 @@ class TemplateSandboxTest extends TestCase
         }
     }
 
-    public function getMaliciousTemplates(): array
+    public static function getMaliciousTemplates(): array
     {
         return [
             'command through filter' => ['{{ ["id"]|filter("system")|join }}'],

@@ -16,8 +16,9 @@ class RenditionDefinitionTest extends AbstractSearchTestCase
         $client = static::createClient();
         $iri = $this->findIriBy(RenditionDefinition::class, ['name' => 'preview']);
 
-        $client->request('PUT', $iri, [
+        $client->request('PATCH', $iri, [
             'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
@@ -38,8 +39,9 @@ class RenditionDefinitionTest extends AbstractSearchTestCase
         $client = static::createClient();
         $iri = $this->findIriBy(RenditionDefinition::class, ['name' => 'preview']);
 
-        $client->request('PUT', $iri, [
+        $client->request('PATCH', $iri, [
             'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
@@ -57,8 +59,9 @@ class RenditionDefinitionTest extends AbstractSearchTestCase
             ],
         ]);
 
-        $client->request('PUT', $iri, [
+        $client->request('PATCH', $iri, [
             'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [
@@ -70,8 +73,9 @@ class RenditionDefinitionTest extends AbstractSearchTestCase
 
         $this->assertResponseStatusCodeSame(422);
 
-        $response = $client->request('PUT', $iri, [
+        $response = $client->request('PATCH', $iri, [
             'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
                 'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
             ],
             'json' => [

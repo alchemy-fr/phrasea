@@ -8,17 +8,14 @@ use App\Configurator\ConfiguratorInterface;
 use App\Util\EnvHelper;
 use App\Util\HttpClientUtil;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(priority: 0)]
 final readonly class DatabaseConfigurator implements ConfiguratorInterface
 {
     public function __construct(
         private DatabaseManager $databaseManager,
     ) {
-    }
-
-    public static function getPriority(): int
-    {
-        return 0;
     }
 
     public static function getName(): string

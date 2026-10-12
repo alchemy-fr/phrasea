@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Alchemy\WorkflowBundle\Doctrine;
 
-use Alchemy\Workflow\Doctrine\Entity\WorkflowState;
-use Alchemy\Workflow\State\JobState;
+use Alchemy\WorkflowBundle\Entity\JobState;
+use Alchemy\WorkflowBundle\Entity\WorkflowState;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Events;

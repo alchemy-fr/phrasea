@@ -14,7 +14,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 final class FileAnalyzersDocumentationGenerator extends DocumentationGenerator
 {
     public function __construct(
-        #[AutowireLocator(AnalyzerInterface::TAG, defaultIndexMethod: 'getName')]
+        #[AutowireLocator(AnalyzerInterface::TAG)]
         private ServiceLocator $analyzers,
     ) {
     }

@@ -21,7 +21,7 @@ class ProfileTest extends AbstractExposeTestCase
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
 
         $this->assertEquals(201, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('name', $json);
@@ -55,7 +55,7 @@ class ProfileTest extends AbstractExposeTestCase
         );
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
         $this->assertCount(2, $json);
         $this->assertEquals('profile_1', $json[0]['name']);
         $this->assertEquals('profile_2', $json[1]['name']);
@@ -77,7 +77,7 @@ class ProfileTest extends AbstractExposeTestCase
         );
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
         $this->assertCount(2, $json);
         $this->assertEquals('profile_1', $json[0]['name']);
         $this->assertEquals('profile_2', $json[1]['name']);
@@ -95,7 +95,7 @@ class ProfileTest extends AbstractExposeTestCase
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID), 'GET', '/publication-profiles');
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
         $this->assertCount(0, $json);
     }
 
@@ -113,7 +113,7 @@ class ProfileTest extends AbstractExposeTestCase
         $response = $this->request(KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID), 'GET', '/publication-profiles/'.$id);
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertEquals('application/json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/json', $response->headers->get('Content-Type'));
 
         $this->assertArrayHasKey('id', $json);
         $this->assertArrayHasKey('name', $json);
@@ -135,7 +135,7 @@ class ProfileTest extends AbstractExposeTestCase
             dump($response->getContent());
         }
         $this->assertEquals(401, $response->getStatusCode());
-        $this->assertEquals('application/problem+json; charset=utf-8', $response->headers->get('Content-Type'));
+        $this->assertEquals('application/problem+json', $response->headers->get('Content-Type'));
     }
 
     public function testDeleteProfileAsAdmin(): void

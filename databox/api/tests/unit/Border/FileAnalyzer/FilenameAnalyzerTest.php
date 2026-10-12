@@ -6,13 +6,12 @@ namespace App\Tests\Unit\Border\FileAnalyzer;
 
 use App\Border\FileAnalyzer\Analyzer\FilenameAnalyzer;
 use App\Entity\Core\File;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class FilenameAnalyzerTest extends TestCase
 {
-    /**
-     * @dataProvider allowedPatternsProvider
-     */
+    #[DataProvider('allowedPatternsProvider')]
     public function testAllowedPatternsWithOrWithoutDelimiters(array $patterns, string $filename, bool $expectedSuccess): void
     {
         $output = (new FilenameAnalyzer())->analyzeFile($this->createFile($filename), null, [

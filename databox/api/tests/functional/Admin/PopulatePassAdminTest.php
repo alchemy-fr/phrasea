@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Admin;
 
-use Alchemy\AdminBundle\Tests\AbstractAdminTest;
+use Alchemy\AdminBundle\Tests\AbstractAdminTestCase;
 use Alchemy\MessengerBundle\Transport\TestTransport;
 use App\Consumer\Handler\Search\ESPopulate;
 use App\Elasticsearch\Listener\PopulatePassListener;
@@ -15,7 +15,7 @@ use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Messenger\Transport\InMemory\InMemoryTransport;
 
-class PopulatePassAdminTest extends AbstractAdminTest
+class PopulatePassAdminTest extends AbstractAdminTestCase
 {
     private InMemoryTransport $inMemory;
 

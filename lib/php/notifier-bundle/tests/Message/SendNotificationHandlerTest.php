@@ -95,7 +95,7 @@ final class SendNotificationHandlerTest extends TestCase
         $calls = [];
         $handler = new SendNotificationHandler(
             $this->deliverer($calls),
-            $this->createMock(SubscriptionManager::class),
+            $this->createStub(SubscriptionManager::class),
         );
 
         $handler(new SendNotification(
@@ -109,8 +109,8 @@ final class SendNotificationHandlerTest extends TestCase
     public function testThrowsWhenNoTopicIsResolvable(): void
     {
         $handler = new SendNotificationHandler(
-            $this->createMock(NotificationDeliverer::class),
-            $this->createMock(SubscriptionManager::class),
+            $this->createStub(NotificationDeliverer::class),
+            $this->createStub(SubscriptionManager::class),
         );
 
         $this->expectException(\InvalidArgumentException::class);

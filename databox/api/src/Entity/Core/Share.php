@@ -11,8 +11,9 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Output\ShareAlternateUrlOutput;
 use App\Api\Model\Output\ShareAttachmentOutput;
 use App\Api\Model\Output\ShareTermsOutput;
@@ -30,8 +31,8 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Serializer\Annotation\SerializedName;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\String\ByteString;
 
 #[ApiResource(
@@ -86,7 +87,7 @@ use Symfony\Component\String\ByteString;
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
             provider: ShareReadProvider::class,
         ),
-        new Put(
+        new Patch(
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
             provider: ShareReadProvider::class,
             processor: ShareProcessor::class,
@@ -96,6 +97,13 @@ use Symfony\Component\String\ByteString;
         ),
         new GetCollection(
             provider: ShareCollectionProvider::class,
+            parameters: [
+                'assetId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Asset ID (mandatory)',
+                    castToArray: false,
+                ),
+            ],
         ),
         new Post(
             securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',

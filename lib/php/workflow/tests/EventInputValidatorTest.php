@@ -6,13 +6,12 @@ namespace Alchemy\Workflow\Tests;
 
 use Alchemy\Workflow\Event\WorkflowEvent;
 use Alchemy\Workflow\Exception\InvalidEventException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\Console\Output\BufferedOutput;
 
-class EventInputValidatorTest extends AbstractWorkflowTest
+class EventInputValidatorTest extends AbstractWorkflowTestCase
 {
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testEventInputsAreValidated(string $eventName, array $args, ?string $expectedError): void
     {
         $output = new BufferedOutput();
@@ -31,7 +30,7 @@ class EventInputValidatorTest extends AbstractWorkflowTest
         }
     }
 
-    public function getCases(): array
+    public static function getCases(): array
     {
         return [
             [

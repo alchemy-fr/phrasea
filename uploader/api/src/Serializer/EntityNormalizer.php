@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Serializer;
 
 use App\Serializer\Normalizer\EntityNormalizerInterface;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 
 final readonly class EntityNormalizer
 {
@@ -13,7 +13,7 @@ final readonly class EntityNormalizer
      * @param EntityNormalizerInterface[] $normalizers
      */
     public function __construct(
-        #[TaggedIterator(EntityNormalizerInterface::TAG)]
+        #[AutowireIterator(EntityNormalizerInterface::TAG)]
         private iterable $normalizers,
     ) {
     }

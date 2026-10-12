@@ -19,7 +19,7 @@ final class PreferenceManagerTest extends TestCase
 
     public function testChannelNotInTopicIsDisabled(): void
     {
-        $manager = $this->manager($this->registry(), $this->createMock(EntityManagerInterface::class), $repo = $this->repo());
+        $manager = $this->manager($this->registry(), $this->createStub(EntityManagerInterface::class), $repo = $this->repo());
         $repo->expects(self::never())->method('findOneForChannel');
 
         self::assertFalse($manager->isChannelEnabled($this->subscriber(), 'asset.comment', ChannelType::Sms));
@@ -29,7 +29,7 @@ final class PreferenceManagerTest extends TestCase
     {
         $repo = $this->repo();
         $repo->method('findOneForChannel')->willReturn(null);
-        $manager = $this->manager($this->registry(), $this->createMock(EntityManagerInterface::class), $repo);
+        $manager = $this->manager($this->registry(), $this->createStub(EntityManagerInterface::class), $repo);
 
         self::assertTrue($manager->isChannelEnabled($this->subscriber(), 'asset.comment', ChannelType::Email));
     }
@@ -41,7 +41,7 @@ final class PreferenceManagerTest extends TestCase
 
         $repo = $this->repo();
         $repo->method('findOneForChannel')->willReturn($preference);
-        $manager = $this->manager($this->registry(), $this->createMock(EntityManagerInterface::class), $repo);
+        $manager = $this->manager($this->registry(), $this->createStub(EntityManagerInterface::class), $repo);
 
         self::assertFalse($manager->isChannelEnabled($subscriber, 'asset.comment', ChannelType::Email));
     }
@@ -93,7 +93,7 @@ final class PreferenceManagerTest extends TestCase
             'account.security' => ['channels' => ['email'], 'importance' => 'high', 'user_configurable' => false],
         ]);
 
-        $manager = $this->manager($registry, $this->createMock(EntityManagerInterface::class), $repo);
+        $manager = $this->manager($registry, $this->createStub(EntityManagerInterface::class), $repo);
         $result = $manager->getEffectivePreferences($subscriber);
 
         self::assertSame([

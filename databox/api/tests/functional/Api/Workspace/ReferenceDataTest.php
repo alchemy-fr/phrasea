@@ -6,6 +6,7 @@ namespace App\Tests\Functional\Api\Workspace;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Read-only reference resources computed in memory (no database row):
@@ -28,9 +29,7 @@ final class ReferenceDataTest extends AbstractDataboxTestCase
         ];
     }
 
-    /**
-     * @dataProvider referenceCollectionsProvider
-     */
+    #[DataProvider('referenceCollectionsProvider')]
     public function testReferenceCollectionsArePublic(string $uri, string $type): void
     {
         $client = static::createClient();
@@ -41,9 +40,9 @@ final class ReferenceDataTest extends AbstractDataboxTestCase
             $this->assertResponseIsSuccessful();
             $data = $response->toArray();
             $this->assertSame('/contexts/'.$type, $data['@context']);
-            $this->assertSame('hydra:Collection', $data['@type']);
-            $this->assertNotEmpty($data['hydra:member']);
-            $this->assertSame($type, $data['hydra:member'][0]['@type']);
+            $this->assertSame('Collection', $data['@type']);
+            $this->assertNotEmpty($data['member']);
+            $this->assertSame($type, $data['member'][0]['@type']);
         }
     }
 
@@ -51,7 +50,7 @@ final class ReferenceDataTest extends AbstractDataboxTestCase
     {
         $client = static::createClient();
         $response = $client->request('GET', '/locales');
-        $members = $response->toArray()['hydra:member'];
+        $members = $response->toArray()['member'];
         $byId = array_column($members, null, 'id');
         $this->assertArrayHasKey('fr', $byId);
         $this->assertArrayHasKey('fr_CA', $byId);
@@ -86,7 +85,7 @@ final class ReferenceDataTest extends AbstractDataboxTestCase
     {
         $client = static::createClient();
         $response = $client->request('GET', '/field-types');
-        $members = $response->toArray()['hydra:member'];
+        $members = $response->toArray()['member'];
         $names = array_column($members, 'name');
         $this->assertContains('text', $names);
         $this->assertContains('date', $names);
@@ -120,7 +119,7 @@ final class ReferenceDataTest extends AbstractDataboxTestCase
     {
         $client = static::createClient();
         $response = $client->request('GET', '/built-in-attributes');
-        $members = $response->toArray()['hydra:member'];
+        $members = $response->toArray()['member'];
         $byId = array_column($members, null, 'id');
         $this->assertArrayHasKey('@createdAt', $byId);
         $createdAt = $byId['@createdAt'];
@@ -150,7 +149,7 @@ final class ReferenceDataTest extends AbstractDataboxTestCase
     {
         $client = static::createClient();
         $response = $client->request('GET', '/integration-types');
-        $members = $response->toArray()['hydra:member'];
+        $members = $response->toArray()['member'];
         $byName = array_column($members, null, 'name');
         $this->assertArrayHasKey('core.rendition', $byName);
 
@@ -221,7 +220,7 @@ final class ReferenceDataTest extends AbstractDataboxTestCase
         // Hydra documentation as well
         $response = $client->request('GET', '/docs.jsonld');
         $this->assertResponseIsSuccessful();
-        $this->assertNotEmpty($response->toArray()['hydra:supportedClass']);
+        $this->assertNotEmpty($response->toArray()['supportedClass']);
     }
 
     public function testJsonLdContexts(): void

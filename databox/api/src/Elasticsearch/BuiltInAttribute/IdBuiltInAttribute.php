@@ -6,7 +6,9 @@ namespace App\Elasticsearch\BuiltInAttribute;
 
 use App\Attribute\Type\IdAttributeType;
 use App\Entity\Core\Asset;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: '@id')]
 final class IdBuiltInAttribute extends AbstractBuiltInAttribute
 {
     protected function getAggregationTranslationKey(): string

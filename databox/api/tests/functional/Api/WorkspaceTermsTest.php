@@ -35,8 +35,8 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $iri = $this->findIriBy(Workspace::class, ['slug' => 'test-workspace']);
 
         // Define terms (v1)
-        $response = $client->request('PUT', $iri, [
-            'headers' => $this->adminHeaders(),
+        $response = $client->request('PATCH', $iri, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->adminHeaders(),
             'json' => [
                 'terms' => 'You must credit the author.',
                 'attachTermsToExports' => true,
@@ -66,8 +66,8 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $this->assertTrue($data['terms']['signed']);
 
         // Unchanged content does not create a new version
-        $client->request('PUT', $iri, [
-            'headers' => $this->adminHeaders(),
+        $client->request('PATCH', $iri, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->adminHeaders(),
             'json' => [
                 'terms' => 'You must credit the author.',
             ],
@@ -81,8 +81,8 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $this->assertTrue($data['terms']['signed']);
 
         // Content change creates a new version: signature must be renewed
-        $client->request('PUT', $iri, [
-            'headers' => $this->adminHeaders(),
+        $client->request('PATCH', $iri, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->adminHeaders(),
             'json' => [
                 'terms' => 'You must credit the author. No commercial use.',
             ],
@@ -218,8 +218,8 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $client = static::createClient();
         $iri = $this->findIriBy(Workspace::class, ['slug' => 'test-workspace']);
 
-        $client->request('PUT', $iri, [
-            'headers' => $this->adminHeaders(),
+        $client->request('PATCH', $iri, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->adminHeaders(),
             'json' => ['terms' => 'Use these assets wisely.'],
         ]);
         $this->assertResponseIsSuccessful();
@@ -282,8 +282,8 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $client = static::createClient();
         $iri = $this->findIriBy(Workspace::class, ['slug' => 'test-workspace']);
 
-        $response = $client->request('PUT', $iri, [
-            'headers' => $this->adminHeaders(),
+        $response = $client->request('PATCH', $iri, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->adminHeaders(),
             'json' => [
                 'terms' => 'English terms.',
                 'termsTranslations' => [
@@ -309,8 +309,8 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $this->assertSame('English terms.', $response->toArray()['terms']['text']);
 
         // Changing only a translation creates a new version
-        $response = $client->request('PUT', $iri, [
-            'headers' => $this->adminHeaders(),
+        $response = $client->request('PATCH', $iri, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->adminHeaders(),
             'json' => [
                 'termsTranslations' => [
                     'fr' => 'Termes français (mis à jour).',
@@ -337,8 +337,8 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $this->assertResponseIsSuccessful();
 
         // Admin defines terms
-        $client->request('PUT', $wsIri, [
-            'headers' => $this->adminHeaders(),
+        $client->request('PATCH', $wsIri, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->adminHeaders(),
             'json' => [
                 'terms' => 'You must accept these terms.',
             ],
@@ -399,16 +399,16 @@ class WorkspaceTermsTest extends AbstractDataboxTestCase
         $client = static::createClient();
         $iri = $this->findIriBy(Workspace::class, ['slug' => 'test-workspace']);
 
-        $client->request('PUT', $iri, [
-            'headers' => $this->adminHeaders(),
+        $client->request('PATCH', $iri, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->adminHeaders(),
             'json' => [
                 'terms' => 'Some terms.',
             ],
         ]);
         $this->assertResponseIsSuccessful();
 
-        $response = $client->request('PUT', $iri, [
-            'headers' => $this->adminHeaders(),
+        $response = $client->request('PATCH', $iri, [
+            'headers' => ['Content-Type' => 'application/merge-patch+json'] + $this->adminHeaders(),
             'json' => [
                 'terms' => '',
             ],

@@ -71,7 +71,7 @@ export function postBasket(data: Partial<Basket>): Promise<Basket> {
 }
 
 export function putBasket(id: string, data: Partial<Basket>): Promise<Basket> {
-    return api.put<Basket>(`/${EntityName.Basket}/${id}`, toIris(data));
+    return api.patch<Basket>(`/${EntityName.Basket}/${id}`, toIris(data));
 }
 
 export function deleteBasket(id: string): Promise<void> {
@@ -136,7 +136,7 @@ export function putSavedSearch(
     id: string,
     data: Partial<SavedSearch>
 ): Promise<SavedSearch> {
-    return api.put<SavedSearch>(
+    return api.patch<SavedSearch>(
         `/${EntityName.SavedSearch}/${id}`,
         toIris(data)
     );
@@ -175,7 +175,7 @@ export function putProfile(
     id: string,
     data: Partial<DisplayProfile>
 ): Promise<DisplayProfile> {
-    return api.put<DisplayProfile>(
+    return api.patch<DisplayProfile>(
         `/${EntityName.Profile}/${id}`,
         toIris(data)
     );
@@ -210,9 +210,19 @@ export function putProfileItem(
     itemId: string,
     data: Partial<ProfileItem>
 ): Promise<ProfileItem> {
+    // The item is identified by the URL. On PUT, API Platform resolves an "id"
+    // or "@id" of the body as the object to replace, and fails on this route.
+    const {
+        'id': _id,
+        '@id': _iri,
+        '@type': _type,
+        '@context': _context,
+        ...body
+    } = data as Partial<ProfileItem> & Record<string, unknown>;
+
     return api.put<ProfileItem>(
         `/${EntityName.Profile}/${profileId}/items/${itemId}`,
-        data
+        body
     );
 }
 
@@ -284,7 +294,7 @@ export function putRenditionDefinition(
 ): Promise<RenditionDefinition> {
     const {workspace: _w, ...rest} = data;
 
-    return api.put<RenditionDefinition>(
+    return api.patch<RenditionDefinition>(
         `/${EntityName.RenditionDefinition}/${id}`,
         toIris(rest)
     );
@@ -324,7 +334,7 @@ export function putRenditionPolicy(
 ): Promise<RenditionPolicy> {
     const {workspace: _w, ...rest} = data;
 
-    return api.put<RenditionPolicy>(
+    return api.patch<RenditionPolicy>(
         `/${EntityName.RenditionPolicy}/${id}`,
         rest
     );
@@ -428,7 +438,7 @@ export function putAttachment(
     id: string,
     data: {name?: string}
 ): Promise<AssetAttachment> {
-    return api.put<AssetAttachment>(`/${EntityName.Attachment}/${id}`, data);
+    return api.patch<AssetAttachment>(`/${EntityName.Attachment}/${id}`, data);
 }
 
 export function deleteAttachment(id: string): Promise<void> {
@@ -471,7 +481,7 @@ export function putMessage(
         removeAttachments?: string[];
     }
 ): Promise<ThreadMessage> {
-    return api.put<ThreadMessage>(`/${EntityName.Message}/${id}`, data);
+    return api.patch<ThreadMessage>(`/${EntityName.Message}/${id}`, data);
 }
 
 export function deleteMessage(id: string): Promise<void> {

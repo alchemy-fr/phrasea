@@ -6,8 +6,8 @@ namespace App\Tests\Functional\Integration\Aws\Transcribe;
 
 use Alchemy\TestBundle\Helper\FixturesTrait;
 use Alchemy\TestBundle\Helper\TestServicesTrait;
-use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
-use ApiPlatform\Symfony\Bundle\Test\Client;
+use ApiPlatform\Test\ApiTestCase;
+use ApiPlatform\Test\Client;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\WorkspaceIntegration;
@@ -21,6 +21,8 @@ class AwsTranscribeEventTest extends ApiTestCase
 {
     use TestServicesTrait;
     use FixturesTrait;
+
+    protected static ?bool $alwaysBootKernel = true;
 
     public function testSubscriptionUrlWillBeConfirmed(): void
     {

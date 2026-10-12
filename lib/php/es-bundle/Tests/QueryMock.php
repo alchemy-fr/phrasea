@@ -12,7 +12,7 @@ class QueryMock extends Query
         parent::__construct($em);
     }
 
-    public function getResult($hydrationMode = self::HYDRATE_OBJECT)
+    public function getResult(string|int $hydrationMode = self::HYDRATE_OBJECT): mixed
     {
         return $this->results;
     }

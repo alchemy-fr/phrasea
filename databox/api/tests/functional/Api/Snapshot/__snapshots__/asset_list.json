@@ -1,0 +1,546 @@
+{
+    "@context": "/contexts/asset",
+    "@id": "/assets",
+    "@type": "Collection",
+    "facets": {
+        "@collection": {
+            "buckets": [
+                {
+                    "doc_count": 2,
+                    "key": {
+                        "label": "Root",
+                        "value": "<root>"
+                    }
+                },
+                {
+                    "doc_count": 1,
+                    "key": {
+                        "label": "Root / Child",
+                        "value": "<child>"
+                    }
+                }
+            ],
+            "doc_count_error_upper_bound": 0,
+            "meta": {
+                "displayName": "Collections",
+                "sortable": true,
+                "type": "collection_path"
+            },
+            "missing_count": 0,
+            "sum_other_doc_count": 0
+        },
+        "@createdAt": {
+            "buckets": [
+                {
+                    "doc_count": 2,
+                    "key": "<timestamp>",
+                    "key_as_string": "<date>"
+                }
+            ],
+            "interval": "1m",
+            "meta": {
+                "displayName": "Created at",
+                "sortable": true,
+                "type": "date_time",
+                "widget": "date_range"
+            },
+            "missing_count": 0
+        },
+        "@editedAt": {
+            "buckets": [
+                {
+                    "doc_count": 2,
+                    "key": "<timestamp>",
+                    "key_as_string": "<date>"
+                }
+            ],
+            "interval": "1m",
+            "meta": {
+                "displayName": "Edited at",
+                "sortable": true,
+                "type": "date_time",
+                "widget": "date_range"
+            },
+            "missing_count": 0
+        },
+        "@extension": {
+            "buckets": [
+                {
+                    "doc_count": 1,
+                    "key": "jpg"
+                }
+            ],
+            "doc_count_error_upper_bound": 0,
+            "meta": {
+                "displayName": "File Extension",
+                "sortable": true,
+                "type": "keyword"
+            },
+            "missing_count": 1,
+            "sum_other_doc_count": 0
+        },
+        "@family": {
+            "buckets": [
+                {
+                    "doc_count": 1,
+                    "key": {
+                        "label": "Image",
+                        "value": "image"
+                    }
+                }
+            ],
+            "doc_count_error_upper_bound": 0,
+            "meta": {
+                "displayName": "File Family",
+                "sortable": true,
+                "type": "keyword"
+            },
+            "missing_count": 1,
+            "sum_other_doc_count": 0
+        },
+        "@hasSource": {
+            "buckets": [
+                {
+                    "doc_count": 1,
+                    "key": 0,
+                    "key_as_string": "false"
+                },
+                {
+                    "doc_count": 1,
+                    "key": 1,
+                    "key_as_string": "true"
+                }
+            ],
+            "doc_count_error_upper_bound": 0,
+            "meta": {
+                "displayName": "Has Source File",
+                "sortable": true,
+                "type": "boolean"
+            },
+            "missing_count": 0,
+            "sum_other_doc_count": 0
+        },
+        "@isStory": {
+            "buckets": [
+                {
+                    "doc_count": 2,
+                    "key": 0,
+                    "key_as_string": "false"
+                }
+            ],
+            "doc_count_error_upper_bound": 0,
+            "meta": {
+                "displayName": "Is Story",
+                "sortable": true,
+                "type": "boolean"
+            },
+            "missing_count": 0,
+            "sum_other_doc_count": 0
+        },
+        "@owner": {
+            "buckets": [],
+            "doc_count_error_upper_bound": 0,
+            "meta": {
+                "displayName": "Owner",
+                "sortable": true,
+                "type": "keyword"
+            },
+            "missing_count": 0,
+            "sum_other_doc_count": 0
+        },
+        "@privacy": {
+            "buckets": [
+                {
+                    "doc_count": 2,
+                    "key": {
+                        "label": "Secret",
+                        "value": 0
+                    }
+                }
+            ],
+            "doc_count_error_upper_bound": 0,
+            "meta": {
+                "displayName": "Privacy",
+                "sortable": true,
+                "type": "privacy"
+            },
+            "missing_count": 0,
+            "sum_other_doc_count": 0
+        },
+        "@rendition": {
+            "buckets": [],
+            "doc_count_error_upper_bound": 0,
+            "meta": {
+                "displayName": "Renditions",
+                "sortable": false,
+                "type": "keyword"
+            },
+            "missing_count": 2,
+            "sum_other_doc_count": 0
+        },
+        "@tag": {
+            "buckets": [
+                {
+                    "doc_count": 1,
+                    "key": {
+                        "item": {
+                            "color": null,
+                            "displayName": "Nature",
+                            "name": "Nature"
+                        },
+                        "label": "Nature",
+                        "value": "<tag>"
+                    }
+                }
+            ],
+            "doc_count_error_upper_bound": 0,
+            "meta": {
+                "displayName": "Tags",
+                "sortable": true,
+                "type": "keyword"
+            },
+            "missing_count": 1,
+            "sum_other_doc_count": 0
+        },
+        "@type": {
+            "buckets": [
+                {
+                    "doc_count": 1,
+                    "key": "image/jpeg"
+                }
+            ],
+            "doc_count_error_upper_bound": 0,
+            "meta": {
+                "displayName": "File Type",
+                "sortable": true,
+                "type": "keyword"
+            },
+            "missing_count": 1,
+            "sum_other_doc_count": 0
+        },
+        "@workspace": {
+            "buckets": [
+                {
+                    "doc_count": 2,
+                    "key": {
+                        "label": "Snapshot workspace",
+                        "value": "<workspace>"
+                    }
+                }
+            ],
+            "doc_count_error_upper_bound": 0,
+            "meta": {
+                "displayName": "Workspace",
+                "sortable": true,
+                "type": "keyword"
+            },
+            "missing_count": 0,
+            "sum_other_doc_count": 0
+        }
+    },
+    "member": [
+        {
+            "@id": "/assets/<other>",
+            "@type": "asset",
+            "attributes": [
+                {
+                    "@id": "/attributes/<uuid>",
+                    "@type": "attribute",
+                    "createdAt": "<date>",
+                    "definition": {
+                        "@id": "/attribute-definitions/<uuid>",
+                        "@type": "attribute-definition",
+                        "createdAt": "<date>",
+                        "displayName": "Name",
+                        "id": "<uuid>",
+                        "multiple": false,
+                        "name": "Name",
+                        "searchSlug": "name_text_s",
+                        "slug": "name",
+                        "translatable": false,
+                        "type": "text",
+                        "updatedAt": "<date>"
+                    },
+                    "id": "<uuid>",
+                    "invalid": false,
+                    "locale": "_",
+                    "updatedAt": "<date>",
+                    "value": "Other"
+                }
+            ],
+            "attributesEditedAt": "<date>",
+            "capabilities": {
+                "delete": true,
+                "edit": true,
+                "editAttributes": true,
+                "share": true
+            },
+            "collections": [
+                {
+                    "@id": "/collections/<root>",
+                    "@type": "collection",
+                    "createdAt": "<date>",
+                    "deleted": false,
+                    "displayName": "Root",
+                    "extraMetadata": [],
+                    "id": "<root>",
+                    "name": "Root",
+                    "relationExtraMetadata": [],
+                    "updatedAt": "<date>"
+                }
+            ],
+            "createdAt": "<date>",
+            "deleted": false,
+            "editedAt": "<date>",
+            "extraMetadata": [],
+            "id": "<other>",
+            "name": "Other",
+            "owner": {
+                "@id": "<genid>",
+                "@type": "UserOutput",
+                "id": "<uuid>",
+                "removed": false,
+                "username": "user"
+            },
+            "privacy": 0,
+            "referenceCollection": {
+                "@id": "/collections/<root>",
+                "@type": "collection",
+                "createdAt": "<date>",
+                "deleted": false,
+                "displayName": "Root",
+                "extraMetadata": [],
+                "id": "<root>",
+                "name": "Root",
+                "relationExtraMetadata": [],
+                "updatedAt": "<date>"
+            },
+            "resolvedName": "Other",
+            "resolvedTrackingId": "<other>",
+            "status": 0,
+            "tags": [],
+            "threadKey": "asset:<other>",
+            "updatedAt": "<date>",
+            "webUrl": "<client-url>/assets/<other>/_",
+            "workspace": {
+                "@id": "/workspaces/<workspace>",
+                "@type": "workspace",
+                "capabilities": [],
+                "createdAt": "<date>",
+                "displayName": "Snapshot workspace",
+                "id": "<workspace>",
+                "name": "Snapshot workspace"
+            }
+        },
+        {
+            "@id": "/assets/<asset>",
+            "@type": "asset",
+            "attributes": [
+                {
+                    "@id": "/attributes/<uuid>",
+                    "@type": "attribute",
+                    "createdAt": "<date>",
+                    "definition": {
+                        "@id": "/attribute-definitions/<keywordsDef>",
+                        "@type": "attribute-definition",
+                        "createdAt": "<date>",
+                        "displayName": "Keywords",
+                        "id": "<keywordsDef>",
+                        "multiple": true,
+                        "name": "Keywords",
+                        "searchSlug": "keywords_text_m",
+                        "slug": "keywords",
+                        "translatable": false,
+                        "type": "text",
+                        "updatedAt": "<date>"
+                    },
+                    "id": "<uuid>",
+                    "invalid": false,
+                    "locale": "_",
+                    "updatedAt": "<date>",
+                    "value": "first"
+                },
+                {
+                    "@id": "/attributes/<uuid>",
+                    "@type": "attribute",
+                    "createdAt": "<date>",
+                    "definition": {
+                        "@id": "/attribute-definitions/<keywordsDef>",
+                        "@type": "attribute-definition",
+                        "createdAt": "<date>",
+                        "displayName": "Keywords",
+                        "id": "<keywordsDef>",
+                        "multiple": true,
+                        "name": "Keywords",
+                        "searchSlug": "keywords_text_m",
+                        "slug": "keywords",
+                        "translatable": false,
+                        "type": "text",
+                        "updatedAt": "<date>"
+                    },
+                    "id": "<uuid>",
+                    "invalid": false,
+                    "locale": "_",
+                    "updatedAt": "<date>",
+                    "value": "second"
+                },
+                {
+                    "@id": "/attributes/<uuid>",
+                    "@type": "attribute",
+                    "createdAt": "<date>",
+                    "definition": {
+                        "@id": "/attribute-definitions/<uuid>",
+                        "@type": "attribute-definition",
+                        "createdAt": "<date>",
+                        "displayName": "Name",
+                        "id": "<uuid>",
+                        "multiple": false,
+                        "name": "Name",
+                        "searchSlug": "name_text_s",
+                        "slug": "name",
+                        "translatable": false,
+                        "type": "text",
+                        "updatedAt": "<date>"
+                    },
+                    "id": "<uuid>",
+                    "invalid": false,
+                    "locale": "_",
+                    "updatedAt": "<date>",
+                    "value": "Photo"
+                },
+                {
+                    "@id": "/attributes/<uuid>",
+                    "@type": "attribute",
+                    "createdAt": "<date>",
+                    "definition": {
+                        "@id": "/attribute-definitions/<titleDef>",
+                        "@type": "attribute-definition",
+                        "createdAt": "<date>",
+                        "displayName": "Title",
+                        "id": "<titleDef>",
+                        "multiple": false,
+                        "name": "Title",
+                        "searchSlug": "title_text_s",
+                        "slug": "title",
+                        "translatable": false,
+                        "type": "text",
+                        "updatedAt": "<date>"
+                    },
+                    "id": "<uuid>",
+                    "invalid": false,
+                    "locale": "_",
+                    "updatedAt": "<date>",
+                    "value": "Hello"
+                }
+            ],
+            "attributesEditedAt": "<date>",
+            "capabilities": {
+                "delete": true,
+                "edit": true,
+                "editAttributes": true,
+                "share": true
+            },
+            "collections": [
+                {
+                    "@id": "/collections/<child>",
+                    "@type": "collection",
+                    "createdAt": "<date>",
+                    "deleted": false,
+                    "displayName": "Child",
+                    "extraMetadata": [],
+                    "id": "<child>",
+                    "name": "Child",
+                    "parentId": "<root>",
+                    "relationExtraMetadata": [],
+                    "updatedAt": "<date>"
+                }
+            ],
+            "createdAt": "<date>",
+            "deleted": false,
+            "editedAt": "<date>",
+            "extraMetadata": [],
+            "id": "<asset>",
+            "name": "Photo",
+            "owner": {
+                "@id": "<genid>",
+                "@type": "UserOutput",
+                "id": "<uuid>",
+                "removed": false,
+                "username": "user"
+            },
+            "privacy": 0,
+            "referenceCollection": {
+                "@id": "/collections/<child>",
+                "@type": "collection",
+                "createdAt": "<date>",
+                "deleted": false,
+                "displayName": "Child",
+                "extraMetadata": [],
+                "id": "<child>",
+                "name": "Child",
+                "parentId": "<root>",
+                "relationExtraMetadata": [],
+                "updatedAt": "<date>"
+            },
+            "resolvedName": "Photo",
+            "resolvedTrackingId": "<asset>",
+            "source": {
+                "@id": "/files/<file>",
+                "@type": "file",
+                "accepted": true,
+                "alternateUrls": [],
+                "analysisEnforced": false,
+                "analysisPending": false,
+                "analysisState": "not_analyzed",
+                "createdAt": "<date>",
+                "extension": "jpg",
+                "fileName": "photo.jpg",
+                "id": "<file>",
+                "size": 1234,
+                "type": "image/jpeg",
+                "updatedAt": "<date>",
+                "url": "https://example.com/photo.jpg"
+            },
+            "status": 0,
+            "tags": [
+                {
+                    "@id": "/tags/<tag>",
+                    "@type": "tag",
+                    "displayName": "Nature",
+                    "id": "<tag>",
+                    "name": "Nature"
+                }
+            ],
+            "threadKey": "asset:<asset>",
+            "updatedAt": "<date>",
+            "webUrl": "<client-url>/assets/<asset>/_",
+            "workspace": {
+                "@id": "/workspaces/<workspace>",
+                "@type": "workspace",
+                "capabilities": [],
+                "createdAt": "<date>",
+                "displayName": "Snapshot workspace",
+                "id": "<workspace>",
+                "name": "Snapshot workspace"
+            }
+        }
+    ],
+    "search": {
+        "@type": "IriTemplate",
+        "mapping": [
+            {
+                "@type": "IriTemplateMapping",
+                "property": "story",
+                "required": false,
+                "variable": "story"
+            }
+        ],
+        "template": "/assets{?story}",
+        "variableRepresentation": "BasicRepresentation"
+    },
+    "totalItems": 2,
+    "view": {
+        "@id": "/assets?order%5B%40createdAt%5D=asc&workspaces%5B%5D=<workspace>",
+        "@type": "PartialCollectionView"
+    }
+}

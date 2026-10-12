@@ -73,7 +73,7 @@ YAML;
             ],
         ]);
         $this->assertResponseIsSuccessful();
-        $names = array_column($response->toArray()['hydra:member'], 'name');
+        $names = array_column($response->toArray()['member'], 'name');
         $this->assertContains('my-custom-crop', $names);
 
         // Re-creating with the same name is rejected: the rendition must be deleted first

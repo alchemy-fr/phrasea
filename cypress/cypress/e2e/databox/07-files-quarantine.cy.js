@@ -59,7 +59,7 @@ describe('Files & quarantine', () => {
 
     it('shows the quarantine entry in the navigation tree when analysis is required', () => {
         apiRequest({
-            method: 'PUT',
+            method: 'PATCH',
             path: `/workspaces/${ctx.workspace.id}`,
             body: {name: ctx.workspace.name, fileAnalysisRequired: true},
         });
