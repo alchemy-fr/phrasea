@@ -385,10 +385,7 @@ function WorkspaceItem({workspace}: {workspace: Workspace}) {
                             type="button"
                             className="flex min-w-0 flex-1 items-center gap-2 py-1.5 pr-1 text-left text-sm font-semibold hover:bg-accent/60"
                             onClick={() =>
-                                search?.selectWorkspace(
-                                    selected ? undefined : workspace.id,
-                                    workspace
-                                )
+                                search?.selectWorkspace(workspace.id, workspace)
                             }
                         >
                             <LayersIcon className="size-4 shrink-0 text-muted-foreground" />
@@ -641,7 +638,7 @@ function CollectionItem({
                             className="flex min-w-0 flex-1 items-center gap-2 py-1 pr-1 text-left text-sm hover:bg-accent/60"
                             onClick={() =>
                                 search?.selectCollection(
-                                    selected ? undefined : collection.id,
+                                    collection.id,
                                     collection
                                 )
                             }
