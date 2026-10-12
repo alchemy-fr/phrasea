@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
     ChevronRightIcon,
@@ -45,8 +45,31 @@ type Props = {
     allowWorkspace?: boolean;
     /** Allow creating a collection inline under the selected node */
     allowCreate?: boolean;
+    /** Show the path of the selected node above the tree */
+    showSelection?: boolean;
     className?: string;
 };
+
+/**
+ * Path from the root collection to `id`, or undefined when an ancestor is not
+ * in the store yet.
+ */
+function collectionPath(
+    collections: Record<string, CollectionNode>,
+    id: string
+): CollectionNode[] | undefined {
+    const path: CollectionNode[] = [];
+    let node: CollectionNode | undefined = collections[id];
+    while (node) {
+        path.unshift(node);
+        if (!node.parentId) {
+            return path;
+        }
+        node = collections[node.parentId];
+    }
+
+    return undefined;
+}
 
 /**
  * Selectable workspace / collection tree used as destination picker.
@@ -59,45 +82,123 @@ export function CollectionTreePicker({
     disabledIds = [],
     allowWorkspace = true,
     allowCreate = false,
+    showSelection = false,
     className,
 }: Props) {
-    const {workspaces, workspacesLoaded, loadWorkspaces} = useCollectionStore();
+    const {workspaces, workspacesLoaded, loadWorkspaces, collections} =
+        useCollectionStore();
+    const loadAscendants = useCollectionStore(s => s.loadAscendants);
+    // The collection selected when the picker opens is revealed: its
+    // ancestors are expanded.
+    const [revealId] = useState(value?.collectionId);
+    const revealPath = revealId
+        ? collectionPath(collections, revealId)
+        : undefined;
+    const revealKnown = !!revealPath;
+    const revealIds = revealPath?.map(c => c.id) ?? [];
 
     useEffect(() => {
         void loadWorkspaces();
     }, [loadWorkspaces]);
+
+    useEffect(() => {
+        if (revealId && !revealKnown) {
+            loadAscendants(revealId).catch(() => undefined);
+        }
+    }, [revealId, revealKnown, loadAscendants]);
 
     const list = workspaceId
         ? workspaces.filter(w => w.id === workspaceId)
         : workspaces;
 
     return (
-        <div
-            className={cn(
-                'max-h-72 overflow-y-auto rounded-md border p-1',
-                className
-            )}
-        >
-            {!workspacesLoaded ? (
-                <div className="space-y-2 p-2">
-                    <Skeleton className="h-5 w-1/2" />
-                    <Skeleton className="h-5 w-2/3" />
-                </div>
-            ) : null}
-            {list.map(ws => (
-                <WorkspaceNode
-                    key={ws.id}
-                    workspace={ws}
+        <div>
+            {showSelection ? (
+                <SelectionPath
                     value={value}
-                    onChange={onChange}
-                    requireCapability={requireCapability}
-                    disabledIds={disabledIds}
-                    allowWorkspace={allowWorkspace}
-                    allowCreate={allowCreate}
-                    defaultExpanded={list.length === 1}
+                    workspaces={workspaces}
+                    collections={collections}
                 />
-            ))}
+            ) : null}
+            <div
+                className={cn(
+                    'max-h-72 overflow-y-auto rounded-md border p-1',
+                    className
+                )}
+            >
+                {!workspacesLoaded ? (
+                    <div className="space-y-2 p-2">
+                        <Skeleton className="h-5 w-1/2" />
+                        <Skeleton className="h-5 w-2/3" />
+                    </div>
+                ) : null}
+                {list.map(ws => (
+                    <WorkspaceNode
+                        key={ws.id}
+                        workspace={ws}
+                        value={value}
+                        onChange={onChange}
+                        requireCapability={requireCapability}
+                        disabledIds={disabledIds}
+                        allowWorkspace={allowWorkspace}
+                        allowCreate={allowCreate}
+                        defaultExpanded={
+                            list.length === 1 ||
+                            (!!revealId && value?.workspaceId === ws.id)
+                        }
+                        revealIds={revealIds}
+                        revealId={revealId}
+                    />
+                ))}
+            </div>
         </div>
+    );
+}
+
+function SelectionPath({
+    value,
+    workspaces,
+    collections,
+}: {
+    value: TreeSelection | undefined;
+    workspaces: Workspace[];
+    collections: Record<string, CollectionNode>;
+}) {
+    const {t} = useTranslation();
+    if (!value) {
+        return (
+            <p
+                className="mb-1.5 text-xs text-muted-foreground"
+                data-testid="tree-picker-selection"
+            >
+                {t('tree_picker.no_selection', 'No destination selected')}
+            </p>
+        );
+    }
+    const workspace = workspaces.find(w => w.id === value.workspaceId);
+    const names = value.collectionId
+        ? (collectionPath(collections, value.collectionId)?.map(
+              c => c.displayName ?? c.name
+          ) ?? (value.label ? value.label.split(' / ') : []))
+        : [];
+
+    return (
+        <p
+            className="mb-1.5 flex flex-wrap items-center gap-1 text-xs font-medium"
+            data-testid="tree-picker-selection"
+        >
+            <span className="inline-flex items-center gap-1">
+                <LayersIcon className="size-3.5 text-muted-foreground" />
+                {workspace?.displayName ?? workspace?.name}
+            </span>
+            {names.map((name, i) => (
+                <span key={i} className="inline-flex items-center gap-1">
+                    <ChevronRightIcon className="size-3 text-muted-foreground" />
+                    <FolderIcon className="size-3.5 text-muted-foreground" />
+                    {name}
+                </span>
+            ))}
+        </p>
     );
 }
 
@@ -110,10 +211,14 @@ function WorkspaceNode({
     allowWorkspace,
     allowCreate,
     defaultExpanded,
-}: Omit<Props, 'className' | 'workspaceId'> & {
+    revealIds,
+    revealId,
+}: Omit<Props, 'className' | 'workspaceId' | 'showSelection'> & {
     workspace: Workspace;
     defaultExpanded: boolean;
     disabledIds: string[];
+    revealIds: string[];
+    revealId?: string;
 }) {
     const {pagers, collections, loadChildren, loadMore} = useCollectionStore();
     const [expanded, setExpanded] = useState(defaultExpanded);
@@ -196,6 +301,8 @@ function WorkspaceNode({
                                 disabledIds={disabledIds}
                                 allowCreate={allowCreate}
                                 disabledByAncestor={false}
+                                revealIds={revealIds}
+                                revealId={revealId}
                             />
                         ) : null
                     )}
@@ -243,6 +350,8 @@ function CollectionTreeNode({
     disabledIds,
     allowCreate,
     disabledByAncestor,
+    revealIds,
+    revealId,
 }: {
     node: CollectionNode;
     depth: number;
@@ -252,9 +361,27 @@ function CollectionTreeNode({
     disabledIds: string[];
     allowCreate?: boolean;
     disabledByAncestor: boolean;
+    revealIds: string[];
+    revealId?: string;
 }) {
     const {pagers, collections, loadChildren, loadMore} = useCollectionStore();
     const [expanded, setExpanded] = useState(false);
+    const rowRef = useRef<HTMLDivElement>(null);
+    const isAncestorOfRevealed =
+        node.id !== revealId && revealIds.includes(node.id);
+    const isRevealed = node.id === revealId;
+
+    useEffect(() => {
+        if (isAncestorOfRevealed) {
+            setExpanded(true);
+        }
+    }, [isAncestorOfRevealed]);
+
+    useEffect(() => {
+        if (isRevealed) {
+            rowRef.current?.scrollIntoView?.({block: 'nearest'});
+        }
+    }, [isRevealed]);
     const pager = pagers[pagerKey(node.workspaceId, node.id)];
     const disabled = disabledByAncestor || disabledIds.includes(node.id);
     const selectable =
@@ -273,6 +400,7 @@ function CollectionTreeNode({
     return (
         <div>
             <div
+                ref={rowRef}
                 className={cn(
                     'flex items-center rounded',
                     selected && 'bg-primary/10'
@@ -332,6 +460,8 @@ function CollectionTreeNode({
                                 disabledIds={disabledIds}
                                 allowCreate={allowCreate}
                                 disabledByAncestor={disabled}
+                                revealIds={revealIds}
+                                revealId={revealId}
                             />
                         ) : null
                     )}

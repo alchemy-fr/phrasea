@@ -441,6 +441,7 @@ export function UploadDialog({
                             onChange={d => setDestination(d)}
                             requireCapability="createAsset"
                             allowCreate
+                            showSelection
                         />
                     </div>
                     <LabeledControl

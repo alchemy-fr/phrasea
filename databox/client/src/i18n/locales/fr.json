@@ -1176,6 +1176,7 @@
     "ticketing.summary": "Résumé",
     "ticketing.summary_placeholder": "Titre court du problème",
     "ticketing.title": "Signaler un problème",
+    "tree_picker.no_selection": "Aucune destination sélectionnée",
     "tui_photo_editor.file_name": "Nom du fichier",
     "tui_photo_editor.load_error": "L’éditeur photo n’a pas pu être chargé",
     "tui_photo_editor.no_export": "Aucune version modifiée",
