@@ -86,7 +86,7 @@ function storyAssetsKey(storyId?: string) {
     return ['story-assets', storyId];
 }
 
-type StoryPages = InfiniteData<SearchAssetsResult, string | undefined>;
+export type StoryPages = InfiniteData<SearchAssetsResult, string | undefined>;
 
 /**
  * Rewrites the loaded items of a story, the pages keeping their size: the

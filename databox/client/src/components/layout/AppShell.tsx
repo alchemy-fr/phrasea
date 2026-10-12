@@ -14,11 +14,13 @@ import {WorkspaceTermsGate} from '@/features/workspaces/terms/WorkspaceTermsGate
 import {ImpersonationBanner} from '@/features/impersonation/ImpersonationBanner';
 import {useResizablePanel} from '@/hooks/useResizablePanel';
 import {ResizeHandle} from '@/components/ui/resize-handle';
+import {useStoryRenditionRefresh} from '@/features/stories/useStoryRenditionRefresh';
 
 export function AppShell({children}: PropsWithChildren) {
     const {status} = useAuth();
     const leftPanelOpen = useLayoutStore(s => s.leftPanelOpen);
     const panel = useResizablePanel('left-panel');
+    useStoryRenditionRefresh();
 
     return (
         <AppDndProvider>
