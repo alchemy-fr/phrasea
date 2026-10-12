@@ -104,6 +104,7 @@ class AddToProfileProcessor implements ProcessorInterface
                 $item->setTrueLabel($i->trueLabel);
                 $item->setFalseLabel($i->falseLabel);
                 $item->setReversed($i->reversed);
+                $item->setDefaultQuery($i->defaultQuery);
             }
 
             $this->em->persist($item);

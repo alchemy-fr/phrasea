@@ -1,4 +1,6 @@
+import {type AQLQuery, type ProfileItem, ProfileItemSection} from '@/types/api';
 import {quoteAQL} from '../searchState';
+import {parseAQL} from '../aql/parser';
 import {
     AQLCondition,
     AQLOperator,
@@ -15,6 +17,50 @@ import {
  */
 export function pinnedConditionId(field: string): string {
     return `pin-${field}`;
+}
+
+/**
+ * The conditions the pinned filters of a profile apply by default, keyed
+ * like the conditions they control.
+ */
+export function pinnedDefaults(items: ProfileItem[] | undefined): AQLQuery[] {
+    return (items ?? []).flatMap(item => {
+        const query = item.defaultQuery?.trim();
+        if (item.section !== ProfileItemSection.Filters || !query) {
+            return [];
+        }
+        const expression = parseAQL(query)?.expression;
+        const condition = expression
+            ? isLogical(expression)
+                ? expression.conditions.find(isCondition)
+                : expression
+            : undefined;
+        if (!condition || !isCondition(condition)) {
+            return [];
+        }
+        const left = condition.leftOperand;
+
+        return isField(left)
+            ? [{id: pinnedConditionId(left.field), query}]
+            : [];
+    });
+}
+
+/**
+ * The conditions of a search with the pinned filter defaults it does not
+ * set. A condition without query marks a default the user cleared: it keeps
+ * the default out and is not searched.
+ */
+export function withPinnedDefaults(
+    conditions: AQLQuery[],
+    defaults: AQLQuery[]
+): AQLQuery[] {
+    const set = new Set(conditions.map(c => c.id));
+
+    return [
+        ...conditions.filter(c => c.query !== ''),
+        ...defaults.filter(d => !set.has(d.id)),
+    ];
 }
 
 /** The conditions of `ast` on `field` (top-level ones only) */

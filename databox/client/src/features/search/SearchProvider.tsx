@@ -38,6 +38,8 @@ import {getSavedSearch} from '@/lib/api/misc';
 import {useEntitiesStore} from './entitiesStore';
 import {shortId} from '@/lib/utils/misc';
 import {iri} from '@/lib/utils/iri';
+import {useProfileStore} from '@/features/profiles/profileStore';
+import {pinnedDefaults, withPinnedDefaults} from './pinned/pinnedFilterQuery';
 
 export type SearchContextValue = SearchState & {
     /** Stable checksum of the effective search (undefined when nothing is searched) */
@@ -117,6 +119,16 @@ export function SearchProvider({
 
     const stateRef = useRef(state);
     stateRef.current = state;
+
+    // The defaults of the pinned filters apply to every search that does not
+    // set them, the URL left as is: a bare search URL (home, reset) has them.
+    const profileItems = useProfileStore(s => s.current?.items);
+    const defaults = useMemo(
+        () => pinnedDefaults(profileItems),
+        [profileItems]
+    );
+    const defaultsRef = useRef(defaults);
+    defaultsRef.current = defaults;
     if (inputQuery.current !== state.query && !inputQuery.current) {
         inputQuery.current = state.query;
     }
@@ -221,7 +233,9 @@ export function SearchProvider({
     }, [state.searchId, commit]);
 
     const value = useMemo<SearchContextValue>(() => {
-        const enabledAsts = state.conditions
+        const conditions = withPinnedDefaults(state.conditions, defaults);
+        const effective = {...state, conditions};
+        const enabledAsts = conditions
             .filter(c => !c.disabled)
             .map(c => parseAQL(c.query)?.expression)
             .filter(e => e && isCondition(e));
@@ -253,11 +267,12 @@ export function SearchProvider({
                     .filter((v): v is string => typeof v === 'string');
             });
 
+        // The defaults alone are no search of the user's
         const hasSearch = hasActiveSearch(state);
 
         return {
-            ...state,
-            checksum: searchChecksum(state),
+            ...effective,
+            checksum: searchChecksum(effective),
             url: searchUrl(basePath, state),
             reloadInc,
             hasSearch,
@@ -276,17 +291,26 @@ export function SearchProvider({
                 if (resetQuery) {
                     inputQuery.current = '';
                 }
+                const isDefault = defaultsRef.current.some(
+                    d => d.id === c.id && d.query === c.query && !c.disabled
+                );
                 update(prev => ({
-                    conditions: upsertCondition(
-                        prev.conditions,
-                        renewId ? {...c, id: shortId()} : c
-                    ),
+                    // Back to a default: the URL no longer needs to carry it
+                    conditions: isDefault
+                        ? removeConditions(prev.conditions, [c.id])
+                        : upsertCondition(
+                              prev.conditions,
+                              renewId ? {...c, id: shortId()} : c
+                          ),
                     ...(resetQuery ? {query: ''} : {}),
                 }));
             },
             removeCondition: id =>
                 update(prev => ({
-                    conditions: prev.conditions.filter(c => c.id !== id),
+                    // A cleared default is kept out by an empty condition
+                    conditions: defaultsRef.current.some(d => d.id === id)
+                        ? upsertCondition(prev.conditions, {id, query: ''})
+                        : prev.conditions.filter(c => c.id !== id),
                 })),
             resetWithCondition: condition =>
                 update({
@@ -337,6 +361,7 @@ export function SearchProvider({
         };
     }, [
         state,
+        defaults,
         basePath,
         reloadInc,
         setQuery,

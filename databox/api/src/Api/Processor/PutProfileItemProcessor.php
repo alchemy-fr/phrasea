@@ -77,6 +77,9 @@ class PutProfileItemProcessor implements ProcessorInterface
         if (null !== $data->reversed) {
             $item->setReversed($data->reversed);
         }
+        if (null !== $data->defaultQuery) {
+            $item->setDefaultQuery($data->defaultQuery);
+        }
 
         $this->em->persist($item);
         $this->em->flush();

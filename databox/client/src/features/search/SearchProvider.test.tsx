@@ -2,6 +2,12 @@ import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {useEffect} from 'react';
 import {act, render} from '@testing-library/react';
 import {SearchProvider, SearchContextValue, useSearch} from './SearchProvider';
+import {useProfileStore} from '@/features/profiles/profileStore';
+import {
+    type DisplayProfile,
+    ProfileItemSection,
+    ProfileItemType,
+} from '@/types/api';
 
 const nav = vi.hoisted(() => ({
     pathname: '/assets',
@@ -177,5 +183,67 @@ describe('SearchProvider.selectCollection', () => {
         expect(pushedFilters()).toEqual(['@story:@story IS "a1"']);
         act(() => probe.current.selectCollection('c2', collection({id: 'c2'})));
         expect(pushedFilters(1)).toEqual(['@collection:@collection IS "c2"']);
+    });
+});
+
+describe('SearchProvider with pinned filter defaults', () => {
+    const isStory = {id: 'pin-@isStory', query: '@isStory = false'};
+
+    beforeEach(() => {
+        nav.push.mockReset();
+        useProfileStore.setState({
+            current: {
+                id: 'p',
+                name: 'P',
+                capabilities: {},
+                createdAt: '',
+                updatedAt: '',
+                items: [
+                    {
+                        id: 'i',
+                        section: ProfileItemSection.Filters,
+                        type: ProfileItemType.BuiltIn,
+                        key: '@isStory',
+                        defaultQuery: isStory.query,
+                    },
+                ],
+            } as unknown as DisplayProfile,
+        });
+    });
+
+    it('applies the defaults to a bare search URL', () => {
+        renderAt('/assets');
+        expect(probe.current.conditions).toEqual([isStory]);
+        expect(probe.current.url).toBe('/assets');
+        expect(probe.current.hasSearch).toBe(false);
+    });
+
+    it('keeps a cleared default out through an empty condition', () => {
+        renderAt('/assets');
+        act(() => probe.current.removeCondition(isStory.id));
+        const url = nav.push.mock.calls[0][0] as string;
+        expect(url).toBe('/assets?f=pin-%40isStory%3A');
+
+        renderAt('/assets', url.split('?')[1]);
+        expect(probe.current.conditions).toEqual([]);
+        expect(probe.current.hasSearch).toBe(true);
+    });
+
+    it('drops the URL condition when back to the default', () => {
+        renderAt('/assets', 'f=pin-%40isStory%3A');
+        act(() => probe.current.upsertCondition(isStory));
+        expect(nav.push).toHaveBeenCalledWith('/assets', {scroll: false});
+    });
+
+    it('lets the URL override a default', () => {
+        renderAt('/assets', 'f=pin-%40isStory%3A%40isStory+%3D+true');
+        expect(probe.current.conditions).toEqual([
+            {
+                id: isStory.id,
+                query: '@isStory = true',
+                disabled: undefined,
+                inversed: undefined,
+            },
+        ]);
     });
 });

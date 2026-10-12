@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import type {TFunction} from 'i18next';
 import {
@@ -19,7 +19,16 @@ import {
     RadioGroup,
     RadioGroupItem,
 } from '@/components/ui/controls';
+import {Button} from '@/components/ui/button';
+import {aqlKey} from '@/features/attributes/definitionsStore';
 import {booleanChoices} from '@/features/search/pinned/booleanChoices';
+import {
+    PinnedFilterWidget,
+    type PinnedFilter,
+} from '@/features/search/pinned/PinnedFilters';
+import {pinnedConditionId} from '@/features/search/pinned/pinnedFilterQuery';
+import {parseAQL} from '@/features/search/aql/parser';
+import {HumanizedExpression} from '@/features/search/conditions/SearchConditionChip';
 import type {ProfileTabProps} from './ProfileManageRoute';
 import {ProfileSectionEditor} from './ProfileAttributesTab';
 
@@ -63,16 +72,35 @@ export function ProfileFiltersTab({profile}: ProfileTabProps) {
                 'profile.filters.empty',
                 'No search filter is pinned yet.'
             )}
-            badges={item =>
-                item.widget && item.widget !== FilterWidget.Select ? (
-                    <Badge variant="muted">
-                        {widgetLabels(t)[item.widget]}
-                    </Badge>
-                ) : null
-            }
-            options={(item, type, onChange) =>
-                type === AttributeType.Boolean ? (
-                    <BooleanFilterOptions item={item} onChange={onChange} />
+            badges={item => (
+                <>
+                    {item.widget && item.widget !== FilterWidget.Select ? (
+                        <Badge variant="muted">
+                            {widgetLabels(t)[item.widget]}
+                        </Badge>
+                    ) : null}
+                    {item.defaultQuery ? (
+                        <Badge variant="muted" title={item.defaultQuery}>
+                            {t('profile.filters.has_default', 'Default value')}
+                        </Badge>
+                    ) : null}
+                </>
+            )}
+            options={(item, type, onChange, definition) =>
+                definition ? (
+                    <div className="space-y-3 border-t bg-muted/30 px-3 py-2.5 text-xs text-muted-foreground">
+                        {type === AttributeType.Boolean ? (
+                            <BooleanFilterOptions
+                                item={item}
+                                onChange={onChange}
+                            />
+                        ) : null}
+                        <DefaultValueEditor
+                            item={item}
+                            definition={definition}
+                            onChange={onChange}
+                        />
+                    </div>
                 ) : null
             }
         />
@@ -90,7 +118,7 @@ function BooleanFilterOptions({
     const labels = widgetLabels(t);
 
     return (
-        <div className="space-y-3 border-t bg-muted/30 px-3 py-2.5 text-xs text-muted-foreground">
+        <>
             <label className="flex items-center gap-2">
                 <span className="w-28 shrink-0">
                     {t('profile.filters.picker', 'Value picker')}
@@ -140,6 +168,77 @@ function BooleanFilterOptions({
                         </span>
                     ))}
                 </RadioGroup>
+            </div>
+        </>
+    );
+}
+
+/**
+ * The value the filter applies to every search that does not set it,
+ * picked with the widget of the search bar.
+ */
+function DefaultValueEditor({
+    item,
+    definition,
+    onChange,
+}: {
+    item: ProfileItem;
+    definition: AttributeDefinitionOrBuiltIn;
+    onChange: (data: Partial<ProfileItem>) => void;
+}) {
+    const {t} = useTranslation();
+    const filter = useMemo<PinnedFilter>(() => {
+        const field = aqlKey(definition);
+
+        return {item, definition, field, conditionId: pinnedConditionId(field)};
+    }, [item, definition]);
+    const ast = useMemo(
+        () => (item.defaultQuery ? parseAQL(item.defaultQuery) : undefined),
+        [item.defaultQuery]
+    );
+    const apply = (query: string | undefined) =>
+        onChange({defaultQuery: query ?? ''});
+
+    return (
+        <div className="space-y-2" data-testid="profile-filter-default">
+            <div className="flex min-h-7 items-center gap-2">
+                <span className="w-28 shrink-0">
+                    {t('profile.filters.default', 'Default value')}
+                </span>
+                {ast ? (
+                    <>
+                        <span className="min-w-0 truncate text-sm text-foreground">
+                            <HumanizedExpression expression={ast.expression} />
+                        </span>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7"
+                            onClick={() => apply(undefined)}
+                        >
+                            {t('common.clear', 'Clear')}
+                        </Button>
+                    </>
+                ) : (
+                    <span className="italic">
+                        {t('profile.filters.no_default', 'None')}
+                    </span>
+                )}
+            </div>
+            <p>
+                {t(
+                    'profile.filters.default_help',
+                    'Applied to every search, including the home page and a reset search, until the user picks another value or clears it.'
+                )}
+            </p>
+            <div className="w-fit rounded-md border bg-background text-foreground">
+                <PinnedFilterWidget
+                    // Remounted when cleared: the form widgets drop their input
+                    key={ast ? 'set' : 'none'}
+                    filter={filter}
+                    ast={ast}
+                    onApply={apply}
+                />
             </div>
         </div>
     );

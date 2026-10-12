@@ -1,6 +1,6 @@
 'use client';
 
-import {PropsWithChildren, useEffect, useRef} from 'react';
+import {PropsWithChildren, useEffect, useRef, useState} from 'react';
 import {useTheme} from 'next-themes';
 import {useTranslation} from 'react-i18next';
 import {useAuth} from '@/lib/auth/AuthProvider';
@@ -13,7 +13,8 @@ import {useProfileStore} from '@/features/profiles/profileStore';
 /**
  * Loads server-side user preferences once the session is known, then applies
  * the persisted theme / data locale before rendering the app, and loads the
- * display profile they select (the attribute lists and grid cards follow it).
+ * display profile they select (the attribute lists, grid cards and default
+ * search filters follow it) before the first search.
  */
 export function UserPreferencesGate({children}: PropsWithChildren) {
     const {status} = useAuth();
@@ -29,9 +30,14 @@ export function UserPreferencesGate({children}: PropsWithChildren) {
 
     // The profile store reads the selected profile from the preferences
     const loadProfiles = useProfileStore(s => s.load);
+    // Only the first load holds the app back: a later one must not unmount it
+    const [profilesReady, setProfilesReady] = useState(false);
     useEffect(() => {
         if (loaded && authenticated) {
-            void loadProfiles();
+            // A failure leaves the app without profile, not stuck loading
+            loadProfiles()
+                .catch(() => undefined)
+                .finally(() => setProfilesReady(true));
         }
     }, [loaded, authenticated, loadProfiles]);
 
@@ -62,7 +68,7 @@ export function UserPreferencesGate({children}: PropsWithChildren) {
         setApiLocales({data: preferences.dataLocale});
     }, [preferences.dataLocale]);
 
-    if (!loaded) {
+    if (!loaded || (authenticated && !profilesReady)) {
         return (
             <FullPageLoader
                 label={t('preferences.loading', 'Loading user preferences…')}

@@ -47,6 +47,8 @@ final readonly class ProfileItemOutput
         public ?string $falseLabel = null,
         #[Groups([Profile::GROUP_READ])]
         public ?bool $reversed = null,
+        #[Groups([Profile::GROUP_READ])]
+        public ?string $defaultQuery = null,
     ) {
     }
 }

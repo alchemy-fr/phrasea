@@ -385,7 +385,9 @@ final class ProfileApiTest extends AbstractDataboxTestCase
             'trueLabel' => ' Stories ',
             'falseLabel' => 'Assets',
             'reversed' => true,
+            'defaultQuery' => 'approved = false',
         ]);
+        $this->assertSame('approved = false', $data['defaultQuery']);
         $this->assertSame(ProfileItem::WIDGET_INLINE, $data['widget']);
         $this->assertSame('Stories', $data['trueLabel']);
         $this->assertSame('Assets', $data['falseLabel']);
@@ -397,7 +399,9 @@ final class ProfileApiTest extends AbstractDataboxTestCase
             'trueLabel' => '',
             'falseLabel' => '',
             'reversed' => false,
+            'defaultQuery' => '',
         ]);
+        $this->assertNull($data['defaultQuery'] ?? null);
         $this->assertNull($data['widget'] ?? null);
         $this->assertNull($data['trueLabel'] ?? null);
         $this->assertNull($data['falseLabel'] ?? null);

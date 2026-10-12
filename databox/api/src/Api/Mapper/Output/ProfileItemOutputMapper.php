@@ -44,6 +44,7 @@ class ProfileItemOutputMapper implements OutputMapperInterface
             trueLabel: $data->getTrueLabel(),
             falseLabel: $data->getFalseLabel(),
             reversed: $data->isReversed(),
+            defaultQuery: $data->getDefaultQuery(),
         );
     }
 }

@@ -117,9 +117,12 @@ export function usePinnedFilters(): PinnedFilter[] {
 }
 
 /** Applies the query of a filter (none clears it), closes the picker unless `keepOpen` */
-type ApplyFilter = (query: string | undefined, keepOpen?: boolean) => void;
+export type ApplyFilter = (
+    query: string | undefined,
+    keepOpen?: boolean
+) => void;
 
-type WidgetProps = {
+export type WidgetProps = {
     filter: PinnedFilter;
     /** The condition the filter currently applies */
     ast: AQLQueryAST | undefined;
@@ -281,7 +284,7 @@ function PopoverFilterChip({filter}: {filter: PinnedFilter}) {
     );
 }
 
-function PinnedFilterWidget(props: WidgetProps) {
+export function PinnedFilterWidget(props: WidgetProps) {
     const type = props.filter.definition.type;
     const raw = rawTypeMap[type];
 

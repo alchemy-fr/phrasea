@@ -684,6 +684,8 @@ export type ProfileItem = {
     falseLabel?: string | null;
     /** A boolean filter offers "false" first */
     reversed?: boolean;
+    /** AQL condition a search filter applies by default */
+    defaultQuery?: string | null;
 };
 
 export interface DisplayProfile extends WithCapabilities, Entity {

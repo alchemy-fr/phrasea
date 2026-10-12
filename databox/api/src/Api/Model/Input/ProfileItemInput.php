@@ -41,6 +41,9 @@ final class ProfileItemInput
     public ?string $falseLabel = null;
     // Offers "false" first.
     public ?bool $reversed = null;
+    // AQL condition a pinned filter applies by default; empty string clears it.
+    #[Assert\Length(max: 4000)]
+    public ?string $defaultQuery = null;
 
     #[Assert\NotNull]
     #[Assert\Choice(choices: ProfileItem::SECTIONS)]

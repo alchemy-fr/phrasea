@@ -402,6 +402,27 @@ class ProfileItem extends AbstractUuidEntity
         $this->options['reversed'] = true;
     }
 
+    /**
+     * The AQL condition a pinned search filter applies by default, until the
+     * user picks another value or clears it.
+     */
+    public function getDefaultQuery(): ?string
+    {
+        return $this->options['defaultQuery'] ?? null;
+    }
+
+    public function setDefaultQuery(?string $defaultQuery): void
+    {
+        $defaultQuery = null !== $defaultQuery ? trim($defaultQuery) : null;
+        if (null === $defaultQuery || '' === $defaultQuery) {
+            unset($this->options['defaultQuery']);
+
+            return;
+        }
+
+        $this->options['defaultQuery'] = $defaultQuery;
+    }
+
     #[Assert\Callback]
     public function validate(ExecutionContextInterface $context): void
     {

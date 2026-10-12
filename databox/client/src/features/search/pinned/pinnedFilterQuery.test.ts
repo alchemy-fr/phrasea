@@ -1,10 +1,13 @@
 import {describe, expect, it} from 'vitest';
 import {parseAQL} from '../aql/parser';
+import {ProfileItemSection, ProfileItemType} from '@/types/api';
 import {
     conditionsOn,
     dateRangeOf,
     dateRangeQuery,
     pinnedConditionId,
+    pinnedDefaults,
+    withPinnedDefaults,
 } from './pinnedFilterQuery';
 
 describe('pinned filter queries', () => {
@@ -54,5 +57,45 @@ describe('pinned filter queries', () => {
         const ast = parseAQL('a = "x" AND b = "y"');
         expect(conditionsOn('b', ast)).toHaveLength(1);
         expect(dateRangeOf('c', ast, false)).toEqual({from: '', to: ''});
+    });
+});
+
+describe('pinned filter defaults', () => {
+    const item = (section: ProfileItemSection, defaultQuery?: string) => ({
+        id: 'i',
+        section,
+        type: ProfileItemType.BuiltIn,
+        key: '@isStory',
+        defaultQuery,
+    });
+
+    it('keys the defaults of the filters like their conditions', () => {
+        expect(
+            pinnedDefaults([
+                item(ProfileItemSection.Filters, '@isStory = false'),
+                item(ProfileItemSection.Filters, '  '),
+                item(ProfileItemSection.Filters),
+                item(ProfileItemSection.Attributes, '@isStory = true'),
+                item(ProfileItemSection.Filters, 'not AQL ((('),
+            ])
+        ).toEqual([{id: 'pin-@isStory', query: '@isStory = false'}]);
+    });
+
+    const defaults = [{id: 'pin-a', query: 'a = 1'}];
+
+    it('applies the defaults the search does not set', () => {
+        const other = {id: 'x', query: 'b = 2'};
+        expect(withPinnedDefaults([other], defaults)).toEqual([
+            other,
+            defaults[0],
+        ]);
+    });
+
+    it('lets the search override or clear a default', () => {
+        const picked = {id: 'pin-a', query: 'a = 3'};
+        expect(withPinnedDefaults([picked], defaults)).toEqual([picked]);
+        expect(
+            withPinnedDefaults([{id: 'pin-a', query: ''}], defaults)
+        ).toEqual([]);
     });
 });

@@ -88,7 +88,8 @@ export function ProfileAttributesTab({profile}: ProfileTabProps) {
 type ItemOptionsRenderer = (
     item: ProfileItem,
     type: string | undefined,
-    onChange: (data: Partial<ProfileItem>) => void
+    onChange: (data: Partial<ProfileItem>) => void,
+    definition: AttributeDefinitionOrBuiltIn | undefined
 ) => ReactNode;
 
 type SectionEditorProps = {
@@ -390,7 +391,7 @@ function DisplayedRow({
         item.type === ProfileItemType.Divider ? (
             <DividerOptions item={item} onChange={onChange} />
         ) : item.type !== ProfileItemType.Spacer ? (
-            (options?.(item, type, onChange) ?? null)
+            (options?.(item, type, onChange, definition) ?? null)
         ) : null;
     const expandable = itemOptions !== null;
 
