@@ -2,7 +2,7 @@
 
 import {useTranslation} from 'react-i18next';
 import {useRouter} from 'next/navigation';
-import type {Asset, AssetRendition} from '@/types/api';
+import type {Asset, AssetRendition, Collection} from '@/types/api';
 import {
     Accordion,
     AccordionContent,
@@ -30,10 +30,10 @@ export function AssetSidePanel({
     rendition?: AssetRendition;
 }) {
     const {t} = useTranslation();
-    const router = useRouter();
-    const search = useOptionalSearch();
     const {isAuthenticated} = useAuth();
     const config = useConfig();
+    const collections = asset.collections?.filter(c => !c.storyAsset) ?? [];
+    const stories = asset.collections?.filter(c => !!c.storyAsset) ?? [];
 
     return (
         <Accordion type="multiple" defaultValue={['attributes', 'discussion']}>
@@ -53,34 +53,23 @@ export function AssetSidePanel({
                     <AssetInfoList asset={asset} />
                 </AccordionContent>
             </AccordionItem>
-            {asset.collections && asset.collections.length > 0 ? (
-                <AccordionItem value="appears-in">
+            {collections.length > 0 ? (
+                <AccordionItem value="collections">
                     <AccordionTrigger>
-                        {t('asset.view.appears_in', 'Appears in')}
+                        {t('asset.view.collections', 'Collections')}
                     </AccordionTrigger>
                     <AccordionContent>
-                        <ul className="space-y-1">
-                            {asset.collections.map(c => (
-                                <li key={c.id}>
-                                    <CollectionChip
-                                        collection={c}
-                                        absolute
-                                        size="sm"
-                                        onClick={() => {
-                                            // Navigates to the search screen
-                                            if (search) {
-                                                search.selectCollection(
-                                                    c.id,
-                                                    c
-                                                );
-                                            } else {
-                                                router.push(routes.assets());
-                                            }
-                                        }}
-                                    />
-                                </li>
-                            ))}
-                        </ul>
+                        <CollectionList collections={collections} />
+                    </AccordionContent>
+                </AccordionItem>
+            ) : null}
+            {stories.length > 0 ? (
+                <AccordionItem value="stories">
+                    <AccordionTrigger>
+                        {t('asset.view.stories', 'Stories')}
+                    </AccordionTrigger>
+                    <AccordionContent>
+                        <CollectionList collections={stories} />
                     </AccordionContent>
                 </AccordionItem>
             ) : null}
@@ -130,5 +119,32 @@ export function AssetSidePanel({
                 />
             ) : null}
         </Accordion>
+    );
+}
+
+function CollectionList({collections}: {collections: Collection[]}) {
+    const router = useRouter();
+    const search = useOptionalSearch();
+
+    return (
+        <ul className="space-y-1">
+            {collections.map(c => (
+                <li key={c.id}>
+                    <CollectionChip
+                        collection={c}
+                        absolute
+                        size="sm"
+                        onClick={() => {
+                            // Navigates to the search screen
+                            if (search) {
+                                search.selectCollection(c.id, c);
+                            } else {
+                                router.push(routes.assets());
+                            }
+                        }}
+                    />
+                </li>
+            ))}
+        </ul>
     );
 }

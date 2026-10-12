@@ -95,7 +95,7 @@ describe('Asset viewer', () => {
             cy.contains('button', 'Information').click();
             cy.contains('Workspace').should('be.visible');
             cy.contains(ctx.workspace.name).should('be.visible');
-            cy.contains('button', 'Appears in').click();
+            cy.contains('button', 'Collections').click();
             cy.contains('Sport').should('be.visible');
             cy.contains('button', 'Discussion').should('be.visible');
             cy.contains('button', 'Attachments').should('be.visible');
