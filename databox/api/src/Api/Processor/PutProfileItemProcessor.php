@@ -65,6 +65,18 @@ class PutProfileItemProcessor implements ProcessorInterface
         if (null !== $data->showIcon) {
             $item->setShowIcon($data->showIcon);
         }
+        if (null !== $data->widget) {
+            $item->setWidget($data->widget);
+        }
+        if (null !== $data->trueLabel) {
+            $item->setTrueLabel($data->trueLabel);
+        }
+        if (null !== $data->falseLabel) {
+            $item->setFalseLabel($data->falseLabel);
+        }
+        if (null !== $data->reversed) {
+            $item->setReversed($data->reversed);
+        }
 
         $this->em->persist($item);
         $this->em->flush();

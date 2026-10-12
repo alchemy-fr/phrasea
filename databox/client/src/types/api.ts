@@ -615,6 +615,7 @@ export enum ProfileItemSection {
     Attributes = 0,
     Facets = 1,
     Grid = 2,
+    Filters = 3,
 }
 
 export enum ProfileItemType {
@@ -654,6 +655,15 @@ export enum ProfileItemSize {
     Large = 'large',
 }
 
+/** How a pinned boolean search filter picks its value */
+export enum FilterWidget {
+    Select = 'select',
+    /** Radio buttons in a popover */
+    Radio = 'radio',
+    /** Radio buttons laid out in the search bar */
+    Inline = 'inline',
+}
+
 export type ProfileItem = {
     id: string;
     section: ProfileItemSection;
@@ -668,6 +678,12 @@ export type ProfileItem = {
     size?: ProfileItemSize;
     showLabel?: boolean;
     showIcon?: boolean;
+    widget?: FilterWidget | '';
+    /** Labels of the values of a boolean filter (Yes / No by default) */
+    trueLabel?: string | null;
+    falseLabel?: string | null;
+    /** A boolean filter offers "false" first */
+    reversed?: boolean;
 };
 
 export interface DisplayProfile extends WithCapabilities, Entity {

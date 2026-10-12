@@ -304,6 +304,7 @@ final class ProfileApiTest extends AbstractDataboxTestCase
             'grid invalid region' => [['type' => ProfileItem::TYPE_BUILT_IN, 'key' => 'name', 'section' => ProfileItem::SECTION_GRID, 'placement' => ['region' => 'nowhere', 'anchor' => 'l']]],
             'grid reserved anchor' => [['type' => ProfileItem::TYPE_BUILT_IN, 'key' => 'name', 'section' => ProfileItem::SECTION_GRID, 'placement' => ['region' => 'over', 'anchor' => 'tl']]],
             'invalid size' => [['type' => ProfileItem::TYPE_BUILT_IN, 'key' => 'name', 'section' => ProfileItem::SECTION_ATTRIBUTES, 'size' => 'huge']],
+            'invalid widget' => [['type' => ProfileItem::TYPE_BUILT_IN, 'key' => 'name', 'section' => ProfileItem::SECTION_FILTERS, 'widget' => 'slider']],
         ];
     }
 
@@ -335,15 +336,75 @@ final class ProfileApiTest extends AbstractDataboxTestCase
         $this->assertContains($response->getStatusCode(), [400, 404, 422]);
     }
 
-    public function testDividerIsNotAllowedInFacets(): void
+    #[DataProvider('getAttributeOnlySections')]
+    public function testLayoutItemsAreNotAllowedInAttributeOnlySections(int $section): void
     {
-        $this->markTestIncomplete('BUG: a divider/spacer in the facets section is rejected with a raw \InvalidArgumentException, which answers 500 instead of 400/422, see src/Api/Processor/AddToProfileProcessor.php:79');
-
         $profile = $this->createProfile('P', self::USER);
-        $response = $this->api('POST', '/profiles/'.$profile->getId().'/items', self::USER, ['items' => [
-            ['type' => ProfileItem::TYPE_DIVIDER, 'key' => 'D', 'section' => ProfileItem::SECTION_FACETS],
+        $uri = '/profiles/'.$profile->getId().'/items';
+
+        $this->assertStatus(422, 'POST', $uri, self::USER, ['items' => [
+            ['type' => ProfileItem::TYPE_DIVIDER, 'key' => 'D', 'section' => $section],
         ]]);
-        $this->assertContains($response->getStatusCode(), [400, 422]);
+        $this->assertStatus(422, 'POST', $uri, self::USER, ['items' => [
+            ['type' => ProfileItem::TYPE_SPACER, 'section' => $section],
+        ]]);
+    }
+
+    public static function getAttributeOnlySections(): array
+    {
+        return [
+            'facets' => [ProfileItem::SECTION_FACETS],
+            'filters' => [ProfileItem::SECTION_FILTERS],
+        ];
+    }
+
+    public function testAddAndUpdateFilterItem(): void
+    {
+        $profile = $this->createProfile('P', self::USER);
+        $def = $this->createDefinitionIn($this->workspaceOf(self::USER), 'Approved');
+
+        $data = $this->apiJson('POST', '/profiles/'.$profile->getId().'/items', self::USER, ['items' => [[
+            'type' => ProfileItem::TYPE_ATTR_DEF,
+            'definition' => $def->getId(),
+            'section' => ProfileItem::SECTION_FILTERS,
+            'widget' => ProfileItem::WIDGET_RADIO,
+        ]]]);
+
+        $item = $data['items'][0];
+        $this->assertSame(ProfileItem::SECTION_FILTERS, $item['section']);
+        $this->assertSame(ProfileItem::WIDGET_RADIO, $item['widget']);
+
+        $uri = '/profiles/'.$profile->getId().'/items/'.$item['id'];
+        $put = [
+            'type' => ProfileItem::TYPE_ATTR_DEF,
+            'definition' => $def->getId(),
+            'section' => ProfileItem::SECTION_FILTERS,
+        ];
+        $data = $this->apiJson('PUT', $uri, self::USER, $put + [
+            'widget' => ProfileItem::WIDGET_INLINE,
+            'trueLabel' => ' Stories ',
+            'falseLabel' => 'Assets',
+            'reversed' => true,
+        ]);
+        $this->assertSame(ProfileItem::WIDGET_INLINE, $data['widget']);
+        $this->assertSame('Stories', $data['trueLabel']);
+        $this->assertSame('Assets', $data['falseLabel']);
+        $this->assertTrue($data['reversed']);
+
+        // Empty strings clear the widget and the labels
+        $data = $this->apiJson('PUT', $uri, self::USER, $put + [
+            'widget' => '',
+            'trueLabel' => '',
+            'falseLabel' => '',
+            'reversed' => false,
+        ]);
+        $this->assertNull($data['widget'] ?? null);
+        $this->assertNull($data['trueLabel'] ?? null);
+        $this->assertNull($data['falseLabel'] ?? null);
+        $this->assertFalse($data['reversed']);
+
+        $this->assertStatus(422, 'PUT', $uri, self::USER, $put + ['widget' => 'slider']);
+        $this->assertStatus(422, 'PUT', $uri, self::USER, $put + ['trueLabel' => str_repeat('x', 101)]);
     }
 
     public function testRemoveItems(): void

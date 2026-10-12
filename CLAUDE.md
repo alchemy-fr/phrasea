@@ -47,12 +47,12 @@ The applications:
 - **PHP:** each API is Symfony (PHP ^8.5) using **API Platform**, **Doctrine ORM**, **FOS Elastica / Elasticsearch**, and **Symfony Messenger over AMQP** for async work.
 - **Everything runs in Docker Compose.** Nothing is installed on the host (see the warning at the top). PHP commands run inside the API containers (e.g. `databox-api-php`, `expose-api-php`, `uploader-api-php`); JS/pnpm commands run inside the `dev` container.
 
-The docs recommend defining a `dc` shell function that wraps `docker compose` with the env files:
+The docs recommend defining a `dc` shell function that wraps `docker compose` with the env files. `.env.local` is loaded before **and** after `.env`: Compose interpolates each file as it reads it, so a `PHRASEA_DOMAIN` set in `.env.local` must already be known when the derived URLs in `.env` are expanded (same order as `load-env` in `bin/functions.sh`):
 
 ```bash
 function dc() {
     if [ -f .env.local ]; then
-        docker compose --env-file=.env --env-file=.env.local "$@"
+        docker compose --env-file=.env.local --env-file=.env --env-file=.env.local "$@"
     else
         docker compose "$@"
     fi

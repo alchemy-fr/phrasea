@@ -40,6 +40,10 @@ class ProfileItemOutputMapper implements OutputMapperInterface
             size: $data->getSize(),
             showLabel: $data->isShowLabel(),
             showIcon: $data->isShowIcon(),
+            widget: $data->getWidget(),
+            trueLabel: $data->getTrueLabel(),
+            falseLabel: $data->getFalseLabel(),
+            reversed: $data->isReversed(),
         );
     }
 }

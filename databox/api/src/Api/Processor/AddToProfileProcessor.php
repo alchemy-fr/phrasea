@@ -72,13 +72,6 @@ class AddToProfileProcessor implements ProcessorInterface
             $item->setType($i->type);
             $item->setPosition($position++);
 
-            if (ProfileItem::SECTION_FACETS === $item->getSection() && in_array($i->type, [
-                ProfileItem::TYPE_DIVIDER,
-                ProfileItem::TYPE_SPACER,
-            ], true)) {
-                throw new \InvalidArgumentException(sprintf('Type "%d" is not allowed in section "%d"', $i->type, $i->section));
-            }
-
             switch ($i->type) {
                 case ProfileItem::TYPE_ATTR_DEF:
                     $definition = DoctrineUtil::findStrictByRepo($this->attributeDefinitionRepository, $i->definition);
@@ -105,6 +98,12 @@ class AddToProfileProcessor implements ProcessorInterface
                 $item->setSize($i->size);
                 $item->setShowLabel($i->showLabel);
                 $item->setShowIcon($i->showIcon);
+            }
+            if (ProfileItem::SECTION_FILTERS === $i->section) {
+                $item->setWidget($i->widget);
+                $item->setTrueLabel($i->trueLabel);
+                $item->setFalseLabel($i->falseLabel);
+                $item->setReversed($i->reversed);
             }
 
             $this->em->persist($item);

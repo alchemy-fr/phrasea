@@ -31,6 +31,16 @@ final class ProfileItemInput
     public ?string $size = null;
     public ?bool $showLabel = null;
     public ?bool $showIcon = null;
+    // How a pinned boolean filter is picked; empty string clears it.
+    #[Assert\Choice(choices: [...ProfileItem::WIDGETS, ''])]
+    public ?string $widget = null;
+    // Labels of a pinned boolean filter values; empty string clears them.
+    #[Assert\Length(max: 100)]
+    public ?string $trueLabel = null;
+    #[Assert\Length(max: 100)]
+    public ?string $falseLabel = null;
+    // Offers "false" first.
+    public ?bool $reversed = null;
 
     #[Assert\NotNull]
     #[Assert\Choice(choices: ProfileItem::SECTIONS)]
@@ -70,6 +80,13 @@ final class ProfileItemInput
                         ->addViolation();
                 }
                 break;
+        }
+
+        if (in_array($this->section, ProfileItem::ATTRIBUTE_ONLY_SECTIONS, true)
+            && in_array($this->type, [ProfileItem::TYPE_DIVIDER, ProfileItem::TYPE_SPACER], true)) {
+            $context->buildViolation('Only attributes are allowed in this section.')
+                ->atPath('type')
+                ->addViolation();
         }
 
         if (ProfileItem::SECTION_GRID === $this->section) {

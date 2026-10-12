@@ -4,6 +4,7 @@ import {useState, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {
+    FilterIcon,
     InfoIcon,
     LayoutGridIcon,
     ListOrderedIcon,
@@ -32,6 +33,7 @@ import {PermissionObject} from '@/features/permissions/permissionTypes';
 import {useProfileStore} from '../profileStore';
 import {ProfileAttributesTab} from './ProfileAttributesTab';
 import {ProfileGridTab} from './ProfileGridTab';
+import {ProfileFiltersTab} from './ProfileFiltersTab';
 import {profileQueryKey} from './useProfileEditing';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
@@ -75,6 +77,13 @@ function useTabs(profile?: DisplayProfile): DialogTab<ProfileTabProps>[] {
             title: t('profile.grid_card', 'Grid card'),
             icon: <LayoutGridIcon />,
             component: ProfileGridTab,
+            enabled: canEdit,
+        },
+        {
+            id: 'filters',
+            title: t('profile.manage.filters', 'Search filters'),
+            icon: <FilterIcon />,
+            component: ProfileFiltersTab,
             enabled: canEdit,
         },
         {

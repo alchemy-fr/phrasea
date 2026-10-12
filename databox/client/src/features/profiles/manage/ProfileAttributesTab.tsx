@@ -1,6 +1,6 @@
 'use client';
 
-import {useMemo, useRef, useState} from 'react';
+import {ReactNode, useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
     ArrowRightIcon,
@@ -29,7 +29,11 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import {CSS} from '@dnd-kit/utilities';
-import type {AttributeDefinitionOrBuiltIn, ProfileItem} from '@/types/api';
+import type {
+    AttributeDefinitionOrBuiltIn,
+    DisplayProfile,
+    ProfileItem,
+} from '@/types/api';
 import {ProfileItemSection, ProfileItemType} from '@/types/api';
 import {Button} from '@/components/ui/button';
 import {Badge} from '@/components/ui/misc';
@@ -60,13 +64,63 @@ import {useProfileEditing} from './useProfileEditing';
 
 const LIST_ZONE = 'displayed';
 
-/**
- * The attributes of the asset panel: the palette of the attributes on the
- * left, the displayed ones on the right in their order. Attributes are
- * dragged from the palette to a position of the list, reordered within it,
- * and dragged back to the palette to remove them.
- */
+/** The attributes of the asset panel */
 export function ProfileAttributesTab({profile}: ProfileTabProps) {
+    const {t} = useTranslation();
+
+    return (
+        <ProfileSectionEditor
+            profile={profile}
+            section={ProfileItemSection.Attributes}
+            withLayout
+            intro={t(
+                'profile.attributes.intro',
+                'The attributes shown in the asset panel, in this order. Drag attributes from the list on the left, reorder them, drag them back to remove them.'
+            )}
+            badges={item => <AttributeBadges item={item} />}
+            options={(item, type, onChange) => (
+                <ItemOptions item={item} type={type} onChange={onChange} />
+            )}
+        />
+    );
+}
+
+type ItemOptionsRenderer = (
+    item: ProfileItem,
+    type: string | undefined,
+    onChange: (data: Partial<ProfileItem>) => void
+) => ReactNode;
+
+type SectionEditorProps = {
+    profile: DisplayProfile;
+    section: ProfileItemSection;
+    intro: string;
+    emptyText?: string;
+    /** Offers the dividers and spacers too */
+    withLayout?: boolean;
+    /** The attributes the palette offers (all of them by default) */
+    accept?: (definition: AttributeDefinitionOrBuiltIn) => boolean;
+    badges?: (item: ProfileItem) => ReactNode;
+    /** The options of an attribute row: none (not expandable) when null */
+    options?: ItemOptionsRenderer;
+};
+
+/**
+ * The items of a profile section: the palette of the attributes on the
+ * left, the placed ones on the right in their order. Attributes are dragged
+ * from the palette to a position of the list, reordered within it, and
+ * dragged back to the palette to remove them.
+ */
+export function ProfileSectionEditor({
+    profile,
+    section,
+    intro,
+    emptyText,
+    withLayout,
+    accept,
+    badges,
+    options,
+}: SectionEditorProps) {
     const {t} = useTranslation();
     const editing = useProfileEditing(profile.id);
     const {definitionOf, labelOf} = useProfileDefinitions();
@@ -83,11 +137,8 @@ export function ProfileAttributesTab({profile}: ProfileTabProps) {
     );
 
     const items = useMemo(
-        () =>
-            (profile.items ?? []).filter(
-                i => i.section === ProfileItemSection.Attributes
-            ),
-        [profile.items]
+        () => (profile.items ?? []).filter(i => i.section === section),
+        [profile.items, section]
     );
     const ids = useMemo(() => items.map(i => i.id), [items]);
     const used = useMemo(
@@ -95,14 +146,12 @@ export function ProfileAttributesTab({profile}: ProfileTabProps) {
             new Set(items.filter(i => !isLayoutItem(i)).map(paletteKeyOfItem)),
         [items]
     );
-    const groups = usePaletteGroups({used, query, withLayout: true});
+    const groups = usePaletteGroups({used, query, withLayout, accept});
 
     const add = (entry: PaletteEntry, index?: number) =>
         editing.add(
-            [{...entry.item, section: ProfileItemSection.Attributes}],
-            index !== undefined
-                ? {section: ProfileItemSection.Attributes, index}
-                : undefined
+            [{...entry.item, section}],
+            index !== undefined ? {section, index} : undefined
         );
 
     // Where the drag is, to tell whether a palette entry lands above or
@@ -171,12 +220,7 @@ export function ProfileAttributesTab({profile}: ProfileTabProps) {
 
     return (
         <div className="flex h-full min-h-0 flex-col gap-3">
-            <p className="text-sm text-muted-foreground">
-                {t(
-                    'profile.attributes.intro',
-                    'The attributes shown in the asset panel, in this order. Drag attributes from the list on the left, reorder them, drag them back to remove them.'
-                )}
-            </p>
+            <p className="text-sm text-muted-foreground">{intro}</p>
             <DndContext
                 sensors={sensors}
                 collisionDetection={zoneCollision}
@@ -197,6 +241,7 @@ export function ProfileAttributesTab({profile}: ProfileTabProps) {
                     />
                     <DisplayedList
                         count={items.length}
+                        emptyText={emptyText}
                         dragging={!!dragging}
                         droppingNew={insertion !== null}
                     >
@@ -210,6 +255,8 @@ export function ProfileAttributesTab({profile}: ProfileTabProps) {
                                     item={item}
                                     label={labelOf(item)}
                                     definition={definitionOf(item)}
+                                    badges={badges}
+                                    options={options}
                                     insertBefore={insertion === index}
                                     insertAfter={
                                         index === items.length - 1 &&
@@ -244,11 +291,13 @@ export function ProfileAttributesTab({profile}: ProfileTabProps) {
 
 function DisplayedList({
     count,
+    emptyText,
     dragging,
     droppingNew,
     children,
 }: {
     count: number;
+    emptyText?: string;
     dragging: boolean;
     droppingNew: boolean;
     children: React.ReactNode;
@@ -277,10 +326,11 @@ function DisplayedList({
                 {count === 0 ? (
                     <div className="flex h-full min-h-40 flex-col items-center justify-center gap-1 rounded-md text-center text-sm text-muted-foreground">
                         <span>
-                            {t(
-                                'profile.attributes.empty',
-                                'No attribute is pinned yet.'
-                            )}
+                            {emptyText ??
+                                t(
+                                    'profile.attributes.empty',
+                                    'No attribute is pinned yet.'
+                                )}
                         </span>
                         <span className="text-xs">
                             {t(
@@ -301,6 +351,8 @@ function DisplayedRow({
     item,
     label,
     definition,
+    badges,
+    options,
     insertBefore,
     insertAfter,
     expanded,
@@ -311,6 +363,8 @@ function DisplayedRow({
     item: ProfileItem;
     label: string;
     definition?: AttributeDefinitionOrBuiltIn;
+    badges?: (item: ProfileItem) => ReactNode;
+    options?: ItemOptionsRenderer;
     insertBefore: boolean;
     insertAfter: boolean;
     expanded: boolean;
@@ -332,6 +386,13 @@ function DisplayedRow({
         data: {kind: 'item', zone: LIST_ZONE} satisfies ZoneItemData,
     });
     const type = attributeTypeOf(definition);
+    const itemOptions =
+        item.type === ProfileItemType.Divider ? (
+            <DividerOptions item={item} onChange={onChange} />
+        ) : item.type !== ProfileItemType.Spacer ? (
+            (options?.(item, type, onChange) ?? null)
+        ) : null;
+    const expandable = itemOptions !== null;
 
     return (
         // Padded rather than spaced: the rows are contiguous drop targets
@@ -396,8 +457,8 @@ function DisplayedRow({
                         <button
                             type="button"
                             className="flex min-w-0 flex-1 items-center gap-2 py-1.5 text-left"
-                            onClick={onToggle}
-                            aria-expanded={expanded}
+                            onClick={expandable ? onToggle : undefined}
+                            aria-expanded={expandable ? expanded : undefined}
                         >
                             <span className="min-w-0 truncate">{label}</span>
                             {type ? (
@@ -406,27 +467,15 @@ function DisplayedRow({
                                 </span>
                             ) : null}
                             <span className="ml-auto flex shrink-0 items-center gap-1">
-                                {item.format ? (
-                                    <Badge variant="muted">{item.format}</Badge>
-                                ) : null}
-                                {/* Shown even if empty by default: flags the exception */}
-                                {!item.displayEmpty ? (
-                                    <Badge
-                                        variant="muted"
-                                        title={t(
-                                            'profile.hidden_if_empty',
-                                            'Hidden when empty'
+                                {badges?.(item)}
+                                {expandable ? (
+                                    <ChevronDownIcon
+                                        className={cn(
+                                            'size-4 text-muted-foreground transition-transform',
+                                            expanded && 'rotate-180'
                                         )}
-                                    >
-                                        <EyeOffIcon />
-                                    </Badge>
+                                    />
                                 ) : null}
-                                <ChevronDownIcon
-                                    className={cn(
-                                        'size-4 text-muted-foreground transition-transform',
-                                        expanded && 'rotate-180'
-                                    )}
-                                />
                             </span>
                         </button>
                     )}
@@ -441,11 +490,7 @@ function DisplayedRow({
                         <XIcon />
                     </Button>
                 </div>
-                {!expanded ? null : item.type === ProfileItemType.Divider ? (
-                    <DividerOptions item={item} onChange={onChange} />
-                ) : item.type !== ProfileItemType.Spacer ? (
-                    <ItemOptions item={item} type={type} onChange={onChange} />
-                ) : null}
+                {expanded ? itemOptions : null}
             </div>
             {insertAfter ? <InsertionMark position="bottom" /> : null}
         </li>
@@ -461,6 +506,25 @@ function InsertionMark({position}: {position: 'top' | 'bottom'}) {
                 position === 'top' ? '-top-px' : '-bottom-px'
             )}
         />
+    );
+}
+
+function AttributeBadges({item}: {item: ProfileItem}) {
+    const {t} = useTranslation();
+
+    return (
+        <>
+            {item.format ? <Badge variant="muted">{item.format}</Badge> : null}
+            {/* Shown even if empty by default: flags the exception */}
+            {!item.displayEmpty ? (
+                <Badge
+                    variant="muted"
+                    title={t('profile.hidden_if_empty', 'Hidden when empty')}
+                >
+                    <EyeOffIcon />
+                </Badge>
+            ) : null}
+        </>
     );
 }
 

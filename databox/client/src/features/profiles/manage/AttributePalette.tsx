@@ -134,10 +134,12 @@ export function usePaletteGroups({
     used,
     query,
     withLayout,
+    accept,
 }: {
     used: Set<string>;
     query: string;
     withLayout?: boolean;
+    accept?: (definition: AttributeDefinitionOrBuiltIn) => boolean;
 }): PaletteGroup[] {
     const {t} = useTranslation();
     const {definitions, builtIn, workspaces} = useProfileDefinitions();
@@ -179,6 +181,7 @@ export function usePaletteGroups({
             id: 'built-in',
             label: t('search.condition.built_in', 'Built-in'),
             entries: builtIn
+                .filter(b => !accept || accept(b))
                 .map(b =>
                     entryOf(b, {
                         type: ProfileItemType.BuiltIn,
@@ -192,7 +195,10 @@ export function usePaletteGroups({
                 id: ws.id,
                 label: ws.displayName ?? ws.name,
                 entries: definitions
-                    .filter(d => workspaceIdOf(d) === ws.id)
+                    .filter(
+                        d =>
+                            workspaceIdOf(d) === ws.id && (!accept || accept(d))
+                    )
                     .map(d =>
                         entryOf(d, {
                             type: ProfileItemType.Definition,
@@ -204,7 +210,7 @@ export function usePaletteGroups({
         });
 
         return groups.filter(g => g.entries.length > 0);
-    }, [builtIn, definitions, workspaces, used, query, withLayout, t]);
+    }, [builtIn, definitions, workspaces, used, query, withLayout, accept, t]);
 }
 
 /**

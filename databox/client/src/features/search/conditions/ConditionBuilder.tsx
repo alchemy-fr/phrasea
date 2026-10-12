@@ -262,16 +262,19 @@ export function ExpressionBuilder({
     );
 }
 
-function ConditionRow({
+export function ConditionRow({
     condition,
     definitions,
     onChange,
     onRemove,
+    fixedField,
 }: {
     condition: AQLCondition;
     definitions: DefinitionsIndex;
     onChange: (c: AQLCondition) => void;
     onRemove?: () => void;
+    /** Hides the field picker: only the operator and the values change */
+    fixedField?: boolean;
 }) {
     const {t} = useTranslation();
     const field = isField(condition.leftOperand)
@@ -310,32 +313,34 @@ function ConditionRow({
 
     return (
         <div className="flex flex-wrap items-start gap-2 rounded-md bg-muted/40 p-2">
-            <FieldPicker
-                value={field}
-                definitions={definitions}
-                onChange={slug => {
-                    const def = definitions[slug];
-                    const ops = getOperatorsForType(def?.type);
-                    const operator = ops.includes(condition.operator)
-                        ? condition.operator
-                        : ops[0];
-                    // values typed for the previous field are meaningless
-                    // for a field of another type
-                    const sameType =
-                        rawTypeOf(def) === rawTypeOf(definition) &&
-                        def?.type === definition?.type;
-                    onChange({
-                        ...condition,
-                        leftOperand: {field: slug},
-                        operator,
-                        rightOperand: fitValues(
-                            sameType ? values : [],
+            {fixedField ? null : (
+                <FieldPicker
+                    value={field}
+                    definitions={definitions}
+                    onChange={slug => {
+                        const def = definitions[slug];
+                        const ops = getOperatorsForType(def?.type);
+                        const operator = ops.includes(condition.operator)
+                            ? condition.operator
+                            : ops[0];
+                        // values typed for the previous field are meaningless
+                        // for a field of another type
+                        const sameType =
+                            rawTypeOf(def) === rawTypeOf(definition) &&
+                            def?.type === definition?.type;
+                        onChange({
+                            ...condition,
+                            leftOperand: {field: slug},
                             operator,
-                            def
-                        ),
-                    });
-                }}
-            />
+                            rightOperand: fitValues(
+                                sameType ? values : [],
+                                operator,
+                                def
+                            ),
+                        });
+                    }}
+                />
+            )}
             <SimpleSelect
                 size="sm"
                 className="w-44"

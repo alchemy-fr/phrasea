@@ -39,6 +39,14 @@ final readonly class ProfileItemOutput
         public ?bool $showLabel = null,
         #[Groups([Profile::GROUP_READ])]
         public ?bool $showIcon = null,
+        #[Groups([Profile::GROUP_READ])]
+        public ?string $widget = null,
+        #[Groups([Profile::GROUP_READ])]
+        public ?string $trueLabel = null,
+        #[Groups([Profile::GROUP_READ])]
+        public ?string $falseLabel = null,
+        #[Groups([Profile::GROUP_READ])]
+        public ?bool $reversed = null,
     ) {
     }
 }

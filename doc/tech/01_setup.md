@@ -14,12 +14,20 @@ You can add a `.env.local` file at the root of this project and define a command
 # ~/.bashrc or ~/.zshrc
 function dc() {
     if [ -f .env.local ]; then
-        docker compose --env-file=.env --env-file=.env.local $@
+        docker compose --env-file=.env.local --env-file=.env --env-file=.env.local "$@"
     else
-        docker compose $@
+        docker compose "$@"
     fi
 }
 ```
+
+`.env.local` is passed twice on purpose. Docker Compose interpolates each env file as it reads it, so
+derived values such as `DASHBOARD_CLIENT_URL=https://dashboard.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}`
+are expanded while `.env` is parsed. Loading `.env.local` first makes `PHRASEA_DOMAIN` (or
+`HTTPS_PORT_PREFIX`) available at that point, and loading it again last restores the plain
+overrides (e.g. `TRAEFIK_HTTPS_PORT`) that `.env` would otherwise reset. Variables exported in the
+shell still take precedence over both files. The `load-env` function in `bin/functions.sh` uses the
+same order.
 
 ## Installation
 
