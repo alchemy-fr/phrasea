@@ -186,6 +186,14 @@ describe('SearchProvider.selectCollection', () => {
     });
 });
 
+describe('SearchProvider with an inverted condition', () => {
+    it('selects no collection through it', () => {
+        renderAt('/assets', 'f=%40collection!%3A%40collection+IS+%22c1%22');
+        expect(probe.current.conditions[0].inversed).toBe(true);
+        expect(probe.current.collections).toEqual([]);
+    });
+});
+
 describe('SearchProvider with pinned filter defaults', () => {
     const isStory = {id: 'pin-@isStory', query: '@isStory = false'};
 

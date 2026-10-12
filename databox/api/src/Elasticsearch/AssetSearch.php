@@ -135,13 +135,16 @@ class AssetSearch extends AbstractSearch
                     if ($condition['disabled'] ?? false) {
                         continue;
                     }
-                    $condition = $condition['query'] ?? '';
+                    $query = $condition['query'] ?? '';
+                    $condition = ($condition['inversed'] ?? false) ? sprintf('NOT (%s)', $query) : $query;
                 }
 
-                if (str_starts_with((string) $condition, DeletedBuiltInAttribute::getKey())) {
+                // An inverted condition still targets the attribute it negates
+                $subject = (string) preg_replace('/^(?:NOT\b\s*|\(\s*)+/', '', (string) $condition);
+                if (str_starts_with($subject, DeletedBuiltInAttribute::getKey())) {
                     $hasDeletedFilter = true;
                 }
-                if (str_starts_with((string) $condition, AssetStatusBuiltInAttribute::getKey())) {
+                if (str_starts_with($subject, AssetStatusBuiltInAttribute::getKey())) {
                     $hasStatusFilter = true;
                 }
                 $filterQueries[] = $this->attributeSearch->buildConditionQuery(

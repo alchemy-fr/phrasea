@@ -3,6 +3,7 @@
 import {Fragment, ReactNode, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
+    BanIcon,
     MoreVerticalIcon,
     PencilIcon,
     PowerIcon,
@@ -55,6 +56,11 @@ export function SearchConditionChip({condition}: {condition: AQLQuery}) {
             ...condition,
             disabled: condition.disabled ? undefined : true,
         });
+    const invert = () =>
+        search.upsertCondition({
+            ...condition,
+            inversed: condition.inversed ? undefined : true,
+        });
     const edit = () => openModal(ConditionDialog, {condition, search});
     const remove = () => search.removeCondition(condition.id);
 
@@ -65,6 +71,12 @@ export function SearchConditionChip({condition}: {condition: AQLQuery}) {
                 {condition.disabled
                     ? t('search.condition.enable', 'Enable')
                     : t('search.condition.disable', 'Disable')}
+            </Item>
+            <Item onSelect={invert}>
+                <BanIcon />{' '}
+                {condition.inversed
+                    ? t('search.condition.uninvert', 'Cancel the inversion')
+                    : t('search.condition.invert', 'Invert (NOT)')}
             </Item>
             <Item onSelect={edit}>
                 <PencilIcon /> {t('common.edit', 'Edit')}
@@ -82,6 +94,7 @@ export function SearchConditionChip({condition}: {condition: AQLQuery}) {
                     data-testid="search-condition"
                     data-condition-id={condition.id}
                     data-disabled={condition.disabled ? 'true' : undefined}
+                    data-inversed={condition.inversed ? 'true' : undefined}
                     className={cn(
                         'group/chip inline-flex h-7 max-w-full items-center gap-1 rounded-full border pr-1 pl-2.5 text-xs transition-colors',
                         condition.disabled
@@ -95,13 +108,15 @@ export function SearchConditionChip({condition}: {condition: AQLQuery}) {
                             className="min-w-0 truncate"
                             onClick={edit}
                         >
-                            {ast ? (
-                                <HumanizedExpression
-                                    expression={ast.expression}
-                                />
-                            ) : (
-                                condition.query
-                            )}
+                            <InversedExpression inversed={condition.inversed}>
+                                {ast ? (
+                                    <HumanizedExpression
+                                        expression={ast.expression}
+                                    />
+                                ) : (
+                                    condition.query
+                                )}
+                            </InversedExpression>
                         </button>
                     </Tooltip>
                     <DropdownMenu>
@@ -172,6 +187,25 @@ export function HumanizedExpression({
     }
 
     return <HumanizedCondition condition={expression} />;
+}
+
+/** `NOT (…)` around the expression of an inverted condition */
+export function InversedExpression({
+    inversed,
+    children,
+}: {
+    inversed?: boolean;
+    children: ReactNode;
+}) {
+    if (!inversed) {
+        return <>{children}</>;
+    }
+
+    return (
+        <>
+            <Keyword>NOT</Keyword> ({children})
+        </>
+    );
 }
 
 function Keyword({children}: {children: ReactNode}) {

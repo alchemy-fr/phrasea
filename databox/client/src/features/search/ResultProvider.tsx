@@ -14,7 +14,7 @@ import type {Asset, ESDebug, Facets} from '@/types/api';
 import {searchAssets, SearchAssetsOptions} from '@/lib/api/assets';
 import {isAbortError} from '@/lib/api/http';
 import {useSearch} from './SearchProvider';
-import {resolveSortBy} from './searchState';
+import {conditionQuery, resolveSortBy} from './searchState';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 
@@ -110,7 +110,7 @@ export function ResultProvider({
                         query: search.query,
                         conditions: search.conditions
                             .filter(c => !c.disabled)
-                            .map(c => c.query),
+                            .map(conditionQuery),
                         order,
                         group: group.length > 0 ? group.slice(0, 1) : undefined,
                         savedSearch,

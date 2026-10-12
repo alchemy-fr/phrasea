@@ -137,10 +137,15 @@ export function hasActiveSearch(state: SearchState): boolean {
     );
 }
 
+/** The AQL a condition searches: an inverted one is negated */
+export function conditionQuery(condition: AQLQuery): string {
+    return condition.inversed ? `NOT (${condition.query})` : condition.query;
+}
+
 export function searchChecksum(state: SearchState): string {
     return JSON.stringify({
         q: state.query,
-        c: state.conditions.filter(c => !c.disabled).map(c => c.query),
+        c: state.conditions.filter(c => !c.disabled).map(conditionQuery),
         s: resolveSortBy(state.sortBy),
         l: state.geolocation,
     });

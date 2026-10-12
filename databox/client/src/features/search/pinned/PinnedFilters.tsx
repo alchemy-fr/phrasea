@@ -58,7 +58,10 @@ import {
     getOperatorsForType,
     rawTypeMap,
 } from '../aql/validation';
-import {HumanizedExpression} from '../conditions/SearchConditionChip';
+import {
+    HumanizedExpression,
+    InversedExpression,
+} from '../conditions/SearchConditionChip';
 import {ConditionRow, fitValues} from '../conditions/ConditionBuilder';
 import {
     conditionsOn,
@@ -223,25 +226,33 @@ function PopoverFilterChip({filter}: {filter: PinnedFilter}) {
                     >
                         {condition ? (
                             <span className="min-w-0 truncate">
-                                {booleanValue !== undefined ? (
-                                    <>
-                                        <span className="font-medium">
-                                            {label}
-                                        </span>
-                                        {': '}
-                                        {
-                                            booleanChoices(filter.item, t).find(
-                                                c => c.value === booleanValue
-                                            )!.label
-                                        }
-                                    </>
-                                ) : ast ? (
-                                    <HumanizedExpression
-                                        expression={ast.expression}
-                                    />
-                                ) : (
-                                    condition.query
-                                )}
+                                <InversedExpression
+                                    inversed={condition.inversed}
+                                >
+                                    {booleanValue !== undefined ? (
+                                        <>
+                                            <span className="font-medium">
+                                                {label}
+                                            </span>
+                                            {': '}
+                                            {
+                                                booleanChoices(
+                                                    filter.item,
+                                                    t
+                                                ).find(
+                                                    c =>
+                                                        c.value === booleanValue
+                                                )!.label
+                                            }
+                                        </>
+                                    ) : ast ? (
+                                        <HumanizedExpression
+                                            expression={ast.expression}
+                                        />
+                                    ) : (
+                                        condition.query
+                                    )}
+                                </InversedExpression>
                             </span>
                         ) : (
                             <>
@@ -309,7 +320,9 @@ function InlineBooleanFilter({filter}: {filter: PinnedFilter}) {
     const {t} = useTranslation();
     const {condition, ast, apply} = usePinnedCondition(filter);
     const active = !!condition && !condition.disabled;
-    const value = active ? booleanValueOf(filter, ast) : undefined;
+    // An inverted condition (from a URL) checks no value
+    const value =
+        active && !condition.inversed ? booleanValueOf(filter, ast) : undefined;
     const label = filter.definition.displayName ?? filter.definition.name;
     const showLabel = !filter.item.trueLabel || !filter.item.falseLabel;
 

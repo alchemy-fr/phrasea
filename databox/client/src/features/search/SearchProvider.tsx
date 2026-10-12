@@ -235,8 +235,9 @@ export function SearchProvider({
     const value = useMemo<SearchContextValue>(() => {
         const conditions = withPinnedDefaults(state.conditions, defaults);
         const effective = {...state, conditions};
+        // An inverted condition selects no collection nor workspace
         const enabledAsts = conditions
-            .filter(c => !c.disabled)
+            .filter(c => !c.disabled && !c.inversed)
             .map(c => parseAQL(c.query)?.expression)
             .filter(e => e && isCondition(e));
 
