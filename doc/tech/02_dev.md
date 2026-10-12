@@ -68,22 +68,13 @@ dc run --rm dev pnpm install
 
 ### Composer caching in Docker
 
-In order to keep vendor docker layer and to prevent composer from downloading all packages every time an app file change
-we use a step (docker layer) for composer install a warm composer cache before copying all app files.
-We keep a `composer.json` and `composer.lock` version isolated (in ./docker/caching of each PHP service).
+The PHP API images (databox, expose, uploader) install their dependencies in a dedicated layer before the code is copied,
+so that a code change does not make Composer download every package again.
+This layer only copies `composer.json` and `composer.lock`, removes the local packages (path repositories to `lib/php`) from them
+with `composer-strip-path-packages` (shipped in the `php-fpm-base` image) and runs `composer install` to fill the Composer cache.
+The original files are then copied with the rest of the code and the final `composer install` extracts the packages from the cache.
 
-You can update both this two  files in order to keep a fresh cache.
-Because local packages (repositories with type=path) will neither be copied nor cached, we need to remove them from the requirements.
-
-You can use the following helper to do so automatically:
-```bash
-# Usage
-# optimize-composer-docker-cache [app-path]
-./bin/optimize-composer-docker-cache ./databox/api
-
-# You can update multiple projects at the same time
-./bin/optimize-composer-docker-cache ./databox/api ./uploader/api
-```
+The layer is rebuilt whenever `composer.json` or `composer.lock` changes, there is nothing to maintain by hand.
 
 ## Further reading
 
