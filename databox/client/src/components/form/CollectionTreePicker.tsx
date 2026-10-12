@@ -395,7 +395,7 @@ function InlineCreate({
                     ? iri(EntityName.Collection, parentId)
                     : undefined,
             });
-            upsert(c, workspaceId);
+            upsert(c, workspaceId, true);
             onCreated(c);
             setEditing(false);
             setName('');

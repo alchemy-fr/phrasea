@@ -37,7 +37,15 @@ type State = {
     ) => Promise<void>;
     loadMore: (workspaceId: string, parentId?: string) => Promise<void>;
     loadAscendants: (collectionId: string) => Promise<Collection>;
-    upsertCollection: (collection: Collection, workspaceId?: string) => void;
+    /**
+     * `created`: the collection has just been created, so it is known to have
+     * no children.
+     */
+    upsertCollection: (
+        collection: Collection,
+        workspaceId?: string,
+        created?: boolean
+    ) => void;
     patchCollections: (ids: string[], patch: Partial<Collection>) => void;
     removeCollection: (id: string) => void;
     moveCollection: (id: string, newParentId: string | undefined) => void;
@@ -211,7 +219,7 @@ export const useCollectionStore = create<State>((set, get) => ({
         return root;
     },
 
-    upsertCollection: (collection, workspaceId) =>
+    upsertCollection: (collection, workspaceId, created) =>
         set(s => {
             const wsId =
                 workspaceId ??
@@ -244,6 +252,15 @@ export const useCollectionStore = create<State>((set, get) => ({
                         total: (pager.total ?? pager.ids.length) + 1,
                     };
                 }
+            }
+            const childrenKey = pagerKey(wsId, collection.id);
+            if (created && !pagers[childrenKey]) {
+                pagers[childrenKey] = {
+                    ids: [],
+                    total: 0,
+                    loading: false,
+                    loaded: true,
+                };
             }
 
             return {collections, pagers};

@@ -43,7 +43,7 @@ export function CreateCollectionDialog({
             parent: parent ? iri(EntityName.Collection, parent.id) : undefined,
             workspace: iri(EntityName.Workspace, workspaceId),
         });
-        upsert(collection, workspaceId);
+        upsert(collection, workspaceId, true);
         toast.success(t('collections.created', 'Collection created'));
         onCreated?.(collection);
         resolve?.(collection);
