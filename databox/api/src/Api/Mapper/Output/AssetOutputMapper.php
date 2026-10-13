@@ -91,9 +91,10 @@ class AssetOutputMapper implements OutputMapperInterface
         $output->attributesEditedAt = $data->getAttributesEditedAt();
 
         $source = $data->getSource();
-        if (null !== $source && $this->hasGroup(Share::GROUP_PUBLIC_READ, $context)) {
+        if (null !== $source && $this->hasGroup([Share::GROUP_READ, Share::GROUP_PUBLIC_READ], $context)) {
             // A share link delivers the renditions its policies allow, never the original:
-            // keep the file description, drop its URLs.
+            // keep the file description, drop its URLs. GET /shares/{id} is granted to the
+            // holders of the link token too, not only to the users who can read the asset.
             $source = clone $source;
             $source->setPathPublic(false);
             $source->setAlternateUrls(null);

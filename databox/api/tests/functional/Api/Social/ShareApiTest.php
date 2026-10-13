@@ -316,6 +316,26 @@ final class ShareApiTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(401);
     }
 
+    public function testShareNeverExposesTheSourceUrl(): void
+    {
+        $client = static::createClient();
+        $this->setUpWorkspace();
+        $this->asset->setSource($this->createUrlFile($this->workspace, 'https://example.org/original.jpg'));
+        self::getEntityManager()->flush();
+        $share = $this->createShare(self::USER, [$this->asset]);
+
+        foreach ([
+            ['/shares/'.$share->getId().'?token='.$share->getToken(), []],
+            ['/shares/'.$share->getId(), self::auth(self::USER)],
+        ] as [$url, $options]) {
+            $response = $client->request('GET', $url, $options);
+            $this->assertResponseIsSuccessful();
+            $source = $response->toArray()['assets'][0]['source'];
+            $this->assertSame('image/jpeg', $source['type'], 'The file description is kept');
+            $this->assertNull($source['url'] ?? null, 'The original is never delivered by a share');
+        }
+    }
+
     public function testGetUnknownShare(): void
     {
         $client = static::createClient();
