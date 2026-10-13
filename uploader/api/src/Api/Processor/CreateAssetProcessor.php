@@ -2,65 +2,58 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use Alchemy\StorageBundle\Upload\UploadManager;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Asset;
 use App\Entity\Target;
 use App\Repository\TargetRepository;
 use App\Security\Voter\TargetVoter;
 use App\Storage\AssetManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-final class CreateAssetAction extends AbstractController
+final readonly class CreateAssetProcessor implements ProcessorInterface
 {
     public function __construct(
-        private readonly FileStorageManager $storageManager,
-        private readonly AssetManager $assetManager,
-        private readonly UploadManager $uploadManager,
-        private readonly PathGeneratorInterface $pathGenerator,
-        private readonly EntityManagerInterface $em,
-        private readonly TargetRepository $targetRepository,
+        private FileStorageManager $storageManager,
+        private AssetManager $assetManager,
+        private UploadManager $uploadManager,
+        private PathGeneratorInterface $pathGenerator,
+        private EntityManagerInterface $em,
+        private TargetRepository $targetRepository,
+        private Security $security,
     ) {
     }
 
-    public function __invoke(Request $request): Asset
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Asset
     {
-        if (!empty($targetSlug = $request->request->get('targetSlug'))) {
-            $target = $this->targetRepository->findOneBy([
-                'slug' => $targetSlug,
-            ]);
+        /** @var Request $request */
+        $request = $context['request'];
 
-            if (!$target instanceof Target) {
-                throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetSlug));
-            }
-        } elseif (!empty($targetId = $request->request->get('targetId'))) {
-            $target = $this->em->find(Target::class, $targetId);
-
-            if (!$target instanceof Target) {
-                throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetId));
-            }
-        } else {
-            throw new BadRequestHttpException('"targetId" or "targetSlug" is required');
-        }
+        $target = $this->resolveTarget($request);
 
         if ($request->request->all('multipart')) {
             return $this->handleMultipartUpload($request, $target);
         }
 
-        $this->denyAccessUnlessGranted(TargetVoter::UPLOAD, $target);
+        if (!$this->security->isGranted(TargetVoter::UPLOAD, $target)) {
+            throw new AccessDeniedHttpException('Cannot upload to this target');
+        }
 
         ini_set('max_execution_time', '600');
 
-        /** @var UploadedFile $uploadedFile */
+        /** @var UploadedFile|null $uploadedFile */
         $uploadedFile = $request->files->get('file');
 
         if (!$uploadedFile) {
@@ -80,26 +73,47 @@ final class CreateAssetAction extends AbstractController
         $this->storageManager->storeStream($path, $stream);
         fclose($stream);
 
-        /** @var JwtUser $user */
-        $user = $this->getUser();
-
         return $this->assetManager->createAsset(
             $target,
             $path,
             $uploadedFile->getMimeType(),
             $uploadedFile->getClientOriginalName(),
             $uploadedFile->getSize(),
-            $user->getId(),
+            $this->getUser()->getId(),
             $request->request->all('data')
         );
+    }
+
+    private function resolveTarget(Request $request): Target
+    {
+        if (!empty($targetSlug = $request->request->get('targetSlug'))) {
+            $target = $this->targetRepository->findOneBy([
+                'slug' => $targetSlug,
+            ]);
+
+            if (!$target instanceof Target) {
+                throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetSlug));
+            }
+
+            return $target;
+        }
+
+        if (!empty($targetId = $request->request->get('targetId'))) {
+            $target = $this->em->find(Target::class, $targetId);
+
+            if (!$target instanceof Target) {
+                throw new BadRequestHttpException(sprintf('Target "%s" does not exist', $targetId));
+            }
+
+            return $target;
+        }
+
+        throw new BadRequestHttpException('"targetId" or "targetSlug" is required');
     }
 
     private function handleMultipartUpload(Request $request, Target $target): Asset
     {
         $multipartUpload = $this->uploadManager->handleMultipartUpload(MultipartUploadInput::fromRequest($request));
-
-        /** @var JwtUser $user */
-        $user = $this->getUser();
 
         return $this->assetManager->createAsset(
             $target,
@@ -107,8 +121,18 @@ final class CreateAssetAction extends AbstractController
             $multipartUpload->getType(),
             $multipartUpload->getFilename(),
             $multipartUpload->getSize(),
-            $user->getId(),
+            $this->getUser()->getId(),
             $request->request->all('data')
         );
+    }
+
+    private function getUser(): JwtUser
+    {
+        $user = $this->security->getUser();
+        if (!$user instanceof JwtUser) {
+            throw new AccessDeniedHttpException('Authentication required');
+        }
+
+        return $user;
     }
 }

@@ -13,9 +13,8 @@ class AssetRepository extends EntityRepository
     public function findBySlug(Publication $publication, string $assetSlug): ?Asset
     {
         return $this->createQueryBuilder('a')
-            ->innerJoin('a.publications', 'pa')
-            ->andWhere('pa.publication = :p_id')
-            ->andWhere('pa.slug = :slug')
+            ->andWhere('a.publication = :p_id')
+            ->andWhere('a.slug = :slug')
             ->setParameter('p_id', $publication->getId())
             ->setParameter('slug', $assetSlug)
             ->setMaxResults(1)

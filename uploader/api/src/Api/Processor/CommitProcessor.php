@@ -2,10 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Api\Processor;
 
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\ReportBundle\ReportUserService;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Commit;
 use App\Entity\Target;
 use App\Form\FormValidator;
@@ -13,26 +15,36 @@ use App\Report\UploaderLogActionInterface;
 use App\Storage\AssetManager;
 use App\Validation\CommitValidator;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-final class CommitAction extends AbstractController
+/**
+ * The commit is not persisted here: it is dispatched as a message and stored by its handler.
+ */
+final readonly class CommitProcessor implements ProcessorInterface
 {
     public function __construct(
-        private readonly AssetManager $assetManager,
-        private readonly MessageBusInterface $bus,
-        private readonly FormValidator $formValidator,
-        private readonly CommitValidator $commitValidator,
-        private readonly ReportUserService $reportClient,
-        private readonly EntityManagerInterface $em,
+        private AssetManager $assetManager,
+        private MessageBusInterface $bus,
+        private FormValidator $formValidator,
+        private CommitValidator $commitValidator,
+        private ReportUserService $reportClient,
+        private EntityManagerInterface $em,
+        private Security $security,
     ) {
     }
 
-    public function __invoke(Commit $data, Request $request): JsonResponse
+    /**
+     * @param Commit $data
+     */
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): JsonResponse
     {
+        /** @var Request $request */
+        $request = $context['request'];
+
         if (!empty($targetSlug = $request->request->get('targetSlug'))) {
             $target = $this->em->getRepository(Target::class)->findOneBy([
                 'slug' => $targetSlug,
@@ -54,7 +66,7 @@ final class CommitAction extends AbstractController
         $this->commitValidator->validate($data);
 
         /** @var JwtUser $user */
-        $user = $this->getUser();
+        $user = $this->security->getUser();
         $data->setUserId($user->getId());
         $data->setLocale($request->getLocale() ?? $request->getDefaultLocale());
 

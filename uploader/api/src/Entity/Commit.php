@@ -15,10 +15,11 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\ExactSearchFilter;
+use App\Api\Processor\CommitAckProcessor;
+use App\Api\Processor\CommitProcessor;
 use App\Consumer\Handler\CommitMessage;
-use App\Controller\CommitAckAction;
-use App\Controller\CommitAction;
 use App\Security\ScopeInterface;
+use App\Security\Voter\CommitVoter;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -33,13 +34,16 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Get(security: 'is_granted("READ", object)'),
         new Post(
             uriTemplate: '/commits/{id}/ack',
-            controller: CommitAckAction::class,
+            security: 'is_granted("'.CommitVoter::ACK.'", object)',
+            throwOnNotFound: true,
             deserialize: false,
+            validate: false,
             name: 'ack',
+            processor: CommitAckProcessor::class,
         ),
         new Post(
             uriTemplate: '/commit',
-            controller: CommitAction::class
+            processor: CommitProcessor::class,
         ),
         new GetCollection(
             security: 'is_granted("'.ScopeVoter::PREFIX.ScopeInterface::SCOPE_COMMIT_LIST.'") or is_granted("'.JwtUser::ROLE_ADMIN.'")',

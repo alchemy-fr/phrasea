@@ -1,5 +1,4 @@
 api_platform:
-    use_symfony_listeners: true
     version: '1.0.0'
     mapping:
         paths:
