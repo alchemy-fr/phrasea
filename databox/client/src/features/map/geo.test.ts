@@ -4,14 +4,26 @@ import {
     circleRing,
     circlesToAQL,
     clusterBounds,
+    conditionBounds,
+    conditionCircle,
     coversArea,
+    destination,
     distance,
     formatDistance,
+    formatLatLng,
+    hitZone,
+    moveCircle,
     padBounds,
     parseCircles,
     tilePrecision,
     wrapLongitude,
 } from './geo';
+import {parseAQL} from '@/features/search/aql/parser';
+import {AQLCondition} from '@/features/search/aql/types';
+
+function condition(query: string): AQLCondition {
+    return parseAQL(query)!.expression as AQLCondition;
+}
 
 describe('map geo helpers', () => {
     it('derives the cluster precision from the zoom', () => {
@@ -112,6 +124,64 @@ describe('map geo helpers', () => {
             parseCircles('loc WITHIN RECTANGLE (1, 2, 3, 4)', 'loc')
         ).toBeUndefined();
         expect(parseCircles('not AQL (', 'loc')).toBeUndefined();
+    });
+
+    it('reads the area of a single geo condition', () => {
+        expect(
+            conditionCircle(
+                condition('loc WITHIN CIRCLE (48.85, -2.35, "3km")')
+            )
+        ).toEqual({lat: 48.85, lng: -2.35, radius: 3000});
+        expect(
+            conditionBounds(condition('loc WITHIN RECTANGLE (50, -1.5, 40, 3)'))
+        ).toEqual({top: 50, left: -1.5, bottom: 40, right: 3});
+        expect(
+            conditionCircle(condition('loc WITHIN RECTANGLE (50, -1.5, 40, 3)'))
+        ).toBeUndefined();
+        expect(
+            conditionBounds(condition('loc WITHIN RECTANGLE ("a", 1, 2, 3)'))
+        ).toBeUndefined();
+    });
+
+    it('formats coordinates with a decimal point in every language', () => {
+        expect(formatLatLng({lat: 48.856614, lng: -2.3522219})).toBe(
+            '48.8566, -2.3522'
+        );
+    });
+
+    it('grabs the outline of a zone or the smallest zone around a point', () => {
+        const big = {lat: 45, lng: 5, radius: 10000};
+        const small = {lat: 45, lng: 5.05, radius: 1000};
+        const east = (c: typeof big, meters: number) =>
+            destination(c, meters, Math.PI / 2);
+
+        expect(hitZone([big, small], east(big, 9990), 20)).toEqual({
+            index: 0,
+            part: 'edge',
+        });
+        expect(hitZone([big, small], east(big, 2000), 20)).toEqual({
+            index: 0,
+            part: 'inside',
+        });
+        expect(hitZone([big, small], small, 20)).toEqual({
+            index: 1,
+            part: 'inside',
+        });
+        expect(hitZone([small, big], small, 20)).toEqual({
+            index: 0,
+            part: 'inside',
+        });
+        expect(hitZone([big], east(big, 12000), 20)).toBeUndefined();
+    });
+
+    it('moves a zone by the drag', () => {
+        expect(
+            moveCircle(
+                {lat: 45, lng: 179, radius: 500},
+                {lat: 44, lng: 178},
+                {lat: 45.5, lng: 180.5}
+            )
+        ).toEqual({lat: 46.5, lng: -178.5, radius: 500});
     });
 
     it('writes a rectangle condition', () => {

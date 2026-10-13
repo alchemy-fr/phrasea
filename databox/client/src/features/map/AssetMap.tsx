@@ -63,10 +63,13 @@ import {
     coversArea,
     distance,
     formatDistance,
+    formatLatLng,
     GeoCircle,
+    hitZone,
     LngLat,
     MAP_AREA_CONDITION_ID,
     MAP_ZONES_CONDITION_ID,
+    moveCircle,
     padBounds,
     parseCircles,
     round,
@@ -96,6 +99,10 @@ const styleUrls = {
 const MAX_PINS = 300;
 /** Below this drag distance, drawing a zone is taken for a stray click */
 const MIN_ZONE_PIXELS = 8;
+/** Distance to the outline of a zone within which a press resizes it */
+const EDGE_PIXELS = {mouse: 8, touch: 16};
+/** Below this drag distance, a press on a zone is a click (its popup) */
+const CLICK_PIXELS = 3;
 
 type Viewport = {
     precision: number;
@@ -106,6 +113,18 @@ type PopupTarget =
     | {kind: 'cluster'; cluster: GeoCluster}
     | {kind: 'asset'; cluster: GeoCluster}
     | {kind: 'zone'; index: number; at: LngLat};
+
+/**
+ * A zone being moved or resized: shown instead of the condition's one until
+ * the condition, written at the release, gives new circles.
+ */
+type ZoneEdit = {
+    base: GeoCircle[];
+    index: number;
+    circle: GeoCircle;
+    /** Still held */
+    active: boolean;
+};
 
 type FeatureCollection = Extract<
     Parameters<GeoJSONSource['setData']>[0],
@@ -179,6 +198,7 @@ function MapView({
     const [viewport, setViewport] = useState<Viewport>();
     const [drawing, setDrawing] = useState(false);
     const [draft, setDraft] = useState<GeoCircle | null>(null);
+    const [zoneEdit, setZoneEdit] = useState<ZoneEdit | null>(null);
     const [popup, setPopup] = useState<PopupTarget | null>(null);
     const [popupNode] = useState(() => document.createElement('div'));
     /** A restored view is kept; otherwise the first results are framed */
@@ -460,8 +480,22 @@ function MapView({
         [search, field.slug]
     );
 
+    const shownCircles = useMemo(
+        () =>
+            zoneEdit?.base === circles
+                ? circles.map((c, i) =>
+                      i === zoneEdit.index ? zoneEdit.circle : c
+                  )
+                : circles,
+        [circles, zoneEdit]
+    );
+    const editedCircle =
+        zoneEdit?.base === circles && zoneEdit.active
+            ? zoneEdit.circle
+            : undefined;
+
     useEffect(() => {
-        const features = circles.map((c, index) =>
+        const features = shownCircles.map((c, index) =>
             circleFeature(c, {index, draft: false, disabled: zonesDisabled})
         );
         if (draft && draft.radius > 0) {
@@ -473,7 +507,7 @@ function MapView({
             type: 'FeatureCollection',
             features,
         });
-    }, [map, styleGeneration, circles, draft, zonesDisabled]);
+    }, [map, styleGeneration, shownCircles, draft, zonesDisabled]);
 
     const onZoneDrawn = useEffectEvent((circle: GeoCircle) => {
         setZones([...circles, circle]);
@@ -560,6 +594,164 @@ function MapView({
         };
     }, [map, drawing]);
 
+    const getCircles = useEffectEvent(() => circles);
+    const onZoneEdited = useEffectEvent((index: number, circle: GeoCircle) => {
+        setZoneEdit({base: circles, index, circle, active: false});
+        setZones(circles.map((c, i) => (i === index ? circle : c)));
+    });
+
+    // Zones are moved by their inside and resized by their outline
+    useEffect(() => {
+        if (!map || drawing) {
+            return;
+        }
+        const canvas = map.getCanvasContainer();
+
+        let grab: {
+            index: number;
+            part: 'edge' | 'inside';
+            origin: GeoCircle;
+            from: LngLat;
+            start: Point;
+            moved: boolean;
+        } | null = null;
+        let edited: GeoCircle | null = null;
+
+        const hit = (e: MapMouseEvent | MapTouchEvent) => {
+            // Bubbles and thumbnails are above the zones
+            const target = e.originalEvent.target;
+            if (
+                (target instanceof Element &&
+                    target.closest('.mapboxgl-marker')) ||
+                map.queryRenderedFeatures(e.point, {layers: ['clusters']})
+                    .length > 0
+            ) {
+                return undefined;
+            }
+            const pixels =
+                'points' in e ? EDGE_PIXELS.touch : EDGE_PIXELS.mouse;
+            const tolerance = distance(
+                e.lngLat,
+                map.unproject([e.point.x + pixels, e.point.y])
+            );
+
+            return hitZone(getCircles(), e.lngLat, tolerance);
+        };
+
+        const hoverCursor = (e: MapMouseEvent) => {
+            if (
+                map.queryRenderedFeatures(e.point, {layers: ['clusters']})
+                    .length > 0
+            ) {
+                return 'pointer';
+            }
+            const zone = hit(e);
+            if (!zone) {
+                return '';
+            }
+            if (zone.part === 'inside') {
+                return 'move';
+            }
+            const c = map.project([
+                getCircles()[zone.index].lng,
+                getCircles()[zone.index].lat,
+            ]);
+
+            return resizeCursor(e.point.x - c.x, e.point.y - c.y);
+        };
+
+        const onDown = (e: MapMouseEvent | MapTouchEvent) => {
+            if ('points' in e && e.points.length > 1) {
+                return;
+            }
+            const zone = hit(e);
+            const origin = zone && getCircles()[zone.index];
+            if (!zone || !origin) {
+                return;
+            }
+            // Keeps the map from panning
+            e.preventDefault();
+            grab = {
+                ...zone,
+                origin,
+                from: {lat: e.lngLat.lat, lng: e.lngLat.lng},
+                start: e.point,
+                moved: false,
+            };
+        };
+        const onMove = (e: MapMouseEvent | MapTouchEvent) => {
+            if (!grab) {
+                if (e.type === 'mousemove') {
+                    canvas.style.cursor = hoverCursor(e as MapMouseEvent);
+                }
+
+                return;
+            }
+            if (!grab.moved) {
+                if (grab.start.dist(e.point) < CLICK_PIXELS) {
+                    return;
+                }
+                grab.moved = true;
+                setPopup(null);
+            }
+            edited =
+                grab.part === 'inside'
+                    ? moveCircle(grab.origin, grab.from, e.lngLat)
+                    : {
+                          ...grab.origin,
+                          radius: Math.max(1, distance(grab.origin, e.lngLat)),
+                      };
+            setZoneEdit({
+                base: getCircles(),
+                index: grab.index,
+                circle: edited,
+                active: true,
+            });
+        };
+        const finish = () => {
+            if (!grab) {
+                return;
+            }
+            const {index, moved} = grab;
+            grab = null;
+            if (moved && edited) {
+                onZoneEdited(index, {
+                    lat: round(edited.lat),
+                    lng: round(edited.lng),
+                    radius: Math.round(edited.radius),
+                });
+            }
+            edited = null;
+        };
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && grab) {
+                grab = null;
+                edited = null;
+                setZoneEdit(null);
+            }
+        };
+
+        map.on('mousedown', onDown);
+        map.on('touchstart', onDown);
+        map.on('mousemove', onMove);
+        map.on('touchmove', onMove);
+        map.on('touchend', finish);
+        // Released outside of the map too
+        window.addEventListener('mouseup', finish);
+        window.addEventListener('keydown', onKeyDown);
+
+        return () => {
+            map.off('mousedown', onDown);
+            map.off('touchstart', onDown);
+            map.off('mousemove', onMove);
+            map.off('touchmove', onMove);
+            map.off('touchend', finish);
+            window.removeEventListener('mouseup', finish);
+            window.removeEventListener('keydown', onKeyDown);
+            canvas.style.cursor = '';
+        };
+    }, [map, drawing]);
+
     // Interactions -----------------------------------------------------------
 
     const clustersByKey = useMemo(
@@ -607,21 +799,10 @@ function MapView({
             return;
         }
         const onClick = (e: MapMouseEvent) => onMapClick(e);
-        const canvas = map.getCanvasContainer();
-        const pointer = () => (canvas.style.cursor = 'pointer');
-        const reset = () => (canvas.style.cursor = '');
         map.on('click', onClick);
-        for (const layer of ['clusters', 'zones-fill']) {
-            map.on('mouseenter', layer, pointer);
-            map.on('mouseleave', layer, reset);
-        }
 
         return () => {
             map.off('click', onClick);
-            for (const layer of ['clusters', 'zones-fill']) {
-                map.off('mouseenter', layer, pointer);
-                map.off('mouseleave', layer, reset);
-            }
         };
     }, [map]);
 
@@ -829,6 +1010,26 @@ function MapView({
             </div>
 
             <div className="pointer-events-none absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2">
+                {editedCircle && !drawing ? (
+                    <div
+                        data-testid="map-zone-edit-info"
+                        className="flex gap-3 rounded-full bg-foreground px-3 py-1.5 text-xs text-background tabular-nums shadow-md"
+                    >
+                        <span>
+                            {t('map.zone_center', 'Center: {{center}}', {
+                                center: formatLatLng(editedCircle),
+                            })}
+                        </span>
+                        <span>
+                            {t('map.zone_radius', 'Radius: {{radius}}', {
+                                radius: formatDistance(
+                                    editedCircle.radius,
+                                    i18n.language
+                                ),
+                            })}
+                        </span>
+                    </div>
+                ) : null}
                 {drawing ? (
                     <div className="rounded-full bg-foreground px-3 py-1.5 text-xs text-background shadow-md">
                         {draft && draft.radius > 0
@@ -916,6 +1117,22 @@ function MapView({
             {popup ? createPortal(renderPopup(), popupNode) : null}
         </div>
     );
+}
+
+/** The resize cursor along the direction from the center of a zone */
+function resizeCursor(dx: number, dy: number): string {
+    const angle = ((Math.atan2(dy, dx) * 180) / Math.PI + 180) % 180;
+    if (angle < 22.5 || angle >= 157.5) {
+        return 'ew-resize';
+    }
+    if (angle < 67.5) {
+        return 'nwse-resize';
+    }
+    if (angle < 112.5) {
+        return 'ns-resize';
+    }
+
+    return 'nesw-resize';
 }
 
 function circleFeature(

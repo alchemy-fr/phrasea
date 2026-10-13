@@ -1,6 +1,7 @@
 import type {GeoBounds} from '@/lib/api/assets';
 import {parseAQL} from '@/features/search/aql/parser';
 import {
+    AQLCondition,
     AQLExpression,
     AQLLogical,
     AQLOperator,
@@ -144,6 +145,53 @@ export function destination(
     return {lat: lat2 / toRad, lng: lng2 / toRad};
 }
 
+export type ZoneHit = {index: number; part: 'edge' | 'inside'};
+
+/**
+ * The zone a press at `at` grabs: the outline nearest within `tolerance`
+ * meters (to resize it), else the smallest zone containing the point (to move
+ * it), so that a zone drawn inside a larger one can still be grabbed.
+ */
+export function hitZone(
+    circles: GeoCircle[],
+    at: LngLat,
+    tolerance: number
+): ZoneHit | undefined {
+    let edge: {index: number; gap: number} | undefined;
+    let inside: {index: number; radius: number} | undefined;
+    circles.forEach((c, index) => {
+        const d = distance(c, at);
+        const gap = Math.abs(d - c.radius);
+        if (gap <= tolerance && (!edge || gap < edge.gap)) {
+            edge = {index, gap};
+        }
+        if (d < c.radius && (!inside || c.radius < inside.radius)) {
+            inside = {index, radius: c.radius};
+        }
+    });
+    if (edge) {
+        return {index: edge.index, part: 'edge'};
+    }
+
+    return inside ? {index: inside.index, part: 'inside'} : undefined;
+}
+
+/** The circle moved by the drag from `from` to `to`, its radius kept */
+export function moveCircle(
+    circle: GeoCircle,
+    from: LngLat,
+    to: LngLat
+): GeoCircle {
+    return {
+        lat: Math.max(
+            -MAX_LATITUDE,
+            Math.min(MAX_LATITUDE, circle.lat + to.lat - from.lat)
+        ),
+        lng: wrapLongitude(circle.lng + to.lng - from.lng),
+        radius: circle.radius,
+    };
+}
+
 /**
  * The ring of a circle on the ground as GeoJSON `[lng, lat]` positions: a
  * circle on the Earth is not a circle on the Mercator projection.
@@ -254,19 +302,66 @@ export function parseCircles(
         if (!isField(e.leftOperand) || e.leftOperand.field !== field) {
             return false;
         }
-        const [lat, lng, r] = Array.isArray(e.rightOperand)
-            ? e.rightOperand
-            : [];
-        const radius = parseRadius(r);
-        if (typeof lat !== 'number' || typeof lng !== 'number' || !radius) {
+        const circle = conditionCircle(e);
+        if (!circle) {
             return false;
         }
-        circles.push({lat, lng, radius});
+        circles.push(circle);
 
         return true;
     };
 
     return visit(ast.expression) ? circles : undefined;
+}
+
+/** The circle of a `WITHIN CIRCLE` condition, unless its arguments are not plain values */
+export function conditionCircle(
+    condition: AQLCondition
+): GeoCircle | undefined {
+    if (
+        condition.operator !== AQLOperator.WITHIN_CIRCLE ||
+        !Array.isArray(condition.rightOperand)
+    ) {
+        return undefined;
+    }
+    const [lat, lng, r] = condition.rightOperand;
+    const radius = parseRadius(r);
+    if (typeof lat !== 'number' || typeof lng !== 'number' || !radius) {
+        return undefined;
+    }
+
+    return {lat, lng, radius};
+}
+
+/** The bounds of a `WITHIN RECTANGLE` condition, unless its arguments are not numbers */
+export function conditionBounds(
+    condition: AQLCondition
+): GeoBounds | undefined {
+    if (
+        condition.operator !== AQLOperator.WITHIN_RECTANGLE ||
+        !Array.isArray(condition.rightOperand)
+    ) {
+        return undefined;
+    }
+    const [top, left, bottom, right] = condition.rightOperand;
+    if (
+        typeof top !== 'number' ||
+        typeof left !== 'number' ||
+        typeof bottom !== 'number' ||
+        typeof right !== 'number'
+    ) {
+        return undefined;
+    }
+
+    return {top, left, bottom, right};
+}
+
+/**
+ * "48.8566, 2.3522": coordinates rounded to about 10 m, with a decimal point
+ * whatever the language, as a decimal comma would mix with the separator.
+ */
+export function formatLatLng(point: LngLat): string {
+    return `${round(point.lat, 4)}, ${round(point.lng, 4)}`;
 }
 
 /** Bubble label: 1234 → "1.2K" */

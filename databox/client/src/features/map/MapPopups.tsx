@@ -14,6 +14,7 @@ import {Button} from '@/components/ui/button';
 import {Spinner} from '@/components/ui/loader';
 import {FileKindIcon} from '@/components/chips';
 import {useAssetStore} from '@/features/assets/assetStore';
+import {AssetPreview} from '@/features/assets/list/preview/AssetPreview';
 import {formatNumber} from '@/lib/utils/format';
 import {boundsToAQL, formatDistance, GeoCircle, padBounds} from './geo';
 
@@ -195,30 +196,14 @@ export function AssetPopup({
             </div>
         );
     }
-    const preview = asset.preview?.file ?? asset.thumbnail?.file;
-
     return (
-        <div data-testid="map-asset-popup" className="w-60 space-y-2 text-sm">
-            <button
-                type="button"
-                onClick={() => onOpen(asset)}
-                className="block w-full cursor-pointer overflow-hidden rounded-md bg-muted"
-            >
-                {preview?.url && preview.type.startsWith('image/') ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                        src={preview.url}
-                        alt={asset.name ?? ''}
-                        className="max-h-48 w-full object-contain"
-                    />
-                ) : (
-                    <span className="flex h-28 items-center justify-center">
-                        <FileKindIcon mimeType={asset.source?.type} />
-                    </span>
-                )}
-            </button>
-            <div className="truncate pr-6 font-medium" title={asset.name}>
-                {asset.name ?? asset.id}
+        <div
+            data-testid="map-asset-popup"
+            className="w-[min(36rem,calc(100vw-5rem))] space-y-2 text-sm"
+        >
+            {/* Shown as the hover preview of the grid */}
+            <div className="flex h-72 overflow-hidden rounded-md border bg-popover">
+                <AssetPreview asset={asset} interactive />
             </div>
             <Button size="sm" className="w-full" onClick={() => onOpen(asset)}>
                 <ExternalLinkIcon /> {t('map.open_asset', 'Open')}
@@ -250,6 +235,12 @@ export function ZonePopup({
                     })}
                 </div>
             </div>
+            <p className="text-xs text-muted-foreground">
+                {t(
+                    'map.zone_edit_help',
+                    'Drag the zone to move it, or its edge to resize it.'
+                )}
+            </p>
             <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="outline" onClick={onZoom}>
                     <ZoomInIcon /> {t('map.zoom_in', 'Zoom in')}
