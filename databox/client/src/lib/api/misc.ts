@@ -400,14 +400,26 @@ export function getPublicShare(id: string, token: string): Promise<Share> {
     });
 }
 
-/** Share one or several assets (of the same workspace) under a single link */
+/**
+ * Share one or several assets (of the same workspace) under a single link.
+ * Without `renditionDefinitionIds`, the link delivers every rendition of a
+ * public policy.
+ */
 export function createShare(
     assetIds: string[],
-    data: Omit<Partial<Share>, 'assets'> = {}
+    {
+        renditionDefinitionIds,
+        ...data
+    }: Omit<Partial<Share>, 'assets' | 'renditionDefinitions'> & {
+        renditionDefinitionIds?: string[];
+    } = {}
 ): Promise<Share> {
     return api.post<Share>(`/${EntityName.Share}`, {
         ...data,
         assets: assetIds.map(id => `/${EntityName.Asset}/${id}`),
+        renditionDefinitions: renditionDefinitionIds?.map(
+            id => `/${EntityName.RenditionDefinition}/${id}`
+        ),
     });
 }
 

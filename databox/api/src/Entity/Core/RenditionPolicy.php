@@ -79,7 +79,7 @@ class RenditionPolicy extends AbstractUuidEntity implements \Stringable, Loggabl
     #[Assert\NotNull]
     private ?string $name = null;
 
-    #[Groups([RenditionPolicy::GROUP_LIST, RenditionPolicy::GROUP_READ])]
+    #[Groups([RenditionPolicy::GROUP_LIST, RenditionPolicy::GROUP_READ, RenditionDefinition::GROUP_LIST, RenditionDefinition::GROUP_READ])]
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $public = false;
 

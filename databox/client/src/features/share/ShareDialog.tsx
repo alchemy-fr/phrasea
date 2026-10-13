@@ -11,21 +11,28 @@ import {
     XIcon,
 } from 'lucide-react';
 import {toast} from 'sonner';
-import type {Asset, Share} from '@/types/api';
+import {AssetType, type Asset, type Share} from '@/types/api';
 import type {ModalProps} from '@/components/modals/ModalProvider';
 import {useModals} from '@/components/modals/ModalProvider';
 import {FormDialog} from '@/components/modals/FormDialog';
 import {Button} from '@/components/ui/button';
-import {LabeledControl, Switch} from '@/components/ui/controls';
+import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
 import {Input, FormRow} from '@/components/ui/input';
 import {InlineLoader} from '@/components/ui/loader';
 import {CopyButton} from '@/components/ui/copy-button';
 import {SimpleSelect} from '@/components/ui/select';
-import {createShare, deleteShare, getAssetShares} from '@/lib/api/misc';
+import {Badge} from '@/components/ui/misc';
+import {
+    createShare,
+    deleteShare,
+    getAssetShares,
+    getRenditionDefinitions,
+} from '@/lib/api/misc';
 import {routes} from '@/lib/routes';
 import {formatDateTime} from '@/lib/utils/format';
 import {copyToClipboard} from '@/lib/utils/misc';
 import {toastError} from '@/lib/utils/errors';
+import {cn} from '@/lib/utils/cn';
 import {ShareSocials} from './ShareSocials';
 import {EmbedDialog} from './EmbedDialog';
 
@@ -65,6 +72,8 @@ export function ShareDialog({
     const [startsAt, setStartsAt] = useState('');
     const [expiresAt, setExpiresAt] = useState('');
     const [rendition, setRendition] = useState<string>('asset');
+    // Rendition definitions of the link being created; undefined: all of them
+    const [renditionIds, setRenditionIds] = useState<string[]>();
 
     const shares = useQuery({
         queryKey,
@@ -74,6 +83,36 @@ export function ShareDialog({
             ),
     });
     const list = useMemo(() => shares.data ?? [], [shares.data]);
+    const workspaceId = assets[0]?.workspace.id;
+    const target = assets.every(a => a.storyCollection)
+        ? AssetType.Story
+        : assets.every(a => !a.storyCollection)
+          ? AssetType.Asset
+          : undefined;
+    // The renditions a link may deliver: the ones of a public policy
+    const definitions = useQuery({
+        queryKey: ['rendition-definitions', workspaceId, 'shareable', target],
+        queryFn: async () =>
+            (
+                await getRenditionDefinitions({
+                    workspaceIds: [workspaceId],
+                    target,
+                })
+            ).items.filter(
+                d => typeof d.policy === 'object' && d.policy?.public
+            ),
+        enabled: !!workspaceId,
+    });
+    const shareable = useMemo(() => definitions.data ?? [], [definitions.data]);
+    const selectedRenditions = renditionIds ?? shareable.map(d => d.id);
+    const toggleRendition = (id: string, on: boolean) =>
+        setRenditionIds(
+            on
+                ? [...selectedRenditions, id]
+                : selectedRenditions.filter(r => r !== id)
+        );
+    const definitionName = (id: string) =>
+        shareable.find(d => d.id === id)?.displayName ?? '';
     const simpleShare =
         list.length === 1 &&
         !list[0].name &&
@@ -85,7 +124,8 @@ export function ShareDialog({
     const advancedMode = advanced ?? !isSimple;
 
     const create = useMutation({
-        mutationFn: (data: Partial<Share>) => createShare(assetIds, data),
+        mutationFn: (data: Parameters<typeof createShare>[1]) =>
+            createShare(assetIds, data),
         onSuccess: share => {
             queryClient.setQueryData<Share[]>(queryKey, prev => [
                 ...(prev ?? []),
@@ -95,6 +135,7 @@ export function ShareDialog({
             setNewName('');
             setStartsAt('');
             setExpiresAt('');
+            setRenditionIds(undefined);
         },
         onError: (e: unknown) => toastError(e),
     });
@@ -113,18 +154,22 @@ export function ShareDialog({
         return alt ? alt.url : getShareUrl(share);
     };
     // A rendition can only be picked for a single asset: a link of several
-    // assets always opens the share page
+    // assets always opens the share page. Links may deliver different
+    // renditions: every rendition of a link is offered, a link lacking the
+    // picked one falls back to the share page.
     const renditionOptions = useMemo(() => {
-        const first = list[0];
-        const alts = single
-            ? (first?.alternateUrls ?? []).filter(
-                  a => !a.assetId || a.assetId === single.id
-              )
-            : [];
+        const names = new Set<string>();
+        if (single) {
+            list.forEach(s =>
+                (s.alternateUrls ?? [])
+                    .filter(a => !a.assetId || a.assetId === single.id)
+                    .forEach(a => names.add(a.name))
+            );
+        }
 
         return [
             {value: 'asset', label: t('share.rendition.asset', 'Asset page')},
-            ...alts.map(a => ({value: a.name, label: a.name})),
+            ...[...names].map(name => ({value: name, label: name})),
         ];
     }, [list, single, t]);
     const shareTitle = (share: Share) =>
@@ -151,7 +196,13 @@ export function ShareDialog({
             submitLabel={t('share.copy_link', 'Copy link')}
             submitIcon={<CopyIcon />}
             // The new-link form holds what the user typed; the rest applies live
-            dirty={creating && (!!newName.trim() || !!startsAt || !!expiresAt)}
+            dirty={
+                creating &&
+                (!!newName.trim() ||
+                    !!startsAt ||
+                    !!expiresAt ||
+                    renditionIds !== undefined)
+            }
             bodyClassName="space-y-4"
             onSubmit={async () => {
                 await copyToClipboard(urlFor(simpleShare!));
@@ -286,6 +337,22 @@ export function ShareDialog({
                                             : ''}
                                     </div>
                                 ) : null}
+                                {s.renditionDefinitions?.length ? (
+                                    <div
+                                        data-testid="share-renditions"
+                                        className="mb-1 flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
+                                    >
+                                        {t(
+                                            'share.item.renditions',
+                                            'Shared renditions'
+                                        )}
+                                        {s.renditionDefinitions.map(d => (
+                                            <Badge key={d.id} variant="muted">
+                                                {definitionName(d.id) || d.id}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                ) : null}
                                 <ShareUrl url={urlFor(s)} />
                             </li>
                         ))}
@@ -334,20 +401,86 @@ export function ShareDialog({
                                     />
                                 </FormRow>
                             </div>
+                            {shareable.length > 0 ? (
+                                <FormRow
+                                    label={t(
+                                        'share.create.renditions',
+                                        'Shared renditions'
+                                    )}
+                                    help={t(
+                                        'share.create.renditions_help',
+                                        'Only the checked renditions can be viewed and downloaded from this link.'
+                                    )}
+                                    error={
+                                        selectedRenditions.length === 0
+                                            ? t(
+                                                  'share.create.renditions_none',
+                                                  'Select at least one rendition'
+                                              )
+                                            : undefined
+                                    }
+                                >
+                                    <ul
+                                        data-testid="share-create-renditions"
+                                        className="flex flex-col gap-0.5"
+                                    >
+                                        {shareable.map(d => (
+                                            <li key={d.id}>
+                                                <label
+                                                    className={cn(
+                                                        'flex cursor-pointer items-center gap-2.5 rounded-md px-2 py-1 text-sm hover:bg-accent',
+                                                        selectedRenditions.includes(
+                                                            d.id
+                                                        ) && 'bg-accent/60'
+                                                    )}
+                                                >
+                                                    <Checkbox
+                                                        checked={selectedRenditions.includes(
+                                                            d.id
+                                                        )}
+                                                        onCheckedChange={v =>
+                                                            toggleRendition(
+                                                                d.id,
+                                                                v === true
+                                                            )
+                                                        }
+                                                    />
+                                                    <span className="min-w-0 flex-1 truncate">
+                                                        {d.displayName}
+                                                    </span>
+                                                </label>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </FormRow>
+                            ) : null}
                             <div className="flex justify-end gap-2">
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => setCreating(false)}
+                                    onClick={() => {
+                                        setCreating(false);
+                                        setRenditionIds(undefined);
+                                    }}
                                 >
                                     {t('common.cancel', 'Cancel')}
                                 </Button>
                                 <Button
                                     size="sm"
                                     loading={create.isPending}
+                                    disabled={
+                                        shareable.length > 0 &&
+                                        selectedRenditions.length === 0
+                                    }
                                     onClick={() =>
                                         create.mutate({
                                             name: newName || undefined,
+                                            // Every rendition: no selection
+                                            renditionDefinitionIds:
+                                                selectedRenditions.length <
+                                                shareable.length
+                                                    ? selectedRenditions
+                                                    : undefined,
                                             startsAt: startsAt
                                                 ? new Date(
                                                       startsAt

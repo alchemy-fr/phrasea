@@ -46,6 +46,15 @@ class ShareProcessor implements ProcessorInterface
             }
         }
 
+        foreach ($data->getRenditionDefinitions() as $definition) {
+            if ($definition->getWorkspace()->getId() !== $workspaceId) {
+                throw new BadRequestHttpException(sprintf('Rendition definition "%s" does not belong to the workspace of the shared assets', $definition->getName()));
+            }
+            if (true !== $definition->getPolicy()?->isPublic()) {
+                throw new BadRequestHttpException(sprintf('Rendition "%s" cannot be shared: its policy is not public', $definition->getName()));
+            }
+        }
+
         // On update, EDIT is granted on the share before the payload is read:
         // the assets it adds must be readable and shareable, as on creation.
         $collection = $data->getAssets();

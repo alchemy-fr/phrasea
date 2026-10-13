@@ -55,6 +55,9 @@ final class ShareCrudController extends AbstractAdminCrudController
         yield TextField::new('name');
         yield AssociationField::new('assets')
             ->autocomplete();
+        yield AssociationField::new('renditionDefinitions', 'Shared renditions')
+            ->setHelp('Empty: every rendition of a public policy')
+            ->hideOnIndex();
         yield CodeField::new('token');
         yield $this->userChoiceField->create('ownerId', 'Owner');
         yield DateTimeField::new('startsAt');

@@ -91,7 +91,7 @@ final class ShareReadProvider implements ProviderInterface
 
         foreach ($renditions as $rendition) {
             $definition = $rendition->getDefinition();
-            if (null !== $definition && self::isRenditionShared($rendition)) {
+            if (null !== $definition && self::isRenditionShared($rendition) && $item->isRenditionDefinitionShared($definition)) {
                 $file = $rendition->getFile();
                 $item->alternateUrls[] = new ShareAlternateUrlOutput(
                     $definition->getName(),

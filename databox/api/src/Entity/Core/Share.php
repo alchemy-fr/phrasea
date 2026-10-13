@@ -147,6 +147,20 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private DoctrineCollection $assets;
 
+    /**
+     * The renditions the link delivers, as rendition definitions. Empty: every
+     * rendition of a public policy (the policy stays the ceiling either way,
+     * see ShareReadProvider::isRenditionShared()).
+     *
+     * @var DoctrineCollection<int, RenditionDefinition>
+     */
+    #[ORM\ManyToMany(targetEntity: RenditionDefinition::class)]
+    #[ORM\JoinTable(name: 'share_rendition_definition')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(onDelete: 'CASCADE')]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
+    private DoctrineCollection $renditionDefinitions;
+
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     protected ?\DateTimeImmutable $startsAt = null;
@@ -185,6 +199,7 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
         parent::__construct($id);
         $this->token = ByteString::fromRandom(64)->toString();
         $this->assets = new ArrayCollection();
+        $this->renditionDefinitions = new ArrayCollection();
     }
 
     /**
@@ -229,6 +244,35 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
             $this->assets->getValues(),
             fn (Asset $asset): bool => !$asset->isDeleted() && AssetStatusEnum::Accepted === $asset->getStatus(),
         ));
+    }
+
+    /**
+     * @return DoctrineCollection<int, RenditionDefinition>
+     */
+    public function getRenditionDefinitions(): DoctrineCollection
+    {
+        return $this->renditionDefinitions;
+    }
+
+    public function addRenditionDefinition(RenditionDefinition $definition): void
+    {
+        if (!$this->renditionDefinitions->contains($definition)) {
+            $this->renditionDefinitions->add($definition);
+        }
+    }
+
+    public function removeRenditionDefinition(RenditionDefinition $definition): void
+    {
+        $this->renditionDefinitions->removeElement($definition);
+    }
+
+    /**
+     * Whether the link delivers the renditions of this definition (a selection
+     * narrows the renditions down, it never grants a non-public policy).
+     */
+    public function isRenditionDefinitionShared(RenditionDefinition $definition): bool
+    {
+        return $this->renditionDefinitions->isEmpty() || $this->renditionDefinitions->contains($definition);
     }
 
     public function getWorkspace(): ?Workspace

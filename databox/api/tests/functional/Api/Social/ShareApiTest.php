@@ -86,6 +86,83 @@ final class ShareApiTest extends AbstractDataboxTestCase
         $this->assertSame(self::USER, $share->getOwnerId(), 'The share belongs to its creator');
     }
 
+    public function testShareNarrowsDownTheDeliveredRenditions(): void
+    {
+        $client = static::createClient();
+        $this->setUpWorkspace();
+        $file = $this->createUrlFile($this->workspace, 'https://example.org/foo.jpg');
+        $definitions = [];
+        foreach (['preview', 'thumbnail', 'original'] as $name) {
+            $definitions[$name] = $this->createRenditionDefinition($this->workspace, $name, 'original' !== $name);
+            $this->createRendition($this->asset, $definitions[$name], $file);
+        }
+
+        // Without a selection: every rendition of a public policy
+        $data = $client->request('POST', '/shares', self::auth(self::USER, [
+            'json' => ['assets' => [self::assetIri($this->asset)]],
+        ]))->toArray();
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame([], $data['renditionDefinitions']);
+        $this->assertEqualsCanonicalizing(['preview', 'thumbnail'], array_column($data['alternateUrls'], 'name'));
+
+        $response = $client->request('POST', '/shares', self::auth(self::USER, [
+            'json' => [
+                'assets' => [self::assetIri($this->asset)],
+                'renditionDefinitions' => ['/rendition-definitions/'.$definitions['thumbnail']->getId()],
+            ],
+        ]));
+        $this->assertResponseStatusCodeSame(201);
+        $data = $response->toArray();
+        $this->assertCount(1, $data['renditionDefinitions']);
+        $this->assertSame(['thumbnail'], array_column($data['alternateUrls'], 'name'));
+
+        $public = $client->request('GET', sprintf('/shares/%s/public?token=%s', $data['id'], $data['token']))->toArray();
+        $this->assertSame(['thumbnail'], array_column($public['alternateUrls'], 'name'));
+
+        // The rendition route follows the selection too
+        $renditionUrl = fn (string $definitionId): string => sprintf('/s/%s/r/%s?token=%s&asset=%s', $data['id'], $definitionId, $data['token'], $this->asset->getId());
+        $client->request('GET', $renditionUrl($definitions['thumbnail']->getId()));
+        $this->assertResponseStatusCodeSame(302);
+        $client->request('GET', $renditionUrl($definitions['preview']->getId()));
+        $this->assertResponseStatusCodeSame(404);
+
+        // The selection can be changed afterwards
+        $response = $client->request('PATCH', '/shares/'.$data['id'], self::patchOptions(self::USER, [
+            'json' => ['renditionDefinitions' => ['/rendition-definitions/'.$definitions['preview']->getId()]],
+        ]));
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(['preview'], array_column($response->toArray()['alternateUrls'], 'name'));
+    }
+
+    public function testSelectedRenditionsMustBeShareable(): void
+    {
+        $client = static::createClient();
+        $this->setUpWorkspace();
+        $restricted = $this->createRenditionDefinition($this->workspace, 'original', false);
+
+        $response = $client->request('POST', '/shares', self::auth(self::USER, [
+            'json' => [
+                'assets' => [self::assetIri($this->asset)],
+                'renditionDefinitions' => ['/rendition-definitions/'.$restricted->getId()],
+            ],
+        ]));
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertStringContainsString('policy is not public', $response->getContent(false));
+
+        $otherWorkspace = $this->createNamedWorkspace(self::USER, 'share-ws2');
+        $foreign = $this->createRenditionDefinition($otherWorkspace, 'preview', true);
+
+        $response = $client->request('POST', '/shares', self::auth(self::USER, [
+            'json' => [
+                'assets' => [self::assetIri($this->asset)],
+                'renditionDefinitions' => ['/rendition-definitions/'.$foreign->getId()],
+            ],
+        ]));
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertStringContainsString('workspace', $response->getContent(false));
+        $this->assertSame(0, self::getEntityManager()->getRepository(Share::class)->count([]));
+    }
+
     public function testTokensAreUniquePerShare(): void
     {
         $client = static::createClient();
