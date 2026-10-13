@@ -29,6 +29,9 @@ import {useConfig} from '@/lib/config/ConfigProvider';
 /** at most one save of the display preferences per interval while sliding */
 const sliderSaveInterval = 1000;
 
+/** Icon above the label: four layouts side by side would overflow the popover */
+const layoutTabClass = 'flex-col gap-1 py-1.5 text-xs';
+
 export function DisplayOptionsMenu({
     prefKey = 'display',
     allowMap = false,
@@ -84,20 +87,30 @@ export function DisplayOptionsMenu({
                             patch({layout: v as DisplayPreferences['layout']})
                         }
                     >
-                        <TabsList className="w-full">
-                            <TabsTrigger value="grid">
+                        <TabsList className="h-auto w-full">
+                            <TabsTrigger
+                                value="grid"
+                                className={layoutTabClass}
+                            >
                                 <LayoutGridIcon /> {t('display.grid', 'Grid')}
                             </TabsTrigger>
-                            <TabsTrigger value="masonry">
+                            <TabsTrigger
+                                value="masonry"
+                                className={layoutTabClass}
+                            >
                                 <LayoutDashboardIcon />{' '}
                                 {t('display.masonry', 'Masonry')}
                             </TabsTrigger>
-                            <TabsTrigger value="list">
+                            <TabsTrigger
+                                value="list"
+                                className={layoutTabClass}
+                            >
                                 <ListIcon /> {t('display.list', 'List')}
                             </TabsTrigger>
                             {withMap ? (
                                 <TabsTrigger
                                     value="map"
+                                    className={layoutTabClass}
                                     data-testid="layout-map"
                                 >
                                     <MapIcon /> {t('display.map', 'Map')}

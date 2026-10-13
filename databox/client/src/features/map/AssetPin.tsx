@@ -3,21 +3,20 @@
 import type {Asset} from '@/types/api';
 import {FileKindIcon} from '@/components/chips';
 import {cn} from '@/lib/utils/cn';
+import {useHoverPreview} from './useHoverPreview';
 
 /**
  * Marker of a single asset: its thumbnail, or a dot until the asset is loaded.
+ * Hovered, it shows the preview of the grid; clicked, it opens the asset.
  */
 export function AssetPin({
     asset,
-    active,
     onClick,
-    onDoubleClick,
 }: {
     asset: Asset | undefined;
-    active?: boolean;
     onClick: () => void;
-    onDoubleClick: () => void;
 }) {
+    const hover = useHoverPreview(asset);
     const thumb = asset?.thumbnail?.file;
     const isImage = !!thumb?.url && thumb.type.startsWith('image/');
 
@@ -26,19 +25,16 @@ export function AssetPin({
             type="button"
             data-testid="map-asset-pin"
             aria-label={asset?.name ?? asset?.id}
-            title={asset?.name}
+            onMouseEnter={hover.onMouseEnter}
+            onMouseLeave={hover.onMouseLeave}
             onClick={e => {
                 e.stopPropagation();
+                hover.onMouseLeave();
                 onClick();
-            }}
-            onDoubleClick={e => {
-                e.stopPropagation();
-                onDoubleClick();
             }}
             className={cn(
                 'block cursor-pointer overflow-hidden rounded-md border-2 border-background bg-muted shadow-md ring-primary transition-transform hover:z-10 hover:scale-110 focus-visible:ring-2 focus-visible:outline-none',
-                asset ? 'size-12' : 'size-4 rounded-full bg-primary',
-                active && 'scale-110 ring-2'
+                asset ? 'size-12' : 'size-4 rounded-full bg-primary'
             )}
         >
             {asset ? (

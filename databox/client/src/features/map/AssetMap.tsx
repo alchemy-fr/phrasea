@@ -30,6 +30,7 @@ import {useTranslation} from 'react-i18next';
 import {useTheme} from 'next-themes';
 import {
     CircleDashedIcon,
+    LogInIcon,
     MapPinOffIcon,
     SatelliteIcon,
     ScanSearchIcon,
@@ -43,6 +44,7 @@ import {
     searchAssets,
 } from '@/lib/api/assets';
 import {useConfig} from '@/lib/config/ConfigProvider';
+import {useAuth} from '@/lib/auth/AuthProvider';
 import {useResults} from '@/features/search/ResultProvider';
 import {useSearch} from '@/features/search/SearchProvider';
 import {useAssetOpener} from '@/features/assets/useAssetOpener';
@@ -79,12 +81,8 @@ import {useMapStore} from './mapStore';
 import {GeoField, useGeoFields} from './useGeoFields';
 import {resolveMapColors, type MapColors} from './mapColors';
 import {AssetPin} from './AssetPin';
-import {
-    AssetPopup,
-    ClusterPopup,
-    clusterCondition,
-    ZonePopup,
-} from './MapPopups';
+import {ClusterPopup, clusterCondition, ZonePopup} from './MapPopups';
+import {PreviewProvider} from '@/features/assets/list/preview/PreviewProvider';
 
 const styleUrls = {
     light: 'mapbox://styles/mapbox/streets-v12',
@@ -111,7 +109,6 @@ type Viewport = {
 
 type PopupTarget =
     | {kind: 'cluster'; cluster: GeoCluster}
-    | {kind: 'asset'; cluster: GeoCluster}
     | {kind: 'zone'; index: number; at: LngLat};
 
 /**
@@ -141,6 +138,7 @@ export default function AssetMap() {
     const {t} = useTranslation();
     const token = useConfig().mapbox?.token;
     const {fields, loaded} = useGeoFields();
+    const {status, login, redirecting} = useAuth();
     const fieldKey = useMapStore(s => s.field);
     const field = fields.find(f => f.searchSlug === fieldKey) ?? fields[0];
 
@@ -156,16 +154,37 @@ export default function AssetMap() {
         );
     }
     if (!field) {
+        // Signed out, only the attributes of the public workspaces are listed
+        const anonymous = status === 'anonymous';
+
         return (
             <EmptyState
                 testId="map-no-field"
                 className="h-full"
                 icon={<MapPinOffIcon />}
                 title={t('map.no_field', 'No geolocation attribute')}
-                description={t(
-                    'map.no_field_description',
-                    'Add a "geo point" attribute to your workspaces to place the assets on the map.'
-                )}
+                description={
+                    anonymous
+                        ? t(
+                              'map.no_field_anonymous',
+                              'You are not signed in: the geolocation attributes of the workspaces may only be available to signed-in users. Sign in to place the assets on the map.'
+                          )
+                        : t(
+                              'map.no_field_description',
+                              'Add a "geo point" attribute to your workspaces to place the assets on the map.'
+                          )
+                }
+                action={
+                    anonymous ? (
+                        <Button
+                            data-testid="map-no-field-sign-in"
+                            loading={redirecting}
+                            onClick={() => login()}
+                        >
+                            <LogInIcon /> {t('user.login', 'Sign in')}
+                        </Button>
+                    ) : undefined
+                }
             />
         );
     }
@@ -758,6 +777,25 @@ function MapView({
         () => new Map(bubbles.map(c => [c.key, c])),
         [bubbles]
     );
+    const openFromMap = useCallback(
+        (asset: Asset, siblings: string[]) => openAsset(asset, {siblings}),
+        [openAsset]
+    );
+
+    /** A single asset drawn as a bubble (too many to be thumbnails) */
+    const openAssetById = useCallback(
+        async (id: string) => {
+            const asset =
+                useAssetStore.getState().assets[id] ??
+                (await searchAssets({ids: [id], limit: 1})).items[0];
+            if (asset) {
+                storeAssets([asset]);
+                openFromMap(asset, [id]);
+            }
+        },
+        [openFromMap, storeAssets]
+    );
+
     const onMapClick = useEffectEvent((e: MapMouseEvent) => {
         // A click on a thumbnail marker reaches the map too
         const target = e.originalEvent.target;
@@ -774,8 +812,8 @@ function MapView({
         const bubble = features.find(f => f.layer?.id === 'clusters');
         const cluster = bubble && clustersByKey.get(bubble.properties?.key);
         if (cluster) {
-            if (cluster.count === 1) {
-                setPopup({kind: 'asset', cluster});
+            if (cluster.assetId) {
+                void openAssetById(cluster.assetId);
             } else {
                 setPopup({kind: 'cluster', cluster});
             }
@@ -799,10 +837,15 @@ function MapView({
             return;
         }
         const onClick = (e: MapMouseEvent) => onMapClick(e);
+        // A cluster is only one at its zoom level
+        const onZoom = () =>
+            setPopup(cur => (cur?.kind === 'cluster' ? null : cur));
         map.on('click', onClick);
+        map.on('zoomstart', onZoom);
 
         return () => {
             map.off('click', onClick);
+            map.off('zoomstart', onZoom);
         };
     }, [map]);
 
@@ -816,7 +859,7 @@ function MapView({
                 : {lat: popup.cluster.lat, lng: popup.cluster.lng};
         const p = new Popup({
             maxWidth: 'none',
-            offset: popup.kind === 'asset' ? 30 : 20,
+            offset: 20,
             focusAfterOpen: false,
         })
             .setLngLat([at.lng, at.lat])
@@ -828,11 +871,6 @@ function MapView({
             p.remove();
         };
     }, [map, popup, popupNode]);
-
-    const openFromMap = useCallback(
-        (asset: Asset, siblings: string[]) => openAsset(asset, {siblings}),
-        [openAsset]
-    );
 
     const searchArea = (cluster: GeoCluster) => {
         setPopup(null);
@@ -877,18 +915,6 @@ function MapView({
                         onOpen={openFromMap}
                     />
                 );
-            case 'asset':
-                return (
-                    <AssetPopup
-                        assetId={popup.cluster.assetId!}
-                        onOpen={a =>
-                            openFromMap(
-                                a,
-                                pinIds.includes(a.id) ? pinIds : [a.id]
-                            )
-                        }
-                    />
-                );
             case 'zone': {
                 const circle = circles[popup.index];
                 if (!circle) {
@@ -921,200 +947,201 @@ function MapView({
             data-testid="asset-map"
             className="dbx-map relative h-full w-full overflow-hidden bg-muted"
         >
-            {/* Sized, not positioned: the Mapbox stylesheet makes its
+            {/* Inside the map element: the hover preview shows in fullscreen too */}
+            <PreviewProvider>
+                {/* Sized, not positioned: the Mapbox stylesheet makes its
             container relative */}
-            <div ref={containerRef} className="h-full w-full" />
+                <div ref={containerRef} className="h-full w-full" />
 
-            <div className="absolute top-3 left-3 z-10 flex max-w-[calc(100%-5rem)] flex-wrap items-center gap-1 rounded-lg border bg-background/95 p-1 shadow-md backdrop-blur">
-                {fields.length > 1 ? (
-                    <SimpleSelect
-                        size="sm"
-                        className="w-44"
-                        value={field.searchSlug}
-                        onValueChange={v => setMapPreferences({field: v})}
-                        options={fields.map(f => ({
-                            value: f.searchSlug,
-                            label: f.label,
-                        }))}
-                    />
-                ) : null}
-                <Tooltip
-                    content={t(
-                        'map.draw_zone_help',
-                        'Click and drag on the map to search within a circle'
-                    )}
-                >
-                    <Toggle
-                        size="sm"
-                        data-testid="map-draw-zone"
-                        pressed={drawing}
-                        onPressedChange={setDrawing}
-                    >
-                        <CircleDashedIcon /> {t('map.draw_zone', 'Draw a zone')}
-                    </Toggle>
-                </Tooltip>
-                {circles.length > 0 ? (
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        data-testid="map-clear-zones"
-                        onClick={() => setZones([])}
-                    >
-                        <XIcon />
-                        {t('map.clear_zones', 'Clear zones ({{count}})', {
-                            count: circles.length,
-                        })}
-                    </Button>
-                ) : null}
-                {hasArea ? (
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                            search.removeCondition(MAP_AREA_CONDITION_ID)
-                        }
-                    >
-                        <XIcon /> {t('map.clear_area', 'Clear area')}
-                    </Button>
-                ) : null}
-                <Separator orientation="vertical" className="mx-0.5 h-5" />
-                <Tooltip content={t('map.fit_results', 'Show all the results')}>
-                    <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        data-testid="map-fit"
-                        aria-label={t(
-                            'map.fit_results',
-                            'Show all the results'
-                        )}
-                        disabled={!data?.bounds}
-                        onClick={() => data?.bounds && fitBounds(data.bounds)}
-                    >
-                        <ScanSearchIcon />
-                    </Button>
-                </Tooltip>
-                <Tooltip content={t('map.satellite', 'Satellite view')}>
-                    <Toggle
-                        size="sm"
-                        aria-label={t('map.satellite', 'Satellite view')}
-                        pressed={mapStyle === 'satellite'}
-                        onPressedChange={p =>
-                            setMapPreferences({
-                                style: p ? 'satellite' : 'streets',
-                            })
-                        }
-                    >
-                        <SatelliteIcon />
-                    </Toggle>
-                </Tooltip>
-            </div>
-
-            <div className="pointer-events-none absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2">
-                {editedCircle && !drawing ? (
-                    <div
-                        data-testid="map-zone-edit-info"
-                        className="flex gap-3 rounded-full bg-foreground px-3 py-1.5 text-xs text-background tabular-nums shadow-md"
-                    >
-                        <span>
-                            {t('map.zone_center', 'Center: {{center}}', {
-                                center: formatLatLng(editedCircle),
-                            })}
-                        </span>
-                        <span>
-                            {t('map.zone_radius', 'Radius: {{radius}}', {
-                                radius: formatDistance(
-                                    editedCircle.radius,
-                                    i18n.language
-                                ),
-                            })}
-                        </span>
-                    </div>
-                ) : null}
-                {drawing ? (
-                    <div className="rounded-full bg-foreground px-3 py-1.5 text-xs text-background shadow-md">
-                        {draft && draft.radius > 0
-                            ? t('map.zone_radius', 'Radius: {{radius}}', {
-                                  radius: formatDistance(
-                                      draft.radius,
-                                      i18n.language
-                                  ),
-                              })
-                            : t(
-                                  'map.draw_zone_hint',
-                                  'Click and drag to draw a circle — Esc to cancel'
-                              )}
-                    </div>
-                ) : null}
-                {data ? (
-                    <div
-                        data-testid="map-stats"
-                        className={cn(
-                            'flex items-center gap-2 rounded-full border bg-background/95 px-3 py-1 text-xs text-muted-foreground shadow-sm backdrop-blur',
-                            data.geolocated === 0 && 'text-foreground'
+                <div className="absolute top-3 left-3 z-10 flex max-w-[calc(100%-5rem)] flex-wrap items-center gap-1 rounded-lg border bg-background/95 p-1 shadow-md backdrop-blur">
+                    {fields.length > 1 ? (
+                        <SimpleSelect
+                            size="sm"
+                            className="w-44"
+                            value={field.searchSlug}
+                            onValueChange={v => setMapPreferences({field: v})}
+                            options={fields.map(f => ({
+                                value: f.searchSlug,
+                                label: f.label,
+                            }))}
+                        />
+                    ) : null}
+                    <Tooltip
+                        content={t(
+                            'map.draw_zone_help',
+                            'Click and drag on the map to search within a circle'
                         )}
                     >
-                        {clusters.isFetching ? (
-                            <Spinner className="size-3" />
-                        ) : null}
-                        {data.geolocated === 0
-                            ? t(
-                                  'map.no_position',
-                                  'None of the {{total}} results has a position',
-                                  {
-                                      count: data.total,
-                                      total: formatNumber(
-                                          data.total,
-                                          i18n.language
-                                      ),
-                                  }
-                              )
-                            : t(
-                                  'map.geolocated',
-                                  '{{geolocated}} of {{total}} results on the map',
-                                  {
-                                      count: data.total,
-                                      geolocated: formatNumber(
-                                          data.geolocated,
-                                          i18n.language
-                                      ),
-                                      total: formatNumber(
-                                          data.total,
-                                          i18n.language
-                                      ),
-                                  }
-                              )}
-                    </div>
-                ) : null}
-                {clusters.isError ? (
-                    <div className="rounded-full bg-destructive px-3 py-1 text-xs text-destructive-foreground shadow-sm">
-                        {t('map.error', 'Could not load the positions')}
-                    </div>
-                ) : null}
-            </div>
-
-            {pinNodes.map(({cluster, node}) =>
-                createPortal(
-                    <AssetPin
-                        asset={assetsById[cluster.assetId!]}
-                        active={
-                            popup?.kind === 'asset' &&
-                            popup.cluster.assetId === cluster.assetId
-                        }
-                        onClick={() =>
-                            !drawing && setPopup({kind: 'asset', cluster})
-                        }
-                        onDoubleClick={() => {
-                            const asset = assetsById[cluster.assetId!];
-                            if (asset) {
-                                openFromMap(asset, pinIds);
+                        <Toggle
+                            size="sm"
+                            data-testid="map-draw-zone"
+                            pressed={drawing}
+                            onPressedChange={setDrawing}
+                        >
+                            <CircleDashedIcon />{' '}
+                            {t('map.draw_zone', 'Draw a zone')}
+                        </Toggle>
+                    </Tooltip>
+                    {circles.length > 0 ? (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            data-testid="map-clear-zones"
+                            onClick={() => setZones([])}
+                        >
+                            <XIcon />
+                            {t('map.clear_zones', 'Clear zones ({{count}})', {
+                                count: circles.length,
+                            })}
+                        </Button>
+                    ) : null}
+                    {hasArea ? (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                                search.removeCondition(MAP_AREA_CONDITION_ID)
                             }
-                        }}
-                    />,
-                    node,
-                    cluster.assetId!
-                )
-            )}
-            {popup ? createPortal(renderPopup(), popupNode) : null}
+                        >
+                            <XIcon /> {t('map.clear_area', 'Clear area')}
+                        </Button>
+                    ) : null}
+                    <Separator orientation="vertical" className="mx-0.5 h-5" />
+                    <Tooltip
+                        content={t('map.fit_results', 'Show all the results')}
+                    >
+                        <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            data-testid="map-fit"
+                            aria-label={t(
+                                'map.fit_results',
+                                'Show all the results'
+                            )}
+                            disabled={!data?.bounds}
+                            onClick={() =>
+                                data?.bounds && fitBounds(data.bounds)
+                            }
+                        >
+                            <ScanSearchIcon />
+                        </Button>
+                    </Tooltip>
+                    <Tooltip content={t('map.satellite', 'Satellite view')}>
+                        <Toggle
+                            size="sm"
+                            aria-label={t('map.satellite', 'Satellite view')}
+                            pressed={mapStyle === 'satellite'}
+                            onPressedChange={p =>
+                                setMapPreferences({
+                                    style: p ? 'satellite' : 'streets',
+                                })
+                            }
+                        >
+                            <SatelliteIcon />
+                        </Toggle>
+                    </Tooltip>
+                </div>
+
+                <div className="pointer-events-none absolute bottom-8 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-2">
+                    {editedCircle && !drawing ? (
+                        <div
+                            data-testid="map-zone-edit-info"
+                            className="flex gap-3 rounded-full bg-foreground px-3 py-1.5 text-xs text-background tabular-nums shadow-md"
+                        >
+                            <span>
+                                {t('map.zone_center', 'Center: {{center}}', {
+                                    center: formatLatLng(editedCircle),
+                                })}
+                            </span>
+                            <span>
+                                {t('map.zone_radius', 'Radius: {{radius}}', {
+                                    radius: formatDistance(
+                                        editedCircle.radius,
+                                        i18n.language
+                                    ),
+                                })}
+                            </span>
+                        </div>
+                    ) : null}
+                    {drawing ? (
+                        <div className="rounded-full bg-foreground px-3 py-1.5 text-xs text-background shadow-md">
+                            {draft && draft.radius > 0
+                                ? t('map.zone_radius', 'Radius: {{radius}}', {
+                                      radius: formatDistance(
+                                          draft.radius,
+                                          i18n.language
+                                      ),
+                                  })
+                                : t(
+                                      'map.draw_zone_hint',
+                                      'Click and drag to draw a circle — Esc to cancel'
+                                  )}
+                        </div>
+                    ) : null}
+                    {data ? (
+                        <div
+                            data-testid="map-stats"
+                            className={cn(
+                                'flex items-center gap-2 rounded-full border bg-background/95 px-3 py-1 text-xs text-muted-foreground shadow-sm backdrop-blur',
+                                data.geolocated === 0 && 'text-foreground'
+                            )}
+                        >
+                            {clusters.isFetching ? (
+                                <Spinner className="size-3" />
+                            ) : null}
+                            {data.geolocated === 0
+                                ? t(
+                                      'map.no_position',
+                                      'None of the {{total}} results has a position',
+                                      {
+                                          count: data.total,
+                                          total: formatNumber(
+                                              data.total,
+                                              i18n.language
+                                          ),
+                                      }
+                                  )
+                                : t(
+                                      'map.geolocated',
+                                      '{{geolocated}} of {{total}} results on the map',
+                                      {
+                                          count: data.total,
+                                          geolocated: formatNumber(
+                                              data.geolocated,
+                                              i18n.language
+                                          ),
+                                          total: formatNumber(
+                                              data.total,
+                                              i18n.language
+                                          ),
+                                      }
+                                  )}
+                        </div>
+                    ) : null}
+                    {clusters.isError ? (
+                        <div className="rounded-full bg-destructive px-3 py-1 text-xs text-destructive-foreground shadow-sm">
+                            {t('map.error', 'Could not load the positions')}
+                        </div>
+                    ) : null}
+                </div>
+
+                {pinNodes.map(({cluster, node}) =>
+                    createPortal(
+                        <AssetPin
+                            asset={assetsById[cluster.assetId!]}
+                            onClick={() => {
+                                const asset = assetsById[cluster.assetId!];
+                                if (asset && !drawing) {
+                                    openFromMap(asset, pinIds);
+                                }
+                            }}
+                        />,
+                        node,
+                        cluster.assetId!
+                    )
+                )}
+                {popup ? createPortal(renderPopup(), popupNode) : null}
+            </PreviewProvider>
         </div>
     );
 }
