@@ -1,5 +1,6 @@
 'use client';
 
+import {useTranslation} from 'react-i18next';
 import type {Asset} from '@/types/api';
 import {FileKindIcon} from '@/components/chips';
 import {cn} from '@/lib/utils/cn';
@@ -16,6 +17,7 @@ export function AssetPin({
     asset: Asset | undefined;
     onClick: () => void;
 }) {
+    const {t} = useTranslation();
     const hover = useHoverPreview(asset);
     const thumb = asset?.thumbnail?.file;
     const isImage = !!thumb?.url && thumb.type.startsWith('image/');
@@ -24,7 +26,11 @@ export function AssetPin({
         <button
             type="button"
             data-testid="map-asset-pin"
-            aria-label={asset?.name ?? asset?.id}
+            aria-label={
+                asset
+                    ? (asset.name ?? asset.id)
+                    : t('map.asset_loading', 'Loading the asset…')
+            }
             onMouseEnter={hover.onMouseEnter}
             onMouseLeave={hover.onMouseLeave}
             onClick={e => {

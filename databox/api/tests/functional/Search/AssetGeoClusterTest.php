@@ -7,6 +7,7 @@ namespace App\Tests\Functional\Search;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Attribute\Type\GeoPointAttributeType;
+use App\Entity\Core\AssetStatusEnum;
 use App\Tests\Functional\AbstractSearchTestCase;
 
 class AssetGeoClusterTest extends AbstractSearchTestCase
@@ -148,6 +149,71 @@ class AssetGeoClusterTest extends AbstractSearchTestCase
         $this->assertSame(0, $data['geolocated']);
         $this->assertSame([], $data['clusters']);
         $this->assertNull($data['bounds']);
+    }
+
+    public function testConditionsDoNotRevealAssetsTheUserCannotRead(): void
+    {
+        $this->grantUserOnObject(
+            KeycloakClientTestMock::USER_UID,
+            $this->getOrCreateDefaultWorkspace(),
+            PermissionInterface::VIEW
+        );
+        $definition = $this->createAttributeDefinition([
+            'name' => 'Location',
+            'slug' => 'location',
+            'type' => GeoPointAttributeType::NAME,
+        ]);
+        $ownAccepted = $this->createAsset([
+            'ownerId' => KeycloakClientTestMock::USER_UID,
+            'public' => true,
+            'attributes' => [['definition' => $definition, 'value' => '48.8566,2.3522']],
+            'no_flush' => true,
+        ]);
+        $ownDeleted = $this->createAsset([
+            'ownerId' => KeycloakClientTestMock::USER_UID,
+            'public' => true,
+            'attributes' => [['definition' => $definition, 'value' => '40.7128,-74.006']],
+            'no_flush' => true,
+        ]);
+        $ownDeleted->setDeletedAt(new \DateTimeImmutable());
+        $othersDeleted = $this->createAsset([
+            'public' => true,
+            'attributes' => [['definition' => $definition, 'value' => '40.7128,-74.006']],
+            'no_flush' => true,
+        ]);
+        $othersDeleted->setDeletedAt(new \DateTimeImmutable());
+        $othersQuarantined = $this->createAsset([
+            'public' => true,
+            'attributes' => [['definition' => $definition, 'value' => '35.6762,139.6503']],
+            'no_flush' => true,
+        ]);
+        $othersQuarantined->setStatus(AssetStatusEnum::Quarantined);
+        self::getEntityManager()->flush();
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('asset');
+
+        $data = $this->requestClusters([
+            'field' => self::FIELD,
+            'precision' => 3,
+            'conditions' => ['NOT (@deleted = true)'],
+        ]);
+        $this->assertSame(1, $data['geolocated']);
+        $this->assertSame($ownAccepted->getId(), $data['clusters'][0]['assetId']);
+
+        $data = $this->requestClusters([
+            'field' => self::FIELD,
+            'precision' => 3,
+            'conditions' => ['@deleted = true'],
+        ]);
+        $this->assertSame(1, $data['geolocated']);
+        $this->assertSame($ownDeleted->getId(), $data['clusters'][0]['assetId']);
+
+        $data = $this->requestClusters([
+            'field' => self::FIELD,
+            'precision' => 3,
+            'conditions' => ['NOT (@assetStatus = 0)'],
+        ]);
+        $this->assertSame(0, $data['geolocated']);
     }
 
     public function testRejectsInvalidParameters(): void

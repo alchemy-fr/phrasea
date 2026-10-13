@@ -713,6 +713,7 @@
     "list.total_results_one": "{{count}} result",
     "list.total_results_other": "{{count}} results",
     "list.unselect_all": "Unselect all",
+    "map.asset_loading": "Loading the asset…",
     "map.clear_area": "Clear area",
     "map.clear_zones_one": "Clear zone",
     "map.clear_zones_other": "Clear zones ({{count}})",

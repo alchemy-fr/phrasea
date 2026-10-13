@@ -375,6 +375,8 @@ class AssetSearch extends AbstractSearch
     /**
      * Filters shared by every search on the asset index: ACL, tag filter rules and, unless the
      * caller filters on them itself, "not deleted" and "accepted" status.
+     * When the caller does filter on them, the deleted and quarantined assets stay restricted
+     * to the users the AssetVoter lets read them: the caller's conditions cannot widen that.
      *
      * @return Query\AbstractQuery[]
      *
@@ -398,12 +400,10 @@ class AssetSearch extends AbstractSearch
         if (null !== $attrFilterQuery = $this->buildAttributeFilterQuery($userId, $groupIds, $options)) {
             $filterQueries[] = $attrFilterQuery;
         }
-        if ($filterDeleted) {
-            $filterQueries[] = $this->deletedBuiltInAttribute->createFilterQuery(false, ConditionOperatorEnum::EQUALS, $options);
-        }
-        if ($filterStatus) {
-            $filterQueries[] = $this->assetStatusBuiltInAttribute->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options);
-        }
+        $filterQueries[] = $this->deletedBuiltInAttribute->createFilterQuery($filterDeleted ? false : null, ConditionOperatorEnum::EQUALS, $options);
+        $filterQueries[] = $filterStatus
+            ? $this->assetStatusBuiltInAttribute->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options)
+            : $this->assetStatusBuiltInAttribute->createVisibleFilterQuery($options);
 
         return $filterQueries;
     }

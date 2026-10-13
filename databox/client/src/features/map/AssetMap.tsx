@@ -40,6 +40,7 @@ import type {Asset} from '@/types/api';
 import {
     GeoBounds,
     GeoCluster,
+    getAsset,
     getGeoClusters,
     searchAssets,
 } from '@/lib/api/assets';
@@ -407,10 +408,15 @@ function MapView({
         [pinIds, pinAssets]
     );
     useQuery({
-        queryKey: ['map-pin-assets', missingIds],
+        queryKey: ['map-pin-assets', results.searchOptions, missingIds],
         queryFn: async ({signal}) => {
+            // The search options keep the deleted or quarantined assets the search shows
             const result = await searchAssets(
-                {ids: missingIds, limit: missingIds.length},
+                {
+                    ...results.searchOptions,
+                    ids: missingIds,
+                    limit: missingIds.length,
+                },
                 signal
             );
             storeAssets(result.items);
@@ -787,7 +793,7 @@ function MapView({
         async (id: string) => {
             const asset =
                 useAssetStore.getState().assets[id] ??
-                (await searchAssets({ids: [id], limit: 1})).items[0];
+                (await getAsset(id).catch(() => undefined));
             if (asset) {
                 storeAssets([asset]);
                 openFromMap(asset, [id]);

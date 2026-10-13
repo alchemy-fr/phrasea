@@ -713,6 +713,7 @@
     "list.total_results_one": "{{count}} résultat",
     "list.total_results_other": "{{count}} résultats",
     "list.unselect_all": "Tout désélectionner",
+    "map.asset_loading": "Chargement de l'asset…",
     "map.clear_area": "Effacer la zone",
     "map.clear_zones_one": "Effacer la zone",
     "map.clear_zones_other": "Effacer les zones ({{count}})",
