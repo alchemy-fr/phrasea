@@ -96,6 +96,15 @@ final readonly class EntityHttpCacheListener
     public function postUpdate(PostUpdateEventArgs $args): void
     {
         $this->handle($args);
+
+        $entity = $args->getObject();
+        if ($entity instanceof Publication) {
+            // The moved publication now exposes its new parent: the old one is only in the change set.
+            $oldParent = $args->getObjectManager()->getUnitOfWork()->getEntityChangeSet($entity)['parent'][0] ?? null;
+            if ($oldParent instanceof Publication) {
+                $this->invalidatePublicationCache($oldParent);
+            }
+        }
     }
 
     public function postPersist(PostPersistEventArgs $args): void

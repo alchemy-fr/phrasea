@@ -9,6 +9,7 @@ use App\Entity\Asset;
 use App\Entity\Publication;
 use App\Http\Cache\ProxyCachePurger;
 use Doctrine\ORM\Event\PostUpdateEventArgs;
+use Doctrine\ORM\Events;
 
 class EntityHttpCacheListenerTest extends AbstractExposeTestCase
 {
@@ -34,6 +35,29 @@ class EntityHttpCacheListenerTest extends AbstractExposeTestCase
             Asset::GET_ASSET_ROUTE_NAME.':'.$grandChildAssetId,
         ], $purger->purged);
         $this->assertNotContains(Publication::GET_PUBLICATION_ROUTE_NAME.':'.$sibling->getId(), $purger->purged);
+    }
+
+    public function testMovingPublicationPurgesOldAndNewParents(): void
+    {
+        $oldParent = $this->createPublication(['slug' => 'old-parent']);
+        $newParent = $this->createPublication();
+        $child = $this->createPublication(['parent' => $oldParent]);
+
+        $em = self::getEntityManager();
+        $purger = $this->createPurgerSpy();
+        $listener = new EntityHttpCacheListener($purger);
+        $em->getEventManager()->addEventListener(Events::postUpdate, $listener);
+        try {
+            $child->setParent($newParent);
+            $em->flush();
+        } finally {
+            $em->getEventManager()->removeEventListener(Events::postUpdate, $listener);
+        }
+
+        $this->assertContains(Publication::GET_PUBLICATION_ROUTE_NAME.':'.$oldParent->getId(), $purger->purged);
+        $this->assertContains(Publication::GET_PUBLICATION_ROUTE_NAME.':old-parent', $purger->purged);
+        $this->assertContains(Publication::GET_PUBLICATION_ROUTE_NAME.':'.$newParent->getId(), $purger->purged);
+        $this->assertContains(Publication::GET_PUBLICATION_ROUTE_NAME.':'.$child->getId(), $purger->purged);
     }
 
     private function createPurgerSpy(): ProxyCachePurger
