@@ -29,7 +29,7 @@ class PublicHttpCacheTest extends AbstractExposeTestCase
             ]);
             $this->assertEquals(200, $response->getStatusCode(), $uri);
             $this->assertPubliclyCached($response, 600);
-            $this->assertEqualsCanonicalizing(['Accept', 'Authorization', 'Origin'], $response->getVary());
+            $this->assertEqualsCanonicalizing(['Accept', 'Authorization', 'Origin', 'X-Passwords'], $response->getVary());
         }
     }
 

@@ -62,7 +62,7 @@ final readonly class PublicHttpCacheListener
             'max_age' => $maxAge,
             's_maxage' => $maxAge,
         ]);
-        $response->setVary(['Authorization'], false);
+        $response->setVary(['Authorization', 'X-Passwords'], false);
     }
 
     /**
