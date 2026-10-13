@@ -37,13 +37,10 @@ export function isDescendant(
 /** The operation asked for by the modifier keys */
 export function modifiersToOp(modifiers: DragModifiers): AssetOp {
     if (modifiers.ctrl) {
-        return 'copy';
-    }
-    if (modifiers.shift) {
-        return 'move';
+        return modifiers.shift ? 'copy' : 'add';
     }
 
-    return 'add';
+    return 'move';
 }
 
 function workspaceOf(asset: Asset): string | undefined {
@@ -97,22 +94,12 @@ function canDropAssets(
             if (assets.some(a => a.storyCollection?.id === collection.id)) {
                 return {ok: false, reason: 'self'};
             }
+            // Assets never leave their workspace, nor get linked across
+            // workspaces: they get duplicated
             if (crossWorkspace(collectionWorkspace(collection))) {
-                // Assets never leave their workspace
-                if (op === 'move') {
-                    return {ok: false, reason: 'workspace'};
-                }
-                // Assets cannot be linked across workspaces: they get duplicated
-                if (op === 'add') {
-                    op = 'copy';
-                }
+                op = 'copy';
             }
-            if (
-                op === 'add' &&
-                assets.every(a =>
-                    a.collections?.some(c => c.id === collection.id)
-                )
-            ) {
+            if (alreadyIn(assets, op, collection.id)) {
                 return {ok: false, reason: 'already'};
             }
 
@@ -139,12 +126,7 @@ function canDropAssets(
             if (crossWorkspace(workspaceOf(story))) {
                 return {ok: false, reason: 'workspace'};
             }
-            if (
-                op === 'add' &&
-                assets.every(a =>
-                    a.collections?.some(c => c.id === storyCollection.id)
-                )
-            ) {
+            if (alreadyIn(assets, op, storyCollection.id)) {
                 return {ok: false, reason: 'already'};
             }
 
@@ -166,18 +148,45 @@ function canDropAssets(
         }
         case 'workspace': {
             const {workspace} = target;
-            // Nothing to link at the root of the assets' own workspace
-            if (!crossWorkspace(workspace.id)) {
+            if (crossWorkspace(workspace.id)) {
+                op = 'copy';
+            } else if (op === 'add') {
+                // Nothing to link at the root of the assets' own workspace
                 return {ok: false, reason: 'already'};
             }
             if (!workspace.capabilities.createAsset) {
                 return {ok: false, reason: 'capability'};
             }
 
-            return {ok: true, op: 'copy'};
+            // Moving to the root of their workspace takes the assets out of
+            // their reference collection
+            return {ok: true, op};
         }
         default:
             return {ok: false, reason: 'type'};
+    }
+}
+
+/**
+ * Whether the drop would change nothing: every asset is already linked to the
+ * collection (add), or already has it as reference collection (move).
+ */
+function alreadyIn(
+    assets: Asset[],
+    op: AssetOp,
+    collectionId: string
+): boolean {
+    switch (op) {
+        case 'add':
+            return assets.every(a =>
+                a.collections?.some(c => c.id === collectionId)
+            );
+        case 'move':
+            return assets.every(
+                a => a.referenceCollection?.id === collectionId
+            );
+        default:
+            return false;
     }
 }
 

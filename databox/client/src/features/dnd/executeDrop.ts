@@ -106,18 +106,30 @@ async function dropAssets(
             return true;
         }
         case 'workspace': {
+            const destination = iri(EntityName.Workspace, target.workspace.id);
+            if (op === 'move') {
+                await moveAssets(ids, destination);
+                toast.success(
+                    t(
+                        'asset.move.started',
+                        'Moving {{count}} assets to {{name}}…',
+                        {
+                            count,
+                            name,
+                        }
+                    )
+                );
+                await reloadResults?.();
+
+                return true;
+            }
             if (!(await confirmDuplication(payload, target, deps))) {
                 return false;
             }
-            await copyAssets(
-                ids,
-                iri(EntityName.Workspace, target.workspace.id),
-                false,
-                {
-                    withAttributes: true,
-                    withTags: true,
-                }
-            );
+            await copyAssets(ids, destination, false, {
+                withAttributes: true,
+                withTags: true,
+            });
             toast.success(
                 t(
                     'asset.copy.started',
@@ -212,8 +224,8 @@ async function dropAssets(
 }
 
 /**
- * Duplicating into another workspace creates new files: it is confirmed
- * when the duplication was not asked for explicitly (Ctrl held).
+ * Duplicating into another workspace creates new files: it is confirmed,
+ * since any drop there turns into a duplication.
  */
 async function confirmDuplication(
     payload: Extract<DragPayload, {type: 'assets'}>,
@@ -245,7 +257,7 @@ async function confirmDuplication(
         ),
         description: t(
             'asset.copy.cross_workspace',
-            'Assets cannot be linked across workspaces: they will be duplicated.'
+            'Assets cannot be moved or linked across workspaces: they will be duplicated.'
         ),
     });
 }

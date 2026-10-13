@@ -87,7 +87,7 @@ describe('Drag & drop', () => {
         waitForResults(4);
     });
 
-    it('adds the selection to a collection and keeps it selected', () => {
+    it('adds the selection to a collection with Ctrl and keeps it selected', () => {
         openLeftPanelTab('Navigation');
         expandTreeWorkspace(ctx.workspace.id);
         treeCollection(ctx.entertainment.id).should('be.visible');
@@ -99,8 +99,12 @@ describe('Drag & drop', () => {
         dragStart(assetItem('Alpha'));
         cy.getBySel('drag-ghost').should('contain', '2 assets');
         dragOver(treeCollection(ctx.entertainment.id));
+        cy.getBySel('drag-ghost').should('contain', 'Move to Entertainment');
+        dragOver(treeCollection(ctx.entertainment.id), {ctrlKey: true, shiftKey: true});
+        cy.getBySel('drag-ghost').should('contain', 'Duplicate in Entertainment');
+        dragOver(treeCollection(ctx.entertainment.id), {ctrlKey: true});
         cy.getBySel('drag-ghost').should('contain', 'Add to Entertainment');
-        drop();
+        drop({ctrlKey: true});
 
         expectToastText('2 assets added to Entertainment');
         cy.get('[data-testid=asset-item][data-selected=true]').should('have.length', 2);
@@ -144,9 +148,9 @@ describe('Drag & drop', () => {
             .should('be.visible');
 
         dragStart(assetItem('Charlie'));
-        dragOver(cy.get(`[data-testid=pinned-story-item][data-story-id="${story.id}"]`));
+        dragOver(cy.get(`[data-testid=pinned-story-item][data-story-id="${story.id}"]`), {ctrlKey: true});
         cy.getBySel('drag-ghost').should('contain', 'Add to');
-        drop();
+        drop({ctrlKey: true});
 
         expectToastText('1 asset added to story');
         cy.waitUntil(
@@ -166,23 +170,23 @@ describe('Drag & drop', () => {
         cy.get(`[data-testid=pinned-story-item][data-story-id="${story.id}"]`).should('not.exist');
     });
 
-    it('refuses the assets on their own workspace', () => {
+    it('refuses to add the assets to their own workspace', () => {
         openLeftPanelTab('Navigation');
         dragStart(assetItem('Alpha'));
-        dragOver(treeWorkspace(ctx.workspace.id));
+        dragOver(treeWorkspace(ctx.workspace.id), {ctrlKey: true});
         cy.getBySel('drag-ghost').should('contain', 'Already there');
-        drop();
+        drop({ctrlKey: true});
         cy.get('[data-sonner-toast]').should('not.exist');
     });
 
-    it('moves an asset with Shift', () => {
+    it('moves an asset by default', () => {
         openLeftPanelTab('Navigation');
         expandTreeWorkspace(ctx.workspace.id);
 
         dragStart(assetItem('Bravo'));
-        dragOver(treeCollection(ctx.sport.id), {shiftKey: true});
+        dragOver(treeCollection(ctx.sport.id));
         cy.getBySel('drag-ghost').should('contain', 'Move to Sport');
-        drop({shiftKey: true});
+        drop();
 
         expectToastText('Moving 1 asset to Sport');
         cy.waitUntil(

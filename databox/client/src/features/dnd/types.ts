@@ -7,7 +7,10 @@ export type AssetOp = 'add' | 'move' | 'copy';
 
 export type DropOp = AssetOp | 'move-collection';
 
-/** Modifier keys held while dragging: Shift moves, Ctrl (Cmd) duplicates */
+/**
+ * Modifier keys held while dragging: assets are moved by default, Ctrl (Cmd)
+ * adds them, Ctrl+Shift duplicates them
+ */
 export type DragModifiers = {shift: boolean; ctrl: boolean};
 
 export const noModifiers: DragModifiers = {shift: false, ctrl: false};

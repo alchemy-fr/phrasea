@@ -32,7 +32,7 @@ export function DragGhost() {
     } else if (verdict) {
         hint = reasonLabel(t, verdict.reason);
     } else if (payload.type === 'assets') {
-        hint = t('dnd.hint', 'Shift: move · Ctrl: duplicate');
+        hint = t('dnd.hint', 'Ctrl: add · Ctrl+Shift: duplicate');
     } else {
         hint = t('dnd.hint_collection', 'Drop on a collection or a workspace');
     }

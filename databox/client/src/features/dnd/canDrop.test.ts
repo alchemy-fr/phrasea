@@ -92,11 +92,11 @@ describe('canDrop assets', () => {
     const a1 = asset('a1', 'ws1');
     const a2 = asset('a2', 'ws1');
 
-    it('adds to a collection by default, moves with Shift, duplicates with Ctrl', () => {
+    it('moves to a collection by default, adds with Ctrl, duplicates with Ctrl+Shift', () => {
         const t = target({type: 'collection', collection: collections.root});
         expect(verdict(assetsPayload([a1, a2]), t)).toEqual({
             ok: true,
-            op: 'add',
+            op: 'move',
         });
         expect(verdict(assetsPayload([a1]), t, {shift: true})).toEqual({
             ok: true,
@@ -104,28 +104,23 @@ describe('canDrop assets', () => {
         });
         expect(verdict(assetsPayload([a1]), t, {ctrl: true})).toEqual({
             ok: true,
-            op: 'copy',
+            op: 'add',
         });
         expect(
             verdict(assetsPayload([a1]), t, {ctrl: true, shift: true})
         ).toEqual({ok: true, op: 'copy'});
     });
 
-    it('duplicates instead of linking across workspaces', () => {
+    it('duplicates instead of moving or linking across workspaces', () => {
         const t = target({type: 'collection', collection: collections.foreign});
         expect(verdict(assetsPayload([a1]), t)).toEqual({ok: true, op: 'copy'});
         expect(verdict(assetsPayload([a1]), t, {ctrl: true})).toEqual({
             ok: true,
             op: 'copy',
         });
-    });
-
-    it('refuses to move assets to another workspace', () => {
-        const t = target({type: 'collection', collection: collections.foreign});
-        expect(verdict(assetsPayload([a1]), t, {shift: true})).toEqual({
-            ok: false,
-            reason: 'workspace',
-        });
+        expect(
+            verdict(assetsPayload([a1]), t, {ctrl: true, shift: true})
+        ).toEqual({ok: true, op: 'copy'});
     });
 
     it('refuses a collection without the capability, deleted, or already holding all the assets', () => {
@@ -153,18 +148,32 @@ describe('canDrop assets', () => {
             collections: [{id: 'root'} as any],
         });
         const t = target({type: 'collection', collection: collections.root});
-        expect(verdict(assetsPayload([inRoot]), t)).toEqual({
+        expect(verdict(assetsPayload([inRoot]), t, {ctrl: true})).toEqual({
             ok: false,
             reason: 'already',
         });
         // Not all of them: still something to add
-        expect(verdict(assetsPayload([inRoot, a1]), t)).toEqual({
+        expect(verdict(assetsPayload([inRoot, a1]), t, {ctrl: true})).toEqual({
             ok: true,
             op: 'add',
         });
-        // Moving out of and into the same collection is a no-op, but a
-        // duplication is not
-        expect(verdict(assetsPayload([inRoot]), t, {ctrl: true})).toEqual({
+        // Linked but referenced elsewhere: it can still be moved there
+        expect(verdict(assetsPayload([inRoot]), t)).toEqual({
+            ok: true,
+            op: 'move',
+        });
+        const refRoot = asset('a4', 'ws1', {
+            referenceCollection: {id: 'root'} as any,
+            collections: [{id: 'root'} as any],
+        });
+        expect(verdict(assetsPayload([refRoot]), t)).toEqual({
+            ok: false,
+            reason: 'already',
+        });
+        // A duplication is never a no-op
+        expect(
+            verdict(assetsPayload([refRoot]), t, {ctrl: true, shift: true})
+        ).toEqual({
             ok: true,
             op: 'copy',
         });
@@ -181,7 +190,7 @@ describe('canDrop assets', () => {
         });
     });
 
-    it('adds to a story', () => {
+    it('moves to a story, or adds with Ctrl', () => {
         const story = asset('story', 'ws1', {
             storyCollection: {
                 id: 'sc',
@@ -189,7 +198,14 @@ describe('canDrop assets', () => {
             } as any,
         });
         const t = target({type: 'story', story});
-        expect(verdict(assetsPayload([a1]), t)).toEqual({ok: true, op: 'add'});
+        expect(verdict(assetsPayload([a1]), t)).toEqual({
+            ok: true,
+            op: 'move',
+        });
+        expect(verdict(assetsPayload([a1]), t, {ctrl: true})).toEqual({
+            ok: true,
+            op: 'add',
+        });
         expect(verdict(assetsPayload([story]), t)).toEqual({
             ok: false,
             reason: 'self',
@@ -233,19 +249,29 @@ describe('canDrop assets', () => {
         ).toEqual({ok: false, reason: 'capability'});
     });
 
-    it('duplicates into another workspace only', () => {
+    it('moves to the root of their own workspace, duplicates into another one', () => {
+        const own = target({type: 'workspace', workspace: ws('ws1')});
+        expect(verdict(assetsPayload([a1]), own)).toEqual({
+            ok: true,
+            op: 'move',
+        });
+        // Nothing to link at the root
+        expect(verdict(assetsPayload([a1]), own, {ctrl: true})).toEqual({
+            ok: false,
+            reason: 'already',
+        });
         expect(
-            verdict(
-                assetsPayload([a1]),
-                target({type: 'workspace', workspace: ws('ws1')})
-            )
-        ).toEqual({ok: false, reason: 'already'});
-        expect(
-            verdict(
-                assetsPayload([a1]),
-                target({type: 'workspace', workspace: ws('ws2')})
-            )
+            verdict(assetsPayload([a1]), own, {ctrl: true, shift: true})
         ).toEqual({ok: true, op: 'copy'});
+        const other = target({type: 'workspace', workspace: ws('ws2')});
+        expect(verdict(assetsPayload([a1]), other)).toEqual({
+            ok: true,
+            op: 'copy',
+        });
+        expect(verdict(assetsPayload([a1]), other, {ctrl: true})).toEqual({
+            ok: true,
+            op: 'copy',
+        });
         expect(
             verdict(
                 assetsPayload([a1]),

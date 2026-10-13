@@ -108,6 +108,21 @@ describe('executeDrop assets', () => {
         expect(d.confirm).not.toHaveBeenCalled();
     });
 
+    it('moves to the root of the assets own workspace', async () => {
+        const {deps: d, reloadResults} = deps();
+        const ok = await executeDrop(
+            payload(asset('a')),
+            {type: 'workspace', workspace: {id: 'ws1', name: 'W'} as Workspace},
+            'move',
+            d
+        );
+        expect(ok).toBe(true);
+        expect(api.moveAssets).toHaveBeenCalledWith(['a'], '/workspaces/ws1');
+        expect(api.copyAssets).not.toHaveBeenCalled();
+        expect(d.confirm).not.toHaveBeenCalled();
+        expect(reloadResults).toHaveBeenCalled();
+    });
+
     it('confirms a duplication into another workspace', async () => {
         const refused = deps(false);
         expect(
