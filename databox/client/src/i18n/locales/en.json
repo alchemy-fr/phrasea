@@ -1000,6 +1000,7 @@
     "share.assets_count_other": "{{count}} assets",
     "share.assets.copy": "Copy URL",
     "share.assets.remove": "Remove from this link",
+    "share.assets.removed": "Asset removed from the link",
     "share.attachments.file": "File",
     "share.attachments.title": "Attached files",
     "share.copied": "Link copied to clipboard",

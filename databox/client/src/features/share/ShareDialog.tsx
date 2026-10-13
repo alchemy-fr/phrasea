@@ -8,7 +8,6 @@ import {
     CodeIcon,
     CopyIcon,
     ExternalLinkIcon,
-    ImageIcon,
     PencilIcon,
     PlusIcon,
     XIcon,
@@ -31,6 +30,8 @@ import {Input, FormRow} from '@/components/ui/input';
 import {InlineLoader} from '@/components/ui/loader';
 import {CopyButton} from '@/components/ui/copy-button';
 import {Badge} from '@/components/ui/misc';
+import {Tooltip} from '@/components/ui/overlays';
+import {FileKindIcon} from '@/components/chips';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -197,24 +198,41 @@ export function ShareDialog({
             id: string;
             data: Parameters<typeof updateShare>[1];
         }) => updateShare(id, data),
-        // A link that no longer holds the selected assets leaves the list
+        // A link only stays listed while it holds the selected assets
         onSuccess: share =>
-            setShares(prev =>
-                shareIncludes(share, assetIds)
+            setShares(prev => {
+                const others = prev.filter(s => s.id !== share.id);
+                if (!shareIncludes(share, assetIds)) {
+                    return others;
+                }
+
+                return prev.some(s => s.id === share.id)
                     ? prev.map(s => (s.id === share.id ? share : s))
-                    : prev.filter(s => s.id !== share.id)
-            ),
+                    : [...others, share];
+            }),
         onError: (e: unknown) => toastError(e),
     });
-    const removeAsset = (share: Share, assetId: string) =>
+    const setAssets = (share: Share, ids: string[]) =>
         update.mutateAsync({
             id: share.id,
-            data: {
-                assets: share.assets
-                    .filter(a => a.id !== assetId)
-                    .map(a => `/${EntityName.Asset}/${a.id}`),
-            },
+            data: {assets: ids.map(id => `/${EntityName.Asset}/${id}`)},
         });
+    const removeAsset = async (share: Share, assetId: string) => {
+        const previous = share.assets.map(a => a.id);
+        await setAssets(
+            share,
+            previous.filter(id => id !== assetId)
+        );
+        toast.success(
+            t('share.assets.removed', 'Asset removed from the link'),
+            {
+                action: {
+                    label: t('common.undo', 'Undo'),
+                    onClick: () => setAssets(share, previous),
+                },
+            }
+        );
+    };
     const revoke = useMutation({
         mutationFn: (id: string) => deleteShare(id),
         onSuccess: (_d, id) => setShares(prev => prev.filter(s => s.id !== id)),
@@ -322,45 +340,6 @@ export function ShareDialog({
             ) : null}
             {advancedMode && shares.isSuccess ? (
                 <>
-                    <ul className="space-y-2">
-                        {list.map(s => (
-                            <ShareItem
-                                key={s.id}
-                                share={s}
-                                single={single}
-                                definitions={shareable}
-                                onEmbed={() =>
-                                    openModal(EmbedDialog, {share: s, assets})
-                                }
-                                onRevoke={() => revoke.mutate(s.id)}
-                                revoking={
-                                    revoke.isPending &&
-                                    revoke.variables === s.id
-                                }
-                                onSave={values =>
-                                    update.mutateAsync({
-                                        id: s.id,
-                                        data: {
-                                            name: values.name.trim() || null,
-                                            startsAt: fromInputDateTime(
-                                                values.startsAt
-                                            ),
-                                            expiresAt: fromInputDateTime(
-                                                values.expiresAt
-                                            ),
-                                        },
-                                    })
-                                }
-                                onRemoveAsset={assetId =>
-                                    removeAsset(s, assetId)
-                                }
-                                removing={
-                                    update.isPending &&
-                                    update.variables?.id === s.id
-                                }
-                            />
-                        ))}
-                    </ul>
                     {creating ? (
                         <div className="space-y-3 rounded-md border border-dashed p-3">
                             <ShareFields
@@ -470,6 +449,45 @@ export function ShareDialog({
                             {t('share.create.button', 'Create new share link')}
                         </Button>
                     )}
+                    <ul className="space-y-2">
+                        {list.map(s => (
+                            <ShareItem
+                                key={s.id}
+                                share={s}
+                                single={single}
+                                definitions={shareable}
+                                onEmbed={() =>
+                                    openModal(EmbedDialog, {share: s, assets})
+                                }
+                                onRevoke={() => revoke.mutate(s.id)}
+                                revoking={
+                                    revoke.isPending &&
+                                    revoke.variables === s.id
+                                }
+                                onSave={values =>
+                                    update.mutateAsync({
+                                        id: s.id,
+                                        data: {
+                                            name: values.name.trim() || null,
+                                            startsAt: fromInputDateTime(
+                                                values.startsAt
+                                            ),
+                                            expiresAt: fromInputDateTime(
+                                                values.expiresAt
+                                            ),
+                                        },
+                                    })
+                                }
+                                onRemoveAsset={assetId =>
+                                    removeAsset(s, assetId)
+                                }
+                                removing={
+                                    update.isPending &&
+                                    update.variables?.id === s.id
+                                }
+                            />
+                        ))}
+                    </ul>
                 </>
             ) : null}
         </FormDialog>
@@ -764,10 +782,18 @@ function ShareAssets({
     };
 
     return (
-        <ul data-testid="share-assets" className="mt-2 space-y-1">
+        <ul
+            data-testid="share-assets"
+            className="mt-2 max-h-[200px] space-y-1 overflow-y-auto"
+        >
             {assets.map(asset => {
                 const renditions = renditionsOf(share, asset.id);
-                const thumb = asset.thumbnail?.file?.url;
+                const file = asset.thumbnail?.file;
+                const type = file?.type || asset.source?.type;
+                const thumb =
+                    file?.url && type?.startsWith('image/')
+                        ? file.url
+                        : undefined;
 
                 return (
                     <li
@@ -784,7 +810,10 @@ function ShareAssets({
                                     className="size-full object-cover"
                                 />
                             ) : (
-                                <ImageIcon className="size-4 text-muted-foreground" />
+                                <FileKindIcon
+                                    mimeType={type}
+                                    className="size-5"
+                                />
                             )}
                         </span>
                         <span className="min-w-0 flex-1 truncate text-sm">
@@ -814,20 +843,27 @@ function ShareAssets({
                                 ))}
                             </DropdownMenuContent>
                         </DropdownMenu>
-                        <Button
-                            variant="ghost"
-                            size="icon-xs"
-                            className="text-destructive"
-                            disabled={removing}
-                            onClick={() => onRemove(asset.id)}
-                            aria-label={t(
+                        <Tooltip
+                            content={t(
                                 'share.assets.remove',
                                 'Remove from this link'
                             )}
-                            data-testid="share-asset-remove"
                         >
-                            <XIcon />
-                        </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon-xs"
+                                className="text-destructive"
+                                disabled={removing}
+                                onClick={() => onRemove(asset.id)}
+                                aria-label={t(
+                                    'share.assets.remove',
+                                    'Remove from this link'
+                                )}
+                                data-testid="share-asset-remove"
+                            >
+                                <XIcon />
+                            </Button>
+                        </Tooltip>
                     </li>
                 );
             })}

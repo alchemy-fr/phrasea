@@ -294,6 +294,26 @@ describe('Share', () => {
             cy.getBySel('share-assets-count').should('have.text', '1 asset');
             cy.getBySel('share-asset-row').should('not.exist');
         });
+
+        // The removal is undone from its toast (shown for 5 s), then done again.
+        // Sonner re-renders the toast while it settles: a Cypress click retries
+        // on the detached button, so the click is dispatched natively at once.
+        cy.contains('[data-sonner-toast] button', 'Undo', {
+            timeout: 10000,
+        }).then($undo => {
+            $undo[0].click();
+        });
+        cy.dialog().within(() => {
+            cy.getBySel('share-assets-count').should('have.text', '2 assets');
+            cy.getBySel('share-asset-row').should('have.length', 2);
+            cy.getBySel('share-asset-row')
+                .contains('Alpha')
+                .closest('[data-testid=share-asset-row]')
+                .findBySel('share-asset-remove')
+                .click();
+            cy.getBySel('share-assets-count').should('have.text', '1 asset');
+            cy.getBySel('share-asset-row').should('not.exist');
+        });
         cy.get('body').type('{esc}');
 
         // The public page only delivers the remaining asset, under the new name

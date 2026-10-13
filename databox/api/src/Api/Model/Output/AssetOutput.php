@@ -106,6 +106,7 @@ class AssetOutput extends AbstractUuidOutput
      */
     #[Groups([
         Asset::GROUP_LIST,
+        Share::GROUP_READ,
         Share::GROUP_PUBLIC_READ,
     ])]
     private ?File $source = null;

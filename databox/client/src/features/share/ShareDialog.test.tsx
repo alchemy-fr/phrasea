@@ -23,6 +23,11 @@ const api = vi.hoisted(() => ({
     deleteShare: vi.fn(),
 }));
 vi.mock('@/lib/api/misc', () => api);
+const toasts = vi.hoisted(() => ({
+    success: vi.fn(),
+    error: vi.fn(),
+}));
+vi.mock('sonner', () => ({toast: toasts}));
 const misc = vi.hoisted(() => ({
     copyToClipboard: vi.fn(() => Promise.resolve()),
 }));
@@ -44,8 +49,12 @@ const asset = {
     workspace: {id: 'w1'},
 } as unknown as Asset;
 const otherAssets = [
-    {id: 'a2', name: 'Bravo', thumbnail: {file: {url: 'https://cdn/a2.jpg'}}},
-    {id: 'a3', name: 'Charlie'},
+    {
+        id: 'a2',
+        name: 'Bravo',
+        thumbnail: {file: {url: 'https://cdn/a2.jpg', type: 'image/jpeg'}},
+    },
+    {id: 'a3', name: 'Charlie', source: {type: 'application/pdf'}},
 ] as unknown as Asset[];
 
 /** Opens a Radix dropdown menu from its trigger (keyboard, jsdom has no pointer events) */
@@ -145,7 +154,13 @@ describe('ShareDialog', () => {
         expect(restricted.textContent).not.toContain('Thumbnail');
         expect(screen.getAllByTestId('share-renditions')).toHaveLength(1);
 
-        fireEvent.click(screen.getByText('Create new share link'));
+        // The new-link form comes before the existing links
+        const createButton = screen.getByText('Create new share link');
+        expect(
+            createButton.compareDocumentPosition(restricted) &
+                Node.DOCUMENT_POSITION_FOLLOWING
+        ).toBeTruthy();
+        fireEvent.click(createButton);
         const list = await screen.findByTestId('share-create-renditions');
         const boxes = list.querySelectorAll('button[role="checkbox"]');
         expect(boxes).toHaveLength(2);
@@ -301,11 +316,39 @@ describe('ShareDialog', () => {
         );
         expect(within(item).getAllByTestId('share-asset-row')).toHaveLength(2);
 
+        // The removal can be undone from the toast
+        await waitFor(() =>
+            expect(toasts.success).toHaveBeenCalledWith(
+                'Asset removed from the link',
+                expect.anything()
+            )
+        );
+        // The "Link copied" toast of the copy above comes first
+        toasts.success.mock.calls
+            .find(c => c[0] === 'Asset removed from the link')![1]
+            .action.onClick();
+        await waitFor(() =>
+            expect(api.updateShare).toHaveBeenLastCalledWith('g', {
+                assets: ['/assets/a1', '/assets/a2', '/assets/a3'],
+            })
+        );
+        await waitFor(() =>
+            expect(
+                within(item).getByTestId('share-assets-count').textContent
+            ).toBe('3 assets')
+        );
+        // A non-image asset shows the icon of its kind
+        expect(
+            within(item)
+                .getAllByTestId('share-asset-row')[2]
+                .querySelector('img')
+        ).toBeNull();
+
         // …and drops it once the selected asset is removed
         fireEvent.click(within(item).getAllByTestId('share-asset-remove')[0]);
         await waitFor(() =>
             expect(api.updateShare).toHaveBeenLastCalledWith('g', {
-                assets: ['/assets/a2'],
+                assets: ['/assets/a2', '/assets/a3'],
             })
         );
         await waitFor(() =>
