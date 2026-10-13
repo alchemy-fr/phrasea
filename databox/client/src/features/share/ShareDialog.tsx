@@ -610,18 +610,24 @@ function ShareItem({
                         : ''}
                 </div>
             ) : null}
-            {share.renditionDefinitions?.length ? (
+            {share.renditionsRestricted ? (
                 <div
                     data-testid="share-renditions"
                     className="mb-1 flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
                 >
                     {t('share.item.renditions', 'Shared renditions')}
-                    {share.renditionDefinitions.map(d => (
-                        <Badge key={d.id} variant="muted">
-                            {definitions.find(def => def.id === d.id)
-                                ?.displayName ?? d.id}
+                    {share.renditionDefinitions?.length ? (
+                        share.renditionDefinitions.map(d => (
+                            <Badge key={d.id} variant="muted">
+                                {definitions.find(def => def.id === d.id)
+                                    ?.displayName ?? d.id}
+                            </Badge>
+                        ))
+                    ) : (
+                        <Badge variant="muted">
+                            {t('share.item.renditions_none', 'None')}
                         </Badge>
-                    ))}
+                    )}
                 </div>
             ) : null}
             <ShareLink share={share} single={single} />

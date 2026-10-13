@@ -150,7 +150,7 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     /**
      * The renditions the link delivers, as rendition definitions. Empty: every
      * rendition of a public policy (the policy stays the ceiling either way,
-     * see ShareReadProvider::isRenditionShared()).
+     * see ShareReadProvider::isRenditionShared()), unless $renditionsRestricted.
      *
      * @var DoctrineCollection<int, RenditionDefinition>
      */
@@ -160,6 +160,16 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     #[ORM\InverseJoinColumn(onDelete: 'CASCADE')]
     #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private DoctrineCollection $renditionDefinitions;
+
+    /**
+     * Whether the link only delivers its $renditionDefinitions. Set by their
+     * adder and remover, never by the database: the selection may lose its
+     * definitions to an ON DELETE CASCADE, the link then delivers less, never
+     * every rendition.
+     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => false])]
+    #[Groups([self::GROUP_READ])]
+    private bool $renditionsRestricted = false;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
@@ -259,11 +269,18 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
         if (!$this->renditionDefinitions->contains($definition)) {
             $this->renditionDefinitions->add($definition);
         }
+        $this->renditionsRestricted = true;
     }
 
     public function removeRenditionDefinition(RenditionDefinition $definition): void
     {
         $this->renditionDefinitions->removeElement($definition);
+        $this->renditionsRestricted = !$this->renditionDefinitions->isEmpty();
+    }
+
+    public function isRenditionsRestricted(): bool
+    {
+        return $this->renditionsRestricted;
     }
 
     /**
@@ -272,7 +289,7 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
      */
     public function isRenditionDefinitionShared(RenditionDefinition $definition): bool
     {
-        return $this->renditionDefinitions->isEmpty() || $this->renditionDefinitions->contains($definition);
+        return !$this->renditionsRestricted || $this->renditionDefinitions->contains($definition);
     }
 
     public function getWorkspace(): ?Workspace

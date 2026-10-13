@@ -98,6 +98,7 @@ final class ShareApiTest extends AbstractDataboxTestCase
             $this->createRendition($this->asset, $definitions[$name], $file);
         }
         $definitions['thumbnail']->setUseAsThumbnail(true);
+        $definitions['preview']->setUseAsPreview(true);
         self::getEntityManager()->flush();
 
         // Without a selection: every rendition of a public policy
@@ -106,6 +107,7 @@ final class ShareApiTest extends AbstractDataboxTestCase
         ]))->toArray();
         $this->assertResponseStatusCodeSame(201);
         $this->assertSame([], $data['renditionDefinitions']);
+        $this->assertFalse($data['renditionsRestricted']);
         $this->assertEqualsCanonicalizing(['preview', 'thumbnail'], array_column($data['alternateUrls'], 'name'));
 
         $response = $client->request('POST', '/shares', self::auth(self::USER, [
@@ -117,12 +119,16 @@ final class ShareApiTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(201);
         $data = $response->toArray();
         $this->assertCount(1, $data['renditionDefinitions']);
+        $this->assertTrue($data['renditionsRestricted']);
         $this->assertSame(['thumbnail'], array_column($data['alternateUrls'], 'name'));
         // The sharer manages the assets of the link from their thumbnails
         $this->assertNotNull($data['assets'][0]['thumbnail']['file']['url'] ?? null, 'The thumbnail of a shared asset is listed');
 
         $public = $client->request('GET', sprintf('/shares/%s/public?token=%s', $data['id'], $data['token']))->toArray();
         $this->assertSame(['thumbnail'], array_column($public['alternateUrls'], 'name'));
+        // The renditions embedded in the shared assets follow the selection too
+        $this->assertNotNull($public['assets'][0]['thumbnail']['file']['url'] ?? null);
+        $this->assertNull($public['assets'][0]['preview'] ?? null, 'An unselected rendition is never embedded');
 
         // The rendition route follows the selection too
         $renditionUrl = fn (string $definitionId): string => sprintf('/s/%s/r/%s?token=%s&asset=%s', $data['id'], $definitionId, $data['token'], $this->asset->getId());
@@ -137,6 +143,44 @@ final class ShareApiTest extends AbstractDataboxTestCase
         ]));
         $this->assertResponseIsSuccessful();
         $this->assertSame(['preview'], array_column($response->toArray()['alternateUrls'], 'name'));
+
+        // ...and cleared: every rendition of a public policy again
+        $response = $client->request('PATCH', '/shares/'.$data['id'], self::patchOptions(self::USER, [
+            'json' => ['renditionDefinitions' => []],
+        ]));
+        $this->assertResponseIsSuccessful();
+        $this->assertFalse($response->toArray()['renditionsRestricted']);
+        $this->assertEqualsCanonicalizing(['preview', 'thumbnail'], array_column($response->toArray()['alternateUrls'], 'name'));
+    }
+
+    public function testDeletedSelectedRenditionsNeverWidenTheShare(): void
+    {
+        $client = static::createClient();
+        $this->setUpWorkspace();
+        $file = $this->createUrlFile($this->workspace, 'https://example.org/foo.jpg');
+        $definitions = [];
+        foreach (['preview', 'thumbnail'] as $name) {
+            $definitions[$name] = $this->createRenditionDefinition($this->workspace, $name, true);
+            $this->createRendition($this->asset, $definitions[$name], $file);
+        }
+
+        $data = $client->request('POST', '/shares', self::auth(self::USER, [
+            'json' => [
+                'assets' => [self::assetIri($this->asset)],
+                'renditionDefinitions' => ['/rendition-definitions/'.$definitions['thumbnail']->getId()],
+            ],
+        ]))->toArray();
+        $this->assertResponseStatusCodeSame(201);
+
+        // What the ON DELETE CASCADE of a deleted rendition definition leaves
+        $em = self::getEntityManager();
+        $em->getConnection()->executeStatement('DELETE FROM share_rendition_definition WHERE share_id = ?', [$data['id']]);
+        $em->clear();
+
+        $public = $client->request('GET', sprintf('/shares/%s/public?token=%s', $data['id'], $data['token']))->toArray();
+        $this->assertSame([], $public['alternateUrls'], 'The link delivers nothing rather than every rendition');
+        $client->request('GET', sprintf('/s/%s/r/%s?token=%s&asset=%s', $data['id'], $definitions['preview']->getId(), $data['token'], $this->asset->getId()));
+        $this->assertResponseStatusCodeSame(404);
     }
 
     public function testSelectedRenditionsMustBeShareable(): void

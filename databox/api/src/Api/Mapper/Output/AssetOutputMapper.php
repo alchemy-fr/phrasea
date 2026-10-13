@@ -27,6 +27,7 @@ use App\Repository\Core\AssetRenditionRepository;
 use App\Security\ClientUrlHelper;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
+use App\Serializer\Normalizer\ShareNormalizer;
 use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\Attribute\AttributesResolver;
@@ -152,8 +153,10 @@ class AssetOutputMapper implements OutputMapperInterface
 
             // A share link is opened with its token by viewers who may not read the asset
             $sharedPublicly = $this->hasGroup(Share::GROUP_PUBLIC_READ, $context);
+            $shareId = $sharedPublicly ? $context[ShareNormalizer::CONTEXT_SHARE_ID] ?? null : null;
+            $share = null !== $shareId ? $this->em->find(Share::class, $shareId) : null;
             foreach (RenditionDefinition::BUILT_IN_RENDITIONS as $type) {
-                if (null !== $file = $this->getRenditionUsedAsType($renditions, $type, $sharedPublicly)) {
+                if (null !== $file = $this->getRenditionUsedAsType($renditions, $type, $sharedPublicly, $share)) {
                     $output->{'set'.ucfirst($type)}($file);
                 }
             }
@@ -221,16 +224,21 @@ class AssetOutputMapper implements OutputMapperInterface
 
     /**
      * @param AssetRendition[] $assetRenditions
+     * @param Share|null       $share           The link the asset is shared publicly from; unknown: no rendition at all
      */
     private function getRenditionUsedAsType(
         array $assetRenditions,
         string $type,
         bool $sharedPublicly,
+        ?Share $share,
     ): ?AssetRendition {
         foreach ($assetRenditions as $rendition) {
             if ($rendition->getDefinition()?->{'isUseAs'.ucfirst($type)}()) {
                 // Return the first viewable sub def for user (or for the share link)
-                if ($sharedPublicly ? ShareReadProvider::isRenditionShared($rendition) : $this->isGranted(AbstractVoter::READ, $rendition)) {
+                $viewable = $sharedPublicly
+                    ? null !== $share && ShareReadProvider::isRenditionShared($share, $rendition)
+                    : $this->isGranted(AbstractVoter::READ, $rendition);
+                if ($viewable) {
                     return $rendition;
                 }
             }

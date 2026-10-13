@@ -1028,6 +1028,7 @@
     "share.embed_preview": "Preview",
     "share.expires_at": "until",
     "share.item.renditions": "Shared renditions",
+    "share.item.renditions_none": "None",
     "share.mixed_workspaces": "Assets of different workspaces cannot be shared together",
     "share.not_found": "This link is not valid or has expired",
     "share.page.title_one": "{{count}} shared asset",

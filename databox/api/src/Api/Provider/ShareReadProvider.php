@@ -91,7 +91,7 @@ final class ShareReadProvider implements ProviderInterface
 
         foreach ($renditions as $rendition) {
             $definition = $rendition->getDefinition();
-            if (null !== $definition && self::isRenditionShared($rendition) && $item->isRenditionDefinitionShared($definition)) {
+            if (null !== $definition && self::isRenditionShared($item, $rendition)) {
                 $file = $rendition->getFile();
                 $item->alternateUrls[] = new ShareAlternateUrlOutput(
                     $definition->getName(),
@@ -113,13 +113,18 @@ final class ShareReadProvider implements ProviderInterface
     }
 
     /**
-     * Whether a share link exposes this rendition. A link is opened anonymously
-     * with its token: the rule must only depend on the rendition definition,
-     * never on the rights of the current user.
+     * Whether a share link exposes this rendition: a definition of a public
+     * policy, in the selection of the link if any. A link is opened anonymously
+     * with its token: the rule must only depend on the share and the rendition
+     * definition, never on the rights of the current user.
      */
-    public static function isRenditionShared(AssetRendition $rendition): bool
+    public static function isRenditionShared(Share $share, AssetRendition $rendition): bool
     {
-        return true === $rendition->getDefinition()?->getPolicy()?->isPublic();
+        $definition = $rendition->getDefinition();
+
+        return null !== $definition
+            && true === $definition->getPolicy()?->isPublic()
+            && $share->isRenditionDefinitionShared($definition);
     }
 
     private function provideAssetAttachments(Share $item, Asset $asset): void

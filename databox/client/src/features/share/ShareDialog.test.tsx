@@ -137,13 +137,17 @@ describe('ShareDialog', () => {
                     renditionDefinitions: (
                         data.renditionDefinitionIds as string[] | undefined
                     )?.map(id => ({id})),
+                    renditionsRestricted: !!data.renditionDefinitionIds,
                 })
         );
     });
 
     it('offers the renditions of a public policy, all shared by default', async () => {
         api.getAssetShares.mockResolvedValue([
-            share('s1', {renditionDefinitions: [{id: 'd1'}]}),
+            share('s1', {
+                renditionDefinitions: [{id: 'd1'}],
+                renditionsRestricted: true,
+            }),
             share('s2'),
         ]);
         renderDialog();
@@ -177,9 +181,24 @@ describe('ShareDialog', () => {
         ).toBeUndefined();
     });
 
+    it('shows a restricted link whose renditions were all deleted', async () => {
+        api.getAssetShares.mockResolvedValue([
+            share('s1', {renditionDefinitions: [], renditionsRestricted: true}),
+            share('s2', {renditionDefinitions: []}),
+        ]);
+        renderDialog();
+
+        const restricted = await screen.findByTestId('share-renditions');
+        expect(restricted.textContent).toContain('None');
+        expect(screen.getAllByTestId('share-renditions')).toHaveLength(1);
+    });
+
     it('sends the checked renditions and requires at least one', async () => {
         api.getAssetShares.mockResolvedValue([
-            share('s1', {renditionDefinitions: [{id: 'd1'}]}),
+            share('s1', {
+                renditionDefinitions: [{id: 'd1'}],
+                renditionsRestricted: true,
+            }),
             share('s2'),
         ]);
         renderDialog();

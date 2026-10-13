@@ -1028,6 +1028,7 @@
     "share.embed_preview": "Aperçu",
     "share.expires_at": "jusqu'au",
     "share.item.renditions": "Rendus partagés",
+    "share.item.renditions_none": "Aucun",
     "share.mixed_workspaces": "Des assets de workspaces différents ne peuvent pas être partagés ensemble",
     "share.not_found": "Ce lien n'est pas valide ou a expiré",
     "share.page.title_one": "{{count}} asset partagé",

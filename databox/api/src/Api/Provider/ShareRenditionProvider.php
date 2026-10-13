@@ -73,14 +73,8 @@ final class ShareRenditionProvider implements ProviderInterface
             'createdAt' => 'DESC',
         ]);
 
-        // Same rules as the share's alternateUrls: only public policies are
-        // exposed, narrowed down to the renditions the share selected
-        $definition = $rendition?->getDefinition();
-        if (null === $rendition
-            || null === $definition
-            || !ShareReadProvider::isRenditionShared($rendition)
-            || !$item->isRenditionDefinitionShared($definition)
-        ) {
+        // Same rule as the share's alternateUrls
+        if (null === $rendition || !ShareReadProvider::isRenditionShared($item, $rendition)) {
             return $this->createNotFoundResponse();
         }
 
