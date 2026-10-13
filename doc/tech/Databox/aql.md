@@ -10,7 +10,7 @@ title STARTS WITH "Report" AND (@tag HAS ALL OF ("a", "b") OR description IS EMP
 
 A condition is `field operator [value]`. Conditions are combined with `AND`, `OR`,
 `NOT` and parentheses. A field is an attribute slug (`title`) or a built-in attribute
-(`@tag`, `@collection`, `@createdAt`…). Values are quoted strings, numbers, `true`,
+(`@tag`, `@collection`, `@createdAt`…). Values are quoted strings, numbers (`-74.006`), `true`,
 `false`, `null`, other fields, function calls (`NOW()`, `DATE_SUB(NOW(), "P7D")`…) or
 arithmetic expressions.
 
@@ -52,6 +52,9 @@ Notes:
   matches the whole month.
 - After `IS`, the words `EMPTY`, `MISSING`, `ANY`, `NONE` and `NOT` are keywords and
   cannot be used as field names.
+- The radius of `WITHIN CIRCLE` is a number of meters or an Elasticsearch distance
+  string: `location WITHIN CIRCLE (48.85, 2.35, "1500m")`. `WITHIN RECTANGLE` takes the
+  top-left then the bottom-right corner.
 
 ## Builder labels
 

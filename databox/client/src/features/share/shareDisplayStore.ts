@@ -1,8 +1,11 @@
 import {create} from 'zustand';
 import type {LayoutMode} from '@/features/preferences/store';
 
+/** A share has no search to place on a map */
+export type ShareLayoutMode = Exclude<LayoutMode, 'map'>;
+
 type ShareDisplay = {
-    layout: LayoutMode;
+    layout: ShareLayoutMode;
     thumbSize: number;
 };
 

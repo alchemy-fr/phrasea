@@ -463,18 +463,29 @@ App\Entity\Core\Attribute:
 
     at_city_{@a_*} (extends attribute_n):
         definition: '@ad_city'
-        asset: '@a_*'
-        value: '<city()>'
+        asset: <current()>
+        value: '<geoPlaceCity(<current()>)>'
 
     at_country_{@a_*} (extends attribute_n):
         definition: '@ad_country'
-        asset: '@a_*'
-        value: '<country()>'
+        asset: <current()>
+        value: '<geoPlaceCountry(<current()>)>'
 
-    at_location_{@a_*} (extends attribute_n):
+    # Images and videos only, so that the map shows assets without location
+    at_location_img_{@a_img*} (extends attribute_n):
         definition: '@ad_location'
-        asset: '@a_*'
-        value: '<numberBetween(-48, 48)> <numberBetween(-20, 20)>'
+        asset: <current()>
+        value: '<geoPlaceLocation(<current()>)>'
+
+    at_location_video_{@a_video*} (extends attribute_n):
+        definition: '@ad_location'
+        asset: <current()>
+        value: '<geoPlaceLocation(<current()>)>'
+
+    at_location_story_img_{@storya_img*} (extends attribute_n):
+        definition: '@ad_location'
+        asset: <current()>
+        value: '<geoPlaceLocation(<current()>)>'
 
     at_duration_{@a_*} (extends attribute_n):
         definition: '@ad_duration'

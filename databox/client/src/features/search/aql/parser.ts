@@ -52,6 +52,20 @@ type Token = {type: TokenType; value: string; pos: number; extra?: AQLEntity};
 
 const PUNCT = new Set(['(', ')', ',', '+', '-', '*', '/']);
 
+function endsWithValue(tokens: Token[]): boolean {
+    const prev = tokens[tokens.length - 1];
+
+    return (
+        !!prev &&
+        (prev.type === 'number' ||
+            prev.type === 'string' ||
+            prev.type === 'identifier' ||
+            prev.type === 'builtin' ||
+            prev.type === 'entity' ||
+            (prev.type === 'punct' && prev.value === ')'))
+    );
+}
+
 function tokenize(input: string): Token[] {
     const tokens: Token[] = [];
     let i = 0;
@@ -81,7 +95,13 @@ function tokenize(input: string): Token[] {
             i++;
             continue;
         }
-        if (PUNCT.has(c)) {
+        // a '-' directly followed by a digit and not preceded by a value
+        // signs a number (binary minus otherwise)
+        const negativeNumber =
+            c === '-' &&
+            /\d/.test(input[i + 1] ?? '') &&
+            !endsWithValue(tokens);
+        if (PUNCT.has(c) && !negativeNumber) {
             tokens.push({type: 'punct', value: c, pos});
             i++;
             continue;
@@ -147,23 +167,7 @@ function tokenize(input: string): Token[] {
         }
         // number
         const num = /^-?\d+(\.\d+)?/.exec(input.slice(i));
-        if (num && (c !== '-' || /\d/.test(input[i + 1] ?? ''))) {
-            // a leading '-' is only part of the number when directly followed by a digit
-            // and not preceded by a value (handled by the parser as binary minus otherwise)
-            const prev = tokens[tokens.length - 1];
-            const prevIsValue =
-                prev &&
-                (prev.type === 'number' ||
-                    prev.type === 'string' ||
-                    prev.type === 'identifier' ||
-                    prev.type === 'builtin' ||
-                    prev.type === 'entity' ||
-                    (prev.type === 'punct' && prev.value === ')'));
-            if (c === '-' && prevIsValue) {
-                tokens.push({type: 'punct', value: '-', pos});
-                i++;
-                continue;
-            }
+        if (num) {
             tokens.push({type: 'number', value: num[0], pos});
             i += num[0].length;
             continue;

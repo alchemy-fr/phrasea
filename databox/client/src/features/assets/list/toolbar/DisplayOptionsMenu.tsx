@@ -6,6 +6,7 @@ import {
     LayoutDashboardIcon,
     LayoutGridIcon,
     ListIcon,
+    MapIcon,
     ScanIcon,
     SlidersHorizontalIcon,
 } from 'lucide-react';
@@ -23,17 +24,25 @@ import {
     useDisplayPreferences,
     usePreferencesStore,
 } from '@/features/preferences/store';
+import {useConfig} from '@/lib/config/ConfigProvider';
 
 /** at most one save of the display preferences per interval while sliding */
 const sliderSaveInterval = 1000;
 
 export function DisplayOptionsMenu({
     prefKey = 'display',
+    allowMap = false,
 }: {
     prefKey?: 'display' | 'displayBatchEdit';
+    /** Offer the map layout: only search results can be placed on a map */
+    allowMap?: boolean;
 }) {
     const {t} = useTranslation();
     const display = useDisplayPreferences(prefKey);
+    const mapbox = useConfig().mapbox;
+    const withMap = allowMap && !!mapbox;
+    const layout =
+        display.layout === 'map' && !withMap ? 'grid' : display.layout;
     const updatePreference = usePreferencesStore(s => s.updatePreference);
 
     /** `throttle`: sliders, whose values change continuously while dragged */
@@ -70,7 +79,7 @@ export function DisplayOptionsMenu({
                         {t('display.layout', 'Layout')}
                     </Label>
                     <Tabs
-                        value={display.layout}
+                        value={layout}
                         onValueChange={v =>
                             patch({layout: v as DisplayPreferences['layout']})
                         }
@@ -86,26 +95,37 @@ export function DisplayOptionsMenu({
                             <TabsTrigger value="list">
                                 <ListIcon /> {t('display.list', 'List')}
                             </TabsTrigger>
+                            {withMap ? (
+                                <TabsTrigger
+                                    value="map"
+                                    data-testid="layout-map"
+                                >
+                                    <MapIcon /> {t('display.map', 'Map')}
+                                </TabsTrigger>
+                            ) : null}
                         </TabsList>
                     </Tabs>
                 </div>
-                <div>
-                    <Label className="mb-2 justify-between">
-                        {t('display.thumb_size', 'Thumbnail size')}
-                        <span className="text-xs text-muted-foreground">
-                            {display.thumbSize}px
-                        </span>
-                    </Label>
-                    <Slider
-                        min={60}
-                        max={400}
-                        step={10}
-                        value={[display.thumbSize]}
-                        onValueChange={([v]) => patch({thumbSize: v}, true)}
-                    />
-                </div>
-                {/* A masonry thumbnail keeps its own ratio: nothing to fit */}
-                {display.layout !== 'masonry' ? (
+                {layout !== 'map' ? (
+                    <div>
+                        <Label className="mb-2 justify-between">
+                            {t('display.thumb_size', 'Thumbnail size')}
+                            <span className="text-xs text-muted-foreground">
+                                {display.thumbSize}px
+                            </span>
+                        </Label>
+                        <Slider
+                            min={60}
+                            max={400}
+                            step={10}
+                            value={[display.thumbSize]}
+                            onValueChange={([v]) => patch({thumbSize: v}, true)}
+                        />
+                    </div>
+                ) : null}
+                {/* A masonry thumbnail keeps its own ratio, a map shows no
+                thumbnail grid: nothing to fit */}
+                {layout !== 'masonry' && layout !== 'map' ? (
                     <div>
                         <Label className="mb-2">
                             {t('display.thumb_fit', 'Thumbnail fit')}

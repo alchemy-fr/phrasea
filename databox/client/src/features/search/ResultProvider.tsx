@@ -37,6 +37,8 @@ export type ResultContextValue = {
     reload: () => Promise<void>;
     /** increments at every new search (used to reset selection / scroll) */
     searchGeneration: number;
+    /** The options of the current search, for other requests on the same assets */
+    searchOptions: SearchAssetsOptions;
 };
 
 const ResultContext = createContext<ResultContextValue | null>(null);
@@ -82,6 +84,30 @@ export function ResultProvider({
         [extraOptionsKey]
     );
 
+    const searchOptions = useMemo<SearchAssetsOptions>(() => {
+        const order: Record<string, 'asc' | 'desc'> = {};
+        const sortBy = resolveSortBy(search.sortBy);
+        sortBy.forEach(s => {
+            order[s.a] = s.w === 1 ? 'desc' : 'asc';
+        });
+        const group = sortBy.filter(s => s.g).map(s => s.a);
+
+        return {
+            query: search.query,
+            conditions: search.conditions
+                .filter(c => !c.disabled)
+                .map(conditionQuery),
+            order,
+            group: group.length > 0 ? group.slice(0, 1) : undefined,
+            savedSearch,
+            context: search.geolocation
+                ? {position: search.geolocation}
+                : undefined,
+            ...stableExtraOptions,
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [search.checksum, search.geolocation, savedSearch, stableExtraOptions]);
+
     const run = useCallback(
         async (nextUrl?: string) => {
             controller.current?.abort();
@@ -96,29 +122,10 @@ export function ResultProvider({
             }));
 
             const checksum = search.checksum;
-            const order: Record<string, 'asc' | 'desc'> = {};
-            const sortBy = resolveSortBy(search.sortBy);
-            sortBy.forEach(s => {
-                order[s.a] = s.w === 1 ? 'desc' : 'asc';
-            });
-            const group = sortBy.filter(s => s.g).map(s => s.a);
 
             try {
                 const result = await searchAssets(
-                    {
-                        url: nextUrl,
-                        query: search.query,
-                        conditions: search.conditions
-                            .filter(c => !c.disabled)
-                            .map(conditionQuery),
-                        order,
-                        group: group.length > 0 ? group.slice(0, 1) : undefined,
-                        savedSearch,
-                        context: search.geolocation
-                            ? {position: search.geolocation}
-                            : undefined,
-                        ...stableExtraOptions,
-                    },
+                    {url: nextUrl, ...searchOptions},
                     ctrl.signal
                 );
                 if (ctrl.signal.aborted) {
@@ -150,14 +157,7 @@ export function ResultProvider({
                 }));
             }
         },
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [
-            search.checksum,
-            search.geolocation,
-            savedSearch,
-            storeAssets,
-            stableExtraOptions,
-        ]
+        [search.checksum, searchOptions, storeAssets]
     );
 
     useEffect(() => {
@@ -184,8 +184,9 @@ export function ResultProvider({
             },
             reload: () => run(),
             searchGeneration: state.generation,
+            searchOptions,
         }),
-        [state, run]
+        [state, run, searchOptions]
     );
 
     return (

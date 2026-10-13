@@ -54,6 +54,10 @@ export type AppConfig = {
     };
     upload: UploadConfig;
     ticketing: TicketingConfig;
+    /** The map layout of the results is only offered when a token is set */
+    mapbox?: {
+        token: string;
+    };
     logo?: {
         src?: string;
         style?: string;

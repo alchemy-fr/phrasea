@@ -332,25 +332,14 @@ value: v:function_call | v:number | v:quoted_string | v:boolean | v:const_null |
         unset($result['v']);
     }
 
-int: /[0-9]+/
-    function __finalise(&$result) {
-        $result['data'] = (int) $result['text'];
-    }
-
-decimal: int? "." int
-    function __finalise(&$result) {
-        $result['data'] = (float) $result['text'];
-    }
-
 quoted_string: /"[^"]*"/
     function __finalise(&$result) {
         $result['data'] = ['literal' => substr($result['text'], 1, -1)];
     }
 
-number: v:decimal | v:int
+number: /-?([0-9]*\.[0-9]+|[0-9]+)/
     function __finalise(&$result) {
-        $result['data'] = $result['v']['data'];
-        unset($result['v']);
+        $result['data'] = str_contains($result['text'], '.') ? (float) $result['text'] : (int) $result['text'];
     }
 
 alpha: /[a-zA-Z_]/

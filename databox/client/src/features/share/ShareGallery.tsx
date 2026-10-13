@@ -15,10 +15,9 @@ import {Tooltip} from '@/components/ui/overlays';
 import {Masonry} from '@/components/ui/masonry';
 import {FileTypeChip} from '@/components/chips';
 import {AssetThumb} from '@/features/assets/list/AssetThumb';
-import type {LayoutMode} from '@/features/preferences/store';
 import {formatFileSize} from '@/lib/utils/format';
 import {cn} from '@/lib/utils/cn';
-import {useShareDisplayStore} from './shareDisplayStore';
+import {ShareLayoutMode, useShareDisplayStore} from './shareDisplayStore';
 
 type ItemProps = {
     asset: Asset;
@@ -126,7 +125,7 @@ export function ShareGalleryControls() {
             ) : null}
             <Tabs
                 value={layout}
-                onValueChange={v => set({layout: v as LayoutMode})}
+                onValueChange={v => set({layout: v as ShareLayoutMode})}
             >
                 <TabsList
                     data-testid="share-layout"
@@ -155,7 +154,7 @@ function LayoutTab({
     label,
     children,
 }: {
-    value: LayoutMode;
+    value: ShareLayoutMode;
     label: string;
     children: React.ReactNode;
 }) {

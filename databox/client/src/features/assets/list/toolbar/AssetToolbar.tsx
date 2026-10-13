@@ -55,7 +55,7 @@ export function AssetToolbar() {
                           })
                     : ''}
             </button>
-            <DisplayOptionsMenu />
+            <DisplayOptionsMenu allowMap />
         </div>
     );
 }

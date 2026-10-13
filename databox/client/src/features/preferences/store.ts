@@ -4,7 +4,8 @@ import {api} from '@/lib/api/http';
 import {deepEquals} from '@/lib/utils/misc';
 import type {SidebarSectionId} from '@/components/layout/sidebarSections';
 
-export type LayoutMode = 'grid' | 'masonry' | 'list';
+/** `map` needs a search: lists that are not search results show it as `grid` */
+export type LayoutMode = 'grid' | 'masonry' | 'list' | 'map';
 
 /** How thumbnails fill their box: `contain` keeps the whole image, `cover` crops it */
 export type ThumbFit = 'contain' | 'cover';
