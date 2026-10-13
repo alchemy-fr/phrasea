@@ -120,7 +120,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ),
             ],
         ),
-        new Get(
+        new GetCollection(
             uriTemplate: '/assets/geo-clusters',
             description: 'Clusters the geolocated assets matching the search on a tile grid',
             name: 'geo_clusters',
