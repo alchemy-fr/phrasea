@@ -212,25 +212,29 @@ export function ShareDialog({
             }),
         onError: (e: unknown) => toastError(e),
     });
-    const setAssets = (share: Share, ids: string[]) =>
-        update.mutateAsync({
-            id: share.id,
-            data: {assets: ids.map(id => `/${EntityName.Asset}/${id}`)},
-        });
-    const removeAsset = async (share: Share, assetId: string) => {
-        const previous = share.assets.map(a => a.id);
-        await setAssets(
-            share,
-            previous.filter(id => id !== assetId)
-        );
-        toast.success(
-            t('share.assets.removed', 'Asset removed from the link'),
+    const setAssets = (share: Share, ids: string[], onSuccess?: () => void) =>
+        update.mutate(
             {
-                action: {
-                    label: t('common.undo', 'Undo'),
-                    onClick: () => setAssets(share, previous),
-                },
-            }
+                id: share.id,
+                data: {assets: ids.map(id => `/${EntityName.Asset}/${id}`)},
+            },
+            {onSuccess}
+        );
+    const removeAsset = (share: Share, assetId: string) => {
+        const previous = share.assets.map(a => a.id);
+        setAssets(
+            share,
+            previous.filter(id => id !== assetId),
+            () =>
+                toast.success(
+                    t('share.assets.removed', 'Asset removed from the link'),
+                    {
+                        action: {
+                            label: t('common.undo', 'Undo'),
+                            onClick: () => setAssets(share, previous),
+                        },
+                    }
+                )
         );
     };
     const revoke = useMutation({
@@ -513,7 +517,7 @@ function ShareItem({
     onRevoke: () => void;
     revoking: boolean;
     onSave: (values: ShareFormValues) => Promise<unknown>;
-    onRemoveAsset: (assetId: string) => Promise<unknown>;
+    onRemoveAsset: (assetId: string) => void;
     removing: boolean;
 }) {
     const {t, i18n} = useTranslation();
@@ -767,7 +771,7 @@ function ShareAssets({
     removing,
 }: {
     share: Share;
-    onRemove: (assetId: string) => Promise<unknown>;
+    onRemove: (assetId: string) => void;
     removing: boolean;
 }) {
     const {t} = useTranslation();

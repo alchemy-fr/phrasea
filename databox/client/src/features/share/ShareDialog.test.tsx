@@ -356,6 +356,22 @@ describe('ShareDialog', () => {
         );
     });
 
+    it('reports a failed asset removal without offering to undo it', async () => {
+        api.getAssetShares.mockResolvedValue([
+            share('g', {name: 'Group'}, [asset, ...otherAssets]),
+        ]);
+        api.updateShare.mockRejectedValue(new Error('Forbidden'));
+        renderDialog();
+
+        const item = await screen.findByTestId('share-item');
+        fireEvent.click(within(item).getAllByTestId('share-asset-remove')[2]);
+        await waitFor(() =>
+            expect(toasts.error).toHaveBeenCalledWith('Forbidden')
+        );
+        expect(toasts.success).not.toHaveBeenCalled();
+        expect(within(item).getAllByTestId('share-asset-row')).toHaveLength(3);
+    });
+
     it('edits the name and dates of a link', async () => {
         api.getAssetShares.mockResolvedValue([
             share('g', {name: 'Group', expiresAt: '2030-06-01T10:00:00.000Z'}, [
