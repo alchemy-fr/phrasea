@@ -32,14 +32,36 @@ final readonly class EntityHttpCacheListener
         if ($entity instanceof EnvVar) {
             $this->proxyCachePurger->purgeRoute('global_config');
         } elseif ($entity instanceof Publication) {
-            $this->invalidatePublicationAndAssetsCache($entity);
+            $this->invalidatePublicationTreeCache($entity);
         } elseif ($entity instanceof Asset) {
             $this->invalidateAssetCache($entity);
             $this->invalidatePublicationCache($entity->getPublication());
         } elseif ($entity instanceof PublicationProfile) {
             foreach ($entity->getPublications() as $publication) {
-                $this->invalidatePublicationAndAssetsCache($publication);
+                $this->invalidatePublicationTreeCache($publication);
             }
+        }
+    }
+
+    /**
+     * Children inherit the security method of their ancestors and embed their parent,
+     * which embeds its children in turn.
+     */
+    private function invalidatePublicationTreeCache(Publication $publication): void
+    {
+        if (null !== $parent = $publication->getParent()) {
+            $this->invalidatePublicationCache($parent);
+        }
+
+        $this->invalidateDescendantsCache($publication);
+    }
+
+    private function invalidateDescendantsCache(Publication $publication): void
+    {
+        $this->invalidatePublicationAndAssetsCache($publication);
+
+        foreach ($publication->getChildren() as $child) {
+            $this->invalidateDescendantsCache($child);
         }
     }
 
