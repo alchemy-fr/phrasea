@@ -96,6 +96,8 @@ final class ShareApiTest extends AbstractDataboxTestCase
             $definitions[$name] = $this->createRenditionDefinition($this->workspace, $name, 'original' !== $name);
             $this->createRendition($this->asset, $definitions[$name], $file);
         }
+        $definitions['thumbnail']->setUseAsThumbnail(true);
+        self::getEntityManager()->flush();
 
         // Without a selection: every rendition of a public policy
         $data = $client->request('POST', '/shares', self::auth(self::USER, [
@@ -115,6 +117,8 @@ final class ShareApiTest extends AbstractDataboxTestCase
         $data = $response->toArray();
         $this->assertCount(1, $data['renditionDefinitions']);
         $this->assertSame(['thumbnail'], array_column($data['alternateUrls'], 'name'));
+        // The sharer manages the assets of the link from their thumbnails
+        $this->assertNotNull($data['assets'][0]['thumbnail']['file']['url'] ?? null, 'The thumbnail of a shared asset is listed');
 
         $public = $client->request('GET', sprintf('/shares/%s/public?token=%s', $data['id'], $data['token']))->toArray();
         $this->assertSame(['thumbnail'], array_column($public['alternateUrls'], 'name'));

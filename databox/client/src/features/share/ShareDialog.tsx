@@ -1,17 +1,27 @@
 'use client';
 
-import {useMemo, useState} from 'react';
+import {useId, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 import {
+    ChevronDownIcon,
     CodeIcon,
     CopyIcon,
     ExternalLinkIcon,
+    ImageIcon,
+    PencilIcon,
     PlusIcon,
     XIcon,
 } from 'lucide-react';
 import {toast} from 'sonner';
-import {AssetType, type Asset, type Share} from '@/types/api';
+import {
+    AssetType,
+    EntityName,
+    type Asset,
+    type RenditionDefinition,
+    type Share,
+    type ShareAlternateUrl,
+} from '@/types/api';
 import type {ModalProps} from '@/components/modals/ModalProvider';
 import {useModals} from '@/components/modals/ModalProvider';
 import {FormDialog} from '@/components/modals/FormDialog';
@@ -20,13 +30,19 @@ import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
 import {Input, FormRow} from '@/components/ui/input';
 import {InlineLoader} from '@/components/ui/loader';
 import {CopyButton} from '@/components/ui/copy-button';
-import {SimpleSelect} from '@/components/ui/select';
 import {Badge} from '@/components/ui/misc';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/menu';
 import {
     createShare,
     deleteShare,
     getAssetShares,
     getRenditionDefinitions,
+    updateShare,
 } from '@/lib/api/misc';
 import {routes} from '@/lib/routes';
 import {formatDateTime} from '@/lib/utils/format';
@@ -50,17 +66,56 @@ export function isShareOf(share: Share, assetIds: string[]): boolean {
     );
 }
 
+/** Whether the share holds every one of these assets (and maybe others) */
+export function shareIncludes(share: Share, assetIds: string[]): boolean {
+    const ids = new Set((share.assets ?? []).map(a => a.id));
+
+    return assetIds.every(id => ids.has(id));
+}
+
+/** Name and validity dates, as typed in the form */
+type ShareFormValues = {
+    name: string;
+    startsAt: string;
+    expiresAt: string;
+};
+
+const emptyForm: ShareFormValues = {name: '', startsAt: '', expiresAt: ''};
+
+/** ISO date → value of a `datetime-local` input, in the local time zone */
+function toInputDateTime(iso: string | null | undefined): string {
+    if (!iso) {
+        return '';
+    }
+    const d = new Date(iso);
+    const pad = (n: number) => String(n).padStart(2, '0');
+
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function fromInputDateTime(value: string): string | null {
+    return value ? new Date(value).toISOString() : null;
+}
+
+function formOf(share: Share): ShareFormValues {
+    return {
+        name: share.name ?? '',
+        startsAt: toInputDateTime(share.startsAt),
+        expiresAt: toInputDateTime(share.expiresAt),
+    };
+}
+
 /**
  * Public links of one or several assets (of the same workspace). A link
- * shares the whole set: only the links holding exactly these assets are
- * listed (an asset may also belong to links of other sets).
+ * shares a set of assets: every link holding the selected assets is listed,
+ * including the links of a larger set.
  */
 export function ShareDialog({
     open,
     onOpenChange,
     assets,
 }: ModalProps & {assets: Asset[]}) {
-    const {t, i18n} = useTranslation();
+    const {t} = useTranslation();
     const queryClient = useQueryClient();
     const {openModal} = useModals();
     const assetIds = useMemo(() => assets.map(a => a.id).sort(), [assets]);
@@ -68,10 +123,7 @@ export function ShareDialog({
     const queryKey = ['shares', assetIds.join(',')];
     const [advanced, setAdvanced] = useState<boolean>();
     const [creating, setCreating] = useState(false);
-    const [newName, setNewName] = useState('');
-    const [startsAt, setStartsAt] = useState('');
-    const [expiresAt, setExpiresAt] = useState('');
-    const [rendition, setRendition] = useState<string>('asset');
+    const [form, setForm] = useState<ShareFormValues>(emptyForm);
     // Rendition definitions of the link being created; undefined: all of them
     const [renditionIds, setRenditionIds] = useState<string[]>();
 
@@ -79,7 +131,7 @@ export function ShareDialog({
         queryKey,
         queryFn: async () =>
             (await getAssetShares(assetIds[0])).filter(s =>
-                isShareOf(s, assetIds)
+                shareIncludes(s, assetIds)
             ),
     });
     const list = useMemo(() => shares.data ?? [], [shares.data]);
@@ -111,10 +163,11 @@ export function ShareDialog({
                 ? [...selectedRenditions, id]
                 : selectedRenditions.filter(r => r !== id)
         );
-    const definitionName = (id: string) =>
-        shareable.find(d => d.id === id)?.displayName ?? '';
+
+    // The plain "public link" of exactly these assets, driven by a switch
     const simpleShare =
         list.length === 1 &&
+        isShareOf(list[0], assetIds) &&
         !list[0].name &&
         !list[0].expiresAt &&
         !list[0].startsAt
@@ -123,61 +176,62 @@ export function ShareDialog({
     const isSimple = list.length === 0 || !!simpleShare;
     const advancedMode = advanced ?? !isSimple;
 
+    const setShares = (fn: (prev: Share[]) => Share[]) =>
+        queryClient.setQueryData<Share[]>(queryKey, prev => fn(prev ?? []));
     const create = useMutation({
         mutationFn: (data: Parameters<typeof createShare>[1]) =>
             createShare(assetIds, data),
         onSuccess: share => {
-            queryClient.setQueryData<Share[]>(queryKey, prev => [
-                ...(prev ?? []),
-                share,
-            ]);
+            setShares(prev => [...prev, share]);
             setCreating(false);
-            setNewName('');
-            setStartsAt('');
-            setExpiresAt('');
+            setForm(emptyForm);
             setRenditionIds(undefined);
         },
         onError: (e: unknown) => toastError(e),
     });
-    const revoke = useMutation({
-        mutationFn: (id: string) => deleteShare(id),
-        onSuccess: (_d, id) =>
-            queryClient.setQueryData<Share[]>(queryKey, prev =>
-                (prev ?? []).filter(s => s.id !== id)
+    const update = useMutation({
+        mutationFn: ({
+            id,
+            data,
+        }: {
+            id: string;
+            data: Parameters<typeof updateShare>[1];
+        }) => updateShare(id, data),
+        // A link that no longer holds the selected assets leaves the list
+        onSuccess: share =>
+            setShares(prev =>
+                shareIncludes(share, assetIds)
+                    ? prev.map(s => (s.id === share.id ? share : s))
+                    : prev.filter(s => s.id !== share.id)
             ),
         onError: (e: unknown) => toastError(e),
     });
+    const removeAsset = (share: Share, assetId: string) =>
+        update.mutateAsync({
+            id: share.id,
+            data: {
+                assets: share.assets
+                    .filter(a => a.id !== assetId)
+                    .map(a => `/${EntityName.Asset}/${a.id}`),
+            },
+        });
+    const revoke = useMutation({
+        mutationFn: (id: string) => deleteShare(id),
+        onSuccess: (_d, id) => setShares(prev => prev.filter(s => s.id !== id)),
+        onError: (e: unknown) => toastError(e),
+    });
 
-    const urlFor = (share: Share) => {
-        const alt = share.alternateUrls?.find(a => a.name === rendition);
-
-        return alt ? alt.url : getShareUrl(share);
-    };
-    // A rendition can only be picked for a single asset: a link of several
-    // assets always opens the share page. Links may deliver different
-    // renditions: every rendition of a link is offered, a link lacking the
-    // picked one falls back to the share page.
-    const renditionOptions = useMemo(() => {
-        const names = new Set<string>();
-        if (single) {
-            list.forEach(s =>
-                (s.alternateUrls ?? [])
-                    .filter(a => !a.assetId || a.assetId === single.id)
-                    .forEach(a => names.add(a.name))
-            );
-        }
-
-        return [
-            {value: 'asset', label: t('share.rendition.asset', 'Asset page')},
-            ...[...names].map(name => ({value: name, label: name})),
-        ];
-    }, [list, single, t]);
     const shareTitle = (share: Share) =>
         share.name ||
         assets
             .map(a => a.name)
             .filter(Boolean)
             .join(', ');
+    const cancelCreate = () => {
+        setCreating(false);
+        setForm(emptyForm);
+        setRenditionIds(undefined);
+    };
 
     return (
         <FormDialog
@@ -198,14 +252,14 @@ export function ShareDialog({
             // The new-link form holds what the user typed; the rest applies live
             dirty={
                 creating &&
-                (!!newName.trim() ||
-                    !!startsAt ||
-                    !!expiresAt ||
+                (!!form.name.trim() ||
+                    !!form.startsAt ||
+                    !!form.expiresAt ||
                     renditionIds !== undefined)
             }
             bodyClassName="space-y-4"
             onSubmit={async () => {
-                await copyToClipboard(urlFor(simpleShare!));
+                await copyToClipboard(getShareUrl(simpleShare!));
                 toast.success(t('share.copied', 'Link copied to clipboard'));
             }}
         >
@@ -228,23 +282,16 @@ export function ShareDialog({
                     </LabeledControl>
                     {simpleShare ? (
                         <>
-                            {renditionOptions.length > 1 ? (
-                                <FormRow
-                                    label={t(
-                                        'share.rendition.label',
-                                        'Shared rendition'
-                                    )}
-                                >
-                                    <SimpleSelect
-                                        value={rendition}
-                                        onValueChange={setRendition}
-                                        options={renditionOptions}
-                                    />
-                                </FormRow>
-                            ) : null}
-                            <ShareUrl url={urlFor(simpleShare)} />
+                            <ShareLink share={simpleShare} single={single} />
+                            <ShareAssets
+                                share={simpleShare}
+                                onRemove={assetId =>
+                                    removeAsset(simpleShare, assetId)
+                                }
+                                removing={update.isPending}
+                            />
                             <ShareSocials
-                                url={urlFor(simpleShare)}
+                                url={getShareUrl(simpleShare)}
                                 title={shareTitle(simpleShare)}
                             />
                             <Button
@@ -275,132 +322,52 @@ export function ShareDialog({
             ) : null}
             {advancedMode && shares.isSuccess ? (
                 <>
-                    {renditionOptions.length > 1 ? (
-                        <FormRow
-                            label={t(
-                                'share.rendition.label',
-                                'Shared rendition'
-                            )}
-                        >
-                            <SimpleSelect
-                                value={rendition}
-                                onValueChange={setRendition}
-                                options={renditionOptions}
-                                className="w-64"
-                            />
-                        </FormRow>
-                    ) : null}
                     <ul className="space-y-2">
                         {list.map(s => (
-                            <li key={s.id} className="rounded-md border p-3">
-                                <div className="mb-1 flex items-center gap-2">
-                                    <span className="flex-1 truncate text-sm font-medium">
-                                        {s.name ||
-                                            t('share.unnamed', 'Public link')}
-                                    </span>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon-xs"
-                                        onClick={() =>
-                                            openModal(EmbedDialog, {
-                                                share: s,
-                                                assets,
-                                            })
-                                        }
-                                        aria-label={t(
-                                            'share.embed',
-                                            'Embed code'
-                                        )}
-                                    >
-                                        <CodeIcon />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="text-destructive"
-                                        onClick={() => revoke.mutate(s.id)}
-                                        loading={
-                                            revoke.isPending &&
-                                            revoke.variables === s.id
-                                        }
-                                    >
-                                        <XIcon /> {t('share.revoke', 'Revoke')}
-                                    </Button>
-                                </div>
-                                {s.startsAt || s.expiresAt ? (
-                                    <div className="mb-1 text-xs text-muted-foreground">
-                                        {s.startsAt
-                                            ? `${t('share.starts_at', 'From')} ${formatDateTime(s.startsAt, 'short', i18n.language)} `
-                                            : ''}
-                                        {s.expiresAt
-                                            ? `${t('share.expires_at', 'until')} ${formatDateTime(s.expiresAt, 'short', i18n.language)}`
-                                            : ''}
-                                    </div>
-                                ) : null}
-                                {s.renditionDefinitions?.length ? (
-                                    <div
-                                        data-testid="share-renditions"
-                                        className="mb-1 flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
-                                    >
-                                        {t(
-                                            'share.item.renditions',
-                                            'Shared renditions'
-                                        )}
-                                        {s.renditionDefinitions.map(d => (
-                                            <Badge key={d.id} variant="muted">
-                                                {definitionName(d.id) || d.id}
-                                            </Badge>
-                                        ))}
-                                    </div>
-                                ) : null}
-                                <ShareUrl url={urlFor(s)} />
-                            </li>
+                            <ShareItem
+                                key={s.id}
+                                share={s}
+                                single={single}
+                                definitions={shareable}
+                                onEmbed={() =>
+                                    openModal(EmbedDialog, {share: s, assets})
+                                }
+                                onRevoke={() => revoke.mutate(s.id)}
+                                revoking={
+                                    revoke.isPending &&
+                                    revoke.variables === s.id
+                                }
+                                onSave={values =>
+                                    update.mutateAsync({
+                                        id: s.id,
+                                        data: {
+                                            name: values.name.trim() || null,
+                                            startsAt: fromInputDateTime(
+                                                values.startsAt
+                                            ),
+                                            expiresAt: fromInputDateTime(
+                                                values.expiresAt
+                                            ),
+                                        },
+                                    })
+                                }
+                                onRemoveAsset={assetId =>
+                                    removeAsset(s, assetId)
+                                }
+                                removing={
+                                    update.isPending &&
+                                    update.variables?.id === s.id
+                                }
+                            />
                         ))}
                     </ul>
                     {creating ? (
                         <div className="space-y-3 rounded-md border border-dashed p-3">
-                            <FormRow
-                                label={t(
-                                    'share.create.name',
-                                    'Name / audience'
-                                )}
-                            >
-                                <Input
-                                    autoFocus
-                                    value={newName}
-                                    onChange={e => setNewName(e.target.value)}
-                                />
-                            </FormRow>
-                            <div className="grid grid-cols-2 gap-3">
-                                <FormRow
-                                    label={t(
-                                        'share.create.starts_at',
-                                        'Starts at'
-                                    )}
-                                >
-                                    <Input
-                                        type="datetime-local"
-                                        value={startsAt}
-                                        onChange={e =>
-                                            setStartsAt(e.target.value)
-                                        }
-                                    />
-                                </FormRow>
-                                <FormRow
-                                    label={t(
-                                        'share.create.expires_at',
-                                        'Expires at'
-                                    )}
-                                >
-                                    <Input
-                                        type="datetime-local"
-                                        value={expiresAt}
-                                        onChange={e =>
-                                            setExpiresAt(e.target.value)
-                                        }
-                                    />
-                                </FormRow>
-                            </div>
+                            <ShareFields
+                                values={form}
+                                onChange={setForm}
+                                autoFocus
+                            />
                             {shareable.length > 0 ? (
                                 <FormRow
                                     label={t(
@@ -458,10 +425,7 @@ export function ShareDialog({
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => {
-                                        setCreating(false);
-                                        setRenditionIds(undefined);
-                                    }}
+                                    onClick={cancelCreate}
                                 >
                                     {t('common.cancel', 'Cancel')}
                                 </Button>
@@ -474,23 +438,21 @@ export function ShareDialog({
                                     }
                                     onClick={() =>
                                         create.mutate({
-                                            name: newName || undefined,
+                                            name: form.name.trim() || undefined,
+                                            startsAt:
+                                                fromInputDateTime(
+                                                    form.startsAt
+                                                ) ?? undefined,
+                                            expiresAt:
+                                                fromInputDateTime(
+                                                    form.expiresAt
+                                                ) ?? undefined,
                                             // Every rendition: no selection
                                             renditionDefinitionIds:
                                                 selectedRenditions.length <
                                                 shareable.length
                                                     ? selectedRenditions
                                                     : undefined,
-                                            startsAt: startsAt
-                                                ? new Date(
-                                                      startsAt
-                                                  ).toISOString()
-                                                : undefined,
-                                            expiresAt: expiresAt
-                                                ? new Date(
-                                                      expiresAt
-                                                  ).toISOString()
-                                                : undefined,
                                         })
                                     }
                                 >
@@ -514,9 +476,256 @@ export function ShareDialog({
     );
 }
 
-function ShareUrl({url}: {url: string}) {
+/** A share link: its details, editable in place, and its URLs */
+function ShareItem({
+    share,
+    single,
+    definitions,
+    onEmbed,
+    onRevoke,
+    revoking,
+    onSave,
+    onRemoveAsset,
+    removing,
+}: {
+    share: Share;
+    single: Asset | undefined;
+    definitions: RenditionDefinition[];
+    onEmbed: () => void;
+    onRevoke: () => void;
+    revoking: boolean;
+    onSave: (values: ShareFormValues) => Promise<unknown>;
+    onRemoveAsset: (assetId: string) => Promise<unknown>;
+    removing: boolean;
+}) {
+    const {t, i18n} = useTranslation();
+    const [editing, setEditing] = useState<ShareFormValues>();
+    const [saving, setSaving] = useState(false);
+    const assetCount = share.assets?.length ?? 0;
+
+    const save = async () => {
+        if (!editing) {
+            return;
+        }
+        setSaving(true);
+        try {
+            await onSave(editing);
+            setEditing(undefined);
+        } catch {
+            // Reported by the mutation
+        } finally {
+            setSaving(false);
+        }
+    };
+
     return (
-        <div className="flex items-center gap-1 rounded-md border bg-muted/40 pl-2">
+        <li data-testid="share-item" className="rounded-md border p-3">
+            <div className="mb-1 flex items-center gap-2">
+                <span className="flex-1 truncate text-sm font-medium">
+                    {share.name || t('share.unnamed', 'Public link')}
+                </span>
+                <Badge variant="muted" data-testid="share-assets-count">
+                    {t('share.assets_count', '{{count}} assets', {
+                        count: assetCount,
+                    })}
+                </Badge>
+                <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={() =>
+                        setEditing(editing ? undefined : formOf(share))
+                    }
+                    aria-label={t('common.edit', 'Edit')}
+                    aria-pressed={!!editing}
+                >
+                    <PencilIcon />
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={onEmbed}
+                    aria-label={t('share.embed', 'Embed code')}
+                >
+                    <CodeIcon />
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive"
+                    onClick={onRevoke}
+                    loading={revoking}
+                >
+                    <XIcon /> {t('share.revoke', 'Revoke')}
+                </Button>
+            </div>
+            {editing ? (
+                <div className="mb-2 space-y-3 rounded-md border border-dashed p-3">
+                    <ShareFields
+                        values={editing}
+                        onChange={setEditing}
+                        autoFocus
+                    />
+                    <div className="flex justify-end gap-2">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditing(undefined)}
+                        >
+                            {t('common.cancel', 'Cancel')}
+                        </Button>
+                        <Button size="sm" loading={saving} onClick={save}>
+                            {t('common.save', 'Save')}
+                        </Button>
+                    </div>
+                </div>
+            ) : share.startsAt || share.expiresAt ? (
+                <div className="mb-1 text-xs text-muted-foreground">
+                    {share.startsAt
+                        ? `${t('share.starts_at', 'From')} ${formatDateTime(share.startsAt, 'short', i18n.language)} `
+                        : ''}
+                    {share.expiresAt
+                        ? `${t('share.expires_at', 'until')} ${formatDateTime(share.expiresAt, 'short', i18n.language)}`
+                        : ''}
+                </div>
+            ) : null}
+            {share.renditionDefinitions?.length ? (
+                <div
+                    data-testid="share-renditions"
+                    className="mb-1 flex flex-wrap items-center gap-1 text-xs text-muted-foreground"
+                >
+                    {t('share.item.renditions', 'Shared renditions')}
+                    {share.renditionDefinitions.map(d => (
+                        <Badge key={d.id} variant="muted">
+                            {definitions.find(def => def.id === d.id)
+                                ?.displayName ?? d.id}
+                        </Badge>
+                    ))}
+                </div>
+            ) : null}
+            <ShareLink share={share} single={single} />
+            <ShareAssets
+                share={share}
+                onRemove={onRemoveAsset}
+                removing={removing}
+            />
+        </li>
+    );
+}
+
+function ShareFields({
+    values,
+    onChange,
+    autoFocus,
+}: {
+    values: ShareFormValues;
+    onChange: (values: ShareFormValues) => void;
+    autoFocus?: boolean;
+}) {
+    const {t} = useTranslation();
+    const id = useId();
+    const set = (key: keyof ShareFormValues, value: string) =>
+        onChange({...values, [key]: value});
+
+    return (
+        <>
+            <FormRow
+                label={t('share.create.name', 'Name / audience')}
+                htmlFor={`${id}-name`}
+            >
+                <Input
+                    id={`${id}-name`}
+                    autoFocus={autoFocus}
+                    value={values.name}
+                    onChange={e => set('name', e.target.value)}
+                />
+            </FormRow>
+            <div className="grid grid-cols-2 gap-3">
+                <FormRow
+                    label={t('share.create.starts_at', 'Starts at')}
+                    htmlFor={`${id}-starts`}
+                >
+                    <Input
+                        id={`${id}-starts`}
+                        type="datetime-local"
+                        value={values.startsAt}
+                        onChange={e => set('startsAt', e.target.value)}
+                    />
+                </FormRow>
+                <FormRow
+                    label={t('share.create.expires_at', 'Expires at')}
+                    htmlFor={`${id}-expires`}
+                >
+                    <Input
+                        id={`${id}-expires`}
+                        type="datetime-local"
+                        value={values.expiresAt}
+                        onChange={e => set('expiresAt', e.target.value)}
+                    />
+                </FormRow>
+            </div>
+        </>
+    );
+}
+
+/** The renditions a link delivers for an asset */
+function renditionsOf(share: Share, assetId: string): ShareAlternateUrl[] {
+    const single = (share.assets?.length ?? 0) <= 1;
+
+    return (share.alternateUrls ?? []).filter(a =>
+        a.assetId ? a.assetId === assetId : single
+    );
+}
+
+/**
+ * The link to copy: the share page, or — for a single asset — one of the
+ * renditions the link delivers for it, picked from the label.
+ */
+function ShareLink({share, single}: {share: Share; single: Asset | undefined}) {
+    const {t} = useTranslation();
+    const [choice, setChoice] = useState<string>('asset');
+    const renditions = single ? renditionsOf(share, single.id) : [];
+    const current = renditions.find(a => (a.id ?? a.name) === choice);
+    const url = current ? current.url : getShareUrl(share);
+    const label = current
+        ? current.displayName || current.name
+        : t('share.rendition.asset', 'Asset page');
+
+    return (
+        <div
+            data-testid="share-link"
+            className="flex items-center gap-2 rounded-md border bg-muted/40 pl-1"
+        >
+            {renditions.length > 0 ? (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="shrink-0 font-medium"
+                            data-testid="share-link-choice"
+                        >
+                            {label} <ChevronDownIcon />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                        <DropdownMenuItem onSelect={() => setChoice('asset')}>
+                            {t('share.rendition.asset', 'Asset page')}
+                        </DropdownMenuItem>
+                        {renditions.map(a => (
+                            <DropdownMenuItem
+                                key={a.id ?? a.name}
+                                onSelect={() => setChoice(a.id ?? a.name)}
+                            >
+                                {a.displayName || a.name}
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            ) : (
+                <span className="shrink-0 px-1.5 text-xs font-medium">
+                    {label}
+                </span>
+            )}
             <code className="min-w-0 flex-1 truncate py-1.5 text-xs">
                 {url}
             </code>
@@ -527,5 +736,101 @@ function ShareUrl({url}: {url: string}) {
                 </a>
             </Button>
         </div>
+    );
+}
+
+/**
+ * The assets of a link holding several: each one with the URLs of its
+ * renditions to copy, and removable from the link.
+ */
+function ShareAssets({
+    share,
+    onRemove,
+    removing,
+}: {
+    share: Share;
+    onRemove: (assetId: string) => Promise<unknown>;
+    removing: boolean;
+}) {
+    const {t} = useTranslation();
+    const assets = share.assets ?? [];
+    if (assets.length < 2) {
+        return null;
+    }
+
+    const copy = async (url: string) => {
+        await copyToClipboard(url);
+        toast.success(t('share.copied', 'Link copied to clipboard'));
+    };
+
+    return (
+        <ul data-testid="share-assets" className="mt-2 space-y-1">
+            {assets.map(asset => {
+                const renditions = renditionsOf(share, asset.id);
+                const thumb = asset.thumbnail?.file?.url;
+
+                return (
+                    <li
+                        key={asset.id}
+                        data-testid="share-asset-row"
+                        className="flex items-center gap-2 rounded-md px-1 py-0.5 hover:bg-accent/60"
+                    >
+                        <span className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded bg-muted">
+                            {thumb ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={thumb}
+                                    alt=""
+                                    className="size-full object-cover"
+                                />
+                            ) : (
+                                <ImageIcon className="size-4 text-muted-foreground" />
+                            )}
+                        </span>
+                        <span className="min-w-0 flex-1 truncate text-sm">
+                            {asset.name}
+                        </span>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    disabled={renditions.length === 0}
+                                    data-testid="share-asset-copy"
+                                >
+                                    <CopyIcon />{' '}
+                                    {t('share.assets.copy', 'Copy URL')}
+                                    <ChevronDownIcon />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                {renditions.map(a => (
+                                    <DropdownMenuItem
+                                        key={a.id ?? a.name}
+                                        onSelect={() => copy(a.url)}
+                                    >
+                                        {a.displayName || a.name}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            className="text-destructive"
+                            disabled={removing}
+                            onClick={() => onRemove(asset.id)}
+                            aria-label={t(
+                                'share.assets.remove',
+                                'Remove from this link'
+                            )}
+                            data-testid="share-asset-remove"
+                        >
+                            <XIcon />
+                        </Button>
+                    </li>
+                );
+            })}
+        </ul>
     );
 }

@@ -423,6 +423,22 @@ export function createShare(
     });
 }
 
+/**
+ * Name, validity dates (JSON merge patch: null clears) or assets (IRIs) of a
+ * share link
+ */
+export function updateShare(
+    id: string,
+    data: {
+        name?: string | null;
+        startsAt?: string | null;
+        expiresAt?: string | null;
+        assets?: string[];
+    }
+): Promise<Share> {
+    return api.patch<Share>(`/${EntityName.Share}/${id}`, data);
+}
+
 export function deleteShare(id: string): Promise<void> {
     return api.delete(`/${EntityName.Share}/${id}`);
 }
