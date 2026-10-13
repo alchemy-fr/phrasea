@@ -105,11 +105,28 @@ export type GeoClusterResult = {
     clusters: GeoCluster[];
 };
 
+/** The options of a search that select its assets: sorting and paging aside */
+export type GeoClusterSearch = Pick<
+    SearchAssetsOptions,
+    'query' | 'conditions' | 'savedSearch' | 'workspaces' | 'parents' | 'story'
+>;
+
+export function geoClusterSearch({
+    query,
+    conditions,
+    savedSearch,
+    workspaces,
+    parents,
+    story,
+}: SearchAssetsOptions): GeoClusterSearch {
+    return {query, conditions, savedSearch, workspaces, parents, story};
+}
+
 /**
  * Clusters on a tile grid the positions of the assets matching a search.
  */
 export async function getGeoClusters(
-    search: SearchAssetsOptions,
+    search: GeoClusterSearch,
     {
         field,
         precision,
@@ -126,12 +143,7 @@ export async function getGeoClusters(
 ): Promise<GeoClusterResult> {
     return api.get<GeoClusterResult>(`/${EntityName.Asset}/geo-clusters`, {
         params: {
-            query: search.query,
-            conditions: search.conditions,
-            savedSearch: search.savedSearch,
-            workspaces: search.workspaces,
-            parents: search.parents,
-            story: search.story,
+            ...search,
             field,
             precision,
             bounds: bounds

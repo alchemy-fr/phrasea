@@ -12,8 +12,13 @@ import {
     isLogical,
 } from '@/features/search/aql/types';
 
-/** Condition holding the zones drawn on the map (circles, OR-ed) */
-export const MAP_ZONES_CONDITION_ID = 'map-zones';
+/**
+ * Condition holding the zones drawn on the map (circles, OR-ed), one per geo
+ * attribute: switching the attribute of the map keeps the zones of the others.
+ */
+export function mapZonesConditionId(field: string): string {
+    return `map-zones-${field}`;
+}
 /** Condition restricting the search to the area of a cluster */
 export const MAP_AREA_CONDITION_ID = 'map-area';
 

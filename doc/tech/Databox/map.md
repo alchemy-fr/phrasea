@@ -56,7 +56,9 @@ markers (up to 300), the others as bubbles.
 The map writes regular AQL conditions, so they show in the conditions bar, can be
 disabled or edited, and are kept in the URL and saved searches:
 
-- **Zones** (condition `map-zones`): circles drawn on the map, combined with `OR`:
+- **Zones** (condition `map-zones-<attribute slug>`, one per geo attribute): circles
+  drawn on the map, combined with `OR`:
   `location WITHIN CIRCLE (48.85, 2.35, "1500m") OR location WITHIN CIRCLE (…)`.
+  Switching the attribute shown on the map keeps the zones of the other ones.
 - **Area of a cluster** (condition `map-area`): "Search this area" in the bubble of a
   cluster, `location WITHIN RECTANGLE (…)` around its positions.

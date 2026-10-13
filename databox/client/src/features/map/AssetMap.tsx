@@ -40,6 +40,7 @@ import type {Asset} from '@/types/api';
 import {
     GeoBounds,
     GeoCluster,
+    geoClusterSearch,
     getAsset,
     getGeoClusters,
     searchAssets,
@@ -71,7 +72,7 @@ import {
     hitZone,
     LngLat,
     MAP_AREA_CONDITION_ID,
-    MAP_ZONES_CONDITION_ID,
+    mapZonesConditionId,
     moveCircle,
     padBounds,
     parseCircles,
@@ -326,19 +327,25 @@ function MapView({
         }
     }, [map, styleUrl]);
 
+    useEffect(() => {
+        map?.setLanguage(i18n.language);
+    }, [map, i18n.language]);
+
     // Clusters ---------------------------------------------------------------
 
+    // Sorting changes no position: it is left out of the key
+    const clusterSearch = geoClusterSearch(results.searchOptions);
     const clusters = useQuery({
         queryKey: [
             'geo-clusters',
-            results.searchOptions,
+            clusterSearch,
             search.reloadInc,
             field.searchSlug,
             viewport,
         ],
         queryFn: ({signal}) =>
             getGeoClusters(
-                results.searchOptions,
+                clusterSearch,
                 {
                     field: field.searchSlug,
                     precision: viewport!.precision,
@@ -463,7 +470,10 @@ function MapView({
         setPinNodes(
             pins.map(c => {
                 let m = current.get(c.assetId!);
-                if (!m) {
+                if (m) {
+                    // A kept marker may move: other geo field, edited position
+                    m.marker.setLngLat([c.lng, c.lat]);
+                } else {
                     const node = document.createElement('div');
                     m = {
                         node,
@@ -481,8 +491,9 @@ function MapView({
 
     // Zones ------------------------------------------------------------------
 
+    const zonesConditionId = mapZonesConditionId(field.slug);
     const zonesCondition = search.conditions.find(
-        c => c.id === MAP_ZONES_CONDITION_ID
+        c => c.id === zonesConditionId
     );
     const zonesQuery = zonesCondition?.query;
     const circles = useMemo(
@@ -494,15 +505,15 @@ function MapView({
     const setZones = useCallback(
         (next: GeoCircle[]) => {
             if (next.length === 0) {
-                search.removeCondition(MAP_ZONES_CONDITION_ID);
+                search.removeCondition(zonesConditionId);
             } else {
                 search.upsertCondition({
-                    id: MAP_ZONES_CONDITION_ID,
+                    id: zonesConditionId,
                     query: circlesToAQL(field.slug, next),
                 });
             }
         },
-        [search, field.slug]
+        [search, zonesConditionId, field.slug]
     );
 
     const shownCircles = useMemo(
@@ -586,10 +597,13 @@ function MapView({
                 setDrawing(false);
             }
         };
+        const cancel = () => {
+            center = null;
+            setDraft(null);
+        };
         const onKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
-                center = null;
-                setDraft(null);
+                cancel();
                 setDrawing(false);
             }
         };
@@ -599,6 +613,7 @@ function MapView({
         map.on('mousemove', onMove);
         map.on('touchmove', onMove);
         map.on('touchend', finish);
+        map.on('touchcancel', cancel);
         // Released outside of the map too
         window.addEventListener('mouseup', finish);
         window.addEventListener('keydown', onKeyDown);
@@ -609,6 +624,7 @@ function MapView({
             map.off('mousemove', onMove);
             map.off('touchmove', onMove);
             map.off('touchend', finish);
+            map.off('touchcancel', cancel);
             window.removeEventListener('mouseup', finish);
             window.removeEventListener('keydown', onKeyDown);
             canvas.style.cursor = '';
@@ -748,11 +764,17 @@ function MapView({
             }
             edited = null;
         };
-        const onKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && grab) {
+        // The grab would otherwise outlive the gesture: the next pan would move the zone
+        const cancel = () => {
+            if (grab) {
                 grab = null;
                 edited = null;
                 setZoneEdit(null);
+            }
+        };
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                cancel();
             }
         };
 
@@ -761,6 +783,7 @@ function MapView({
         map.on('mousemove', onMove);
         map.on('touchmove', onMove);
         map.on('touchend', finish);
+        map.on('touchcancel', cancel);
         // Released outside of the map too
         window.addEventListener('mouseup', finish);
         window.addEventListener('keydown', onKeyDown);
@@ -771,6 +794,7 @@ function MapView({
             map.off('mousemove', onMove);
             map.off('touchmove', onMove);
             map.off('touchend', finish);
+            map.off('touchcancel', cancel);
             window.removeEventListener('mouseup', finish);
             window.removeEventListener('keydown', onKeyDown);
             canvas.style.cursor = '';

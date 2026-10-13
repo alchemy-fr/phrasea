@@ -12,6 +12,7 @@ import {
     formatDistance,
     formatLatLng,
     hitZone,
+    mapZonesConditionId,
     moveCircle,
     padBounds,
     parseCircles,
@@ -20,6 +21,10 @@ import {
 } from './geo';
 import {parseAQL} from '@/features/search/aql/parser';
 import {AQLCondition} from '@/features/search/aql/types';
+import {
+    paramsToSearchState,
+    searchStateToParams,
+} from '@/features/search/searchState';
 
 function condition(query: string): AQLCondition {
     return parseAQL(query)!.expression as AQLCondition;
@@ -208,5 +213,23 @@ describe('map geo helpers', () => {
         expect(formatDistance(850.4, 'en')).toBe('850 m');
         expect(formatDistance(1530, 'en')).toBe('1.5 km');
         expect(formatDistance(25400, 'fr')).toBe('25 km');
+    });
+});
+
+describe('mapZonesConditionId', () => {
+    it('gives each geo attribute its own condition, kept in the URL', () => {
+        expect(mapZonesConditionId('location')).not.toBe(
+            mapZonesConditionId('shootinglocation')
+        );
+
+        const conditions = ['location', 'shootinglocation'].map(field => ({
+            id: mapZonesConditionId(field),
+            query: circlesToAQL(field, [{lat: 48.85, lng: 2.35, radius: 1500}]),
+        }));
+        const state = paramsToSearchState(
+            searchStateToParams({query: '', conditions, sortBy: []})
+        );
+
+        expect(state.conditions).toMatchObject(conditions);
     });
 });
