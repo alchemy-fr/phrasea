@@ -46,11 +46,16 @@ class ShareProcessor implements ProcessorInterface
             }
         }
 
-        foreach ($data->getRenditionDefinitions() as $definition) {
+        // A policy made private after the selection only stops delivering its
+        // renditions (see ShareReadProvider::isRenditionShared()): it must not
+        // lock the share against further edits.
+        $definitions = $data->getRenditionDefinitions();
+        $addedDefinitions = $definitions instanceof PersistentCollection ? $definitions->getInsertDiff() : $definitions->toArray();
+        foreach ($definitions as $definition) {
             if ($definition->getWorkspace()->getId() !== $workspaceId) {
                 throw new BadRequestHttpException(sprintf('Rendition definition "%s" does not belong to the workspace of the shared assets', $definition->getName()));
             }
-            if (true !== $definition->getPolicy()?->isPublic()) {
+            if (in_array($definition, $addedDefinitions, true) && true !== $definition->getPolicy()?->isPublic()) {
                 throw new BadRequestHttpException(sprintf('Rendition "%s" cannot be shared: its policy is not public', $definition->getName()));
             }
         }

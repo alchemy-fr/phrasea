@@ -7,6 +7,7 @@ namespace App\Tests\Functional\Api\Social;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Asset;
+use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Share;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
@@ -165,6 +166,30 @@ final class ShareApiTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(400);
         $this->assertStringContainsString('workspace', $response->getContent(false));
         $this->assertSame(0, self::getEntityManager()->getRepository(Share::class)->count([]));
+    }
+
+    public function testShareStaysEditableOnceASelectedPolicyTurnsPrivate(): void
+    {
+        $client = static::createClient();
+        $this->setUpWorkspace();
+        $definition = $this->createRenditionDefinition($this->workspace, 'preview', true);
+
+        $data = $client->request('POST', '/shares', self::auth(self::USER, [
+            'json' => [
+                'assets' => [self::assetIri($this->asset)],
+                'renditionDefinitions' => ['/rendition-definitions/'.$definition->getId()],
+            ],
+        ]))->toArray();
+        $this->assertResponseStatusCodeSame(201);
+
+        $em = self::getEntityManager();
+        $em->find(RenditionDefinition::class, $definition->getId())->getPolicy()->setPublic(false);
+        $em->flush();
+
+        $client->request('PATCH', '/shares/'.$data['id'], self::patchOptions(self::USER, [
+            'json' => ['name' => 'renamed'],
+        ]));
+        $this->assertResponseIsSuccessful();
     }
 
     public function testTokensAreUniquePerShare(): void
