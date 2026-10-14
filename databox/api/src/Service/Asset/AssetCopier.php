@@ -96,7 +96,7 @@ class AssetCopier
             if ($collection->getWorkspaceId() !== $workspace->getId()) {
                 throw new \InvalidArgumentException(sprintf('Failed to copy asset: Collection %s does not belong to workspace %s', $collection->getId(), $workspace->getId()));
             }
-            $copy->addToCollection($collection);
+            $copy->addToCollection($collection, assignReferenceIfNull: true);
         }
         if (null !== $asset->getSource()) {
             $copy->setSource($this->copyFile($asset->getSource(), $workspace));

@@ -6,6 +6,8 @@ namespace App\Tests\Functional\Asset;
 
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
+use App\Entity\Core\Collection;
+use App\Entity\Core\CollectionAsset;
 use App\Service\Asset\AssetCopier;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use App\Tests\Functional\Api\Rendition\RenditionTestTrait;
@@ -110,6 +112,19 @@ final class AssetCopierTest extends AbstractDataboxTestCase
         $this->assertNotSame($asset->getSource()->getId(), $copy->getSource()->getId());
     }
 
+    public function testCopyIntoCollectionSetsReferenceCollection(): void
+    {
+        $workspace = $this->getOrCreateDefaultWorkspace();
+        $source = $this->createCollection(['workspace' => $workspace]);
+        $destination = $this->createCollection(['workspace' => $workspace]);
+        $asset = $this->createAsset(['workspace' => $workspace, 'collectionId' => $source->getId()]);
+
+        $copy = $this->copy($asset, [], ['collection' => $destination]);
+
+        $this->assertSame($destination->getId(), $copy->getReferenceCollectionId());
+        $this->assertSame([$destination->getId()], $copy->getCollections()->map(fn (CollectionAsset $ca): string => $ca->getCollection()->getId())->getValues());
+    }
+
     private function copy(Asset $asset, array $allowedRenditions, array $options = []): Asset
     {
         $em = self::getEntityManager();
@@ -118,6 +133,9 @@ final class AssetCopierTest extends AbstractDataboxTestCase
 
         $asset = $em->find(Asset::class, $asset->getId());
         $workspace = $asset->getWorkspace();
+        if (isset($options['collection'])) {
+            $options['collection'] = $em->find(Collection::class, $options['collection']->getId());
+        }
 
         /** @var AssetCopier $copier */
         $copier = self::getService(AssetCopier::class);
