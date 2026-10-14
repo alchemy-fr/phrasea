@@ -1,5 +1,6 @@
 'use client';
 
+import {getUserDisplayName} from '@/lib/users';
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useInfiniteQuery, useQuery} from '@tanstack/react-query';
@@ -309,7 +310,9 @@ export function OperationTasksScreen() {
                                             </div>
                                             <div className="text-xs text-muted-foreground">
                                                 {typeof task.owner === 'object'
-                                                    ? task.owner.username
+                                                    ? getUserDisplayName(
+                                                          task.owner
+                                                      )
                                                     : ''}{' '}
                                                 ·{' '}
                                                 {formatDateTime(
@@ -565,7 +568,9 @@ function TaskDetails({id, types}: {id: string; types: TaskType[]}) {
             </div>
             <dl className="grid gap-2 sm:grid-cols-2">
                 <Row label={t('asset.info.owner', 'Owner')}>
-                    {typeof d.owner === 'object' ? d.owner.username : d.owner}
+                    {typeof d.owner === 'object'
+                        ? getUserDisplayName(d.owner)
+                        : d.owner}
                 </Row>
                 <Row label={t('asset.info.created_at', 'Created at')}>
                     {formatDateTime(d.createdAt, 'medium', i18n.language)}

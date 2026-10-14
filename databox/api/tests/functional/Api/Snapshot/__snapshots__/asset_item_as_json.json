@@ -112,11 +112,6 @@
     "extraMetadata": [],
     "id": "<asset>",
     "name": "Photo",
-    "owner": {
-        "id": "<uuid>",
-        "removed": false,
-        "username": "user"
-    },
     "privacy": 0,
     "referenceCollection": {
         "absoluteDisplayName": "Root / Child",

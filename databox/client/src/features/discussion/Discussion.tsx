@@ -1,5 +1,6 @@
 'use client';
 
+import {getUserDisplayName} from '@/lib/users';
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query';
@@ -284,11 +285,16 @@ export function Discussion({
                                 'bg-primary/10 ring-1 ring-primary/40'
                         )}
                     >
-                        <Avatar name={m.author?.username ?? '?'} size="sm" />
+                        <Avatar
+                            name={m.author ? getUserDisplayName(m.author) : '?'}
+                            size="sm"
+                        />
                         <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 text-xs">
                                 <span className="font-medium">
-                                    {m.author?.username ?? '?'}
+                                    {m.author
+                                        ? getUserDisplayName(m.author)
+                                        : '?'}
                                 </span>
                                 <Tooltip
                                     content={formatDateTime(

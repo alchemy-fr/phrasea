@@ -1,5 +1,6 @@
 'use client';
 
+import {getUserDisplayName} from '@/lib/users';
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useRouter} from 'next/navigation';
@@ -158,7 +159,9 @@ function ProfileRow({
                 {shared ? (
                     <span className="text-xs text-muted-foreground">
                         {t('profile.shared_by', 'Shared by {{owner}}', {
-                            owner: profile.owner?.username,
+                            owner: profile.owner
+                                ? getUserDisplayName(profile.owner)
+                                : undefined,
                         })}
                     </span>
                 ) : null}

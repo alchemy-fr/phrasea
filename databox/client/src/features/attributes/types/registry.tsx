@@ -1,3 +1,4 @@
+import {getUserDisplayName} from '@/lib/users';
 import type {ReactNode} from 'react';
 import type {TFunction} from 'i18next';
 import {
@@ -428,7 +429,7 @@ const userType: AttributeTypeDef = {
         ),
     formatString: value =>
         value && typeof value === 'object'
-            ? ((value as any).username ?? '')
+            ? getUserDisplayName(value as any)
             : str(value),
     normalize: value =>
         value && typeof value === 'object' ? (value as any).id : value,

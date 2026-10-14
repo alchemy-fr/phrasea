@@ -295,13 +295,6 @@
             "extraMetadata": [],
             "id": "<other>",
             "name": "Other",
-            "owner": {
-                "@id": "<genid>",
-                "@type": "UserOutput",
-                "id": "<uuid>",
-                "removed": false,
-                "username": "user"
-            },
             "privacy": 0,
             "referenceCollection": {
                 "@id": "/collections/<root>",
@@ -461,13 +454,6 @@
             "extraMetadata": [],
             "id": "<asset>",
             "name": "Photo",
-            "owner": {
-                "@id": "<genid>",
-                "@type": "UserOutput",
-                "id": "<uuid>",
-                "removed": false,
-                "username": "user"
-            },
             "privacy": 0,
             "referenceCollection": {
                 "@id": "/collections/<child>",

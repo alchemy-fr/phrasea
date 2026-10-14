@@ -24,8 +24,12 @@ trait UserOutputTrait
         $user = $this->userRepository->getUser($userId);
         if (null !== $user) {
             $output->username = $user['username'];
+            $output->firstName = $user['firstName'] ?? null;
+            $output->lastName = $user['lastName'] ?? null;
+            $output->displayName = trim(sprintf('%s %s', $output->firstName ?? '', $output->lastName ?? '')) ?: $output->username;
         } else {
             $output->username = 'User not found';
+            $output->displayName = $output->username;
             $output->removed = true;
         }
 

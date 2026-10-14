@@ -1,5 +1,6 @@
 'use client';
 
+import {getUserDisplayName} from '@/lib/users';
 import {useTranslation} from 'react-i18next';
 import {GlobeIcon, UsersIcon} from 'lucide-react';
 import type {DisplayProfile} from '@/types/api';
@@ -28,7 +29,9 @@ export function ProfileOwnership({
             <UsersIcon
                 className="size-3.5 text-muted-foreground"
                 aria-label={t('profile.shared_by', 'Shared by {{owner}}', {
-                    owner: profile.owner?.username,
+                    owner: profile.owner
+                        ? getUserDisplayName(profile.owner)
+                        : undefined,
                 })}
             />
         );

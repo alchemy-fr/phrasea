@@ -47,13 +47,6 @@
     "id": "<child>",
     "inheritedPrivacy": 0,
     "name": "Child",
-    "owner": {
-        "@id": "<genid>",
-        "@type": "UserOutput",
-        "id": "<uuid>",
-        "removed": false,
-        "username": "user"
-    },
     "parentId": "<root>",
     "privacy": 0,
     "public": false,

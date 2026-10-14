@@ -1,5 +1,6 @@
 'use client';
 
+import {getUserDisplayName} from '@/lib/users';
 import {useCallback} from 'react';
 import {useTranslation} from 'react-i18next';
 import {AsyncCombobox, ComboOption} from './AsyncCombobox';
@@ -121,7 +122,11 @@ export function UserSelect({
     const load = useCallback(async (query: string, signal: AbortSignal) => {
         const users = await getUsers(query || undefined, signal);
 
-        return users.map(u => ({value: u.id, label: u.username, item: u}));
+        return users.map(u => ({
+            value: u.id,
+            label: getUserDisplayName(u),
+            item: u,
+        }));
     }, []);
 
     if (multiple) {

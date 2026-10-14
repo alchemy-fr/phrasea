@@ -1,5 +1,6 @@
 'use client';
 
+import {getUserDisplayName} from '@/lib/users';
 import {useTranslation} from 'react-i18next';
 import {
     FileIcon,
@@ -120,7 +121,7 @@ export function UserChip({user, size = 'xs'}: {user: User; size?: Size}) {
             icon={<UserIcon className="size-3" />}
             className={cn(user.removed && 'line-through opacity-60')}
         >
-            {user.username}
+            {getUserDisplayName(user)}
         </Chip>
     );
 }

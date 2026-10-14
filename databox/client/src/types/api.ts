@@ -48,6 +48,9 @@ export type Translations = Record<string, string>;
 
 export type User = Entity & {
     username: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    displayName?: string | null;
     removed?: boolean;
 };
 

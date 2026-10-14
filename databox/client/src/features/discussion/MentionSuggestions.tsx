@@ -1,5 +1,6 @@
 'use client';
 
+import {getUserDisplayName} from '@/lib/users';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {useQuery} from '@tanstack/react-query';
@@ -208,6 +209,12 @@ export function useMentionSuggestions(editor: Editor | null) {
                               onMouseEnter={() => setActive(i)}
                           >
                               @{u.username}
+                              {getUserDisplayName(u) !== u.username ? (
+                                  <span className="text-muted-foreground">
+                                      {' '}
+                                      · {getUserDisplayName(u)}
+                                  </span>
+                              ) : null}
                           </li>
                       ))}
                   </ul>,

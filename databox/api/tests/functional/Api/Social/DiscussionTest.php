@@ -113,6 +113,7 @@ final class DiscussionTest extends AbstractDataboxTestCase
         $this->assertSame('First!', $data['content']);
         $this->assertSame(self::USER, $data['author']['id']);
         $this->assertSame('user', $data['author']['username']);
+        $this->assertSame('Test User', $data['author']['displayName']);
         $this->assertSame(['edit' => true, 'delete' => true], $data['capabilities']);
 
         $thread = $this->findThread($this->asset);

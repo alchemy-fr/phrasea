@@ -1,3 +1,4 @@
+import {getUserDisplayName} from '@/lib/users';
 import {api} from './http';
 import type {ImpersonatedUser} from '@/lib/auth/impersonation';
 
@@ -33,13 +34,7 @@ export function getImpersonableUsers(
     });
 }
 
-export function getDisplayName(u: {
-    username: string;
-    firstName?: string | null;
-    lastName?: string | null;
-}): string {
-    return [u.firstName, u.lastName].filter(Boolean).join(' ') || u.username;
-}
+export const getDisplayName = getUserDisplayName;
 
 export async function getImpersonationIdentity(
     id: string

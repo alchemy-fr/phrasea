@@ -1,5 +1,6 @@
 'use client';
 
+import {getUserDisplayName} from '@/lib/users';
 import {ComponentProps, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
@@ -269,7 +270,11 @@ export function AclEditor({
                                                               'acl.all_users',
                                                               'All users'
                                                           )
-                                                    : (ace.user?.username ??
+                                                    : ((ace.user
+                                                          ? getUserDisplayName(
+                                                                ace.user
+                                                            )
+                                                          : undefined) ??
                                                       ace.group?.name ??
                                                       ace.userId)}
                                             </span>
