@@ -65,6 +65,7 @@ use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Processor\UnfollowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
 use App\Api\Provider\AssetDuplicatesProvider;
+use App\Api\Provider\AssetGeoClusterProvider;
 use App\Api\Provider\AssetMetricsProvider;
 use App\Api\Provider\ItemElasticsearchDocumentProvider;
 use App\Api\Provider\SearchSuggestionCollectionProvider;
@@ -116,6 +117,59 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'workspaces' => new QueryParameter(
                     schema: ['type' => 'array<string>'],
                     description: 'Workspaces ID',
+                ),
+            ],
+        ),
+        new GetCollection(
+            uriTemplate: '/assets/geo-clusters',
+            description: 'Clusters the geolocated assets matching the search on a tile grid',
+            name: 'geo_clusters',
+            provider: AssetGeoClusterProvider::class,
+            parameters: [
+                'field' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Geo point attribute key (e.g. "location_geo-point_s")',
+                    required: true,
+                    castToArray: false,
+                ),
+                'precision' => new QueryParameter(
+                    schema: ['type' => 'integer', 'minimum' => 0, 'maximum' => 29],
+                    description: 'Tile zoom level of the clusters',
+                    castToArray: false,
+                ),
+                'bounds' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Area to cluster: "top,left,bottom,right" (latitudes and longitudes)',
+                    castToArray: false,
+                ),
+                'collection' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Collection the assets directly belong to',
+                ),
+                'conditions' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Use AQL condition to filter assets',
+                ),
+                'workspaces' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Workspaces ID',
+                ),
+                'parents' => new QueryParameter(
+                    schema: ['type' => 'array<string>'],
+                    description: 'Parent collections ID (recursive)',
+                ),
+                'story' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Story asset ID',
+                ),
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Search query',
+                ),
+                'savedSearch' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Saved search ID: its query and conditions are merged in',
+                    castToArray: false,
                 ),
             ],
         ),

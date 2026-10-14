@@ -44,6 +44,12 @@ import {ConditionDialog} from './ConditionDialog';
 import {cn} from '@/lib/utils/cn';
 import {iri} from '@/lib/utils/iri';
 import {Tooltip} from '@/components/ui/overlays';
+import {
+    conditionBounds,
+    conditionCircle,
+    formatDistance,
+    formatLatLng,
+} from '@/features/map/geo';
 
 export function SearchConditionChip({condition}: {condition: AQLQuery}) {
     const {t} = useTranslation();
@@ -215,7 +221,7 @@ function Keyword({children}: {children: ReactNode}) {
 }
 
 function HumanizedCondition({condition}: {condition: AQLCondition}) {
-    const {t} = useTranslation();
+    const {t, i18n} = useTranslation();
     const definitions = useDefinitionsBySlug();
     const field = isField(condition.leftOperand)
         ? condition.leftOperand.field
@@ -230,6 +236,7 @@ function HumanizedCondition({condition}: {condition: AQLCondition}) {
     const values =
         right === undefined ? [] : Array.isArray(right) ? right : [right];
     const isBetween = condition.operator.includes('BETWEEN');
+    const geoArea = humanizeGeoArea(condition, t, i18n.language);
 
     return (
         <>
@@ -241,6 +248,67 @@ function HumanizedCondition({condition}: {condition: AQLCondition}) {
                     definition?.type ? rawTypeMap[definition.type] : undefined
                 )}
             </Keyword>{' '}
+            {geoArea ?? (
+                <HumanizedValues
+                    values={values}
+                    isBetween={isBetween}
+                    definition={
+                        condition.operator.startsWith('WITHIN_')
+                            ? undefined
+                            : definition
+                    }
+                    t={t}
+                />
+            )}
+        </>
+    );
+}
+
+/**
+ * The arguments of the geo operators are coordinates and a distance, not
+ * values of the geo point field: its formatter cannot render them.
+ */
+function humanizeGeoArea(
+    condition: AQLCondition,
+    t: ReturnType<typeof useTranslation>['t'],
+    lang: string
+): string | undefined {
+    const circle = conditionCircle(condition);
+    if (circle) {
+        return t('search.condition.geo.circle', {
+            defaultValue: '{{radius}} around {{center}}',
+            radius: formatDistance(circle.radius, lang),
+            center: formatLatLng(circle),
+        });
+    }
+    const bounds = conditionBounds(condition);
+    if (bounds) {
+        return t('search.condition.geo.rectangle', {
+            defaultValue: 'from {{topLeft}} to {{bottomRight}}',
+            topLeft: formatLatLng({lat: bounds.top, lng: bounds.left}),
+            bottomRight: formatLatLng({
+                lat: bounds.bottom,
+                lng: bounds.right,
+            }),
+        });
+    }
+
+    return undefined;
+}
+
+function HumanizedValues({
+    values,
+    isBetween,
+    definition,
+    t,
+}: {
+    values: AQLValueExpr[];
+    isBetween: boolean;
+    definition: ReturnType<typeof useDefinitionsBySlug>[string] | undefined;
+    t: ReturnType<typeof useTranslation>['t'];
+}) {
+    return (
+        <>
             {values.length > 1 && !isBetween ? '(' : ''}
             {values.map((v, i) => (
                 <Fragment key={i}>

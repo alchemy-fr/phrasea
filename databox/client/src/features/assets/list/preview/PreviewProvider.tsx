@@ -17,11 +17,10 @@ import {
     useDisplayPreferences,
     usePreferencesStore,
 } from '@/features/preferences/store';
-import {FilePlayer} from '@/features/assets/player/FilePlayer';
-import {AttributeList} from '@/features/attributes/AttributeList';
 import {Button} from '@/components/ui/button';
 import {useLiveAsset} from '@/features/assets/assetStore';
 import {cn} from '@/lib/utils/cn';
+import {AssetPreview} from './AssetPreview';
 
 type PreviewContextValue = {
     onEnter: (asset: Asset, anchor: HTMLElement) => void;
@@ -161,8 +160,7 @@ function PreviewPopover({
     const {t} = useTranslation();
     const asset = useLiveAsset(initial);
     const display = useDisplayPreferences();
-    const {sizeRatio, attributesRatio, displayFile, displayAttributes} =
-        display.previewOptions;
+    const {sizeRatio} = display.previewOptions;
     const [pos, setPos] = useState<{
         top: number;
         left: number;
@@ -197,9 +195,6 @@ function PreviewPopover({
     if (!pos) {
         return null;
     }
-    const file = asset.preview?.file ?? asset.thumbnail?.file;
-    const showFile = displayFile && !!file;
-    const showAttrs = displayAttributes;
 
     return (
         <div
@@ -216,41 +211,7 @@ function PreviewPopover({
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
         >
-            {showFile ? (
-                <div
-                    className="relative flex min-w-0 flex-1 items-center justify-center bg-media-bg"
-                    style={{
-                        flexBasis: showAttrs
-                            ? `${(1 - attributesRatio) * 100}%`
-                            : '100%',
-                    }}
-                >
-                    <FilePlayer
-                        file={file!}
-                        autoPlay={display.playVideos}
-                        controls={locked}
-                        fit="contain"
-                    />
-                </div>
-            ) : null}
-            {showAttrs ? (
-                <div
-                    className={cn(
-                        'min-w-0 overflow-y-auto p-3',
-                        !locked && 'overflow-hidden'
-                    )}
-                    style={{
-                        flexBasis: showFile
-                            ? `${attributesRatio * 100}%`
-                            : '100%',
-                    }}
-                >
-                    <h3 className="mb-2 truncate text-sm font-semibold">
-                        {asset.name}
-                    </h3>
-                    <AttributeList asset={asset} pinnedOnly dense />
-                </div>
-            ) : null}
+            <AssetPreview asset={asset} interactive={locked} />
             {locked ? (
                 <Button
                     variant="destructive"

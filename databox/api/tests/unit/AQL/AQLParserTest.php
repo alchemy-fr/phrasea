@@ -647,6 +647,33 @@ class AQLParserTest extends TestCase
                     ['literal' => '10km'],
                 ],
             ]],
+            ['my_field WITHIN CIRCLE (-33.86, -70.65, "1500m")', [
+                'type' => 'criteria',
+                'operator' => 'WITHIN_CIRCLE',
+                'leftOperand' => ['field' => 'my_field'],
+                'rightOperand' => [
+                    -33.86,
+                    -70.65,
+                    ['literal' => '1500m'],
+                ],
+            ]],
+            ['foo = -3', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => -3,
+            ]],
+            ['foo = 5 - -3', [
+                'type' => 'criteria',
+                'operator' => '=',
+                'leftOperand' => ['field' => 'foo'],
+                'rightOperand' => [
+                    'type' => 'value_expression',
+                    'operator' => '-',
+                    'leftOperand' => 5,
+                    'rightOperand' => -3,
+                ],
+            ]],
             ['my_field WITHIN RECTANGLE (1.1, 1.2, 2.1, 2.2)', [
                 'type' => 'criteria',
                 'operator' => 'WITHIN_RECTANGLE',

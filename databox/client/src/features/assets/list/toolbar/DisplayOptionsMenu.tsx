@@ -6,6 +6,7 @@ import {
     LayoutDashboardIcon,
     LayoutGridIcon,
     ListIcon,
+    MapIcon,
     ScanIcon,
     SlidersHorizontalIcon,
 } from 'lucide-react';
@@ -23,17 +24,28 @@ import {
     useDisplayPreferences,
     usePreferencesStore,
 } from '@/features/preferences/store';
+import {useConfig} from '@/lib/config/ConfigProvider';
 
 /** at most one save of the display preferences per interval while sliding */
 const sliderSaveInterval = 1000;
 
+/** Icon above the label: four layouts side by side would overflow the popover */
+const layoutTabClass = 'flex-col gap-1 py-1.5 text-xs';
+
 export function DisplayOptionsMenu({
     prefKey = 'display',
+    allowMap = false,
 }: {
     prefKey?: 'display' | 'displayBatchEdit';
+    /** Offer the map layout: only search results can be placed on a map */
+    allowMap?: boolean;
 }) {
     const {t} = useTranslation();
     const display = useDisplayPreferences(prefKey);
+    const mapbox = useConfig().mapbox;
+    const withMap = allowMap && !!mapbox;
+    const layout =
+        display.layout === 'map' && !withMap ? 'grid' : display.layout;
     const updatePreference = usePreferencesStore(s => s.updatePreference);
 
     /** `throttle`: sliders, whose values change continuously while dragged */
@@ -70,42 +82,63 @@ export function DisplayOptionsMenu({
                         {t('display.layout', 'Layout')}
                     </Label>
                     <Tabs
-                        value={display.layout}
+                        value={layout}
                         onValueChange={v =>
                             patch({layout: v as DisplayPreferences['layout']})
                         }
                     >
-                        <TabsList className="w-full">
-                            <TabsTrigger value="grid">
+                        <TabsList className="h-auto w-full">
+                            <TabsTrigger
+                                value="grid"
+                                className={layoutTabClass}
+                            >
                                 <LayoutGridIcon /> {t('display.grid', 'Grid')}
                             </TabsTrigger>
-                            <TabsTrigger value="masonry">
+                            <TabsTrigger
+                                value="masonry"
+                                className={layoutTabClass}
+                            >
                                 <LayoutDashboardIcon />{' '}
                                 {t('display.masonry', 'Masonry')}
                             </TabsTrigger>
-                            <TabsTrigger value="list">
+                            <TabsTrigger
+                                value="list"
+                                className={layoutTabClass}
+                            >
                                 <ListIcon /> {t('display.list', 'List')}
                             </TabsTrigger>
+                            {withMap ? (
+                                <TabsTrigger
+                                    value="map"
+                                    className={layoutTabClass}
+                                    data-testid="layout-map"
+                                >
+                                    <MapIcon /> {t('display.map', 'Map')}
+                                </TabsTrigger>
+                            ) : null}
                         </TabsList>
                     </Tabs>
                 </div>
-                <div>
-                    <Label className="mb-2 justify-between">
-                        {t('display.thumb_size', 'Thumbnail size')}
-                        <span className="text-xs text-muted-foreground">
-                            {display.thumbSize}px
-                        </span>
-                    </Label>
-                    <Slider
-                        min={60}
-                        max={400}
-                        step={10}
-                        value={[display.thumbSize]}
-                        onValueChange={([v]) => patch({thumbSize: v}, true)}
-                    />
-                </div>
-                {/* A masonry thumbnail keeps its own ratio: nothing to fit */}
-                {display.layout !== 'masonry' ? (
+                {layout !== 'map' ? (
+                    <div>
+                        <Label className="mb-2 justify-between">
+                            {t('display.thumb_size', 'Thumbnail size')}
+                            <span className="text-xs text-muted-foreground">
+                                {display.thumbSize}px
+                            </span>
+                        </Label>
+                        <Slider
+                            min={60}
+                            max={400}
+                            step={10}
+                            value={[display.thumbSize]}
+                            onValueChange={([v]) => patch({thumbSize: v}, true)}
+                        />
+                    </div>
+                ) : null}
+                {/* A masonry thumbnail keeps its own ratio, a map shows no
+                thumbnail grid: nothing to fit */}
+                {layout !== 'masonry' && layout !== 'map' ? (
                     <div>
                         <Label className="mb-2">
                             {t('display.thumb_fit', 'Thumbnail fit')}

@@ -1,6 +1,7 @@
 'use client';
 
 import {useEffect, useState} from 'react';
+import dynamic from 'next/dynamic';
 import {useTranslation} from 'react-i18next';
 import {PlusIcon} from 'lucide-react';
 import {SearchProvider, useOptionalSearch, useSearch} from './SearchProvider';
@@ -13,6 +14,7 @@ import {SelectionProvider} from '@/features/assets/list/SelectionProvider';
 import {AssetToolbar} from '@/features/assets/list/toolbar/AssetToolbar';
 import {NoResults} from './NoResults';
 import {AssetStackLoader} from '@/components/ui/asset-loaders';
+import {Spinner} from '@/components/ui/loader';
 import {SearchError} from './SearchError';
 import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
 import {Button} from '@/components/ui/button';
@@ -24,6 +26,17 @@ import {UploadDialog} from '@/features/upload/UploadDialog';
 import {useAssetOpener} from '@/features/assets/useAssetOpener';
 import {ExportWatcher} from '@/features/assets/ExportWatcher';
 import {useDisplayPreferences} from '@/features/preferences/store';
+import {useConfig} from '@/lib/config/ConfigProvider';
+
+// Mapbox weighs about 1 MB and needs a browser: loaded with the map layout only
+const AssetMap = dynamic(() => import('@/features/map/AssetMap'), {
+    ssr: false,
+    loading: () => (
+        <div className="flex h-full items-center justify-center">
+            <Spinner />
+        </div>
+    ),
+});
 
 export function AssetSearchScreen() {
     // Providers normally come from the app layout; keep a fallback for
@@ -54,6 +67,8 @@ function SearchScreenContent() {
     const loadDefinitions = useDefinitionsStore(s => s.load);
     const openAsset = useAssetOpener();
     const display = useDisplayPreferences();
+    const mapbox = useConfig().mapbox;
+    const showMap = display.layout === 'map' && !!mapbox;
 
     useEffect(() => {
         void loadDefinitions();
@@ -106,7 +121,11 @@ function SearchScreenContent() {
             </div>
 
             <div className="relative min-h-0 flex-1">
-                {results.error ? (
+                {/* The map stays on screen whatever the results: its zones are
+                how the user searches */}
+                {showMap ? (
+                    <AssetMap />
+                ) : results.error ? (
                     <SearchError
                         error={results.error}
                         onRetry={() => results.reload()}

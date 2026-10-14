@@ -75,6 +75,87 @@ export async function searchAssets(
     };
 }
 
+/** Latitudes and longitudes of a box */
+export type GeoBounds = {
+    top: number;
+    left: number;
+    bottom: number;
+    right: number;
+};
+
+export type GeoCluster = {
+    /** The tile: `zoom/x/y` */
+    key: string;
+    count: number;
+    /** Centroid of the clustered positions */
+    lat: number;
+    lng: number;
+    bounds: GeoBounds;
+    /** The asset, when the cluster holds a single one */
+    assetId: string | null;
+};
+
+export type GeoClusterResult = {
+    /** The assets matching the search */
+    total: number;
+    /** The assets matching the search that have a position */
+    geolocated: number;
+    /** Box of all the positions, whatever the clustered area */
+    bounds: GeoBounds | null;
+    clusters: GeoCluster[];
+};
+
+/** The options of a search that select its assets: sorting and paging aside */
+export type GeoClusterSearch = Pick<
+    SearchAssetsOptions,
+    'query' | 'conditions' | 'savedSearch' | 'workspaces' | 'parents' | 'story'
+>;
+
+export function geoClusterSearch({
+    query,
+    conditions,
+    savedSearch,
+    workspaces,
+    parents,
+    story,
+}: SearchAssetsOptions): GeoClusterSearch {
+    return {query, conditions, savedSearch, workspaces, parents, story};
+}
+
+/**
+ * Clusters on a tile grid the positions of the assets matching a search.
+ */
+export async function getGeoClusters(
+    search: GeoClusterSearch,
+    {
+        field,
+        precision,
+        bounds,
+    }: {
+        /** The geo point attribute key (`location_geo-point_s`) */
+        field: string;
+        /** Tile zoom level (0-29) of the clusters */
+        precision: number;
+        /** Area to cluster, the whole world when omitted */
+        bounds?: GeoBounds;
+    },
+    signal?: AbortSignal
+): Promise<GeoClusterResult> {
+    return api.get<GeoClusterResult>(`/${EntityName.Asset}/geo-clusters`, {
+        params: {
+            ...search,
+            field,
+            precision,
+            bounds: bounds
+                ? [bounds.top, bounds.left, bounds.bottom, bounds.right].join(
+                      ','
+                  )
+                : undefined,
+        },
+        signal,
+    });
+}
+
 export async function getSearchSuggestions(
     query: string,
     options: {

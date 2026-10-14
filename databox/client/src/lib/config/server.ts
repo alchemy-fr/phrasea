@@ -100,5 +100,9 @@ export function getServerConfig(): AppConfig {
             enabled: bool(env.DATABOX_TICKETING_ENABLED),
         },
         logo: env.APP_LOGO_SRC ? {src: env.APP_LOGO_SRC} : undefined,
+        mapbox:
+            env.MAPBOX_TOKEN && env.MAPBOX_TOKEN !== 'define-me'
+                ? {token: env.MAPBOX_TOKEN}
+                : undefined,
     };
 }
