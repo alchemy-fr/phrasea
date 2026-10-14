@@ -41,8 +41,10 @@ RUN apk add --no-cache \
         freetype-dev \
         imagemagick-dev \
     && pecl clear-cache \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install \
         exif \
+        gd \
     && pecl install \
         imagick-${IMAGICK_VERSION} \
     && docker-php-ext-enable \
