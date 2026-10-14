@@ -44,10 +44,12 @@ export default class PhraseanetClient {
 
     constructor(options: PhraseanetConfig, logger: winston.Logger) {
         this.client = createPhraseanetClient(options);
-        const [f, o] = (options.searchOrder ?? '').split(',');
+        // ''.split(',') is [''], never [], so the fields are empty strings
+        // rather than undefined and `??` would never fire.
+        const [f, o] = (options.searchOrder || '').split(',');
 
-        this.sortField = f ?? 'record_id';
-        this.sortOrder = (o ?? 'asc').toLowerCase();
+        this.sortField = f || 'record_id';
+        this.sortOrder = (o || 'asc').toLowerCase();
 
         if (
             this.sortField != 'record_id' ||

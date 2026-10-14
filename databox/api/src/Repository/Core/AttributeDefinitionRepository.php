@@ -23,6 +23,7 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     public const string OPT_TYPES = 'types';
     public const string OPT_FACET_ENABLED = 'facet_enabled';
     public const string OPT_SUGGEST_ENABLED = 'suggest_enabled';
+    public const string OPT_IDS = 'ids';
 
     private CacheInterface $cache;
 
@@ -208,6 +209,12 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
             $queryBuilder
                 ->andWhere('t.suggest = :suggest')
                 ->setParameter('suggest', $options[self::OPT_SUGGEST_ENABLED]);
+        }
+
+        if (!empty($options[self::OPT_IDS])) {
+            $queryBuilder
+                ->andWhere('t.id IN (:ids)')
+                ->setParameter('ids', $options[self::OPT_IDS]);
         }
 
         if ($options[self::OPT_FACET_ENABLED] ?? null) {

@@ -8,12 +8,11 @@ use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Entity\Discussion\Message;
 use App\Service\Discussion\DiscussionPusher;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PreRemoveEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::preRemove)]
-readonly class ThreadMessageListener implements EventSubscriber
+readonly class ThreadMessageListener
 {
     public function __construct(
         private DiscussionPusher $discussionPusher,
@@ -30,12 +29,5 @@ readonly class ThreadMessageListener implements EventSubscriber
                 $this->discussionPusher->dispatchMessageToThread($object, removed: true);
             });
         }
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::preRemove,
-        ];
     }
 }

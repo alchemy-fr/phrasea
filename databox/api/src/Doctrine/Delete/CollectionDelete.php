@@ -40,10 +40,6 @@ final readonly class CollectionDelete
                 return;
             }
 
-            $configuration = $this->em->getConnection()->getConfiguration();
-            $logger = $configuration->getSQLLogger();
-            $configuration->setSQLLogger();
-
             DeferredIndexListener::disable();
             $this->collectionListener->softDeleteEnabled = false;
 
@@ -57,7 +53,6 @@ final readonly class CollectionDelete
             } finally {
                 DeferredIndexListener::enable();
                 $this->collectionListener->softDeleteEnabled = true;
-                $configuration->setSQLLogger($logger);
             }
         } else {
             $this->doDelete($collectionId);

@@ -8,10 +8,9 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\Put;
-use App\Api\InputTransformer\TemplateAttributeInputTransformer;
-use App\Api\Model\Input\Attribute\AttributeInput;
+use App\Api\Model\Input\Template\TemplateAttributeInput;
 use App\Api\Model\Output\AttributeOutput;
+use App\Api\Processor\InputMapperProcessor;
 use App\Entity\Core\AbstractBaseAttribute;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
@@ -19,22 +18,20 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     shortName: 'template-attribute',
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)', processor: InputMapperProcessor::class),
     ],
     normalizationContext: [
         'groups' => [Attribute::GROUP_LIST],
     ],
-    input: AttributeInput::class,
+    input: TemplateAttributeInput::class,
     output: AttributeOutput::class,
-    processor: TemplateAttributeInputTransformer::class,
 )]
 #[ORM\Entity]
 class TemplateAttribute extends AbstractBaseAttribute
@@ -43,7 +40,7 @@ class TemplateAttribute extends AbstractBaseAttribute
     #[ORM\JoinColumn(nullable: false)]
     private ?AssetDataTemplate $template = null;
 
-    #[ORM\ManyToOne(targetEntity: AttributeDefinition::class, inversedBy: 'attributes')]
+    #[ORM\ManyToOne(targetEntity: AttributeDefinition::class)]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     #[Groups([AssetDataTemplate::GROUP_READ])]
     protected ?AttributeDefinition $definition = null;

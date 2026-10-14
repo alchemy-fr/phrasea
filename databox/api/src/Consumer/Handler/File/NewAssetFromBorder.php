@@ -17,6 +17,7 @@ final readonly class NewAssetFromBorder
         private ?string $filename = null,
         private ?array $formData = null,
         private ?string $locale = null,
+        private ?array $relationExtraMetadata = null,
     ) {
     }
 
@@ -53,5 +54,10 @@ final readonly class NewAssetFromBorder
     public function getLocale(): ?string
     {
         return $this->locale;
+    }
+
+    public function getRelationExtraMetadata(): ?array
+    {
+        return $this->relationExtraMetadata;
     }
 }

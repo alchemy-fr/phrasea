@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Api\Model\Output;
 
 use App\Entity\Profile\Profile;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 final readonly class ProfileItemOutput
 {
@@ -39,6 +39,16 @@ final readonly class ProfileItemOutput
         public ?bool $showLabel = null,
         #[Groups([Profile::GROUP_READ])]
         public ?bool $showIcon = null,
+        #[Groups([Profile::GROUP_READ])]
+        public ?string $widget = null,
+        #[Groups([Profile::GROUP_READ])]
+        public ?string $trueLabel = null,
+        #[Groups([Profile::GROUP_READ])]
+        public ?string $falseLabel = null,
+        #[Groups([Profile::GROUP_READ])]
+        public ?bool $reversed = null,
+        #[Groups([Profile::GROUP_READ])]
+        public ?string $defaultQuery = null,
     ) {
     }
 }

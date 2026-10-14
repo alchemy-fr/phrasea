@@ -6,6 +6,7 @@ namespace App\Security\Voter;
 
 use App\Entity\Workflow\WorkflowState;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class WorkflowStateVoter extends AbstractVoter
 {
@@ -23,7 +24,7 @@ class WorkflowStateVoter extends AbstractVoter
     /**
      * @param WorkflowState $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if (null !== $asset = $subject->getAsset()) {
             return $this->security->isGranted(AbstractVoter::EDIT, $asset);

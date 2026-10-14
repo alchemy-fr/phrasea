@@ -16,7 +16,9 @@ use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Imagine\Exception\RuntimeException as ImagineRuntimeException;
 use Liip\ImagineBundle\Model\FileBinary;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'imagine')]
 final readonly class ImagineTransformerModule implements TransformerModuleInterface, BuildHashDiffInterface
 {
     public function __construct(

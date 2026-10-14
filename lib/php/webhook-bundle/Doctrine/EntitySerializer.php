@@ -99,18 +99,6 @@ class EntitySerializer
         return $newData;
     }
 
-    public function convertChangeSetToPhpValue(string $class, array $data): array
-    {
-        $meta = $this->em->getClassMetadata($class);
-        foreach ($data as $field => &$values) {
-            foreach ($values as &$value) {
-                $value = $this->convertFieldToPhpValue($meta, $field, $value);
-            }
-        }
-
-        return $data;
-    }
-
     private function convertFieldToPhpValue(ClassMetadata $meta, string $field, $value)
     {
         if ($meta->isCollectionValuedAssociation($field)) {

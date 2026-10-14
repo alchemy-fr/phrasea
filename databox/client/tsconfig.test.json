@@ -1,7 +1,0 @@
-{
-    "compilerOptions": {
-        "module": "ESNext", // or ES2022
-        "target": "ESNext",
-        "esModuleInterop": true
-    }
-}

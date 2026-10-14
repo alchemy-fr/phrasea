@@ -12,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -39,7 +39,7 @@ class IntegrationAuthController extends AbstractController
             'integrationId' => $integrationId,
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 
-        $token = $request->get('token');
+        $token = $request->query->get('token');
         if (empty($token)) {
             throw new BadRequestHttpException('Missing token in state');
         }
@@ -56,7 +56,7 @@ class IntegrationAuthController extends AbstractController
     #[Route(path: '/{integrationId}/code', name: 'code')]
     public function codeAction(string $integrationId, Request $request): Response
     {
-        $code = $request->get('code');
+        $code = $request->query->get('code');
         $integration = $this->integrationManager->loadIntegration($integrationId);
         $options = $this->integrationManager->getIntegrationConfiguration($integration);
 
@@ -73,7 +73,7 @@ class IntegrationAuthController extends AbstractController
             ],
         ])->toArray();
 
-        $token = $request->get('state');
+        $token = $request->query->get('state');
         if (empty($token)) {
             throw new BadRequestHttpException('Missing token');
         }

@@ -19,7 +19,7 @@ paths and therefore only matches exact — i.e. direct — memberships.
 |-------------------------|------------------------------------------|
 | Query parameter         | `GET /assets?parents[]=<collectionId>`   |
 | Query parameter (single)| `GET /assets?parent=<collectionId>`      |
-| AQL built-in attribute  | `@collection = "<collectionId>"`         |
+| AQL built-in attribute  | `@collection IS "<collectionId>"`        |
 
 Matches assets belonging to the given collection **or to any of its sub collections**.
 
@@ -28,7 +28,7 @@ Matches assets belonging to the given collection **or to any of its sub collecti
 | Form                   | Example                                              |
 |------------------------|------------------------------------------------------|
 | Query parameter        | `GET /assets?directCollections[]=<id1>&directCollections[]=<id2>` |
-| AQL built-in attribute | `@directCollection IN ("<id1>", "<id2>")`            |
+| AQL built-in attribute | `@directCollection IS ANY OF ("<id1>", "<id2>")`     |
 
 Both accept a list of collection IDs and apply the following semantics:
 
@@ -42,15 +42,16 @@ returned when filtering on `A`.
 An asset attached to several of the requested collections is returned once.
 
 The AQL attribute (key `@directCollection`, exposed by `GET /built-in-attributes`)
-supports the `=`, `!=`, `IN`, `NOT IN`, `EXISTS` and `IS MISSING` operators, so it
-can be freely combined with any other condition:
+supports the `IS`, `IS NOT`, `IS ANY OF`, `IS NONE OF`, `IS EMPTY` and `IS NOT EMPTY`
+operators (and their aliases `=`, `!=`, `IN`, `NOT IN`, `IS MISSING`, `EXISTS`, see
+[AQL](./aql.md)), so it can be freely combined with any other condition:
 
 ```
-@directCollection IN ("<id1>", "<id2>") AND @createdAt >= "2026-01-01"
+@directCollection IS ANY OF ("<id1>", "<id2>") AND @createdAt >= "2026-01-01"
 ```
 
 The `directCollections[]` query parameter is strictly equivalent to
-`conditions[]=@directCollection IN (…)` and, like `parents[]`, answers `404` when
+`conditions[]=@directCollection IS ANY OF (…)` and, like `parents[]`, answers `404` when
 none of the requested collections exists. An unusable value passed to
 `@directCollection` (not a UUID, or an unknown collection) answers `400`.
 

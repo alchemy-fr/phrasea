@@ -50,7 +50,7 @@ final readonly class NewAssetFromBorderHandler
             if (null === $asset->getReferenceCollection()) {
                 $asset->setReferenceCollection($collection);
             }
-            $assetCollection = $asset->addToCollection($collection);
+            $assetCollection = $asset->addToCollection($collection, extraMetadata: $message->getRelationExtraMetadata());
             $this->em->persist($assetCollection);
         }
 

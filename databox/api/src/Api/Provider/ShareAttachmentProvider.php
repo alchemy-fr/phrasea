@@ -29,7 +29,7 @@ final class ShareAttachmentProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object
     {
-        $item = $this->shareRepository->find($uriVariables['id']);
+        $item = $this->shareRepository->find((string) $uriVariables['id']);
         if (!$item instanceof Share) {
             return $this->createNotFoundResponse();
         }
@@ -38,13 +38,13 @@ final class ShareAttachmentProvider implements ProviderInterface
             return $this->createNotFoundResponse();
         }
 
-        $attachment = $this->em->find(AssetAttachment::class, $uriVariables['attachment']);
+        $attachment = $this->em->find(AssetAttachment::class, (string) $uriVariables['attachment']);
         if (!$attachment instanceof AssetAttachment) {
             return $this->createNotFoundResponse();
         }
 
         $belongsToShare = false;
-        foreach ($item->getAssetsList() as $asset) {
+        foreach ($item->getDeliverableAssets() as $asset) {
             if ($attachment->getAsset()?->getId() === $asset->getId()) {
                 $belongsToShare = true;
                 break;

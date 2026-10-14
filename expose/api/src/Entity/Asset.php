@@ -4,19 +4,21 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SortFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
-use App\Controller\CreateAssetAction;
-use App\Controller\DeleteAssetsAction;
-use App\Controller\GetAssetWithSlugAction;
+use ApiPlatform\Metadata\QueryParameter;
+use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
+use ApiPlatform\OpenApi\Model\RequestBody;
+use App\Api\Processor\CreateAssetProcessor;
+use App\Api\Processor\DeleteAssetsByAssetIdProcessor;
+use App\Api\Provider\AssetBySlugProvider;
 use App\Entity\Traits\ClientAnnotationsTrait;
 use App\Repository\AssetRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -43,25 +45,27 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Get(
             uriTemplate: '/publications/{publicationSlug}/assets/{assetSlug}',
-            defaults: ['_api_receive' => false],
-            controller: GetAssetWithSlugAction::class
+            uriVariables: [
+                'publicationSlug' => new Link(fromClass: Publication::class, identifiers: ['slug']),
+                'assetSlug' => new Link(fromClass: Asset::class, identifiers: ['slug']),
+            ],
+            provider: AssetBySlugProvider::class,
         ),
-        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)'),
         new Delete(
             uriTemplate: '/assets/delete-by-asset-id/{assetId}',
             uriVariables: [],
-            controller: DeleteAssetsAction::class,
-            openapiContext: [
-                'summary' => 'Delete all assets by the given assetId',
-                'description' => 'Delete all assets by the given assetId',
-            ],
+            openapi: new OpenApiOperation(
+                summary: 'Delete all assets by the given assetId',
+                description: 'Delete all assets by the given assetId',
+            ),
             read: false,
+            processor: DeleteAssetsByAssetIdProcessor::class,
         ),
         new Post(
-            controller: CreateAssetAction::class,
-            openapiContext: [
-                'requestBody' => [
-                    'content' => [
+            openapi: new OpenApiOperation(
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
                         'application/json' => [
                             'examples' => [
                                 'Multipart upload' => [
@@ -157,12 +161,19 @@ use Symfony\Component\Validator\Constraints as Assert;
                                 ],
                             ],
                         ],
-                    ],
-                ],
-            ],
-            deserialize: false
+                    ]),
+                ),
+            ),
+            deserialize: false,
+            processor: CreateAssetProcessor::class,
         ),
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'order[title]' => new QueryParameter(filter: new SortFilter(), property: 'title', castToArray: false),
+                'order[position]' => new QueryParameter(filter: new SortFilter(), property: 'position', castToArray: false),
+                'order[createdAt]' => new QueryParameter(filter: new SortFilter(), property: 'createdAt', castToArray: false),
+            ],
+        ),
     ],
     normalizationContext: [
         'groups' => [self::GROUP_READ],
@@ -172,16 +183,21 @@ use Symfony\Component\Validator\Constraints as Assert;
     uriTemplate: '/publications/{id}/assets.{_format}',
     shortName: 'asset',
     operations: [
-        new GetCollection(),
+        new GetCollection(
+            parameters: [
+                'order[title]' => new QueryParameter(filter: new SortFilter(), property: 'title', castToArray: false),
+                'order[position]' => new QueryParameter(filter: new SortFilter(), property: 'position', castToArray: false),
+                'order[createdAt]' => new QueryParameter(filter: new SortFilter(), property: 'createdAt', castToArray: false),
+            ],
+        ),
         new Post(
-            controller: CreateAssetAction::class,
-            // The controller resolves the publication itself; without this, API Platform
+            // The processor resolves the publication itself; without this, API Platform
             // "reads" the item through the publication link and fails with a
             // NonUniqueResultException as soon as the publication holds several assets.
             read: false,
-            openapiContext: [
-                'requestBody' => [
-                    'content' => [
+            openapi: new OpenApiOperation(
+                requestBody: new RequestBody(
+                    content: new \ArrayObject([
                         'application/json' => [
                             'examples' => [
                                 'Multipart upload' => [
@@ -277,17 +293,17 @@ use Symfony\Component\Validator\Constraints as Assert;
                                 ],
                             ],
                         ],
-                    ],
-                ],
-            ],
-            deserialize: false
+                    ]),
+                ),
+            ),
+            deserialize: false,
+            processor: CreateAssetProcessor::class,
         ),
     ],
     uriVariables: [
         'id' => new Link(toProperty: 'publication', fromClass: Publication::class, identifiers: ['id']),
     ],
 )]
-#[ApiFilter(filterClass: OrderFilter::class, properties: ['title', 'position' => 'ASC', 'createdAt' => 'ASC'], arguments: ['orderParameterName' => 'order'])]
 class Asset implements MediaInterface, \Stringable
 {
     use ClientAnnotationsTrait;

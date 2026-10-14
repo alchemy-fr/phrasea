@@ -10,9 +10,11 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Symfony\Component\Translation\TranslatableMessage;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Service\Attribute\Required;
+use Symfony\Contracts\Translation\TranslatableInterface;
 
 abstract class AbstractIntegration implements IntegrationInterface
 {
@@ -50,6 +52,19 @@ abstract class AbstractIntegration implements IntegrationInterface
     public static function requiresWorkspace(): bool
     {
         return true;
+    }
+
+    /**
+     * Translated in the "integrations" domain, under "<integration name>.description".
+     */
+    public static function getDescription(): TranslatableInterface
+    {
+        return new TranslatableMessage(static::getName().'.description', domain: 'integrations');
+    }
+
+    public static function getCategories(): array
+    {
+        return [IntegrationCategory::Other];
     }
 
     public function getConfigurationInfo(IntegrationConfig $config): array

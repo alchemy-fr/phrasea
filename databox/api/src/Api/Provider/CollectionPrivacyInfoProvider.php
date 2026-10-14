@@ -27,7 +27,7 @@ final class CollectionPrivacyInfoProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object
     {
         /** @var Collection $collection */
-        $collection = DoctrineUtil::findStrictByRepo($this->collectionRepository, $uriVariables['id']);
+        $collection = DoctrineUtil::findStrictByRepo($this->collectionRepository, (string) $uriVariables['id']);
         $this->denyAccessUnlessGranted(AbstractVoter::READ, $collection);
 
         $output = new CollectionPrivacyInfoOutput();

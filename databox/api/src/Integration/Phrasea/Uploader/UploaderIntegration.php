@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace App\Integration\Phrasea\Uploader;
 
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
 
+#[AsTaggedItem(index: 'phrasea.uploader')]
 class UploaderIntegration extends AbstractIntegration
 {
     public function __construct(
@@ -77,6 +80,13 @@ class UploaderIntegration extends AbstractIntegration
     public static function getDisplayName(): string
     {
         return 'Uploader';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Ingest,
+        ];
     }
 
     public static function getName(): string

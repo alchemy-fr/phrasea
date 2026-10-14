@@ -10,28 +10,33 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
-use App\Controller\GetTargetFormSchemaAction;
+use App\Api\Provider\TargetFormSchemaProvider;
 use App\Security\Voter\FormDataEditorVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'form-schema',
     operations: [
+        new Get(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
         new Get(
             uriTemplate: '/targets/{id}/form-schema',
-            controller: GetTargetFormSchemaAction::class,
-            read: false,
+            uriVariables: [
+                'id' => new Link(toProperty: 'target', fromClass: Target::class),
+            ],
+            // A target without schema answers null rather than 404
+            throwOnNotFound: false,
             name: 'get_form_schema_by_locale',
+            provider: TargetFormSchemaProvider::class,
         ),
-        new Get(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
         new Delete(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
-        new Put(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
+        new Patch(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
         new Post(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
         new GetCollection(security: 'is_granted("'.FormDataEditorVoter::EDIT_FORM_SCHEMA.'")'),
     ],

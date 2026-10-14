@@ -75,7 +75,6 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
         keycloakUrl: env.KEYCLOAK_URL,
         realmName: env.KEYCLOAK_REALM_NAME,
         clientId: env.CLIENT_ID,
-        devMode: castBoolean(env.DEV_MODE),
         displayServicesMenu: castBoolean(env.DISPLAY_SERVICES_MENU),
         dashboardBaseUrl: env.DASHBOARD_CLIENT_URL,
         notifications: castBoolean(env.NOTIFICATIONS_ENABLED),
@@ -86,9 +85,6 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
         sentryEnvironment: env.SENTRY_ENVIRONMENT,
         sentryRelease: env.SENTRY_RELEASE,
         upload: {
-            minChunkSize: castInteger(env.S3_MULTIPART_MIN_CHUNK_SIZE),
-            maxChunkSize: castInteger(env.S3_MULTIPART_MAX_CHUNK_SIZE),
-            maxPartNumber: castInteger(env.S3_MULTIPART_MAX_PART_NUMBER),
             maxFileSize:
                 castInteger(uploaderConfig.max_upload_file_size) ??
                 castInteger(env.S3_MAX_OBJECT_SIZE),

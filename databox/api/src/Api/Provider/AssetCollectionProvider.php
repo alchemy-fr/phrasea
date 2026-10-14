@@ -7,6 +7,7 @@ namespace App\Api\Provider;
 use Alchemy\AuthBundle\Security\JwtUser;
 use ApiPlatform\Metadata\Operation;
 use App\Api\Model\Output\ApiMetaWrapperOutput;
+use App\Api\Traits\ParameterValuesTrait;
 use App\Elasticsearch\AssetSearch;
 use App\Elasticsearch\NoWorkspaceAllowedException;
 use App\Service\Asset\AssetListPreloader;
@@ -14,6 +15,8 @@ use Symfony\Bundle\SecurityBundle\Security;
 
 class AssetCollectionProvider extends AbstractCollectionProvider
 {
+    use ParameterValuesTrait;
+
     public function __construct(
         private readonly AssetSearch $assetSearch,
         private readonly Security $security,
@@ -28,7 +31,7 @@ class AssetCollectionProvider extends AbstractCollectionProvider
         $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
 
         try {
-            [$result, $facets, $queryJson, $searchTime] = $this->assetSearch->search($userId, $groupIds, $context['filters'] ?? []);
+            [$result, $facets, $queryJson, $searchTime] = $this->assetSearch->search($userId, $groupIds, self::getParameterValues($operation));
         } catch (NoWorkspaceAllowedException) {
             return [];
         }

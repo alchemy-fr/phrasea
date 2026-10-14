@@ -6,22 +6,23 @@ namespace Alchemy\StorageBundle\Doctrine;
 
 use Alchemy\StorageBundle\Entity\MultipartUpload;
 use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
+use Alchemy\StorageBundle\Upload\MultipartUploadPlanner;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Alchemy\StorageBundle\Util\FileUtil;
 use Aws\S3\Exception\S3Exception;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
-use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Event\PostRemoveEventArgs;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Events;
 
 #[AsDoctrineListener(Events::postRemove)]
 #[AsDoctrineListener(Events::prePersist)]
-final readonly class MultipartUploadListener implements EventSubscriber
+final readonly class MultipartUploadListener
 {
     public function __construct(
         private UploadManager $uploadManager,
         private PathGeneratorInterface $pathGenerator,
+        private MultipartUploadPlanner $planner,
     ) {
     }
 
@@ -46,17 +47,20 @@ final readonly class MultipartUploadListener implements EventSubscriber
             $extension = FileUtil::getExtensionFromPath($entity->getFilename());
             $path = $this->pathGenerator->generatePath($extension);
 
-            $uploadData = $this->uploadManager->prepareMultipartUpload($path, $entity->getType());
-            $entity->setUploadId($uploadData->get('UploadId'));
-            $entity->setPath($path);
-        }
-    }
+            // Validate the plan before creating anything on S3.
+            $chunkSize = $this->planner->resolveChunkSize($entity->getSize());
 
-    public function getSubscribedEvents(): array
-    {
-        return [
-            Events::postRemove,
-            Events::prePersist,
-        ];
+            $uploadData = $this->uploadManager->prepareMultipartUpload($path, $entity->getType());
+            $uploadId = $uploadData->get('UploadId');
+            $entity->setUploadId($uploadId);
+            $entity->setPath($path);
+            $entity->setChunkSize($chunkSize);
+            $entity->setUrls($this->uploadManager->getSignedUrls(
+                $uploadId,
+                $path,
+                1,
+                $this->planner->getPartCount($entity->getSize(), $chunkSize),
+            ));
+        }
     }
 }

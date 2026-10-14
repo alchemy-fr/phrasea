@@ -3,7 +3,9 @@
 namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'image-tiff')]
 class TiffFormat implements FormatInterface
 {
     public static function getAllowedExtensions(): array

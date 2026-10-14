@@ -22,7 +22,7 @@ final class Version20220802161826 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql('INSERT INTO target (id, name, target_url, target_access_token, created_at) VALUES (:id, :name, :target_url, :target_access_token, :created_at)', [
-            'id' => Uuid::uuid4(),
+            'id' => Uuid::uuid4()->toString(),
             'name' => 'Default',
             'target_url' => getenv('ASSET_CONSUMER_COMMIT_URI'),
             'target_access_token' => getenv('ASSET_CONSUMER_ACCESS_TOKEN'),

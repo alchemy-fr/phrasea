@@ -9,9 +9,6 @@ export type AnalyticsConfig = {
 };
 
 export type UploadConfig = {
-    minChunkSize?: Readonly<number>;
-    maxChunkSize?: Readonly<number>;
-    maxPartNumber?: Readonly<number>;
     allowedTypes: Readonly<Accept | undefined>;
     maxFileSize?: Readonly<number>;
 };
@@ -31,7 +28,6 @@ export interface WindowConfigBase {
     clientId: Readonly<string>;
     displayServicesMenu: Readonly<boolean>;
     dashboardBaseUrl: Readonly<string>;
-    devMode: Readonly<boolean>;
     analytics?: AnalyticsConfig;
     pusherHost?: Readonly<string>;
     pusherKey?: Readonly<string>;

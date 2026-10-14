@@ -7,6 +7,7 @@ namespace App\Integration\RemoveBg;
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
 use App\Integration\Action\FileUserActionsTrait;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationContext;
 use App\Integration\IntegrationDataTransformerInterface;
@@ -16,10 +17,12 @@ use App\Integration\UserActionsIntegrationInterface;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+#[AsTaggedItem(index: 'remove.bg')]
 class RemoveBgIntegration extends AbstractIntegration implements IntegrationDataTransformerInterface, WorkflowIntegrationInterface, UserActionsIntegrationInterface
 {
     use PusherTrait;
@@ -81,6 +84,14 @@ class RemoveBgIntegration extends AbstractIntegration implements IntegrationData
     public static function getDisplayName(): string
     {
         return 'Remove BG';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Ai,
+            IntegrationCategory::Editor,
+        ];
     }
 
     #[\Override]

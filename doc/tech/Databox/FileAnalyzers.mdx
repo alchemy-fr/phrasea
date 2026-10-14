@@ -13,3 +13,26 @@ You can add a `File Analyzer` integration which will run the configured analyzer
 Here is the list of available analyzers:
 
 <MyMarkdown />
+
+## Stuck analyses
+
+The analysis runs as a job of the asset ingest workflow. If that job is lost
+(worker killed, message dropped, dependency failed...), the file stays in the
+`pending` state and, when the workspace enforces the analysis, the asset cannot
+be displayed.
+
+The `app:file:unblock-analyses` command is the safety net: it looks for the
+source files of live assets that are still pending in workspaces running a
+File Analyzer integration, inspects the latest ingest workflow of their asset
+and re-triggers the smallest thing that gets the analysis running again
+(rerun of the analyzer job, retry of the failed dependency, or a brand-new
+ingest when no workflow can be resumed). It is part of the hourly cron
+(`bin/ops/cron-script-hourly.sh`).
+
+```bash
+bin/console app:file:unblock-analyses --dry-run -v   # report only
+bin/console app:file:unblock-analyses --older-than=3600 --limit=500
+```
+
+Files, workflows and jobs younger than `--older-than` (default: one hour) are
+never considered stuck.

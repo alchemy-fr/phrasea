@@ -37,41 +37,48 @@ class AssetCopier
         ?Collection $collection,
         array $allowedRenditions,
         array $options = [],
+        ?array $relationExtraMetadata = null,
     ): void {
-        $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
-        if (!$sameWorkspace) {
-            if (!$asset->getSource()) {
+        try {
+            $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
+            if (!$sameWorkspace) {
+                if (!$asset->getSource()) {
+                    $this->doCopyAsset(
+                        $userId,
+                        $asset,
+                        $workspace,
+                        $collection,
+                        $allowedRenditions,
+                        $options,
+                        $relationExtraMetadata,
+                    );
+                } else {
+                    $file = $this->copyFile($asset->getSource(), $workspace);
+                    $this->postFlushStack->addBusMessage(new NewAssetFromBorder(
+                        $userId,
+                        $file->getId(),
+                        $collection ? [$collection->getId()] : [],
+                        $this->assetNameResolver->resolveNameAsString($asset),
+                        $file->getFileName(),
+                        relationExtraMetadata: $relationExtraMetadata,
+                    ));
+                }
+            } else {
                 $this->doCopyAsset(
                     $userId,
                     $asset,
                     $workspace,
                     $collection,
                     $allowedRenditions,
-                    $options
+                    $options,
+                    $relationExtraMetadata,
                 );
-            } else {
-                $file = $this->copyFile($asset->getSource(), $workspace);
-                $this->postFlushStack->addBusMessage(new NewAssetFromBorder(
-                    $userId,
-                    $file->getId(),
-                    $collection ? [$collection->getId()] : [],
-                    $this->assetNameResolver->resolveNameAsString($asset),
-                    $file->getFileName()
-                ));
             }
-        } else {
-            $this->doCopyAsset(
-                $userId,
-                $asset,
-                $workspace,
-                $collection,
-                $allowedRenditions,
-                $options
-            );
-        }
 
-        $this->em->flush();
-        $this->fileCopies = [];
+            $this->em->flush();
+        } finally {
+            $this->fileCopies = [];
+        }
     }
 
     private function doCopyAsset(
@@ -80,7 +87,8 @@ class AssetCopier
         Workspace $workspace,
         ?Collection $collection,
         array $allowedRenditions,
-        array $options = [],
+        array $options,
+        ?array $relationExtraMetadata,
     ): void {
         $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
         $copy = new Asset();
@@ -93,18 +101,14 @@ class AssetCopier
             if ($collection->getWorkspaceId() !== $workspace->getId()) {
                 throw new \InvalidArgumentException(sprintf('Failed to copy asset: Collection %s does not belong to workspace %s', $collection->getId(), $workspace->getId()));
             }
-            $copy->addToCollection($collection);
+            $copy->addToCollection($collection, assignReferenceIfNull: true, extraMetadata: $relationExtraMetadata);
         }
         if (null !== $asset->getSource()) {
             $copy->setSource($this->copyFile($asset->getSource(), $workspace));
         }
 
         if ($sameWorkspace) {
-            foreach ($asset->getRenditions() as $rendition) {
-                if (in_array($rendition->getId(), $allowedRenditions, true)) {
-                    $this->copyRendition($rendition, $copy);
-                }
-            }
+            $this->copyRenditions($asset, $copy, $allowedRenditions);
 
             if ($options[self::OPT_WITH_ATTRIBUTES] ?? false) {
                 $attributes = $this->em->getRepository(Attribute::class)
@@ -147,7 +151,37 @@ class AssetCopier
         $this->em->persist($copy);
     }
 
-    private function copyRendition(AssetRendition $rendition, Asset $target): void
+    private function copyRenditions(Asset $asset, Asset $target, array $allowedRenditions): void
+    {
+        $renditions = [];
+        foreach ($asset->getRenditions() as $rendition) {
+            $definition = $rendition->getDefinition();
+            if (null === $definition || in_array($definition->getId(), $allowedRenditions, true)) {
+                $renditions[$rendition->getId()] = $rendition;
+            }
+        }
+
+        // A rendition built from a rendition that is not copied could not be rebuilt on the copy
+        do {
+            $count = count($renditions);
+            $renditions = array_filter(
+                $renditions,
+                fn (AssetRendition $rendition): bool => null === ($sourceId = $rendition->getSourceRenditionId()) || isset($renditions[$sourceId])
+            );
+        } while (count($renditions) !== $count);
+
+        $copies = array_map(fn (AssetRendition $rendition): AssetRendition => $this->copyRendition($rendition, $target), $renditions);
+
+        foreach ($copies as $copy) {
+            if (null !== $sourceId = $copy->getSourceRenditionId()) {
+                $copy->setBuildOptions([
+                    AssetRendition::OPTION_SOURCE_RENDITION_ID => $copies[$sourceId]->getId(),
+                ] + $copy->getBuildOptions());
+            }
+        }
+    }
+
+    private function copyRendition(AssetRendition $rendition, Asset $target): AssetRendition
     {
         $copy = new AssetRendition();
         $copy->setAsset($target);
@@ -161,6 +195,8 @@ class AssetCopier
         }
 
         $this->em->persist($copy);
+
+        return $copy;
     }
 
     private function copyFile(File $file, Workspace $workspace): File

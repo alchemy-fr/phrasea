@@ -463,18 +463,29 @@ App\Entity\Core\Attribute:
 
     at_city_{@a_*} (extends attribute_n):
         definition: '@ad_city'
-        asset: '@a_*'
-        value: '<city()>'
+        asset: <current()>
+        value: '<geoPlaceCity(<current()>)>'
 
     at_country_{@a_*} (extends attribute_n):
         definition: '@ad_country'
-        asset: '@a_*'
-        value: '<country()>'
+        asset: <current()>
+        value: '<geoPlaceCountry(<current()>)>'
 
-    at_location_{@a_*} (extends attribute_n):
+    # Images and videos only, so that the map shows assets without location
+    at_location_img_{@a_img*} (extends attribute_n):
         definition: '@ad_location'
-        asset: '@a_*'
-        value: '<numberBetween(-48, 48)> <numberBetween(-20, 20)>'
+        asset: <current()>
+        value: '<geoPlaceLocation(<current()>)>'
+
+    at_location_video_{@a_video*} (extends attribute_n):
+        definition: '@ad_location'
+        asset: <current()>
+        value: '<geoPlaceLocation(<current()>)>'
+
+    at_location_story_img_{@storya_img*} (extends attribute_n):
+        definition: '@ad_location'
+        asset: <current()>
+        value: '<geoPlaceLocation(<current()>)>'
 
     at_duration_{@a_*} (extends attribute_n):
         definition: '@ad_duration'
@@ -525,6 +536,18 @@ App\Entity\Integration\WorkspaceIntegration:
         integration: tui.photo-editor
         workspace: '@w_newspaper'
         ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+    wi_similarity:
+        integration: core.similarity
+        public: true
+        workspace: '@w_newspaper'
+        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+    wi_face_recognition:
+        integration: core.face_recognition
+        public: true
+        workspace: '@w_newspaper'
+        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+        needs:
+            - '@wi_renditions'
     wi_watermark:
         integration: core.watermark
         public: true

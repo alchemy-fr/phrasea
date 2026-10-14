@@ -81,15 +81,6 @@ export type HttpClient = {
     setApiLocale: (locale: string) => void;
 } & AxiosInstance;
 
-export type MultipartUpload = {
-    uploadId: string;
-    parts: UploadPart[];
-};
-export type UploadPart = {
-    ETag: string;
-    PartNumber: number;
-};
-
 export interface ApiHydraObjectResponse {
     '@id': string;
     '@type': string;
@@ -105,18 +96,18 @@ export type NormalizedCollectionResponse<T, E extends {} = {}> = {
 } & E;
 
 export type HydraCollectionResponse<T, E extends {} = {}> = {
-    'hydra:totalItems': number;
-    'hydra:view'?: {
-        'hydra:first': string;
-        'hydra:previous': string;
-        'hydra:next': string;
-        'hydra:last': string;
+    totalItems: number;
+    view?: {
+        first: string;
+        previous: string;
+        next: string;
+        last: string;
     };
-    'hydra:member': T[];
+    member: T[];
 } & E;
 
 export enum ApiConstant {
-    HydraTitle = 'hydra:title',
-    HydraDescription = 'hydra:description',
+    ErrorTitle = 'title',
+    ErrorDescription = 'description',
     UnknownError = 'Unknown error',
 }

@@ -41,7 +41,7 @@ readonly class PopulateListener implements EventSubscriberInterface
             $this->fosPopulateCache->clear();
         }
 
-        $this->assetPermissionComputer->setWorkspaceCache(new ArrayAdapter(storeSerialized: false));
+        $this->assetPermissionComputer->setWorkspaceCache(new ArrayAdapter(deepClone: false));
         $this->assetPermissionComputer->setCollectionCache($this->fosPopulateCache);
     }
 

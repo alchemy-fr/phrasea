@@ -13,8 +13,10 @@ use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Action\FileUserActionsTrait;
 use App\Integration\Aws\AbstractAwsIntegration;
 use App\Integration\Aws\Rekognition\Message\RekognitionAnalyze;
+use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\Core\Rendition\RenditionIntegration;
 use App\Integration\FilterNeedIntegrationInterface;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationContext;
 use App\Integration\UserActionsIntegrationInterface;
@@ -26,13 +28,16 @@ use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 
+#[AsTaggedItem(index: 'aws.rekognition')]
 class AwsRekognitionIntegration extends AbstractAwsIntegration implements FilterNeedIntegrationInterface, WorkflowIntegrationInterface, UserActionsIntegrationInterface
 {
     use FileUserActionsTrait;
+    use RenditionConfigNormalizerTrait;
 
     private const string ACTION_ANALYZE = 'analyze';
 
@@ -266,6 +271,14 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
         return 'AWS Rekognition';
     }
 
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Ai,
+            IntegrationCategory::Processing,
+        ];
+    }
+
     #[\Override]
     public function getSupportedContexts(): array
     {
@@ -301,5 +314,10 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
         }
 
         return null;
+    }
+
+    protected function getRenditionConfigPaths(): array
+    {
+        return array_map(fn (string $category): string => $category.'.rendition', array_keys(self::CATEGORIES));
     }
 }

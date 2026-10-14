@@ -1,0 +1,196 @@
+'use client';
+
+import {useState} from 'react';
+import {useTranslation} from 'react-i18next';
+import {useQuery} from '@tanstack/react-query';
+import {AlertTriangleIcon, Trash2Icon} from 'lucide-react';
+import {toast} from 'sonner';
+import type {Asset} from '@/types/api';
+import type {ModalProps} from '@/components/modals/ModalProvider';
+import {FormDialog} from '@/components/modals/FormDialog';
+import {TypeToConfirm} from '@/components/ui/confirm';
+import {
+    Checkbox,
+    LabeledControl,
+    RadioGroup,
+    RadioGroupItem,
+} from '@/components/ui/controls';
+import {Alert} from '@/components/ui/misc';
+import {InlineLoader} from '@/components/ui/loader';
+import {CollectionChip} from '@/components/chips';
+import {deleteAssets, prepareDeleteAssets} from '@/lib/api/assets';
+import {useAssetStore} from '@/features/assets/assetStore';
+
+type Props = ModalProps<string[]> & {
+    assets: Asset[];
+    hardDelete?: boolean;
+    onComplete?: () => void;
+};
+
+/**
+ * Delete confirmation: move to trash, or only remove the assets from some of
+ * their collections (shortcuts). Permanent deletion requires typing "Delete".
+ */
+export function DeleteAssetsDialog({
+    open,
+    onOpenChange,
+    resolve,
+    assets,
+    hardDelete,
+    onComplete,
+}: Props) {
+    const {t} = useTranslation();
+    const ids = assets.map(a => a.id);
+    const [mode, setMode] = useState<'trash' | 'collections'>('trash');
+    const [selectedCollections, setSelectedCollections] = useState<string[]>(
+        []
+    );
+    const [typed, setTyped] = useState('');
+    const removeFromStore = useAssetStore(s => s.remove);
+
+    const prepare = useQuery({
+        queryKey: ['assets', 'prepare-delete', ids],
+        queryFn: () => prepareDeleteAssets(ids),
+        staleTime: 2000,
+    });
+
+    const confirmWord = t('asset.delete.confirm_word', 'Delete');
+    const needsTyping = !!hardDelete;
+    const collections = prepare.data?.collections ?? [];
+    const allowed = !!prepare.data?.canDelete || collections.length > 0;
+    const canSubmit =
+        allowed &&
+        (!needsTyping || typed.trim() === confirmWord) &&
+        (mode !== 'collections' || selectedCollections.length > 0);
+
+    const submit = async () => {
+        await deleteAssets(ids, {
+            collections: mode === 'collections' ? selectedCollections : [],
+            hardDelete: mode === 'trash' && hardDelete,
+        });
+        if (mode === 'trash') {
+            removeFromStore(ids);
+        }
+        toast.success(
+            hardDelete && mode === 'trash'
+                ? t(
+                      'asset.delete.done_permanent',
+                      '{{count}} assets permanently deleted',
+                      {count: ids.length}
+                  )
+                : t('asset.delete.done', '{{count}} assets moved to trash', {
+                      count: ids.length,
+                  })
+        );
+        onComplete?.();
+        resolve?.(ids);
+    };
+
+    return (
+        <FormDialog
+            open={open}
+            onOpenChange={onOpenChange}
+            title={
+                hardDelete
+                    ? t(
+                          'asset.delete.title_permanent',
+                          'Permanently delete {{count}} assets?',
+                          {count: ids.length}
+                      )
+                    : t('asset.delete.title', 'Delete {{count}} assets?', {
+                          count: ids.length,
+                      })
+            }
+            description={
+                !hardDelete
+                    ? t(
+                          'asset.delete.description',
+                          'Assets moved to the trash can be restored later.'
+                      )
+                    : undefined
+            }
+            submitLabel={t('common.delete', 'Delete')}
+            submitIcon={<Trash2Icon />}
+            submitVariant="destructive"
+            canSubmit={canSubmit}
+            bodyClassName="space-y-3"
+            onSubmit={submit}
+        >
+            {prepare.isLoading ? <InlineLoader /> : null}
+            {prepare.data && !allowed ? (
+                <Alert variant="destructive" icon={<AlertTriangleIcon />}>
+                    {t(
+                        'asset.delete.not_allowed',
+                        "You don't have permission to delete any of these assets"
+                    )}
+                </Alert>
+            ) : null}
+            {prepare.data && prepare.data.shareCount > 0 ? (
+                <Alert variant="warning" icon={<AlertTriangleIcon />}>
+                    {t(
+                        'asset.delete.shared_warning',
+                        '{{count}} assets are currently shared with a public link.',
+                        {count: prepare.data.shareCount}
+                    )}
+                </Alert>
+            ) : null}
+            {collections.length > 0 && !hardDelete ? (
+                <RadioGroup
+                    value={mode}
+                    onValueChange={v => setMode(v as 'trash' | 'collections')}
+                    className="space-y-2"
+                >
+                    <label className="flex items-center gap-2 text-sm">
+                        <RadioGroupItem value="trash" />{' '}
+                        {t('asset.delete.mode_trash', 'Move to trash')}
+                    </label>
+                    <label className="flex items-center gap-2 text-sm">
+                        <RadioGroupItem value="collections" />{' '}
+                        {t(
+                            'asset.delete.mode_collections',
+                            'Only remove from collections:'
+                        )}
+                    </label>
+                    {mode === 'collections' ? (
+                        <div className="ml-6 flex flex-col gap-1.5">
+                            {collections.map(c => (
+                                <LabeledControl
+                                    key={c.id}
+                                    label={
+                                        <CollectionChip
+                                            collection={c}
+                                            absolute
+                                            size="sm"
+                                        />
+                                    }
+                                >
+                                    <Checkbox
+                                        checked={selectedCollections.includes(
+                                            c.id
+                                        )}
+                                        onCheckedChange={v =>
+                                            setSelectedCollections(prev =>
+                                                v
+                                                    ? [...prev, c.id]
+                                                    : prev.filter(
+                                                          x => x !== c.id
+                                                      )
+                                            )
+                                        }
+                                    />
+                                </LabeledControl>
+                            ))}
+                        </div>
+                    ) : null}
+                </RadioGroup>
+            ) : null}
+            {needsTyping ? (
+                <TypeToConfirm
+                    text={confirmWord}
+                    value={typed}
+                    onChange={setTyped}
+                />
+            ) : null}
+        </FormDialog>
+    );
+}

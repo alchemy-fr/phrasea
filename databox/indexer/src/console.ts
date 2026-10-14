@@ -10,6 +10,10 @@ const program = new Command();
 program.name('console').description('Databox Indexer').version('1.0.0');
 
 const debugOption = new Option('--debug', 'Debug mode').default(false);
+const noServerOption = new Option(
+    '--no-server',
+    'Do not start the asset HTTP server; exit once the indexation is done'
+);
 
 program
     .command('index')
@@ -21,6 +25,7 @@ program
         false
     )
     .addOption(debugOption)
+    .addOption(noServerOption)
     .action(indexCommand);
 
 program
@@ -32,6 +37,7 @@ program
         false
     )
     .addOption(debugOption)
+    .addOption(noServerOption)
     .action(indexAllCommand);
 
 program

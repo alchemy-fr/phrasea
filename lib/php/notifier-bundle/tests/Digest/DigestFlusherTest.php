@@ -200,7 +200,7 @@ final class DigestFlusherTest extends TestCase
 
         $preferenceRepository = $this->createMock(NotificationPreferenceRepository::class);
         $preferenceRepository->method('findOneForChannel')->willReturn($preference);
-        $preferenceManager = new PreferenceManager($this->createMock(EntityManagerInterface::class), $preferenceRepository, $topicRegistry);
+        $preferenceManager = new PreferenceManager($this->createStub(EntityManagerInterface::class), $preferenceRepository, $topicRegistry);
 
         $renderer = new NotificationRenderer(new Environment(new ArrayLoader($templates ?? [
             self::DIGEST_TEMPLATE => '{% block subject %}{{ count }} comments{% endblock %}{% block body %}{{ byObject|length }}/{{ overflowCount }}/{{ recipient.email }}{% endblock %}',

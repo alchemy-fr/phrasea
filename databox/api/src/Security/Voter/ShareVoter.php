@@ -8,6 +8,7 @@ use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Core\Share;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class ShareVoter extends AbstractVoter
 {
@@ -30,7 +31,7 @@ class ShareVoter extends AbstractVoter
     /**
      * @param Share $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
@@ -87,7 +88,7 @@ class ShareVoter extends AbstractVoter
             return false;
         }
 
-        $token = $this->requestStack->getCurrentRequest()?->get('token');
+        $token = $this->requestStack->getCurrentRequest()?->query->get('token');
 
         return $token && hash_equals($share->getToken() ?? '', (string) $token);
     }

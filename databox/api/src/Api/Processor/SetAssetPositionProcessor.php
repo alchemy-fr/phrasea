@@ -13,6 +13,7 @@ use App\Entity\Core\CollectionAsset;
 use App\Repository\Core\CollectionAssetRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Collection\CollectionDestinationResolver;
+use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -43,41 +44,51 @@ class SetAssetPositionProcessor implements ProcessorInterface
         /** @var CollectionAssetRepository $repository */
         $repository = $this->em->getRepository(CollectionAsset::class);
 
-        $collectionAsset = $repository->findCollectionAsset($uriVariables['id'], $collection->getId());
+        $collectionAsset = $repository->findCollectionAsset((string) $uriVariables['id'], $collection->getId());
         if (!$collectionAsset instanceof CollectionAsset) {
-            throw new NotFoundHttpException(sprintf('Asset "%s" is not part of %s', $uriVariables['id'], $this->describe($collection)));
+            throw new NotFoundHttpException(sprintf('Asset "%s" is not part of %s', (string) $uriVariables['id'], $this->describe($collection)));
         }
 
-        $relations = $repository->findOrderedRelations($collection->getId());
-        $currentIndex = null;
-        foreach ($relations as $index => $relation) {
-            if ($relation['id'] === $collectionAsset->getId()) {
-                $currentIndex = $index;
-                break;
+        $this->em->wrapInTransaction(function () use ($repository, $collection, $collectionAsset, $data): void {
+            // Serializes the moves inside this collection: each one reads the order left by the previous one
+            $this->em->lock($collection, LockMode::PESSIMISTIC_WRITE);
+
+            $relations = $repository->findOrderedRelations($collection->getId());
+            $currentIndex = null;
+            foreach ($relations as $index => $relation) {
+                if ($relation['id'] === $collectionAsset->getId()) {
+                    $currentIndex = $index;
+                    break;
+                }
             }
-        }
 
-        $targetIndex = min(max($data->position, 0), count($relations) - 1);
-
-        $moved = array_splice($relations, $currentIndex, 1);
-        array_splice($relations, $targetIndex, 0, $moved);
-
-        $newPositions = [];
-        foreach ($relations as $index => $relation) {
-            if ($relation['position'] !== $index) {
-                $newPositions[$relation['id']] = $index;
+            if (null === $currentIndex) {
+                // Removed from the collection by a concurrent request
+                throw new NotFoundHttpException(sprintf('Asset "%s" is not part of %s', $collectionAsset->getAsset()->getId(), $this->describe($collection)));
             }
-        }
+            // Loaded before the lock: its position may have been changed since by a concurrent move
+            $this->em->refresh($collectionAsset);
 
-        if ([] === $newPositions) {
-            return new Response('', 204);
-        }
+            $targetIndex = min(max($data->position, 0), count($relations) - 1);
 
-        foreach ($repository->findBy(['id' => array_keys($newPositions)]) as $relation) {
-            $relation->setPosition($newPositions[$relation->getId()]);
-        }
+            $moved = array_splice($relations, $currentIndex, 1);
+            array_splice($relations, $targetIndex, 0, $moved);
 
-        $this->em->flush();
+            $newPositions = [];
+            foreach ($relations as $index => $relation) {
+                if ($relation['position'] !== $index) {
+                    $newPositions[$relation['id']] = $index;
+                }
+            }
+
+            if ([] === $newPositions) {
+                return;
+            }
+
+            foreach ($repository->findBy(['id' => array_keys($newPositions)]) as $relation) {
+                $relation->setPosition($newPositions[$relation->getId()]);
+            }
+        });
 
         return new Response('', 204);
     }

@@ -18,7 +18,7 @@ use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Doctrine\UuidType;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ApiResource(
     shortName: 'file',
@@ -174,6 +174,11 @@ class File extends AbstractUuidEntity implements \Stringable
     public function setType(?string $type): void
     {
         $this->type = $type;
+    }
+
+    public function getFamily(): FileFamilyEnum
+    {
+        return FileFamilyEnum::fromMimeType($this->type);
     }
 
     public function getSize(): string|int|null

@@ -1,0 +1,744 @@
+'use client';
+
+import {useCallback, useEffect, useState} from 'react';
+import {useTranslation} from 'react-i18next';
+import Link from 'next/link';
+import {useRouter} from 'next/navigation';
+import {useQuery} from '@tanstack/react-query';
+import {
+    BellIcon,
+    ChevronRightIcon,
+    FolderIcon,
+    FolderOpenIcon,
+    FolderPlusIcon,
+    ImagePlusIcon,
+    LayersIcon,
+    MoreVerticalIcon,
+    PencilIcon,
+    RotateCcwIcon,
+    Share2Icon,
+    ShieldAlertIcon,
+    Trash2Icon,
+    BookOpenIcon,
+    SettingsIcon,
+    ListIcon,
+    PinIcon,
+} from 'lucide-react';
+import type {Workspace} from '@/types/api';
+import {
+    useCollectionStore,
+    pagerKey,
+    type CollectionNode,
+} from '../collectionStore';
+import {useDropTarget} from '@/features/dnd/useDropTarget';
+import {useCollectionDrag} from '@/features/dnd/useCollectionDrag';
+import {useHoverExpand} from '@/features/dnd/useHoverExpand';
+import {mergeRefs} from '@/lib/utils/refs';
+import {useOptionalSearch} from '@/features/search/SearchProvider';
+import {BuiltInAttribute, quoteAQL} from '@/features/search/searchState';
+import {quarantineCondition} from '@/features/assets/quarantine/analysis';
+import {Button} from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+import {
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuSeparator,
+    ContextMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    MenuEmpty,
+} from '@/components/ui/menu';
+import {Skeleton} from '@/components/ui/misc';
+import {useModals} from '@/components/modals/ModalProvider';
+import {routes} from '@/lib/routes';
+import {cn} from '@/lib/utils/cn';
+import {useAuth} from '@/lib/auth/AuthProvider';
+import {UploadDialog} from '@/features/upload/UploadDialog';
+import {CreateCollectionDialog} from '../CreateCollectionDialog';
+import {
+    DeleteCollectionDialog,
+    RestoreCollectionDialog,
+} from '../CollectionDialogs';
+import {getCollections} from '@/lib/api/collections';
+import {useDebouncedValue} from '@/hooks/useDebouncedValue';
+import {Highlight} from '@/components/ui/highlight';
+import {WorkspaceChip} from '@/components/chips';
+import {PanelSection} from '@/components/layout/PanelSection';
+import {usePinAsSavedSearch} from '@/features/saved-searches/usePinAsSavedSearch';
+
+export function CollectionsPanel() {
+    const {t} = useTranslation();
+    const {isAuthenticated} = useAuth();
+    const search = useOptionalSearch();
+    const {workspaces, workspacesLoaded, loadWorkspaces} = useCollectionStore();
+    const [query, setQuery] = useState('');
+    const debounced = useDebouncedValue(query, 250);
+
+    useEffect(() => {
+        void loadWorkspaces();
+    }, [loadWorkspaces]);
+
+    const results = useQuery({
+        queryKey: ['collections', 'search', debounced],
+        queryFn: () => getCollections({query: debounced, limit: 50}),
+        enabled: debounced.trim().length > 0,
+    });
+
+    const selectTrash = () =>
+        search?.resetWithCondition({
+            id: BuiltInAttribute.Deleted,
+            query: `${BuiltInAttribute.Deleted} IS true`,
+        });
+    const selectQuarantine = () =>
+        search?.resetWithCondition(quarantineCondition);
+
+    return (
+        <PanelSection
+            title={t('collections.panel.title', 'Workspaces & collections')}
+            icon={<LayersIcon />}
+        >
+            <div className="px-2 pb-2">
+                <Input
+                    value={query}
+                    onChange={e => setQuery(e.target.value)}
+                    placeholder={t('collections.search', 'Search collections…')}
+                    className="h-8"
+                />
+            </div>
+            {debounced ? (
+                <ul className="pb-2">
+                    {results.isLoading ? (
+                        <li className="px-3 py-2">
+                            <Skeleton className="h-6" />
+                        </li>
+                    ) : null}
+                    {results.data?.items.length === 0 ? (
+                        <li className="px-3 py-2 text-xs text-muted-foreground">
+                            {t('common.no_match', 'No match')}
+                        </li>
+                    ) : null}
+                    {results.data?.items.map(c => (
+                        <li key={c.id}>
+                            <button
+                                type="button"
+                                data-testid="collection-search-result"
+                                className={cn(
+                                    'flex w-full flex-col gap-0.5 px-3 py-1.5 text-left text-sm hover:bg-accent',
+                                    search?.collections.includes(c.id) &&
+                                        'bg-primary/10'
+                                )}
+                                onClick={() =>
+                                    search?.selectCollection(c.id, c)
+                                }
+                            >
+                                <span className="flex items-center gap-1.5 truncate">
+                                    <FolderIcon className="size-4 shrink-0 text-muted-foreground" />
+                                    <Highlight
+                                        text={
+                                            c.nameHighlight ||
+                                            c.displayName ||
+                                            c.name
+                                        }
+                                    />
+                                </span>
+                                <span className="flex items-center gap-1 pl-5 text-[11px] text-muted-foreground">
+                                    <WorkspaceChip workspace={c.workspace} />
+                                    {c.absoluteDisplayName &&
+                                    c.absoluteDisplayName !== c.displayName ? (
+                                        <span className="truncate">
+                                            {c.absoluteDisplayName}
+                                        </span>
+                                    ) : null}
+                                </span>
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <div className="pb-2">
+                    {!workspacesLoaded ? (
+                        <div className="space-y-2 px-3 py-2">
+                            {[...Array(3)].map((_, i) => (
+                                <Skeleton key={i} className="h-6" />
+                            ))}
+                        </div>
+                    ) : null}
+                    {workspaces.map(ws => (
+                        <WorkspaceItem key={ws.id} workspace={ws} />
+                    ))}
+                    {isAuthenticated ? (
+                        <div className="mt-2 border-t pt-1">
+                            <button
+                                type="button"
+                                className={cn(
+                                    'flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-accent',
+                                    search?.conditions.some(
+                                        c =>
+                                            c.id === BuiltInAttribute.Deleted &&
+                                            !c.disabled
+                                    ) && 'bg-primary/10'
+                                )}
+                                data-testid="tree-trash"
+                                onClick={selectTrash}
+                            >
+                                <Trash2Icon className="size-4 text-muted-foreground" />{' '}
+                                {t('collections.trash', 'Trash')}
+                            </button>
+                            <div
+                                className={cn(
+                                    'flex items-center pr-1 hover:bg-accent',
+                                    search?.conditions.some(
+                                        c =>
+                                            c.id ===
+                                                BuiltInAttribute.AssetStatus &&
+                                            !c.disabled
+                                    ) && 'bg-primary/10'
+                                )}
+                            >
+                                {/* The entry itself opens the resolution
+                                    screen; the icon falls back to the plain
+                                    filtered list of quarantined assets. */}
+                                <Link
+                                    href={routes.quarantine()}
+                                    className="flex min-w-0 flex-1 items-center gap-2 px-3 py-1.5 text-left text-sm"
+                                    data-testid="tree-quarantine"
+                                >
+                                    <ShieldAlertIcon className="size-4 text-muted-foreground" />{' '}
+                                    <span className="truncate">
+                                        {t(
+                                            'collections.quarantine',
+                                            'Quarantine'
+                                        )}
+                                    </span>
+                                </Link>
+                                <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    data-testid="tree-quarantine-filter"
+                                    title={t(
+                                        'quarantine.list_help',
+                                        'List quarantined assets in the search'
+                                    )}
+                                    onClick={selectQuarantine}
+                                >
+                                    <ListIcon />
+                                </Button>
+                            </div>
+                        </div>
+                    ) : null}
+                </div>
+            )}
+        </PanelSection>
+    );
+}
+
+function WorkspaceItem({workspace}: {workspace: Workspace}) {
+    const {t} = useTranslation();
+    const router = useRouter();
+    const search = useOptionalSearch();
+    const {openModal} = useModals();
+    const {isAuthenticated} = useAuth();
+    const pin = usePinAsSavedSearch();
+    const {pagers, collections, loadChildren, loadMore} = useCollectionStore();
+    const key = pagerKey(workspace.id);
+    const pager = pagers[key];
+    // Collapsed by default: expanding is what loads the collections.
+    const [expanded, setExpanded] = useState(false);
+    const selected = search?.workspaces.includes(workspace.id) ?? false;
+    const drop = useDropTarget({type: 'workspace', workspace});
+    const expand = useCallback(() => setExpanded(true), []);
+    useHoverExpand(drop.isOver, expanded, expand);
+
+    useEffect(() => {
+        if (expanded) {
+            void loadChildren(workspace.id);
+        }
+    }, [expanded, workspace.id, loadChildren]);
+
+    const caps = workspace.capabilities;
+    // Without any of them the menu has no item
+    const hasMenu =
+        isAuthenticated ||
+        caps.createCollection ||
+        caps.createAsset ||
+        caps.edit ||
+        caps.editPermissions;
+
+    const menu = (
+        Item: typeof DropdownMenuItem,
+        Sep: typeof DropdownMenuSeparator
+    ) => (
+        <>
+            {!hasMenu ? <MenuEmpty /> : null}
+            {isAuthenticated ? (
+                <>
+                    <Item
+                        data-testid="pin-workspace"
+                        onSelect={() =>
+                            pin(workspace.displayName ?? workspace.name, {
+                                id: BuiltInAttribute.Workspace,
+                                query: `${BuiltInAttribute.Workspace} IS ${quoteAQL(workspace.id)}`,
+                            })
+                        }
+                    >
+                        <PinIcon /> {t('collections.menu.pin', 'Pin')}
+                    </Item>
+                    {caps.createCollection ||
+                    caps.createAsset ||
+                    caps.edit ||
+                    caps.editPermissions ? (
+                        <Sep />
+                    ) : null}
+                </>
+            ) : null}
+            {workspace.capabilities.createCollection ? (
+                <Item
+                    onSelect={() =>
+                        openModal(CreateCollectionDialog, {
+                            workspaceId: workspace.id,
+                        })
+                    }
+                >
+                    <FolderPlusIcon />{' '}
+                    {t('collections.menu.add_collection', 'Add collection')}
+                </Item>
+            ) : null}
+            {workspace.capabilities.createAsset ? (
+                <Item
+                    onSelect={() =>
+                        openModal(
+                            UploadDialog,
+                            {workspaceId: workspace.id},
+                            {key: 'upload', keepOnNavigate: true}
+                        )
+                    }
+                >
+                    <ImagePlusIcon />{' '}
+                    {t('collections.menu.add_asset', 'Add asset')}
+                </Item>
+            ) : null}
+            {workspace.capabilities.edit ||
+            workspace.capabilities.editPermissions ? (
+                <>
+                    {caps.createCollection || caps.createAsset ? <Sep /> : null}
+                    <Item
+                        onSelect={() =>
+                            router.push(
+                                routes.workspaceManage(
+                                    workspace.id,
+                                    workspace.capabilities.edit
+                                        ? 'edit'
+                                        : 'permissions'
+                                )
+                            )
+                        }
+                    >
+                        <SettingsIcon />{' '}
+                        {t(
+                            'collections.menu.manage_workspace',
+                            'Manage workspace'
+                        )}
+                    </Item>
+                </>
+            ) : null}
+        </>
+    );
+
+    return (
+        <div>
+            <ContextMenu>
+                <ContextMenuTrigger asChild>
+                    <div
+                        ref={drop.setNodeRef}
+                        data-testid="workspace-item"
+                        data-workspace-id={workspace.id}
+                        data-selected={selected ? 'true' : undefined}
+                        className={cn(
+                            'group/ws sticky top-0 z-10 flex items-center bg-sidebar pr-1',
+                            selected && 'bg-primary/10',
+                            // A menu open (context or ⋮): the item it acts on
+                            'data-[state=open]:bg-accent has-[>[data-state=open]]:bg-accent',
+                            drop.dropClass
+                        )}
+                    >
+                        <button
+                            type="button"
+                            className="flex size-7 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-accent"
+                            onClick={() => setExpanded(e => !e)}
+                            onDoubleClick={() =>
+                                loadChildren(workspace.id, undefined, true)
+                            }
+                            aria-label={expanded ? 'Collapse' : 'Expand'}
+                        >
+                            <ChevronRightIcon
+                                className={cn(
+                                    'size-4 transition-transform',
+                                    expanded && 'rotate-90'
+                                )}
+                            />
+                        </button>
+                        <button
+                            type="button"
+                            className="flex min-w-0 flex-1 items-center gap-2 py-1.5 pr-1 text-left text-sm font-semibold hover:bg-accent/60"
+                            onClick={() =>
+                                search?.selectWorkspace(workspace.id, workspace)
+                            }
+                        >
+                            <LayersIcon className="size-4 shrink-0 text-muted-foreground" />
+                            <span className="truncate">
+                                {workspace.displayName ?? workspace.name}
+                            </span>
+                        </button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    className="opacity-0 group-hover/ws:opacity-100 data-[state=open]:opacity-100"
+                                >
+                                    <MoreVerticalIcon />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                {menu(DropdownMenuItem, DropdownMenuSeparator)}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                </ContextMenuTrigger>
+                <ContextMenuContent>
+                    {menu(ContextMenuItem as any, ContextMenuSeparator as any)}
+                </ContextMenuContent>
+            </ContextMenu>
+            {expanded ? (
+                <div>
+                    {pager?.loading && pager.ids.length === 0 ? (
+                        <div className="space-y-1 px-3 py-1">
+                            <Skeleton className="h-5 w-2/3" />
+                            <Skeleton className="h-5 w-1/2" />
+                        </div>
+                    ) : null}
+                    {pager?.ids.map(
+                        id =>
+                            collections[id] && (
+                                <CollectionItem
+                                    key={id}
+                                    collection={collections[id]}
+                                    depth={1}
+                                />
+                            )
+                    )}
+                    {pager?.next ? (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="ml-7 h-7 text-xs"
+                            onClick={() => loadMore(workspace.id)}
+                            loading={pager.loading}
+                        >
+                            {t('common.load_more', 'Load more')}
+                        </Button>
+                    ) : null}
+                </div>
+            ) : null}
+        </div>
+    );
+}
+
+function CollectionItem({
+    collection,
+    depth,
+}: {
+    collection: CollectionNode;
+    depth: number;
+}) {
+    const {t} = useTranslation();
+    const router = useRouter();
+    const search = useOptionalSearch();
+    const {openModal} = useModals();
+    const {isAuthenticated} = useAuth();
+    const pin = usePinAsSavedSearch();
+    const {pagers, collections, loadChildren, loadMore} = useCollectionStore();
+    const key = pagerKey(collection.workspaceId, collection.id);
+    const pager = pagers[key];
+    const [expanded, setExpanded] = useState(false);
+    const selected = search?.collections.includes(collection.id) ?? false;
+    const drop = useDropTarget({type: 'collection', collection});
+    const drag = useCollectionDrag(collection);
+    const expand = useCallback(() => setExpanded(true), []);
+    useHoverExpand(drop.isOver, expanded, expand);
+    // The list endpoint ships the first children along with each collection,
+    // so an empty `children` means a leaf. Without that hint (search results,
+    // ascendants…) we can't tell, and the chevron stays.
+    const childrenKnown = !!pager?.loaded || Array.isArray(collection.children);
+    const hasChildren = childrenKnown ? (pager?.ids.length ?? 0) > 0 : true;
+
+    useEffect(() => {
+        if (expanded) {
+            void loadChildren(collection.workspaceId, collection.id);
+        }
+    }, [expanded, collection.workspaceId, collection.id, loadChildren]);
+
+    const menu = (
+        Item: typeof DropdownMenuItem,
+        Sep: typeof DropdownMenuSeparator
+    ) => (
+        <>
+            {isAuthenticated ? (
+                <>
+                    <Item
+                        data-testid="pin-collection"
+                        onSelect={() =>
+                            pin(
+                                collection.displayName ?? collection.name,
+                                collectionFilter(collection)
+                            )
+                        }
+                    >
+                        <PinIcon /> {t('collections.menu.pin', 'Pin')}
+                    </Item>
+                    <Sep />
+                </>
+            ) : null}
+            <Item
+                onSelect={() =>
+                    router.push(
+                        routes.collectionManage(collection.id, 'notifications')
+                    )
+                }
+            >
+                <BellIcon />{' '}
+                {t('collections.menu.notifications', 'Notifications')}
+            </Item>
+            {collection.capabilities.createAsset ? (
+                <Item
+                    onSelect={() =>
+                        openModal(
+                            UploadDialog,
+                            {
+                                workspaceId: collection.workspaceId,
+                                collectionId: collection.id,
+                            },
+                            {key: 'upload', keepOnNavigate: true}
+                        )
+                    }
+                >
+                    <ImagePlusIcon />{' '}
+                    {t('collections.menu.add_asset', 'Add asset')}
+                </Item>
+            ) : null}
+            {collection.capabilities.createCollection ? (
+                <Item
+                    onSelect={() =>
+                        openModal(CreateCollectionDialog, {
+                            workspaceId: collection.workspaceId,
+                            parent: collection,
+                        })
+                    }
+                >
+                    <FolderPlusIcon />{' '}
+                    {t(
+                        'collections.menu.add_sub_collection',
+                        'Create sub-collection'
+                    )}
+                </Item>
+            ) : null}
+            {collection.capabilities.edit ? (
+                <Item
+                    onSelect={() =>
+                        router.push(
+                            routes.collectionManage(collection.id, 'edit')
+                        )
+                    }
+                >
+                    <PencilIcon /> {t('common.edit', 'Edit')}
+                </Item>
+            ) : null}
+            {collection.capabilities.delete ? (
+                <>
+                    <Sep />
+                    {collection.deleted ? (
+                        <Item
+                            onSelect={() =>
+                                openModal(RestoreCollectionDialog, {collection})
+                            }
+                        >
+                            <RotateCcwIcon /> {t('common.restore', 'Restore')}
+                        </Item>
+                    ) : (
+                        <Item
+                            variant="destructive"
+                            onSelect={() =>
+                                openModal(DeleteCollectionDialog, {collection})
+                            }
+                        >
+                            <Trash2Icon /> {t('common.delete', 'Delete')}
+                        </Item>
+                    )}
+                </>
+            ) : null}
+        </>
+    );
+
+    const Icon = collection.storyAsset
+        ? BookOpenIcon
+        : expanded
+          ? FolderOpenIcon
+          : FolderIcon;
+
+    return (
+        <div>
+            <ContextMenu>
+                <ContextMenuTrigger asChild>
+                    <div
+                        ref={mergeRefs(drop.setNodeRef, drag.setNodeRef)}
+                        {...drag.listeners}
+                        data-testid="collection-item"
+                        data-collection-id={collection.id}
+                        data-selected={selected ? 'true' : undefined}
+                        data-dragging={drag.isDragging ? 'true' : undefined}
+                        className={cn(
+                            'group/col flex items-center pr-1',
+                            selected && 'bg-primary/10',
+                            // A menu open (context or ⋮): the item it acts on
+                            'data-[state=open]:bg-accent has-[>[data-state=open]]:bg-accent',
+                            drag.isDragging && 'opacity-50',
+                            drop.dropClass
+                        )}
+                        style={{paddingLeft: depth * 12}}
+                    >
+                        <button
+                            type="button"
+                            className={cn(
+                                'flex size-7 shrink-0 items-center justify-center rounded text-muted-foreground hover:bg-accent',
+                                !hasChildren && 'invisible'
+                            )}
+                            onClick={() => setExpanded(e => !e)}
+                            onDoubleClick={() =>
+                                loadChildren(
+                                    collection.workspaceId,
+                                    collection.id,
+                                    true
+                                )
+                            }
+                            aria-label={expanded ? 'Collapse' : 'Expand'}
+                        >
+                            <ChevronRightIcon
+                                className={cn(
+                                    'size-4 transition-transform',
+                                    expanded && 'rotate-90'
+                                )}
+                            />
+                        </button>
+                        <button
+                            type="button"
+                            className="flex min-w-0 flex-1 items-center gap-2 py-1 pr-1 text-left text-sm hover:bg-accent/60"
+                            onClick={() =>
+                                search?.selectCollection(
+                                    collection.id,
+                                    collection
+                                )
+                            }
+                            title={collection.absoluteDisplayName}
+                        >
+                            <Icon
+                                className={cn(
+                                    'size-4 shrink-0',
+                                    collection.public
+                                        ? 'text-muted-foreground'
+                                        : 'fill-muted-foreground/30 text-muted-foreground'
+                                )}
+                            />
+                            <span
+                                className={cn(
+                                    'truncate',
+                                    collection.deleted &&
+                                        'line-through opacity-60'
+                                )}
+                            >
+                                {collection.displayName ?? collection.name}
+                            </span>
+                            {collection.shared ? (
+                                <Share2Icon className="size-3 shrink-0 text-muted-foreground" />
+                            ) : null}
+                        </button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon-xs"
+                                    className="opacity-0 group-hover/col:opacity-100 data-[state=open]:opacity-100"
+                                >
+                                    <MoreVerticalIcon />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                {menu(DropdownMenuItem, DropdownMenuSeparator)}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                </ContextMenuTrigger>
+                <ContextMenuContent>
+                    {menu(ContextMenuItem as any, ContextMenuSeparator as any)}
+                </ContextMenuContent>
+            </ContextMenu>
+            {expanded ? (
+                <div>
+                    {pager?.loading && pager.ids.length === 0 ? (
+                        <Skeleton
+                            className="my-1 h-5 w-1/2"
+                            style={{marginLeft: (depth + 1) * 12 + 28}}
+                        />
+                    ) : null}
+                    {pager?.ids.map(
+                        id =>
+                            collections[id] && (
+                                <CollectionItem
+                                    key={id}
+                                    collection={collections[id]}
+                                    depth={depth + 1}
+                                />
+                            )
+                    )}
+                    {pager?.next ? (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs"
+                            style={{marginLeft: (depth + 1) * 12 + 28}}
+                            onClick={() =>
+                                loadMore(collection.workspaceId, collection.id)
+                            }
+                            loading={pager.loading}
+                        >
+                            {t('common.load_more', 'Load more')}
+                        </Button>
+                    ) : null}
+                </div>
+            ) : null}
+        </div>
+    );
+}
+
+export function collectionCondition(id: string): string {
+    return `${BuiltInAttribute.Collection} = ${quoteAQL(id)}`;
+}
+
+/**
+ * The condition filtering on a collection, as `selectCollection` builds it: a
+ * story collection is searched through its story asset.
+ */
+function collectionFilter(collection: CollectionNode) {
+    return collection.storyAsset
+        ? {
+              id: BuiltInAttribute.Story,
+              query: `${BuiltInAttribute.Story} IS ${quoteAQL(collection.storyAsset.id)}`,
+          }
+        : {
+              id: BuiltInAttribute.Collection,
+              query: collectionCondition(collection.id),
+          };
+}

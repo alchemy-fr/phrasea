@@ -8,7 +8,9 @@ use App\Configurator\ConfiguratorInterface;
 use App\Service\ServiceWaiter;
 use App\Util\EnvHelper;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(priority: 20)]
 final readonly class RabbitMqConfigurator implements ConfiguratorInterface
 {
     public const string S3_EVENTS_VHOST = 's3events';
@@ -18,11 +20,6 @@ final readonly class RabbitMqConfigurator implements ConfiguratorInterface
         private array $symfonyApplications,
         private ServiceWaiter $serviceWaiter,
     ) {
-    }
-
-    public static function getPriority(): int
-    {
-        return 20;
     }
 
     public static function getName(): string

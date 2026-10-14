@@ -14,7 +14,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class YamlType extends AbstractType
 {
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'attr' => [

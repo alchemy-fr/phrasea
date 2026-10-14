@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\AuthBundle\Client;
 
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\HttpClient\Exception\ClientException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -16,8 +17,10 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 final readonly class KeycloakClient
 {
     public function __construct(
+        #[Target]
         private HttpClientInterface $keycloakClient,
         private KeycloakUrlGenerator $urlGenerator,
+        #[Target]
         private CacheInterface $keycloakRealmCache,
         private string $clientId,
         private string $clientSecret,
@@ -148,6 +151,30 @@ final readonly class KeycloakClient
         }
 
         return $indexedUsers;
+    }
+
+    /**
+     * Effective realm roles of the user (composites and group roles included).
+     */
+    public function getUserEffectiveRealmRoles(string $accessToken, string $userId): array
+    {
+        return $this->get(sprintf('%s/%s/role-mappings/realm/composite', $this->urlGenerator->getUsersApiUrl(), $userId), [
+            'access_token' => $accessToken,
+            'query' => [
+                'briefRepresentation' => 'true',
+            ],
+        ]);
+    }
+
+    public function getUserGroups(string $accessToken, string $userId): array
+    {
+        return $this->get(sprintf('%s/%s/groups', $this->urlGenerator->getUsersApiUrl(), $userId), [
+            'access_token' => $accessToken,
+            'query' => [
+                'briefRepresentation' => 'true',
+                'max' => 1000,
+            ],
+        ]);
     }
 
     public function getGroups(string $accessToken, array $options = []): array

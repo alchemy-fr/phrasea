@@ -4,60 +4,61 @@ declare(strict_types=1);
 
 namespace App\Service\Workspace;
 
-use App\Entity\Core\AttributeDefinition;
-use App\Entity\Core\AttributeEntity;
-use App\Entity\Core\AttributePolicy;
-use App\Entity\Core\EntityList;
-use App\Entity\Core\RenditionDefinition;
-use App\Entity\Core\RenditionPolicy;
-use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Template\WorkspaceTemplate;
-use App\Model\AssetTypeEnum;
+use App\Service\Workspace\Template\TemplateImportContext;
+use App\Service\Workspace\Template\WorkspaceTemplateOptions;
+use App\Service\Workspace\Template\WorkspaceTemplateSectionInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 
+/**
+ * Exports the configuration of a workspace (everything but its content: assets, collections, files)
+ * and imports it into a new or an existing workspace. Each part is handled by a section
+ * (see WorkspaceTemplateSectionInterface).
+ */
 final readonly class WorkspaceTemplater
 {
+    /**
+     * @param iterable<WorkspaceTemplateSectionInterface> $sections
+     */
     public function __construct(
         private EntityManagerInterface $em,
         private LoggerInterface $logger,
+        #[AutowireIterator(WorkspaceTemplateSectionInterface::TAG)]
+        private iterable $sections,
     ) {
     }
 
-    public function export(Workspace $workspace): array
+    public function export(Workspace $workspace, ?WorkspaceTemplateOptions $options = null): array
     {
-        $entityClassMap = [];
-        $renditionClassMap = [];
-        $attributeClassMap = [];
+        $options ??= WorkspaceTemplateOptions::portable();
 
-        return [
-            'Workspace' => $this->exportWorkspace($workspace),
-            'RenditionPolicy' => $this->exportRenditionPolicies($workspace->getId(), $renditionClassMap),
-            'RenditionDefinition' => $this->exportRenditionDefinitions($workspace->getId(), $renditionClassMap),
-            'EntityList' => $this->exportEntityLists($workspace->getId(), $entityClassMap),
-            'AttributePolicy' => $this->exportAttributePolicies($workspace->getId(), $attributeClassMap),
-            'AttributeDefinition' => $this->exportAttributeDefinitions($workspace->getId(), $attributeClassMap, $entityClassMap),
-            'Tag' => $this->exportTags($workspace->getId()),
-        ];
+        $data = [];
+        foreach ($this->sections as $section) {
+            $data[$section::getKey()] = $section->export($workspace, $options);
+        }
+
+        return $data;
     }
 
-    public function saveWorkspaceAsTemplate(Workspace $workspace, ?string $name = null): WorkspaceTemplate
+    public function saveWorkspaceAsTemplate(Workspace $workspace, ?string $name = null, ?WorkspaceTemplateOptions $options = null): WorkspaceTemplate
     {
         if (!$name) {
             $name = $workspace->getName();
         }
         $wsTemplate = new WorkspaceTemplate();
         $wsTemplate->setName($name);
-        $wsTemplate->setData($this->export($workspace));
+        $wsTemplate->setData($this->export($workspace, $options));
         $this->em->persist($wsTemplate);
         $this->em->flush();
 
         return $wsTemplate;
     }
 
-    public function import(array $data, string $newName, ?string $slug, ?string $ownerId): void
+    public function import(array $data, string $newName, ?string $slug, ?string $ownerId): Workspace
     {
         $this->em->beginTransaction();
         try {
@@ -75,36 +76,33 @@ final readonly class WorkspaceTemplater
             $this->importToWorkspace($ws, $data, false);
 
             $this->em->commit();
-
         } catch (\Throwable $e) {
             $this->em->rollback();
             throw $e;
         }
+
+        return $ws;
     }
 
+    /**
+     * Template items are matched with the existing entities of the workspace by their natural key
+     * (name, key, …): importing twice updates them instead of creating duplicates.
+     * Instance-bound data (owners, ACEs, secret values, …) are imported if the template carries them.
+     */
     public function importToWorkspace(Workspace $ws, array $data, bool $addTransaction = true): void
     {
         if ($addTransaction) {
             $this->em->beginTransaction();
         }
         try {
-            $this->importWorkspace($ws, $data['Workspace'] ?? []);
+            // existing entities are looked up in the database
+            $this->em->persist($ws);
+            $this->em->flush();
 
-            $entityClassMap = [];
-            $this->importEntityLists($ws, $data['EntityList'] ?? [], $entityClassMap);
-
-            $attributeClassMap = [];
-            $this->importAttributePolicies($ws, $data['AttributePolicy'] ?? [], $attributeClassMap);
-            $this->importAttributeDefinition($ws, $data['AttributeDefinition'] ?? [], $attributeClassMap, $entityClassMap);
-
-            $renditionClassMap = [];
-            $this->importRenditionPolicies($ws, $data['RenditionPolicy'] ?? [], $renditionClassMap);
-            $this->importRenditionDefinitions($ws, $data['RenditionDefinition'] ?? [], $renditionClassMap);
-
-            // the scope links attribute definitions to rendition definitions, which only exist now
-            $this->importAttributeDefinitionRenditionScope($ws, $data['AttributeDefinition'] ?? []);
-
-            $this->importTags($ws, $data['Tag'] ?? []);
+            $context = new TemplateImportContext($ws, $this->em);
+            foreach ($this->sections as $section) {
+                $section->import($data[$section::getKey()] ?? [], $context);
+            }
 
             $this->em->flush();
             if ($addTransaction) {
@@ -115,465 +113,6 @@ final readonly class WorkspaceTemplater
                 $this->em->rollback();
             }
             throw $e;
-        }
-    }
-
-    private function exportWorkspace(Workspace $workspace): array
-    {
-        return [
-            'public' => $workspace->isPublic(),
-            'enabledLocales' => $workspace->getEnabledLocales(),
-            'localeFallbacks' => $workspace->getLocaleFallbacks(),
-            'config' => $workspace->getConfig(),
-        ];
-    }
-
-    private function importWorkspace(Workspace $ws, array $data): void
-    {
-        if (array_key_exists('public', $data)) {
-            $ws->setPublic($data['public']);
-        }
-        if (array_key_exists('enabledLocales', $data)) {
-            $ws->setEnabledLocales($data['enabledLocales']);
-        }
-        if (array_key_exists('localeFallbacks', $data)) {
-            $ws->setLocaleFallbacks($data['localeFallbacks']);
-        }
-        if (array_key_exists('config', $data)) {
-            $ws->setConfig($data['config']);
-        }
-        $this->em->persist($ws);
-    }
-
-    private function exportRenditionPolicies(string $workspaceId, array &$renditionClassMap): array
-    {
-        $o = [];
-
-        /** @var RenditionPolicy[] $items */
-        $items = $this->em->getRepository(RenditionPolicy::class)->findBy([
-            'workspace' => $workspaceId,
-        ]);
-        foreach ($items as $item) {
-            $renditionClassMap[$item->getId()] = $item->getId();
-            $o[] = [
-                'id' => $item->getId(),
-                'name' => $item->getName(),
-                'public' => $item->isPublic(),
-                'editable' => $item->isEditable(),
-                'labels' => $item->getLabels(),
-            ];
-        }
-
-        return $o;
-    }
-
-    private function importRenditionPolicies(Workspace $ws, array $data, array &$renditionClassMap): void
-    {
-        foreach ($data as $item) {
-            /** @var RenditionPolicy $o */
-            if (!($o = $this->em->getRepository(RenditionPolicy::class)->findOneBy([
-                'workspace' => $ws,
-                'name' => $item['name'],
-            ]))) {
-                $this->logger->info(sprintf('Creating RenditionPolicy "%s"', $item['name']));
-                $o = new RenditionPolicy();
-                $o->setWorkspace($ws);
-                $o->setName($item['name']);
-                $this->em->persist($o);
-            } else {
-                $this->logger->info(sprintf('Updating RenditionPolicy "%s"', $item['name']));
-            }
-            $o->setPublic($item['public']);
-            $o->setLabels($item['labels']);
-            $o->setEditable($item['editable'] ?? true);
-            $this->em->persist($o);
-
-            $renditionClassMap[$item['id']] = $o;
-        }
-    }
-
-    private function exportRenditionDefinitions(string $workspaceId, array $renditionPolicyMap): array
-    {
-        $o = [];
-
-        /** @var RenditionDefinition[] $items */
-        $items = $this->em->getRepository(RenditionDefinition::class)->findBy([
-            'workspace' => $workspaceId,
-        ]);
-        $renditionMap = [];
-        foreach ($items as $item) {
-            for ($slugId = '#'.$item->getName(), $n = 2; in_array($slugId, $renditionMap); ++$n) {
-                $slugId = '#'.$item->getName().'_'.$n;
-            }
-            $renditionMap[$item->getId()] = $slugId;
-            $o[] = [
-                'id' => $item->getId(),
-                'name' => $item->getName(),
-                'policy' => $renditionPolicyMap[$item->getPolicy()->getId()] ?? null,
-                'parent' => $item->getParent()?->getId(),
-                'buildMode' => $item->getBuildMode(),
-                'priority' => $item->getPriority(),
-                'download' => $item->isDownload(),
-                'substituable' => $item->isSubstitutable(),
-                'writeMetadata' => $item->isWriteMetadata(),
-                'metadata' => $item->getMetadata() ?: null,
-                'useAsMain' => $item->isUseAsMain(),
-                'useAsPreview' => $item->isUseAsPreview(),
-                'useAsThumbnail' => $item->isUseAsThumbnail(),
-                'useAsAnimatedThumbnail' => $item->isUseAsAnimatedThumbnail(),
-                'labels' => $item->getLabels(),
-                'definition' => $item->getDefinition(),
-            ];
-        }
-        $o = array_values($this->orderByParent($o));
-        foreach ($o as $k => $v) {
-            $o[$k]['id'] = $renditionMap[$v['id']] ?? null;
-            if ($v['parent']) {
-                $o[$k]['parent'] = $renditionMap[$v['parent']] ?? null;
-            }
-        }
-
-        return $o;
-    }
-
-    private function orderByParent(array $u, array $o = []): array
-    {
-        $end = true;
-        $tu = array_filter(
-            $u,
-            function ($x) use (&$o, &$end) {
-                return ($x['parent'] && !array_key_exists((string) $x['parent'], $o)) || ($end = is_null($o[$x['id']] = $x));
-            }
-        );
-
-        return $end || empty($tu) ? $o : $this->orderByParent($tu, $o);
-    }
-
-    private function importRenditionDefinitions(Workspace $ws, array $data, array $renditionClassMap): void
-    {
-        $rdOrdered = $this->orderByParent($data);
-
-        $rdMap = [];
-        foreach ($rdOrdered as $id => $item) {
-            /** @var RenditionDefinition $o */
-            if (!($o = $this->em->getRepository(RenditionDefinition::class)->findOneBy([
-                'workspace' => $ws,
-                'name' => $item['name'],
-            ]))) {
-                $this->logger->info(sprintf('Creating RenditionDefinition "%s"', $item['name']));
-                $o = new RenditionDefinition();
-                $o->setWorkspace($ws);
-                $o->setName($item['name']);
-            } else {
-                $this->logger->info(sprintf('Updating RenditionDefinition "%s"', $item['name']));
-            }
-
-            $o->setBuildMode($item['buildMode']);
-            $o->setPriority($item['priority']);
-            $o->setDownload($item['download']);
-            $o->setSubstitutable($item['substituable']);
-            $o->setWriteMetadata($item['writeMetadata'] ?? false);
-            $o->setMetadata($item['metadata'] ?? null);
-            $o->setUseAsMain($item['useAsMain']);
-            $o->setUseAsPreview($item['useAsPreview']);
-            $o->setUseAsThumbnail($item['useAsThumbnail']);
-            $o->setUseAsAnimatedThumbnail($item['useAsAnimatedThumbnail']);
-            $o->setLabels($item['labels']);
-            $o->setDefinition($item['definition']);
-            $o->setPolicy($renditionClassMap[$item['policy']]);
-            if ($item['parent']) {
-                $o->setParent($rdMap[$item['parent']]);
-            }
-            $rdMap[$id] = $o;
-
-            $this->em->persist($o);
-        }
-    }
-
-    private function exportAttributePolicies(string $workspaceId, array &$attributeClassMap): array
-    {
-        $o = [];
-
-        /** @var AttributePolicy[] $items */
-        $items = $this->em->getRepository(AttributePolicy::class)->findBy([
-            'workspace' => $workspaceId,
-        ]);
-
-        foreach ($items as $item) {
-            $attributeClassMap[$item->getId()] = $item->getId();
-            $o[] = [
-                'id' => $item->getId(),
-                'name' => $item->getName(),
-                'editable' => $item->isEditable(),
-                'public' => $item->isPublic(),
-                'labels' => $item->getLabels(),
-            ];
-        }
-
-        return $o;
-    }
-
-    private function importAttributePolicies(Workspace $ws, array $data, array &$attributeClassMap): void
-    {
-        foreach ($data as $item) {
-            /** @var AttributePolicy $o */
-            if (!($o = $this->em->getRepository(AttributePolicy::class)->findOneBy([
-                'workspace' => $ws,
-                'name' => $item['name'],
-            ]))) {
-                $this->logger->info(sprintf('Creating AttributePolicy "%s"', $item['name']));
-                $o = new AttributePolicy();
-                $o->setWorkspace($ws);
-                $o->setName($item['name']);
-            } else {
-                $this->logger->info(sprintf('Updating AttributePolicy "%s"', $item['name']));
-            }
-            $o->setPublic($item['public']);
-            $o->setLabels($item['labels']);
-            $o->setEditable($item['editable']);
-            $this->em->persist($o);
-
-            $attributeClassMap[$item['id']] = $o;
-        }
-    }
-
-    private function exportAttributeDefinitions(string $workspaceId, array $attributePolicyMap, array $entityClassMap): array
-    {
-        $o = [];
-
-        /** @var AttributeDefinition[] $items */
-        $items = $this->em->getRepository(AttributeDefinition::class)->findBy([
-            'workspace' => $workspaceId,
-        ]);
-        foreach ($items as $item) {
-            $o[] = [
-                'name' => $item->getName(),
-                'policy' => $attributePolicyMap[$item->getPolicy()->getId()] ?? null,
-                'labels' => $item->getLabels(),
-                'entityList' => $item->getEntityList() ? $entityClassMap[$item->getEntityList()->getId()] ?? null : null,
-                'fallback' => $item->getFallback(),
-                'type' => $item->getType(),
-                'fileType' => $item->getFileType(),
-                'initialValues' => $item->getInitialValues(),
-                'readFromMetadata' => $item->getReadFromMetadata(),
-                'writeMetadata' => $item->getWriteMetadata(),
-                'writeMetadataRenditions' => $item->getWriteMetadataRenditions()
-                    ->map(fn (RenditionDefinition $rd): string => $rd->getName())
-                    ->getValues(),
-                'position' => $item->getPosition(),
-                'searchBoost' => $item->getSearchBoost(),
-                'allowInvalid' => $item->isAllowInvalid(),
-                'facetEnabled' => $item->isFacetEnabled(),
-                'multiple' => $item->isMultiple(),
-                'searchable' => $item->isSearchable(),
-                'sortable' => $item->isSortable(),
-                'suggest' => $item->isSuggest(),
-                'translatable' => $item->isTranslatable(),
-                'target' => $item->getTarget()->value,
-                'editable' => $item->isEditable(),
-                'guiEdit' => $item->isEditableInGui(),
-                'fillFromName' => $item->isFillFromName(),
-                'namePriority' => $item->getNamePriority(),
-                'required' => $item->isRequired(),
-                'maxLength' => $item->getMaxLength(),
-                'minLength' => $item->getMinLength(),
-            ];
-        }
-
-        return $o;
-    }
-
-    private function importAttributeDefinition(Workspace $ws, array $data, array $attributeClassMap, array $entityClassMap): void
-    {
-        foreach ($data as $item) {
-            /** @var AttributeDefinition $o */
-            if (!($o = $this->em->getRepository(AttributeDefinition::class)->findOneBy([
-                'workspace' => $ws,
-                'name' => $item['name'],
-            ]))) {
-                $this->logger->info(sprintf('Creating AttributeDefinition "%s"', $item['name']));
-                $o = new AttributeDefinition();
-                $o->setWorkspace($ws);
-                $o->setName($item['name']);
-            } else {
-                $this->logger->info(sprintf('Updating AttributeDefinition "%s"', $item['name']));
-            }
-            $o->setPolicy($attributeClassMap[$item['policy']]);
-            $o->setLabels($item['labels']);
-            if ($item['entityList'] ?? null) {
-                $o->setEntityList($entityClassMap[$item['entityList']]);
-            }
-            $o->setFallback($item['fallback']);
-            $o->setTarget(AssetTypeEnum::tryFrom((int) $item['target']) ?? AssetTypeEnum::Asset);
-            // Support previous fieldType key for backward compatibility with older templates
-            $o->setType($item['fieldType'] ?? $item['type']);
-            $o->setFileType($item['fileType']);
-            $o->setInitialValues($item['initialValues']);
-            $o->setReadFromMetadata($item['readFromMetadata'] ?? null);
-            $o->setWriteMetadata($item['writeMetadata'] ?? null);
-            $o->setPosition($item['position']);
-            $o->setSearchBoost($item['searchBoost']);
-            $o->setAllowInvalid($item['allowInvalid']);
-            $o->setFacetEnabled($item['facetEnabled']);
-            $o->setMultiple($item['multiple']);
-            $o->setSearchable($item['searchable']);
-            $o->setSortable($item['sortable']);
-            $o->setSuggest($item['suggest']);
-            $o->setTranslatable($item['translatable']);
-            $o->setEditable($item['editable'] ?? true);
-            $o->setEditableInGui($item['guiEdit']);
-            $o->setFillFromName($item['fillFromName'] ?? false);
-            $o->setNamePriority($item['namePriority'] ?? null);
-            $o->setRequired($item['required'] ?? false);
-            $o->setMaxLength($item['maxLength'] ?? null);
-            $o->setMinLength($item['minLength'] ?? null);
-            $this->em->persist($o);
-        }
-    }
-
-    /**
-     * Second pass over the attribute definitions: link them to the rendition definitions they are
-     * scoped to, by name. Runs after importRenditionDefinitions, which creates them.
-     */
-    private function importAttributeDefinitionRenditionScope(Workspace $ws, array $data): void
-    {
-        foreach ($data as $item) {
-            $names = $item['writeMetadataRenditions'] ?? [];
-            if ([] === $names) {
-                continue;
-            }
-
-            $definition = $this->em->getRepository(AttributeDefinition::class)->findOneBy([
-                'workspace' => $ws,
-                'name' => $item['name'],
-            ]);
-            if (!$definition instanceof AttributeDefinition) {
-                continue;
-            }
-
-            $renditionDefinitions = [];
-            foreach ($names as $name) {
-                $renditionDefinition = $this->em->getRepository(RenditionDefinition::class)->findOneBy([
-                    'workspace' => $ws,
-                    'name' => $name,
-                ]);
-                if ($renditionDefinition instanceof RenditionDefinition) {
-                    $renditionDefinitions[] = $renditionDefinition;
-                } else {
-                    $this->logger->warning(sprintf('Unknown RenditionDefinition "%s" in the writeMetadata scope of "%s"', $name, $item['name']));
-                }
-            }
-
-            $definition->setWriteMetadataRenditions($renditionDefinitions);
-            $this->em->persist($definition);
-        }
-    }
-
-    private function exportTags(string $workspaceId): array
-    {
-        $o = [];
-
-        /** @var Tag[] $items */
-        $items = $this->em->getRepository(Tag::class)->findBy([
-            'workspace' => $workspaceId,
-        ]);
-        foreach ($items as $item) {
-            $o[] = [
-                'name' => $item->getName(),
-                'color' => $item->getColor(),
-                'translations' => $item->getTranslations(),
-                'locale' => $item->getLocale(),
-            ];
-        }
-
-        return $o;
-    }
-
-    private function importTags(Workspace $ws, array $data): void
-    {
-        foreach ($data as $item) {
-            /** @var Tag $o */
-            if (!($o = $this->em->getRepository(Tag::class)->findOneBy([
-                'workspace' => $ws,
-                'name' => $item['name'],
-            ]))) {
-                $this->logger->info(sprintf('Creating Tag "%s"', $item['name']));
-                $o = new Tag();
-                $o->setWorkspace($ws);
-                $o->setName($item['name']);
-            } else {
-                $this->logger->info(sprintf('Updating Tag "%s"', $item['name']));
-            }
-            $o->setColor($item['color']);
-            $o->setTranslations($item['translations']);
-            $o->setLocale($item['locale']);
-            $this->em->persist($o);
-        }
-    }
-
-    private function exportEntityLists(string $workspaceId, array &$entityClassMap): array
-    {
-        $o = [];
-
-        /** @var EntityList[] $lists */
-        $lists = $this->em->getRepository(EntityList::class)->findBy([
-            'workspace' => $workspaceId,
-        ]);
-
-        foreach ($lists as $list) {
-            $entityClassMap[$list->getId()] = $list->getId();
-
-            /** @var AttributeEntity[] $items */
-            $items = $this->em->getRepository(AttributeEntity::class)->findBy([
-                'workspace' => $workspaceId,
-                'list' => $list->getId(),
-            ]);
-
-            $o[] = [
-                'id' => $list->getId(),
-                'name' => $list->getName(),
-                'entities' => array_map(fn (AttributeEntity $item) => [
-                    'value' => $item->getValue(),
-                    'position' => $item->getPosition(),
-                    'translations' => $item->getTranslations(),
-                    'synonyms' => $item->getSynonyms(),
-                ], $items),
-            ];
-        }
-
-        return $o;
-    }
-
-    private function importEntityLists(Workspace $ws, array $data, array &$entityClassMap): void
-    {
-        foreach ($data as $entityList) {
-            /** @var EntityList $o */
-            if (!($o = $this->em->getRepository(EntityList::class)->findOneBy([
-                'workspace' => $ws,
-                'name' => $entityList['name'],
-            ]))) {
-                $this->logger->info(sprintf('Creating EntityList "%s"', $entityList['name']));
-                $o = new EntityList();
-                $o->setWorkspace($ws);
-                $o->setOwnerId($ws->getOwnerId());
-                $o->setName($entityList['name']);
-                $this->em->persist($o);
-
-                $entityClassMap[$entityList['id']] = $o;
-
-                foreach ($entityList['entities'] as $item) {
-                    $ae = new AttributeEntity();
-                    $ae->setWorkspace($ws);
-                    $ae->setList($o);
-                    $ae->setValue($item['value']);
-                    $ae->setPosition($item['position']);
-                    $ae->setTranslations($item['translations']);
-                    $ae->setSynonyms($item['synonyms']);
-                    $this->em->persist($ae);
-                }
-            } else {
-                $this->logger->info(sprintf('EntityList "%s" exists', $entityList['name']));
-            }
         }
     }
 }

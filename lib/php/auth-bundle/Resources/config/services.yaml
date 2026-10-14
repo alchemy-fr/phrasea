@@ -22,6 +22,7 @@ services:
   Alchemy\AuthBundle\Repository\UserRepositoryInterface: '@Alchemy\AuthBundle\Repository\UserRepository'
   Alchemy\AuthBundle\Security\AccessTokenAuthenticator: ~
   Alchemy\AuthBundle\Security\JwtExtractor: ~
+  Alchemy\AuthBundle\Security\Impersonator: ~
   Alchemy\AuthBundle\Security\JwtUserProvider: ~
   Alchemy\AuthBundle\Security\JwtValidator: ~
   Alchemy\AuthBundle\Security\JwtValidatorInterface: '@Alchemy\AuthBundle\Security\JwtValidator'
@@ -32,6 +33,9 @@ services:
       $appName: '%alchemy_core.app_name%'
 
   Alchemy\AuthBundle\Controller\OAuthProxyController:
+      public: true
+
+  Alchemy\AuthBundle\Controller\ImpersonationController:
       public: true
 
   Alchemy\AuthBundle\Security\Voter\ScopeVoter: ~

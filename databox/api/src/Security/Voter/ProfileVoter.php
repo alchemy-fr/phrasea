@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Profile\Profile;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class ProfileVoter extends AbstractVoter
 {
@@ -27,7 +28,7 @@ class ProfileVoter extends AbstractVoter
     /**
      * @param Profile $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;
@@ -39,7 +40,8 @@ class ProfileVoter extends AbstractVoter
 
         return match ($attribute) {
             self::CREATE => $this->isAuthenticated(),
-            self::READ => $isOwner()
+            self::READ => $subject->isPublic()
+                || $isOwner()
                 || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),
             self::EDIT => $isOwner()
                 || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),

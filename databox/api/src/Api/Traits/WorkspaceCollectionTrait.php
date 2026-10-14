@@ -4,16 +4,27 @@ declare(strict_types=1);
 
 namespace App\Api\Traits;
 
-use ApiPlatform\Exception\ItemNotFoundException;
+use ApiPlatform\Metadata\Exception\ItemNotFoundException;
+use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 trait WorkspaceCollectionTrait
 {
-    protected function resolveAllowedWorkspaces(array &$context): array
+    use ParameterValuesTrait;
+
+    /**
+     * Resolves the workspaces the collection is restricted to: the "workspace" parameter
+     * (IRIs or IDs, each checked for READ access) or, without it, every readable workspace.
+     * The resolved IDs are set back on the parameter, so that its filter applies them on
+     * either engine.
+     *
+     * @return list<string>
+     */
+    protected function resolveAllowedWorkspaces(Operation $operation): array
     {
-        $filter = $context['filters']['workspace'] ?? null;
+        $filter = self::getParameterValue($operation, 'workspace');
 
         // The `workspace` filter is documented as a single IRI/id, but a client
         // sending `?workspace[]=…` hands us a list — resolve each rather than
@@ -39,6 +50,12 @@ trait WorkspaceCollectionTrait
             }
         }
 
-        return $context['filters']['workspace'] = $workspaces;
+        $workspaces = array_values($workspaces);
+
+        // Restricts the collection to these workspaces through the "workspace" filter parameter
+        $workspaceParameter = $operation->getParameters()?->get('workspace') ?? throw new \LogicException('Missing "workspace" parameter on the collection');
+        $workspaceParameter->setValue($workspaces);
+
+        return $workspaces;
     }
 }

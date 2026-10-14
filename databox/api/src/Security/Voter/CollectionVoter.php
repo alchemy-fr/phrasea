@@ -10,6 +10,7 @@ use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Entity\Core\Collection;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Contracts\Cache\CacheInterface;
 
 class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterface
@@ -38,7 +39,7 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
     /**
      * @param Collection $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         return $this->cache->get(sprintf('%s_%s_%s', $attribute, $subject->getId(), spl_object_id($token)), fn (): bool => $this->doVote($attribute, $subject, $token));
     }
@@ -47,6 +48,12 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
     {
         if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;
+        }
+
+        if (null !== $storyAsset = $subject->getStoryAsset()) {
+            if (null !== $storyAttribute = $this->getStoryAssetAttribute($attribute)) {
+                return $this->security->isGranted($storyAttribute, $storyAsset);
+            }
         }
 
         $workspace = $subject->getWorkspace();
@@ -75,15 +82,15 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 )
                 || $this->parentIsGranted($attribute, $subject)
                 || $isWorkspaceOwnerSlow()
-                || $isOwnerSlow()
+                // Not the collection itself: its creator sets its owner (ownerId)
+                || $this->parentIsGranted(AbstractVoter::OWNER, $subject)
             ,
             // View collection name but not necessary its assets
             AbstractVoter::READ => (!$subject->isDeleted() || $this->security->isGranted(AbstractVoter::DELETE, $subject))
                 && (
                     $isCreator()
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
-                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE)
-                    || ($subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
+                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PRIVATE_IN_WORKSPACE)
                     || $this->hasAcl([
                         PermissionInterface::VIEW,
                         PermissionInterface::OWNER,
@@ -97,8 +104,7 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 && (
                     $isCreator()
                     || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC
-                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_FOR_USERS)
-                    || $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE
+                    || ($userId && $subject->getPrivacy() >= WorkspaceItemPrivacyInterface::PUBLIC_IN_WORKSPACE)
                     || $this->parentIsGranted($attribute, $subject)
                     || $this->hasAcl([
                         PermissionInterface::VIEW,
@@ -205,6 +211,21 @@ class CollectionVoter extends AbstractVoter implements AssetContainerVoterInterf
                 || $this->parentIsGranted($attribute, $subject)
                 || $isWorkspaceOwnerSlow(),
             default => false,
+        };
+    }
+
+    /**
+     * A story's hidden collection is secret and carries no ACL of its own:
+     * reading and editing its content is governed by the story asset.
+     */
+    private function getStoryAssetAttribute(string $attribute): ?string
+    {
+        return match ($attribute) {
+            AbstractVoter::READ => AbstractVoter::READ,
+            AbstractVoter::EDIT,
+            AssetContainerVoterInterface::ASSET_CREATE,
+            AssetContainerVoterInterface::ASSET_DELETE => AbstractVoter::EDIT,
+            default => null,
         };
     }
 

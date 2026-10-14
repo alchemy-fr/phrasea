@@ -6,11 +6,14 @@ namespace App\Integration\Core\Webhook;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'core.webhook')]
 class WebhookIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
     final public const string VERSION = '1.0';
@@ -53,5 +56,12 @@ class WebhookIntegration extends AbstractIntegration implements WorkflowIntegrat
     public static function getDisplayName(): string
     {
         return 'Webhook';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Automation,
+        ];
     }
 }

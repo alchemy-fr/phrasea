@@ -6,13 +6,16 @@ namespace App\Integration\Core\ReadMetadata;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use App\Service\Workflow\Action\InitializeAttributesAction;
 use App\Service\Workflow\Action\ReadMetadataAction;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'core.read_metadata')]
 class ReadMetadataIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
@@ -43,6 +46,14 @@ class ReadMetadataIntegration extends AbstractIntegration implements WorkflowInt
     public static function getDisplayName(): string
     {
         return 'Read Metadata';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Processing,
+            IntegrationCategory::Ingest,
+        ];
     }
 
     public static function getName(): string

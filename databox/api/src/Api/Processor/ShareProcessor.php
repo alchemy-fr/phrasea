@@ -10,7 +10,10 @@ use ApiPlatform\State\ProcessorInterface;
 use ApiPlatform\Validator\ValidatorInterface;
 use App\Api\Provider\ShareReadProvider;
 use App\Entity\Core\Share;
+use App\Security\Voter\AssetVoter;
+use Doctrine\ORM\PersistentCollection;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class ShareProcessor implements ProcessorInterface
@@ -40,6 +43,30 @@ class ShareProcessor implements ProcessorInterface
         foreach ($assets as $asset) {
             if ($asset->getWorkspaceId() !== $workspaceId) {
                 throw new BadRequestHttpException('All shared assets must belong to the same workspace');
+            }
+        }
+
+        // A policy made private after the selection only stops delivering its
+        // renditions (see ShareReadProvider::isRenditionShared()): it must not
+        // lock the share against further edits.
+        $definitions = $data->getRenditionDefinitions();
+        $addedDefinitions = $definitions instanceof PersistentCollection ? $definitions->getInsertDiff() : $definitions->toArray();
+        foreach ($definitions as $definition) {
+            if ($definition->getWorkspace()->getId() !== $workspaceId) {
+                throw new BadRequestHttpException(sprintf('Rendition definition "%s" does not belong to the workspace of the shared assets', $definition->getName()));
+            }
+            if (in_array($definition, $addedDefinitions, true) && true !== $definition->getPolicy()?->isPublic()) {
+                throw new BadRequestHttpException(sprintf('Rendition "%s" cannot be shared: its policy is not public', $definition->getName()));
+            }
+        }
+
+        // On update, EDIT is granted on the share before the payload is read:
+        // the assets it adds must be readable and shareable, as on creation.
+        $collection = $data->getAssets();
+        $addedAssets = $collection instanceof PersistentCollection ? $collection->getInsertDiff() : $assets;
+        foreach ($addedAssets as $asset) {
+            if (!$this->isGranted(AssetVoter::READ, $asset) || !$this->isGranted(AssetVoter::SHARE, $asset)) {
+                throw new AccessDeniedHttpException(sprintf('You are not allowed to share asset "%s"', $asset->getId()));
             }
         }
 

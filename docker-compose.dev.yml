@@ -29,6 +29,7 @@ services:
       target: client-build
     volumes:
       - ./uploader/client:/srv/workspace/phrasea/uploader/client:rw
+      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
     environment:
       - WDS_SOCKET_PORT=443
 
@@ -40,19 +41,19 @@ services:
       target: client-build
     volumes:
       - ./expose/client:/srv/workspace/phrasea/expose/client:rw
+      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
     environment:
       - WDS_SOCKET_PORT=443
 
   databox-client:
     extends:
       service: a_client
-    image: localhost:5000/databox-client-dev:${DOCKER_TAG}
+    image: ${REGISTRY_NAMESPACE}databox-client-dev:${DOCKER_TAG}
     build:
-      target: client-build
+      target: client-dev
     volumes:
       - ./databox/client:/srv/workspace/phrasea/databox/client:rw
-    environment:
-      - WDS_SOCKET_PORT=443
+      - ./lib/js:/srv/workspace/phrasea/lib/js:ro
 
   expose-api-php:
     environment:
@@ -125,6 +126,14 @@ services:
   elasticsearch:
     ports:
       - ${DEV_ELASTICSEARCH_PORT}:9200
+
+  similarity-embedder:
+    ports:
+      - ${DEV_SIMILARITY_EMBEDDER_PORT}:8000
+
+  face-recognition:
+    ports:
+      - ${DEV_FACE_RECOGNITION_PORT}:8000
 
   dev:
     build:
@@ -274,10 +283,6 @@ services:
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - soketi.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-
-  report-api:
-    volumes:
-      - ./report/src:/usr/app
 
   configurator:
     volumes:

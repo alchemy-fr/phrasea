@@ -6,7 +6,7 @@ namespace App\Api\Model\Output;
 
 use App\Entity\Core\Asset;
 use App\Entity\Core\Tag;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class TagOutput extends AbstractUuidOutput
 {

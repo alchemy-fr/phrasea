@@ -1,0 +1,300 @@
+'use client';
+
+import {useTranslation} from 'react-i18next';
+import {
+    CropIcon,
+    LayoutDashboardIcon,
+    LayoutGridIcon,
+    ListIcon,
+    MapIcon,
+    ScanIcon,
+    SlidersHorizontalIcon,
+} from 'lucide-react';
+import {Button} from '@/components/ui/button';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/overlays';
+import {Slider, Switch} from '@/components/ui/controls';
+import {Label} from '@/components/ui/input';
+import {Tabs, TabsList, TabsTrigger} from '@/components/ui/misc';
+import {
+    DisplayPreferences,
+    useDisplayPreferences,
+    usePreferencesStore,
+} from '@/features/preferences/store';
+import {useConfig} from '@/lib/config/ConfigProvider';
+
+/** at most one save of the display preferences per interval while sliding */
+const sliderSaveInterval = 1000;
+
+/** Icon above the label: four layouts side by side would overflow the popover */
+const layoutTabClass = 'flex-col gap-1 py-1.5 text-xs';
+
+export function DisplayOptionsMenu({
+    prefKey = 'display',
+    allowMap = false,
+}: {
+    prefKey?: 'display' | 'displayBatchEdit';
+    /** Offer the map layout: only search results can be placed on a map */
+    allowMap?: boolean;
+}) {
+    const {t} = useTranslation();
+    const display = useDisplayPreferences(prefKey);
+    const mapbox = useConfig().mapbox;
+    const withMap = allowMap && !!mapbox;
+    const layout =
+        display.layout === 'map' && !withMap ? 'grid' : display.layout;
+    const updatePreference = usePreferencesStore(s => s.updatePreference);
+
+    /** `throttle`: sliders, whose values change continuously while dragged */
+    const patch = (p: Partial<DisplayPreferences>, throttle?: boolean) =>
+        updatePreference(
+            prefKey,
+            prev => ({
+                ...display,
+                ...(prev ?? {}),
+                ...p,
+            }),
+            {throttle: throttle ? sliderSaveInterval : undefined}
+        );
+    const patchPreview = (
+        p: Partial<DisplayPreferences['previewOptions']>,
+        throttle?: boolean
+    ) => patch({previewOptions: {...display.previewOptions, ...p}}, throttle);
+
+    return (
+        <Popover>
+            <PopoverTrigger asChild>
+                <Button
+                    data-testid="display-options"
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={t('display.settings', 'Display settings')}
+                >
+                    <SlidersHorizontalIcon />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-95 space-y-4">
+                <div>
+                    <Label className="mb-2">
+                        {t('display.layout', 'Layout')}
+                    </Label>
+                    <Tabs
+                        value={layout}
+                        onValueChange={v =>
+                            patch({layout: v as DisplayPreferences['layout']})
+                        }
+                    >
+                        <TabsList className="h-auto w-full">
+                            <TabsTrigger
+                                value="grid"
+                                className={layoutTabClass}
+                            >
+                                <LayoutGridIcon /> {t('display.grid', 'Grid')}
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="masonry"
+                                className={layoutTabClass}
+                            >
+                                <LayoutDashboardIcon />{' '}
+                                {t('display.masonry', 'Masonry')}
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="list"
+                                className={layoutTabClass}
+                            >
+                                <ListIcon /> {t('display.list', 'List')}
+                            </TabsTrigger>
+                            {withMap ? (
+                                <TabsTrigger
+                                    value="map"
+                                    className={layoutTabClass}
+                                    data-testid="layout-map"
+                                >
+                                    <MapIcon /> {t('display.map', 'Map')}
+                                </TabsTrigger>
+                            ) : null}
+                        </TabsList>
+                    </Tabs>
+                </div>
+                {layout !== 'map' ? (
+                    <div>
+                        <Label className="mb-2 justify-between">
+                            {t('display.thumb_size', 'Thumbnail size')}
+                            <span className="text-xs text-muted-foreground">
+                                {display.thumbSize}px
+                            </span>
+                        </Label>
+                        <Slider
+                            min={60}
+                            max={400}
+                            step={10}
+                            value={[display.thumbSize]}
+                            onValueChange={([v]) => patch({thumbSize: v}, true)}
+                        />
+                    </div>
+                ) : null}
+                {/* A masonry thumbnail keeps its own ratio, a map shows no
+                thumbnail grid: nothing to fit */}
+                {layout !== 'masonry' && layout !== 'map' ? (
+                    <div>
+                        <Label className="mb-2">
+                            {t('display.thumb_fit', 'Thumbnail fit')}
+                        </Label>
+                        <Tabs
+                            value={display.thumbFit}
+                            onValueChange={v =>
+                                patch({
+                                    thumbFit:
+                                        v as DisplayPreferences['thumbFit'],
+                                })
+                            }
+                        >
+                            <TabsList
+                                className="w-full"
+                                aria-label={t(
+                                    'display.thumb_fit',
+                                    'Thumbnail fit'
+                                )}
+                            >
+                                <TabsTrigger value="contain">
+                                    <ScanIcon />{' '}
+                                    {t('display.fit_contain', 'Whole image')}
+                                </TabsTrigger>
+                                <TabsTrigger value="cover">
+                                    <CropIcon />{' '}
+                                    {t('display.fit_cover', 'Fill')}
+                                </TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+                    </div>
+                ) : null}
+                <div className="space-y-3 border-t pt-3">
+                    <Row
+                        label={t(
+                            'display.preview_hover',
+                            'Display preview on hover'
+                        )}
+                        checked={display.displayPreview}
+                        onChange={v => patch({displayPreview: v})}
+                    />
+                    <Row
+                        label={t(
+                            'display.play_on_hover',
+                            'Play media on hover'
+                        )}
+                        checked={display.playOnHover}
+                        onChange={v => patch({playOnHover: v})}
+                    />
+                    <Row
+                        label={t(
+                            'display.autoplay',
+                            'Auto play media in preview'
+                        )}
+                        checked={display.playVideos}
+                        onChange={v => patch({playVideos: v})}
+                    />
+                    {display.displayPreview ? (
+                        <>
+                            <Row
+                                label={t(
+                                    'display.preview_file',
+                                    'Display file in preview'
+                                )}
+                                checked={display.previewOptions.displayFile}
+                                onChange={v => patchPreview({displayFile: v})}
+                            />
+                            <Row
+                                label={t(
+                                    'display.preview_attributes',
+                                    'Display attributes in preview'
+                                )}
+                                checked={
+                                    display.previewOptions.displayAttributes
+                                }
+                                onChange={v =>
+                                    patchPreview({displayAttributes: v})
+                                }
+                            />
+                            <div>
+                                <Label className="mb-2 justify-between">
+                                    {t('display.preview_size', 'Preview size')}
+                                    <span className="text-xs text-muted-foreground">
+                                        {Math.round(
+                                            display.previewOptions.sizeRatio *
+                                                100
+                                        )}
+                                        %
+                                    </span>
+                                </Label>
+                                <Slider
+                                    min={20}
+                                    max={80}
+                                    step={5}
+                                    value={[
+                                        display.previewOptions.sizeRatio * 100,
+                                    ]}
+                                    onValueChange={([v]) =>
+                                        patchPreview({sizeRatio: v / 100}, true)
+                                    }
+                                />
+                            </div>
+                            {display.previewOptions.displayFile &&
+                            display.previewOptions.displayAttributes ? (
+                                <div>
+                                    <Label className="mb-2 justify-between">
+                                        {t(
+                                            'display.preview_ratio',
+                                            'File / attributes ratio'
+                                        )}
+                                        <span className="text-xs text-muted-foreground">
+                                            {Math.round(
+                                                display.previewOptions
+                                                    .attributesRatio * 100
+                                            )}
+                                            %
+                                        </span>
+                                    </Label>
+                                    <Slider
+                                        min={20}
+                                        max={80}
+                                        step={5}
+                                        value={[
+                                            display.previewOptions
+                                                .attributesRatio * 100,
+                                        ]}
+                                        onValueChange={([v]) =>
+                                            patchPreview(
+                                                {attributesRatio: v / 100},
+                                                true
+                                            )
+                                        }
+                                    />
+                                </div>
+                            ) : null}
+                        </>
+                    ) : null}
+                </div>
+            </PopoverContent>
+        </Popover>
+    );
+}
+
+function Row({
+    label,
+    checked,
+    onChange,
+}: {
+    label: string;
+    checked: boolean;
+    onChange: (v: boolean) => void;
+}) {
+    return (
+        <label className="flex cursor-pointer items-center justify-between gap-3 text-sm">
+            <span>{label}</span>
+            <Switch checked={checked} onCheckedChange={onChange} />
+        </label>
+    );
+}

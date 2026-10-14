@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\Put;
 use App\Api\Model\Input\ProfileItemInput;
 use App\Api\Model\Output\ProfileItemOutput;
 use App\Api\Processor\PutProfileItemProcessor;
+use App\Api\Provider\ProfileItemCollectionProvider;
 use App\Entity\Core\AttributeDefinition;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
@@ -23,7 +24,9 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[ApiResource(
     uriTemplate: '/profiles/{id}/items',
     operations: [
-        new GetCollection(),
+        new GetCollection(
+            provider: ProfileItemCollectionProvider::class,
+        ),
         new Put(
             uriTemplate: '/profiles/{id}/items/{itemId}',
             security: 'is_granted("'.AbstractVoter::EDIT.'", object.getProfile())',
@@ -49,6 +52,7 @@ class ProfileItem extends AbstractUuidEntity
     final public const int SECTION_ATTRIBUTES = 0;
     final public const int SECTION_FACETS = 1;
     final public const int SECTION_GRID = 2;
+    final public const int SECTION_FILTERS = 3;
 
     final public const int TYPE_ATTR_DEF = 0;
     final public const int TYPE_BUILT_IN = 1;
@@ -86,6 +90,30 @@ class ProfileItem extends AbstractUuidEntity
         'Attributes' => self::SECTION_ATTRIBUTES,
         'Facets' => self::SECTION_FACETS,
         'Grid' => self::SECTION_GRID,
+        'Filters' => self::SECTION_FILTERS,
+    ];
+
+    /**
+     * Sections listing attributes only (no divider nor spacer).
+     */
+    final public const array ATTRIBUTE_ONLY_SECTIONS = [
+        self::SECTION_FACETS,
+        self::SECTION_FILTERS,
+    ];
+
+    /**
+     * How a pinned search filter picks a boolean value (stored in options.widget):
+     * a dropdown menu, radio buttons in a popover, or radio buttons laid out
+     * in the search bar.
+     */
+    final public const string WIDGET_SELECT = 'select';
+    final public const string WIDGET_RADIO = 'radio';
+    final public const string WIDGET_INLINE = 'inline';
+
+    final public const array WIDGETS = [
+        self::WIDGET_SELECT,
+        self::WIDGET_RADIO,
+        self::WIDGET_INLINE,
     ];
 
     #[ORM\ManyToOne(targetEntity: Profile::class, inversedBy: 'items')]
@@ -307,6 +335,94 @@ class ProfileItem extends AbstractUuidEntity
         $this->options['showIcon'] = $showIcon;
     }
 
+    public function getWidget(): ?string
+    {
+        return $this->options['widget'] ?? null;
+    }
+
+    public function setWidget(?string $widget): void
+    {
+        if (null === $widget || '' === $widget) {
+            unset($this->options['widget']);
+
+            return;
+        }
+
+        $this->options['widget'] = $widget;
+    }
+
+    public function getTrueLabel(): ?string
+    {
+        return $this->options['trueLabel'] ?? null;
+    }
+
+    public function setTrueLabel(?string $trueLabel): void
+    {
+        $this->setLabelOption('trueLabel', $trueLabel);
+    }
+
+    public function getFalseLabel(): ?string
+    {
+        return $this->options['falseLabel'] ?? null;
+    }
+
+    public function setFalseLabel(?string $falseLabel): void
+    {
+        $this->setLabelOption('falseLabel', $falseLabel);
+    }
+
+    private function setLabelOption(string $name, ?string $label): void
+    {
+        $label = null !== $label ? trim($label) : null;
+        if (null === $label || '' === $label) {
+            unset($this->options[$name]);
+
+            return;
+        }
+
+        $this->options[$name] = $label;
+    }
+
+    /**
+     * Whether a boolean filter offers "false" first.
+     */
+    public function isReversed(): bool
+    {
+        return $this->options['reversed'] ?? false;
+    }
+
+    public function setReversed(?bool $reversed): void
+    {
+        if (!$reversed) {
+            unset($this->options['reversed']);
+
+            return;
+        }
+
+        $this->options['reversed'] = true;
+    }
+
+    /**
+     * The AQL condition a pinned search filter applies by default, until the
+     * user picks another value or clears it.
+     */
+    public function getDefaultQuery(): ?string
+    {
+        return $this->options['defaultQuery'] ?? null;
+    }
+
+    public function setDefaultQuery(?string $defaultQuery): void
+    {
+        $defaultQuery = null !== $defaultQuery ? trim($defaultQuery) : null;
+        if (null === $defaultQuery || '' === $defaultQuery) {
+            unset($this->options['defaultQuery']);
+
+            return;
+        }
+
+        $this->options['defaultQuery'] = $defaultQuery;
+    }
+
     #[Assert\Callback]
     public function validate(ExecutionContextInterface $context): void
     {
@@ -337,6 +453,20 @@ class ProfileItem extends AbstractUuidEntity
                         ->addViolation();
                 }
                 break;
+        }
+
+        if (in_array($this->section, self::ATTRIBUTE_ONLY_SECTIONS, true)
+            && in_array($this->type, [self::TYPE_DIVIDER, self::TYPE_SPACER], true)) {
+            $context->buildViolation('Only attributes are allowed in this section.')
+                ->atPath('type')
+                ->addViolation();
+        }
+
+        $widget = $this->getWidget();
+        if (null !== $widget && !in_array($widget, self::WIDGETS, true)) {
+            $context->buildViolation(sprintf('Invalid widget "%s".', $widget))
+                ->atPath('widget')
+                ->addViolation();
         }
 
         if (self::SECTION_GRID === $this->section) {

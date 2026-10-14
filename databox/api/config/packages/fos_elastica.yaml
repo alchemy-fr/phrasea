@@ -126,6 +126,12 @@ fos_elastica:
                 renditions:
                     property_path: false
                     type: keyword
+                embedding:
+                    property_path: false
+                    type: dense_vector
+                    dims: 512
+                    index: true
+                    similarity: cosine
                 workspaceId:
                     type: keyword
                 ownerId:
@@ -168,6 +174,9 @@ fos_elastica:
                 fileExtension:
                     type: keyword
                     property_path: getSourceFileExtension
+                fileFamily:
+                    type: keyword
+                    property_path: getSourceFileFamily
                 checksum:
                     type: keyword
                     property_path: getSourceChecksum

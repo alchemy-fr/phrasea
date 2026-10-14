@@ -7,3 +7,6 @@ alchemy_auth_oauth_proxy:
 
 alchemy_auth_permissions:
     resource: '@AlchemyAuthBundle/Resources/routing/permissions.yaml'
+
+alchemy_auth_impersonation:
+    resource: '@AlchemyAuthBundle/Resources/routing/impersonation.yaml'

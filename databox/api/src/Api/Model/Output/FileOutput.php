@@ -13,7 +13,7 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
 use App\Entity\Core\FileAnalysisStateEnum;
 use App\Entity\Core\Share;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 class FileOutput extends AbstractUuidOutput
 {
@@ -28,6 +28,7 @@ class FileOutput extends AbstractUuidOutput
         Asset::GROUP_READ,
         AssetRendition::GROUP_LIST,
         AssetFileVersion::GROUP_LIST,
+        Share::GROUP_READ,
         Share::GROUP_PUBLIC_READ,
         AssetAttachment::GROUP_LIST,
     ];

@@ -8,9 +8,8 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\CoreBundle\Util\LocaleUtil;
-use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SortFilter as OrmSortFilter;
+use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
@@ -18,11 +17,17 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\ExactSearchFilter;
+use App\Api\Filter\PartialSearchFilter;
+use App\Api\Filter\SortFilter;
 use App\Api\Model\Input\MergeAttributeEntitiesInput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
 use App\Api\Processor\AddAttributeEntityProcessor;
 use App\Api\Processor\MergeAttributeEntitiesProcessor;
 use App\Api\Provider\AttributeEntityCollectionProvider;
+use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
+use App\Elasticsearch\Filter\SuggestQueryFilter;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeEntityRepository;
 use App\Validator\SameWorkspaceConstraint;
@@ -36,15 +41,64 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'attribute-entity',
     operations: [
-        new Get(),
+        new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
-        new Patch(security: 'is_granted("EDIT", object)'),
+        // Moving a value to another list takes the edition of both lists
+        new Patch(
+            security: 'is_granted("EDIT", object)',
+            securityPostDenormalize: self::LIST_CHANGE_SECURITY,
+        ),
         new GetCollection(
             normalizationContext: [
                 'groups' => [
                     self::GROUP_LIST,
                 ],
+            ],
+            parameters: [
+                'workspace' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'workspace',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'workspaceId'],
+                ),
+                'workspace[]' => new QueryParameter(property: 'workspace', openApi: false),
+                'list' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'list',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'listId'],
+                ),
+                'list[]' => new QueryParameter(property: 'list', openApi: false),
+                'value' => new QueryParameter(
+                    filter: new PartialSearchFilter(),
+                    property: 'value',
+                    schema: ['type' => 'string'],
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'value.raw'],
+                    castToArray: false,
+                ),
+                'query' => new QueryParameter(
+                    filter: new SuggestQueryFilter(),
+                    schema: ['type' => 'string'],
+                    description: 'Search-as-you-type on the value (switches the search to Elasticsearch)',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'value'],
+                    castToArray: false,
+                ),
+                'order[value]' => new QueryParameter(
+                    filter: new SortFilter(),
+                    property: 'value',
+                    extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'value.raw'],
+                    castToArray: false,
+                ),
+                // createdAt and position are not indexed: ORM only (ignored on a "query" search)
+                'order[createdAt]' => new QueryParameter(filter: new OrmSortFilter(), property: 'createdAt', castToArray: false),
+                'order[position]' => new QueryParameter(filter: new OrmSortFilter(), property: 'position', castToArray: false),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (max 50 on a "query" search)',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
+                ),
             ],
         ),
         new Post(
@@ -68,16 +122,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 
 #[ORM\Entity(repositoryClass: AttributeEntityRepository::class)]
-#[ApiFilter(filterClass: SearchFilter::class, properties: [
-    'workspace' => 'exact',
-    'list' => 'exact',
-    'value' => 'ipartial',
-])]
-#[ApiFilter(filterClass: OrderFilter::class, properties: [
-    'value',
-    'createdAt',
-    'position',
-])]
 #[ORM\Index(columns: ['list_id'], name: 'entity_list_idx')]
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'list.workspace'],
@@ -94,6 +138,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
 
     final public const string GROUP_READ = 'attr-ent:r';
     final public const string GROUP_LIST = 'attr-ent:i';
+    private const string LIST_CHANGE_SECURITY = 'object.getListId() == previous_object.getListId() or (is_granted("EDIT", previous_object.getList()) and is_granted("EDIT", object.getList()))';
 
     final public const int STATUS_APPROVED = 0;
     final public const int STATUS_PENDING = 1;
@@ -143,10 +188,14 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $position = 0;
 
+    /**
+     * Only the list moderators (its editors) change the status: a change by anyone else is reverted.
+     */
     #[ORM\Column(type: Types::SMALLINT, nullable: false)]
     #[Groups([
         self::GROUP_LIST,
     ])]
+    #[ApiProperty(securityPostDenormalize: 'is_granted("EDIT", object.getList())')]
     private int $status = self::STATUS_APPROVED;
 
     #[ORM\Column(type: Types::JSON, nullable: true)]
@@ -160,7 +209,11 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     ])]
     private ?array $translations = null;
 
+    /**
+     * Set on creation (AddAttributeEntityProcessor), never from the input.
+     */
     #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
+    #[ApiProperty(writable: false)]
     protected ?string $creatorId = null;
 
     public function getValue(): ?string

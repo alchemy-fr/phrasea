@@ -11,7 +11,7 @@ use Alchemy\AclBundle\Mapping\ObjectMapping;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\ESBundle\Indexer\Operation;
 use Alchemy\ESBundle\Indexer\SearchIndexer;
-use App\Api\OutputTransformer\CollectionOutputTransformer;
+use App\Api\Mapper\Output\CollectionOutputMapper;
 use App\Consumer\Handler\Search\AclAddUserToCollection;
 use App\Consumer\Handler\Search\AclAddUserToCollectionAssets;
 use App\Consumer\Handler\Search\AclAddUserToWorkspaceAssets;
@@ -208,7 +208,7 @@ readonly class AclListener
 
     private function indexObject(string $objectType, ?string $objectId, bool $assetsHandled, bool $collectionsHandled, bool $computeCollectionBranch): void
     {
-        $this->collectionCache->invalidateTags([CollectionOutputTransformer::COLLECTION_CACHE_NS]);
+        $this->collectionCache->invalidateTags([CollectionOutputMapper::COLLECTION_CACHE_NS]);
 
         $objectClass = $this->objectMapping->getClassName($objectType);
 

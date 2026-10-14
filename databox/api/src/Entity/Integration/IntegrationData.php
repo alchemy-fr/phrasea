@@ -7,21 +7,21 @@ namespace App\Entity\Integration;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\ExactSearchFilter;
 use App\Api\Model\Output\IntegrationDataOutput;
 use App\Api\Provider\IntegrationDataProvider;
 use Arthem\ObjectReferenceBundle\Mapping\Attribute\ObjectReference;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -29,7 +29,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)'),
         new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
     ],
     normalizationContext: [
@@ -43,6 +43,28 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new GetCollection(
             provider: IntegrationDataProvider::class,
+            parameters: [
+                'integration' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'integration',
+                ),
+                'integration[]' => new QueryParameter(property: 'integration', openApi: false),
+                'objectType' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'objectType',
+                ),
+                'objectType[]' => new QueryParameter(property: 'objectType', openApi: false),
+                'objectId' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'objectId',
+                ),
+                'objectId[]' => new QueryParameter(property: 'objectId', openApi: false),
+                'userId' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'userId',
+                ),
+                'userId[]' => new QueryParameter(property: 'userId', openApi: false),
+            ],
         ),
     ],
     uriVariables: [
@@ -58,12 +80,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity]
 #[ORM\Index(columns: ['integration_id', 'object_type', 'object_id'], name: 'int_obj_idx')]
 #[ORM\Index(columns: ['integration_id', 'name'], name: 'int_nam_idx')]
-#[ApiFilter(SearchFilter::class, properties: [
-    'integration' => 'exact',
-    'objectType' => 'exact',
-    'objectId' => 'exact',
-    'userId' => 'exact',
-])]
 class IntegrationData extends AbstractUuidEntity
 {
     use CreatedAtTrait;

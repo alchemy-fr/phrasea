@@ -18,7 +18,7 @@ final class StoryAssetCollectionProvider extends AbstractCollectionAssetCollecti
 
     protected function resolveTarget(array $uriVariables): array
     {
-        $storyAsset = DoctrineUtil::findStrictByRepo($this->assetRepository, $uriVariables['id'], throw404: true);
+        $storyAsset = DoctrineUtil::findStrictByRepo($this->assetRepository, (string) $uriVariables['id'], throw404: true);
 
         // A story collection has no indexed path of its own: its assets are found by story ID
         return [

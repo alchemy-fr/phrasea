@@ -6,13 +6,17 @@ namespace App\Elasticsearch;
 
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use App\Attribute\AttributeInterface;
+use App\Attribute\Type\GeoPointAttributeType;
 use App\Elasticsearch\AQL\ConditionOperatorEnum;
 use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use App\Elasticsearch\BuiltInAttribute\CollectionBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\CustomFilterQueryBuiltInAttributeInterface;
 use App\Elasticsearch\BuiltInAttribute\CustomSortBuiltInAttributeInterface;
 use App\Elasticsearch\BuiltInAttribute\DeletedBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\DirectCollectionBuiltInAttribute;
+use App\Elasticsearch\Geo\GeoCluster;
+use App\Elasticsearch\Geo\GeoClusterResult;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use App\Entity\Core\Collection;
@@ -23,6 +27,8 @@ use App\Security\AttributeFilterManager;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetVoter;
 use App\Service\Asset\AssetSortGroupMapper;
+use Elastica\Aggregation;
+use Elastica\Index;
 use Elastica\Query;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
@@ -34,9 +40,13 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AssetSearch extends AbstractSearch
 {
+    final public const int MAX_GEO_CLUSTERS = 2000;
+
     public function __construct(
         #[Autowire(service: 'fos_elastica.finder.asset')]
         private readonly PaginatedFinderInterface $finder,
+        #[Autowire(service: 'fos_elastica.index.asset')]
+        private readonly Index $index,
         private readonly AttributeFilterManager $attributeFilterManager,
         private readonly LoggerInterface $logger,
         private readonly AttributeSearch $attributeSearch,
@@ -51,10 +61,196 @@ class AssetSearch extends AbstractSearch
     ) {
     }
 
+    private function isScoreBasedCondition(string $condition): bool
+    {
+        foreach ($this->builtInAttributeRegistry->getAll() as $attribute) {
+            if ($attribute instanceof CustomFilterQueryBuiltInAttributeInterface
+                && $attribute->isScoreBasedQuery()
+                && str_starts_with($condition, $attribute::getKey())
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function search(
         ?string $userId,
         array $groupIds,
         array $options = [],
+    ): array {
+        [$query, $limit, $options] = $this->buildQuery($userId, $groupIds, $options);
+
+        $this->applySort($query, $options);
+
+        $query->setHighlight([
+            'pre_tags' => ['[hl]'],
+            'post_tags' => ['[/hl]'],
+            'fields' => [
+                'name' => [
+                    'fragment_size' => 255,
+                    'number_of_fragments' => 1,
+                ],
+                AttributeInterface::ATTRIBUTES_FIELD.'.*' => [
+                    'number_of_fragments' => 20,
+                ],
+            ],
+        ]);
+
+        $this->facetHandler->addBuiltInFacets($query);
+        $this->attributeSearch->buildFacets($query, $userId, $groupIds, $options);
+
+        /** @var FantaPaginatorAdapter $adapter */
+        $adapter = $this->finder->findPaginated($query)->getAdapter();
+        $result = new Pagerfanta(new FilteredPager(fn (Asset $asset,
+        ): bool => $this->isGranted(AbstractVoter::READ, $asset), $adapter));
+        $result->setMaxPerPage((int) $limit);
+        if ($options['page'] ?? false) {
+            $result->setAllowOutOfRangePages(true);
+            $result->setCurrentPage((int) $options['page']);
+        }
+        $start = microtime(true);
+        // Force query to ensure adapter will run it just once.
+        $this->executeSearch($result->getCurrentPageResults(...));
+        $searchTime = microtime(true) - $start;
+
+        $facets = $adapter->getAggregations();
+        $facets = $this->facetHandler->normalizeBuckets($facets);
+
+        $esQuery = $query->toArray();
+
+        $groupByKey = $options['group'][0] ?? null;
+        if (null !== $groupByKey) {
+            $this->assetSortGroupMapper->resolveSortGroups($result, $groupByKey);
+        }
+
+        return [$result, $facets, $esQuery, $searchTime];
+    }
+
+    /**
+     * Clusters the geolocated assets matching the search on a tile grid.
+     *
+     * @param string                                                           $field     the geo point attribute key (e.g. "location_geo-point_s")
+     * @param int                                                              $precision the tile zoom level (0-29)
+     * @param array{top: float, left: float, bottom: float, right: float}|null $bounds    the area to cluster, the whole world when null
+     */
+    public function geoClusters(
+        ?string $userId,
+        array $groupIds,
+        string $field,
+        int $precision,
+        ?array $bounds,
+        array $options = [],
+    ): GeoClusterResult {
+        try {
+            $fieldInfo = $this->attributeSearch->getESFieldInfo($field);
+        } catch (\InvalidArgumentException $e) {
+            throw new BadRequestHttpException(sprintf('Invalid geo field "%s"', $field), $e);
+        }
+        if ($fieldInfo->builtIn || GeoPointAttributeType::getName() !== $fieldInfo->type::getName()) {
+            throw new BadRequestHttpException(sprintf('Field "%s" is not a geo point attribute', $field));
+        }
+
+        [$query] = $this->buildQuery($userId, $groupIds, $options);
+        $query->setSize(0);
+
+        $geoFilter = new Query\BoolQuery();
+        $geoFilter->addFilter(new Query\Exists($fieldInfo->name));
+        if (null !== $workspaceRestriction = $this->createFieldWorkspaceRestriction($userId, $groupIds, $fieldInfo->name)) {
+            $geoFilter->addFilter($workspaceRestriction);
+        }
+
+        $tiles = new Aggregation\GeotileGridAggregation('tiles', $fieldInfo->name);
+        $tiles->setPrecision(max(0, min(29, $precision)));
+        $tiles->setSize(self::MAX_GEO_CLUSTERS);
+        if (null !== $bounds) {
+            $tiles->setParam('bounds', [
+                'top_left' => ['lat' => $bounds['top'], 'lon' => $bounds['left']],
+                'bottom_right' => ['lat' => $bounds['bottom'], 'lon' => $bounds['right']],
+            ]);
+        }
+        $tiles->addAggregation(new Aggregation\GeoCentroid('centroid', $fieldInfo->name));
+        $tiles->addAggregation(new Aggregation\GeoBounds('bounds', $fieldInfo->name));
+        $sample = new Aggregation\TopHits('sample');
+        $sample->setSize(1);
+        $sample->setSource(false);
+        $tiles->addAggregation($sample);
+
+        $geo = new Aggregation\Filter('geo', $geoFilter);
+        $geo->addAggregation(new Aggregation\GeoBounds('bounds', $fieldInfo->name));
+        $geo->addAggregation($tiles);
+        $query->addAggregation($geo);
+
+        $resultSet = $this->index->search($query);
+        $geoAgg = $resultSet->getAggregation('geo');
+
+        $clusters = [];
+        foreach ($geoAgg['tiles']['buckets'] as $bucket) {
+            $clusters[] = new GeoCluster(
+                key: $bucket['key'],
+                count: $bucket['doc_count'],
+                lat: $bucket['centroid']['location']['lat'],
+                lng: $bucket['centroid']['location']['lon'],
+                bounds: self::normalizeGeoBounds($bucket['bounds']['bounds']),
+                assetId: 1 === $bucket['doc_count'] ? ($bucket['sample']['hits']['hits'][0]['_id'] ?? null) : null,
+            );
+        }
+
+        return new GeoClusterResult(
+            total: $resultSet->getTotalHits(),
+            geolocated: $geoAgg['doc_count'],
+            bounds: isset($geoAgg['bounds']['bounds']) ? self::normalizeGeoBounds($geoAgg['bounds']['bounds']) : null,
+            clusters: $clusters,
+        );
+    }
+
+    /**
+     * @return array{top: float, left: float, bottom: float, right: float}
+     */
+    private static function normalizeGeoBounds(array $bounds): array
+    {
+        return [
+            'top' => $bounds['top_left']['lat'],
+            'left' => $bounds['top_left']['lon'],
+            'bottom' => $bounds['bottom_right']['lat'],
+            'right' => $bounds['bottom_right']['lon'],
+        ];
+    }
+
+    /**
+     * Restricts an attribute field to the workspaces where the user may read it.
+     * Null when the user may read it everywhere.
+     */
+    private function createFieldWorkspaceRestriction(?string $userId, array $groupIds, string $fieldName): ?Query\AbstractQuery
+    {
+        $workspaceIds = [];
+        foreach ($this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds) as $cluster) {
+            if (!isset($cluster['fields'][$fieldName])) {
+                continue;
+            }
+            if (empty($cluster['w'])) {
+                return null;
+            }
+            array_push($workspaceIds, ...$cluster['w']);
+        }
+
+        if (empty($workspaceIds)) {
+            return new Query\MatchNone();
+        }
+
+        return new Query\Terms('workspaceId', array_values(array_unique($workspaceIds)));
+    }
+
+    /**
+     * The filtered query shared by the asset searches: ACL, conditions and full-text query.
+     *
+     * @return array{Query, int, array} the query, the page size and the resolved options
+     */
+    private function buildQuery(
+        ?string $userId,
+        array $groupIds,
+        array $options,
     ): array {
         $maxLimit = 50;
         $options['userId'] = $userId;
@@ -129,26 +325,37 @@ class AssetSearch extends AbstractSearch
 
         $hasDeletedFilter = false;
         $hasStatusFilter = false;
+        $mustQueries = [];
         if (null !== $conditions = ($options['conditions'] ?? null)) {
             foreach ($conditions as $condition) {
                 if (is_array($condition)) {
                     if ($condition['disabled'] ?? false) {
                         continue;
                     }
-                    $condition = $condition['query'] ?? '';
+                    $query = $condition['query'] ?? '';
+                    $condition = ($condition['inversed'] ?? false) ? sprintf('NOT (%s)', $query) : $query;
                 }
 
-                if (str_starts_with((string) $condition, DeletedBuiltInAttribute::getKey())) {
+                // An inverted condition still targets the attribute it negates
+                $subject = (string) preg_replace('/^(?:NOT\b\s*|\(\s*)+/', '', (string) $condition);
+                if (str_starts_with($subject, DeletedBuiltInAttribute::getKey())) {
                     $hasDeletedFilter = true;
                 }
-                if (str_starts_with((string) $condition, AssetStatusBuiltInAttribute::getKey())) {
+                if (str_starts_with($subject, AssetStatusBuiltInAttribute::getKey())) {
                     $hasStatusFilter = true;
                 }
-                $filterQueries[] = $this->attributeSearch->buildConditionQuery(
+                $conditionQuery = $this->attributeSearch->buildConditionQuery(
                     $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds),
                     $condition,
                     $options
                 );
+
+                if ($this->isScoreBasedCondition((string) $condition)) {
+                    // e.g. knn must run in a scoring context so results are ranked by similarity
+                    $mustQueries[] = $conditionQuery;
+                } else {
+                    $filterQueries[] = $conditionQuery;
+                }
             }
         }
 
@@ -163,6 +370,9 @@ class AssetSearch extends AbstractSearch
         $filterQuery = new Query\BoolQuery();
         foreach ($filterQueries as $query) {
             $filterQuery->addFilter($query);
+        }
+        foreach ($mustQueries as $query) {
+            $filterQuery->addMust($query);
         }
 
         $queryString = trim($options['query'] ?? '');
@@ -185,55 +395,14 @@ class AssetSearch extends AbstractSearch
         $query->setTrackTotalHits();
         $query->setQuery($filterQuery);
 
-        $this->applySort($query, $options);
-
-        $query->setHighlight([
-            'pre_tags' => ['[hl]'],
-            'post_tags' => ['[/hl]'],
-            'fields' => [
-                'name' => [
-                    'fragment_size' => 255,
-                    'number_of_fragments' => 1,
-                ],
-                AttributeInterface::ATTRIBUTES_FIELD.'.*' => [
-                    'number_of_fragments' => 20,
-                ],
-            ],
-        ]);
-
-        $this->facetHandler->addBuiltInFacets($query);
-        $this->attributeSearch->buildFacets($query, $userId, $groupIds, $options);
-
-        /** @var FantaPaginatorAdapter $adapter */
-        $adapter = $this->finder->findPaginated($query)->getAdapter();
-        $result = new Pagerfanta(new FilteredPager(fn (Asset $asset,
-        ): bool => $this->isGranted(AbstractVoter::READ, $asset), $adapter));
-        $result->setMaxPerPage((int) $limit);
-        if ($options['page'] ?? false) {
-            $result->setAllowOutOfRangePages(true);
-            $result->setCurrentPage((int) $options['page']);
-        }
-        $start = microtime(true);
-        // Force query to ensure adapter will run it just once.
-        $this->executeSearch($result->getCurrentPageResults(...));
-        $searchTime = microtime(true) - $start;
-
-        $facets = $adapter->getAggregations();
-        $facets = $this->facetHandler->normalizeBuckets($facets);
-
-        $esQuery = $query->toArray();
-
-        $groupByKey = $options['group'][0] ?? null;
-        if (null !== $groupByKey) {
-            $this->assetSortGroupMapper->resolveSortGroups($result, $groupByKey);
-        }
-
-        return [$result, $facets, $esQuery, $searchTime];
+        return [$query, (int) $limit, $options];
     }
 
     /**
      * Filters shared by every search on the asset index: ACL, tag filter rules and, unless the
      * caller filters on them itself, "not deleted" and "accepted" status.
+     * When the caller does filter on them, the deleted and quarantined assets stay restricted
+     * to the users the AssetVoter lets read them: the caller's conditions cannot widen that.
      *
      * @return Query\AbstractQuery[]
      *
@@ -257,12 +426,10 @@ class AssetSearch extends AbstractSearch
         if (null !== $attrFilterQuery = $this->buildAttributeFilterQuery($userId, $groupIds, $options)) {
             $filterQueries[] = $attrFilterQuery;
         }
-        if ($filterDeleted) {
-            $filterQueries[] = $this->deletedBuiltInAttribute->createFilterQuery(false, ConditionOperatorEnum::EQUALS, $options);
-        }
-        if ($filterStatus) {
-            $filterQueries[] = $this->assetStatusBuiltInAttribute->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options);
-        }
+        $filterQueries[] = $this->deletedBuiltInAttribute->createFilterQuery($filterDeleted ? false : null, ConditionOperatorEnum::EQUALS, $options);
+        $filterQueries[] = $filterStatus
+            ? $this->assetStatusBuiltInAttribute->createFilterQuery(AssetStatusEnum::Accepted, ConditionOperatorEnum::EQUALS, $options)
+            : $this->assetStatusBuiltInAttribute->createVisibleFilterQuery($options);
 
         return $filterQueries;
     }
@@ -287,7 +454,11 @@ class AssetSearch extends AbstractSearch
     private function buildAttributeFilterQuery(?string $userId, array $groupIds, array $options): ?Query\BoolQuery
     {
         $ruleSet = $this->attributeFilterManager->getUserRules($userId, $groupIds);
+        if (empty($ruleSet)) {
+            return null;
+        }
 
+        $attributeGroups = $this->attributeSearch->buildAllAttributeDefinitionsGroups();
         $query = new Query\BoolQuery();
         $hasConditions = false;
 
@@ -295,7 +466,7 @@ class AssetSearch extends AbstractSearch
             foreach ($conditions as $condition) {
                 try {
                     $conditionQuery = $this->attributeSearch->buildConditionQuery(
-                        $this->attributeSearch->buildAllAttributeDefinitionsGroups(),
+                        $attributeGroups,
                         $condition,
                         $options
                     );
@@ -331,6 +502,9 @@ class AssetSearch extends AbstractSearch
     {
         $sort = [];
         if (isset($options['order'])) {
+            if (!is_array($options['order'])) {
+                throw new BadRequestHttpException('Invalid sort: expected order[<field>]=asc|desc');
+            }
             foreach ($options['order'] as $field => $way) {
                 if (!is_string($field)) {
                     throw new BadRequestHttpException(sprintf('Invalid sort field "%s"', $field));

@@ -6,6 +6,7 @@ namespace App\Security\Voter;
 
 use App\Entity\Core\AssetAttachment;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class AssetAttachmentVoter extends AbstractVoter
 {
@@ -23,11 +24,14 @@ class AssetAttachmentVoter extends AbstractVoter
     /**
      * @param AssetAttachment $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         return match ($attribute) {
             self::READ => $this->security->isGranted(self::READ, $subject->getAsset()),
-            self::CREATE, self::EDIT, self::DELETE => $this->security->isGranted(self::EDIT, $subject->getAsset()),
+            // Attaching exposes the attached asset (e.g. through a share of the host asset)
+            self::CREATE => $this->security->isGranted(self::EDIT, $subject->getAsset())
+                && $this->security->isGranted(self::READ, $subject->getAttachment()),
+            self::EDIT, self::DELETE => $this->security->isGranted(self::EDIT, $subject->getAsset()),
             default => false,
         };
     }

@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Security\Voter;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
+use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Integration\WorkspaceIntegration;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class WorkspaceIntegrationVoter extends AbstractVoter
 {
@@ -28,14 +30,20 @@ class WorkspaceIntegrationVoter extends AbstractVoter
     /**
      * @param WorkspaceIntegration $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;
         }
 
-        $isWorkspaceEditor = fn (): bool => $this->security->isGranted(self::EDIT, $subject->getWorkspace());
-        $isWorkspaceReader = fn (): bool => $this->security->isGranted(self::READ, $subject->getWorkspace());
+        $workspace = $subject->getWorkspace();
+        // Instance-wide integrations are managed by the admins only
+        $isWorkspaceEditor = fn (): bool => null !== $workspace
+            ? $this->security->isGranted(self::EDIT, $workspace)
+            : $this->isAdmin();
+        $isWorkspaceReader = fn (): bool => null !== $workspace
+            ? $this->security->isGranted(self::READ, $workspace)
+            : $this->isAdmin();
 
         return match ($attribute) {
             self::CREATE => $isWorkspaceEditor(),
@@ -43,7 +51,12 @@ class WorkspaceIntegrationVoter extends AbstractVoter
             self::EDIT => $isWorkspaceEditor() || $this->hasAcl(PermissionInterface::EDIT, $subject, $token),
             self::DELETE => $isWorkspaceEditor() || $this->hasAcl(PermissionInterface::DELETE, $subject, $token),
             self::READ => $isWorkspaceReader()
-        || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),
+                || $this->hasAcl(PermissionInterface::VIEW, $subject, $token)
+                // Public or own instance-wide integrations are listed to every user (baskets)
+                || (null === $workspace && $this->isAuthenticated() && (
+                    true === $subject->getPublic()
+                    || ($token->getUser() instanceof JwtUser && $token->getUser()->getId() === $subject->getOwnerId())
+                )),
             self::READ_DATA => $this->isAuthenticated()
                 && (true === $subject->getPublic() || $this->hasAcl(PermissionInterface::CHILD_VIEW, $subject, $token)),
             self::INTERACT => $this->isAuthenticated() && $this->hasAcl(PermissionInterface::CHILD_EDIT, $subject, $token),

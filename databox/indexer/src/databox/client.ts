@@ -71,6 +71,15 @@ const maxNameLength = 255;
 
 const collectionKeyMap: Record<string, string> = {};
 
+/**
+ * Drops the module-level collection key cache. Only used by tests.
+ */
+export function clearCollectionKeyCache(): void {
+    for (const key of Object.keys(collectionKeyMap)) {
+        delete collectionKeyMap[key];
+    }
+}
+
 export class DataboxClient {
     private readonly client: AxiosInstance;
     private readonly oauthClient: OAuthClient<KeycloakUserInfoResponse>;
@@ -226,7 +235,7 @@ export class DataboxClient {
             },
         });
 
-        return res.data['hydra:member'];
+        return res.data.member;
     }
 
     async createAttributePolicy(
@@ -253,7 +262,7 @@ export class DataboxClient {
             },
         });
 
-        return res.data['hydra:member'];
+        return res.data.member;
     }
 
     async createRenditionDefinition(data: object): Promise<string> {
@@ -280,7 +289,7 @@ export class DataboxClient {
                 slug,
                 enabledLocales: locales ?? [],
                 localeFallbacks: [],
-                ownerId: getStrict('databox.ownerId'),
+                ownerId: this.ownerId,
             })
         ).data.id;
     }

@@ -87,7 +87,7 @@ services:
     networks:
       - internal
     environment:
-      - DEV_MODE
+      - DEBUG_STACK_CONFIG
       - KEYCLOAK_URL
       - KEYCLOAK_REALM_NAME
       - DISPLAY_SERVICES_MENU
@@ -107,13 +107,11 @@ services:
       - CONFIGURATOR_S3_REGION=${S3_REGION}
       - CONFIGURATOR_S3_BUCKET_NAME
       - CONFIGURATOR_S3_USE_PATH_STYLE_ENDPOINT=${S3_USE_PATH_STYLE_ENDPOINT}
-      - S3_MULTIPART_MIN_CHUNK_SIZE
-      - S3_MULTIPART_MAX_CHUNK_SIZE
-      - S3_MULTIPART_MAX_PART_NUMBER
       - S3_MAX_OBJECT_SIZE
       - NOTIFICATIONS_ENABLED
       - SOKETI_KEY
-      - SOKETI_HOST=soketi.${PHRASEA_DOMAIN}
+      # Carries the public HTTPS port, which is not 443 on every stack (CI).
+      - SOKETI_HOST=soketi.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -138,6 +136,7 @@ services:
       - APP_ENV
       - LOG_ACTION_LEVEL
       - WORKER_VERBOSITY
+      - DEBUG_STACK_CONFIG
       - FIXTURES_GENERATE_IMAGES
       - TRUSTED_PROXIES
       - VERIFY_SSL
@@ -198,6 +197,11 @@ services:
       - S3_SECRET_KEY
       - S3_REGION
       - S3_USE_PATH_STYLE_ENDPOINT
+      # Multipart upload plan: the API decides the part size and presigns every part
+      - S3_MULTIPART_MIN_CHUNK_SIZE
+      - S3_MULTIPART_MAX_CHUNK_SIZE
+      - S3_MULTIPART_MAX_PART_NUMBER
+      - S3_MAX_OBJECT_SIZE
 
   uploader-api-php:
     logging: *default-logging
@@ -281,10 +285,22 @@ services:
       - DATABOX_CLIENT_URL
       - CLIENT_ID=${DATABOX_CLIENT_ID}
       - ALLOWED_FILE_TYPES=${DATABOX_ALLOWED_FILE_TYPES}
+      - MAPBOX_TOKEN
+      - KEYCLOAK_INTERNAL_URL
+      - DATABOX_TICKETING_ENABLED
+      - DATABOX_TICKETING_JIRA_URL
+      - DATABOX_TICKETING_JIRA_USER
+      - DATABOX_TICKETING_JIRA_API_TOKEN
+      - DATABOX_TICKETING_JIRA_PROJECT_KEY
+      - DATABOX_TICKETING_JIRA_ISSUE_TYPE
+      - DATABOX_TICKETING_JIRA_BUG_ISSUE_TYPE
+      - DATABOX_TICKETING_JIRA_LABELS
+      - DATABOX_TICKETING_JIRA_API_VERSION
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
-      - "traefik.http.routers.databox-client-dev.rule=Host(`databox.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.routers.databox-client.rule=Host(`databox.${PHRASEA_DOMAIN}`)"
+      - "traefik.http.services.databox-client.loadbalancer.server.port=3000"
 
   expose-client:
     logging: *default-logging
@@ -339,7 +355,6 @@ services:
       context: ./
       dockerfile: ./expose/api/Dockerfile
     environment:
-      - DEV_MODE
       - RABBITMQ_VHOST=${EXPOSE_RABBITMQ_VHOST}
       - ADMIN_CLIENT_ID=${EXPOSE_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_SECRET=${EXPOSE_ADMIN_CLIENT_SECRET}
@@ -565,10 +580,7 @@ services:
     logging: *default-logging
     profiles:
       - report
-    image: ${REGISTRY_NAMESPACE}report-api:${DOCKER_TAG}
-    build:
-      context: report
-      network: host
+    image: ${REPORT_API_IMAGE}
     networks:
       - internal
     environment:
@@ -647,9 +659,7 @@ services:
       - DASHBOARD_CLIENT_URL
       - DATABOX_API_URL
       - DATABOX_CLIENT_URL
-      - DEV_MODE
       - DISPLAY_SERVICES_MENU
-      - ELASTICHQ_URL
       - EXPOSE_API_URL
       - EXPOSE_CLIENT_URL
       - KEYCLOAK_URL
@@ -697,6 +707,8 @@ services:
       - EXPOSE_ADMIN_CLIENT_SECRET=${EXPOSE_ADMIN_CLIENT_SECRET}
       - ELASTICSEARCH_URL
       - ELASTICSEARCH_INDEX_PREFIX
+      - SIMILARITY_EMBEDDER_URL=http://similarity-embedder:8000
+      - FACE_RECOGNITION_URL=http://face-recognition:8000
       - S3_PATH_PREFIX
       - S3_REQUEST_SIGNATURE_TTL=${DATABOX_REQUEST_SIGNATURE_TTL}
       - S3_BUCKET_NAME=${DATABOX_S3_BUCKET_NAME}
@@ -717,6 +729,14 @@ services:
       - PWI_EXPOSE_API_URL=${EXPOSE_API_URL}
       - PWI_EXPOSE_CLIENT_URL=${EXPOSE_CLIENT_URL}
       - PWI_UPLOADER_API_URL=${UPLOADER_API_URL}
+      # Reached directly on the internal network: going through Traefik would
+      # need the public HTTPS port, which is not 443 on every stack (CI).
+      - SOKETI_HOST=soketi
+      - SOKETI_PORT=6001
+      - SOKETI_SCHEME=http
+      - SOKETI_APP_ID
+      - SOKETI_KEY
+      - SOKETI_SECRET
       - DB_NAME=${DATABOX_DB_NAME}
       - PWI_DATABOX_EXPOSE_INTEGRATION_CLIENT_ID=${DATABOX_EXPOSE_INTEGRATION_CLIENT_ID}
       - API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE=${DATABOX_API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE}
@@ -849,7 +869,7 @@ services:
     networks:
       - internal
     volumes:
-      - elasticsearch:/usr/share/elasticsearch/data
+      - elasticsearch9:/usr/share/elasticsearch/data
     ulimits:
       memlock:
         soft: -1
@@ -859,20 +879,27 @@ services:
       - discovery.type=single-node
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
 
-  elastichq:
+  similarity-embedder:
     logging: *default-logging
     profiles:
-      - elastichq
-    image: elastichq/elasticsearch-hq
+      - similarity
+    image: ${SIMILARITY_EMBEDDER_IMAGE}
+    security_opt:
+      - no-new-privileges:true
     networks:
       - internal
-    labels:
-      - "traefik.enable=true"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
-      - "traefik.http.routers.elastichq.rule=Host(`elastichq.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.elastichq.middlewares=admin-secured@docker"
+
+  face-recognition:
+    logging: *default-logging
+    profiles:
+      - face-recognition
+    image: ${FACE_RECOGNITION_IMAGE}
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - internal
 
   k6:
     logging: *default-logging
@@ -967,11 +994,7 @@ services:
 
   keycloak:
     logging: *default-logging
-    image: ${REGISTRY_NAMESPACE}keycloak:${DOCKER_TAG}
-    build:
-      context: ./infra/docker/keycloak
-      target: keycloak
-      network: host
+    image: ${KEYCLOAK_IMAGE}
     command:
       - 'start'
       - '--optimized'
@@ -1004,7 +1027,7 @@ services:
 
   keycloak2:
     logging: *default-logging
-    image: ${REGISTRY_NAMESPACE}keycloak:${DOCKER_TAG}
+    image: ${KEYCLOAK_IMAGE}
     command:
       - 'start'
       - '--optimized'
@@ -1164,9 +1187,13 @@ services:
     logging: *default-logging
     build:
       context: ./cypress
-      network: host
     profiles:
       - cypress
+    deploy:
+      resources:
+        limits:
+          cpus: ${CYPRESS_CPU_LIMIT}
+          memory: ${CYPRESS_MEMORY_LIMIT}
     environment:
       - CYPRESS_BASE_URL=${DASHBOARD_CLIENT_URL}
       - MAILPIT_URL
@@ -1178,6 +1205,14 @@ services:
       - CYPRESS_ADMIN_PASSWORD=${DEFAULT_ADMIN_PASSWORD}
       - CYPRESS_EXPOSE_ADMIN_CLIENT_ID=${EXPOSE_ADMIN_CLIENT_ID}
       - CYPRESS_EXPOSE_ADMIN_CLIENT_SECRET=${EXPOSE_ADMIN_CLIENT_SECRET}
+      - CYPRESS_DASHBOARD_CLIENT_URL=${DASHBOARD_CLIENT_URL}
+      - DEFAULT_COMMAND_TIMEOUT=15000
+      # Databox e2e tests
+      - CYPRESS_DATABOX_CLIENT_URL=${DATABOX_CLIENT_URL}
+      - CYPRESS_DATABOX_API_URL=${DATABOX_API_URL}
+      - CYPRESS_DATABOX_CLIENT_ID=${DATABOX_CLIENT_ID}
+      - CYPRESS_DATABOX_ADMIN_CLIENT_ID=${DATABOX_ADMIN_CLIENT_ID}
+      - CYPRESS_DATABOX_ADMIN_CLIENT_SECRET=${DATABOX_ADMIN_CLIENT_SECRET}
     volumes:
       - cypress_output:/cypress/output
     extra_hosts:
@@ -1186,6 +1221,9 @@ services:
       - dashboard.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - soketi.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   soketi:
     logging: *default-logging
@@ -1218,7 +1256,7 @@ volumes:
   matomodb:
   pgadmin:
   rabbitmq:
-  elasticsearch:
+  elasticsearch9:
   expose_nginx_cache:
   zippy:
   cypress_output:

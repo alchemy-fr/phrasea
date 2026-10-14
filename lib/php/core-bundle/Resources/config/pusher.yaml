@@ -1,5 +1,7 @@
 parameters:
     env(SOKETI_HOST): ''
+    env(SOKETI_PORT): ''
+    env(SOKETI_SCHEME): ''
     env(SOKETI_APP_ID): ''
     env(SOKETI_KEY): ''
     env(SOKETI_SECRET): ''

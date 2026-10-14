@@ -11,8 +11,9 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Output\ShareAlternateUrlOutput;
 use App\Api\Model\Output\ShareAttachmentOutput;
 use App\Api\Model\Output\ShareTermsOutput;
@@ -30,7 +31,8 @@ use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Attribute\SerializedName;
 use Symfony\Component\String\ByteString;
 
 #[ApiResource(
@@ -44,13 +46,14 @@ use Symfony\Component\String\ByteString;
                 ],
             ],
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
-            provider: ShareReadProvider::class,
             name: 'share_public',
+            provider: ShareReadProvider::class,
         ),
         new Get(
-            uriTemplate: '/s/{id}/r/{rendition}',
+            uriTemplate: '/s/{id}/a/{asset}/r/{rendition}',
             uriVariables: [
                 'id' => 'id',
+                'asset' => 'asset',
                 'rendition' => 'rendition',
             ],
             normalizationContext: [
@@ -85,7 +88,7 @@ use Symfony\Component\String\ByteString;
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
             provider: ShareReadProvider::class,
         ),
-        new Put(
+        new Patch(
             security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
             provider: ShareReadProvider::class,
             processor: ShareProcessor::class,
@@ -95,6 +98,13 @@ use Symfony\Component\String\ByteString;
         ),
         new GetCollection(
             provider: ShareCollectionProvider::class,
+            parameters: [
+                'assetId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Asset ID (mandatory)',
+                    castToArray: false,
+                ),
+            ],
         ),
         new Post(
             securityPostDenormalize: 'is_granted("'.AbstractVoter::CREATE.'", object)',
@@ -106,6 +116,9 @@ use Symfony\Component\String\ByteString;
     normalizationContext: [
         'groups' => [self::GROUP_READ],
     ],
+    denormalizationContext: [
+        'groups' => [self::GROUP_WRITE],
+    ],
 )]
 #[ORM\Entity(repositoryClass: ShareRepository::class)]
 class Share extends AbstractUuidEntity implements OwnerPersistableInterface
@@ -115,13 +128,14 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     use OwnerIdTrait;
     final public const string GROUP_READ = 'share:read';
     final public const string GROUP_PUBLIC_READ = 'share:public';
+    final public const string GROUP_WRITE = 'share:write';
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
-    #[Groups([self::GROUP_READ])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
-    #[Groups([self::GROUP_READ])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private bool $enabled = true;
 
     /**
@@ -131,15 +145,39 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     #[ORM\JoinTable(name: 'share_asset')]
     #[ORM\JoinColumn(onDelete: 'CASCADE')]
     #[ORM\InverseJoinColumn(onDelete: 'CASCADE')]
-    #[Groups([self::GROUP_PUBLIC_READ, self::GROUP_READ])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     private DoctrineCollection $assets;
 
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    /**
+     * The renditions the link delivers, as rendition definitions. Empty: every
+     * rendition of a public policy (the policy stays the ceiling either way,
+     * see ShareReadProvider::isRenditionShared()), unless $renditionsRestricted.
+     *
+     * @var DoctrineCollection<int, RenditionDefinition>
+     */
+    #[ORM\ManyToMany(targetEntity: RenditionDefinition::class)]
+    #[ORM\JoinTable(name: 'share_rendition_definition')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
+    #[ORM\InverseJoinColumn(onDelete: 'CASCADE')]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
+    private DoctrineCollection $renditionDefinitions;
+
+    /**
+     * Whether the link only delivers its $renditionDefinitions. Set by their
+     * adder and remover, never by the database: the selection may lose its
+     * definitions to an ON DELETE CASCADE, the link then delivers less, never
+     * every rendition.
+     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => false])]
     #[Groups([self::GROUP_READ])]
+    private bool $renditionsRestricted = false;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     protected ?\DateTimeImmutable $startsAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups([self::GROUP_READ])]
+    #[Groups([self::GROUP_READ, self::GROUP_WRITE])]
     protected ?\DateTimeImmutable $expiresAt = null;
 
     #[ORM\Column(type: Types::STRING, length: 64, nullable: false)]
@@ -152,7 +190,7 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     /**
      * @var ShareAlternateUrlOutput[]
      */
-    #[Groups([self::GROUP_READ])]
+    #[Groups([self::GROUP_PUBLIC_READ, self::GROUP_READ])]
     public array $alternateUrls = [];
 
     /**
@@ -172,6 +210,7 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
         parent::__construct($id);
         $this->token = ByteString::fromRandom(64)->toString();
         $this->assets = new ArrayCollection();
+        $this->renditionDefinitions = new ArrayCollection();
     }
 
     /**
@@ -200,6 +239,58 @@ class Share extends AbstractUuidEntity implements OwnerPersistableInterface
     public function getAssetsList(): array
     {
         return $this->assets->getValues();
+    }
+
+    /**
+     * The assets a share link may still deliver: trashed or quarantined
+     * assets stay attached to the share, but are no longer served.
+     *
+     * @return Asset[]
+     */
+    #[Groups([self::GROUP_PUBLIC_READ])]
+    #[SerializedName('assets')]
+    public function getDeliverableAssets(): array
+    {
+        return array_values(array_filter(
+            $this->assets->getValues(),
+            fn (Asset $asset): bool => !$asset->isDeleted() && AssetStatusEnum::Accepted === $asset->getStatus(),
+        ));
+    }
+
+    /**
+     * @return DoctrineCollection<int, RenditionDefinition>
+     */
+    public function getRenditionDefinitions(): DoctrineCollection
+    {
+        return $this->renditionDefinitions;
+    }
+
+    public function addRenditionDefinition(RenditionDefinition $definition): void
+    {
+        if (!$this->renditionDefinitions->contains($definition)) {
+            $this->renditionDefinitions->add($definition);
+        }
+        $this->renditionsRestricted = true;
+    }
+
+    public function removeRenditionDefinition(RenditionDefinition $definition): void
+    {
+        $this->renditionDefinitions->removeElement($definition);
+        $this->renditionsRestricted = !$this->renditionDefinitions->isEmpty();
+    }
+
+    public function isRenditionsRestricted(): bool
+    {
+        return $this->renditionsRestricted;
+    }
+
+    /**
+     * Whether the link delivers the renditions of this definition (a selection
+     * narrows the renditions down, it never grants a non-public policy).
+     */
+    public function isRenditionDefinitionShared(RenditionDefinition $definition): bool
+    {
+        return !$this->renditionsRestricted || $this->renditionDefinitions->contains($definition);
     }
 
     public function getWorkspace(): ?Workspace

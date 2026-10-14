@@ -65,6 +65,32 @@ class UserRepository extends AbstractKeycloakRepository implements UserRepositor
     }
 
     /**
+     * Not cached: used to impersonate the user, whose permissions must be
+     * exactly the current ones.
+     *
+     * @return string[] effective realm role names
+     */
+    public function getUserRoles(string $userId): array
+    {
+        $roles = $this->executeWithAccessToken(fn (string $accessToken): array => $this->oauthClient->getUserEffectiveRealmRoles($accessToken, $userId));
+
+        return array_values(array_map(fn (array $role): string => $role['name'], $roles));
+    }
+
+    /**
+     * Not cached: used to impersonate the user, whose permissions must be
+     * exactly the current ones.
+     *
+     * @return string[]
+     */
+    public function getUserGroupIds(string $userId): array
+    {
+        $groups = $this->executeWithAccessToken(fn (string $accessToken): array => $this->oauthClient->getUserGroups($accessToken, $userId));
+
+        return array_values(array_map(fn (array $group): string => $group['id'], $groups));
+    }
+
+    /**
      * @param JwtUser $user
      */
     public function getAclGroupsId(AclUserInterface $user): array

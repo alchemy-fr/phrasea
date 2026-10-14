@@ -1,4 +1,7 @@
 import axios from 'axios';
+import {registerShutdownHandlers} from './shutdown';
+
+registerShutdownHandlers();
 
 process.on('uncaughtException', (err, _origin) => {
     // eslint-disable-next-line no-console

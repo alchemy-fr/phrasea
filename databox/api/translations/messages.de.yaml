@@ -23,6 +23,8 @@ facet:
     name: Stories
   file_type:
     name: Dateityp
+  file_family:
+    name: Dateifamilie
   file_extension:
     name: Dateiendung
   has_source_file:
@@ -61,6 +63,14 @@ asset_status:
   accepted: Akzeptiert
   pending: Ausstehend
   quarantined: Unter Quarantäne
+
+file_family:
+  image: Bild
+  audio: Audio
+  video: Video
+  document: Dokument
+  other: Sonstiges
+
 built_in_attribute:
   collectionPositions:
     name: Position
@@ -92,6 +102,8 @@ built_in_attribute:
     name: Erstellt am
   fileType:
     name: Dateityp
+  fileFamily:
+    name: Dateifamilie
   fileMimeType:
     name: MIME-Dateityp
   fileExtension:

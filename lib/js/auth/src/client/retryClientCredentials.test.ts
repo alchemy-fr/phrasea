@@ -57,7 +57,9 @@ test('configureClientCredentials401Retry', async () => {
             method: 'GET',
             url: '/private',
         })
-    ).rejects.toEqual(new Error('Request failed with status code 401'));
+        // toThrow matches on the message only: the rejection is an AxiosError,
+        // which vitest's toEqual would compare field by field (config, response…).
+    ).rejects.toThrow('Request failed with status code 401');
 
     configureClientCredentials401Retry(httpClient, oauthClient);
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -20,7 +21,7 @@ final class Version20200512114816 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->abortIf('postgresql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'postgresql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform, 'Migration can only be executed safely on \'postgresql\'.');
 
         $this->addSql('CREATE TABLE publication_profile (id UUID NOT NULL, name VARCHAR(150) NOT NULL, owner_id VARCHAR(255) DEFAULT NULL, created_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, config_enabled BOOLEAN NOT NULL, config_urls JSON NOT NULL, config_copyright_text TEXT NOT NULL, config_css TEXT NOT NULL, config_layout VARCHAR(20) NOT NULL, config_theme VARCHAR(30) DEFAULT NULL, config_publicly_listed BOOLEAN NOT NULL, config_begins_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, config_expires_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL, config_security_method VARCHAR(20) DEFAULT NULL, config_security_options JSON NOT NULL, config_terms_text TEXT NOT NULL, config_terms_url VARCHAR(255) NOT NULL, config_terms_must_accept BOOLEAN NOT NULL, PRIMARY KEY(id))');
         $this->addSql('COMMENT ON COLUMN publication_profile.id IS \'(DC2Type:uuid)\'');
@@ -67,7 +68,7 @@ final class Version20200512114816 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->abortIf('postgresql' !== $this->connection->getDatabasePlatform()->getName(), 'Migration can only be executed safely on \'postgresql\'.');
+        $this->abortIf(!$this->connection->getDatabasePlatform() instanceof PostgreSQLPlatform, 'Migration can only be executed safely on \'postgresql\'.');
 
         $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE publication DROP CONSTRAINT FK_AF3C6779CCFA12B8');

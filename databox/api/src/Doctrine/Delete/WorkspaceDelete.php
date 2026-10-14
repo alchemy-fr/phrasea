@@ -8,7 +8,9 @@ use Alchemy\ESBundle\Listener\DeferredIndexListener;
 use App\Doctrine\Listener\CollectionListener;
 use App\Doctrine\SoftDeleteToggler;
 use App\Elasticsearch\IndexCleaner;
+use App\Entity\Core\AlternateUrl;
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetPolicy\AssetPolicy;
 use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\AttributeFilterRule;
@@ -22,6 +24,7 @@ use App\Entity\Core\Tag;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\IntegrationData;
 use App\Entity\Integration\IntegrationToken;
+use App\Entity\Integration\WorkspaceEnv;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Integration\WorkspaceSecret;
 use App\Entity\Template\AssetDataTemplate;
@@ -63,9 +66,6 @@ final readonly class WorkspaceDelete
 
         $this->em->beginTransaction();
 
-        $configuration = $this->em->getConnection()->getConfiguration();
-        $sqlLogger = $configuration->getSQLLogger();
-        $configuration->setSQLLogger();
         try {
             // first, delete story collections to avoid "collection not found" later
             $storyCollections = $this->em->getRepository(Collection::class)
@@ -101,12 +101,14 @@ final readonly class WorkspaceDelete
             $this->deleteDependencies(RenditionDefinition::class, $workspaceId);
             $this->deleteDependencies(RenditionPolicy::class, $workspaceId);
             $this->deleteDependencies(AssetDataTemplate::class, $workspaceId);
-            $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
+            $this->deleteDependencies(AssetPolicy::class, $workspaceId);
             $this->deleteDependencies(AttributeDefinition::class, $workspaceId);
             $this->deleteDependencies(AttributePolicy::class, $workspaceId);
             $this->deleteIntegrationChildren($workspaceId);
             $this->deleteDependencies(WorkspaceIntegration::class, $workspaceId);
             $this->deleteDependencies(WorkspaceSecret::class, $workspaceId);
+            $this->deleteDependencies(WorkspaceEnv::class, $workspaceId);
+            $this->deleteDependencies(AlternateUrl::class, $workspaceId);
             $this->deleteDependencies(AttributeEntity::class, $workspaceId);
             $this->deleteDependencies(EntityList::class, $workspaceId);
             $this->deleteDependencies(AttributeFilterRule::class, $workspaceId);
@@ -146,7 +148,6 @@ final readonly class WorkspaceDelete
             DeferredIndexListener::enable();
             $this->softDeleteToggler->enable();
             $this->collectionListener->softDeleteEnabled = true;
-            $configuration->setSQLLogger($sqlLogger);
         }
     }
 

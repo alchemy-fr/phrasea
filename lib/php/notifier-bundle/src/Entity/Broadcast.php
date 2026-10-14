@@ -11,6 +11,7 @@ use Alchemy\NotifierBundle\Repository\BroadcastRepository;
 use Alchemy\NotifierBundle\Topic\BuiltInTopic;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Doctrine\UuidType;
 
 /**
  * History of one broadcast: what was sent, to which audience, by whom, and how
@@ -58,10 +59,10 @@ class Broadcast extends AbstractUuidEntity
      * userId of whoever triggered the broadcast; null when it was not sent by a
      * user (CLI, scheduled job).
      */
-    #[ORM\Column(type: Types::GUID, nullable: true)]
+    #[ORM\Column(type: UuidType::NAME, nullable: true)]
     private ?string $initiatorUserId = null;
 
-    #[ORM\Column(type: Types::GUID, nullable: true)]
+    #[ORM\Column(type: UuidType::NAME, nullable: true)]
     private ?string $excludeUserId = null;
 
     #[ORM\Column(type: Types::INTEGER)]

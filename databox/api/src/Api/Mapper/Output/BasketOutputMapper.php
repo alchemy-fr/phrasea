@@ -1,0 +1,77 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Api\Mapper\Output;
+
+use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use App\Api\Model\Output\BasketOutput;
+use App\Api\Traits\UserLocaleTrait;
+use App\Entity\Basket\Basket;
+use App\Entity\Basket\BasketAsset;
+use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\BasketVoter;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
+
+#[AsTaggedItem(index: BasketOutput::class)]
+class BasketOutputMapper implements OutputMapperInterface
+{
+    use SecurityAwareTrait;
+    use UserOutputTrait;
+    use UserLocaleTrait;
+    use GroupsHelperTrait;
+
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+    ) {
+    }
+
+    public function supports(object $data): bool
+    {
+        return $data instanceof Basket;
+    }
+
+    /**
+     * @param Basket $data
+     */
+    public function map(object $data, array $context = []): object
+    {
+        $output = new BasketOutput();
+        $output->setCreatedAt($data->getCreatedAt());
+        $output->setUpdatedAt($data->getUpdatedAt());
+        $output->setId($data->getId());
+        $output->isArchived = $data->isArchived();
+
+        $highlights = $data->getElasticHighlights();
+        $output->setName($data->getName());
+        $output->description = $data->getDescription();
+        $output->descriptionHighlight = $highlights['description'][0] ?? $data->getDescription();
+        $output->setNameHighlight($highlights['name'][0] ?? $data->getName());
+
+        if ($this->hasGroup([
+            Basket::GROUP_READ,
+        ], $context)) {
+            $output->owner = $this->transformUser($data->getOwnerId());
+            $output->assetCount = (int) $this->em->getRepository(BasketAsset::class)
+                ->createQueryBuilder('t')
+                ->select('COUNT(t.id) as total')
+                ->andWhere('t.basket = :b')
+                ->setParameter('b', $data->getId())
+                ->getQuery()
+                ->getSingleScalarResult()
+            ;
+        }
+
+        if ($this->hasGroup([Basket::GROUP_LIST, Basket::GROUP_READ], $context)) {
+            $output->setCapabilities([
+                'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
+                'share' => $this->isGranted(BasketVoter::SHARE, $data),
+                'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
+                'editPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
+            ]);
+        }
+
+        return $output;
+    }
+}

@@ -6,7 +6,7 @@ namespace App\Model;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Post;
-use App\Controller\ValidateFormAction;
+use App\Api\Processor\ValidateFormProcessor;
 use App\Entity\Target;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -14,8 +14,8 @@ use Symfony\Component\Validator\Constraints as Assert;
     operations: [
         new Post(
             uriTemplate: '/form/validate',
-            controller: ValidateFormAction::class,
-            description: 'Retrieve form schema'
+            description: 'Validate form data against the target form schema',
+            processor: ValidateFormProcessor::class,
         ),
     ]
 )]

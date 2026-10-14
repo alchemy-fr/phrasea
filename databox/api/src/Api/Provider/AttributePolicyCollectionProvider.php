@@ -9,11 +9,13 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use ApiPlatform\Metadata\Operation;
+use App\Api\Traits\ParameterValuesTrait;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\Workspace;
 
 class AttributePolicyCollectionProvider extends AbstractCollectionProvider
 {
+    use ParameterValuesTrait;
     use SecurityAwareTrait;
 
     protected function provideCollection(
@@ -26,16 +28,14 @@ class AttributePolicyCollectionProvider extends AbstractCollectionProvider
             return [];
         }
 
-        $filters = $context['filters'] ?? [];
-
         $queryBuilder = $this->em->getRepository(AttributePolicy::class)
             ->createQueryBuilder('t')
             ->innerJoin('t.workspace', 'w');
 
-        if ($filters['workspaceId'] ?? false) {
+        if (null !== $workspaceId = self::getParameterId($operation, 'workspaceId')) {
             $queryBuilder
                 ->andWhere('w.id = :ws')
-                ->setParameter('ws', $filters['workspaceId']);
+                ->setParameter('ws', $workspaceId);
         }
 
         if (!$this->isAdmin()) {

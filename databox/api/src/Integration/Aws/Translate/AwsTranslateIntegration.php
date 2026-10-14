@@ -6,11 +6,14 @@ namespace App\Integration\Aws\Translate;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\Aws\AbstractAwsIntegration;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'aws.translate')]
 class AwsTranslateIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface
 {
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
@@ -69,6 +72,13 @@ class AwsTranslateIntegration extends AbstractAwsIntegration implements Workflow
     public static function getDisplayName(): string
     {
         return 'AWS Translate';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Ai,
+        ];
     }
 
     public static function getName(): string

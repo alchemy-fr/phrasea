@@ -28,14 +28,13 @@ The applications:
 - **uploader** — asset ingestion front-end.
 - **dashboard** — client-only shell that ties the apps together (no API of its own).
 - **configurator** — a standalone Symfony app that generates per-tenant configuration.
-- **report** — reporting service.
 - **databox/indexer** — a Node.js service (not a client) for external indexing.
 
 ## Repository layout
 
-- `databox/`, `expose/`, `uploader/` — each has `api/` (Symfony) and `client/` (React/Vite).
+- `databox/`, `expose/`, `uploader/` — each has `api/` (Symfony) and `client/` (React; Next.js for databox, Vite for the others).
 - `dashboard/client/` — React client only.
-- `lib/php/*` — shared Symfony bundles (e.g. `core-bundle`, `auth-bundle`, `configurator-bundle`, `storage-bundle`, `es-bundle`, `notify-bundle`, `report-bundle`, `workflow-bundle`, `rendition-factory`). Consumed by the API apps as Composer **`type: path` repositories, symlinked** — editing a bundle immediately affects the apps that depend on it.
+- `lib/php/*` — shared Symfony bundles (e.g. `core-bundle`, `auth-bundle`, `configurator-bundle`, `storage-bundle`, `es-bundle`, `notifier-bundle`, `report-bundle`, `workflow-bundle`, `rendition-factory`). Consumed by the API apps as Composer **`type: path` repositories, symlinked** — editing a bundle immediately affects the apps that depend on it.
 - `lib/js/*` — shared React/TS packages published under the **`@alchemy/*`** scope (e.g. `@alchemy/core`, `@alchemy/auth`, `@alchemy/api`, `@alchemy/phrasea-ui`, `@alchemy/react-hooks`). Consumed via pnpm `workspace:*`.
 - `bin/` — orchestration scripts (setup, build, migrate, test); `bin/dev/` — developer helpers.
 - `infra/`, `docker-compose*.yml` — deployment and local stack.
@@ -47,12 +46,12 @@ The applications:
 - **PHP:** each API is Symfony (PHP ^8.5) using **API Platform**, **Doctrine ORM**, **FOS Elastica / Elasticsearch**, and **Symfony Messenger over AMQP** for async work.
 - **Everything runs in Docker Compose.** Nothing is installed on the host (see the warning at the top). PHP commands run inside the API containers (e.g. `databox-api-php`, `expose-api-php`, `uploader-api-php`); JS/pnpm commands run inside the `dev` container.
 
-The docs recommend defining a `dc` shell function that wraps `docker compose` with the env files:
+The docs recommend defining a `dc` shell function that wraps `docker compose` with the env files. `.env.local` is loaded before **and** after `.env`: Compose interpolates each file as it reads it, so a `PHRASEA_DOMAIN` set in `.env.local` must already be known when the derived URLs in `.env` are expanded (same order as `load-env` in `bin/functions.sh`):
 
 ```bash
 function dc() {
     if [ -f .env.local ]; then
-        docker compose --env-file=.env --env-file=.env.local "$@"
+        docker compose --env-file=.env.local --env-file=.env --env-file=.env.local "$@"
     else
         docker compose "$@"
     fi
@@ -67,7 +66,7 @@ function dc() {
 bin/build.sh              # build images in cache-optimal order
 bin/setup.sh              # create databases + initial config
 bin/migrate.sh            # run migrations against an already-deployed stack
-bin/install-fixtures.sh   # WARNING: wipes DBs, loads fixtures, re-runs setup
+bin/dev/reset-db-fixtures.sh  # WARNING: wipes DBs, loads fixtures, re-runs setup
 dc up -d                  # start the whole stack
 ```
 
@@ -87,7 +86,7 @@ dc run --rm dev pnpm build         # tsc + vite build across packages
 
 Per-client: `pnpm --filter databox-client <script>` (scripts: `lint`, `build`, `cs` = lint:fix + format).
 
-**Frontend tests use Vitest** (only where present, e.g. `databox/client`):
+**Frontend tests use Vitest** (`databox/client`, `databox/indexer`, `lib/js/api`, `lib/js/auth`, `lib/js/i18n`; `pnpm test` at the root runs them all through Turbo):
 
 ```bash
 dc run --rm dev pnpm --filter databox-client test                      # vitest run
@@ -108,11 +107,15 @@ dc run --rm databox-api-php composer phpunit:compact   # same, agent-friendly ou
 ```
 
 **Prefer `composer phpunit:compact`** (databox, expose, uploader): same run as
-`composer phpunit` but with `Alchemy\ApiTest\PHPUnit\CompactResultPrinter` — no
-per-test dot progress, full error/failure traces, and a final one-line-per-defect
-recap, so even `| tail -50` shows the counts and every failing test name. For a
-direct `bin/phpunit` call, add
-`--printer 'Alchemy\ApiTest\PHPUnit\CompactResultPrinter'`.
+`composer phpunit` but with the `Alchemy\ApiTest\PHPUnit\CompactResultExtension`
+PHPUnit extension — no per-test dot progress, full error/failure traces, and a
+final one-line-per-defect recap, so even `| tail -50` shows the counts and every
+failing test name. For a direct `bin/phpunit` call, add
+`--extension 'Alchemy\ApiTest\PHPUnit\CompactResultExtension'`.
+
+PHPUnit is 11.5: data providers are `public static` methods referenced with
+`#[DataProvider('name')]` (no `@dataProvider` annotation), and abstract test base
+classes are named `*TestCase` (PHPUnit warns about abstract `*Test` classes).
 
 **PHPUnit needs 1G of memory.** The `composer phpunit` scripts already pass
 `-d memory_limit=1024M`; when calling `bin/phpunit` directly, pass it yourself —
@@ -127,15 +130,22 @@ inside the API containers.
 Single PHP test (PHPUnit filter):
 
 ```bash
-dc run --rm -e APP_ENV=test databox-api-php php -d memory_limit=1024M bin/phpunit --filter SomeTest tests/Path/SomeTest.php
+dc run --rm -e APP_ENV=test databox-api-php php -d memory_limit=1024M bin/phpunit --filter SomeTest tests/functional/Path/SomeTest.php
 ```
 
 Symfony console: `dc run --rm databox-api-php bin/console <cmd>`.
 
 ### Whole-repo / CI test flow
 
-- `bin/test.sh` — runs `composer test` for every Symfony API and every PHP lib inside containers.
-- `bin/dev/run-tests-in-ci-conditions.sh` — reproduces CI: builds, brings up the stack, runs `bin/test.sh`, then Cypress (`cypress/`) end-to-end.
+Tests are organised in three tiers, documented in `doc/tech/Development/ci.md`:
+
+- `bin/test.sh quick` — static checks + unit tests, **no service needed**: `composer test:quick` per Symfony project (lint + PHPUnit `--testsuite unit`), `composer test` per PHP lib, `pnpm test:quick` (lint, typecheck, vitest). Runs on every push (`.github/workflows/quick.yaml`).
+- `bin/test.sh standard` (default) — full `composer test` (unit + functional suites) inside the API images with db/redis/elasticsearch/minio up, plus the libs. Runs on PRs to master (`ci.yaml`), followed by `bin/dev/test-cypress.sh`.
+- `bin/test.sh release` — standard + `bin/dev/test-migrations.sh` (migrations replay + `schema:validate`) + `bin/dev/test-indexer-e2e.sh`. Runs on tags, nightly on master and on demand (`release.yaml`).
+- `bin/dev/run-tests-in-ci-conditions.sh [tier]` — reproduces CI: builds, brings up the stack, runs the tier, then Cypress.
+
+PHPUnit suites are directories: `tests/unit/` (plain `TestCase`, no service, namespace `App\Tests\Unit\`) and `tests/functional/` (kernel/stack, namespace `App\Tests\Functional\`).
+
 - `bin/php-cs.sh` — php-cs-fixer across all Symfony projects and PHP libs.
 
 The canonical project lists (used by the whole-repo scripts) live in `bin/vars.sh`: `SYMFONY_PROJECTS`, `CLIENT_PROJECTS`, `PHP_LIBS`, `JS_LIBS`.
@@ -143,13 +153,21 @@ The canonical project lists (used by the whole-repo scripts) live in `bin/vars.s
 ## Architecture notes
 
 - **API pattern:** Doctrine entities in `src/Entity`, exposed as API Platform resources; async processing via Messenger consumers (`src/Consumer`) reading from RabbitMQ; search backed by Elasticsearch through `es-bundle`/FOS Elastica. Files and renditions go through `storage-bundle` and `rendition-factory`.
+- **Stack versions:** Symfony 8.1, API Platform 5, Doctrine ORM 3 / DBAL 4, PHPUnit 11.5. Doctrine mapping is attribute-only (no YAML/XML driver), including in `lib/php/*` bundles.
+- **API Platform runs in MainController mode** (`use_symfony_listeners` left to its default `false`) in the three APIs: every custom endpoint is a state provider (GET) or processor (write) set on its operation, never a `controller:` (a custom controller bypasses the whole provider/processor chain, security included). RPC-style endpoints answering a bare JSON value return a `JsonResponse` from the processor/provider. Item `Post` operations need `throwOnNotFound: true` to answer 404 on an unknown id.
+- **databox API DTOs:** Input DTOs become entities in `src/Api/Mapper/Input/*InputMapper`, applied by `InputMapperProcessor` set on each write operation; checks on the resulting entity go in `extraProperties` (`InputMapperProcessor::ENTITY_SECURITY`, `ENTITY_SECURITY_POST_VALIDATION`), since `securityPostDenormalize` would see the DTO. Entities become output DTOs in `src/Api/Mapper/Output/*OutputMapper`, applied in every format (plain JSON included) by `OutputMapperProcessor` (root) and `EmbeddedOutputNormalizer` (nested). There are no Input/OutputTransformers any more.
 - **Shared code first:** cross-app concerns (auth, config, storage, notifications, reporting, workflow) live in `lib/php/*` bundles and `lib/js/*` packages rather than being duplicated per app. When a behavior spans multiple apps, the change usually belongs in a lib, not in one app.
 - **Auth** is centralized (Keycloak-based; see `lib/php/auth-bundle`, `lib/js/auth`, and `doc/tech/Authentication/`).
-- **databox client search** uses a custom AQL grammar built with nearley: `src/components/Media/Search/AQL/grammar.ne` compiled via `pnpm compile-grammar` (do not hand-edit the generated `grammar.ts`).
+- **databox client search** uses AQL, parsed client-side by `databox/client/src/features/search/aql/parser.ts` and server-side by the PEG grammar in `databox/api/src/Elasticsearch/AQL/` (see `doc/tech/Databox/aql.md`); keep both in sync.
 
 ## Conventions
 
-- Frontend: React 18 + TypeScript + Vite, MUI (`@mui/material`) for UI, TanStack React Query for data, i18next for translations (`pnpm translate` runs the i18next scanner).
+- Frontend (expose, uploader, dashboard): React 18 + TypeScript + Vite, MUI (`@mui/material`) for UI, TanStack React Query for data, i18next for translations (`pnpm translate` runs the i18next scanner).
+- Frontend (databox): Next.js (App Router) + React 19 + TypeScript, Tailwind CSS v4 + Radix primitives, TanStack Query, Zustand; see `databox/client/README.md`.
 - A **pre-commit hook** (Husky + lint-staged) runs formatting/CS on staged files; keep code lint-clean.
 - New PHP shared bundles use the modern structure (`src/` + `config/` + an `AbstractBundle` class) rather than the legacy layout.
 - **Doctrine migrations must be plain SQL.** Put schema changes _and_ data backfills in `up()`/`down()` via `addSql()` (or `$this->connection` for row-by-row transforms). Avoid `postUp()`/`preUp()` and never load entities, repositories, or services (`AbstractServiceContainerMigration`, `getEntityManager()`, `DeferredIndexListener`, …) from a migration: a migration is replayed on fresh installs long after the code it references has changed, and it breaks as soon as an entity method or column disappears (`Version20260713140456` used to call `FileMetadata::getChecksum()`, which was later removed). If a value can only be computed in PHP, read rows with `$this->connection` and write them back with parameterized SQL.
+
+## Jira tickets
+
+If Jira ticket is mentioned in a prompt, prepend it to the commit message.

@@ -11,8 +11,10 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetStatusEnum;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[AsTaggedItem(index: '@assetStatus')]
 final class AssetStatusBuiltInAttribute extends AbstractLabelledBuiltInAttribute implements CustomFilterQueryBuiltInAttributeInterface
 {
     public function __construct(private readonly TranslatorInterface $translator)
@@ -63,26 +65,18 @@ final class AssetStatusBuiltInAttribute extends AbstractLabelledBuiltInAttribute
         return 'assetStatus';
     }
 
+    public function isScoreBasedQuery(): bool
+    {
+        return false;
+    }
+
     public function createFilterQuery(mixed $value, ConditionOperatorEnum $operator, array $options): Query\AbstractQuery
     {
         $boolQuery = new BoolQuery();
 
         $filterQuarantine = function (bool $containsQuarantine) use ($boolQuery, $options): void {
             if ($containsQuarantine) {
-                $boolQuarantineAccess = new BoolQuery();
-
-                $userId = $options['userId'] ?? false;
-                if (empty($userId)) {
-                    $boolQuery->addMust(new Query\Term(['ownerId' => AbstractSearch::NO_AUTH]));
-                } else {
-                    $boolQuarantineAccess->addShould(new Query\Term(['ownerId' => $userId]));
-                    $boolQuarantineAccess->addShould(new Query\Term(['quarantineUsers' => $userId]));
-                    $groups = $options['groupIds'] ?? null;
-                    if (!empty($groups)) {
-                        $boolQuarantineAccess->addShould(new Query\Terms('quarantineGroups', $groups));
-                    }
-                    $boolQuery->addMust($boolQuarantineAccess);
-                }
+                $boolQuery->addMust($this->createQuarantineAccessQuery($options));
             }
         };
 
@@ -111,6 +105,39 @@ final class AssetStatusBuiltInAttribute extends AbstractLabelledBuiltInAttribute
                 break;
             default:
                 throw new \InvalidArgumentException(sprintf('Operator %s is not supported for assetStatus field', $operator->value));
+        }
+
+        return $boolQuery;
+    }
+
+    /**
+     * The assets the user may see whatever their status: the accepted ones, and the others
+     * when the user has access to the quarantine.
+     */
+    public function createVisibleFilterQuery(array $options): Query\AbstractQuery
+    {
+        $boolQuery = new BoolQuery();
+        $boolQuery->setMinimumShouldMatch(1);
+        $boolQuery->addShould(new Query\Term(['status' => AssetStatusEnum::Accepted->value]));
+        $boolQuery->addShould($this->createQuarantineAccessQuery($options));
+
+        return $boolQuery;
+    }
+
+    private function createQuarantineAccessQuery(array $options): Query\AbstractQuery
+    {
+        $userId = $options['userId'] ?? null;
+        if (empty($userId)) {
+            return new Query\Term(['ownerId' => AbstractSearch::NO_AUTH]);
+        }
+
+        $boolQuery = new BoolQuery();
+        $boolQuery->setMinimumShouldMatch(1);
+        $boolQuery->addShould(new Query\Term(['ownerId' => $userId]));
+        $boolQuery->addShould(new Query\Term(['quarantineUsers' => $userId]));
+        $groups = $options['groupIds'] ?? null;
+        if (!empty($groups)) {
+            $boolQuery->addShould(new Query\Terms('quarantineGroups', $groups));
         }
 
         return $boolQuery;

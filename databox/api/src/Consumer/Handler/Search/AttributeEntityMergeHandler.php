@@ -88,7 +88,7 @@ final readonly class AttributeEntityMergeHandler
             'asset',
             [
                 'bool' => [
-                    'must' => [
+                    'filter' => [
                         [
                             'term' => [
                                 'workspaceId' => $workspaceId,
@@ -100,6 +100,7 @@ final readonly class AttributeEntityMergeHandler
                             $field.'.id' => array_merge([$id], $merged),
                         ],
                     ], array_keys($fields)),
+                    'minimum_should_match' => 1,
                 ],
             ],
             [

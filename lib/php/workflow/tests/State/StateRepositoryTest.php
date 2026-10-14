@@ -9,13 +9,12 @@ use Alchemy\Workflow\State\Repository\FileSystemStateRepository;
 use Alchemy\Workflow\State\Repository\MemoryStateRepository;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState;
-use Alchemy\Workflow\Tests\AbstractWorkflowTest;
+use Alchemy\Workflow\Tests\AbstractWorkflowTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 
-class StateRepositoryTest extends AbstractWorkflowTest
+class StateRepositoryTest extends AbstractWorkflowTestCase
 {
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testStateAreCorrectlyPersistedForSuccessWorkflow(StateRepositoryInterface $stateRepository): void
     {
         $testStateRepositoryDecorator = new TestStateStateRepository($stateRepository);
@@ -117,9 +116,7 @@ class StateRepositoryTest extends AbstractWorkflowTest
         ], $testStateRepositoryDecorator->getLogs());
     }
 
-    /**
-     * @dataProvider getCases
-     */
+    #[DataProvider('getCases')]
     public function testStateAreCorrectlyPersistedForFailJob(StateRepositoryInterface $stateRepository): void
     {
         $testStateRepositoryDecorator = new TestStateStateRepository($stateRepository);
@@ -185,7 +182,7 @@ class StateRepositoryTest extends AbstractWorkflowTest
         ], $testStateRepositoryDecorator->getLogs());
     }
 
-    public function getCases(): array
+    public static function getCases(): array
     {
         return [
             [new MemoryStateRepository()],

@@ -8,6 +8,7 @@ use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use App\Entity\Template\AssetDataTemplate;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class AssetDataTemplateVoter extends AbstractVoter
 {
@@ -27,7 +28,7 @@ class AssetDataTemplateVoter extends AbstractVoter
     /**
      * @param AssetDataTemplate $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;
@@ -36,6 +37,12 @@ class AssetDataTemplateVoter extends AbstractVoter
         $user = $token->getUser();
         $userId = $user instanceof JwtUser ? $user->getId() : false;
         $isOwner = fn (): bool => $userId && $subject->getOwnerId() === $userId;
+
+        // Templates are scoped to their workspace: out of it, being public or owned is meaningless
+        $workspace = $subject->getWorkspace();
+        if (null === $workspace || !$this->security->isGranted(self::READ, $workspace)) {
+            return false;
+        }
 
         return match ($attribute) {
             self::READ => $subject->isPublic() || $isOwner() || $this->hasAcl(PermissionInterface::VIEW, $subject, $token),

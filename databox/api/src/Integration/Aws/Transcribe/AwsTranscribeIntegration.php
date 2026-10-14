@@ -13,11 +13,14 @@ use App\Attribute\BatchAttributeManager;
 use App\Border\UriDownloader;
 use App\Entity\Core\Attribute;
 use App\Integration\Aws\AbstractAwsIntegration;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'aws.transcribe')]
 class AwsTranscribeIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface
 {
     private const string VERSION = '1.0';
@@ -180,5 +183,13 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
     public static function getDisplayName(): string
     {
         return 'AWS Transcribe';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Ai,
+            IntegrationCategory::Processing,
+        ];
     }
 }

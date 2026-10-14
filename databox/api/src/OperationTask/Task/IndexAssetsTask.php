@@ -5,7 +5,9 @@ namespace App\OperationTask\Task;
 use App\Elasticsearch\AssetIndexer;
 use App\OperationTask\OperationTaskInterface;
 use App\OperationTask\RunContext;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'index_assets')]
 final readonly class IndexAssetsTask implements OperationTaskInterface
 {
     public function __construct(

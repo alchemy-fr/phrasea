@@ -13,6 +13,7 @@ use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Share;
 use App\Repository\Core\ShareRepository;
 use App\Security\Voter\AbstractVoter;
+use App\Service\Asset\AssetPolicy\AssetPolicyManager;
 use App\Service\Asset\Attribute\AssetNameResolver;
 use App\Service\Asset\FileUrlResolver;
 use App\Service\Storage\RenditionManager;
@@ -20,7 +21,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 final class ShareRenditionProvider implements ProviderInterface
@@ -34,17 +34,17 @@ final class ShareRenditionProvider implements ProviderInterface
         private readonly ShareRepository $shareRepository,
         private readonly TerminateStackListener $terminateStackListener,
         private readonly AssetNameResolver $assetNameResolver,
-        private readonly RequestStack $requestStack,
         private string $matomoSiteId,
         #[Autowire(env: 'MATOMO_URL')]
         private string $matomoUrl,
         private readonly LoggerInterface $logger,
+        private readonly AssetPolicyManager $assetPolicyManager,
     ) {
     }
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object
     {
-        $item = $this->shareRepository->find($uriVariables['id']);
+        $item = $this->shareRepository->find((string) $uriVariables['id']);
         if (!$item instanceof Share) {
             return $this->createNotFoundResponse();
         }
@@ -53,12 +53,17 @@ final class ShareRenditionProvider implements ProviderInterface
             return $this->createNotFoundResponse();
         }
 
-        $asset = $this->resolveAsset($item);
+        $asset = $this->resolveAsset($item, (string) $uriVariables['asset']);
         if (null === $asset) {
             return $this->createNotFoundResponse();
         }
 
-        $defId = $uriVariables['rendition'];
+        $defId = (string) $uriVariables['rendition'];
+        // Same filtering as the share's alternateUrls (see ShareReadProvider)
+        if (in_array($defId, $this->assetPolicyManager->getPolicyApplicationFilter($asset)->getFilteredRenditions(), true)) {
+            return $this->createNotFoundResponse();
+        }
+
         $rendition = $this->em->getRepository(AssetRendition::class)->findOneBy([
             'asset' => $asset->getId(),
             'definition' => $defId,
@@ -66,7 +71,12 @@ final class ShareRenditionProvider implements ProviderInterface
             'createdAt' => 'DESC',
         ]);
 
-        if (null !== $file = $rendition?->getFile()) {
+        // Same rule as the share's alternateUrls
+        if (null === $rendition || !ShareReadProvider::isRenditionShared($item, $rendition)) {
+            return $this->createNotFoundResponse();
+        }
+
+        if (null !== $file = $rendition->getFile()) {
             // Tracking is optional: without MATOMO_URL the tracker falls back to
             // localhost and its failure must never break the share itself.
             if ('' !== trim($this->matomoUrl)) {
@@ -91,16 +101,9 @@ final class ShareRenditionProvider implements ProviderInterface
         return $this->createNotFoundResponse();
     }
 
-    private function resolveAsset(Share $share): ?Asset
+    private function resolveAsset(Share $share, string $assetId): ?Asset
     {
-        $assetId = $this->requestStack->getCurrentRequest()?->query->get('asset');
-        if (null === $assetId || '' === $assetId) {
-            $first = $share->getAssets()->first();
-
-            return $first instanceof Asset ? $first : null;
-        }
-
-        foreach ($share->getAssetsList() as $asset) {
+        foreach ($share->getDeliverableAssets() as $asset) {
             if ($asset->getId() === $assetId) {
                 return $asset;
             }

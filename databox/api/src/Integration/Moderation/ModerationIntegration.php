@@ -8,13 +8,16 @@ use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Step;
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Email;
 
+#[AsTaggedItem(index: 'core.moderation')]
 class ModerationIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
     public function buildConfiguration(NodeBuilder $builder): void
@@ -58,6 +61,14 @@ class ModerationIntegration extends AbstractIntegration implements WorkflowInteg
     public static function getDisplayName(): string
     {
         return 'Moderation';
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Automation,
+            IntegrationCategory::Ingest,
+        ];
     }
 
     public static function getName(): string

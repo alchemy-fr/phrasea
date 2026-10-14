@@ -1,19 +1,19 @@
 import {getUniqueFileId, uploadStateStorage} from './uploadStateStorage.ts';
 import {
-    multipartUpload,
+    axiosMultipartUpload,
     OnRetry,
-    resolveChunkParams,
-} from '@alchemy/api/src/multiPartUpload';
+} from '@alchemy/api/src/axiosMultipartUpload';
+import {MultipartUploadProgress} from '@alchemy/api/src/multiPartUpload';
+import {UploadPart} from '@alchemy/api';
 import {AbortableFile, UploadedAsset} from './types.ts';
-import {apiClient, config} from './init.ts';
-import {AxiosProgressEvent} from 'axios';
+import {apiClient} from './init.ts';
 
 type Props = {
     targetId: string;
     userId: string;
     file: AbortableFile;
     onRetry: OnRetry;
-    onProgress: (event: AxiosProgressEvent) => void;
+    onProgress: (event: MultipartUploadProgress) => void;
 };
 
 export async function uploadMultipartFile({
@@ -23,57 +23,30 @@ export async function uploadMultipartFile({
     onRetry,
     onProgress,
 }: Props): Promise<UploadedAsset> {
-    const {maxPartNumber, minChunkSize, maxChunkSize, maxFileSize} =
-        config.upload;
-
-    const {chunkSize} = resolveChunkParams(file.file, {
-        maxFileSize,
-        maxChunkSize,
-        maxPartNumber,
-        minChunkSize,
-    });
-
-    const fileUID = getUniqueFileId(file.file, chunkSize);
+    const fileUID = getUniqueFileId(file.file);
     const resumableUpload = uploadStateStorage.getUpload(userId, fileUID);
-    const uploadParts = [];
 
-    let uploadId;
-
+    // Resume only when at least one part made it: otherwise start afresh, the
+    // server decides the part size and presigns every part on creation.
+    let uploadId: string | undefined;
+    const uploadParts: UploadPart[] = [];
     if (
         resumableUpload &&
-        // Ensure new format
         resumableUpload.c.length > 0 &&
         typeof resumableUpload.c[0] === 'object'
     ) {
         uploadId = resumableUpload.u;
-        for (let i = 0; i < resumableUpload.c.length; i++) {
-            const part = resumableUpload.c[i];
+        for (const part of resumableUpload.c) {
             uploadParts.push({
                 ETag: part.etag,
                 PartNumber: part.n,
             });
         }
-    } else {
-        file.abortController = new AbortController();
-
-        const res = await apiClient.post(
-            `/uploads`,
-            {
-                filename: file.file.name,
-                type: file.file.type,
-                size: file.file.size,
-            },
-            {
-                signal: file.abortController.signal,
-            }
-        );
-        uploadId = res.data.id;
-        uploadStateStorage.initUpload(userId, fileUID, uploadId);
     }
 
-    const multipart = await multipartUpload(apiClient, file.file, {
-        uploadParts,
+    const multipart = await axiosMultipartUpload(apiClient, file.file, {
         uploadId,
+        uploadParts,
         onProgress,
         onRetry,
         onUploadInit: ({uploadId}) => {
@@ -85,10 +58,6 @@ export async function uploadMultipartFile({
         receiveAbortController: abortController => {
             file.abortController = abortController;
         },
-        maxPartNumber,
-        minChunkSize,
-        maxChunkSize,
-        maxFileSize,
     });
 
     file.abortController = new AbortController();

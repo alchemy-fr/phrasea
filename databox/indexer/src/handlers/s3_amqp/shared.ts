@@ -5,6 +5,13 @@ import {S3AmqpConfig} from './types';
 import {Asset} from '../../indexers';
 import {generatePublicUrl} from '../../resourceResolver';
 
+export function parseBucketNames(value: string | undefined): string[] {
+    return (value ?? '')
+        .split(',')
+        .map(b => b.trim())
+        .filter(b => b.length > 0);
+}
+
 export function createS3ClientFromConfig(config: S3AmqpConfig) {
     const {hostname, port, protocol} = url.parse(
         getStrict('s3.endpoint', config)

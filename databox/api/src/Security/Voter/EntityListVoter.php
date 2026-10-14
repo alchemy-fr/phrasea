@@ -6,10 +6,11 @@ namespace App\Security\Voter;
 
 use App\Entity\Core\EntityList;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 
 class EntityListVoter extends AbstractVoter
 {
-    private const string SCOPE_PREFIX = 'entity-list:';
+    final public const string SCOPE_PREFIX = 'entity-list:';
 
     protected function supports(string $attribute, $subject): bool
     {
@@ -25,7 +26,7 @@ class EntityListVoter extends AbstractVoter
     /**
      * @param EntityList $subject
      */
-    protected function voteOnAttribute(string $attribute, $subject, TokenInterface $token): bool
+    protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
     {
         if ($this->tokenHasScope($token, $attribute, self::SCOPE_PREFIX)) {
             return true;

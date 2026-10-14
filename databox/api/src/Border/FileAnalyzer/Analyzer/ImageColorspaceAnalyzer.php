@@ -10,7 +10,9 @@ use App\Border\FileAnalyzer\Dto\AnalysisOutput;
 use App\Border\FileAnalyzer\Dto\LogLevelEnum;
 use App\Entity\Core\File;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'image_colorspace')]
 final readonly class ImageColorspaceAnalyzer extends AbstractAnalyzer
 {
     private const array COMMON_COLORSPACES = [

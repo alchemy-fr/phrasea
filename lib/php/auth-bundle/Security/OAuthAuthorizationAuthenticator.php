@@ -123,7 +123,7 @@ class OAuthAuthorizationAuthenticator extends AbstractAuthenticator implements A
     public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
         $redirectUrl = $request->getUri();
-        if ($request->get('code')) {
+        if ($request->query->get('code')) {
             $redirectUrl = '/';
         }
         $state = $this->authStateEncoder->encodeState($redirectUrl);

@@ -33,7 +33,7 @@
                 "dirPrefix": "%env(WATCH_DIR_PREFIX)%",
                 "sourceDir": "%env(WATCH_SOURCE_DIR)%",
                 "workspaceSlug": "%env(DATABOX_WORKSPACE_SLUG)%",
-                "createNewWorkspace": true
+                "createNewWorkspace": false
             },
             "alternateUrls": [
                 {

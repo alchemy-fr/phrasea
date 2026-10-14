@@ -16,15 +16,18 @@ use App\Api\Processor\AssetExportProcessor;
 use App\Entity\Traits\OwnerIdTrait;
 use App\Model\ExportStatusEnum;
 use App\Model\UserData;
+use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'asset-export',
     operations: [
-        new Get(),
+        new Get(
+            security: 'is_granted("'.AbstractVoter::READ.'", object)',
+        ),
         new Post(
             processor: AssetExportProcessor::class,
         ),

@@ -13,11 +13,12 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\AttributeFilterRuleInput;
 use App\Api\Model\Output\AttributeFilterRuleOutput;
-use App\Api\Provider\AttributeFilterRuleCollectionProvider;
+use App\Api\Processor\InputMapperProcessor;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeFilterRuleRepository;
 use App\Validator\ValidAQLConstraint;
@@ -25,15 +26,25 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'attribute-filter-rule',
     operations: [
         new Get(security: 'is_granted("READ", object)'),
-        new Put(security: 'is_granted("EDIT", object)'),
+        new Patch(security: 'is_granted("EDIT", object)', processor: InputMapperProcessor::class),
         new Delete(security: 'is_granted("DELETE", object)'),
-        new GetCollection(),
-        new Post(securityPostDenormalize: 'is_granted("CREATE", object)'),
+        // Restricted to the editable workspaces by AttributeFilterRuleExtension
+        new GetCollection(
+            parameters: [
+                'workspaceId' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Workspace ID (mandatory)',
+                    castToArray: false,
+                ),
+            ],
+        ),
+        new Post(extraProperties: [InputMapperProcessor::ENTITY_SECURITY => 'is_granted("CREATE", object)'], processor: InputMapperProcessor::class),
     ],
     normalizationContext: ['groups' => ['_',
         AttributeFilterRule::GROUP_READ],
@@ -41,7 +52,6 @@ use Doctrine\ORM\Mapping as ORM;
     input: AttributeFilterRuleInput::class,
     output: AttributeFilterRuleOutput::class,
     security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
-    provider: AttributeFilterRuleCollectionProvider::class,
 )]
 #[ORM\Table]
 #[ORM\Entity(repositoryClass: AttributeFilterRuleRepository::class)]
@@ -64,6 +74,7 @@ class AttributeFilterRule extends AbstractUuidEntity implements LoggableChangeSe
     protected ?DoctrineCollection $targets = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank]
     #[ValidAQLConstraint]
     protected ?string $condition = null;
 

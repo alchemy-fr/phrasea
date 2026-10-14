@@ -30,7 +30,7 @@ final class AssetDuplicatesProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): ?AssetDuplicateOutput
     {
-        $asset = $this->assetRepository->find($uriVariables['id']);
+        $asset = $this->assetRepository->find((string) $uriVariables['id']);
         if (!$asset instanceof Asset) {
             return null;
         }

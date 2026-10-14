@@ -1,0 +1,73 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ * Removes the local packages (path repositories) from the composer.json and
+ * composer.lock of the current directory, so that "composer install" can run
+ * before the local packages are copied into the image and warm up the
+ * Composer cache with the exact versions of the lock.
+ *
+ * The lock already holds the whole dependency tree of the local packages,
+ * so only their own entries are dropped. This assumes no external package
+ * requires a local one.
+ */
+
+function readJson(string $file): array
+{
+    return json_decode(file_get_contents($file), true, 512, JSON_THROW_ON_ERROR);
+}
+
+function writeJson(string $file, array $data): void
+{
+    file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)."\n");
+}
+
+/**
+ * Same as Composer\Package\Locker::getContentHash(), so that Composer does not
+ * report the stripped lock as outdated.
+ */
+function getContentHash(array $composer): string
+{
+    $relevantKeys = ['name', 'version', 'require', 'require-dev', 'conflict', 'replace', 'provide', 'minimum-stability', 'prefer-stable', 'repositories', 'extra'];
+    $relevantContent = array_intersect_key($composer, array_flip($relevantKeys));
+    if (isset($composer['config']['platform'])) {
+        $relevantContent['config']['platform'] = $composer['config']['platform'];
+    }
+    ksort($relevantContent);
+
+    return md5(json_encode($relevantContent, JSON_THROW_ON_ERROR));
+}
+
+$composer = readJson('composer.json');
+$lock = readJson('composer.lock');
+
+$localPackages = [];
+foreach (['packages', 'packages-dev'] as $section) {
+    $lock[$section] = array_values(array_filter($lock[$section] ?? [], function (array $package) use (&$localPackages): bool {
+        if ('path' === ($package['dist']['type'] ?? null)) {
+            $localPackages[] = $package['name'];
+
+            return false;
+        }
+
+        return true;
+    }));
+}
+
+foreach (['require', 'require-dev'] as $section) {
+    foreach ($localPackages as $name) {
+        unset($composer[$section][$name]);
+    }
+}
+
+if (isset($composer['repositories'])) {
+    $repositories = array_filter($composer['repositories'], fn (mixed $repository): bool => 'path' !== ($repository['type'] ?? null));
+    $composer['repositories'] = array_is_list($composer['repositories']) ? array_values($repositories) : $repositories;
+}
+
+$lock['content-hash'] = getContentHash($composer);
+
+writeJson('composer.json', $composer);
+writeJson('composer.lock', $lock);
+
+echo sprintf("Removed local packages: %s\n", implode(', ', $localPackages) ?: 'none');

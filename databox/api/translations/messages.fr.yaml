@@ -52,6 +52,8 @@ facet:
     name: Stories
   file_type:
     name: Type de fichier
+  file_family:
+    name: Famille de fichier
   file_extension:
     name: Extension de fichier
   has_source_file:
@@ -62,6 +64,14 @@ asset_status:
   accepted: Accepté
   pending: En attente
   quarantined: Placé en quarantaine
+
+file_family:
+  image: Image
+  audio: Audio
+  video: Vidéo
+  document: Document
+  other: Autre
+
 built_in_attribute:
   collectionPositions:
     name: Position
@@ -93,6 +103,8 @@ built_in_attribute:
     name: Créé le
   fileType:
     name: Type de fichier
+  fileFamily:
+    name: Famille de fichier
   fileMimeType:
     name: Type MIME de fichier
   fileExtension:

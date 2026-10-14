@@ -1,0 +1,940 @@
+'use client';
+
+import {ReactNode, useEffect, useMemo, useState} from 'react';
+import {useTranslation} from 'react-i18next';
+import {
+    CheckIcon,
+    ChevronsUpDownIcon,
+    FolderIcon,
+    PlusIcon,
+    Trash2Icon,
+    XIcon,
+} from 'lucide-react';
+import {
+    AttributeType,
+    EntityName,
+    type AttributeDefinition,
+    type AttributeDefinitionOrBuiltIn,
+} from '@/types/api';
+import {
+    AQLCondition,
+    AQLExpression,
+    AQLLogical,
+    AQLLogicalExpression,
+    AQLOperator,
+    AQLValueExpr,
+    isCondition,
+    isField,
+    isLiteral,
+    isLogical,
+} from '../aql/types';
+import {valueToString} from '../aql/serializer';
+import {getOperatorLabel} from '../aql/operatorLabel';
+import {parseAQL} from '../aql/parser';
+import {
+    getOperatorArgNames,
+    getOperatorArity,
+    getOperatorsForType,
+    rawTypeMap,
+} from '../aql/validation';
+import {RawType} from '../aql/types';
+import {aqlKey} from '@/features/attributes/definitionsStore';
+import type {DefinitionsIndex} from '@/features/attributes/definitionsStore';
+import {Button} from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+import {SimpleSelect} from '@/components/ui/select';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/overlays';
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from '@/components/ui/command';
+import {cn} from '@/lib/utils/cn';
+import {useCollectionStore} from '@/features/collections/collectionStore';
+import {
+    AttributeEntitySelect,
+    TagSelect,
+    UserSelect,
+} from '@/components/form/selects';
+import {CollectionTreePicker} from '@/components/form/CollectionTreePicker';
+import {
+    assetStatusLabels,
+    fileFamilyLabels,
+    privacyLabels,
+} from '@/features/attributes/types/registry';
+import {fileFamilies} from '@/lib/utils/mime';
+import {ResolveStatus, useEntitiesStore, useEntity} from '../entitiesStore';
+import {idFromIri, iri} from '@/lib/utils/iri';
+
+export function emptyCondition(): AQLCondition {
+    return {
+        leftOperand: {field: ''},
+        operator: AQLOperator.EQ,
+        rightOperand: {literal: ''},
+    };
+}
+
+function rawTypeOf(
+    definition: AttributeDefinitionOrBuiltIn | undefined
+): RawType | undefined {
+    return definition?.type ? rawTypeMap[definition.type] : undefined;
+}
+
+/** Initial value of a new operand, e.g. `true` for a boolean field */
+function defaultValueFor(
+    definition: AttributeDefinitionOrBuiltIn | undefined
+): AQLValueExpr {
+    return rawTypeOf(definition) === RawType.Boolean ? true : {literal: ''};
+}
+
+/** Adapts the operands to the operator arity, filling the missing ones */
+export function fitValues(
+    values: AQLValueExpr[],
+    operator: AQLOperator,
+    definition: AttributeDefinitionOrBuiltIn | undefined
+): AQLCondition['rightOperand'] {
+    const arity = getOperatorArity(operator);
+    const fill = (i: number) => values[i] ?? defaultValueFor(definition);
+
+    if (arity === 0) {
+        return undefined;
+    }
+    if (arity === true) {
+        return values.length > 0 ? values : [fill(0)];
+    }
+    if (arity === 1) {
+        return fill(0);
+    }
+
+    return Array.from({length: arity}, (_, i) => fill(i));
+}
+
+/** Ensures the root is a logical group so conditions can be appended */
+export function normalizeExpression(
+    expression: AQLExpression
+): AQLLogicalExpression {
+    if (isLogical(expression) && expression.operator !== AQLLogical.NOT) {
+        return expression;
+    }
+
+    return {operator: AQLLogical.AND, conditions: [expression]};
+}
+
+type BuilderProps = {
+    expression: AQLExpression;
+    onChange: (expression: AQLExpression) => void;
+    definitions: DefinitionsIndex;
+    root?: boolean;
+    onRemove?: () => void;
+};
+
+export function ExpressionBuilder({
+    expression,
+    onChange,
+    definitions,
+    root,
+    onRemove,
+}: BuilderProps) {
+    const {t} = useTranslation();
+
+    if (!isLogical(expression)) {
+        return (
+            <ConditionRow
+                condition={expression}
+                definitions={definitions}
+                onChange={onChange}
+                onRemove={onRemove}
+            />
+        );
+    }
+
+    const group = expression;
+    const update = (conditions: AQLExpression[]) =>
+        onChange({...group, conditions});
+
+    return (
+        <div
+            className={cn(
+                'space-y-2',
+                !root && 'rounded-md border border-dashed p-3 pl-4'
+            )}
+        >
+            <div className="flex items-center gap-2">
+                {group.operator === AQLLogical.NOT ? (
+                    <span className="text-xs font-semibold text-muted-foreground">
+                        NOT
+                    </span>
+                ) : (
+                    <SimpleSelect
+                        size="sm"
+                        className="w-auto shrink-0"
+                        value={group.operator}
+                        onValueChange={op =>
+                            onChange({...group, operator: op as AQLLogical})
+                        }
+                        options={[
+                            {
+                                value: AQLLogical.AND,
+                                label: t('aql.and', 'All (AND)'),
+                            },
+                            {
+                                value: AQLLogical.OR,
+                                label: t('aql.or', 'Any (OR)'),
+                            },
+                        ]}
+                    />
+                )}
+                <span className="text-xs text-muted-foreground">
+                    {t(
+                        'search.condition.group_help',
+                        'of the following conditions match'
+                    )}
+                </span>
+                {!root && onRemove ? (
+                    <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        className="ml-auto"
+                        onClick={onRemove}
+                        aria-label={t('common.remove', 'Remove')}
+                    >
+                        <XIcon />
+                    </Button>
+                ) : null}
+            </div>
+            <div className="space-y-2">
+                {group.conditions.map((c, i) => (
+                    <ExpressionBuilder
+                        key={i}
+                        expression={c}
+                        definitions={definitions}
+                        onChange={next =>
+                            update(
+                                group.conditions.map((x, j) =>
+                                    j === i ? next : x
+                                )
+                            )
+                        }
+                        onRemove={() =>
+                            update(group.conditions.filter((_, j) => j !== i))
+                        }
+                    />
+                ))}
+            </div>
+            <div className="flex gap-2">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                        update([...group.conditions, emptyCondition()])
+                    }
+                >
+                    <PlusIcon /> {t('search.condition.add', 'Add condition')}
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                        update([
+                            ...group.conditions,
+                            {
+                                operator:
+                                    group.operator === AQLLogical.AND
+                                        ? AQLLogical.OR
+                                        : AQLLogical.AND,
+                                conditions: [emptyCondition()],
+                            },
+                        ])
+                    }
+                >
+                    <PlusIcon />{' '}
+                    {t('search.condition.add_group', 'Add condition group')}
+                </Button>
+            </div>
+        </div>
+    );
+}
+
+export function ConditionRow({
+    condition,
+    definitions,
+    onChange,
+    onRemove,
+    fixedField,
+}: {
+    condition: AQLCondition;
+    definitions: DefinitionsIndex;
+    onChange: (c: AQLCondition) => void;
+    onRemove?: () => void;
+    /** Hides the field picker: only the operator and the values change */
+    fixedField?: boolean;
+}) {
+    const {t} = useTranslation();
+    const field = isField(condition.leftOperand)
+        ? condition.leftOperand.field
+        : '';
+    const definition = definitions[field];
+    const operators = getOperatorsForType(definition?.type).filter(
+        // "Has all of" only makes sense on multi-valued fields
+        op => op !== AQLOperator.HAS_ALL_OF || definition?.multiple
+    );
+    const arity = getOperatorArity(condition.operator);
+    const argNames = getOperatorArgNames(condition.operator);
+    const values: AQLValueExpr[] =
+        condition.rightOperand === undefined
+            ? []
+            : Array.isArray(condition.rightOperand)
+              ? condition.rightOperand
+              : [condition.rightOperand];
+
+    const setOperator = (operator: AQLOperator) =>
+        onChange({
+            ...condition,
+            operator,
+            rightOperand: fitValues(values, operator, definition),
+        });
+
+    const setValue = (index: number, value: AQLValueExpr) => {
+        if (arity === 1) {
+            onChange({...condition, rightOperand: value});
+        } else {
+            const next = [...values];
+            next[index] = value;
+            onChange({...condition, rightOperand: next});
+        }
+    };
+
+    return (
+        <div className="flex flex-wrap items-start gap-2 rounded-md bg-muted/40 p-2">
+            {fixedField ? null : (
+                <FieldPicker
+                    value={field}
+                    definitions={definitions}
+                    onChange={slug => {
+                        const def = definitions[slug];
+                        const ops = getOperatorsForType(def?.type);
+                        const operator = ops.includes(condition.operator)
+                            ? condition.operator
+                            : ops[0];
+                        // values typed for the previous field are meaningless
+                        // for a field of another type
+                        const sameType =
+                            rawTypeOf(def) === rawTypeOf(definition) &&
+                            def?.type === definition?.type;
+                        onChange({
+                            ...condition,
+                            leftOperand: {field: slug},
+                            operator,
+                            rightOperand: fitValues(
+                                sameType ? values : [],
+                                operator,
+                                def
+                            ),
+                        });
+                    }}
+                />
+            )}
+            <SimpleSelect
+                size="sm"
+                className="w-44"
+                value={condition.operator}
+                onValueChange={op => setOperator(op as AQLOperator)}
+                options={operators.map(op => ({
+                    value: op,
+                    label: getOperatorLabel(t, op, rawTypeOf(definition)),
+                }))}
+            />
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+                {arity === 0 ? null : arity === true ? (
+                    <>
+                        {values.map((v, i) => (
+                            <div key={i} className="flex items-center gap-1">
+                                <ValueInput
+                                    value={v}
+                                    definition={definition}
+                                    onChange={nv => setValue(i, nv)}
+                                />
+                                {values.length > 1 ? (
+                                    <Button
+                                        variant="ghost"
+                                        size="icon-xs"
+                                        onClick={() =>
+                                            onChange({
+                                                ...condition,
+                                                rightOperand: values.filter(
+                                                    (_, j) => j !== i
+                                                ),
+                                            })
+                                        }
+                                    >
+                                        <XIcon />
+                                    </Button>
+                                ) : null}
+                            </div>
+                        ))}
+                        <Button
+                            variant="outline"
+                            size="icon-sm"
+                            onClick={() =>
+                                onChange({
+                                    ...condition,
+                                    rightOperand: [
+                                        ...values,
+                                        defaultValueFor(definition),
+                                    ],
+                                })
+                            }
+                        >
+                            <PlusIcon />
+                        </Button>
+                    </>
+                ) : (
+                    Array.from({length: arity}, (_, i) => (
+                        <ValueInput
+                            key={i}
+                            value={values[i] ?? defaultValueFor(definition)}
+                            definition={definition}
+                            label={argNames?.[i]}
+                            onChange={nv => setValue(i, nv)}
+                        />
+                    ))
+                )}
+            </div>
+            {onRemove ? (
+                <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={onRemove}
+                    aria-label={t('common.remove', 'Remove')}
+                >
+                    <Trash2Icon />
+                </Button>
+            ) : null}
+        </div>
+    );
+}
+
+function FieldPicker({
+    value,
+    definitions,
+    onChange,
+}: {
+    value: string;
+    definitions: DefinitionsIndex;
+    onChange: (slug: string) => void;
+}) {
+    const {t} = useTranslation();
+    const [open, setOpen] = useState(false);
+    const list = useMemo(() => {
+        const defs = Object.values(definitions).filter(
+            d => d.builtIn || d.searchable
+        );
+        const builtIn = defs
+            .filter(d => d.builtIn)
+            .sort((a, b) =>
+                (a.displayName ?? a.name).localeCompare(b.displayName ?? b.name)
+            );
+        const others = defs
+            .filter(d => !d.builtIn)
+            .sort((a, b) =>
+                (a.displayName ?? a.name).localeCompare(b.displayName ?? b.name)
+            );
+
+        return {builtIn, others};
+    }, [definitions]);
+    const current = definitions[value];
+
+    const item = (d: AttributeDefinitionOrBuiltIn) => (
+        <CommandItem
+            key={aqlKey(d)}
+            value={`${d.displayName ?? d.name} ${aqlKey(d)}`}
+            onSelect={() => {
+                onChange(aqlKey(d));
+                setOpen(false);
+            }}
+        >
+            <CheckIcon
+                className={cn(
+                    'size-4',
+                    aqlKey(d) === value ? 'opacity-100' : 'opacity-0'
+                )}
+            />
+            <span
+                className={cn('flex-1 truncate', d.builtIn && 'font-semibold')}
+            >
+                {d.displayName ?? d.name}
+            </span>
+            <span className="text-xs text-muted-foreground">{d.type}</span>
+        </CommandItem>
+    );
+
+    return (
+        // modal: the builder lives in a dialog whose scroll lock would otherwise
+        // swallow wheel events on the portaled list.
+        <Popover open={open} onOpenChange={setOpen} modal>
+            <PopoverTrigger asChild>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    role="combobox"
+                    className={cn(
+                        'w-52 justify-between font-normal',
+                        !current && 'text-muted-foreground'
+                    )}
+                >
+                    <span className="truncate">
+                        {current
+                            ? (current.displayName ?? current.name)
+                            : t(
+                                  'search.condition.select_field',
+                                  'Select a field…'
+                              )}
+                    </span>
+                    <ChevronsUpDownIcon className="opacity-50" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-0" align="start">
+                <Command>
+                    <CommandInput placeholder={t('common.search', 'Search…')} />
+                    <CommandList>
+                        <CommandEmpty>
+                            {t('common.no_match', 'No match')}
+                        </CommandEmpty>
+                        <CommandGroup
+                            heading={t('search.condition.built_in', 'Built-in')}
+                        >
+                            {list.builtIn.map(item)}
+                        </CommandGroup>
+                        <CommandGroup
+                            heading={t(
+                                'search.condition.attributes',
+                                'Attributes'
+                            )}
+                        >
+                            {list.others.map(item)}
+                        </CommandGroup>
+                    </CommandList>
+                </Command>
+            </PopoverContent>
+        </Popover>
+    );
+}
+
+/**
+ * Typed value input. A leading `=` switches to a raw AQL expression
+ * (functions, arithmetic, fields); quotes force a string.
+ */
+function ValueInput({
+    value,
+    definition,
+    label,
+    onChange,
+}: {
+    value: AQLValueExpr;
+    definition: AttributeDefinitionOrBuiltIn | undefined;
+    label?: string;
+    onChange: (value: AQLValueExpr) => void;
+}) {
+    const {t} = useTranslation();
+    const type = definition?.type;
+    const raw = type ? rawTypeMap[type] : undefined;
+    const text = valueToInput(value, raw);
+    const picker = pickerFor(value, definition, onChange);
+
+    if (picker) {
+        return (
+            <div className="flex items-center gap-1">
+                {label ? (
+                    <span className="text-xs text-muted-foreground">
+                        {label}
+                    </span>
+                ) : null}
+                {picker}
+            </div>
+        );
+    }
+
+    if (raw === RawType.Boolean) {
+        return (
+            <SimpleSelect
+                size="sm"
+                className="w-28"
+                // anything else (e.g. an empty literal from a parsed query)
+                // shows the placeholder rather than a misleading "Yes"
+                value={
+                    value === true
+                        ? 'true'
+                        : value === false
+                          ? 'false'
+                          : value === null
+                            ? 'null'
+                            : undefined
+                }
+                onValueChange={v =>
+                    onChange(v === 'true' ? true : v === 'false' ? false : null)
+                }
+                options={[
+                    {value: 'true', label: t('common.yes', 'Yes')},
+                    {value: 'false', label: t('common.no', 'No')},
+                    {value: 'null', label: 'null'},
+                ]}
+                placeholder={t('common.select', 'Select…')}
+            />
+        );
+    }
+
+    const inputType =
+        raw === RawType.Number
+            ? 'number'
+            : raw === RawType.Date
+              ? 'date'
+              : raw === RawType.DateTime
+                ? 'datetime-local'
+                : 'text';
+
+    return (
+        <div className="flex items-center gap-1">
+            {label ? (
+                <span className="text-xs text-muted-foreground">{label}</span>
+            ) : null}
+            <Input
+                className="h-8 w-44 text-sm"
+                type={text.startsWith('=') ? 'text' : inputType}
+                value={text}
+                placeholder={raw === RawType.GeoPoint ? 'lat' : undefined}
+                onChange={e => onChange(inputToValue(e.target.value, raw))}
+            />
+        </div>
+    );
+}
+
+/**
+ * Picker for the value types whose raw value (an id, an enum number) is
+ * meaningless to users. Complex expressions (`=` raw mode) keep the text
+ * input.
+ */
+function pickerFor(
+    value: AQLValueExpr,
+    definition: AttributeDefinitionOrBuiltIn | undefined,
+    onChange: (value: AQLValueExpr) => void
+): ReactNode {
+    const type = definition?.type;
+    const literal = isLiteral(value)
+        ? value.literal
+        : value === null
+          ? ''
+          : undefined;
+    const setId = (id: string | undefined) => onChange({literal: id ?? ''});
+
+    switch (type) {
+        case AttributeType.Privacy:
+        case AttributeType.AssetStatus:
+            if (typeof value !== 'number' && literal === undefined) {
+                return null;
+            }
+
+            return (
+                <EnumValueSelect
+                    type={type}
+                    value={typeof value === 'number' ? value : undefined}
+                    onChange={onChange}
+                />
+            );
+    }
+    if (literal === undefined) {
+        return null;
+    }
+
+    switch (type) {
+        case AttributeType.FileFamily:
+            return <FileFamilyValueSelect value={literal} onChange={setId} />;
+        case AttributeType.Workspace:
+            return <WorkspaceValueSelect value={literal} onChange={setId} />;
+        case AttributeType.Tag:
+            return (
+                <div className="w-52">
+                    <TagSelect value={literal || undefined} onChange={setId} />
+                </div>
+            );
+        case AttributeType.User:
+            return (
+                <div className="w-52">
+                    <UserSelect value={literal || undefined} onChange={setId} />
+                </div>
+            );
+        case AttributeType.Entity: {
+            const entityList = (definition as AttributeDefinition).entityList;
+
+            return (
+                <div className="w-52">
+                    <AttributeEntitySelect
+                        listId={
+                            entityList
+                                ? typeof entityList === 'string'
+                                    ? idFromIri(entityList)
+                                    : entityList.id
+                                : undefined
+                        }
+                        allowNewValues={false}
+                        value={literal || undefined}
+                        onChange={setId}
+                    />
+                </div>
+            );
+        }
+        case AttributeType.CollectionPath:
+            return <CollectionValuePicker value={literal} onChange={setId} />;
+    }
+
+    return null;
+}
+
+function EnumValueSelect({
+    type,
+    value,
+    onChange,
+}: {
+    type: AttributeType.Privacy | AttributeType.AssetStatus;
+    value: number | undefined;
+    onChange: (value: number) => void;
+}) {
+    const {t} = useTranslation();
+    const labels: Record<number, string> =
+        type === AttributeType.Privacy
+            ? privacyLabels(t)
+            : assetStatusLabels(t);
+
+    return (
+        <SimpleSelect
+            size="sm"
+            className="w-52"
+            value={value === undefined ? undefined : String(value)}
+            onValueChange={v => onChange(Number(v))}
+            options={Object.entries(labels).map(([k, label]) => ({
+                value: k,
+                label,
+            }))}
+            placeholder={t('common.select', 'Select…')}
+        />
+    );
+}
+
+/** Select among the file families, for `@family` conditions */
+function FileFamilyValueSelect({
+    value,
+    onChange,
+}: {
+    value: string;
+    onChange: (value: string) => void;
+}) {
+    const {t} = useTranslation();
+    const labels = fileFamilyLabels(t);
+
+    return (
+        <SimpleSelect
+            size="sm"
+            className="w-52"
+            value={value || undefined}
+            onValueChange={onChange}
+            options={fileFamilies.map(family => ({
+                value: family,
+                label: labels[family],
+            }))}
+            placeholder={t('common.select', 'Select…')}
+        />
+    );
+}
+
+/** Collection tree in a popover, for `@collection` conditions */
+function CollectionValuePicker({
+    value,
+    onChange,
+}: {
+    value: string;
+    onChange: (id: string | undefined) => void;
+}) {
+    const {t} = useTranslation();
+    const [open, setOpen] = useState(false);
+    const entityIri = value ? iri(EntityName.Collection, value) : undefined;
+    const entity = useEntity(entityIri);
+    const storeEntity = useEntitiesStore(s => s.store);
+    const label =
+        entity && typeof entity === 'object'
+            ? String(
+                  entity.absoluteDisplayName ??
+                      entity.displayName ??
+                      entity.name ??
+                      value
+              )
+            : entity === ResolveStatus.NotFound
+              ? t('entity.not_found', 'Not found')
+              : entity === ResolveStatus.NotAllowed
+                ? t('entity.not_allowed', 'Not allowed')
+                : value
+                  ? '…'
+                  : undefined;
+
+    return (
+        // modal: see FieldPicker
+        <Popover open={open} onOpenChange={setOpen} modal>
+            <PopoverTrigger asChild>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                        'w-52 justify-between font-normal',
+                        !label && 'text-muted-foreground'
+                    )}
+                >
+                    <span className="flex min-w-0 items-center gap-1.5">
+                        <FolderIcon className="shrink-0 opacity-60" />
+                        <span className="truncate">
+                            {label ??
+                                t(
+                                    'search.condition.select_collection',
+                                    'Select a collection…'
+                                )}
+                        </span>
+                    </span>
+                    <ChevronsUpDownIcon className="opacity-50" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-1" align="start">
+                <CollectionTreePicker
+                    className="max-h-96 border-0"
+                    allowWorkspace={false}
+                    value={
+                        value
+                            ? {
+                                  iri: entityIri!,
+                                  workspaceId: '',
+                                  collectionId: value,
+                                  label: label ?? value,
+                              }
+                            : undefined
+                    }
+                    onChange={selection => {
+                        if (selection?.collectionId) {
+                            storeEntity(selection.iri, {
+                                id: selection.collectionId,
+                                absoluteDisplayName: selection.label,
+                            });
+                        }
+                        onChange(selection?.collectionId);
+                        setOpen(false);
+                    }}
+                />
+            </PopoverContent>
+        </Popover>
+    );
+}
+
+/** Workspace picker for `@workspace` conditions (ids are opaque to users) */
+function WorkspaceValueSelect({
+    value,
+    onChange,
+}: {
+    value: string;
+    onChange: (id: string) => void;
+}) {
+    const {t} = useTranslation();
+    const workspaces = useCollectionStore(s => s.workspaces);
+    const loadWorkspaces = useCollectionStore(s => s.loadWorkspaces);
+    useEffect(() => {
+        void loadWorkspaces();
+    }, [loadWorkspaces]);
+    const options = useMemo(
+        () =>
+            [...workspaces]
+                .sort((a, b) =>
+                    (a.displayName ?? a.name).localeCompare(
+                        b.displayName ?? b.name
+                    )
+                )
+                .map(w => ({value: w.id, label: w.displayName ?? w.name})),
+        [workspaces]
+    );
+
+    return (
+        <SimpleSelect
+            size="sm"
+            className="w-52"
+            value={value || undefined}
+            onValueChange={onChange}
+            options={options}
+            placeholder={t('common.select', 'Select…')}
+        />
+    );
+}
+
+function valueToInput(value: AQLValueExpr, raw: RawType | undefined): string {
+    if (value === null) return 'null';
+    if (typeof value === 'boolean') return String(value);
+    if (typeof value === 'number') return String(value);
+    if (isLiteral(value)) {
+        // Native date inputs only accept their own format and render empty
+        // otherwise: the stored ISO value (UTC) is shown in local time.
+        if (raw === RawType.DateTime) return toDateTimeLocal(value.literal);
+        if (raw === RawType.Date) return toDateOnly(value.literal);
+
+        return value.literal;
+    }
+
+    // complex expression (function, arithmetic, field): raw mode
+    return `=${valueToString(value)}`;
+}
+
+const pad = (n: number) => String(n).padStart(2, '0');
+
+/** `2026-09-12T11:00:00.000Z` → `2026-09-12T13:00` (local, `datetime-local`) */
+function toDateTimeLocal(literal: string): string {
+    const d = new Date(literal);
+    if (!literal || Number.isNaN(d.getTime())) return literal;
+
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+/** Keeps the `YYYY-MM-DD` part accepted by a `date` input */
+function toDateOnly(literal: string): string {
+    const m = /^\d{4}-\d{2}-\d{2}/.exec(literal);
+
+    return m ? m[0] : literal;
+}
+
+function inputToValue(input: string, raw: RawType | undefined): AQLValueExpr {
+    if (input.startsWith('=')) {
+        const ast = parseAQL(`x = ${input.slice(1)}`);
+        if (
+            ast &&
+            isCondition(ast.expression) &&
+            ast.expression.rightOperand !== undefined &&
+            !Array.isArray(ast.expression.rightOperand)
+        ) {
+            return ast.expression.rightOperand;
+        }
+
+        return {literal: input};
+    }
+    if (/^".*"$/.test(input)) {
+        return {literal: input.slice(1, -1)};
+    }
+    if (raw === RawType.Number) {
+        const n = parseFloat(input);
+
+        return Number.isNaN(n) ? {literal: input} : n;
+    }
+    if (raw === RawType.DateTime && input) {
+        const d = new Date(input);
+
+        return {literal: Number.isNaN(d.getTime()) ? input : d.toISOString()};
+    }
+
+    return {literal: input};
+}

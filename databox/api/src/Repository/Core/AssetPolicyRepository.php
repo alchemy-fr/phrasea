@@ -28,13 +28,11 @@ class AssetPolicyRepository extends ServiceEntityRepository
             ->andWhere('(u.userId = :userId AND u.userType = :userType) OR (u.userId IN (:groupIds) AND u.userType = :groupType)')
             ->andWhere('t.workspace = :wid')
             ->andWhere('t.enabled = true')
-            ->setParameters([
-                'userId' => $userId,
-                'groupIds' => $groups,
-                'wid' => $workspaceId,
-                'userType' => AssetPolicyUser::TYPE_USER,
-                'groupType' => AssetPolicyUser::TYPE_GROUP,
-            ])
+            ->setParameter('userId', $userId)
+            ->setParameter('groupIds', $groups)
+            ->setParameter('wid', $workspaceId)
+            ->setParameter('userType', AssetPolicyUser::TYPE_USER)
+            ->setParameter('groupType', AssetPolicyUser::TYPE_GROUP)
             ->getQuery()
             ->getResult();
     }
