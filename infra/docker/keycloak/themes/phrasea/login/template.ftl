@@ -43,6 +43,7 @@
     <#assign paradeFormPosition = (client.attributes.paradeLoginFormPosition)!'center'>
     <#assign paradeRadius = (client.attributes.paradeLoginRadius)!''>
     <#assign paradeWelcomeText = (client.attributes.paradeLoginWelcomeText)!''>
+    <#assign paradeRegistrationUrl = (client.attributes.paradeLoginRegistrationUrl)!''>
     <#assign paradeFormOpacityRaw = (client.attributes.paradeLoginFormOpacity)!''>
     <#assign paradeFormOpacity = 100>
     <#if paradeFormOpacityRaw?matches('^[0-9]+$')>
@@ -355,6 +356,13 @@
           </#if>
 
           <#nested "socialProviders">
+
+          <#if paradeRegistrationUrl?has_content && (pageId == 'login' || pageId == 'login-username')>
+              <div id="parade-registration" class="parade-login-registration">
+                  <span>${lang?starts_with('fr')?then('Pas encore de compte ?', 'No account yet?')}</span>
+                  <a href="${paradeRegistrationUrl}">${lang?starts_with('fr')?then('Demander un accès', 'Request access')}</a>
+              </div>
+          </#if>
 
           <#if displayInfo>
               <div id="kc-info" class="${properties.kcSignUpClass!}">
