@@ -212,6 +212,7 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
             'facetEnabled' => true,
             'sortable' => true,
             'allowInvalid' => true,
+            'annotationsEnabled' => true,
             'fallback' => ['en' => '{{ file.filename }}'],
             'readFromMetadata' => [' IPTC:Credit ', ''],
             'target' => AssetTypeEnum::Both->value,
@@ -228,6 +229,7 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
         $this->assertTrue($data['facetEnabled']);
         $this->assertTrue($data['sortable']);
         $this->assertTrue($data['allowInvalid']);
+        $this->assertTrue($data['annotationsEnabled']);
         $this->assertSame(['en' => '{{ file.filename }}'], $data['fallback']);
         $this->assertSame(['IPTC:Credit'], $data['readFromMetadata'], 'the metadata list is trimmed');
         $this->assertSame(AssetTypeEnum::Both->value, $data['target']);

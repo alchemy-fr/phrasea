@@ -173,6 +173,7 @@ function DefinitionForm({
         editableInGui: d?.editableInGui ?? true,
         sortable: d?.sortable ?? false,
         suggest: d?.suggest ?? false,
+        annotationsEnabled: d?.annotationsEnabled ?? false,
         translatable: d?.translatable ?? false,
         multiple: d?.multiple ?? false,
         allowInvalid: d?.allowInvalid ?? false,
@@ -215,6 +216,7 @@ function DefinitionForm({
                 editableInGui: form.editableInGui,
                 sortable: form.sortable,
                 suggest: form.suggest,
+                annotationsEnabled: form.annotationsEnabled,
                 translatable: form.translatable,
                 multiple: form.multiple,
                 allowInvalid: form.allowInvalid,
@@ -398,6 +400,13 @@ function DefinitionForm({
                     t('attribute_def.allow_invalid', 'Allow invalid values')
                 )}
                 {flag('facetEnabled', t('attribute_def.facet', 'Facet'))}
+                {flag(
+                    'annotationsEnabled',
+                    t(
+                        'attribute_def.annotations_enabled',
+                        'Annotations enabled'
+                    )
+                )}
                 {flag(
                     'fillFromName',
                     t(

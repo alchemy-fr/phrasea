@@ -16,6 +16,7 @@ import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {InlineLoader} from '@/components/ui/loader';
 import {TuiPhotoEditorPanel, tuiPhotoEditor} from './tui/TuiPhotoEditorPanel';
 import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';
+import {RekognitionPanel, awsRekognition} from './rekognition/RekognitionPanel';
 
 type Props = {
     integration: WorkspaceIntegration;
@@ -32,6 +33,9 @@ type Props = {
 export function IntegrationPanel(props: Props) {
     if (props.integration.integration === tuiPhotoEditor) {
         return <TuiPhotoEditorPanel {...props} />;
+    }
+    if (props.integration.integration === awsRekognition) {
+        return <RekognitionPanel {...props} />;
     }
 
     return <GenericIntegrationPanel {...props} />;

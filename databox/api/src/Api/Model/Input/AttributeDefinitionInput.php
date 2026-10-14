@@ -67,6 +67,11 @@ class AttributeDefinitionInput
     public $suggest;
 
     /**
+     * Whether the GUI lets users draw annotations on the asset for a value of this attribute.
+     */
+    public ?bool $annotationsEnabled = null;
+
+    /**
      * @var bool
      */
     public $facetEnabled;

@@ -174,6 +174,8 @@ export type AttributeBatchAction = {
     locale?: string;
     position?: number;
     origin?: 'human' | 'machine';
+    /** Shapes drawn over the asset for the value; null keeps the stored ones */
+    annotations?: AssetAnnotation[] | null;
 };
 
 // ---------------------------------------------------------------------------
@@ -365,6 +367,8 @@ export interface AttributeDefinition
     editable: boolean;
     editableInGui: boolean;
     suggest: boolean;
+    /** Values may carry shapes drawn over the asset */
+    annotationsEnabled?: boolean;
     translatable: boolean;
     locales?: string[];
     allowInvalid: boolean;
@@ -462,12 +466,18 @@ export interface FieldType extends HydraObject {
 // ---------------------------------------------------------------------------
 // Assets
 
+/**
+ * A shape drawn over an asset (see `features/annotations/types`): relative
+ * coordinates (0..1), `page` for documents, `c` / `s` for color and size.
+ */
 export type AssetAnnotation = {
     id?: string;
     type: string;
     name?: string;
+    page?: number;
+    /** Local flag of the viewer, never stored */
     editable?: boolean;
-    [prop: string]: unknown;
+    [prop: string]: any;
 };
 
 export type GroupValue = {

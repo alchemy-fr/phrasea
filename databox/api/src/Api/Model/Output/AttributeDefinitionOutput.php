@@ -61,6 +61,9 @@ class AttributeDefinitionOutput extends AbstractUuidOutput
     public bool $suggest = false;
 
     #[Groups([AttributeDefinition::GROUP_LIST])]
+    public bool $annotationsEnabled = false;
+
+    #[Groups([AttributeDefinition::GROUP_LIST])]
     public bool $facetEnabled = false;
 
     #[Groups([AttributeDefinition::GROUP_LIST, Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]

@@ -12,6 +12,7 @@ import {
 import {Button} from '@/components/ui/button';
 import {Tooltip} from '@/components/ui/overlays';
 import {cn} from '@/lib/utils/cn';
+import {useAnnotationLayer} from '@/features/annotations/useAnnotationLayer';
 import {
     clampOffset,
     fitScale,
@@ -28,10 +29,17 @@ import {
 /** Pixels the pointer may move during a click */
 const DRAG_THRESHOLD = 3;
 
+/** The image as laid out (untransformed), relative to the container */
+type ImageBox = {left: number; top: number; width: number; height: number};
+
 /**
  * Image with wheel / pinch zoom around the pointer, drag panning, zoom steps
  * and rotation by quarter turns. The rotation only affects the view: it is
  * forgotten with the image. Double-click toggles fit and actual size.
+ *
+ * In an asset view, the annotation layer (see `features/annotations`) is
+ * overlaid on the image, following its transform, and its tools join the
+ * toolbar.
  */
 export function ZoomableImage({
     src,
@@ -57,6 +65,14 @@ export function ZoomableImage({
     const [dragging, setDragging] = useState(false);
     const [metrics, setMetrics] = useState<ZoomMetrics>();
     const metricsRef = useRef<ZoomMetrics>(undefined);
+    const [imageBox, setImageBox] = useState<ImageBox>();
+    const zoomRef = useRef(1);
+    zoomRef.current = view.scale;
+    const annotations = useAnnotationLayer({
+        zoomRef,
+        // Redrawn sharper at each zoom step (bounded by the renderer)
+        renderKey: Math.min(3, Math.ceil(view.scale)),
+    });
     const viewRef = useRef(view);
     viewRef.current = view;
     const drag = useRef<{x: number; y: number; ox: number; oy: number}>(
@@ -79,6 +95,19 @@ export function ZoomableImage({
             fh: img.offsetHeight,
             nw: img.naturalWidth || img.offsetWidth,
         };
+    };
+    const measureBox = () => {
+        const img = imgRef.current;
+        setImageBox(
+            img && img.offsetWidth
+                ? {
+                      left: img.offsetLeft,
+                      top: img.offsetTop,
+                      width: img.offsetWidth,
+                      height: img.offsetHeight,
+                  }
+                : undefined
+        );
     };
 
     const apply = (
@@ -157,6 +186,7 @@ export function ZoomableImage({
             const m = measure();
             metricsRef.current = m;
             setMetrics(m);
+            measureBox();
             if (m) {
                 // A fitted image stays fitted
                 setView(v =>
@@ -185,9 +215,11 @@ export function ZoomableImage({
                 'relative size-full touch-none overflow-hidden select-none',
                 dragging
                     ? 'cursor-grabbing'
-                    : fitted
-                      ? 'cursor-zoom-in'
-                      : 'cursor-grab',
+                    : annotations.active
+                      ? 'cursor-default'
+                      : fitted
+                        ? 'cursor-zoom-in'
+                        : 'cursor-grab',
                 className
             )}
             onClick={e => {
@@ -272,13 +304,34 @@ export function ZoomableImage({
                     onLoad={() => {
                         metricsRef.current = measure();
                         setMetrics(metricsRef.current);
+                        measureBox();
                     }}
                 />
             </div>
+            {annotations.canvas && imageBox ? (
+                // Same box and transform as the image: the shapes follow it
+                <div
+                    data-testid="annotation-overlay"
+                    className={cn(
+                        'pointer-events-none absolute will-change-transform',
+                        animated && 'transition-transform duration-200 ease-out'
+                    )}
+                    style={{
+                        left: imageBox.left,
+                        top: imageBox.top,
+                        width: imageBox.width,
+                        height: imageBox.height,
+                        transform: `translate(${view.x}px, ${view.y}px) rotate(${view.rotation}deg) scale(${view.scale})`,
+                    }}
+                >
+                    {annotations.canvas}
+                </div>
+            ) : null}
             <div
                 data-zoom-toolbar
                 className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full border bg-background/90 p-1 shadow-md"
             >
+                {annotations.toolbar}
                 <Tooltip content={t('player.zoom_out', 'Zoom out')}>
                     <Button
                         variant="ghost"

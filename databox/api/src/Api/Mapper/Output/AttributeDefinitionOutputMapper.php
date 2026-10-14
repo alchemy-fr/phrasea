@@ -55,6 +55,7 @@ class AttributeDefinitionOutputMapper implements OutputMapperInterface
         $output->sortable = $data->isSortable();
         $output->enabled = $data->isEnabled();
         $output->suggest = $data->isSuggest();
+        $output->annotationsEnabled = $data->isAnnotationsEnabled();
         $output->facetEnabled = $data->isFacetEnabled();
         $output->translatable = $data->isTranslatable();
         $output->multiple = $data->isMultiple();

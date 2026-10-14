@@ -4,7 +4,7 @@ import {useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useRouter} from 'next/navigation';
 import {AlertTriangleIcon, ListIcon, PlusIcon, XIcon} from 'lucide-react';
-import type {AttributeDefinition} from '@/types/api';
+import type {AssetAnnotation, AttributeDefinition} from '@/types/api';
 import {AssetTypeFilter} from '@/types/api';
 import {AttributeWidget} from '@/features/attributes/widgets/AttributeWidget';
 import {
@@ -21,6 +21,7 @@ import {idFromIri} from '@/lib/utils/iri';
 import {shortId} from '@/lib/utils/misc';
 import {cn} from '@/lib/utils/cn';
 import {Flag} from '@/components/ui/flag';
+import {AnnotationTargetButton} from '@/features/annotations/AnnotationTargetButton';
 
 export type OnAttributeChange = (
     definitionId: string,
@@ -196,6 +197,25 @@ export function AttributeField({
 }) {
     const {t} = useTranslation();
     const rtl = isRtl(locale === NO_LOCALE ? undefined : locale);
+    const name = definition.displayName ?? definition.name;
+    // Shapes drawn over the asset: for definitions allowing them, and for
+    // values that already carry some (an integration may have added them)
+    const annotationButton = (
+        item: AttrValue | undefined,
+        onAnnotationsChange: (annotations: AssetAnnotation[]) => void,
+        suffix = ''
+    ) =>
+        definition.annotationsEnabled || item?.annotations?.length ? (
+            <AnnotationTargetButton
+                targetKey={`attribute-${definition.id}-${locale}${suffix}`}
+                annotations={item?.annotations ?? []}
+                editable={!disabled}
+                onChange={onAnnotationsChange}
+                label={name}
+                disabled={disabled || !item}
+                size="icon-sm"
+            />
+        ) : null;
 
     if (definition.multiple) {
         const list = (value as AttrValue[] | undefined) ?? [];
@@ -242,6 +262,16 @@ export function AttributeField({
                                 />
                             </InvalidWrapper>
                         </div>
+                        {annotationButton(
+                            item,
+                            annotations =>
+                                onChange(
+                                    list.map((x, j) =>
+                                        j === i ? {...x, annotations} : x
+                                    )
+                                ),
+                            `-${item.id}`
+                        )}
                         <Button
                             variant="ghost"
                             size="icon-sm"
@@ -273,8 +303,15 @@ export function AttributeField({
     }
 
     const single = value as AttrValue | undefined;
+    const singleAnnotationButton = annotationButton(single, annotations =>
+        onChange(
+            single
+                ? {...single, annotations}
+                : {id: `new-${shortId()}`, value: '', annotations}
+        )
+    );
 
-    return (
+    const widget = (
         <InvalidWrapper
             item={single}
             onCorrect={() =>
@@ -295,7 +332,11 @@ export function AttributeField({
                             ? single?.id && !single.id.startsWith('new-')
                                 ? {...single, value: undefined}
                                 : undefined
-                            : {id: single?.id ?? `new-${shortId()}`, value: v}
+                            : {
+                                  ...single,
+                                  id: single?.id ?? `new-${shortId()}`,
+                                  value: v,
+                              }
                     )
                 }
                 disabled={disabled}
@@ -303,6 +344,17 @@ export function AttributeField({
                 workspaceId={workspaceId}
             />
         </InvalidWrapper>
+    );
+
+    if (!singleAnnotationButton) {
+        return widget;
+    }
+
+    return (
+        <div className="flex items-start gap-2">
+            <div className="flex-1">{widget}</div>
+            {singleAnnotationButton}
+        </div>
     );
 }
 

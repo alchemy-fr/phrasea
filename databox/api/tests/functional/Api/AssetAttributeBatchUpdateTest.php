@@ -144,6 +144,85 @@ class AssetAttributeBatchUpdateTest extends AbstractSearchTestCase
         $this->assertMatchesRegularExpression('~^/assets/'.AlchemyApiTestCase::UUID_REGEX.'$~', $response->toArray()['@id']);
     }
 
+    /**
+     * Annotations are shapes drawn over the asset, kept with the value. Every
+     * shape type of the GUI is accepted; an unknown one is a bad request. A
+     * value re-set without annotations keeps them, an empty list removes them.
+     */
+    public function testAssetAttributesBatchUpdateWithAnnotations(): void
+    {
+        $annotations = [
+            [
+                'type' => 'rect',
+                'x' => 0.1,
+                'y' => 0.2,
+                'w' => 0.3,
+                'h' => 0.4,
+                'c' => '#ff0000',
+                's' => 0.002,
+                'page' => 1,
+            ],
+            [
+                'type' => 'draw',
+                'paths' => [[['x' => 0.1, 'y' => 0.1], ['x' => 0.5, 'y' => 0.6]]],
+                'c' => '#00ff00',
+                's' => 0.01,
+            ],
+            [
+                'type' => 'text',
+                'x' => 0.5,
+                'y' => 0.5,
+                'text' => 'Here',
+            ],
+        ];
+        $description = fn (ResponseInterface $response): array => array_values(array_filter(
+            $response->toArray()['attributes'],
+            fn (array $attr): bool => 'Description' === $attr['definition']['name'],
+        ))[0];
+
+        $response = $this->assetBatchAction([
+            [
+                'name' => 'description',
+                'value' => 'Annotated',
+                'annotations' => $annotations,
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(201);
+        $attribute = $description($response);
+        $this->assertSame('Annotated', $attribute['value']);
+        $this->assertSame($annotations, $attribute['assetAnnotations']);
+
+        $response = $this->assetBatchAction([
+            [
+                'name' => 'description',
+                'value' => 'Annotated, edited',
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(201);
+        $attribute = $description($response);
+        $this->assertSame('Annotated, edited', $attribute['value']);
+        $this->assertSame($annotations, $attribute['assetAnnotations']);
+
+        $response = $this->assetBatchAction([
+            [
+                'name' => 'description',
+                'value' => 'Annotated, edited',
+                'annotations' => [],
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertArrayNotHasKey('assetAnnotations', $description($response));
+
+        $this->assetBatchAction([
+            [
+                'name' => 'description',
+                'value' => 'Annotated',
+                'annotations' => [['type' => 'unknown', 'x' => 0.1]],
+            ],
+        ]);
+        $this->assertResponseStatusCodeSame(422);
+    }
+
     private function assetBatchAction(array $actions): ResponseInterface
     {
         self::enableFixtures();

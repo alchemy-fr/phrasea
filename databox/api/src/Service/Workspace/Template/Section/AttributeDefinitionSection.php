@@ -50,6 +50,7 @@ final class AttributeDefinitionSection extends AbstractTemplateSection
             'searchable' => $item->isSearchable(),
             'sortable' => $item->isSortable(),
             'suggest' => $item->isSuggest(),
+            'annotationsEnabled' => $item->isAnnotationsEnabled(),
             'translatable' => $item->isTranslatable(),
             'target' => $item->getTarget()->value,
             'enabled' => $item->isEnabled(),
@@ -115,6 +116,7 @@ final class AttributeDefinitionSection extends AbstractTemplateSection
             $o->setSearchable($item['searchable']);
             $o->setSortable($item['sortable']);
             $o->setSuggest($item['suggest']);
+            $o->setAnnotationsEnabled($item['annotationsEnabled'] ?? false);
             $o->setTranslatable($item['translatable']);
             $o->setEnabled($item['enabled'] ?? true);
             $o->setEditable($item['editable'] ?? true);

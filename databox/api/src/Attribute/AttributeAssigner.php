@@ -68,7 +68,9 @@ final readonly class AttributeAssigner
             if ($data->confidence) {
                 $attribute->setConfidence($data->confidence);
             }
-            $attribute->setAssetAnnotations($data->annotations);
+            if (null !== $data->annotations) {
+                $attribute->setAssetAnnotations($data->annotations ?: null);
+            }
         }
 
         if ($data->locale) {

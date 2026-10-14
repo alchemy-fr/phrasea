@@ -131,6 +131,9 @@ class AttributeDefinitionInputMapper extends AbstractInputMapper implements Inpu
         if (null !== $data->suggest) {
             $object->setSuggest($data->suggest);
         }
+        if (null !== $data->annotationsEnabled) {
+            $object->setAnnotationsEnabled($data->annotationsEnabled);
+        }
         if (null !== $data->enabled) {
             $object->setEnabled($data->enabled);
         }

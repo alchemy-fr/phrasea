@@ -1,4 +1,5 @@
 import type {
+    AssetAnnotation,
     Attribute,
     AttributeBatchAction,
     AttributeDefinition,
@@ -13,6 +14,8 @@ export type AttrValue = {
     id: string;
     value: unknown;
     invalid?: boolean;
+    /** Shapes drawn over the asset for this value */
+    annotations?: AssetAnnotation[];
 };
 
 /** definitionId -> locale -> value(s) */
@@ -42,6 +45,9 @@ export function buildAttributeIndex(
             value: typeDef.denormalize ? typeDef.denormalize(a.value) : a.value,
             invalid: a.invalid ?? false,
         };
+        if (a.assetAnnotations?.length) {
+            v.annotations = a.assetAnnotations;
+        }
         index[def.id] ??= {};
         if (def.multiple) {
             const list =
@@ -64,6 +70,31 @@ function normalizeValue(def: AttributeDefinition, value: unknown): unknown {
 
 function isEmpty(v: unknown): boolean {
     return v === undefined || v === null || v === '';
+}
+
+function sameAnnotations(
+    a: AttrValue | undefined,
+    b: AttrValue | undefined
+): boolean {
+    return deepEquals(a?.annotations ?? [], b?.annotations ?? []);
+}
+
+/**
+ * The annotations of a value as sent: omitted when there is none (the API
+ * keeps the stored ones), an empty list removes the ones there were.
+ */
+function annotationsOf(
+    v: AttrValue,
+    remote: AttrValue | undefined
+): Pick<AttributeBatchAction, 'annotations'> {
+    if (v.annotations?.length) {
+        return {annotations: v.annotations};
+    }
+    if (remote?.annotations?.length) {
+        return {annotations: []};
+    }
+
+    return {};
 }
 
 /**
@@ -97,7 +128,10 @@ export function computeBatchActions(
             if (def.multiple) {
                 const currList = (curr as AttrValue[] | undefined) ?? [];
                 const remList = (rem as AttrValue[] | undefined) ?? [];
-                if (remList.length === 0) {
+                if (
+                    remList.length === 0 &&
+                    !currList.some(v => v.annotations?.length)
+                ) {
                     const values = currList
                         .map(v => normalizeValue(def, v.value))
                         .filter(v => !isEmpty(v));
@@ -111,6 +145,7 @@ export function computeBatchActions(
                     }
                     continue;
                 }
+                // Annotations belong to one value: one action per value
                 for (const v of currList) {
                     const found = remList.find(r => r.id === v.id);
                     const value = normalizeValue(def, v.value);
@@ -121,10 +156,12 @@ export function computeBatchActions(
                                 definitionId: defId,
                                 value,
                                 locale: localeParam,
+                                ...annotationsOf(v, undefined),
                             });
                         }
                     } else if (
-                        !deepEquals(normalizeValue(def, found.value), value)
+                        !deepEquals(normalizeValue(def, found.value), value) ||
+                        !sameAnnotations(found, v)
                     ) {
                         if (isEmpty(value)) {
                             actions.push({
@@ -139,6 +176,7 @@ export function computeBatchActions(
                                 definitionId: defId,
                                 value,
                                 locale: localeParam,
+                                ...annotationsOf(v, found),
                             });
                         }
                     }
@@ -166,13 +204,15 @@ export function computeBatchActions(
                     }
                 } else if (
                     !r ||
-                    !deepEquals(normalizeValue(def, r.value), value)
+                    !deepEquals(normalizeValue(def, r.value), value) ||
+                    !sameAnnotations(r, c)
                 ) {
                     actions.push({
                         action: AttributeBatchActionEnum.Set,
                         definitionId: defId,
                         value,
                         locale: localeParam,
+                        ...annotationsOf(c!, r),
                     });
                 }
             }

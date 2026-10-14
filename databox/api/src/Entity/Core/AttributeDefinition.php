@@ -278,6 +278,12 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $suggest = false;
 
+    /**
+     * Whether the GUI lets users draw annotations on the asset for a value of this attribute.
+     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => false])]
+    private bool $annotationsEnabled = false;
+
     #[ORM\Column(type: Types::BOOLEAN, nullable: false)]
     private bool $editable = true;
 
@@ -718,6 +724,16 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     public function setSuggest(bool $suggest): void
     {
         $this->suggest = $suggest;
+    }
+
+    public function isAnnotationsEnabled(): bool
+    {
+        return $this->annotationsEnabled;
+    }
+
+    public function setAnnotationsEnabled(bool $annotationsEnabled): void
+    {
+        $this->annotationsEnabled = $annotationsEnabled;
     }
 
     public function getEntityList(): ?EntityList
