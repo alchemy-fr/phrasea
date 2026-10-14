@@ -245,6 +245,7 @@
     "attribute.format.json": "JSON",
     "attribute.format.label": "Label",
     "attribute.format.long": "Long",
+    "attribute.format.map": "Map",
     "attribute.format.medium": "Medium",
     "attribute.format.original": "Original",
     "attribute.format.relative": "Relative",

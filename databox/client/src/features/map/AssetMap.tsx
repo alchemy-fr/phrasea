@@ -86,12 +86,7 @@ import {resolveMapColors, type MapColors} from './mapColors';
 import {AssetPin} from './AssetPin';
 import {ClusterPopup, clusterCondition, ZonePopup} from './MapPopups';
 import {PreviewProvider} from '@/features/assets/list/preview/PreviewProvider';
-
-const styleUrls = {
-    light: 'mapbox://styles/mapbox/streets-v12',
-    dark: 'mapbox://styles/mapbox/dark-v11',
-    satellite: 'mapbox://styles/mapbox/satellite-streets-v12',
-};
+import {styleUrls} from './mapStyles';
 
 /**
  * Beyond this number of single assets in the clustered area, they are drawn

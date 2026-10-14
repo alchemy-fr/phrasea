@@ -245,6 +245,7 @@
     "attribute.format.json": "JSON",
     "attribute.format.label": "Libellé",
     "attribute.format.long": "Long",
+    "attribute.format.map": "Carte",
     "attribute.format.medium": "Moyen",
     "attribute.format.original": "Original",
     "attribute.format.relative": "Relatif",

@@ -29,6 +29,7 @@ import {
     UserChip,
     WorkspaceChip,
 } from '@/components/chips';
+import {GeoPointMapValue} from '@/features/map/GeoPointMapValue';
 
 export type FormatContext = {
     t: TFunction;
@@ -299,9 +300,18 @@ const geoPointType: AttributeTypeDef = {
     rich: true,
     formats: t => [
         {name: 'coords', label: t('attribute.format.coords', 'Coordinates')},
+        {name: 'map', label: t('attribute.format.map', 'Map')},
         {name: 'json', label: t('attribute.format.json', 'JSON')},
     ],
-    format: (v, f, ctx) => geoPointType.formatString(v, f, ctx),
+    format: (value, format, ctx) => {
+        const text = geoPointType.formatString(value, format, ctx);
+        if (format !== 'map' || !value || typeof value !== 'object') {
+            return text;
+        }
+        const {lat, lng} = value as {lat: number; lng: number};
+
+        return <GeoPointMapValue point={{lat, lng}} fallback={text} />;
+    },
     formatString: (value, format) => {
         if (!value) {
             return '';
@@ -311,7 +321,7 @@ const geoPointType: AttributeTypeDef = {
         }
         const {lat, lng} = value as {lat: number; lng: number};
         if (format === 'json') {
-            return JSON.stringify(value);
+            return JSON.stringify({lat, lng});
         }
 
         return `${lat}, ${lng}`;
@@ -358,10 +368,10 @@ const entityType: AttributeTypeDef = {
         }
         const e = value as EntityValue;
         if (format === 'emoji') {
-            return e.emoji ?? null;
+            return e.emoji ?? entityLabel(e);
         }
         if (format === 'color') {
-            return e.color ? <ColorSwatch color={e.color} /> : null;
+            return e.color ? <ColorSwatch color={e.color} /> : entityLabel(e);
         }
 
         return <EntityChip entity={e} />;
