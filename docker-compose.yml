@@ -87,7 +87,6 @@ services:
     networks:
       - internal
     environment:
-      - DEV_MODE
       - DEBUG_STACK_CONFIG
       - KEYCLOAK_URL
       - KEYCLOAK_REALM_NAME
@@ -358,7 +357,6 @@ services:
       context: ./
       dockerfile: ./expose/api/Dockerfile
     environment:
-      - DEV_MODE
       - RABBITMQ_VHOST=${EXPOSE_RABBITMQ_VHOST}
       - ADMIN_CLIENT_ID=${EXPOSE_ADMIN_CLIENT_ID}
       - ADMIN_CLIENT_SECRET=${EXPOSE_ADMIN_CLIENT_SECRET}
@@ -666,7 +664,6 @@ services:
       - DASHBOARD_CLIENT_URL
       - DATABOX_API_URL
       - DATABOX_CLIENT_URL
-      - DEV_MODE
       - DISPLAY_SERVICES_MENU
       - ELASTICHQ_URL
       - EXPOSE_API_URL

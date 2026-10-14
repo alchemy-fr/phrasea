@@ -65,7 +65,6 @@ export function getServerConfig(): AppConfig {
         },
         dashboardUrl: env.DASHBOARD_CLIENT_URL || undefined,
         displayServicesMenu: bool(env.DISPLAY_SERVICES_MENU),
-        devMode: bool(env.DEV_MODE),
         requestSignatureTtl: int(env.S3_REQUEST_SIGNATURE_TTL),
         realtime:
             env.SOKETI_HOST && env.SOKETI_KEY

@@ -28,7 +28,6 @@
     const whiteList = [
         'DATABOX_API_URL',
         'DATABOX_CLIENT_URL',
-        'DEV_MODE',
         'DISPLAY_SERVICES_MENU',
         'ELASTICHQ_URL',
         'EXPOSE_API_URL',
@@ -79,7 +78,6 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
         keycloakUrl: env.KEYCLOAK_URL,
         realmName: env.KEYCLOAK_REALM_NAME,
         clientId: env.CLIENT_ID,
-        devMode: castBoolean(env.DEV_MODE),
         displayServicesMenu: castBoolean(env.DISPLAY_SERVICES_MENU),
         dashboardBaseUrl: env.DASHBOARD_CLIENT_URL,
         analytics,
