@@ -320,6 +320,10 @@ export type AssetInput = {
     collection?: string;
     workspace?: string;
     isStory?: boolean;
+    /** Story creation: existing assets added to the story */
+    storyAssets?: string[];
+    /** Story creation: the one of `storyAssets` whose file is the cover */
+    storyCover?: string;
     sourceFileId?: string;
     multipart?: MultipartUpload;
     sourceFile?: SourceFileInput;

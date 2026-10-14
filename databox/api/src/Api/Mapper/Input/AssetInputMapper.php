@@ -16,8 +16,10 @@ use App\Security\Voter\AbstractVoter;
 use App\Service\Asset\AssetManager;
 use App\Service\Asset\Attribute\AssetNameFiller;
 use App\Service\Asset\PickSourceRenditionManager;
+use App\Service\Asset\StoryCoverManager;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 #[AsTaggedItem(index: AssetInput::class)]
 class AssetInputMapper extends AbstractFileInputMapper implements InputMapperInterface
@@ -33,6 +35,7 @@ class AssetInputMapper extends AbstractFileInputMapper implements InputMapperInt
         private readonly AssetManager $assetManager,
         private readonly AssetRenditionInputMapper $renditionInputMapper,
         private readonly AssetNameFiller $assetNameFiller,
+        private readonly StoryCoverManager $storyCoverManager,
     ) {
     }
 
@@ -148,11 +151,47 @@ class AssetInputMapper extends AbstractFileInputMapper implements InputMapperInt
 
         if ($isNew && $data->isStory) {
             $this->assetManager->turnIntoStory($object);
+            $this->addStoryItems($object, $data->storyAssets ?? [], $data->storyCover);
+        } elseif (!empty($data->storyAssets) || null !== $data->storyCover) {
+            throw new BadRequestHttpException('"storyAssets" and "storyCover" are only allowed when creating a story.');
         }
 
         $this->transformPrivacy($data, $object);
 
         return $object;
+    }
+
+    /**
+     * @param string[] $assetIds
+     */
+    private function addStoryItems(Asset $story, array $assetIds, ?string $coverId): void
+    {
+        if (null !== $coverId && !in_array($coverId, $assetIds, true)) {
+            throw new BadRequestHttpException('"storyCover" must be one of "storyAssets".');
+        }
+        if (null !== $coverId && null !== $story->getSource()) {
+            throw new BadRequestHttpException('A story cannot have both a source file and a "storyCover".');
+        }
+
+        $storyCollection = $story->getStoryCollection();
+        foreach (array_values(array_unique($assetIds)) as $assetId) {
+            $asset = $this->em->find(Asset::class, $assetId);
+            if (!$asset instanceof Asset) {
+                throw new BadRequestHttpException(sprintf('Asset "%s" not found', $assetId));
+            }
+            if (!$this->isGranted(AbstractVoter::READ, $asset)) {
+                throw new AccessDeniedHttpException(sprintf('Cannot read asset "%s"', $assetId));
+            }
+            if ($asset->getWorkspaceId() !== $story->getWorkspaceId()) {
+                throw new BadRequestHttpException(sprintf('Asset "%s" does not belong to the story workspace', $assetId));
+            }
+
+            $this->em->persist($asset->addToCollection($storyCollection));
+
+            if ($assetId === $coverId) {
+                $this->storyCoverManager->setCover($story, $asset);
+            }
+        }
     }
 
     private function handleFile(AssetInput $data, Asset $asset): ?File

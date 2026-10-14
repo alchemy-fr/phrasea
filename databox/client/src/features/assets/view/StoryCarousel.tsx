@@ -10,6 +10,7 @@ import {
 import {
     ArrowLeftToLineIcon,
     ArrowRightToLineIcon,
+    ImageIcon,
     LayersIcon,
     UnlinkIcon,
 } from 'lucide-react';
@@ -34,7 +35,9 @@ import {
     searchAssets,
     SearchAssetsResult,
     setAssetPosition,
+    setStoryCover,
 } from '@/lib/api/assets';
+import {useAssetStore, useLiveAsset} from '@/features/assets/assetStore';
 import {AssetThumb} from '@/features/assets/list/AssetThumb';
 import {AssetMenuItems} from '@/features/assets/list/AssetContextMenu';
 import {Button} from '@/components/ui/button';
@@ -130,7 +133,7 @@ export function rewriteItems(
  * removes them from their context menu.
  */
 export function StoryCarousel({
-    story,
+    story: initialStory,
     currentAssetId,
     onSelect,
 }: {
@@ -141,6 +144,8 @@ export function StoryCarousel({
 }) {
     const {t} = useTranslation();
     const queryClient = useQueryClient();
+    // Live: marking an item as cover changes the story source
+    const story = useLiveAsset(initialStory);
     const storyId = story.id;
     const query = useStoryAssets(storyId);
     const {items: loaded, total} = query;
@@ -204,6 +209,19 @@ export function StoryCarousel({
                 );
             })
             .catch(restore);
+    };
+
+    const markAsCover = (asset: Asset) => {
+        setStoryCover(storyId, asset.id)
+            .then(updated => {
+                useAssetStore.getState().update(updated);
+                toast.success(
+                    t('story.cover_set', '{{name}} is now the story cover', {
+                        name: asset.name ?? '',
+                    })
+                );
+            })
+            .catch(toastError);
     };
 
     const onDragEnd = ({active, over}: DragEndEvent) => {
@@ -298,6 +316,21 @@ export function StoryCarousel({
                                             {t(
                                                 'story.item.move_last',
                                                 'Move to end'
+                                            )}
+                                        </ContextMenuItem>
+                                        <ContextMenuItem
+                                            data-testid="story-item-cover"
+                                            disabled={
+                                                !child.source ||
+                                                child.source.id ===
+                                                    story.source?.id
+                                            }
+                                            onSelect={() => markAsCover(child)}
+                                        >
+                                            <ImageIcon />
+                                            {t(
+                                                'story.item.mark_as_cover',
+                                                'Mark as cover'
                                             )}
                                         </ContextMenuItem>
                                         <ContextMenuItem

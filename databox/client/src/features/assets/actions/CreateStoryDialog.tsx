@@ -9,19 +9,16 @@ import {EntityName} from '@/types/api';
 import type {ModalProps} from '@/components/modals/ModalProvider';
 import {FormDialog} from '@/components/modals/FormDialog';
 import {FormRow, Input} from '@/components/ui/input';
-import {
-    addAssetsToCollection,
-    postAsset,
-    setStoryCover,
-} from '@/lib/api/assets';
+import {postAsset} from '@/lib/api/assets';
 import {iri} from '@/lib/utils/iri';
 
 type Props = ModalProps<Asset> & {assets: Asset[]; onComplete?: () => void};
 
 /**
- * Creates a story holding the given assets (of a single workspace). The story
- * is created where the first asset lives (its workspace root when that asset
- * belongs to a story), and that asset becomes the story cover.
+ * Creates a story holding the given assets (of a single workspace), in one
+ * request. The story is created where the first asset lives (its workspace
+ * root when that asset belongs to a story); the first asset having a file
+ * becomes the story cover.
  */
 export function CreateStoryDialog({
     open,
@@ -39,28 +36,12 @@ export function CreateStoryDialog({
         const story = await postAsset({
             name: name.trim(),
             isStory: true,
+            storyAssets: assets.map(a => a.id),
+            storyCover: assets.find(a => a.source)?.id,
             ...(reference && !reference.storyAsset
                 ? {collection: iri(EntityName.Collection, reference.id)}
                 : {workspace: iri(EntityName.Workspace, first.workspace.id)}),
         });
-        await addAssetsToCollection(
-            assets.map(a => a.id),
-            iri(EntityName.Asset, story.id)
-        );
-        const cover = assets.find(a => a.source);
-        if (cover) {
-            try {
-                await setStoryCover(story.id, cover.id);
-            } catch (e: any) {
-                toast.error(
-                    t(
-                        'upload.story_cover_failed',
-                        'Could not set the story cover'
-                    ),
-                    {description: e?.message}
-                );
-            }
-        }
         toast.success(
             t('story.create.done', 'Story {{name}} created', {
                 name: story.name,

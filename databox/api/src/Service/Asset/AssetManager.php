@@ -27,11 +27,16 @@ readonly class AssetManager
     ) {
     }
 
+    /**
+     * @param bool $sharedFile the file stays the source of another asset: its
+     *                         analysis and duplicate links are left untouched
+     */
     public function assignNewAssetSourceFile(
         Asset $asset,
         File $file,
         ?array $formData = [],
         ?string $locale = null,
+        bool $sharedFile = false,
     ): void {
         if ($asset->getWorkspaceId() !== $file->getWorkspaceId()) {
             throw new \InvalidArgumentException('Asset and File are not in the same workspace');
@@ -54,11 +59,13 @@ readonly class AssetManager
             );
         });
 
-        $file->resetAnalysis();
-        $this->fileDuplicateManager->removeAllForFile($file);
+        if (!$sharedFile) {
+            $file->resetAnalysis();
+            $this->fileDuplicateManager->removeAllForFile($file);
+            $this->em->persist($file);
+        }
 
         $this->em->persist($asset);
-        $this->em->persist($file);
     }
 
     public function turnIntoStory(Asset $asset): void

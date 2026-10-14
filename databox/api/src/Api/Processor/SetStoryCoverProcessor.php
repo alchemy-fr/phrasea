@@ -13,16 +13,12 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\CollectionAsset;
 use App\Repository\Core\CollectionAssetRepository;
 use App\Security\Voter\AbstractVoter;
-use App\Service\Asset\AssetManager;
-use App\Service\Asset\FileCopier;
+use App\Service\Asset\StoryCoverManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * Makes one of the story items the cover of the story: its source file is
- * copied as the story source (the story renditions are then generated from it).
- * The file is copied, not shared: the story and the item have their own life
- * cycle (deletion, new source versions, analysis).
+ * Makes one of the story items the cover of the story (see StoryCoverManager).
  */
 final class SetStoryCoverProcessor implements ProcessorInterface
 {
@@ -30,8 +26,7 @@ final class SetStoryCoverProcessor implements ProcessorInterface
 
     public function __construct(
         private readonly EntityManagerInterface $em,
-        private readonly AssetManager $assetManager,
-        private readonly FileCopier $fileCopier,
+        private readonly StoryCoverManager $storyCoverManager,
     ) {
     }
 
@@ -57,12 +52,7 @@ final class SetStoryCoverProcessor implements ProcessorInterface
             throw new BadRequestHttpException('Cover asset does not belong to the story.');
         }
 
-        $file = $cover->getSource();
-        if (null === $file) {
-            throw new BadRequestHttpException('Cover asset has no source file.');
-        }
-
-        $this->assetManager->assignNewAssetSourceFile($story, $file);
+        $this->storyCoverManager->setCover($story, $cover);
         $this->em->flush();
 
         return $story;
