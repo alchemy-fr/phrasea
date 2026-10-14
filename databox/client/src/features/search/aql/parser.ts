@@ -52,20 +52,6 @@ type Token = {type: TokenType; value: string; pos: number; extra?: AQLEntity};
 
 const PUNCT = new Set(['(', ')', ',', '+', '-', '*', '/']);
 
-function endsWithValue(tokens: Token[]): boolean {
-    const prev = tokens[tokens.length - 1];
-
-    return (
-        !!prev &&
-        (prev.type === 'number' ||
-            prev.type === 'string' ||
-            prev.type === 'identifier' ||
-            prev.type === 'builtin' ||
-            prev.type === 'entity' ||
-            (prev.type === 'punct' && prev.value === ')'))
-    );
-}
-
 function tokenize(input: string): Token[] {
     const tokens: Token[] = [];
     let i = 0;
@@ -95,13 +81,7 @@ function tokenize(input: string): Token[] {
             i++;
             continue;
         }
-        // a '-' directly followed by a digit and not preceded by a value
-        // signs a number (binary minus otherwise)
-        const negativeNumber =
-            c === '-' &&
-            /\d/.test(input[i + 1] ?? '') &&
-            !endsWithValue(tokens);
-        if (PUNCT.has(c) && !negativeNumber) {
+        if (PUNCT.has(c)) {
             tokens.push({type: 'punct', value: c, pos});
             i++;
             continue;
@@ -166,7 +146,7 @@ function tokenize(input: string): Token[] {
             continue;
         }
         // number
-        const num = /^-?\d+(\.\d+)?/.exec(input.slice(i));
+        const num = /^\d+(\.\d+)?/.exec(input.slice(i));
         if (num) {
             tokens.push({type: 'number', value: num[0], pos});
             i += num[0].length;
@@ -559,6 +539,16 @@ class Parser {
             case 'builtin':
                 return {field: t.value};
             case 'punct':
+                // A sign stuck to the digits makes a negative number, as
+                // on the server: "5 - -3" subtracts -3, "3-2" subtracts 2
+                if (t.value === '-') {
+                    const num = this.peek();
+                    if (num.type === 'number' && num.pos === t.pos + 1) {
+                        this.i++;
+
+                        return -parseFloat(num.value);
+                    }
+                }
                 if (t.value === '(') {
                     const expression = this.value();
                     this.expectPunct(')');

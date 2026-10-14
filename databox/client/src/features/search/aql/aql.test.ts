@@ -109,6 +109,13 @@ describe('AQL parser', () => {
         expect(parseAQL('n = 3-2', true)!.expression).toMatchObject({
             rightOperand: {operator: '-', leftOperand: 3, rightOperand: 2},
         });
+        expect(
+            parseAQL('t BETWEEN -10 AND -1', true)!.expression
+        ).toMatchObject({operator: 'BETWEEN', rightOperand: [-10, -1]});
+        expect(parseAQL('t IS -3', true)!.expression).toMatchObject({
+            rightOperand: -3,
+        });
+        expect(parseAQL('n = - 3', false)).toBeUndefined();
     });
 
     it('parses functions and arithmetic', () => {

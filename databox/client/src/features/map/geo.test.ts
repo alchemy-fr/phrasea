@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import {
     boundsToAQL,
+    circleBounds,
     circleRing,
     circlesToAQL,
     clusterBounds,
@@ -207,6 +208,19 @@ describe('map geo helpers', () => {
         expect(
             distance({lat: b.top, lng: 5}, {lat: b.bottom, lng: 5})
         ).toBeCloseTo(10, 0);
+    });
+
+    it('frames a circle within the map latitudes', () => {
+        const b = circleBounds({lat: 45, lng: 5, radius: 1000});
+        expect(
+            distance({lat: b.top, lng: 5}, {lat: b.bottom, lng: 5})
+        ).toBeCloseTo(2000, -1);
+        expect(b.left).toBeLessThan(5);
+        expect(b.right).toBeGreaterThan(5);
+
+        const large = circleBounds({lat: 45, lng: 5, radius: 6_000_000});
+        expect(large.top).toBeLessThanOrEqual(85.05112878);
+        expect(large.bottom).toBeGreaterThanOrEqual(-85.05112878);
     });
 
     it('formats distances', () => {

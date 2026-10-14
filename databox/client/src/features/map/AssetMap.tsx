@@ -60,6 +60,7 @@ import {SimpleSelect} from '@/components/ui/select';
 import {formatNumber} from '@/lib/utils/format';
 import {cn} from '@/lib/utils/cn';
 import {
+    circleBounds,
     circleRing,
     circlesToAQL,
     clusterBounds,
@@ -507,13 +508,15 @@ function MapView({
             if (next.length === 0) {
                 search.removeCondition(zonesConditionId);
             } else {
+                // A disabled or inverted zones condition stays so
                 search.upsertCondition({
+                    ...zonesCondition,
                     id: zonesConditionId,
                     query: circlesToAQL(field.slug, next),
                 });
             }
         },
-        [search, zonesConditionId, field.slug]
+        [search, zonesCondition, zonesConditionId, field.slug]
     );
 
     const shownCircles = useMemo(
@@ -911,20 +914,7 @@ function MapView({
         });
     };
 
-    const zoomToCircle = (c: GeoCircle) => {
-        const north = c.lat + c.radius / 111320;
-        const south = c.lat - c.radius / 111320;
-        const dLng =
-            c.radius /
-            111320 /
-            Math.max(0.01, Math.cos((c.lat * Math.PI) / 180));
-        fitBounds({
-            top: north,
-            bottom: south,
-            left: c.lng - dLng,
-            right: c.lng + dLng,
-        });
-    };
+    const zoomToCircle = (c: GeoCircle) => fitBounds(circleBounds(c));
 
     const renderPopup = () => {
         if (!popup) {

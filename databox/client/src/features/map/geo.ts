@@ -251,6 +251,22 @@ export function padBounds(b: GeoBounds, minMeters = 10): GeoBounds {
     };
 }
 
+/**
+ * The box around a circle, kept within the Mercator latitudes: a large
+ * circle reaches beyond the poles, which the map cannot frame.
+ */
+export function circleBounds(c: GeoCircle): GeoBounds {
+    const dLat = c.radius / 111320;
+    const dLng = dLat / Math.max(0.01, Math.cos((c.lat * Math.PI) / 180));
+
+    return {
+        top: Math.min(MAX_LATITUDE, c.lat + dLat),
+        bottom: Math.max(-MAX_LATITUDE, c.lat - dLat),
+        left: c.lng - dLng,
+        right: c.lng + dLng,
+    };
+}
+
 /** Meters of an AQL distance: a number of meters or an ES distance ("12km") */
 function parseRadius(value: AQLValueExpr | undefined): number | undefined {
     if (typeof value === 'number') {
