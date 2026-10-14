@@ -332,8 +332,12 @@ export function ShareDialog({
                     ) : null}
                     <button
                         type="button"
-                        className="text-xs text-primary hover:underline"
-                        onClick={() => setAdvanced(true)}
+                        className="block text-xs text-primary hover:underline"
+                        onClick={() => {
+                            setAdvanced(true);
+                            // Nothing to list yet: go straight to the form
+                            setCreating(list.length === 0);
+                        }}
                     >
                         {t(
                             'share.advanced_mode',

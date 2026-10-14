@@ -181,6 +181,19 @@ describe('ShareDialog', () => {
         ).toBeUndefined();
     });
 
+    it('opens the new-link form when switching to advanced mode without any link', async () => {
+        api.getAssetShares.mockResolvedValue([]);
+        renderDialog();
+
+        fireEvent.click(
+            await screen.findByText(
+                'Advanced: multiple links with audience and dates'
+            )
+        );
+        expect(await screen.findByLabelText('Name / audience')).toBeTruthy();
+        expect(screen.queryByText('Create new share link')).toBeNull();
+    });
+
     it('shows a restricted link whose renditions were all deleted', async () => {
         api.getAssetShares.mockResolvedValue([
             share('s1', {renditionDefinitions: [], renditionsRestricted: true}),
