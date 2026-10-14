@@ -38,9 +38,29 @@ class AssetCopier
         array $allowedRenditions,
         array $options = [],
     ): void {
-        $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
-        if (!$sameWorkspace) {
-            if (!$asset->getSource()) {
+        try {
+            $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
+            if (!$sameWorkspace) {
+                if (!$asset->getSource()) {
+                    $this->doCopyAsset(
+                        $userId,
+                        $asset,
+                        $workspace,
+                        $collection,
+                        $allowedRenditions,
+                        $options
+                    );
+                } else {
+                    $file = $this->copyFile($asset->getSource(), $workspace);
+                    $this->postFlushStack->addBusMessage(new NewAssetFromBorder(
+                        $userId,
+                        $file->getId(),
+                        $collection ? [$collection->getId()] : [],
+                        $this->assetNameResolver->resolveNameAsString($asset),
+                        $file->getFileName()
+                    ));
+                }
+            } else {
                 $this->doCopyAsset(
                     $userId,
                     $asset,
@@ -49,29 +69,12 @@ class AssetCopier
                     $allowedRenditions,
                     $options
                 );
-            } else {
-                $file = $this->copyFile($asset->getSource(), $workspace);
-                $this->postFlushStack->addBusMessage(new NewAssetFromBorder(
-                    $userId,
-                    $file->getId(),
-                    $collection ? [$collection->getId()] : [],
-                    $this->assetNameResolver->resolveNameAsString($asset),
-                    $file->getFileName()
-                ));
             }
-        } else {
-            $this->doCopyAsset(
-                $userId,
-                $asset,
-                $workspace,
-                $collection,
-                $allowedRenditions,
-                $options
-            );
-        }
 
-        $this->em->flush();
-        $this->fileCopies = [];
+            $this->em->flush();
+        } finally {
+            $this->fileCopies = [];
+        }
     }
 
     private function doCopyAsset(

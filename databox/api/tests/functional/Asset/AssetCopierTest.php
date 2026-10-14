@@ -9,6 +9,7 @@ use App\Entity\Core\AssetRendition;
 use App\Service\Asset\AssetCopier;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use App\Tests\Functional\Api\Rendition\RenditionTestTrait;
+use Doctrine\ORM\Events;
 
 final class AssetCopierTest extends AbstractDataboxTestCase
 {
@@ -69,6 +70,44 @@ final class AssetCopierTest extends AbstractDataboxTestCase
         $this->assertSame($renditions['allowed']->getId(), $renditions['from-allowed']->getSourceRenditionId());
         $this->assertTrue($renditions['from-allowed']->isWriteMetadata());
         $this->assertSame($renditions['from-allowed']->getId(), $renditions['from-dynamic']->getSourceRenditionId());
+    }
+
+    public function testRetryAfterFailureCopiesFilesAgain(): void
+    {
+        $workspace = $this->getOrCreateDefaultWorkspace();
+        $asset = $this->createAsset(['workspace' => $workspace]);
+        $asset->setSource($this->createUrlFile($workspace));
+
+        $em = self::getEntityManager();
+        $em->flush();
+        $em->clear();
+
+        /** @var AssetCopier $copier */
+        $copier = self::getService(AssetCopier::class);
+        $failingListener = new class {
+            public function onFlush(): void
+            {
+                throw new \RuntimeException('Flush failure');
+            }
+        };
+
+        $em->getEventManager()->addEventListener(Events::onFlush, $failingListener);
+        try {
+            $asset = $em->find(Asset::class, $asset->getId());
+            $copier->copyAsset('copier_user', $asset, $asset->getWorkspace(), null, []);
+            $this->fail('The copy should have failed');
+        } catch (\RuntimeException $e) {
+            $this->assertSame('Flush failure', $e->getMessage());
+        } finally {
+            $em->getEventManager()->removeEventListener(Events::onFlush, $failingListener);
+        }
+
+        // As the messenger worker does after a failed message
+        $em->clear();
+
+        $copy = $this->copy($asset, []);
+        $this->assertNotNull($copy->getSource());
+        $this->assertNotSame($asset->getSource()->getId(), $copy->getSource()->getId());
     }
 
     private function copy(Asset $asset, array $allowedRenditions, array $options = []): Asset
