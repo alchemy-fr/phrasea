@@ -601,3 +601,53 @@ li {
 /* Update-profile-ra */
 
 /* END Update-profile-ra */
+
+.parade-login-welcome {
+    font-family: "Lexend Deca", sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 25px;
+    color: #444444;
+    margin: 0 0 12px;
+    text-align: center;
+}
+
+.parade-login-form-logo {
+    display: block;
+    margin: 0 auto 12px;
+    max-height: clamp(1.75rem, 8vh, 3.5rem);
+    max-width: 60%;
+    object-fit: contain;
+}
+
+.login-pf-page .card-pf .subtitle {
+    display: block;
+    text-align: center;
+    font-size: 13px;
+    margin: 0 0 8px;
+}
+
+.login-pf-page .pf-c-input-group > .pf-c-form-control {
+    border-right: 0;
+}
+
+.login-pf-page .pf-c-input-group > .pf-c-button.pf-m-control {
+    background: #ffffff;
+    border: 1px solid #f0f0f0;
+    border-bottom-color: #8a8d90;
+    border-left: 0;
+    margin-left: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    align-self: stretch;
+    height: auto;
+}
+
+.login-pf-page .pf-c-input-group > .pf-c-button.pf-m-control::after {
+    border: 0;
+}
+
+.login-pf-page .pf-c-input-group:focus-within > .pf-c-button.pf-m-control {
+    border-bottom: 2px solid #0066cc;
+}
