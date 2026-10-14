@@ -168,3 +168,7 @@ The canonical project lists (used by the whole-repo scripts) live in `bin/vars.s
 - A **pre-commit hook** (Husky + lint-staged) runs formatting/CS on staged files; keep code lint-clean.
 - New PHP shared bundles use the modern structure (`src/` + `config/` + an `AbstractBundle` class) rather than the legacy layout.
 - **Doctrine migrations must be plain SQL.** Put schema changes _and_ data backfills in `up()`/`down()` via `addSql()` (or `$this->connection` for row-by-row transforms). Avoid `postUp()`/`preUp()` and never load entities, repositories, or services (`AbstractServiceContainerMigration`, `getEntityManager()`, `DeferredIndexListener`, …) from a migration: a migration is replayed on fresh installs long after the code it references has changed, and it breaks as soon as an entity method or column disappears (`Version20260713140456` used to call `FileMetadata::getChecksum()`, which was later removed). If a value can only be computed in PHP, read rows with `$this->connection` and write them back with parameterized SQL.
+
+## Jira tickets
+
+If Jira ticket is mentioned in a prompt, prepend it to the commit message.
