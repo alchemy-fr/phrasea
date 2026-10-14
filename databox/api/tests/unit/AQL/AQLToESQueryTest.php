@@ -52,8 +52,38 @@ class AQLToESQueryTest extends TestCase
     #[DataProvider('getCases')]
     public function testAQLToQuery(string $expression, string|array $expectedQuery, ?string $locale = null): void
     {
+        if (is_string($expectedQuery)) {
+            $this->expectExceptionMessage($expectedQuery);
+        }
+
+        $query = $this->convert($expression, $locale);
+        if (!is_string($expectedQuery)) {
+            $this->assertEquals($expectedQuery, $query);
+        }
+    }
+
+    /**
+     * Facet buckets of boolean fields are keyed 1/0: they must reach ES as real booleans.
+     */
+    #[DataProvider('getBooleanCases')]
+    public function testBooleanValuesAreSentAsBooleans(string $expression, array $expectedQuery): void
+    {
+        $this->assertSame($expectedQuery, $this->convert($expression));
+    }
+
+    public static function getBooleanCases(): iterable
+    {
+        yield 'true' => ['bool = true', ['term' => ['attrs._.bool_boolean_s' => true]]];
+        yield 'int 1' => ['bool = 1', ['term' => ['attrs._.bool_boolean_s' => true]]];
+        yield 'string "0"' => ['bool = "0"', ['term' => ['attrs._.bool_boolean_s' => false]]];
+        yield 'list of ints' => ['bool IN (1, 0)', ['terms' => ['attrs._.bool_boolean_s' => [true, false]]]];
+    }
+
+    private function convert(string $expression, ?string $locale = null): array
+    {
         $parser = new AQLParser();
         $result = $parser->parse($expression);
+        $this->assertIsArray($result, 'Parse error');
         $em = $this->createMock(EntityManagerInterface::class);
         $em->method('find')->willReturnCallback(fn (string $class, mixed $id): ?Collection => $this->createCollectionStub($class, $id));
         $translator = $this->createStub(TranslatorInterface::class);
@@ -129,18 +159,9 @@ class AQLToESQueryTest extends TestCase
             ],
         ];
 
-        if (is_string($expectedQuery)) {
-            $this->expectExceptionMessage($expectedQuery);
-        } else {
-            $this->assertIsArray($result, 'Parse error');
-        }
-
-        $query = $esQueryConverter->createQuery($fieldClusters, $result['data'], [
+        return $esQueryConverter->createQuery($fieldClusters, $result['data'], [
             'locale' => $locale,
         ])->toArray();
-        if (!is_string($expectedQuery)) {
-            $this->assertEquals($expectedQuery, $query);
-        }
     }
 
     private function createCollectionStub(string $class, mixed $id): ?Collection
@@ -407,6 +428,7 @@ class AQLToESQueryTest extends TestCase
             ['bool = false', [
                 'term' => ['attrs._.bool_boolean_s' => false],
             ]],
+            ['bool = "maybe"', 'Invalid boolean value "maybe"'],
             ['@createdAt<="2025-01-16"', [
                 'range' => ['createdAt' => [
                     'lte' => '2025-01-16',

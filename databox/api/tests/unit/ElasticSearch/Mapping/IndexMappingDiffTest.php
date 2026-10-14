@@ -66,6 +66,59 @@ class IndexMappingDiffTest extends TestCase
         $this->assertEquals($expected, $differ->shouldReindex($indexedMappingWrapped, $newMappingWrapped));
     }
 
+    #[DataProvider('getSettingsCases')]
+    public function testShouldReindexOnSettings(bool $expected, array $indexedSettings, array $newSettings): void
+    {
+        $differ = new IndexMappingDiff();
+
+        $mappings = [
+            'properties' => [
+                'title' => [
+                    'type' => 'text',
+                    'analyzer' => 'text',
+                ],
+            ],
+        ];
+
+        $this->assertSame($expected, $differ->shouldReindex(
+            ['settings' => $indexedSettings, 'mappings' => $mappings],
+            ['settings' => $newSettings, 'mappings' => $mappings],
+        ));
+    }
+
+    public static function getSettingsCases(): array
+    {
+        $analysis = [
+            'analyzer' => [
+                'text' => [
+                    'type' => 'custom',
+                    'tokenizer' => 'standard',
+                    'filter' => ['lowercase'],
+                ],
+            ],
+        ];
+        $settings = [
+            'index' => [
+                'analysis' => $analysis,
+                'number_of_shards' => 1,
+                'number_of_replicas' => 0,
+            ],
+        ];
+
+        $changedAnalysis = $settings;
+        $changedAnalysis['index']['analysis']['analyzer']['text']['filter'] = ['lowercase', 'asciifolding'];
+
+        $changedOtherSettings = $settings;
+        $changedOtherSettings['index']['number_of_shards'] = 3;
+        $changedOtherSettings['index']['refresh_interval'] = '30s';
+
+        return [
+            'identical settings' => [false, $settings, $settings],
+            'different analysis' => [true, $settings, $changedAnalysis],
+            'other settings differ, same analysis' => [false, $settings, $changedOtherSettings],
+        ];
+    }
+
     public static function getCases(): array
     {
         $attributes = [

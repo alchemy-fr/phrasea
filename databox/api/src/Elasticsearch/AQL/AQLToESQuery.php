@@ -99,6 +99,16 @@ final readonly class AQLToESQuery
         return $boolQuery;
     }
 
+    private function normalizeBooleanValue(BooleanAttributeType $type, mixed $value): bool
+    {
+        $normalized = $type->normalizeValue($value);
+        if (!is_bool($normalized)) {
+            throw new BadRequestHttpException(sprintf('Invalid boolean value "%s"', is_scalar($value) ? $value : get_debug_type($value)));
+        }
+
+        return $normalized;
+    }
+
     private function wrapCluster(Query\AbstractQuery $query, ClusterGroup $group): Query\AbstractQuery
     {
         if (!empty($group->getWorkspaceIds())) {
@@ -197,6 +207,11 @@ final readonly class AQLToESQuery
                 ];
 
                 $operator = $operatorSwitches[$operator->value] ?? $operator;
+            } else {
+                // Facet buckets of boolean fields are keyed 1/0, which ES refuses in a term query.
+                $value = is_array($value)
+                    ? array_map(fn (mixed $v): bool => $this->normalizeBooleanValue($type, $v), $value)
+                    : $this->normalizeBooleanValue($type, $value);
             }
         }
 

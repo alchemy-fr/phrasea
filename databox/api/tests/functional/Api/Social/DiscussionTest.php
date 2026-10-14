@@ -180,9 +180,6 @@ final class DiscussionTest extends AbstractDataboxTestCase
         $this->setUpWorkspace();
 
         $this->post($client, self::USER, ['content' => 'Lost']);
-        if (500 === $client->getResponse()->getStatusCode()) {
-            $this->markTestIncomplete('BUG: ThreadMessageInput::validateThreadKeyOrThreadId() (src/Api/Model/Input/ThreadMessageInput.php:27) throws an \InvalidArgumentException from an Assert\Callback instead of adding a violation: 500 instead of 422.');
-        }
         $this->assertResponseStatusCodeSame(422);
     }
 

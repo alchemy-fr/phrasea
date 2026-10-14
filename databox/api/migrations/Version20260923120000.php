@@ -24,6 +24,11 @@ final class Version20260923120000 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // FOSOAuthServer is gone: Version20230725154901 dropped the token tables but left the client one.
+        // Databases where that migration was marked as executed without running still have the
+        // token tables, whose foreign keys block the drop of oauth_client.
+        $this->addSql('DROP TABLE IF EXISTS access_token');
+        $this->addSql('DROP TABLE IF EXISTS auth_code');
+        $this->addSql('DROP TABLE IF EXISTS refresh_token');
         $this->addSql('DROP TABLE IF EXISTS oauth_client');
 
         // Version20211210162319 added asset_rendition.uri; the entity never had this column.

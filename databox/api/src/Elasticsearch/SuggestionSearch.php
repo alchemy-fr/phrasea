@@ -21,6 +21,7 @@ use Elastica\ResultSet;
 use FOS\ElasticaBundle\Elastica\Index;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -67,6 +68,7 @@ class SuggestionSearch extends AbstractSearch
         private readonly TranslatorInterface $translator,
         #[Autowire(param: 'es_index_prefix')]
         private readonly ?string $indexPrefix,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -112,6 +114,13 @@ class SuggestionSearch extends AbstractSearch
         $start = microtime(true);
         $resultSets = $this->executeSearch(fn (): array => $multiSearch->search()->getResultSets());
         $searchTime = microtime(true) - $start;
+
+        // A multi search does not throw when one of its searches fails: the failed one comes back
+        // as a result set holding the error, without the aggregations.
+        if (isset($resultSets['values']) && $resultSets['values']->getResponse()->hasError()) {
+            $this->logger->error(sprintf('Suggestion search of attribute values failed: %s', $resultSets['values']->getResponse()->getErrorMessage()));
+            unset($resultSets['values']);
+        }
 
         $items = isset($resultSets['values']) ? $this->createAttributeValueItems($resultSets['values'], $definitions) : [];
         array_push($items, ...$this->createNameItems($resultSets['names']));

@@ -74,6 +74,7 @@ class JobStateCrudController extends AbstractAdminCrudController
         return $this->returnToReferer($context);
     }
 
+    #[AdminRoute(path: 'job-state/cancel')]
     public function cancelJob(AdminContext $context): RedirectResponse
     {
         /** @var JobState $jobState */
