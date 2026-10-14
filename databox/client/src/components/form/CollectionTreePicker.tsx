@@ -390,6 +390,9 @@ function CollectionTreeNode({
         (!requireCapability || node.capabilities[requireCapability]);
     const selected = value?.collectionId === node.id;
     const hasChildren = pager ? pager.ids.length > 0 || !pager.loaded : true;
+    const canCreateHere =
+        !!allowCreate && !!node.capabilities.createCollection && !disabled;
+    const expandable = hasChildren || canCreateHere;
 
     useEffect(() => {
         if (expanded) {
@@ -409,9 +412,10 @@ function CollectionTreeNode({
             >
                 <button
                     type="button"
+                    data-testid="tree-picker-toggle"
                     className={cn(
                         'flex size-7 items-center justify-center text-muted-foreground',
-                        !hasChildren && 'invisible'
+                        !expandable && 'invisible'
                     )}
                     onClick={() => setExpanded(e => !e)}
                 >
@@ -477,9 +481,7 @@ function CollectionTreeNode({
                             …
                         </Button>
                     ) : null}
-                    {allowCreate &&
-                    node.capabilities.createCollection &&
-                    !disabled ? (
+                    {canCreateHere ? (
                         <InlineCreate
                             workspaceId={node.workspaceId}
                             parentId={node.id}

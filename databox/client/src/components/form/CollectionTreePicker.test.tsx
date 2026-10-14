@@ -1,5 +1,6 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {act, render, screen} from '@testing-library/react';
+import {act, fireEvent, render, screen} from '@testing-library/react';
+import type {ComponentProps} from 'react';
 import {I18nextProvider} from 'react-i18next';
 import {createI18n} from '@/i18n';
 import type {Collection, Workspace} from '@/types/api';
@@ -37,7 +38,9 @@ const selection: TreeSelection = {
     label: '',
 };
 
-function renderPicker() {
+function renderPicker(
+    props: Partial<ComponentProps<typeof CollectionTreePicker>> = {}
+) {
     act(() => {
         render(
             <I18nextProvider i18n={createI18n('en')}>
@@ -45,6 +48,7 @@ function renderPicker() {
                     value={selection}
                     onChange={() => undefined}
                     showSelection
+                    {...props}
                 />
             </I18nextProvider>
         );
@@ -104,5 +108,41 @@ describe('CollectionTreePicker', () => {
                 e => e.textContent
             )
         ).toEqual(['Col c1', 'Col c2']);
+    });
+
+    describe('a collection already loaded without children', () => {
+        beforeEach(() => {
+            useCollectionStore.setState({
+                workspaces: [workspace('w1')],
+                collections: {c1: node('c1')},
+                pagers: {
+                    [pagerKey('w1')]: pager(['c1']),
+                    [pagerKey('w1', 'c1')]: pager([]),
+                },
+            });
+        });
+
+        it('can be expanded to create a sub-collection when allowCreate is set', () => {
+            renderPicker({value: undefined, allowCreate: true});
+
+            const toggle = screen.getByTestId('tree-picker-toggle');
+            expect(toggle.className).not.toContain('invisible');
+            // Only the workspace-level entry is visible before expanding
+            expect(screen.getAllByText('New collection')).toHaveLength(1);
+
+            act(() => {
+                fireEvent.click(toggle);
+            });
+
+            expect(screen.getAllByText('New collection')).toHaveLength(2);
+        });
+
+        it('hides its toggle when creation is not allowed', () => {
+            renderPicker({value: undefined});
+
+            expect(
+                screen.getByTestId('tree-picker-toggle').className
+            ).toContain('invisible');
+        });
     });
 });
