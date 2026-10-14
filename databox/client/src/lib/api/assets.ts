@@ -339,6 +339,16 @@ export function patchAsset(
     return api.patch<Asset>(`/${EntityName.Asset}/${id}`, data);
 }
 
+/** The source file of `assetId` (an item of the story) becomes the story cover */
+export function setStoryCover(
+    storyId: string,
+    assetId: string
+): Promise<Asset> {
+    return api.put<Asset>(`/${EntityName.Asset}/${storyId}/story-cover`, {
+        assetId,
+    });
+}
+
 export function postAsset(
     data: AssetInput,
     options: CreateOptions = {}

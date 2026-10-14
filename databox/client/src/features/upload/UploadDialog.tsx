@@ -4,7 +4,13 @@ import {useEffect, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useDropzone} from 'react-dropzone';
 import {useQuery} from '@tanstack/react-query';
-import {FileIcon, LinkIcon, UploadCloudIcon, XIcon} from 'lucide-react';
+import {
+    FileIcon,
+    ImageIcon,
+    LinkIcon,
+    UploadCloudIcon,
+    XIcon,
+} from 'lucide-react';
 import {toast} from 'sonner';
 import type {Asset, CollectionPrivacyInfo, Privacy, Tag} from '@/types/api';
 import {AssetTypeFilter, EntityName} from '@/types/api';
@@ -13,6 +19,7 @@ import {FormDialog} from '@/components/modals/FormDialog';
 import {Button} from '@/components/ui/button';
 import {FormRow, Input, Textarea} from '@/components/ui/input';
 import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
+import {SimpleSelect} from '@/components/ui/select';
 import {
     Tabs,
     TabsList,
@@ -39,6 +46,7 @@ import {
     getAssetNameFromFile,
     importAssetsFromUrls,
     postAsset,
+    setStoryCover,
     uploadAsset,
 } from '@/lib/api/assets';
 import {getCollectionPrivacyInfo} from '@/lib/api/collections';
@@ -104,6 +112,8 @@ export function UploadDialog({
     const [isStory, setIsStory] = useState(false);
     const [storyTitle, setStoryTitle] = useState('');
     const [storyTags, setStoryTags] = useState<string[]>([]);
+    const [coverFile, setCoverFile] = useState<File>();
+    const [coverUrl, setCoverUrl] = useState<string>();
     const [templateIds, setTemplateIds] = useState<string[]>([]);
     const uploadStore = useUploadStore();
     const workspaceId = destination?.workspaceId;
@@ -158,6 +168,12 @@ export function UploadDialog({
         [urls]
     );
     const invalidUrls = urlList.filter(u => !/^https?:\/\/.+/.test(u));
+    // The first item is the cover until another one is chosen
+    const coverFileIndex = Math.max(
+        0,
+        coverFile ? files.indexOf(coverFile) : 0
+    );
+    const coverUrlIndex = Math.max(0, coverUrl ? urlList.indexOf(coverUrl) : 0);
     const count = source === 'files' ? files.length : urlList.length;
     const canSubmit =
         !!destination &&
@@ -170,6 +186,20 @@ export function UploadDialog({
             setPrivacy(undefined);
         }
     }, [privacyInfo.data]);
+
+    const applyStoryCover = async (storyAsset: Asset, cover?: Asset) => {
+        if (!cover) {
+            return;
+        }
+        try {
+            await setStoryCover(storyAsset.id, cover.id);
+        } catch (e: any) {
+            toast.error(
+                t('upload.story_cover_failed', 'Could not set the story cover'),
+                {description: e?.message}
+            );
+        }
+    };
 
     const submit = async () => {
         if (!destination) {
@@ -211,6 +241,11 @@ export function UploadDialog({
                 })),
                 {quiet, story}
             );
+            if (story) {
+                const [storyAsset, ...items] = created;
+                created = items;
+                await applyStoryCover(storyAsset, items[coverUrlIndex]);
+            }
             toast.success(
                 t('upload.imported', '{{count}} assets imported', {
                     count: created.length,
@@ -218,8 +253,9 @@ export function UploadDialog({
             );
         } else {
             let destinationProps = destinationToAssetProps(destination.iri);
+            let storyAsset: Asset | undefined;
             if (story) {
-                const storyAsset = await postAsset(
+                storyAsset = await postAsset(
                     {isStory: true, ...story, ...destinationProps},
                     {quiet}
                 );
@@ -228,6 +264,8 @@ export function UploadDialog({
                 };
             }
             const pending = files.map(file => ({id: uniqueId(), file}));
+            const coverPending = pending[coverFileIndex];
+            let coverAsset: Asset | undefined;
             pending.forEach(p =>
                 uploadStore.add({id: p.id, file: p.file, progress: 0})
             );
@@ -253,6 +291,9 @@ export function UploadDialog({
                                 }
                             );
                             uploadStore.setProgress(p.id, 1);
+                            if (p === coverPending) {
+                                coverAsset = asset;
+                            }
 
                             return asset;
                         } catch (e: any) {
@@ -264,6 +305,9 @@ export function UploadDialog({
                     2
                 )
             ).filter((a): a is Asset => !!a);
+            if (storyAsset) {
+                await applyStoryCover(storyAsset, coverAsset);
+            }
             if (created.length > 0) {
                 toast.success(
                     t('upload.done', '{{count}} assets uploaded', {
@@ -347,6 +391,14 @@ export function UploadDialog({
                                                 key={`${f.name}-${i}`}
                                                 file={f}
                                                 lang={i18n.language}
+                                                cover={
+                                                    isStory
+                                                        ? i === coverFileIndex
+                                                        : undefined
+                                                }
+                                                onSetCover={() =>
+                                                    setCoverFile(f)
+                                                }
                                                 onRemove={() =>
                                                     setFiles(prev =>
                                                         prev.filter(
@@ -562,6 +614,41 @@ export function UploadDialog({
                                 />
                             </FormRow>
                             <FormRow
+                                label={t('upload.story_cover', 'Story cover')}
+                            >
+                                <SimpleSelect
+                                    value={
+                                        count > 0
+                                            ? String(
+                                                  source === 'files'
+                                                      ? coverFileIndex
+                                                      : coverUrlIndex
+                                              )
+                                            : undefined
+                                    }
+                                    onValueChange={v => {
+                                        const i = Number(v);
+                                        if (source === 'files') {
+                                            setCoverFile(files[i]);
+                                        } else {
+                                            setCoverUrl(urlList[i]);
+                                        }
+                                    }}
+                                    options={(source === 'files'
+                                        ? files.map(f => f.name)
+                                        : urlList
+                                    ).map((label, i) => ({
+                                        value: String(i),
+                                        label,
+                                    }))}
+                                    placeholder={t(
+                                        'upload.story_cover_empty',
+                                        'Add files to choose the cover'
+                                    )}
+                                    disabled={count === 0}
+                                />
+                            </FormRow>
+                            <FormRow
                                 label={t('upload.story_tags', 'Story tags')}
                             >
                                 <TagSelect
@@ -649,12 +736,18 @@ export function UploadDialog({
 function FileRow({
     file,
     lang,
+    cover,
+    onSetCover,
     onRemove,
 }: {
     file: File;
     lang: string;
+    /** Whether the file is the story cover, undefined when no story is created */
+    cover?: boolean;
+    onSetCover: () => void;
     onRemove: () => void;
 }) {
+    const {t} = useTranslation();
     const [preview, setPreview] = useState<string>();
     useEffect(() => {
         if (!file.type.startsWith('image/')) {
@@ -689,6 +782,21 @@ function FileRow({
             <span className="text-xs text-muted-foreground">
                 {formatFileSize(file.size, true, lang)}
             </span>
+            {cover ? (
+                <Badge data-testid="upload-story-cover">
+                    {t('upload.cover', 'Cover')}
+                </Badge>
+            ) : cover === false ? (
+                <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={onSetCover}
+                    title={t('upload.set_as_cover', 'Use as story cover')}
+                    aria-label={t('upload.set_as_cover', 'Use as story cover')}
+                >
+                    <ImageIcon />
+                </Button>
+            ) : null}
             <Button
                 variant="ghost"
                 size="icon-xs"

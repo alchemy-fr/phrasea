@@ -59,6 +59,7 @@ describe('useAssetActions', () => {
             'share',
             'move',
             'copy',
+            'create-story',
             'replace',
             'delete',
         ]) {

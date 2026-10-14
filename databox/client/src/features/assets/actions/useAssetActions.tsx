@@ -4,6 +4,7 @@ import {ReactNode, useMemo} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useRouter} from 'next/navigation';
 import {
+    BookPlusIcon,
     CopyIcon,
     DownloadIcon,
     ExternalLinkIcon,
@@ -34,6 +35,7 @@ import {RestoreAssetsDialog} from './RestoreAssetsDialog';
 import {ShareDialog} from '@/features/share/ShareDialog';
 import {ReplaceSourceDialog} from './ReplaceSourceDialog';
 import {SaveAsDialog} from './SaveAsDialog';
+import {CreateStoryDialog} from './CreateStoryDialog';
 import {useOptionalResults} from '@/features/search/useOptionalResults';
 import {useOptionalSelection} from '@/features/assets/list/SelectionProvider';
 import {usePinnedStoriesStore} from '@/features/stories/pinnedStoriesStore';
@@ -65,6 +67,8 @@ export type ActionContext = {
     saveAs?: boolean;
     /** Pin a story in the sidebar */
     pin?: boolean;
+    /** Create a story holding the assets */
+    createStory?: boolean;
 };
 
 export const defaultActionContext: Required<ActionContext> = {
@@ -81,6 +85,7 @@ export const defaultActionContext: Required<ActionContext> = {
     info: true,
     saveAs: true,
     pin: true,
+    createStory: true,
 };
 
 type Options = {
@@ -341,6 +346,30 @@ export function useAssetActions(
                             mode: 'copy',
                             onComplete: complete,
                         }),
+                });
+            }
+            if (ctx.createStory) {
+                manage.push({
+                    id: 'create-story',
+                    bulk: true,
+                    label: t('story.create.action', 'Create a story…'),
+                    icon: <BookPlusIcon />,
+                    run: () => {
+                        if (new Set(assets.map(a => a.workspace.id)).size > 1) {
+                            toast.error(
+                                t(
+                                    'story.create.mixed_workspaces',
+                                    'Assets of different workspaces cannot be grouped in a story'
+                                )
+                            );
+
+                            return;
+                        }
+                        openModal(CreateStoryDialog, {
+                            assets,
+                            onComplete: complete,
+                        });
+                    },
                 });
             }
             if (ctx.replace) {

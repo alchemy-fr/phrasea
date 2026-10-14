@@ -35,6 +35,7 @@ use App\Api\Model\Input\MoveAssetInput;
 use App\Api\Model\Input\MultipleAssetInput;
 use App\Api\Model\Input\PrepareDeleteAssetsInput;
 use App\Api\Model\Input\ResolveEntitiesInput;
+use App\Api\Model\Input\StoryCoverInput;
 use App\Api\Model\Output\AssetDuplicateOutput;
 use App\Api\Model\Output\AssetOutput;
 use App\Api\Model\Output\ESDocumentStateOutput;
@@ -61,6 +62,7 @@ use App\Api\Processor\PrepareDeleteAssetProcessor;
 use App\Api\Processor\RemoveAssetFromCollectionProcessor;
 use App\Api\Processor\ResolveEntitiesProcessor;
 use App\Api\Processor\SetAssetPositionProcessor;
+use App\Api\Processor\SetStoryCoverProcessor;
 use App\Api\Processor\TriggerAssetWorkflowProcessor;
 use App\Api\Processor\UnfollowProcessor;
 use App\Api\Provider\AssetCollectionProvider;
@@ -244,6 +246,13 @@ use Symfony\Component\Validator\Constraints as Assert;
             input: AssetPositionInput::class,
             name: 'asset_set_position',
             processor: SetAssetPositionProcessor::class,
+        ),
+        new Put(
+            uriTemplate: '/assets/{id}/story-cover',
+            description: 'Make one of the story items the cover of the story',
+            input: StoryCoverInput::class,
+            name: 'story_cover',
+            processor: SetStoryCoverProcessor::class,
         ),
         new Post(
             uriTemplate: '/assets/{id}/quarantine-bypass',

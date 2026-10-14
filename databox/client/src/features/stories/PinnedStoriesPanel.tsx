@@ -65,8 +65,8 @@ export function PinnedStoriesPanel() {
         >
             {stories.isLoading ? (
                 <div className="space-y-1 px-3 py-1">
-                    <Skeleton className="h-12 w-2/3" />
-                    <Skeleton className="h-12 w-1/2" />
+                    <Skeleton className="h-24 w-2/3" />
+                    <Skeleton className="h-24 w-1/2" />
                 </div>
             ) : (
                 <ul data-testid="pinned-stories">
@@ -127,8 +127,8 @@ function PinnedStoryRow({story: initial}: {story: Asset}) {
                         onClick={() => openAsset(story)}
                         title={name}
                     >
-                        <span className="size-12 shrink-0 overflow-hidden rounded border bg-media-bg">
-                            <AssetThumb asset={story} size={48} />
+                        <span className="size-24 shrink-0 overflow-hidden rounded border bg-media-bg">
+                            <AssetThumb asset={story} size={96} />
                         </span>
                         <span className="line-clamp-2 break-words">{name}</span>
                     </button>
@@ -167,8 +167,8 @@ function UnavailableStoryRow({id}: {id: string}) {
             className="group/story flex items-center gap-1 px-2 text-muted-foreground"
         >
             <span className="flex min-w-0 flex-1 items-center gap-2 px-1 py-1 text-sm italic">
-                <span className="flex size-12 shrink-0 items-center justify-center rounded border">
-                    <BookOpenIcon className="size-5" />
+                <span className="flex size-24 shrink-0 items-center justify-center rounded border">
+                    <BookOpenIcon className="size-10" />
                 </span>
                 <span className="truncate">
                     {t('story.unavailable', 'Unavailable story')}
