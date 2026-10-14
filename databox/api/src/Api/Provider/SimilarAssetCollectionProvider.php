@@ -30,7 +30,7 @@ class SimilarAssetCollectionProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $asset = $this->assetRepository->find($uriVariables['id']);
+        $asset = $this->assetRepository->find((string) $uriVariables['id']);
         if (!$asset instanceof Asset) {
             return null;
         }

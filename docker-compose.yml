@@ -892,6 +892,7 @@ services:
       - internal
 
   face-recognition:
+    logging: *default-logging
     profiles:
       - face-recognition
     image: ${FACE_RECOGNITION_IMAGE}

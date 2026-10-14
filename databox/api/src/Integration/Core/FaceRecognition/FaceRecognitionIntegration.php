@@ -17,6 +17,7 @@ use App\Integration\Core\FaceRecognition\Message\FaceRecognitionAnalyze;
 use App\Integration\Core\FaceRecognition\Message\FaceRecognitionPropagate;
 use App\Integration\Core\Rendition\RenditionIntegration;
 use App\Integration\FilterNeedIntegrationInterface;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationContext;
 use App\Integration\UserActionsIntegrationInterface;
@@ -27,6 +28,7 @@ use App\Security\Voter\AbstractVoter;
 use App\Service\Storage\RenditionManager;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,6 +38,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * Self-hosted face detection and recognition (see infra/docker/face-recognition).
  */
+#[AsTaggedItem(index: 'core.face_recognition')]
 class FaceRecognitionIntegration extends AbstractIntegration implements FilterNeedIntegrationInterface, WorkflowIntegrationInterface, UserActionsIntegrationInterface
 {
     use RenditionConfigNormalizerTrait;
@@ -224,5 +227,12 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
     protected function getRenditionConfigPaths(): array
     {
         return ['rendition'];
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Ai,
+        ];
     }
 }

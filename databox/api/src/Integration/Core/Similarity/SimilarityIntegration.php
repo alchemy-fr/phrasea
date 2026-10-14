@@ -10,6 +10,7 @@ use App\Integration\AbstractIntegration;
 use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\Core\Rendition\RenditionIntegration;
 use App\Integration\FilterNeedIntegrationInterface;
+use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
@@ -18,7 +19,9 @@ use App\Service\Storage\RenditionManager;
 use App\Service\Vector\AssetEmbeddingManager;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
+#[AsTaggedItem(index: 'core.similarity')]
 class SimilarityIntegration extends AbstractIntegration implements FilterNeedIntegrationInterface, WorkflowIntegrationInterface
 {
     use RenditionConfigNormalizerTrait;
@@ -92,5 +95,12 @@ class SimilarityIntegration extends AbstractIntegration implements FilterNeedInt
     protected function getRenditionConfigPaths(): array
     {
         return ['rendition'];
+    }
+
+    public static function getCategories(): array
+    {
+        return [
+            IntegrationCategory::Ai,
+        ];
     }
 }
