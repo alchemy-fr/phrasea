@@ -8,6 +8,7 @@ import type {ModalProps} from '@/components/modals/ModalProvider';
 import {FormDialog} from '@/components/modals/FormDialog';
 import {Textarea} from '@/components/ui/input';
 import {Alert, Tabs, TabsList, TabsTrigger} from '@/components/ui/misc';
+import {LabeledControl, Switch} from '@/components/ui/controls';
 import type {SearchContextValue} from '../SearchProvider';
 import {parseAQL} from '../aql/parser';
 import {astToString} from '../aql/serializer';
@@ -68,6 +69,7 @@ export function ConditionDialog({
             ? normalizeExpression(ast.expression)
             : {operator: AQLLogical.AND, conditions: [emptyCondition()]};
     });
+    const [inversed, setInversed] = useState(!!condition?.inversed);
     const [error, setError] = useState<string>();
 
     useEffect(() => {
@@ -80,7 +82,10 @@ export function ConditionDialog({
     const builderQuery = useMemo(() => astToString({expression}), [expression]);
 
     // Compared on the resulting query, so that switching modes is not a change
-    const {dirty} = useDirtyState(mode === 'text' ? text.trim() : builderQuery);
+    const {dirty} = useDirtyState({
+        query: mode === 'text' ? text.trim() : builderQuery,
+        inversed,
+    });
 
     const switchMode = (next: Mode) => {
         setError(undefined);
@@ -122,7 +127,7 @@ export function ConditionDialog({
                 id: condition?.id ?? '',
                 query: normalized,
                 disabled: condition?.disabled,
-                inversed: condition?.inversed,
+                inversed: inversed || undefined,
                 renewId: !condition,
             });
         }
@@ -158,6 +163,20 @@ export function ConditionDialog({
                 condition ? t('common.save', 'Save') : t('common.add', 'Add')
             }
             bodyClassName="min-h-48 py-2"
+            footerStart={
+                // Filter rules only take the query
+                onSubmit ? undefined : (
+                    <LabeledControl
+                        label={t('search.condition.invert', 'Invert (NOT)')}
+                    >
+                        <Switch
+                            data-testid="condition-inversed"
+                            checked={inversed}
+                            onCheckedChange={setInversed}
+                        />
+                    </LabeledControl>
+                )
+            }
             dirty={dirty}
             onSubmit={submit}
         >

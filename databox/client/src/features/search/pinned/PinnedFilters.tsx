@@ -216,7 +216,9 @@ function PopoverFilterChip({filter}: {filter: PinnedFilter}) {
                         'border-warning/60 bg-warning/10 text-muted-foreground line-through decoration-warning',
                     condition &&
                         !condition.disabled &&
-                        'border-primary/30 bg-primary/10 text-foreground hover:bg-primary/15'
+                        (condition.inversed
+                            ? 'border-destructive/40 bg-destructive/10 text-foreground hover:bg-destructive/15'
+                            : 'border-primary/30 bg-primary/10 text-foreground hover:bg-primary/15')
                 )}
             >
                 <PopoverTrigger asChild>

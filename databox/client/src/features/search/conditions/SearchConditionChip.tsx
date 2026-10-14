@@ -105,7 +105,9 @@ export function SearchConditionChip({condition}: {condition: AQLQuery}) {
                         'group/chip inline-flex h-7 max-w-full items-center gap-1 rounded-full border pr-1 pl-2.5 text-xs transition-colors',
                         condition.disabled
                             ? 'border-warning/60 bg-warning/10 text-muted-foreground line-through decoration-warning'
-                            : 'border-primary/30 bg-primary/10 text-foreground hover:bg-primary/15'
+                            : condition.inversed
+                              ? 'border-destructive/40 bg-destructive/10 text-foreground hover:bg-destructive/15'
+                              : 'border-primary/30 bg-primary/10 text-foreground hover:bg-primary/15'
                     )}
                 >
                     <Tooltip content={condition.query} delayDuration={600}>
