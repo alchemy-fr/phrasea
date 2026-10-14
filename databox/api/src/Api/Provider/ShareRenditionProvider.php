@@ -21,7 +21,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 
 final class ShareRenditionProvider implements ProviderInterface
@@ -35,7 +34,6 @@ final class ShareRenditionProvider implements ProviderInterface
         private readonly ShareRepository $shareRepository,
         private readonly TerminateStackListener $terminateStackListener,
         private readonly AssetNameResolver $assetNameResolver,
-        private readonly RequestStack $requestStack,
         private string $matomoSiteId,
         #[Autowire(env: 'MATOMO_URL')]
         private string $matomoUrl,
@@ -55,7 +53,7 @@ final class ShareRenditionProvider implements ProviderInterface
             return $this->createNotFoundResponse();
         }
 
-        $asset = $this->resolveAsset($item);
+        $asset = $this->resolveAsset($item, (string) $uriVariables['asset']);
         if (null === $asset) {
             return $this->createNotFoundResponse();
         }
@@ -103,13 +101,8 @@ final class ShareRenditionProvider implements ProviderInterface
         return $this->createNotFoundResponse();
     }
 
-    private function resolveAsset(Share $share): ?Asset
+    private function resolveAsset(Share $share, string $assetId): ?Asset
     {
-        $assetId = $this->requestStack->getCurrentRequest()?->query->get('asset');
-        if (null === $assetId || '' === $assetId) {
-            return $share->getDeliverableAssets()[0] ?? null;
-        }
-
         foreach ($share->getDeliverableAssets() as $asset) {
             if ($asset->getId() === $assetId) {
                 return $asset;

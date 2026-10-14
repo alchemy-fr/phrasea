@@ -46,13 +46,14 @@ use Symfony\Component\String\ByteString;
                 ],
             ],
             security: 'is_granted("'.AbstractVoter::READ.'", object)',
-            provider: ShareReadProvider::class,
             name: 'share_public',
+            provider: ShareReadProvider::class,
         ),
         new Get(
-            uriTemplate: '/s/{id}/r/{rendition}',
+            uriTemplate: '/s/{id}/assets/{asset}/r/{rendition}',
             uriVariables: [
                 'id' => 'id',
+                'asset' => 'asset',
                 'rendition' => 'rendition',
             ],
             normalizationContext: [

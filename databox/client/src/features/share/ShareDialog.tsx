@@ -259,7 +259,7 @@ export function ShareDialog({
         <FormDialog
             open={open}
             onOpenChange={onOpenChange}
-            size={advancedMode ? 'lg' : 'sm'}
+            size={'md'}
             title={
                 single
                     ? t('share.title', 'Share asset')

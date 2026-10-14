@@ -97,8 +97,8 @@ final class ShareReadProvider implements ProviderInterface
                     $definition->getName(),
                     $this->urlGenerator->generate('share_public_rendition', [
                         'id' => $item->getId(),
-                        'rendition' => $definition->getId(),
                         'asset' => $asset->getId(),
+                        'rendition' => $definition->getId(),
                         'token' => $item->getToken(),
                     ], UrlGeneratorInterface::ABS_URL),
                     $file->getType(),

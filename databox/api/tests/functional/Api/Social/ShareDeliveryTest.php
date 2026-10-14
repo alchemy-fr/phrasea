@@ -32,7 +32,7 @@ class ShareDeliveryTest extends AbstractDataboxTestCase
             'assets' => ['/assets/'.$asset->getId()],
         ]);
         $this->assertResponseStatusCodeSame(201);
-        $renditionUrl = sprintf('/s/%s/r/%s?token=%s', $share['id'], $definitions['preview'], $share['token']);
+        $renditionUrl = sprintf('/s/%s/assets/%s/r/%s?token=%s', $share['id'], $asset->getId(), $definitions['preview'], $share['token']);
         $publicUrl = sprintf('/shares/%s/public?token=%s', $share['id'], $share['token']);
 
         $client->request('GET', $renditionUrl);
