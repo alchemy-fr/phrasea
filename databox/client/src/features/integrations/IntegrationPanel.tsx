@@ -15,6 +15,10 @@ import {Button} from '@/components/ui/button';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {InlineLoader} from '@/components/ui/loader';
 import {TuiPhotoEditorPanel, tuiPhotoEditor} from './tui/TuiPhotoEditorPanel';
+import {
+    FaceRecognitionPanel,
+    faceRecognition,
+} from '@/features/faces/FaceRecognitionPanel';
 
 type Props = {
     integration: WorkspaceIntegration;
@@ -31,6 +35,9 @@ type Props = {
 export function IntegrationPanel(props: Props) {
     if (props.integration.integration === tuiPhotoEditor) {
         return <TuiPhotoEditorPanel {...props} />;
+    }
+    if (props.integration.integration === faceRecognition) {
+        return <FaceRecognitionPanel {...props} />;
     }
 
     return <GenericIntegrationPanel {...props} />;

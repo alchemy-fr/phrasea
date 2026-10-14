@@ -65,6 +65,7 @@ export async function getGlobalIntegrations(): Promise<
 }
 
 export enum IntegrationObjectType {
+    Asset = 'asset',
     File = 'file',
     Basket = 'basket',
 }
@@ -177,7 +178,10 @@ export function saveAttributeFilterRule(data: {
     const {id, ...payload} = data;
 
     return id
-        ? api.patch<AttributeFilterRule>(`/attribute-filter-rules/${id}`, payload)
+        ? api.patch<AttributeFilterRule>(
+              `/attribute-filter-rules/${id}`,
+              payload
+          )
         : api.post<AttributeFilterRule>('/attribute-filter-rules', payload);
 }
 
