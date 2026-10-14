@@ -8,6 +8,7 @@ import {databoxUrl} from '../lib/urls';
 describe('Integrations', () => {
     let ctx;
     let image;
+    let photoEditor;
 
     before(() => {
         login();
@@ -51,7 +52,7 @@ describe('Integrations', () => {
         routeDialog().getBySel('definition-item').should('contain', 'E2E integration');
     });
 
-    it('shows one section per integration of the file in the asset viewer', () => {
+    it('shows one tab per integration of the file in the asset viewer', () => {
         apiRequest({
             method: 'POST',
             path: '/integrations',
@@ -62,19 +63,22 @@ describe('Integrations', () => {
                 enabled: true,
                 public: false,
             },
+        }).then(integration => {
+            photoEditor = integration;
         });
 
-        cy.visit(`${databoxUrl}/assets/${image.id}/_`);
+        // Each integration is a tab of the side panel
+        cy.then(() => cy.visit(`${databoxUrl}/assets/${image.id}/_#panel=integration-${photoEditor.id}`));
         cy.getBySel('asset-view', {timeout: 30000})
             .find('[data-testid=asset-integration]', {timeout: 30000})
-            .should('contain', 'E2E photo editor')
+            .should('be.visible')
+            .and('contain', 'E2E photo editor')
             .and('contain', 'Toast UI Photo Editor');
     });
 
     it('edits the displayed file with the Toast UI photo editor', () => {
-        cy.visit(`${databoxUrl}/assets/${image.id}/_`);
+        cy.visit(`${databoxUrl}/assets/${image.id}/_#panel=integration-${photoEditor.id}`);
         cy.getBySel('asset-view', {timeout: 30000}).within(() => {
-            cy.contains('[data-testid=asset-integration] button', 'E2E photo editor', {timeout: 30000}).click();
             cy.contains('button', 'Open photo editor', {timeout: 30000}).click();
         });
 

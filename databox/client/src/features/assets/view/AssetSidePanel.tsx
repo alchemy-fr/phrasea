@@ -2,7 +2,7 @@
 
 import {useTranslation} from 'react-i18next';
 import {useRouter} from 'next/navigation';
-import type {Asset, AssetRendition, Collection} from '@/types/api';
+import type {Asset, Collection} from '@/types/api';
 import {
     Accordion,
     AccordionContent,
@@ -14,21 +14,13 @@ import {AssetInfoList} from './AssetInfoList';
 import {CollectionChip} from '@/components/chips';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
 import {routes} from '@/lib/routes';
-import {Discussion} from '@/features/discussion/Discussion';
 import {AssetAttachments} from './AssetAttachments';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {AssetMetrics} from './AssetMetrics';
 import {useConfig} from '@/lib/config/ConfigProvider';
-import {FileIntegrations} from '@/features/integrations/FileIntegrations';
 
 /** Content of the `details` tab of the asset side panel (see `AssetPanel`). */
-export function AssetSidePanel({
-    asset,
-    rendition,
-}: {
-    asset: Asset;
-    rendition?: AssetRendition;
-}) {
+export function AssetSidePanel({asset}: {asset: Asset}) {
     const {t} = useTranslation();
     const {isAuthenticated} = useAuth();
     const config = useConfig();
@@ -36,7 +28,7 @@ export function AssetSidePanel({
     const stories = asset.collections?.filter(c => !!c.storyAsset) ?? [];
 
     return (
-        <Accordion type="multiple" defaultValue={['attributes', 'discussion']}>
+        <Accordion type="multiple" defaultValue={['attributes']}>
             <AccordionItem value="attributes">
                 <AccordionTrigger>
                     {t('asset.view.attributes', 'Attributes')}
@@ -97,26 +89,6 @@ export function AssetSidePanel({
                         <AssetAttachments asset={asset} />
                     </AccordionContent>
                 </AccordionItem>
-            ) : null}
-            {isAuthenticated ? (
-                <AccordionItem value="discussion">
-                    <AccordionTrigger>
-                        {t('asset.view.discussion', 'Discussion')}
-                    </AccordionTrigger>
-                    <AccordionContent>
-                        <Discussion
-                            threadKey={asset.threadKey}
-                            threadId={asset.thread?.id}
-                        />
-                    </AccordionContent>
-                </AccordionItem>
-            ) : null}
-            {isAuthenticated && rendition?.file ? (
-                <FileIntegrations
-                    key={rendition.file.id}
-                    asset={asset}
-                    file={rendition.file}
-                />
             ) : null}
         </Accordion>
     );

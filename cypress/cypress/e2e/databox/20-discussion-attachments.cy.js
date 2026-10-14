@@ -2,8 +2,7 @@
  * Feature 20 — Discussion threads and attachments.
  */
 import {deleteWorkspace, seedWorkspace} from './lib/api';
-import {expectToastText, login} from './lib/app';
-import {databoxUrl} from '../lib/urls';
+import {assetPanelTab, expectToastText, login, visitAssetView} from './lib/app';
 
 const composer = () => cy.getBySel('asset-view').find('[role=textbox][aria-label^="Write a message"]');
 const message = (text, options) => cy.getBySel('asset-view').contains('[data-message-id]', text, options);
@@ -27,8 +26,7 @@ describe('Discussion & attachments', () => {
     beforeEach(() => {
         cy.viewport(1400, 900);
         login();
-        cy.visit(`${databoxUrl}/assets/${ctx.assets[0].id}/_`);
-        cy.getBySel('asset-view', {timeout: 30000}).should('be.visible');
+        visitAssetView(ctx.assets[0].id, 'discussion');
     });
 
     it('suggests users to mention, out of the panel', () => {
@@ -71,6 +69,7 @@ describe('Discussion & attachments', () => {
     });
 
     it('attaches another asset and detaches it', () => {
+        assetPanelTab('Info');
         cy.getBySel('asset-view').within(() => {
             cy.contains('button', 'Attachments').click();
             cy.contains('No attachment').should('be.visible');

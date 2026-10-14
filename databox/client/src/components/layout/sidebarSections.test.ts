@@ -1,7 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import {
     defaultSidebarSections,
-    moveSidebarSection,
     resolveSidebarSections,
 } from './sidebarSections';
 
@@ -44,20 +43,5 @@ describe('resolveSidebarSections', () => {
         expect(
             resolveSidebarSections(['savedSearches', 'collections'])
         ).toEqual(['pinnedStories', 'savedSearches', 'collections']);
-    });
-});
-
-describe('moveSidebarSection', () => {
-    it('moves a section down and up', () => {
-        expect(moveSidebarSection(['a', 'b', 'c'], 0, 2)).toEqual([
-            'b',
-            'c',
-            'a',
-        ]);
-        expect(moveSidebarSection(['a', 'b', 'c'], 2, 0)).toEqual([
-            'c',
-            'a',
-            'b',
-        ]);
     });
 });

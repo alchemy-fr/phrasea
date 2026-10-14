@@ -2,7 +2,7 @@
  * Feature 4 — Asset viewer: routed full-screen view, side panel sections,
  * navigation between results, keyboard shortcuts.
  */
-import {deleteWorkspace, seedWorkspace, uploadAssetFromFixture, waitForAsset, waitForIndexed} from './lib/api';
+import {apiRequest, deleteWorkspace, seedWorkspace, uploadAssetFromFixture, waitForAsset, waitForIndexed} from './lib/api';
 import {assetItem, login, openAsset, openAssetEditor, search, visitWorkspace, waitForResults} from './lib/app';
 import {databoxUrl} from '../lib/urls';
 
@@ -33,6 +33,7 @@ describe('Asset viewer', () => {
         if (ctx) {
             deleteWorkspace(ctx.workspace.id);
         }
+        resetPanelTabs();
     });
 
     beforeEach(() => {
@@ -97,8 +98,8 @@ describe('Asset viewer', () => {
             cy.contains(ctx.workspace.name).should('be.visible');
             cy.contains('button', 'Collections').click();
             cy.contains('Sport').should('be.visible');
-            cy.contains('button', 'Discussion').should('be.visible');
-            cy.contains('button', 'Attachments').should('be.visible');
+            cy.contains('button', 'Attachments').scrollIntoView().should('be.visible');
+            cy.contains('[role=tab]', 'Discussion').should('be.visible');
         });
     });
 
@@ -156,6 +157,36 @@ describe('Asset viewer', () => {
         cy.get('body').type('{esc}');
     });
 
+    it('reorders the tabs of the side panel and keeps the order', () => {
+        const tabOrder = expected =>
+            cy.get('[data-testid=asset-view] [role=tab]').should($tabs => {
+                expect([...$tabs].slice(0, expected.length).map(el => el.textContent.trim())).to.deep.equal(expected);
+            });
+
+        resetPanelTabs();
+        cy.visit(`${databoxUrl}/assets/${image.id}/_`);
+        cy.getBySel('asset-view', {timeout: 30000}).should('be.visible');
+        tabOrder(['Info', 'Discussion']);
+
+        cy.getBySel('asset-panel-more').click();
+        cy.getBySel('asset-panel-reorder-tabs').click();
+        cy.dialog().within(() => {
+            // Keyboard drag of dnd-kit: pick up, move up, drop
+            cy.get('[data-tab-id=discussion] button').focus().type(' ');
+            cy.focused().type('{uparrow}');
+            cy.focused().type(' ');
+            cy.get('[data-tab-id]').first().should('have.attr', 'data-tab-id', 'discussion');
+            cy.contains('button', 'Save').click();
+        });
+        tabOrder(['Discussion', 'Info']);
+
+        // Saved in the preferences
+        cy.reload();
+        cy.getBySel('asset-view', {timeout: 30000}).should('be.visible');
+        tabOrder(['Discussion', 'Info']);
+        resetPanelTabs();
+    });
+
     it('navigates to the previous / next result with buttons and arrow keys', () => {
         visitWorkspace(ctx.workspace.id);
         waitForResults(4);
@@ -191,3 +222,11 @@ describe('Asset viewer', () => {
         cy.contains(/Asset not found|Sign in/, {timeout: 30000}).should('be.visible');
     });
 });
+
+function resetPanelTabs() {
+    apiRequest({
+        method: 'PUT',
+        path: '/preferences',
+        body: {name: 'assetPanelTabs', value: null},
+    });
+}

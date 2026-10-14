@@ -38,14 +38,25 @@ import {isApiError} from '@/lib/api/http';
 
 /** Best file to display for a story item standing in for its story */
 function standInFile(asset: Asset | undefined) {
-    return asset?.preview?.file ?? asset?.main?.file ?? asset?.thumbnail?.file;
+    return asset?.main?.file ?? asset?.preview?.file ?? asset?.thumbnail?.file;
 }
 
-/** `#panel=edit` in the URL opens the side panel on that tab or mode. */
+/**
+ * `#panel=edit` in the URL opens the side panel on that tab or mode;
+ * `#discussion-{id}` (notification links) on the discussion.
+ */
 function panelTargetFromHash(): AssetPanelTarget {
+    if (window.location.hash.startsWith('#discussion-')) {
+        return 'discussion';
+    }
+
     return resolveAssetPanelTarget(
         window.location.hash.match(/^#panel=([\w-]+)$/)?.[1]
     );
+}
+
+function panelHash(target: AssetPanelTarget): string {
+    return target === defaultAssetPanelTab ? '' : `#panel=${target}`;
 }
 
 /**
@@ -125,6 +136,7 @@ export function AssetViewRoute({
         }
 
         return (
+            renditions.find(r => r.id === asset?.main?.id) ??
             renditions.find(r => r.id === asset?.preview?.id) ??
             renditions.find(r => r.file?.url) ??
             renditions[0]
@@ -189,15 +201,19 @@ export function AssetViewRoute({
             window.history.replaceState(
                 window.history.state,
                 '',
-                routes.assetView(
-                    id,
-                    undefined,
-                    target === defaultAssetPanelTab ? '' : `#panel=${target}`
-                )
+                routes.assetView(id, undefined, panelHash(target))
             );
         },
         [setAssetId, setRenditionId]
     );
+    // Keeps the displayed rendition: the integration tabs work on its file
+    const showPanelTarget = (target: AssetPanelTarget) => {
+        window.history.replaceState(
+            window.history.state,
+            '',
+            routes.assetView(assetId, renditionId, panelHash(target))
+        );
+    };
     // Keeps the `#panel=` hash: picking from the renditions tab stays there
     const selectRendition = useCallback(
         (id: string) => {
@@ -245,14 +261,14 @@ export function AssetViewRoute({
         setPanelTab(tab);
         setEditing(false);
         setPanelOpen(true);
-        goTo(assetId, tab);
+        showPanelTarget(tab);
     };
     /** The pencil of the toolbar turns the edit mode of the panel on and off */
     const toggleEditing = () => {
         const next = !editing;
         setEditing(next);
         setPanelOpen(true);
-        goTo(assetId, next ? editPanelTarget : panelTab);
+        showPanelTarget(next ? editPanelTarget : panelTab);
     };
 
     // `#panel=edit` navigated to while the viewer is open (history, pasted

@@ -14,8 +14,11 @@ import {
     HistoryIcon,
     ImagesIcon,
     InfoIcon,
+    MessagesSquareIcon,
     MoreHorizontalIcon,
+    ListOrderedIcon,
     PencilIcon,
+    PlugIcon,
     ShieldIcon,
     WorkflowIcon,
     WrenchIcon,
@@ -33,8 +36,12 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/menu';
+import {useModals} from '@/components/modals/ModalProvider';
+import {usePreferencesStore} from '@/features/preferences/store';
+import {resolveOrder} from '@/lib/utils/order';
 import {Tooltip} from '@/components/ui/overlays';
 import type {AssetTabProps} from '@/features/assets/manage/types';
 import {AssetEditTab} from '@/features/assets/manage/tabs/AssetEditTab';
@@ -44,12 +51,25 @@ import {AssetPermissionsTab} from '@/features/assets/manage/tabs/AssetPermission
 import {AssetWorkflowTab} from '@/features/assets/manage/tabs/AssetWorkflowTab';
 import {AssetOperationsTab} from '@/features/assets/manage/tabs/AssetOperationsTab';
 import {ESDocumentTab} from '@/features/assets/manage/tabs/ESDocumentTab';
+import {Discussion} from '@/features/discussion/Discussion';
+import {
+    FileIntegrationTab,
+    useFileIntegrations,
+} from '@/features/integrations/FileIntegrations';
+import {integrationLabel} from '@/features/integrations/integrationLabel';
 import {cn} from '@/lib/utils/cn';
 import {AssetSidePanel} from './AssetSidePanel';
+import {AssetPanelTabsDialog} from './AssetPanelTabsDialog';
 
-/** Every tab of the asset side panel. `details` is the default one. */
+/**
+ * Every fixed tab of the asset side panel, in their default order. `details`
+ * is the default one. Integrations available for the displayed file add one
+ * tab each (see `integrationPanelTab`). The user can reorder them all (see
+ * `useOrderedTabs`).
+ */
 export const assetPanelTabs = [
     'details',
+    'discussion',
     'renditions',
     'versions',
     'permissions',
@@ -58,7 +78,17 @@ export const assetPanelTabs = [
     'es',
 ] as const;
 
-export type AssetPanelTab = (typeof assetPanelTabs)[number];
+const integrationTabPrefix = 'integration-';
+
+type IntegrationPanelTab = `${typeof integrationTabPrefix}${string}`;
+
+export type AssetPanelTab =
+    | (typeof assetPanelTabs)[number]
+    | IntegrationPanelTab;
+
+function integrationPanelTab(integrationId: string): IntegrationPanelTab {
+    return `${integrationTabPrefix}${integrationId}`;
+}
 
 /** Editing is a mode of the panel, turned on from the viewer, not a tab. */
 export const editPanelTarget = 'edit';
@@ -81,6 +111,12 @@ export function resolveAssetPanelTarget(
     if (name === 'info' || name === 'open') {
         return defaultAssetPanelTab;
     }
+    // Whether the integration applies to the displayed file is only known
+    // once the integrations are loaded: until then, the panel shows the
+    // default tab.
+    if (name?.startsWith(integrationTabPrefix)) {
+        return name as IntegrationPanelTab;
+    }
 
     return (assetPanelTabs as readonly string[]).includes(name ?? '')
         ? (name as AssetPanelTab)
@@ -102,7 +138,9 @@ function useTabs(
     onSelectRendition?: (id: string) => void
 ): PanelTab[] {
     const {t} = useTranslation();
-    const {hasRole} = useAuth();
+    const {hasRole, isAuthenticated} = useAuth();
+    const file = rendition?.file;
+    const integrations = useFileIntegrations(asset, file, isAuthenticated);
 
     return [
         {
@@ -110,7 +148,13 @@ function useTabs(
             title: t('asset.manage.info', 'Info'),
             icon: <InfoIcon />,
             component: AssetSidePanel,
-            props: {rendition},
+        },
+        {
+            id: 'discussion',
+            title: t('asset.view.discussion', 'Discussion'),
+            icon: <MessagesSquareIcon />,
+            component: AssetDiscussionTab,
+            enabled: isAuthenticated,
         },
         {
             id: 'renditions',
@@ -119,6 +163,17 @@ function useTabs(
             component: AssetRenditionsTab,
             props: {displayed: rendition?.id, onDisplay: onSelectRendition},
         },
+        ...(file
+            ? integrations.map(
+                  (integration): PanelTab => ({
+                      id: integrationPanelTab(integration.id),
+                      title: integrationLabel(integration),
+                      icon: <PlugIcon />,
+                      component: FileIntegrationTab,
+                      props: {integration, file},
+                  })
+              )
+            : []),
         {
             id: 'versions',
             title: t('asset.manage.versions', 'Versions'),
@@ -155,6 +210,23 @@ function useTabs(
             enabled: hasRole(AppRole.Tech),
         },
     ];
+}
+
+/**
+ * The tabs available for the asset, in the order saved in the preferences
+ * (and so in the profile when it is synced).
+ */
+function useOrderedTabs(tabs: PanelTab[]): PanelTab[] {
+    const saved = usePreferencesStore(s => s.preferences.assetPanelTabs);
+
+    return useMemo(() => {
+        const byId = new Map(tabs.map(tb => [tb.id, tb]));
+
+        return resolveOrder(
+            saved,
+            tabs.map(tb => tb.id)
+        ).map(id => byId.get(id)!);
+    }, [tabs, saved]);
 }
 
 /** Room kept for the “…” button, and the gap between two triggers */
@@ -242,7 +314,7 @@ function useSingleLineTabs(tabs: PanelTab[], active: AssetPanelTab) {
                     : [...tabs.slice(0, count - 1), tabs[activeIndex]];
             const used =
                 shown.reduce((total, tb) => total + width(tb), 0) +
-                (count < tabs.length ? moreButtonWidth : 0);
+                moreButtonWidth;
             if (used <= rowWidth) {
                 return {
                     visible: shown,
@@ -260,8 +332,9 @@ function useSingleLineTabs(tabs: PanelTab[], active: AssetPanelTab) {
 
 /**
  * Side panel of the asset view: everything about the displayed asset, from
- * its attributes and its discussion (`details`) to the tabs that used to live
- * in a separate manage dialog (renditions, versions, …).
+ * its attributes (`details`), its discussion and the integrations run on the
+ * displayed file to the tabs that used to live in a separate manage dialog
+ * (renditions, versions, …).
  *
  * Editing is a mode rather than a tab: it is turned on from the viewer's
  * toolbar and takes the panel over until it is closed. Visited tabs — and the
@@ -289,8 +362,11 @@ export function AssetPanel({
     refresh: () => void;
 }) {
     const {t} = useTranslation();
-    const tabs = useTabs(asset, rendition, onSelectRendition).filter(
-        tb => tb.enabled !== false
+    const {openModal} = useModals();
+    const tabs = useOrderedTabs(
+        useTabs(asset, rendition, onSelectRendition).filter(
+            tb => tb.enabled !== false
+        )
     );
     const active = tabs.find(tb => tb.id === tab) ? tab : defaultAssetPanelTab;
     const {rowRef, measuring, visible, hidden} = useSingleLineTabs(
@@ -359,32 +435,53 @@ export function AssetPanel({
                                 </UnderlineTabsTrigger>
                             ))}
                         </UnderlineTabsList>
-                        {hidden.length > 0 ? (
-                            // Not modal: switching tab from here leaves the
-                            // panel interactive right away
-                            <DropdownMenu modal={false}>
-                                <DropdownMenuTrigger asChild>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon-sm"
-                                        data-testid="asset-panel-more"
-                                        aria-label={t('common.more', 'More')}
+                        {/* Not modal: switching tab from here leaves the
+                            panel interactive right away */}
+                        <DropdownMenu modal={false}>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    data-testid="asset-panel-more"
+                                    aria-label={t('common.more', 'More')}
+                                >
+                                    <MoreHorizontalIcon />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                {hidden.map(tb => (
+                                    <DropdownMenuItem
+                                        key={tb.id}
+                                        onSelect={() => onTabChange(tb.id)}
                                     >
-                                        <MoreHorizontalIcon />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    {hidden.map(tb => (
-                                        <DropdownMenuItem
-                                            key={tb.id}
-                                            onSelect={() => onTabChange(tb.id)}
-                                        >
-                                            {tb.icon} {tb.title}
-                                        </DropdownMenuItem>
-                                    ))}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        ) : null}
+                                        {tb.icon} {tb.title}
+                                    </DropdownMenuItem>
+                                ))}
+                                {hidden.length > 0 ? (
+                                    <DropdownMenuSeparator />
+                                ) : null}
+                                <DropdownMenuItem
+                                    data-testid="asset-panel-reorder-tabs"
+                                    onSelect={() =>
+                                        openModal(AssetPanelTabsDialog, {
+                                            tabs: tabs.map(
+                                                ({id, title, icon}) => ({
+                                                    id,
+                                                    title,
+                                                    icon,
+                                                })
+                                            ),
+                                        })
+                                    }
+                                >
+                                    <ListOrderedIcon />
+                                    {t(
+                                        'asset.panel.reorder_tabs',
+                                        'Reorder tabs'
+                                    )}
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
                 </Tabs>
             )}
@@ -413,6 +510,17 @@ export function AssetPanel({
                 ) : null}
             </div>
         </div>
+    );
+}
+
+/** The panel stays mounted from one asset to the next, the thread must not */
+function AssetDiscussionTab({asset}: AssetTabProps) {
+    return (
+        <Discussion
+            key={asset.id}
+            threadKey={asset.threadKey}
+            threadId={asset.thread?.id}
+        />
     );
 }
 

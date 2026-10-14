@@ -47,6 +47,7 @@ const syncedKeys: (keyof UserPreferences)[] = [
     'displayBatchEdit',
     'facets',
     'sidebarSections',
+    'assetPanelTabs',
     'theme',
 ];
 

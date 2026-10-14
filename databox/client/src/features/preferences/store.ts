@@ -50,6 +50,11 @@ export type UserPreferences = {
     facets?: FacetPreference[];
     /** Order of the sections of the "Browse" tab of the left panel */
     sidebarSections?: SidebarSectionId[];
+    /**
+     * Order of the tabs of the asset view side panel, integration tabs
+     * included (`integration-{id}`)
+     */
+    assetPanelTabs?: string[];
 };
 
 export const defaultDisplayPreferences: DisplayPreferences = {

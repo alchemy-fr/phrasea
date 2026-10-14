@@ -12,7 +12,7 @@ import {
     type PointerEvent as ReactPointerEvent,
 } from 'react';
 import {cn} from '@/lib/utils/cn';
-import {moveSidebarSection} from './sidebarSections';
+import {moveItem} from '@/lib/utils/order';
 
 /** Given by `SortableSections` to the `PanelSection` it wraps: the grip moving it */
 export type SectionGrip = {
@@ -124,9 +124,7 @@ export function SortableSections<T extends string>({
                 window.removeEventListener('keydown', escape, true);
                 setDrag(undefined);
                 if (drop && current.to !== from) {
-                    onReorder(
-                        moveSidebarSection(orderRef.current, from, current.to)
-                    );
+                    onReorder(moveItem(orderRef.current, from, current.to));
                 }
             };
             const up = () => stop(true);
@@ -159,7 +157,7 @@ export function SortableSections<T extends string>({
             if (to < 0 || to >= orderRef.current.length) {
                 return;
             }
-            onReorder(moveSidebarSection(orderRef.current, from, to));
+            onReorder(moveItem(orderRef.current, from, to));
             setRefocus(id);
         },
         [onReorder]
