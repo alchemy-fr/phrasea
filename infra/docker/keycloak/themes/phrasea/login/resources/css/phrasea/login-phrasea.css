@@ -651,3 +651,14 @@ li {
 .login-pf-page .pf-c-input-group:focus-within > .pf-c-button.pf-m-control {
     border-bottom: 2px solid #0066cc;
 }
+
+.parade-login-registration {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.parade-login-registration a {
+    margin-left: 4px;
+    font-weight: 500;
+}
