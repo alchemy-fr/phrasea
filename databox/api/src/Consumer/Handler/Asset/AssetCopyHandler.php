@@ -56,7 +56,8 @@ readonly class AssetCopyHandler
                 $destWorkspace,
                 $destCollection,
                 $message->allowedRenditions,
-                $message->getOptions()
+                $message->getOptions(),
+                $message->getExtraMetadata(),
             );
         }
     }

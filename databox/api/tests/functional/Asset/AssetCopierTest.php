@@ -4,14 +4,19 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Asset;
 
+use Alchemy\MessengerBundle\Transport\TestTransport;
+use App\Consumer\Handler\File\NewAssetFromBorder;
+use App\Consumer\Handler\File\NewAssetFromBorderHandler;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
+use App\Entity\Core\Workspace;
 use App\Service\Asset\AssetCopier;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use App\Tests\Functional\Api\Rendition\RenditionTestTrait;
 use Doctrine\ORM\Events;
+use Symfony\Component\Messenger\Envelope;
 
 final class AssetCopierTest extends AbstractDataboxTestCase
 {
@@ -119,13 +124,69 @@ final class AssetCopierTest extends AbstractDataboxTestCase
         $destination = $this->createCollection(['workspace' => $workspace]);
         $asset = $this->createAsset(['workspace' => $workspace, 'collectionId' => $source->getId()]);
 
-        $copy = $this->copy($asset, [], ['collection' => $destination]);
+        $copy = $this->copy($asset, [], $destination);
 
         $this->assertSame($destination->getId(), $copy->getReferenceCollectionId());
         $this->assertSame([$destination->getId()], $copy->getCollections()->map(fn (CollectionAsset $ca): string => $ca->getCollection()->getId())->getValues());
     }
 
-    private function copy(Asset $asset, array $allowedRenditions, array $options = []): Asset
+    public function testCopyIntoCollectionKeepsRelationExtraMetadata(): void
+    {
+        $workspace = $this->getOrCreateDefaultWorkspace();
+        $destination = $this->createCollection(['workspace' => $workspace]);
+        $asset = $this->createAsset(['workspace' => $workspace]);
+
+        $copy = $this->copy($asset, [], $destination, ['foo' => 'bar']);
+
+        $this->assertSame(['foo' => 'bar'], $copy->getCollections()->first()->getExtraMetadata());
+    }
+
+    public function testCopyToAnotherWorkspaceKeepsRelationExtraMetadata(): void
+    {
+        $workspace = $this->getOrCreateDefaultWorkspace();
+        [$otherWorkspace] = $this->createWorkspaceWithDefaults('other-workspace');
+        $destination = $this->createCollection(['workspace' => $otherWorkspace]);
+        $asset = $this->createAsset(['workspace' => $workspace]);
+        $asset->setSource($this->createUrlFile($workspace));
+
+        $em = self::getEntityManager();
+        $em->flush();
+        $em->clear();
+
+        /** @var TestTransport $transport */
+        $transport = self::getContainer()->get('messenger.transport.p1');
+        $queue = $transport->intercept();
+
+        /** @var AssetCopier $copier */
+        $copier = self::getService(AssetCopier::class);
+        $copier->copyAsset(
+            'copier_user',
+            $em->find(Asset::class, $asset->getId()),
+            $em->find(Workspace::class, $otherWorkspace->getId()),
+            $em->find(Collection::class, $destination->getId()),
+            [],
+            relationExtraMetadata: ['foo' => 'bar'],
+        );
+
+        $messages = array_values(array_filter(
+            array_map(fn (Envelope $envelope): object => $envelope->getMessage(), $queue->getSent()),
+            fn (object $message): bool => $message instanceof NewAssetFromBorder,
+        ));
+        $this->assertCount(1, $messages);
+        $this->assertSame([$destination->getId()], $messages[0]->getCollectionIds());
+        $this->assertSame(['foo' => 'bar'], $messages[0]->getRelationExtraMetadata());
+
+        /** @var NewAssetFromBorderHandler $handler */
+        $handler = self::getService(NewAssetFromBorderHandler::class);
+        $handler($messages[0]);
+        $em->clear();
+
+        $collectionAsset = $em->getRepository(CollectionAsset::class)->findOneBy(['collection' => $destination->getId()]);
+        $this->assertInstanceOf(CollectionAsset::class, $collectionAsset);
+        $this->assertSame(['foo' => 'bar'], $collectionAsset->getExtraMetadata());
+    }
+
+    private function copy(Asset $asset, array $allowedRenditions, ?Collection $collection = null, ?array $relationExtraMetadata = null): Asset
     {
         $em = self::getEntityManager();
         $em->flush();
@@ -133,13 +194,13 @@ final class AssetCopierTest extends AbstractDataboxTestCase
 
         $asset = $em->find(Asset::class, $asset->getId());
         $workspace = $asset->getWorkspace();
-        if (isset($options['collection'])) {
-            $options['collection'] = $em->find(Collection::class, $options['collection']->getId());
+        if (null !== $collection) {
+            $collection = $em->find(Collection::class, $collection->getId());
         }
 
         /** @var AssetCopier $copier */
         $copier = self::getService(AssetCopier::class);
-        $copier->copyAsset('copier_user', $asset, $workspace, $options['collection'] ?? null, $allowedRenditions, $options);
+        $copier->copyAsset('copier_user', $asset, $workspace, $collection, $allowedRenditions, relationExtraMetadata: $relationExtraMetadata);
         $em->clear();
 
         $copy = $em->getRepository(Asset::class)->findOneBy(['ownerId' => 'copier_user']);

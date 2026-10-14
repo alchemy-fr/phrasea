@@ -37,6 +37,7 @@ class AssetCopier
         ?Collection $collection,
         array $allowedRenditions,
         array $options = [],
+        ?array $relationExtraMetadata = null,
     ): void {
         try {
             $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
@@ -48,7 +49,8 @@ class AssetCopier
                         $workspace,
                         $collection,
                         $allowedRenditions,
-                        $options
+                        $options,
+                        $relationExtraMetadata,
                     );
                 } else {
                     $file = $this->copyFile($asset->getSource(), $workspace);
@@ -57,7 +59,8 @@ class AssetCopier
                         $file->getId(),
                         $collection ? [$collection->getId()] : [],
                         $this->assetNameResolver->resolveNameAsString($asset),
-                        $file->getFileName()
+                        $file->getFileName(),
+                        relationExtraMetadata: $relationExtraMetadata,
                     ));
                 }
             } else {
@@ -67,7 +70,8 @@ class AssetCopier
                     $workspace,
                     $collection,
                     $allowedRenditions,
-                    $options
+                    $options,
+                    $relationExtraMetadata,
                 );
             }
 
@@ -83,7 +87,8 @@ class AssetCopier
         Workspace $workspace,
         ?Collection $collection,
         array $allowedRenditions,
-        array $options = [],
+        array $options,
+        ?array $relationExtraMetadata,
     ): void {
         $sameWorkspace = $asset->getWorkspaceId() === $workspace->getId();
         $copy = new Asset();
@@ -96,7 +101,7 @@ class AssetCopier
             if ($collection->getWorkspaceId() !== $workspace->getId()) {
                 throw new \InvalidArgumentException(sprintf('Failed to copy asset: Collection %s does not belong to workspace %s', $collection->getId(), $workspace->getId()));
             }
-            $copy->addToCollection($collection, assignReferenceIfNull: true);
+            $copy->addToCollection($collection, assignReferenceIfNull: true, extraMetadata: $relationExtraMetadata);
         }
         if (null !== $asset->getSource()) {
             $copy->setSource($this->copyFile($asset->getSource(), $workspace));
