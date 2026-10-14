@@ -62,6 +62,16 @@
                 "extraMetadata": [],
                 "id": "<other>",
                 "name": "Other",
+                "owner": {
+                    "@id": "<genid>",
+                    "@type": "UserOutput",
+                    "displayName": "Test User",
+                    "firstName": "Test",
+                    "id": "<uuid>",
+                    "lastName": "User",
+                    "removed": false,
+                    "username": "user"
+                },
                 "privacy": 0,
                 "referenceCollection": {
                     "@id": "/collections/<root>",

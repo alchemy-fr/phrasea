@@ -47,6 +47,16 @@
     "id": "<child>",
     "inheritedPrivacy": 0,
     "name": "Child",
+    "owner": {
+        "@id": "<genid>",
+        "@type": "UserOutput",
+        "displayName": "Test User",
+        "firstName": "Test",
+        "id": "<uuid>",
+        "lastName": "User",
+        "removed": false,
+        "username": "user"
+    },
     "parentId": "<root>",
     "privacy": 0,
     "public": false,
