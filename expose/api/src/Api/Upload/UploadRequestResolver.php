@@ -2,37 +2,44 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Api\Upload;
 
 use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use Alchemy\StorageBundle\Upload\UploadManager;
-use App\Entity\Asset;
-use App\Entity\Publication;
-use App\Storage\AssetManager;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Mime\MimeTypes;
 
-final class CreateAssetAction extends AbstractController
+/**
+ * Resolves the file carried by an asset or sub-definition creation request.
+ *
+ * Three shapes are accepted: a completed multipart upload ("multipart"), a file
+ * sent with the request ("file") or a file descriptor ("upload") for which a
+ * signed PUT URL is generated.
+ */
+final readonly class UploadRequestResolver
 {
     public function __construct(
-        private readonly FileStorageManager $storageManager,
-        private readonly AssetManager $assetManager,
-        private readonly UploadManager $uploadManager,
-        private readonly PathGeneratorInterface $pathGenerator,
+        private FileStorageManager $storageManager,
+        private UploadManager $uploadManager,
+        private PathGeneratorInterface $pathGenerator,
     ) {
     }
 
-    public function __invoke(Request $request): Asset
+    public function resolve(Request $request): ResolvedUpload
     {
-        $publication = $this->getPublication($request);
-
         if ($request->request->has('multipart')) {
-            return $this->handleMultipartUpload($publication, $request);
+            $multipartUpload = $this->uploadManager->handleMultipartUpload(MultipartUploadInput::fromRequest($request));
+
+            return new ResolvedUpload(
+                $multipartUpload->getPath(),
+                $multipartUpload->getType(),
+                $multipartUpload->getFilename(),
+                $multipartUpload->getSize(),
+            );
         }
 
         /** @var UploadedFile|null $uploadedFile */
@@ -54,15 +61,15 @@ final class CreateAssetAction extends AbstractController
             $this->storageManager->storeStream($path, $stream);
             fclose($stream);
 
-            return $this->assetManager->createAsset(
-                $publication,
+            return new ResolvedUpload(
                 $path,
                 $uploadedFile->getMimeType(),
                 $uploadedFile->getClientOriginalName(),
                 $uploadedFile->getSize(),
-                $request->request->all()
             );
-        } elseif ($request->request->has('upload')) {
+        }
+
+        if ($request->request->has('upload')) {
             $upload = $request->request->all('upload');
 
             $originalFilename = $upload['name'] ?? null;
@@ -81,44 +88,15 @@ final class CreateAssetAction extends AbstractController
             }
             $path = $this->pathGenerator->generatePath($extension);
 
-            $asset = $this->assetManager->createAsset(
-                $publication,
+            return new ResolvedUpload(
                 $path,
                 $contentType,
                 $originalFilename ?? 'file',
                 (int) ($upload['size'] ?? 0),
-                $request->request->all()
+                $this->uploadManager->createPutObjectSignedURL($path, $contentType),
             );
-
-            $url = $this->uploadManager->createPutObjectSignedURL($path, $contentType);
-            $asset->setUploadURL($url);
-
-            return $asset;
         }
 
         throw new BadRequestHttpException('Missing file or contentType');
-    }
-
-    private function getPublication(Request $request): Publication
-    {
-        if (!($id = $request->request->get('publication_id'))) {
-            throw new BadRequestHttpException('Missing "publication_id"');
-        }
-
-        return $this->assetManager->getPublicationWithEditGrant($id);
-    }
-
-    private function handleMultipartUpload(Publication $publication, Request $request): Asset
-    {
-        $multipartUpload = $this->uploadManager->handleMultipartUpload(MultipartUploadInput::fromRequest($request));
-
-        return $this->assetManager->createAsset(
-            $publication,
-            $multipartUpload->getPath(),
-            $multipartUpload->getType(),
-            $multipartUpload->getFilename(),
-            $multipartUpload->getSize(),
-            $request->request->all(),
-        );
     }
 }

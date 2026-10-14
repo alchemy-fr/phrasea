@@ -16,9 +16,9 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\RequestBody;
-use App\Controller\CreateAssetAction;
-use App\Controller\DeleteAssetsAction;
-use App\Controller\GetAssetWithSlugAction;
+use App\Api\Processor\CreateAssetProcessor;
+use App\Api\Processor\DeleteAssetsByAssetIdProcessor;
+use App\Api\Provider\AssetBySlugProvider;
 use App\Entity\Traits\ClientAnnotationsTrait;
 use App\Repository\AssetRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -45,22 +45,24 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Get(
             uriTemplate: '/publications/{publicationSlug}/assets/{assetSlug}',
-            defaults: ['_api_receive' => false],
-            controller: GetAssetWithSlugAction::class
+            uriVariables: [
+                'publicationSlug' => new Link(fromClass: Publication::class, identifiers: ['slug']),
+                'assetSlug' => new Link(fromClass: Asset::class, identifiers: ['slug']),
+            ],
+            provider: AssetBySlugProvider::class,
         ),
         new Patch(security: 'is_granted("EDIT", object)'),
         new Delete(
             uriTemplate: '/assets/delete-by-asset-id/{assetId}',
             uriVariables: [],
-            controller: DeleteAssetsAction::class,
             openapi: new OpenApiOperation(
                 summary: 'Delete all assets by the given assetId',
                 description: 'Delete all assets by the given assetId',
             ),
             read: false,
+            processor: DeleteAssetsByAssetIdProcessor::class,
         ),
         new Post(
-            controller: CreateAssetAction::class,
             openapi: new OpenApiOperation(
                 requestBody: new RequestBody(
                     content: new \ArrayObject([
@@ -162,7 +164,8 @@ use Symfony\Component\Validator\Constraints as Assert;
                     ]),
                 ),
             ),
-            deserialize: false
+            deserialize: false,
+            processor: CreateAssetProcessor::class,
         ),
         new GetCollection(
             parameters: [
@@ -188,8 +191,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             ],
         ),
         new Post(
-            controller: CreateAssetAction::class,
-            // The controller resolves the publication itself; without this, API Platform
+            // The processor resolves the publication itself; without this, API Platform
             // "reads" the item through the publication link and fails with a
             // NonUniqueResultException as soon as the publication holds several assets.
             read: false,
@@ -294,7 +296,8 @@ use Symfony\Component\Validator\Constraints as Assert;
                     ]),
                 ),
             ),
-            deserialize: false
+            deserialize: false,
+            processor: CreateAssetProcessor::class,
         ),
     ],
     uriVariables: [

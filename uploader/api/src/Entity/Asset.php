@@ -14,8 +14,8 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\RequestBody;
-use App\Controller\AssetAckAction;
-use App\Controller\CreateAssetAction;
+use App\Api\Processor\AssetAckProcessor;
+use App\Api\Processor\CreateAssetProcessor;
 use App\Security\Voter\AssetVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -27,10 +27,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new Get(security: 'is_granted("READ_META", object)'),
         new Post(
             uriTemplate: '/assets/{id}/ack',
-            controller: AssetAckAction::class,
             security: 'is_granted("'.AssetVoter::ACK.'", object)',
+            throwOnNotFound: true,
             deserialize: false,
+            validate: false,
             name: 'post_ack',
+            processor: AssetAckProcessor::class,
         ),
         new GetCollection(
             parameters: [
@@ -44,8 +46,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
             ],
         ),
         new Post(
-            defaults: ['_api_receive' => false],
-            controller: CreateAssetAction::class,
+            deserialize: false,
+            processor: CreateAssetProcessor::class,
             openapi: new OpenApiOperation(
                 requestBody: new RequestBody(
                     content: new \ArrayObject([
@@ -126,12 +128,6 @@ use Symfony\Component\Serializer\Attribute\Groups;
                     ]),
                 ),
             ),
-            validationContext: [
-                'groups' => [
-                    'Default',
-                    'asset_create',
-                ],
-            ]
         ),
     ],
     normalizationContext: [

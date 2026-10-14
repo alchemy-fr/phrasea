@@ -18,9 +18,9 @@ use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\Parameter as OpenApiParameter;
 use ApiPlatform\OpenApi\Model\Response as OpenApiResponse;
+use App\Api\Processor\SortAssetsProcessor;
 use App\Api\Provider\PublicationProvider;
-use App\Controller\GetPublicationSlugAvailabilityAction;
-use App\Controller\SortAssetsAction;
+use App\Api\Provider\PublicationSlugAvailabilityProvider;
 use App\Entity\Traits\CapabilitiesTrait;
 use App\Entity\Traits\ClientAnnotationsTrait;
 use App\Filter\PublicationFilter;
@@ -54,11 +54,11 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
         new Delete(security: 'is_granted("'.PublicationVoter::DELETE.'", object)'),
         new Post(
             uriTemplate: '/publications/{id}/sort-assets',
-            defaults: [
-                '_api_receive' => false,
-                '_api_respond' => true,
-            ],
-            controller: SortAssetsAction::class
+            security: 'is_granted("'.PublicationVoter::EDIT.'", object)',
+            throwOnNotFound: true,
+            deserialize: false,
+            validate: false,
+            processor: SortAssetsProcessor::class,
         ),
         new GetCollection(
             normalizationContext: [
@@ -106,8 +106,9 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
         ),
         new GetCollection(
             uriTemplate: '/publications/slug-availability/{slug}',
-            defaults: ['_api_receive' => false, 'input' => false, 'output' => false],
-            controller: GetPublicationSlugAvailabilityAction::class,
+            uriVariables: [],
+            output: false,
+            provider: PublicationSlugAvailabilityProvider::class,
             openapi: new OpenApiOperation(
                 responses: [
                     '200' => new OpenApiResponse(

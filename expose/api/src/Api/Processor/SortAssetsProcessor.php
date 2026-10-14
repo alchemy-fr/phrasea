@@ -2,37 +2,49 @@
 
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Api\Processor;
 
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProcessorInterface;
 use App\Entity\Asset;
-use App\Security\Voter\PublicationVoter;
+use App\Entity\Publication;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-final class SortAssetsAction extends AbstractAssetAction
+final readonly class SortAssetsProcessor implements ProcessorInterface
 {
-    public function __invoke(string $id, Request $request)
+    public function __construct(private EntityManagerInterface $em)
     {
-        $publication = $this->getPublication($id, PublicationVoter::EDIT);
+    }
+
+    /**
+     * @param Publication $data
+     */
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): Publication
+    {
+        /** @var Request $request */
+        $request = $context['request'];
 
         $order = $request->request->all('order');
         if (empty($order)) {
             throw new BadRequestHttpException('Missing order');
         }
+
         $this->em->beginTransaction();
         try {
             $dql = sprintf(
                 'UPDATE %s a SET a.position = :pos WHERE a.publication = :pubId AND a.id = :assetId',
                 Asset::class
             );
-            $publicationId = $publication->getId();
-            foreach ($order as $i => $id) {
+            $publicationId = $data->getId();
+            foreach ($order as $i => $assetId) {
                 $this->em
                     ->createQuery($dql)
                     ->execute([
                         'pos' => $i,
                         'pubId' => $publicationId,
-                        'assetId' => $id,
+                        'assetId' => $assetId,
                     ]);
             }
             $this->em->commit();
@@ -41,6 +53,6 @@ final class SortAssetsAction extends AbstractAssetAction
             throw $e;
         }
 
-        return $publication;
+        return $data;
     }
 }
