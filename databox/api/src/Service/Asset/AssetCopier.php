@@ -100,12 +100,7 @@ class AssetCopier
         }
 
         if ($sameWorkspace) {
-            foreach ($asset->getRenditions() as $rendition) {
-                $definition = $rendition->getDefinition();
-                if (null === $definition || in_array($definition->getId(), $allowedRenditions, true)) {
-                    $this->copyRendition($rendition, $copy);
-                }
-            }
+            $this->copyRenditions($asset, $copy, $allowedRenditions);
 
             if ($options[self::OPT_WITH_ATTRIBUTES] ?? false) {
                 $attributes = $this->em->getRepository(Attribute::class)
@@ -148,7 +143,37 @@ class AssetCopier
         $this->em->persist($copy);
     }
 
-    private function copyRendition(AssetRendition $rendition, Asset $target): void
+    private function copyRenditions(Asset $asset, Asset $target, array $allowedRenditions): void
+    {
+        $renditions = [];
+        foreach ($asset->getRenditions() as $rendition) {
+            $definition = $rendition->getDefinition();
+            if (null === $definition || in_array($definition->getId(), $allowedRenditions, true)) {
+                $renditions[$rendition->getId()] = $rendition;
+            }
+        }
+
+        // A rendition built from a rendition that is not copied could not be rebuilt on the copy
+        do {
+            $count = count($renditions);
+            $renditions = array_filter(
+                $renditions,
+                fn (AssetRendition $rendition): bool => null === ($sourceId = $rendition->getSourceRenditionId()) || isset($renditions[$sourceId])
+            );
+        } while (count($renditions) !== $count);
+
+        $copies = array_map(fn (AssetRendition $rendition): AssetRendition => $this->copyRendition($rendition, $target), $renditions);
+
+        foreach ($copies as $copy) {
+            if (null !== $sourceId = $copy->getSourceRenditionId()) {
+                $copy->setBuildOptions([
+                    AssetRendition::OPTION_SOURCE_RENDITION_ID => $copies[$sourceId]->getId(),
+                ] + $copy->getBuildOptions());
+            }
+        }
+    }
+
+    private function copyRendition(AssetRendition $rendition, Asset $target): AssetRendition
     {
         $copy = new AssetRendition();
         $copy->setAsset($target);
@@ -162,6 +187,8 @@ class AssetCopier
         }
 
         $this->em->persist($copy);
+
+        return $copy;
     }
 
     private function copyFile(File $file, Workspace $workspace): File

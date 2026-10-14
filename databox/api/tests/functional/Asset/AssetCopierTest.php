@@ -38,6 +38,39 @@ final class AssetCopierTest extends AbstractDataboxTestCase
         $this->assertNotSame($allowedFile->getId(), $renditions['allowed']->getFile()->getId());
     }
 
+    public function testCopyDynamicRenditionsBuiltFromCopiedRenditions(): void
+    {
+        $workspace = $this->getOrCreateDefaultWorkspace();
+        $policy = $this->createRenditionPolicy($workspace, 'Copy policy');
+        $allowed = $this->createRenditionDefinition($workspace, $policy, 'allowed');
+        $denied = $this->createRenditionDefinition($workspace, $policy, 'denied');
+
+        $asset = $this->createAsset(['workspace' => $workspace]);
+        $allowedRendition = $this->createAssetRendition($asset, $allowed, $this->createUrlFile($workspace));
+        $deniedRendition = $this->createAssetRendition($asset, $denied, $this->createUrlFile($workspace));
+        $fromAllowed = $this->createDynamicRendition($asset, 'from-allowed', [
+            AssetRendition::OPTION_WRITE_METADATA => true,
+            AssetRendition::OPTION_SOURCE_RENDITION_ID => $allowedRendition->getId(),
+        ]);
+        $this->createDynamicRendition($asset, 'from-dynamic', [
+            AssetRendition::OPTION_SOURCE_RENDITION_ID => $fromAllowed->getId(),
+        ]);
+        $fromDenied = $this->createDynamicRendition($asset, 'from-denied', [
+            AssetRendition::OPTION_SOURCE_RENDITION_ID => $deniedRendition->getId(),
+        ]);
+        $this->createDynamicRendition($asset, 'from-dropped', [
+            AssetRendition::OPTION_SOURCE_RENDITION_ID => $fromDenied->getId(),
+        ]);
+
+        $copy = $this->copy($asset, [$allowed->getId()]);
+
+        $renditions = $this->getRenditionsByName($copy);
+        $this->assertEqualsCanonicalizing(['allowed', 'from-allowed', 'from-dynamic'], array_keys($renditions));
+        $this->assertSame($renditions['allowed']->getId(), $renditions['from-allowed']->getSourceRenditionId());
+        $this->assertTrue($renditions['from-allowed']->isWriteMetadata());
+        $this->assertSame($renditions['from-allowed']->getId(), $renditions['from-dynamic']->getSourceRenditionId());
+    }
+
     private function copy(Asset $asset, array $allowedRenditions, array $options = []): Asset
     {
         $em = self::getEntityManager();
