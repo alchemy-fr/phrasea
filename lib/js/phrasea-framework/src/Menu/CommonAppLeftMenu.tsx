@@ -76,7 +76,6 @@ export function CommonAppLeftMenu({
                     username={user.username}
                     accountUrl={getAccountUrl()}
                     onLogout={logout}
-                    debugUser={config.devMode}
                     keycloakClient={keycloakClient}
                 />
             )}
