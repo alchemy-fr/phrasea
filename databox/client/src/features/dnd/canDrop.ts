@@ -107,6 +107,12 @@ function canDropAssets(
         }
         case 'story': {
             const {story} = target;
+            // Adding is what a story is for: Ctrl moves instead
+            if (op === 'add') {
+                op = 'move';
+            } else if (op === 'move') {
+                op = 'add';
+            }
             const storyCollection = story.storyCollection;
             if (!storyCollection) {
                 return {ok: false, reason: 'type'};

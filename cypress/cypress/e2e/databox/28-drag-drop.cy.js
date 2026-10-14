@@ -148,9 +148,12 @@ describe('Drag & drop', () => {
             .should('be.visible');
 
         dragStart(assetItem('Charlie'));
+        // Adds by default (Ctrl moves)
         dragOver(cy.get(`[data-testid=pinned-story-item][data-story-id="${story.id}"]`), {ctrlKey: true});
+        cy.getBySel('drag-ghost').should('contain', 'Move to');
+        dragOver(cy.get(`[data-testid=pinned-story-item][data-story-id="${story.id}"]`));
         cy.getBySel('drag-ghost').should('contain', 'Add to');
-        drop({ctrlKey: true});
+        drop();
 
         expectToastText('1 asset added to story');
         cy.waitUntil(

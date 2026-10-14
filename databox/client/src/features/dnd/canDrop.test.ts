@@ -190,7 +190,7 @@ describe('canDrop assets', () => {
         });
     });
 
-    it('moves to a story, or adds with Ctrl', () => {
+    it('adds to a story, or moves with Ctrl', () => {
         const story = asset('story', 'ws1', {
             storyCollection: {
                 id: 'sc',
@@ -200,12 +200,15 @@ describe('canDrop assets', () => {
         const t = target({type: 'story', story});
         expect(verdict(assetsPayload([a1]), t)).toEqual({
             ok: true,
-            op: 'move',
+            op: 'add',
         });
         expect(verdict(assetsPayload([a1]), t, {ctrl: true})).toEqual({
             ok: true,
-            op: 'add',
+            op: 'move',
         });
+        expect(
+            verdict(assetsPayload([a1]), t, {ctrl: true, shift: true})
+        ).toEqual({ok: true, op: 'copy'});
         expect(verdict(assetsPayload([story]), t)).toEqual({
             ok: false,
             reason: 'self',
