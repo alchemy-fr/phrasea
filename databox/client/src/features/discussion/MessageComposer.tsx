@@ -186,6 +186,11 @@ export function MessageComposer({
             },
             // Runs before the keymaps: the mention list gets its keys first
             handleKeyDown: (_view, event) => {
+                // Keeps the page shortcuts (asset viewer navigation, close)
+                // from firing while typing
+                if (event.key.startsWith('Arrow') || event.key === 'Escape') {
+                    event.stopPropagation();
+                }
                 if (keyDownRef.current(event)) {
                     return true;
                 }

@@ -277,6 +277,7 @@ export function AssetViewRoute({
             if (
                 el &&
                 (['INPUT', 'TEXTAREA'].includes(el.tagName) ||
+                    el.isContentEditable ||
                     el.closest('[data-resize-handle]'))
             ) {
                 return;
