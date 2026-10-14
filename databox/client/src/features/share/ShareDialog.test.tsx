@@ -247,21 +247,21 @@ describe('ShareDialog', () => {
                 id: 'r1',
                 name: 'preview',
                 displayName: 'Preview',
-                url: 'https://api/s/g/assets/a1/r/d1',
+                url: 'https://api/s/g/a/a1/r/d1',
                 assetId: 'a1',
             },
             {
                 id: 'r2',
                 name: 'preview',
                 displayName: 'Preview',
-                url: 'https://api/s/g/assets/a2/r/d1',
+                url: 'https://api/s/g/a/a2/r/d1',
                 assetId: 'a2',
             },
             {
                 id: 'r3',
                 name: 'thumbnail',
                 displayName: 'Thumbnail',
-                url: 'https://api/s/g/assets/a1/r/d2',
+                url: 'https://api/s/g/a/a1/r/d2',
                 assetId: 'a1',
             },
         ];
@@ -306,7 +306,7 @@ describe('ShareDialog', () => {
         ]);
         fireEvent.click(menu[2]);
         await waitFor(() => expect(link.textContent).toContain('Thumbnail'));
-        expect(link.textContent).toContain('assets/a1/r/d2');
+        expect(link.textContent).toContain('a/a1/r/d2');
 
         // The assets of the link, with the URLs of their renditions
         const rows = within(item).getAllByTestId('share-asset-row');
@@ -330,7 +330,7 @@ describe('ShareDialog', () => {
         fireEvent.click(menu[0]);
         await waitFor(() =>
             expect(misc.copyToClipboard).toHaveBeenCalledWith(
-                'https://api/s/g/assets/a2/r/d1'
+                'https://api/s/g/a/a2/r/d1'
             )
         );
 

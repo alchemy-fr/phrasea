@@ -131,7 +131,7 @@ final class ShareApiTest extends AbstractDataboxTestCase
         $this->assertNull($public['assets'][0]['preview'] ?? null, 'An unselected rendition is never embedded');
 
         // The rendition route follows the selection too
-        $renditionUrl = fn (string $definitionId): string => sprintf('/s/%s/assets/%s/r/%s?token=%s', $data['id'], $this->asset->getId(), $definitionId, $data['token']);
+        $renditionUrl = fn (string $definitionId): string => sprintf('/s/%s/a/%s/r/%s?token=%s', $data['id'], $this->asset->getId(), $definitionId, $data['token']);
         $client->request('GET', $renditionUrl($definitions['thumbnail']->getId()));
         $this->assertResponseStatusCodeSame(302);
         $client->request('GET', $renditionUrl($definitions['preview']->getId()));
@@ -179,7 +179,7 @@ final class ShareApiTest extends AbstractDataboxTestCase
 
         $public = $client->request('GET', sprintf('/shares/%s/public?token=%s', $data['id'], $data['token']))->toArray();
         $this->assertSame([], $public['alternateUrls'], 'The link delivers nothing rather than every rendition');
-        $client->request('GET', sprintf('/s/%s/assets/%s/r/%s?token=%s', $data['id'], $this->asset->getId(), $definitions['preview']->getId(), $data['token']));
+        $client->request('GET', sprintf('/s/%s/a/%s/r/%s?token=%s', $data['id'], $this->asset->getId(), $definitions['preview']->getId(), $data['token']));
         $this->assertResponseStatusCodeSame(404);
     }
 

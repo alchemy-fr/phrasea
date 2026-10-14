@@ -50,7 +50,7 @@ use Symfony\Component\String\ByteString;
             provider: ShareReadProvider::class,
         ),
         new Get(
-            uriTemplate: '/s/{id}/assets/{asset}/r/{rendition}',
+            uriTemplate: '/s/{id}/a/{asset}/r/{rendition}',
             uriVariables: [
                 'id' => 'id',
                 'asset' => 'asset',

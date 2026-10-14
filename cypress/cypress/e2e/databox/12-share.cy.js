@@ -93,7 +93,7 @@ describe('Share', () => {
             cy.getBySel('share-link')
                 .find('a')
                 .invoke('attr', 'href')
-                .should('match', /\/s\/[^/]+\/assets\/[^/]+\/r\/[^/?]+\?.*token=/);
+                .should('match', /\/s\/[^/]+\/a\/[^/]+\/r\/[^/?]+\?.*token=/);
             cy.getBySel('share-link-choice').click();
         });
         menuItems().contains('Asset page').click();
