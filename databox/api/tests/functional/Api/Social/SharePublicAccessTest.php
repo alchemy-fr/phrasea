@@ -15,7 +15,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Anonymous access through a share link: `GET /shares/{id}/public`,
- * `GET /s/{id}/r/{renditionDefinition}` and `GET /s/{id}/a/{attachment}`.
+ * `GET /s/{id}/a/{asset}/r/{renditionDefinition}` and `GET /s/{id}/a/{attachment}`.
  *
  * The token (query param, no Bearer needed) grants READ only while the share
  * is enabled and inside its [startsAt, expiresAt] window. The download routes
@@ -128,7 +128,7 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         $client->request('GET', self::publicUri($share, $share->getToken()));
         $this->assertResponseStatusCodeSame(401);
 
-        $client->request('GET', sprintf('/s/%s/r/%s?token=%s', $share->getId(), $this->createPublicRendition()->getId(), $share->getToken()));
+        $client->request('GET', sprintf('/s/%s/a/%s/r/%s?token=%s', $share->getId(), $this->asset->getId(), $this->createPublicRendition()->getId(), $share->getToken()));
         $this->assertResponseStatusCodeSame(404);
 
         // The owner still manages it
@@ -151,7 +151,7 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         $this->assertArrayNotHasKey('hd', $urls, 'A rendition of a non-public policy is not shared');
         $this->assertSame($public->getId(), $urls['web']['definitionId']);
         $this->assertSame($this->asset->getId(), $urls['web']['assetId']);
-        $this->assertStringContainsString(sprintf('/s/%s/r/%s', $share->getId(), $public->getId()), $urls['web']['url']);
+        $this->assertStringContainsString(sprintf('/s/%s/a/%s/r/%s', $share->getId(), $this->asset->getId(), $public->getId()), $urls['web']['url']);
         $this->assertStringContainsString('token='.$share->getToken(), $urls['web']['url']);
         $this->assertNotSame($restricted->getId(), $urls['web']['definitionId']);
     }
@@ -182,11 +182,7 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         $definition = $this->createPublicRendition();
         $share = $this->createShare(self::USER, [$this->asset]);
 
-        $client->request('GET', sprintf('/s/%s/r/%s?token=%s&asset=%s', $share->getId(), $definition->getId(), $share->getToken(), $this->asset->getId()));
-        $this->assertResponseRedirects(self::PREVIEW_URL);
-
-        // Without "asset", the first asset of the share is served
-        $client->request('GET', sprintf('/s/%s/r/%s?token=%s', $share->getId(), $definition->getId(), $share->getToken()));
+        $client->request('GET', sprintf('/s/%s/a/%s/r/%s?token=%s', $share->getId(), $this->asset->getId(), $definition->getId(), $share->getToken()));
         $this->assertResponseRedirects(self::PREVIEW_URL);
     }
 
@@ -202,7 +198,7 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         $this->createRendition($second, $definition, $this->createUrlFile($this->workspace, 'https://cdn.phrasea.test/second.jpg'));
         $share = $this->createShare(self::USER, [$this->asset, $second]);
 
-        $client->request('GET', sprintf('/s/%s/r/%s?token=%s&asset=%s', $share->getId(), $definition->getId(), $share->getToken(), $second->getId()));
+        $client->request('GET', sprintf('/s/%s/a/%s/r/%s?token=%s', $share->getId(), $second->getId(), $definition->getId(), $share->getToken()));
         $this->assertResponseRedirects('https://cdn.phrasea.test/second.jpg');
     }
 
@@ -213,13 +209,13 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         $definition = $this->createPublicRendition();
         $share = $this->createShare(self::USER, [$this->asset]);
 
-        $client->request('GET', sprintf('/s/%s/r/%s', $share->getId(), $definition->getId()));
+        $client->request('GET', sprintf('/s/%s/a/%s/r/%s', $share->getId(), $this->asset->getId(), $definition->getId()));
         $this->assertResponseStatusCodeSame(404);
 
-        $client->request('GET', sprintf('/s/%s/r/%s?token=invalid', $share->getId(), $definition->getId()));
+        $client->request('GET', sprintf('/s/%s/a/%s/r/%s?token=invalid', $share->getId(), $this->asset->getId(), $definition->getId()));
         $this->assertResponseStatusCodeSame(404);
 
-        $client->request('GET', sprintf('/s/%s/r/%s?token=%s', '1a2b3c4d-0000-4000-8000-000000000000', $definition->getId(), $share->getToken()));
+        $client->request('GET', sprintf('/s/%s/a/%s/r/%s?token=%s', '1a2b3c4d-0000-4000-8000-000000000000', $this->asset->getId(), $definition->getId(), $share->getToken()));
         $this->assertResponseStatusCodeSame(404);
     }
 
@@ -235,7 +231,7 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         $this->createRendition($outside, $definition, $this->createUrlFile($this->workspace, 'https://cdn.phrasea.test/outside.jpg'));
         $share = $this->createShare(self::USER, [$this->asset]);
 
-        $client->request('GET', sprintf('/s/%s/r/%s?token=%s&asset=%s', $share->getId(), $definition->getId(), $share->getToken(), $outside->getId()));
+        $client->request('GET', sprintf('/s/%s/a/%s/r/%s?token=%s', $share->getId(), $outside->getId(), $definition->getId(), $share->getToken()));
         $this->assertResponseStatusCodeSame(404);
     }
 
@@ -247,10 +243,10 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         // Defined in the workspace, but never generated for the asset
         $definition = $this->createRenditionDefinition($this->workspace, 'thumb', true);
 
-        $client->request('GET', sprintf('/s/%s/r/%s?token=%s', $share->getId(), $definition->getId(), $share->getToken()));
+        $client->request('GET', sprintf('/s/%s/a/%s/r/%s?token=%s', $share->getId(), $this->asset->getId(), $definition->getId(), $share->getToken()));
         $this->assertResponseStatusCodeSame(404);
 
-        $client->request('GET', sprintf('/s/%s/r/%s?token=%s', $share->getId(), '1a2b3c4d-0000-4000-8000-000000000000', $share->getToken()));
+        $client->request('GET', sprintf('/s/%s/a/%s/r/%s?token=%s', $share->getId(), $this->asset->getId(), '1a2b3c4d-0000-4000-8000-000000000000', $share->getToken()));
         $this->assertResponseStatusCodeSame(404);
     }
 
@@ -261,7 +257,7 @@ final class SharePublicAccessTest extends AbstractDataboxTestCase
         $restricted = $this->createRestrictedRendition();
         $share = $this->createShare(self::USER, [$this->asset]);
 
-        $client->request('GET', sprintf('/s/%s/r/%s?token=%s', $share->getId(), $restricted->getId(), $share->getToken()));
+        $client->request('GET', sprintf('/s/%s/a/%s/r/%s?token=%s', $share->getId(), $this->asset->getId(), $restricted->getId(), $share->getToken()));
         $this->assertResponseStatusCodeSame(404);
     }
 

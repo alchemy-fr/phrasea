@@ -62,6 +62,7 @@ class AssetOutput extends AbstractUuidOutput
         Asset::GROUP_LIST,
         Asset::GROUP_STORY,
         WebhookSerializationInterface::DEFAULT_GROUP,
+        Share::GROUP_READ,
         Share::GROUP_PUBLIC_READ,
         ResolveEntitiesOutput::GROUP_READ,
     ])]
@@ -105,6 +106,7 @@ class AssetOutput extends AbstractUuidOutput
      */
     #[Groups([
         Asset::GROUP_LIST,
+        Share::GROUP_READ,
         Share::GROUP_PUBLIC_READ,
     ])]
     private ?File $source = null;
@@ -124,7 +126,7 @@ class AssetOutput extends AbstractUuidOutput
     /**
      * @var AssetRenditionOutput|null
      */
-    #[Groups([Asset::GROUP_LIST, Share::GROUP_PUBLIC_READ])]
+    #[Groups([Asset::GROUP_LIST, Share::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     private ?AssetRendition $thumbnail = null;
 
     #[Groups([Asset::GROUP_LIST])]

@@ -14,6 +14,7 @@ use App\Entity\Core\Share;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
@@ -55,6 +56,16 @@ final class ShareCrudController extends AbstractAdminCrudController
         yield TextField::new('name');
         yield AssociationField::new('assets')
             ->autocomplete();
+        // Through the adder and remover, which maintain renditionsRestricted
+        yield AssociationField::new('renditionDefinitions', 'Shared renditions')
+            ->setFormTypeOption('by_reference', false)
+            ->setHelp('Empty: every rendition of a public policy')
+            ->hideOnIndex();
+        yield BooleanField::new('renditionsRestricted', 'Restricted renditions')
+            ->setHelp('Only the shared renditions are delivered, none if they were all deleted')
+            ->renderAsSwitch(false)
+            ->hideOnForm()
+            ->hideOnIndex();
         yield CodeField::new('token');
         yield $this->userChoiceField->create('ownerId', 'Owner');
         yield DateTimeField::new('startsAt');

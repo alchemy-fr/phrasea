@@ -22,7 +22,7 @@ class AssetRenditionOutput extends AbstractUuidOutput
     #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ])]
     public $definition;
 
-    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_PUBLIC_READ])]
+    #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ, Asset::GROUP_LIST, Asset::GROUP_READ, Share::GROUP_READ, Share::GROUP_PUBLIC_READ])]
     public $file;
 
     #[Groups([AssetRendition::GROUP_LIST, AssetRendition::GROUP_READ, Share::GROUP_PUBLIC_READ])]

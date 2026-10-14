@@ -743,6 +743,13 @@ export interface Share extends Entity {
     name?: string;
     /** Every shared asset belongs to the same workspace */
     assets: Asset[];
+    /**
+     * The rendition definitions the link delivers when `renditionsRestricted`,
+     * otherwise every rendition of a public policy.
+     */
+    renditionDefinitions?: Pick<RenditionDefinition, 'id'>[];
+    /** Restricted to `renditionDefinitions`, none if they were all deleted */
+    renditionsRestricted?: boolean;
     token: string;
     startsAt?: string | null;
     expiresAt?: string | null;

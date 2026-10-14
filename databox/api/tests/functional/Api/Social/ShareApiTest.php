@@ -7,6 +7,7 @@ namespace App\Tests\Functional\Api\Social;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Asset;
+use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Share;
 use App\Entity\Core\Workspace;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
@@ -84,6 +85,155 @@ final class ShareApiTest extends AbstractDataboxTestCase
 
         $share = self::getEntityManager()->find(Share::class, $data['id']);
         $this->assertSame(self::USER, $share->getOwnerId(), 'The share belongs to its creator');
+    }
+
+    public function testShareNarrowsDownTheDeliveredRenditions(): void
+    {
+        $client = static::createClient();
+        $this->setUpWorkspace();
+        $file = $this->createUrlFile($this->workspace, 'https://example.org/foo.jpg');
+        $definitions = [];
+        foreach (['preview', 'thumbnail', 'original'] as $name) {
+            $definitions[$name] = $this->createRenditionDefinition($this->workspace, $name, 'original' !== $name);
+            $this->createRendition($this->asset, $definitions[$name], $file);
+        }
+        $definitions['thumbnail']->setUseAsThumbnail(true);
+        $definitions['preview']->setUseAsPreview(true);
+        self::getEntityManager()->flush();
+
+        // Without a selection: every rendition of a public policy
+        $data = $client->request('POST', '/shares', self::auth(self::USER, [
+            'json' => ['assets' => [self::assetIri($this->asset)]],
+        ]))->toArray();
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame([], $data['renditionDefinitions']);
+        $this->assertFalse($data['renditionsRestricted']);
+        $this->assertEqualsCanonicalizing(['preview', 'thumbnail'], array_column($data['alternateUrls'], 'name'));
+
+        $response = $client->request('POST', '/shares', self::auth(self::USER, [
+            'json' => [
+                'assets' => [self::assetIri($this->asset)],
+                'renditionDefinitions' => ['/rendition-definitions/'.$definitions['thumbnail']->getId()],
+            ],
+        ]));
+        $this->assertResponseStatusCodeSame(201);
+        $data = $response->toArray();
+        $this->assertCount(1, $data['renditionDefinitions']);
+        $this->assertTrue($data['renditionsRestricted']);
+        $this->assertSame(['thumbnail'], array_column($data['alternateUrls'], 'name'));
+        // The sharer manages the assets of the link from their thumbnails
+        $this->assertNotNull($data['assets'][0]['thumbnail']['file']['url'] ?? null, 'The thumbnail of a shared asset is listed');
+
+        $public = $client->request('GET', sprintf('/shares/%s/public?token=%s', $data['id'], $data['token']))->toArray();
+        $this->assertSame(['thumbnail'], array_column($public['alternateUrls'], 'name'));
+        // The renditions embedded in the shared assets follow the selection too
+        $this->assertNotNull($public['assets'][0]['thumbnail']['file']['url'] ?? null);
+        $this->assertNull($public['assets'][0]['preview'] ?? null, 'An unselected rendition is never embedded');
+
+        // The rendition route follows the selection too
+        $renditionUrl = fn (string $definitionId): string => sprintf('/s/%s/a/%s/r/%s?token=%s', $data['id'], $this->asset->getId(), $definitionId, $data['token']);
+        $client->request('GET', $renditionUrl($definitions['thumbnail']->getId()));
+        $this->assertResponseStatusCodeSame(302);
+        $client->request('GET', $renditionUrl($definitions['preview']->getId()));
+        $this->assertResponseStatusCodeSame(404);
+
+        // The selection can be changed afterwards
+        $response = $client->request('PATCH', '/shares/'.$data['id'], self::patchOptions(self::USER, [
+            'json' => ['renditionDefinitions' => ['/rendition-definitions/'.$definitions['preview']->getId()]],
+        ]));
+        $this->assertResponseIsSuccessful();
+        $this->assertSame(['preview'], array_column($response->toArray()['alternateUrls'], 'name'));
+
+        // ...and cleared: every rendition of a public policy again
+        $response = $client->request('PATCH', '/shares/'.$data['id'], self::patchOptions(self::USER, [
+            'json' => ['renditionDefinitions' => []],
+        ]));
+        $this->assertResponseIsSuccessful();
+        $this->assertFalse($response->toArray()['renditionsRestricted']);
+        $this->assertEqualsCanonicalizing(['preview', 'thumbnail'], array_column($response->toArray()['alternateUrls'], 'name'));
+    }
+
+    public function testDeletedSelectedRenditionsNeverWidenTheShare(): void
+    {
+        $client = static::createClient();
+        $this->setUpWorkspace();
+        $file = $this->createUrlFile($this->workspace, 'https://example.org/foo.jpg');
+        $definitions = [];
+        foreach (['preview', 'thumbnail'] as $name) {
+            $definitions[$name] = $this->createRenditionDefinition($this->workspace, $name, true);
+            $this->createRendition($this->asset, $definitions[$name], $file);
+        }
+
+        $data = $client->request('POST', '/shares', self::auth(self::USER, [
+            'json' => [
+                'assets' => [self::assetIri($this->asset)],
+                'renditionDefinitions' => ['/rendition-definitions/'.$definitions['thumbnail']->getId()],
+            ],
+        ]))->toArray();
+        $this->assertResponseStatusCodeSame(201);
+
+        // What the ON DELETE CASCADE of a deleted rendition definition leaves
+        $em = self::getEntityManager();
+        $em->getConnection()->executeStatement('DELETE FROM share_rendition_definition WHERE share_id = ?', [$data['id']]);
+        $em->clear();
+
+        $public = $client->request('GET', sprintf('/shares/%s/public?token=%s', $data['id'], $data['token']))->toArray();
+        $this->assertSame([], $public['alternateUrls'], 'The link delivers nothing rather than every rendition');
+        $client->request('GET', sprintf('/s/%s/a/%s/r/%s?token=%s', $data['id'], $this->asset->getId(), $definitions['preview']->getId(), $data['token']));
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testSelectedRenditionsMustBeShareable(): void
+    {
+        $client = static::createClient();
+        $this->setUpWorkspace();
+        $restricted = $this->createRenditionDefinition($this->workspace, 'original', false);
+
+        $response = $client->request('POST', '/shares', self::auth(self::USER, [
+            'json' => [
+                'assets' => [self::assetIri($this->asset)],
+                'renditionDefinitions' => ['/rendition-definitions/'.$restricted->getId()],
+            ],
+        ]));
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertStringContainsString('policy is not public', $response->getContent(false));
+
+        $otherWorkspace = $this->createNamedWorkspace(self::USER, 'share-ws2');
+        $foreign = $this->createRenditionDefinition($otherWorkspace, 'preview', true);
+
+        $response = $client->request('POST', '/shares', self::auth(self::USER, [
+            'json' => [
+                'assets' => [self::assetIri($this->asset)],
+                'renditionDefinitions' => ['/rendition-definitions/'.$foreign->getId()],
+            ],
+        ]));
+        $this->assertResponseStatusCodeSame(400);
+        $this->assertStringContainsString('workspace', $response->getContent(false));
+        $this->assertSame(0, self::getEntityManager()->getRepository(Share::class)->count([]));
+    }
+
+    public function testShareStaysEditableOnceASelectedPolicyTurnsPrivate(): void
+    {
+        $client = static::createClient();
+        $this->setUpWorkspace();
+        $definition = $this->createRenditionDefinition($this->workspace, 'preview', true);
+
+        $data = $client->request('POST', '/shares', self::auth(self::USER, [
+            'json' => [
+                'assets' => [self::assetIri($this->asset)],
+                'renditionDefinitions' => ['/rendition-definitions/'.$definition->getId()],
+            ],
+        ]))->toArray();
+        $this->assertResponseStatusCodeSame(201);
+
+        $em = self::getEntityManager();
+        $em->find(RenditionDefinition::class, $definition->getId())->getPolicy()->setPublic(false);
+        $em->flush();
+
+        $client->request('PATCH', '/shares/'.$data['id'], self::patchOptions(self::USER, [
+            'json' => ['name' => 'renamed'],
+        ]));
+        $this->assertResponseIsSuccessful();
     }
 
     public function testTokensAreUniquePerShare(): void
@@ -233,6 +383,26 @@ final class ShareApiTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(401);
         $client->request('DELETE', '/shares/'.$share->getId().'?token='.$share->getToken());
         $this->assertResponseStatusCodeSame(401);
+    }
+
+    public function testShareNeverExposesTheSourceUrl(): void
+    {
+        $client = static::createClient();
+        $this->setUpWorkspace();
+        $this->asset->setSource($this->createUrlFile($this->workspace, 'https://example.org/original.jpg'));
+        self::getEntityManager()->flush();
+        $share = $this->createShare(self::USER, [$this->asset]);
+
+        foreach ([
+            ['/shares/'.$share->getId().'?token='.$share->getToken(), []],
+            ['/shares/'.$share->getId(), self::auth(self::USER)],
+        ] as [$url, $options]) {
+            $response = $client->request('GET', $url, $options);
+            $this->assertResponseIsSuccessful();
+            $source = $response->toArray()['assets'][0]['source'];
+            $this->assertSame('image/jpeg', $source['type'], 'The file description is kept');
+            $this->assertNull($source['url'] ?? null, 'The original is never delivered by a share');
+        }
     }
 
     public function testGetUnknownShare(): void

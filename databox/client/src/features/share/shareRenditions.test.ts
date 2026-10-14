@@ -28,7 +28,7 @@ describe('getShareRenditions', () => {
                         id: 'r1',
                         name: 'preview',
                         displayName: 'Aperçu',
-                        url: 'https://api/s/1/r/d1',
+                        url: 'https://api/s/1/a/a1/r/d1',
                         type: 'image/jpeg',
                         size: 10,
                         assetId: 'a1',
@@ -36,7 +36,7 @@ describe('getShareRenditions', () => {
                     {
                         id: 'r2',
                         name: 'original',
-                        url: 'https://api/s/1/r/d2',
+                        url: 'https://api/s/1/a/a1/r/d2',
                         type: 'image/jpeg',
                         size: 10,
                         assetId: 'a1',
@@ -44,7 +44,7 @@ describe('getShareRenditions', () => {
                     {
                         id: 'r3',
                         name: 'preview',
-                        url: 'https://api/s/1/r/d1?asset=a2',
+                        url: 'https://api/s/1/a/a2/r/d1',
                         type: 'image/jpeg',
                         assetId: 'a2',
                     },
