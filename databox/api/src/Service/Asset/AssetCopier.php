@@ -101,7 +101,8 @@ class AssetCopier
 
         if ($sameWorkspace) {
             foreach ($asset->getRenditions() as $rendition) {
-                if (in_array($rendition->getId(), $allowedRenditions, true)) {
+                $definition = $rendition->getDefinition();
+                if (null === $definition || in_array($definition->getId(), $allowedRenditions, true)) {
                     $this->copyRendition($rendition, $copy);
                 }
             }
