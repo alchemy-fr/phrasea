@@ -21,10 +21,12 @@ final class ThreadMessageInput
     public ?string $threadId = null;
 
     #[Assert\Callback]
-    public function validateThreadKeyOrThreadId(): void
+    public function validateThreadKeyOrThreadId(ExecutionContextInterface $context): void
     {
         if (null === $this->threadKey && null === $this->threadId) {
-            throw new \InvalidArgumentException('You must provide either a "threadKey" or a "threadId"');
+            $context->buildViolation('You must provide either a "threadKey" or a "threadId".')
+                ->atPath('threadKey')
+                ->addViolation();
         }
     }
 
