@@ -1,0 +1,4 @@
+alchemy_auth:
+    role_mapping:
+        # Keycloak realm role (created by the configurator, granted to databox admins) => Symfony role
+        edit_faces: ROLE_EDIT_FACES

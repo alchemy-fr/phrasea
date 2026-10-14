@@ -26,6 +26,15 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         return 'keycloak';
     }
 
+    /**
+     * Roles specific to an application, granted to its admins and assignable to other users.
+     */
+    private const array APP_ROLES = [
+        'databox' => [
+            KeycloakInterface::ROLE_DATABOX_EDIT_FACES => 'Name the faces detected in Databox assets',
+        ],
+    ];
+
     public function configure(OutputInterface $output, array $presets): void
     {
         $keycloakUrl = EnvHelper::getEnv('KEYCLOAK_INTERNAL_URL') ?: EnvHelper::getEnvOrThrow('KEYCLOAK_URL');
@@ -58,6 +67,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
                 'description' => sprintf('Admin access for %s', ucwords($app)),
                 'roles' => [
                     $app => $defaultRoles[$app],
+                    ...array_map(fn (string $description): array => ['description' => $description], self::APP_ROLES[$app] ?? []),
                 ],
             ];
         }

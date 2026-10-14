@@ -18,6 +18,7 @@ import {
     LanguagesIcon,
     ListChecksIcon,
     PlugIcon,
+    ScanFaceIcon,
     UserRoundCogIcon,
     UndoIcon,
     WorkflowIcon,
@@ -98,6 +99,7 @@ export function TopBar({
     const {openModal} = useModals();
     const openSwitchUser = useSwitchUserShortcut();
     const isAdmin = hasRole(AppRole.DataboxAdmin) || hasRole(AppRole.Admin);
+    const canEditFaces = isAdmin || hasRole(AppRole.EditFaces);
 
     const changeLanguage = (lng: string) => {
         void i18n.changeLanguage(lng);
@@ -273,6 +275,17 @@ export function TopBar({
                             </DropdownMenuItem>
                         </DropdownMenuSubContent>
                     </DropdownMenuSub>
+                    {canEditFaces ? (
+                        <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                data-testid="settings-faces"
+                                onSelect={() => router.push(routes.faces())}
+                            >
+                                <ScanFaceIcon /> {t('settings.faces', 'Faces')}
+                            </DropdownMenuItem>
+                        </>
+                    ) : null}
                     {isAdmin ? (
                         <>
                             <DropdownMenuSeparator />

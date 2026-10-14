@@ -41,7 +41,10 @@ class KeycloakClientTestMock implements HttpClientInterface
         ],
     ];
 
-    public static function getJwtFor(string $userId): string
+    /**
+     * @param string[] $extraRoles realm roles granted on top of the user's ones (e.g. an application role)
+     */
+    public static function getJwtFor(string $userId, array $extraRoles = []): string
     {
         $configuration = Configuration::forAsymmetricSigner(
             new Sha256(),
@@ -61,7 +64,7 @@ class KeycloakClientTestMock implements HttpClientInterface
             ->relatedTo($userId)
             ->withClaim('azp', 'test')
             ->withClaim('preferred_username', self::USERS[$userId]['username'])
-            ->withClaim('roles', self::USERS[$userId]['roles'] ?? [])
+            ->withClaim('roles', array_values(array_unique([...(self::USERS[$userId]['roles'] ?? []), ...$extraRoles])))
             ->withClaim('groups', self::USERS[$userId]['groups'] ?? [])
             ->withClaim('resource_access', self::USERS[$userId]['resource_access'] ?? [])
             ->getToken(new Sha256(), InMemory::file(__DIR__.'/key.pem'));

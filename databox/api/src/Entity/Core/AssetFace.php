@@ -7,7 +7,19 @@ namespace App\Entity\Core;
 use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Model\Input\AssetFaceInput;
+use App\Api\Model\Output\AssetFaceOutput;
+use App\Api\Processor\AssetFaceIdentifyProcessor;
+use App\Api\Provider\AssetFaceCollectionProvider;
+use App\Api\Provider\AssetFaceIdentityProvider;
 use App\Repository\Core\AssetFaceRepository;
+use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\AssetFaceVoter;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -15,6 +27,95 @@ use Doctrine\ORM\Mapping as ORM;
  * A face detected in an asset image by the face recognition integration.
  * Holds the bounding box, the recognition embedding and, once known, the identity of the person.
  */
+#[ApiResource(
+    shortName: 'asset-face',
+    operations: [
+        new GetCollection(
+            uriTemplate: '/asset-faces/identities',
+            name: 'identities',
+            description: 'The persons named in the workspaces, with their number of faces, and the number of unnamed faces',
+            security: 'is_granted("'.AssetFaceVoter::EDIT_FACES.'")',
+            provider: AssetFaceIdentityProvider::class,
+            parameters: [
+                'workspace' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Workspace ID or IRI (every readable workspace without it)',
+                ),
+                'workspace[]' => new QueryParameter(property: 'workspace', openApi: false),
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Text the names must contain',
+                    castToArray: false,
+                ),
+            ],
+        ),
+        new GetCollection(
+            security: 'is_granted("'.AssetFaceVoter::EDIT_FACES.'")',
+            provider: AssetFaceCollectionProvider::class,
+            parameters: [
+                'workspace' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Workspace ID or IRI (every readable workspace without it)',
+                ),
+                'workspace[]' => new QueryParameter(property: 'workspace', openApi: false),
+                'asset' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Asset ID or IRI',
+                    castToArray: false,
+                ),
+                'identity' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Faces of this person (exact name)',
+                    castToArray: false,
+                ),
+                'identified' => new QueryParameter(
+                    schema: ['type' => 'boolean'],
+                    description: 'Named (true) or unnamed (false) faces only',
+                    castToArray: false,
+                ),
+                'origin' => new QueryParameter(
+                    schema: ['type' => 'string', 'enum' => [AssetFace::IDENTITY_ORIGIN_USER, AssetFace::IDENTITY_ORIGIN_AUTO]],
+                    description: 'Faces named by a user, or recognized automatically',
+                    castToArray: false,
+                ),
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Text the name must contain',
+                    castToArray: false,
+                ),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (max 100)',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
+                ),
+            ],
+        ),
+        new Get(
+            security: 'is_granted("'.AbstractVoter::READ.'", object)',
+        ),
+        new Post(
+            uriTemplate: '/asset-faces/{id}/identity',
+            status: 200,
+            description: 'Names the face (or removes its name with a null identity); the name is applied to the similar faces of the workspace when the integration propagates identities',
+            // "object" is the input DTO here: the EDIT check on the face itself is done by the processor
+            security: 'is_granted("'.AssetFaceVoter::EDIT_FACES.'")',
+            input: AssetFaceInput::class,
+            name: 'identify',
+            processor: AssetFaceIdentifyProcessor::class,
+            throwOnNotFound: true,
+        ),
+    ],
+    normalizationContext: ['groups' => [
+        '_',
+        AssetFace::GROUP_LIST,
+        Asset::GROUP_LIST,
+    ]],
+    output: AssetFaceOutput::class,
+)]
 #[ORM\Table(name: 'asset_face')]
 #[ORM\Index(name: 'idx_asset_face_asset', columns: ['asset_id'])]
 #[ORM\Index(name: 'idx_asset_face_identity', columns: ['identity_name'])]
@@ -23,6 +124,8 @@ class AssetFace extends AbstractUuidEntity
 {
     use CreatedAtTrait;
     use UpdatedAtTrait;
+
+    final public const string GROUP_LIST = 'asset-face:i';
 
     /**
      * Identity set by a user: used as reference for recognizing other faces.

@@ -27,6 +27,8 @@ export const routes = {
     attributesEditor: () => '/attributes/editor',
     quarantine: (assetId?: string) =>
         assetId ? `/quarantine?asset=${assetId}` : '/quarantine',
+    /** Faces detected by the face recognition, to name (face editors) */
+    faces: () => '/faces',
     operationTasks: () => '/admin/tasks',
     operationTaskNew: () => '/admin/tasks/new',
     operationTaskRun: (task: string) => `/admin/tasks/${task}/run`,

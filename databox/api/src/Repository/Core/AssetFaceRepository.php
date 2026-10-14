@@ -86,12 +86,64 @@ class AssetFaceRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    private function createWorkspaceQueryBuilder(string $workspaceId): QueryBuilder
+    /**
+     * The persons named in the workspaces: each identity with its number of faces,
+     * and how many of them were named by a user (the others were recognized).
+     *
+     * @param string[] $workspaceIds
+     *
+     * @return list<array{identity: string, faces: int, userFaces: int}>
+     */
+    public function getIdentities(array $workspaceIds, ?string $query = null): array
+    {
+        $qb = $this->createWorkspacesQueryBuilder($workspaceIds)
+            ->select('f.identity AS identity', 'COUNT(f.id) AS faces', 'SUM(CASE WHEN f.identityOrigin = :userOrigin THEN 1 ELSE 0 END) AS userFaces')
+            ->andWhere('f.identity IS NOT NULL')
+            ->setParameter('userOrigin', AssetFace::IDENTITY_ORIGIN_USER)
+            ->groupBy('f.identity')
+            ->orderBy('f.identity', 'ASC');
+
+        if (null !== $query) {
+            $qb
+                ->andWhere('LOWER(f.identity) LIKE :query')
+                ->setParameter('query', '%'.mb_strtolower($query).'%');
+        }
+
+        return array_map(static fn (array $row): array => [
+            'identity' => (string) $row['identity'],
+            'faces' => (int) $row['faces'],
+            'userFaces' => (int) $row['userFaces'],
+        ], $qb->getQuery()->getArrayResult());
+    }
+
+    /**
+     * @param string[] $workspaceIds
+     */
+    public function countUnnamed(array $workspaceIds): int
+    {
+        return (int) $this->createWorkspacesQueryBuilder($workspaceIds)
+            ->select('COUNT(f.id)')
+            ->andWhere('f.identity IS NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * Faces of the live assets of the given workspaces (aliases: "f" for the face, "a" for its asset).
+     *
+     * @param string[] $workspaceIds
+     */
+    public function createWorkspacesQueryBuilder(array $workspaceIds): QueryBuilder
     {
         return $this->createQueryBuilder('f')
             ->innerJoin('f.asset', 'a')
-            ->andWhere('a.workspace = :workspace')
+            ->andWhere('a.workspace IN (:workspaces)')
             ->andWhere('a.deletedAt IS NULL')
-            ->setParameter('workspace', $workspaceId);
+            ->setParameter('workspaces', $workspaceIds);
+    }
+
+    private function createWorkspaceQueryBuilder(string $workspaceId): QueryBuilder
+    {
+        return $this->createWorkspacesQueryBuilder([$workspaceId]);
     }
 }

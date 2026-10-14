@@ -63,6 +63,8 @@ export enum AppRole {
     Admin = 'admin',
     DataboxAdmin = 'databox-admin',
     Tech = 'tech',
+    /** May list and name the faces detected by the face recognition */
+    EditFaces = 'edit_faces',
 }
 
 export function AuthProvider({children}: PropsWithChildren) {

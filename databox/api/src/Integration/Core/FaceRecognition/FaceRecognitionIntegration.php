@@ -14,7 +14,6 @@ use App\Integration\AbstractIntegration;
 use App\Integration\Action\UserActionsTrait;
 use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\Core\FaceRecognition\Message\FaceRecognitionAnalyze;
-use App\Integration\Core\FaceRecognition\Message\FaceRecognitionPropagate;
 use App\Integration\Core\Rendition\RenditionIntegration;
 use App\Integration\FilterNeedIntegrationInterface;
 use App\Integration\IntegrationCategory;
@@ -58,7 +57,7 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
     public function __construct(
         private readonly MessageBusInterface $bus,
         private readonly RenditionManager $renditionManager,
-        private readonly FaceRecognitionAnalyzer $analyzer,
+        private readonly FaceIdentifier $identifier,
     ) {
     }
 
@@ -180,11 +179,7 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
         $asset = $this->getAsset($face->getAsset()->getId(), $config);
 
         $identity = $request->request->get('identity');
-        $summary = $this->analyzer->identify($face, null !== $identity ? (string) $identity : null, $config);
-
-        if ($config['autoPropagate']) {
-            $this->bus->dispatch(new FaceRecognitionPropagate($face->getId(), $config->getIntegrationId()));
-        }
+        $summary = $this->identifier->identify($face, null !== $identity ? (string) $identity : null, $config);
 
         return new JsonResponse([
             'asset' => $asset->getId(),
