@@ -2,6 +2,7 @@ import {Fragment, ReactNode, useMemo} from 'react';
 import {truncate} from '@/lib/utils/format';
 import {BlockNode, InlineNode, parseMessage} from './messageMarkup';
 import {mentionChipClass, messageContentClass} from './messageStyles';
+import {useMentionLabel} from './mentionUser';
 
 /**
  * Renders a discussion message (see `messageMarkup` for the format): mentions
@@ -57,6 +58,25 @@ function renderBlock(block: BlockNode, currentUserId?: string): ReactNode {
     }
 }
 
+/** Mention pill, labelled with the user's display name once known. */
+function Mention({
+    id,
+    username,
+    current,
+}: {
+    id: string;
+    username: string;
+    current: boolean;
+}) {
+    const label = useMentionLabel(id, username);
+
+    return (
+        <span data-mention={username} className={mentionChipClass(current)}>
+            {label}
+        </span>
+    );
+}
+
 function renderInline(nodes: InlineNode[], currentUserId?: string): ReactNode {
     return nodes.map((n, i) => {
         switch (n.type) {
@@ -66,15 +86,12 @@ function renderInline(nodes: InlineNode[], currentUserId?: string): ReactNode {
                 return <br key={i} />;
             case 'mention':
                 return (
-                    <span
+                    <Mention
                         key={i}
-                        data-mention={n.username}
-                        className={mentionChipClass(
-                            !!currentUserId && n.id === currentUserId
-                        )}
-                    >
-                        @{n.username}
-                    </span>
+                        id={n.id}
+                        username={n.username}
+                        current={!!currentUserId && n.id === currentUserId}
+                    />
                 );
             case 'link':
                 return (

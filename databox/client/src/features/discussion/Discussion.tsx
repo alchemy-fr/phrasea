@@ -36,6 +36,7 @@ import {cn} from '@/lib/utils/cn';
 import {useUnsavedChangesPrompt} from '@/lib/navigation/unsavedChanges';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {FormattedMessage} from './FormattedMessage';
+import {rememberUsers} from './mentionUser';
 import {MessageComposer, MessageComposerHandle} from './MessageComposer';
 import {PostedAttachments} from './MessageAttachments';
 import type {FileAttachment, FileAttachmentInput} from './messageAttachments';
@@ -82,6 +83,11 @@ export function Discussion({
         enabled: !!threadId,
     });
     const items = messages.data?.pages.flatMap(p => p.items) ?? [];
+    useEffect(() => {
+        rememberUsers(
+            messages.data?.pages.flatMap(p => p.items.map(m => m.author)) ?? []
+        );
+    }, [messages.data]);
 
     // A message being written (or edited) must not be lost when leaving
     useUnsavedChangesPrompt(

@@ -1,6 +1,7 @@
 'use client';
 
 import {getUserDisplayName} from '@/lib/users';
+import {mentionText, rememberUsers} from './mentionUser';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {useQuery} from '@tanstack/react-query';
@@ -130,6 +131,7 @@ export function useMentionSuggestions(editor: Editor | null) {
         if (!editor || !mention) {
             return;
         }
+        rememberUsers([user]);
         editor
             .chain()
             .focus()
@@ -208,11 +210,11 @@ export function useMentionSuggestions(editor: Editor | null) {
                               }}
                               onMouseEnter={() => setActive(i)}
                           >
-                              @{u.username}
+                              {mentionText(u, u.username)}
                               {getUserDisplayName(u) !== u.username ? (
                                   <span className="text-muted-foreground">
                                       {' '}
-                                      · {getUserDisplayName(u)}
+                                      @{u.username}
                                   </span>
                               ) : null}
                           </li>

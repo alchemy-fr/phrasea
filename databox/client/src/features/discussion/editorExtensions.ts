@@ -1,10 +1,12 @@
 import {Extension, Extensions, mergeAttributes, Node} from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import {mentionChipClass} from './messageStyles';
+import {mentionLabel} from './mentionUser';
 
 /**
  * `@user` mention, stored as `@[username](userId)` (see `messageDoc`) and
- * displayed as the same pill as in posted messages.
+ * displayed as the same pill as in posted messages, labelled with the user's
+ * display name when known (see `mentionUser`).
  */
 export const MentionNode = Node.create({
     name: 'mention',
@@ -36,12 +38,12 @@ export const MentionNode = Node.create({
         return [
             'span',
             mergeAttributes(HTMLAttributes, {class: mentionChipClass()}),
-            `@${node.attrs.username}`,
+            mentionLabel(node.attrs.id, node.attrs.username),
         ];
     },
 
     renderText({node}) {
-        return `@${node.attrs.username}`;
+        return mentionLabel(node.attrs.id, node.attrs.username);
     },
 });
 

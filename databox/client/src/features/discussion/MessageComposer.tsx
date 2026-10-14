@@ -41,6 +41,7 @@ import {useMentionSuggestions} from './MentionSuggestions';
 import {PendingAttachmentList} from './MessageAttachments';
 import {MessageKeymap, messageExtensions} from './editorExtensions';
 import {docToMarkup, markupToDoc, quoteMarkup} from './messageDoc';
+import {rememberUsers} from './mentionUser';
 import type {FileAttachmentInput} from './messageAttachments';
 import {messageContentClass} from './messageStyles';
 import {usePendingAttachments} from './usePendingAttachments';
@@ -327,6 +328,7 @@ export function MessageComposer({
             if (!editor) {
                 return;
             }
+            rememberUsers([user]);
             const chain = editor.chain().focus('end');
             if (!hasMention(editor.getJSON(), user.id)) {
                 chain.insertContent([
