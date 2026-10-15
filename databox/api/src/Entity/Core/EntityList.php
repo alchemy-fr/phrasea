@@ -229,4 +229,17 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
     {
         return $this->entities;
     }
+
+    public function addEntity(AttributeEntity $entity): void
+    {
+        $this->entities ??= new ArrayCollection();
+        if (!$this->entities->contains($entity)) {
+            $this->entities->add($entity);
+        }
+    }
+
+    public function removeEntity(AttributeEntity $entity): void
+    {
+        $this->entities?->removeElement($entity);
+    }
 }
