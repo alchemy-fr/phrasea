@@ -34,19 +34,23 @@ final readonly class WorkspaceCreator
         $renditionPolicy->setEditable(true);
         $this->em->persist($renditionPolicy);
 
-        $previousRendition = null;
         $renditionDefs = [];
-        foreach (['main', 'preview', 'thumbnail'] as $renditionName) {
+        foreach ([
+            'main' => null,
+            'preview' => 'main',
+            'thumbnail' => 'preview',
+            'animatedThumbnail' => 'preview',
+        ] as $renditionName => $parentName) {
             $rendition = new RenditionDefinition();
-            $rendition->setParent($previousRendition);
+            $rendition->setParent(null !== $parentName ? $renditionDefs[$parentName] : null);
             $renditionDefs[$renditionName] = $rendition;
-            $previousRendition = $rendition;
             $rendition->setName(ucfirst($renditionName));
             $rendition->setPolicy($renditionPolicy);
             $rendition->setWorkspace($workspace);
             $rendition->setUseAsMain('main' === $renditionName);
             $rendition->setUseAsPreview('preview' === $renditionName);
             $rendition->setUseAsThumbnail('thumbnail' === $renditionName);
+            $rendition->setUseAsAnimatedThumbnail('animatedThumbnail' === $renditionName);
             $buildFile = __DIR__.'/renditions/'.$renditionName.'.yaml';
             if (file_exists($buildFile)) {
                 $rendition->setBuildMode(RenditionDefinition::BUILD_MODE_CUSTOM);

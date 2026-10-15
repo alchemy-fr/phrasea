@@ -102,7 +102,7 @@ YAML;
         $this->assertNotContains($assetOnly->getId(), $byTarget);
 
         $byWorkspace = $this->jsonRequest('GET', '/rendition-definitions', self::EDITOR, options: ['query' => ['workspaceId' => $ws->getId()]]);
-        $this->assertSame(5, $byWorkspace->toArray()['totalItems']);
+        $this->assertSame(6, $byWorkspace->toArray()['totalItems']);
     }
 
     public function testListIsOrderedByPriority(): void
@@ -284,7 +284,7 @@ YAML;
         $this->assertSame('Preview v2', $response->toArray()['name']);
 
         $list = $this->jsonRequest('GET', '/rendition-definitions', self::EDITOR, options: ['query' => ['workspaceId' => $ws->getId()]]);
-        $this->assertSame(3, $list->toArray()['totalItems']);
+        $this->assertSame(4, $list->toArray()['totalItems']);
     }
 
     public function testPatchOnlyChangesProvidedFields(): void
@@ -385,6 +385,7 @@ YAML;
             $defaults->renditionDefinitions['thumbnail']->getId(),
             $defaults->renditionDefinitions['main']->getId(),
             $defaults->renditionDefinitions['preview']->getId(),
+            $defaults->renditionDefinitions['animatedThumbnail']->getId(),
         ];
 
         $response = $this->jsonRequest('POST', '/rendition-definitions/sort', self::EDITOR, $ids);
@@ -395,8 +396,8 @@ YAML;
         $this->assertSame($ids, $listed);
 
         $em = self::getEntityManager();
-        $this->assertSame(2, $em->find(RenditionDefinition::class, $ids[0])->getPriority());
-        $this->assertSame(0, $em->find(RenditionDefinition::class, $ids[2])->getPriority());
+        $this->assertSame(3, $em->find(RenditionDefinition::class, $ids[0])->getPriority());
+        $this->assertSame(0, $em->find(RenditionDefinition::class, $ids[3])->getPriority());
     }
 
     public function testSortOnlyAffectsTheWorkspaceOfTheLastItem(): void

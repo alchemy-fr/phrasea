@@ -1,0 +1,9 @@
+video:
+    normalization: ~
+    transformations:
+        -
+            module: video_summary
+            options:
+                format: video-mpeg4
+                period: "{{  input.duration > 60 ? input.duration/60+10 : input.duration >= 10 ? input.duration/10 : input.duration > 1 ? input.duration : input.duration }}"
+                duration: 0.3
