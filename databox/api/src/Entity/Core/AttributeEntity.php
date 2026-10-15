@@ -89,9 +89,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'list.workspace'],
 )]
-#[UniqueConstraint(name: 'list_value_uniq', fields: ['list', 'value'])]
+#[UniqueConstraint(name: 'list_value_parent_uniq', fields: ['list', 'parent', 'value'], options: ['where' => 'parent_id IS NOT NULL'])]
+#[UniqueConstraint(name: 'list_value_root_uniq', fields: ['list', 'value'], options: ['where' => 'parent_id IS NULL'])]
 #[UniqueConstraint(name: 'list_external_id_uniq', fields: ['list', 'externalId'])]
-#[UniqueEntity(fields: ['list', 'value'], message: 'This value already exists in the list', errorPath: 'value')]
+#[UniqueEntity(fields: ['list', 'value', 'parent'], message: 'This value already exists in the branch', errorPath: 'value')]
 #[UniqueEntity(fields: ['list', 'externalId'], message: 'This external ID already exists in the list', errorPath: 'externalId')]
 class AttributeEntity extends AbstractUuidEntity implements \Stringable
 {
