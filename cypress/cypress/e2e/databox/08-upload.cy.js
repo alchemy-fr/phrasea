@@ -1,9 +1,21 @@
 /**
  * Feature 8 — Upload: dropzone dialog, file selection, destination, URL
- * import, pending uploads.
+ * import, file-less assets and stories, pending uploads.
  */
 import {deleteWorkspace, seedWorkspace, waitForIndexed} from './lib/api';
 import {assetItem, expandTreePickerWorkspace, expandTreeWorkspace, expectToastText, login, openLeftPanelTab, pickTreeNode, treeWorkspace, visitWorkspace, waitForResults} from './lib/app';
+
+/**
+ * Opens the upload dialog from the workspace context menu and waits for the
+ * menu to unmount: Radix then gives the focus back to the tree node, outside
+ * the dialog, whose focus trap pulls it back into the field being typed in
+ * with its text selected, so the next keystroke would replace it.
+ */
+function openUploadFromTree(workspaceId) {
+    treeWorkspace(workspaceId).rightclick();
+    cy.menuItem('Add asset').click();
+    cy.get('[role=menu]').should('not.exist');
+}
 
 describe('Upload', () => {
     let ctx;
@@ -30,8 +42,7 @@ describe('Upload', () => {
 
     it('uploads a file into a collection from the tree context menu', () => {
         openLeftPanelTab('Navigation');
-        treeWorkspace(ctx.workspace.id).rightclick();
-        cy.menuItem('Add asset').click();
+        openUploadFromTree(ctx.workspace.id);
         cy.dialog().within(() => {
             cy.contains('Add assets').should('be.visible');
             cy.get('input[type=file]').selectFile('cypress/fixtures/e2e-image.png', {force: true});
@@ -57,8 +68,7 @@ describe('Upload', () => {
         cy.intercept('POST', /\/assets$/).as('createAsset');
 
         openLeftPanelTab('Navigation');
-        treeWorkspace(ctx.workspace.id).rightclick();
-        cy.menuItem('Add asset').click();
+        openUploadFromTree(ctx.workspace.id);
         cy.dialog().within(() => {
             cy.get('input[type=file]').selectFile(
                 {
@@ -101,14 +111,65 @@ describe('Upload', () => {
     it('imports assets from URLs', () => {
         openLeftPanelTab('Navigation');
         expandTreeWorkspace(ctx.workspace.id);
-        treeWorkspace(ctx.workspace.id).rightclick();
-        cy.menuItem('Add asset').click();
+        openUploadFromTree(ctx.workspace.id);
         cy.dialog().within(() => {
             cy.get('[role=tab]').contains('URLs').click();
             cy.get('textarea').first().type('https://example.com/not-a-real-image.png{enter}not a url');
             cy.contains('1 invalid URL').should('be.visible');
         });
         cy.get('body').type('{esc}');
+    });
+
+    it('creates an asset without any file', () => {
+        cy.intercept('POST', /\/assets$/).as('createAsset');
+
+        openLeftPanelTab('Navigation');
+        openUploadFromTree(ctx.workspace.id);
+        cy.dialog().within(() => {
+            cy.get('[role=tab]').contains('No file').click();
+            cy.getBySel('upload-asset-title').type('e2e-no-file');
+            cy.contains('button', 'Create the asset').click();
+        });
+
+        cy.wait('@createAsset').then(({request, response}) => {
+            expect(response.statusCode).to.eq(201);
+            expect(request.body.name).to.eq('e2e-no-file');
+            expect(request.body).to.not.have.property('multipart');
+            expect(request.body).to.not.have.property('sourceFile');
+            expect(response.body.source, 'no source file').to.not.be.ok;
+        });
+        expectToastText('Asset created');
+        cy.get('[role=dialog]').should('not.exist');
+        waitForIndexed({'workspaces[]': ctx.workspace.id, query: 'e2e-no-file'}, 1);
+        cy.reload();
+        assetItem('e2e-no-file', {timeout: 60000}).should('exist');
+    });
+
+    it('creates an empty story without any file', () => {
+        cy.intercept('POST', /\/assets$/).as('createAsset');
+
+        openLeftPanelTab('Navigation');
+        openUploadFromTree(ctx.workspace.id);
+        cy.dialog().within(() => {
+            cy.get('[role=tab]').contains('No file').click();
+            cy.fieldByLabel(/^Create a story$/).click();
+            // An empty story has no cover to pick, nor an asset title of its own
+            cy.getBySel('upload-asset-title').should('not.exist');
+            cy.contains('Story cover').should('not.exist');
+            cy.contains('button', 'Create the story').should('be.disabled');
+            cy.fieldByLabel('Story title').type('e2e-empty-story');
+            cy.contains('button', 'Create the story').click();
+        });
+
+        cy.wait('@createAsset').then(({request, response}) => {
+            expect(response.statusCode).to.eq(201);
+            expect(request.body.isStory).to.eq(true);
+            expect(request.body.name).to.eq('e2e-empty-story');
+            expect(request.body).to.not.have.property('multipart');
+            expect(response.body.storyCollection, 'story collection').to.be.ok;
+        });
+        expectToastText('Story created');
+        cy.get('[role=dialog]').should('not.exist');
     });
 
     it('drops files on the results screen', () => {

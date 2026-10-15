@@ -16,13 +16,13 @@ import {
     MoreVerticalIcon,
     PencilIcon,
     RotateCcwIcon,
-    Share2Icon,
     ShieldAlertIcon,
     Trash2Icon,
     BookOpenIcon,
     SettingsIcon,
     ListIcon,
     PinIcon,
+    UsersIcon,
 } from 'lucide-react';
 import type {Workspace} from '@/types/api';
 import {
@@ -652,6 +652,9 @@ function CollectionItem({
                                         : 'fill-muted-foreground/30 text-muted-foreground'
                                 )}
                             />
+                            {collection.shared ? (
+                                <UsersIcon className="size-3 shrink-0 text-muted-foreground" />
+                            ) : null}
                             <span
                                 className={cn(
                                     'truncate',
@@ -661,9 +664,6 @@ function CollectionItem({
                             >
                                 {collection.displayName ?? collection.name}
                             </span>
-                            {collection.shared ? (
-                                <Share2Icon className="size-3 shrink-0 text-muted-foreground" />
-                            ) : null}
                         </button>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>

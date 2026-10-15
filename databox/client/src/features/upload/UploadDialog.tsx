@@ -8,6 +8,8 @@ import {
     FileIcon,
     ImageIcon,
     LinkIcon,
+    PlusIcon,
+    SquareDashedIcon,
     UploadCloudIcon,
     XIcon,
 } from 'lucide-react';
@@ -69,7 +71,8 @@ type Props = ModalProps & {
     onUploaded?: (assets: Asset[]) => void;
 };
 
-type Source = 'files' | 'urls';
+/** `none` creates a single asset (or an empty story) without any file */
+type Source = 'files' | 'urls' | 'none';
 
 export function UploadDialog({
     open,
@@ -88,6 +91,7 @@ export function UploadDialog({
         initialFiles?.length ? 'files' : 'files'
     );
     const [urls, setUrls] = useState('');
+    const [assetName, setAssetName] = useState('');
     const [importFiles, setImportFiles] = useState(true);
     const [destination, setDestination] = useState<TreeSelection | undefined>(
         () =>
@@ -174,12 +178,18 @@ export function UploadDialog({
         coverFile ? files.indexOf(coverFile) : 0
     );
     const coverUrlIndex = Math.max(0, coverUrl ? urlList.indexOf(coverUrl) : 0);
-    const count = source === 'files' ? files.length : urlList.length;
+    const count =
+        source === 'files'
+            ? files.length
+            : source === 'urls'
+              ? urlList.length
+              : 0;
     const canSubmit =
         !!destination &&
-        count > 0 &&
-        invalidUrls.length === 0 &&
-        (!isStory || !!storyTitle.trim());
+        (!isStory || !!storyTitle.trim()) &&
+        (source === 'none'
+            ? isStory || !!assetName.trim()
+            : count > 0 && invalidUrls.length === 0);
 
     useEffect(() => {
         if (privacyInfo.data && !privacyInfo.data.canEditAssetPrivacy) {
@@ -228,7 +238,25 @@ export function UploadDialog({
             : undefined;
 
         let created: Asset[] = [];
-        if (source === 'urls') {
+        if (source === 'none') {
+            const destinationProps = destinationToAssetProps(destination.iri);
+            const asset = await postAsset(
+                story
+                    ? {isStory: true, ...story, ...destinationProps}
+                    : {
+                          ...baseAsset,
+                          name: assetName.trim(),
+                          ...destinationProps,
+                      },
+                {quiet}
+            );
+            created = story ? [] : [asset];
+            toast.success(
+                story
+                    ? t('upload.story_created', 'Story created')
+                    : t('upload.created', 'Asset created')
+            );
+        } else if (source === 'urls') {
             created = await importAssetsFromUrls(
                 urlList.map(url => ({
                     url,
@@ -327,12 +355,18 @@ export function UploadDialog({
             size="xl"
             className="h-[90dvh]"
             title={t('upload.title', 'Add assets')}
-            submitLabel={t('upload.submit', 'Upload {{count}} files', {
-                count,
-            })}
-            submitIcon={<UploadCloudIcon />}
+            submitLabel={
+                source === 'none'
+                    ? isStory
+                        ? t('upload.create_story', 'Create the story')
+                        : t('upload.create_asset', 'Create the asset')
+                    : t('upload.submit', 'Upload {{count}} files', {
+                          count,
+                      })
+            }
+            submitIcon={source === 'none' ? <PlusIcon /> : <UploadCloudIcon />}
             canSubmit={canSubmit}
-            dirty={files.length > 0 || !!urls}
+            dirty={files.length > 0 || !!urls || !!assetName || !!storyTitle}
             onSubmit={submit}
         >
             <div className="grid gap-6 lg:grid-cols-2">
@@ -358,9 +392,45 @@ export function UploadDialog({
                                     </Badge>
                                 ) : null}
                             </TabsTrigger>
+                            <TabsTrigger value="none">
+                                <SquareDashedIcon />{' '}
+                                {t('upload.no_file', 'No file')}
+                            </TabsTrigger>
                         </TabsList>
                     </Tabs>
-                    {source === 'files' ? (
+                    {source === 'none' ? (
+                        <div className="space-y-3 rounded-lg border-2 border-dashed p-4">
+                            <p className="text-sm text-muted-foreground">
+                                {isStory
+                                    ? t(
+                                          'upload.no_file_story_help',
+                                          'The story is created empty: assets can be added to it later.'
+                                      )
+                                    : t(
+                                          'upload.no_file_help',
+                                          'The asset is created without any file: one can be attached later.'
+                                      )}
+                            </p>
+                            {!isStory ? (
+                                <FormRow
+                                    label={t(
+                                        'upload.asset_title',
+                                        'Asset title'
+                                    )}
+                                >
+                                    <Input
+                                        value={assetName}
+                                        onChange={e =>
+                                            setAssetName(e.target.value)
+                                        }
+                                        maxLength={255}
+                                        autoFocus
+                                        data-testid="upload-asset-title"
+                                    />
+                                </FormRow>
+                            ) : null}
+                        </div>
+                    ) : source === 'files' ? (
                         <div
                             {...getRootProps({
                                 className: cn(
@@ -591,10 +661,14 @@ export function UploadDialog({
                         />
                     </FormRow>
                     <LabeledControl
-                        label={t(
-                            'upload.as_story',
-                            'Create a story with these files'
-                        )}
+                        label={
+                            source === 'none'
+                                ? t('upload.as_empty_story', 'Create a story')
+                                : t(
+                                      'upload.as_story',
+                                      'Create a story with these files'
+                                  )
+                        }
                     >
                         <Switch
                             checked={isStory}
@@ -613,41 +687,46 @@ export function UploadDialog({
                                     }
                                 />
                             </FormRow>
-                            <FormRow
-                                label={t('upload.story_cover', 'Story cover')}
-                            >
-                                <SimpleSelect
-                                    value={
-                                        count > 0
-                                            ? String(
-                                                  source === 'files'
-                                                      ? coverFileIndex
-                                                      : coverUrlIndex
-                                              )
-                                            : undefined
-                                    }
-                                    onValueChange={v => {
-                                        const i = Number(v);
-                                        if (source === 'files') {
-                                            setCoverFile(files[i]);
-                                        } else {
-                                            setCoverUrl(urlList[i]);
-                                        }
-                                    }}
-                                    options={(source === 'files'
-                                        ? files.map(f => f.name)
-                                        : urlList
-                                    ).map((label, i) => ({
-                                        value: String(i),
-                                        label,
-                                    }))}
-                                    placeholder={t(
-                                        'upload.story_cover_empty',
-                                        'Add files to choose the cover'
+                            {source !== 'none' ? (
+                                <FormRow
+                                    label={t(
+                                        'upload.story_cover',
+                                        'Story cover'
                                     )}
-                                    disabled={count === 0}
-                                />
-                            </FormRow>
+                                >
+                                    <SimpleSelect
+                                        value={
+                                            count > 0
+                                                ? String(
+                                                      source === 'files'
+                                                          ? coverFileIndex
+                                                          : coverUrlIndex
+                                                  )
+                                                : undefined
+                                        }
+                                        onValueChange={v => {
+                                            const i = Number(v);
+                                            if (source === 'files') {
+                                                setCoverFile(files[i]);
+                                            } else {
+                                                setCoverUrl(urlList[i]);
+                                            }
+                                        }}
+                                        options={(source === 'files'
+                                            ? files.map(f => f.name)
+                                            : urlList
+                                        ).map((label, i) => ({
+                                            value: String(i),
+                                            label,
+                                        }))}
+                                        placeholder={t(
+                                            'upload.story_cover_empty',
+                                            'Add files to choose the cover'
+                                        )}
+                                        disabled={count === 0}
+                                    />
+                                </FormRow>
+                            ) : null}
                             <FormRow
                                 label={t('upload.story_tags', 'Story tags')}
                             >

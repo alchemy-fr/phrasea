@@ -3,7 +3,12 @@
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
-import {ChevronLeftIcon, ChevronRightIcon, XIcon} from 'lucide-react';
+import {
+    ChevronLeftIcon,
+    ChevronRightIcon,
+    FilePlusIcon,
+    XIcon,
+} from 'lucide-react';
 import type {Asset, AssetRendition} from '@/types/api';
 import {AssetStatus} from '@/types/api';
 import {getAsset, searchAssets} from '@/lib/api/assets';
@@ -28,6 +33,8 @@ import {useNavigationContextStore} from '@/features/assets/navigationContext';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {useCloseRoute} from '@/components/modals/RouteDialog';
+import {useModals} from '@/components/modals/ModalProvider';
+import {ReplaceSourceDialog} from '@/features/assets/actions/ReplaceSourceDialog';
 import {QuarantineBanner} from '@/features/assets/quarantine/QuarantineBanner';
 import {StoryCarousel, useStoryAssets} from './StoryCarousel';
 import {useResizablePanel} from '@/hooks/useResizablePanel';
@@ -94,6 +101,7 @@ export function AssetViewRoute({
     }, [initialAssetId, initialRenditionId]);
     const {t} = useTranslation();
     const queryClient = useQueryClient();
+    const {openModal} = useModals();
     const close = useCloseRoute();
     const update = useAssetStore(s => s.update);
     const navContext = useNavigationContextStore(s => s.context);
@@ -479,12 +487,53 @@ export function AssetViewRoute({
                                 />
                             </div>
                         ) : asset && !query.isLoading && !story.isLoading ? (
-                            <EmptyState
-                                title={t(
-                                    'asset.view.no_rendition',
-                                    'No rendition available yet'
-                                )}
-                            />
+                            asset.storyCollection ? (
+                                <EmptyState
+                                    title={t(
+                                        'asset.view.story_empty',
+                                        'This story has no item to display yet'
+                                    )}
+                                />
+                            ) : !asset.source ? (
+                                <EmptyState
+                                    title={t(
+                                        'asset.view.no_source',
+                                        'No source file'
+                                    )}
+                                    description={t(
+                                        'asset.view.no_source_help',
+                                        'This asset was created without any file: add one to get its renditions.'
+                                    )}
+                                    action={
+                                        asset.capabilities.edit ? (
+                                            <Button
+                                                onClick={() =>
+                                                    openModal(
+                                                        ReplaceSourceDialog,
+                                                        {
+                                                            asset,
+                                                            onComplete: refresh,
+                                                        }
+                                                    )
+                                                }
+                                            >
+                                                <FilePlusIcon />
+                                                {t(
+                                                    'asset.view.add_source',
+                                                    'Add a source file'
+                                                )}
+                                            </Button>
+                                        ) : undefined
+                                    }
+                                />
+                            ) : (
+                                <EmptyState
+                                    title={t(
+                                        'asset.view.no_rendition',
+                                        'No rendition available yet'
+                                    )}
+                                />
+                            )
                         ) : null}
                     </div>
                     {asset?.status === AssetStatus.Quarantined ? (

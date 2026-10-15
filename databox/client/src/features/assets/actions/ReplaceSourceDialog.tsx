@@ -26,6 +26,8 @@ export function ReplaceSourceDialog({
     const [value, setValue] = useState<FileOrUrl>({});
     const [progress, setProgress] = useState<number>();
     const update = useAssetStore(s => s.update);
+    // An asset created without any file gets its first source here
+    const adding = !asset.source;
 
     const submit = async () => {
         try {
@@ -41,7 +43,11 @@ export function ReplaceSourceDialog({
                 });
             }
             update(updated);
-            toast.success(t('asset.replace.done', 'Source file replaced'));
+            toast.success(
+                adding
+                    ? t('asset.replace.added', 'Source file added')
+                    : t('asset.replace.done', 'Source file replaced')
+            );
             onComplete?.();
             resolve?.(updated);
         } finally {
@@ -53,12 +59,27 @@ export function ReplaceSourceDialog({
         <FormDialog
             open={open}
             onOpenChange={onOpenChange}
-            title={t('asset.replace.title', 'Replace source file')}
-            description={t(
-                'asset.replace.help',
-                'The current file is kept as a version. Renditions will be regenerated.'
-            )}
-            submitLabel={t('asset.replace.submit', 'Replace')}
+            title={
+                adding
+                    ? t('asset.replace.add_title', 'Add a source file')
+                    : t('asset.replace.title', 'Replace source file')
+            }
+            description={
+                adding
+                    ? t(
+                          'asset.replace.add_help',
+                          'Renditions will be generated from this file.'
+                      )
+                    : t(
+                          'asset.replace.help',
+                          'The current file is kept as a version. Renditions will be regenerated.'
+                      )
+            }
+            submitLabel={
+                adding
+                    ? t('asset.replace.add_submit', 'Add')
+                    : t('asset.replace.submit', 'Replace')
+            }
             canSubmit={!!value.file || !!value.url}
             dirty={!!value.file || !!value.url}
             bodyClassName="space-y-3"
