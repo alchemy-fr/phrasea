@@ -15,6 +15,26 @@ use App\Tests\Search\AbstractSearchTest;
 
 class AttributeEntityTest extends AbstractSearchTest
 {
+    public function testAttributeEntityParentChildRelationship(): void
+    {
+        $parent = new AttributeEntity();
+        $child = new AttributeEntity();
+        $otherParent = new AttributeEntity();
+
+        $parent->addChild($child);
+        self::assertSame($parent, $child->getParent());
+        self::assertTrue($parent->getChildren()->contains($child));
+
+        $otherParent->addChild($child);
+        self::assertSame($otherParent, $child->getParent());
+        self::assertFalse($parent->getChildren()->contains($child));
+        self::assertTrue($otherParent->getChildren()->contains($child));
+
+        $otherParent->removeChild($child);
+        self::assertNull($child->getParent());
+        self::assertFalse($otherParent->getChildren()->contains($child));
+    }
+
     public function testAttributeEntityMerge(): void
     {
         $em = self::getEntityManager();
