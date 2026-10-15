@@ -85,6 +85,7 @@ Asset will be accessible at `https://client-url.com/direct/{alternateUrl}`.
 Override environment variables defined in `.env` file:
 
 ```bash
+DEV_MODE=false
 EXPOSE_CLIENT_ID=<THE_CLIENT_ID>
 ```
 

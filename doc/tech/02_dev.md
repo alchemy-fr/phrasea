@@ -52,6 +52,7 @@ bin/build.sh
 Configure your local env var:
 ```dotenv
 APP_ENV=dev
+DEV_MODE=true
 COMPOSE_FILE=docker-compose.yml:docker-compose.dev.yml
 COMPOSE_PROFILES=...
 VERIFY_SSL=false

@@ -28,6 +28,7 @@ export interface WindowConfigBase {
     clientId: Readonly<string>;
     displayServicesMenu: Readonly<boolean>;
     dashboardBaseUrl: Readonly<string>;
+    devMode: Readonly<boolean>;
     analytics?: AnalyticsConfig;
     pusherHost?: Readonly<string>;
     pusherKey?: Readonly<string>;

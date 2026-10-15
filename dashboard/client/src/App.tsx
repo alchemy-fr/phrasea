@@ -1,4 +1,4 @@
-import {Box, Chip, Grid2 as Grid, Link, Typography} from '@mui/material';
+import {Alert, Box, Chip, Grid2 as Grid, Link, Typography} from '@mui/material';
 import Service from './Service';
 import ClientApp from './ClientApp.tsx';
 import SellIcon from '@mui/icons-material/Sell';
@@ -10,11 +10,13 @@ import dashboardImg from './images/dashboard.png';
 import {useAuth} from '@alchemy/react-auth';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import {config} from './init.ts';
+import {useIsLarge} from './hooks/useIsLarge.ts';
 
 type Props = {};
 
 export default function App({}: Props) {
     const {user} = useAuth();
+    const isLarge = useIsLarge();
 
     const {
         DATABOX_API_URL,
@@ -61,6 +63,17 @@ export default function App({}: Props) {
                     />
                 ) : null}
             </Box>
+
+            {user && isLarge && config.devMode && (
+                <Alert
+                    sx={{
+                        mt: 2,
+                    }}
+                    severity={'info'}
+                >
+                    Developer Mode is enabled
+                </Alert>
+            )}
 
             <Grid
                 sx={{

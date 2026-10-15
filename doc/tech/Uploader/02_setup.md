@@ -21,6 +21,7 @@ This guide explains how to configure the Uploader service to connect with Phrase
 Override the relevant environment variables in your `.env` or `.env.local` file:
 
 ```bash
+DEV_MODE=false
 CLIENT_ID=<THE_CLIENT_ID>
 CLIENT_SECRET=<A_SECRET>
 ```

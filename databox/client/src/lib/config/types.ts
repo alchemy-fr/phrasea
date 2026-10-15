@@ -39,6 +39,7 @@ export type AppConfig = {
     };
     dashboardUrl?: string;
     displayServicesMenu: boolean;
+    devMode: boolean;
     requestSignatureTtl?: number;
     realtime?: {
         host: string;
