@@ -53,6 +53,8 @@ final class FaceManager
         if ($threshold <= 0) {
             return null;
         }
+        // The persons may have been approved or removed since the last call
+        $this->pendingPersons = [];
 
         $bestHuman = null;
         $bestAny = null;
@@ -199,6 +201,7 @@ final class FaceManager
 
         $count = 0;
         $previous = [];
+        $this->pendingPersons = [];
         foreach ($this->attributeRepository->iterateMachineEmbeddings($definition->getId(), $reference->getAsset()->getId()) as $candidate) {
             $similarity = FaceMatcher::cosineSimilarity($vector, $candidate->getEmbedding()['v'] ?? []);
             $current = (string) $candidate->getValue();
@@ -239,10 +242,17 @@ final class FaceManager
         $definition = $this->configResolver->getDefinition($config);
         $list = $this->configResolver->getEntityList($config);
 
+        // The references (faces users named) are known first, whatever their age: a face named
+        // yesterday must recognize the faces detected the day before
         $processed = [];
+        foreach ($this->attributeRepository->iterateEmbeddings($definition->getId()) as $row) {
+            if (Attribute::ORIGIN_HUMAN === $row['origin']) {
+                $processed[] = $row;
+            }
+        }
+
         $count = 0;
         $previous = [];
-        $this->pendingPersons = [];
         foreach ($this->attributeRepository->iterateEmbeddings($definition->getId()) as $row) {
             if (Attribute::ORIGIN_HUMAN !== $row['origin']) {
                 $match = $this->findPerson($row['vector'], $processed, $threshold);
@@ -251,7 +261,6 @@ final class FaceManager
                     $person = $this->createUnknownPerson($config);
                     $this->em->flush();
                     $value = $person->getId();
-                    $this->pendingPersons[$value] = true;
                 }
                 if ($value !== $row['value']) {
                     $previous[$row['value']] = true;
@@ -269,8 +278,8 @@ final class FaceManager
                     ++$count;
                 }
                 $row['value'] = $value;
+                $processed[] = $row;
             }
-            $processed[] = $row;
         }
 
         if (!empty($previous)) {

@@ -43,6 +43,7 @@
         {
             "@id": "/attributes/<uuid>",
             "@type": "attribute",
+            "confidence": 1,
             "createdAt": "<date>",
             "definition": {
                 "@id": "/attribute-definitions/<keywordsDef>",
@@ -61,12 +62,14 @@
             "id": "<uuid>",
             "invalid": false,
             "locale": "_",
+            "origin": "machine",
             "updatedAt": "<date>",
             "value": "first"
         },
         {
             "@id": "/attributes/<uuid>",
             "@type": "attribute",
+            "confidence": 1,
             "createdAt": "<date>",
             "definition": {
                 "@id": "/attribute-definitions/<keywordsDef>",
@@ -85,12 +88,14 @@
             "id": "<uuid>",
             "invalid": false,
             "locale": "_",
+            "origin": "machine",
             "updatedAt": "<date>",
             "value": "second"
         },
         {
             "@id": "/attributes/<uuid>",
             "@type": "attribute",
+            "confidence": 1,
             "createdAt": "<date>",
             "definition": {
                 "@id": "/attribute-definitions/<uuid>",
@@ -109,12 +114,14 @@
             "id": "<uuid>",
             "invalid": false,
             "locale": "_",
+            "origin": "machine",
             "updatedAt": "<date>",
             "value": "Photo"
         },
         {
             "@id": "/attributes/<uuid>",
             "@type": "attribute",
+            "confidence": 1,
             "createdAt": "<date>",
             "definition": {
                 "@id": "/attribute-definitions/<titleDef>",
@@ -133,6 +140,7 @@
             "id": "<uuid>",
             "invalid": false,
             "locale": "_",
+            "origin": "machine",
             "updatedAt": "<date>",
             "value": "Hello"
         }
