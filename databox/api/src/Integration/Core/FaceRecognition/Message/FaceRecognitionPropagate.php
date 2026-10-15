@@ -13,13 +13,18 @@ use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 final readonly class FaceRecognitionPropagate
 {
     public function __construct(
-        // TODO keep integration ID to retrieve config
         private string $attributeId,
+        private string $integrationId,
     ) {
     }
 
     public function getAttributeId(): string
     {
         return $this->attributeId;
+    }
+
+    public function getIntegrationId(): string
+    {
+        return $this->integrationId;
     }
 }

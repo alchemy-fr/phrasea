@@ -9,7 +9,6 @@ use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
 use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Asset;
-use App\Entity\Core\EntityList;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AbstractIntegration;
 use App\Integration\Action\UserActionsTrait;
@@ -79,16 +78,10 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
     public function buildConfiguration(NodeBuilder $builder): void
     {
         $builder
-            // TODO maybe not necessary, attribute definition should be sufficient
-            ->scalarNode('entityList')
-                ->isRequired()
-                ->cannotBeEmpty()
-                ->info('ID of the entity list of the workspace holding the persons (one entity per person; the look-alikes not named yet are pending entities)')
-            ->end()
             ->scalarNode('attribute')
                 ->isRequired()
                 ->cannotBeEmpty()
-                ->info('Slug of a multi-valued attribute of type "entity" bound to that list: each detected face is a value of it (person, box and confidence)')
+                ->info('Slug of a multi-valued attribute of type "entity": each detected face is a value of it (person, box and confidence), the persons are the entities of its list (the look-alikes not named yet are pending entities)')
             ->end()
             ->scalarNode('unknownLabel')
                 ->defaultValue(self::DEFAULT_UNKNOWN_LABEL)
@@ -133,11 +126,6 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
             throw new InvalidConfigurationException('Face recognition requires a workspace');
         }
 
-        $list = $this->em->find(EntityList::class, (string) $config['entityList']);
-        if (!$list instanceof EntityList || $list->getWorkspaceId() !== $workspaceId) {
-            throw new InvalidConfigurationException(sprintf('Entity list "%s" not found in the workspace', $config['entityList']));
-        }
-
         $definition = $this->attributeDefinitionRepository->getAttributeDefinitionBySlug($workspaceId, (string) $config['attribute']);
         if (null === $definition) {
             throw new InvalidConfigurationException(sprintf('Attribute "%s" not found in the workspace', $config['attribute']));
@@ -148,8 +136,8 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
         if (!$definition->isMultiple()) {
             throw new InvalidConfigurationException(sprintf('Attribute "%s" must be multi-valued', $config['attribute']));
         }
-        if ($definition->getEntityList()?->getId() !== $list->getId()) {
-            throw new InvalidConfigurationException(sprintf('Attribute "%s" must be bound to the entity list "%s"', $config['attribute'], $list->getName()));
+        if (null === $definition->getEntityList()) {
+            throw new InvalidConfigurationException(sprintf('Attribute "%s" must be bound to an entity list', $config['attribute']));
         }
     }
 
@@ -224,10 +212,12 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
     #[\Override]
     public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationConfig $config): array
     {
+        $definition = null !== $config->getWorkspaceId() ? $this->attributeDefinitionRepository->getAttributeDefinitionBySlug($config->getWorkspaceId(), (string) $config['attribute']) : null;
+
         return [
-            'entityList' => $config['entityList'],
             'attribute' => $config['attribute'],
-            'attributeDefinition' => null !== $config->getWorkspaceId() ? $this->attributeDefinitionRepository->getAttributeDefinitionBySlug($config->getWorkspaceId(), (string) $config['attribute'])?->getId() : null,
+            'attributeDefinition' => $definition?->getId(),
+            'entityList' => $definition?->getEntityList()?->getId(),
             'processIncoming' => $config['processIncoming'],
             'matchThreshold' => $config['matchThreshold'],
             'autoPropagate' => $config['autoPropagate'],

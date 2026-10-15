@@ -145,7 +145,7 @@ Display name: Face Recognition
 This integration detects the faces of image assets and recognizes the persons that users have already named, through a self-hosted service (no data leaves the platform).
 It is the self-hosted counterpart of the "faces" category of AWS Rekognition, with recognition on top of detection.
 
-There is no face-specific data model nor API: **a person is an entity** of the configured entity list of the workspace (`entityList`), and **a face is a value of the configured entity attribute** of the asset (`attribute`, bound to that list). Each face value carries the person (the entity ID), the box of the face as a rectangle annotation, the detection or recognition confidence, and the face embedding (`attribute.embedding`, never exposed by the API nor indexed). Everything else goes through the generic attribute and entity APIs.
+There is no face-specific data model nor API: **a face is a value of the configured entity attribute** of the asset (`attribute`), and **a person is an entity** of the list that attribute is bound to. Each face value carries the person (the entity ID), the box of the face as a rectangle annotation, the detection or recognition confidence, and the face embedding (`attribute.embedding`, never exposed by the API nor indexed). Everything else goes through the generic attribute and entity APIs.
 
 Main behavior:
 
@@ -162,8 +162,7 @@ Configuration:
 
 | Key | Default | Description |
 | --- | --- | --- |
-| entityList | (required) | ID of the entity list of the workspace holding the persons |
-| attribute | (required) | Slug of a multi-valued attribute of type `entity` bound to that list, receiving one value per detected face |
+| attribute | (required) | Slug of a multi-valued attribute of type `entity`, receiving one value per detected face; its entity list holds the persons |
 | unknownLabel | Unknown person | Name of a person nobody has named yet (a short code is appended) |
 | rendition | preview | Rendition sent to the service (must be an image) |
 | maxImageSize | 2048 | Longest side (pixels) of the downscaled JPEG copy actually sent to the service |

@@ -14,21 +14,19 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
- * The face recognition configuration of the workspaces: where the persons are (entity list) and
- * how they are attached to the assets (attribute definition). Cached for the request.
+ * The face recognition configurations of the instance: where the faces are attached to the
+ * assets (the attribute definition) and, through it, where the persons are (its entity list).
+ * A workspace may run several integrations, each on its own attribute. Cached for the request.
  */
 final class FaceRecognitionConfigResolver implements ResetInterface
 {
-    /** @var array<string, IntegrationConfig|null> */
-    private array $byWorkspace = [];
-
-    /** @var array<string, AttributeDefinition|null> */
+    /** @var array<string, string|null> attribute definition IDs by workspace and slug */
     private array $definitions = [];
 
-    /** @var array<string, IntegrationConfig|null>|null */
+    /** @var array<string, IntegrationConfig>|null indexed by attribute definition ID */
     private ?array $byDefinition = null;
 
-    /** @var array<string, IntegrationConfig|null>|null */
+    /** @var array<string, IntegrationConfig>|null indexed by entity list ID */
     private ?array $byList = null;
 
     public function __construct(
@@ -39,43 +37,28 @@ final class FaceRecognitionConfigResolver implements ResetInterface
     }
 
     /**
-     * The enabled face recognition integration of the workspace, or null.
-     */
-    public function getConfig(string $workspaceId): ?IntegrationConfig
-    {
-        if (array_key_exists($workspaceId, $this->byWorkspace)) {
-            return $this->byWorkspace[$workspaceId];
-        }
-
-        // TODO there can be many integrations
-        $workspaceIntegration = $this->em->getRepository(WorkspaceIntegration::class)->findOneBy([
-            'workspace' => $workspaceId,
-            'integration' => FaceRecognitionIntegration::getName(),
-            'enabled' => true,
-        ]);
-
-        return $this->byWorkspace[$workspaceId] = $workspaceIntegration instanceof WorkspaceIntegration
-            ? $this->integrationManager->getIntegrationConfiguration($workspaceIntegration)
-            : null;
-    }
-
-    /**
-     * The attribute definition holding the faces of the workspace of the configuration.
+     * The attribute definition holding the faces of the configuration.
      */
     public function getDefinition(IntegrationConfig $config): AttributeDefinition
     {
         $key = $config->getWorkspaceId().'/'.$config['attribute'];
         if (!array_key_exists($key, $this->definitions)) {
-            $this->definitions[$key] = $this->attributeDefinitionRepository->getAttributeDefinitionBySlug($config->getWorkspaceId(), (string) $config['attribute']);
+            $this->definitions[$key] = $this->attributeDefinitionRepository->getAttributeDefinitionBySlug((string) $config->getWorkspaceId(), (string) $config['attribute'])?->getId();
         }
 
-        return $this->definitions[$key] ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $config['attribute'], $config->getWorkspaceId()));
+        // Fetched again each time: the cached ID survives a cleared entity manager, a cached entity would not
+        $definition = null !== $this->definitions[$key] ? $this->em->find(AttributeDefinition::class, $this->definitions[$key]) : null;
+
+        return $definition ?? throw new \InvalidArgumentException(sprintf('Attribute definition slug "%s" not found in workspace "%s"', $config['attribute'], $config->getWorkspaceId()));
     }
 
+    /**
+     * The entity list holding the persons of the configuration: the one of its attribute definition.
+     */
     public function getEntityList(IntegrationConfig $config): EntityList
     {
-        return $this->em->find(EntityList::class, (string) $config['entityList'])
-            ?? throw new \InvalidArgumentException(sprintf('Entity list "%s" not found', $config['entityList']));
+        return $this->getDefinition($config)->getEntityList()
+            ?? throw new \InvalidArgumentException(sprintf('Attribute "%s" is not bound to an entity list', $config['attribute']));
     }
 
     /**
@@ -110,20 +93,20 @@ final class FaceRecognitionConfigResolver implements ResetInterface
             'enabled' => true,
         ]);
         foreach ($workspaceIntegrations as $workspaceIntegration) {
-            $workspaceId = $workspaceIntegration->getWorkspace()?->getId();
-            if (null === $workspaceId) {
+            if (null === $workspaceIntegration->getWorkspace()) {
                 continue;
             }
-            $config = $this->byWorkspace[$workspaceId] ??= $this->integrationManager->getIntegrationConfiguration($workspaceIntegration);
-            if (null === $config) {
+            $config = $this->integrationManager->getIntegrationConfiguration($workspaceIntegration);
+            try {
+                $definition = $this->getDefinition($config);
+            } catch (\InvalidArgumentException) {
+                // A configuration pointing to a removed attribute recognizes nothing
                 continue;
             }
-            $definition = $this->attributeDefinitionRepository->getAttributeDefinitionBySlug($workspaceId, (string) $config['attribute']);
-            if (null !== $definition) {
-                $definitions[$definition->getId()] = $config;
-            }
-            if (!empty($config['entityList'])) {
-                $lists[(string) $config['entityList']] = $config;
+            $definitions[$definition->getId()] = $config;
+            $list = $definition->getEntityList();
+            if (null !== $list) {
+                $lists[$list->getId()] = $config;
             }
         }
 
@@ -135,7 +118,6 @@ final class FaceRecognitionConfigResolver implements ResetInterface
 
     public function reset(): void
     {
-        $this->byWorkspace = [];
         $this->definitions = [];
         $this->byDefinition = null;
         $this->byList = null;

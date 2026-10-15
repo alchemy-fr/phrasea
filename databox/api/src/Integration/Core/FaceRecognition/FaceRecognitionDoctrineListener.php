@@ -74,7 +74,7 @@ final class FaceRecognitionDoctrineListener
                 $uow->recomputeSingleEntityChangeSet($em->getClassMetadata(Attribute::class), $entity);
                 $orphanCandidates[$config->getIntegrationId()] ??= [$config, []];
                 $orphanCandidates[$config->getIntegrationId()][1][] = (string) $previous;
-                $this->postFlushStack->addBusMessage(new FaceRecognitionPropagate($entity->getId()));
+                $this->postFlushStack->addBusMessage(new FaceRecognitionPropagate($entity->getId(), $config->getIntegrationId()));
             } elseif ($entity instanceof AttributeEntity) {
                 $changeSet = $uow->getEntityChangeSet($entity);
                 if (!isset($changeSet['status']) || AttributeEntity::STATUS_APPROVED !== $entity->getStatus()) {
@@ -87,7 +87,7 @@ final class FaceRecognitionDoctrineListener
                 $this->postFlushStack->addCallback(function () use ($entity, $config, $userId): void {
                     $reference = $this->faceManager->markReference($entity, $config, $userId);
                     if (null !== $reference) {
-                        $this->postFlushStack->addBusMessage(new FaceRecognitionPropagate($reference->getId()));
+                        $this->postFlushStack->addBusMessage(new FaceRecognitionPropagate($reference->getId(), $config->getIntegrationId()));
                     }
                 });
             }

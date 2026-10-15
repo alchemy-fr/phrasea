@@ -242,14 +242,16 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $this->setUpScene();
         $integrationManager = self::getService(IntegrationManager::class);
 
-        $textDefinition = $this->createAttributeDefinition(['workspace' => $this->workspace, 'name' => 'Names', 'slug' => 'names', 'multiple' => true]);
-        $otherList = $this->createEntityList(['name' => 'Others', 'workspace' => $this->workspace]);
+        $this->createAttributeDefinition(['workspace' => $this->workspace, 'name' => 'Names', 'slug' => 'names', 'multiple' => true]);
+        $this->createAttributeDefinition(['workspace' => $this->workspace, 'name' => 'Single', 'slug' => 'single', 'type' => EntityAttributeType::NAME, 'list' => $this->list]);
+        $this->createAttributeDefinition(['workspace' => $this->workspace, 'name' => 'Listless', 'slug' => 'listless', 'multiple' => true, 'type' => EntityAttributeType::NAME]);
 
         $integrationManager->validateIntegration($this->createIntegration());
 
         foreach ([
-            ['entityList' => $otherList->getId()],
             ['attribute' => 'names'],
+            ['attribute' => 'single'],
+            ['attribute' => 'listless'],
             ['attribute' => 'nope'],
         ] as $invalid) {
             try {
@@ -259,7 +261,6 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
                 $this->addToAssertionCount(1);
             }
         }
-        $this->assertNotNull($textDefinition);
     }
 
     private function setUpScene(): void
@@ -304,7 +305,6 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $integration->setName('Faces '.uniqid());
         $integration->setIntegration(FaceRecognitionIntegration::getName());
         $integration->setConfig(array_merge([
-            'entityList' => $this->list->getId(),
             'attribute' => 'persons',
         ], $config));
         $integration->setOwnerId('custom_owner');
