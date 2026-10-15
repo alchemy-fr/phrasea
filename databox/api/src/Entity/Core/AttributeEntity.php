@@ -320,11 +320,18 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
 
     public function setList(?EntityList $list): void
     {
+        if ($this->list === $list) {
+            return;
+        }
+
+        $this->list?->removeEntity($this);
+        $this->list = $list;
+
         if (null !== $list && null === $this->workspace) {
             $this->setWorkspace($list->getWorkspace());
         }
 
-        $this->list = $list;
+        $list?->addEntity($this);
     }
 
     public function getSynonyms(): ?array
