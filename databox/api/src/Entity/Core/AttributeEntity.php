@@ -26,11 +26,15 @@ use App\Api\Provider\AttributeEntityCollectionProvider;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\AttributeEntityRepository;
 use App\Validator\SameWorkspaceConstraint;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Normalizer\AbstractObjectNormalizer;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -42,6 +46,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Patch(security: 'is_granted("EDIT", object)'),
         new GetCollection(
             normalizationContext: [
+                AbstractObjectNormalizer::ENABLE_MAX_DEPTH => true,
                 'groups' => [
                     self::GROUP_LIST,
                 ],
@@ -59,6 +64,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
     ],
     normalizationContext: [
+        AbstractObjectNormalizer::ENABLE_MAX_DEPTH => true,
         'groups' => [
             self::GROUP_READ,
             self::GROUP_LIST,
@@ -79,6 +85,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     'position',
 ])]
 #[ORM\Index(columns: ['list_id'], name: 'entity_list_idx')]
+#[ORM\Index(columns: ['parent_id'], name: 'idx_attribute_entity_parent')]
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'list.workspace'],
 )]
@@ -162,6 +169,62 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
 
     #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
     protected ?string $creatorId = null;
+
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[Groups([self::GROUP_READ, self::GROUP_LIST])]
+    #[MaxDepth(1)]
+    private ?self $parent = null;
+
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\OneToMany(mappedBy: 'parent', targetEntity: self::class)]
+    #[Groups([self::GROUP_READ, self::GROUP_LIST])]
+    #[MaxDepth(1)]
+    private Collection $children;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->children = new ArrayCollection();
+    }
+
+    public function getParent(): ?self
+    {
+        return $this->parent;
+    }
+
+    public function setParent(?self $parent): void
+    {
+        if ($this->parent === $parent) {
+            return;
+        }
+
+        $this->parent?->children->removeElement($this);
+        $this->parent = $parent;
+        $parent?->children->add($this);
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getChildren(): Collection
+    {
+        return $this->children;
+    }
+
+    public function addChild(self $child): void
+    {
+        $child->setParent($this);
+    }
+
+    public function removeChild(self $child): void
+    {
+        if ($child->getParent() === $this) {
+            $child->setParent(null);
+        }
+    }
 
     public function getValue(): ?string
     {
