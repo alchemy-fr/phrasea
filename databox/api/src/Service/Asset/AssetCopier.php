@@ -201,6 +201,10 @@ class AssetCopier
 
     private function copyFile(File $file, Workspace $workspace): File
     {
+        if ($file->getWorkspaceId() === $workspace->getId()) {
+            return $file;
+        }
+
         $key = $file->getId().':'.$workspace->getId();
 
         return $this->fileCopies[$key] ?? ($this->fileCopies[$key] = $this->fileCopier->copyFile($file, $workspace));
