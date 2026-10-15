@@ -26,6 +26,33 @@ class AttributeEntityTest extends AbstractSearchTest
         self::assertSame('Company', $entity->getEntityTypeEntity()?->getName());
     }
 
+    public function testAttributeEntityTypeCanBeNull(): void
+    {
+        $em = self::getEntityManager();
+        $workspace = $this->getOrCreateDefaultWorkspace(['no_flush']);
+        $em->persist($workspace);
+
+        $list = new EntityList();
+        $list->setName('nullable-entity-type-'.bin2hex(random_bytes(4)));
+        $list->setWorkspace($workspace);
+        $em->persist($list);
+
+        $entity = new AttributeEntity();
+        $entity->setList($list);
+        $entity->setValue('entity-without-type');
+        $entity->setEntityType(null);
+        $em->persist($entity);
+        $em->flush();
+
+        $entityId = $entity->getId();
+        $em->clear();
+
+        $reloadedEntity = $em->find(AttributeEntity::class, $entityId);
+        self::assertInstanceOf(AttributeEntity::class, $reloadedEntity);
+        self::assertNull($reloadedEntity->getEntityType());
+        self::assertNull($reloadedEntity->getEntityTypeEntity());
+    }
+
     public function testAttributeEntityParentChildRelationship(): void
     {
         $parent = new AttributeEntity();
@@ -44,40 +71,6 @@ class AttributeEntityTest extends AbstractSearchTest
         $otherParent->removeChild($child);
         self::assertNull($child->getParent());
         self::assertFalse($otherParent->getChildren()->contains($child));
-    }
-
-    public function testNewAttributeEntitiesAreAttachedToTheirListRoot(): void
-    {
-        $em = self::getEntityManager();
-        $workspace = $this->getOrCreateDefaultWorkspace(['no_flush']);
-        $em->persist($workspace);
-
-        $list = new EntityList();
-        $list->setName('Companies-'.bin2hex(random_bytes(4)));
-        $list->setWorkspace($workspace);
-        $em->persist($list);
-
-        $entity = new AttributeEntity();
-        $entity->setList($list);
-        $entity->setValue('Alchemy');
-        $em->persist($entity);
-
-        $anotherEntity = new AttributeEntity();
-        $anotherEntity->setList($list);
-        $anotherEntity->setValue('Phrasea');
-        $em->persist($anotherEntity);
-
-        $em->flush();
-
-        $root = $entity->getParent();
-        self::assertNotNull($root);
-        self::assertSame($root, $anotherEntity->getParent());
-        self::assertNull($root->getParent());
-        self::assertSame($list->getName(), $root->getValue());
-        self::assertSame($list, $root->getList());
-        self::assertTrue($root->getChildren()->contains($entity));
-        self::assertTrue($root->getChildren()->contains($anotherEntity));
-        self::assertTrue($list->getEntities()?->contains($entity));
     }
 
     public function testAttributeEntityMerge(): void

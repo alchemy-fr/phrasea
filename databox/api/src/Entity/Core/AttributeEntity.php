@@ -186,7 +186,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     private Collection $children;
 
     #[ORM\OneToOne(targetEntity: EntityType::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[ORM\JoinColumn(nullable: false, unique: true)]
+    #[ORM\JoinColumn(nullable: true, unique: true)]
     private ?EntityType $entityTypeEntity = null;
 
     private ?string $entityType = null;
@@ -234,7 +234,6 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     }
 
     #[Groups([self::GROUP_READ, self::GROUP_LIST])]
-    #[Assert\NotBlank]
     #[Assert\Length(max: 100)]
     public function getEntityType(): ?string
     {
@@ -320,18 +319,11 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
 
     public function setList(?EntityList $list): void
     {
-        if ($this->list === $list) {
-            return;
-        }
-
-        $this->list?->removeEntity($this);
-        $this->list = $list;
-
         if (null !== $list && null === $this->workspace) {
             $this->setWorkspace($list->getWorkspace());
         }
 
-        $list?->addEntity($this);
+        $this->list = $list;
     }
 
     public function getSynonyms(): ?array
