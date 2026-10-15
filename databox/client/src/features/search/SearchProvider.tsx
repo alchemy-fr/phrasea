@@ -204,8 +204,13 @@ export function SearchProvider({
         [update]
     );
 
+    const commitRef = useRef(commit);
+    commitRef.current = commit;
+
     // Deep link / left panel: `?id=<saved search>` without any other state
-    // loads the saved search definition.
+    // loads the saved search definition. Only a new id is a deep link: a
+    // saved search emptied by the user keeps its id and must stay empty,
+    // whatever route (asset view...) is opened above the search afterwards.
     useEffect(() => {
         const {searchId, query, conditions, sortBy} = stateRef.current;
         if (!searchId || query || conditions.length > 0 || sortBy.length > 0) {
@@ -218,7 +223,7 @@ export function SearchProvider({
                     return;
                 }
                 inputQuery.current = saved.data.query ?? '';
-                commit({
+                commitRef.current({
                     ...stateRef.current,
                     query: saved.data.query ?? '',
                     conditions: saved.data.conditions ?? [],
@@ -230,7 +235,7 @@ export function SearchProvider({
         return () => {
             cancelled = true;
         };
-    }, [state.searchId, commit]);
+    }, [state.searchId]);
 
     const value = useMemo<SearchContextValue>(() => {
         const conditions = withPinnedDefaults(state.conditions, defaults);

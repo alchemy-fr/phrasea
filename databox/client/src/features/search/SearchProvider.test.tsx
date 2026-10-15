@@ -21,6 +21,14 @@ vi.mock('next/navigation', () => ({
     useRouter: () => ({push: nav.push}),
 }));
 
+const api = vi.hoisted(() => ({
+    getSavedSearch: vi.fn(),
+}));
+
+vi.mock('@/lib/api/misc', () => ({
+    getSavedSearch: api.getSavedSearch,
+}));
+
 const probe = {} as {current: SearchContextValue};
 
 function Probe() {
@@ -90,6 +98,64 @@ describe('SearchProvider', () => {
         expect(nav.push).toHaveBeenCalledWith('/assets?q=cat', {
             scroll: false,
         });
+    });
+});
+
+describe('SearchProvider with a saved search', () => {
+    const saved = {
+        id: 'ss1',
+        name: 'Cats',
+        data: {query: 'cat', conditions: [], sortBy: []},
+    };
+
+    beforeEach(() => {
+        nav.push.mockReset();
+        api.getSavedSearch.mockReset();
+        api.getSavedSearch.mockResolvedValue(saved);
+    });
+
+    it('loads the definition of a deep link', async () => {
+        renderAt('/assets', 'id=ss1');
+        await act(async () => {});
+        expect(api.getSavedSearch).toHaveBeenCalledWith('ss1');
+        expect(nav.push).toHaveBeenCalledWith('/assets?id=ss1&q=cat', {
+            scroll: false,
+        });
+    });
+
+    it('keeps it empty when a dialog route opens above a cleared search', async () => {
+        const {rerender} = renderAt('/assets', 'id=ss1&q=cat');
+        await act(async () => {});
+        expect(api.getSavedSearch).not.toHaveBeenCalled();
+
+        // The user clears the query: the saved search is still the current one
+        act(() => probe.current.setQuery(''));
+        expect(nav.push).toHaveBeenCalledWith('/assets?id=ss1', {
+            scroll: false,
+        });
+        nav.search = 'id=ss1';
+        rerender(
+            <SearchProvider>
+                <Probe />
+            </SearchProvider>
+        );
+        await act(async () => {});
+        expect(api.getSavedSearch).not.toHaveBeenCalled();
+
+        // Opening an asset from the grid
+        nav.push.mockReset();
+        nav.pathname = '/assets/42/_';
+        nav.search = '';
+        rerender(
+            <SearchProvider>
+                <Probe />
+            </SearchProvider>
+        );
+        await act(async () => {});
+        expect(api.getSavedSearch).not.toHaveBeenCalled();
+        expect(nav.push).not.toHaveBeenCalled();
+        expect(probe.current.query).toBe('');
+        expect(probe.current.searchId).toBe('ss1');
     });
 });
 
