@@ -97,8 +97,9 @@ good.
 
 ## Ticketing (JIRA)
 
-When `DATABOX_TICKETING_ENABLED` is true, a floating button (bottom right of
-the app shell, signed-in users only) opens a report form. The ticket is pushed
+When `DATABOX_TICKETING_ENABLED` is true, a floating button (bottom left of
+the app shell, signed-in users only, still clickable above an open dialog)
+opens a report form. The ticket is pushed
 to JIRA by the `POST /api/ticketing` route handler, enriched with:
 
 - the page the user was on (URL, title, locale, theme, timezone, viewport,

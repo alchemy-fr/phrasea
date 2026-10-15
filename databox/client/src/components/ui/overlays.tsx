@@ -10,6 +10,7 @@ import {XIcon} from 'lucide-react';
 import {cn} from '@/lib/utils/cn';
 import {mergeRefs} from '@/lib/utils/refs';
 import {scrollThroughLock} from '@/lib/utils/scrollThroughLock';
+import {keepModalOpenOn} from './dialog';
 
 // ---------------------------------------------------------------------------
 // Popover
@@ -104,6 +105,7 @@ export function SheetContent({
     className,
     children,
     side = 'right',
+    onInteractOutside,
     ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
     side?: 'top' | 'right' | 'bottom' | 'left';
@@ -124,6 +126,7 @@ export function SheetContent({
                         'inset-x-0 bottom-0 h-auto border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
                     className
                 )}
+                onInteractOutside={keepModalOpenOn(onInteractOutside)}
                 {...props}
             >
                 {children}

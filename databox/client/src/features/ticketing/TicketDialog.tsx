@@ -1,6 +1,7 @@
 'use client';
 
 import {useEffect, useState} from 'react';
+import {flushSync} from 'react-dom';
 import {useTranslation} from 'react-i18next';
 import {toast} from 'sonner';
 import {
@@ -68,6 +69,8 @@ export function TicketDialog({open, onOpenChange, page}: Props) {
     const [description, setDescription] = useState('');
     const [screenshot, setScreenshot] = useState<string | undefined>();
     const [capturing, setCapturing] = useState(false);
+    // Hides the dialog while the page is captured, so that it is not on it.
+    const [concealed, setConcealed] = useState(false);
     // Resolved on the client only: `navigator` does not exist while rendering
     // on the server.
     const [canCapture, setCanCapture] = useState(false);
@@ -122,6 +125,9 @@ export function TicketDialog({open, onOpenChange, page}: Props) {
 
     const capture = async () => {
         setCapturing(true);
+        // Hidden before the browser starts streaming the tab, so that no frame
+        // of the stream shows the dialog.
+        flushSync(() => setConcealed(true));
         try {
             setScreenshot(await captureScreenshot());
         } catch (e: any) {
@@ -136,6 +142,7 @@ export function TicketDialog({open, onOpenChange, page}: Props) {
                 );
             }
         } finally {
+            setConcealed(false);
             setCapturing(false);
         }
     };
@@ -184,7 +191,11 @@ export function TicketDialog({open, onOpenChange, page}: Props) {
 
     return (
         <Dialog open={open} onOpenChange={o => !o && void requestClose()}>
-            <DialogContent size="md">
+            <DialogContent
+                size="md"
+                className={concealed ? 'invisible' : undefined}
+                overlayClassName={concealed ? 'invisible' : undefined}
+            >
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <KindIcon className="size-4" />

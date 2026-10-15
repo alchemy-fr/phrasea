@@ -37,6 +37,8 @@ function encode(canvas: HTMLCanvasElement): string {
  * Captures the current page through the Screen Capture API: the browser asks
  * the user which surface to share (the current tab is pre-selected where
  * supported), a single frame is grabbed and the stream is closed immediately.
+ * The page is streamed from the moment the picker is confirmed: anything to
+ * keep off the screenshot must be hidden before calling it.
  */
 export async function captureScreenshot(): Promise<string> {
     const stream = await navigator.mediaDevices.getDisplayMedia({

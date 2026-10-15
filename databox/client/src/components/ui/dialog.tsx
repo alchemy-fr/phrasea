@@ -10,6 +10,30 @@ export const DialogTrigger = DialogPrimitive.Trigger;
 export const DialogPortal = DialogPrimitive.Portal;
 export const DialogClose = DialogPrimitive.Close;
 
+/**
+ * Marks a control that stays usable above an open modal (it must also be
+ * stacked above the overlay and get `pointer-events: auto`, since the modal
+ * disables them on the body): interacting with it does not dismiss the modal.
+ */
+export const KEEP_MODAL_OPEN_ATTR = 'data-keep-modal-open';
+
+type OutsideEvent = CustomEvent<{originalEvent: Event}>;
+
+export function keepModalOpenOn<E extends OutsideEvent>(
+    handler?: (event: E) => void
+) {
+    return (event: E) => {
+        if (
+            event.target instanceof Element &&
+            event.target.closest(`[${KEEP_MODAL_OPEN_ATTR}]`)
+        ) {
+            event.preventDefault();
+            return;
+        }
+        handler?.(event);
+    };
+}
+
 export function DialogOverlay({
     className,
     animateIn = true,
@@ -47,16 +71,19 @@ export function DialogContent({
     hideClose = false,
     size = 'md',
     animateIn = true,
+    overlayClassName,
+    onInteractOutside,
     ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
     hideClose?: boolean;
+    overlayClassName?: string;
     size?: DialogSize;
     /** false: shows up at once, e.g. in place of another screen */
     animateIn?: boolean;
 }) {
     return (
         <DialogPortal>
-            <DialogOverlay animateIn={animateIn} />
+            <DialogOverlay animateIn={animateIn} className={overlayClassName} />
             <DialogPrimitive.Content
                 data-slot="dialog-content"
                 className={cn(
@@ -67,6 +94,7 @@ export function DialogContent({
                     sizeClasses[size],
                     className
                 )}
+                onInteractOutside={keepModalOpenOn(onInteractOutside)}
                 {...props}
             >
                 {children}
