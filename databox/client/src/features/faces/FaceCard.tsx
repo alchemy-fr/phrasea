@@ -1,83 +1,97 @@
 'use client';
 
-import {FormEvent, useEffect, useId, useState} from 'react';
+import {useState} from 'react';
 import Link from 'next/link';
 import {useTranslation} from 'react-i18next';
-import {CheckIcon, ExternalLinkIcon, XIcon} from 'lucide-react';
-import {Asset, AssetFace, FaceIdentityOrigin} from '@/types/api';
+import {CheckIcon, ExternalLinkIcon, Trash2Icon} from 'lucide-react';
+import type {Asset, AttributeOrigin, FaceBox} from '@/types/api';
+import {AttributeEntityStatus} from '@/types/api';
+import {AttributeEntitySelect} from '@/components/form/selects';
 import {Button} from '@/components/ui/button';
-import {Input} from '@/components/ui/input';
 import {Badge} from '@/components/ui/misc';
 import {Tooltip} from '@/components/ui/overlays';
 import {routes} from '@/lib/routes';
 import {cn} from '@/lib/utils/cn';
 import {FaceCrop} from './FaceCrop';
 
-/** What the card needs of a face: the API resource, or the integration data summary */
-export type FaceCardFace = Pick<
-    AssetFace,
-    'id' | 'box' | 'identity' | 'identityOrigin' | 'identityConfidence'
-> & {asset: Asset};
+/** The person of a face, as the attribute value carries it */
+export type FaceEntity = {
+    id: string;
+    /** Null while the person is pending (nobody named it) */
+    value: string | null;
+    note?: string | null;
+    emoji?: string;
+    color?: string;
+    status?: number;
+    translations?: Record<string, string>;
+};
+
+/** A face: a value of the face attribute of an asset */
+export type FaceCardFace = {
+    /** The attribute ID */
+    id: string;
+    asset: Asset;
+    box: FaceBox;
+    origin: AttributeOrigin;
+    confidence?: number;
+    entity?: FaceEntity | null;
+};
+
+export function isUnknownPerson(
+    entity: FaceEntity | null | undefined
+): boolean {
+    return (
+        !entity ||
+        entity.status === AttributeEntityStatus.Pending ||
+        !entity.value
+    );
+}
 
 /**
- * One detected face: its crop, the asset it comes from and its name, to set,
- * confirm (a recognized face becomes a reference once a user confirms it) or
- * remove.
+ * One detected face: its crop, the asset it comes from and its person, to set
+ * (an existing person of the list, or a new one), confirm (a recognized face
+ * becomes a reference once a user confirms it) or forget.
  */
 export function FaceCard<F extends FaceCardFace>({
     face,
-    knownNames,
-    onIdentify,
+    listId,
+    canEdit,
+    onAssign,
+    onRemove,
     cropSize,
     showAssetLink = true,
 }: {
     face: F;
-    /** Names already given in the workspace, suggested while typing */
-    knownNames: string[];
-    onIdentify: (face: F, identity: string | null) => Promise<void>;
+    /** Entity list of the persons */
+    listId: string | undefined;
+    canEdit: boolean;
+    /** Gives the face to a person (the entity ID) */
+    onAssign: (face: F, entityId: string) => Promise<void>;
+    onRemove: (face: F) => Promise<void>;
     cropSize?: number;
     /** Off where the asset is already displayed (its own view) */
     showAssetLink?: boolean;
 }) {
     const {t} = useTranslation();
-    const listId = useId();
-    const identity = face.identity ?? '';
-    const [draft, setDraft] = useState(identity);
     const [saving, setSaving] = useState(false);
-
-    // A name set elsewhere (propagation, refresh) replaces an untouched draft
-    useEffect(() => {
-        setDraft(identity);
-    }, [identity]);
-
-    const dirty = draft.trim() !== identity;
-    const recognized = face.identityOrigin === FaceIdentityOrigin.Auto;
+    const unknown = isUnknownPerson(face.entity);
+    const recognized = !unknown && face.origin !== 'human';
     const asset = face.asset;
 
-    const save = async (value: string | null) => {
+    const run = async (action: () => Promise<void>) => {
         setSaving(true);
         try {
-            await onIdentify(face, value);
+            await action();
         } finally {
             setSaving(false);
         }
     };
 
-    const submit = (e: FormEvent) => {
-        e.preventDefault();
-        const value = draft.trim();
-        if (value === identity && !recognized) {
-            return;
-        }
-        void save(value || null);
-    };
-
     return (
-        <form
-            onSubmit={submit}
+        <div
             className={cn(
                 'flex flex-col gap-2 rounded-lg border bg-card p-2',
-                !identity && 'border-dashed'
+                unknown && 'border-dashed'
             )}
             data-testid="face-card"
         >
@@ -89,30 +103,26 @@ export function FaceCard<F extends FaceCardFace>({
             />
 
             <div className="flex items-center gap-1 text-xs">
-                {identity ? (
-                    recognized ? (
-                        <Tooltip
-                            content={t(
-                                'faces.recognized_help',
-                                'Recognized automatically from a face named by a user. Confirm it to make it a reference.'
-                            )}
-                        >
-                            <Badge variant="warning">
-                                {t('faces.recognized', 'Recognized')}
-                                {face.identityConfidence != null
-                                    ? ` · ${Math.round(face.identityConfidence * 100)}%`
-                                    : null}
-                            </Badge>
-                        </Tooltip>
-                    ) : (
-                        <Badge variant="success">
-                            {t('faces.named', 'Named')}
-                        </Badge>
-                    )
-                ) : (
+                {unknown ? (
                     <Badge variant="muted">
                         {t('faces.unnamed', 'Unnamed')}
                     </Badge>
+                ) : recognized ? (
+                    <Tooltip
+                        content={t(
+                            'faces.recognized_help',
+                            'Recognized automatically from a face named by a user. Confirm it to make it a reference.'
+                        )}
+                    >
+                        <Badge variant="warning">
+                            {t('faces.recognized', 'Recognized')}
+                            {face.confidence != null
+                                ? ` · ${Math.round(face.confidence * 100)}%`
+                                : null}
+                        </Badge>
+                    </Tooltip>
+                ) : (
+                    <Badge variant="success">{t('faces.named', 'Named')}</Badge>
                 )}
                 <span className="flex-1" />
                 {showAssetLink ? (
@@ -130,56 +140,49 @@ export function FaceCard<F extends FaceCardFace>({
                 ) : null}
             </div>
 
-            <div className="flex items-center gap-1">
-                <Input
-                    value={draft}
-                    onChange={e => setDraft(e.target.value)}
-                    list={listId}
-                    placeholder={t('faces.name_placeholder', 'Who is this?')}
-                    aria-label={t('faces.name', 'Name')}
-                    className="h-8 text-xs"
-                    disabled={saving}
-                    data-testid="face-name"
-                />
-                <datalist id={listId}>
-                    {knownNames.map(name => (
-                        <option key={name} value={name} />
-                    ))}
-                </datalist>
-                {dirty || recognized ? (
-                    <Tooltip
-                        content={
-                            dirty
-                                ? t('common.save', 'Save')
-                                : t('faces.confirm', 'Confirm the name')
-                        }
-                    >
+            <div className="flex items-center gap-1" data-testid="face-person">
+                <div className="min-w-0 flex-1">
+                    <AttributeEntitySelect
+                        listId={listId}
+                        allowNewValues
+                        value={unknown ? undefined : face.entity?.id}
+                        onChange={value => {
+                            if (value && value !== face.entity?.id) {
+                                void run(() => onAssign(face, value));
+                            }
+                        }}
+                        disabled={!canEdit || saving}
+                    />
+                </div>
+                {recognized && canEdit ? (
+                    <Tooltip content={t('faces.confirm', 'Confirm the person')}>
                         <Button
-                            type="submit"
                             size="icon-xs"
-                            variant={dirty ? 'default' : 'outline'}
+                            variant="outline"
                             loading={saving}
-                            disabled={dirty && !draft.trim() && !identity}
-                            data-testid="face-save"
+                            onClick={() =>
+                                void run(() => onAssign(face, face.entity!.id))
+                            }
+                            data-testid="face-confirm"
                         >
                             <CheckIcon />
                         </Button>
                     </Tooltip>
                 ) : null}
-                {identity && !dirty ? (
-                    <Tooltip content={t('faces.clear', 'Remove the name')}>
+                {canEdit ? (
+                    <Tooltip content={t('faces.forget', 'Forget this face')}>
                         <Button
                             size="icon-xs"
                             variant="ghost"
                             loading={saving}
-                            onClick={() => save(null)}
-                            data-testid="face-clear"
+                            onClick={() => void run(() => onRemove(face))}
+                            data-testid="face-remove"
                         >
-                            <XIcon />
+                            <Trash2Icon />
                         </Button>
                     </Tooltip>
                 ) : null}
             </div>
-        </form>
+        </div>
     );
 }

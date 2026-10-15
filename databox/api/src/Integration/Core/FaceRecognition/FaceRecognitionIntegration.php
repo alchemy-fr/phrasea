@@ -7,8 +7,9 @@ namespace App\Integration\Core\FaceRecognition;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
+use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Asset;
-use App\Entity\Core\AssetFace;
+use App\Entity\Core\EntityList;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AbstractIntegration;
 use App\Integration\Action\UserActionsTrait;
@@ -23,12 +24,13 @@ use App\Integration\UserActionsIntegrationInterface;
 use App\Integration\WorkflowHelper;
 use App\Integration\WorkflowIntegrationInterface;
 use App\Notification\EntityDisableNotifyableException;
+use App\Repository\Core\AttributeDefinitionRepository;
 use App\Security\Voter\AbstractVoter;
 use App\Service\Storage\RenditionManager;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -36,6 +38,9 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * Self-hosted face detection and recognition (see infra/docker/face-recognition).
+ *
+ * The persons are the entities of a list of the workspace, the faces are the values of an entity
+ * attribute bound to that list (one value per detected face, with its box and embedding).
  */
 #[AsTaggedItem(index: 'core.face_recognition')]
 class FaceRecognitionIntegration extends AbstractIntegration implements FilterNeedIntegrationInterface, WorkflowIntegrationInterface, UserActionsIntegrationInterface
@@ -47,17 +52,17 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
     final public const string VERSION = '1.0';
 
     final public const string ACTION_ANALYZE = 'analyze';
-    final public const string ACTION_IDENTIFY = 'identify';
 
     final public const string DEFAULT_RENDITION = 'preview';
     final public const float DEFAULT_MIN_CONFIDENCE = 0.5;
     final public const float DEFAULT_MATCH_THRESHOLD = 0.5;
     final public const int DEFAULT_MAX_IMAGE_SIZE = 2048;
+    final public const string DEFAULT_UNKNOWN_LABEL = 'Unknown person';
 
     public function __construct(
         private readonly MessageBusInterface $bus,
         private readonly RenditionManager $renditionManager,
-        private readonly FaceIdentifier $identifier,
+        private readonly AttributeDefinitionRepository $attributeDefinitionRepository,
     ) {
     }
 
@@ -74,6 +79,22 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
     public function buildConfiguration(NodeBuilder $builder): void
     {
         $builder
+            // TODO maybe not necessary, attribute definition should be sufficient
+            ->scalarNode('entityList')
+                ->isRequired()
+                ->cannotBeEmpty()
+                ->info('ID of the entity list of the workspace holding the persons (one entity per person; the look-alikes not named yet are pending entities)')
+            ->end()
+            ->scalarNode('attribute')
+                ->isRequired()
+                ->cannotBeEmpty()
+                ->info('Slug of a multi-valued attribute of type "entity" bound to that list: each detected face is a value of it (person, box and confidence)')
+            ->end()
+            ->scalarNode('unknownLabel')
+                ->defaultValue(self::DEFAULT_UNKNOWN_LABEL)
+                ->cannotBeEmpty()
+                ->info('Name given to a person nobody has named yet (a short code is appended)')
+            ->end()
             ->scalarNode('rendition')
                 ->defaultValue(self::DEFAULT_RENDITION)
                 ->info('Rendition sent to the face recognition service (must be an image). Falls back to the source file when the rendition is missing')
@@ -95,17 +116,41 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
             ->floatNode('matchThreshold')
                 ->defaultValue(self::DEFAULT_MATCH_THRESHOLD)
                 ->min(0)->max(1)
-                ->info('Minimum cosine similarity with a face identified by a user to recognize the same person (0 disables recognition)')
+                ->info('Minimum cosine similarity with a known face to recognize the same person (0 disables recognition: every face is a new unknown person)')
             ->end()
             ->booleanNode('autoPropagate')
                 ->defaultTrue()
-                ->info('When a user identifies a face, apply the identity to the similar faces of the workspace')
-            ->end()
-            ->scalarNode('attribute')
-                ->defaultNull()
-                ->info('Slug of a multi-valued string attribute receiving the names of the recognized persons')
+                ->info('When a user names a face, apply the person to the similar faces of the workspace')
             ->end()
         ;
+    }
+
+    #[\Override]
+    public function validateConfiguration(IntegrationConfig $config): void
+    {
+        $workspaceId = $config->getWorkspaceId();
+        if (null === $workspaceId) {
+            throw new InvalidConfigurationException('Face recognition requires a workspace');
+        }
+
+        $list = $this->em->find(EntityList::class, (string) $config['entityList']);
+        if (!$list instanceof EntityList || $list->getWorkspaceId() !== $workspaceId) {
+            throw new InvalidConfigurationException(sprintf('Entity list "%s" not found in the workspace', $config['entityList']));
+        }
+
+        $definition = $this->attributeDefinitionRepository->getAttributeDefinitionBySlug($workspaceId, (string) $config['attribute']);
+        if (null === $definition) {
+            throw new InvalidConfigurationException(sprintf('Attribute "%s" not found in the workspace', $config['attribute']));
+        }
+        if (EntityAttributeType::NAME !== $definition->getType()) {
+            throw new InvalidConfigurationException(sprintf('Attribute "%s" must be of type "entity"', $config['attribute']));
+        }
+        if (!$definition->isMultiple()) {
+            throw new InvalidConfigurationException(sprintf('Attribute "%s" must be multi-valued', $config['attribute']));
+        }
+        if ($definition->getEntityList()?->getId() !== $list->getId()) {
+            throw new InvalidConfigurationException(sprintf('Attribute "%s" must be bound to the entity list "%s"', $config['attribute'], $list->getName()));
+        }
     }
 
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
@@ -154,41 +199,13 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
     {
         return match ($action) {
             self::ACTION_ANALYZE => $this->handleAnalyze($request, $config),
-            self::ACTION_IDENTIFY => $this->handleIdentify($request, $config),
             default => throw new \InvalidArgumentException(sprintf('Unsupported action "%s"', $action)),
         };
     }
 
     private function handleAnalyze(Request $request, IntegrationConfig $config): ?Response
     {
-        $asset = $this->getAsset($request->request->get('assetId'), $config);
-
-        $this->bus->dispatch(new FaceRecognitionAnalyze($asset->getId(), $config->getIntegrationId()));
-
-        return null;
-    }
-
-    private function handleIdentify(Request $request, IntegrationConfig $config): Response
-    {
-        $faceId = $request->request->get('faceId');
-        if (empty($faceId)) {
-            throw new BadRequestHttpException('Missing faceId');
-        }
-
-        $face = DoctrineUtil::findStrict($this->em, AssetFace::class, $faceId);
-        $asset = $this->getAsset($face->getAsset()->getId(), $config);
-
-        $identity = $request->request->get('identity');
-        $summary = $this->identifier->identify($face, null !== $identity ? (string) $identity : null, $config);
-
-        return new JsonResponse([
-            'asset' => $asset->getId(),
-            ...$summary,
-        ]);
-    }
-
-    private function getAsset(?string $assetId, IntegrationConfig $config): Asset
-    {
+        $assetId = $request->request->get('assetId');
         if (empty($assetId)) {
             throw new BadRequestHttpException('Missing assetId');
         }
@@ -199,17 +216,21 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
         }
         $this->denyAccessUnlessGranted(AbstractVoter::EDIT, $asset);
 
-        return $asset;
+        $this->bus->dispatch(new FaceRecognitionAnalyze($asset->getId(), $config->getIntegrationId()));
+
+        return null;
     }
 
     #[\Override]
     public function resolveClientConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationConfig $config): array
     {
         return [
+            'entityList' => $config['entityList'],
+            'attribute' => $config['attribute'],
+            'attributeDefinition' => null !== $config->getWorkspaceId() ? $this->attributeDefinitionRepository->getAttributeDefinitionBySlug($config->getWorkspaceId(), (string) $config['attribute'])?->getId() : null,
             'processIncoming' => $config['processIncoming'],
             'matchThreshold' => $config['matchThreshold'],
             'autoPropagate' => $config['autoPropagate'],
-            'attribute' => $config['attribute'],
         ];
     }
 

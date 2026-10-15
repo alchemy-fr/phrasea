@@ -7,25 +7,19 @@ namespace App\Integration\Core\FaceRecognition\Message;
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
 /**
- * Propagates a user decision on a face (identity set, renamed or removed) to the faces of the workspace
- * that are similar to it or were derived from it.
+ * Propagates the person of a face a user named to the similar faces of the workspace.
  */
 #[MessengerMessage('p2')]
 final readonly class FaceRecognitionPropagate
 {
     public function __construct(
-        private string $faceId,
-        private string $integrationId,
+        // TODO keep integration ID to retrieve config
+        private string $attributeId,
     ) {
     }
 
-    public function getFaceId(): string
+    public function getAttributeId(): string
     {
-        return $this->faceId;
-    }
-
-    public function getIntegrationId(): string
-    {
-        return $this->integrationId;
+        return $this->attributeId;
     }
 }

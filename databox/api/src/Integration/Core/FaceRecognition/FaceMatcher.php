@@ -2,12 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Face;
-
-use App\Entity\Core\AssetFace;
+namespace App\Integration\Core\FaceRecognition;
 
 /**
- * Compares face embeddings (cosine similarity) against the reference faces identified by users.
+ * Geometry of the face recognition: embedding similarity and box overlap.
  */
 final class FaceMatcher
 {
@@ -38,35 +36,6 @@ final class FaceMatcher
         }
 
         return $dot / (sqrt($normA) * sqrt($normB));
-    }
-
-    /**
-     * Returns the best matching identity among the reference faces, or null when no
-     * reference reaches the threshold.
-     *
-     * @param float[]     $vector
-     * @param AssetFace[] $references
-     *
-     * @return array{identity: string, similarity: float, face: AssetFace}|null
-     */
-    public function findBestMatch(array $vector, iterable $references, float $threshold): ?array
-    {
-        $best = null;
-        foreach ($references as $reference) {
-            $similarity = self::cosineSimilarity($vector, $reference->getVector());
-            if ($similarity < $threshold) {
-                continue;
-            }
-            if (null === $best || $similarity > $best['similarity']) {
-                $best = [
-                    'identity' => $reference->getIdentity(),
-                    'similarity' => $similarity,
-                    'face' => $reference,
-                ];
-            }
-        }
-
-        return $best;
     }
 
     /**

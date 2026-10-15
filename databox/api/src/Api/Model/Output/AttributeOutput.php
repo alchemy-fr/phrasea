@@ -56,7 +56,7 @@ class AttributeOutput extends AbstractUuidOutput
     /**
      * "human" or "machine".
      */
-    #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ])]
+    #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ, Asset::GROUP_READ])]
     public ?string $origin = null;
 
     #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ])]
@@ -96,6 +96,6 @@ class AttributeOutput extends AbstractUuidOutput
     #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ])]
     public $status;
 
-    #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ])]
+    #[Groups([Attribute::GROUP_LIST, Attribute::GROUP_READ, Asset::GROUP_READ])]
     public $confidence;
 }

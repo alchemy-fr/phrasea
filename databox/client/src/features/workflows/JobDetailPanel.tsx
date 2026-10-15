@@ -1,9 +1,14 @@
 'use client';
 
 import type {CSSProperties} from 'react';
+import Link from 'next/link';
 import {useTranslation} from 'react-i18next';
-import {BanIcon, RotateCcwIcon, XIcon} from 'lucide-react';
-import type {WorkflowJob} from '@/types/api';
+import {useQuery} from '@tanstack/react-query';
+import {BanIcon, RotateCcwIcon, SettingsIcon, XIcon} from 'lucide-react';
+import type {WorkflowDetail, WorkflowJob} from '@/types/api';
+import {getWorkspace} from '@/lib/api/collections';
+import {joinRoutePath} from '@/lib/navigation/routePath';
+import {routes} from '@/lib/routes';
 import {Button} from '@/components/ui/button';
 import {CopiableText, CopyButton} from '@/components/ui/copy-button';
 import {
@@ -18,25 +23,35 @@ import {
     formatJobDuration,
     jobStatusLabel,
 } from './jobStatus';
+import {findJob} from './workflowGraph';
+import {workflowWorkspaceId} from './workflowLabel';
 
 /**
  * Details of the job selected in the graph (the legacy `JobDetail`): status,
- * timing, condition, inputs, outputs and errors, with the rerun action.
+ * timing, condition, inputs, outputs and errors, with the rerun action and,
+ * for the job of an integration, the way to its settings.
  *
  * Docked beside the graph, `width` wide; over it on small screens.
  */
 export function JobDetailPanel({
     job,
+    workflow,
     width,
     onRerun,
     onClose,
 }: {
     job: WorkflowJob;
+    /** The run the job belongs to: its other jobs, its workspace */
+    workflow: WorkflowDetail;
     width: number;
     onRerun: (jobId: string) => Promise<void>;
     onClose: () => void;
 }) {
     const {t} = useTranslation();
+    const integrationUrl = useIntegrationUrl(
+        job,
+        workflowWorkspaceId(workflow.name)
+    );
 
     return (
         <aside
@@ -83,14 +98,33 @@ export function JobDetailPanel({
                         ],
                     ]}
                 />
-                {canRerunJob(job) ? (
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => onRerun(job.jobId)}
-                    >
-                        <RotateCcwIcon /> {t('workflow.rerun', 'Rerun')}
-                    </Button>
+                {canRerunJob(job) || integrationUrl ? (
+                    <div className="flex flex-wrap gap-2">
+                        {canRerunJob(job) ? (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => onRerun(job.jobId)}
+                            >
+                                <RotateCcwIcon /> {t('workflow.rerun', 'Rerun')}
+                            </Button>
+                        ) : null}
+                        {integrationUrl ? (
+                            <Button asChild variant="outline" size="sm">
+                                <Link
+                                    href={integrationUrl}
+                                    scroll={false}
+                                    data-testid="workflow-job-edit-integration"
+                                >
+                                    <SettingsIcon />{' '}
+                                    {t(
+                                        'workflow.edit_integration',
+                                        'Edit integration'
+                                    )}
+                                </Link>
+                            </Button>
+                        ) : null}
+                    </div>
                 ) : null}
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span>{t('workflow.field.job_id', 'Job ID')}</span>
@@ -109,15 +143,27 @@ export function JobDetailPanel({
                     <DetailSection
                         title={t('workflow.field.needs', 'Depends on')}
                     >
-                        <ul className="flex flex-wrap gap-1">
-                            {job.needs.map(n => (
-                                <li
-                                    key={n}
-                                    className="rounded-md bg-muted px-2 py-0.5 font-mono text-xs"
-                                >
-                                    {n}
-                                </li>
-                            ))}
+                        <ul className="space-y-1">
+                            {job.needs.map(n => {
+                                const need = findJob(workflow, n);
+
+                                return (
+                                    <li
+                                        key={n}
+                                        className="group/need flex items-center gap-2 text-sm"
+                                        title={n}
+                                    >
+                                        <JobStatusDot status={need?.status} />
+                                        <span className="min-w-0 flex-1 truncate">
+                                            {need?.name ?? n}
+                                        </span>
+                                        <CopyButton
+                                            value={n}
+                                            className="opacity-0 group-hover/need:opacity-100 focus-visible:opacity-100"
+                                        />
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </DetailSection>
                 ) : null}
@@ -169,4 +215,31 @@ export function JobDetailPanel({
             </div>
         </aside>
     );
+}
+
+/**
+ * The settings of the integration the job runs (`with.integrationId`, set by
+ * the API on every integration job), in the workspace manage dialog — for
+ * those allowed to edit the workspace, the only ones who see that tab.
+ */
+function useIntegrationUrl(
+    job: WorkflowJob,
+    workspaceId: string | undefined
+): string | undefined {
+    const integrationId = job.with?.integrationId;
+    const wanted = typeof integrationId === 'string' && !!workspaceId;
+    // Same key as the manage dialog: one request for both
+    const workspace = useQuery({
+        queryKey: ['workspace', workspaceId],
+        queryFn: () => getWorkspace(workspaceId!),
+        enabled: wanted,
+    });
+
+    if (!wanted || !workspace.data?.capabilities.edit) {
+        return undefined;
+    }
+
+    return joinRoutePath(routes.workspaceManage(workspaceId, 'integrations'), [
+        integrationId,
+    ]);
 }

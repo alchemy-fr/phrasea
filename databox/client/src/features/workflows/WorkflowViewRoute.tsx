@@ -27,8 +27,15 @@ import {JobDetailPanel} from './JobDetailPanel';
 import {assetWorkflowsQueryKey, WorkflowRunsPanel} from './WorkflowRunsPanel';
 import {findJob} from './workflowGraph';
 
-/** Every URL of the screen: `/workflows/:id` */
+/** Every URL of the screen: `/workflows/:id[/jobs/:jobId]` */
 const routeKey = routes.workflow('').replace(/\/$/, '');
+
+/** The run and, below `jobs`, the job selected */
+function parseUrl(pathname: string): {id?: string; jobId?: string} {
+    const [id, segment, jobId] = splitRoutePath(pathname, routeKey) ?? [];
+
+    return {id, jobId: segment === 'jobs' ? jobId : undefined};
+}
 
 const workflowPanelHash = '#panel=workflow';
 
@@ -47,7 +54,8 @@ function assetViewUrl(origin: string, assetId: string): string {
 /**
  * Workflow run: the runs of its asset on the left, the node graph of its jobs
  * — refreshed in realtime on `workflow-{id}` — and the details of the job
- * selected on the right, from which it can be rerun.
+ * selected on the right, from which it can be rerun. The job selected is in
+ * the URL (`/jobs/:jobId`): a refresh or a shared link lands on it.
  *
  * Closing leads to the asset, unless the run was opened from the list of all
  * the runs.
@@ -60,7 +68,7 @@ export function WorkflowViewRoute({
     // Switching run is a `history.pushState`: the dialog stays open
     const pathname = usePathname();
     const [workflowId, setWorkflowId] = useState(initialId);
-    const urlId = splitRoutePath(pathname, routeKey)?.[0];
+    const {id: urlId, jobId} = parseUrl(pathname);
     if (urlId && urlId !== workflowId) {
         setWorkflowId(urlId);
     }
@@ -84,6 +92,7 @@ export function WorkflowViewRoute({
         >
             <WorkflowScreen
                 workflowId={workflowId}
+                jobId={jobId}
                 assetId={assetId}
                 onAsset={setAssetId}
             />
@@ -93,10 +102,13 @@ export function WorkflowViewRoute({
 
 function WorkflowScreen({
     workflowId,
+    jobId,
     assetId,
     onAsset,
 }: {
     workflowId: string;
+    /** The job selected, from the URL */
+    jobId: string | undefined;
     assetId: string | undefined;
     onAsset: (assetId: string | undefined) => void;
 }) {
@@ -104,10 +116,6 @@ function WorkflowScreen({
     const queryClient = useQueryClient();
     const queryKey = ['workflow', workflowId];
     const query = useQuery({queryKey, queryFn: () => getWorkflow(workflowId)});
-    const [selected, setSelected] = useState<{
-        workflowId: string;
-        jobId: string;
-    }>();
     const panel = useResizablePanel('workflow-job');
     const close = useCloseRouteDialog();
     const origin = useRouteDialogOrigin();
@@ -128,14 +136,15 @@ function WorkflowScreen({
             onAsset(workflowAssetId);
         }
     }, [workflow, workflowAssetId, onAsset]);
-    // A job selected in another run is not carried over
-    const selectedJob =
-        selected?.workflowId === workflowId
-            ? findJob(workflow, selected.jobId)
-            : undefined;
-    const selectJob = (jobId: string | undefined) =>
-        setSelected(jobId ? {workflowId, jobId} : undefined);
+    const selectedJob = findJob(workflow, jobId);
+    const selectJob = (id: string | undefined) =>
+        pushPath(
+            id
+                ? routes.workflowJob(workflowId, id)
+                : routes.workflow(workflowId)
+        );
 
+    // The job selected is not carried over to another run
     const selectRun = useCallback(
         (id: string) => pushPath(routes.workflow(id)),
         []
@@ -222,6 +231,7 @@ function WorkflowScreen({
                         />
                         <JobDetailPanel
                             job={selectedJob}
+                            workflow={workflow!}
                             width={panel.width}
                             onRerun={jobId =>
                                 update(

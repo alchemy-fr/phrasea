@@ -31,8 +31,11 @@ vi.mock('@/lib/realtime/RealtimeProvider', () => ({
 
 const {api} = vi.hoisted(() => ({
     api: {
-        getIntegrationData: vi.fn(),
         runIntegrationAction: vi.fn(),
+        patchAssetAttribute: vi.fn(),
+        deleteAssetAttribute: vi.fn(),
+        getAttributeEntities: vi.fn(),
+        getAttributeEntity: vi.fn(),
     },
 }));
 
@@ -40,43 +43,71 @@ vi.mock('@/lib/api/integrations', async importOriginal => {
     const actual =
         await importOriginal<typeof import('@/lib/api/integrations')>();
 
-    return {...actual, ...api};
+    return {...actual, runIntegrationAction: api.runIntegrationAction};
 });
+vi.mock('@/lib/api/assets', async importOriginal => {
+    const actual = await importOriginal<typeof import('@/lib/api/assets')>();
+
+    return {
+        ...actual,
+        patchAssetAttribute: api.patchAssetAttribute,
+        deleteAssetAttribute: api.deleteAssetAttribute,
+    };
+});
+vi.mock('@/lib/api/metadata', async importOriginal => {
+    const actual = await importOriginal<typeof import('@/lib/api/metadata')>();
+
+    return {
+        ...actual,
+        getAttributeEntities: api.getAttributeEntities,
+        getAttributeEntity: api.getAttributeEntity,
+    };
+});
+
+const integration = {
+    id: 'int-1',
+    integration: 'core.face_recognition',
+    workspace: {id: 'ws'},
+    capabilities: {use: true, interact: true},
+    config: {
+        entityList: 'list-1',
+        attribute: 'persons',
+        attributeDefinition: 'def-1',
+    },
+} as unknown as WorkspaceIntegration;
 
 const asset = {
     id: 'asset-1',
     name: 'Group photo',
     preview: {file: {url: 'https://cdn.test/preview.jpg'}},
-} as unknown as Asset;
-
-const integration = {
-    id: 'int-1',
-    integration: 'core.face_recognition',
-    capabilities: {interact: true},
-} as unknown as WorkspaceIntegration;
-
-const summary = {
-    faces: [
+    capabilities: {edit: true},
+    attributes: [
         {
-            id: 'face-1',
-            box: {x: 0.1, y: 0.1, w: 0.2, h: 0.3},
+            id: 'attr-1',
+            definition: {id: 'def-1', slug: 'persons'},
+            value: {id: 'unknown-1', value: null, status: 1},
+            origin: 'machine',
             confidence: 0.9,
-            identity: null,
-            identityConfidence: null,
-            identityOrigin: null,
+            assetAnnotations: [{type: 'rect', x: 0.1, y: 0.1, w: 0.2, h: 0.3}],
         },
         {
-            id: 'face-2',
-            box: {x: 0.6, y: 0.1, w: 0.2, h: 0.3},
-            confidence: 0.9,
-            identity: 'Alice',
-            identityConfidence: 0.75,
-            identityOrigin: 'auto',
+            id: 'attr-2',
+            definition: {id: 'def-1', slug: 'persons'},
+            value: {id: 'alice', value: 'Alice', status: 0},
+            origin: 'machine',
+            confidence: 0.75,
+            assetAnnotations: [{type: 'rect', x: 0.6, y: 0.1, w: 0.2, h: 0.3}],
+        },
+        {
+            id: 'attr-3',
+            definition: {id: 'def-2', slug: 'keywords'},
+            value: 'sea',
+            origin: 'human',
         },
     ],
-};
+} as unknown as Asset;
 
-function renderPanel() {
+function renderPanel(props: Partial<{asset: Asset}> = {}) {
     const i18n = createI18n('en');
     const queryClient = new QueryClient({
         defaultOptions: {queries: {retry: false}},
@@ -88,7 +119,7 @@ function renderPanel() {
                 <TooltipPrimitive.Provider>
                     <FaceRecognitionPanel
                         integration={integration}
-                        asset={asset}
+                        asset={props.asset ?? asset}
                         file={{id: 'file-1'} as any}
                     />
                 </TooltipPrimitive.Provider>
@@ -103,58 +134,36 @@ describe('FaceRecognitionPanel', () => {
         realtime.handlers = {};
     });
 
-    it('reads the faces stored on the asset and names one', async () => {
-        api.getIntegrationData.mockResolvedValue({
-            total: 1,
-            items: [{id: 'd1', name: 'faces', value: JSON.stringify(summary)}],
-        });
-        api.runIntegrationAction.mockResolvedValue({
-            asset: 'asset-1',
-            faces: [
-                {...summary.faces[0], identity: 'Bob', identityOrigin: 'user'},
-                summary.faces[1],
-            ],
+    it('reads the faces from the attributes of the asset and confirms one', async () => {
+        api.patchAssetAttribute.mockResolvedValue({
+            ...(asset.attributes[1] as object),
+            origin: 'human',
         });
         renderPanel();
 
         const cards = await screen.findAllByTestId('face-card');
         expect(cards).toHaveLength(2);
-        expect(api.getIntegrationData).toHaveBeenCalledWith(
-            'int-1',
-            {type: 'asset', id: 'asset-1'},
-            expect.anything()
-        );
+        expect(screen.getByText('Unnamed')).toBeTruthy();
         expect(screen.getByText('Recognized · 75%')).toBeTruthy();
         expect(
             realtime.handlers['asset-asset-1|integration:core.face_recognition']
         ).toBeTypeOf('function');
 
-        const input = cards[0].querySelector(
-            '[data-testid=face-name]'
-        ) as HTMLInputElement;
-        fireEvent.change(input, {target: {value: 'Bob'}});
-        fireEvent.submit(cards[0]);
-
-        await waitFor(() =>
-            expect(api.runIntegrationAction).toHaveBeenCalledWith(
-                'int-1',
-                'identify',
-                {faceId: 'face-1', identity: 'Bob'}
-            )
+        fireEvent.click(
+            cards[1].querySelector('[data-testid=face-confirm]') as HTMLElement
         );
-        await waitFor(() => expect(cards[0].textContent).toContain('Named'));
+        await waitFor(() =>
+            expect(api.patchAssetAttribute).toHaveBeenCalledWith('attr-2', {
+                value: 'alice',
+            })
+        );
     });
 
     it('runs the detection on the asset', async () => {
-        api.getIntegrationData.mockResolvedValue({total: 0, items: []});
         api.runIntegrationAction.mockResolvedValue({});
-        renderPanel();
+        renderPanel({asset: {...asset, attributes: []} as Asset});
 
-        expect(
-            await screen.findByText(
-                'Faces have not been detected on this asset yet'
-            )
-        ).toBeTruthy();
+        expect(await screen.findByText('No face detected')).toBeTruthy();
         fireEvent.click(screen.getByTestId('faces-detect'));
         await waitFor(() =>
             expect(api.runIntegrationAction).toHaveBeenCalledWith(

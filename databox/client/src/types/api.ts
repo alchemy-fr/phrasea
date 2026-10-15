@@ -153,7 +153,6 @@ export enum EntityName {
     Message = 'messages',
     File = 'files',
     Workflow = 'workflows',
-    AssetFace = 'asset-faces',
 }
 
 export enum AttributeBatchActionEnum {
@@ -399,7 +398,10 @@ export type AttributeOrigin = 'human' | 'machine' | 'fallback' | 'initial';
 
 export interface Attribute extends Partial<HydraObject>, Entity {
     definition: AttributeDefinition;
+    /** The asset, as an IRI or an object, on the collections of a definition */
+    asset?: Asset | string;
     origin: AttributeOrigin;
+    confidence?: number;
     multiple: boolean;
     invalid?: boolean;
     originVendor?: string;
@@ -430,6 +432,8 @@ export interface AttributeEntity extends HydraObject, Entity {
     list?: EntityList | string;
     locale?: string;
     value: string;
+    /** Tells apart the values sharing the same name (homonyms) */
+    note?: string | null;
     emoji?: string;
     color?: string;
     translations: Translations;
@@ -437,6 +441,8 @@ export interface AttributeEntity extends HydraObject, Entity {
     createdAt: string;
     updatedAt: string;
     status: AttributeEntityStatus;
+    /** Attribute values referencing the entity, with the `usage` parameter */
+    usage?: {attributes: number; humanAttributes: number};
 }
 
 export interface EntityList extends HydraObject, Entity {
@@ -536,45 +542,6 @@ export interface Asset
 
 /** Bounding box normalized to the image size, origin top-left */
 export type FaceBox = {x: number; y: number; w: number; h: number};
-
-export enum FaceIdentityOrigin {
-    /** Named by a user: a reference for the recognition */
-    User = 'user',
-    /** Recognized from a user-named face */
-    Auto = 'auto',
-}
-
-/** A face detected in an asset by the face recognition integration */
-export interface AssetFace extends HydraObject, Entity {
-    asset: Asset;
-    box: FaceBox;
-    position: number;
-    confidence: number;
-    /** Null values are left out of the payload */
-    identity?: string | null;
-    identityConfidence?: number | null;
-    identityOrigin?: FaceIdentityOrigin | null;
-    /** The user-named face an automatic identity was derived from */
-    reference?: string | null;
-    age?: number | null;
-    gender?: string | null;
-    createdAt: string;
-    updatedAt: string;
-}
-
-export type FaceIdentity = {
-    identity: string;
-    /** Faces carrying this name */
-    faces: number;
-    /** Among them, those named by a user */
-    userFaces: number;
-};
-
-export type FaceIdentities = {
-    identities: FaceIdentity[];
-    /** Faces without a name */
-    unnamed: number;
-};
 
 export interface AssetFileVersion extends Entity {
     asset: Asset;

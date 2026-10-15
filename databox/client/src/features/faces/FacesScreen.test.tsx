@@ -4,10 +4,9 @@ import {I18nextProvider} from 'react-i18next';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {Tooltip as TooltipPrimitive} from 'radix-ui';
 import {createI18n} from '@/i18n';
-import {AssetFace, FaceIdentityOrigin} from '@/types/api';
+import type {Attribute, AttributeEntity} from '@/types/api';
+import {AttributeEntityStatus} from '@/types/api';
 import {FacesScreen} from './FacesScreen';
-
-const auth = vi.hoisted(() => ({roles: ['edit_faces'] as string[]}));
 
 vi.mock('next/navigation', () => ({
     usePathname: () => '/faces',
@@ -27,24 +26,16 @@ vi.mock('@/lib/auth/AuthProvider', () => ({
     useAuth: () => ({
         status: 'authenticated',
         isAuthenticated: true,
-        hasRole: (role: string) => auth.roles.includes(role),
+        hasRole: () => false,
         login: vi.fn(),
         logout: vi.fn(),
     }),
-    AppRole: {
-        Admin: 'admin',
-        DataboxAdmin: 'databox-admin',
-        Tech: 'tech',
-        EditFaces: 'edit_faces',
-    },
+    AppRole: {Admin: 'admin', DataboxAdmin: 'databox-admin', Tech: 'tech'},
 }));
 
 vi.mock('@/features/collections/collectionStore', () => {
     const state = {
-        workspaces: [
-            {id: 'ws', name: 'Workspace', displayName: 'Workspace'},
-            {id: 'ws2', name: 'Other', displayName: 'Other'},
-        ],
+        workspaces: [{id: 'ws', name: 'Workspace', displayName: 'Workspace'}],
         loadWorkspaces: vi.fn(),
     };
 
@@ -56,38 +47,116 @@ vi.mock('@/features/collections/collectionStore', () => {
 
 const {api} = vi.hoisted(() => ({
     api: {
-        getFaces: vi.fn(),
-        getFaceIdentities: vi.fn(),
-        identifyFace: vi.fn(),
+        getIntegrationsOfContext: vi.fn(),
+        getAttributeEntities: vi.fn(),
+        getAttributeEntity: vi.fn(),
+        getAttributesOfDefinition: vi.fn(),
+        mergeAttributeEntities: vi.fn(),
+        putAttributeEntity: vi.fn(),
+        postAttributeEntity: vi.fn(),
+        searchAssets: vi.fn(),
+        patchAssetAttribute: vi.fn(),
+        deleteAssetAttribute: vi.fn(),
     },
 }));
 
-vi.mock('@/lib/api/faces', () => api);
+vi.mock('@/lib/api/integrations', async importOriginal => {
+    const actual =
+        await importOriginal<typeof import('@/lib/api/integrations')>();
+
+    return {...actual, getIntegrationsOfContext: api.getIntegrationsOfContext};
+});
+vi.mock('@/lib/api/metadata', async importOriginal => {
+    const actual = await importOriginal<typeof import('@/lib/api/metadata')>();
+
+    return {
+        ...actual,
+        getAttributeEntities: api.getAttributeEntities,
+        getAttributeEntity: api.getAttributeEntity,
+        getAttributesOfDefinition: api.getAttributesOfDefinition,
+        mergeAttributeEntities: api.mergeAttributeEntities,
+        putAttributeEntity: api.putAttributeEntity,
+        postAttributeEntity: api.postAttributeEntity,
+    };
+});
+vi.mock('@/lib/api/assets', async importOriginal => {
+    const actual = await importOriginal<typeof import('@/lib/api/assets')>();
+
+    return {
+        ...actual,
+        searchAssets: api.searchAssets,
+        patchAssetAttribute: api.patchAssetAttribute,
+        deleteAssetAttribute: api.deleteAssetAttribute,
+    };
+});
+
+const integration = {
+    id: 'int-1',
+    integration: 'core.face_recognition',
+    enabled: true,
+    workspace: {id: 'ws'},
+    capabilities: {use: true, interact: true},
+    config: {
+        entityList: 'list-1',
+        attribute: 'persons',
+        attributeDefinition: 'def-1',
+    },
+};
+
+function person(
+    id: string,
+    value: string,
+    options: Partial<AttributeEntity> = {}
+): AttributeEntity {
+    return {
+        id,
+        value,
+        status: AttributeEntityStatus.Approved,
+        translations: {},
+        usage: {attributes: 2, humanAttributes: 1},
+        ...options,
+    } as AttributeEntity;
+}
 
 function face(
     i: number,
-    identity?: string,
-    origin?: FaceIdentityOrigin
-): AssetFace {
+    entity: AttributeEntity | undefined,
+    origin: 'human' | 'machine' = 'machine'
+): Attribute {
     return {
-        'id': `face-${i}`,
-        '@id': `/asset-faces/face-${i}`,
-        '@type': 'asset-face',
-        'asset': {
-            id: `asset-${i}`,
-            name: `Photo ${i}`,
-            preview: {file: {url: `https://cdn.test/p${i}.jpg`}},
-        },
-        'box': {x: 0.1, y: 0.1, w: 0.2, h: 0.3},
-        'position': 0,
-        'confidence': 0.9,
-        'identity': identity,
-        'identityOrigin': origin,
-        'identityConfidence': origin ? 0.8 : undefined,
-        'createdAt': '2026-10-01T10:00:00+00:00',
-        'updatedAt': '2026-10-01T10:00:00+00:00',
-    } as unknown as AssetFace;
+        id: `attr-${i}`,
+        asset: `/assets/asset-${i}`,
+        definition: {id: 'def-1', slug: 'persons'},
+        value: entity
+            ? {
+                  id: entity.id,
+                  value:
+                      entity.status === AttributeEntityStatus.Pending
+                          ? null
+                          : entity.value,
+                  status: entity.status,
+              }
+            : null,
+        origin,
+        confidence: origin === 'human' ? 1 : 0.8,
+        assetAnnotations: [{type: 'rect', x: 0.1, y: 0.1, w: 0.2, h: 0.3}],
+    } as unknown as Attribute;
 }
+
+function asset(i: number) {
+    return {
+        id: `asset-${i}`,
+        name: `Photo ${i}`,
+        preview: {file: {url: `https://cdn.test/p${i}.jpg`}},
+        capabilities: {edit: true},
+    };
+}
+
+const alice = person('alice', 'Alice');
+const unknown = person('unknown-1', 'Unknown person · a1b2', {
+    status: AttributeEntityStatus.Pending,
+    usage: {attributes: 1, humanAttributes: 0},
+});
 
 function renderScreen() {
     const i18n = createI18n('en');
@@ -109,18 +178,27 @@ function renderScreen() {
 describe('FacesScreen', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        auth.roles = ['edit_faces'];
-        api.getFaces.mockResolvedValue({
+        api.getIntegrationsOfContext.mockResolvedValue({
+            total: 1,
+            items: [integration],
+        });
+        api.getAttributeEntities.mockImplementation(
+            async (opts: {status?: number}) =>
+                opts.status === AttributeEntityStatus.Pending
+                    ? {total: 1, items: [unknown]}
+                    : {total: 1, items: [alice]}
+        );
+        api.getAttributesOfDefinition.mockResolvedValue({
             total: 3,
             items: [
-                face(1),
-                face(2, 'Alice', FaceIdentityOrigin.User),
-                face(3, 'Alice', FaceIdentityOrigin.Auto),
+                face(1, unknown),
+                face(2, alice, 'human'),
+                face(3, alice, 'machine'),
             ],
         });
-        api.getFaceIdentities.mockResolvedValue({
-            identities: [{identity: 'Alice', faces: 2, userFaces: 1}],
-            unnamed: 1,
+        api.searchAssets.mockResolvedValue({
+            total: 3,
+            items: [asset(1), asset(2), asset(3)],
         });
     });
 
@@ -134,87 +212,110 @@ describe('FacesScreen', () => {
             'Unnamed1'
         );
         expect(screen.getByText('Recognized · 80%')).toBeTruthy();
-        expect(api.getFaces).toHaveBeenCalledWith(
-            expect.objectContaining({
-                workspace: undefined,
-                identity: undefined,
-                identified: undefined,
-            }),
+        expect(api.getAttributesOfDefinition).toHaveBeenCalledWith(
+            expect.objectContaining({definition: 'def-1', value: undefined}),
+            expect.anything()
+        );
+        expect(api.searchAssets).toHaveBeenCalledWith(
+            expect.objectContaining({ids: ['asset-1', 'asset-2', 'asset-3']}),
             expect.anything()
         );
     });
 
-    it('filters the faces of a person or the unnamed ones', async () => {
+    it('filters the faces of a person and shows its header', async () => {
         renderScreen();
         await screen.findAllByTestId('face-card');
 
         fireEvent.click(screen.getByTestId('faces-person'));
         await waitFor(() =>
-            expect(api.getFaces).toHaveBeenLastCalledWith(
-                expect.objectContaining({identity: 'Alice'}),
+            expect(api.getAttributesOfDefinition).toHaveBeenLastCalledWith(
+                expect.objectContaining({value: ['alice']}),
                 expect.anything()
             )
         );
+        expect(await screen.findByTestId('person-header')).toBeTruthy();
+        expect(screen.getByText('1 reference face')).toBeTruthy();
+    });
+
+    it('renames a person with a note', async () => {
+        api.putAttributeEntity.mockResolvedValue(
+            person('alice', 'Alice Smith', {note: 'the photographer'})
+        );
+        renderScreen();
+        await screen.findAllByTestId('face-card');
+        fireEvent.click(screen.getByTestId('faces-person'));
+        fireEvent.click(await screen.findByTestId('person-rename-button'));
+
+        fireEvent.change(screen.getByTestId('person-rename-value'), {
+            target: {value: 'Alice Smith'},
+        });
+        fireEvent.change(screen.getByTestId('person-rename-note'), {
+            target: {value: 'the photographer'},
+        });
+        fireEvent.submit(screen.getByTestId('person-rename'));
+
+        await waitFor(() =>
+            expect(api.putAttributeEntity).toHaveBeenCalledWith('alice', {
+                value: 'Alice Smith',
+                note: 'the photographer',
+            })
+        );
+    });
+
+    it('confirms a recognized face and forgets a face', async () => {
+        api.patchAssetAttribute.mockResolvedValue(face(3, alice, 'human'));
+        api.deleteAssetAttribute.mockResolvedValue(undefined);
+        renderScreen();
+        const cards = await screen.findAllByTestId('face-card');
+
+        fireEvent.click(
+            cards[2].querySelector('[data-testid=face-confirm]') as HTMLElement
+        );
+        await waitFor(() =>
+            expect(api.patchAssetAttribute).toHaveBeenCalledWith('attr-3', {
+                value: 'alice',
+            })
+        );
+
+        fireEvent.click(
+            cards[1].querySelector('[data-testid=face-remove]') as HTMLElement
+        );
+        await waitFor(() =>
+            expect(api.deleteAssetAttribute).toHaveBeenCalledWith('attr-2')
+        );
+    });
+
+    it('groups the unnamed faces by unknown person', async () => {
+        api.getAttributesOfDefinition.mockImplementation(
+            async (opts: {value?: string[]}) =>
+                opts.value?.includes('unknown-1')
+                    ? {total: 1, items: [face(1, unknown)]}
+                    : {total: 3, items: []}
+        );
+        renderScreen();
+        await screen.findByTestId('faces-person-unnamed');
 
         fireEvent.click(screen.getByTestId('faces-person-unnamed'));
+        const groups = await screen.findAllByTestId('person-group');
+        expect(groups).toHaveLength(1);
+        expect(
+            groups[0].querySelector('[data-testid=person-group-count]')
+                ?.textContent
+        ).toBe('1 face');
         await waitFor(() =>
-            expect(api.getFaces).toHaveBeenLastCalledWith(
-                expect.objectContaining({
-                    identity: undefined,
-                    identified: false,
-                }),
-                expect.anything()
-            )
+            expect(
+                groups[0].querySelectorAll('[data-testid=face-card]')
+            ).toHaveLength(1)
         );
+        expect(
+            groups[0].querySelector('[data-testid=person-group-name]')
+        ).toBeTruthy();
     });
 
-    it('names a face', async () => {
-        api.identifyFace.mockResolvedValue(
-            face(1, 'Bob', FaceIdentityOrigin.User)
-        );
-        renderScreen();
-        const cards = await screen.findAllByTestId('face-card');
-
-        const input = cards[0].querySelector(
-            '[data-testid=face-name]'
-        ) as HTMLInputElement;
-        fireEvent.change(input, {target: {value: 'Bob'}});
-        fireEvent.submit(cards[0]);
-
-        await waitFor(() =>
-            expect(api.identifyFace).toHaveBeenCalledWith('face-1', 'Bob')
-        );
-        await waitFor(() => expect(cards[0].textContent).toContain('Named'));
-        expect(api.getFaceIdentities).toHaveBeenCalledTimes(2);
-    });
-
-    it('confirms a recognized face and removes a name', async () => {
-        api.identifyFace.mockResolvedValue(
-            face(3, 'Alice', FaceIdentityOrigin.User)
-        );
-        renderScreen();
-        const cards = await screen.findAllByTestId('face-card');
-
-        fireEvent.click(
-            cards[2].querySelector('[data-testid=face-save]') as HTMLElement
-        );
-        await waitFor(() =>
-            expect(api.identifyFace).toHaveBeenCalledWith('face-3', 'Alice')
-        );
-
-        fireEvent.click(
-            cards[1].querySelector('[data-testid=face-clear]') as HTMLElement
-        );
-        await waitFor(() =>
-            expect(api.identifyFace).toHaveBeenCalledWith('face-2', null)
-        );
-    });
-
-    it('is reserved to the face editors', async () => {
-        auth.roles = [];
+    it('explains when no workspace recognizes faces', async () => {
+        api.getIntegrationsOfContext.mockResolvedValue({total: 0, items: []});
         renderScreen();
 
-        expect(await screen.findByTestId('faces-forbidden')).toBeTruthy();
-        expect(api.getFaces).not.toHaveBeenCalled();
+        expect(await screen.findByTestId('faces-empty')).toBeTruthy();
     });
 });

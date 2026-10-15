@@ -4,24 +4,35 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Integration\Core\FaceRecognition;
 
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use App\Attribute\Type\EntityAttributeType;
 use App\Entity\Core\Asset;
-use App\Entity\Core\AssetFace;
 use App\Entity\Core\Attribute;
+use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\AttributeEntity;
+use App\Entity\Core\EntityList;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Integration\Core\FaceRecognition\FaceManager;
 use App\Integration\Core\FaceRecognition\FaceRecognitionAnalyzer;
+use App\Integration\Core\FaceRecognition\FaceRecognitionClient;
 use App\Integration\Core\FaceRecognition\FaceRecognitionIntegration;
 use App\Integration\IntegrationConfig;
-use App\Integration\IntegrationDataManager;
 use App\Integration\IntegrationManager;
-use App\Repository\Core\AssetFaceRepository;
-use App\Service\Face\FaceRecognitionClient;
+use App\Repository\Core\AttributeRepository;
 use App\Tests\Functional\AbstractDataboxTestCase;
+use App\Tests\Functional\Api\Attribute\AttributeApiTestTrait;
 use App\Tests\Functional\Face\FaceRecognitionClientMock;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
+/**
+ * Faces are values of the configured entity attribute, persons are the entities of its list.
+ */
 class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
 {
+    use AttributeApiTestTrait;
+
     private const array BOX_LEFT = ['x' => 0.1, 'y' => 0.2, 'w' => 0.2, 'h' => 0.3];
     private const array BOX_RIGHT = ['x' => 0.6, 'y' => 0.2, 'w' => 0.2, 'h' => 0.3];
 
@@ -30,157 +41,277 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
     private const array BOB = [0.0, 1.0, 0.0, 0.0];
     private const array STRANGER = [0.0, 0.0, 1.0, 0.0];
 
-    public function testDetectIdentifyRecognizeAndPropagate(): void
+    private Workspace $workspace;
+    private EntityList $list;
+    private AttributeDefinition $definition;
+
+    public function testDetectNameRecognizeAndPropagate(): void
     {
         $em = self::getEntityManager();
-        $workspace = $this->getOrCreateDefaultWorkspace();
-        $attrDef = $this->createAttributeDefinition([
-            'workspace' => $workspace,
-            'name' => 'Persons',
-            'slug' => 'persons',
-            'multiple' => true,
-        ]);
+        $this->setUpScene();
+        $config = $this->createConfig(['matchThreshold' => 0.6]);
 
-        $wsIntegration = $this->createIntegration($workspace, [
-            'attribute' => 'persons',
-            'matchThreshold' => 0.6,
-        ]);
-        $config = self::getService(IntegrationManager::class)->getIntegrationConfiguration($wsIntegration);
-
-        /** @var FaceRecognitionAnalyzer $analyzer */
         $analyzer = self::getService(FaceRecognitionAnalyzer::class);
         /** @var FaceRecognitionClientMock $client */
         $client = self::getService(FaceRecognitionClient::class);
-        /** @var AssetFaceRepository $faceRepository */
-        $faceRepository = self::getService(AssetFaceRepository::class);
-        /** @var IntegrationDataManager $dataManager */
-        $dataManager = self::getService(IntegrationDataManager::class);
+        $faceManager = self::getService(FaceManager::class);
 
-        $groupPhoto = $this->createImageAsset($workspace);
-        $otherPhoto = $this->createImageAsset($workspace);
+        $groupPhoto = $this->createImageAsset();
+        $otherPhoto = $this->createImageAsset();
 
-        // 1. Detection keeps confident faces only; nobody is known yet
+        // 1. Detection keeps confident faces only; nobody is known yet: one pending person per face
         $client->setFaces([
             self::face(self::BOX_LEFT, self::ALICE),
             self::face(self::BOX_RIGHT, self::BOB),
             self::face(['x' => 0.4, 'y' => 0.8, 'w' => 0.1, 'h' => 0.1], self::STRANGER, 0.2),
         ]);
-        $summary = $analyzer->analyze($groupPhoto, $config);
-        $this->assertNotNull($summary);
-        $this->assertCount(2, $summary['faces']);
-        $this->assertNull($summary['faces'][0]['identity']);
-        $this->assertNull($summary['faces'][1]['identity']);
+        $faces = $analyzer->analyze($groupPhoto, $config);
+        $this->assertNotNull($faces);
+        $this->assertCount(2, $faces);
         $this->assertCount(1, $client->getCalls());
-        $this->assertCount(2, $faceRepository->findByAsset($groupPhoto->getId()));
-        $this->assertCount(0, $this->getPersonAttributes($groupPhoto->getId(), $attrDef->getId()));
+        [$leftFace, $rightFace] = $faces;
+        $this->assertSame(self::BOX_LEFT, self::boxOf($leftFace));
+        $this->assertSame(Attribute::ORIGIN_MACHINE, $leftFace->getOrigin());
+        $this->assertSame(FaceRecognitionIntegration::getName(), $leftFace->getOriginVendor());
+        $this->assertSame(self::ALICE, $leftFace->getEmbedding()['v']);
+        $unknownAlice = $this->person($leftFace);
+        $unknownBob = $this->person($rightFace);
+        $this->assertNotSame($unknownAlice->getId(), $unknownBob->getId(), 'Different persons');
+        $this->assertSame(AttributeEntity::STATUS_PENDING, $unknownAlice->getStatus());
+        $this->assertStringStartsWith('Unknown person · ', $unknownAlice->getValue());
+        $this->assertSame($this->list->getId(), $unknownAlice->getListId());
 
-        // 2. A user identifies the left face: the attribute is filled
-        $aliceFace = $em->find(AssetFace::class, $summary['faces'][0]['id']);
-        $this->assertInstanceOf(AssetFace::class, $aliceFace);
-        $summary = $analyzer->identify($aliceFace, ' Alice ', $config);
-        $this->assertSame('Alice', $summary['faces'][0]['identity']);
-        $this->assertSame(AssetFace::IDENTITY_ORIGIN_USER, $summary['faces'][0]['identityOrigin']);
-        $this->assertSame(1.0, $summary['faces'][0]['identityConfidence']);
+        // 2. A user names the left face through the attribute API: the face becomes a reference
+        //    and the pending person it came from disappears
+        $alice = $this->createEntity($this->list(), 'Alice');
+        $this->api('PATCH', '/attributes/'.$leftFace->getId(), KeycloakClientTestMock::ADMIN_UID, ['value' => $alice->getId()]);
+        $this->assertResponseStatusCodeSame(200);
+        $em->clear();
+        $leftFace = $em->find(Attribute::class, $leftFace->getId());
+        $this->assertSame($alice->getId(), $leftFace->getValue());
+        $this->assertSame(Attribute::ORIGIN_HUMAN, $leftFace->getOrigin());
+        $this->assertSame(KeycloakClientTestMock::ADMIN_UID, $leftFace->getOriginUserId());
+        $this->assertSame(1.0, $leftFace->getConfidence());
+        $this->assertNull($em->find(AttributeEntity::class, $unknownAlice->getId()), 'The orphan unknown person is removed');
+        $this->assertNotNull($em->find(AttributeEntity::class, $unknownBob->getId()), 'The other unknown person stays');
 
-        $attributes = $this->getPersonAttributes($groupPhoto->getId(), $attrDef->getId());
-        $this->assertCount(1, $attributes);
-        $this->assertSame('Alice', $attributes[0]->getValue());
-        $this->assertSame(FaceRecognitionIntegration::getName(), $attributes[0]->getOriginVendor());
-        $this->assertCount(1, $attributes[0]->getAssetAnnotations());
-
-        // 3. Another asset with a look-alike of Alice and a stranger: Alice is recognized
+        // 3. Another asset with a look-alike of Alice and a stranger: Alice is recognized, the stranger starts a new person
         $client->setFaces([
             self::face(self::BOX_LEFT, self::ALICE_LOOKALIKE),
             self::face(self::BOX_RIGHT, self::STRANGER),
         ]);
-        $summary = $analyzer->analyze($otherPhoto, $config);
-        $this->assertNotNull($summary);
-        $this->assertCount(2, $summary['faces']);
-        $this->assertSame('Alice', $summary['faces'][0]['identity']);
-        $this->assertSame(AssetFace::IDENTITY_ORIGIN_AUTO, $summary['faces'][0]['identityOrigin']);
-        $this->assertGreaterThanOrEqual(0.6, $summary['faces'][0]['identityConfidence']);
-        $this->assertNull($summary['faces'][1]['identity']);
-
-        $data = $dataManager->getData($wsIntegration, null, $otherPhoto, FaceRecognitionAnalyzer::DATA_FACES);
-        $this->assertNotNull($data);
-        $decoded = json_decode((string) $data->getValue(), true, 512, JSON_THROW_ON_ERROR);
-        $this->assertSame('Alice', $decoded['faces'][0]['identity']);
-
-        $attributes = $this->getPersonAttributes($otherPhoto->getId(), $attrDef->getId());
-        $this->assertCount(1, $attributes);
-        $this->assertSame('Alice', $attributes[0]->getValue());
+        $faces = $analyzer->analyze($otherPhoto, $config);
+        $this->assertCount(2, $faces);
+        [$lookalike, $strangerFace] = $faces;
+        $this->assertSame($alice->getId(), $lookalike->getValue());
+        $this->assertSame(Attribute::ORIGIN_MACHINE, $lookalike->getOrigin());
+        $this->assertGreaterThanOrEqual(0.6, $lookalike->getConfidence());
+        $this->assertLessThan(1.0, $lookalike->getConfidence());
+        $unknownStranger = $this->person($strangerFace);
+        $this->assertSame(AttributeEntity::STATUS_PENDING, $unknownStranger->getStatus());
+        $this->assertNotSame($unknownBob->getId(), $unknownStranger->getId());
 
         // 4. Re-running the detection on the group photo keeps what the user said
         $client->setFaces([
             self::face(self::BOX_LEFT, self::ALICE),
             self::face(self::BOX_RIGHT, self::BOB),
         ]);
-        $summary = $analyzer->analyze($groupPhoto, $config);
-        $this->assertNotNull($summary);
-        $this->assertSame('Alice', $summary['faces'][0]['identity']);
-        $this->assertSame(AssetFace::IDENTITY_ORIGIN_USER, $summary['faces'][0]['identityOrigin']);
-        $this->assertNull($summary['faces'][1]['identity']);
-        $this->assertCount(2, $faceRepository->findByAsset($groupPhoto->getId()), 'Previous faces are replaced');
+        $faces = $analyzer->analyze($groupPhoto, $config);
+        $this->assertCount(2, $faces);
+        $this->assertSame($alice->getId(), $faces[0]->getValue());
+        $this->assertSame(Attribute::ORIGIN_HUMAN, $faces[0]->getOrigin());
+        $this->assertSame(KeycloakClientTestMock::ADMIN_UID, $faces[0]->getOriginUserId());
+        $this->assertSame($unknownBob->getId(), $faces[1]->getValue(), 'The unknown face joins its pending person again');
+        $this->assertCount(2, $this->getFaces($groupPhoto), 'Previous faces are replaced');
+        $leftFace = $faces[0];
 
-        // 5. Identifying the right face as Bob and propagating leaves the stranger alone,
-        //    but changing Alice's name propagates to the look-alike
-        $bobFace = $em->find(AssetFace::class, $summary['faces'][1]['id']);
-        $analyzer->identify($bobFace, 'Bob', $config);
-        $this->assertSame(0, $analyzer->propagateIdentity($bobFace, $config));
-
-        $aliceFace = $em->find(AssetFace::class, $summary['faces'][0]['id']);
-        $analyzer->identify($aliceFace, 'Alice Smith', $config);
-        $this->assertSame(1, $analyzer->propagateIdentity($aliceFace, $config));
-
+        // 5. A user names Bob: nobody else looks like him, nothing else changes
+        $bob = $this->createEntity($this->list(), 'Bob');
+        $this->api('PATCH', '/attributes/'.$faces[1]->getId(), KeycloakClientTestMock::ADMIN_UID, ['value' => $bob->getId()]);
+        $this->assertResponseStatusCodeSame(200);
         $em->clear();
-        $otherFaces = $faceRepository->findByAsset($otherPhoto->getId());
-        $this->assertCount(2, $otherFaces);
-        $identities = array_map(fn (AssetFace $f): ?string => $f->getIdentity(), $otherFaces);
-        $this->assertContains('Alice Smith', $identities);
-        $this->assertContains(null, $identities);
-        $derived = array_values(array_filter($otherFaces, fn (AssetFace $f): bool => 'Alice Smith' === $f->getIdentity()));
-        $this->assertSame($aliceFace->getId(), $derived[0]->getReference()?->getId(), 'The derived face points to its reference');
+        $bobFace = $em->find(Attribute::class, $faces[1]->getId());
+        $this->assertSame(0, $faceManager->propagate($bobFace, $config));
+        $this->assertNull($em->find(AttributeEntity::class, $unknownBob->getId()));
 
-        $attributes = $this->getPersonAttributes($otherPhoto->getId(), $attrDef->getId());
-        $this->assertCount(1, $attributes);
-        $this->assertSame('Alice Smith', $attributes[0]->getValue());
-
-        // 6. Clearing an identity removes the attribute value and, once propagated, the derived identities
-        $groupFaces = $faceRepository->findByAsset($groupPhoto->getId());
-        foreach ($groupFaces as $face) {
-            if ('Bob' === $face->getIdentity()) {
-                $analyzer->identify($face, '', $config);
-            }
-        }
-        $values = array_map(fn (Attribute $a): string => $a->getValue(), $this->getPersonAttributes($groupPhoto->getId(), $attrDef->getId()));
-        $this->assertSame(['Alice Smith'], $values);
-
-        $aliceFace = $em->find(AssetFace::class, $aliceFace->getId());
-        $analyzer->identify($aliceFace, null, $config);
-        $this->assertSame(0, $analyzer->revokeIdentity($bobFace, $config), 'Nothing was derived from Bob');
-        $this->assertSame(1, $analyzer->revokeIdentity($aliceFace, $config));
-
+        // 6. Alice gets a second look-alike recognized from her reference: propagation moves a
+        //    face of a pending person, never a face a user named
+        $strangerFace = $em->find(Attribute::class, $strangerFace->getId());
+        $strangerFace->setEmbedding(['m' => 'mock', 'v' => self::ALICE_LOOKALIKE]);
+        $em->flush();
+        $leftFace = $em->find(Attribute::class, $leftFace->getId());
+        $this->assertSame(1, $faceManager->propagate($leftFace, $config));
         $em->clear();
-        $identities = array_map(fn (AssetFace $f): ?string => $f->getIdentity(), $faceRepository->findByAsset($otherPhoto->getId()));
-        $this->assertSame([null, null], $identities);
-        $this->assertCount(0, $this->getPersonAttributes($otherPhoto->getId(), $attrDef->getId()));
-        $this->assertCount(0, $this->getPersonAttributes($groupPhoto->getId(), $attrDef->getId()));
+        $this->assertSame($alice->getId(), $em->find(Attribute::class, $strangerFace->getId())->getValue());
+        $this->assertNull($em->find(AttributeEntity::class, $unknownStranger->getId()), 'The emptied unknown person is removed');
+        $this->assertSame($bob->getId(), $em->find(Attribute::class, $bobFace->getId())->getValue(), 'Bob stays Bob');
+
+        // 7. Homonyms: another Alice, told apart by her note, is a distinct person for the recognition
+        $otherAlice = $this->createEntity($this->list(), 'Alice');
+        $otherAlice->setNote('the photographer');
+        $em->flush();
+        $this->api('PATCH', '/attributes/'.$strangerFace->getId(), KeycloakClientTestMock::ADMIN_UID, ['value' => $otherAlice->getId()]);
+        $this->assertResponseStatusCodeSame(200);
+        $em->clear();
+        $this->assertSame($otherAlice->getId(), $em->find(Attribute::class, $strangerFace->getId())->getValue());
+        $this->assertSame(Attribute::ORIGIN_HUMAN, $em->find(Attribute::class, $strangerFace->getId())->getOrigin());
+
+        // 8. Deleting a face through the API forgets it
+        $this->api('DELETE', '/attributes/'.$strangerFace->getId(), KeycloakClientTestMock::ADMIN_UID);
+        $this->assertResponseStatusCodeSame(204);
+        $em->clear();
+        $this->assertCount(1, $this->getFaces($otherPhoto));
+
+        // 9. Relinking from scratch: the look-alike still belongs to Alice, the named faces are untouched
+        $this->assertSame(0, $faceManager->relink($config));
+        $em->clear();
+        $this->assertSame($alice->getId(), $em->find(Attribute::class, $lookalike->getId())->getValue());
+        $this->assertSame(Attribute::ORIGIN_HUMAN, $em->find(Attribute::class, $bobFace->getId())->getOrigin());
+    }
+
+    public function testApprovingAnUnknownPersonMakesItsBestFaceAReference(): void
+    {
+        $em = self::getEntityManager();
+        $this->setUpScene();
+        $config = $this->createConfig(['matchThreshold' => 0.6]);
+        $analyzer = self::getService(FaceRecognitionAnalyzer::class);
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE, 0.7)]);
+        $first = $analyzer->analyze($this->createImageAsset(), $config)[0];
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE_LOOKALIKE, 0.9)]);
+        $second = $analyzer->analyze($this->createImageAsset(), $config)[0];
+        $this->assertSame($first->getValue(), $second->getValue(), 'Look-alikes share their pending person');
+        $unknown = $this->person($first);
+        $this->assertSame(AttributeEntity::STATUS_PENDING, $unknown->getStatus());
+
+        // Pending persons are listed to the attribute editors of the workspace, so that they can name them
+        $response = $this->api('GET', '/attribute-entities', KeycloakClientTestMock::ADMIN_UID, options: ['query' => ['list' => $this->list->getId(), 'status' => AttributeEntity::STATUS_PENDING, 'usage' => 1]]);
+        $this->assertResponseStatusCodeSame(200);
+        $member = $response->toArray()['member'];
+        $this->assertCount(1, $member);
+        $this->assertSame($unknown->getId(), $member[0]['id']);
+        $this->assertSame(['attributes' => 2, 'humanAttributes' => 0], $member[0]['usage']);
+
+        // Naming the person = renaming and approving the entity: its most confident face becomes the reference
+        $this->api('PATCH', '/attribute-entities/'.$unknown->getId(), KeycloakClientTestMock::ADMIN_UID, ['value' => 'Alice', 'status' => AttributeEntity::STATUS_APPROVED]);
+        $this->assertResponseStatusCodeSame(200);
+        $em->clear();
+        $this->assertSame('Alice', $em->find(AttributeEntity::class, $unknown->getId())->getValue());
+        $this->assertSame(Attribute::ORIGIN_HUMAN, $em->find(Attribute::class, $second->getId())->getOrigin());
+        $this->assertSame(KeycloakClientTestMock::ADMIN_UID, $em->find(Attribute::class, $second->getId())->getOriginUserId());
+        $this->assertSame(Attribute::ORIGIN_MACHINE, $em->find(Attribute::class, $first->getId())->getOrigin());
+
+        // The faces of a person are listed through the attributes of the definition
+        $response = $this->api('GET', '/attributes', KeycloakClientTestMock::ADMIN_UID, options: ['query' => ['definition' => $this->definition->getId(), 'value' => $unknown->getId(), 'origin' => 'human']]);
+        $this->assertResponseStatusCodeSame(200);
+        $this->assertSame([$second->getId()], array_column($response->toArray()['member'], 'id'));
+    }
+
+    public function testEveryFaceIsANewPersonWithoutThreshold(): void
+    {
+        $this->setUpScene();
+        $config = $this->createConfig(['matchThreshold' => 0]);
+
+        /** @var FaceRecognitionClientMock $client */
+        $client = self::getService(FaceRecognitionClient::class);
+        $client->setFaces([self::face(self::BOX_LEFT, self::ALICE), self::face(self::BOX_RIGHT, self::ALICE)]);
+        $faces = self::getService(FaceRecognitionAnalyzer::class)->analyze($this->createImageAsset(), $config);
+        $this->assertCount(2, $faces);
+        $this->assertNotSame($faces[0]->getValue(), $faces[1]->getValue());
     }
 
     public function testAssetWithoutImageIsSkipped(): void
     {
-        $workspace = $this->getOrCreateDefaultWorkspace();
-        $wsIntegration = $this->createIntegration($workspace);
-        $config = self::getService(IntegrationManager::class)->getIntegrationConfiguration($wsIntegration);
+        $this->setUpScene();
+        $config = $this->createConfig();
         $this->assertInstanceOf(IntegrationConfig::class, $config);
 
         /** @var FaceRecognitionClientMock $client */
         $client = self::getService(FaceRecognitionClient::class);
         $calls = count($client->getCalls());
 
-        $asset = $this->createAsset(['workspace' => $workspace]);
+        $asset = $this->createAsset(['workspace' => $this->workspace]);
         $this->assertNull(self::getService(FaceRecognitionAnalyzer::class)->analyze($asset, $config));
         $this->assertCount($calls, $client->getCalls(), 'The service is not called');
+    }
+
+    public function testConfigurationIsValidated(): void
+    {
+        $this->setUpScene();
+        $integrationManager = self::getService(IntegrationManager::class);
+
+        $textDefinition = $this->createAttributeDefinition(['workspace' => $this->workspace, 'name' => 'Names', 'slug' => 'names', 'multiple' => true]);
+        $otherList = $this->createEntityList(['name' => 'Others', 'workspace' => $this->workspace]);
+
+        $integrationManager->validateIntegration($this->createIntegration());
+
+        foreach ([
+            ['entityList' => $otherList->getId()],
+            ['attribute' => 'names'],
+            ['attribute' => 'nope'],
+        ] as $invalid) {
+            try {
+                $integrationManager->validateIntegration($this->createIntegration($invalid));
+                $this->fail('Expected an invalid configuration for '.json_encode($invalid));
+            } catch (InvalidConfigurationException $e) {
+                $this->addToAssertionCount(1);
+            }
+        }
+        $this->assertNotNull($textDefinition);
+    }
+
+    private function setUpScene(): void
+    {
+        $this->workspace = $this->getOrCreateDefaultWorkspace(['ownerId' => KeycloakClientTestMock::ADMIN_UID]);
+        $this->list = $this->createEntityList(['name' => 'Persons', 'workspace' => $this->workspace]);
+        $this->definition = $this->createAttributeDefinition([
+            'workspace' => $this->workspace,
+            'name' => 'Persons',
+            'slug' => 'persons',
+            'multiple' => true,
+            'type' => EntityAttributeType::NAME,
+            'list' => $this->list,
+        ]);
+    }
+
+    /**
+     * The list, reattached after the entity manager was cleared.
+     */
+    private function list(): EntityList
+    {
+        $em = self::getEntityManager();
+        if (!$em->contains($this->list)) {
+            $this->list = $em->find(EntityList::class, $this->list->getId());
+        }
+
+        return $this->list;
+    }
+
+    private function createConfig(array $config = []): IntegrationConfig
+    {
+        return self::getService(IntegrationManager::class)->getIntegrationConfiguration($this->createIntegration($config));
+    }
+
+    private function createIntegration(array $config = []): WorkspaceIntegration
+    {
+        $em = self::getEntityManager();
+
+        $integration = new WorkspaceIntegration();
+        $integration->setPublic(true);
+        $integration->setWorkspace($this->workspace);
+        $integration->setName('Faces '.uniqid());
+        $integration->setIntegration(FaceRecognitionIntegration::getName());
+        $integration->setConfig(array_merge([
+            'entityList' => $this->list->getId(),
+            'attribute' => 'persons',
+        ], $config));
+        $integration->setOwnerId('custom_owner');
+        $em->persist($integration);
+        $em->flush();
+
+        return $integration;
     }
 
     private static function face(array $box, array $embedding, float $confidence = 0.9): array
@@ -194,29 +325,25 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         ];
     }
 
-    private function createIntegration(Workspace $workspace, array $config = []): WorkspaceIntegration
+    private static function boxOf(Attribute $face): array
     {
-        $em = self::getEntityManager();
-
-        $integration = new WorkspaceIntegration();
-        $integration->setPublic(true);
-        $integration->setWorkspace($workspace);
-        $integration->setName('Faces');
-        $integration->setIntegration(FaceRecognitionIntegration::getName());
-        $integration->setConfig($config);
-        $integration->setOwnerId('custom_owner');
-        $em->persist($integration);
-        $em->flush();
-
-        return $integration;
+        return array_map('floatval', array_intersect_key(FaceRecognitionAnalyzer::boxOf($face) ?? [], array_flip(['x', 'y', 'w', 'h'])));
     }
 
-    private function createImageAsset(Workspace $workspace): Asset
+    private function person(Attribute $face): AttributeEntity
+    {
+        $entity = self::getEntityManager()->find(AttributeEntity::class, $face->getValue());
+        $this->assertInstanceOf(AttributeEntity::class, $entity);
+
+        return $entity;
+    }
+
+    private function createImageAsset(): Asset
     {
         $em = self::getEntityManager();
 
         $file = new File();
-        $file->setWorkspace($workspace);
+        $file->setWorkspace($this->workspace);
         $file->setStorage(File::STORAGE_S3_MAIN);
         $file->setPathPublic(true);
         $file->setPath('test/'.uniqid().'.png');
@@ -226,7 +353,7 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $em->persist($file);
 
         $asset = $this->createAsset([
-            'workspace' => $workspace,
+            'workspace' => $this->workspace,
             'no_flush' => true,
         ]);
         $asset->setSource($file);
@@ -238,11 +365,8 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
     /**
      * @return Attribute[]
      */
-    private function getPersonAttributes(string $assetId, string $definitionId): array
+    private function getFaces(Asset $asset): array
     {
-        return self::getEntityManager()->getRepository(Attribute::class)->findBy([
-            'asset' => $assetId,
-            'definition' => $definitionId,
-        ], ['value' => 'ASC']);
+        return self::getService(AttributeRepository::class)->findEmbeddingsOfAsset($this->definition->getId(), $asset->getId());
     }
 }

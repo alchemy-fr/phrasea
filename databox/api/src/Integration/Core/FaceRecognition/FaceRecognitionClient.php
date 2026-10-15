@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Service\Face;
+namespace App\Integration\Core\FaceRecognition;
 
 use Alchemy\CoreBundle\Listener\ClientExceptionListener;
 use Symfony\Contracts\HttpClient\HttpClientInterface;

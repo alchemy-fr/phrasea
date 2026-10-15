@@ -145,35 +145,37 @@ Display name: Face Recognition
 This integration detects the faces of image assets and recognizes the persons that users have already named, through a self-hosted service (no data leaves the platform).
 It is the self-hosted counterpart of the "faces" category of AWS Rekognition, with recognition on top of detection.
 
+There is no face-specific data model nor API: **a person is an entity** of the configured entity list of the workspace (`entityList`), and **a face is a value of the configured entity attribute** of the asset (`attribute`, bound to that list). Each face value carries the person (the entity ID), the box of the face as a rectangle annotation, the detection or recognition confidence, and the face embedding (`attribute.embedding`, never exposed by the API nor indexed). Everything else goes through the generic attribute and entity APIs.
+
 Main behavior:
 
-- Sends the configured rendition (default: preview, falls back to the source file), downscaled to `maxImageSize` pixels, to the `face-recognition` service, which returns for each face a bounding box, a detection confidence, an estimated age/gender and a 512-d ArcFace embedding.
-- Stores the faces in database (`asset_face` table) and exposes them to the asset view as integration data (`faces`), drawn as rectangle annotations on the image.
-- Runs on asset ingest when `processIncoming` is enabled (workflow job depending on the rendition job), or on demand from the asset view ("Detect faces").
-- Users name a face from the asset view ("Identify this person") or from the dedicated **Faces** page of the client (`/faces`, in the settings menu), which lists the detected faces of the readable workspaces, grouped by person, with the faces still unnamed. User-identified faces form the reference gallery of the workspace: every new detection is compared to it (cosine similarity, `matchThreshold`) and the closest known person is assigned automatically.
-- The Faces page and its API (`GET /asset-faces`, `GET /asset-faces/identities`, `POST /asset-faces/{id}/identity`) are reserved to the admins and to the holders of the `edit_faces` Keycloak realm role (created by the configurator, granted to `databox-admin`, assignable to any user). The role never grants more than the asset permissions: a face editor only sees, and names, the faces of the assets they can read.
-- When a user names a face and `autoPropagate` is enabled, the identity is propagated asynchronously to the similar, not yet user-identified faces of the workspace.
-- With `attribute` set to the slug of a multi-valued string attribute, the names of the recognized persons are written as machine attribute values (with rectangle annotations and the match confidence), which makes them searchable.
-- Re-running the detection on an asset keeps the identities set by users on overlapping faces.
+- Sends the configured rendition (default: preview, falls back to the source file), downscaled to `maxImageSize` pixels, to the `face-recognition` service, which returns for each face a bounding box, a detection confidence and a 512-d ArcFace embedding.
+- Runs on asset ingest when `processIncoming` is enabled (workflow job depending on the rendition job), or on demand from the asset view ("Detect faces", user action `analyze`).
+- Each detected face is recognized among the faces of the workspace (cosine similarity, `matchThreshold`): it joins the person of the closest face a user named, or else the closest face of a person nobody has named yet. Otherwise it starts a new **pending entity** ("Unknown person · 3f2a", `unknownLabel`): the pending persons are the groups of look-alikes still to be named; being pending, they never show up in the search facets, and they are removed as soon as no face references them any more. Only the faces named by users (`origin: human`) are references: a recognized face never becomes one, so that the recognition cannot drift.
+- Users name a face by changing the value of its attribute (`PATCH /attributes/{id}`, `/attributes/batch-update`), to an existing entity or to one they create (`POST /attribute-entities`): the face becomes a reference of the person (`origin: human`, `originUserId`, confidence 1) and, when `autoPropagate` is enabled, the person is propagated asynchronously to the similar faces of the workspace that no user named. Deleting the value (`DELETE /attributes/{id}`) forgets the face.
+- Users name a whole unknown group by renaming and approving its pending entity (`PATCH /attribute-entities/{id}` with `value`, `note` and `status: 0`): its most confident face becomes the reference and is propagated. Attaching the group to an existing person is the entities merge (`PUT /attribute-entities/{id}/merge`), which re-points its faces. Two persons with the same name are told apart by their `note` (the same value may appear twice in a list).
+- The **Faces** page of the client (`/faces`) is built on these APIs: `GET /attribute-entities?list=…&status=…&usage=1` for the persons (with the number of faces, `usage`), `GET /attributes?definition=…&value=…` for the faces of a person. Pending persons are listed to the users who may edit the attributes of the workspace, so that they can name them.
+- Permissions are those of the attributes and the entity lists: reading the faces of an asset requires reading its face attribute (asset readable, attribute policy public or granted), naming requires editing it, creating or renaming a person requires the rights on the list.
+- Re-running the detection on an asset keeps the person of the faces that overlap a previous detection (what users said included). Replay the recognition after a change of `matchThreshold` with `bin/console app:face-recognition:relink` (no detection involved).
 
 Configuration:
 
 | Key | Default | Description |
 | --- | --- | --- |
+| entityList | (required) | ID of the entity list of the workspace holding the persons |
+| attribute | (required) | Slug of a multi-valued attribute of type `entity` bound to that list, receiving one value per detected face |
+| unknownLabel | Unknown person | Name of a person nobody has named yet (a short code is appended) |
 | rendition | preview | Rendition sent to the service (must be an image) |
 | maxImageSize | 2048 | Longest side (pixels) of the downscaled JPEG copy actually sent to the service |
 | processIncoming | false | Detect faces on all incoming assets |
 | minConfidence | 0.5 | Minimum detection confidence for a face to be kept |
-| matchThreshold | 0.5 | Minimum cosine similarity with a user-identified face to recognize a person (0 disables recognition) |
-| autoPropagate | true | Apply a newly set identity to the similar faces of the workspace |
-| attribute | null | Slug of a multi-valued string attribute receiving the recognized names |
+| matchThreshold | 0.5 | Minimum cosine similarity with a known face to recognize the same person (0 disables recognition: every face is a new unknown person) |
+| autoPropagate | true | Apply a newly named person to the similar faces of the workspace |
 
 Operational notes:
 
 - Requires the `face-recognition` service (maintained in [alchemy-fr/phrasea-face-recognition](https://github.com/alchemy-fr/phrasea-face-recognition), InsightFace `buffalo_l` model pack on CPU; image `FACE_RECOGNITION_IMAGE`, `face-recognition` Docker Compose profile). Databox reaches it through `FACE_RECOGNITION_URL`.
-- Recognition only relies on faces explicitly identified by users; automatically assigned identities are never used as references, to avoid drift.
 - Backfill existing assets with `bin/console app:face-recognition:index` (add `--sync` to run in the foreground).
-- Faces are listed in the admin (Asset Face) with their identities and embeddings.
 
 ## Exhaustive integration list
 

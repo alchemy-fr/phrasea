@@ -66,8 +66,9 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
 
         $this->assertEqualsCanonicalizing(['Approved', 'Pending by OTHER'], $this->listValues(self::OTHER));
 
-        // Without the list filter, even an editor only sees approved values
-        $this->assertEqualsCanonicalizing(['Approved'], $this->listValues(self::USER));
+        // Without the list filter, whoever may edit the attributes of the workspace (USER owns it)
+        // also sees its pending values, to pick them; a mere member does not
+        $this->assertEqualsCanonicalizing(['Approved', 'Pending by OTHER', 'Pending by someone'], $this->listValues(self::USER));
 
         // A list editor filtering on the list sees every status
         $this->assertEqualsCanonicalizing(
@@ -257,9 +258,10 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
         $this->createEntity($this->list, 'Red');
         $otherList = $this->createEntityList(['name' => 'Others']);
 
-        $this->postEntity(self::USER, ['value' => 'Red']);
-        $this->assertResponseStatusCodeSame(422);
-        $this->assertJsonContains(['violations' => [['propertyPath' => 'value', 'message' => 'This value already exists in the list']]]);
+        // Homonyms are allowed: the same name twice in a list, told apart by their note
+        $data = $this->postEntity(self::USER, ['value' => 'Red', 'note' => 'the darker one']);
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame('the darker one', $data['note']);
 
         $this->postEntity(self::USER, ['value' => '']);
         $this->assertResponseStatusCodeSame(422);

@@ -44,7 +44,31 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'asset[]' => new QueryParameter(property: 'asset', openApi: false),
                 'assetId' => new QueryParameter(
                     schema: ['type' => 'string'],
-                    description: 'Asset ID (mandatory, "asset" is accepted as well)',
+                    description: 'Asset ID (mandatory without "definition", "asset" is accepted as well)',
+                    castToArray: false,
+                ),
+                'definition' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Attribute definition ID or IRI: the values of this definition across the assets (paginated, newest assets first); "asset" then becomes optional',
+                    castToArray: false,
+                ),
+                'value' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Exact value(s), with "definition" only',
+                ),
+                'value[]' => new QueryParameter(property: 'value', openApi: false),
+                'origin' => new QueryParameter(
+                    schema: ['type' => 'string', 'enum' => ['machine', 'human', 'fallback', 'initial']],
+                    description: 'Origin of the values, with "definition" only',
+                    castToArray: false,
+                ),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (max 100), with "definition" only',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
                     castToArray: false,
                 ),
             ],
@@ -141,6 +165,15 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
 
     #[ORM\Column(type: Types::FLOAT, nullable: false)]
     private float $confidence = 1.0;
+
+    /**
+     * Signature of the annotated region ({m: model, v: float[]}), e.g. the face embedding behind a
+     * person value. Never exposed by the API nor indexed.
+     *
+     * @var array{m: string, v: float[]}|null
+     */
+    #[ORM\Column(type: Types::JSON, nullable: true)]
+    private ?array $embedding = null;
 
     public ?AttributeBatchUpdateInput $batchUpdate = null;
 
@@ -245,6 +278,22 @@ class Attribute extends AbstractBaseAttribute implements ESIndexableDeleteDepend
     public function setConfidence(float $confidence): void
     {
         $this->confidence = $confidence;
+    }
+
+    /**
+     * @return array{m: string, v: float[]}|null
+     */
+    public function getEmbedding(): ?array
+    {
+        return $this->embedding;
+    }
+
+    /**
+     * @param array{m: string, v: float[]}|null $embedding
+     */
+    public function setEmbedding(?array $embedding): void
+    {
+        $this->embedding = $embedding;
     }
 
     public function getIndexableDeleteDependencies(): array

@@ -11,6 +11,11 @@ export function workflowBaseName(name: string): string {
     return name.split(':')[0];
 }
 
+/** The workspace a run is about, for the workflows run on assets */
+export function workflowWorkspaceId(name: string): string | undefined {
+    return name.split(':')[1] || undefined;
+}
+
 /** Readable name of a workflow (`asset-ingest` → `Ingest`) */
 export function workflowTypeLabel(name: string, t: TFunction): string {
     const base = workflowBaseName(name);

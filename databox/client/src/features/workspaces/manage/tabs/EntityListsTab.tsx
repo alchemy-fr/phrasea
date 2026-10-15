@@ -629,6 +629,7 @@ function EntityForm({
 }) {
     const {t} = useTranslation();
     const [value, setValue] = useState(entity?.value ?? '');
+    const [note, setNote] = useState(entity?.note ?? '');
     const [status, setStatus] = useState(
         String(entity?.status ?? AttributeEntityStatus.Approved)
     );
@@ -648,6 +649,7 @@ function EntityForm({
     const [saving, setSaving] = useState(false);
     const {markSaved} = useDirtyState({
         value,
+        note,
         status,
         emoji,
         color,
@@ -660,6 +662,7 @@ function EntityForm({
         try {
             const data: Partial<AttributeEntity> = {
                 value,
+                note: note.trim() || null,
                 status: Number(status) as AttributeEntityStatus,
                 emoji: list.withEmojis ? emoji || undefined : undefined,
                 color: list.withColors ? color || undefined : undefined,
@@ -696,6 +699,16 @@ function EntityForm({
                     value={value}
                     onChange={e => setValue(e.target.value)}
                     autoFocus
+                />
+            </FormRow>
+            <FormRow label={t('entity.note', 'Note')}>
+                <Input
+                    value={note}
+                    onChange={e => setNote(e.target.value)}
+                    placeholder={t(
+                        'entity.note_placeholder',
+                        'Tells apart two values with the same name'
+                    )}
                 />
             </FormRow>
             <FormRow label={t('entity.status', 'Status')}>

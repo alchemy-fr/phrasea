@@ -266,6 +266,14 @@ export async function attributeBatchUpdate(
     });
 }
 
+/** Changes a single attribute value (its origin becomes human) */
+export function patchAssetAttribute(
+    id: string,
+    data: Partial<Attribute>
+): Promise<Attribute> {
+    return api.patch<Attribute>(`/attributes/${id}`, data);
+}
+
 export function deleteAssetAttribute(id: string): Promise<void> {
     return api.delete(`/attributes/${id}`);
 }

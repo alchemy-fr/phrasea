@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Face;
 
-use App\Service\Face\FaceRecognitionClient;
+use App\Integration\Core\FaceRecognition\FaceRecognitionClient;
 
 class FaceRecognitionClientMock extends FaceRecognitionClient
 {
