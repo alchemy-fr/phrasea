@@ -184,6 +184,12 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     #[MaxDepth(1)]
     private Collection $children;
 
+    #[ORM\OneToOne(targetEntity: EntityType::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    #[ORM\JoinColumn(nullable: false, unique: true)]
+    private ?EntityType $entityTypeEntity = null;
+
+    private ?string $entityType = null;
+
     public function __construct()
     {
         parent::__construct();
@@ -224,6 +230,37 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
         if ($child->getParent() === $this) {
             $child->setParent(null);
         }
+    }
+
+    #[Groups([self::GROUP_READ, self::GROUP_LIST])]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 100)]
+    public function getEntityType(): ?string
+    {
+        return $this->entityType ?? $this->entityTypeEntity?->getName();
+    }
+
+    public function setEntityType(?string $entityType): void
+    {
+        if (null === $entityType) {
+            $this->entityTypeEntity = null;
+            $this->entityType = null;
+
+            return;
+        }
+
+        $this->setEntityTypeEntity((new EntityType())->setName($entityType));
+    }
+
+    public function setEntityTypeEntity(EntityType $entityType): void
+    {
+        $this->entityTypeEntity = $entityType;
+        $this->entityType = $entityType->getName();
+    }
+
+    public function getEntityTypeEntity(): ?EntityType
+    {
+        return $this->entityTypeEntity;
     }
 
     public function getValue(): ?string

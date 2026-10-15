@@ -11,10 +11,21 @@ use App\Elasticsearch\ElasticSearchClient;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
+use App\Entity\Core\EntityType;
 use App\Tests\Search\AbstractSearchTest;
 
 class AttributeEntityTest extends AbstractSearchTest
 {
+    public function testAttributeEntityTypeIsStoredAsAOneToOneString(): void
+    {
+        $entity = new AttributeEntity();
+        $entity->setEntityType('Company');
+
+        self::assertSame('Company', $entity->getEntityType());
+        self::assertInstanceOf(EntityType::class, $entity->getEntityTypeEntity());
+        self::assertSame('Company', $entity->getEntityTypeEntity()?->getName());
+    }
+
     public function testAttributeEntityParentChildRelationship(): void
     {
         $parent = new AttributeEntity();
