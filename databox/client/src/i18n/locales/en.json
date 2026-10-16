@@ -1128,6 +1128,8 @@
     "tasks.empty": "No task yet",
     "tasks.ended_at": "Ended at",
     "tasks.from_locale": "From locale",
+    "tasks.import_files": "Import files",
+    "tasks.import_files_desc": "Fetch every file of a workspace still referenced by URL and store it on the main storage.",
     "tasks.index_assets": "Index assets",
     "tasks.index_assets_desc": "Re-index the assets in Elasticsearch.",
     "tasks.ingest": "Ingest workspace assets",

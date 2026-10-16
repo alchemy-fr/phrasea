@@ -1128,6 +1128,8 @@
     "tasks.empty": "Aucune tâche pour le moment",
     "tasks.ended_at": "Terminée le",
     "tasks.from_locale": "Langue source",
+    "tasks.import_files": "Importer les fichiers",
+    "tasks.import_files_desc": "Récupère chaque fichier d'un espace de travail encore référencé par URL et le stocke sur le stockage principal.",
     "tasks.index_assets": "Indexer les assets",
     "tasks.index_assets_desc": "Réindexe les assets dans Elasticsearch.",
     "tasks.ingest": "Ingérer les assets de l'espace de travail",

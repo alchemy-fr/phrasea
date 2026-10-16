@@ -123,6 +123,22 @@ function useTaskTypes(): TaskType[] {
             ],
         },
         {
+            id: 'import_files',
+            label: t('tasks.import_files', 'Import files'),
+            description: t(
+                'tasks.import_files_desc',
+                'Fetch every file of a workspace still referenced by URL and store it on the main storage.'
+            ),
+            fields: [
+                {
+                    name: 'workspaceId',
+                    label: t('asset.info.workspace', 'Workspace'),
+                    type: 'workspace',
+                    required: true,
+                },
+            ],
+        },
+        {
             id: 'store_fallback_attributes',
             label: t('tasks.store_fallback', 'Store fallback as attribute'),
             description: t(
