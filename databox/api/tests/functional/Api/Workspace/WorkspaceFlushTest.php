@@ -90,7 +90,7 @@ final class WorkspaceFlushTest extends AbstractDataboxTestCase
         );
         sort($slugs);
         $this->assertSame(['description', 'name'], $slugs);
-        $this->assertCount(3, $em->getRepository(RenditionDefinition::class)->findBy(['workspace' => $newId]));
+        $this->assertCount(4, $em->getRepository(RenditionDefinition::class)->findBy(['workspace' => $newId]));
 
         // ACEs are copied: OTHER still has access to the (private) new workspace
         $em->find(Workspace::class, $newId)->setPublic(false);

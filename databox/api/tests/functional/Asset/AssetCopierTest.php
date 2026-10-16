@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\Asset;
 
+use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use Alchemy\MessengerBundle\Transport\TestTransport;
 use App\Consumer\Handler\File\NewAssetFromBorder;
 use App\Consumer\Handler\File\NewAssetFromBorderHandler;
@@ -11,6 +12,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\Collection;
 use App\Entity\Core\CollectionAsset;
+use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Service\Asset\AssetCopier;
 use App\Tests\Functional\AbstractDataboxTestCase;
@@ -43,7 +45,8 @@ final class AssetCopierTest extends AbstractDataboxTestCase
         $renditions = $this->getRenditionsByName($copy);
         $this->assertEqualsCanonicalizing(['allowed', 'crop'], array_keys($renditions));
         $this->assertSame('https://cdn.example.com/allowed.jpg', $renditions['allowed']->getFile()->getPath());
-        $this->assertNotSame($allowedFile->getId(), $renditions['allowed']->getFile()->getId());
+        // Within its own workspace, a file is shared rather than copied
+        $this->assertSame($allowedFile->getId(), $renditions['allowed']->getFile()->getId());
     }
 
     public function testCopyDynamicRenditionsBuiltFromCopiedRenditions(): void
@@ -82,6 +85,7 @@ final class AssetCopierTest extends AbstractDataboxTestCase
     public function testRetryAfterFailureCopiesFilesAgain(): void
     {
         $workspace = $this->getOrCreateDefaultWorkspace();
+        [$otherWorkspace] = $this->createWorkspaceWithDefaults('other-workspace');
         $asset = $this->createAsset(['workspace' => $workspace]);
         $asset->setSource($this->createUrlFile($workspace));
 
@@ -91,6 +95,13 @@ final class AssetCopierTest extends AbstractDataboxTestCase
 
         /** @var AssetCopier $copier */
         $copier = self::getService(AssetCopier::class);
+        $copy = fn (): mixed => $copier->copyAsset(
+            'copier_user',
+            $em->find(Asset::class, $asset->getId()),
+            $em->find(Workspace::class, $otherWorkspace->getId()),
+            null,
+            [],
+        );
         $failingListener = new class {
             public function onFlush(): void
             {
@@ -100,8 +111,7 @@ final class AssetCopierTest extends AbstractDataboxTestCase
 
         $em->getEventManager()->addEventListener(Events::onFlush, $failingListener);
         try {
-            $asset = $em->find(Asset::class, $asset->getId());
-            $copier->copyAsset('copier_user', $asset, $asset->getWorkspace(), null, []);
+            $copy();
             $this->fail('The copy should have failed');
         } catch (\RuntimeException $e) {
             $this->assertSame('Flush failure', $e->getMessage());
@@ -111,10 +121,23 @@ final class AssetCopierTest extends AbstractDataboxTestCase
 
         // As the messenger worker does after a failed message
         $em->clear();
+        self::getService(PostFlushStack::class)->reset();
 
-        $copy = $this->copy($asset, []);
-        $this->assertNotNull($copy->getSource());
-        $this->assertNotSame($asset->getSource()->getId(), $copy->getSource()->getId());
+        /** @var TestTransport $transport */
+        $transport = self::getContainer()->get('messenger.transport.p1');
+        $queue = $transport->intercept();
+        $copy();
+        $em->clear();
+
+        $messages = array_values(array_filter(
+            array_map(fn (Envelope $envelope): object => $envelope->getMessage(), $queue->getSent()),
+            fn (object $message): bool => $message instanceof NewAssetFromBorder,
+        ));
+        $this->assertCount(1, $messages);
+        $file = $em->find(File::class, $messages[0]->getFileId());
+        $this->assertInstanceOf(File::class, $file);
+        $this->assertSame($otherWorkspace->getId(), $file->getWorkspaceId());
+        $this->assertNotSame($asset->getSource()->getId(), $file->getId());
     }
 
     public function testCopyIntoCollectionSetsReferenceCollection(): void
