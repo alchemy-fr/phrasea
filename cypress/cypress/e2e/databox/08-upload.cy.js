@@ -2,7 +2,7 @@
  * Feature 8 — Upload: dropzone dialog, file selection, destination, URL
  * import, file-less assets and stories, pending uploads.
  */
-import {deleteWorkspace, seedWorkspace, waitForIndexed} from './lib/api';
+import {deleteWorkspace, seedWorkspace, waitForAssetIndexed, waitForIndexed} from './lib/api';
 import {assetItem, expandTreePickerWorkspace, expandTreeWorkspace, expectToastText, login, openLeftPanelTab, pickTreeNode, treeWorkspace, visitWorkspace, waitForResults} from './lib/app';
 
 /**
@@ -137,10 +137,11 @@ describe('Upload', () => {
             expect(request.body).to.not.have.property('multipart');
             expect(request.body).to.not.have.property('sourceFile');
             expect(response.body.source, 'no source file').to.not.be.ok;
+            cy.wrap(response.body.id).as('assetId');
         });
         expectToastText('Asset created');
         cy.get('[role=dialog]').should('not.exist');
-        waitForIndexed({'workspaces[]': ctx.workspace.id, query: 'e2e-no-file'}, 1);
+        cy.get('@assetId').then(id => waitForAssetIndexed(id, {'workspaces[]': ctx.workspace.id}));
         cy.reload();
         assetItem('e2e-no-file', {timeout: 60000}).should('exist');
     });

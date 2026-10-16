@@ -407,6 +407,18 @@ export function waitForIndexed(qs, expectedCount, options = {}) {
 }
 
 /**
+ * Waits for one asset to be listed by the search index. A text query alone is
+ * not enough: names are tokenized, so `e2e-no-file` matches every `e2e-*`
+ * asset already indexed.
+ */
+export function waitForAssetIndexed(id, qs = {}) {
+    return cy.waitUntil(
+        () => searchAssets(qs).then(body => (body.member ?? []).some(a => a.id === id)),
+        {timeout: 90000, message: `asset ${id} indexed`}
+    );
+}
+
+/**
  * Baskets are listed from the search index, which is fed asynchronously: a
  * freshly created basket shows up in the panel only once the API lists it.
  */
