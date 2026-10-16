@@ -11,5 +11,8 @@ on:
 jobs:
     import_source:
         name: Import source file
+        if: App\Service\Workflow\Action\ImportSourceFileAction::evaluateIf
+        # Skipped when there is nothing to import: the integrations still run.
+        continue-on-skip: true
         steps:
             -   uses: App\Service\Workflow\Action\ImportSourceFileAction

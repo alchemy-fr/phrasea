@@ -1,0 +1,29 @@
+name: Continue on skip
+
+jobs:
+  optional:
+    if: env.WF_TEST == "bar"
+    continue-on-skip: true
+    steps:
+      - run: |
+          echo "optional"
+
+  after_optional:
+    needs:
+      - optional
+    steps:
+      - run: |
+          echo "after_optional"
+
+  blocking:
+    if: env.WF_TEST == "bar"
+    steps:
+      - run: |
+          echo "blocking"
+
+  after_blocking:
+    needs:
+      - blocking
+    steps:
+      - run: |
+          echo "after_blocking"

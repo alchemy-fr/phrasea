@@ -6,16 +6,22 @@ namespace App\Tests\Functional\Asset;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use Alchemy\MessengerBundle\Transport\TestTransport;
+use Alchemy\Workflow\Executor\JobExecutionContext;
 use Alchemy\Workflow\Executor\RunContext;
 use Alchemy\Workflow\Repository\WorkflowRepositoryInterface;
 use Alchemy\Workflow\State\Inputs;
+use Alchemy\Workflow\State\JobState;
+use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use App\Consumer\Handler\File\ImportFile;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
 use App\Entity\Core\File;
+use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Entity\Workflow\WorkflowState;
 use App\Integration\Core\FileAnalyzer\FileAnalyzerIntegration;
 use App\Service\Asset\FileImporter;
+use App\Service\Asset\WorkspaceAssetIngester;
 use App\Service\Workflow\Action\ImportSourceFileAction;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use App\Tests\Functional\AbstractDataboxTestCase;
@@ -31,6 +37,7 @@ final class FileImportTest extends AbstractDataboxTestCase
     use RenditionTestTrait;
 
     private const string EDITOR = KeycloakClientTestMock::USER_UID;
+    private const string IMPORT_JOB_ID = 'import_source';
 
     private InMemoryTransport $queue;
 
@@ -93,32 +100,45 @@ final class FileImportTest extends AbstractDataboxTestCase
     public function testIntegrationsWaitForTheSourceImport(): void
     {
         [$ws] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
-        $integration = new WorkspaceIntegration();
-        $integration->setWorkspace($ws);
-        $integration->setOwnerId($ws->getOwnerId());
-        $integration->setPublic(false);
-        $integration->setIntegration(FileAnalyzerIntegration::getName());
-        $integration->setConfig(['analyzers' => []]);
-        self::getEntityManager()->persist($integration);
-        self::getEntityManager()->flush();
+        $integration = $this->createAnalyzerIntegration($ws);
 
-        $workflow = self::getService(WorkflowRepositoryInterface::class)
-            ->loadWorkflowByName(AssetIngestWorkflowEvent::getWorkflowName($ws->getId()));
+        $jobs = self::getService(WorkflowRepositoryInterface::class)
+            ->loadWorkflowByName(AssetIngestWorkflowEvent::getWorkflowName($ws->getId()))
+            ->getJobs();
 
-        $jobs = $workflow->getJobs();
-        $this->assertTrue($jobs->offsetExists('import_source'));
-        $this->assertSame([], $jobs->offsetGet('import_source')->getNeeds()->getArrayCopy());
+        $importJob = $jobs->offsetGet(self::IMPORT_JOB_ID);
+        $this->assertSame([], $importJob->getNeeds()->getArrayCopy());
+        $this->assertSame(ImportSourceFileAction::class.'::evaluateIf', $importJob->getIf());
+        $this->assertTrue($importJob->isContinueOnSkip());
         // The import is the only root: every other job runs after it, directly or not.
         foreach ($jobs as $jobId => $job) {
-            if ('import_source' !== $jobId) {
+            if (self::IMPORT_JOB_ID !== $jobId) {
                 $this->assertNotEmpty($job->getNeeds()->getArrayCopy(), $jobId);
             }
         }
-        $analyzerJobId = FileAnalyzerIntegration::getName().':'.$integration->getId();
-        $this->assertSame(['import_source'], $jobs->offsetGet($analyzerJobId)->getNeeds()->getArrayCopy());
+        $this->assertSame([self::IMPORT_JOB_ID], $jobs->offsetGet($this->getAnalyzerJobId($integration))->getNeeds()->getArrayCopy());
     }
 
-    public function testImportSourceFileActionOnlyImportsAPendingSource(): void
+    public function testIntegrationsRunWhenThereIsNothingToImport(): void
+    {
+        [$ws] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
+        $integration = $this->createAnalyzerIntegration($ws);
+        $asset = $this->createAsset(['workspace' => $ws, 'no_flush' => true]);
+        $asset->setSource($this->createUrlFile($ws));
+        self::getEntityManager()->flush();
+
+        /** @var TestTransport $transport */
+        $transport = self::getContainer()->get('messenger.transport.p2');
+        $transport->intercept(false);
+        self::getService(WorkspaceAssetIngester::class)->ingestAsset($asset, null);
+
+        $workflow = self::getEntityManager()->getRepository(WorkflowState::class)->findOneBy(['asset' => $asset->getId()]);
+        $stateRepository = self::getService(StateRepositoryInterface::class);
+        $this->assertSame(JobState::STATUS_SKIPPED, $stateRepository->getLastJobState($workflow->getId(), self::IMPORT_JOB_ID)->getStatus());
+        $this->assertNotNull($stateRepository->getLastJobState($workflow->getId(), $this->getAnalyzerJobId($integration)), 'the analyzer ran after the skipped import');
+    }
+
+    public function testImportSourceFileActionRunsOnlyForAPendingSource(): void
     {
         [$ws] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
         $em = self::getEntityManager();
@@ -138,13 +158,42 @@ final class FileImportTest extends AbstractDataboxTestCase
         $importer->expects($this->once())
             ->method('importFile')
             ->with($this->callback(static fn (File $file): bool => $file->getId() === $pending->getId()));
-
         $action = new ImportSourceFileAction($importer, $em);
-        foreach ([$pendingAsset, $notPendingAsset, $noSourceAsset] as $asset) {
-            $context = $this->createMock(RunContext::class);
-            $context->method('getInputs')->willReturn(new Inputs(['assetId' => $asset->getId()]));
-            $action->handle($context);
-        }
+
+        $inputs = static fn (Asset $asset): Inputs => new Inputs(['assetId' => $asset->getId()]);
+        $ifContext = function (Asset $asset) use ($inputs): JobExecutionContext {
+            $context = $this->createMock(JobExecutionContext::class);
+            $context->method('getInputs')->willReturn($inputs($asset));
+
+            return $context;
+        };
+
+        $this->assertTrue($action->evaluateIf($ifContext($pendingAsset)));
+        $this->assertFalse($action->evaluateIf($ifContext($notPendingAsset)));
+        $this->assertFalse($action->evaluateIf($ifContext($noSourceAsset)));
+
+        $runContext = $this->createMock(RunContext::class);
+        $runContext->method('getInputs')->willReturn($inputs($pendingAsset));
+        $action->handle($runContext);
+    }
+
+    private function createAnalyzerIntegration(Workspace $workspace): WorkspaceIntegration
+    {
+        $integration = new WorkspaceIntegration();
+        $integration->setWorkspace($workspace);
+        $integration->setOwnerId($workspace->getOwnerId());
+        $integration->setPublic(false);
+        $integration->setIntegration(FileAnalyzerIntegration::getName());
+        $integration->setConfig(['analyzers' => []]);
+        self::getEntityManager()->persist($integration);
+        self::getEntityManager()->flush();
+
+        return $integration;
+    }
+
+    private function getAnalyzerJobId(WorkspaceIntegration $integration): string
+    {
+        return FileAnalyzerIntegration::getName().':'.$integration->getId();
     }
 
     private static function importedSourceFile(): array

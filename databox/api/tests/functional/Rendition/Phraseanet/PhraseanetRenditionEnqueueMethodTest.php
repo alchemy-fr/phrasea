@@ -101,7 +101,15 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         $json = json_decode($response->getContent(), true);
         $assetId = $json['id'];
 
-        $envelope = $inMemoryTransport->get()[0];
+        // The ingest starts with the source import, skipped: nothing to import.
+        $importEnvelope = $inMemoryTransport->get()[0];
+        self::assertEquals('import_source', $importEnvelope->getMessage()->getJobId());
+        $this->consumeEvent($importEnvelope, $queueName);
+
+        foreach (self::getService(\Alchemy\Workflow\State\Repository\StateRepositoryInterface::class)->getJobStates($importEnvelope->getMessage()->getWorkflowId(), 'import_source') as $st) {
+        }
+        $sent = $inMemoryTransport->getSent();
+        $envelope = end($sent);
         $eventMessage = $envelope->getMessage();
         self::assertInstanceOf(JobConsumer::class, $eventMessage);
         $workflowId = $eventMessage->getWorkflowId();
@@ -172,7 +180,15 @@ class PhraseanetRenditionEnqueueMethodTest extends ApiTestCase
         ]);
         $this->assertResponseStatusCodeSame(200);
 
-        $envelope = $inMemoryTransport->get()[0];
+        // The ingest starts with the source import, skipped: nothing to import.
+        $importEnvelope = $inMemoryTransport->get()[0];
+        self::assertEquals('import_source', $importEnvelope->getMessage()->getJobId());
+        $this->consumeEvent($importEnvelope, $queueName);
+
+        foreach (self::getService(\Alchemy\Workflow\State\Repository\StateRepositoryInterface::class)->getJobStates($importEnvelope->getMessage()->getWorkflowId(), 'import_source') as $st) {
+        }
+        $sent = $inMemoryTransport->getSent();
+        $envelope = end($sent);
         $eventMessage = $envelope->getMessage();
         self::assertInstanceOf(PhraseanetDownloadSubdef::class, $eventMessage);
         $this->consumeEvent($envelope, $queueName);

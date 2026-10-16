@@ -97,7 +97,13 @@ class PhraseanetRenditionApiV3SubDefMethodTest extends ApiTestCase
         $json = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $assetId = $json['id'];
 
-        $envelope = $inMemoryTransport->get()[0];
+        // The ingest starts with the source import, skipped: nothing to import.
+        $importEnvelope = $inMemoryTransport->get()[0];
+        self::assertEquals('import_source', $importEnvelope->getMessage()->getJobId());
+        $this->consumeEvent($importEnvelope, $queueName);
+
+        $sent = $inMemoryTransport->getSent();
+        $envelope = end($sent);
         $eventMessage = $envelope->getMessage();
         self::assertInstanceOf(JobConsumer::class, $eventMessage);
         self::assertEquals(PhraseanetRenditionIntegration::getName().':'.$integration->getId().':api', $eventMessage->getJobId());

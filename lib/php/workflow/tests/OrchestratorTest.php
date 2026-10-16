@@ -51,6 +51,22 @@ EOF, $output->fetch());
         ], $stateRepository, $workflowState->getId());
     }
 
+    public function testSkippedNeedOnlyLetsItsDependentsRunWithContinueOnSkip(): void
+    {
+        [$orchestrator, $stateRepository] = $this->createOrchestrator([
+            'continue-on-skip.yaml',
+        ], null);
+
+        $workflowState = $orchestrator->startWorkflow('Continue on skip');
+
+        $this->assertJobResultsStates([
+            'optional' => JobState::STATUS_SKIPPED,
+            'after_optional' => JobState::STATUS_SUCCESS,
+            'blocking' => JobState::STATUS_SKIPPED,
+            'after_blocking' => null,
+        ], $stateRepository, $workflowState->getId());
+    }
+
     public function testEndToEndEchoerComplexWorkflow(): void
     {
         $output = new BufferedOutput();
