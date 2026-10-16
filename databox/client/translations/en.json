@@ -2254,6 +2254,10 @@
         }
     },
     "operation_task": {
+        "import_files": {
+            "desc": "Fetch every file of a workspace still referenced by URL and store it on the main storage",
+            "name": "Import files"
+        },
         "index_assets": {
             "desc": "ReIndex Assets and their Attributes",
             "name": "Index assets"

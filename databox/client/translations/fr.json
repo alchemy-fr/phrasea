@@ -3159,6 +3159,10 @@
         "unresolved": "…"
     },
     "operation_task": {
+        "import_files": {
+            "desc": "Récupère chaque fichier d'un Workspace encore référencé par URL et le stocke sur le stockage principal",
+            "name": "Importer les fichiers"
+        },
         "index_assets": {
             "desc": "Réindexer les assets et leurs attributs",
             "name": "Indexer les assets"

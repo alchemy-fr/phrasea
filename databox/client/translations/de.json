@@ -2919,6 +2919,10 @@
         "unresolved": "…"
     },
     "operation_task": {
+        "import_files": {
+            "desc": "Jede noch per URL referenzierte Datei eines Workspaces abrufen und im Hauptspeicher ablegen",
+            "name": "Dateien importieren"
+        },
         "index_assets": {
             "desc": "Assets und deren Attribute neu indizieren",
             "name": "Assets indizieren"

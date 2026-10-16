@@ -2,9 +2,7 @@ import {FormRow} from '@alchemy/react-form';
 import {TaskComponentProps} from './taskTypes.ts';
 import WorkspaceSelect from '../../Form/WorkspaceSelect.tsx';
 
-export default function IngestWorkspaceAssetsTask({
-    usedFormSubmit,
-}: TaskComponentProps) {
+export default function WorkspaceTask({usedFormSubmit}: TaskComponentProps) {
     const {control} = usedFormSubmit;
 
     return (

@@ -164,12 +164,20 @@ class FileRepository extends ServiceEntityRepository
      *
      * @return iterable<string>
      */
-    public function iterateIdsByWorkspace(string $workspaceId): iterable
+    public function iterateIdsByWorkspace(string $workspaceId, ?string $storage = null): iterable
     {
-        $result = $this->createQueryBuilder('f')
+        $queryBuilder = $this->createQueryBuilder('f')
             ->select('f.id AS fileId')
             ->andWhere('f.workspace = :ws')
-            ->setParameter('ws', $workspaceId)
+            ->setParameter('ws', $workspaceId);
+
+        if (null !== $storage) {
+            $queryBuilder
+                ->andWhere('f.storage = :storage')
+                ->setParameter('storage', $storage);
+        }
+
+        $result = $queryBuilder
             ->getQuery()
             ->toIterable([], AbstractQuery::HYDRATE_SCALAR);
 

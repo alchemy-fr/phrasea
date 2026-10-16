@@ -2,7 +2,7 @@ import SwitchAttributeLocaleTask from './SwitchAttributeLocaleTask.tsx';
 import {useTranslation} from 'react-i18next';
 import {TaskComponentProps} from './taskTypes.ts';
 import IndexAssetsTask from './IndexAssetsTask.tsx';
-import IngestWorkspaceAssetsTask from './IngestWorkspaceAssetsTask.tsx';
+import WorkspaceTask from './WorkspaceTask.tsx';
 import AttributeDefinitionTask from './AttributeDefinitionTask.tsx';
 
 type Task = {
@@ -46,7 +46,7 @@ export function useTasks(): Task[] {
             },
         },
         {
-            component: IngestWorkspaceAssetsTask,
+            component: WorkspaceTask,
             name: 'ingest_workspace_assets',
             displayName: t(
                 'operation_task.ingest_workspace_assets.name',
@@ -55,6 +55,18 @@ export function useTasks(): Task[] {
             description: t(
                 'operation_task.ingest_workspace_assets.desc',
                 `Re-run the ingest workflow on every asset of a workspace`
+            ),
+            defaultValues: {
+                workspaceId: null,
+            },
+        },
+        {
+            component: WorkspaceTask,
+            name: 'import_files',
+            displayName: t('operation_task.import_files.name', 'Import files'),
+            description: t(
+                'operation_task.import_files.desc',
+                `Fetch every file of a workspace still referenced by URL and store it on the main storage`
             ),
             defaultValues: {
                 workspaceId: null,
