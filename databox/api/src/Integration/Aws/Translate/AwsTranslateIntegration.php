@@ -13,9 +13,11 @@ use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'aws.translate')]
+#[AsTaggedItem(index: self::NAME)]
 class AwsTranslateIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface
 {
+    public const string NAME = 'aws.translate';
+
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
         yield WorkflowHelper::createIntegrationJob(
@@ -83,6 +85,6 @@ class AwsTranslateIntegration extends AbstractAwsIntegration implements Workflow
 
     public static function getName(): string
     {
-        return 'aws.translate';
+        return self::NAME;
     }
 }

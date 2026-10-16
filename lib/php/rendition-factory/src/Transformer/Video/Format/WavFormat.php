@@ -7,9 +7,11 @@ use FFMpeg\Format\Audio\Wav;
 use FFMpeg\Format\AudioInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'audio-wav')]
+#[AsTaggedItem(index: self::FORMAT)]
 class WavFormat implements FormatInterface
 {
+    public const string FORMAT = 'audio-wav';
+
     private AudioInterface $format;
 
     public function __construct()
@@ -29,7 +31,7 @@ class WavFormat implements FormatInterface
 
     public static function getFormat(): string
     {
-        return 'audio-wav';
+        return self::FORMAT;
     }
 
     public static function getFamily(): FamilyEnum

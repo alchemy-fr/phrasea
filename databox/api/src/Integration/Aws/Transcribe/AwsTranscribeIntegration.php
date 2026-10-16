@@ -20,9 +20,11 @@ use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'aws.transcribe')]
+#[AsTaggedItem(index: self::NAME)]
 class AwsTranscribeIntegration extends AbstractAwsIntegration implements WorkflowIntegrationInterface
 {
+    public const string NAME = 'aws.transcribe';
+
     private const string VERSION = '1.0';
     final public const string SNS_PREFIX = 'databox:integration:transcribe:';
 
@@ -177,7 +179,7 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
 
     public static function getName(): string
     {
-        return 'aws.transcribe';
+        return self::NAME;
     }
 
     public static function getDisplayName(): string

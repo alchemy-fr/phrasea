@@ -13,9 +13,11 @@ use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'core.watermark')]
+#[AsTaggedItem(index: self::NAME)]
 class WatermarkIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    public const string NAME = 'core.watermark';
+
     final public const string VERSION = '1.0';
 
     public function buildConfiguration(NodeBuilder $builder): void
@@ -64,7 +66,7 @@ class WatermarkIntegration extends AbstractIntegration implements WorkflowIntegr
 
     public static function getName(): string
     {
-        return 'core.watermark';
+        return self::NAME;
     }
 
     public static function getDisplayName(): string

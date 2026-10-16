@@ -26,11 +26,6 @@ final readonly class CsvAttributeEntityImporter implements AttributeEntityImport
     ) {
     }
 
-    public static function getName(): string
-    {
-        return 'csv';
-    }
-
     public function import(EntityList $entityList, string $data): void
     {
         $rows = str_getcsv($data, separator: "\n", escape: '')

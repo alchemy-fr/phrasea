@@ -9,10 +9,12 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Tag;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: '@tag')]
+#[AsTaggedItem(index: self::KEY)]
 final class TagBuiltInAttribute extends AbstractEntityBuiltInAttribute
 {
     use UserLocaleTrait;
+
+    public const string KEY = '@tag';
 
     /**
      * @param Tag $value
@@ -54,7 +56,7 @@ final class TagBuiltInAttribute extends AbstractEntityBuiltInAttribute
 
     public static function getKey(): string
     {
-        return '@tag';
+        return self::KEY;
     }
 
     public function getValueFromAsset(Asset $asset): mixed

@@ -14,9 +14,11 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * Materialize an AttributeDefinition's fallback value into a stored Attribute for every
  * asset of its workspace that has no value yet for that definition.
  */
-#[AsTaggedItem(index: 'store_fallback_attributes')]
+#[AsTaggedItem(index: self::NAME)]
 final readonly class StoreFallbackAttributesTask implements OperationTaskInterface
 {
+    public const string NAME = 'store_fallback_attributes';
+
     public function __construct(
         private AttributeDefinitionOperationRunner $runner,
     ) {
@@ -24,7 +26,7 @@ final readonly class StoreFallbackAttributesTask implements OperationTaskInterfa
 
     public static function getName(): string
     {
-        return 'store_fallback_attributes';
+        return self::NAME;
     }
 
     public function validate(array $payload): void

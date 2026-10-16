@@ -11,9 +11,11 @@ use App\Entity\Core\File;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'image_dimension')]
+#[AsTaggedItem(index: self::NAME)]
 final readonly class ImageDimensionAnalyzer extends AbstractAnalyzer
 {
+    public const string NAME = 'image_dimension';
+
     private const string TYPE_NOT_AN_IMAGE = 'not_an_image';
     public const string TYPE_MIN_WIDTH = 'min_width';
     public const string TYPE_MAX_WIDTH = 'max_width';
@@ -22,7 +24,7 @@ final readonly class ImageDimensionAnalyzer extends AbstractAnalyzer
 
     public static function getName(): string
     {
-        return 'image_dimension';
+        return self::NAME;
     }
 
     public function buildConfiguration(NodeBuilder $builder): void

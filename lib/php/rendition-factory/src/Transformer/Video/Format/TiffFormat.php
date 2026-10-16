@@ -5,9 +5,11 @@ namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'image-tiff')]
+#[AsTaggedItem(index: self::FORMAT)]
 class TiffFormat implements FormatInterface
 {
+    public const string FORMAT = 'image-tiff';
+
     public static function getAllowedExtensions(): array
     {
         return ['tif', 'tiff'];
@@ -20,7 +22,7 @@ class TiffFormat implements FormatInterface
 
     public static function getFormat(): string
     {
-        return 'image-tiff';
+        return self::FORMAT;
     }
 
     public static function getFamily(): FamilyEnum

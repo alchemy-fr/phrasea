@@ -15,9 +15,11 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * and/or readFromMetadata) for every asset of its workspace, overwriting the previously
  * stored attributes for that definition.
  */
-#[AsTaggedItem(index: 'recompute_initial_values')]
+#[AsTaggedItem(index: self::NAME)]
 final readonly class RecomputeInitialValuesTask implements OperationTaskInterface
 {
+    public const string NAME = 'recompute_initial_values';
+
     public function __construct(
         private AttributeDefinitionOperationRunner $runner,
     ) {
@@ -25,7 +27,7 @@ final readonly class RecomputeInitialValuesTask implements OperationTaskInterfac
 
     public static function getName(): string
     {
-        return 'recompute_initial_values';
+        return self::NAME;
     }
 
     public function validate(array $payload): void

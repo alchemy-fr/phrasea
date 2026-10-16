@@ -12,9 +12,11 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
 
-#[AsTaggedItem(index: 'phrasea.uploader')]
+#[AsTaggedItem(index: self::NAME)]
 class UploaderIntegration extends AbstractIntegration
 {
+    public const string NAME = 'phrasea.uploader';
+
     public function __construct(
         private readonly UrlGeneratorInterface $urlGenerator,
     ) {
@@ -91,6 +93,6 @@ class UploaderIntegration extends AbstractIntegration
 
     public static function getName(): string
     {
-        return 'phrasea.uploader';
+        return self::NAME;
     }
 }

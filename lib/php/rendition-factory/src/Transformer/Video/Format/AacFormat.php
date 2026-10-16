@@ -7,9 +7,11 @@ use Alchemy\RenditionFactory\Transformer\Video\Format\Audio\Aac;
 use FFMpeg\Format\AudioInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'audio-aac')]
+#[AsTaggedItem(index: self::FORMAT)]
 class AacFormat implements FormatInterface
 {
+    public const string FORMAT = 'audio-aac';
+
     private AudioInterface $format;
 
     public function __construct()
@@ -29,7 +31,7 @@ class AacFormat implements FormatInterface
 
     public static function getFormat(): string
     {
-        return 'audio-aac';
+        return self::FORMAT;
     }
 
     public static function getFamily(): FamilyEnum

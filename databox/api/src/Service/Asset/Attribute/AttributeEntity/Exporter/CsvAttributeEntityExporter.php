@@ -13,11 +13,6 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 #[AsTaggedItem(index: 'csv')]
 final readonly class CsvAttributeEntityExporter extends AbstractAttributeEntityExporter
 {
-    public static function getName(): string
-    {
-        return 'csv';
-    }
-
     public function export(EntityList $entityList, ExportEntitiesInput $options): callable
     {
         $headers = [

@@ -17,9 +17,11 @@ use Symfony\Component\Messenger\MessageBusInterface;
  * Dispatch an import for every file of a workspace still referenced by URL,
  * so its content gets fetched and stored on the main storage.
  */
-#[AsTaggedItem(index: 'import_files')]
+#[AsTaggedItem(index: self::NAME)]
 final readonly class ImportFilesTask implements OperationTaskInterface
 {
+    public const string NAME = 'import_files';
+
     public function __construct(
         private FileRepository $fileRepository,
         private MessageBusInterface $bus,
@@ -28,7 +30,7 @@ final readonly class ImportFilesTask implements OperationTaskInterface
 
     public static function getName(): string
     {
-        return 'import_files';
+        return self::NAME;
     }
 
     public function validate(array $payload): void

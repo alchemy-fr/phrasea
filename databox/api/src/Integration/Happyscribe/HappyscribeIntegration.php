@@ -13,9 +13,11 @@ use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'happyscribe')]
+#[AsTaggedItem(index: self::NAME)]
 class HappyscribeIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    public const string NAME = 'happyscribe';
+
     final public const array ALLOWED_EXTENSIONS = ['srt', 'txt', 'json', 'vtt', 'docx', 'pdf', 'html'];
 
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
@@ -80,6 +82,6 @@ class HappyscribeIntegration extends AbstractIntegration implements WorkflowInte
 
     public static function getName(): string
     {
-        return 'happyscribe';
+        return self::NAME;
     }
 }

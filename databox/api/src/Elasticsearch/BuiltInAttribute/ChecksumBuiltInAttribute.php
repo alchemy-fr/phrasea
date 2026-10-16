@@ -8,9 +8,11 @@ use App\Attribute\Type\KeywordAttributeType;
 use App\Entity\Core\Asset;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: '@checksum')]
+#[AsTaggedItem(index: self::KEY)]
 final class ChecksumBuiltInAttribute extends AbstractBuiltInAttribute
 {
+    public const string KEY = '@checksum';
+
     protected function getAggregationTranslationKey(): string
     {
         return 'checksum';
@@ -23,7 +25,7 @@ final class ChecksumBuiltInAttribute extends AbstractBuiltInAttribute
 
     public static function getKey(): string
     {
-        return '@checksum';
+        return self::KEY;
     }
 
     public function getValueFromAsset(Asset $asset): mixed

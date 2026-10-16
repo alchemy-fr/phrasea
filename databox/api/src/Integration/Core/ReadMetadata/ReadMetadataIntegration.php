@@ -15,9 +15,11 @@ use App\Service\Workflow\Action\ReadMetadataAction;
 use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'core.read_metadata')]
+#[AsTaggedItem(index: self::NAME)]
 class ReadMetadataIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    public const string NAME = 'core.read_metadata';
+
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable
     {
         if (!$workflow->getOn()->hasEventName(AssetIngestWorkflowEvent::EVENT)) {
@@ -58,6 +60,6 @@ class ReadMetadataIntegration extends AbstractIntegration implements WorkflowInt
 
     public static function getName(): string
     {
-        return 'core.read_metadata';
+        return self::NAME;
     }
 }

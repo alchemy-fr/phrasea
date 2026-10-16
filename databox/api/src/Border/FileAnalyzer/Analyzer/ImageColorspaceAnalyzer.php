@@ -12,9 +12,11 @@ use App\Entity\Core\File;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'image_colorspace')]
+#[AsTaggedItem(index: self::NAME)]
 final readonly class ImageColorspaceAnalyzer extends AbstractAnalyzer
 {
+    public const string NAME = 'image_colorspace';
+
     private const array COMMON_COLORSPACES = [
         ColorspaceDetector::CS_RGB,
         ColorspaceDetector::CS_SRGB,
@@ -34,7 +36,7 @@ final readonly class ImageColorspaceAnalyzer extends AbstractAnalyzer
 
     public static function getName(): string
     {
-        return 'image_colorspace';
+        return self::NAME;
     }
 
     public function buildConfiguration(NodeBuilder $builder): void

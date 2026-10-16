@@ -6,6 +6,7 @@ namespace App\Api\Mapper\Input;
 
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use App\Api\Model\Input\AssetRenditionInput;
+use App\Consumer\Handler\File\ImportFile;
 use App\Consumer\Handler\Rendition\BuildDynamicRendition;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetRendition;
@@ -63,6 +64,11 @@ class AssetRenditionInputMapper extends AbstractFileInputMapper implements Input
             ?? $this->handleUpload($data->multipart, $workspace);
         if (null !== $file) {
             $this->em->persist($file);
+
+            // A rendition has no ingest workflow to import its file.
+            if ($file->isImportPending()) {
+                $this->postFlushStackListener->addBusMessage(new ImportFile($file->getId()));
+            }
         }
 
         return $this->renditionManager->createOrReplaceRenditionFile(

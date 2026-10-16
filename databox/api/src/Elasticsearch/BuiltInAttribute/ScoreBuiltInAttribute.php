@@ -8,9 +8,11 @@ use App\Attribute\Type\NumberAttributeType;
 use App\Entity\Core\Asset;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: '@score')]
+#[AsTaggedItem(index: self::KEY)]
 final class ScoreBuiltInAttribute extends AbstractBuiltInAttribute
 {
+    public const string KEY = '@score';
+
     protected function getAggregationTranslationKey(): string
     {
         return 'relevance';
@@ -29,7 +31,7 @@ final class ScoreBuiltInAttribute extends AbstractBuiltInAttribute
 
     public static function getKey(): string
     {
-        return '@score';
+        return self::KEY;
     }
 
     public function getValueFromAsset(Asset $asset): mixed

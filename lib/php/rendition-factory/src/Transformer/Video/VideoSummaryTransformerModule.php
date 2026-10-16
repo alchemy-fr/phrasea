@@ -30,9 +30,11 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
-#[AsTaggedItem(index: 'video_summary')]
+#[AsTaggedItem(index: self::NAME)]
 final readonly class VideoSummaryTransformerModule implements TransformerModuleInterface
 {
+    public const string NAME = 'video_summary';
+
     public function __construct(#[AutowireLocator(FormatInterface::TAG)] private ServiceLocator $formats,
         private ModuleOptionsResolver $optionsResolver,
         private ImagineInterface $imagine,
@@ -42,7 +44,7 @@ final readonly class VideoSummaryTransformerModule implements TransformerModuleI
 
     public static function getName(): string
     {
-        return 'video_summary';
+        return self::NAME;
     }
 
     private static function getSupportedOutputFormats(): array

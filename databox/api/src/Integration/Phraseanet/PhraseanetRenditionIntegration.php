@@ -16,9 +16,11 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
 
-#[AsTaggedItem(index: 'phraseanet.renditions')]
+#[AsTaggedItem(index: self::NAME)]
 class PhraseanetRenditionIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    public const string NAME = 'phraseanet.renditions';
+
     final public const string METHOD_ENQUEUE = 'enqueue';
     final public const string METHOD_API = 'api';
 
@@ -145,6 +147,6 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
 
     public static function getName(): string
     {
-        return 'phraseanet.renditions';
+        return self::NAME;
     }
 }

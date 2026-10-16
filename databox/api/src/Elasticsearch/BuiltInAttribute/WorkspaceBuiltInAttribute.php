@@ -9,10 +9,12 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\Workspace;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: '@workspace')]
+#[AsTaggedItem(index: self::KEY)]
 final class WorkspaceBuiltInAttribute extends AbstractEntityBuiltInAttribute
 {
     use UserLocaleTrait;
+
+    public const string KEY = '@workspace';
 
     protected function getEntityClass(): string
     {
@@ -35,7 +37,7 @@ final class WorkspaceBuiltInAttribute extends AbstractEntityBuiltInAttribute
 
     public static function getKey(): string
     {
-        return '@workspace';
+        return self::KEY;
     }
 
     public function getValueFromAsset(Asset $asset): mixed

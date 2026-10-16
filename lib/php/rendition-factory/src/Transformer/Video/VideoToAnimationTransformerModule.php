@@ -22,9 +22,11 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
-#[AsTaggedItem(index: 'video_to_animation')]
+#[AsTaggedItem(index: self::NAME)]
 final readonly class VideoToAnimationTransformerModule implements TransformerModuleInterface
 {
+    public const string NAME = 'video_to_animation';
+
     public function __construct(#[AutowireLocator(FormatInterface::TAG)] private ServiceLocator $formats,
         private ModuleOptionsResolver $optionsResolver,
         private OutputFormatsDocumentation $outputFormatsDocumentation,
@@ -33,7 +35,7 @@ final readonly class VideoToAnimationTransformerModule implements TransformerMod
 
     public static function getName(): string
     {
-        return 'video_to_animation';
+        return self::NAME;
     }
 
     private static function getSupportedOutputFormats(): array

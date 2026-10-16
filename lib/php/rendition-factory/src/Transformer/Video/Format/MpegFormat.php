@@ -7,9 +7,11 @@ use FFMpeg\Format\Video\X264;
 use FFMpeg\Format\VideoInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'video-mpeg')]
+#[AsTaggedItem(index: self::FORMAT)]
 class MpegFormat implements FormatInterface
 {
+    public const string FORMAT = 'video-mpeg';
+
     private VideoInterface $format;
 
     public function __construct()
@@ -29,7 +31,7 @@ class MpegFormat implements FormatInterface
 
     public static function getFormat(): string
     {
-        return 'video-mpeg';
+        return self::FORMAT;
     }
 
     public static function getFamily(): FamilyEnum

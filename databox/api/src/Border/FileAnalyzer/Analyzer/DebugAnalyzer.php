@@ -11,12 +11,14 @@ use App\Entity\Core\File;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'debug')]
+#[AsTaggedItem(index: self::NAME)]
 final readonly class DebugAnalyzer extends AbstractAnalyzer
 {
+    public const string NAME = 'debug';
+
     public static function getName(): string
     {
-        return 'debug';
+        return self::NAME;
     }
 
     public function buildConfiguration(NodeBuilder $builder): void

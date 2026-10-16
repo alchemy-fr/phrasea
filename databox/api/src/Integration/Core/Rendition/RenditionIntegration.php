@@ -16,9 +16,11 @@ use Ramsey\Uuid\Nonstandard\Uuid;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'core.rendition')]
+#[AsTaggedItem(index: self::NAME)]
 class RenditionIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    public const string NAME = 'core.rendition';
+
     public function __construct(
         private readonly RenditionManager $renditionManager,
     ) {
@@ -149,7 +151,7 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
 
     public static function getName(): string
     {
-        return 'core.rendition';
+        return self::NAME;
     }
 
     public static function getDisplayName(): string

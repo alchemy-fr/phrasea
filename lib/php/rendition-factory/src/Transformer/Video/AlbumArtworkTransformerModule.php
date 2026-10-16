@@ -24,9 +24,11 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
-#[AsTaggedItem(index: 'album_artwork')]
+#[AsTaggedItem(index: self::NAME)]
 final readonly class AlbumArtworkTransformerModule implements TransformerModuleInterface
 {
+    public const string NAME = 'album_artwork';
+
     public function __construct(
         #[AutowireLocator(FormatInterface::TAG)] private ServiceLocator $formats,
         private ModuleOptionsResolver $optionsResolver,
@@ -36,7 +38,7 @@ final readonly class AlbumArtworkTransformerModule implements TransformerModuleI
 
     public static function getName(): string
     {
-        return 'album_artwork';
+        return self::NAME;
     }
 
     private static function getSupportedOutputFormats(): array

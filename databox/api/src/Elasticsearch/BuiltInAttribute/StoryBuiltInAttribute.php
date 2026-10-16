@@ -10,9 +10,11 @@ use App\Service\Asset\Attribute\AssetNameResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: '@story')]
+#[AsTaggedItem(index: self::KEY)]
 final class StoryBuiltInAttribute extends AbstractEntityBuiltInAttribute
 {
+    public const string KEY = '@story';
+
     public function __construct(
         private readonly AssetNameResolver $assetNameResolver,
         EntityManagerInterface $em,
@@ -51,7 +53,7 @@ final class StoryBuiltInAttribute extends AbstractEntityBuiltInAttribute
 
     public static function getKey(): string
     {
-        return '@story';
+        return self::KEY;
     }
 
     #[\Override]

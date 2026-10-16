@@ -28,11 +28,13 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\Constraints\Url;
 
-#[AsTaggedItem(index: 'phrasea.expose')]
+#[AsTaggedItem(index: self::NAME)]
 class ExposeIntegration extends AbstractIntegration implements UserActionsIntegrationInterface, IntegrationDataTransformerInterface, BasketUpdateHandlerIntegrationInterface, IntegrationTokenRenewerInterface
 {
     use IntegrationTokenTrait;
     use UserActionsTrait;
+
+    public const string NAME = 'phrasea.expose';
     private const string DATA_PUBLICATION_ID = 'publication_id';
     private const string DATA_PUBLICATION = 'publication';
 
@@ -210,7 +212,7 @@ class ExposeIntegration extends AbstractIntegration implements UserActionsIntegr
 
     public static function getName(): string
     {
-        return 'phrasea.expose';
+        return self::NAME;
     }
 
     #[\Override]

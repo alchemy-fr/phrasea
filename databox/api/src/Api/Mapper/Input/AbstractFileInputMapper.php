@@ -9,7 +9,6 @@ use Alchemy\StorageBundle\Api\Dto\MultipartUploadInput;
 use Alchemy\StorageBundle\Upload\UploadManager;
 use Alchemy\StorageBundle\Util\FileUtil;
 use App\Api\Model\Input\FileSourceInput;
-use App\Consumer\Handler\File\ImportFile;
 use App\Entity\Core\Asset;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
@@ -107,6 +106,7 @@ abstract class AbstractFileInputMapper extends AbstractInputMapper
         $file->setType($source->type ?? FileUtil::getTypeFromExtension($extension));
         $file->setPathPublic(!$source->isPrivate);
         $file->setStorage(File::STORAGE_URL);
+        $file->setImportPending($source->importFile);
         $file->setWorkspace($workspace);
 
         if (null !== $source->alternateUrls) {
@@ -116,11 +116,6 @@ abstract class AbstractFileInputMapper extends AbstractInputMapper
         }
 
         $this->em->persist($file);
-
-        if ($source->importFile) {
-            // TODO Should be integrated to the asset:ingest workflow
-            $this->postFlushStackListener->addBusMessage(new ImportFile($file->getId()));
-        }
 
         return $file;
     }

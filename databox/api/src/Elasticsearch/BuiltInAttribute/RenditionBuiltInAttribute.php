@@ -8,9 +8,11 @@ use App\Entity\Core\Asset;
 use App\Entity\Core\RenditionDefinition;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: '@rendition')]
+#[AsTaggedItem(index: self::KEY)]
 final class RenditionBuiltInAttribute extends AbstractEntityBuiltInAttribute
 {
+    public const string KEY = '@rendition';
+
     protected function getEntityClass(): string
     {
         return RenditionDefinition::class;
@@ -32,7 +34,7 @@ final class RenditionBuiltInAttribute extends AbstractEntityBuiltInAttribute
 
     public static function getKey(): string
     {
-        return '@rendition';
+        return self::KEY;
     }
 
     public function getValueFromAsset(Asset $asset): never

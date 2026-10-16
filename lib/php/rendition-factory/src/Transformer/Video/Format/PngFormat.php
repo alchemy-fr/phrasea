@@ -5,9 +5,11 @@ namespace Alchemy\RenditionFactory\Transformer\Video\Format;
 use Alchemy\RenditionFactory\DTO\FamilyEnum;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'image-png')]
+#[AsTaggedItem(index: self::FORMAT)]
 class PngFormat implements FormatInterface
 {
+    public const string FORMAT = 'image-png';
+
     public static function getAllowedExtensions(): array
     {
         return ['png'];
@@ -20,7 +22,7 @@ class PngFormat implements FormatInterface
 
     public static function getFormat(): string
     {
-        return 'image-png';
+        return self::FORMAT;
     }
 
     public static function getFamily(): FamilyEnum

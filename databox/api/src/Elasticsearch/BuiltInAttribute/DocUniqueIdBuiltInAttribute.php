@@ -8,9 +8,11 @@ use App\Attribute\Type\KeywordAttributeType;
 use App\Entity\Core\Asset;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: '@docUniqueId')]
+#[AsTaggedItem(index: self::KEY)]
 final class DocUniqueIdBuiltInAttribute extends AbstractBuiltInAttribute
 {
+    public const string KEY = '@docUniqueId';
+
     protected function getAggregationTranslationKey(): string
     {
         return 'doc_unique_id';
@@ -23,7 +25,7 @@ final class DocUniqueIdBuiltInAttribute extends AbstractBuiltInAttribute
 
     public static function getKey(): string
     {
-        return '@docUniqueId';
+        return self::KEY;
     }
 
     public function getValueFromAsset(Asset $asset): mixed

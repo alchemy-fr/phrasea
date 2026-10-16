@@ -14,9 +14,11 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  * `@family`: kind of the source file (image, audio, video, document, other),
  * derived from its MIME type. See {@see FileFamilyEnum}.
  */
-#[AsTaggedItem(index: '@family')]
+#[AsTaggedItem(index: self::KEY)]
 final class FileFamilyBuiltInAttribute extends AbstractLabelledBuiltInAttribute
 {
+    public const string KEY = '@family';
+
     public function __construct(private readonly TranslatorInterface $translator)
     {
     }
@@ -33,7 +35,7 @@ final class FileFamilyBuiltInAttribute extends AbstractLabelledBuiltInAttribute
 
     public static function getKey(): string
     {
-        return '@family';
+        return self::KEY;
     }
 
     public function getValueFromAsset(Asset $asset): mixed

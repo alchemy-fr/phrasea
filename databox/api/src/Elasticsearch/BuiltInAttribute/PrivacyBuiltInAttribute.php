@@ -10,9 +10,11 @@ use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[AsTaggedItem(index: '@privacy')]
+#[AsTaggedItem(index: self::KEY)]
 final class PrivacyBuiltInAttribute extends AbstractLabelledBuiltInAttribute
 {
+    public const string KEY = '@privacy';
+
     public function __construct(private readonly TranslatorInterface $translator)
     {
     }
@@ -45,7 +47,7 @@ final class PrivacyBuiltInAttribute extends AbstractLabelledBuiltInAttribute
 
     public static function getKey(): string
     {
-        return '@privacy';
+        return self::KEY;
     }
 
     public function getValueFromAsset(Asset $asset): mixed

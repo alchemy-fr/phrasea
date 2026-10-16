@@ -13,14 +13,16 @@ use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'blurhash')]
+#[AsTaggedItem(index: self::NAME)]
 class BlurhashIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    public const string NAME = 'blurhash';
+
     final public const string VERSION = '1.0';
 
     public static function getName(): string
     {
-        return 'blurhash';
+        return self::NAME;
     }
 
     public function buildConfiguration(NodeBuilder $builder): void

@@ -14,12 +14,14 @@ use Alchemy\RenditionFactory\Transformer\TransformerModuleInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'document_to_pdf')]
+#[AsTaggedItem(index: self::NAME)]
 final readonly class DocumentToPdfTransformerModule implements TransformerModuleInterface
 {
+    public const string NAME = 'document_to_pdf';
+
     public static function getName(): string
     {
-        return 'document_to_pdf';
+        return self::NAME;
     }
 
     public function getDocumentation(): Documentation

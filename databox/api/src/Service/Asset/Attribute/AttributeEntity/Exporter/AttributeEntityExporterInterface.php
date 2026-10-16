@@ -13,8 +13,6 @@ interface AttributeEntityExporterInterface
 {
     final public const string TAG = 'app.entity_exporter';
 
-    public static function getName(): string;
-
     public function export(EntityList $entityList, ExportEntitiesInput $options): callable;
 
     public function getMimeType(ExportEntitiesInput $options): string;

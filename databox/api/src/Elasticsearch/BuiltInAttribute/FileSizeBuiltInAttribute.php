@@ -8,9 +8,11 @@ use App\Attribute\Type\NumberAttributeType;
 use App\Entity\Core\Asset;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: '@size')]
+#[AsTaggedItem(index: self::KEY)]
 final class FileSizeBuiltInAttribute extends AbstractBuiltInAttribute
 {
+    public const string KEY = '@size';
+
     protected function getAggregationTranslationKey(): string
     {
         return 'file_size';
@@ -23,7 +25,7 @@ final class FileSizeBuiltInAttribute extends AbstractBuiltInAttribute
 
     public static function getKey(): string
     {
-        return '@size';
+        return self::KEY;
     }
 
     public function getValueFromAsset(Asset $asset): mixed

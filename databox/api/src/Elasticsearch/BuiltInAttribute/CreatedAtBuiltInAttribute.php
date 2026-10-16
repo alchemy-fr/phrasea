@@ -7,9 +7,11 @@ namespace App\Elasticsearch\BuiltInAttribute;
 use App\Entity\Core\Asset;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: '@createdAt')]
+#[AsTaggedItem(index: self::KEY)]
 class CreatedAtBuiltInAttribute extends AbstractDateTimeBuiltInAttribute
 {
+    public const string KEY = '@createdAt';
+
     protected function getAggregationTranslationKey(): string
     {
         return 'created_at';
@@ -17,7 +19,7 @@ class CreatedAtBuiltInAttribute extends AbstractDateTimeBuiltInAttribute
 
     public static function getKey(): string
     {
-        return '@createdAt';
+        return self::KEY;
     }
 
     public static function getName(): string

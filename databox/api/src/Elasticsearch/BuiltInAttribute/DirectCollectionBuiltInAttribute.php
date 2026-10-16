@@ -19,9 +19,11 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
  *
  *     @directCollection IN ("<collectionId1>", "<collectionId2>")
  */
-#[AsTaggedItem(index: '@directCollection')]
+#[AsTaggedItem(index: self::KEY)]
 final class DirectCollectionBuiltInAttribute extends AbstractCollectionBuiltInAttribute
 {
+    public const string KEY = '@directCollection';
+
     public static function getName(): string
     {
         return CollectionBuiltInAttribute::getName().'.raw';
@@ -29,7 +31,7 @@ final class DirectCollectionBuiltInAttribute extends AbstractCollectionBuiltInAt
 
     public static function getKey(): string
     {
-        return '@directCollection';
+        return self::KEY;
     }
 
     #[\Override]

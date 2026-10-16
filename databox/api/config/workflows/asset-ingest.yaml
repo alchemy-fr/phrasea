@@ -9,3 +9,7 @@ on:
                 required: true
 
 jobs:
+    import_source:
+        name: Import source file
+        steps:
+            -   uses: App\Service\Workflow\Action\ImportSourceFileAction

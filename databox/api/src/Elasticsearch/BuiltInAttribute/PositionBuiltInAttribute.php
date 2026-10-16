@@ -18,9 +18,11 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * An asset holds one position per collection it belongs to, so this only sorts
  * when the search is narrowed down to a single container.
  */
-#[AsTaggedItem(index: '@position')]
+#[AsTaggedItem(index: self::KEY)]
 final class PositionBuiltInAttribute extends AbstractBuiltInAttribute implements CustomSortBuiltInAttributeInterface
 {
+    public const string KEY = '@position';
+
     public const string ES_FIELD = 'collectionPositions';
 
     public function __construct(
@@ -36,7 +38,7 @@ final class PositionBuiltInAttribute extends AbstractBuiltInAttribute implements
 
     public static function getKey(): string
     {
-        return '@position';
+        return self::KEY;
     }
 
     #[\Override]

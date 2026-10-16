@@ -12,7 +12,5 @@ interface AttributeEntityImporterInterface
 {
     final public const string TAG = 'app.entity_importer';
 
-    public static function getName(): string;
-
     public function import(EntityList $entityList, string $data): void;
 }

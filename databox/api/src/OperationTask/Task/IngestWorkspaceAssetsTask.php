@@ -10,9 +10,11 @@ use App\Service\Asset\WorkspaceAssetIngester;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-#[AsTaggedItem(index: 'ingest_workspace_assets')]
+#[AsTaggedItem(index: self::NAME)]
 final readonly class IngestWorkspaceAssetsTask implements OperationTaskInterface
 {
+    public const string NAME = 'ingest_workspace_assets';
+
     public function __construct(
         private WorkspaceAssetIngester $workspaceAssetIngester,
     ) {
@@ -20,7 +22,7 @@ final readonly class IngestWorkspaceAssetsTask implements OperationTaskInterface
 
     public static function getName(): string
     {
-        return 'ingest_workspace_assets';
+        return self::NAME;
     }
 
     public function validate(array $payload): void

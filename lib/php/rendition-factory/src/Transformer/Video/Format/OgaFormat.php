@@ -7,9 +7,11 @@ use FFMpeg\Format\Audio\Vorbis;
 use FFMpeg\Format\AudioInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'audio-ogg')]
+#[AsTaggedItem(index: self::FORMAT)]
 class OgaFormat implements FormatInterface
 {
+    public const string FORMAT = 'audio-ogg';
+
     private AudioInterface $format;
 
     public function __construct()
@@ -29,7 +31,7 @@ class OgaFormat implements FormatInterface
 
     public static function getFormat(): string
     {
-        return 'audio-ogg';
+        return self::FORMAT;
     }
 
     public static function getFamily(): FamilyEnum

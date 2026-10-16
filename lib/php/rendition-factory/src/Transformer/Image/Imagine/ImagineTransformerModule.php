@@ -18,9 +18,11 @@ use Liip\ImagineBundle\Model\FileBinary;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'imagine')]
+#[AsTaggedItem(index: self::NAME)]
 final readonly class ImagineTransformerModule implements TransformerModuleInterface, BuildHashDiffInterface
 {
+    public const string NAME = 'imagine';
+
     public function __construct(
         private ImagineFilterFactory $filterFactory,
     ) {
@@ -28,7 +30,7 @@ final readonly class ImagineTransformerModule implements TransformerModuleInterf
 
     public static function getName(): string
     {
-        return 'imagine';
+        return self::NAME;
     }
 
     public function getDocumentation(): Documentation

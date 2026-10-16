@@ -11,9 +11,11 @@ use App\Entity\Core\File;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'filename')]
+#[AsTaggedItem(index: self::NAME)]
 final readonly class FilenameAnalyzer extends AbstractAnalyzer
 {
+    public const string NAME = 'filename';
+
     private const string TYPE_PATTERN_IS_NOT_ALLOWED = 'pattern_is_not_allowed';
     private const string TYPE_PATTERN_IS_DISALLOWED = 'pattern_is_disallowed';
     private const string TYPE_MIME_TYPE_IS_NOT_ALLOWED = 'mime_type_is_not_allowed';
@@ -23,7 +25,7 @@ final readonly class FilenameAnalyzer extends AbstractAnalyzer
 
     public static function getName(): string
     {
-        return 'filename';
+        return self::NAME;
     }
 
     public function buildConfiguration(NodeBuilder $builder): void

@@ -17,11 +17,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
-#[AsTaggedItem(index: 'tui.photo-editor')]
+#[AsTaggedItem(index: self::NAME)]
 class TuiPhotoEditorIntegration extends AbstractIntegration implements UserActionsIntegrationInterface, IntegrationDataTransformerInterface
 {
     use PusherTrait;
     use FileUserActionsTrait;
+
+    public const string NAME = 'tui.photo-editor';
 
     private const string ACTION_SAVE = 'save';
     private const string ACTION_DELETE = 'delete';
@@ -72,7 +74,7 @@ class TuiPhotoEditorIntegration extends AbstractIntegration implements UserActio
 
     public static function getName(): string
     {
-        return 'tui.photo-editor';
+        return self::NAME;
     }
 
     public static function getDisplayName(): string

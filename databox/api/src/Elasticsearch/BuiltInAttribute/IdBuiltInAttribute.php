@@ -8,9 +8,11 @@ use App\Attribute\Type\IdAttributeType;
 use App\Entity\Core\Asset;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: '@id')]
+#[AsTaggedItem(index: self::KEY)]
 final class IdBuiltInAttribute extends AbstractBuiltInAttribute
 {
+    public const string KEY = '@id';
+
     protected function getAggregationTranslationKey(): string
     {
         return 'id';
@@ -23,7 +25,7 @@ final class IdBuiltInAttribute extends AbstractBuiltInAttribute
 
     public static function getKey(): string
     {
-        return '@id';
+        return self::KEY;
     }
 
     public function getValueFromAsset(Asset $asset): mixed

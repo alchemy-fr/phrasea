@@ -14,9 +14,11 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'doc_unique_id')]
+#[AsTaggedItem(index: self::NAME)]
 final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
 {
+    public const string NAME = 'doc_unique_id';
+
     private const string TYPE_DUPLICATE_DOC_UNIQUE_ID = 'duplicate_doc_unique_id';
 
     /**
@@ -40,7 +42,7 @@ final readonly class DocUniqueIdAnalyzer extends AbstractAnalyzer
 
     public static function getName(): string
     {
-        return 'doc_unique_id';
+        return self::NAME;
     }
 
     public function buildConfiguration(NodeBuilder $builder): void

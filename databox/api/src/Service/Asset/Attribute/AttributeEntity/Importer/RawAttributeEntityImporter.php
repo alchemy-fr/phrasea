@@ -20,11 +20,6 @@ final readonly class RawAttributeEntityImporter implements AttributeEntityImport
     ) {
     }
 
-    public static function getName(): string
-    {
-        return 'raw';
-    }
-
     public function import(EntityList $entityList, string $data): void
     {
         $values = explode("\n", $data)

@@ -14,9 +14,11 @@ use Elastica\Query\BoolQuery;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-#[AsTaggedItem(index: '@assetStatus')]
+#[AsTaggedItem(index: self::KEY)]
 final class AssetStatusBuiltInAttribute extends AbstractLabelledBuiltInAttribute implements CustomFilterQueryBuiltInAttributeInterface
 {
+    public const string KEY = '@assetStatus';
+
     public function __construct(private readonly TranslatorInterface $translator)
     {
     }
@@ -52,7 +54,7 @@ final class AssetStatusBuiltInAttribute extends AbstractLabelledBuiltInAttribute
 
     public static function getKey(): string
     {
-        return '@assetStatus';
+        return self::KEY;
     }
 
     public function getValueFromAsset(Asset $asset): mixed

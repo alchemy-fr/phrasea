@@ -12,9 +12,11 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'extract_embedded_preview')]
+#[AsTaggedItem(index: self::NAME)]
 final readonly class ExtractEmbeddedPreviewTransformerModule implements TransformerModuleInterface
 {
+    public const string NAME = 'extract_embedded_preview';
+
     public function __construct(
         private readonly LoggerInterface $logger,
     ) {
@@ -22,7 +24,7 @@ final readonly class ExtractEmbeddedPreviewTransformerModule implements Transfor
 
     public static function getName(): string
     {
-        return 'extract_embedded_preview';
+        return self::NAME;
     }
 
     public function getDocumentation(): Documentation

@@ -11,9 +11,11 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
  * the "collectionPaths" field is analyzed with a path_hierarchy tokenizer, so
  * querying "/a/b" also matches an asset indexed with "/a/b/c".
  */
-#[AsTaggedItem(index: '@collection')]
+#[AsTaggedItem(index: self::KEY)]
 final class CollectionBuiltInAttribute extends AbstractCollectionBuiltInAttribute
 {
+    public const string KEY = '@collection';
+
     public static function getName(): string
     {
         return 'collectionPaths';
@@ -21,6 +23,6 @@ final class CollectionBuiltInAttribute extends AbstractCollectionBuiltInAttribut
 
     public static function getKey(): string
     {
-        return '@collection';
+        return self::KEY;
     }
 }

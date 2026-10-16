@@ -108,6 +108,13 @@ class File extends AbstractUuidEntity implements \Stringable
     #[ORM\Column(type: Types::STRING, length: 150, nullable: false)]
     private ?string $storage = null;
 
+    /**
+     * The content behind the URL must be fetched and stored on the main storage.
+     * For an asset source, this is done by the asset ingest workflow.
+     */
+    #[ORM\Column(type: Types::BOOLEAN, nullable: false, options: ['default' => false])]
+    private bool $importPending = false;
+
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $originalName = null;
 
@@ -204,6 +211,16 @@ class File extends AbstractUuidEntity implements \Stringable
     public function setStorage(?string $storage): void
     {
         $this->storage = $storage;
+    }
+
+    public function isImportPending(): bool
+    {
+        return $this->importPending;
+    }
+
+    public function setImportPending(bool $importPending): void
+    {
+        $this->importPending = $importPending;
     }
 
     public function getAlternateUrls(): ?array

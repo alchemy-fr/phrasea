@@ -15,9 +15,11 @@ use PHPExiftool\Exception\ExceptionInterface as PHPExiftoolExceptionInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'checksum')]
+#[AsTaggedItem(index: self::NAME)]
 final readonly class ChecksumAnalyzer extends AbstractAnalyzer
 {
+    public const string NAME = 'checksum';
+
     private const string SHA_256 = 'sha256';
 
     private const string TYPE_DUPLICATE_CHECKSUM = 'duplicate_checksum';
@@ -30,7 +32,7 @@ final readonly class ChecksumAnalyzer extends AbstractAnalyzer
 
     public static function getName(): string
     {
-        return 'checksum';
+        return self::NAME;
     }
 
     public function buildConfiguration(NodeBuilder $builder): void

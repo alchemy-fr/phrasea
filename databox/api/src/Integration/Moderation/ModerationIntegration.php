@@ -17,9 +17,11 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\Email;
 
-#[AsTaggedItem(index: 'core.moderation')]
+#[AsTaggedItem(index: self::NAME)]
 class ModerationIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    public const string NAME = 'core.moderation';
+
     public function buildConfiguration(NodeBuilder $builder): void
     {
         $builder
@@ -73,6 +75,6 @@ class ModerationIntegration extends AbstractIntegration implements WorkflowInteg
 
     public static function getName(): string
     {
-        return 'core.moderation';
+        return self::NAME;
     }
 }

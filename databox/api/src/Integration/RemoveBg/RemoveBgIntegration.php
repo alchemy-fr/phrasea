@@ -22,11 +22,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-#[AsTaggedItem(index: 'remove.bg')]
+#[AsTaggedItem(index: self::NAME)]
 class RemoveBgIntegration extends AbstractIntegration implements IntegrationDataTransformerInterface, WorkflowIntegrationInterface, UserActionsIntegrationInterface
 {
     use PusherTrait;
     use FileUserActionsTrait;
+
+    public const string NAME = 'remove.bg';
     private const string ACTION_PROCESS = 'process';
 
     public function __construct(
@@ -78,7 +80,7 @@ class RemoveBgIntegration extends AbstractIntegration implements IntegrationData
 
     public static function getName(): string
     {
-        return 'remove.bg';
+        return self::NAME;
     }
 
     public static function getDisplayName(): string

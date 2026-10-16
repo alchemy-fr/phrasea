@@ -18,9 +18,11 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'core.file_analyzer')]
+#[AsTaggedItem(index: self::NAME)]
 class FileAnalyzerIntegration extends AbstractIntegration implements WorkflowIntegrationInterface, ExtraReferenceIntegrationInterface
 {
+    public const string NAME = 'core.file_analyzer';
+
     public function __construct(
         private readonly FileAnalyzerRegistry $fileAnalyzerRegistry,
         private readonly ConfigurationReferenceDumper $referenceDumper,
@@ -71,7 +73,7 @@ class FileAnalyzerIntegration extends AbstractIntegration implements WorkflowInt
 
     public static function getName(): string
     {
-        return 'core.file_analyzer';
+        return self::NAME;
     }
 
     public static function getDisplayName(): string

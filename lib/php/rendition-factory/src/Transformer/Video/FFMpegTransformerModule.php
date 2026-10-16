@@ -37,9 +37,11 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
-#[AsTaggedItem(index: 'ffmpeg')]
+#[AsTaggedItem(index: self::NAME)]
 final readonly class FFMpegTransformerModule implements TransformerModuleInterface
 {
+    public const string NAME = 'ffmpeg';
+
     public function __construct(#[AutowireLocator(FormatInterface::TAG)] private ServiceLocator $formats,
         private ModuleOptionsResolver $optionsResolver,
         private ImagineInterface $imagine,
@@ -49,7 +51,7 @@ final readonly class FFMpegTransformerModule implements TransformerModuleInterfa
 
     public static function getName(): string
     {
-        return 'ffmpeg';
+        return self::NAME;
     }
 
     private static function getSupportedOutputFormats(): array

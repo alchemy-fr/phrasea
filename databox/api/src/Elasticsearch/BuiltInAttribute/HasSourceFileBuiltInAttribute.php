@@ -8,9 +8,11 @@ use App\Attribute\Type\BooleanAttributeType;
 use App\Entity\Core\Asset;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: '@hasSource')]
+#[AsTaggedItem(index: self::KEY)]
 final class HasSourceFileBuiltInAttribute extends AbstractBuiltInAttribute
 {
+    public const string KEY = '@hasSource';
+
     protected function getAggregationTranslationKey(): string
     {
         return 'has_source_file';
@@ -23,7 +25,7 @@ final class HasSourceFileBuiltInAttribute extends AbstractBuiltInAttribute
 
     public static function getKey(): string
     {
-        return '@hasSource';
+        return self::KEY;
     }
 
     public function getValueFromAsset(Asset $asset): mixed

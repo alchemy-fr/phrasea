@@ -12,11 +12,6 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 #[AsTaggedItem(index: 'json')]
 final readonly class JsonAttributeEntityExporter extends AbstractAttributeEntityExporter
 {
-    public static function getName(): string
-    {
-        return 'json';
-    }
-
     public function export(EntityList $entityList, ExportEntitiesInput $options): callable
     {
         return function () use ($entityList, $options) {

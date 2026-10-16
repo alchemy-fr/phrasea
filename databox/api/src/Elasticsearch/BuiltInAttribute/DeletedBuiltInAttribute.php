@@ -11,9 +11,11 @@ use App\Entity\Core\Asset;
 use Elastica\Query;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: '@deleted')]
+#[AsTaggedItem(index: self::KEY)]
 final class DeletedBuiltInAttribute extends AbstractBuiltInAttribute implements CustomFilterQueryBuiltInAttributeInterface
 {
+    public const string KEY = '@deleted';
+
     protected function getAggregationTranslationKey(): string
     {
         return 'deleted';
@@ -26,7 +28,7 @@ final class DeletedBuiltInAttribute extends AbstractBuiltInAttribute implements 
 
     public static function getKey(): string
     {
-        return '@deleted';
+        return self::KEY;
     }
 
     public function getValueFromAsset(Asset $asset): mixed

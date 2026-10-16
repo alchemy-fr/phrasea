@@ -11,10 +11,12 @@ use App\Entity\Core\Asset;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-#[AsTaggedItem(index: '@owner')]
+#[AsTaggedItem(index: self::KEY)]
 final class OwnerBuiltInAttribute extends AbstractBuiltInAttribute
 {
     use SecurityAwareTrait;
+
+    public const string KEY = '@owner';
 
     public function __construct(
         private readonly UserRepositoryInterface $userRepository,
@@ -91,7 +93,7 @@ final class OwnerBuiltInAttribute extends AbstractBuiltInAttribute
 
     public static function getKey(): string
     {
-        return '@owner';
+        return self::KEY;
     }
 
     public function getValueFromAsset(Asset $asset): mixed

@@ -8,9 +8,11 @@ use App\Attribute\Type\KeywordAttributeType;
 use App\Entity\Core\Asset;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: '@type')]
+#[AsTaggedItem(index: self::KEY)]
 final class FileTypeBuiltInAttribute extends AbstractBuiltInAttribute
 {
+    public const string KEY = '@type';
+
     protected function getAggregationTranslationKey(): string
     {
         return 'file_type';
@@ -23,7 +25,7 @@ final class FileTypeBuiltInAttribute extends AbstractBuiltInAttribute
 
     public static function getKey(): string
     {
-        return '@type';
+        return self::KEY;
     }
 
     public function getValueFromAsset(Asset $asset): mixed

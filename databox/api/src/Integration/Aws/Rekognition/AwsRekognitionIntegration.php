@@ -32,10 +32,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-#[AsTaggedItem(index: 'aws.rekognition')]
+#[AsTaggedItem(index: self::NAME)]
 class AwsRekognitionIntegration extends AbstractAwsIntegration implements FilterNeedIntegrationInterface, WorkflowIntegrationInterface, UserActionsIntegrationInterface
 {
     use FileUserActionsTrait;
+
+    public const string NAME = 'aws.rekognition';
 
     private const string ACTION_ANALYZE = 'analyze';
 
@@ -261,7 +263,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
 
     public static function getName(): string
     {
-        return 'aws.rekognition';
+        return self::NAME;
     }
 
     public static function getDisplayName(): string

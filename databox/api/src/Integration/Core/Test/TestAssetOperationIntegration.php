@@ -13,9 +13,11 @@ use App\Integration\WorkflowIntegrationInterface;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'test.asset_operation')]
+#[AsTaggedItem(index: self::NAME)]
 class TestAssetOperationIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    public const string NAME = 'test.asset_operation';
+
     final public const string VERSION = '1.0';
 
     public function buildConfiguration(NodeBuilder $builder): void
@@ -38,7 +40,7 @@ class TestAssetOperationIntegration extends AbstractIntegration implements Workf
 
     public static function getName(): string
     {
-        return 'test.asset_operation';
+        return self::NAME;
     }
 
     public static function getDisplayName(): string

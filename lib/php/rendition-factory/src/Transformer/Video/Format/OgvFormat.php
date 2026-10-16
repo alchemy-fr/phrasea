@@ -7,9 +7,11 @@ use FFMpeg\Format\Video\Ogg;
 use FFMpeg\Format\VideoInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: 'video-ogg')]
+#[AsTaggedItem(index: self::FORMAT)]
 class OgvFormat implements FormatInterface
 {
+    public const string FORMAT = 'video-ogg';
+
     private VideoInterface $format;
 
     public function __construct()
@@ -29,7 +31,7 @@ class OgvFormat implements FormatInterface
 
     public static function getFormat(): string
     {
-        return 'video-ogg';
+        return self::FORMAT;
     }
 
     public static function getFamily(): FamilyEnum

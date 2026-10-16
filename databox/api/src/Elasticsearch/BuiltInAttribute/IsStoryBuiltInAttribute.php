@@ -8,9 +8,11 @@ use App\Attribute\Type\BooleanAttributeType;
 use App\Entity\Core\Asset;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
-#[AsTaggedItem(index: '@isStory')]
+#[AsTaggedItem(index: self::KEY)]
 final class IsStoryBuiltInAttribute extends AbstractBuiltInAttribute
 {
+    public const string KEY = '@isStory';
+
     protected function getAggregationTranslationKey(): string
     {
         return 'is_story';
@@ -23,7 +25,7 @@ final class IsStoryBuiltInAttribute extends AbstractBuiltInAttribute
 
     public static function getKey(): string
     {
-        return '@isStory';
+        return self::KEY;
     }
 
     public function getValueFromAsset(Asset $asset): mixed
