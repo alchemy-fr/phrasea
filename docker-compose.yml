@@ -1186,9 +1186,6 @@ services:
     logging: *default-logging
     build:
       context: ./cypress
-      network: host
-      entitlements:
-        - network.host
     profiles:
       - cypress
     environment:
