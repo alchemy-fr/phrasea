@@ -11,10 +11,68 @@ use App\Elasticsearch\ElasticSearchClient;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
+use App\Entity\Core\EntityType;
 use App\Tests\Search\AbstractSearchTest;
 
 class AttributeEntityTest extends AbstractSearchTest
 {
+    public function testAttributeEntityTypeIsStoredAsAOneToOneString(): void
+    {
+        $entity = new AttributeEntity();
+        $entity->setEntityType('Company');
+
+        self::assertSame('Company', $entity->getEntityType());
+        self::assertInstanceOf(EntityType::class, $entity->getEntityTypeEntity());
+        self::assertSame('Company', $entity->getEntityTypeEntity()?->getName());
+    }
+
+    public function testAttributeEntityTypeCanBeNull(): void
+    {
+        $em = self::getEntityManager();
+        $workspace = $this->getOrCreateDefaultWorkspace(['no_flush']);
+        $em->persist($workspace);
+
+        $list = new EntityList();
+        $list->setName('nullable-entity-type-'.bin2hex(random_bytes(4)));
+        $list->setWorkspace($workspace);
+        $em->persist($list);
+
+        $entity = new AttributeEntity();
+        $entity->setList($list);
+        $entity->setValue('entity-without-type');
+        $entity->setEntityType(null);
+        $em->persist($entity);
+        $em->flush();
+
+        $entityId = $entity->getId();
+        $em->clear();
+
+        $reloadedEntity = $em->find(AttributeEntity::class, $entityId);
+        self::assertInstanceOf(AttributeEntity::class, $reloadedEntity);
+        self::assertNull($reloadedEntity->getEntityType());
+        self::assertNull($reloadedEntity->getEntityTypeEntity());
+    }
+
+    public function testAttributeEntityParentChildRelationship(): void
+    {
+        $parent = new AttributeEntity();
+        $child = new AttributeEntity();
+        $otherParent = new AttributeEntity();
+
+        $parent->addChild($child);
+        self::assertSame($parent, $child->getParent());
+        self::assertTrue($parent->getChildren()->contains($child));
+
+        $otherParent->addChild($child);
+        self::assertSame($otherParent, $child->getParent());
+        self::assertFalse($parent->getChildren()->contains($child));
+        self::assertTrue($otherParent->getChildren()->contains($child));
+
+        $otherParent->removeChild($child);
+        self::assertNull($child->getParent());
+        self::assertFalse($otherParent->getChildren()->contains($child));
+    }
+
     public function testAttributeEntityMerge(): void
     {
         $em = self::getEntityManager();
