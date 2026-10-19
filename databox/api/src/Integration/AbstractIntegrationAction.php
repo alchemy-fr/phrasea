@@ -19,6 +19,9 @@ use Symfony\Contracts\Service\Attribute\Required;
 
 abstract class AbstractIntegrationAction implements IfActionInterface
 {
+    protected const string SKIP_NO_SOURCE = 'Asset has no source file';
+    protected const string SKIP_PRIVATE_SOURCE = 'Source file has a private path and cannot be fetched';
+
     private IntegrationManager $integrationManager;
     protected EntityManagerInterface $em;
     private ExpressionParser $expressionParser;
@@ -74,19 +77,27 @@ abstract class AbstractIntegrationAction implements IfActionInterface
     {
         try {
             $asset = $this->getAsset($context);
-        } catch (\InvalidArgumentException) {
+        } catch (\InvalidArgumentException $e) {
+            $context->setSkipReason($e->getMessage());
+
             return false;
         }
 
-        if (!$this->shouldRun($asset)) {
+        if (null !== $skipReason = $this->getSkipReason($asset)) {
+            $context->setSkipReason($skipReason);
+
             return false;
         }
 
         $config = $this->getIntegrationConfig($context);
         if (null !== $if = $config->getWorkspaceIntegration()->getIf()) {
-            return $this->expressionParser->evaluateIf($if, $context, [
+            if (!$this->expressionParser->evaluateIf($if, $context, [
                 'asset' => $asset,
-            ]);
+            ])) {
+                $context->setSkipReason(sprintf('Integration condition not met: %s', $if));
+
+                return false;
+            }
         }
 
         return true;
@@ -126,8 +137,11 @@ abstract class AbstractIntegrationAction implements IfActionInterface
 
     abstract protected function doHandle(RunContext $context): void;
 
-    protected function shouldRun(Asset $asset): bool
+    /**
+     * @return string|null why the job must be skipped for this asset, null to run it
+     */
+    protected function getSkipReason(Asset $asset): ?string
     {
-        return true;
+        return null;
     }
 }

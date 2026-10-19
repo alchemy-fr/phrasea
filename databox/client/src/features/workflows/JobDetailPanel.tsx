@@ -2,7 +2,7 @@
 
 import type {CSSProperties} from 'react';
 import {useTranslation} from 'react-i18next';
-import {BanIcon, RotateCcwIcon, XIcon} from 'lucide-react';
+import {BanIcon, FastForwardIcon, RotateCcwIcon, XIcon} from 'lucide-react';
 import type {WorkflowJob} from '@/types/api';
 import {Button} from '@/components/ui/button';
 import {CopiableText, CopyButton} from '@/components/ui/copy-button';
@@ -21,7 +21,8 @@ import {
 
 /**
  * Details of the job selected in the graph (the legacy `JobDetail`): status,
- * timing, condition, inputs, outputs and errors, with the rerun action.
+ * timing, skip reason, condition, inputs, outputs and errors, with the rerun
+ * action.
  *
  * Docked beside the graph, `width` wide; over it on small screens.
  */
@@ -103,6 +104,15 @@ export function JobDetailPanel({
                             {job.disabledReason ||
                                 t('workflow.job_disabled', 'Job disabled')}
                         </span>
+                    </div>
+                ) : null}
+                {job.skipReason ? (
+                    <div
+                        data-testid="workflow-job-skip-reason"
+                        className="flex items-start gap-2 rounded-md border bg-muted p-2 text-sm text-muted-foreground"
+                    >
+                        <FastForwardIcon className="mt-0.5 size-4 shrink-0" />
+                        <span>{job.skipReason}</span>
                     </div>
                 ) : null}
                 {job.needs?.length ? (

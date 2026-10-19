@@ -44,12 +44,14 @@ abstract class AbstractRekognitionAction extends AbstractIntegrationAction imple
     abstract protected function getCategory(): string;
 
     #[\Override]
-    protected function shouldRun(Asset $asset): bool
+    protected function getSkipReason(Asset $asset): ?string
     {
         if (null === $asset->getSource()) {
-            return false;
+            return self::SKIP_NO_SOURCE;
         }
 
-        return FileUtil::isImageType($asset->getSource()->getType());
+        $type = $asset->getSource()->getType();
+
+        return FileUtil::isImageType($type) ? null : sprintf('Source file type "%s" is not an image', $type);
     }
 }

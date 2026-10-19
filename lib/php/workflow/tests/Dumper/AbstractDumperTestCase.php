@@ -30,9 +30,12 @@ abstract class AbstractDumperTestCase extends AbstractWorkflowTestCase
         $contentBis->setStartedAt(new MicroDateTime('2000-05-12T12:12:44', 424242));
         $contentBis->setInputs(new Inputs());
 
+        $neverCalled = new JobState($workflowId, 'never-called', JobState::STATUS_SKIPPED, id: 'never-called-0');
+        $neverCalled->setSkipReason('Condition not met: env.WF_TEST == "bar"');
+
         $jobMap = [
             [$workflowId, 'intro', $intro],
-            [$workflowId, 'never-called', new JobState($workflowId, 'never-called', JobState::STATUS_SKIPPED, id: 'never-called-0')],
+            [$workflowId, 'never-called', $neverCalled],
             [$workflowId, 'content', $content],
             [$workflowId, 'content_bis', $contentBis],
             [$workflowId, 'outro', null],

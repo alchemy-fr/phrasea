@@ -25,9 +25,15 @@ readonly class ImportSourceFileAction implements IfActionInterface
 
     public function evaluateIf(JobExecutionContext $context): bool
     {
-        return true === $this->em->find(Asset::class, $context->getInputs()['assetId'])
+        if (true !== $this->em->find(Asset::class, $context->getInputs()['assetId'])
             ?->getSource()
-            ?->isImportPending();
+            ?->isImportPending()) {
+            $context->setSkipReason('No source file import pending');
+
+            return false;
+        }
+
+        return true;
     }
 
     public function handle(RunContext $context): void

@@ -20,6 +20,7 @@ use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Entity\Workflow\WorkflowState;
 use App\Integration\Core\FileAnalyzer\FileAnalyzerIntegration;
+use App\Integration\Core\ReadMetadata\ReadMetadataIntegration;
 use App\Service\Asset\FileImporter;
 use App\Service\Asset\WorkspaceAssetIngester;
 use App\Service\Workflow\Action\ImportSourceFileAction;
@@ -134,8 +135,28 @@ final class FileImportTest extends AbstractDataboxTestCase
 
         $workflow = self::getEntityManager()->getRepository(WorkflowState::class)->findOneBy(['asset' => $asset->getId()]);
         $stateRepository = self::getService(StateRepositoryInterface::class);
-        $this->assertSame(JobState::STATUS_SKIPPED, $stateRepository->getLastJobState($workflow->getId(), self::IMPORT_JOB_ID)->getStatus());
+        $importState = $stateRepository->getLastJobState($workflow->getId(), self::IMPORT_JOB_ID);
+        $this->assertSame(JobState::STATUS_SKIPPED, $importState->getStatus());
+        $this->assertSame('No source file import pending', $importState->getSkipReason());
         $this->assertNotNull($stateRepository->getLastJobState($workflow->getId(), $this->getAnalyzerJobId($integration)), 'the analyzer ran after the skipped import');
+    }
+
+    public function testJobsSkippedForAnAssetWithoutSourceGiveTheirReason(): void
+    {
+        [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
+        $asset = $this->createAsset(['workspace' => $ws]);
+
+        /** @var TestTransport $transport */
+        $transport = self::getContainer()->get('messenger.transport.p2');
+        $transport->intercept(false);
+        self::getService(WorkspaceAssetIngester::class)->ingestAsset($asset, null);
+
+        $workflow = self::getEntityManager()->getRepository(WorkflowState::class)->findOneBy(['asset' => $asset->getId()]);
+        $readMetadataJobId = sprintf('%s:%s:extract', ReadMetadataIntegration::getName(), $defaults->integrations['readMetadata']->getId());
+        $jobState = self::getService(StateRepositoryInterface::class)->getLastJobState($workflow->getId(), $readMetadataJobId);
+
+        $this->assertSame(JobState::STATUS_SKIPPED, $jobState->getStatus());
+        $this->assertSame('Asset has no source file', $jobState->getSkipReason());
     }
 
     public function testImportSourceFileActionRunsOnlyForAPendingSource(): void

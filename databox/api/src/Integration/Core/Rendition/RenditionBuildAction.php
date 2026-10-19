@@ -24,16 +24,16 @@ final class RenditionBuildAction extends AbstractIntegrationAction implements If
     }
 
     #[\Override]
-    protected function shouldRun(Asset $asset): bool
+    protected function getSkipReason(Asset $asset): ?string
     {
         $source = $asset->getSource();
         if (null === $source) {
-            return false;
+            return self::SKIP_NO_SOURCE;
         }
 
         // Renditions are derived from the source content: a private remote source
         // (FileSourceInput::isPrivate) cannot be downloaded, skip the job.
-        return $this->fileFetcher->isFetchable($source);
+        return $this->fileFetcher->isFetchable($source) ? null : self::SKIP_PRIVATE_SOURCE;
     }
 
     public function doHandle(RunContext $context): void

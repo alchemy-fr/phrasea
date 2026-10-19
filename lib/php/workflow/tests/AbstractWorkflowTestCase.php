@@ -38,8 +38,9 @@ abstract class AbstractWorkflowTestCase extends TestCase
         ?StateRepositoryInterface $stateRepository,
         ?OutputInterface $output = null,
         ?EnvContainer $envs = null,
+        array $actions = [],
     ): array {
-        $actionRegistry = new ArrayActionRegistry();
+        $actionRegistry = new ArrayActionRegistry($actions);
 
         $stateRepository = new TestStateStateRepository($stateRepository ?? new MemoryStateRepository());
         $jobStateManager = new JobStateManager($stateRepository);

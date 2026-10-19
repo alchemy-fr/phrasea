@@ -154,6 +154,10 @@ collections owned by alice and bob, assets at every level of the tree.
 - The images of a workspace are numbered across the workspace (one range per group of
   assets): the number is the lock of `imageUrlRandomRatio()` (the same number gives the same
   picture) and links an asset to its files and renditions (`'@fh_f_m<current()>'`).
+- An asset with a file has a `source`, and its `main` rendition takes back that file
+  (`file: '@fh_a_v_s<current()>->source'`), as the "Pick source file" build mode of `main`
+  does on ingest: the workflow jobs that read the source (metadata, renditions) run on a
+  fixture asset. Stories have no source.
 - An asset has no name property: its title is the attribute with the highest `namePriority`
   (Headline, Product name, Common name), or the "Name" attribute of `WorkspaceFactory`.
 - The business values come from `App\Fixture\Faker\ThematicFaker`, which keeps the values

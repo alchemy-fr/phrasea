@@ -980,6 +980,8 @@ export type WorkflowJob = {
     /** Formatted by the API (e.g. `1.234s`, `02m05s`), `-` while running */
     duration?: string;
     errors?: string[];
+    /** Why the job was skipped */
+    skipReason?: string;
 };
 
 export type WorkflowStage = {

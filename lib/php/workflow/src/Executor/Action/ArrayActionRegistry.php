@@ -6,7 +6,12 @@ namespace Alchemy\Workflow\Executor\Action;
 
 class ArrayActionRegistry implements ActionRegistryInterface
 {
-    private array $actions = [];
+    /**
+     * @param array<string, ActionInterface> $actions
+     */
+    public function __construct(private readonly array $actions = [])
+    {
+    }
 
     public function getAction(string $actionName): ActionInterface
     {

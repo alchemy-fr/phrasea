@@ -43,12 +43,14 @@ final class TranscribeAction extends AbstractIntegrationAction implements IfActi
     }
 
     #[\Override]
-    protected function shouldRun(Asset $asset): bool
+    protected function getSkipReason(Asset $asset): ?string
     {
         if (null === $asset->getSource()) {
-            return false;
+            return self::SKIP_NO_SOURCE;
         }
 
-        return FileUtil::isVideoType($asset->getSource()->getType());
+        $type = $asset->getSource()->getType();
+
+        return FileUtil::isVideoType($type) ? null : sprintf('Source file type "%s" is not a video', $type);
     }
 }

@@ -7,6 +7,7 @@ namespace Alchemy\Workflow\Tests;
 use Alchemy\Workflow\Executor\EnvContainer;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\WorkflowState;
+use Alchemy\Workflow\Tests\Action\SkippingAction;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -65,6 +66,32 @@ EOF, $output->fetch());
             'blocking' => JobState::STATUS_SKIPPED,
             'after_blocking' => null,
         ], $stateRepository, $workflowState->getId());
+    }
+
+    public function testSkippedJobsHaveAReason(): void
+    {
+        [$orchestrator, $stateRepository] = $this->createOrchestrator([
+            'skip-reasons.yaml',
+        ], null, actions: [
+            SkippingAction::class => new SkippingAction(),
+        ]);
+
+        $workflowState = $orchestrator->startWorkflow('Skip reasons');
+
+        $expected = [
+            'by_if_callable' => SkippingAction::IF_REASON,
+            'by_if_expression' => 'Condition not met: env.WF_TEST == "bar"',
+            'by_exception' => SkippingAction::EXCEPTION_REASON,
+        ];
+        foreach ($expected as $jobId => $reason) {
+            $jobState = $stateRepository->getLastJobState($workflowState->getId(), $jobId);
+            $this->assertSame(JobState::STATUS_SKIPPED, $jobState->getStatus(), $jobId);
+            $this->assertSame($reason, $jobState->getSkipReason(), $jobId);
+            $this->assertSame([], $jobState->getErrors(), $jobId);
+        }
+
+        $jobState = unserialize(serialize($stateRepository->getLastJobState($workflowState->getId(), 'by_exception')));
+        $this->assertSame(SkippingAction::EXCEPTION_REASON, $jobState->getSkipReason());
     }
 
     public function testEndToEndEchoerComplexWorkflow(): void

@@ -410,50 +410,61 @@ App\Entity\Core\Asset:
 
     # Specimens, from the top of the tree down to Rare Ferns, then the side collections
     fh_a_v_s{1..3} (extends fh_tpl_a):
+        source: '@fh_f_m<current()>'
         __calls:
             - addToCollection: ['@fh_c_botany', true, true]
     fh_a_v_s{4..8} (extends fh_tpl_a):
+        source: '@fh_f_m<current()>'
         __calls:
             - addToCollection: ['@fh_c_herbarium', true, true]
             - addToCollection (40%?): ['@fh_c_canopy', true]
     fh_a_v_s{9..11} (extends fh_tpl_a):
+        source: '@fh_f_m<current()>'
         privacy: 5
         __calls:
             - addToCollection: ['@fh_c_open', true, true]
             - addTag: ['@fh_tag_ondisplay']
     fh_a_v_s{12..17} (extends fh_tpl_a):
+        source: '@fh_f_m<current()>'
         __calls:
             - addToCollection: ['@fh_c_ferns', true, true]
             - addToCollection (40%?): ['@fh_c_canopy', true]
     # 18-19: critically endangered, 20-21: endangered (see their conservation status)
     fh_a_v_s{18..21} (extends fh_tpl_a):
+        source: '@fh_f_m<current()>'
         privacy: 0
         __calls:
             - addToCollection: ['@fh_c_rareferns', true, true]
             - addTag: ['@fh_tag_fragile']
     fh_a_v_s{22..27} (extends fh_tpl_a):
+        source: '@fh_f_m<current()>'
         ownerId: <keycloakUser("bob")>
         __calls:
             - addToCollection: ['@fh_c_lepidoptera', true, true]
             - addToCollection (40%?): ['@fh_c_canopy', true]
     fh_a_v_s{28..30} (extends fh_tpl_a):
+        source: '@fh_f_m<current()>'
         privacy: 0
         __calls:
             - addToCollection: ['@fh_c_lab', true, true]
     fh_a_v_s{31..34} (extends fh_tpl_a):
+        source: '@fh_f_m<current()>'
         ownerId: <keycloakUser("bob")>
         __calls:
             - addToCollection: ['@fh_c_coleoptera', true, true]
     fh_a_v_s{35..39} (extends fh_tpl_a):
+        source: '@fh_f_m<current()>'
         __calls:
             - addToCollection: ['@fh_c_ornithology', true, true]
             - addToCollection (40%?): ['@fh_c_wildcoasts', true]
     fh_a_v_s{40..42} (extends fh_tpl_a):
+        source: '@fh_f_m<current()>'
         privacy: 1
         __calls:
             - addToCollection: ['@fh_c_loans', true, true]
             - addTag: ['@fh_tag_onloan']
     fh_a_v_s{43..46} (extends fh_tpl_a):
+        source: '@fh_f_m<current()>'
         ownerId: <keycloakUser("bob")>
         __calls:
             - addToCollection: ['@fh_c_minerals', true, true]
@@ -465,40 +476,49 @@ App\Entity\Core\Asset:
         __calls:
             - addToCollection: ['@fh_c_entomology', true, true]
     fh_a_v_r{47..52} (extends fh_tpl_a):
+        source: '@fh_f_m<current()>'
         __calls:
             - addToCollection: ['@fh_c_entomology', true, true]
             - addToCollection: ['@fh_sc<($current - 46)>', true]
     fh_a_v_r{53..58} (extends fh_tpl_a):
+        source: '@fh_f_m<current()>'
         __calls:
             - addToCollection: ['@fh_c_entomology', true, true]
             - addToCollection: ['@fh_sc<($current - 52)>', true]
     fh_a_v_r{59..64} (extends fh_tpl_a):
+        source: '@fh_f_m<current()>'
         __calls:
             - addToCollection: ['@fh_c_entomology', true, true]
             - addToCollection: ['@fh_sc<($current - 58)>', true]
 
     # Documents and media
     fh_a_d_accession{1..8} (extends fh_tpl_a):
+        source: '@fh_f_accession<current()>'
         ownerId: <keycloakUser("dave")>
         __calls:
             - addToCollection: ['@fh_c_departments', true, true]
     fh_a_d_notebook{1..7} (extends fh_tpl_a):
+        source: '@fh_f_notebook<current()>'
         ownerId: <keycloakUser("carol")>
         __calls:
             - addToCollection: ['@fh_c_geology', true, true]
     fh_a_d_audioguide{1..3} (extends fh_tpl_a):
+        source: '@fh_f_audioguide<current()>'
         privacy: 5
         __calls:
             - addToCollection: ['@fh_c_wildcoasts', true, true]
     fh_a_d_audioguide{4..6} (extends fh_tpl_a):
+        source: '@fh_f_audioguide<current()>'
         privacy: 3
         __calls:
             - addToCollection: ['@fh_c_canopy', true, true]
     fh_a_d_video{1..2} (extends fh_tpl_a):
+        source: '@fh_f_video_m<current()>'
         privacy: 5
         __calls:
             - addToCollection: ['@fh_c_exhibitions', true, true]
     fh_a_d_video{3..4} (extends fh_tpl_a):
+        source: '@fh_f_video_m<current()>'
         privacy: 0
         __calls:
             - addToCollection: ['@fh_c_lab', true, true]
@@ -523,7 +543,8 @@ App\Entity\Core\File:
         type: video/mp4
         extension: mp4
 
-    # m = main (1000px), p = preview (500px), t = thumbnail (200px), a = archival master (2000px)
+    # m = source and main rendition (1000px), p = preview (500px), t = thumbnail (200px),
+    # a = archival master (2000px)
     fh_f_m{1..64} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 1000, "museum")>' }
     fh_f_p{1..64} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 500, "museum")>' }
     fh_f_t{1..64} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 200, "museum")>' }
@@ -536,17 +557,17 @@ App\Entity\Core\File:
     fh_f_video_t{1..4} (extends fh_tpl_mp4): { path: '<randomMedia(@w_fernhollow->id, "mp4", <current()>, "fernhollow-museum/video")>' }
 
 App\Entity\Core\AssetRendition:
-    fh_ar_s_m{1..46}: { definition: '@fh_rd_main', asset: '@fh_a_v_s<current()>', file: '@fh_f_m<current()>' }
+    fh_ar_s_m{1..46}: { definition: '@fh_rd_main', asset: '@fh_a_v_s<current()>', file: '@fh_a_v_s<current()>->source' }
     fh_ar_s_p{1..46}: { definition: '@fh_rd_preview', asset: '@fh_a_v_s<current()>', file: '@fh_f_p<current()>' }
     fh_ar_s_t{1..46}: { definition: '@fh_rd_thumbnail', asset: '@fh_a_v_s<current()>', file: '@fh_f_t<current()>' }
     fh_ar_s_a{40..42}: { definition: '@fh_rd_archival', asset: '@fh_a_v_s<current()>', file: '@fh_f_a<current()>' }
-    fh_ar_r_m{47..64}: { definition: '@fh_rd_main', asset: '@fh_a_v_r<current()>', file: '@fh_f_m<current()>' }
+    fh_ar_r_m{47..64}: { definition: '@fh_rd_main', asset: '@fh_a_v_r<current()>', file: '@fh_a_v_r<current()>->source' }
     fh_ar_r_p{47..64}: { definition: '@fh_rd_preview', asset: '@fh_a_v_r<current()>', file: '@fh_f_p<current()>' }
     fh_ar_r_t{47..64}: { definition: '@fh_rd_thumbnail', asset: '@fh_a_v_r<current()>', file: '@fh_f_t<current()>' }
-    fh_ar_accession{1..8}: { definition: '@fh_rd_main', asset: '@fh_a_d_accession<current()>', file: '@fh_f_accession<current()>' }
-    fh_ar_notebook{1..7}: { definition: '@fh_rd_main', asset: '@fh_a_d_notebook<current()>', file: '@fh_f_notebook<current()>' }
-    fh_ar_audioguide{1..6}: { definition: '@fh_rd_main', asset: '@fh_a_d_audioguide<current()>', file: '@fh_f_audioguide<current()>' }
-    fh_ar_video_m{1..4}: { definition: '@fh_rd_main', asset: '@fh_a_d_video<current()>', file: '@fh_f_video_m<current()>' }
+    fh_ar_accession{1..8}: { definition: '@fh_rd_main', asset: '@fh_a_d_accession<current()>', file: '@fh_a_d_accession<current()>->source' }
+    fh_ar_notebook{1..7}: { definition: '@fh_rd_main', asset: '@fh_a_d_notebook<current()>', file: '@fh_a_d_notebook<current()>->source' }
+    fh_ar_audioguide{1..6}: { definition: '@fh_rd_main', asset: '@fh_a_d_audioguide<current()>', file: '@fh_a_d_audioguide<current()>->source' }
+    fh_ar_video_m{1..4}: { definition: '@fh_rd_main', asset: '@fh_a_d_video<current()>', file: '@fh_a_d_video<current()>->source' }
     fh_ar_video_t{1..4}: { definition: '@fh_rd_thumbnail', asset: '@fh_a_d_video<current()>', file: '@fh_f_video_t<current()>' }
 
 App\Entity\Core\Attribute:

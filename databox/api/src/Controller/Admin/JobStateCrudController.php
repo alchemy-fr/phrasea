@@ -155,6 +155,8 @@ class JobStateCrudController extends AbstractAdminCrudController
 
         yield DateTimeField::new('endedAt', 'Ended At');
         yield TextField::new('durationString', 'Duration');
+        yield TextField::new('skipReason', 'Skip reason')
+            ->hideOnIndex();
         yield ArrayField::new('errors')
             ->hideOnIndex();
         yield ArrayObjectField::new('inputs')

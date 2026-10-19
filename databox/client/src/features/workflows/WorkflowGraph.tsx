@@ -52,7 +52,9 @@ const JobNode = memo(function JobNode({
                 />
             ) : null}
             <div
-                title={job.name}
+                title={
+                    job.skipReason ? `${job.name}\n${job.skipReason}` : job.name
+                }
                 data-testid="workflow-job-node"
                 className={cn(
                     'flex size-full items-center gap-2 rounded-lg border bg-card px-3 text-card-foreground shadow-xs transition-colors',

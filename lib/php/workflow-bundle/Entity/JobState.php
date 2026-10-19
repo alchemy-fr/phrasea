@@ -102,6 +102,11 @@ class JobState
         return $this->getJobState()->getErrors();
     }
 
+    public function getSkipReason(): ?string
+    {
+        return $this->getJobState()->getSkipReason();
+    }
+
     public function getWorkflow(): ?WorkflowState
     {
         return $this->workflow;

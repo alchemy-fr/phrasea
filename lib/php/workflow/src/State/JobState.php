@@ -30,6 +30,7 @@ final class JobState
     private readonly string $id;
 
     private array $errors = [];
+    private ?string $skipReason = null;
     private Outputs $outputs;
     private ?Inputs $inputs = null;
 
@@ -135,6 +136,16 @@ final class JobState
         $this->errors[] = $error;
     }
 
+    public function getSkipReason(): ?string
+    {
+        return $this->skipReason;
+    }
+
+    public function setSkipReason(?string $skipReason): void
+    {
+        $this->skipReason = $skipReason;
+    }
+
     public function addException(\Throwable $exception): void
     {
         $this->errors[] = sprintf('%s [%s:%d]
@@ -158,6 +169,7 @@ final class JobState
             'startedAt' => $this->startedAt,
             'endedAt' => $this->endedAt,
             'errors' => $this->errors,
+            'skipReason' => $this->skipReason,
             'id' => $this->id,
             'number' => $this->number,
         ];
@@ -175,6 +187,7 @@ final class JobState
         $this->startedAt = $data['startedAt'] ?? null;
         $this->endedAt = $data['endedAt'] ?? null;
         $this->errors = $data['errors'] ?? [];
+        $this->skipReason = $data['skipReason'] ?? null;
         $this->number = $data['number'] ?? 0;
     }
 

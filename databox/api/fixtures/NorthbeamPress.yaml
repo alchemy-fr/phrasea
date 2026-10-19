@@ -379,9 +379,10 @@ App\Entity\Core\Asset:
             # Online or Offline
             - addTag (70%?): ['@nb_tag_o*']
 
-    nb_a_v_p{1..40} (extends nb_tpl_a): { }
+    nb_a_v_p{1..40} (extends nb_tpl_a): { source: '@nb_f_m<current()>' }
     # Set before the calls, so that Embargoed stays the reference collection
     nb_a_v_e{41..46} (extends nb_tpl_a):
+        source: '@nb_f_m<current()>'
         ownerId: <keycloakUser("alice")>
         referenceCollection: '@nb_c_embargoed'
         __calls:
@@ -390,16 +391,21 @@ App\Entity\Core\Asset:
             - addTag: ['@nb_tag_embargo']
     # Two photos in each story
     nb_a_v_s{47..56} (extends nb_tpl_a):
+        source: '@nb_f_m<current()>'
         __calls:
             - addToCollection: ['@nb_sc<($current - 46)>', true]
     nb_a_v_s{57..66} (extends nb_tpl_a):
+        source: '@nb_f_m<current()>'
         __calls:
             - addToCollection: ['@nb_sc<($current - 56)>', true]
     nb_a_v_video{1..10} (extends nb_tpl_a):
+        source: '@nb_f_video_m<current()>'
         ownerId: <keycloakUser("alice")>
     nb_a_d_podcast{1..10} (extends nb_tpl_a):
+        source: '@nb_f_podcast<current()>'
         ownerId: <keycloakUser("alice")>
     nb_a_d_release{1..10} (extends nb_tpl_a):
+        source: '@nb_f_release_m<current()>'
         ownerId: <keycloakUser("carol")>
     # "Photo essay" stories
     nb_story{1..10} (extends nb_tpl_a):
@@ -426,8 +432,8 @@ App\Entity\Core\File:
         type: application/pdf
         extension: pdf
 
-    # m = main (1000px, with a large metadata set), p = preview (500px), t = thumbnail (200px),
-    # ta = animated thumbnail, h = print hi-res (2000px)
+    # m = source and main rendition (1000px, with a large metadata set), p = preview (500px),
+    # t = thumbnail (200px), ta = animated thumbnail, h = print hi-res (2000px)
     nb_f_m{1..66} (extends nb_tpl_jpg): { path: '<imageUrlRandomRatio(@w_northbeam->id, <current()>, 1000, "reportage")>', metadata: '<largeJSONFileMetadata()>' }
     nb_f_p{1..66} (extends nb_tpl_jpg): { path: '<imageUrlRandomRatio(@w_northbeam->id, <current()>, 500, "reportage")>' }
     nb_f_t{1..66} (extends nb_tpl_jpg): { path: '<imageUrlRandomRatio(@w_northbeam->id, <current()>, 200, "reportage")>' }
@@ -442,22 +448,22 @@ App\Entity\Core\File:
     nb_f_release_p{1..10} (extends nb_tpl_pdf): { path: '<randomMedia(@w_northbeam->id, "pdf", <current()>, "northbeam-press/press-release")>' }
 
 App\Entity\Core\AssetRendition:
-    nb_ar_p_m{1..40}: { definition: '@nb_rd_main', asset: '@nb_a_v_p<current()>', file: '@nb_f_m<current()>' }
+    nb_ar_p_m{1..40}: { definition: '@nb_rd_main', asset: '@nb_a_v_p<current()>', file: '@nb_a_v_p<current()>->source' }
     nb_ar_p_p{1..40}: { definition: '@nb_rd_preview', asset: '@nb_a_v_p<current()>', file: '@nb_f_p<current()>' }
     nb_ar_p_t{1..40}: { definition: '@nb_rd_thumbnail', asset: '@nb_a_v_p<current()>', file: '@nb_f_t<current()>' }
     nb_ar_p_ta{1..10}: { definition: '@nb_rd_animatedThumbnail', asset: '@nb_a_v_p<current()>', file: '@nb_f_ta<current()>' }
-    nb_ar_e_m{41..46}: { definition: '@nb_rd_main', asset: '@nb_a_v_e<current()>', file: '@nb_f_m<current()>' }
+    nb_ar_e_m{41..46}: { definition: '@nb_rd_main', asset: '@nb_a_v_e<current()>', file: '@nb_a_v_e<current()>->source' }
     nb_ar_e_p{41..46}: { definition: '@nb_rd_preview', asset: '@nb_a_v_e<current()>', file: '@nb_f_p<current()>' }
     nb_ar_e_t{41..46}: { definition: '@nb_rd_thumbnail', asset: '@nb_a_v_e<current()>', file: '@nb_f_t<current()>' }
     nb_ar_e_h{41..46}: { definition: '@nb_rd_print', asset: '@nb_a_v_e<current()>', file: '@nb_f_h<current()>' }
-    nb_ar_s_m{47..66}: { definition: '@nb_rd_main', asset: '@nb_a_v_s<current()>', file: '@nb_f_m<current()>' }
+    nb_ar_s_m{47..66}: { definition: '@nb_rd_main', asset: '@nb_a_v_s<current()>', file: '@nb_a_v_s<current()>->source' }
     nb_ar_s_p{47..66}: { definition: '@nb_rd_preview', asset: '@nb_a_v_s<current()>', file: '@nb_f_p<current()>' }
     nb_ar_s_t{47..66}: { definition: '@nb_rd_thumbnail', asset: '@nb_a_v_s<current()>', file: '@nb_f_t<current()>' }
-    nb_ar_video_m{1..10}: { definition: '@nb_rd_main', asset: '@nb_a_v_video<current()>', file: '@nb_f_video_m<current()>' }
+    nb_ar_video_m{1..10}: { definition: '@nb_rd_main', asset: '@nb_a_v_video<current()>', file: '@nb_a_v_video<current()>->source' }
     nb_ar_video_p{1..10}: { definition: '@nb_rd_preview', asset: '@nb_a_v_video<current()>', file: '@nb_f_video_p<current()>' }
     nb_ar_video_t{1..10}: { definition: '@nb_rd_thumbnail', asset: '@nb_a_v_video<current()>', file: '@nb_f_video_t<current()>' }
-    nb_ar_podcast{1..10}: { definition: '@nb_rd_main', asset: '@nb_a_d_podcast<current()>', file: '@nb_f_podcast<current()>' }
-    nb_ar_release_m{1..10}: { definition: '@nb_rd_main', asset: '@nb_a_d_release<current()>', file: '@nb_f_release_m<current()>' }
+    nb_ar_podcast{1..10}: { definition: '@nb_rd_main', asset: '@nb_a_d_podcast<current()>', file: '@nb_a_d_podcast<current()>->source' }
+    nb_ar_release_m{1..10}: { definition: '@nb_rd_main', asset: '@nb_a_d_release<current()>', file: '@nb_a_d_release<current()>->source' }
     nb_ar_release_p{1..10}: { definition: '@nb_rd_preview', asset: '@nb_a_d_release<current()>', file: '@nb_f_release_p<current()>' }
 
 App\Entity\Core\Attribute:

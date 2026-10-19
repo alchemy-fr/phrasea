@@ -1,0 +1,17 @@
+name: Skip reasons
+
+jobs:
+  by_if_callable:
+    if: Alchemy\Workflow\Tests\Action\SkippingAction::evaluateIf
+    steps:
+      - uses: Alchemy\Workflow\Tests\Action\SkippingAction
+
+  by_if_expression:
+    if: env.WF_TEST == "bar"
+    steps:
+      - run: |
+          echo "by_if_expression"
+
+  by_exception:
+    steps:
+      - uses: Alchemy\Workflow\Tests\Action\SkippingAction

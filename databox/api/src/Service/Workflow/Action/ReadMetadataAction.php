@@ -43,14 +43,14 @@ class ReadMetadataAction extends AbstractIntegrationAction implements IfActionIn
     }
 
     #[\Override]
-    protected function shouldRun(Asset $asset): bool
+    protected function getSkipReason(Asset $asset): ?string
     {
         $source = $asset->getSource();
         if (null === $source) {
-            return false;
+            return self::SKIP_NO_SOURCE;
         }
 
         // A private remote source cannot be downloaded: nothing to read.
-        return $this->fileFetcher->isFetchable($source);
+        return $this->fileFetcher->isFetchable($source) ? null : self::SKIP_PRIVATE_SOURCE;
     }
 }

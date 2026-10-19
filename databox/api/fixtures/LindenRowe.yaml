@@ -295,41 +295,51 @@ App\Entity\Core\Asset:
 
     # SS26 packshots, by category
     lr_a_p{1..6} (extends lr_tpl_packshot):
+        source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_ss26_dresses', true, true]
             - addToCollection: ['@lr_sc<current()>', true]
     lr_a_p{7..12} (extends lr_tpl_packshot):
+        source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_ss26_knitwear', true, true]
     lr_a_p{13..18} (extends lr_tpl_packshot):
+        source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_ss26_shirts', true, true]
     lr_a_p{19..24} (extends lr_tpl_packshot):
+        source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_ss26_outerwear', true, true]
     lr_a_p{25..30} (extends lr_tpl_packshot):
+        source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_ss26_bags', true, true]
             - addToCollection: ['@lr_sc<($current - 24)>', true]
     lr_a_p{31..36} (extends lr_tpl_packshot):
+        source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_ss26_footwear', true, true]
             - addToCollection: ['@lr_sc<($current - 30)>', true]
     # FW26 packshots (unreleased)
     lr_a_p{37..40} (extends lr_tpl_packshot):
+        source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_fw26_women', true, true]
             - addTag: ['@lr_tag_donotpublish']
     lr_a_p{41..44} (extends lr_tpl_packshot):
+        source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_fw26_men', true, true]
             - addTag: ['@lr_tag_donotpublish']
     # SS25 shirts, out of the catalogue
     lr_a_p{45..48} (extends lr_tpl_packshot):
+        source: '@lr_f_m<current()>'
         __calls:
             - addToCollection: ['@lr_c_retired', true, true]
     # SS26 dresses of the press kit
     lr_a_p{49..52} (extends lr_tpl_packshot):
+        source: '@lr_f_m<current()>'
         privacy: 5
         __calls:
             - addToCollection: ['@lr_c_presskit', true, true]
@@ -337,31 +347,37 @@ App\Entity\Core\Asset:
 
     # Campaign photos
     lr_a_c{53..58} (extends lr_tpl_a):
+        source: '@lr_f_m<current()>'
         ownerId: <keycloakUser("alice")>
         __calls:
             - addToCollection: ['@lr_c_campaign_ss26', true, true]
             - addToCollection (30%?): ['@lr_c_lookbooks', true]
             - addToCollection (30%?): ['@lr_c_presskit', true]
     lr_a_c{59..64} (extends lr_tpl_a):
+        source: '@lr_f_m<current()>'
         ownerId: <keycloakUser("alice")>
         __calls:
             - addToCollection: ['@lr_c_campaign_fw26', true, true]
             - addTag: ['@lr_tag_donotpublish']
 
     lr_a_m_runway{1..6} (extends lr_tpl_a):
+        source: '@lr_f_runway_m<current()>'
         ownerId: <keycloakUser("alice")>
         __calls:
             - addToCollection: ['@lr_c_campaigns', true, true]
             - addToCollection (50%?): ['@lr_c_lookbooks', true]
     lr_a_d_spec{1..6} (extends lr_tpl_a):
+        source: '@lr_f_spec<current()>'
         ownerId: <keycloakUser("dave")>
         __calls:
             - addToCollection: ['@lr_c_ss26', true, true]
     lr_a_d_lookbook{1..2} (extends lr_tpl_a):
+        source: '@lr_f_lookbook<current()>'
         ownerId: <keycloakUser("alice")>
         __calls:
             - addToCollection: ['@lr_c_lookbooks', true, true]
     lr_a_d_lookbook{3..4} (extends lr_tpl_a):
+        source: '@lr_f_lookbook<current()>'
         ownerId: <keycloakUser("alice")>
         privacy: 5
         __calls:
@@ -392,7 +408,8 @@ App\Entity\Core\File:
         type: application/pdf
         extension: pdf
 
-    # m = main (1000px), p = preview (500px), t = thumbnail (200px), z = e-commerce zoom (2000px)
+    # m = source and main rendition (1000px), p = preview (500px), t = thumbnail (200px),
+    # z = e-commerce zoom (2000px)
     lr_f_m{1..64} (extends lr_tpl_jpg): { path: '<imageUrlRandomRatio(@w_linden->id, <current()>, 1000, "fashion")>' }
     lr_f_p{1..64} (extends lr_tpl_jpg): { path: '<imageUrlRandomRatio(@w_linden->id, <current()>, 500, "fashion")>' }
     lr_f_t{1..64} (extends lr_tpl_jpg): { path: '<imageUrlRandomRatio(@w_linden->id, <current()>, 200, "fashion")>' }
@@ -405,18 +422,18 @@ App\Entity\Core\File:
     lr_f_lookbook{1..4} (extends lr_tpl_pdf): { path: '<randomMedia(@w_linden->id, "pdf", <current()>, "linden-rowe/lookbook")>' }
 
 App\Entity\Core\AssetRendition:
-    lr_ar_p_m{1..52}: { definition: '@lr_rd_main', asset: '@lr_a_p<current()>', file: '@lr_f_m<current()>' }
+    lr_ar_p_m{1..52}: { definition: '@lr_rd_main', asset: '@lr_a_p<current()>', file: '@lr_a_p<current()>->source' }
     lr_ar_p_p{1..52}: { definition: '@lr_rd_preview', asset: '@lr_a_p<current()>', file: '@lr_f_p<current()>' }
     lr_ar_p_t{1..52}: { definition: '@lr_rd_thumbnail', asset: '@lr_a_p<current()>', file: '@lr_f_t<current()>' }
     lr_ar_p_z{1..6}: { definition: '@lr_rd_zoom', asset: '@lr_a_p<current()>', file: '@lr_f_z<current()>' }
     lr_ar_p_z{49..52}: { definition: '@lr_rd_zoom', asset: '@lr_a_p<current()>', file: '@lr_f_z<current()>' }
-    lr_ar_c_m{53..64}: { definition: '@lr_rd_main', asset: '@lr_a_c<current()>', file: '@lr_f_m<current()>' }
+    lr_ar_c_m{53..64}: { definition: '@lr_rd_main', asset: '@lr_a_c<current()>', file: '@lr_a_c<current()>->source' }
     lr_ar_c_p{53..64}: { definition: '@lr_rd_preview', asset: '@lr_a_c<current()>', file: '@lr_f_p<current()>' }
     lr_ar_c_t{53..64}: { definition: '@lr_rd_thumbnail', asset: '@lr_a_c<current()>', file: '@lr_f_t<current()>' }
-    lr_ar_runway_m{1..6}: { definition: '@lr_rd_main', asset: '@lr_a_m_runway<current()>', file: '@lr_f_runway_m<current()>' }
+    lr_ar_runway_m{1..6}: { definition: '@lr_rd_main', asset: '@lr_a_m_runway<current()>', file: '@lr_a_m_runway<current()>->source' }
     lr_ar_runway_t{1..6}: { definition: '@lr_rd_thumbnail', asset: '@lr_a_m_runway<current()>', file: '@lr_f_runway_t<current()>' }
-    lr_ar_spec{1..6}: { definition: '@lr_rd_main', asset: '@lr_a_d_spec<current()>', file: '@lr_f_spec<current()>' }
-    lr_ar_lookbook{1..4}: { definition: '@lr_rd_main', asset: '@lr_a_d_lookbook<current()>', file: '@lr_f_lookbook<current()>' }
+    lr_ar_spec{1..6}: { definition: '@lr_rd_main', asset: '@lr_a_d_spec<current()>', file: '@lr_a_d_spec<current()>->source' }
+    lr_ar_lookbook{1..4}: { definition: '@lr_rd_main', asset: '@lr_a_d_lookbook<current()>', file: '@lr_a_d_lookbook<current()>->source' }
 
 App\Entity\Core\Attribute:
     lr_tpl_at (template):

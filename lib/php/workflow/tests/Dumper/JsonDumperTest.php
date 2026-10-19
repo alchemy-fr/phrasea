@@ -63,6 +63,7 @@ class JsonDumperTest extends AbstractDumperTestCase
                             'disabled' => false,
                             'stateId' => 'never-called-0',
                             'number' => 0,
+                            'skipReason' => 'Condition not met: env.WF_TEST == "bar"',
                         ],
                     ],
                 ],
