@@ -52,6 +52,26 @@ describe('Integrations', () => {
         routeDialog().getBySel('definition-item').should('contain', 'E2E integration');
     });
 
+    it('duplicates an integration, disabled', () => {
+        cy.visit(`${databoxUrl}/workspaces/${ctx.workspace.id}/manage/integrations`);
+        cy.getBySel('definition-create', {timeout: 30000}).should('be.visible');
+        routeDialog().within(() => {
+            cy.getBySel('definition-item')
+                .contains('E2E integration')
+                .closest('[data-testid=definition-item]')
+                .find('[data-testid=definition-duplicate]')
+                .click({force: true});
+        });
+        expectToastText('Copy created');
+        routeDialog().within(() => {
+            // The copy is selected and its form opened
+            cy.getBySel('definition-item').contains('E2E integration (copy)').closest('[data-testid=definition-item]').should('have.class', 'border-primary');
+            cy.fieldByLabel('Title').should('have.value', 'E2E integration (copy)');
+            // Not to be triggered twice
+            cy.fieldByLabel('Enabled').should('have.attr', 'aria-checked', 'false');
+        });
+    });
+
     it('shows one tab per integration of the file in the asset viewer', () => {
         apiRequest({
             method: 'POST',

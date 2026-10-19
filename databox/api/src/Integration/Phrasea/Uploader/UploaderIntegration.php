@@ -48,6 +48,17 @@ class UploaderIntegration extends AbstractIntegration
         return $userConfig;
     }
 
+    /**
+     * A security key must not be shared by two integrations.
+     */
+    #[\Override]
+    public function prepareDuplicateConfiguration(array $config): array
+    {
+        unset($config['securityKey']);
+
+        return $this->generateConfigurationDefaults($config);
+    }
+
     public function validateConfiguration(IntegrationConfig $config): void
     {
         $this->validate($config, 'baseUrl', [

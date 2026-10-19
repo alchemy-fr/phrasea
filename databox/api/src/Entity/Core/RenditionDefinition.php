@@ -23,12 +23,14 @@ use App\Api\Filter\AssetTypeTargetFilter;
 use App\Api\Filter\InWorkspacesFilter;
 use App\Api\Model\Input\RenditionDefinitionInput;
 use App\Api\Model\Output\RenditionDefinitionOutput;
+use App\Api\Processor\DuplicateRenditionDefinitionProcessor;
 use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\Sort\RenditionDefinitionSortProcessor;
 use App\Entity\Traits\AssetTypeTargetTrait;
 use App\Entity\Traits\TranslationsTrait;
 use App\Entity\Traits\WorkspaceTrait;
 use App\Repository\Core\RenditionDefinitionRepository;
+use App\Security\Voter\AbstractVoter;
 use App\Validator as CustomAssert;
 use App\Validator\SameWorkspaceConstraint;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -54,6 +56,17 @@ use Symfony\Component\Validator\Constraints as Assert;
             security: 'is_granted("EDIT", object)',
             input: RenditionDefinitionInput::class,
             processor: InputMapperProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/rendition-definitions/{id}/duplicate',
+            normalizationContext: [
+                'groups' => [RenditionDefinition::GROUP_READ],
+            ],
+            throwOnNotFound: true,
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            input: false,
+            processor: DuplicateRenditionDefinitionProcessor::class,
+            name: 'duplicate_rendition_definition',
         ),
         new GetCollection(
             parameters: [
@@ -431,6 +444,16 @@ class RenditionDefinition extends AbstractUuidEntity implements LoggableChangeSe
     public function setSubstitutable(bool $substitutable): void
     {
         $this->substitutable = $substitutable;
+    }
+
+    public function getConfig(): ?array
+    {
+        return $this->config;
+    }
+
+    public function setConfig(?array $config): void
+    {
+        $this->config = $config;
     }
 
     public function isWriteMetadata(): bool

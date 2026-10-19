@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Api\Rendition;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use App\Attribute\Type\TextAttributeType;
+use App\Entity\Core\AssetRendition;
+use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\RenditionDefinition;
 use App\Model\AssetTypeEnum;
 use App\Tests\Functional\AbstractDataboxTestCase;
@@ -441,5 +444,135 @@ YAML;
 
         $this->jsonRequest('POST', '/rendition-definitions/sort', self::EDITOR, ['ea5d2f1c-3c0b-4b8e-9f2a-000000000000']);
         $this->assertResponseStatusCodeSame(404);
+    }
+
+    private function duplicate(string $id, ?string $userId): array
+    {
+        return $this->jsonRequest('POST', '/rendition-definitions/'.$id.'/duplicate', $userId, [])->toArray(false);
+    }
+
+    public function testDuplicate(): void
+    {
+        [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
+        $em = self::getEntityManager();
+        $main = $defaults->renditionDefinitions['main'];
+        $source = $this->createRenditionDefinition($ws, $defaults->renditionPolicy, 'Square', [
+            'parent' => $main,
+            'buildMode' => RenditionDefinition::BUILD_MODE_CUSTOM,
+            'definition' => self::BUILD_DEFINITION,
+            'substitutable' => false,
+            'priority' => 7,
+            'useAsMain' => true,
+            'key' => 'square-key',
+            'target' => AssetTypeEnum::Asset,
+        ]);
+        $source->setUseAsPreview(true);
+        $source->setUseAsThumbnail(true);
+        $source->setUseAsAnimatedThumbnail(true);
+        $source->setDownload(false);
+        $source->setWriteMetadata(true);
+        $source->setMetadata(['IPTC:CopyrightNotice' => 'ACME']);
+        $source->setLabels(['foo' => 'bar']);
+        $source->setTranslations([
+            'name' => ['fr' => 'Carré'],
+            'description' => ['fr' => 'Un carré'],
+        ]);
+
+        $attributeDefinition = new AttributeDefinition();
+        $attributeDefinition->setWorkspace($ws);
+        $attributeDefinition->setPolicy($defaults->attributePolicy);
+        $attributeDefinition->setName('Credit');
+        $attributeDefinition->setType(TextAttributeType::NAME);
+        $attributeDefinition->addWriteMetadataRendition($source);
+        $em->persist($attributeDefinition);
+        $em->flush();
+
+        $asset = $this->createAsset(['workspace' => $ws, 'ownerId' => self::EDITOR]);
+        $this->createAssetRendition($asset, $source, $this->createUrlFile($ws));
+
+        $data = $this->duplicate($source->getId(), self::EDITOR);
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame('rendition-definition', $data['@type']);
+        $this->assertNotSame($source->getId(), $data['id']);
+        $this->assertSame('Square (copy)', $data['name']);
+        $this->assertSame('/rendition-definitions/'.$main->getId(), $data['parent']['@id'] ?? $data['parent']);
+        $this->assertSame(['description' => ['fr' => 'Un carré']], $data['translations'], 'the name translations are not copied');
+        $this->assertTrue($data['useAsMain']);
+        $this->assertTrue($data['useAsPreview']);
+        $this->assertTrue($data['useAsThumbnail']);
+        $this->assertTrue($data['useAsAnimatedThumbnail']);
+
+        $em->clear();
+        /** @var RenditionDefinition $source */
+        $source = $em->find(RenditionDefinition::class, $source->getId());
+        /** @var RenditionDefinition $copy */
+        $copy = $em->find(RenditionDefinition::class, $data['id']);
+        $this->assertSame($ws->getId(), $copy->getWorkspaceId());
+        $this->assertSame($source->getPolicy()->getId(), $copy->getPolicy()->getId());
+        $this->assertSame($main->getId(), $copy->getParent()?->getId());
+        $this->assertNull($copy->getKey());
+        foreach ([
+            'getDefinition', 'getConfig', 'getBuildMode', 'isSubstitutable', 'isDownload', 'getPriority',
+            'isUseAsMain', 'isUseAsPreview', 'isUseAsThumbnail', 'isUseAsAnimatedThumbnail', 'getLabels', 'getTarget',
+        ] as $getter) {
+            $this->assertSame($source->$getter(), $copy->$getter(), $getter);
+        }
+        $this->assertSame(
+            [$attributeDefinition->getId()],
+            $copy->getWriteMetadataAttributes()->map(fn (AttributeDefinition $ad): string => $ad->getId())->getValues(),
+        );
+        $this->assertEqualsCanonicalizing(
+            [$source->getId(), $copy->getId()],
+            $em->find(AttributeDefinition::class, $attributeDefinition->getId())->getWriteMetadataRenditions()->map(fn (RenditionDefinition $rd): string => $rd->getId())->getValues(),
+        );
+
+        // The original is unchanged
+        $this->assertSame('Square', $source->getName());
+        $this->assertSame('square-key', $source->getKey());
+        $this->assertSame(['name' => ['fr' => 'Carré'], 'description' => ['fr' => 'Un carré']], $source->getTranslations());
+
+        // The asset renditions are not copied
+        $this->assertCount(1, $em->getRepository(AssetRendition::class)->findBy(['definition' => $source->getId()]));
+        $this->assertCount(0, $em->getRepository(AssetRendition::class)->findBy(['definition' => $copy->getId()]));
+    }
+
+    public function testDuplicateNamesTheCopiesAfterTheOriginal(): void
+    {
+        [, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
+        $preview = $defaults->renditionDefinitions['preview'];
+
+        $first = $this->duplicate($preview->getId(), self::EDITOR);
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame('Preview (copy)', $first['name']);
+
+        $second = $this->duplicate($first['id'], self::EDITOR);
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame('Preview (copy 2)', $second['name'], 'the copy of a copy is named after the original');
+
+        $third = $this->duplicate($preview->getId(), self::EDITOR);
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame('Preview (copy 3)', $third['name']);
+    }
+
+    public function testDuplicateRights(): void
+    {
+        [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
+        $this->addUserOnWorkspace(self::READER, $ws->getId());
+        $id = $defaults->renditionDefinitions['thumbnail']->getId();
+
+        $this->duplicate($id, null);
+        $this->assertResponseStatusCodeSame(401);
+
+        $this->duplicate($id, self::READER);
+        $this->assertResponseStatusCodeSame(403);
+
+        $this->duplicate('ea5d2f1c-3c0b-4b8e-9f2a-000000000000', self::EDITOR);
+        $this->assertResponseStatusCodeSame(404);
+
+        $list = $this->jsonRequest('GET', '/rendition-definitions', self::EDITOR, options: ['query' => ['workspaceId' => $ws->getId()]]);
+        $this->assertSame(4, $list->toArray()['totalItems']);
+
+        $this->duplicate($id, self::ADMIN);
+        $this->assertResponseStatusCodeSame(201);
     }
 }

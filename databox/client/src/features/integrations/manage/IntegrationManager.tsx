@@ -10,6 +10,7 @@ import {EntityName} from '@/types/api';
 import {DefinitionManager} from '@/features/workspaces/manage/DefinitionManager';
 import {
     deleteIntegration,
+    duplicateIntegration,
     getGlobalIntegrations,
     getIntegrationType,
     getIntegrationTypes,
@@ -98,6 +99,7 @@ export function IntegrationManager({workspaceId, fill}: Props) {
                     </span>
                 );
             }}
+            onDuplicate={i => duplicateIntegration(i.id)}
             onDelete={i => deleteIntegration(i.id)}
             createLabel={t('integration.create', 'New integration')}
             emptyLabel={

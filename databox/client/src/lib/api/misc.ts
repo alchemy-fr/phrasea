@@ -313,6 +313,15 @@ export function deleteRenditionDefinition(id: string): Promise<void> {
     return api.delete(`/${EntityName.RenditionDefinition}/${id}`);
 }
 
+export function duplicateRenditionDefinition(
+    id: string
+): Promise<RenditionDefinition> {
+    return api.post<RenditionDefinition>(
+        `/${EntityName.RenditionDefinition}/${id}/duplicate`,
+        {}
+    );
+}
+
 export function sortRenditionDefinitions(ids: string[]): Promise<void> {
     return api.post(`/${EntityName.RenditionDefinition}/sort`, ids);
 }

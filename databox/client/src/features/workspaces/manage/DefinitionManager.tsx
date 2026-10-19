@@ -2,7 +2,7 @@
 
 import {ReactNode, useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {GripVerticalIcon, PlusIcon, Trash2Icon} from 'lucide-react';
+import {CopyIcon, GripVerticalIcon, PlusIcon, Trash2Icon} from 'lucide-react';
 import {
     closestCenter,
     DndContext,
@@ -52,6 +52,8 @@ type Props<D extends DefinitionItem> = {
         onCancel: () => void
     ) => ReactNode;
     onDelete?: (item: D) => Promise<void>;
+    /** Creates a copy of the item (server side), which is then selected */
+    onDuplicate?: (item: D) => Promise<D>;
     onSort?: (ids: string[]) => Promise<void>;
     onChanged: () => void;
     filter?: (item: D, query: string) => boolean;
@@ -89,6 +91,7 @@ export function DefinitionManager<D extends DefinitionItem>({
     renderItem,
     renderForm,
     onDelete,
+    onDuplicate,
     onSort,
     onChanged,
     filter,
@@ -122,6 +125,25 @@ export function DefinitionManager<D extends DefinitionItem>({
     const sensors = useSensors(
         useSensor(PointerSensor, {activationConstraint: {distance: 4}})
     );
+    // The item being duplicated
+    const [duplicating, setDuplicating] = useState<string | null>(null);
+    const duplicate = onDuplicate
+        ? (item: D) =>
+              leaveForm(async () => {
+                  setDuplicating(item.id);
+                  try {
+                      const copy = await onDuplicate(item);
+                      onChanged();
+                      setCreated(copy);
+                      navigate([copy.id]);
+                      toast.success(t('definition.duplicated', 'Copy created'));
+                  } catch (e: any) {
+                      toast.error(e?.message);
+                  } finally {
+                      setDuplicating(null);
+                  }
+              })
+        : undefined;
     // Optimistic order, kept until the refreshed items arrive
     const [order, setOrder] = useState<{
         of: D[] | undefined;
@@ -260,6 +282,12 @@ export function DefinitionManager<D extends DefinitionItem>({
                                                 : undefined
                                         }
                                         manageLabel={manageLabel}
+                                        onDuplicate={
+                                            duplicate
+                                                ? () => duplicate(item)
+                                                : undefined
+                                        }
+                                        duplicating={duplicating === item.id}
                                         onDelete={
                                             onDelete
                                                 ? () =>
@@ -310,6 +338,9 @@ export function DefinitionManager<D extends DefinitionItem>({
                                             renderManage ? noop : undefined
                                         }
                                         manageLabel={manageLabel}
+                                        onDuplicate={
+                                            onDuplicate ? noop : undefined
+                                        }
                                         onDelete={onDelete ? noop : undefined}
                                     >
                                         {renderItem(item)}
@@ -374,6 +405,8 @@ type RowProps = {
     active: boolean;
     onClick: () => void;
     onDelete?: () => void;
+    onDuplicate?: () => void;
+    duplicating?: boolean;
     onManage?: () => void;
     manageLabel?: string;
     children: ReactNode;
@@ -402,6 +435,8 @@ function RowView({
     active,
     onClick,
     onDelete,
+    onDuplicate,
+    duplicating,
     onManage,
     manageLabel,
     children,
@@ -410,6 +445,8 @@ function RowView({
     testId?: string;
     onClick?: () => void;
 }) {
+    const {t} = useTranslation();
+
     return (
         <li
             data-testid={testId}
@@ -446,6 +483,22 @@ function RowView({
                     onClick={onManage}
                 >
                     {manageLabel}
+                </Button>
+            ) : null}
+            {onDuplicate ? (
+                <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    className={cn(
+                        'opacity-0 group-hover/def:opacity-100',
+                        duplicating && 'opacity-100'
+                    )}
+                    onClick={onDuplicate}
+                    disabled={duplicating}
+                    aria-label={t('definition.duplicate', 'Duplicate')}
+                    data-testid="definition-duplicate"
+                >
+                    <CopyIcon />
                 </Button>
             ) : null}
             {onDelete ? (

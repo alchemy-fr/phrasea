@@ -49,6 +49,11 @@ abstract class AbstractIntegration implements IntegrationInterface
         return $userConfig;
     }
 
+    public function prepareDuplicateConfiguration(array $config): array
+    {
+        return $config;
+    }
+
     public static function requiresWorkspace(): bool
     {
         return true;

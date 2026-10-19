@@ -461,6 +461,8 @@
     "common.yes": "Oui",
     "confirm.type_to_confirm": "Saisissez <code>{{text}}</code> pour confirmer :",
     "definition.delete.title": "Supprimer cet élément ?",
+    "definition.duplicate": "Dupliquer",
+    "definition.duplicated": "Copie créée",
     "definition.not_found": "Cet élément n'existe plus.",
     "definition.select_hint": "Sélectionnez un élément pour le modifier, ou créez-en un nouveau.",
     "dialog.discard.confirm": "Abandonner",

@@ -11,6 +11,7 @@ use App\Attribute\Type\NumberAttributeType;
 use App\Attribute\Type\TextAttributeType;
 use App\Entity\Core\Attribute;
 use App\Entity\Core\AttributeDefinition;
+use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\Workspace;
 use App\Model\AssetTypeEnum;
 use App\Tests\Functional\AbstractDataboxTestCase;
@@ -589,5 +590,162 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
 
         $this->api('POST', '/attribute-definitions/sort', self::USER, ['9b2a7f5e-0000-4000-8000-000000000000']);
         $this->assertResponseStatusCodeSame(404);
+    }
+
+    private function duplicate(AttributeDefinition|string $definition, ?string $userId): array
+    {
+        $id = $definition instanceof AttributeDefinition ? $definition->getId() : $definition;
+
+        return $this->api('POST', '/attribute-definitions/'.$id.'/duplicate', $userId, [])->toArray(false);
+    }
+
+    public function testDuplicate(): void
+    {
+        $this->setUpScene();
+        $em = self::getEntityManager();
+        $list = $this->createEntityList(['name' => 'Colors']);
+        $rendition = $em->getRepository(RenditionDefinition::class)->findOneBy(['workspace' => $this->workspace->getId()]);
+        $definition = $this->createAttributeDefinition([
+            'name' => 'Color',
+            'type' => EntityAttributeType::NAME,
+            'list' => $list,
+            'multiple' => true,
+            'searchable' => false,
+            'allow_invalid' => true,
+            'fallback' => ['en' => '{{ file.filename }}'],
+        ]);
+        $definition->setKey('color-key');
+        $definition->setFileType('image/jpeg');
+        $definition->setFacetEnabled(true);
+        $definition->setSortable(true);
+        $definition->setSuggest(true);
+        $definition->setEditable(false);
+        $definition->setFillFromName(true);
+        $definition->setNamePriority(2);
+        $definition->setSearchBoost(5);
+        $definition->setInitialValues(['en' => '{{ file.type }}']);
+        $definition->setReadFromMetadata(['IPTC:Credit']);
+        $definition->setWriteMetadata(['XMP-dc:Subject']);
+        $definition->addWriteMetadataRendition($rendition);
+        $definition->setLabels(['foo' => 'bar']);
+        $definition->setMaxLength(42);
+        $definition->setEditableInGui(false);
+        $definition->setTarget(AssetTypeEnum::Both);
+        $definition->setPosition(3);
+        $definition->setTranslations([
+            'name' => ['fr' => 'Couleur'],
+            'description' => ['fr' => 'La couleur'],
+        ]);
+        $definition->appendError(['message' => 'Failure']);
+        $this->persistDefinition($definition);
+        $this->createAsset([
+            'attributes' => [
+                ['definition' => $definition, 'value' => $this->createEntity($list, 'Red')],
+            ],
+        ]);
+        $em->clear();
+
+        $data = $this->duplicate($definition, self::USER);
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame('attribute-definition', $data['@type']);
+        $this->assertNotSame($definition->getId(), $data['id']);
+        $this->assertSame('Color (copy)', $data['name']);
+        $this->assertSame('colorcopy', $data['slug']);
+        $this->assertNull($data['key'] ?? null, 'the key is not copied');
+        $this->assertSame(['description' => ['fr' => 'La couleur']], $data['translations'], 'the name translations are not copied');
+        $this->assertSame('/entity-lists/'.$list->getId(), $data['entityList']['@id'] ?? $data['entityList']);
+        $this->assertSame(['/rendition-definitions/'.$rendition->getId()], $data['writeMetadataRenditions']);
+        $this->assertSame([], $data['lastErrors'] ?? [], 'the errors are not copied');
+
+        $em->clear();
+        /** @var AttributeDefinition $source */
+        $source = $em->find(AttributeDefinition::class, $definition->getId());
+        /** @var AttributeDefinition $copy */
+        $copy = $em->find(AttributeDefinition::class, $data['id']);
+        $this->assertSame($source->getWorkspaceId(), $copy->getWorkspaceId());
+        $this->assertSame($source->getPolicy()->getId(), $copy->getPolicy()->getId());
+        $this->assertNull($copy->getKey());
+        $this->assertSame([], $copy->getLastErrors());
+        foreach ([
+            'getFileType', 'getType', 'isSearchable', 'isFacetEnabled', 'isSortable', 'isTranslatable',
+            'isMultiple', 'isAllowInvalid', 'isSuggest', 'isEditable', 'isEnabled', 'isFillFromName',
+            'getNamePriority', 'getSearchBoost', 'getInitialValues', 'getReadFromMetadata', 'getWriteMetadata',
+            'getFallback', 'getLabels', 'getOptions', 'getTarget', 'getPosition',
+        ] as $getter) {
+            $this->assertSame($source->$getter(), $copy->$getter(), $getter);
+        }
+        $this->assertSame([$rendition->getId()], $copy->getWriteMetadataRenditions()->map(fn (RenditionDefinition $rd): string => $rd->getId())->getValues());
+
+        // The original is unchanged
+        $this->assertSame('Color', $source->getName());
+        $this->assertSame('color', $source->getSlug());
+        $this->assertSame('color-key', $source->getKey());
+        $this->assertSame(['name' => ['fr' => 'Couleur'], 'description' => ['fr' => 'La couleur']], $source->getTranslations());
+        $this->assertCount(1, $source->getLastErrors());
+
+        // The attribute values are not copied
+        $this->assertCount(1, $em->getRepository(Attribute::class)->findBy(['definition' => $source->getId()]));
+        $this->assertCount(0, $em->getRepository(Attribute::class)->findBy(['definition' => $copy->getId()]));
+    }
+
+    public function testDuplicateNamesTheCopiesAfterTheOriginal(): void
+    {
+        $this->setUpScene();
+        $definition = $this->createAttributeDefinition(['name' => 'Title']);
+
+        $first = $this->duplicate($definition, self::USER);
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame('Title (copy)', $first['name']);
+
+        $second = $this->duplicate($first['id'], self::USER);
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame('Title (copy 2)', $second['name'], 'the copy of a copy is named after the original');
+        $this->assertSame('titlecopy2', $second['slug']);
+
+        $third = $this->duplicate($definition, self::USER);
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame('Title (copy 3)', $third['name']);
+
+        // The copies are listed right after their original (same position); their relative order
+        // depends on the database collation.
+        $names = $this->listNames(self::USER, [
+            'workspaceId' => $this->workspace->getId(),
+        ]);
+        $this->assertSame('Title', array_shift($names));
+        $this->assertEqualsCanonicalizing(['Title (copy)', 'Title (copy 2)', 'Title (copy 3)'], $names);
+    }
+
+    public function testDuplicateSkipsANameWhoseSlugIsTaken(): void
+    {
+        $this->setUpScene();
+        $definition = $this->createAttributeDefinition(['name' => 'Title']);
+        // Another name, but the slug the copy would get
+        $this->createAttributeDefinition(['name' => 'Title copy', 'slug' => 'titlecopy']);
+
+        $data = $this->duplicate($definition, self::USER);
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame('Title (copy 2)', $data['name']);
+        $this->assertSame('titlecopy2', $data['slug']);
+    }
+
+    public function testDuplicateRequiresTheWorkspaceEditPermission(): void
+    {
+        $this->setUpScene();
+        $definition = $this->createAttributeDefinition(['name' => 'Title']);
+
+        $this->duplicate($definition, null);
+        $this->assertResponseStatusCodeSame(401);
+
+        $this->duplicate($definition, self::OTHER);
+        $this->assertResponseStatusCodeSame(403);
+
+        $this->duplicate('9b2a7f5e-0000-4000-8000-000000000000', self::USER);
+        $this->assertResponseStatusCodeSame(404);
+
+        $this->assertSame(['Title'], $this->listNames(self::USER));
+
+        $this->grantOnWorkspace(self::OTHER, $this->workspace, PermissionInterface::EDIT);
+        $this->duplicate($definition, self::OTHER);
+        $this->assertResponseStatusCodeSame(201);
     }
 }

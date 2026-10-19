@@ -461,6 +461,8 @@
     "common.yes": "Yes",
     "confirm.type_to_confirm": "Type <code>{{text}}</code> to confirm:",
     "definition.delete.title": "Delete this item?",
+    "definition.duplicate": "Duplicate",
+    "definition.duplicated": "Copy created",
     "definition.not_found": "This item does not exist anymore.",
     "definition.select_hint": "Select an item to edit it, or create a new one.",
     "dialog.discard.confirm": "Discard",

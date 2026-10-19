@@ -20,6 +20,7 @@ use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\ExactSearchFilter;
 use App\Api\Model\Input\WorkspaceIntegrationInput;
 use App\Api\Model\Output\WorkspaceIntegrationOutput;
+use App\Api\Processor\DuplicateWorkspaceIntegrationProcessor;
 use App\Api\Processor\InputMapperProcessor;
 use App\Api\Provider\WorkspaceIntegrationCollectionProvider;
 use App\Entity\Core\Workspace;
@@ -46,6 +47,14 @@ use Symfony\Component\Yaml\Yaml;
         new Get(security: 'is_granted("READ", object)'),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Patch(security: 'is_granted("EDIT", object)', processor: InputMapperProcessor::class),
+        new Post(
+            uriTemplate: '/integrations/{id}/duplicate',
+            throwOnNotFound: true,
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            input: false,
+            processor: DuplicateWorkspaceIntegrationProcessor::class,
+            name: 'duplicate_integration',
+        ),
         new GetCollection(
             parameters: [
                 'workspace' => new QueryParameter(

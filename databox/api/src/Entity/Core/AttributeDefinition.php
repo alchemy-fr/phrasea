@@ -24,6 +24,7 @@ use App\Api\Filter\AssetTypeTargetFilter;
 use App\Api\Filter\InWorkspacesFilter;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
+use App\Api\Processor\DuplicateAttributeDefinitionProcessor;
 use App\Api\Processor\InputMapperProcessor;
 use App\Api\Processor\Sort\AttributeDefinitionSortProcessor;
 use App\Attribute\AttributeInterface;
@@ -53,6 +54,14 @@ use Symfony\Component\Validator\Constraints as Assert;
         ),
         new Delete(security: 'is_granted("DELETE", object)'),
         new Patch(security: 'is_granted("'.AbstractVoter::EDIT.'", object)', processor: InputMapperProcessor::class),
+        new Post(
+            uriTemplate: '/attribute-definitions/{id}/duplicate',
+            throwOnNotFound: true,
+            security: 'is_granted("'.AbstractVoter::EDIT.'", object)',
+            input: false,
+            processor: DuplicateAttributeDefinitionProcessor::class,
+            name: 'duplicate_attribute_definition',
+        ),
         new GetCollection(
             order: ['workspace' => 'ASC', 'position' => 'ASC', 'name' => 'ASC'],
             normalizationContext: [
@@ -689,6 +698,16 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     public function setLabels(?array $labels): void
     {
         $this->labels = $labels;
+    }
+
+    public function getOptions(): ?array
+    {
+        return $this->options;
+    }
+
+    public function setOptions(?array $options): void
+    {
+        $this->options = $options;
     }
 
     public function isSuggest(): bool

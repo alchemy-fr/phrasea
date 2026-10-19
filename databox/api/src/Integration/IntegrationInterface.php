@@ -33,6 +33,11 @@ interface IntegrationInterface
 
     public function generateConfigurationDefaults(array $userConfig): array;
 
+    /**
+     * Prepares the (normalized) configuration of an integration copy, e.g. to renew its secrets.
+     */
+    public function prepareDuplicateConfiguration(array $config): array;
+
     public function validateConfiguration(IntegrationConfig $config): void;
 
     // Normalize configuration to be persisted to database

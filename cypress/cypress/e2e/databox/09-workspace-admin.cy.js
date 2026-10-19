@@ -227,4 +227,29 @@ describe('Workspace administration', () => {
         });
         expectToastText(/saved/);
     });
+
+    /** Duplicates the item named `name`, then checks the copy is listed, selected and edited */
+    function duplicateDefinition(name) {
+        routeDialog().within(() => {
+            cy.getBySel('definition-item').contains(name).closest('[data-testid=definition-item]').find('[data-testid=definition-duplicate]').click({force: true});
+        });
+        expectToastText('Copy created');
+        routeDialog().within(() => {
+            cy.getBySel('definition-item').contains(`${name} (copy)`).closest('[data-testid=definition-item]').should('have.class', 'border-primary');
+            cy.fieldByLabel('Name').should('have.value', `${name} (copy)`);
+        });
+    }
+
+    it('duplicates an attribute definition', () => {
+        cy.visit(`${databoxUrl}/workspaces/${ctx.workspace.id}/manage/attributes`);
+        routeDialog().getBySel('definition-item').should('have.length', 4);
+        duplicateDefinition('Author');
+        routeDialog().getBySel('definition-item').should('have.length', 5);
+    });
+
+    it('duplicates a rendition definition', () => {
+        cy.visit(`${databoxUrl}/workspaces/${ctx.workspace.id}/manage/renditions`);
+        routeDialog().getBySel('definition-item').should('contain', 'thumbnail-e2e');
+        duplicateDefinition('thumbnail-e2e');
+    });
 });

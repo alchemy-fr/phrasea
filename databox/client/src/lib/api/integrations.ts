@@ -152,6 +152,15 @@ export function deleteIntegration(id: string): Promise<void> {
     return api.delete(`/${EntityName.Integration}/${id}`);
 }
 
+export function duplicateIntegration(
+    id: string
+): Promise<WorkspaceIntegration> {
+    return api.post<WorkspaceIntegration>(
+        `/${EntityName.Integration}/${id}/duplicate`,
+        {}
+    );
+}
+
 // Filter rules -------------------------------------------------------------
 
 export async function getAttributeFilterRules(
@@ -177,7 +186,10 @@ export function saveAttributeFilterRule(data: {
     const {id, ...payload} = data;
 
     return id
-        ? api.patch<AttributeFilterRule>(`/attribute-filter-rules/${id}`, payload)
+        ? api.patch<AttributeFilterRule>(
+              `/attribute-filter-rules/${id}`,
+              payload
+          )
         : api.post<AttributeFilterRule>('/attribute-filter-rules', payload);
 }
 

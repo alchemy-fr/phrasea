@@ -91,6 +91,15 @@ export function deleteAttributeDefinition(id: string): Promise<void> {
     return api.delete(`/${EntityName.AttributeDefinition}/${id}`);
 }
 
+export function duplicateAttributeDefinition(
+    id: string
+): Promise<AttributeDefinition> {
+    return api.post<AttributeDefinition>(
+        `/${EntityName.AttributeDefinition}/${id}/duplicate`,
+        {}
+    );
+}
+
 export function sortAttributeDefinitions(ids: string[]): Promise<void> {
     return api.post(`/${EntityName.AttributeDefinition}/sort`, ids);
 }
@@ -210,7 +219,10 @@ export function putEntityList(
     id: string,
     data: Partial<EntityList>
 ): Promise<EntityList> {
-    return api.patch<EntityList>(`/${EntityName.EntityList}/${id}`, toIris(data));
+    return api.patch<EntityList>(
+        `/${EntityName.EntityList}/${id}`,
+        toIris(data)
+    );
 }
 
 export function deleteEntityList(id: string): Promise<void> {

@@ -11,6 +11,7 @@ import type {WorkspaceTabProps} from '../WorkspaceManageRoute';
 import {DefinitionManager} from '../DefinitionManager';
 import {
     deleteRenditionDefinition,
+    duplicateRenditionDefinition,
     getRenditionBuildReference,
     getRenditionDefinitions,
     getRenditionPolicies,
@@ -67,6 +68,7 @@ export function RenditionDefinitionsTab({workspace}: WorkspaceTabProps) {
                     ) : null}
                 </span>
             )}
+            onDuplicate={d => duplicateRenditionDefinition(d.id)}
             onDelete={d => deleteRenditionDefinition(d.id)}
             createLabel={t('rendition_def.create', 'New rendition')}
             renderForm={(d, onSaved) => (

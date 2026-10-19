@@ -15,6 +15,7 @@ import type {WorkspaceTabProps} from '../WorkspaceManageRoute';
 import {DefinitionManager} from '../DefinitionManager';
 import {
     deleteAttributeDefinition,
+    duplicateAttributeDefinition,
     getAttributeFieldTypes,
     getAttributePolicies,
     getEntityLists,
@@ -104,6 +105,7 @@ export function AttributeDefinitionsTab({workspace}: WorkspaceTabProps) {
                     ) : null}
                 </span>
             )}
+            onDuplicate={d => duplicateAttributeDefinition(d.id)}
             onDelete={d => deleteAttributeDefinition(d.id)}
             createLabel={t('attribute_def.create', 'New attribute')}
             renderForm={(d, onSaved) => (
