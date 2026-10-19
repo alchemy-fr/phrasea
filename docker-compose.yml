@@ -84,6 +84,8 @@ services:
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
         SENTRY_RELEASE: ${SENTRY_RELEASE}
       network: host
+      entitlements:
+        - network.host
     networks:
       - internal
     environment:
@@ -131,6 +133,8 @@ services:
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
         SENTRY_RELEASE: ${SENTRY_RELEASE}
       network: host
+      entitlements:
+        - network.host
     networks:
       - internal
     environment:
@@ -257,6 +261,8 @@ services:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
       network: host
+      entitlements:
+        - network.host
     environment:
       - UPLOAD_MAX_FILE_SIZE
     networks:
@@ -409,6 +415,8 @@ services:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
       network: host
+      entitlements:
+        - network.host
     volumes:
       - expose_nginx_cache:/var/cache/nginx
     networks:
@@ -529,6 +537,8 @@ services:
     build:
       context: ./infra/docker/matomo-php
       network: host
+      entitlements:
+        - network.host
     networks:
       - internal
     environment:
@@ -547,6 +557,8 @@ services:
     build:
       context: ./infra/docker/matomo-nginx
       network: host
+      entitlements:
+        - network.host
     networks:
       - internal
     depends_on:
@@ -586,6 +598,8 @@ services:
     build:
       context: report
       network: host
+      entitlements:
+        - network.host
     networks:
       - internal
     environment:
@@ -792,6 +806,8 @@ services:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
       network: host
+      entitlements:
+        - network.host
     networks:
       internal:
         aliases:
@@ -817,6 +833,8 @@ services:
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
         SENTRY_RELEASE: ${SENTRY_RELEASE}
       network: host
+      entitlements:
+        - network.host
     profiles:
       - indexer
     networks:
@@ -997,6 +1015,8 @@ services:
       context: ./infra/docker/keycloak
       target: keycloak
       network: host
+      entitlements:
+        - network.host
     command:
       - 'start'
       - '--optimized'
@@ -1063,6 +1083,8 @@ services:
         BASE_TAG: ${DOCKER_TAG}
         REGISTRY_NAMESPACE: ${REGISTRY_NAMESPACE}
       network: host
+      entitlements:
+        - network.host
     networks:
       - internal
     profiles:

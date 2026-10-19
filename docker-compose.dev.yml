@@ -131,6 +131,8 @@ services:
     build:
       context: infra/docker/dev
       network: host
+      entitlements:
+        - network.host
     networks:
       - internal
     stdin_open: true
