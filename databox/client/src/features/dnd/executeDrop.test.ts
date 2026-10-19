@@ -182,6 +182,10 @@ describe('executeDrop assets', () => {
         expect(invalidate).toHaveBeenCalledWith({
             queryKey: ['story-assets', 'st'],
         });
+        expect(invalidate).toHaveBeenCalledWith({
+            queryKey: ['story-thumbnails', 'st'],
+            refetchType: 'none',
+        });
         expect(toast.success).toHaveBeenCalledWith('story.assets_added');
 
         await executeDrop(

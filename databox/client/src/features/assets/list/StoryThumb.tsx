@@ -1,6 +1,6 @@
 'use client';
 
-import {useCallback, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {useQuery} from '@tanstack/react-query';
 import {getStoryThumbnails} from '@/lib/api/assets';
 import {Skeleton} from '@/components/ui/misc';
@@ -9,7 +9,9 @@ import {cn} from '@/lib/utils/cn';
 /**
  * Hover carousel of a story: the thumbnails of its items laid out in a
  * horizontal strip, scrolled with the horizontal position of the pointer
- * (like the old client). Thumbnails are only fetched once hovered.
+ * (like the old client). Thumbnails are only fetched once hovered, and
+ * fetched again on hover once stale (e.g. invalidated after a change of the
+ * story items).
  */
 export function StoryThumb({
     assetId,
@@ -36,6 +38,15 @@ export function StoryThumb({
         staleTime: 60_000,
     });
 
+    const {data, isStale, refetch} = query;
+    const wasActive = useRef(active);
+    useEffect(() => {
+        if (active && !wasActive.current && data && isStale) {
+            void refetch();
+        }
+        wasActive.current = active;
+    }, [active, data, isStale, refetch]);
+
     const onMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
         const strip = stripRef.current;
         if (!strip) {
@@ -51,7 +62,7 @@ export function StoryThumb({
         strip.scrollLeft = ratio * (strip.scrollWidth - box.width);
     }, []);
 
-    const thumbnails = query.data;
+    const thumbnails = data;
 
     return (
         <div

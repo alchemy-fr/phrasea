@@ -201,6 +201,7 @@ export function StoryCarousel({
             .then(() => {
                 void queryClient.invalidateQueries({
                     queryKey: ['story-thumbnails', storyId],
+                    refetchType: 'none',
                 });
                 toast.success(
                     t('story.asset_removed', '{{name}} removed from story', {

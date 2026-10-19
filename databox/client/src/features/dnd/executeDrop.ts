@@ -210,8 +210,11 @@ async function dropAssets(
                 void queryClient.invalidateQueries({
                     queryKey: ['story-assets', target.story.id],
                 });
+                // Refetched on the next hover (see `StoryThumb`): the index
+                // does not list the new items yet.
                 void queryClient.invalidateQueries({
                     queryKey: ['story-thumbnails', target.story.id],
+                    refetchType: 'none',
                 });
             }
             await reloadResults?.();
