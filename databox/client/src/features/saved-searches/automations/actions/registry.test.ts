@@ -2,6 +2,7 @@ import {describe, expect, it} from 'vitest';
 import type {TFunction} from 'i18next';
 import {actionTypes, getActionDefinition} from './registry';
 import {mapViolations} from '../formErrors';
+import {toHeaders} from './WebhookForm';
 
 // Default value with interpolation, as i18next does without resources
 const t = ((
@@ -20,12 +21,26 @@ describe('automation actions registry', () => {
             'add_to_collection',
             'attribute',
             'tags',
+            'webhook',
+            'trigger_workflow',
+            'trash',
+            'set_privacy',
         ]);
         expect(getActionDefinition('unknown')).toBeUndefined();
     });
 
     it('starts with incomplete configurations', () => {
-        for (const type of actionTypes) {
+        // Nothing to configure
+        const withoutConfig = ['trigger_workflow', 'trash'];
+        for (const type of withoutConfig) {
+            const definition = getActionDefinition(type)!;
+            expect(definition.isComplete(definition.defaultConfig())).toBe(
+                true
+            );
+        }
+        for (const type of actionTypes.filter(
+            t => !withoutConfig.includes(t)
+        )) {
             const definition = getActionDefinition(type)!;
             expect(definition.isComplete(definition.defaultConfig())).toBe(
                 false
@@ -54,6 +69,22 @@ describe('automation actions registry', () => {
                 action: 'replace',
             })
         ).toBe(false);
+        expect(
+            getActionDefinition('webhook')!.isComplete({
+                url: 'https://hooks.example.com/phrasea',
+            })
+        ).toBe(true);
+        expect(
+            getActionDefinition('webhook')!.isComplete({
+                url: 'ftp://hooks.example.com',
+            })
+        ).toBe(false);
+        expect(
+            getActionDefinition('set_privacy')!.isComplete({privacy: 0})
+        ).toBe(true);
+        expect(
+            getActionDefinition('set_privacy')!.isComplete({privacy: 9})
+        ).toBe(false);
     });
 
     it('summarizes the configurations', () => {
@@ -66,6 +97,28 @@ describe('automation actions registry', () => {
         expect(
             getActionDefinition('attribute')!.summary({action: 'replace'}, t)
         ).toBe('Replace text in an attribute');
+        expect(
+            getActionDefinition('webhook')!.summary(
+                {url: 'https://hooks.example.com:8443/phrasea'},
+                t
+            )
+        ).toBe('Call hooks.example.com:8443');
+        expect(
+            getActionDefinition('set_privacy')!.summary({privacy: 5}, t)
+        ).toBe('Privacy: Public');
+    });
+});
+
+describe('webhook headers', () => {
+    it('keeps the named headers, the last one winning', () => {
+        expect(
+            toHeaders([
+                {name: ' Authorization ', value: 'Bearer x'},
+                {name: '', value: 'ignored'},
+                {name: 'X-Token', value: '1'},
+                {name: 'X-Token', value: '2'},
+            ])
+        ).toEqual({'Authorization': 'Bearer x', 'X-Token': '2'});
     });
 });
 

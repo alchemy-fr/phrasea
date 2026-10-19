@@ -2,6 +2,10 @@ import {moveToCollectionAction} from './MoveToCollectionForm';
 import {addToCollectionAction} from './AddToCollectionForm';
 import {attributeAction} from './AttributeActionForm';
 import {tagsAction} from './TagsActionForm';
+import {webhookAction} from './WebhookForm';
+import {triggerWorkflowAction} from './TriggerWorkflowForm';
+import {trashAction} from './TrashActionForm';
+import {setPrivacyAction} from './SetPrivacyForm';
 import type {ActionDefinition} from './types';
 
 /**
@@ -13,6 +17,10 @@ export const actionRegistry = {
     add_to_collection: addToCollectionAction,
     attribute: attributeAction,
     tags: tagsAction,
+    webhook: webhookAction,
+    trigger_workflow: triggerWorkflowAction,
+    trash: trashAction,
+    set_privacy: setPrivacyAction,
 } satisfies Record<string, ActionDefinition>;
 
 export type ActionType = keyof typeof actionRegistry;
