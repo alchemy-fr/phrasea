@@ -59,9 +59,11 @@ describe('Integrations', () => {
             cy.getBySel('definition-item')
                 .contains('E2E integration')
                 .closest('[data-testid=definition-item]')
-                .find('[data-testid=definition-duplicate]')
+                .find('[data-testid=definition-menu]')
                 .click({force: true});
         });
+        // The menu is portaled to <body>, out of the dialog
+        cy.getBySel('definition-duplicate').click();
         expectToastText('Copy created');
         routeDialog().within(() => {
             // The copy is selected and its form opened

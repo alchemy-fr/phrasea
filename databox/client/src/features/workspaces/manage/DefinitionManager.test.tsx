@@ -22,6 +22,15 @@ const items: Item[] = [
     {id: 'b', name: 'Bravo'},
 ];
 
+/** Opens the "…" menu of a row (keyboard, jsdom has no pointer events) */
+function openRowMenu(index: number) {
+    fireEvent.keyDown(screen.getAllByTestId('definition-menu')[index], {
+        key: 'Enter',
+    });
+
+    return screen.findByTestId('definition-duplicate');
+}
+
 function renderManager(props: {
     onDuplicate?: (item: Item) => Promise<Item>;
     onChanged?: () => void;
@@ -53,7 +62,7 @@ describe('DefinitionManager', () => {
         renderManager({});
 
         expect(screen.getAllByTestId('definition-item')).toHaveLength(2);
-        expect(screen.queryAllByTestId('definition-duplicate')).toHaveLength(0);
+        expect(screen.queryAllByTestId('definition-menu')).toHaveLength(0);
     });
 
     it('duplicates an item, then selects the copy', async () => {
@@ -63,11 +72,11 @@ describe('DefinitionManager', () => {
 
         renderManager({onDuplicate, onChanged});
 
-        const buttons = screen.getAllByTestId('definition-duplicate');
-        expect(buttons).toHaveLength(2);
-        expect(buttons[0].getAttribute('aria-label')).toBe('Duplicate');
+        expect(screen.getAllByTestId('definition-menu')).toHaveLength(2);
+        const item = await openRowMenu(0);
+        expect(item.textContent?.trim()).toBe('Duplicate');
 
-        fireEvent.click(buttons[0]);
+        fireEvent.click(item);
 
         await waitFor(() => expect(onChanged).toHaveBeenCalledTimes(1));
         expect(onDuplicate).toHaveBeenCalledWith(items[0]);
@@ -86,7 +95,7 @@ describe('DefinitionManager', () => {
 
         renderManager({onDuplicate, onChanged});
 
-        fireEvent.click(screen.getAllByTestId('definition-duplicate')[1]);
+        fireEvent.click(await openRowMenu(1));
 
         await waitFor(() =>
             expect(toast.error).toHaveBeenCalledWith('Forbidden')

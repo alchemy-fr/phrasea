@@ -2,7 +2,13 @@
 
 import {ReactNode, useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {CopyIcon, GripVerticalIcon, PlusIcon, Trash2Icon} from 'lucide-react';
+import {
+    CopyIcon,
+    GripVerticalIcon,
+    MoreHorizontalIcon,
+    PlusIcon,
+    Trash2Icon,
+} from 'lucide-react';
 import {
     closestCenter,
     DndContext,
@@ -22,6 +28,12 @@ import {FilterInput} from '@/components/ui/filter-input';
 import {Skeleton, EmptyState} from '@/components/ui/misc';
 import {useModals} from '@/components/modals/ModalProvider';
 import {ConfirmDialog} from '@/components/ui/confirm';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/menu';
 import {cn} from '@/lib/utils/cn';
 import {
     overlayRow,
@@ -485,22 +497,6 @@ function RowView({
                     {manageLabel}
                 </Button>
             ) : null}
-            {onDuplicate ? (
-                <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    className={cn(
-                        'opacity-0 group-hover/def:opacity-100',
-                        duplicating && 'opacity-100'
-                    )}
-                    onClick={onDuplicate}
-                    disabled={duplicating}
-                    aria-label={t('definition.duplicate', 'Duplicate')}
-                    data-testid="definition-duplicate"
-                >
-                    <CopyIcon />
-                </Button>
-            ) : null}
             {onDelete ? (
                 <Button
                     variant="ghost"
@@ -511,6 +507,34 @@ function RowView({
                 >
                     <Trash2Icon />
                 </Button>
+            ) : null}
+            {onDuplicate ? (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            className={cn(
+                                'opacity-0 group-hover/def:opacity-100 data-[state=open]:opacity-100',
+                                duplicating && 'opacity-100'
+                            )}
+                            aria-label={t('common.more', 'More')}
+                            data-testid="definition-menu"
+                        >
+                            <MoreHorizontalIcon />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                            onSelect={onDuplicate}
+                            disabled={duplicating}
+                            data-testid="definition-duplicate"
+                        >
+                            <CopyIcon />{' '}
+                            {t('definition.duplicate', 'Duplicate')}
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             ) : null}
         </li>
     );

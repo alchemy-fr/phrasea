@@ -231,8 +231,10 @@ describe('Workspace administration', () => {
     /** Duplicates the item named `name`, then checks the copy is listed, selected and edited */
     function duplicateDefinition(name) {
         routeDialog().within(() => {
-            cy.getBySel('definition-item').contains(name).closest('[data-testid=definition-item]').find('[data-testid=definition-duplicate]').click({force: true});
+            cy.getBySel('definition-item').contains(name).closest('[data-testid=definition-item]').find('[data-testid=definition-menu]').click({force: true});
         });
+        // The menu is portaled to <body>, out of the dialog
+        cy.getBySel('definition-duplicate').click();
         expectToastText('Copy created');
         routeDialog().within(() => {
             cy.getBySel('definition-item').contains(`${name} (copy)`).closest('[data-testid=definition-item]').should('have.class', 'border-primary');

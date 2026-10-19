@@ -629,11 +629,6 @@ App\Entity\Integration\WorkspaceIntegration:
                 - Thumbnail
         needs:
             - '@nb_wi_rendition'
-    nb_wi_moderation (extends nb_tpl_wi):
-        integration: core.moderation
-        config:
-            emails:
-                - desk@northbeam.local
     nb_wi_transcribe (extends nb_tpl_wi):
         integration: aws.transcribe
         enabled: false
