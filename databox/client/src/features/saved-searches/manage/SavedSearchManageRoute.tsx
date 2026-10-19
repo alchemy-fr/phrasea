@@ -24,12 +24,12 @@ import {UserChip} from '@/components/chips';
 import {formatDateTime} from '@/lib/utils/format';
 import {Button} from '@/components/ui/button';
 import {FormRow, Input} from '@/components/ui/input';
-import {EmptyState} from '@/components/ui/misc';
 import {SavedSearchPrivacyField} from '../SavedSearchPrivacyField';
 import {AclEditor} from '@/features/permissions/AclEditor';
 import {genericPermissions} from '@/features/permissions/permissionDefinitions';
 import {PermissionObject} from '@/features/permissions/permissionTypes';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {AutomationsTab} from '../automations/AutomationsTab';
 
 type TabProps = {savedSearch: SavedSearch; refresh: () => void};
 
@@ -70,6 +70,7 @@ function useTabs(saved?: SavedSearch): DialogTab<TabProps>[] {
             title: t('saved_search.automations', 'Automations'),
             icon: <ZapIcon />,
             component: AutomationsTab,
+            enabled: !!saved?.capabilities.manageAutomations,
         },
     ];
 }
@@ -189,20 +190,6 @@ function PermissionsTab({savedSearch}: TabProps) {
             objectType={PermissionObject.SavedSearch}
             objectId={savedSearch.id}
             definitions={genericPermissions(t)}
-        />
-    );
-}
-
-function AutomationsTab() {
-    const {t} = useTranslation();
-
-    return (
-        <EmptyState
-            icon={<ZapIcon />}
-            title={t(
-                'saved_search.automations_soon',
-                'Automations are coming soon'
-            )}
         />
     );
 }

@@ -33,7 +33,7 @@ final class SavedSearchApiTest extends AbstractDataboxTestCase
         $this->assertSame(SavedSearchPrivacyEnum::Secret->value, $data['privacy']);
         $this->assertSame(self::QUERY, $data['data']);
         $this->assertSame(self::USER, $data['owner']['id']);
-        $this->assertSame(['edit' => true, 'delete' => true, 'editPermissions' => true], $data['capabilities']);
+        $this->assertSame(['edit' => true, 'delete' => true, 'editPermissions' => true, 'manageAutomations' => true], $data['capabilities']);
 
         $this->assertSame(self::USER, self::getEntityManager()->find(SavedSearch::class, $data['id'])->getOwnerId());
     }
@@ -133,7 +133,7 @@ final class SavedSearchApiTest extends AbstractDataboxTestCase
         $this->grantUserOnObject(self::OTHER, $search, PermissionInterface::VIEW);
 
         $data = $this->apiJson('GET', '/saved-searches/'.$search->getId(), self::OTHER);
-        $this->assertSame(['edit' => false, 'delete' => false, 'editPermissions' => false], $data['capabilities']);
+        $this->assertSame(['edit' => false, 'delete' => false, 'editPermissions' => false, 'manageAutomations' => false], $data['capabilities']);
         $this->assertSame(self::USER, $data['owner']['id']);
     }
 

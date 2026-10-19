@@ -88,6 +88,8 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkTo(ProfileCrudController::class, 'Profiles'),
             MenuItem::linkTo(ProfileItemCrudController::class, 'Lists Items'),
             MenuItem::linkTo(SavedSearchCrudController::class, 'Saved Searches'),
+            MenuItem::linkTo(SavedSearchAutomationCrudController::class, 'Saved Search Automations'),
+            MenuItem::linkTo(AutomationRunCrudController::class, 'Automation Runs'),
         ];
 
         $submenuTemplates = [

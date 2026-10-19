@@ -24,6 +24,7 @@ class SavedSearchOutput extends AbstractUuidOutput
             'edit' => 'boolean',
             'delete' => 'boolean',
             'editPermissions' => 'boolean',
+            'manageAutomations' => 'boolean',
         ],
     ])]
     #[Groups([SavedSearch::GROUP_LIST, SavedSearch::GROUP_READ])]

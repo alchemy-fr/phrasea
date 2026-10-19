@@ -101,6 +101,12 @@ you can use the provided scripts to add cron jobs to your host machine:
   re-triggers the file analyses stuck in the pending state
   (`app:file:unblock-analyses`, see `doc/tech/Databox/FileAnalyzers.mdx`).
 
+The scheduled automations of the databox saved searches do not need any host
+cron: the databox worker consumes the `scheduler_automation` transport (listed
+in its `WORKER_PRIORITIES`), which triggers the automations due every minute.
+`bin/console app:automation:run-due` does the same once, for development or as
+a fallback cron.
+
 ### Changing ports
 
 You can change service ports by overriding the environment variables (see the `.env` file).

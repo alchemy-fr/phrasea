@@ -132,6 +132,8 @@ export enum EntityName {
     Collection = 'collections',
     Workspace = 'workspaces',
     SavedSearch = 'saved-searches',
+    SavedSearchAutomation = 'saved-search-automations',
+    AutomationRun = 'automation-runs',
     AttributeDefinition = 'attribute-definitions',
     AttributePolicy = 'attribute-policies',
     RenditionDefinition = 'rendition-definitions',
@@ -605,13 +607,84 @@ export enum SavedSearchPrivacy {
     Public = 2,
 }
 
-export interface SavedSearch extends WithCapabilities, Entity {
+export interface SavedSearch
+    extends WithCapabilities<{manageAutomations: boolean}>, Entity {
     name: string;
     privacy?: SavedSearchPrivacy;
     createdAt: string;
     updatedAt: string;
     data: SavedSearchData;
     owner?: User;
+}
+
+export enum AutomationScope {
+    New = 'new',
+    All = 'all',
+}
+
+export enum AutomationRunStatus {
+    Pending = 'pending',
+    Running = 'running',
+    Success = 'success',
+    Partial = 'partial',
+    Failed = 'failed',
+    Skipped = 'skipped',
+    Cancelled = 'cancelled',
+}
+
+export type AutomationTrigger = 'manual' | 'schedule';
+
+/** Configuration of an action, secrets masked (`null` + `<field>Set`) */
+export type AutomationActionConfig = Record<string, any>;
+
+export type AutomationAction = {
+    type: string;
+    config: AutomationActionConfig;
+};
+
+export interface SavedSearchAutomation extends HydraObject, Entity {
+    savedSearchId: string;
+    name: string;
+    enabled: boolean;
+    /** Cron expression, null when run on demand only */
+    schedule?: string | null;
+    timezone: string;
+    scope: AutomationScope;
+    actions: AutomationAction[];
+    nextRunAt?: string | null;
+    lastRunAt?: string | null;
+    lastRunStatus?: AutomationRunStatus | null;
+    consecutiveFailures: number;
+    createdBy?: User;
+    createdAt: string;
+    updatedAt: string;
+    capabilities: {edit: boolean; delete: boolean; run: boolean};
+}
+
+export type AutomationActionResult = {
+    type: string;
+    status: 'success' | 'partial' | 'failed';
+    processed: number;
+    failed: number;
+    skipped: number;
+    errors: {assetId?: string; message: string}[];
+};
+
+export interface AutomationRun extends HydraObject, Entity {
+    automationId: string;
+    trigger: AutomationTrigger;
+    dryRun: boolean;
+    initiator?: User;
+    status: AutomationRunStatus;
+    startedAt?: string | null;
+    endedAt?: string | null;
+    matchedCount: number;
+    newCount: number;
+    processedCount: number;
+    failedCount: number;
+    actionResults: AutomationActionResult[];
+    error?: string | null;
+    createdAt: string;
 }
 
 export enum ProfileItemSection {

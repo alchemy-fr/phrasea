@@ -784,7 +784,7 @@ services:
           memory: ${DATABOX_WORKER_MEMORY_LIMIT}
     environment:
       - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY}
-      - WORKER_PRIORITIES=p1 p2 task
+      - WORKER_PRIORITIES=p1 p2 task scheduler_automation
       - IMAGICK_VERSION
       - IMAGEMAGICK_POLICY_MEMORY
       - IMAGEMAGICK_POLICY_VERSION

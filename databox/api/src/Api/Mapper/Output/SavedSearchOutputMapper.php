@@ -9,6 +9,7 @@ use App\Api\Model\Output\SavedSearchOutput;
 use App\Api\Traits\UserLocaleTrait;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\SavedSearchAutomationVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
@@ -55,6 +56,7 @@ class SavedSearchOutputMapper implements OutputMapperInterface
                 'edit' => $this->isGranted(AbstractVoter::EDIT, $data),
                 'delete' => $this->isGranted(AbstractVoter::DELETE, $data),
                 'editPermissions' => $this->isGranted(AbstractVoter::EDIT_PERMISSIONS, $data),
+                'manageAutomations' => $this->isGranted(SavedSearchAutomationVoter::MANAGE_AUTOMATIONS, $data),
             ]);
         }
 

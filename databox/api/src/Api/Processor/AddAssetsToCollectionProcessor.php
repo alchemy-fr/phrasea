@@ -9,9 +9,9 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\AddAssetsToCollectionInput;
 use App\Entity\Core\Asset;
-use App\Entity\Core\CollectionAsset;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\CollectionVoter;
+use App\Service\Collection\AssetCollectionAdder;
 use App\Service\Collection\CollectionDestinationResolver;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,6 +24,7 @@ class AddAssetsToCollectionProcessor implements ProcessorInterface
     public function __construct(
         private readonly EntityManagerInterface $em,
         private readonly CollectionDestinationResolver $destinationResolver,
+        private readonly AssetCollectionAdder $assetCollectionAdder,
     ) {
     }
 
@@ -36,31 +37,17 @@ class AddAssetsToCollectionProcessor implements ProcessorInterface
         $this->denyAccessUnlessGranted(CollectionVoter::ASSET_CREATE, $collection);
 
         $assets = $this->em->getRepository(Asset::class)->findByIds($data->ids);
-        $alreadyIn = $this->em->getRepository(CollectionAsset::class)->findAssetIdsInCollection(
-            $collection->getId(),
-            array_map(fn (Asset $asset): string => $asset->getId(), $assets),
-        );
-        $storyAssetId = $collection->getStoryAsset()?->getId();
 
         foreach ($assets as $asset) {
             $this->denyAccessUnlessGranted(AbstractVoter::READ, $asset);
 
-            if ($asset->getWorkspaceId() !== $collection->getWorkspaceId()) {
-                throw new BadRequestHttpException(sprintf('Asset "%s" does not belong to the destination workspace', $asset->getId()));
+            if (null !== $reason = $this->assetCollectionAdder->getRefusalReason($collection, $asset)) {
+                throw new BadRequestHttpException($reason);
             }
-            if ($asset->getId() === $storyAssetId) {
-                throw new BadRequestHttpException('Cannot add a story to itself');
-            }
-
-            // The endpoint is idempotent: silently skip assets already in the collection
-            if (in_array($asset->getId(), $alreadyIn, true)) {
-                continue;
-            }
-
-            $this->em->persist($asset->addToCollection($collection));
         }
 
-        $this->em->flush();
+        // The endpoint is idempotent: assets already in the collection are silently skipped
+        $this->assetCollectionAdder->add($collection, $assets);
 
         return new Response('', 204);
     }

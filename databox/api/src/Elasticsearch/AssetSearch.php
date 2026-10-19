@@ -29,6 +29,7 @@ use App\Service\Asset\AssetSortGroupMapper;
 use Elastica\Aggregation;
 use Elastica\Index;
 use Elastica\Query;
+use Elastica\Result;
 use FOS\ElasticaBundle\Finder\PaginatedFinderInterface;
 use FOS\ElasticaBundle\Paginator\FantaPaginatorAdapter;
 use Pagerfanta\Pagerfanta;
@@ -116,6 +117,44 @@ class AssetSearch extends AbstractSearch
         }
 
         return [$result, $facets, $esQuery, $searchTime];
+    }
+
+    /**
+     * Iterates over the IDs of every asset matching the search, beyond the page size
+     * and the result window of the paginated search, on a consistent snapshot of the index.
+     *
+     * Only the Elasticsearch ACL applies: the caller still has to check READ on each asset.
+     * The sort options are ignored.
+     *
+     * @return \Generator<int, string[]> batches of asset IDs
+     */
+    public function iterateIds(
+        ?string $userId,
+        array $groupIds,
+        array $options = [],
+        int $batchSize = 500,
+    ): \Generator {
+        try {
+            [$query] = $this->buildQuery($userId, $groupIds, $options);
+        } catch (NoWorkspaceAllowedException) {
+            return;
+        }
+
+        $query->setSize($batchSize);
+        $query->setSource(false);
+        $query->setSort(['_doc']);
+
+        $scroll = $this->index->createSearch($query)->scroll('2m');
+        try {
+            foreach ($scroll as $resultSet) {
+                $ids = array_map(static fn (Result $result): string => (string) $result->getId(), $resultSet->getResults());
+                if (!empty($ids)) {
+                    yield $ids;
+                }
+            }
+        } finally {
+            $scroll->clear();
+        }
     }
 
     /**

@@ -22,6 +22,10 @@ class KeycloakClientTestMock implements HttpClientInterface
     final public const string USER_UID = '12345678-fc1a-492b-9e76-c2e8e6979786';
     final public const string OTHER_USER_UID = '99999999-fc1a-492b-9e76-c2e8e6979786';
     final public const string ADMIN_UID = '42424242-fc1a-492b-9e76-c2e8e6979786';
+    /**
+     * A user disabled in the IdP: it cannot log in nor be impersonated.
+     */
+    final public const string DISABLED_USER_UID = '00000000-fc1a-492b-9e76-c2e8e6979786';
 
     final public const array USERS = [
         self::ADMIN_UID => [
@@ -120,6 +124,14 @@ class KeycloakClientTestMock implements HttpClientInterface
             return $this->createResponse($args, 200, array_map(fn (string $group): array => [
                 'id' => $group,
             ], self::USERS[$match[1]]['groups'] ?? []));
+        }
+
+        if (1 === preg_match('#/admin/realms/phrasea/users/([^/]+)$#', $url, $match) && self::DISABLED_USER_UID === $match[1]) {
+            return $this->createResponse($args, 200, [
+                'id' => $match[1],
+                'username' => 'disabled_user',
+                'enabled' => false,
+            ]);
         }
 
         if (1 === preg_match('#/admin/realms/phrasea/users/(\d+)$#', $url, $match)) {
