@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+    - name: Documentation
+      url: https://docs.phrasea.com
+      about: User and technical documentation of Phrasea.
+    - name: Security vulnerability
+      url: https://github.com/alchemy-fr/phrasea/security/advisories/new
+      about: Report security vulnerabilities privately, never in a public issue.
