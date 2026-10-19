@@ -170,7 +170,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ),
                 'savedSearch' => new QueryParameter(
                     schema: ['type' => 'string'],
-                    description: 'Saved search ID: its query and conditions are merged in',
+                    description: 'Saved search ID: its query (unless one is given) and conditions (combined with the given ones) apply',
                     castToArray: false,
                 ),
             ],
@@ -327,7 +327,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ),
                 'savedSearch' => new QueryParameter(
                     schema: ['type' => 'string'],
-                    description: 'Saved search ID: its query, conditions and order are merged in',
+                    description: 'Saved search ID: its query (unless one is given), conditions (combined with the given ones) and order (unless one is given) apply',
                     castToArray: false,
                 ),
                 'order' => new QueryParameter(

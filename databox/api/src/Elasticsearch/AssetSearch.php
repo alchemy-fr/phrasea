@@ -41,6 +41,11 @@ class AssetSearch extends AbstractSearch
 {
     final public const int MAX_GEO_CLUSTERS = 2000;
 
+    /**
+     * Marks an order resolved from a saved search, whose fields may have disappeared since it was saved.
+     */
+    private const string OPT_SAVED_SORT = '_savedSearchSort';
+
     public function __construct(
         #[Autowire(service: 'fos_elastica.finder.asset')]
         private readonly PaginatedFinderInterface $finder,
@@ -242,9 +247,7 @@ class AssetSearch extends AbstractSearch
         $options['groupIds'] = $groupIds;
 
         if (isset($options['savedSearch'])) {
-            /** @var SavedSearch $savedSearch */
-            $savedSearch = DoctrineUtil::findStrictByRepo($this->savedSearchRepository, $options['savedSearch'], throw404: true);
-            $options = array_merge($options, $savedSearch->getData());
+            $options = $this->applySavedSearch($options);
         }
 
         $filterQueries = [];
@@ -472,8 +475,70 @@ class AssetSearch extends AbstractSearch
         return $query;
     }
 
+    /**
+     * Applies a saved search as the base of the search: the request refines it but cannot widen it.
+     * Only the query, conditions and sort of its data are used.
+     */
+    private function applySavedSearch(array $options): array
+    {
+        /** @var SavedSearch $savedSearch */
+        $savedSearch = DoctrineUtil::findStrictByRepo($this->savedSearchRepository, $options['savedSearch'], throw404: true);
+        $this->denyAccessUnlessGranted(AbstractVoter::READ, $savedSearch);
+
+        $data = $savedSearch->getData();
+
+        if ('' === trim($options['query'] ?? '') && is_string($data['query'] ?? null)) {
+            $options['query'] = $data['query'];
+        }
+
+        $conditions = array_merge(
+            array_values((array) ($data['conditions'] ?? [])),
+            array_values((array) ($options['conditions'] ?? [])),
+        );
+        if (!empty($conditions)) {
+            $options['conditions'] = $conditions;
+        }
+
+        if (!isset($options['order']) && is_array($data['sortBy'] ?? null)) {
+            $order = [];
+            $group = null;
+            foreach ($data['sortBy'] as $sortBy) {
+                if (!is_array($sortBy) || !is_string($sortBy['a'] ?? null)) {
+                    continue;
+                }
+                $order[$sortBy['a']] = 1 === ($sortBy['w'] ?? 0) ? 'desc' : 'asc';
+                if (null === $group && ($sortBy['g'] ?? false)) {
+                    $group = $sortBy['a'];
+                }
+            }
+
+            if (!empty($order)) {
+                $options['order'] = $order;
+                $options[self::OPT_SAVED_SORT] = true;
+                if (null !== $group && !isset($options['group']) && $this->isKnownField($group)) {
+                    $options['group'] = [$group];
+                }
+            }
+        }
+
+        return $options;
+    }
+
+    private function isKnownField(string $field): bool
+    {
+        try {
+            $this->attributeSearch->getESFieldInfo($field);
+
+            return true;
+        } catch (\InvalidArgumentException) {
+            return false;
+        }
+    }
+
     private function applySort(Query $query, array $options): void
     {
+        // A saved search must stay usable once a field it sorts on is gone: its invalid fields are skipped
+        $lenient = $options[self::OPT_SAVED_SORT] ?? false;
         $sort = [];
         if (isset($options['order'])) {
             if (!is_array($options['order'])) {
@@ -481,16 +546,28 @@ class AssetSearch extends AbstractSearch
             }
             foreach ($options['order'] as $field => $way) {
                 if (!is_string($field)) {
+                    if ($lenient) {
+                        continue;
+                    }
                     throw new BadRequestHttpException(sprintf('Invalid sort field "%s"', $field));
                 }
                 $w = strtoupper((string) $way);
                 if (!in_array($w, ['ASC', 'DESC'], true)) {
+                    if ($lenient) {
+                        continue;
+                    }
                     throw new BadRequestHttpException(sprintf('Invalid sort way "%s"', $way));
                 }
 
                 $builtInAttribute = $this->builtInAttributeRegistry->getBuiltInAttribute($field);
                 if ($builtInAttribute instanceof CustomSortBuiltInAttributeInterface) {
-                    $sort[] = $builtInAttribute->createSortClause($w, $options);
+                    try {
+                        $sort[] = $builtInAttribute->createSortClause($w, $options);
+                    } catch (BadRequestHttpException $e) {
+                        if (!$lenient) {
+                            throw $e;
+                        }
+                    }
 
                     continue;
                 }
@@ -498,6 +575,9 @@ class AssetSearch extends AbstractSearch
                 try {
                     $esFieldInfo = $this->attributeSearch->getESFieldInfo($field);
                 } catch (\InvalidArgumentException $e) {
+                    if ($lenient) {
+                        continue;
+                    }
                     throw new BadRequestHttpException(sprintf('Invalid sort attribute "%s". Did you forget prefixing with "@" for built-in or use "field_type_s" format', $field), $e);
                 }
                 if (!$esFieldInfo->enabled) {
@@ -518,7 +598,9 @@ class AssetSearch extends AbstractSearch
                     ]];
                 }
             }
-        } else {
+        }
+
+        if (!isset($options['order']) || ($lenient && empty($sort))) {
             $sort[] = [
                 '_score' => 'DESC',
                 'createdAt' => 'DESC',
