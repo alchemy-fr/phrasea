@@ -12,8 +12,10 @@ use App\Entity\Core\Asset;
 use App\Repository\Core\AssetRepository;
 use App\Security\Voter\AbstractVoter;
 use Elastica\Query;
+use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
+#[AsTaggedItem(index: '@similar')]
 final class SimilarBuiltInAttribute extends AbstractBuiltInAttribute implements CustomFilterQueryBuiltInAttributeInterface
 {
     use SecurityAwareTrait;

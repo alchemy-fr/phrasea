@@ -17,6 +17,7 @@ export enum BuiltInAttribute {
     Privacy = '@privacy',
     Rendition = '@rendition',
     Score = '@score',
+    Similar = '@similar',
     Tag = '@tag',
     IsStory = '@isStory',
     Story = '@story',
@@ -174,4 +175,21 @@ export function removeConditions(
 
 export function quoteAQL(value: string): string {
     return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+}
+
+/**
+ * A search of the assets visually similar to the given one, ranked by
+ * similarity: it replaces the query, the conditions and the sort.
+ */
+export function similarSearchState(assetId: string): SearchState {
+    return {
+        query: '',
+        conditions: [
+            {
+                id: BuiltInAttribute.Similar,
+                query: `${BuiltInAttribute.Similar} = ${quoteAQL(assetId)}`,
+            },
+        ],
+        sortBy: [],
+    };
 }

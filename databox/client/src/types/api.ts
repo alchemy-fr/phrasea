@@ -117,6 +117,8 @@ export enum AttributeType {
     Rendition = 'rendition',
     FileSize = 'filesize',
     Story = 'story',
+    /** Client-side type of the `@similar` built-in: an asset ID */
+    Asset = 'asset',
     Tag = 'tag',
     Text = 'text',
     Textarea = 'textarea',
@@ -277,6 +279,8 @@ export interface Workspace
     termsUnsigned?: boolean;
     /** Custom logo, the service one when none */
     logo?: string | null;
+    /** Its assets can be searched by visual similarity (`@similar`) */
+    similarity?: boolean;
 }
 
 export type WorkspaceTerms = {

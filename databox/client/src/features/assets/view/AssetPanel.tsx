@@ -19,6 +19,7 @@ import {
     ListOrderedIcon,
     PencilIcon,
     PlugIcon,
+    ScanSearchIcon,
     ShieldIcon,
     WorkflowIcon,
     WrenchIcon,
@@ -46,6 +47,7 @@ import {Tooltip} from '@/components/ui/overlays';
 import type {AssetTabProps} from '@/features/assets/manage/types';
 import {AssetEditTab} from '@/features/assets/manage/tabs/AssetEditTab';
 import {AssetRenditionsTab} from '@/features/assets/manage/tabs/AssetRenditionsTab';
+import {AssetSimilarTab} from '@/features/assets/manage/tabs/AssetSimilarTab';
 import {AssetVersionsTab} from '@/features/assets/manage/tabs/AssetVersionsTab';
 import {AssetPermissionsTab} from '@/features/assets/manage/tabs/AssetPermissionsTab';
 import {AssetWorkflowTab} from '@/features/assets/manage/tabs/AssetWorkflowTab';
@@ -71,6 +73,7 @@ export const assetPanelTabs = [
     'details',
     'discussion',
     'renditions',
+    'similar',
     'versions',
     'permissions',
     'workflow',
@@ -162,6 +165,13 @@ function useTabs(
             icon: <ImagesIcon />,
             component: AssetRenditionsTab,
             props: {displayed: rendition?.id, onDisplay: onSelectRendition},
+        },
+        {
+            id: 'similar',
+            title: t('asset.manage.similar', 'Similar'),
+            icon: <ScanSearchIcon />,
+            component: AssetSimilarTab,
+            enabled: !!asset.workspace.similarity && !asset.deleted,
         },
         ...(file
             ? integrations.map(

@@ -101,6 +101,17 @@ class WorkspaceOutput extends AbstractUuidOutput
     ])]
     public ?string $logo = null;
 
+    /**
+     * Whether the workspace computes the embeddings its assets are
+     * searched by visual similarity with (`@similar`).
+     */
+    #[Groups([
+        Workspace::GROUP_LIST,
+        Workspace::GROUP_READ,
+        Asset::GROUP_LIST,
+    ])]
+    public ?bool $similarity = null;
+
     public function getName(): string
     {
         return $this->name;

@@ -19,6 +19,7 @@ export const rawTypeMap: Record<AttributeType, RawType> = {
     [AttributeType.Code]: RawType.String,
     [AttributeType.CollectionPath]: RawType.String,
     [AttributeType.Story]: RawType.String,
+    [AttributeType.Asset]: RawType.String,
     [AttributeType.Color]: RawType.String,
     [AttributeType.DateTime]: RawType.DateTime,
     [AttributeType.Date]: RawType.Date,

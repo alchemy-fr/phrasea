@@ -9,15 +9,19 @@ use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
 use App\Api\Model\Output\WorkspaceOutput;
 use App\Api\Model\Output\WorkspaceTermsOutput;
 use App\Api\Traits\UserLocaleTrait;
+use App\Entity\Core\Asset;
 use App\Entity\Core\Collection;
 use App\Entity\Core\TermsVersion;
 use App\Entity\Core\Workspace;
+use App\Entity\Integration\WorkspaceIntegration;
+use App\Integration\Core\Similarity\SimilarityIntegration;
 use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AssetContainerVoterInterface;
 use App\Security\Voter\WorkspaceVoter;
 use App\Service\Asset\FileUrlResolver;
 use App\Service\Workspace\LogoManager;
 use App\Service\Workspace\TermsManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -36,6 +40,7 @@ class WorkspaceOutputMapper implements OutputMapperInterface
         private readonly TermsManager $termsManager,
         private readonly LogoManager $logoManager,
         private readonly FileUrlResolver $fileUrlResolver,
+        private readonly EntityManagerInterface $em,
     ) {
         $this->capCache = $cacheFactory->createCache();
     }
@@ -87,6 +92,20 @@ class WorkspaceOutputMapper implements OutputMapperInterface
         }
 
         $output->logo = $this->logoManager->resolveLogoUrl($data);
+
+        if ($this->hasGroup([
+            Workspace::GROUP_LIST,
+            Workspace::GROUP_READ,
+            Asset::GROUP_LIST,
+        ], $context)) {
+            $output->similarity = $this->capCache->get('w.sim.'.$data->getId(), fn (): bool => null !== $this->em
+                ->getRepository(WorkspaceIntegration::class)
+                ->findOneBy([
+                    'workspace' => $data->getId(),
+                    'integration' => SimilarityIntegration::getName(),
+                    'enabled' => true,
+                ]));
+        }
 
         $userId = $this->getUser()?->getId();
         if (null !== $userId && $data->getOwnerId() !== $userId) {

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import type {AQLQuery} from '@/types/api';
 import {useSearch} from '../SearchProvider';
+import {BuiltInAttribute} from '../searchState';
 import {parseAQL} from '../aql/parser';
 import {valueToString} from '../aql/serializer';
 import {getOperatorLabel} from '../aql/operatorLabel';
@@ -19,6 +20,7 @@ import {
     AQLCondition,
     AQLExpression,
     AQLLogical,
+    AQLOperator,
     AQLValueExpr,
     isEntity,
     isField,
@@ -239,6 +241,24 @@ function HumanizedCondition({condition}: {condition: AQLCondition}) {
         right === undefined ? [] : Array.isArray(right) ? right : [right];
     const isBetween = condition.operator.includes('BETWEEN');
     const geoArea = humanizeGeoArea(condition, t, i18n.language);
+
+    // "Similar to <asset>": the operator adds nothing to the label
+    if (
+        field === BuiltInAttribute.Similar &&
+        condition.operator === AQLOperator.EQ
+    ) {
+        return (
+            <>
+                <span className="font-medium">{label}</span>{' '}
+                <HumanizedValues
+                    values={values}
+                    isBetween={false}
+                    definition={definition}
+                    t={t}
+                />
+            </>
+        );
+    }
 
     return (
         <>

@@ -123,6 +123,8 @@ built_in_attribute:
     name: Supprimé
   assetStatus:
     name: Statut de l'asset
+  similar:
+    name: Similaire à
 search:
   suggestion:
     type:

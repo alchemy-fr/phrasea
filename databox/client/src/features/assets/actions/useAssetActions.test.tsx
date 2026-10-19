@@ -6,8 +6,9 @@ import {createI18n} from '@/i18n';
 import type {Asset} from '@/types/api';
 import {useAssetActions, type AssetAction} from './useAssetActions';
 
+const push = vi.fn();
 vi.mock('next/navigation', () => ({
-    useRouter: () => ({push: vi.fn()}),
+    useRouter: () => ({push}),
 }));
 vi.mock('@/components/modals/ModalProvider', () => ({
     useModals: () => ({openModal: vi.fn()}),
@@ -21,10 +22,15 @@ vi.mock('@/features/assets/useAssetOpener', () => ({
 
 type Caps = Partial<Asset['capabilities']>;
 
-function asset(id: string, caps: Caps = {}, source = true): Asset {
+function asset(
+    id: string,
+    caps: Caps = {},
+    source = true,
+    similarity = false
+): Asset {
     return {
         id,
-        workspace: {id: 'ws'},
+        workspace: {id: 'ws', similarity},
         capabilities: {
             edit: true,
             delete: true,
@@ -116,5 +122,25 @@ describe('useAssetActions', () => {
         expect(
             actionsOf([asset('a', {}, false), asset('b')]).download.disabled
         ).toBeFalsy();
+    });
+
+    it('offers the similarity search where the workspace computes it', () => {
+        expect(actionsOf([asset('a')]).similar).toBeUndefined();
+
+        const similar = actionsOf([asset('a', {}, true, true)]).similar;
+        expect(similar.disabled).toBeFalsy();
+        similar.run();
+        expect(push).toHaveBeenCalledWith(
+            '/assets?f=%40similar%3A%40similar+%3D+%22a%22'
+        );
+
+        expect(
+            actionsOf([asset('a', {}, true, true), asset('b', {}, true, true)])
+                .similar.disabled
+        ).toBe(true);
+        expect(
+            actionsOf([asset('a', {}, true, false), asset('b', {}, true, true)])
+                .similar.disabled
+        ).toBe(true);
     });
 });
