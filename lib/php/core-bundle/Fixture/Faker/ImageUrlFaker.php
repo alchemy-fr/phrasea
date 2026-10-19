@@ -6,6 +6,18 @@ namespace Alchemy\CoreBundle\Fixture\Faker;
 
 class ImageUrlFaker extends AbstractCachedFaker
 {
+    private const string BUCKET_URL = 'https://alchemy-phrasea-fixtures.s3.eu-west-3.amazonaws.com/fixtures/images';
+
+    /**
+     * Always available on the bucket: images missing from another theme are taken from it.
+     */
+    private const string FALLBACK_THEME = 'nature';
+
+    /**
+     * @var array<string, true> cache paths of the theme images that could not be fetched
+     */
+    private array $unavailableImages = [];
+
     public function imageUrlRandomRatio(
         string $workspaceId,
         string $lock,
@@ -62,16 +74,13 @@ class ImageUrlFaker extends AbstractCachedFaker
             );
         }
 
-        $theme ??= 'nature';
         $orientation = $width >= $height ? 'landscape' : 'portrait';
-        $url = sprintf('https://alchemy-phrasea-fixtures.s3.eu-west-3.amazonaws.com/fixtures/images/%s/%s/%d.%s', $theme, $orientation, $lockNorm, $extension);
-
-        $cachePath = sprintf('%s/%s-%d', $theme, $orientation, $lockNorm);
-        $imageSrc = $this->downloadAndStore(
+        [$cachePath, $imageSrc] = $this->storeThemeImage(
             $pathPrefix,
-            $cachePath,
+            $theme ?? self::FALLBACK_THEME,
+            $orientation,
+            $lockNorm,
             $extension,
-            $url,
         );
 
         $croppedCacheKKey = $cachePath.sprintf('-%d-%d', $width, $height);
@@ -104,6 +113,38 @@ class ImageUrlFaker extends AbstractCachedFaker
         } finally {
             unlink($tmpImage);
         }
+    }
+
+    /**
+     * Themes are filled by hand on the bucket: a variant missing from the requested theme is
+     * replaced by the same variant of the fallback theme, so that fixtures always load.
+     *
+     * @return array{string, string} the cache path of the image actually used, and its stored path
+     */
+    private function storeThemeImage(
+        string $pathPrefix,
+        string $theme,
+        string $orientation,
+        int $variant,
+        string $extension,
+    ): array {
+        $cachePath = sprintf('%s/%s-%d', $theme, $orientation, $variant);
+        $url = sprintf('%s/%s/%s/%d.%s', self::BUCKET_URL, $theme, $orientation, $variant, $extension);
+
+        if (self::FALLBACK_THEME === $theme) {
+            return [$cachePath, $this->downloadAndStore($pathPrefix, $cachePath, $extension, $url)];
+        }
+
+        if (!isset($this->unavailableImages[$cachePath])) {
+            try {
+                return [$cachePath, $this->downloadAndStore($pathPrefix, $cachePath, $extension, $url)];
+            } catch (\InvalidArgumentException $e) {
+                $this->unavailableImages[$cachePath] = true;
+                $this->logger->warning(sprintf('Image theme "%s" unavailable, falling back to "%s": %s', $theme, self::FALLBACK_THEME, $e->getMessage()));
+            }
+        }
+
+        return $this->storeThemeImage($pathPrefix, self::FALLBACK_THEME, $orientation, $variant, $extension);
     }
 
     private function generateSolidColorImage(

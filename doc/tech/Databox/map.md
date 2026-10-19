@@ -13,9 +13,14 @@ display options of the results), by one of their **geo point** attributes.
   (see [metadata](./metadata.md)). When several geo point attributes exist, the map
   offers a selector.
 
-In dev, the fixtures (`bin/dev/reset-db-fixtures.sh`) place the images and videos of the
-**Newspaper** workspace around real cities (`App\Fixture\Faker\GeoPlaceFaker`), with
-`City` and `Country` matching their `Location`; audio and PDF assets have no location.
+In dev, the [fixtures](./fixtures.md) (`bin/dev/reset-db-fixtures.sh`) place assets around
+real cities (`App\Fixture\Faker\GeoPlaceFaker`), with `City` and `Country` matching their
+geo point:
+
+- **Northbeam Press**: the images and videos (`Location`); podcasts and press releases have
+  no location.
+- **Fernhollow Natural History Museum**: the specimens (`Collection site`); documents,
+  media and the views of the "Specimen record" stories have no location.
 
 ## Clusters
 

@@ -1,0 +1,12 @@
+# Fixtures shared by all the workspaces.
+# See doc/tech/Databox/fixtures.md
+
+App\Entity\Integration\WorkspaceIntegration:
+    # Global integration (no workspace)
+    wi_expose:
+        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+        name: Expose Basket
+        public: true
+        integration: phrasea.expose
+        config:
+            clientId: \${DATABOX_EXPOSE_INTEGRATION_CLIENT_ID}

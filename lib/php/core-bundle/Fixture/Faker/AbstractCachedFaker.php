@@ -17,7 +17,7 @@ abstract class AbstractCachedFaker extends BaseProvider
         protected readonly FileStorageManager $fileStorageManager,
         protected readonly PathGeneratorInterface $pathGenerator,
         Generator $generator,
-        private readonly LoggerInterface $logger,
+        protected readonly LoggerInterface $logger,
     ) {
         parent::__construct($generator);
     }
@@ -31,10 +31,7 @@ abstract class AbstractCachedFaker extends BaseProvider
             $cacheKey = $this->getFileCacheKey($cachePath, $extension);
             if (!file_exists($cacheKey)) {
                 $this->logger->debug(sprintf('Fetching "%s"', $url));
-                $resource = fopen($url, 'r');
-                if (!is_resource($resource)) {
-                    throw new \InvalidArgumentException(sprintf('Cannot open URL "%s"', $url));
-                }
+                $resource = $this->openUrl($url);
 
                 try {
                     $this->cacheFile($cachePath, $extension, $resource);
@@ -48,13 +45,25 @@ abstract class AbstractCachedFaker extends BaseProvider
                 throw new \InvalidArgumentException(sprintf('Cannot open cached file "%s"', $url));
             }
         } else {
-            $stream = fopen($url, 'r');
-            if (!is_resource($stream)) {
-                throw new \InvalidArgumentException(sprintf('Cannot open URL "%s"', $url));
-            }
+            $stream = $this->openUrl($url);
         }
 
         return $stream;
+    }
+
+    /**
+     * @return resource
+     */
+    private function openUrl(string $url): mixed
+    {
+        // Silenced so that an unavailable URL (e.g. HTTP 403/404) always ends up in the exception below
+        error_clear_last();
+        $resource = @fopen($url, 'r');
+        if (!is_resource($resource)) {
+            throw new \InvalidArgumentException(sprintf('Cannot open URL "%s": %s', $url, trim(error_get_last()['message'] ?? 'unknown error')));
+        }
+
+        return $resource;
     }
 
     protected function downloadAndStore(string $pathPrefix, string $cachePath, string $extension, string $url): string

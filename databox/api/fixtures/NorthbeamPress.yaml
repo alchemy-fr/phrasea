@@ -1,0 +1,650 @@
+# Northbeam Press: news agency. Multimedia editorial flow, geolocated, under embargo, multilingual.
+# Personas: alice = editor-in-chief, bob = photographer, carol = freelancer (Sports only),
+# dave = archivist.
+# See doc/tech/Databox/fixtures.md
+
+App\Entity\Core\Workspace:
+    w_northbeam:
+        __factory: { '@App\Fixture\WorkspaceFactory::create': ['<keycloakUser("phrasea-admin", ["phrasea-admin"])>'] }
+        name: Northbeam Press
+        slug: northbeam-press
+        enabledLocales: [en, fr]
+
+App\Entity\Core\AttributePolicy:
+    # "Public" policy created by WorkspaceFactory
+    nb_ap_public:
+        __factory: { '@App\Fixture\WorkspaceFactory::getAttributePolicy': ['@w_northbeam'] }
+    nb_ap_newsroom:
+        workspace: '@w_northbeam'
+        name: Newsroom only
+        public: false
+        editable: false
+
+App\Entity\Core\RenditionPolicy:
+    # "Public" policy created by WorkspaceFactory
+    nb_rp_public:
+        __factory: { '@App\Fixture\WorkspaceFactory::getRenditionPolicy': ['@w_northbeam'] }
+    nb_rp_print:
+        workspace: '@w_northbeam'
+        name: Print
+        public: false
+        editable: false
+
+App\Entity\Core\RenditionDefinition:
+    # Definitions created by WorkspaceFactory
+    nb_rd_{main, preview, thumbnail, animatedThumbnail}:
+        __factory: { '@App\Fixture\WorkspaceFactory::getRenditionDefinition': ['@w_northbeam', '<current()>'] }
+    nb_rd_print:
+        workspace: '@w_northbeam'
+        name: Print hi-res
+        policy: '@nb_rp_print'
+        parent: '@nb_rd_main'
+        buildMode: 1
+        translations: { name: { fr: Impression HD } }
+
+App\Entity\Core\EntityList:
+    nb_el_desk:
+        workspace: '@w_northbeam'
+        name: Desk
+        withTranslations: true
+        withSynonyms: true
+    nb_el_rights:
+        workspace: '@w_northbeam'
+        name: Usage rights
+        withTranslations: true
+        withColors: true
+
+App\Entity\Core\AttributeEntity:
+    nb_tpl_desk (template):
+        list: '@nb_el_desk'
+        workspace: '@w_northbeam'
+    nb_desk_world (extends nb_tpl_desk):
+        value: World
+        translations: { fr: Monde }
+        synonyms: { en: [International, Foreign], fr: [International, Étranger] }
+    nb_desk_politics (extends nb_tpl_desk):
+        value: Politics
+        translations: { fr: Politique }
+        synonyms: { en: [Government, Elections], fr: [Gouvernement, Élections] }
+    nb_desk_sports (extends nb_tpl_desk):
+        value: Sports
+        translations: { fr: Sport }
+        synonyms: { en: [Sport], fr: [Sports] }
+    nb_desk_culture (extends nb_tpl_desk):
+        value: Culture
+        translations: { fr: Culture }
+        synonyms: { en: [Arts, Entertainment], fr: [Arts, Spectacles] }
+    nb_desk_business (extends nb_tpl_desk):
+        value: Business
+        translations: { fr: Économie }
+        synonyms: { en: [Economy, Finance], fr: [Finance, Entreprises] }
+
+    nb_tpl_rights (template):
+        list: '@nb_el_rights'
+        workspace: '@w_northbeam'
+    nb_rights_editorial (extends nb_tpl_rights):
+        value: Editorial use only
+        translations: { fr: Usage éditorial uniquement }
+        color: '#1E88E5'
+    nb_rights_royaltyfree (extends nb_tpl_rights):
+        value: Royalty free
+        translations: { fr: Libre de droits }
+        color: '#43A047'
+    nb_rights_managed (extends nb_tpl_rights):
+        value: Rights managed
+        translations: { fr: Droits gérés }
+        color: '#FB8C00'
+    nb_rights_nosyndication (extends nb_tpl_rights):
+        value: Do not syndicate
+        translations: { fr: Ne pas syndiquer }
+        color: '#E53935'
+
+App\Entity\Core\AttributeDefinition:
+    nb_tpl_ad (template):
+        workspace: '@w_northbeam'
+        policy: '@nb_ap_public'
+        type: text
+
+    # "Name" attribute created by WorkspaceFactory, used as title when the headline is empty
+    nb_ad_name:
+        __factory: { '@App\Fixture\WorkspaceFactory::getNameAttributeDefinition': ['@w_northbeam'] }
+
+    nb_ad_headline (extends nb_tpl_ad):
+        name: Headline
+        namePriority: 10
+        suggest: true
+        position: 1
+        translations: { name: { fr: Titre } }
+    nb_ad_storytitle (extends nb_tpl_ad):
+        name: Story title
+        target: '<(App\Model\AssetTypeEnum::Story)>'
+        namePriority: 10
+        position: 1
+        translations: { name: { fr: Titre du reportage } }
+    nb_ad_caption (extends nb_tpl_ad):
+        name: Caption
+        type: textarea
+        translatable: true
+        readFromMetadata:
+            - XMP-dc:Description
+        position: 2
+        translations: { name: { fr: Légende } }
+    nb_ad_byline (extends nb_tpl_ad):
+        name: Byline
+        facetEnabled: true
+        initialValuesAll: |
+            {{ file.metadata('IFD0:Artist').value ?? file.metadata('XMP-dc:Creator').value ?? file.metadata('IFD0:Copyright').value ?? file.metadata('IPTC:CopyrightNotice').value }}
+        position: 3
+        translations: { name: { fr: Signature } }
+    nb_ad_keywords (extends nb_tpl_ad):
+        name: Keywords
+        multiple: true
+        facetEnabled: true
+        suggest: true
+        readFromMetadata:
+            - IPTC:Keywords
+        position: 4
+        translations: { name: { fr: Mots-clés } }
+    nb_ad_location (extends nb_tpl_ad):
+        name: Location
+        type: geo_point
+        position: 5
+        translations: { name: { fr: Lieu } }
+    nb_ad_city (extends nb_tpl_ad):
+        name: City
+        facetEnabled: true
+        initialValuesAll: |
+            {{ file.metadata('IPTC:City').value ?? file.metadata('XMP-photoshop:City').value }}
+        position: 6
+        translations: { name: { fr: Ville } }
+    nb_ad_country (extends nb_tpl_ad):
+        name: Country
+        facetEnabled: true
+        initialValuesAll: |
+            {{ file.metadata('IPTC:Country-PrimaryLocationName').value ?? file.metadata('XMP-photoshop:Country').value }}
+        position: 7
+        translations: { name: { fr: Pays } }
+    nb_ad_datetaken (extends nb_tpl_ad):
+        name: Date taken
+        type: date
+        facetEnabled: true
+        sortable: true
+        initialValuesAll: |
+            {{ file.metadata('ExifIFD:CreateDate').value ?? file.metadata('IPTC:DateCreated').value ?? file.metadata('IPTC:DigitalCreationDate').value }}
+        position: 8
+        translations: { name: { fr: Date de prise de vue } }
+    nb_ad_publishedat (extends nb_tpl_ad):
+        name: Published at
+        type: date_time
+        facetEnabled: true
+        sortable: true
+        position: 9
+        translations: { name: { fr: Publié le } }
+    nb_ad_desk (extends nb_tpl_ad):
+        name: Desk
+        type: entity
+        entityList: '@nb_el_desk'
+        facetEnabled: true
+        suggest: true
+        position: 10
+        translations: { name: { fr: Service } }
+    nb_ad_usagerights (extends nb_tpl_ad):
+        name: Usage rights
+        type: entity
+        entityList: '@nb_el_rights'
+        facetEnabled: true
+        position: 11
+        translations: { name: { fr: Droits d'usage } }
+    nb_ad_embargountil (extends nb_tpl_ad):
+        name: Embargo until
+        type: date_time
+        sortable: true
+        position: 12
+        translations: { name: { fr: Sous embargo jusqu'au } }
+    nb_ad_wordcount (extends nb_tpl_ad):
+        name: Word count
+        type: number
+        sortable: true
+        position: 13
+        translations: { name: { fr: Nombre de mots } }
+    nb_ad_duration (extends nb_tpl_ad):
+        name: Duration
+        type: duration
+        initialValuesAll: |
+            {{ file.metadata('Composite:Duration').value }}
+        position: 14
+        translations: { name: { fr: Durée } }
+    nb_ad_filesize (extends nb_tpl_ad):
+        name: File size
+        type: filesize
+        initialValuesAll: |
+            {{ file.metadata('Composite:FileSize').value }}
+        position: 15
+        translations: { name: { fr: Taille du fichier } }
+    nb_ad_breaking (extends nb_tpl_ad):
+        name: Breaking
+        type: boolean
+        facetEnabled: true
+        position: 16
+        translations: { name: { fr: Urgent } }
+    # Its slug "webvtttranscript" is used by the AWS Transcribe integration
+    nb_ad_webvtttranscript (extends nb_tpl_ad):
+        name: WebVTT transcript
+        type: code
+        translatable: true
+        policy: '@nb_ap_newsroom'
+        position: 17
+        translations: { name: { fr: Transcription WebVTT } }
+    nb_ad_editornotes (extends nb_tpl_ad):
+        name: Editor notes
+        type: textarea
+        policy: '@nb_ap_newsroom'
+        position: 18
+        translations: { name: { fr: Notes de la rédaction } }
+    # Text of the watermark integration
+    nb_ad_watermark (extends nb_tpl_ad):
+        name: Watermark
+        position: 19
+        translations: { name: { fr: Filigrane } }
+    # Filled by the Blurhash integration
+    nb_ad_blurhash (extends nb_tpl_ad):
+        name: Blurhash
+        position: 20
+
+App\Entity\Core\Tag:
+    nb_tpl_tag (template):
+        workspace: '@w_northbeam'
+    nb_tag_breaking (extends nb_tpl_tag):
+        name: Breaking
+        color: '#E53935'
+        translations: { name: { fr: Urgent } }
+    nb_tag_exclusive (extends nb_tpl_tag):
+        name: Exclusive
+        color: '#8E24AA'
+        translations: { name: { fr: Exclusif } }
+    nb_tag_embargo (extends nb_tpl_tag):
+        name: Embargo
+        color: '#FB8C00'
+    nb_tag_online (extends nb_tpl_tag):
+        name: Online
+        color: '#7EF284'
+        translations: { name: { fr: En ligne } }
+    nb_tag_offline (extends nb_tpl_tag):
+        name: Offline
+        color: '#9E9E9E'
+        translations: { name: { fr: Hors ligne } }
+
+# Collections (privacy):
+# Desks (1)
+#   World, Politics (1)
+#   Sports (1)
+#     Football > Premier League, World Cup; Tennis; Rugby (1)
+#   Culture (3, alice) > Film, Music (3, alice)
+# Archives (1) > 2024, 2025, 2026 (1)
+# Embargoed (0)
+# Wire Feed (2)
+# Q&A "Live" — D&D \@][ \<ap>++"= (1): name with special characters
+App\Entity\Core\Collection:
+    nb_tpl_c (template):
+        workspace: '@w_northbeam'
+        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+        privacy: 1
+
+    nb_c_desks (extends nb_tpl_c):
+        name: Desks
+        translations: { name: { fr: Services } }
+    # The desk collections (nb_c_desk_*) are the reference collections of the news assets
+    nb_c_desk_world (extends nb_tpl_c):
+        parent: '@nb_c_desks'
+        name: World
+        translations: { name: { fr: Monde } }
+    nb_c_desk_politics (extends nb_tpl_c):
+        parent: '@nb_c_desks'
+        name: Politics
+        translations: { name: { fr: Politique } }
+    nb_c_desk_sports (extends nb_tpl_c):
+        parent: '@nb_c_desks'
+        name: Sports
+        translations: { name: { fr: Sport } }
+    nb_c_desk_football (extends nb_tpl_c):
+        parent: '@nb_c_desk_sports'
+        name: Football
+    nb_c_desk_premierleague (extends nb_tpl_c):
+        parent: '@nb_c_desk_football'
+        name: Premier League
+    nb_c_desk_worldcup (extends nb_tpl_c):
+        parent: '@nb_c_desk_football'
+        name: World Cup
+        translations: { name: { fr: Coupe du monde } }
+    nb_c_desk_tennis (extends nb_tpl_c):
+        parent: '@nb_c_desk_sports'
+        name: Tennis
+    nb_c_desk_rugby (extends nb_tpl_c):
+        parent: '@nb_c_desk_sports'
+        name: Rugby
+    nb_c_desk_culture (extends nb_tpl_c):
+        parent: '@nb_c_desks'
+        name: Culture
+        ownerId: <keycloakUser("alice")>
+        privacy: 3
+    nb_c_desk_film (extends nb_tpl_c):
+        parent: '@nb_c_desk_culture'
+        name: Film
+        ownerId: <keycloakUser("alice")>
+        privacy: 3
+        translations: { name: { fr: Cinéma } }
+    nb_c_desk_music (extends nb_tpl_c):
+        parent: '@nb_c_desk_culture'
+        name: Music
+        ownerId: <keycloakUser("alice")>
+        privacy: 3
+        translations: { name: { fr: Musique } }
+
+    nb_c_archives (extends nb_tpl_c):
+        name: Archives
+    nb_c_archives_{2024, 2025, 2026} (extends nb_tpl_c):
+        parent: '@nb_c_archives'
+        name: '<current()>'
+    nb_c_embargoed (extends nb_tpl_c):
+        name: Embargoed
+        privacy: 0
+        translations: { name: { fr: Sous embargo } }
+    nb_c_wirefeed (extends nb_tpl_c):
+        name: Wire Feed
+        privacy: 2
+        translations: { name: { fr: Fil d'agence } }
+    nb_c_special_chars (extends nb_tpl_c):
+        name: 'Q&A "Live" — D&D \@][ \<ap>++"='
+
+    # Collections of the "Photo essay" stories
+    nb_sc{1..10} (extends nb_tpl_c):
+        name: null
+
+# Assets: images (nb_a_v_p* photos, nb_a_v_e* embargoed photos, nb_a_v_s* photos of the
+# stories) and videos (nb_a_v_video*) are geolocated, podcasts and press releases (nb_a_d_*) are not.
+# Images are numbered across the workspace (photos 1-40, embargoed 41-46, stories 47-66): the
+# number is the lock of imageUrlRandomRatio(), and it links an asset to its files and renditions.
+App\Entity\Core\Asset:
+    nb_tpl_a (template):
+        workspace: '@w_northbeam'
+        ownerId: <keycloakUser("bob")>
+        privacy: 1
+        __calls:
+            - addToCollection: ['@nb_c_desk_*', true, true]
+            - addToCollection (25%?): ['@nb_c_wirefeed', true]
+            - addToCollection (20%?): ['@nb_c_archives_*', true]
+            - addToCollection (5%?): ['@nb_c_special_chars', true]
+            - addTag (15%?): ['@nb_tag_breaking']
+            - addTag (15%?): ['@nb_tag_exclusive']
+            # Online or Offline
+            - addTag (70%?): ['@nb_tag_o*']
+
+    nb_a_v_p{1..40} (extends nb_tpl_a): { }
+    # Set before the calls, so that Embargoed stays the reference collection
+    nb_a_v_e{41..46} (extends nb_tpl_a):
+        ownerId: <keycloakUser("alice")>
+        referenceCollection: '@nb_c_embargoed'
+        __calls:
+            - addToCollection: ['@nb_c_embargoed', true]
+            - addToCollection: ['@nb_c_archives_2026', true]
+            - addTag: ['@nb_tag_embargo']
+    # Two photos in each story
+    nb_a_v_s{47..56} (extends nb_tpl_a):
+        __calls:
+            - addToCollection: ['@nb_sc<($current - 46)>', true]
+    nb_a_v_s{57..66} (extends nb_tpl_a):
+        __calls:
+            - addToCollection: ['@nb_sc<($current - 56)>', true]
+    nb_a_v_video{1..10} (extends nb_tpl_a):
+        ownerId: <keycloakUser("alice")>
+    nb_a_d_podcast{1..10} (extends nb_tpl_a):
+        ownerId: <keycloakUser("alice")>
+    nb_a_d_release{1..10} (extends nb_tpl_a):
+        ownerId: <keycloakUser("carol")>
+    # "Photo essay" stories
+    nb_story{1..10} (extends nb_tpl_a):
+        ownerId: <keycloakUser("alice")>
+        storyCollection: '@nb_sc<current()>'
+
+App\Entity\Core\File:
+    nb_tpl_file (template):
+        workspace: '@w_northbeam'
+        storage: s3_main
+        pathPublic: '95%? true : false'
+        __calls:
+            - setNoAnalysisNeeded: []
+    nb_tpl_jpg (template, extends nb_tpl_file):
+        type: image/jpeg
+        extension: jpg
+    nb_tpl_mp4 (template, extends nb_tpl_file):
+        type: video/mp4
+        extension: mp4
+    nb_tpl_mp3 (template, extends nb_tpl_file):
+        type: audio/mp3
+        extension: mp3
+    nb_tpl_pdf (template, extends nb_tpl_file):
+        type: application/pdf
+        extension: pdf
+
+    # m = main (1000px, with a large metadata set), p = preview (500px), t = thumbnail (200px),
+    # ta = animated thumbnail, h = print hi-res (2000px)
+    nb_f_m{1..66} (extends nb_tpl_jpg): { path: '<imageUrlRandomRatio(@w_northbeam->id, <current()>, 1000, "reportage")>', metadata: '<largeJSONFileMetadata()>' }
+    nb_f_p{1..66} (extends nb_tpl_jpg): { path: '<imageUrlRandomRatio(@w_northbeam->id, <current()>, 500, "reportage")>' }
+    nb_f_t{1..66} (extends nb_tpl_jpg): { path: '<imageUrlRandomRatio(@w_northbeam->id, <current()>, 200, "reportage")>' }
+    nb_f_ta{1..10} (extends nb_tpl_jpg): { path: '<imageUrlRandomRatio(@w_northbeam->id, <current()>, 200, "reportage")>' }
+    nb_f_h{41..46} (extends nb_tpl_jpg): { path: '<imageUrlRandomRatio(@w_northbeam->id, <current()>, 2000, "reportage")>' }
+
+    nb_f_video_m{1..10} (extends nb_tpl_mp4): { path: '<randomMedia(@w_northbeam->id, "mp4", <current()>)>', metadata: '<largeJSONFileMetadata()>' }
+    nb_f_video_p{1..10} (extends nb_tpl_mp4): { path: '<randomMedia(@w_northbeam->id, "mp4", <current()>)>' }
+    nb_f_video_t{1..10} (extends nb_tpl_mp4): { path: '<randomMedia(@w_northbeam->id, "mp4", <current()>)>' }
+    nb_f_podcast{1..10} (extends nb_tpl_mp3): { path: '<randomMedia(@w_northbeam->id, "mp3", <current()>)>', metadata: '<largeJSONFileMetadata()>' }
+    nb_f_release_m{1..10} (extends nb_tpl_pdf): { path: '<randomMedia(@w_northbeam->id, "pdf", <current()>)>', metadata: '<largeJSONFileMetadata()>' }
+    nb_f_release_p{1..10} (extends nb_tpl_pdf): { path: '<randomMedia(@w_northbeam->id, "pdf", <current()>)>' }
+
+App\Entity\Core\AssetRendition:
+    nb_ar_p_m{1..40}: { definition: '@nb_rd_main', asset: '@nb_a_v_p<current()>', file: '@nb_f_m<current()>' }
+    nb_ar_p_p{1..40}: { definition: '@nb_rd_preview', asset: '@nb_a_v_p<current()>', file: '@nb_f_p<current()>' }
+    nb_ar_p_t{1..40}: { definition: '@nb_rd_thumbnail', asset: '@nb_a_v_p<current()>', file: '@nb_f_t<current()>' }
+    nb_ar_p_ta{1..10}: { definition: '@nb_rd_animatedThumbnail', asset: '@nb_a_v_p<current()>', file: '@nb_f_ta<current()>' }
+    nb_ar_e_m{41..46}: { definition: '@nb_rd_main', asset: '@nb_a_v_e<current()>', file: '@nb_f_m<current()>' }
+    nb_ar_e_p{41..46}: { definition: '@nb_rd_preview', asset: '@nb_a_v_e<current()>', file: '@nb_f_p<current()>' }
+    nb_ar_e_t{41..46}: { definition: '@nb_rd_thumbnail', asset: '@nb_a_v_e<current()>', file: '@nb_f_t<current()>' }
+    nb_ar_e_h{41..46}: { definition: '@nb_rd_print', asset: '@nb_a_v_e<current()>', file: '@nb_f_h<current()>' }
+    nb_ar_s_m{47..66}: { definition: '@nb_rd_main', asset: '@nb_a_v_s<current()>', file: '@nb_f_m<current()>' }
+    nb_ar_s_p{47..66}: { definition: '@nb_rd_preview', asset: '@nb_a_v_s<current()>', file: '@nb_f_p<current()>' }
+    nb_ar_s_t{47..66}: { definition: '@nb_rd_thumbnail', asset: '@nb_a_v_s<current()>', file: '@nb_f_t<current()>' }
+    nb_ar_video_m{1..10}: { definition: '@nb_rd_main', asset: '@nb_a_v_video<current()>', file: '@nb_f_video_m<current()>' }
+    nb_ar_video_p{1..10}: { definition: '@nb_rd_preview', asset: '@nb_a_v_video<current()>', file: '@nb_f_video_p<current()>' }
+    nb_ar_video_t{1..10}: { definition: '@nb_rd_thumbnail', asset: '@nb_a_v_video<current()>', file: '@nb_f_video_t<current()>' }
+    nb_ar_podcast{1..10}: { definition: '@nb_rd_main', asset: '@nb_a_d_podcast<current()>', file: '@nb_f_podcast<current()>' }
+    nb_ar_release_m{1..10}: { definition: '@nb_rd_main', asset: '@nb_a_d_release<current()>', file: '@nb_f_release_m<current()>' }
+    nb_ar_release_p{1..10}: { definition: '@nb_rd_preview', asset: '@nb_a_d_release<current()>', file: '@nb_f_release_p<current()>' }
+
+App\Entity\Core\Attribute:
+    nb_tpl_at (template):
+        origin: 0
+
+    # Titles
+    nb_at_name_p{1..40} (extends nb_tpl_at): { definition: '@nb_ad_name', asset: '@nb_a_v_p<current()>', value: 'Image #<current()>' }
+    nb_at_name_e{41..46} (extends nb_tpl_at): { definition: '@nb_ad_name', asset: '@nb_a_v_e<current()>', value: 'Image #<current()>' }
+    nb_at_name_s{47..66} (extends nb_tpl_at): { definition: '@nb_ad_name', asset: '@nb_a_v_s<current()>', value: 'Image #<current()>' }
+    nb_at_name_video{1..10} (extends nb_tpl_at): { definition: '@nb_ad_name', asset: '@nb_a_v_video<current()>', value: 'Video #<current()>' }
+    nb_at_name_podcast{1..10} (extends nb_tpl_at): { definition: '@nb_ad_name', asset: '@nb_a_d_podcast<current()>', value: 'Podcast #<current()>' }
+    nb_at_name_release{1..10} (extends nb_tpl_at): { definition: '@nb_ad_name', asset: '@nb_a_d_release<current()>', value: 'Press release #<current()>' }
+    # The headline and the caption describe the same scene, in the city where the asset was taken
+    nb_at_headline_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_headline', asset: <current()>, value: '<newsHeadline(<current()>, <geoPlaceCity(<current()>)>)>' }
+    nb_at_headline_podcast_{@nb_a_d_podcast*} (extends nb_tpl_at): { definition: '@nb_ad_headline', asset: <current()>, value: '<newsTitle("podcast")>' }
+    nb_at_headline_release_{@nb_a_d_release*} (extends nb_tpl_at): { definition: '@nb_ad_headline', asset: <current()>, value: '<newsTitle("release")>' }
+    nb_at_storytitle_{@nb_story*} (extends nb_tpl_at): { definition: '@nb_ad_storytitle', asset: <current()>, value: '<newsTitle("essay")>' }
+    nb_at_caption_en_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_caption', asset: <current()>, locale: en, value: '<newsCaption(<current()>, <geoPlaceCity(<current()>)>, "en")>' }
+    nb_at_caption_fr_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_caption', asset: <current()>, locale: fr, value: '<newsCaption(<current()>, <geoPlaceCity(<current()>)>, "fr")>' }
+
+    nb_at_byline_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_byline', asset: <current()>, value: '<newsPhotographer()>' }
+    nb_at_location_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_location', asset: <current()>, value: '<geoPlaceLocation(<current()>)>' }
+    nb_at_city_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_city', asset: <current()>, value: '<geoPlaceCity(<current()>)>' }
+    nb_at_country_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_country', asset: <current()>, value: '<geoPlaceCountry(<current()>)>' }
+
+    # Keywords with the 4 types of annotations
+    nb_at_kw_rect_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_keywords', asset: <current()>, value: '<newsKeyword()>', assetAnnotations: '<assetAnnotationsRect()>' }
+    nb_at_kw_circle_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_keywords', asset: <current()>, value: '<newsKeyword()>', assetAnnotations: '<assetAnnotationsCircle()>' }
+    nb_at_kw_target_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_keywords', asset: <current()>, value: '<newsKeyword()>', assetAnnotations: '<assetAnnotationsTarget()>' }
+    nb_at_kw_cue_video_{@nb_a_v_video*} (extends nb_tpl_at): { definition: '@nb_ad_keywords', asset: <current()>, value: '<newsKeyword()>', assetAnnotations: '<assetAnnotationsCue()>' }
+    nb_at_kw_cue_podcast_{@nb_a_d_podcast*} (extends nb_tpl_at): { definition: '@nb_ad_keywords', asset: <current()>, value: '<newsKeyword()>', assetAnnotations: '<assetAnnotationsCue()>' }
+
+    nb_at_datetaken_{@nb_a_v*} (extends nb_tpl_at):
+        __factory: { 'App\Fixture\DateFixtureFactory::createDateAttribute': ['<dateTimeBetween("-3 years", "now")>'] }
+        definition: '@nb_ad_datetaken'
+        asset: <current()>
+    nb_at_publishedat_{@nb_a_*} (extends nb_tpl_at):
+        __factory: { 'App\Fixture\DateFixtureFactory::createDateTimeAttribute': ['<dateTimeBetween("-60 days", "now")>'] }
+        definition: '@nb_ad_publishedat'
+        asset: <current()>
+    nb_at_embargountil_{@nb_a_v_e*} (extends nb_tpl_at):
+        __factory: { 'App\Fixture\DateFixtureFactory::createDateTimeAttribute': ['<dateTimeBetween("+1 day", "+20 days")>'] }
+        definition: '@nb_ad_embargountil'
+        asset: <current()>
+    nb_at_desk_{@nb_a_*} (extends nb_tpl_at): { definition: '@nb_ad_desk', asset: <current()>, value: '@nb_desk_*->id' }
+    nb_at_rights_{@nb_a_*} (extends nb_tpl_at): { definition: '@nb_ad_usagerights', asset: <current()>, value: '@nb_rights_*->id' }
+    nb_at_filesize_{@nb_a_*} (extends nb_tpl_at): { definition: '@nb_ad_filesize', asset: <current()>, value: '<numberBetween(150000, 25000000)>' }
+    nb_at_breaking_{@nb_a_v_p*} (extends nb_tpl_at): { definition: '@nb_ad_breaking', asset: <current()>, value: '<numberBetween(0, 1)>' }
+    nb_at_watermark_{@nb_a_v_p*} (extends nb_tpl_at): { definition: '@nb_ad_watermark', asset: <current()>, value: '© Northbeam Press' }
+    nb_at_wordcount_{@nb_a_d_release*} (extends nb_tpl_at): { definition: '@nb_ad_wordcount', asset: <current()>, value: '<numberBetween(250, 1800)>' }
+    nb_at_duration_video_{@nb_a_v_video*} (extends nb_tpl_at): { definition: '@nb_ad_duration', asset: <current()>, value: '<numberBetween(30, 600)>' }
+    nb_at_duration_podcast_{@nb_a_d_podcast*} (extends nb_tpl_at): { definition: '@nb_ad_duration', asset: <current()>, value: '<numberBetween(900, 3600)>' }
+
+    # Newsroom only (restricted policy)
+    nb_at_vtt_en_video_{@nb_a_v_video*} (extends nb_tpl_at): { definition: '@nb_ad_webvtttranscript', asset: <current()>, locale: en, value: '<webVttTranscript("en")>' }
+    nb_at_vtt_fr_video_{@nb_a_v_video*} (extends nb_tpl_at): { definition: '@nb_ad_webvtttranscript', asset: <current()>, locale: fr, value: '<webVttTranscript("fr")>' }
+    nb_at_vtt_en_podcast_{@nb_a_d_podcast*} (extends nb_tpl_at): { definition: '@nb_ad_webvtttranscript', asset: <current()>, locale: en, value: '<webVttTranscript("en")>' }
+    nb_at_vtt_fr_podcast_{@nb_a_d_podcast*} (extends nb_tpl_at): { definition: '@nb_ad_webvtttranscript', asset: <current()>, locale: fr, value: '<webVttTranscript("fr")>' }
+    nb_at_notes_e_{@nb_a_v_e*} (extends nb_tpl_at): { definition: '@nb_ad_editornotes', asset: <current()>, value: '<newsEditorNote()>' }
+    nb_at_notes_p_{@nb_a_v_p*} (extends nb_tpl_at): { definition: '@nb_ad_editornotes', asset: <current()>, value: '<newsEditorNote()>' }
+
+# Permissions. Masks of alchemy/acl-bundle: VIEW 1, CREATE 2, EDIT 4, DELETE 8, OPERATOR 32,
+# MASTER 64, OWNER 128, SHARE 256; CHILD_* = the same bit << 9 (CHILD_VIEW 512, CHILD_CREATE 1024,
+# CHILD_EDIT 2048, CHILD_OPERATOR 16384). Every persona is a member of the workspace (VIEW).
+Alchemy\AclBundle\Entity\AccessControlEntry:
+    nb_tpl_ace (template):
+        userType: 0
+
+    # alice, editor-in-chief: VIEW|EDIT|OPERATOR + CHILD_VIEW|CHILD_EDIT|CHILD_OPERATOR on the workspace
+    nb_ace_ws_alice (extends nb_tpl_ace):
+        userId: <keycloakUser("alice")>
+        objectType: workspace
+        objectId: '@w_northbeam->id'
+        mask: 18981
+    nb_ace_ws_{bob, carol, dave} (extends nb_tpl_ace):
+        userId: <keycloakUser($current)>
+        objectType: workspace
+        objectId: '@w_northbeam->id'
+        mask: 1
+    # bob, photographer: VIEW|CREATE|EDIT + CHILD_VIEW|CHILD_CREATE|CHILD_EDIT on Desks
+    nb_ace_bob_desks (extends nb_tpl_ace):
+        userId: <keycloakUser("bob")>
+        objectType: collection
+        objectId: '@nb_c_desks->id'
+        mask: 3591
+    # carol, freelancer: VIEW + CHILD_VIEW on Sports only
+    nb_ace_carol_sports (extends nb_tpl_ace):
+        userId: <keycloakUser("carol")>
+        objectType: collection
+        objectId: '@nb_c_desk_sports->id'
+        mask: 513
+    # dave, archivist: VIEW|EDIT + CHILD_VIEW|CHILD_EDIT on Archives
+    nb_ace_dave_archives (extends nb_tpl_ace):
+        userId: <keycloakUser("dave")>
+        objectType: collection
+        objectId: '@nb_c_archives->id'
+        mask: 2565
+    # Restricted policies: VIEW (and EDIT) for the attributes, CHILD_VIEW (and CHILD_EDIT) for the renditions
+    nb_ace_alice_newsroom (extends nb_tpl_ace):
+        userId: <keycloakUser("alice")>
+        objectType: attribute_policy
+        objectId: '@nb_ap_newsroom->id'
+        mask: 5
+    nb_ace_bob_newsroom (extends nb_tpl_ace):
+        userId: <keycloakUser("bob")>
+        objectType: attribute_policy
+        objectId: '@nb_ap_newsroom->id'
+        mask: 1
+    nb_ace_alice_print (extends nb_tpl_ace):
+        userId: <keycloakUser("alice")>
+        objectType: rendition_policy
+        objectId: '@nb_rp_print->id'
+        mask: 2560
+    nb_ace_print_{bob, dave} (extends nb_tpl_ace):
+        userId: <keycloakUser($current)>
+        objectType: rendition_policy
+        objectId: '@nb_rp_print->id'
+        mask: 512
+
+# carol does not see the assets under embargo
+App\Entity\Core\AttributeFilterRule:
+    nb_afr_embargo:
+        workspace: '@w_northbeam'
+        condition: '<aqlTagIsNot(@nb_tag_embargo->id)>'
+        __calls:
+            - addTarget: [0, '<keycloakUser("carol")>']
+
+App\Entity\Core\AssetPolicy\AssetPolicy:
+    nb_apol_embargo:
+        workspace: '@w_northbeam'
+        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+        name: Embargo masking
+        conditions:
+            - { field: collection, operator: '=', value: '@nb_c_embargoed->id' }
+        actions:
+            - { action: hide_rendition, definitionId: '@nb_rd_print->id' }
+            - { action: hide_attribute, definitionId: '@nb_ad_editornotes->id' }
+
+App\Entity\Core\AssetPolicy\AssetPolicyUser:
+    nb_apu_embargo_{carol, dave}:
+        policy: '@nb_apol_embargo'
+        userType: 0
+        userId: <keycloakUser($current)>
+
+App\Entity\Integration\WorkspaceIntegration:
+    nb_tpl_wi (template):
+        workspace: '@w_northbeam'
+        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+        public: true
+
+    # Rendition integration created by WorkspaceFactory
+    nb_wi_rendition:
+        __factory: { '@App\Fixture\WorkspaceFactory::getIntegration': ['@w_northbeam', 'rendition'] }
+    nb_wi_toast_ui (extends nb_tpl_wi):
+        name: ToastUI
+        integration: tui.photo-editor
+    nb_wi_blurhash (extends nb_tpl_wi):
+        integration: blurhash
+        config:
+            rendition: Thumbnail
+        needs:
+            - '@nb_wi_rendition'
+    nb_wi_watermark (extends nb_tpl_wi):
+        integration: core.watermark
+        config:
+            attributeName: watermark
+            applyToRenditions:
+                - Thumbnail
+        needs:
+            - '@nb_wi_rendition'
+    nb_wi_moderation (extends nb_tpl_wi):
+        integration: core.moderation
+        config:
+            emails:
+                - desk@northbeam.local
+    nb_wi_transcribe (extends nb_tpl_wi):
+        integration: aws.transcribe
+        enabled: false
+        config:
+            region: eu-west-1
+            workloadS3Bucket: northbeam-transcribe-workload
+            attributes:
+                vtt: webvtttranscript
+
+App\Entity\Integration\WorkspaceSecret:
+    nb_secret_{AWS_ACCESS_KEY_ID, AWS_ACCESS_KEY_SECRET}:
+        workspace: '@w_northbeam'
+        name: <current()>
+        plainValue: xxx

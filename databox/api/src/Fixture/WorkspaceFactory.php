@@ -2,6 +2,7 @@
 
 namespace App\Fixture;
 
+use App\Entity\Core\AttributeDefinition;
 use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\RenditionDefinition;
 use App\Entity\Core\RenditionPolicy;
@@ -50,6 +51,11 @@ final readonly class WorkspaceFactory
     public function getAttributePolicy(Workspace $workspace): AttributePolicy
     {
         return $this->getDefaults($workspace)->attributePolicy;
+    }
+
+    public function getNameAttributeDefinition(Workspace $workspace): AttributeDefinition
+    {
+        return $this->getDefaults($workspace)->nameAttributeDefinition;
     }
 
     public function getIntegration(Workspace $workspace, string $key): WorkspaceIntegration

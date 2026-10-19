@@ -114,6 +114,9 @@ You may want to populate databases with a set of fixtures:
 bin/dev/reset-db-fixtures.sh
 ```
 
+The databox fixtures (three business workspaces, their users and rules) are described in
+[Databox fixtures](./Databox/fixtures.md).
+
 * Read the documentation for each group of services to customize environment variables:
     * [databox](./Databox/01_intro.md)
     * [expose](./Expose/01_intro.md)

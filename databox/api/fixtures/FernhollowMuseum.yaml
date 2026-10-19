@@ -1,0 +1,764 @@
+# Fernhollow Natural History Museum: heritage inventory (specimens, field notebooks, loans).
+# Also the test bench of the permissions: a collection tree of 5 levels, privacies 0 to 5
+# mixed on the branches, collections owned by different users, assets at every level.
+# Personas: alice = curator, bob = researcher, carol = visitor, dave = registrar.
+# See doc/tech/Databox/fixtures.md
+
+App\Entity\Core\Workspace:
+    w_fernhollow:
+        __factory: { '@App\Fixture\WorkspaceFactory::create': ['<keycloakUser("phrasea-admin", ["phrasea-admin"])>'] }
+        name: Fernhollow Natural History Museum
+        slug: fernhollow-museum
+        enabledLocales: [en, fr]
+        attachTermsToExports: true
+        translations:
+            name:
+                fr: Muséum d'histoire naturelle de Fernhollow
+
+App\Entity\Core\TermsVersion:
+    fh_terms:
+        workspace: '@w_fernhollow'
+        version: 1
+        text: |
+            Fernhollow image licence terms
+
+            Images of the Fernhollow Natural History Museum collections are provided for study,
+            teaching and non-commercial publication only. Credit every reproduction with
+            "© Fernhollow Natural History Museum" and the inventory number of the specimen.
+            Any commercial use requires a written agreement with the museum.
+        translations:
+            text:
+                fr: |
+                    Conditions de licence des images de Fernhollow
+
+                    Les images des collections du Muséum d'histoire naturelle de Fernhollow sont
+                    fournies pour l'étude, l'enseignement et la publication non commerciale
+                    uniquement. Toute reproduction doit porter la mention
+                    « © Fernhollow Natural History Museum » et le numéro d'inventaire du spécimen.
+                    Tout usage commercial requiert un accord écrit du muséum.
+
+App\Entity\Core\AttributePolicy:
+    # "Public" policy created by WorkspaceFactory
+    fh_ap_public:
+        __factory: { '@App\Fixture\WorkspaceFactory::getAttributePolicy': ['@w_fernhollow'] }
+    fh_ap_curatorial:
+        workspace: '@w_fernhollow'
+        name: Curatorial
+        public: false
+        editable: false
+
+App\Entity\Core\RenditionPolicy:
+    # "Public" policy created by WorkspaceFactory
+    fh_rp_public:
+        __factory: { '@App\Fixture\WorkspaceFactory::getRenditionPolicy': ['@w_fernhollow'] }
+    fh_rp_archive:
+        workspace: '@w_fernhollow'
+        name: Archive
+        public: false
+        editable: false
+
+App\Entity\Core\RenditionDefinition:
+    # Definitions created by WorkspaceFactory
+    fh_rd_{main, preview, thumbnail, animatedThumbnail}:
+        __factory: { '@App\Fixture\WorkspaceFactory::getRenditionDefinition': ['@w_fernhollow', '<current()>'] }
+    fh_rd_archival:
+        workspace: '@w_fernhollow'
+        name: Archival master
+        policy: '@fh_rp_archive'
+        parent: '@fh_rd_main'
+        buildMode: 1
+        translations: { name: { fr: Original d'archive } }
+
+App\Entity\Core\EntityList:
+    fh_el_family:
+        workspace: '@w_fernhollow'
+        name: Family
+    fh_el_status:
+        workspace: '@w_fernhollow'
+        name: IUCN conservation status
+        withTranslations: true
+        withEmojis: true
+        withColors: true
+    fh_el_licence:
+        workspace: '@w_fernhollow'
+        name: Licence
+        withTranslations: true
+
+App\Entity\Core\AttributeEntity:
+    fh_fam_{aspleniaceae, hymenophyllaceae, orchidaceae, droseraceae, nymphalidae, lucanidae, strigidae}:
+        list: '@fh_el_family'
+        workspace: '@w_fernhollow'
+        value: '<ucfirst($current)>'
+
+    fh_tpl_cs (template):
+        list: '@fh_el_status'
+        workspace: '@w_fernhollow'
+    fh_cs_lc (extends fh_tpl_cs):
+        value: Least Concern (LC)
+        translations: { fr: Préoccupation mineure (LC) }
+        emoji: '🟢'
+        color: '#43A047'
+        position: 0
+    fh_cs_nt (extends fh_tpl_cs):
+        value: Near Threatened (NT)
+        translations: { fr: Quasi menacé (NT) }
+        emoji: '🟡'
+        color: '#C0CA33'
+        position: 1
+    fh_cs_vu (extends fh_tpl_cs):
+        value: Vulnerable (VU)
+        translations: { fr: Vulnérable (VU) }
+        emoji: '🟠'
+        color: '#FFA000'
+        position: 2
+    fh_cs_en (extends fh_tpl_cs):
+        value: Endangered (EN)
+        translations: { fr: En danger (EN) }
+        emoji: '🔴'
+        color: '#E64A19'
+        position: 3
+    fh_cs_cr (extends fh_tpl_cs):
+        value: Critically Endangered (CR)
+        translations: { fr: En danger critique (CR) }
+        emoji: '⛔'
+        color: '#B71C1C'
+        position: 4
+
+    fh_tpl_lic (template):
+        list: '@fh_el_licence'
+        workspace: '@w_fernhollow'
+    fh_lic_ccby (extends fh_tpl_lic):
+        value: CC BY 4.0
+    fh_lic_ccbync (extends fh_tpl_lic):
+        value: CC BY-NC 4.0
+    fh_lic_arr (extends fh_tpl_lic):
+        value: All rights reserved
+        translations: { fr: Tous droits réservés }
+
+App\Entity\Core\AttributeDefinition:
+    fh_tpl_ad (template):
+        workspace: '@w_fernhollow'
+        policy: '@fh_ap_public'
+        type: text
+
+    # "Name" attribute created by WorkspaceFactory, used as title when the common name is empty
+    fh_ad_name:
+        __factory: { '@App\Fixture\WorkspaceFactory::getNameAttributeDefinition': ['@w_fernhollow'] }
+
+    fh_ad_commonname (extends fh_tpl_ad):
+        name: Common name
+        translatable: true
+        namePriority: 10
+        suggest: true
+        position: 1
+        translations: { name: { fr: Nom vernaculaire } }
+    fh_ad_scientificname (extends fh_tpl_ad):
+        name: Scientific name
+        namePriority: 5
+        suggest: true
+        sortable: true
+        position: 2
+        translations: { name: { fr: Nom scientifique } }
+    fh_ad_inventorynumber (extends fh_tpl_ad):
+        name: Inventory number
+        type: keyword
+        sortable: true
+        position: 3
+        translations: { name: { fr: Numéro d'inventaire } }
+    fh_ad_family (extends fh_tpl_ad):
+        name: Family
+        type: entity
+        entityList: '@fh_el_family'
+        facetEnabled: true
+        position: 4
+        translations: { name: { fr: Famille } }
+    # Its slug "conservationstatus" is used by the attribute filter rule below
+    fh_ad_conservationstatus (extends fh_tpl_ad):
+        name: Conservation status
+        type: entity
+        entityList: '@fh_el_status'
+        facetEnabled: true
+        sortable: true
+        position: 5
+        translations: { name: { fr: Statut de conservation } }
+    fh_ad_collectedon (extends fh_tpl_ad):
+        name: Collected on
+        type: date
+        facetEnabled: true
+        sortable: true
+        position: 6
+        translations: { name: { fr: Date de collecte } }
+    fh_ad_collector (extends fh_tpl_ad):
+        name: Collector
+        facetEnabled: true
+        suggest: true
+        position: 7
+        translations: { name: { fr: Collecteur } }
+    fh_ad_collectionsite (extends fh_tpl_ad):
+        name: Collection site
+        type: geo_point
+        position: 8
+        translations: { name: { fr: Lieu de collecte } }
+    fh_ad_city (extends fh_tpl_ad):
+        name: City
+        facetEnabled: true
+        position: 9
+        translations: { name: { fr: Ville } }
+    fh_ad_country (extends fh_tpl_ad):
+        name: Country
+        facetEnabled: true
+        position: 10
+        translations: { name: { fr: Pays } }
+    fh_ad_accessiondate (extends fh_tpl_ad):
+        name: Accession date
+        type: date_time
+        sortable: true
+        position: 11
+        translations: { name: { fr: Date d'acquisition } }
+    fh_ad_licence (extends fh_tpl_ad):
+        name: Licence
+        type: entity
+        entityList: '@fh_el_licence'
+        facetEnabled: true
+        position: 12
+    # Filled by the AWS Rekognition integration (labels)
+    fh_ad_keywords (extends fh_tpl_ad):
+        name: Keywords
+        multiple: true
+        facetEnabled: true
+        suggest: true
+        position: 13
+        translations: { name: { fr: Mots-clés } }
+    fh_ad_ondisplay (extends fh_tpl_ad):
+        name: On display
+        type: boolean
+        facetEnabled: true
+        position: 14
+        translations: { name: { fr: Exposé } }
+    # Text of the watermark integration
+    fh_ad_creditline (extends fh_tpl_ad):
+        name: Credit line
+        position: 15
+        translations: { name: { fr: Mention de crédit } }
+    fh_ad_duration (extends fh_tpl_ad):
+        name: Duration
+        type: duration
+        initialValuesAll: |
+            {{ file.metadata('Composite:Duration').value }}
+        position: 16
+        translations: { name: { fr: Durée } }
+    fh_ad_conditionreport (extends fh_tpl_ad):
+        name: Condition report
+        type: textarea
+        policy: '@fh_ap_curatorial'
+        position: 17
+        translations: { name: { fr: Constat d'état } }
+    fh_ad_insurancevalue (extends fh_tpl_ad):
+        name: Insurance value
+        type: number
+        sortable: true
+        policy: '@fh_ap_curatorial'
+        position: 18
+        translations: { name: { fr: Valeur d'assurance } }
+
+App\Entity\Core\Tag:
+    fh_tpl_tag (template):
+        workspace: '@w_fernhollow'
+    fh_tag_ondisplay (extends fh_tpl_tag):
+        name: On display
+        color: '#43A047'
+        translations: { name: { fr: Exposé } }
+    fh_tag_instorage (extends fh_tpl_tag):
+        name: In storage
+        color: '#757575'
+        translations: { name: { fr: En réserve } }
+    fh_tag_onloan (extends fh_tpl_tag):
+        name: On loan
+        color: '#1E88E5'
+        translations: { name: { fr: En prêt } }
+    fh_tag_digitise (extends fh_tpl_tag):
+        name: Needs digitisation
+        color: '#FDD835'
+        translations: { name: { fr: À numériser } }
+    fh_tag_fragile (extends fh_tpl_tag):
+        name: Fragile
+        color: '#E53935'
+
+# Collections (privacy). A collection is at least as visible as its parent: the branches that
+# hide their assets from the members (0 and 1) are under parents of privacy 0 or 1.
+# Departments (1)
+#   Botany (1)
+#     Herbarium (1)
+#       Ferns (1)
+#         Rare Ferns (0, alice)
+#   Entomology (1, alice)
+#     Lepidoptera (2, alice)
+#     Coleoptera (0, alice)
+#   Ornithology (5)
+#   Geology (1, bob)
+#     Minerals (4, bob)
+# Exhibitions (5)
+#   Wild Coasts (2025) (5)
+#   Under the Canopy (2026) (5)
+# Conservation Lab (0)
+# Outgoing Loans (1)
+# Open Collection (5)
+App\Entity\Core\Collection:
+    fh_tpl_c (template):
+        workspace: '@w_fernhollow'
+        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+        privacy: 1
+
+    fh_c_departments (extends fh_tpl_c):
+        name: Departments
+        translations: { name: { fr: Départements } }
+    fh_c_botany (extends fh_tpl_c):
+        parent: '@fh_c_departments'
+        name: Botany
+        translations: { name: { fr: Botanique } }
+    fh_c_herbarium (extends fh_tpl_c):
+        parent: '@fh_c_botany'
+        name: Herbarium
+        translations: { name: { fr: Herbier } }
+    fh_c_ferns (extends fh_tpl_c):
+        parent: '@fh_c_herbarium'
+        name: Ferns
+        translations: { name: { fr: Fougères } }
+    fh_c_rareferns (extends fh_tpl_c):
+        parent: '@fh_c_ferns'
+        name: Rare Ferns
+        ownerId: <keycloakUser("alice")>
+        privacy: 0
+        translations: { name: { fr: Fougères rares } }
+    fh_c_entomology (extends fh_tpl_c):
+        parent: '@fh_c_departments'
+        name: Entomology
+        ownerId: <keycloakUser("alice")>
+        translations: { name: { fr: Entomologie } }
+    fh_c_lepidoptera (extends fh_tpl_c):
+        parent: '@fh_c_entomology'
+        name: Lepidoptera
+        ownerId: <keycloakUser("alice")>
+        privacy: 2
+        translations: { name: { fr: Lépidoptères } }
+    fh_c_coleoptera (extends fh_tpl_c):
+        parent: '@fh_c_entomology'
+        name: Coleoptera
+        ownerId: <keycloakUser("alice")>
+        privacy: 0
+        translations: { name: { fr: Coléoptères } }
+    fh_c_ornithology (extends fh_tpl_c):
+        parent: '@fh_c_departments'
+        name: Ornithology
+        privacy: 5
+        translations: { name: { fr: Ornithologie } }
+    fh_c_geology (extends fh_tpl_c):
+        parent: '@fh_c_departments'
+        name: Geology
+        ownerId: <keycloakUser("bob")>
+        translations: { name: { fr: Géologie } }
+    fh_c_minerals (extends fh_tpl_c):
+        parent: '@fh_c_geology'
+        name: Minerals
+        ownerId: <keycloakUser("bob")>
+        privacy: 4
+        translations: { name: { fr: Minéraux } }
+    fh_c_exhibitions (extends fh_tpl_c):
+        name: Exhibitions
+        privacy: 5
+        translations: { name: { fr: Expositions } }
+    fh_c_wildcoasts (extends fh_tpl_c):
+        parent: '@fh_c_exhibitions'
+        name: Wild Coasts (2025)
+        privacy: 5
+        translations: { name: { fr: Côtes sauvages (2025) } }
+    fh_c_canopy (extends fh_tpl_c):
+        parent: '@fh_c_exhibitions'
+        name: Under the Canopy (2026)
+        privacy: 5
+        translations: { name: { fr: Sous la canopée (2026) } }
+    fh_c_lab (extends fh_tpl_c):
+        name: Conservation Lab
+        privacy: 0
+        translations: { name: { fr: Laboratoire de conservation } }
+    fh_c_loans (extends fh_tpl_c):
+        name: Outgoing Loans
+        translations: { name: { fr: Prêts sortants } }
+    fh_c_open (extends fh_tpl_c):
+        name: Open Collection
+        privacy: 5
+        translations: { name: { fr: Collection ouverte } }
+
+    # Collections of the "Specimen record" stories
+    fh_sc{1..6} (extends fh_tpl_c):
+        name: null
+
+# Assets: images of the specimens (fh_a_v_s*, geolocated) and of the views of the "Specimen
+# record" stories (fh_a_v_r*), documents and media (fh_a_d_*).
+# Images are numbered across the workspace (specimens 1-46, views 47-64): the number is the
+# lock of imageUrlRandomRatio(), and it links an asset to its files and renditions.
+App\Entity\Core\Asset:
+    fh_tpl_a (template):
+        workspace: '@w_fernhollow'
+        ownerId: <keycloakUser("alice")>
+        # Secret or private in the workspace: the collections decide who sees them
+        privacy: '<numberBetween(0, 1)>'
+        __calls:
+            - addTag (50%?): ['@fh_tag_instorage']
+            - addTag (15%?): ['@fh_tag_digitise']
+            - addTag (15%?): ['@fh_tag_fragile']
+
+    # Specimens, from the top of the tree down to Rare Ferns, then the side collections
+    fh_a_v_s{1..3} (extends fh_tpl_a):
+        __calls:
+            - addToCollection: ['@fh_c_botany', true, true]
+    fh_a_v_s{4..8} (extends fh_tpl_a):
+        __calls:
+            - addToCollection: ['@fh_c_herbarium', true, true]
+            - addToCollection (40%?): ['@fh_c_canopy', true]
+    fh_a_v_s{9..11} (extends fh_tpl_a):
+        privacy: 5
+        __calls:
+            - addToCollection: ['@fh_c_open', true, true]
+            - addTag: ['@fh_tag_ondisplay']
+    fh_a_v_s{12..17} (extends fh_tpl_a):
+        __calls:
+            - addToCollection: ['@fh_c_ferns', true, true]
+            - addToCollection (40%?): ['@fh_c_canopy', true]
+    # 18-19: critically endangered, 20-21: endangered (see their conservation status)
+    fh_a_v_s{18..21} (extends fh_tpl_a):
+        privacy: 0
+        __calls:
+            - addToCollection: ['@fh_c_rareferns', true, true]
+            - addTag: ['@fh_tag_fragile']
+    fh_a_v_s{22..27} (extends fh_tpl_a):
+        ownerId: <keycloakUser("bob")>
+        __calls:
+            - addToCollection: ['@fh_c_lepidoptera', true, true]
+            - addToCollection (40%?): ['@fh_c_canopy', true]
+    fh_a_v_s{28..30} (extends fh_tpl_a):
+        privacy: 0
+        __calls:
+            - addToCollection: ['@fh_c_lab', true, true]
+    fh_a_v_s{31..34} (extends fh_tpl_a):
+        ownerId: <keycloakUser("bob")>
+        __calls:
+            - addToCollection: ['@fh_c_coleoptera', true, true]
+    fh_a_v_s{35..39} (extends fh_tpl_a):
+        __calls:
+            - addToCollection: ['@fh_c_ornithology', true, true]
+            - addToCollection (40%?): ['@fh_c_wildcoasts', true]
+    fh_a_v_s{40..42} (extends fh_tpl_a):
+        privacy: 1
+        __calls:
+            - addToCollection: ['@fh_c_loans', true, true]
+            - addTag: ['@fh_tag_onloan']
+    fh_a_v_s{43..46} (extends fh_tpl_a):
+        ownerId: <keycloakUser("bob")>
+        __calls:
+            - addToCollection: ['@fh_c_minerals', true, true]
+            - addToCollection (40%?): ['@fh_c_wildcoasts', true]
+
+    # "Specimen record" stories, with the front, back and label views of the specimen
+    fh_story{1..6} (extends fh_tpl_a):
+        storyCollection: '@fh_sc<current()>'
+        __calls:
+            - addToCollection: ['@fh_c_entomology', true, true]
+    fh_a_v_r{47..52} (extends fh_tpl_a):
+        __calls:
+            - addToCollection: ['@fh_c_entomology', true, true]
+            - addToCollection: ['@fh_sc<($current - 46)>', true]
+    fh_a_v_r{53..58} (extends fh_tpl_a):
+        __calls:
+            - addToCollection: ['@fh_c_entomology', true, true]
+            - addToCollection: ['@fh_sc<($current - 52)>', true]
+    fh_a_v_r{59..64} (extends fh_tpl_a):
+        __calls:
+            - addToCollection: ['@fh_c_entomology', true, true]
+            - addToCollection: ['@fh_sc<($current - 58)>', true]
+
+    # Documents and media
+    fh_a_d_accession{1..8} (extends fh_tpl_a):
+        ownerId: <keycloakUser("dave")>
+        __calls:
+            - addToCollection: ['@fh_c_departments', true, true]
+    fh_a_d_notebook{1..7} (extends fh_tpl_a):
+        ownerId: <keycloakUser("carol")>
+        __calls:
+            - addToCollection: ['@fh_c_geology', true, true]
+    fh_a_d_audioguide{1..3} (extends fh_tpl_a):
+        privacy: 5
+        __calls:
+            - addToCollection: ['@fh_c_wildcoasts', true, true]
+    fh_a_d_audioguide{4..6} (extends fh_tpl_a):
+        privacy: 3
+        __calls:
+            - addToCollection: ['@fh_c_canopy', true, true]
+    fh_a_d_video{1..2} (extends fh_tpl_a):
+        privacy: 5
+        __calls:
+            - addToCollection: ['@fh_c_exhibitions', true, true]
+    fh_a_d_video{3..4} (extends fh_tpl_a):
+        privacy: 0
+        __calls:
+            - addToCollection: ['@fh_c_lab', true, true]
+
+App\Entity\Core\File:
+    fh_tpl_file (template):
+        workspace: '@w_fernhollow'
+        storage: s3_main
+        pathPublic: '95%? true : false'
+        __calls:
+            - setNoAnalysisNeeded: []
+    fh_tpl_jpg (template, extends fh_tpl_file):
+        type: image/jpeg
+        extension: jpg
+    fh_tpl_pdf (template, extends fh_tpl_file):
+        type: application/pdf
+        extension: pdf
+    fh_tpl_mp3 (template, extends fh_tpl_file):
+        type: audio/mp3
+        extension: mp3
+    fh_tpl_mp4 (template, extends fh_tpl_file):
+        type: video/mp4
+        extension: mp4
+
+    # m = main (1000px), p = preview (500px), t = thumbnail (200px), a = archival master (2000px)
+    fh_f_m{1..64} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 1000, "nature")>' }
+    fh_f_p{1..64} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 500, "nature")>' }
+    fh_f_t{1..64} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 200, "nature")>' }
+    fh_f_a{40..42} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 2000, "nature")>' }
+
+    fh_f_accession{1..8} (extends fh_tpl_pdf): { path: '<randomMedia(@w_fernhollow->id, "pdf", <current()>)>' }
+    fh_f_notebook{1..7} (extends fh_tpl_pdf): { path: '<randomMedia(@w_fernhollow->id, "pdf", <current()>)>' }
+    fh_f_audioguide{1..6} (extends fh_tpl_mp3): { path: '<randomMedia(@w_fernhollow->id, "mp3", <current()>)>' }
+    fh_f_video_m{1..4} (extends fh_tpl_mp4): { path: '<randomMedia(@w_fernhollow->id, "mp4", <current()>)>' }
+    fh_f_video_t{1..4} (extends fh_tpl_mp4): { path: '<randomMedia(@w_fernhollow->id, "mp4", <current()>)>' }
+
+App\Entity\Core\AssetRendition:
+    fh_ar_s_m{1..46}: { definition: '@fh_rd_main', asset: '@fh_a_v_s<current()>', file: '@fh_f_m<current()>' }
+    fh_ar_s_p{1..46}: { definition: '@fh_rd_preview', asset: '@fh_a_v_s<current()>', file: '@fh_f_p<current()>' }
+    fh_ar_s_t{1..46}: { definition: '@fh_rd_thumbnail', asset: '@fh_a_v_s<current()>', file: '@fh_f_t<current()>' }
+    fh_ar_s_a{40..42}: { definition: '@fh_rd_archival', asset: '@fh_a_v_s<current()>', file: '@fh_f_a<current()>' }
+    fh_ar_r_m{47..64}: { definition: '@fh_rd_main', asset: '@fh_a_v_r<current()>', file: '@fh_f_m<current()>' }
+    fh_ar_r_p{47..64}: { definition: '@fh_rd_preview', asset: '@fh_a_v_r<current()>', file: '@fh_f_p<current()>' }
+    fh_ar_r_t{47..64}: { definition: '@fh_rd_thumbnail', asset: '@fh_a_v_r<current()>', file: '@fh_f_t<current()>' }
+    fh_ar_accession{1..8}: { definition: '@fh_rd_main', asset: '@fh_a_d_accession<current()>', file: '@fh_f_accession<current()>' }
+    fh_ar_notebook{1..7}: { definition: '@fh_rd_main', asset: '@fh_a_d_notebook<current()>', file: '@fh_f_notebook<current()>' }
+    fh_ar_audioguide{1..6}: { definition: '@fh_rd_main', asset: '@fh_a_d_audioguide<current()>', file: '@fh_f_audioguide<current()>' }
+    fh_ar_video_m{1..4}: { definition: '@fh_rd_main', asset: '@fh_a_d_video<current()>', file: '@fh_f_video_m<current()>' }
+    fh_ar_video_t{1..4}: { definition: '@fh_rd_thumbnail', asset: '@fh_a_d_video<current()>', file: '@fh_f_video_t<current()>' }
+
+App\Entity\Core\Attribute:
+    fh_tpl_at (template):
+        origin: 0
+
+    # Species of each group of specimens. specimenScientificName() picks the species of the
+    # asset, so it must come before specimenCommonName().
+    fh_at_sci{1..3} (extends fh_tpl_at): { definition: '@fh_ad_scientificname', asset: '@fh_a_v_s<current()>', value: '<specimenScientificName(@fh_a_v_s<current()>, "sundew")>' }
+    fh_at_sci{4..11} (extends fh_tpl_at): { definition: '@fh_ad_scientificname', asset: '@fh_a_v_s<current()>', value: '<specimenScientificName(@fh_a_v_s<current()>, "orchid")>' }
+    fh_at_sci{12..17} (extends fh_tpl_at): { definition: '@fh_ad_scientificname', asset: '@fh_a_v_s<current()>', value: '<specimenScientificName(@fh_a_v_s<current()>, "fern")>' }
+    fh_at_sci{18..21} (extends fh_tpl_at): { definition: '@fh_ad_scientificname', asset: '@fh_a_v_s<current()>', value: '<specimenScientificName(@fh_a_v_s<current()>, "rarefern")>' }
+    fh_at_sci{22..30} (extends fh_tpl_at): { definition: '@fh_ad_scientificname', asset: '@fh_a_v_s<current()>', value: '<specimenScientificName(@fh_a_v_s<current()>, "butterfly")>' }
+    fh_at_sci{31..34} (extends fh_tpl_at): { definition: '@fh_ad_scientificname', asset: '@fh_a_v_s<current()>', value: '<specimenScientificName(@fh_a_v_s<current()>, "beetle")>' }
+    fh_at_sci{35..42} (extends fh_tpl_at): { definition: '@fh_ad_scientificname', asset: '@fh_a_v_s<current()>', value: '<specimenScientificName(@fh_a_v_s<current()>, "owl")>' }
+    fh_at_sci{43..46} (extends fh_tpl_at): { definition: '@fh_ad_scientificname', asset: '@fh_a_v_s<current()>', value: '<specimenScientificName(@fh_a_v_s<current()>, "mineral")>' }
+    fh_at_sci_story_{@fh_story*} (extends fh_tpl_at): { definition: '@fh_ad_scientificname', asset: <current()>, value: '<specimenScientificName(<current()>, "beetle")>' }
+    fh_at_common_en_{@fh_a_v_s*} (extends fh_tpl_at): { definition: '@fh_ad_commonname', asset: <current()>, locale: en, value: '<specimenCommonName(<current()>, "en")>' }
+    fh_at_common_fr_{@fh_a_v_s*} (extends fh_tpl_at): { definition: '@fh_ad_commonname', asset: <current()>, locale: fr, value: '<specimenCommonName(<current()>, "fr")>' }
+    fh_at_common_en_story_{@fh_story*} (extends fh_tpl_at): { definition: '@fh_ad_commonname', asset: <current()>, locale: en, value: '<specimenCommonName(<current()>, "en")>' }
+    fh_at_common_fr_story_{@fh_story*} (extends fh_tpl_at): { definition: '@fh_ad_commonname', asset: <current()>, locale: fr, value: '<specimenCommonName(<current()>, "fr")>' }
+
+    fh_at_family{1..3} (extends fh_tpl_at): { definition: '@fh_ad_family', asset: '@fh_a_v_s<current()>', value: '@fh_fam_droseraceae->id' }
+    fh_at_family{4..11} (extends fh_tpl_at): { definition: '@fh_ad_family', asset: '@fh_a_v_s<current()>', value: '@fh_fam_orchidaceae->id' }
+    fh_at_family{12..17} (extends fh_tpl_at): { definition: '@fh_ad_family', asset: '@fh_a_v_s<current()>', value: '@fh_fam_aspleniaceae->id' }
+    fh_at_family{18..21} (extends fh_tpl_at): { definition: '@fh_ad_family', asset: '@fh_a_v_s<current()>', value: '@fh_fam_hymenophyllaceae->id' }
+    fh_at_family{22..30} (extends fh_tpl_at): { definition: '@fh_ad_family', asset: '@fh_a_v_s<current()>', value: '@fh_fam_nymphalidae->id' }
+    fh_at_family{31..34} (extends fh_tpl_at): { definition: '@fh_ad_family', asset: '@fh_a_v_s<current()>', value: '@fh_fam_lucanidae->id' }
+    fh_at_family{35..42} (extends fh_tpl_at): { definition: '@fh_ad_family', asset: '@fh_a_v_s<current()>', value: '@fh_fam_strigidae->id' }
+    fh_at_family_story_{@fh_story*} (extends fh_tpl_at): { definition: '@fh_ad_family', asset: <current()>, value: '@fh_fam_lucanidae->id' }
+
+    # The rare ferns are endangered or critically endangered, the other species get a random status
+    fh_at_status{1..17} (extends fh_tpl_at): { definition: '@fh_ad_conservationstatus', asset: '@fh_a_v_s<current()>', value: '@fh_cs_*->id' }
+    fh_at_status{18..19} (extends fh_tpl_at): { definition: '@fh_ad_conservationstatus', asset: '@fh_a_v_s<current()>', value: '@fh_cs_cr->id' }
+    fh_at_status{20..21} (extends fh_tpl_at): { definition: '@fh_ad_conservationstatus', asset: '@fh_a_v_s<current()>', value: '@fh_cs_en->id' }
+    fh_at_status{22..42} (extends fh_tpl_at): { definition: '@fh_ad_conservationstatus', asset: '@fh_a_v_s<current()>', value: '@fh_cs_*->id' }
+
+    fh_at_inventory_{@fh_a_v_s*} (extends fh_tpl_at): { definition: '@fh_ad_inventorynumber', asset: <current()>, value: '<inventoryNumber()>' }
+    fh_at_inventory_story_{@fh_story*} (extends fh_tpl_at): { definition: '@fh_ad_inventorynumber', asset: <current()>, value: '<inventoryNumber()>' }
+    fh_at_collector_{@fh_a_v_s*} (extends fh_tpl_at): { definition: '@fh_ad_collector', asset: <current()>, value: '<specimenCollector()>' }
+    fh_at_collectedon_{@fh_a_v_s*} (extends fh_tpl_at):
+        __factory: { 'App\Fixture\DateFixtureFactory::createDateAttribute': ['<dateTimeBetween("-150 years", "-1 year")>'] }
+        definition: '@fh_ad_collectedon'
+        asset: <current()>
+    fh_at_accession_{@fh_a_*} (extends fh_tpl_at):
+        __factory: { 'App\Fixture\DateFixtureFactory::createDateTimeAttribute': ['<dateTimeBetween("-40 years", "now")>'] }
+        definition: '@fh_ad_accessiondate'
+        asset: <current()>
+    fh_at_ondisplay_{@fh_a_v_s*} (extends fh_tpl_at): { definition: '@fh_ad_ondisplay', asset: <current()>, value: '<numberBetween(0, 1)>' }
+    fh_at_keywords_{@fh_a_v_s*} (extends fh_tpl_at): { definition: '@fh_ad_keywords', asset: <current()>, value: '<randomElement(["specimen", "type specimen", "dried", "pinned", "mounted", "label"])>' }
+
+    # Only the specimens have a location: the map also shows the assets without one
+    fh_at_site_{@fh_a_v_s*} (extends fh_tpl_at): { definition: '@fh_ad_collectionsite', asset: <current()>, value: '<geoPlaceLocation(<current()>)>' }
+    fh_at_city_{@fh_a_v_s*} (extends fh_tpl_at): { definition: '@fh_ad_city', asset: <current()>, value: '<geoPlaceCity(<current()>)>' }
+    fh_at_country_{@fh_a_v_s*} (extends fh_tpl_at): { definition: '@fh_ad_country', asset: <current()>, value: '<geoPlaceCountry(<current()>)>' }
+
+    fh_at_licence_{@fh_a_*} (extends fh_tpl_at): { definition: '@fh_ad_licence', asset: <current()>, value: '@fh_lic_*->id' }
+    fh_at_credit_{@fh_a_*} (extends fh_tpl_at): { definition: '@fh_ad_creditline', asset: <current()>, value: '© Fernhollow Natural History Museum' }
+
+    # Curatorial (restricted policy)
+    fh_at_condition_{@fh_a_v_s*} (extends fh_tpl_at): { definition: '@fh_ad_conditionreport', asset: <current()>, value: '<conditionReport()>' }
+    fh_at_insurance_{@fh_a_v_s*} (extends fh_tpl_at): { definition: '@fh_ad_insurancevalue', asset: <current()>, value: '<numberBetween(200, 250000)>' }
+
+    # Titles of the assets without common name
+    fh_at_name_front{47..52} (extends fh_tpl_at): { definition: '@fh_ad_name', asset: '@fh_a_v_r<current()>', value: 'Front view' }
+    fh_at_name_back{53..58} (extends fh_tpl_at): { definition: '@fh_ad_name', asset: '@fh_a_v_r<current()>', value: 'Back view' }
+    fh_at_name_label{59..64} (extends fh_tpl_at): { definition: '@fh_ad_name', asset: '@fh_a_v_r<current()>', value: 'Label' }
+    fh_at_name_accession{1..8} (extends fh_tpl_at): { definition: '@fh_ad_name', asset: '@fh_a_d_accession<current()>', value: 'Accession record #<current()>' }
+    fh_at_name_notebook{1..7} (extends fh_tpl_at): { definition: '@fh_ad_name', asset: '@fh_a_d_notebook<current()>', value: 'Field notebook of <specimenCollector()>' }
+    fh_at_name_audioguide{1..6} (extends fh_tpl_at): { definition: '@fh_ad_name', asset: '@fh_a_d_audioguide<current()>', value: 'Audio guide, stop <current()>' }
+    fh_at_name_video{1..4} (extends fh_tpl_at): { definition: '@fh_ad_name', asset: '@fh_a_d_video<current()>', value: 'Behind the scenes #<current()>' }
+    fh_at_duration_audioguide{1..6} (extends fh_tpl_at): { definition: '@fh_ad_duration', asset: '@fh_a_d_audioguide<current()>', value: '<numberBetween(60, 240)>' }
+    fh_at_duration_video{1..4} (extends fh_tpl_at): { definition: '@fh_ad_duration', asset: '@fh_a_d_video<current()>', value: '<numberBetween(90, 900)>' }
+
+# Permissions. Masks of alchemy/acl-bundle: VIEW 1, CREATE 2, EDIT 4, DELETE 8, OPERATOR 32,
+# MASTER 64, OWNER 128, SHARE 256; CHILD_* = the same bit << 9 (CHILD_VIEW 512, CHILD_EDIT 2048,
+# CHILD_DELETE 4096). Every persona is a member of the workspace (VIEW).
+Alchemy\AclBundle\Entity\AccessControlEntry:
+    fh_tpl_ace (template):
+        userType: 0
+
+    fh_ace_ws_{alice, bob, carol, dave} (extends fh_tpl_ace):
+        userId: <keycloakUser($current)>
+        objectType: workspace
+        objectId: '@w_fernhollow->id'
+        mask: 1
+    # alice, curator: VIEW|EDIT|DELETE + CHILD_VIEW|CHILD_EDIT|CHILD_DELETE on Departments
+    fh_ace_alice_departments (extends fh_tpl_ace):
+        userId: <keycloakUser("alice")>
+        objectType: collection
+        objectId: '@fh_c_departments->id'
+        mask: 6669
+    # bob, researcher: VIEW + CHILD_VIEW on Departments (nothing on Conservation Lab)
+    fh_ace_bob_departments (extends fh_tpl_ace):
+        userId: <keycloakUser("bob")>
+        objectType: collection
+        objectId: '@fh_c_departments->id'
+        mask: 513
+    # carol, visitor: VIEW + CHILD_VIEW on Open Collection
+    fh_ace_carol_open (extends fh_tpl_ace):
+        userId: <keycloakUser("carol")>
+        objectType: collection
+        objectId: '@fh_c_open->id'
+        mask: 513
+    # dave, registrar: VIEW|EDIT + CHILD_VIEW|CHILD_EDIT on Outgoing Loans
+    fh_ace_dave_loans (extends fh_tpl_ace):
+        userId: <keycloakUser("dave")>
+        objectType: collection
+        objectId: '@fh_c_loans->id'
+        mask: 2565
+    # Restricted policies: VIEW (and EDIT) for the attributes, CHILD_VIEW (and CHILD_EDIT) for the renditions
+    fh_ace_alice_curatorial (extends fh_tpl_ace):
+        userId: <keycloakUser("alice")>
+        objectType: attribute_policy
+        objectId: '@fh_ap_curatorial->id'
+        mask: 5
+    fh_ace_dave_curatorial (extends fh_tpl_ace):
+        userId: <keycloakUser("dave")>
+        objectType: attribute_policy
+        objectId: '@fh_ap_curatorial->id'
+        mask: 1
+    fh_ace_alice_archive (extends fh_tpl_ace):
+        userId: <keycloakUser("alice")>
+        objectType: rendition_policy
+        objectId: '@fh_rp_archive->id'
+        mask: 2560
+    fh_ace_dave_archive (extends fh_tpl_ace):
+        userId: <keycloakUser("dave")>
+        objectType: rendition_policy
+        objectId: '@fh_rp_archive->id'
+        mask: 512
+
+# bob and carol do not see the critically endangered species at all
+App\Entity\Core\AttributeFilterRule:
+    fh_afr_critically_endangered:
+        workspace: '@w_fernhollow'
+        condition: '<aqlAttributeIsNot("conservationstatus", @fh_cs_cr->id)>'
+        __calls:
+            - addTarget: [0, '<keycloakUser("bob")>']
+            - addTarget: [0, '<keycloakUser("carol")>']
+
+App\Entity\Core\AssetPolicy\AssetPolicy:
+    fh_tpl_apol (template):
+        workspace: '@w_fernhollow'
+        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+    # Protects the location of the rare ferns (the condition matches the sub-collections too)
+    fh_apol_rare_location (extends fh_tpl_apol):
+        name: Rare species location
+        conditions:
+            - { field: collection, operator: '=', value: '@fh_c_rareferns->id' }
+        actions:
+            - { action: hide_attribute, definitionId: '@fh_ad_collectionsite->id' }
+    # The archival masters of the loaned specimens are not handed over
+    fh_apol_loans (extends fh_tpl_apol):
+        name: Loans
+        conditions:
+            - { field: collection, operator: '=', value: '@fh_c_loans->id' }
+        actions:
+            - { action: hide_rendition, definitionId: '@fh_rd_archival->id' }
+
+App\Entity\Core\AssetPolicy\AssetPolicyUser:
+    fh_apu_rare_location_{bob, carol}:
+        policy: '@fh_apol_rare_location'
+        userType: 0
+        userId: <keycloakUser($current)>
+    fh_apu_loans_{dave}:
+        policy: '@fh_apol_loans'
+        userType: 0
+        userId: <keycloakUser($current)>
+
+App\Entity\Integration\WorkspaceIntegration:
+    fh_tpl_wi (template):
+        workspace: '@w_fernhollow'
+        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+        public: true
+
+    # Rendition integration created by WorkspaceFactory
+    fh_wi_rendition:
+        __factory: { '@App\Fixture\WorkspaceFactory::getIntegration': ['@w_fernhollow', 'rendition'] }
+    fh_wi_blurhash (extends fh_tpl_wi):
+        integration: blurhash
+        config:
+            rendition: Thumbnail
+        needs:
+            - '@fh_wi_rendition'
+    fh_wi_watermark (extends fh_tpl_wi):
+        integration: core.watermark
+        config:
+            attributeName: creditline
+            applyToRenditions:
+                - Preview
+            fontSize: 18
+            color: '#FFFFFF'
+            position:
+                top: 92%
+                left: 50%
+        needs:
+            - '@fh_wi_rendition'
+    fh_wi_rekognition (extends fh_tpl_wi):
+        integration: aws.rekognition
+        enabled: false
+        config:
+            region: eu-west-1
+            labels:
+                enabled: true
+                attributes:
+                    - { name: keywords, threshold: 0.8 }
+
+App\Entity\Integration\WorkspaceSecret:
+    fh_secret_{AWS_ACCESS_KEY_ID, AWS_ACCESS_KEY_SECRET}:
+        workspace: '@w_fernhollow'
+        name: <current()>
+        plainValue: xxx
+
+
