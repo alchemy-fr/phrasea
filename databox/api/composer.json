@@ -149,6 +149,7 @@
     "require": {
         "php": "^8.5",
         "ext-ctype": "*",
+        "ext-ftp": "*",
         "ext-iconv": "*",
         "ext-imagick": "*",
         "ext-intl": "*",
@@ -190,6 +191,8 @@
         "kornrunner/blurhash": "^1.2",
         "lcobucci/clock": "^3.2",
         "lcobucci/jwt": "^5",
+        "league/flysystem-ftp": "^3.0",
+        "league/flysystem-sftp-v3": "^3.0",
         "martin-georgiev/postgresql-for-doctrine": "*",
         "matomo/matomo-php-tracker": "^3.4",
         "nelmio/cors-bundle": "^2.1",

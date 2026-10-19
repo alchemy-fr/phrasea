@@ -40,10 +40,13 @@ RUN apk add --no-cache \
         libjpeg-turbo-dev \
         freetype-dev \
         imagemagick-dev \
+        openssl-dev \
     && pecl clear-cache \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+    && docker-php-ext-configure ftp --with-ftp-ssl \
     && docker-php-ext-install \
         exif \
+        ftp \
         gd \
     && pecl install \
         imagick-${IMAGICK_VERSION} \

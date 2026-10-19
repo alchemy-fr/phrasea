@@ -77,10 +77,13 @@ RUN set -eux; \
         libjpeg-turbo-dev \
         freetype-dev \
         imagemagick-dev \
+        openssl-dev \
 	; \
 	\
+	docker-php-ext-configure ftp --with-ftp-ssl; \
 	docker-php-ext-install \
         exif \
+        ftp \
 		intl \
 		zip \
 		sockets \

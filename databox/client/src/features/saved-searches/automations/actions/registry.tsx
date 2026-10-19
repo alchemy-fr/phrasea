@@ -3,6 +3,7 @@ import {addToCollectionAction} from './AddToCollectionForm';
 import {attributeAction} from './AttributeActionForm';
 import {tagsAction} from './TagsActionForm';
 import {emailReportAction} from './EmailReportForm';
+import {remoteExportAction} from './RemoteExportForm';
 import {webhookAction} from './WebhookForm';
 import {triggerWorkflowAction} from './TriggerWorkflowForm';
 import {trashAction} from './TrashActionForm';
@@ -19,6 +20,7 @@ export const actionRegistry = {
     attribute: attributeAction,
     tags: tagsAction,
     email_report: emailReportAction,
+    remote_export: remoteExportAction,
     webhook: webhookAction,
     trigger_workflow: triggerWorkflowAction,
     trash: trashAction,

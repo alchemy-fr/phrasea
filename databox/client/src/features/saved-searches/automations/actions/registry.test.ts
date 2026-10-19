@@ -23,6 +23,7 @@ describe('automation actions registry', () => {
             'attribute',
             'tags',
             'email_report',
+            'remote_export',
             'webhook',
             'trigger_workflow',
             'trash',
@@ -96,6 +97,46 @@ describe('automation actions registry', () => {
         ).toBe(false);
     });
 
+    it('completes the remote export configurations', () => {
+        const remoteExport = getActionDefinition('remote_export')!;
+        const s3 = {
+            ...remoteExport.defaultConfig(),
+            s3: {bucket: 'b', accessKeyId: 'id'},
+        };
+        expect(remoteExport.isComplete(s3)).toBe(false);
+        expect(
+            remoteExport.isComplete({
+                ...s3,
+                s3: {...s3.s3, secretAccessKey: 'secret'},
+            })
+        ).toBe(true);
+        // A stored secret is never sent back, only flagged
+        expect(
+            remoteExport.isComplete({
+                ...s3,
+                s3: {...s3.s3, secretAccessKey: null, secretAccessKeySet: true},
+            })
+        ).toBe(true);
+        expect(
+            remoteExport.isComplete({
+                protocol: 'sftp',
+                sftp: {host: 'h', username: 'u', privateKeySet: true},
+            })
+        ).toBe(true);
+        expect(
+            remoteExport.isComplete({
+                protocol: 'sftp',
+                sftp: {host: 'h', username: 'u'},
+            })
+        ).toBe(false);
+        expect(
+            remoteExport.isComplete({
+                protocol: 'ftp',
+                ftp: {host: 'h', username: 'anonymous'},
+            })
+        ).toBe(true);
+    });
+
     it('summarizes the configurations', () => {
         expect(
             getActionDefinition('tags')!.summary(
@@ -112,6 +153,12 @@ describe('automation actions registry', () => {
                 t
             )
         ).toBe('Email report to 3 recipients');
+        expect(
+            getActionDefinition('remote_export')!.summary(
+                {protocol: 'sftp', sftp: {host: 'files.example.com'}},
+                t
+            )
+        ).toBe('Export to SFTP (files.example.com)');
         expect(
             getActionDefinition('webhook')!.summary(
                 {url: 'https://hooks.example.com:8443/phrasea'},
