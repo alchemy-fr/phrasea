@@ -152,6 +152,7 @@ final readonly class AutomationRunner
             ownerId: $user->getId(),
             trigger: $run->getTrigger(),
             dryRun: $run->isDryRun(),
+            scope: $automation->getScope(),
         );
 
         $actions = [];

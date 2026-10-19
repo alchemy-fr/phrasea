@@ -29,6 +29,9 @@ alchemy_notifier:
         # User-facing exceptions (ExceptionNotifier)
         'user:exception':
             channels: [email, in_app]
+        # Saved search automation reports (EmailReportAction)
+        'automation:report':
+            channels: [email, in_app]
 
 twig:
     paths:

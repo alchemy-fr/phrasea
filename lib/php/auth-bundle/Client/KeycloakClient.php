@@ -202,6 +202,21 @@ final readonly class KeycloakClient
         }
     }
 
+    /**
+     * Direct members of the group (not the members of its subgroups).
+     */
+    public function getGroupMembers(string $accessToken, string $groupId, int $first, int $max): array
+    {
+        return $this->get(sprintf('%s/%s/members', $this->urlGenerator->getGroupsApiUrl(), $groupId), [
+            'access_token' => $accessToken,
+            'query' => [
+                'briefRepresentation' => 'true',
+                'first' => $first,
+                'max' => $max,
+            ],
+        ]);
+    }
+
     private function get(string $path, array $options = []): array
     {
         return $this->wrapRequest(function () use ($path, $options) {

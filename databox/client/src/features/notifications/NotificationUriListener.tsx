@@ -11,7 +11,8 @@ import {routes} from '@/lib/routes';
 
 /**
  * Resolves a notification URI (`/assets/{id}#discussion-{id}`,
- * `/collections/{id}`, `/workspaces/{id}/manage/{tab}`) to a screen.
+ * `/collections/{id}`, `/saved-searches/{id}`, `/workspaces/{id}/manage/{tab}`)
+ * to a screen.
  */
 export function resolveNotificationUri(uri: string): string {
     const ws = uri.match(/^\/workspaces\/([^/#]+)\/manage\/([^/#]+)$/);
@@ -39,6 +40,9 @@ export function resolveNotificationUri(uri: string): string {
         });
 
         return `${routes.assets()}?${params.toString()}`;
+    }
+    if (entity === 'saved-searches') {
+        return `${routes.assets()}?${new URLSearchParams({id}).toString()}`;
     }
 
     return routes.assets();

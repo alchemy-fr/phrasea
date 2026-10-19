@@ -1,7 +1,7 @@
 'use client';
 
 import {getUserDisplayName} from '@/lib/users';
-import {useCallback} from 'react';
+import {useCallback, useRef} from 'react';
 import {useTranslation} from 'react-i18next';
 import {AsyncCombobox, ComboOption} from './AsyncCombobox';
 import {
@@ -105,6 +105,14 @@ export function TagSelect(props: TagSelectProps) {
     );
 }
 
+function userOption(user: User): ComboOption<User> {
+    return {value: user.id, label: getUserDisplayName(user), item: user};
+}
+
+function groupOption(group: Group): ComboOption<Group> {
+    return {value: group.id, label: group.name, item: group};
+}
+
 export function UserSelect({
     value,
     onChange,
@@ -122,11 +130,15 @@ export function UserSelect({
     const load = useCallback(async (query: string, signal: AbortSignal) => {
         const users = await getUsers(query || undefined, signal);
 
-        return users.map(u => ({
-            value: u.id,
-            label: getUserDisplayName(u),
-            item: u,
-        }));
+        return users.map(userOption);
+    }, []);
+    // Labels of the preselected users, from a single listing
+    const listing = useRef<Promise<User[]> | undefined>(undefined);
+    const resolve = useCallback(async (v: string) => {
+        listing.current ??= getUsers();
+        const user = (await listing.current).find(u => u.id === v);
+
+        return user ? userOption(user) : undefined;
     }, []);
 
     if (multiple) {
@@ -137,6 +149,7 @@ export function UserSelect({
                 disabled={disabled}
                 queryKey={['users']}
                 loadOptions={load}
+                resolveValue={resolve}
                 value={(value as string[]) ?? []}
                 onChange={(v, opts) =>
                     onChange(v, opts.map(o => o.item!).filter(Boolean))
@@ -152,6 +165,7 @@ export function UserSelect({
             disabled={disabled}
             queryKey={['users']}
             loadOptions={load}
+            resolveValue={resolve}
             value={value as string | undefined}
             onChange={(v, opt) =>
                 onChange(v, opt?.item ? [opt.item] : undefined)
@@ -178,7 +192,15 @@ export function GroupSelect({
     const load = useCallback(async (query: string, signal: AbortSignal) => {
         const groups = await getGroups(query || undefined, signal);
 
-        return groups.map(g => ({value: g.id, label: g.name, item: g}));
+        return groups.map(groupOption);
+    }, []);
+    // Labels of the preselected groups, from a single listing
+    const listing = useRef<Promise<Group[]> | undefined>(undefined);
+    const resolve = useCallback(async (v: string) => {
+        listing.current ??= getGroups();
+        const group = (await listing.current).find(g => g.id === v);
+
+        return group ? groupOption(group) : undefined;
     }, []);
 
     if (multiple) {
@@ -189,6 +211,7 @@ export function GroupSelect({
                 disabled={disabled}
                 queryKey={['groups']}
                 loadOptions={load}
+                resolveValue={resolve}
                 value={(value as string[]) ?? []}
                 onChange={(v, opts) =>
                     onChange(v, opts.map(o => o.item!).filter(Boolean))
@@ -204,6 +227,7 @@ export function GroupSelect({
             disabled={disabled}
             queryKey={['groups']}
             loadOptions={load}
+            resolveValue={resolve}
             value={value as string | undefined}
             onChange={(v, opt) =>
                 onChange(v, opt?.item ? [opt.item] : undefined)

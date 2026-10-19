@@ -2,6 +2,7 @@ import {describe, expect, it} from 'vitest';
 import type {TFunction} from 'i18next';
 import {actionTypes, getActionDefinition} from './registry';
 import {mapViolations} from '../formErrors';
+import {parseEmails} from './EmailReportForm';
 import {toHeaders} from './WebhookForm';
 
 // Default value with interpolation, as i18next does without resources
@@ -21,6 +22,7 @@ describe('automation actions registry', () => {
             'add_to_collection',
             'attribute',
             'tags',
+            'email_report',
             'webhook',
             'trigger_workflow',
             'trash',
@@ -70,6 +72,13 @@ describe('automation actions registry', () => {
             })
         ).toBe(false);
         expect(
+            getActionDefinition('email_report')!.isComplete({
+                users: [],
+                groups: [],
+                emails: ['a@example.com'],
+            })
+        ).toBe(true);
+        expect(
             getActionDefinition('webhook')!.isComplete({
                 url: 'https://hooks.example.com/phrasea',
             })
@@ -98,6 +107,12 @@ describe('automation actions registry', () => {
             getActionDefinition('attribute')!.summary({action: 'replace'}, t)
         ).toBe('Replace text in an attribute');
         expect(
+            getActionDefinition('email_report')!.summary(
+                {users: ['u1'], groups: ['g1'], emails: ['a@example.com']},
+                t
+            )
+        ).toBe('Email report to 3 recipients');
+        expect(
             getActionDefinition('webhook')!.summary(
                 {url: 'https://hooks.example.com:8443/phrasea'},
                 t
@@ -106,6 +121,13 @@ describe('automation actions registry', () => {
         expect(
             getActionDefinition('set_privacy')!.summary({privacy: 5}, t)
         ).toBe('Privacy: Public');
+    });
+
+    it('parses the email addresses', () => {
+        expect(
+            parseEmails(' a@example.com\nb@example.com, c@example.com;\n\n')
+        ).toEqual(['a@example.com', 'b@example.com', 'c@example.com']);
+        expect(parseEmails('  ')).toEqual([]);
     });
 });
 

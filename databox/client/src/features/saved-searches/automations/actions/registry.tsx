@@ -2,6 +2,7 @@ import {moveToCollectionAction} from './MoveToCollectionForm';
 import {addToCollectionAction} from './AddToCollectionForm';
 import {attributeAction} from './AttributeActionForm';
 import {tagsAction} from './TagsActionForm';
+import {emailReportAction} from './EmailReportForm';
 import {webhookAction} from './WebhookForm';
 import {triggerWorkflowAction} from './TriggerWorkflowForm';
 import {trashAction} from './TrashActionForm';
@@ -17,6 +18,7 @@ export const actionRegistry = {
     add_to_collection: addToCollectionAction,
     attribute: attributeAction,
     tags: tagsAction,
+    email_report: emailReportAction,
     webhook: webhookAction,
     trigger_workflow: triggerWorkflowAction,
     trash: trashAction,

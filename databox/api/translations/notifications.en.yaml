@@ -1,3 +1,19 @@
+automation:
+    report:
+        email:
+            subject_new: '{0}No new asset in %savedSearchName% (%automationName%)|{1}1 new asset in %savedSearchName% (%automationName%)|]1,Inf[%count% new assets in %savedSearchName% (%automationName%)'
+            subject_all: '{0}No asset in %savedSearchName% (%automationName%)|{1}1 asset in %savedSearchName% (%automationName%)|]1,Inf[%count% assets in %savedSearchName% (%automationName%)'
+            greeting: 'Hi %recipient%,'
+            intro_new: '{0}The automation <strong>%automationName%</strong> found no new asset in the saved search <a href="%url%">%savedSearchName%</a>.|{1}The automation <strong>%automationName%</strong> found 1 new asset in the saved search <a href="%url%">%savedSearchName%</a>:|]1,Inf[The automation <strong>%automationName%</strong> found %count% new assets in the saved search <a href="%url%">%savedSearchName%</a>:'
+            intro_all: '{0}The automation <strong>%automationName%</strong> found no asset in the saved search <a href="%url%">%savedSearchName%</a>.|{1}The automation <strong>%automationName%</strong> handled 1 asset of the saved search <a href="%url%">%savedSearchName%</a>:|]1,Inf[The automation <strong>%automationName%</strong> handled %count% assets of the saved search <a href="%url%">%savedSearchName%</a>:'
+            open_search: 'Open the saved search'
+        in_app:
+            subject_new: '{0}No new asset in %savedSearchName%|{1}1 new asset in %savedSearchName%|]1,Inf[%count% new assets in %savedSearchName%'
+            subject_all: '{0}No asset in %savedSearchName%|{1}1 asset in %savedSearchName%|]1,Inf[%count% assets in %savedSearchName%'
+            body_new: '{0}%automationName%: no new asset in %savedSearchName%.|{1}%automationName%: 1 new asset in %savedSearchName%:|]1,Inf[%automationName%: %count% new assets in %savedSearchName%:'
+            body_all: '{0}%automationName%: no asset in %savedSearchName%.|{1}%automationName%: 1 asset handled in %savedSearchName%:|]1,Inf[%automationName%: %count% assets handled in %savedSearchName%:'
+        more: '…and %count% more.'
+        untitled: 'Untitled'
 asset:
     new_comment:
         email:

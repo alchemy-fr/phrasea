@@ -1,0 +1,34 @@
+{% block subject %}
+{%- if customSubject|default -%}
+    {{ customSubject|raw }}
+{%- else -%}
+    {{ ('automation.report.email.subject_' ~ (scope == 'all' ? 'all' : 'new'))|trans({
+        '%count%': count,
+        '%automationName%': automationName,
+        '%savedSearchName%': savedSearchName|default(''),
+    }, 'notifications')|raw }}
+{%- endif -%}
+{% endblock %}
+
+{% block body %}
+<p>{{ 'automation.report.email.greeting'|trans({'%recipient%': (recipient.displayName|default(recipient.email|default('')))|e}, 'notifications')|raw }}</p>
+<p>{{ ('automation.report.email.intro_' ~ (scope == 'all' ? 'all' : 'new'))|trans({
+    '%count%': count,
+    '%automationName%': automationName|e,
+    '%savedSearchName%': savedSearchName|default('')|e,
+    '%url%': notification_url(url)|e('html_attr'),
+}, 'notifications')|raw }}</p>
+{% if assets|length > 0 %}
+<ul>
+{%- for asset in assets %}
+    <li><a href="{{ notification_url('/assets/' ~ asset.id)|e('html_attr') }}">{{ asset.title|default('automation.report.untitled'|trans({}, 'notifications')) }}</a>
+    {%- if asset.workspace|default %} — {{ asset.workspace }}{% endif %}
+    {%- if asset.createdAt|default %} — {{ asset.createdAt|date('Y-m-d') }}{% endif %}</li>
+{%- endfor %}
+</ul>
+{% endif %}
+{% if more > 0 %}
+<p>{{ 'automation.report.more'|trans({'%count%': more}, 'notifications') }}</p>
+{% endif %}
+<p><a href="{{ notification_url(url)|e('html_attr') }}">{{ 'automation.report.email.open_search'|trans({}, 'notifications') }}</a></p>
+{% endblock %}

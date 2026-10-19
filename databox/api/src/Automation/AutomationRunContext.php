@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Automation;
 
+use App\Model\AutomationScopeEnum;
 use App\Model\AutomationTriggerEnum;
 
 /**
@@ -22,6 +23,7 @@ final readonly class AutomationRunContext
         public string $ownerId,
         public AutomationTriggerEnum $trigger,
         public bool $dryRun,
+        public AutomationScopeEnum $scope = AutomationScopeEnum::New,
     ) {
     }
 }

@@ -45,6 +45,19 @@ class KeycloakClientTestMock implements HttpClientInterface
         ],
     ];
 
+    final public const string GROUP_UID = '77777777-fc1a-492b-9e76-c2e8e6979786';
+
+    /**
+     * Members of the groups, as returned by the IdP.
+     */
+    final public const array GROUP_MEMBERS = [
+        self::GROUP_UID => [
+            ['id' => self::USER_UID, 'username' => 'user', 'enabled' => true],
+            ['id' => self::OTHER_USER_UID, 'username' => 'other_user', 'enabled' => true],
+            ['id' => self::DISABLED_USER_UID, 'username' => 'disabled_user', 'enabled' => false],
+        ],
+    ];
+
     public static function getJwtFor(string $userId): string
     {
         $configuration = Configuration::forAsymmetricSigner(
@@ -124,6 +137,14 @@ class KeycloakClientTestMock implements HttpClientInterface
             return $this->createResponse($args, 200, array_map(fn (string $group): array => [
                 'id' => $group,
             ], self::USERS[$match[1]]['groups'] ?? []));
+        }
+
+        if (1 === preg_match('#/admin/realms/phrasea/groups/([^/]+)/members$#', $url, $match)) {
+            return $this->createResponse($args, 200, array_slice(
+                self::GROUP_MEMBERS[$match[1]] ?? [],
+                (int) ($options['query']['first'] ?? 0),
+                (int) ($options['query']['max'] ?? 100),
+            ));
         }
 
         if (1 === preg_match('#/admin/realms/phrasea/users/([^/]+)$#', $url, $match) && self::DISABLED_USER_UID === $match[1]) {

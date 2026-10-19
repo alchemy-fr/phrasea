@@ -1,3 +1,19 @@
+automation:
+    report:
+        email:
+            subject_new: '{0}Aucun nouvel asset dans %savedSearchName% (%automationName%)|{1}1 nouvel asset dans %savedSearchName% (%automationName%)|]1,Inf[%count% nouveaux assets dans %savedSearchName% (%automationName%)'
+            subject_all: '{0}Aucun asset dans %savedSearchName% (%automationName%)|{1}1 asset dans %savedSearchName% (%automationName%)|]1,Inf[%count% assets dans %savedSearchName% (%automationName%)'
+            greeting: 'Bonjour %recipient%,'
+            intro_new: '{0}L''automatisation <strong>%automationName%</strong> n''a trouvé aucun nouvel asset dans la recherche enregistrée <a href="%url%">%savedSearchName%</a>.|{1}L''automatisation <strong>%automationName%</strong> a trouvé 1 nouvel asset dans la recherche enregistrée <a href="%url%">%savedSearchName%</a> :|]1,Inf[L''automatisation <strong>%automationName%</strong> a trouvé %count% nouveaux assets dans la recherche enregistrée <a href="%url%">%savedSearchName%</a> :'
+            intro_all: '{0}L''automatisation <strong>%automationName%</strong> n''a trouvé aucun asset dans la recherche enregistrée <a href="%url%">%savedSearchName%</a>.|{1}L''automatisation <strong>%automationName%</strong> a traité 1 asset de la recherche enregistrée <a href="%url%">%savedSearchName%</a> :|]1,Inf[L''automatisation <strong>%automationName%</strong> a traité %count% assets de la recherche enregistrée <a href="%url%">%savedSearchName%</a> :'
+            open_search: 'Ouvrir la recherche enregistrée'
+        in_app:
+            subject_new: '{0}Aucun nouvel asset dans %savedSearchName%|{1}1 nouvel asset dans %savedSearchName%|]1,Inf[%count% nouveaux assets dans %savedSearchName%'
+            subject_all: '{0}Aucun asset dans %savedSearchName%|{1}1 asset dans %savedSearchName%|]1,Inf[%count% assets dans %savedSearchName%'
+            body_new: '{0}%automationName% : aucun nouvel asset dans %savedSearchName%.|{1}%automationName% : 1 nouvel asset dans %savedSearchName% :|]1,Inf[%automationName% : %count% nouveaux assets dans %savedSearchName% :'
+            body_all: '{0}%automationName% : aucun asset dans %savedSearchName%.|{1}%automationName% : 1 asset traité dans %savedSearchName% :|]1,Inf[%automationName% : %count% assets traités dans %savedSearchName% :'
+        more: '…et %count% de plus.'
+        untitled: 'Sans titre'
 asset:
     new_comment:
         email:

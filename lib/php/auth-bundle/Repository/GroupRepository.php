@@ -27,4 +27,25 @@ class GroupRepository extends AbstractKeycloakRepository implements GroupReposit
             return $this->executeWithAccessToken(fn (string $accessToken): ?array => $this->oauthClient->getGroup($accessToken, $groupId, $options));
         });
     }
+
+    /**
+     * Not cached: the membership must be the current one.
+     */
+    public function getGroupMemberIds(string $groupId): array
+    {
+        $pageSize = 500;
+        $ids = [];
+        for ($first = 0;; $first += $pageSize) {
+            $members = $this->executeWithAccessToken(fn (string $accessToken): array => $this->oauthClient->getGroupMembers($accessToken, $groupId, $first, $pageSize));
+            foreach ($members as $member) {
+                if (isset($member['id']) && false !== ($member['enabled'] ?? true)) {
+                    $ids[] = (string) $member['id'];
+                }
+            }
+
+            if (count($members) < $pageSize) {
+                return array_values(array_unique($ids));
+            }
+        }
+    }
 }
