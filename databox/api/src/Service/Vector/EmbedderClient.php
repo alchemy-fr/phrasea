@@ -7,11 +7,11 @@ namespace App\Service\Vector;
 use Alchemy\CoreBundle\Listener\ClientExceptionListener;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-final readonly class EmbedderClient
+class EmbedderClient
 {
     public function __construct(
-        private HttpClientInterface $similarityEmbedderClient,
-        private ClientExceptionListener $clientExceptionListener,
+        private readonly HttpClientInterface $similarityEmbedderClient,
+        private readonly ClientExceptionListener $clientExceptionListener,
     ) {
     }
 

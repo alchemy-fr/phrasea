@@ -5,9 +5,16 @@ import {useTranslation} from 'react-i18next';
 import {useQueryClient} from '@tanstack/react-query';
 import {RefreshCwIcon, ScanFaceIcon} from 'lucide-react';
 import {toast} from 'sonner';
-import type {ApiFile, Asset, WorkspaceIntegration} from '@/types/api';
+import type {
+    ApiFile,
+    Asset,
+    AttributeEntity,
+    WorkspaceIntegration,
+} from '@/types/api';
+import {AttributeEntityStatus} from '@/types/api';
 import {runIntegrationAction} from '@/lib/api/integrations';
 import {deleteAssetAttribute, patchAssetAttribute} from '@/lib/api/assets';
+import {putAttributeEntity} from '@/lib/api/metadata';
 import {Button} from '@/components/ui/button';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {FaceCard, type FaceCardFace} from './FaceCard';
@@ -90,7 +97,11 @@ export function FaceRecognitionPanel({
         }
     };
 
-    const assign = async (face: FaceCardFace, entityId: string) => {
+    const assign = async (
+        face: FaceCardFace,
+        entityId: string,
+        name?: string
+    ) => {
         try {
             const updated = await patchAssetAttribute(face.id, {
                 value: entityId,
@@ -99,9 +110,36 @@ export function FaceRecognitionPanel({
             toast.success(
                 t('faces.named_toast', {
                     defaultValue: 'Face named {{name}}',
-                    name: updated.value?.value ?? '',
+                    name: name ?? updated.value?.value ?? '',
                 })
             );
+        } catch (e: any) {
+            toast.error(
+                e?.message ??
+                    t('faces.name_error', 'The face could not be named')
+            );
+            throw e;
+        }
+    };
+
+    const name = async (
+        face: FaceCardFace,
+        value: string
+    ): Promise<AttributeEntity> => {
+        try {
+            const saved = await putAttributeEntity(face.entity!.id, {
+                value,
+                status: AttributeEntityStatus.Approved,
+            });
+            await refresh();
+            toast.success(
+                t('faces.named_toast', {
+                    defaultValue: 'Face named {{name}}',
+                    name: saved.value,
+                })
+            );
+
+            return saved;
         } catch (e: any) {
             toast.error(
                 e?.message ??
@@ -156,6 +194,7 @@ export function FaceRecognitionPanel({
                             listId={setup.entityList}
                             canEdit={canInteract}
                             onAssign={assign}
+                            onName={name}
                             onRemove={remove}
                             cropSize={120}
                             showAssetLink={false}

@@ -36,7 +36,7 @@ class FileOutput extends AbstractUuidOutput
     /**
      * The MIME type.
      */
-    #[Groups(self::COMMON_GROUPS)]
+    #[Groups([...self::COMMON_GROUPS, ResolveEntitiesOutput::GROUP_READ])]
     private ?string $type = null;
 
     #[Groups(self::COMMON_GROUPS)]
@@ -57,7 +57,7 @@ class FileOutput extends AbstractUuidOutput
     /**
      * Signed URL.
      */
-    #[Groups(self::COMMON_GROUPS)]
+    #[Groups([...self::COMMON_GROUPS, ResolveEntitiesOutput::GROUP_READ])]
     private ?string $url = null;
 
     /**

@@ -369,7 +369,11 @@ function WorkspaceFaces({
         throw e;
     };
 
-    const onAssign = async (face: FaceCardFace, entityId: string) => {
+    const onAssign = async (
+        face: FaceCardFace,
+        entityId: string,
+        name?: string
+    ) => {
         try {
             const updated = await patchAssetAttribute(face.id, {
                 value: entityId,
@@ -378,7 +382,7 @@ function WorkspaceFaces({
             toast.success(
                 t('faces.named_toast', {
                     defaultValue: 'Face named {{name}}',
-                    name: updated.value?.value ?? '',
+                    name: name ?? updated.value?.value ?? '',
                 })
             );
         } catch (e: any) {
@@ -404,6 +408,27 @@ function WorkspaceFaces({
                 name: named.value,
             })
         );
+    };
+
+    const onName = async (
+        face: FaceCardFace,
+        value: string
+    ): Promise<AttributeEntity> => {
+        try {
+            const saved = await putAttributeEntity(face.entity!.id, {
+                value,
+                status: AttributeEntityStatus.Approved,
+            });
+            await onNamed(saved);
+
+            return saved;
+        } catch (e: any) {
+            toast.error(
+                e?.message ??
+                    t('faces.name_error', 'The face could not be named')
+            );
+            throw e;
+        }
     };
 
     const onMerge = async (source: AttributeEntity, targetId: string) => {
@@ -631,6 +656,7 @@ function WorkspaceFaces({
                                         listId={listId}
                                         canEdit={canEdit(face)}
                                         onAssign={onAssign}
+                                        onName={onName}
                                         onRemove={onRemove}
                                     />
                                 ))}

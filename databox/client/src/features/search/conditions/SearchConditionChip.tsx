@@ -9,7 +9,7 @@ import {
     PowerIcon,
     Trash2Icon,
 } from 'lucide-react';
-import type {AQLQuery} from '@/types/api';
+import {type AQLQuery, type Asset, EntityName} from '@/types/api';
 import {useSearch} from '../SearchProvider';
 import {BuiltInAttribute} from '../searchState';
 import {parseAQL} from '../aql/parser';
@@ -28,7 +28,7 @@ import {
     isLogical,
 } from '../aql/types';
 import {useDefinitionsBySlug} from '@/features/attributes/definitionsStore';
-import {useEntitiesStore, ResolveStatus} from '../entitiesStore';
+import {useEntitiesStore, useEntity, ResolveStatus} from '../entitiesStore';
 import {getAttributeType} from '@/features/attributes/types/registry';
 import {useFormatContext} from '@/features/attributes/AttributeValue';
 import {
@@ -250,6 +250,7 @@ function HumanizedCondition({condition}: {condition: AQLCondition}) {
         return (
             <>
                 <span className="font-medium">{label}</span>{' '}
+                <SimilarAssetThumb value={values[0]} />
                 <HumanizedValues
                     values={values}
                     isBetween={false}
@@ -283,6 +284,33 @@ function HumanizedCondition({condition}: {condition: AQLCondition}) {
                 />
             )}
         </>
+    );
+}
+
+/** Thumbnail of the reference asset of a `@similar` condition */
+function SimilarAssetThumb({value}: {value: AQLValueExpr | undefined}) {
+    const literal =
+        value !== undefined && isLiteral(value) ? value.literal : undefined;
+    const entry = useEntity(
+        literal ? iri(EntityName.Asset, literal) : undefined
+    );
+    const file =
+        entry && typeof entry === 'object'
+            ? (entry as Partial<Asset>).thumbnail?.file
+            : undefined;
+    if (!file?.url || !file.type?.startsWith('image/')) {
+        return null;
+    }
+
+    return (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+            src={file.url}
+            alt=""
+            data-testid="similar-asset-thumb"
+            className="mr-1 inline-block size-5 rounded-sm object-cover align-middle"
+            draggable={false}
+        />
     );
 }
 

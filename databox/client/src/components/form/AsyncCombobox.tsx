@@ -158,7 +158,7 @@ export function AsyncCombobox<T = unknown>(
                 >
                     <span className="flex min-w-0 flex-1 flex-wrap gap-1 text-left">
                         {selected.length === 0 ? (
-                            <span className="text-muted-foreground">
+                            <span className="truncate text-muted-foreground">
                                 {props.placeholder ??
                                     t('common.select', 'Select…')}
                             </span>

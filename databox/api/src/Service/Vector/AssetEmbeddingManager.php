@@ -7,6 +7,8 @@ namespace App\Service\Vector;
 use Alchemy\StorageBundle\Util\FileUtil;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetEmbedding;
+use App\Entity\Core\File;
+use App\Entity\Core\RenditionDefinition;
 use App\Service\Asset\FileFetcher;
 use App\Service\Image\ImageDownscaler;
 use App\Service\Storage\RenditionManager;
@@ -31,11 +33,20 @@ final readonly class AssetEmbeddingManager
     ) {
     }
 
+    /**
+     * The embedding is computed from the given rendition or, when it is not an image (a document
+     * preview is a PDF, a video preview is a video), from the thumbnail of the asset.
+     */
     public function embedAsset(Asset $asset, string $renditionName = self::DEFAULT_RENDITION, bool $force = false): bool
     {
-        $rendition = $this->renditionManager->getAssetRenditionByName($asset->getId(), $renditionName);
-        $file = $rendition?->getFile();
-        if (null === $file || !FileUtil::isImageType($file->getType())) {
+        $existingEmbedding = $this->em->getRepository(AssetEmbedding::class)
+            ->findOneBy(['asset' => $asset->getId()]);
+        if (null !== $existingEmbedding && !$force) {
+            return false;
+        }
+
+        $file = $this->getImageFile($asset, $renditionName);
+        if (null === $file) {
             return false;
         }
 
@@ -49,12 +60,6 @@ final readonly class AssetEmbeddingManager
             }
         }
 
-        $existingEmbedding = $this->em->getRepository(AssetEmbedding::class)
-            ->findOneBy(['asset' => $asset->getId()]);
-        if (null !== $existingEmbedding && !$force) {
-            return false;
-        }
-
         $embedding = $existingEmbedding ?? new AssetEmbedding();
         $embedding->setAsset($asset);
         $embedding->setVector($result['vector']);
@@ -64,6 +69,31 @@ final readonly class AssetEmbeddingManager
         $this->em->flush();
 
         return true;
+    }
+
+    /**
+     * @return string[] IDs of the thumbnail rendition definitions, the fallback when the configured
+     *                  rendition is not an image
+     */
+    public function getFallbackRenditionDefinitionIds(string $workspaceId): array
+    {
+        return array_map(
+            static fn (RenditionDefinition $definition): string => $definition->getId(),
+            $this->renditionManager->getRenditionDefinitionsUsedAs('thumbnail', $workspaceId),
+        );
+    }
+
+    private function getImageFile(Asset $asset, string $renditionName): ?File
+    {
+        $renditions = [$renditionName, ...$this->getFallbackRenditionDefinitionIds($asset->getWorkspaceId())];
+        foreach ($renditions as $rendition) {
+            $file = $this->renditionManager->getAssetRenditionByName($asset->getId(), $rendition)?->getFile();
+            if (null !== $file && FileUtil::isImageType($file->getType())) {
+                return $file;
+            }
+        }
+
+        return null;
     }
 
     public function getAssetVector(Asset $asset): ?array

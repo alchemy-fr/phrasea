@@ -6,3 +6,5 @@ services:
     App\Integration\Phraseanet\PhraseanetApiClientFactory: '@App\Tests\Functional\Rendition\Phraseanet\PhraseanetApiClientFactoryMock'
     App\Tests\Functional\Face\FaceRecognitionClientMock: ~
     App\Integration\Core\FaceRecognition\FaceRecognitionClient: '@App\Tests\Functional\Face\FaceRecognitionClientMock'
+    App\Tests\Functional\Similarity\EmbedderClientMock: ~
+    App\Service\Vector\EmbedderClient: '@App\Tests\Functional\Similarity\EmbedderClientMock'

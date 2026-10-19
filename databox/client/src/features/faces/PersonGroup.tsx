@@ -6,20 +6,9 @@ import {UsersIcon} from 'lucide-react';
 import type {AttributeEntity} from '@/types/api';
 import {AttributeEntityStatus} from '@/types/api';
 import {getAttributeEntities, putAttributeEntity} from '@/lib/api/metadata';
-import {AsyncCombobox, type ComboOption} from '@/components/form/AsyncCombobox';
-import {EntityChip} from '@/components/chips';
+import {AsyncCombobox} from '@/components/form/AsyncCombobox';
 import {Badge} from '@/components/ui/misc';
-import {entityLabel} from '@/features/attributes/types/registry';
-import {FaceCard, type FaceCardFace} from './FaceCard';
-
-function option(e: AttributeEntity): ComboOption<AttributeEntity> {
-    return {
-        value: e.id,
-        label: entityLabel(e),
-        render: <EntityChip entity={e} size="sm" />,
-        item: e,
-    };
-}
+import {FaceCard, personOption, type FaceCardFace} from './FaceCard';
 
 /**
  * The faces of a person nobody has named yet (a pending entity): named at once
@@ -45,7 +34,11 @@ export function PersonGroup({
     onNamed: (person: AttributeEntity) => Promise<void>;
     /** The pending person is merged into an existing one */
     onMerge: (person: AttributeEntity, targetId: string) => Promise<void>;
-    onAssign: (face: FaceCardFace, entityId: string) => Promise<void>;
+    onAssign: (
+        face: FaceCardFace,
+        entityId: string,
+        name?: string
+    ) => Promise<void>;
     onRemove: (face: FaceCardFace) => Promise<void>;
 }) {
     const {t} = useTranslation();
@@ -60,7 +53,7 @@ export function PersonGroup({
                 status: AttributeEntityStatus.Approved,
             });
 
-            return page.items.filter(e => e.id !== person.id).map(option);
+            return page.items.filter(e => e.id !== person.id).map(personOption);
         },
         [listId, person.id]
     );
@@ -116,7 +109,7 @@ export function PersonGroup({
                                     );
                                     await onNamed(saved);
 
-                                    return option(saved);
+                                    return personOption(saved);
                                 } finally {
                                     setSaving(false);
                                 }

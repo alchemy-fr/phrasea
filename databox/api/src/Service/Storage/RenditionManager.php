@@ -291,6 +291,24 @@ final class RenditionManager
             ]);
     }
 
+    /**
+     * @param string $as main, preview, thumbnail, animatedThumbnail
+     *
+     * @return RenditionDefinition[] the highest priority first
+     */
+    public function getRenditionDefinitionsUsedAs(string $as, string $workspaceId): array
+    {
+        return $this
+            ->em
+            ->getRepository(RenditionDefinition::class)
+            ->findBy([
+                'workspace' => $workspaceId,
+                'useAs'.ucfirst($as) => true,
+            ], [
+                'priority' => 'DESC',
+            ]);
+    }
+
     public function getRenditionDefinitionById(string $workspaceId, string $id): RenditionDefinition
     {
         $definition = $this

@@ -127,16 +127,15 @@ It powers the "Similar assets" panel and the "Find similar" action of the asset 
 
 Main behavior:
 
-- Adds a workflow job on asset ingest, depending on the configured rendition job (default: preview).
-- Sends the rendition image to the similarity-embedder service (self-hosted, CLIP) to compute the vector.
+- Adds a workflow job on asset ingest, depending on the configured rendition job (default: preview) and on the thumbnail rendition jobs.
+- Sends the rendition image to the similarity-embedder service (self-hosted, CLIP) to compute the vector. When the configured rendition is not an image (the preview of a document is a PDF, the one of a video is a video), the thumbnail rendition (`useAsThumbnail`) is used instead: documents and videos are searchable by similarity too.
 - Stores the vector in database (asset_embedding table) and reindexes the asset in Elasticsearch.
 - Similar assets are served by `GET /assets/{id}/similar` using an Elasticsearch kNN query filtered by permissions.
 
 Operational notes:
 
 - Requires the `similarity-embedder` (maintained in [alchemy-fr/phrasea-similarity-embedder](https://github.com/alchemy-fr/phrasea-similarity-embedder)) and `elasticsearch` (>= 8.12) services.
-- The rendition must be an image (documents are covered through their image preview rendition).
-- Backfill existing assets with `bin/console app:similarity:index`.
+- Backfill existing assets with `bin/console app:similarity:index` (assets already embedded are skipped unless `--force`).
 
 ## Face Recognition integration (core.face_recognition)
 

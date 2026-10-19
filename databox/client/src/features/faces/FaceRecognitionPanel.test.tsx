@@ -1,5 +1,11 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {fireEvent, render, screen, waitFor} from '@testing-library/react';
+import {
+    fireEvent,
+    render,
+    screen,
+    waitFor,
+    within,
+} from '@testing-library/react';
 import {I18nextProvider} from 'react-i18next';
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {Tooltip as TooltipPrimitive} from 'radix-ui';
@@ -36,6 +42,7 @@ const {api} = vi.hoisted(() => ({
         deleteAssetAttribute: vi.fn(),
         getAttributeEntities: vi.fn(),
         getAttributeEntity: vi.fn(),
+        putAttributeEntity: vi.fn(),
     },
 }));
 
@@ -61,6 +68,7 @@ vi.mock('@/lib/api/metadata', async importOriginal => {
         ...actual,
         getAttributeEntities: api.getAttributeEntities,
         getAttributeEntity: api.getAttributeEntity,
+        putAttributeEntity: api.putAttributeEntity,
     };
 });
 
@@ -128,6 +136,14 @@ function renderPanel(props: Partial<{asset: Asset}> = {}) {
     );
 }
 
+// cmdk needs them, jsdom has none
+globalThis.ResizeObserver ??= class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+} as unknown as typeof ResizeObserver;
+Element.prototype.scrollIntoView ??= () => {};
+
 describe('FaceRecognitionPanel', () => {
     beforeEach(() => {
         vi.clearAllMocks();
@@ -157,6 +173,55 @@ describe('FaceRecognitionPanel', () => {
                 value: 'alice',
             })
         );
+    });
+
+    it('names an unknown face with a named person only', async () => {
+        api.getAttributeEntities.mockResolvedValue({
+            items: [{id: 'bob', value: 'Bob', status: 0}],
+        });
+        api.patchAssetAttribute.mockResolvedValue({
+            ...(asset.attributes[0] as object),
+            origin: 'human',
+        });
+        renderPanel();
+
+        const cards = await screen.findAllByTestId('face-card');
+        fireEvent.click(within(cards[0]).getByRole('combobox'));
+        fireEvent.click(await screen.findByText('Bob'));
+
+        expect(api.getAttributeEntities).toHaveBeenCalledWith(
+            expect.objectContaining({list: 'list-1', status: 0})
+        );
+        await waitFor(() =>
+            expect(api.patchAssetAttribute).toHaveBeenCalledWith('attr-1', {
+                value: 'bob',
+            })
+        );
+    });
+
+    it('names the unknown person of a face', async () => {
+        api.getAttributeEntities.mockResolvedValue({items: []});
+        api.putAttributeEntity.mockResolvedValue({
+            id: 'unknown-1',
+            value: 'Carol',
+            status: 0,
+        });
+        renderPanel();
+
+        const cards = await screen.findAllByTestId('face-card');
+        fireEvent.click(within(cards[0]).getByRole('combobox'));
+        fireEvent.change(await screen.findByPlaceholderText('Search…'), {
+            target: {value: 'Carol'},
+        });
+        fireEvent.click(await screen.findByText('New person « Carol »'));
+
+        await waitFor(() =>
+            expect(api.putAttributeEntity).toHaveBeenCalledWith('unknown-1', {
+                value: 'Carol',
+                status: 0,
+            })
+        );
+        expect(api.patchAssetAttribute).not.toHaveBeenCalled();
     });
 
     it('runs the detection on the asset', async () => {

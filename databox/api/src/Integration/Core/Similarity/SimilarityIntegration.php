@@ -30,6 +30,7 @@ class SimilarityIntegration extends AbstractIntegration implements FilterNeedInt
 
     public function __construct(
         private readonly RenditionManager $renditionManager,
+        private readonly AssetEmbeddingManager $assetEmbeddingManager,
     ) {
     }
 
@@ -44,7 +45,7 @@ class SimilarityIntegration extends AbstractIntegration implements FilterNeedInt
             ->scalarNode('rendition')
                 ->defaultValue(AssetEmbeddingManager::DEFAULT_RENDITION)
                 ->cannotBeEmpty()
-                ->info('Rendition used to compute the embedding (must be an image)')
+                ->info('Rendition used to compute the embedding. When it is not an image (document, video), the thumbnail is used instead.')
             ->end()
         ;
     }
@@ -76,12 +77,16 @@ class SimilarityIntegration extends AbstractIntegration implements FilterNeedInt
                 throw new EntityDisableNotifyableException($config->getWorkspaceIntegration(), sprintf('Rendition "%s" not found', $rendition), sprintf('Rendition "%s" not found in workspace "%s"', $rendition, $neededIntegrationConfig->getWorkspaceIntegration()->getWorkspace()->getName()), $e->getCode(), $e);
             }
 
-            return [
-                RenditionIntegration::getJobId(
-                    $neededIntegrationConfig,
-                    $renditionDefinition->getId(),
-                ),
-            ];
+            // The thumbnail is the fallback of a rendition that is not an image (document, video)
+            $definitionIds = array_unique([
+                $renditionDefinition->getId(),
+                ...$this->assetEmbeddingManager->getFallbackRenditionDefinitionIds($neededIntegrationConfig->getWorkspaceId()),
+            ]);
+
+            return array_values(array_map(
+                static fn (string $definitionId): string => RenditionIntegration::getJobId($neededIntegrationConfig, $definitionId),
+                $definitionIds,
+            ));
         }
 
         return null;
