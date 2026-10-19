@@ -186,7 +186,7 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     private Collection $children;
 
     #[ORM\OneToOne(targetEntity: EntityType::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-    #[ORM\JoinColumn(nullable: true, unique: true)]
+    #[ORM\JoinColumn(name: 'entity_type_id', nullable: true, unique: true)]
     private ?EntityType $entityTypeEntity = null;
 
     private ?string $entityType = null;

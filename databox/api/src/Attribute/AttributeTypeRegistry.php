@@ -26,7 +26,7 @@ class AttributeTypeRegistry
         return $this->types[$type] ?? null;
     }
 
-    public function getStrictType(string $type): ?AttributeTypeInterface
+    public function getStrictType(string $type): AttributeTypeInterface
     {
         if (!isset($this->types[$type])) {
             throw new \InvalidArgumentException(sprintf('Attribute type "%s" not found', $type));

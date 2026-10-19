@@ -40,6 +40,7 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
         return $filters
             ->add(EntityFilter::new('workspace'))
             ->add(EntityFilter::new('list'))
+            ->add(EntityFilter::new('parent'))
             ->add(TextFilter::new('value'))
             ->add(DateTimeFilter::new('createdAt'))
             ->add($this->userChoiceFilter->createFilter('creatorId'))
@@ -67,7 +68,11 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
         yield $this->userChoiceField->create('creatorId', 'Creator');
         yield AssociationField::new('list')
             ->autocomplete();
+        yield AssociationField::new('parent')
+            ->autocomplete();
         yield TextField::new('value');
+        yield TextField::new('entityType')
+            ->setRequired(false);
         yield TextField::new('emoji');
         yield JsonField::new('synonyms')
             ->hideOnIndex();
@@ -78,5 +83,8 @@ class AttributeEntityCrudController extends AbstractAdminCrudController
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')
             ->hideOnForm();
+        yield AssociationField::new('children')
+            ->autocomplete()
+            ->onlyOnDetail();
     }
 }

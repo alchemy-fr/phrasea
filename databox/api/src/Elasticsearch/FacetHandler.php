@@ -63,7 +63,7 @@ final readonly class FacetHandler
             try {
                 $f['buckets'] = array_values(array_filter($type->normalizeBuckets($f['buckets']), fn ($value): bool => null !== $value));
             } catch (\Throwable $e) {
-                throw new \Exception(sprintf('Error normalizing buckets with "%s" type: %s', $builtInAttribute::getKey(), $e->getMessage()), 0, $e);
+                throw new \Exception(sprintf('Error normalizing buckets with "%s" type: %s', $type::getName(), $e->getMessage()), 0, $e);
             }
 
             if (ESFacetInterface::TYPE_TEXT !== $widget = $type->getFacetType()) {
