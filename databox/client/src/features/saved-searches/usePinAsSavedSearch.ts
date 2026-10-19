@@ -7,6 +7,8 @@ import {toast} from 'sonner';
 import {type AQLQuery, SavedSearchPrivacy} from '@/types/api';
 import {postSavedSearch} from '@/lib/api/misc';
 import {toastError} from '@/lib/utils/errors';
+import {EventCategory, SavedSearchEvent, track} from '@/lib/analytics/events';
+import {conditionField} from '@/features/search/conditionField';
 
 /**
  * Pins a filter of the sidebar (a workspace, a collection…) as a saved
@@ -23,6 +25,9 @@ export function usePinAsSavedSearch() {
                     name,
                     privacy: SavedSearchPrivacy.Secret,
                     data: {query: '', conditions: [condition], sortBy: []},
+                });
+                track(EventCategory.SavedSearch, SavedSearchEvent.Pin, {
+                    name: conditionField(condition.query),
                 });
                 queryClient.setQueryData(['saved-search', result.id], result);
                 void queryClient.invalidateQueries({

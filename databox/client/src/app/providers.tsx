@@ -18,6 +18,7 @@ import {SessionExpiredDialog} from '@/lib/auth/SessionExpiredDialog';
 import {ThemeManager} from '@/features/theme/ThemeManager';
 import {UnsavedChangesGuard} from '@/components/modals/UnsavedChangesGuard';
 import {Toaster} from '@/components/ui/toaster';
+import {MatomoTracker} from '@/lib/analytics/MatomoTracker';
 
 function createQueryClient(): QueryClient {
     return new QueryClient({
@@ -58,6 +59,7 @@ export function Providers({config, language, children}: Props) {
                     <QueryClientProvider client={queryClient}>
                         <Suspense fallback={<FullPageLoader />}>
                             <AuthProvider>
+                                <MatomoTracker />
                                 <Tooltip.Provider delayDuration={300}>
                                     <RealtimeProvider>
                                         <UserPreferencesGate>

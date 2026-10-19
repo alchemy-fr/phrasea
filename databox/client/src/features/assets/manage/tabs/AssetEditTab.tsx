@@ -18,6 +18,7 @@ import {useAssetStore} from '@/features/assets/assetStore';
 import {iri} from '@/lib/utils/iri';
 import {InlineLoader} from '@/components/ui/loader';
 import {useUnsavedChangesPrompt} from '@/lib/navigation/unsavedChanges';
+import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
 
 export function AssetEditTab({asset, refresh}: AssetTabProps) {
     const {t} = useTranslation();
@@ -73,6 +74,7 @@ export function AssetEditTab({asset, refresh}: AssetTabProps) {
                 queryKey: ['asset-view', asset.id],
             });
             refresh();
+            track(EventCategory.Asset, AssetEvent.Edit, {value: 1});
             toast.success(t('asset.edit.saved', 'Asset saved'));
         } catch (e: any) {
             toast.error(e?.message);

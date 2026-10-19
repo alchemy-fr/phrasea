@@ -19,6 +19,11 @@ vi.mock('@/lib/api/assets', () => ({
 }));
 vi.mock('@/lib/api/misc', () => ({addToBasket: api.addToBasket}));
 vi.mock('@/lib/api/collections', () => ({moveCollection: api.moveCollection}));
+const track = vi.hoisted(() => vi.fn());
+vi.mock('@/lib/analytics/events', async importOriginal => ({
+    ...(await importOriginal<typeof import('@/lib/analytics/events')>()),
+    track,
+}));
 
 const {executeDrop} = await import('./executeDrop');
 const {useBasketStore} = await import('@/features/baskets/basketStore');
@@ -304,5 +309,61 @@ describe('executeDrop collection', () => {
             'root'
         );
         expect(toast.error).toHaveBeenCalledWith('403');
+    });
+});
+
+describe('executeDrop analytics', () => {
+    it('tracks a successful drop of assets', async () => {
+        const {deps: d} = deps();
+        await executeDrop(
+            payload(asset('a'), asset('b'), asset('a')),
+            {type: 'collection', collection: col('c')},
+            'add',
+            d
+        );
+        expect(track).toHaveBeenCalledWith('DnD', 'assets_to_collection', {
+            name: 'add',
+            value: 2,
+        });
+    });
+
+    it('tracks a successful drop of a collection', async () => {
+        const {deps: d} = deps();
+        await executeDrop(
+            {type: 'collection', collection: col('child', 'ws1', 'root')},
+            {type: 'workspace', workspace: {id: 'ws1', name: 'W'} as Workspace},
+            'move-collection',
+            d
+        );
+        expect(track).toHaveBeenCalledWith('DnD', 'collection_to_workspace', {
+            name: 'move-collection',
+            value: 1,
+        });
+    });
+
+    it('tracks nothing when the drop fails', async () => {
+        const {deps: d} = deps();
+        api.addAssetsToCollection.mockRejectedValueOnce(new Error('boom'));
+        await executeDrop(
+            payload(asset('a')),
+            {type: 'collection', collection: col('c')},
+            'add',
+            d
+        );
+        expect(track).not.toHaveBeenCalled();
+    });
+
+    it('tracks nothing when the duplication is cancelled', async () => {
+        const {deps: d} = deps(false);
+        await executeDrop(
+            payload(asset('a', 'ws1')),
+            {
+                type: 'workspace',
+                workspace: {id: 'ws2', name: 'W2'} as Workspace,
+            },
+            'copy',
+            d
+        );
+        expect(track).not.toHaveBeenCalled();
     });
 });

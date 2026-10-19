@@ -17,6 +17,10 @@ import {FileTypeChip} from '@/components/chips';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
 import {AttributeList} from '@/features/attributes/AttributeList';
 import {formatFileSize} from '@/lib/utils/format';
+import {
+    getContentTracking,
+    useContentImpression,
+} from '@/lib/analytics/useContentTracking';
 import {ShareAttachments} from './ShareAttachments';
 import {
     getDefaultViewRendition,
@@ -67,6 +71,7 @@ export function ShareAssetView({
         [share.attachments, asset.id]
     );
     const source = asset.source;
+    useContentImpression(asset, file?.type);
 
     // The rendition picked is the one of the asset displayed
     useEffect(() => setViewId(undefined), [asset.id]);
@@ -156,6 +161,7 @@ export function ShareAssetView({
                             key={current?.id}
                             file={file}
                             title={asset.name}
+                            tracking={getContentTracking(asset)}
                             fit="zoom"
                             className="size-full"
                         />

@@ -63,6 +63,12 @@ import {iri} from '@/lib/utils/iri';
 import {useOptionalResults} from '@/features/search/useOptionalResults';
 import {SaveAsTemplateSection} from './SaveAsTemplateSection';
 import {AssetDataTemplateSelect} from './AssetDataTemplateSelect';
+import {
+    AssetEvent,
+    EventCategory,
+    StoryEvent,
+    track,
+} from '@/lib/analytics/events';
 
 type Props = ModalProps & {
     files?: File[];
@@ -251,6 +257,11 @@ export function UploadDialog({
                 {quiet}
             );
             created = story ? [] : [asset];
+            if (story) {
+                track(EventCategory.Story, StoryEvent.Create, {name: 'upload'});
+            } else {
+                track(EventCategory.Asset, AssetEvent.Create, {value: 1});
+            }
             toast.success(
                 story
                     ? t('upload.story_created', 'Story created')
@@ -274,6 +285,10 @@ export function UploadDialog({
                 created = items;
                 await applyStoryCover(storyAsset, items[coverUrlIndex]);
             }
+            track(EventCategory.Asset, AssetEvent.ImportUrls, {
+                name: story ? 'story' : undefined,
+                value: created.length,
+            });
             toast.success(
                 t('upload.imported', '{{count}} assets imported', {
                     count: created.length,
@@ -337,6 +352,10 @@ export function UploadDialog({
                 await applyStoryCover(storyAsset, coverAsset);
             }
             if (created.length > 0) {
+                track(EventCategory.Asset, AssetEvent.Upload, {
+                    name: story ? 'story' : undefined,
+                    value: created.length,
+                });
                 toast.success(
                     t('upload.done', '{{count}} assets uploaded', {
                         count: created.length,

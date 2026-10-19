@@ -25,6 +25,9 @@ import {
     type ZoomView,
 } from './zoom';
 
+/** Pixels the pointer may move during a click */
+const DRAG_THRESHOLD = 3;
+
 /**
  * Image with wheel / pinch zoom around the pointer, drag panning, zoom steps
  * and rotation by quarter turns. The rotation only affects the view: it is
@@ -35,11 +38,14 @@ export function ZoomableImage({
     alt,
     className,
     onInteraction,
+    onContentClick,
 }: {
     src: string;
     alt: string;
     className?: string;
     onInteraction?: () => void;
+    /** A click on the image, not ending a drag nor on the toolbar */
+    onContentClick?: () => void;
 }) {
     const {t} = useTranslation();
     const containerRef = useRef<HTMLDivElement>(null);
@@ -56,6 +62,8 @@ export function ZoomableImage({
     const drag = useRef<{x: number; y: number; ox: number; oy: number}>(
         undefined
     );
+    // The click ending a drag is not a click on the content
+    const moved = useRef(false);
 
     const measure = (): ZoomMetrics | undefined => {
         const c = containerRef.current;
@@ -182,11 +190,17 @@ export function ZoomableImage({
                       : 'cursor-grab',
                 className
             )}
-            onClick={onInteraction}
+            onClick={e => {
+                onInteraction?.();
+                if (!moved.current && !inToolbar(e.target)) {
+                    onContentClick?.();
+                }
+            }}
             onPointerDown={e => {
                 if (e.button !== 0 || inToolbar(e.target)) {
                     return;
                 }
+                moved.current = false;
                 e.currentTarget.setPointerCapture(e.pointerId);
                 drag.current = {
                     x: e.clientX,
@@ -199,6 +213,12 @@ export function ZoomableImage({
                 const d = drag.current;
                 if (!d) {
                     return;
+                }
+                if (
+                    Math.abs(e.clientX - d.x) > DRAG_THRESHOLD ||
+                    Math.abs(e.clientY - d.y) > DRAG_THRESHOLD
+                ) {
+                    moved.current = true;
                 }
                 const m = measure();
                 if (!m) {

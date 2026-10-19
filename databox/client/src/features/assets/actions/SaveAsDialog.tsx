@@ -18,6 +18,7 @@ import {
 import {getRenditionDefinitions, postRendition} from '@/lib/api/misc';
 import {destinationToAssetProps, patchAsset, postAsset} from '@/lib/api/assets';
 import {useAssetStore} from '@/features/assets/assetStore';
+import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
 
 type Mode = 'new_asset' | 'rendition' | 'replace_source';
 
@@ -86,6 +87,7 @@ export function SaveAsDialog({
             update(updated);
             toast.success(t('asset.replace.done', 'Source file replaced'));
         }
+        track(EventCategory.Asset, AssetEvent.SaveAs, {name: mode});
         onComplete?.();
         resolve?.(mode);
     };

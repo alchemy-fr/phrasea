@@ -9,6 +9,7 @@ import {FormDialog} from '@/components/modals/FormDialog';
 import {FormRow, Input, Textarea} from '@/components/ui/input';
 import {postBasket, putBasket} from '@/lib/api/misc';
 import {useBasketStore} from './basketStore';
+import {BasketEvent, EventCategory, track} from '@/lib/analytics/events';
 
 export function BasketFormDialog({
     open,
@@ -28,6 +29,10 @@ export function BasketFormDialog({
             ? await putBasket(basket.id, {name, description})
             : await postBasket({name, description});
         upsert(saved);
+        track(
+            EventCategory.Basket,
+            basket ? BasketEvent.Update : BasketEvent.Create
+        );
         if (!basket) {
             setCurrent(saved);
         }

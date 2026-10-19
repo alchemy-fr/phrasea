@@ -1,4 +1,5 @@
 import {create} from 'zustand';
+import {EventCategory, StoryEvent, track} from '@/lib/analytics/events';
 
 const storageKey = 'dbx.pinned-stories';
 export const maxPinnedStories = 50;
@@ -52,6 +53,10 @@ export const usePinnedStoriesStore = create<State>((set, get) => ({
     ids: typeof window === 'undefined' ? [] : read(),
     toggle: id => {
         const ids = togglePinned(get().ids, id);
+        track(
+            EventCategory.Story,
+            ids.includes(id) ? StoryEvent.Pin : StoryEvent.Unpin
+        );
         write(ids);
         set({ids});
     },

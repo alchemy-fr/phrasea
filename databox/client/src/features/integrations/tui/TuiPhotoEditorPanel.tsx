@@ -15,6 +15,7 @@ import {InlineLoader} from '@/components/ui/loader';
 import {useModals} from '@/components/modals/ModalProvider';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {PhotoEditorDialog} from './PhotoEditorDialog';
+import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';
 
 /** Integration key of the Toast UI photo editor (`TuiPhotoEditorIntegration`) */
 export const tuiPhotoEditor = 'tui.photo-editor';
@@ -78,6 +79,9 @@ export function TuiPhotoEditorPanel({
             await runIntegrationAction(integration.id, 'delete', {
                 fileId: file.id,
                 id,
+            });
+            track(EventCategory.Integration, IntegrationEvent.Run, {
+                name: `${integration.integration}:delete`,
             });
             void reload();
         } catch (e: any) {

@@ -14,7 +14,11 @@ import {belowTopBar} from '@/components/layout/chrome';
 import {useModals} from '@/components/modals/ModalProvider';
 import {FilePlayer} from '@/features/assets/player/FilePlayer';
 import {cn} from '@/lib/utils/cn';
-import type {Asset, Share} from '@/types/api';
+import {
+    getContentTracking,
+    useContentImpression,
+} from '@/lib/analytics/useContentTracking';
+import type {ApiFile, Asset, Share} from '@/types/api';
 import {ShareAssetView} from './ShareAssetView';
 import {ShareAttachments} from './ShareAttachments';
 import {ShareDownloadDialog} from './ShareDownloadDialog';
@@ -325,17 +329,29 @@ function ShareEmbed({share}: {share: Share}) {
                         className="flex min-h-full flex-1 items-center justify-center"
                     >
                         {rendition ? (
-                            <FilePlayer
+                            <ShareEmbedPlayer
+                                asset={asset}
                                 file={getRenditionFile(asset, rendition)}
-                                title={asset.name}
-                                autoPlay
-                                className="max-h-[80vh]"
                             />
                         ) : null}
                     </div>
                 );
             })}
         </div>
+    );
+}
+
+function ShareEmbedPlayer({asset, file}: {asset: Asset; file: ApiFile}) {
+    useContentImpression(asset, file.type);
+
+    return (
+        <FilePlayer
+            file={file}
+            title={asset.name}
+            tracking={getContentTracking(asset)}
+            autoPlay
+            className="max-h-[80vh]"
+        />
     );
 }
 

@@ -16,6 +16,7 @@ import {
     workflowStatusBadge,
     workflowTitle,
 } from '@/features/workflows/workflowLabel';
+import {EventCategory, track, WorkflowEvent} from '@/lib/analytics/events';
 
 export function AssetWorkflowTab({asset}: AssetTabProps) {
     const {t, i18n} = useTranslation();
@@ -34,6 +35,10 @@ export function AssetWorkflowTab({asset}: AssetTabProps) {
                     onClick={async () => {
                         try {
                             await triggerAssetWorkflow(asset.id);
+                            track(
+                                EventCategory.Workflow,
+                                WorkflowEvent.Trigger
+                            );
                             toast.success(
                                 t('workflow.triggered', 'Workflow triggered')
                             );

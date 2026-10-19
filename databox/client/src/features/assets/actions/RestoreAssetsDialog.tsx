@@ -13,6 +13,7 @@ import {Alert} from '@/components/ui/misc';
 import {CollectionChip} from '@/components/chips';
 import {restoreAssets} from '@/lib/api/assets';
 import {RestoreCollectionDialog} from '@/features/collections/CollectionDialogs';
+import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
 
 type Props = ModalProps<string[]> & {assets: Asset[]; onComplete?: () => void};
 
@@ -56,6 +57,7 @@ export function RestoreAssetsDialog({
     const submit = async () => {
         const ids = restorable.map(a => a.id);
         await restoreAssets(ids);
+        track(EventCategory.Asset, AssetEvent.Restore, {value: ids.length});
         toast.success(
             t('asset.restore.done', '{{count}} assets restored', {
                 count: ids.length,

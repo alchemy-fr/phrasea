@@ -13,6 +13,7 @@ import {PrivacyField} from '@/components/form/PrivacyField';
 import {postCollection} from '@/lib/api/collections';
 import {useCollectionStore} from './collectionStore';
 import {iri} from '@/lib/utils/iri';
+import {CollectionEvent, EventCategory, track} from '@/lib/analytics/events';
 
 type Props = ModalProps<Collection> & {
     workspaceId: string;
@@ -44,6 +45,9 @@ export function CreateCollectionDialog({
             workspace: iri(EntityName.Workspace, workspaceId),
         });
         upsert(collection, workspaceId, true);
+        track(EventCategory.Collection, CollectionEvent.Create, {
+            name: parent ? 'child' : 'root',
+        });
         toast.success(t('collections.created', 'Collection created'));
         onCreated?.(collection);
         resolve?.(collection);

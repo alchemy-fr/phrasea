@@ -28,7 +28,10 @@ export function SelectionActions({
     const selection = useSelection();
     const total = pages.flat().length;
     const count = selection.selection.length;
-    const groups = useAssetActions(selection.selection, {context});
+    const groups = useAssetActions(selection.selection, {
+        context,
+        surface: 'toolbar',
+    });
     const bulkActions = groups.flat().filter(a => a.bulk && a.id !== 'basket');
 
     return (

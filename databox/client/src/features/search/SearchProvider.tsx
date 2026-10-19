@@ -40,6 +40,8 @@ import {shortId} from '@/lib/utils/misc';
 import {iri} from '@/lib/utils/iri';
 import {useProfileStore} from '@/features/profiles/profileStore';
 import {pinnedDefaults, withPinnedDefaults} from './pinned/pinnedFilterQuery';
+import {conditionField} from './conditionField';
+import {EventCategory, SavedSearchEvent, track} from '@/lib/analytics/events';
 
 export type SearchContextValue = SearchState & {
     /** Stable checksum of the effective search (undefined when nothing is searched) */
@@ -84,6 +86,10 @@ export type SearchContextValue = SearchState & {
 };
 
 const SearchContext = createContext<SearchContextValue | null>(null);
+
+function trackSearch(action: string, name?: string): void {
+    track(EventCategory.Search, action, {name});
+}
 
 function searchUrl(basePath: string, state: SearchState): string {
     const qs = searchStateToParams(state).toString();
@@ -167,6 +173,8 @@ export function SearchProvider({
 
     const setQuery = useCallback(
         (query: string) => {
+            // Never the text searched, sent by the site search of the results
+            trackSearch('setQuery');
             inputQuery.current = query;
             if (!update({query})) {
                 setReloadInc(i => i + 1);
@@ -290,10 +298,17 @@ export function SearchProvider({
                 inputQuery.current = q;
             },
             setQuery,
-            setSortBy: sortBy => update({sortBy}),
-            setGeolocation: geolocation => update({geolocation}),
+            setSortBy: sortBy => {
+                trackSearch('setSortBy', sortBy.map(s => s.a).join(','));
+                update({sortBy});
+            },
+            setGeolocation: geolocation => {
+                trackSearch('setGeolocation', geolocation ? 'set' : 'clear');
+                update({geolocation});
+            },
             upsertCondition: condition => {
                 const {renewId, resetQuery, ...c} = condition;
+                trackSearch('upsertCondition', conditionField(c.query));
                 if (resetQuery) {
                     inputQuery.current = '';
                 }
@@ -311,26 +326,47 @@ export function SearchProvider({
                     ...(resetQuery ? {query: ''} : {}),
                 }));
             },
-            removeCondition: id =>
+            removeCondition: id => {
+                trackSearch(
+                    'removeCondition',
+                    conditionField(
+                        conditions.find(c => c.id === id)?.query ?? ''
+                    )
+                );
                 update(prev => ({
                     // A cleared default is kept out by an empty condition
                     conditions: defaultsRef.current.some(d => d.id === id)
                         ? upsertCondition(prev.conditions, {id, query: ''})
                         : prev.conditions.filter(c => c.id !== id),
-                })),
-            resetWithCondition: condition =>
+                }));
+            },
+            resetWithCondition: condition => {
+                trackSearch(
+                    'resetWithCondition',
+                    conditionField(condition.query)
+                );
                 update({
                     conditions: [condition],
                     query: '',
                     searchId: undefined,
-                }),
+                });
+            },
             selectWorkspace: (id, workspace) => {
+                trackSearch('selectWorkspace', id ? undefined : 'clear');
                 if (workspace) {
                     storeEntity(workspace['@id'], workspace as any);
                 }
                 selectFilter(BuiltInAttribute.Workspace, id);
             },
             selectCollection: (id, collection) => {
+                trackSearch(
+                    'selectCollection',
+                    id
+                        ? collection?.storyAsset
+                            ? 'story'
+                            : undefined
+                        : 'clear'
+                );
                 if (collection) {
                     storeEntity(collection['@id'], collection as any);
                 }
@@ -349,6 +385,8 @@ export function SearchProvider({
                 selectFilter(BuiltInAttribute.Collection, id);
             },
             loadSavedSearch: saved => {
+                trackSearch('loadSavedSearch');
+                track(EventCategory.SavedSearch, SavedSearchEvent.Load);
                 inputQuery.current = saved.data.query ?? '';
                 commit({
                     searchId: saved.id,
@@ -360,6 +398,7 @@ export function SearchProvider({
             },
             setSearchId: searchId => update({searchId}),
             reset: () => {
+                trackSearch('reset');
                 inputQuery.current = '';
                 commit({query: '', conditions: [], sortBy: []});
             },

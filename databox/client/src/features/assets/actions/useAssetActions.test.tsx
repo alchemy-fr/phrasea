@@ -4,7 +4,11 @@ import type {PropsWithChildren} from 'react';
 import {I18nextProvider} from 'react-i18next';
 import {createI18n} from '@/i18n';
 import type {Asset} from '@/types/api';
-import {useAssetActions, type AssetAction} from './useAssetActions';
+import {
+    useAssetActions,
+    type ActionSurface,
+    type AssetAction,
+} from './useAssetActions';
 
 vi.mock('next/navigation', () => ({
     useRouter: () => ({push: vi.fn()}),
@@ -17,6 +21,11 @@ vi.mock('@/lib/auth/AuthProvider', () => ({
 }));
 vi.mock('@/features/assets/useAssetOpener', () => ({
     useAssetOpener: () => vi.fn(),
+}));
+const track = vi.hoisted(() => vi.fn());
+vi.mock('@/lib/analytics/events', async importOriginal => ({
+    ...(await importOriginal<typeof import('@/lib/analytics/events')>()),
+    track,
 }));
 
 type Caps = Partial<Asset['capabilities']>;
@@ -41,8 +50,13 @@ const wrapper = ({children}: PropsWithChildren) => (
     <I18nextProvider i18n={i18n}>{children}</I18nextProvider>
 );
 
-function actionsOf(assets: Asset[]): Record<string, AssetAction> {
-    const {result} = renderHook(() => useAssetActions(assets), {wrapper});
+function actionsOf(
+    assets: Asset[],
+    surface?: ActionSurface
+): Record<string, AssetAction> {
+    const {result} = renderHook(() => useAssetActions(assets, {surface}), {
+        wrapper,
+    });
 
     return Object.fromEntries(result.current.flat().map(a => [a.id, a]));
 }
@@ -116,5 +130,27 @@ describe('useAssetActions', () => {
         expect(
             actionsOf([asset('a', {}, false), asset('b')]).download.disabled
         ).toBeFalsy();
+    });
+
+    it('tracks the action run', () => {
+        track.mockClear();
+        actionsOf([asset('a')]).download.run();
+        expect(track).toHaveBeenCalledWith('Asset action', 'download', {
+            name: 'menu',
+            value: 1,
+        });
+
+        track.mockClear();
+        actionsOf([asset('a'), asset('b')], 'toolbar').move.run();
+        expect(track).toHaveBeenCalledWith('Asset action', 'move', {
+            name: 'toolbar',
+            value: 2,
+        });
+    });
+
+    it('tracks nothing until an action runs', () => {
+        track.mockClear();
+        actionsOf([asset('a')]);
+        expect(track).not.toHaveBeenCalled();
     });
 });

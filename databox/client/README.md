@@ -40,7 +40,8 @@ baked at build time.
 | `SOKETI_HOST`, `SOKETI_KEY`, `NOTIFICATIONS_ENABLED` | Realtime |
 | `S3_MULTIPART_*`, `S3_MAX_OBJECT_SIZE`, `ALLOWED_FILE_TYPES` | Uploads |
 | `DASHBOARD_CLIENT_URL`, `DISPLAY_SERVICES_MENU` | Services menu |
-| `MATOMO_URL`, `MATOMO_SITE_ID`, `SENTRY_DSN`… | Analytics / monitoring |
+| `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_MEDIA_PLUGIN_ENABLED`, `MATOMO_DISABLE_COOKIES` | Matomo analytics (see `doc/tech/Databox/analytics.md`) |
+| `SENTRY_DSN`, `SENTRY_ENVIRONMENT` | Monitoring |
 | `DATABOX_TICKETING_ENABLED`, `DATABOX_TICKETING_JIRA_*` | Ticketing (see below) |
 | `CONFIGURATOR_S3_*`, `CONFIG_IS_PUBLIC`, `STACK_CONFIG_SRC`, `STACK_CONFIG_REFRESH_INTERVAL` | Stack configuration (see below) |
 
@@ -199,7 +200,7 @@ Not (fully) implemented yet:
 - Annotations / drawing tools on the viewer.
 - Leaflet / OpenStreetMap maps (the geo facet is list-only).
 - Page-by-page PDF player (iframe fallback is used).
-- Matomo / Sentry wiring (env variables are exposed, no SDK yet).
+- Sentry wiring (env variables are exposed, no SDK yet).
 - Vendor-specific integration UIs, apart from the Toast UI photo editor
   (Rekognition boxes, Remove.bg compare).
 - Translations: `en` and `fr` are complete, `de` / `es` fall back to English.

@@ -24,6 +24,7 @@ import {
     useUnsavedChangesPrompt,
 } from '@/lib/navigation/unsavedChanges';
 import {PhotoEditor, type PhotoEditorInstance} from './PhotoEditor';
+import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';
 
 /**
  * Full screen photo editor on a file, saving its result as a new file of the
@@ -113,6 +114,9 @@ export function PhotoEditorDialog({
                 assetId: asset.id,
                 name,
                 multipart,
+            });
+            track(EventCategory.Integration, IntegrationEvent.Run, {
+                name: `${integration.integration}:save`,
             });
             toast.success(t('tui_photo_editor.saved', 'Saved!'));
             onSaved?.();

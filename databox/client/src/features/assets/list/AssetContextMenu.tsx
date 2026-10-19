@@ -23,6 +23,7 @@ import {
 import {
     useAssetActions,
     type ActionContext,
+    type ActionSurface,
     type AssetAction,
 } from '@/features/assets/actions/useAssetActions';
 
@@ -97,6 +98,7 @@ export function AssetMenuItems({
     variant,
     onOpen,
     context,
+    surface,
 }: {
     assets: Asset[];
     variant: 'context' | 'dropdown';
@@ -104,9 +106,11 @@ export function AssetMenuItems({
     onOpen?: () => void;
     /** Actions that do not make sense where the menu is rendered */
     context?: ActionContext;
+    /** For analytics, `menu` by default */
+    surface?: ActionSurface;
 }) {
     const {t} = useTranslation();
-    const groups = useAssetActions(assets, {onOpen, context});
+    const groups = useAssetActions(assets, {onOpen, context, surface});
     const Label = variant === 'context' ? ContextMenuLabel : DropdownMenuLabel;
     const Sep =
         variant === 'context' ? ContextMenuSeparator : DropdownMenuSeparator;

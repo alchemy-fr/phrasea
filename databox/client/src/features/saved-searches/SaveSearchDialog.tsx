@@ -12,6 +12,7 @@ import {postSavedSearch, putSavedSearch} from '@/lib/api/misc';
 import type {SearchContextValue} from '@/features/search/SearchProvider';
 import {SavedSearchPrivacyField} from './SavedSearchPrivacyField';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {EventCategory, SavedSearchEvent, track} from '@/lib/analytics/events';
 
 type Props = ModalProps<SavedSearch> & {
     /** Caller's search context (modals render above SearchProvider) */
@@ -55,6 +56,9 @@ export function SaveSearchDialog({
             mode === 'update' && savedSearch
                 ? await putSavedSearch(savedSearch.id, data)
                 : await postSavedSearch(data);
+        track(EventCategory.SavedSearch, SavedSearchEvent.Save, {
+            name: mode === 'update' && savedSearch ? 'update' : 'create',
+        });
         void queryClient.invalidateQueries({queryKey: ['saved-searches']});
         queryClient.setQueryData(['saved-search', result.id], result);
         if (result.id !== search.searchId) {

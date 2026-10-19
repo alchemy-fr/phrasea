@@ -20,6 +20,7 @@ import {InlineLoader} from '@/components/ui/loader';
 import {CollectionChip} from '@/components/chips';
 import {deleteAssets, prepareDeleteAssets} from '@/lib/api/assets';
 import {useAssetStore} from '@/features/assets/assetStore';
+import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
 
 type Props = ModalProps<string[]> & {
     assets: Asset[];
@@ -67,6 +68,15 @@ export function DeleteAssetsDialog({
         await deleteAssets(ids, {
             collections: mode === 'collections' ? selectedCollections : [],
             hardDelete: mode === 'trash' && hardDelete,
+        });
+        track(EventCategory.Asset, AssetEvent.Delete, {
+            name:
+                mode === 'trash'
+                    ? hardDelete
+                        ? 'permanent'
+                        : 'trash'
+                    : 'collections',
+            value: ids.length,
         });
         if (mode === 'trash') {
             removeFromStore(ids);

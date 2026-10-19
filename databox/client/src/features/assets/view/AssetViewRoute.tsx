@@ -42,6 +42,10 @@ import {belowTopBar} from '@/components/layout/chrome';
 import {usePageTrail} from '@/components/layout/layoutStore';
 import {cn} from '@/lib/utils/cn';
 import {isApiError} from '@/lib/api/http';
+import {
+    getContentTracking,
+    useContentImpression,
+} from '@/lib/analytics/useContentTracking';
 
 /** Best file to display for a story item standing in for its story */
 function standInFile(asset: Asset | undefined) {
@@ -167,6 +171,12 @@ export function AssetViewRoute({
             ? story.items.find(a => standInFile(a))
             : undefined;
     const displayedFile = rendition?.file ?? standInFile(storyStandIn);
+    // The media displayed is the stand-in's for a story without a file
+    const displayedAsset = storyStandIn ?? asset;
+    useContentImpression(
+        displayedFile ? displayedAsset : undefined,
+        displayedFile?.type
+    );
 
     // prev / next navigation: a story is walked from its cover through its
     // items, the list the viewer was opened from otherwise. Leaving the story
@@ -481,6 +491,9 @@ export function AssetViewRoute({
                                 <FilePlayer
                                     file={displayedFile}
                                     title={storyStandIn?.name ?? asset.name}
+                                    tracking={getContentTracking(
+                                        storyStandIn ?? asset
+                                    )}
                                     fit="zoom"
                                     className="size-full"
                                     autoPlay

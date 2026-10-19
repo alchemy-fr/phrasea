@@ -17,6 +17,7 @@ import {useSearch} from './SearchProvider';
 import {conditionQuery, resolveSortBy} from './searchState';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
+import {trackSiteSearch} from '@/lib/analytics/matomo';
 
 export type ResultContextValue = {
     pages: Asset[][];
@@ -66,6 +67,10 @@ export function ResultProvider({
         generation: number;
     }>({pages: [], loading: true, loadingMore: false, generation: 0});
     const controller = useRef<AbortController | null>(null);
+    // A search is reported to the analytics once, with its first page
+    const searchRef = useRef(search);
+    searchRef.current = search;
+    const trackedChecksum = useRef<string | undefined>(undefined);
     const storeAssets = useAssetStore(s => s.setAssets);
     const reloadAsset = useAssetStore(s => s.reloadAsset);
 
@@ -132,6 +137,21 @@ export function ResultProvider({
                     return;
                 }
                 storeAssets(result.items);
+                const current = searchRef.current;
+                if (
+                    !nextUrl &&
+                    current.hasSearch &&
+                    trackedChecksum.current !== checksum
+                ) {
+                    trackedChecksum.current = checksum;
+                    trackSiteSearch(
+                        current.query,
+                        current.conditions.some(c => !c.disabled)
+                            ? 'filters'
+                            : undefined,
+                        result.total
+                    );
+                }
                 setState(prev => ({
                     pages: nextUrl
                         ? [...prev.pages, result.items]

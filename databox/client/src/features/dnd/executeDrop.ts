@@ -15,6 +15,7 @@ import {
     type DropTarget,
     targetName,
 } from './types';
+import {EventCategory, track} from '@/lib/analytics/events';
 
 type Translate = (
     key: string,
@@ -45,14 +46,25 @@ export async function executeDrop(
     deps: DropDeps
 ): Promise<boolean> {
     try {
+        let done: boolean;
         if (payload.type === 'collection') {
-            return await dropCollection(payload.collection.id, target, deps);
-        }
-        if (op === 'move-collection') {
+            done = await dropCollection(payload.collection.id, target, deps);
+        } else if (op === 'move-collection') {
             return false;
+        } else {
+            done = await dropAssets(payload, target, op, deps);
+        }
+        if (done) {
+            track(EventCategory.DnD, `${payload.type}_to_${target.type}`, {
+                name: op,
+                value:
+                    payload.type === 'collection'
+                        ? 1
+                        : new Set(payload.assets.map(a => a.id)).size,
+            });
         }
 
-        return await dropAssets(payload, target, op, deps);
+        return done;
     } catch (e) {
         toastError(e);
 

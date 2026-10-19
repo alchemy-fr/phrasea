@@ -14,6 +14,7 @@ import {
     TreeSelection,
 } from '@/components/form/CollectionTreePicker';
 import {copyAssets, moveAssets} from '@/lib/api/assets';
+import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
 
 type Props = ModalProps<string[]> & {
     assets: Asset[];
@@ -50,6 +51,7 @@ export function CopyMoveDialog({
     const submit = async () => {
         if (mode === 'move') {
             await moveAssets(ids, destination!.iri);
+            track(EventCategory.Asset, AssetEvent.Move, {value: ids.length});
             toast.success(
                 t('asset.move.done', '{{count}} assets moved', {
                     count: ids.length,
@@ -62,6 +64,11 @@ export function CopyMoveDialog({
                 byReference && !crossWorkspace,
                 {withAttributes, withTags}
             );
+            track(EventCategory.Asset, AssetEvent.Copy, {
+                name:
+                    byReference && !crossWorkspace ? 'reference' : 'duplicate',
+                value: ids.length,
+            });
             toast.success(
                 t('asset.copy.done', '{{count}} assets copied', {
                     count: ids.length,

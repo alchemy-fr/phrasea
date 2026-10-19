@@ -16,6 +16,7 @@ import {
     getDownloadFileName,
     type ShareRendition,
 } from './shareRenditions';
+import {EventCategory, ShareEvent, track} from '@/lib/analytics/events';
 
 export type ShareDownloadItem = {
     asset: Asset;
@@ -114,6 +115,7 @@ export function ShareDownloadDialog({
             );
             setProgress({done: i + 1, total: list.length});
         }
+        track(EventCategory.Share, ShareEvent.Download, {value: list.length});
         resolve?.(list.length);
     };
 

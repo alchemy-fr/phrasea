@@ -15,6 +15,7 @@ import {useCollectionStore} from '@/features/collections/collectionStore';
 import {TermsContent} from '@/features/share/ShareTerms';
 import {useExportStore} from '@/features/assets/exportStore';
 import {downloadUrl} from '@/lib/utils/misc';
+import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
 
 export function ExportDialog({
     open,
@@ -88,6 +89,11 @@ export function ExportDialog({
             renditions: selected,
         });
         addExport(exp);
+        track(
+            EventCategory.Asset,
+            assets.length === 1 ? AssetEvent.Download : AssetEvent.Export,
+            {value: assets.length}
+        );
         if (exp.downloadUrl) {
             downloadUrl(exp.downloadUrl);
         }

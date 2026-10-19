@@ -52,6 +52,7 @@ import {toastError} from '@/lib/utils/errors';
 import {cn} from '@/lib/utils/cn';
 import {ShareSocials} from './ShareSocials';
 import {EmbedDialog} from './EmbedDialog';
+import {EventCategory, ShareEvent, track} from '@/lib/analytics/events';
 
 export function getShareUrl(share: Share): string {
     return `${window.location.origin}${routes.share(share.id, share.token)}`;
@@ -183,6 +184,9 @@ export function ShareDialog({
         mutationFn: (data: Parameters<typeof createShare>[1]) =>
             createShare(assetIds, data),
         onSuccess: share => {
+            track(EventCategory.Share, ShareEvent.Create, {
+                value: assetIds.length,
+            });
             setShares(prev => [...prev, share]);
             setCreating(false);
             setForm(emptyForm);
@@ -199,7 +203,8 @@ export function ShareDialog({
             data: Parameters<typeof updateShare>[1];
         }) => updateShare(id, data),
         // A link only stays listed while it holds the selected assets
-        onSuccess: share =>
+        onSuccess: share => {
+            track(EventCategory.Share, ShareEvent.Update);
             setShares(prev => {
                 const others = prev.filter(s => s.id !== share.id);
                 if (!shareIncludes(share, assetIds)) {
@@ -209,7 +214,8 @@ export function ShareDialog({
                 return prev.some(s => s.id === share.id)
                     ? prev.map(s => (s.id === share.id ? share : s))
                     : [...others, share];
-            }),
+            });
+        },
         onError: (e: unknown) => toastError(e),
     });
     const setAssets = (share: Share, ids: string[], onSuccess?: () => void) =>
@@ -239,7 +245,10 @@ export function ShareDialog({
     };
     const revoke = useMutation({
         mutationFn: (id: string) => deleteShare(id),
-        onSuccess: (_d, id) => setShares(prev => prev.filter(s => s.id !== id)),
+        onSuccess: (_d, id) => {
+            track(EventCategory.Share, ShareEvent.Delete);
+            setShares(prev => prev.filter(s => s.id !== id));
+        },
         onError: (e: unknown) => toastError(e),
     });
 

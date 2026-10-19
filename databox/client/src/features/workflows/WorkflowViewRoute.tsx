@@ -26,6 +26,7 @@ import {WorkflowGraph} from './WorkflowGraph';
 import {JobDetailPanel} from './JobDetailPanel';
 import {assetWorkflowsQueryKey, WorkflowRunsPanel} from './WorkflowRunsPanel';
 import {findJob} from './workflowGraph';
+import {EventCategory, track, WorkflowEvent} from '@/lib/analytics/events';
 
 /** Every URL of the screen: `/workflows/:id` */
 const routeKey = routes.workflow('').replace(/\/$/, '');
@@ -143,10 +144,12 @@ function WorkflowScreen({
 
     const update = async (
         request: Promise<WorkflowDetail>,
-        success: string
+        success: string,
+        event: (typeof WorkflowEvent)[keyof typeof WorkflowEvent]
     ): Promise<void> => {
         try {
             queryClient.setQueryData(queryKey, await request);
+            track(EventCategory.Workflow, event);
             toast.success(success);
         } catch (e: any) {
             toast.error(e?.message ?? t('common.error', 'An error occurred'));
@@ -162,7 +165,8 @@ function WorkflowScreen({
                     onCancel={() =>
                         update(
                             cancelWorkflow(workflowId),
-                            t('workflow.cancelled', 'Workflow cancelled')
+                            t('workflow.cancelled', 'Workflow cancelled'),
+                            WorkflowEvent.Cancel
                         )
                     }
                     onOpenAsset={
@@ -229,7 +233,8 @@ function WorkflowScreen({
                                     t(
                                         'workflow.job_rerun',
                                         'Job re-run requested'
-                                    )
+                                    ),
+                                    WorkflowEvent.RerunJob
                                 )
                             }
                             onClose={() => selectJob(undefined)}

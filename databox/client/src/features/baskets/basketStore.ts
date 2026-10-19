@@ -8,6 +8,7 @@ import {
     removeFromBasket,
     unarchiveBasket,
 } from '@/lib/api/misc';
+import {BasketEvent, EventCategory, track} from '@/lib/analytics/events';
 
 type State = {
     baskets: Basket[];
@@ -111,6 +112,7 @@ export const useBasketStore = create<State>((set, get) => ({
 
     remove: async id => {
         await deleteBasket(id);
+        track(EventCategory.Basket, BasketEvent.Delete);
         set(s => ({baskets: s.baskets.filter(b => b.id !== id)}));
         if (get().current?.id === id) {
             get().setCurrent(undefined);
@@ -121,6 +123,10 @@ export const useBasketStore = create<State>((set, get) => ({
         const basket = archived
             ? await archiveBasket(id)
             : await unarchiveBasket(id);
+        track(
+            EventCategory.Basket,
+            archived ? BasketEvent.Archive : BasketEvent.Unarchive
+        );
         if (archived && !get().includeArchived) {
             set(s => ({baskets: s.baskets.filter(b => b.id !== id)}));
             if (get().current?.id === id) {
@@ -133,6 +139,7 @@ export const useBasketStore = create<State>((set, get) => ({
 
     addToCurrent: async assetIds => {
         const basket = await addToBasket(get().current?.id, assetIds);
+        track(EventCategory.Basket, BasketEvent.Add, {value: assetIds.length});
         get().upsert(basket);
         if (!get().current) {
             get().setCurrent(basket);
@@ -143,6 +150,9 @@ export const useBasketStore = create<State>((set, get) => ({
 
     removeItems: async (basketId, itemIds) => {
         const basket = await removeFromBasket(basketId, itemIds);
+        track(EventCategory.Basket, BasketEvent.Remove, {
+            value: itemIds.length,
+        });
         get().upsert(basket);
     },
 }));

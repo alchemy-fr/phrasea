@@ -15,6 +15,8 @@ export type AnalyticsConfig = {
         baseUrl: string;
         siteId: string;
         mediaPluginEnabled: boolean;
+        /** `MATOMO_DISABLE_COOKIES`: tracks visitors without any cookie */
+        disableCookies: boolean;
     };
 };
 

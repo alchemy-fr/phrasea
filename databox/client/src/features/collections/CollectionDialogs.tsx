@@ -7,6 +7,7 @@ import type {ModalProps} from '@/components/modals/ModalProvider';
 import {ConfirmDialog} from '@/components/ui/confirm';
 import {deleteCollections, restoreCollections} from '@/lib/api/collections';
 import {useCollectionStore} from './collectionStore';
+import {CollectionEvent, EventCategory, track} from '@/lib/analytics/events';
 
 export function DeleteCollectionDialog({
     collection,
@@ -33,6 +34,7 @@ export function DeleteCollectionDialog({
             confirmLabel={t('common.delete', 'Delete')}
             onConfirm={async () => {
                 await deleteCollections([collection.id]);
+                track(EventCategory.Collection, CollectionEvent.Delete);
                 patch([collection.id], {deleted: true});
                 toast.success(
                     t('collections.deleted', 'Collection moved to trash')
@@ -62,6 +64,7 @@ export function RestoreCollectionDialog({
             confirmLabel={t('common.restore', 'Restore')}
             onConfirm={async () => {
                 await restoreCollections([collection.id]);
+                track(EventCategory.Collection, CollectionEvent.Restore);
                 patch([collection.id], {deleted: false});
                 toast.success(t('collections.restored', 'Collection restored'));
                 onRestored?.();

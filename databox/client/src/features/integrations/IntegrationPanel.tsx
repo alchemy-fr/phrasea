@@ -15,6 +15,7 @@ import {Button} from '@/components/ui/button';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {InlineLoader} from '@/components/ui/loader';
 import {TuiPhotoEditorPanel, tuiPhotoEditor} from './tui/TuiPhotoEditorPanel';
+import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';
 
 type Props = {
     integration: WorkspaceIntegration;
@@ -68,6 +69,9 @@ function GenericIntegrationPanel({integration, asset, file}: Props) {
             await runIntegrationAction(integration.id, action, {
                 fileId: file.id,
                 assetId: asset.id,
+            });
+            track(EventCategory.Integration, IntegrationEvent.Run, {
+                name: `${integration.integration}:${action}`,
             });
             void queryClient.invalidateQueries({queryKey});
             toast.success(

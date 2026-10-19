@@ -13,6 +13,7 @@ import {formatDateTime} from '@/lib/utils/format';
 import {cn} from '@/lib/utils/cn';
 import {formatJobDuration} from './jobStatus';
 import {WorkflowStatusDot, workflowTitle} from './workflowLabel';
+import {EventCategory, track, WorkflowEvent} from '@/lib/analytics/events';
 
 /** A new run is looked for this long after it was requested */
 const newRunTimeout = 20000;
@@ -75,6 +76,7 @@ export function WorkflowRunsPanel({
         try {
             const known = new Set(runs?.map(r => r.id) ?? []);
             await triggerAssetWorkflow(assetId);
+            track(EventCategory.Workflow, WorkflowEvent.Trigger);
             toast.success(t('workflow.triggered', 'Workflow triggered'));
             setAwaited(known);
         } catch (e: any) {

@@ -12,6 +12,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/menu';
 import {follow, unfollow} from '@/lib/api/assets';
+import {EventCategory, FollowEvent, track} from '@/lib/analytics/events';
 
 export type Topic = {key: string; label: string; description?: string};
 
@@ -40,9 +41,13 @@ export function FollowButton({
         try {
             if (any) {
                 await unfollow(entity, id);
+                track(EventCategory.Follow, FollowEvent.Unfollow, {
+                    name: entity,
+                });
                 setSubs(new Set());
             } else {
                 await follow(entity, id);
+                track(EventCategory.Follow, FollowEvent.Follow, {name: entity});
                 setSubs(new Set(topics.map(tp => tp.key)));
             }
         } catch (e: any) {
@@ -54,6 +59,7 @@ export function FollowButton({
         try {
             if (subs.has(key)) {
                 await unfollow(entity, id, [key]);
+                track(EventCategory.Follow, FollowEvent.Unfollow, {name: key});
                 setSubs(prev => {
                     const n = new Set(prev);
                     n.delete(key);
@@ -62,6 +68,7 @@ export function FollowButton({
                 });
             } else {
                 await follow(entity, id, [key]);
+                track(EventCategory.Follow, FollowEvent.Follow, {name: key});
                 setSubs(prev => new Set([...prev, key]));
             }
         } catch (e: any) {

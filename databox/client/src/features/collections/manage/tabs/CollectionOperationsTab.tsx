@@ -18,6 +18,7 @@ import {
     DeleteCollectionDialog,
     RestoreCollectionDialog,
 } from '../../CollectionDialogs';
+import {CollectionEvent, EventCategory, track} from '@/lib/analytics/events';
 
 export function CollectionOperationsTab({
     collection,
@@ -37,6 +38,7 @@ export function CollectionOperationsTab({
         setMoving(true);
         try {
             await moveCollection(collection.id, destination.collectionId);
+            track(EventCategory.Collection, CollectionEvent.Move);
             move(collection.id, destination.collectionId);
             refresh();
             toast.success(t('collection.move.done', 'Collection moved'));

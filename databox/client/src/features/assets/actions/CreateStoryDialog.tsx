@@ -13,6 +13,7 @@ import {postAsset} from '@/lib/api/assets';
 import {iri} from '@/lib/utils/iri';
 import {cn} from '@/lib/utils/cn';
 import {AssetThumb} from '@/features/assets/list/AssetThumb';
+import {EventCategory, StoryEvent, track} from '@/lib/analytics/events';
 
 type Props = ModalProps<Asset> & {assets: Asset[]; onComplete?: () => void};
 
@@ -47,6 +48,7 @@ export function CreateStoryDialog({
                 ? {collection: iri(EntityName.Collection, reference.id)}
                 : {workspace: iri(EntityName.Workspace, first.workspace.id)}),
         });
+        track(EventCategory.Story, StoryEvent.Create, {value: assets.length});
         toast.success(
             t('story.create.done', 'Story {{name}} created', {
                 name: story.name,

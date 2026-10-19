@@ -30,6 +30,7 @@ import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {getAuthClient} from '@/lib/auth/client';
 import {integrationLabel} from '@/features/integrations/integrationLabel';
+import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';
 
 /**
  * Basket integrations (context `basket`), notably Phrasea Expose: OAuth
@@ -176,6 +177,9 @@ function ExposeIntegration({
             await runIntegrationAction(integration.id, action, {
                 basketId: basket.id,
                 ...payload,
+            });
+            track(EventCategory.Integration, IntegrationEvent.Run, {
+                name: `${integration.integration}:${action}`,
             });
             void queryClient.invalidateQueries({queryKey});
             toast.success(
@@ -435,15 +439,18 @@ function GenericBasketIntegration({
                 onClick={() =>
                     runIntegrationAction(integration.id, 'process', {
                         basketId: basket.id,
-                    }).then(() =>
+                    }).then(() => {
+                        track(EventCategory.Integration, IntegrationEvent.Run, {
+                            name: `${integration.integration}:process`,
+                        });
                         toast.success(
                             t(
                                 'integrations.action_done',
                                 'Action "{{action}}" started',
                                 {action: 'process'}
                             )
-                        )
-                    )
+                        );
+                    })
                 }
             >
                 {t('integrations.run', 'Run')}

@@ -17,6 +17,7 @@ import {
     restoreAssets,
 } from '@/lib/api/assets';
 import {useAssetStore} from '@/features/assets/assetStore';
+import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
 
 export function AssetOperationsTab({asset, refresh}: AssetTabProps) {
     const {t} = useTranslation();
@@ -85,6 +86,11 @@ export function AssetOperationsTab({asset, refresh}: AssetTabProps) {
                                                 asset.id,
                                                 c.id
                                             );
+                                            track(
+                                                EventCategory.Asset,
+                                                AssetEvent.RemoveShortcut,
+                                                {value: 1}
+                                            );
                                             refresh();
                                         },
                                     })
@@ -116,6 +122,11 @@ export function AssetOperationsTab({asset, refresh}: AssetTabProps) {
                                         ),
                                         onConfirm: async () => {
                                             await restoreAssets([asset.id]);
+                                            track(
+                                                EventCategory.Asset,
+                                                AssetEvent.Restore,
+                                                {value: 1}
+                                            );
                                             toast.success(
                                                 t(
                                                     'asset.restore.done',
@@ -154,6 +165,16 @@ export function AssetOperationsTab({asset, refresh}: AssetTabProps) {
                                         await deleteAssets([asset.id], {
                                             hardDelete: !!asset.deleted,
                                         });
+                                        track(
+                                            EventCategory.Asset,
+                                            AssetEvent.Delete,
+                                            {
+                                                name: asset.deleted
+                                                    ? 'permanent'
+                                                    : 'trash',
+                                                value: 1,
+                                            }
+                                        );
                                         removeFromStore([asset.id]);
                                         void queryClient.invalidateQueries({
                                             queryKey: ['asset', asset.id],

@@ -13,6 +13,7 @@ import {patchAsset} from '@/lib/api/assets';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {useConfig} from '@/lib/config/ConfigProvider';
 import {toDropzoneAccept} from '@/lib/utils/mime';
+import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
 
 export function ReplaceSourceDialog({
     open,
@@ -43,6 +44,9 @@ export function ReplaceSourceDialog({
                 });
             }
             update(updated);
+            track(EventCategory.Asset, AssetEvent.ReplaceSource, {
+                name: value.file ? 'upload' : 'url',
+            });
             toast.success(
                 adding
                     ? t('asset.replace.added', 'Source file added')

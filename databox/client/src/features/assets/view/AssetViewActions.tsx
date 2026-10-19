@@ -7,7 +7,10 @@ import type {Asset, AssetRendition} from '@/types/api';
 import {EntityName} from '@/types/api';
 import {Button} from '@/components/ui/button';
 import {Tooltip} from '@/components/ui/overlays';
-import {useAssetActions} from '@/features/assets/actions/useAssetActions';
+import {
+    trackAssetAction,
+    useAssetActions,
+} from '@/features/assets/actions/useAssetActions';
 import {FollowButton} from '@/components/FollowButton';
 import {useAuth} from '@/lib/auth/AuthProvider';
 import {
@@ -38,6 +41,7 @@ export function AssetViewActions({
     const {isAuthenticated} = useAuth();
     const groups = useAssetActions([asset], {
         context: {open: false, info: false, basket: true},
+        surface: 'viewer',
     });
     // Editing happens in the side panel, next to the media
     const primary = groups
@@ -45,7 +49,17 @@ export function AssetViewActions({
         .filter(a =>
             ['download', 'edit', 'share', 'delete', 'restore'].includes(a.id)
         )
-        .map(a => (a.id === 'edit' ? {...a, run: onEdit} : a));
+        .map(a =>
+            a.id === 'edit'
+                ? {
+                      ...a,
+                      run: () => {
+                          trackAssetAction(a.id, 'viewer', 1);
+                          onEdit();
+                      },
+                  }
+                : a
+        );
     void rendition;
 
     return (
@@ -113,6 +127,7 @@ export function AssetViewActions({
                         assets={[asset]}
                         variant="dropdown"
                         context={{open: false, info: false, edit: false}}
+                        surface="viewer"
                     />
                 </DropdownMenuContent>
             </DropdownMenu>

@@ -40,6 +40,7 @@ import {rememberUsers} from './mentionUser';
 import {MessageComposer, MessageComposerHandle} from './MessageComposer';
 import {PostedAttachments} from './MessageAttachments';
 import type {FileAttachment, FileAttachmentInput} from './messageAttachments';
+import {DiscussionEvent, EventCategory, track} from '@/lib/analytics/events';
 
 /** Message hover actions (always shown on touch screens) */
 const messageActionClass =
@@ -183,6 +184,9 @@ export function Discussion({
                 content,
                 attachments: attachments.length > 0 ? attachments : undefined,
             });
+            track(EventCategory.Discussion, DiscussionEvent.Send, {
+                value: attachments.length,
+            });
             composerRef.current?.clear();
             if (!threadId) {
                 // The thread is created lazily by the first message: the
@@ -209,6 +213,7 @@ export function Discussion({
         setSavingEdit(true);
         try {
             const m = await putMessage(editing.id, {content});
+            track(EventCategory.Discussion, DiscussionEvent.Edit);
             upsertLocal(m);
             setEditing(null);
             // The update payload is partial: reload the thread
@@ -226,6 +231,7 @@ export function Discussion({
             destructive: true,
             onConfirm: async () => {
                 await deleteMessage(m.id);
+                track(EventCategory.Discussion, DiscussionEvent.Delete);
                 removeLocal(m.id);
                 setEditing(e => (e?.id === m.id ? null : e));
             },

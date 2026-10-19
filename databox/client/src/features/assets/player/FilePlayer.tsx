@@ -8,6 +8,11 @@ import {AnalysisChip} from '@/features/assets/quarantine/AnalysisChip';
 import {cn} from '@/lib/utils/cn';
 import {AudioPlayer} from '@/features/assets/player/AudioPlayer';
 import {ZoomableImage} from '@/features/assets/player/ZoomableImage';
+import {scanForMedia} from '@/lib/analytics/matomo';
+import {
+    contentClick,
+    type ContentTracking,
+} from '@/lib/analytics/useContentTracking';
 
 export type FilePlayerProps = {
     file: ApiFile;
@@ -18,6 +23,11 @@ export type FilePlayerProps = {
     fit?: 'contain' | 'zoom';
     className?: string;
     onInteraction?: () => void;
+    /**
+     * The asset displayed, for Matomo: clicks on an image or a PDF, video
+     * playback (MediaAnalytics)
+     */
+    tracking?: ContentTracking;
 };
 
 /**
@@ -31,7 +41,10 @@ export function FilePlayer({
     fit = 'contain',
     className,
     onInteraction,
+    tracking,
 }: FilePlayerProps) {
+    const onContentClick = tracking ? () => contentClick(tracking) : undefined;
+
     if (file.analysisPending || file.accepted === false) {
         return (
             <div
@@ -63,6 +76,7 @@ export function FilePlayer({
                     alt={title ?? file.fileName}
                     className={className}
                     onInteraction={onInteraction}
+                    onContentClick={onContentClick}
                 />
             ) : (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -74,6 +88,7 @@ export function FilePlayer({
                         className
                     )}
                     draggable={false}
+                    onClick={onContentClick}
                 />
             );
         case FileKind.Video:
@@ -85,6 +100,7 @@ export function FilePlayer({
                     autoPlay={autoPlay}
                     controls={controls}
                     className={className}
+                    tracking={tracking}
                 />
             );
         case FileKind.Audio:
@@ -99,7 +115,13 @@ export function FilePlayer({
             );
         case FileKind.Document:
             if (file.type === 'application/pdf') {
-                return <PdfPlayer src={file.url} className={className} />;
+                return (
+                    <PdfPlayer
+                        src={file.url}
+                        className={className}
+                        onContentClick={onContentClick}
+                    />
+                );
             }
 
             return (
@@ -124,14 +146,26 @@ function VideoPlayer({
     autoPlay,
     controls,
     className,
+    tracking,
 }: {
     src: string;
     type: string;
     autoPlay?: boolean;
     controls: boolean;
     className?: string;
+    tracking?: ContentTracking;
 }) {
     const ref = useRef<HTMLVideoElement>(null);
+    const trackingId = tracking?.id;
+
+    // MediaAnalytics reads the `data-matomo-*` attributes when it scans the
+    // container, so they are rendered first
+    useEffect(() => {
+        const container = ref.current?.parentElement;
+        if (trackingId && container) {
+            scanForMedia(container);
+        }
+    }, [trackingId]);
 
     // Pause when scrolled out of view
     useEffect(() => {
@@ -165,13 +199,50 @@ function VideoPlayer({
             playsInline
             preload="metadata"
             data-type={type}
+            data-matomo-resource={trackingId}
+            data-matomo-title={trackingId ? tracking?.title : undefined}
         />
     );
 }
 
-function PdfPlayer({src, className}: {src: string; className?: string}) {
+/**
+ * The clicks inside the PDF viewer (an iframe) never reach the page: the
+ * first one is noticed by the focus moving into the iframe.
+ */
+function PdfPlayer({
+    src,
+    className,
+    onContentClick,
+}: {
+    src: string;
+    className?: string;
+    onContentClick?: () => void;
+}) {
+    const ref = useRef<HTMLIFrameElement>(null);
+    const onClickRef = useRef(onContentClick);
+    onClickRef.current = onContentClick;
+
+    useEffect(() => {
+        let timeout: ReturnType<typeof setTimeout> | undefined;
+        const onBlur = () => {
+            // The iframe becomes the active element once the blur is over
+            timeout = setTimeout(() => {
+                if (document.activeElement === ref.current) {
+                    onClickRef.current?.();
+                }
+            }, 0);
+        };
+        window.addEventListener('blur', onBlur);
+
+        return () => {
+            window.removeEventListener('blur', onBlur);
+            clearTimeout(timeout);
+        };
+    }, []);
+
     return (
         <iframe
+            ref={ref}
             src={`${src}#toolbar=1&view=FitH`}
             title="PDF"
             className={cn('size-full border-0 bg-white', className)}

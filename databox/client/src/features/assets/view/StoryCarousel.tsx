@@ -59,6 +59,7 @@ import {
 import {iri} from '@/lib/utils/iri';
 import {toastError} from '@/lib/utils/errors';
 import {cn} from '@/lib/utils/cn';
+import {EventCategory, StoryEvent, track} from '@/lib/analytics/events';
 
 /**
  * Assets contained in a story, in their stored order. Shared by the carousel
@@ -185,11 +186,9 @@ export function StoryCarousel({
                 : // Beyond the loaded pages: shows up when they are
                   list.filter(a => a.id !== assetId)
         );
-        setAssetPosition(
-            assetId,
-            iri(EntityName.Asset, storyId),
-            position
-        ).catch(restore);
+        setAssetPosition(assetId, iri(EntityName.Asset, storyId), position)
+            .then(() => track(EventCategory.Story, StoryEvent.Reorder))
+            .catch(restore);
     };
 
     const remove = (asset: Asset) => {
@@ -199,6 +198,7 @@ export function StoryCarousel({
         }
         removeAssetFromCollection(asset.id, storyCollectionId!)
             .then(() => {
+                track(EventCategory.Story, StoryEvent.RemoveItem, {value: 1});
                 void queryClient.invalidateQueries({
                     queryKey: ['story-thumbnails', storyId],
                     refetchType: 'none',
@@ -215,6 +215,7 @@ export function StoryCarousel({
     const markAsCover = (asset: Asset) => {
         setStoryCover(storyId, asset.id)
             .then(updated => {
+                track(EventCategory.Story, StoryEvent.SetCover);
                 useAssetStore.getState().update(updated);
                 toast.success(
                     t('story.cover_set', '{{name}} is now the story cover', {

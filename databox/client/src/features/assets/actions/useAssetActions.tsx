@@ -39,6 +39,7 @@ import {CreateStoryDialog} from './CreateStoryDialog';
 import {useOptionalResults} from '@/features/search/useOptionalResults';
 import {useOptionalSelection} from '@/features/assets/list/SelectionProvider';
 import {usePinnedStoriesStore} from '@/features/stories/pinnedStoriesStore';
+import {EventCategory, track} from '@/lib/analytics/events';
 
 export type AssetAction = {
     id: string;
@@ -88,11 +89,28 @@ export const defaultActionContext: Required<ActionContext> = {
     createStory: true,
 };
 
+/** Where the actions are offered, sent with their analytics event */
+export type ActionSurface = 'menu' | 'toolbar' | 'viewer';
+
 type Options = {
     onOpen?: () => void;
     context?: ActionContext;
     onComplete?: () => void;
+    surface?: ActionSurface;
 };
+
+/** Analytics event of an asset action run on `count` assets */
+export function trackAssetAction(
+    id: string,
+    surface: ActionSurface,
+    count: number
+): void {
+    // One event for all the alternate URLs (`alt-0`, `alt-1`…)
+    track(EventCategory.AssetAction, id.replace(/^alt-\d+$/, 'alt'), {
+        name: surface,
+        value: count,
+    });
+}
 
 /**
  * Builds the actions available for one or several assets, grouped for menus.
@@ -105,7 +123,7 @@ type Options = {
  */
 export function useAssetActions(
     assets: Asset[],
-    {onOpen, context, onComplete}: Options = {}
+    {onOpen, context, onComplete, surface = 'menu'}: Options = {}
 ): AssetAction[][] {
     const {t} = useTranslation();
     const router = useRouter();
@@ -437,7 +455,17 @@ export function useAssetActions(
             groups.push(danger);
         }
 
-        return groups.filter(g => g.length > 0);
+        return groups
+            .filter(g => g.length > 0)
+            .map(g =>
+                g.map(action => ({
+                    ...action,
+                    run: () => {
+                        trackAssetAction(action.id, surface, assets.length);
+                        action.run();
+                    },
+                }))
+            );
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [assets, isAuthenticated, t, onOpen, ctxKey, pinnedStories]);
+    }, [assets, isAuthenticated, t, onOpen, ctxKey, pinnedStories, surface]);
 }

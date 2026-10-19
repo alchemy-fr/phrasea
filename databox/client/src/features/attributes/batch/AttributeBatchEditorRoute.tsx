@@ -61,6 +61,7 @@ import {
 import {iri} from '@/lib/utils/iri';
 import {Slider} from '@/components/ui/controls';
 import {thumbSizeRange, useBatchEditorLayout} from './useBatchEditorLayout';
+import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
 
 /** per asset, per definition, per locale => values */
 type ValueMap = Record<string, Record<string, Record<string, unknown[]>>>;
@@ -639,6 +640,9 @@ export function AttributeBatchEditorRoute() {
                         )
                     );
                 }
+                track(EventCategory.Asset, AssetEvent.BatchEdit, {
+                    value: assets.length,
+                });
                 toast.success(t('batch_edit.saved', 'Attributes updated'));
                 await assetsQuery.refetch();
                 setInitialized(false);
