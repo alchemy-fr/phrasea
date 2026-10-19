@@ -53,14 +53,17 @@ export function RenditionDefinitionsTab({workspace}: WorkspaceTabProps) {
                     <span className="min-w-0 flex-1 truncate">
                         {d.displayName ?? d.name}
                     </span>
-                    {d.useAsThumbnail ? (
-                        <Badge variant="secondary">thumb</Badge>
+                    {d.useAsMain ? (
+                        <Badge variant="secondary">main</Badge>
                     ) : null}
                     {d.useAsPreview ? (
                         <Badge variant="secondary">preview</Badge>
                     ) : null}
-                    {d.useAsMain ? (
-                        <Badge variant="secondary">main</Badge>
+                    {d.useAsThumbnail ? (
+                        <Badge variant="secondary">thumb</Badge>
+                    ) : null}
+                    {d.useAsAnimatedThumbnail ? (
+                        <Badge variant="secondary">animated thumb</Badge>
                     ) : null}
                 </span>
             )}
