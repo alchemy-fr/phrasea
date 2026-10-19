@@ -36,18 +36,18 @@ class ValidAttributeConstraintValidator extends ConstraintValidator
         if (null === $v) {
             return;
         }
-        $phpValue = $type->denormalizeValue($v);
-        if (null === $phpValue) {
+        // validate() expects the normalized input value, not the denormalized one
+        // (e.g. an entity ID rather than the entity representation).
+        $normalized = $type->normalizeValue($v);
+        if (null === $normalized) {
             return;
         }
 
-        $this->context->setNode($v, $value, null, 'value');
-
-        $errors = $type->validate($phpValue);
-        if (!empty($errors)) {
-            foreach ($errors as $error) {
-                $this->context->addViolation($error);
-            }
+        foreach ($type->validate($normalized) ?? [] as $error) {
+            $this->context->buildViolation($error)
+                ->atPath('value')
+                ->setInvalidValue($v)
+                ->addViolation();
         }
     }
 }
