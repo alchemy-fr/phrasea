@@ -434,12 +434,12 @@ App\Entity\Core\File:
     nb_f_ta{1..10} (extends nb_tpl_jpg): { path: '<imageUrlRandomRatio(@w_northbeam->id, <current()>, 200, "reportage")>' }
     nb_f_h{41..46} (extends nb_tpl_jpg): { path: '<imageUrlRandomRatio(@w_northbeam->id, <current()>, 2000, "reportage")>' }
 
-    nb_f_video_m{1..10} (extends nb_tpl_mp4): { path: '<randomMedia(@w_northbeam->id, "mp4", <current()>)>', metadata: '<largeJSONFileMetadata()>' }
-    nb_f_video_p{1..10} (extends nb_tpl_mp4): { path: '<randomMedia(@w_northbeam->id, "mp4", <current()>)>' }
-    nb_f_video_t{1..10} (extends nb_tpl_mp4): { path: '<randomMedia(@w_northbeam->id, "mp4", <current()>)>' }
-    nb_f_podcast{1..10} (extends nb_tpl_mp3): { path: '<randomMedia(@w_northbeam->id, "mp3", <current()>)>', metadata: '<largeJSONFileMetadata()>' }
-    nb_f_release_m{1..10} (extends nb_tpl_pdf): { path: '<randomMedia(@w_northbeam->id, "pdf", <current()>)>', metadata: '<largeJSONFileMetadata()>' }
-    nb_f_release_p{1..10} (extends nb_tpl_pdf): { path: '<randomMedia(@w_northbeam->id, "pdf", <current()>)>' }
+    nb_f_video_m{1..10} (extends nb_tpl_mp4): { path: '<randomMedia(@w_northbeam->id, "mp4", <current()>, "northbeam-press/video")>', metadata: '<largeJSONFileMetadata()>' }
+    nb_f_video_p{1..10} (extends nb_tpl_mp4): { path: '<randomMedia(@w_northbeam->id, "mp4", <current()>, "northbeam-press/video")>' }
+    nb_f_video_t{1..10} (extends nb_tpl_mp4): { path: '<randomMedia(@w_northbeam->id, "mp4", <current()>, "northbeam-press/video")>' }
+    nb_f_podcast{1..10} (extends nb_tpl_mp3): { path: '<randomMedia(@w_northbeam->id, "mp3", <current()>, "northbeam-press/podcast")>', metadata: '<largeJSONFileMetadata()>' }
+    nb_f_release_m{1..10} (extends nb_tpl_pdf): { path: '<randomMedia(@w_northbeam->id, "pdf", <current()>, "northbeam-press/press-release")>', metadata: '<largeJSONFileMetadata()>' }
+    nb_f_release_p{1..10} (extends nb_tpl_pdf): { path: '<randomMedia(@w_northbeam->id, "pdf", <current()>, "northbeam-press/press-release")>' }
 
 App\Entity\Core\AssetRendition:
     nb_ar_p_m{1..40}: { definition: '@nb_rd_main', asset: '@nb_a_v_p<current()>', file: '@nb_f_m<current()>' }

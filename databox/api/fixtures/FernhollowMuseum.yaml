@@ -524,16 +524,16 @@ App\Entity\Core\File:
         extension: mp4
 
     # m = main (1000px), p = preview (500px), t = thumbnail (200px), a = archival master (2000px)
-    fh_f_m{1..64} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 1000, "nature")>' }
-    fh_f_p{1..64} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 500, "nature")>' }
-    fh_f_t{1..64} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 200, "nature")>' }
-    fh_f_a{40..42} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 2000, "nature")>' }
+    fh_f_m{1..64} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 1000, "museum")>' }
+    fh_f_p{1..64} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 500, "museum")>' }
+    fh_f_t{1..64} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 200, "museum")>' }
+    fh_f_a{40..42} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 2000, "museum")>' }
 
-    fh_f_accession{1..8} (extends fh_tpl_pdf): { path: '<randomMedia(@w_fernhollow->id, "pdf", <current()>)>' }
-    fh_f_notebook{1..7} (extends fh_tpl_pdf): { path: '<randomMedia(@w_fernhollow->id, "pdf", <current()>)>' }
-    fh_f_audioguide{1..6} (extends fh_tpl_mp3): { path: '<randomMedia(@w_fernhollow->id, "mp3", <current()>)>' }
-    fh_f_video_m{1..4} (extends fh_tpl_mp4): { path: '<randomMedia(@w_fernhollow->id, "mp4", <current()>)>' }
-    fh_f_video_t{1..4} (extends fh_tpl_mp4): { path: '<randomMedia(@w_fernhollow->id, "mp4", <current()>)>' }
+    fh_f_accession{1..8} (extends fh_tpl_pdf): { path: '<randomMedia(@w_fernhollow->id, "pdf", <current()>, "fernhollow-museum/accession-record")>' }
+    fh_f_notebook{1..7} (extends fh_tpl_pdf): { path: '<randomMedia(@w_fernhollow->id, "pdf", <current()>, "fernhollow-museum/field-notebook")>' }
+    fh_f_audioguide{1..6} (extends fh_tpl_mp3): { path: '<randomMedia(@w_fernhollow->id, "mp3", <current()>, "fernhollow-museum/audio-guide")>' }
+    fh_f_video_m{1..4} (extends fh_tpl_mp4): { path: '<randomMedia(@w_fernhollow->id, "mp4", <current()>, "fernhollow-museum/video")>' }
+    fh_f_video_t{1..4} (extends fh_tpl_mp4): { path: '<randomMedia(@w_fernhollow->id, "mp4", <current()>, "fernhollow-museum/video")>' }
 
 App\Entity\Core\AssetRendition:
     fh_ar_s_m{1..46}: { definition: '@fh_rd_main', asset: '@fh_a_v_s<current()>', file: '@fh_f_m<current()>' }

@@ -399,10 +399,10 @@ App\Entity\Core\File:
     lr_f_z{1..6} (extends lr_tpl_jpg): { path: '<imageUrlRandomRatio(@w_linden->id, <current()>, 2000, "fashion")>' }
     lr_f_z{49..52} (extends lr_tpl_jpg): { path: '<imageUrlRandomRatio(@w_linden->id, <current()>, 2000, "fashion")>' }
 
-    lr_f_runway_m{1..6} (extends lr_tpl_mp4): { path: '<randomMedia(@w_linden->id, "mp4", <current()>)>' }
-    lr_f_runway_t{1..6} (extends lr_tpl_mp4): { path: '<randomMedia(@w_linden->id, "mp4", <current()>)>' }
-    lr_f_spec{1..6} (extends lr_tpl_pdf): { path: '<randomMedia(@w_linden->id, "pdf", <current()>)>' }
-    lr_f_lookbook{1..4} (extends lr_tpl_pdf): { path: '<randomMedia(@w_linden->id, "pdf", <current()>)>' }
+    lr_f_runway_m{1..6} (extends lr_tpl_mp4): { path: '<randomMedia(@w_linden->id, "mp4", <current()>, "linden-rowe/runway")>' }
+    lr_f_runway_t{1..6} (extends lr_tpl_mp4): { path: '<randomMedia(@w_linden->id, "mp4", <current()>, "linden-rowe/runway")>' }
+    lr_f_spec{1..6} (extends lr_tpl_pdf): { path: '<randomMedia(@w_linden->id, "pdf", <current()>, "linden-rowe/spec-sheet")>' }
+    lr_f_lookbook{1..4} (extends lr_tpl_pdf): { path: '<randomMedia(@w_linden->id, "pdf", <current()>, "linden-rowe/lookbook")>' }
 
 App\Entity\Core\AssetRendition:
     lr_ar_p_m{1..52}: { definition: '@lr_rd_main', asset: '@lr_a_p<current()>', file: '@lr_f_m<current()>' }

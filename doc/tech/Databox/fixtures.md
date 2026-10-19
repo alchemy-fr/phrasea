@@ -33,7 +33,7 @@ To check what a persona sees, impersonate it from the Keycloak admin console.
 | --------------------------------- | ------------------- | ---------- | ----------- | ------ |
 | Northbeam Press                   | `northbeam-press`   | en, fr     | `reportage` | 106    |
 | Linden & Rowe                     | `linden-rowe`       | en, fr, it | `fashion`   | 86     |
-| Fernhollow Natural History Museum | `fernhollow-museum` | en, fr     | `nature`    | 95     |
+| Fernhollow Natural History Museum | `fernhollow-museum` | en, fr     | `museum`    | 95     |
 
 The three workspaces are created through `App\Fixture\WorkspaceFactory`, like a workspace
 created from the API: the "Public" attribute and rendition policies, the `main`, `preview`,
@@ -187,8 +187,8 @@ The downloaded and cropped images are cached in `databox/api/var/fixtures/<theme
 
 To add a theme:
 
-1. Prepare 42 landscape and 42 portrait JPEG images (about 2000px on the long side), named
-   `1.jpg` to `42.jpg`.
+1. Prepare 42 landscape and 42 portrait JPEG images (2000px on the long side, quality 65),
+   named `1.jpg` to `42.jpg`.
 2. Upload them, readable anonymously:
    ```bash
    aws s3 sync ./landscape s3://alchemy-phrasea-fixtures/fixtures/images/<theme>/landscape/
@@ -198,5 +198,40 @@ To add a theme:
 
 `nature` is the fallback theme: an image that the requested theme does not have (HTTP 403 or
 404) is replaced by the same variant of `nature`, with a warning in the logs, so that the
-fixtures always load while a theme is incomplete. The `reportage` (Northbeam Press) and
-`fashion` (Linden & Rowe) themes fall back to `nature` until they are uploaded.
+fixtures always load while a theme is incomplete.
+
+The lock of an asset always gives the same variant (`lock % 42 + 1`) and the same orientation
+(`lock % 5`: 0 to 2 landscape, 3 and 4 portrait), so a variant can be chosen for the assets that
+use it: the `fashion` packshots show the category of their product (dress, knit, shirt…) and
+the `museum` specimens their group (orchid, butterfly, owl, mineral…).
+
+## Themed media
+
+`randomMedia(workspaceId, type, n, set)` takes the PDF, MP3 and MP4 files of a set from the
+same bucket:
+
+```
+s3://alchemy-phrasea-fixtures/fixtures/media/<workspace>/<kind>/<n>.<type>
+```
+
+where `<n>` is the number of the asset in its range (`<current()>`). A file missing from the set
+(HTTP 403 or 404) is replaced by a generic media, with a warning in the logs; without `set`,
+`randomMedia()` only picks generic media.
+
+| Set                                  | Type | Files | Content                                               |
+| ------------------------------------ | ---- | ----- | ----------------------------------------------------- |
+| `northbeam-press/press-release`      | pdf  | 1-10  | press releases (titles of `ThematicFaker`)            |
+| `northbeam-press/podcast`            | mp3  | 1-10  | news podcasts (synthetic speech, en and fr)           |
+| `northbeam-press/video`              | mp4  | 1-10  | news footage                                          |
+| `linden-rowe/spec-sheet`             | pdf  | 1-6   | technical specifications (tech packs) of SS26 styles  |
+| `linden-rowe/lookbook`               | pdf  | 1-4   | lookbooks (1-2 internal, 3-4 press kit, en and fr)    |
+| `linden-rowe/runway`                 | mp4  | 1-6   | runway videos                                         |
+| `fernhollow-museum/accession-record` | pdf  | 1-8   | accession records of specimens                        |
+| `fernhollow-museum/field-notebook`   | pdf  | 1-7   | handwritten geology field notebooks                   |
+| `fernhollow-museum/audio-guide`      | mp3  | 1-6   | audio guides of the two exhibitions (en and fr)       |
+| `fernhollow-museum/video`            | mp4  | 1-4   | exhibitions (1-2) and conservation lab (3-4)          |
+
+Each theme and set directory holds a `CREDITS.csv` (source, author and licence of every file):
+the photos are CC0 or public domain, the videos are public domain or CC (BY, BY-SA), the PDFs
+and the MP3s are generated (fictional content, speech synthesised with Piper voices under
+CC0, CC-BY or public domain licences).
