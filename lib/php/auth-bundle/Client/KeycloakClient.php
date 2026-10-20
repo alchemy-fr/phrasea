@@ -202,6 +202,278 @@ final readonly class KeycloakClient
         }
     }
 
+    public function ensureGroup(string $accessToken, string $name, ?string $parentId = null, array $attributes = [], bool $adopt = false): array
+    {
+        $existing = $this->findGroupByName($accessToken, $name, $parentId);
+        if (null === $existing) {
+            $url = null === $parentId
+                ? $this->urlGenerator->getGroupsApiUrl()
+                : sprintf('%s/%s/children', $this->urlGenerator->getGroupsApiUrl(), $parentId);
+
+            try {
+                $this->write('POST', $url, $accessToken, [
+                    'name' => $name,
+                    'attributes' => $this->toGroupAttributes($attributes),
+                ]);
+            } catch (HttpException $e) {
+                if (409 !== $e->getStatusCode()) {
+                    throw $e;
+                }
+            }
+
+            $existing = $this->findGroupByName($accessToken, $name, $parentId)
+                ?? throw new \RuntimeException(sprintf('Cannot find newly created group "%s". Please check client permissions!', $name));
+        }
+
+        if ($this->hasGroupAttributes($existing, $attributes)) {
+            return $existing;
+        }
+
+        if (!$adopt) {
+            throw new GroupOwnershipException($existing['path'] ?? $name);
+        }
+
+        $existing['attributes'] = array_merge($existing['attributes'] ?? [], $this->toGroupAttributes($attributes));
+        $this->write('PUT', sprintf('%s/%s', $this->urlGenerator->getGroupsApiUrl(), $existing['id']), $accessToken, [
+            'name' => $existing['name'],
+            'attributes' => $existing['attributes'],
+        ]);
+
+        return $existing;
+    }
+
+    public function findClientByClientId(string $accessToken, string $clientId): ?array
+    {
+        foreach ($this->get($this->urlGenerator->getClientsApiUrl(), [
+            'access_token' => $accessToken,
+            'query' => [
+                'clientId' => $clientId,
+            ],
+        ]) as $client) {
+            if (($client['clientId'] ?? null) === $clientId) {
+                return $client;
+            }
+        }
+
+        return null;
+    }
+
+    public function createClient(string $accessToken, array $data): void
+    {
+        $this->write('POST', $this->urlGenerator->getClientsApiUrl(), $accessToken, $data);
+    }
+
+    public function updateClient(string $accessToken, string $id, array $data): void
+    {
+        $this->write('PUT', sprintf('%s/%s', $this->urlGenerator->getClientsApiUrl(), $id), $accessToken, $data);
+    }
+
+    public function findGroup(string $accessToken, string $name, ?string $parentId = null): ?array
+    {
+        return $this->findGroupByName($accessToken, $name, $parentId);
+    }
+
+    public function getGroupChildren(string $accessToken, string $groupId): array
+    {
+        return $this->get(sprintf('%s/%s/children', $this->urlGenerator->getGroupsApiUrl(), $groupId), [
+            'access_token' => $accessToken,
+            'query' => [
+                'briefRepresentation' => 'false',
+                'max' => 1000,
+            ],
+        ]);
+    }
+
+    public function deleteGroup(string $accessToken, string $groupId): void
+    {
+        $this->write('DELETE', sprintf('%s/%s', $this->urlGenerator->getGroupsApiUrl(), $groupId), $accessToken);
+    }
+
+    public function searchClients(string $accessToken, string $clientIdPrefix): array
+    {
+        return array_values(array_filter(
+            $this->get($this->urlGenerator->getClientsApiUrl(), [
+                'access_token' => $accessToken,
+                'query' => [
+                    'clientId' => $clientIdPrefix,
+                    'search' => 'true',
+                    'max' => 1000,
+                ],
+            ]),
+            fn (array $client): bool => str_starts_with($client['clientId'] ?? '', $clientIdPrefix),
+        ));
+    }
+
+    public function deleteClient(string $accessToken, string $clientUuid): void
+    {
+        $this->write('DELETE', sprintf('%s/%s', $this->urlGenerator->getClientsApiUrl(), $clientUuid), $accessToken);
+    }
+
+    public function getClientRoles(string $accessToken, string $clientUuid): array
+    {
+        return $this->get(sprintf('%s/%s/roles', $this->urlGenerator->getClientsApiUrl(), $clientUuid), [
+            'access_token' => $accessToken,
+        ]);
+    }
+
+    public function deleteClientRole(string $accessToken, string $clientUuid, string $roleName): void
+    {
+        $this->write('DELETE', sprintf('%s/%s/roles/%s', $this->urlGenerator->getClientsApiUrl(), $clientUuid, rawurlencode($roleName)), $accessToken);
+    }
+
+    public function getServiceAccountUser(string $accessToken, string $clientUuid): array
+    {
+        return $this->get($this->urlGenerator->getAdminApiUrl(sprintf('clients/%s/service-account-user', $clientUuid)), [
+            'access_token' => $accessToken,
+        ]);
+    }
+
+    public function findRealmRole(string $accessToken, string $roleName): ?array
+    {
+        try {
+            return $this->get($this->urlGenerator->getAdminApiUrl(sprintf('roles/%s', rawurlencode($roleName))), [
+                'access_token' => $accessToken,
+            ]);
+        } catch (HttpException $e) {
+            if (404 === $e->getStatusCode()) {
+                return null;
+            }
+
+            throw $e;
+        }
+    }
+
+    public function findClientRole(string $accessToken, string $clientUuid, string $roleName): ?array
+    {
+        try {
+            return $this->get($this->urlGenerator->getAdminApiUrl(sprintf('clients/%s/roles/%s', $clientUuid, rawurlencode($roleName))), [
+                'access_token' => $accessToken,
+            ]);
+        } catch (HttpException $e) {
+            if (404 === $e->getStatusCode()) {
+                return null;
+            }
+
+            throw $e;
+        }
+    }
+
+    public function getUserRealmRoleMappings(string $accessToken, string $userId): array
+    {
+        return $this->get($this->urlGenerator->getAdminApiUrl(sprintf('users/%s/role-mappings/realm/composite', $userId)), [
+            'access_token' => $accessToken,
+        ]);
+    }
+
+    public function getUserClientRoleMappings(string $accessToken, string $userId, string $clientUuid): array
+    {
+        return $this->get($this->urlGenerator->getAdminApiUrl(sprintf('users/%s/role-mappings/clients/%s/composite', $userId, $clientUuid)), [
+            'access_token' => $accessToken,
+        ]);
+    }
+
+    public function addUserRealmRoles(string $accessToken, string $userId, array $roles): void
+    {
+        $this->write('POST', $this->urlGenerator->getAdminApiUrl(sprintf('users/%s/role-mappings/realm', $userId)), $accessToken, $roles);
+    }
+
+    public function addUserClientRoles(string $accessToken, string $userId, string $clientUuid, array $roles): void
+    {
+        $this->write('POST', $this->urlGenerator->getAdminApiUrl(sprintf('users/%s/role-mappings/clients/%s', $userId, $clientUuid)), $accessToken, $roles);
+    }
+
+    public function getClientScopes(string $accessToken): array
+    {
+        return $this->get($this->urlGenerator->getAdminApiUrl('client-scopes'), [
+            'access_token' => $accessToken,
+        ]);
+    }
+
+    public function getClientAssignedScopes(string $accessToken, string $clientUuid, string $type): array
+    {
+        return $this->get($this->urlGenerator->getAdminApiUrl(sprintf('clients/%s/%s-client-scopes', $clientUuid, $type)), [
+            'access_token' => $accessToken,
+        ]);
+    }
+
+    public function addClientOptionalScope(string $accessToken, string $clientUuid, string $scopeId): void
+    {
+        $this->write('PUT', $this->urlGenerator->getAdminApiUrl(sprintf('clients/%s/optional-client-scopes/%s', $clientUuid, $scopeId)), $accessToken);
+    }
+
+    public function addUserToGroup(string $accessToken, string $userId, string $groupId): void
+    {
+        $this->write('PUT', sprintf('%s/%s/groups/%s', $this->urlGenerator->getUsersApiUrl(), $userId, $groupId), $accessToken);
+    }
+
+    public function removeUserFromGroup(string $accessToken, string $userId, string $groupId): void
+    {
+        $this->write('DELETE', sprintf('%s/%s/groups/%s', $this->urlGenerator->getUsersApiUrl(), $userId, $groupId), $accessToken);
+    }
+
+    private function write(string $method, string $url, string $accessToken, ?array $data = null): void
+    {
+        $response = $this->keycloakClient->request($method, $url, $this->getRequestOptions([
+            'access_token' => $accessToken,
+            ...(null !== $data ? ['json' => $data] : []),
+        ]));
+        $statusCode = $response->getStatusCode();
+        if ($statusCode >= 300) {
+            throw match ($statusCode) {
+                403 => new AccessDeniedHttpException($response->getContent(false)),
+                default => new HttpException($statusCode, $response->getContent(false)),
+            };
+        }
+    }
+
+    private function findGroupByName(string $accessToken, string $name, ?string $parentId): ?array
+    {
+        if (null === $parentId) {
+            $candidates = $this->get($this->urlGenerator->getGroupsApiUrl(), [
+                'access_token' => $accessToken,
+                'query' => [
+                    'search' => $name,
+                    'exact' => 'true',
+                    'briefRepresentation' => 'false',
+                ],
+            ]);
+            $expectedPath = '/'.$name;
+        } else {
+            $candidates = $this->get(sprintf('%s/%s/children', $this->urlGenerator->getGroupsApiUrl(), $parentId), [
+                'access_token' => $accessToken,
+                'query' => [
+                    'briefRepresentation' => 'false',
+                    'max' => 1000,
+                ],
+            ]);
+            $expectedPath = null;
+        }
+
+        foreach ($candidates as $group) {
+            if (($group['name'] ?? null) === $name && (null === $expectedPath || ($group['path'] ?? null) === $expectedPath)) {
+                return $group;
+            }
+        }
+
+        return null;
+    }
+
+    private function toGroupAttributes(array $attributes): array
+    {
+        return array_map(fn (string $value): array => [$value], $attributes);
+    }
+
+    private function hasGroupAttributes(array $group, array $attributes): bool
+    {
+        foreach ($attributes as $key => $value) {
+            if (($group['attributes'][$key][0] ?? null) !== $value) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Direct members of the group (not the members of its subgroups).
      */

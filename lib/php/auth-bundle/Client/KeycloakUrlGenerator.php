@@ -78,6 +78,16 @@ final readonly class KeycloakUrlGenerator
         return $this->getAdminApiBaseUrl().'/groups';
     }
 
+    public function getClientsApiUrl(): string
+    {
+        return $this->getAdminApiBaseUrl().'/clients';
+    }
+
+    public function getAdminApiUrl(string $path): string
+    {
+        return $this->getAdminApiBaseUrl().'/'.ltrim($path, '/');
+    }
+
     private function getAdminApiBaseUrl(): string
     {
         return sprintf('%s/admin/realms/%s',

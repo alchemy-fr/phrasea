@@ -6,6 +6,7 @@ namespace Alchemy\AuthBundle\Client;
 
 use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\HttpClient\Exception\ClientException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -40,8 +41,9 @@ final class ServiceAccountClient
     {
         try {
             return $callback($this->getAccessToken());
-        } catch (ClientException $e) {
-            if ($retryCount < 1 && in_array($e->getResponse()->getStatusCode(), [401, 403], true)) {
+        } catch (ClientException|HttpExceptionInterface $e) {
+            $statusCode = $e instanceof ClientException ? $e->getResponse()->getStatusCode() : $e->getStatusCode();
+            if ($retryCount < 1 && in_array($statusCode, [401, 403], true)) {
                 $this->invalidateAccessToken();
 
                 return $this->executeWithAccessToken($callback, $retryCount + 1);

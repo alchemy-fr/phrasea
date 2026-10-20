@@ -1,0 +1,62 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}Clean legacy Keycloak (temporary){% endblock %}
+
+{% block main %}
+    <p>Keycloak leftovers of the former Parade, which wrote to Keycloak itself. Only what is not marked <code>{{ parade.ownerAttribute }}={{ parade.ownerValue }}</code> is listed. Users and the service account clients are never touched.</p>
+
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    {% if report %}
+        <div class="alert {{ report.failed is empty ? 'alert-success' : 'alert-warning' }}">
+            <strong>{{ report.done|length }} deleted, {{ report.failed|length }} failed.</strong>
+            <ul class="mb-0">
+                {% for line in report.done %}<li>{{ line }}</li>{% endfor %}
+                {% for line in report.failed %}<li class="text-danger">{{ line }}</li>{% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if inventory %}
+        {% set total = inventory.groups|length + inventory.clients|length + (inventory.mainClientAttributes is empty ? 0 : 1) + inventory.roles|length %}
+
+        <h3 class="mt-4">Groups under /{{ parade.rootGroupName }} (with their sub-groups and memberships)</h3>
+        <ul>
+            {% for group in inventory.groups %}<li><code>{{ group.path }}</code></li>{% else %}<li class="text-muted">None.</li>{% endfor %}
+        </ul>
+
+        <h3>Login page clients {{ parade.mainClientId }}--*</h3>
+        <ul>
+            {% for client in inventory.clients %}<li><code>{{ client.clientId }}</code></li>{% else %}<li class="text-muted">None.</li>{% endfor %}
+        </ul>
+
+        <h3>Branding attributes of the main client {{ parade.mainClientId }}</h3>
+        <ul>
+            {% if inventory.mainClient is null %}
+                <li class="text-muted">Main client not found.</li>
+            {% else %}
+                {% for attribute in inventory.mainClientAttributes %}<li><code>{{ attribute }}</code></li>{% else %}<li class="text-muted">None (or already applied by Phrasea).</li>{% endfor %}
+            {% endif %}
+        </ul>
+
+        <h3>Roles parade-* of the main client</h3>
+        <ul>
+            {% for role in inventory.roles %}<li><code>{{ role }}</code></li>{% else %}<li class="text-muted">None.</li>{% endfor %}
+        </ul>
+
+        {% if total > 0 %}
+            <form method="post" class="mt-3">
+                <input type="hidden" name="_token" value="{{ csrf_token('parade_legacy_clean') }}">
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" name="confirm" value="yes" id="legacy-clean-confirm">
+                    <label class="form-check-label" for="legacy-clean-confirm">I understand that these {{ total }} item(s) will be deleted from Keycloak.</label>
+                </div>
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        {% else %}
+            <div class="alert alert-success">Nothing left to clean.</div>
+        {% endif %}
+    {% endif %}
+{% endblock %}

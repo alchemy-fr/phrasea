@@ -15,6 +15,7 @@ type BaseProps = {
     mainUrl?: string;
     description?: ReactNode;
     logo?: string;
+    disabled?: boolean;
 };
 
 type AppLink = {
@@ -35,7 +36,9 @@ export default function Service({
     description,
     mainUrl,
     links = [],
+    disabled = false,
 }: Props) {
+    const href = disabled ? undefined : mainUrl;
     return (
         <Grid
             size={{
@@ -48,11 +51,18 @@ export default function Service({
             }}
         >
             <Card
+                aria-disabled={disabled || undefined}
                 sx={{
                     height: '100%',
+                    ...(disabled
+                        ? {
+                              filter: 'grayscale(1)',
+                              opacity: 0.5,
+                          }
+                        : {}),
                 }}
             >
-                <AnchorLink href={mainUrl}>
+                <AnchorLink href={href}>
                     <CardMedia
                         sx={theme => ({
                             height: {
@@ -75,7 +85,7 @@ export default function Service({
                     </CardMedia>
                 </AnchorLink>
                 <CardContent>
-                    <AnchorLink href={mainUrl}>
+                    <AnchorLink href={href}>
                         <Typography gutterBottom variant="h2">
                             {title}
                         </Typography>
@@ -95,7 +105,7 @@ export default function Service({
                     )}
                 </CardContent>
                 <CardActions>
-                    {links.map(({href, icon, title}, i) => (
+                    {(disabled ? [] : links).map(({href, icon, title}, i) => (
                         <IconButton
                             size="small"
                             key={i}

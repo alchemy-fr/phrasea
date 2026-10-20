@@ -72,6 +72,8 @@ window.config.muiTheme = ${stackConfig.theme.replace(/^export\s+const\s+themeOpt
     return {
         customHTML,
         logo: stackConfig.logo,
+        paradeEnabled: stackConfig.parade?.enabled === 'true',
+        paradeUrl: stackConfig.parade?.url,
         autoConnectIdP: env.AUTO_CONNECT_IDP,
         baseUrl: env.DASHBOARD_CLIENT_URL,
         keycloakUrl: env.KEYCLOAK_URL,

@@ -10,8 +10,9 @@ import paradeImg from './images/parade.png';
 import dashboardImg from './images/dashboard.png';
 import {useAuth} from '@alchemy/react-auth';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import {config} from './init.ts';
+import {config, oauthClient} from './init.ts';
 import {useIsLarge} from './hooks/useIsLarge.ts';
+import {useParadeStatus} from './hooks/useParadeStatus.ts';
 
 type Props = {};
 
@@ -38,6 +39,15 @@ export default function App({}: Props) {
         TRAEFIK_CONSOLE_URL,
         SOKETI_USAGE_URL,
     } = config.env;
+    const parade = useParadeStatus(
+        DATABOX_API_URL,
+        user ? oauthClient.getAccessToken() : undefined,
+        {
+            enabled: config.paradeEnabled === true,
+            url: config.paradeUrl,
+        }
+    );
+    const paradeUrl = parade.url || PARADE_CLIENT_URL;
 
     const roles = user?.roles ?? [];
     const isInIframe = inIframe();
@@ -136,14 +146,27 @@ export default function App({}: Props) {
                         isAdmin={roles.includes('uploader-admin')}
                     />
                 )}
-                {PARADE_CLIENT_URL && (
-                    <ClientApp
-                        clientUrl={PARADE_CLIENT_URL}
-                        title={`Parade`}
-                        description={`Present your media as engaging experiences`}
-                        logo={paradeImg}
-                    />
-                )}
+                <ClientApp
+                    clientUrl={paradeUrl}
+                    adminUrl={
+                        paradeUrl
+                            ? `${paradeUrl.replace(/\/+$/, '')}/admin`
+                            : undefined
+                    }
+                    isAdmin={
+                        Boolean(paradeUrl) &&
+                        parade.enabled &&
+                        parade.canAdminister
+                    }
+                    title={`Parade`}
+                    description={
+                        parade.enabled
+                            ? `Present your media as engaging experiences`
+                            : `Not enabled yet in the Databox admin`
+                    }
+                    logo={paradeImg}
+                    disabled={!parade.enabled}
+                />
                 {isInIframe ? (
                     <Service
                         mainUrl={`/`}

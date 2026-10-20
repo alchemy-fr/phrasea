@@ -4,12 +4,14 @@ import ApiIcon from '@mui/icons-material/Api';
 
 type Props = {
     apiUrl?: string;
+    adminUrl?: string;
     clientUrl: string;
     isAdmin?: boolean;
 } & ServiceBaseProps;
 
 export default function ClientApp({
     apiUrl,
+    adminUrl,
     clientUrl,
     isAdmin,
     ...props
@@ -18,7 +20,7 @@ export default function ClientApp({
     if (isAdmin) {
         links.push({
             icon: <AdminPanelSettingsIcon />,
-            href: `${apiUrl}/admin`,
+            href: adminUrl ?? `${apiUrl}/admin`,
             title: `Admin of ${props.title}`,
         });
     }

@@ -1,0 +1,54 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% block content_title %}{{ title }}{% endblock %}
+
+{% block main %}
+    {% for section in sections %}
+        <h3 class="mt-4">{{ section.label }}</h3>
+        {% if section.groupId is null %}
+            <p class="text-muted">This group does not exist yet: save the form to create it.</p>
+        {% else %}
+            <table class="table datagrid">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for member in section.members %}
+                        <tr>
+                            <td>{{ member.username }}</td>
+                            <td>{{ member.email|default('') }}</td>
+                            <td class="text-end">
+                                <form method="post">
+                                    <input type="hidden" name="_token" value="{{ csrf_token(csrfId) }}">
+                                    <input type="hidden" name="operation" value="remove">
+                                    <input type="hidden" name="groupId" value="{{ section.groupId }}">
+                                    <input type="hidden" name="userId" value="{{ member.id }}">
+                                    <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="3" class="text-muted">No member.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <form method="post" class="d-flex gap-2 align-items-center">
+                <input type="hidden" name="_token" value="{{ csrf_token(csrfId) }}">
+                <input type="hidden" name="operation" value="add">
+                <input type="hidden" name="groupId" value="{{ section.groupId }}">
+                <label class="visually-hidden" for="user-{{ section.groupId }}">User</label>
+                <select class="form-select w-auto" id="user-{{ section.groupId }}" name="userId" required>
+                    <option value="">Choose a user…</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.username }}{% if user.email is defined and user.email %} ({{ user.email }}){% endif %}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary">Add</button>
+            </form>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

@@ -2,6 +2,8 @@ import type {WindowConfigBase} from '@alchemy/core';
 
 declare global {
     interface WindowConfig extends WindowConfigBase {
+        paradeEnabled?: Readonly<boolean>;
+        paradeUrl?: Readonly<string>;
         env: {
             AUTO_CONNECT_IDP: Readonly<string | undefined>;
             DATABOX_API_URL: Readonly<string>;

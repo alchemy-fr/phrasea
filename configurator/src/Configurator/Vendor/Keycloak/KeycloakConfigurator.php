@@ -293,6 +293,7 @@ final readonly class KeycloakConfigurator implements ConfiguratorInterface
         return [
             'databox' => [
                 'manage-users',
+                'manage-clients',
             ],
         ];
     }
