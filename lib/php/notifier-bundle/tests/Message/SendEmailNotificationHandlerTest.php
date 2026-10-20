@@ -8,6 +8,7 @@ use Alchemy\NotifierBundle\Channel\EmailChannel;
 use Alchemy\NotifierBundle\Message\SendEmailNotification;
 use Alchemy\NotifierBundle\Message\SendEmailNotificationHandler;
 use Alchemy\NotifierBundle\Notification\NotificationRenderer;
+use Alchemy\NotifierBundle\Tests\Email\EmailLayoutRendererTest;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -37,6 +38,7 @@ final class SendEmailNotificationHandlerTest extends TestCase
         self::assertSame('Your download', $sent->getSubject());
         self::assertStringContainsString('https://x', $sent->getHtmlBody());
         self::assertStringContainsString('fr', $sent->getHtmlBody());
+        self::assertStringContainsString('<html lang="fr">', $sent->getHtmlBody());
     }
 
     public function testDoesNothingWhenNoTemplate(): void
@@ -56,6 +58,6 @@ final class SendEmailNotificationHandlerTest extends TestCase
     {
         $renderer = new NotificationRenderer(new Environment(new ArrayLoader($templates)), '@notifications');
 
-        return new SendEmailNotificationHandler($renderer, new EmailChannel($mailer, $renderer));
+        return new SendEmailNotificationHandler($renderer, new EmailChannel($mailer, $renderer, EmailLayoutRendererTest::createRenderer()));
     }
 }

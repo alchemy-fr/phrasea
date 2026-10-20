@@ -1,6 +1,9 @@
 alchemy_notifier:
     enabled: '%env(bool:NOTIFICATIONS_ENABLED)%'
     template_namespace: '@notifications'
+    email:
+        app_name: 'Uploader'
+        public_url: '%env(UPLOADER_API_URL)%'
     default_channels: [email, in_app]
     topics:
         # Sent to the uploader once their commit has been acknowledged

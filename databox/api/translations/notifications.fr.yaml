@@ -17,6 +17,7 @@ automation:
 asset:
     new_comment:
         email:
+            action: 'Voir le commentaire'
             subject: 'Nouveau commentaire sur %name%'
             body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a commenté <a href="%url%">%name%</a>.</p>'
         email_digest:
@@ -38,6 +39,7 @@ asset:
             body: '%author% a supprimé %name%.'
     update:
         email:
+            action: 'Voir l''asset'
             subject: 'Asset mis à jour : %name%'
             body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a mis à jour <a href="%url%">%name%</a>.</p>'
             body_with_collection: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a mis à jour <a href="%url%">%name%</a> dans <em>%collection%</em>.</p>'
@@ -49,6 +51,7 @@ asset:
 collection:
     asset_add:
         email:
+            action: 'Voir l''asset'
             subject: 'Nouvel asset dans %collectionName%'
             body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a ajouté <a href="%url%">%assetName%</a> à <em>%collectionName%</em>.</p>'
         email_digest:
@@ -76,6 +79,7 @@ collection:
 discussion:
     new_comment:
         email:
+            action: 'Voir la discussion'
             subject: 'Nouveau commentaire sur %object%'
             body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a commenté <a href="%url%">%object%</a>.</p>'
         email_digest:
@@ -89,6 +93,7 @@ discussion:
 entity_list:
     pending_value:
         email:
+            action: 'Examiner la valeur'
             subject: 'Nouvelle valeur en attente de validation dans %listName%'
             body: '<p>Bonjour %recipient%,</p><p><strong>%author%</strong> a ajouté la valeur <strong>%value%</strong> à <a href="%url%"><em>%listName%</em></a>. Elle est en attente de votre validation.</p>'
         in_app:

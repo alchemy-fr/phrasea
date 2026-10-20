@@ -7,3 +7,7 @@
     '%collectionName%': collectionName|e,
     '%url%': notification_url(url)|e('html_attr'),
 }, 'notifications')|raw }}{% endblock %}
+
+{% block uri %}{{ url|raw }}{% endblock %}
+
+{% block action %}{{ 'collection.asset_add.email.action'|trans({}, 'notifications')|raw }}{% endblock %}

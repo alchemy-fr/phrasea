@@ -35,14 +35,15 @@ final class BuiltInTemplatesTest extends TestCase
         self::assertFalse($renderer->hasTemplate('not:declared', ChannelType::Email));
     }
 
-    public function testEmailRendersTheContentAndTheLink(): void
+    public function testEmailRendersTheContentAndTheActionTarget(): void
     {
         $content = $this->renderer()->render(BuiltInTopic::ADMIN_MESSAGE, ChannelType::Email, self::PARAMS);
 
         self::assertNotNull($content);
         self::assertSame('Maintenance', $content->subject);
-        self::assertStringContainsString('<p>Tonight</p>', $content->body);
-        self::assertStringContainsString('https://client.example.com/notification-uri?uri=%2Fassets%2F42', $content->body);
+        self::assertSame('<p>Tonight</p>', $content->body);
+        // Turned into the button of the email layout
+        self::assertSame('/assets/42', $content->uri);
     }
 
     public function testInAppExposesTheRawUri(): void

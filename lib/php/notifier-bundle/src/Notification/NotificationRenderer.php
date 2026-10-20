@@ -18,9 +18,10 @@ use Twig\Environment;
  * defines none, the bundle's own templates are used as a fallback (built-in
  * topics such as `admin:message`).
  *
- * A template may define a `subject` block, a `body` block and a `uri` block
- * (the main click-through target); when no `body` block is present the whole
- * template output is used as the body.
+ * A template may define a `subject` block, a `body` block, a `uri` block
+ * (the main click-through target) and an `action` block (the label of the
+ * button leading to that target in emails); when no `body` block is present
+ * the whole template output is used as the body.
  *
  * Templates translate their literal strings through the Twig `trans` filter
  * (domain `notifications`). When a `$locale` is passed to {@see render()} the
@@ -130,7 +131,16 @@ final readonly class NotificationRenderer
             ? trim($template->renderBlock('uri', $context))
             : null;
 
-        return new RenderedContent($subject, trim($body), '' !== $uri ? $uri : null);
+        $action = $template->hasBlock('action', $context)
+            ? trim($template->renderBlock('action', $context))
+            : null;
+
+        return new RenderedContent(
+            $subject,
+            trim($body),
+            '' !== $uri ? $uri : null,
+            '' !== $action ? $action : null,
+        );
     }
 
     /**

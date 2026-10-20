@@ -12,3 +12,7 @@
     '%name%': name|e,
     '%url%': notification_url(url)|e('html_attr'),
 }, 'notifications')|raw }}{% endif %}{% endblock %}
+
+{% block uri %}{{ url|raw }}{% endblock %}
+
+{% block action %}{{ 'asset.update.email.action'|trans({}, 'notifications')|raw }}{% endblock %}

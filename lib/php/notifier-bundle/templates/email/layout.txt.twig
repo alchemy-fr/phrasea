@@ -1,0 +1,10 @@
+{% autoescape false %}
+{{ text_body }}
+{% if action_url %}
+
+{{ action_label|default('email_layout.action'|trans({}, 'notifications')) }}: {{ action_url }}
+{% endif %}
+
+--
+{{ 'email_layout.footer'|trans({'%app%': app_name}, 'notifications') }}
+{% endautoescape %}

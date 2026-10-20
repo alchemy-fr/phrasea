@@ -13,6 +13,7 @@ final readonly class RenderedContent
         public ?string $subject,
         public string $body,
         public ?string $uri = null,
+        public ?string $action = null,
     ) {
     }
 }

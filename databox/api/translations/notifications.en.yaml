@@ -17,6 +17,7 @@ automation:
 asset:
     new_comment:
         email:
+            action: 'View the comment'
             subject: 'New comment on %name%'
             body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> commented on <a href="%url%">%name%</a>.</p>'
         email_digest:
@@ -38,6 +39,7 @@ asset:
             body: '%author% deleted %name%.'
     update:
         email:
+            action: 'View the asset'
             subject: 'Asset updated: %name%'
             body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> updated <a href="%url%">%name%</a>.</p>'
             body_with_collection: '<p>Hi %recipient%,</p><p><strong>%author%</strong> updated <a href="%url%">%name%</a> in <em>%collection%</em>.</p>'
@@ -49,6 +51,7 @@ asset:
 collection:
     asset_add:
         email:
+            action: 'View the asset'
             subject: 'New asset in %collectionName%'
             body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> added <a href="%url%">%assetName%</a> to <em>%collectionName%</em>.</p>'
         email_digest:
@@ -76,6 +79,7 @@ collection:
 discussion:
     new_comment:
         email:
+            action: 'View the discussion'
             subject: 'New comment on %object%'
             body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> commented on <a href="%url%">%object%</a>.</p>'
         email_digest:
@@ -89,6 +93,7 @@ discussion:
 entity_list:
     pending_value:
         email:
+            action: 'Review the value'
             subject: 'New value awaiting approval in %listName%'
             body: '<p>Hi %recipient%,</p><p><strong>%author%</strong> added the value <strong>%value%</strong> to <a href="%url%"><em>%listName%</em></a>. It is awaiting your approval.</p>'
         in_app:

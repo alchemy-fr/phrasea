@@ -6,3 +6,7 @@
     '%name%': name|e,
     '%url%': notification_url(url)|e('html_attr'),
 }, 'notifications')|raw }}{% endblock %}
+
+{% block uri %}{{ url|raw }}{% endblock %}
+
+{% block action %}{{ 'asset.new_comment.email.action'|trans({}, 'notifications')|raw }}{% endblock %}

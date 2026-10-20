@@ -6,3 +6,7 @@
     '%object%': object|e,
     '%url%': (notification_url(url|default(null))|default('#'))|e('html_attr'),
 }, 'notifications')|raw }}{% endblock %}
+
+{% block uri %}{{ url|default|raw }}{% endblock %}
+
+{% block action %}{{ 'discussion.new_comment.email.action'|trans({}, 'notifications')|raw }}{% endblock %}

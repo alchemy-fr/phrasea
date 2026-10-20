@@ -1803,6 +1803,10 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     enabled?: scalar|Param|null, // Globally enable/disable notification delivery (bool or env placeholder) // Default: "%env(bool:NOTIFICATIONS_ENABLED)%"
  *     template_namespace?: scalar|Param|null, // Twig namespace under which the application exposes notification templates // Default: "@notifications"
  *     client_url?: scalar|Param|null, // Base URL of the front client, used to turn notification URIs into absolute links // Default: ""
+ *     email?: array{
+ *         app_name?: scalar|Param|null, // Name of the service shown in the email layout (next to the default logo and in the footer) // Default: "Phrasea"
+ *         public_url?: scalar|Param|null, // Public base URL of the application, from which email clients load the logo of the email header (defaults to the URL of the current request) // Default: ""
+ *     },
  *     notification_uri_path?: scalar|Param|null, // Client route intercepting notification links and redirecting to the final destination // Default: "/notification-uri"
  *     default_channels?: list<"email"|"sms"|"in_app"|Param>,
  *     in_app_channel_prefix?: scalar|Param|null, // Pusher channel prefix used for in-app notifications (suffixed with the userId) // Default: "private-user-"

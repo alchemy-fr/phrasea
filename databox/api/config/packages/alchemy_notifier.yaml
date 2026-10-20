@@ -1,6 +1,9 @@
 alchemy_notifier:
     enabled: '%env(bool:NOTIFICATIONS_ENABLED)%'
     template_namespace: '@notifications'
+    email:
+        app_name: 'Databox'
+        public_url: '%env(DATABOX_API_URL)%'
     client_url: '%env(DATABOX_CLIENT_URL)%'
     default_channels: [email, in_app]
     topics:

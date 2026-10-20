@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Alchemy\NotifierBundle\Channel;
 
+use Alchemy\NotifierBundle\Email\EmailLayoutRenderer;
 use Alchemy\NotifierBundle\Entity\Subscriber;
 use Alchemy\NotifierBundle\Notification\NotificationRenderer;
 use Alchemy\NotifierBundle\Notification\RenderedContent;
@@ -15,6 +16,7 @@ final readonly class EmailChannel implements ChannelInterface
     public function __construct(
         private MailerInterface $mailer,
         private NotificationRenderer $renderer,
+        private EmailLayoutRenderer $layoutRenderer,
     ) {
     }
 
@@ -39,15 +41,16 @@ final readonly class EmailChannel implements ChannelInterface
             return;
         }
 
-        $this->sendTo($subscriber->getEmail(), $topic, $content, $options);
+        $this->sendTo($subscriber->getEmail(), $topic, $content, $options, $subscriber->getLocale());
     }
 
     /**
-     * Sends a rendered notification to a raw email address (no subscriber).
+     * Sends a rendered notification to a raw email address (no subscriber),
+     * wrapped in the common email layout rendered in `$locale`.
      *
      * @param array<string, mixed> $options
      */
-    public function sendTo(?string $email, string $topic, RenderedContent $content, array $options = []): void
+    public function sendTo(?string $email, string $topic, RenderedContent $content, array $options = [], ?string $locale = null): void
     {
         if (null === $email || '' === $email) {
             return;
@@ -56,8 +59,8 @@ final readonly class EmailChannel implements ChannelInterface
         $message = (new Email())
             ->to($email)
             ->subject($content->subject ?? ($options['subject'] ?? $topic))
-            ->html($content->body)
         ;
+        $this->layoutRenderer->apply($message, $content, $locale);
 
         if (isset($options['from'])) {
             $message->from($options['from']);

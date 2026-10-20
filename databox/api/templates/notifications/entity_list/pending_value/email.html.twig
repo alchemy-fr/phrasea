@@ -7,3 +7,7 @@
     '%listName%': listName|e,
     '%url%': notification_url(url)|e('html_attr'),
 }, 'notifications')|raw }}{% endblock %}
+
+{% block uri %}{{ url|raw }}{% endblock %}
+
+{% block action %}{{ 'entity_list.pending_value.email.action'|trans({}, 'notifications')|raw }}{% endblock %}

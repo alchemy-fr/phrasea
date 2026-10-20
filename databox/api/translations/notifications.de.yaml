@@ -1,6 +1,7 @@
 asset:
     new_comment:
         email:
+            action: 'Kommentar ansehen'
             subject: 'Neuer Kommentar zu %name%'
             body: '<p>Hallo %recipient%,</p><p><strong>%author%</strong> hat <a href="%url%">%name%</a> kommentiert.</p>'
         email_digest:
@@ -22,6 +23,7 @@ asset:
             body: '%author% hat %name% gelöscht.'
     update:
         email:
+            action: 'Asset ansehen'
             subject: 'Asset aktualisiert: %name%'
             body: '<p>Hallo %recipient%,</p><p><strong>%author%</strong> hat <a href="%url%">%name%</a> aktualisiert.</p>'
             body_with_collection: '<p>Hallo %recipient%,</p><p><strong>%author%</strong> hat <a href="%url%">%name%</a> in <em>%collection%</em> aktualisiert.</p>'
@@ -33,6 +35,7 @@ asset:
 collection:
     asset_add:
         email:
+            action: 'Asset ansehen'
             subject: 'Neues Asset in %collectionName%'
             body: '<p>Hallo %recipient%,</p><p><strong>%author%</strong> hat <a href="%url%">%assetName%</a> zu <em>%collectionName%</em> hinzugefügt.</p>'
         email_digest:
@@ -60,6 +63,7 @@ collection:
 discussion:
     new_comment:
         email:
+            action: 'Diskussion ansehen'
             subject: 'Neuer Kommentar zu %object%'
             body: '<p>Hallo %recipient%,</p><p><strong>%author%</strong> hat <a href="%url%">%object%</a> kommentiert.</p>'
         email_digest:
@@ -73,6 +77,7 @@ discussion:
 entity_list:
     pending_value:
         email:
+            action: 'Wert prüfen'
             subject: 'Neuer Wert wartet auf Freigabe in %listName%'
             body: '<p>Hallo %recipient%,</p><p><strong>%author%</strong> hat den Wert <strong>%value%</strong> zu <a href="%url%"><em>%listName%</em></a> hinzugefügt. Er wartet auf Ihre Freigabe.</p>'
         in_app:

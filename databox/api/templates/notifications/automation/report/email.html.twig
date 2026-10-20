@@ -30,5 +30,8 @@
 {% if more > 0 %}
 <p>{{ 'automation.report.more'|trans({'%count%': more}, 'notifications') }}</p>
 {% endif %}
-<p><a href="{{ notification_url(url)|e('html_attr') }}">{{ 'automation.report.email.open_search'|trans({}, 'notifications') }}</a></p>
 {% endblock %}
+
+{% block uri %}{{ url|raw }}{% endblock %}
+
+{% block action %}{{ 'automation.report.email.open_search'|trans({}, 'notifications')|raw }}{% endblock %}

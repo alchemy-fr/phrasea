@@ -155,7 +155,7 @@ class DigestFlusher
 
             $content = $this->render($row, $subscriber, $config);
             if (null !== $content) {
-                $this->emailChannel->sendTo($subscriber->getEmail(), $topic, $content);
+                $this->emailChannel->sendTo($subscriber->getEmail(), $topic, $content, locale: $subscriber->getLocale());
             }
 
             return true;

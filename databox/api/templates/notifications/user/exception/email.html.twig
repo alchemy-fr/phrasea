@@ -1,4 +1,4 @@
-{% block subject %}{{ subject|default('user.exception.email.subject'|trans({}, 'notifications')) }}{% endblock %}
+{% block subject %}{{ subject|default('user.exception.email.subject'|trans({}, 'notifications'))|raw }}{% endblock %}
 
 {% block body %}
     <p>{{ 'user.exception.email.greeting'|trans({'%recipient%': (recipient.displayName|default(recipient.email))|e}, 'notifications')|raw }}</p>

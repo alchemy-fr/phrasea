@@ -14,6 +14,7 @@ use Alchemy\NotifierBundle\Notification\NotificationRenderer;
 use Alchemy\NotifierBundle\NotifierState;
 use Alchemy\NotifierBundle\Repository\NotificationDigestRepository;
 use Alchemy\NotifierBundle\Repository\NotificationPreferenceRepository;
+use Alchemy\NotifierBundle\Tests\Email\EmailLayoutRendererTest;
 use Alchemy\NotifierBundle\Topic\TopicRegistry;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -56,7 +57,7 @@ final class DigestFlusherTest extends TestCase
         self::assertCount(1, $this->sent);
         self::assertSame('3 comments', $this->sent[0]->getSubject());
         // 2 object groups, no overflow, recipient rebuilt from the subscriber
-        self::assertSame('2/0/user@example.com', $this->sent[0]->getHtmlBody());
+        self::assertStringContainsString('2/0/user@example.com', $this->sent[0]->getHtmlBody());
         self::assertSame('user@example.com', $this->sent[0]->getTo()[0]->getAddress());
     }
 
@@ -219,7 +220,7 @@ final class DigestFlusherTest extends TestCase
             $topicRegistry,
             $preferenceManager,
             $renderer,
-            new EmailChannel($mailer, $renderer),
+            new EmailChannel($mailer, $renderer, EmailLayoutRendererTest::createRenderer()),
             new NotifierState($enabled),
             $this->clock,
         );

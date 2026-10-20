@@ -1,6 +1,9 @@
 alchemy_notifier:
     enabled: '%env(bool:NOTIFICATIONS_ENABLED)%'
     template_namespace: '@notifications'
+    email:
+        app_name: 'Expose'
+        public_url: '%env(EXPOSE_API_URL)%'
     default_channels: [email]
     topics:
         # Transactional emails sent to anonymous download requesters

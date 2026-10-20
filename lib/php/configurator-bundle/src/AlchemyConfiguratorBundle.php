@@ -13,12 +13,14 @@ use Alchemy\ConfiguratorBundle\Dumper\JsonDumper;
 use Alchemy\ConfiguratorBundle\Entity\ConfiguratorEntryRepository;
 use Alchemy\ConfiguratorBundle\Form\Type\ConfigurationKeyType;
 use Alchemy\ConfiguratorBundle\Message\DeployConfigHandler;
+use Alchemy\ConfiguratorBundle\Notifier\GlobalConfigEmailLogoProvider;
 use Alchemy\ConfiguratorBundle\Pusher\BucketPusher;
 use Alchemy\ConfiguratorBundle\Schema\GlobalConfigurationSchema;
 use Alchemy\ConfiguratorBundle\Schema\SchemaProviderInterface;
 use Alchemy\ConfiguratorBundle\Service\ConfigurationReference;
 use Alchemy\ConfiguratorBundle\Validator\ValidConfigurationEntryConstraintValidator;
 use Alchemy\CoreBundle\Documentation\DocumentationGeneratorInterface;
+use Alchemy\NotifierBundle\Email\EmailLogoProviderInterface;
 use Aws\S3\S3Client;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -138,6 +140,10 @@ class AlchemyConfiguratorBundle extends AbstractBundle
 
         if (class_exists(AsMessageHandler::class)) {
             $services->set(DeployConfigHandler::class);
+        }
+
+        if (interface_exists(EmailLogoProviderInterface::class)) {
+            $services->set(GlobalConfigEmailLogoProvider::class);
         }
 
         $services->set($s3ClientId, S3Client::class)

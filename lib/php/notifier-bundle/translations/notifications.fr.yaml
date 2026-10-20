@@ -1,0 +1,3 @@
+email_layout:
+    action: 'Ouvrir'
+    footer: 'Cet email a été envoyé automatiquement par %app%, merci de ne pas y répondre.'

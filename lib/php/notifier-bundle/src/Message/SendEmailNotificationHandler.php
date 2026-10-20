@@ -32,6 +32,6 @@ final readonly class SendEmailNotificationHandler
             return;
         }
 
-        $this->emailChannel->sendTo($message->email, $message->topic, $rendered);
+        $this->emailChannel->sendTo($message->email, $message->topic, $rendered, locale: $message->locale);
     }
 }
