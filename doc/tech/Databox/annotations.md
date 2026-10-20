@@ -58,8 +58,41 @@ The viewer code lives in `databox/client/src/features/annotations/`:
 - `AnnotationsProvider` shares the current *target* (the shapes shown, whether
   they are editable, and the callback receiving the edits) between the player
   and the side panel of an asset view; `useAnnotationTarget` lets a component
-  (composer, attribute field, integration panel) own the target.
-- `useAnnotationLayer` renders the canvas over the image (`ZoomableImage`),
-  following its zoom, pan and rotation, with the toolbar of tools.
-- `shapes/` holds one handler per shape type: how it is drawn with the mouse,
-  rendered, selected, moved and resized.
+  (composer, attribute field, integration panel) own the target. While no
+  component owns it, the player shows the *fallback* target: the shapes of
+  every attribute value of the asset (`getAssetAnnotationsTarget`), read
+  only, each named after its attribute. The toolbar hides them (remembered in
+  the browser) and shows them again.
+- `useAnnotationLayer` gives the player (`ZoomableImage`) the layer to render
+  over the image, in a box following its zoom, pan and rotation, and the
+  tools to put in its toolbar.
+- `useAnnotationEditor` holds the state of the layer: the tool, the
+  selection, the shape being dragged, the options of the toolbar; its actions
+  (add, update, remove, duplicate, rename, nudge, text edit) send the list to
+  the target after every edit.
+- `AnnotationLayer` renders the shapes as SVG (React elements, so the
+  browser does the hit testing) and handles the pointer: a tool draws a new
+  shape, otherwise pressing a shape selects and moves it, pressing a handle
+  resizes it. The pointer position is read through the SVG matrix
+  (`getScreenCTM`), so the layer works whatever the transform of the image.
+- `shapes.tsx` holds one model per shape type: bounding box, move, handles
+  and resize, creation from a drag (a click gives a default size), options,
+  and the SVG rendering. All geometry is computed in pixels of the rendered
+  media; the shapes keep relative coordinates.
+- `ShapeControl` is the floating panel of the selected shape (grip to drag
+  it, name, edit text, duplicate, delete); `TextEditor` types the text of a
+  shape in place.
+
+Interactions: a click on a shape selects it and the same press drags it; a
+click where shapes overlap cycles through them; Delete removes the selection,
+the arrow keys move it (Shift: faster), Escape cancels the drag, leaves the
+tool, then deselects; Space held lets the pointer pan the image. The grip of
+the panel drags the shape too (handy for a thin or small shape). The text
+tool opens the inline editor on click: Enter keeps the text, Shift+Enter
+breaks the line (a text is drawn as one `tspan` per line); double-clicking a
+text (or its pencil button) edits it again. The drawing tool stays active:
+each stroke adds a path to the drawing started, until the tool is left.
+
+The toolbar popovers (colors, size) are portaled out of the player; the
+player ignores the pointer events bubbling from them (React bubbles through
+portals), otherwise its pan would capture the pointer of their sliders.

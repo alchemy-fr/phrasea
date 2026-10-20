@@ -1,13 +1,15 @@
 'use client';
 
-import {ReactNode, useEffect, useRef} from 'react';
+import {ReactNode} from 'react';
 import {useTranslation} from 'react-i18next';
 import {
     BrushIcon,
     CircleIcon,
     CrosshairIcon,
     LucideIcon,
+    MousePointer2Icon,
     MoveUpRightIcon,
+    PaintBucketIcon,
     ShapesIcon,
     SlashIcon,
     SquareIcon,
@@ -15,115 +17,39 @@ import {
     XIcon,
 } from 'lucide-react';
 import {Button} from '@/components/ui/button';
-import {Tooltip} from '@/components/ui/overlays';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+    Tooltip,
+} from '@/components/ui/overlays';
 import {ColorInput} from '@/components/ui/color-input';
 import {Input} from '@/components/ui/input';
+import {Slider} from '@/components/ui/controls';
 import {cn} from '@/lib/utils/cn';
-import {
-    AnnotationOptions,
-    AnnotationsControl,
-    AnnotationType,
-    CanvasRef,
-    SelectedAnnotationRef,
-    StateSetter,
-} from './types';
-import {getDrawingHandler} from './handlers';
-import {getDefaultOptions, updateLastOptions} from './defaultOptions';
-
-/** The options apply to the selected shape (when editable) */
-function changeIfSelected(
-    canvasRef: CanvasRef,
-    annotationsControl: AnnotationsControl | undefined,
-    selectedAnnotationRef: SelectedAnnotationRef,
-    options: AnnotationOptions
-): AnnotationOptions {
-    const annotation = selectedAnnotationRef.current;
-    if (annotation) {
-        updateLastOptions(annotation.type as AnnotationType, options);
-    }
-
-    if (annotationsControl && annotation?.editable && canvasRef.current) {
-        const handler = getDrawingHandler(annotation.type);
-        if (handler) {
-            const canvas = canvasRef.current;
-            // After the state update that carries the new options
-            setTimeout(() => {
-                const newAnnotation = handler.fromOptions(options, annotation, {
-                    relativeX: x => x / canvas.offsetWidth,
-                    relativeY: y => y / canvas.offsetHeight,
-                });
-                annotationsControl.updateAnnotation(
-                    annotation.id!,
-                    newAnnotation
-                );
-                selectedAnnotationRef.current = newAnnotation;
-            }, 0);
-        }
-    }
-
-    return options;
-}
+import {AnnotationType} from './types';
+import {getShapeModel} from './shapes';
+import type {AnnotationEditor} from './useAnnotationEditor';
 
 type Props = {
-    mode: AnnotationType | undefined;
-    setMode: StateSetter<AnnotationType | undefined>;
-    options: AnnotationOptions;
-    setOptions: StateSetter<AnnotationOptions>;
-    annotate: boolean;
-    setAnnotate: StateSetter<boolean>;
-    annotationsControl: AnnotationsControl | undefined;
-    selectedAnnotationRef: SelectedAnnotationRef;
-    canvasRef: CanvasRef;
+    editor: AnnotationEditor;
     /** What is annotated */
     label?: string;
-    /** Shapes may be drawn: the tools are shown */
-    editable?: boolean;
     /** Stops showing the annotations */
     onClose?: () => void;
 };
 
-export function AnnotationToolbar({
-    mode,
-    setMode,
-    options,
-    setOptions,
-    annotate,
-    setAnnotate,
-    annotationsControl,
-    selectedAnnotationRef,
-    canvasRef,
-    label,
-    editable,
-    onClose,
-}: Props) {
+/**
+ * The tools of the layer, in the toolbar of the player: the selection and
+ * drawing tools, the color, fill and size of the tool or of the selected
+ * shape, pausing the tools and hiding the annotations.
+ */
+export function AnnotationToolbar({editor, label, onClose}: Props) {
     const {t} = useTranslation();
-    // Options changed before picking a tool apply to it
-    const changedOptions = useRef<Partial<AnnotationOptions>>({});
-
-    useEffect(() => {
-        if (mode) {
-            const co = {...changedOptions.current};
-            changedOptions.current = {};
-
-            setOptions(p => ({
-                ...p,
-                ...getDefaultOptions(mode),
-                ...co,
-            }));
-        }
-    }, [mode, setOptions]);
+    const {tool, setTool, annotate, setAnnotate, options, setOptions} = editor;
+    const {editable} = editor;
 
     const tools: {type: AnnotationType; icon: LucideIcon; label: string}[] = [
-        {
-            type: AnnotationType.Text,
-            icon: TypeIcon,
-            label: t('annotation.type.text', 'Text'),
-        },
-        {
-            type: AnnotationType.Target,
-            icon: CrosshairIcon,
-            label: t('annotation.type.target', 'Target'),
-        },
         {
             type: AnnotationType.Rect,
             icon: SquareIcon,
@@ -145,6 +71,16 @@ export function AnnotationToolbar({
             label: t('annotation.type.line', 'Line'),
         },
         {
+            type: AnnotationType.Target,
+            icon: CrosshairIcon,
+            label: t('annotation.type.target', 'Target'),
+        },
+        {
+            type: AnnotationType.Text,
+            icon: TypeIcon,
+            label: t('annotation.type.text', 'Text'),
+        },
+        {
             type: AnnotationType.Draw,
             icon: BrushIcon,
             label: t('annotation.type.draw', 'Drawing'),
@@ -152,19 +88,21 @@ export function AnnotationToolbar({
     ];
 
     const button = (
+        key: string,
         label: string,
         icon: ReactNode,
         onClick: () => void,
         pressed?: boolean,
         className?: string
     ) => (
-        <Tooltip content={label}>
+        <Tooltip key={key} content={label}>
             <Button
                 type="button"
                 variant="ghost"
                 size="icon-xs"
                 aria-label={label}
                 aria-pressed={pressed}
+                data-tool={key}
                 className={cn(
                     pressed && 'bg-accent text-accent-foreground',
                     className
@@ -175,6 +113,12 @@ export function AnnotationToolbar({
             </Button>
         </Tooltip>
     );
+
+    // The options shown are the ones of the selected shape, else of the tool
+    const optionsType = editor.selected?.type ?? tool;
+    const fillable = !!getShapeModel(optionsType)?.fillable;
+    const isText = optionsType === AnnotationType.Text;
+    const maxSize = isText ? 120 : 40;
 
     return (
         <div
@@ -193,30 +137,37 @@ export function AnnotationToolbar({
             ) : null}
             {editable
                 ? button(
+                      'annotate',
                       annotate
                           ? t('annotation.stop', 'Stop annotating')
                           : t('annotation.start', 'Annotate'),
                       <ShapesIcon />,
-                      () => {
-                          setMode(undefined);
-                          setAnnotate(p => !p);
-                      },
+                      () => setAnnotate(!annotate),
                       annotate
                   )
                 : null}
             {editable && annotate ? (
                 <>
-                    {tools.map(tool =>
+                    {button(
+                        'select',
+                        t('annotation.select', 'Select'),
+                        <MousePointer2Icon />,
+                        () => setTool(undefined),
+                        !tool
+                    )}
+                    {tools.map(item =>
                         button(
-                            tool.label,
-                            <tool.icon />,
+                            item.type,
+                            item.label,
+                            <item.icon />,
                             () =>
-                                setMode(m =>
-                                    m === tool.type ? undefined : tool.type
+                                setTool(
+                                    tool === item.type ? undefined : item.type
                                 ),
-                            mode === tool.type
+                            tool === item.type
                         )
                     )}
+                    <span className="mx-0.5 h-4 w-px bg-border" />
                     <ColorInput
                         value={options.color}
                         withInput={false}
@@ -224,55 +175,103 @@ export function AnnotationToolbar({
                         aria-label={t('annotation.color', 'Color')}
                         swatchClassName="size-5"
                         onChange={c => {
-                            if (!c) {
-                                return;
+                            if (c) {
+                                setOptions({...options, color: c});
                             }
-                            setOptions(p => {
-                                if (!selectedAnnotationRef.current) {
-                                    changedOptions.current.color = c;
-                                }
-
-                                return changeIfSelected(
-                                    canvasRef,
-                                    annotationsControl,
-                                    selectedAnnotationRef,
-                                    {...p, color: c}
-                                );
-                            });
                         }}
                     />
-                    <Tooltip content={t('annotation.size', 'Size')}>
-                        <Input
-                            type="number"
-                            aria-label={t('annotation.size', 'Size')}
-                            min={0.1}
-                            step={options.size <= 1 ? 0.1 : 1}
-                            className="h-6 w-16 px-1 text-xs"
-                            value={Math.round(options.size * 10) / 10}
-                            onKeyDown={e => e.stopPropagation()}
-                            onChange={e => {
-                                const size = Math.max(
-                                    0.1,
-                                    parseFloat(e.target.value) || 1
-                                );
-                                if (!selectedAnnotationRef.current) {
-                                    changedOptions.current.size = size;
+                    {fillable ? (
+                        <span
+                            className="relative inline-flex"
+                            title={t('annotation.fill', 'Fill')}
+                        >
+                            <ColorInput
+                                value={options.fillColor}
+                                withInput={false}
+                                aria-label={t('annotation.fill', 'Fill')}
+                                swatchClassName="size-5"
+                                onChange={c =>
+                                    setOptions({
+                                        ...options,
+                                        fillColor: c || undefined,
+                                    })
                                 }
-                                setOptions(p =>
-                                    changeIfSelected(
-                                        canvasRef,
-                                        annotationsControl,
-                                        selectedAnnotationRef,
-                                        {...p, size}
-                                    )
-                                );
-                            }}
-                        />
-                    </Tooltip>
+                            />
+                            <PaintBucketIcon className="pointer-events-none absolute -right-1 -bottom-1 size-3 rounded-full bg-background p-px text-muted-foreground" />
+                        </span>
+                    ) : null}
+                    <Popover>
+                        <Tooltip
+                            content={
+                                isText
+                                    ? t('annotation.font_size', 'Font size')
+                                    : t('annotation.size', 'Size')
+                            }
+                        >
+                            <PopoverTrigger asChild>
+                                <button
+                                    type="button"
+                                    data-testid="annotation-size"
+                                    aria-label={t('annotation.size', 'Size')}
+                                    className="flex h-6 min-w-10 items-center justify-center gap-1 rounded-md px-1.5 font-mono text-xs hover:bg-accent"
+                                >
+                                    <span
+                                        className="inline-block rounded-full bg-foreground"
+                                        style={{
+                                            width: Math.min(
+                                                12,
+                                                Math.max(3, options.size / 2)
+                                            ),
+                                            height: Math.min(
+                                                12,
+                                                Math.max(3, options.size / 2)
+                                            ),
+                                        }}
+                                    />
+                                    {Math.round(options.size)}
+                                </button>
+                            </PopoverTrigger>
+                        </Tooltip>
+                        <PopoverContent
+                            align="center"
+                            className="flex w-56 items-center gap-3 p-3"
+                        >
+                            <Slider
+                                min={1}
+                                max={maxSize}
+                                step={1}
+                                value={[
+                                    Math.min(
+                                        maxSize,
+                                        Math.max(1, options.size)
+                                    ),
+                                ]}
+                                aria-label={t('annotation.size', 'Size')}
+                                onValueChange={([size]) =>
+                                    setOptions({...options, size})
+                                }
+                            />
+                            <Input
+                                type="number"
+                                min={1}
+                                step={1}
+                                className="h-7 w-16 px-1 text-xs"
+                                value={Math.round(options.size)}
+                                onKeyDown={e => e.stopPropagation()}
+                                onChange={e => {
+                                    const size = parseFloat(e.target.value);
+                                    if (size >= 1) {
+                                        setOptions({...options, size});
+                                    }
+                                }}
+                            />
+                        </PopoverContent>
+                    </Popover>
                 </>
             ) : null}
             {onClose
                 ? button(
+                      'close',
                       t('annotation.hide', 'Hide annotations'),
                       <XIcon />,
                       onClose

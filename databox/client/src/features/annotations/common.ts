@@ -1,28 +1,6 @@
-import type {AssetAnnotation, ZoomRef} from './types';
-import type {AnnotationResizeHandler, OnResizeEvent} from './handlerTypes';
+import type {AssetAnnotation} from './types';
 
-export function getZoomFromRef(zoomRef: ZoomRef): number {
-    return zoomRef.current || 1;
-}
-
-/** Moves a shape positioned by its `x` / `y` */
-export const getStandardMoveHandler =
-    (): AnnotationResizeHandler =>
-    ({
-        annotation,
-        deltaX,
-        deltaY,
-        relativeY,
-        relativeX,
-    }: OnResizeEvent): AssetAnnotation => {
-        return {
-            ...annotation,
-            x: (annotation.x || 0) + relativeX(deltaX),
-            y: (annotation.y || 0) + relativeY(deltaY),
-        };
-    };
-
-/** Removes the local (per session) flags before a shape is stored */
+/** Drops the `editable` flag older clients stored with their shapes */
 export function toStoredAnnotation(
     annotation: AssetAnnotation
 ): AssetAnnotation {

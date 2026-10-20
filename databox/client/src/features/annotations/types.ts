@@ -1,4 +1,3 @@
-import type {Dispatch, RefObject, SetStateAction} from 'react';
 import type {AssetAnnotation} from '@/types/api';
 
 export type {AssetAnnotation};
@@ -79,6 +78,7 @@ export interface RectangleAnnotation extends AssetAnnotation {
 export interface DrawAnnotation extends AssetAnnotation {
     type: AnnotationType.Draw;
     paths: Point[][];
+    /** Offset of the paths (a moved drawing) */
     x?: number;
     y?: number;
     c?: string;
@@ -111,36 +111,13 @@ export interface TimeRangeAnnotation extends AssetAnnotation {
     e: number;
 }
 
-/** Options of the shape being drawn (toolbar), in canvas pixels */
+/**
+ * Options of a tool or of the selected shape, as shown in the toolbar.
+ * The size is in pixels of the rendered media (stroke width or font size).
+ */
 export type AnnotationOptions = {
     color: string;
+    /** Rectangles and circles only; none when undefined */
     fillColor?: string;
     size: number;
 };
-
-export type DrawOptions = {
-    selected?: boolean;
-    editable?: boolean;
-};
-
-export type OnNewAnnotation = (annotation: AssetAnnotation) => void;
-export type OnUpdateAnnotation = (
-    id: AnnotationId,
-    annotation: AssetAnnotation
-) => AssetAnnotation;
-export type OnDeleteAnnotation = (id: AnnotationId) => void;
-
-/** Imperative handle of the annotation layer */
-export type AnnotationsControl = {
-    render: () => void;
-    addAnnotation: OnNewAnnotation;
-    updateAnnotation: OnUpdateAnnotation;
-    deleteAnnotation: OnDeleteAnnotation;
-    selectAnnotation: (annotation: AssetAnnotation | undefined) => void;
-};
-
-export type SelectedAnnotationRef = RefObject<AssetAnnotation | undefined>;
-export type ZoomRef = RefObject<number>;
-export type ShapeControlRef = RefObject<HTMLDivElement | null>;
-export type CanvasRef = RefObject<HTMLCanvasElement | null>;
-export type StateSetter<T> = Dispatch<SetStateAction<T>>;

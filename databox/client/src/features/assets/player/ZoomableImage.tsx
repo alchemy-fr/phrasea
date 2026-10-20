@@ -66,13 +66,7 @@ export function ZoomableImage({
     const [metrics, setMetrics] = useState<ZoomMetrics>();
     const metricsRef = useRef<ZoomMetrics>(undefined);
     const [imageBox, setImageBox] = useState<ImageBox>();
-    const zoomRef = useRef(1);
-    zoomRef.current = view.scale;
-    const annotations = useAnnotationLayer({
-        zoomRef,
-        // Redrawn sharper at each zoom step (bounded by the renderer)
-        renderKey: Math.min(3, Math.ceil(view.scale)),
-    });
+    const annotations = useAnnotationLayer({zoom: view.scale});
     const viewRef = useRef(view);
     viewRef.current = view;
     const drag = useRef<{x: number; y: number; ox: number; oy: number}>(
@@ -224,12 +218,12 @@ export function ZoomableImage({
             )}
             onClick={e => {
                 onInteraction?.();
-                if (!moved.current && !inToolbar(e.target)) {
+                if (!moved.current && !isControl(e)) {
                     onContentClick?.();
                 }
             }}
             onPointerDown={e => {
-                if (e.button !== 0 || inToolbar(e.target)) {
+                if (e.button !== 0 || isControl(e)) {
                     return;
                 }
                 moved.current = false;
@@ -275,7 +269,7 @@ export function ZoomableImage({
                 setDragging(false);
             }}
             onDoubleClick={e => {
-                if (inToolbar(e.target)) {
+                if (isControl(e)) {
                     return;
                 }
                 if (!fitted) {
@@ -308,7 +302,7 @@ export function ZoomableImage({
                     }}
                 />
             </div>
-            {annotations.canvas && imageBox ? (
+            {annotations.layer && imageBox ? (
                 // Same box and transform as the image: the shapes follow it
                 <div
                     data-testid="annotation-overlay"
@@ -324,7 +318,7 @@ export function ZoomableImage({
                         transform: `translate(${view.x}px, ${view.y}px) rotate(${view.rotation}deg) scale(${view.scale})`,
                     }}
                 >
-                    {annotations.canvas}
+                    {annotations.layer}
                 </div>
             ) : null}
             <div
@@ -408,6 +402,17 @@ function isFitted(m: ZoomMetrics, v: ZoomView): boolean {
     );
 }
 
-function inToolbar(target: EventTarget): boolean {
-    return target instanceof Element && !!target.closest('[data-zoom-toolbar]');
+/**
+ * The event comes from the toolbar, or from a popover of the toolbar: those
+ * are portaled out of the container but their React events still bubble
+ * to it, and capturing their pointer would break their sliders and buttons.
+ */
+function isControl(e: {target: EventTarget; currentTarget: Element}): boolean {
+    const {target} = e;
+
+    return (
+        !(target instanceof Element) ||
+        !e.currentTarget.contains(target) ||
+        !!target.closest('[data-zoom-toolbar]')
+    );
 }

@@ -47,6 +47,7 @@ import {
     useContentImpression,
 } from '@/lib/analytics/useContentTracking';
 import {AnnotationsProvider} from '@/features/annotations/AnnotationsProvider';
+import {getAssetAnnotationsTarget} from '@/features/annotations/assetAnnotations';
 
 /** Best file to display for a story item standing in for its story */
 function standInFile(asset: Asset | undefined) {
@@ -139,6 +140,11 @@ export function AssetViewRoute({
     });
 
     const asset = query.data?.asset;
+    // The shapes of the attribute values, shown over the image by default
+    const assetAnnotations = useMemo(
+        () => (asset ? getAssetAnnotationsTarget(asset, t) : undefined),
+        [asset, t]
+    );
     const renditions = useMemo(
         () => query.data?.renditions ?? [],
         [query.data?.renditions]
@@ -363,7 +369,7 @@ export function AssetViewRoute({
     }, [queryClient, assetId]);
 
     return (
-        <AnnotationsProvider resetKey={assetId}>
+        <AnnotationsProvider resetKey={assetId} fallback={assetAnnotations}>
             <div
                 data-testid="asset-view"
                 className={cn(

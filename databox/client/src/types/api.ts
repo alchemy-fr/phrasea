@@ -475,8 +475,6 @@ export type AssetAnnotation = {
     type: string;
     name?: string;
     page?: number;
-    /** Local flag of the viewer, never stored */
-    editable?: boolean;
     [prop: string]: any;
 };
 

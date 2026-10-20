@@ -32,6 +32,7 @@ export type AnnotationTarget = {
 };
 
 type AnnotationsContextValue = {
+    /** The explicit target, else the fallback when shown */
     target: AnnotationTarget | undefined;
     setTarget: (target: AnnotationTarget | undefined) => void;
     /** Drops the target when it is the given one (or any when omitted) */
@@ -39,38 +40,89 @@ type AnnotationsContextValue = {
     /** The displayed media can show annotations (an image is on screen) */
     supported: boolean;
     setSupported: (supported: boolean) => void;
+    /** The shapes shown when nothing else is (the ones of the asset) */
+    fallback: AnnotationTarget | undefined;
+    showFallback: boolean;
+    setShowFallback: (show: boolean) => void;
 };
 
 const AnnotationsContext = createContext<AnnotationsContextValue | undefined>(
     undefined
 );
 
+const showFallbackStorageKey = 'databox.annotations.show';
+
 /**
  * Shares the annotations shown by the player of an asset view with the
  * side panel (discussion, attributes, integrations). `resetKey` (the asset)
- * drops the target when it changes.
+ * drops the target when it changes. `fallback` (the shapes of the asset,
+ * read only) is shown while no component owns the target, unless the user
+ * hid it (remembered in the browser).
  */
 export function AnnotationsProvider({
     children,
     resetKey,
+    fallback,
 }: {
     children: ReactNode;
     resetKey?: string;
+    fallback?: AnnotationTarget;
 }) {
     const [target, setTarget] = useState<AnnotationTarget>();
     const [supported, setSupported] = useState(false);
+    const [showFallback, setShowFallbackState] = useState(true);
 
     useEffect(() => {
         setTarget(undefined);
     }, [resetKey]);
+
+    // Read after the mount: the server does not know the choice
+    useEffect(() => {
+        try {
+            setShowFallbackState(
+                localStorage.getItem(showFallbackStorageKey) !== '0'
+            );
+        } catch {
+            // storage unavailable
+        }
+    }, []);
+
+    const setShowFallback = useCallback((show: boolean) => {
+        setShowFallbackState(show);
+        try {
+            localStorage.setItem(showFallbackStorageKey, show ? '1' : '0');
+        } catch {
+            // ignore (private mode)
+        }
+    }, []);
 
     const clearTarget = useCallback((key?: string) => {
         setTarget(t => (key === undefined || t?.key === key ? undefined : t));
     }, []);
 
     const value = useMemo<AnnotationsContextValue>(
-        () => ({target, setTarget, clearTarget, supported, setSupported}),
-        [target, clearTarget, supported]
+        () => ({
+            target:
+                target ??
+                (showFallback && fallback?.annotations.length
+                    ? fallback
+                    : undefined),
+            setTarget,
+            clearTarget,
+            supported,
+            setSupported,
+            fallback,
+            showFallback,
+            setShowFallback,
+        }),
+        [
+            target,
+            clearTarget,
+            supported,
+            fallback,
+            showFallback,
+            setShowFallback,
+        ]
     );
 
     return (

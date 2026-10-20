@@ -1,57 +1,34 @@
 import {AnnotationOptions, AnnotationType} from './types';
 
-type Sizes = Partial<Record<AnnotationType, number>>;
-type Colors = Partial<Record<AnnotationType, string>>;
-
 // The last options used per tool are kept for the session
-const lastSizes: Sizes = {};
-const lastColors: Colors = {};
+const lastOptions: Partial<Record<AnnotationType, AnnotationOptions>> = {};
 
-const defaultStroke = 2;
+const defaultStroke = 3;
 
-const defaultSizes: Sizes = {
-    [AnnotationType.Arrow]: 5,
+const defaultSizes: Partial<Record<AnnotationType, number>> = {
+    [AnnotationType.Arrow]: 4,
     [AnnotationType.Circle]: defaultStroke,
-    [AnnotationType.Draw]: 10,
+    [AnnotationType.Draw]: 6,
     [AnnotationType.Line]: defaultStroke,
     [AnnotationType.Rect]: defaultStroke,
-    [AnnotationType.Target]: 10,
-    [AnnotationType.Text]: 30,
+    [AnnotationType.Target]: 4,
+    [AnnotationType.Text]: 32,
 };
 
-const defaultColors: Colors = {
-    [AnnotationType.Arrow]: '#000000',
-    [AnnotationType.Circle]: '#000000',
-    [AnnotationType.Draw]: '#ff0000',
-    [AnnotationType.Line]: '#000000',
-    [AnnotationType.Rect]: '#000000',
-    [AnnotationType.Target]: '#ff0000',
-    [AnnotationType.Text]: '#000000',
-};
-
-export function getDefaultSize(type: AnnotationType): number {
-    return lastSizes[type] ?? defaultSizes[type] ?? defaultStroke;
-}
-
-function getDefaultColor(type: AnnotationType): string {
-    return lastColors[type] ?? defaultColors[type] ?? '#000000';
-}
+const defaultColor = '#e11d48';
 
 export function getDefaultOptions(type: AnnotationType): AnnotationOptions {
-    return {
-        color: getDefaultColor(type),
-        size: getDefaultSize(type),
-    };
+    return (
+        lastOptions[type] ?? {
+            color: defaultColor,
+            size: defaultSizes[type] ?? defaultStroke,
+        }
+    );
 }
 
 export function updateLastOptions(
     type: AnnotationType,
-    {size, color}: AnnotationOptions
+    options: AnnotationOptions
 ) {
-    updateLastSize(type, size);
-    lastColors[type] = color;
-}
-
-export function updateLastSize(type: AnnotationType, size: number) {
-    lastSizes[type] = size;
+    lastOptions[type] = options;
 }
