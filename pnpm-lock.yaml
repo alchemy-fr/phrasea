@@ -622,8 +622,8 @@ importers:
         specifier: ^7.2.2
         version: 7.2.2
       i18next-http-backend:
-        specifier: ^4.0.0
-        version: 4.0.0
+        specifier: ^4.0.2
+        version: 4.0.4
       i18next-localstorage-backend:
         specifier: ^4.2.0
         version: 4.2.0
@@ -8830,8 +8830,8 @@ packages:
   i18next-browser-languagedetector@7.2.2:
     resolution: {integrity: sha512-6b7r75uIJDWCcCflmbof+sJ94k9UQO4X0YR62oUfqGI/GjCLVzlCwu8TFdRZIqVLzWbzNcmkmhfqKEr4TLz4HQ==}
 
-  i18next-http-backend@4.0.0:
-    resolution: {integrity: sha512-EgSjO3Q1G6f2Q5oy7u9mmxuesE0oSfzAD97NFBjC8EmkK4guBSYLljM0Fng3DarMWIIkU70jfo4+mUzmyVISTA==}
+  i18next-http-backend@4.0.4:
+    resolution: {integrity: sha512-nG9OQKvUsPiTVUBg1rCGmvmWhzxC9GOxVbGdTYyejHVMSUjutt1hiBNVSzhB/ZE7keL9Xkb880kUfhDovV5T5g==}
     engines: {node: '>=18'}
 
   i18next-localstorage-backend@4.2.0:
@@ -21841,7 +21841,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.28.4
 
-  i18next-http-backend@4.0.0: {}
+  i18next-http-backend@4.0.4: {}
 
   i18next-localstorage-backend@4.2.0:
     dependencies:
