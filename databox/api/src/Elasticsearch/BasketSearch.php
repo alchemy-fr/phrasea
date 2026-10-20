@@ -140,11 +140,6 @@ class BasketSearch extends AbstractSearch
                     'missing' => '_last',
                 ],
             ],
-            [
-                '_id' => [
-                    'order' => 'asc',
-                ],
-            ],
         ]);
     }
 

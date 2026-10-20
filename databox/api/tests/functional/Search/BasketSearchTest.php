@@ -41,63 +41,26 @@ class BasketSearchTest extends AbstractSearchTestCase
         $this->assertBasketNames(['Newest', 'Middle', 'Oldest'], $this->requestBaskets(['order' => 'createdAt']));
     }
 
-    public function testBasketsSharingCreatedAtAreOrderedByIdAsc(): void
-    {
-        $createdAt = '2025-06-01 10:00:00';
-        $this->createBasket([
-            'id' => 'cccccccc-0000-4000-8000-000000000003',
-            'name' => 'C',
-            'ownerId' => self::USER_ID,
-            'createdAt' => $createdAt,
-        ]);
-        $this->createBasket([
-            'id' => 'aaaaaaaa-0000-4000-8000-000000000001',
-            'name' => 'A',
-            'ownerId' => self::USER_ID,
-            'createdAt' => $createdAt,
-        ]);
-        $this->createBasket([
-            'id' => 'bbbbbbbb-0000-4000-8000-000000000002',
-            'name' => 'B',
-            'ownerId' => self::USER_ID,
-            'createdAt' => $createdAt,
-        ]);
-        self::releaseIndex();
-
-        $this->assertBasketNames(['A', 'B', 'C'], $this->requestBaskets(['order' => 'createdAt']));
-    }
-
-    public function testBasketsWithoutCreatedAtComeLastInStableIdOrder(): void
+    public function testBasketsWithoutCreatedAtComeLast(): void
     {
         $this->createBasket([
             'name' => 'Dated',
             'ownerId' => self::USER_ID,
             'createdAt' => '2020-01-01 10:00:00',
         ]);
-        $undatedB = $this->createBasket([
-            'id' => 'bbbbbbbb-0000-4000-8000-000000000002',
-            'name' => 'Undated B',
+        $undated = $this->createBasket([
+            'name' => 'Undated',
             'ownerId' => self::USER_ID,
             'createdAt' => '2026-01-01 10:00:00',
         ]);
-        $undatedA = $this->createBasket([
-            'id' => 'aaaaaaaa-0000-4000-8000-000000000001',
-            'name' => 'Undated A',
-            'ownerId' => self::USER_ID,
-            'createdAt' => '2026-02-01 10:00:00',
-        ]);
         self::releaseIndex();
 
-        // Even though they are the most recent ones, baskets whose indexed
+        // Even though it is the most recent one, a basket whose indexed
         // creation date is not usable must be pushed after the dated ones.
-        $this->removeIndexedCreatedAt($undatedA);
-        $this->removeIndexedCreatedAt($undatedB);
+        $this->removeIndexedCreatedAt($undated);
         self::waitForESIndex('basket');
 
-        $this->assertBasketNames(
-            ['Dated', 'Undated A', 'Undated B'],
-            $this->requestBaskets(['order' => 'createdAt'])
-        );
+        $this->assertBasketNames(['Dated', 'Undated'], $this->requestBaskets(['order' => 'createdAt']));
     }
 
     public function testOrderIsNotAffectedByUpdates(): void
