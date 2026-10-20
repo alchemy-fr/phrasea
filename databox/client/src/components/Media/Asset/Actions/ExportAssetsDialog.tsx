@@ -47,6 +47,22 @@ type UnsignedTerms = {
     version: number;
 };
 
+async function getAllRenditionDefinitions(
+    workspaceIds: string[]
+): Promise<RenditionDefinition[]> {
+    const definitions: RenditionDefinition[] = [];
+    let nextUrl: string | undefined;
+    do {
+        const res = await getRenditionDefinitions(
+            nextUrl ? {nextUrl} : {workspaceIds}
+        );
+        definitions.push(...res.result);
+        nextUrl = res.next;
+    } while (nextUrl);
+
+    return definitions;
+}
+
 export default function ExportAssetsDialog({assets, ...modalProps}: Props) {
     const {t} = useTranslation();
     const [definitions, setDefinitions] = useState<IndexedDefinition>();
@@ -65,12 +81,10 @@ export default function ExportAssetsDialog({assets, ...modalProps}: Props) {
             .map(a => a.workspace.id)
             .filter((value, index, self) => self.indexOf(value) === index);
 
-        getRenditionDefinitions({
-            workspaceIds,
-        }).then(defs => {
+        getAllRenditionDefinitions(workspaceIds).then(defs => {
             const index: IndexedDefinition = {};
 
-            defs.result.forEach(rd => {
+            defs.forEach(rd => {
                 const ws = rd.workspace as Workspace;
                 // eslint-disable-next-line no-prototype-builtins
                 if (!index.hasOwnProperty(ws.id)) {

@@ -8,8 +8,8 @@ use Alchemy\AclBundle\Entity\AccessControlEntryRepository;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Cache\TemporaryCacheFactory;
-use App\Entity\Core\AttributePolicy;
 use App\Entity\Core\RenditionDefinition;
+use App\Entity\Core\RenditionPolicy;
 use App\Entity\Core\Workspace;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
@@ -44,16 +44,15 @@ class RenditionDefinitionRepository extends ServiceEntityRepository
                 ->addGroupBy($rootAlias.'.id')
                 ->addGroupBy('acl_c.id')
                 ->addGroupBy('acl_w.id')
-                ->addGroupBy('acl_c.id')
                 ->addGroupBy('ap_ace.id')
                 ->addGroupBy('w_ace.id');
             AccessControlEntryRepository::joinAcl(
                 $queryBuilder,
                 $userId,
                 $groupIds,
-                AttributePolicy::OBJECT_TYPE,
+                RenditionPolicy::OBJECT_TYPE,
                 'acl_c',
-                PermissionInterface::VIEW,
+                PermissionInterface::CHILD_VIEW,
                 false,
                 'ap_ace'
             );
