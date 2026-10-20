@@ -40,12 +40,16 @@ class AttributeEntityVoter extends AbstractVoter
 
             return null !== $userId && $userId === $subject->getCreatorId();
         };
+        // Whoever may set attribute values in the workspace may pick its pending values too
+        $isAttributeEditor = fn (): bool => AttributeEntity::STATUS_PENDING === $subject->getStatus()
+            && null !== $subject->getWorkspace()
+            && $this->security->isGranted(AssetContainerVoterInterface::ASSET_EDIT_ATTRIBUTES, $subject->getWorkspace());
 
         return match ($attribute) {
             // An open list takes new values from its readers, not from anyone
             self::CREATE => $isTypeEditor() || ($subject->getList()->isAllowNewValues() && $isTypeReader()),
             self::EDIT, self::DELETE => $isTypeEditor() || ($isCreator() && !$subject->isApproved()),
-            self::READ => $isTypeEditor() || ($isTypeReader() && ($subject->isApproved() || $isCreator())),
+            self::READ => $isTypeEditor() || ($isTypeReader() && ($subject->isApproved() || $isCreator() || $isAttributeEditor())),
             default => false,
         };
     }

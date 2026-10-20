@@ -10,8 +10,9 @@ import {
     type AssetAction,
 } from './useAssetActions';
 
+const push = vi.fn();
 vi.mock('next/navigation', () => ({
-    useRouter: () => ({push: vi.fn()}),
+    useRouter: () => ({push}),
 }));
 vi.mock('@/components/modals/ModalProvider', () => ({
     useModals: () => ({openModal: vi.fn()}),
@@ -30,10 +31,15 @@ vi.mock('@/lib/analytics/events', async importOriginal => ({
 
 type Caps = Partial<Asset['capabilities']>;
 
-function asset(id: string, caps: Caps = {}, source = true): Asset {
+function asset(
+    id: string,
+    caps: Caps = {},
+    source = true,
+    similarity = false
+): Asset {
     return {
         id,
-        workspace: {id: 'ws'},
+        workspace: {id: 'ws', similarity},
         capabilities: {
             edit: true,
             delete: true,
@@ -152,5 +158,25 @@ describe('useAssetActions', () => {
         track.mockClear();
         actionsOf([asset('a')]);
         expect(track).not.toHaveBeenCalled();
+    });
+
+    it('offers the similarity search where the workspace computes it', () => {
+        expect(actionsOf([asset('a')]).similar).toBeUndefined();
+
+        const similar = actionsOf([asset('a', {}, true, true)]).similar;
+        expect(similar.disabled).toBeFalsy();
+        similar.run();
+        expect(push).toHaveBeenCalledWith(
+            '/assets?f=%40similar%3A%40similar+%3D+%22a%22'
+        );
+
+        expect(
+            actionsOf([asset('a', {}, true, true), asset('b', {}, true, true)])
+                .similar.disabled
+        ).toBe(true);
+        expect(
+            actionsOf([asset('a', {}, true, false), asset('b', {}, true, true)])
+                .similar.disabled
+        ).toBe(true);
     });
 });

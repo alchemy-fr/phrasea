@@ -8,6 +8,8 @@ use Alchemy\AclBundle\Model\AccessControlEntryInterface;
 use Alchemy\AclBundle\Security\PermissionInterface;
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\Core\Workspace;
+use App\Entity\Integration\WorkspaceIntegration;
+use App\Integration\Core\Similarity\SimilarityIntegration;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -364,6 +366,42 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
         $capabilities = $response->toArray()['member'][0]['capabilities'];
         ksort($capabilities);
         $this->assertSame($expected, $capabilities);
+    }
+
+    public function testSimilarityTellsWhetherTheSimilarityIntegrationIsEnabled(): void
+    {
+        $enabled = $this->createWs('similarity-ws', ['public' => true]);
+        $disabled = $this->createWs('disabled-similarity-ws', ['public' => true]);
+        $this->createWs('no-similarity-ws', ['public' => true]);
+        $em = self::getEntityManager();
+        foreach ([[$enabled, true], [$disabled, false]] as [$workspace, $isEnabled]) {
+            $integration = new WorkspaceIntegration();
+            $integration->setWorkspace($workspace);
+            $integration->setIntegration(SimilarityIntegration::getName());
+            $integration->setOwnerId('custom_owner');
+            $integration->setPublic(false);
+            $integration->setConfig([]);
+            $integration->setEnabled($isEnabled);
+            $em->persist($integration);
+        }
+        $em->flush();
+
+        $client = static::createClient();
+        $response = $client->request('GET', '/workspaces', [
+            'headers' => self::authHeaders(self::USER),
+        ]);
+        $similarity = array_column($response->toArray()['member'], 'similarity', 'slug');
+        ksort($similarity);
+        $this->assertSame([
+            'disabled-similarity-ws' => false,
+            'no-similarity-ws' => false,
+            'similarity-ws' => true,
+        ], $similarity);
+
+        $response = $client->request('GET', self::iri($enabled), [
+            'headers' => self::authHeaders(self::USER),
+        ]);
+        $this->assertTrue($response->toArray()['similarity']);
     }
 
     public function testDisplayNameIsTranslatedAccordingToUserLocale(): void

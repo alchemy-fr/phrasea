@@ -62,14 +62,25 @@ final readonly class AttributeAssigner
                     throw new BadRequestHttpException(sprintf('Invalid status value "%s", allowed ones are: %s', $data->status, implode(', ', Attribute::STATUS_LABELS)));
                 }
             }
-            $attribute->setOriginUserId($data->originUserId);
-            $attribute->setOriginVendor($data->originVendor);
-            $attribute->setOriginVendorContext($data->originVendorContext);
+            // Editing an existing value only changes what the input provides (merge patch semantics)
+            $isNew = null === $attribute->getCreatedAt();
+            if ($isNew || null !== $data->originUserId) {
+                $attribute->setOriginUserId($data->originUserId);
+            }
+            if ($isNew || null !== $data->originVendor) {
+                $attribute->setOriginVendor($data->originVendor);
+            }
+            if ($isNew || null !== $data->originVendorContext) {
+                $attribute->setOriginVendorContext($data->originVendorContext);
+            }
             if ($data->confidence) {
                 $attribute->setConfidence($data->confidence);
             }
             if (null !== $data->annotations) {
                 $attribute->setAssetAnnotations($data->annotations ?: null);
+            }
+            if (null !== $data->embedding) {
+                $attribute->setEmbedding($data->embedding);
             }
         }
 

@@ -99,7 +99,8 @@
                     "createdAt": "<date>",
                     "displayName": "Snapshot workspace",
                     "id": "<workspace>",
-                    "name": "Snapshot workspace"
+                    "name": "Snapshot workspace",
+                    "similarity": false
                 }
             },
             "context": [],

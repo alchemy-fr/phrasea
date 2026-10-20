@@ -7,15 +7,18 @@ namespace App\Api\Processor;
 use Alchemy\AclBundle\Repository\UserRepositoryInterface;
 use Alchemy\AuthBundle\Security\JwtUser;
 use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Exception\ItemNotFoundException;
 use ApiPlatform\Metadata\IriConverterInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Api\Model\Input\ResolveEntitiesInput;
 use App\Api\Model\Output\ResolveEntitiesOutput;
+use App\Entity\Core\Asset;
 use App\Security\Voter\AbstractVoter;
 use Doctrine\DBAL\Types\ConversionException;
 use Doctrine\ORM\EntityManagerInterface;
+use Ramsey\Uuid\Uuid;
 
 class ResolveEntitiesProcessor implements ProcessorInterface
 {
@@ -35,18 +38,31 @@ class ResolveEntitiesProcessor implements ProcessorInterface
     {
         $userIri = '/users/';
         $userIriLength = strlen($userIri);
+        $assetIri = '/assets/';
+        $assetIriLength = strlen($assetIri);
+
+        $isAssetIri = fn (string $iri): bool => str_starts_with($iri, $assetIri)
+            && Uuid::isValid(substr($iri, $assetIriLength));
 
         // Users are only disclosed to authenticated users (as /users is)
         $canReadUsers = $this->isGranted(JwtUser::IS_AUTHENTICATED_FULLY);
 
         $users = [];
+        $assetIds = [];
         foreach ($data->entities as $iri) {
             if ($canReadUsers && str_starts_with($iri, $userIri)) {
                 $users[] = substr($iri, $userIriLength);
+            } elseif ($isAssetIri($iri)) {
+                $assetIds[] = substr($iri, $assetIriLength);
             }
         }
 
         $fetchedUsers = !empty($users) ? $this->userRepository->getUsersByIds($users) : [];
+
+        $fetchedAssets = [];
+        if (!empty($assetIds)) {
+            $fetchedAssets = DoctrineUtil::getIndexFromIds($this->em->getRepository(Asset::class), $assetIds);
+        }
 
         $entities = [];
         foreach ($data->entities as $iri) {
@@ -55,15 +71,10 @@ class ResolveEntitiesProcessor implements ProcessorInterface
                     $entities[$iri] = $canReadUsers
                         ? $fetchedUsers[substr($iri, $userIriLength)] ?? null
                         : ['notAllowed' => true];
+                } elseif ($isAssetIri($iri)) {
+                    $entities[$iri] = $this->resolveReadableEntity($fetchedAssets[substr($iri, $assetIriLength)] ?? null);
                 } else {
-                    $entity = $this->iriConverter->getResourceFromIri($iri);
-                    if ($this->isGranted(AbstractVoter::READ, $entity)) {
-                        $entities[$iri] = $entity;
-                    } else {
-                        $entities[$iri] = [
-                            'notAllowed' => true,
-                        ];
-                    }
+                    $entities[$iri] = $this->resolveReadableEntity($this->iriConverter->getResourceFromIri($iri));
                 }
             } catch (ItemNotFoundException|ConversionException) {
                 $entities[$iri] = null;
@@ -71,5 +82,20 @@ class ResolveEntitiesProcessor implements ProcessorInterface
         }
 
         return new ResolveEntitiesOutput($entities);
+    }
+
+    private function resolveReadableEntity(?object $entity): object|array|null
+    {
+        if (null === $entity) {
+            return null;
+        }
+
+        if (!$this->isGranted(AbstractVoter::READ, $entity)) {
+            return [
+                'notAllowed' => true,
+            ];
+        }
+
+        return $entity;
     }
 }

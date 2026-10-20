@@ -32,6 +32,12 @@ class Configuration implements ConfigurationInterface
                     ->scalarPrototype()
                     ->end()
                 ->end()
+                ->arrayNode('role_mapping')
+                    ->info('Realm roles of the identity provider mapped to Symfony roles, in addition to "admin" and "tech" (e.g. edit_faces: ROLE_EDIT_FACES)')
+                    ->useAttributeAsKey('name')
+                    ->scalarPrototype()
+                    ->end()
+                ->end()
             ->end()
         ;
 

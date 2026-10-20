@@ -501,6 +501,20 @@ const storyType: AttributeTypeDef = {
         value && typeof value === 'object' ? (value as any).id : value,
 };
 
+/** An asset ID, resolved to the asset name */
+const assetType: AttributeTypeDef = {
+    rich: true,
+    entity: EntityName.Asset,
+    formats: () => [],
+    format: (value, format, ctx) => assetType.formatString(value, format, ctx),
+    formatString: value =>
+        value && typeof value === 'object'
+            ? ((value as Asset).name ?? '')
+            : str(value),
+    normalize: value =>
+        value && typeof value === 'object' ? (value as Asset).id : value,
+};
+
 function asStoryCollection(value: unknown): Collection | undefined {
     if (!value || typeof value !== 'object') {
         return undefined;
@@ -696,6 +710,7 @@ const registry: Record<AttributeType, AttributeTypeDef> = {
     [AttributeType.Workspace]: workspaceType,
     [AttributeType.CollectionPath]: collectionType,
     [AttributeType.Story]: storyType,
+    [AttributeType.Asset]: assetType,
     [AttributeType.Privacy]: privacyType,
     [AttributeType.AssetStatus]: assetStatusType,
 };

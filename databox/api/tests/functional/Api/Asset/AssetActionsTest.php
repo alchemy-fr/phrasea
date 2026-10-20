@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Api\Asset;
 
 use App\Entity\Core\Asset;
+use App\Entity\Core\AssetRendition;
 use App\Entity\Core\CollectionAsset;
+use App\Entity\Core\File;
 use App\Entity\Core\WorkspaceItemPrivacyInterface;
 use App\Entity\Workflow\WorkflowState;
+use App\Service\Storage\RenditionManager;
 use App\Tests\Functional\AbstractDataboxTestCase;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -49,6 +52,35 @@ final class AssetActionsTest extends AbstractDataboxTestCase
         $this->assertNull($entities[$unknown]);
         $this->assertArrayHasKey('/users/'.self::OWNER, $entities);
         $this->assertNotSame(['notAllowed' => true], $entities['/users/'.self::OWNER]);
+    }
+
+    public function testResolvedAssetCarriesItsThumbnail(): void
+    {
+        $workspace = $this->createOwnedWorkspace();
+        $asset = $this->createAsset(['ownerId' => self::OWNER, 'no_flush' => true]);
+        $em = self::getEntityManager();
+        $file = new File();
+        $file->setWorkspace($workspace);
+        $file->setStorage(File::STORAGE_S3_MAIN);
+        $file->setPathPublic(true);
+        $file->setPath('test/thumbnail.png');
+        $file->setType('image/png');
+        $em->persist($file);
+        $rendition = new AssetRendition();
+        $rendition->setAsset($asset);
+        $rendition->setDefinition(self::getService(RenditionManager::class)->getRenditionDefinitionByName($workspace->getId(), 'Thumbnail'));
+        $rendition->setFile($file);
+        $em->persist($rendition);
+        $em->flush();
+
+        $iri = '/assets/'.$asset->getId();
+        $resolved = $this->request('POST', '/assets/entities', self::OWNER, [
+            'entities' => [$iri],
+        ])->toArray()['entities'][$iri];
+
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertSame('image/png', $resolved['thumbnail']['file']['type']);
+        $this->assertNotEmpty($resolved['thumbnail']['file']['url']);
     }
 
     public function testResolveEntitiesAsAnonymous(): void

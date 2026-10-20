@@ -18,6 +18,7 @@ import {
     LanguagesIcon,
     ListChecksIcon,
     PlugIcon,
+    ScanFaceIcon,
     UserRoundCogIcon,
     UndoIcon,
     WorkflowIcon,
@@ -56,6 +57,7 @@ import {ThemeMenu} from '@/features/theme/ThemeMenu';
 import {NotificationsMenu} from '@/features/notifications/NotificationsMenu';
 import {getAuthClient} from '@/lib/auth/client';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
+import {useFaceRecognitionSetups} from '@/features/faces/useFaceRecognition';
 import {cn} from '@/lib/utils/cn';
 
 /**
@@ -98,6 +100,9 @@ export function TopBar({
     const {openModal} = useModals();
     const openSwitchUser = useSwitchUserShortcut();
     const isAdmin = hasRole(AppRole.DataboxAdmin) || hasRole(AppRole.Admin);
+    // The Faces page makes sense once a workspace recognizes faces
+    const faceSetups = useFaceRecognitionSetups();
+    const hasFaces = (faceSetups.data?.length ?? 0) > 0;
 
     const changeLanguage = (lng: string) => {
         void i18n.changeLanguage(lng);
@@ -273,6 +278,17 @@ export function TopBar({
                             </DropdownMenuItem>
                         </DropdownMenuSubContent>
                     </DropdownMenuSub>
+                    {hasFaces ? (
+                        <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                data-testid="settings-faces"
+                                onSelect={() => router.push(routes.faces())}
+                            >
+                                <ScanFaceIcon /> {t('settings.faces', 'Faces')}
+                            </DropdownMenuItem>
+                        </>
+                    ) : null}
                     {isAdmin ? (
                         <>
                             <DropdownMenuSeparator />

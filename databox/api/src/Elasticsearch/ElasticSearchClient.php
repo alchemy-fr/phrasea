@@ -55,6 +55,7 @@ final readonly class ElasticSearchClient
             $path,
             [
                 'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
             ],
             $data
         );

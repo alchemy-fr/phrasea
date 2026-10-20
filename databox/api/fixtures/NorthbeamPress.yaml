@@ -635,6 +635,12 @@ App\Entity\Integration\WorkspaceIntegration:
                 - Thumbnail
         needs:
             - '@nb_wi_rendition'
+    nb_wi_similarity (extends nb_tpl_wi):
+        integration: core.similarity
+    nb_wi_face_recognition (extends nb_tpl_wi):
+        integration: core.face_recognition
+        needs:
+            - '@nb_wi_rendition'
     nb_wi_transcribe (extends nb_tpl_wi):
         integration: aws.transcribe
         enabled: false

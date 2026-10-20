@@ -9,6 +9,7 @@ use Alchemy\AuthBundle\Security\Impersonator;
 use Alchemy\AuthBundle\Security\JwtExtractor;
 use Alchemy\AuthBundle\Security\JwtUserProvider;
 use Alchemy\AuthBundle\Security\OAuthAuthorizationAuthenticator;
+use Alchemy\AuthBundle\Security\RoleMapper;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -54,6 +55,9 @@ class AlchemyAuthExtension extends Extension implements PrependExtensionInterfac
 
         $def = $container->findDefinition(Impersonator::class);
         $def->setArgument('$requiredRoles', $config['required_roles']);
+
+        $def = $container->findDefinition(RoleMapper::class);
+        $def->setArgument('$mapping', array_merge(RoleMapper::DEFAULT_MAPPING, $config['role_mapping']));
 
         $bundles = $container->getParameter('kernel.bundles');
         if (isset($bundles['AlchemyAclBundle'])) {

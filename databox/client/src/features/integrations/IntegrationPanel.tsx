@@ -17,6 +17,10 @@ import {InlineLoader} from '@/components/ui/loader';
 import {TuiPhotoEditorPanel, tuiPhotoEditor} from './tui/TuiPhotoEditorPanel';
 import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';
 import {RekognitionPanel, awsRekognition} from './rekognition/RekognitionPanel';
+import {
+    FaceRecognitionPanel,
+    faceRecognition,
+} from '@/features/faces/FaceRecognitionPanel';
 
 type Props = {
     integration: WorkspaceIntegration;
@@ -36,6 +40,9 @@ export function IntegrationPanel(props: Props) {
     }
     if (props.integration.integration === awsRekognition) {
         return <RekognitionPanel {...props} />;
+    }
+    if (props.integration.integration === faceRecognition) {
+        return <FaceRecognitionPanel {...props} />;
     }
 
     return <GenericIntegrationPanel {...props} />;

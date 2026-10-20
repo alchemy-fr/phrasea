@@ -6,6 +6,7 @@ namespace App\Integration\Blurhash;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
@@ -16,6 +17,8 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 #[AsTaggedItem(index: self::NAME)]
 class BlurhashIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    use RenditionConfigNormalizerTrait;
+
     public const string NAME = 'blurhash';
 
     final public const string VERSION = '1.0';
@@ -56,5 +59,10 @@ class BlurhashIntegration extends AbstractIntegration implements WorkflowIntegra
         return [
             IntegrationCategory::Processing,
         ];
+    }
+
+    protected function getRenditionConfigPaths(): array
+    {
+        return ['rendition'];
     }
 }

@@ -65,6 +65,7 @@ export async function getGlobalIntegrations(): Promise<
 }
 
 export enum IntegrationObjectType {
+    Asset = 'asset',
     File = 'file',
     Basket = 'basket',
 }

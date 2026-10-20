@@ -303,5 +303,6 @@ export const builtInTypes: Partial<Record<BuiltInEnum, AttributeType>> = {
     [BuiltInEnum.Rendition]: AttributeType.Rendition,
     [BuiltInEnum.AssetStatus]: AttributeType.AssetStatus,
     [BuiltInEnum.Story]: AttributeType.Story,
+    [BuiltInEnum.Similar]: AttributeType.Asset,
     [BuiltInEnum.FileFamily]: AttributeType.FileFamily,
 };

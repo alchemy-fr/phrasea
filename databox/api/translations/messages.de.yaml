@@ -122,6 +122,8 @@ built_in_attribute:
     name: Gelöscht
   assetStatus:
     name: Asset-Status
+  similar:
+    name: Ähnlich wie
 search:
   suggestion:
     type:

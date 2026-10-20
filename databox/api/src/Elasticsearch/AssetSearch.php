@@ -11,6 +11,7 @@ use App\Elasticsearch\AQL\ConditionOperatorEnum;
 use App\Elasticsearch\BuiltInAttribute\AssetStatusBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\BuiltInAttributeRegistry;
 use App\Elasticsearch\BuiltInAttribute\CollectionBuiltInAttribute;
+use App\Elasticsearch\BuiltInAttribute\CustomFilterQueryBuiltInAttributeInterface;
 use App\Elasticsearch\BuiltInAttribute\CustomSortBuiltInAttributeInterface;
 use App\Elasticsearch\BuiltInAttribute\DeletedBuiltInAttribute;
 use App\Elasticsearch\BuiltInAttribute\DirectCollectionBuiltInAttribute;
@@ -64,6 +65,20 @@ class AssetSearch extends AbstractSearch
         private readonly AssetSortGroupMapper $assetSortGroupMapper,
         private readonly BuiltInAttributeRegistry $builtInAttributeRegistry,
     ) {
+    }
+
+    private function isScoreBasedCondition(string $condition): bool
+    {
+        foreach ($this->builtInAttributeRegistry->getAll() as $attribute) {
+            if ($attribute instanceof CustomFilterQueryBuiltInAttributeInterface
+                && $attribute->isScoreBasedQuery()
+                && str_starts_with($condition, $attribute::getKey())
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function search(
@@ -352,6 +367,7 @@ class AssetSearch extends AbstractSearch
 
         $hasDeletedFilter = false;
         $hasStatusFilter = false;
+        $mustQueries = [];
         if (null !== $conditions = ($options['conditions'] ?? null)) {
             foreach ($conditions as $condition) {
                 if (is_array($condition)) {
@@ -370,11 +386,18 @@ class AssetSearch extends AbstractSearch
                 if (str_starts_with($subject, AssetStatusBuiltInAttribute::getKey())) {
                     $hasStatusFilter = true;
                 }
-                $filterQueries[] = $this->attributeSearch->buildConditionQuery(
+                $conditionQuery = $this->attributeSearch->buildConditionQuery(
                     $this->attributeSearch->buildSearchableAttributeDefinitionsGroups($userId, $groupIds),
                     $condition,
                     $options
                 );
+
+                if ($this->isScoreBasedCondition((string) $condition)) {
+                    // e.g. knn must run in a scoring context so results are ranked by similarity
+                    $mustQueries[] = $conditionQuery;
+                } else {
+                    $filterQueries[] = $conditionQuery;
+                }
             }
         }
 
@@ -389,6 +412,9 @@ class AssetSearch extends AbstractSearch
         $filterQuery = new Query\BoolQuery();
         foreach ($filterQueries as $query) {
             $filterQuery->addFilter($query);
+        }
+        foreach ($mustQueries as $query) {
+            $filterQuery->addMust($query);
         }
 
         $queryString = trim($options['query'] ?? '');

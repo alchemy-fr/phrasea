@@ -22,11 +22,16 @@ export const routes = {
     profileManage: (id: string, tab = 'general') =>
         `/profiles/${id}/manage/${tab}`,
     workflow: (id: string) => `/workflows/${id}`,
+    /** A run with one of its jobs selected */
+    workflowJob: (id: string, jobId: string) =>
+        `/workflows/${id}/jobs/${encodeURIComponent(jobId)}`,
     /** Every workflow run (admins) */
     workflows: () => '/admin/workflows',
     attributesEditor: () => '/attributes/editor',
     quarantine: (assetId?: string) =>
         assetId ? `/quarantine?asset=${assetId}` : '/quarantine',
+    /** Faces detected by the face recognition, to name (persons of the entity lists) */
+    faces: () => '/faces',
     operationTasks: () => '/admin/tasks',
     operationTaskNew: () => '/admin/tasks/new',
     operationTaskRun: (task: string) => `/admin/tasks/${task}/run`,

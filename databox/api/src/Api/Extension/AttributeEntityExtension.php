@@ -12,7 +12,9 @@ use ApiPlatform\Metadata\Operation;
 use App\Api\Traits\ParameterValuesTrait;
 use App\Entity\Core\AttributeEntity;
 use App\Entity\Core\EntityList;
+use App\Entity\Core\Workspace;
 use App\Security\Voter\AbstractVoter;
+use App\Security\Voter\AssetContainerVoterInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 
@@ -55,8 +57,25 @@ class AttributeEntityExtension implements QueryCollectionExtensionInterface
         $userIdentifier = $this->getUserOrOAuthClient()?->getUserIdentifier();
 
         if ($userIdentifier) {
+            // Whoever may set attribute values in a workspace may pick its pending values too
+            $editableWorkspaces = [];
+            $workspaceIds = null !== $operation ? (array) self::getParameterValue($operation, 'workspace', []) : [];
+            foreach (array_unique(array_filter(array_map(static fn (mixed $id): string => basename((string) $id), $workspaceIds))) as $workspaceId) {
+                $workspace = $this->em->find(Workspace::class, $workspaceId);
+                if ($workspace instanceof Workspace && $this->isGranted(AssetContainerVoterInterface::ASSET_EDIT_ATTRIBUTES, $workspace)) {
+                    $editableWorkspaces[] = $workspaceId;
+                }
+            }
+
+            $visible = sprintf('%1$s.status = :approved OR %1$s.creatorId = :uid', $rootAlias);
+            if (!empty($editableWorkspaces)) {
+                $visible .= sprintf(' OR (%1$s.status = :pending AND %1$s.workspace IN (:editableWorkspaces))', $rootAlias);
+                $queryBuilder
+                    ->setParameter('pending', AttributeEntity::STATUS_PENDING)
+                    ->setParameter('editableWorkspaces', $editableWorkspaces);
+            }
             $queryBuilder
-                ->andWhere(sprintf('%1$s.status = :approved OR %1$s.creatorId = :uid', $rootAlias))
+                ->andWhere($visible)
                 ->setParameter('approved', AttributeEntity::STATUS_APPROVED)
                 ->setParameter('uid', $userIdentifier)
             ;

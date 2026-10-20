@@ -83,6 +83,7 @@ export function EntityChip({
 }: {
     entity: {
         value: string | null;
+        note?: string | null;
         emoji?: string;
         color?: string;
         status?: number;
@@ -110,6 +111,14 @@ export function EntityChip({
             <span className={size === 'xs' ? 'text-xs' : undefined}>
                 {label}
             </span>
+            {entity.note ? (
+                <span
+                    className="truncate text-xs text-muted-foreground"
+                    title={entity.note}
+                >
+                    {entity.note}
+                </span>
+            ) : null}
         </span>
     );
 }

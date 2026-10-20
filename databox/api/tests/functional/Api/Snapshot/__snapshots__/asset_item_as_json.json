@@ -2,6 +2,7 @@
     "attachments": [],
     "attributes": [
         {
+            "confidence": 1,
             "createdAt": "<date>",
             "definition": {
                 "createdAt": "<date>",
@@ -18,10 +19,12 @@
             "id": "<uuid>",
             "invalid": false,
             "locale": "_",
+            "origin": "machine",
             "updatedAt": "<date>",
             "value": "first"
         },
         {
+            "confidence": 1,
             "createdAt": "<date>",
             "definition": {
                 "createdAt": "<date>",
@@ -38,10 +41,12 @@
             "id": "<uuid>",
             "invalid": false,
             "locale": "_",
+            "origin": "machine",
             "updatedAt": "<date>",
             "value": "second"
         },
         {
+            "confidence": 1,
             "createdAt": "<date>",
             "definition": {
                 "createdAt": "<date>",
@@ -58,10 +63,12 @@
             "id": "<uuid>",
             "invalid": false,
             "locale": "_",
+            "origin": "machine",
             "updatedAt": "<date>",
             "value": "Photo"
         },
         {
+            "confidence": 1,
             "createdAt": "<date>",
             "definition": {
                 "createdAt": "<date>",
@@ -78,6 +85,7 @@
             "id": "<uuid>",
             "invalid": false,
             "locale": "_",
+            "origin": "machine",
             "updatedAt": "<date>",
             "value": "Hello"
         }
@@ -169,6 +177,7 @@
         "createdAt": "<date>",
         "displayName": "Snapshot workspace",
         "id": "<workspace>",
-        "name": "Snapshot workspace"
+        "name": "Snapshot workspace",
+        "similarity": false
     }
 }

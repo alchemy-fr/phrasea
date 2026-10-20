@@ -20,6 +20,7 @@ import {
     SaveIcon,
     PinIcon,
     PinOffIcon,
+    ScanSearchIcon,
 } from 'lucide-react';
 import {toast} from 'sonner';
 import type {Asset} from '@/types/api';
@@ -40,6 +41,7 @@ import {useOptionalResults} from '@/features/search/useOptionalResults';
 import {useOptionalSelection} from '@/features/assets/list/SelectionProvider';
 import {usePinnedStoriesStore} from '@/features/stories/pinnedStoriesStore';
 import {EventCategory, track} from '@/lib/analytics/events';
+import {useSimilarSearch} from '@/features/search/useSimilarSearch';
 
 export type AssetAction = {
     id: string;
@@ -70,6 +72,8 @@ export type ActionContext = {
     pin?: boolean;
     /** Create a story holding the assets */
     createStory?: boolean;
+    /** Search the assets visually similar */
+    similar?: boolean;
 };
 
 export const defaultActionContext: Required<ActionContext> = {
@@ -87,6 +91,7 @@ export const defaultActionContext: Required<ActionContext> = {
     saveAs: true,
     pin: true,
     createStory: true,
+    similar: true,
 };
 
 /** Where the actions are offered, sent with their analytics event */
@@ -116,8 +121,9 @@ export function trackAssetAction(
  * Builds the actions available for one or several assets, grouped for menus.
  *
  * An action is left out only where the action context excludes it, where the
- * user is not authenticated, or where the deleted state of the assets rules
- * it out (restore in the trash only). It is disabled — listed, greyed out —
+ * user is not authenticated, where the deleted state of the assets rules it
+ * out (restore in the trash only), or where no workspace of the assets has
+ * the feature (similarity search). It is disabled — listed, greyed out —
  * when it cannot apply to these assets: a single-asset action on several
  * assets, a capability missing on at least one of them, no source file.
  */
@@ -135,6 +141,7 @@ export function useAssetActions(
     const selection = useOptionalSelection();
     const pinnedStories = usePinnedStoriesStore(s => s.ids);
     const togglePinnedStory = usePinnedStoriesStore(s => s.toggle);
+    const searchSimilar = useSimilarSearch();
     const ctx = {...defaultActionContext, ...context};
     const ctxKey = JSON.stringify(ctx);
 
@@ -188,6 +195,23 @@ export function useAssetActions(
                 run: () => {
                     if (single) {
                         router.push(routes.assetView(single.id));
+                    }
+                },
+            });
+        }
+        if (
+            ctx.similar &&
+            !anyDeleted &&
+            assets.some(a => a.workspace.similarity)
+        ) {
+            nav.push({
+                id: 'similar',
+                label: t('asset.actions.find_similar', 'Find similar'),
+                icon: <ScanSearchIcon />,
+                disabled: !single?.workspace.similarity,
+                run: () => {
+                    if (single) {
+                        searchSimilar(single);
                     }
                 },
             });

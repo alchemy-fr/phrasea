@@ -1,5 +1,11 @@
 import {describe, expect, it} from 'vitest';
-import {conditionQuery, searchChecksum} from './searchState';
+import {
+    conditionQuery,
+    paramsToSearchState,
+    searchChecksum,
+    searchStateToParams,
+    similarSearchState,
+} from './searchState';
 
 describe('inverted conditions', () => {
     const condition = {id: 'c', query: 'a = 1 OR b = 2'};
@@ -19,5 +25,19 @@ describe('inverted conditions', () => {
                 conditions: [{...condition, inversed: true}],
             })
         ).not.toBe(searchChecksum(state));
+    });
+});
+
+describe('similarity search', () => {
+    it('searches the similar assets alone, by score', () => {
+        const state = similarSearchState('a"b');
+        expect(state).toEqual({
+            query: '',
+            conditions: [{id: '@similar', query: '@similar = "a\\"b"'}],
+            sortBy: [],
+        });
+        expect(paramsToSearchState(searchStateToParams(state))).toMatchObject(
+            state
+        );
     });
 });

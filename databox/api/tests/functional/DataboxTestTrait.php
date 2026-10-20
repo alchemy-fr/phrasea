@@ -259,7 +259,7 @@ trait DataboxTestTrait
         $ownerId = $options['ownerId'] ?? 'custom_owner';
         $workspace->setOwnerId($ownerId);
         $workspace->setEnabledLocales(['fr', 'en', 'de']);
-        $workspace->setSlug('my-workspace');
+        $workspace->setSlug($options['slug'] ?? 'my-workspace');
         if ($options['public'] ?? false) {
             $workspace->setPublic(true);
         }

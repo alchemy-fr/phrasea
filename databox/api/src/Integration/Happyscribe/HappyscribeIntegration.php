@@ -6,6 +6,7 @@ namespace App\Integration\Happyscribe;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
@@ -16,6 +17,8 @@ use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 #[AsTaggedItem(index: self::NAME)]
 class HappyscribeIntegration extends AbstractIntegration implements WorkflowIntegrationInterface
 {
+    use RenditionConfigNormalizerTrait;
+
     public const string NAME = 'happyscribe';
 
     final public const array ALLOWED_EXTENSIONS = ['srt', 'txt', 'json', 'vtt', 'docx', 'pdf', 'html'];
@@ -83,5 +86,10 @@ class HappyscribeIntegration extends AbstractIntegration implements WorkflowInte
     public static function getName(): string
     {
         return self::NAME;
+    }
+
+    protected function getRenditionConfigPaths(): array
+    {
+        return ['rendition'];
     }
 }

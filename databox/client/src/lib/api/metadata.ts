@@ -3,8 +3,11 @@ import {toPage} from './hydra';
 import {
     AssetDataTemplate,
     AssetTypeFilter,
+    Attribute,
     AttributeDefinition,
     AttributeEntity,
+    AttributeEntityStatus,
+    AttributeOrigin,
     AttributePolicy,
     BuiltInAttribute,
     EntityList,
@@ -261,7 +264,12 @@ export function clearEntityList(listId: string): Promise<void> {
 
 export async function getAttributeEntities(options: {
     list?: string;
+    workspace?: string;
     query?: string;
+    status?: AttributeEntityStatus;
+    /** Also count the attribute values referencing each entity (`usage`) */
+    usage?: boolean;
+    limit?: number;
     url?: string;
 }): Promise<Page<AttributeEntity>> {
     return toPage(
@@ -272,7 +280,11 @@ export async function getAttributeEntities(options: {
                     ? undefined
                     : {
                           'list': options.list,
+                          'workspace': options.workspace,
                           'query': options.query,
+                          'status': options.status,
+                          'usage': options.usage ? 1 : undefined,
+                          'limit': options.limit,
                           'order[value]': 'asc',
                       },
             }
@@ -306,6 +318,37 @@ export function putAttributeEntity(
 
 export function deleteAttributeEntity(id: string): Promise<void> {
     return api.delete(`/${EntityName.AttributeEntity}/${id}`);
+}
+
+/** The values of an attribute definition across the assets, newest assets first */
+export async function getAttributesOfDefinition(
+    options: {
+        definition: string;
+        value?: string | string[];
+        origin?: AttributeOrigin;
+        asset?: string;
+        limit?: number;
+        url?: string;
+    },
+    signal?: AbortSignal
+): Promise<Page<Attribute>> {
+    return toPage(
+        await api.get<HydraCollection<Attribute>>(
+            options.url ?? '/attributes',
+            {
+                params: options.url
+                    ? undefined
+                    : {
+                          definition: options.definition,
+                          value: options.value,
+                          origin: options.origin,
+                          asset: options.asset,
+                          limit: options.limit,
+                      },
+                signal,
+            }
+        )
+    );
 }
 
 export function mergeAttributeEntities(

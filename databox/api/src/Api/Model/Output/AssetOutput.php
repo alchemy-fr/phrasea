@@ -126,7 +126,7 @@ class AssetOutput extends AbstractUuidOutput
     /**
      * @var AssetRenditionOutput|null
      */
-    #[Groups([Asset::GROUP_LIST, Share::GROUP_READ, Share::GROUP_PUBLIC_READ])]
+    #[Groups([Asset::GROUP_LIST, Share::GROUP_READ, Share::GROUP_PUBLIC_READ, ResolveEntitiesOutput::GROUP_READ])]
     private ?AssetRendition $thumbnail = null;
 
     #[Groups([Asset::GROUP_LIST])]

@@ -15,6 +15,8 @@ They provide practical value by:
 - Normalizing data exchanged between Phrasea and external services.
 - Keeping synchronized states between Phrasea objects and external resources.
 
+Rendition references in integration configurations (`rendition`, `renditions`, `applyToRenditions`, `labels.rendition`...) are written by name in YAML but persisted as rendition definition IDs (see `RenditionConfigNormalizer`): renaming a rendition definition does not break the integrations using it, and the YAML shown back to users still displays names.
+
 ## Rendition integration (core.rendition)
 
 Display name: Rendition
@@ -116,6 +118,63 @@ Operational notes:
 - Save and delete actions require valid user context and integration data identifiers.
 - Unsupported actions are rejected.
 
+## Similarity integration (core.similarity)
+
+Display name: Similarity
+
+This integration computes a visual embedding (CLIP vector) for each ingested asset and stores it in the asset Elasticsearch document (dense_vector field).
+It powers the "Similar assets" panel and the "Find similar" action of the asset view, through a kNN search that enforces the same ACL filters as the regular search.
+
+Main behavior:
+
+- Adds a workflow job on asset ingest, depending on the configured rendition job (default: preview) and on the thumbnail rendition jobs.
+- Sends the rendition image to the similarity-embedder service (self-hosted, CLIP) to compute the vector. When the configured rendition is not an image (the preview of a document is a PDF, the one of a video is a video), the thumbnail rendition (`useAsThumbnail`) is used instead: documents and videos are searchable by similarity too.
+- Stores the vector in database (asset_embedding table) and reindexes the asset in Elasticsearch.
+- Similar assets are served by `GET /assets/{id}/similar` using an Elasticsearch kNN query filtered by permissions.
+
+Operational notes:
+
+- Requires the `similarity-embedder` (maintained in [alchemy-fr/phrasea-similarity-embedder](https://github.com/alchemy-fr/phrasea-similarity-embedder)) and `elasticsearch` (>= 8.12) services.
+- Backfill existing assets with `bin/console app:similarity:index` (assets already embedded are skipped unless `--force`).
+
+## Face Recognition integration (core.face_recognition)
+
+Display name: Face Recognition
+
+This integration detects the faces of image assets and recognizes the persons that users have already named, through a self-hosted service (no data leaves the platform).
+It is the self-hosted counterpart of the "faces" category of AWS Rekognition, with recognition on top of detection.
+
+There is no face-specific data model nor API: **a face is a value of the configured entity attribute** of the asset (`attribute`), and **a person is an entity** of the list that attribute is bound to. Each face value carries the person (the entity ID), the box of the face as a rectangle annotation, the detection or recognition confidence, and the face embedding (`attribute.embedding`, never exposed by the API nor indexed). Everything else goes through the generic attribute and entity APIs.
+
+Main behavior:
+
+- Sends the configured rendition (default: preview, falls back to the source file), downscaled to `maxImageSize` pixels, to the `face-recognition` service, which returns for each face a bounding box, a detection confidence and a 512-d ArcFace embedding.
+- Runs on asset ingest when `processIncoming` is enabled (workflow job depending on the rendition job), or on demand from the asset view ("Detect faces", user action `analyze`).
+- Each detected face is recognized among the faces of the workspace (cosine similarity, `matchThreshold`): it joins the person of the closest face a user named, or else the closest face of a person nobody has named yet. Otherwise it starts a new **pending entity** ("Unknown person · 3f2a", `unknownLabel`): the pending persons are the groups of look-alikes still to be named; being pending, they never show up in the search facets, and they are removed as soon as no face references them any more. Only the faces named by users (`origin: human`) are references: a recognized face never becomes one, so that the recognition cannot drift.
+- Users name a face by changing the value of its attribute (`PATCH /attributes/{id}`, `/attributes/batch-update`), to an existing entity or to one they create (`POST /attribute-entities`): the face becomes a reference of the person (`origin: human`, `originUserId`, confidence 1) and, when `autoPropagate` is enabled, the person is propagated asynchronously to the similar faces of the workspace that no user named. Deleting the value (`DELETE /attributes/{id}`) forgets the face.
+- Users name a whole unknown group by renaming and approving its pending entity (`PATCH /attribute-entities/{id}` with `value`, `note` and `status: 0`): its most confident face becomes the reference and is propagated. Attaching the group to an existing person is the entities merge (`PUT /attribute-entities/{id}/merge`), which re-points its faces. Two persons with the same name are told apart by their `note` (the same value may appear twice in a list).
+- The **Faces** page of the client (`/faces`) is built on these APIs: `GET /attribute-entities?list=…&status=…&usage=1` for the persons (with the number of faces, `usage`), `GET /attributes?definition=…&value=…` for the faces of a person. Pending persons are listed to the users who may edit the attributes of the workspace, so that they can name them.
+- Permissions are those of the attributes and the entity lists: reading the faces of an asset requires reading its face attribute (asset readable, attribute policy public or granted), naming requires editing it, creating or renaming a person requires the rights on the list.
+- Re-running the detection on an asset keeps the person of the faces that overlap a previous detection (what users said included). Replay the recognition after a change of `matchThreshold` with `bin/console app:face-recognition:relink` (no detection involved).
+
+Configuration:
+
+| Key | Default | Description |
+| --- | --- | --- |
+| attribute | (required) | Slug of a multi-valued attribute of type `entity`, receiving one value per detected face; its entity list holds the persons |
+| unknownLabel | Unknown person | Name of a person nobody has named yet (a short code is appended) |
+| rendition | preview | Rendition sent to the service (must be an image) |
+| maxImageSize | 2048 | Longest side (pixels) of the downscaled JPEG copy actually sent to the service |
+| processIncoming | false | Detect faces on all incoming assets |
+| minConfidence | 0.5 | Minimum detection confidence for a face to be kept |
+| matchThreshold | 0.5 | Minimum cosine similarity with a known face to recognize the same person (0 disables recognition: every face is a new unknown person) |
+| autoPropagate | true | Apply a newly named person to the similar faces of the workspace |
+
+Operational notes:
+
+- Requires the `face-recognition` service (maintained in [alchemy-fr/phrasea-face-recognition](https://github.com/alchemy-fr/phrasea-face-recognition), InsightFace `buffalo_l` model pack on CPU; image `FACE_RECOGNITION_IMAGE`, `face-recognition` Docker Compose profile). Databox reaches it through `FACE_RECOGNITION_URL`.
+- Backfill existing assets with `bin/console app:face-recognition:index` (add `--sync` to run in the foreground).
+
 ## Exhaustive integration list
 
 The table below is the exhaustive integration list currently available in Databox codebase.
@@ -138,6 +197,8 @@ The table below is the exhaustive integration list currently available in Databo
 | remove.bg | Remove BG | Asset view background removal | Yes |
 | phraseanet.renditions | Phraseanet Renditions | Workflow rendition synchronization with Phraseanet | No |
 | core.test_asset_operation | Test Asset Operation | Test-only workflow integration | No |
+| similarity | Similarity | Workflow embedding generation for similarity search | No |
+| core.face_recognition | Face Recognition | Face detection and recognition (asset view and workflow) | No |
 
 Note: for integrations marked Yes in the External service column, some assets, metadata, or derived content will necessarily be submitted to these external services for processing.
 

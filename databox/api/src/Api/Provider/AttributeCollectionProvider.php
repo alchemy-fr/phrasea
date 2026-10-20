@@ -4,20 +4,38 @@ declare(strict_types=1);
 
 namespace App\Api\Provider;
 
+use Alchemy\CoreBundle\Util\DoctrineUtil;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Core\Attribute;
+use App\Entity\Core\AttributeDefinition;
+use App\Security\Voter\AbstractVoter;
 use App\Security\Voter\AttributeDefinitionVoter;
 use App\Service\Asset\AssetPolicy\AssetPolicyManager;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
+use Pagerfanta\Pagerfanta;
 
+/**
+ * The attribute values of an asset (every value the user may see, unpaginated), or, with a
+ * "definition", the values of that definition across the assets (paginated, newest assets first,
+ * the values of the assets the user cannot read left out of the page).
+ */
 class AttributeCollectionProvider extends AbstractAssetFilteredCollectionProvider
 {
+    private const int DEFAULT_LIMIT = 30;
+    private const int MAX_LIMIT = 100;
+
     public function __construct(
         private readonly AssetPolicyManager $assetPolicyManager,
     ) {
     }
 
-    protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array
+    protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array|object
     {
+        $definitionId = self::getParameterId($operation, 'definition');
+        if (null !== $definitionId) {
+            return $this->provideByDefinition($operation, $definitionId);
+        }
+
         $asset = $this->getAsset($operation);
 
         $attributes = $this->em->getRepository(Attribute::class)
@@ -35,5 +53,59 @@ class AttributeCollectionProvider extends AbstractAssetFilteredCollectionProvide
             return !in_array($definitionId, $filteredDefinitions, true)
                 && ($canView[$definitionId] ??= $this->security->isGranted(AttributeDefinitionVoter::VIEW_ATTRIBUTES, $definition));
         }));
+    }
+
+    private function provideByDefinition(Operation $operation, string $definitionId): object
+    {
+        // TODO to complex
+        $definition = DoctrineUtil::findStrict($this->em, AttributeDefinition::class, $definitionId, throw404: true);
+        $this->denyAccessUnlessGranted(AttributeDefinitionVoter::VIEW_ATTRIBUTES, $definition);
+
+        $qb = $this->em->getRepository(Attribute::class)->createQueryBuilder('a')
+            ->innerJoin('a.asset', 'asset')
+            ->addSelect('asset')
+            ->andWhere('a.definition = :def')
+            ->andWhere('asset.deletedAt IS NULL')
+            ->setParameter('def', $definition->getId())
+            ->orderBy('asset.createdAt', 'DESC')
+            ->addOrderBy('asset.id', 'ASC')
+            ->addOrderBy('a.position', 'ASC')
+            ->addOrderBy('a.createdAt', 'ASC');
+
+        $assetId = self::getParameterId($operation, 'assetId') ?? self::getParameterId($operation, 'asset');
+        if (null !== $assetId) {
+            $qb
+                ->andWhere('a.asset = :asset')
+                ->setParameter('asset', $assetId);
+        }
+
+        $values = self::getParameterValue($operation, 'value');
+        $values = array_values(array_filter(\is_array($values) ? $values : [$values], static fn (mixed $v): bool => \is_string($v) && '' !== $v));
+        if (!empty($values)) {
+            $qb
+                ->andWhere('a.value IN (:values)')
+                ->setParameter('values', $values);
+        }
+
+        $origin = self::getParameterValue($operation, 'origin');
+        if (\is_string($origin) && '' !== $origin) {
+            // The parameter schema already rejects unknown labels (422)
+            $qb
+                ->andWhere('a.origin = :origin')
+                ->setParameter('origin', array_search($origin, Attribute::ORIGIN_LABELS, true));
+        }
+
+        $limit = (int) self::getParameterValue($operation, 'limit', self::DEFAULT_LIMIT);
+        $page = (int) self::getParameterValue($operation, 'page', 1);
+
+        $pager = new Pagerfanta(new QueryAdapter($qb, false, false));
+        $pager->setMaxPerPage(max(1, min(self::MAX_LIMIT, $limit)));
+        $pager->setAllowOutOfRangePages(true);
+        $pager->setCurrentPage(max(1, $page));
+
+        return new FilteredPaginator(
+            new PagerFantaApiPlatformPaginator($pager),
+            fn (Attribute $attribute): bool => $this->security->isGranted(AbstractVoter::READ, $attribute),
+        );
     }
 }

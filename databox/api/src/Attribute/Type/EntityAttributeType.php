@@ -35,6 +35,10 @@ final class EntityAttributeType extends TextAttributeType
     #[\Override]
     public function validate(mixed $value): ?array
     {
+        // The denormalized form (see denormalizeValue) carries the ID
+        if (\is_array($value)) {
+            $value = $value['id'] ?? null;
+        }
         if (!is_string($value) || !Uuid::isValid($value)) {
             return ['Invalid entity ID'];
         }
@@ -129,6 +133,7 @@ final class EntityAttributeType extends TextAttributeType
         return [
             'id' => $entity->getId(),
             'value' => $entity->isApproved() ? $this->getTranslatedValue($entity) : null,
+            'note' => $entity->getNote(),
             'emoji' => $entity->getEmoji(),
             'color' => $entity->getColor(),
         ];

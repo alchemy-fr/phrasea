@@ -63,7 +63,8 @@ News agency: multimedia editorial flow, geolocated, under embargo, multilingual.
 - **Rendition policy** `Print` (restricted): `Print hi-res`.
 - **Tags**: Breaking, Exclusive, Embargo, Online, Offline.
 - **Integrations**: ToastUI photo editor, Blurhash, watermark (Watermark attribute on the
-  thumbnail), moderation, AWS Transcribe (disabled, dummy AWS secrets).
+  thumbnail), moderation, visual similarity, face recognition, AWS Transcribe (disabled, dummy
+  AWS secrets).
 
 | Persona | Role             | Rights                                                                   |
 | ------- | ---------------- | ------------------------------------------------------------------------ |

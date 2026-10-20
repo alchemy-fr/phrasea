@@ -117,6 +117,8 @@ export enum AttributeType {
     Rendition = 'rendition',
     FileSize = 'filesize',
     Story = 'story',
+    /** Client-side type of the `@similar` built-in: an asset ID */
+    Asset = 'asset',
     Tag = 'tag',
     Text = 'text',
     Textarea = 'textarea',
@@ -281,6 +283,8 @@ export interface Workspace
     termsUnsigned?: boolean;
     /** Custom logo, the service one when none */
     logo?: string | null;
+    /** Its assets can be searched by visual similarity (`@similar`) */
+    similarity?: boolean;
 }
 
 export type WorkspaceTerms = {
@@ -404,7 +408,10 @@ export type AttributeOrigin = 'human' | 'machine' | 'fallback' | 'initial';
 
 export interface Attribute extends Partial<HydraObject>, Entity {
     definition: AttributeDefinition;
+    /** The asset, as an IRI or an object, on the collections of a definition */
+    asset?: Asset | string;
     origin: AttributeOrigin;
+    confidence?: number;
     multiple: boolean;
     invalid?: boolean;
     originVendor?: string;
@@ -435,6 +442,8 @@ export interface AttributeEntity extends HydraObject, Entity {
     list?: EntityList | string;
     locale?: string;
     value: string;
+    /** Tells apart the values sharing the same name (homonyms) */
+    note?: string | null;
     emoji?: string;
     color?: string;
     translations: Translations;
@@ -442,6 +451,8 @@ export interface AttributeEntity extends HydraObject, Entity {
     createdAt: string;
     updatedAt: string;
     status: AttributeEntityStatus;
+    /** Attribute values referencing the entity, with the `usage` parameter */
+    usage?: {attributes: number; humanAttributes: number};
 }
 
 export interface EntityList extends HydraObject, Entity {
@@ -542,6 +553,9 @@ export interface Asset
     resolvedTrackingId?: string;
     webUrl?: string;
 }
+
+/** Bounding box normalized to the image size, origin top-left */
+export type FaceBox = {x: number; y: number; w: number; h: number};
 
 export interface AssetFileVersion extends Entity {
     asset: Asset;

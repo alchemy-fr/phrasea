@@ -74,6 +74,18 @@ use Symfony\Component\Validator\Constraints as Assert;
                     extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'value.raw'],
                     castToArray: false,
                 ),
+                'status' => new QueryParameter(
+                    filter: ExactSearchFilter::class,
+                    property: 'status',
+                    schema: ['type' => 'integer'],
+                    description: 'Approved (0), pending (1) or rejected (2) values only (ignored on a "query" search)',
+                    castToArray: false,
+                ),
+                'usage' => new QueryParameter(
+                    schema: ['type' => 'boolean'],
+                    description: 'Also counts the attribute values referencing each entity ("usage")',
+                    castToArray: false,
+                ),
                 'query' => new QueryParameter(
                     filter: new SuggestQueryFilter(),
                     schema: ['type' => 'string'],
@@ -126,9 +138,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[SameWorkspaceConstraint(
     properties: ['workspace', 'list.workspace'],
 )]
-#[UniqueConstraint(name: 'list_value_uniq', fields: ['list', 'value'])]
 #[UniqueConstraint(name: 'list_external_id_uniq', fields: ['list', 'externalId'])]
-#[UniqueEntity(fields: ['list', 'value'], message: 'This value already exists in the list', errorPath: 'value')]
 #[UniqueEntity(fields: ['list', 'externalId'], message: 'This external ID already exists in the list', errorPath: 'externalId')]
 class AttributeEntity extends AbstractUuidEntity implements \Stringable
 {
@@ -184,6 +194,28 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
 
     #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
     private ?string $externalId = null;
+
+    /**
+     * Free text telling apart the values sharing the same name (homonyms).
+     */
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    #[Groups([
+        self::GROUP_LIST,
+        ResolveEntitiesOutput::GROUP_READ,
+        Asset::GROUP_LIST,
+    ])]
+    #[Assert\Length(max: 255)]
+    private ?string $note = null;
+
+    /**
+     * Number of attribute values referencing the entity, computed on demand by the collection
+     * provider ("usage" parameter): {attributes: int, humanAttributes: int}.
+     *
+     * @var array{attributes: int, humanAttributes: int}|null
+     */
+    #[Groups([self::GROUP_LIST])]
+    #[ApiProperty(writable: false)]
+    private ?array $usage = null;
 
     #[ORM\Column(type: Types::INTEGER, nullable: false)]
     private int $position = 0;
@@ -370,6 +402,33 @@ class AttributeEntity extends AbstractUuidEntity implements \Stringable
     public function __toString(): string
     {
         return $this->value ?? $this->getId() ?? '';
+    }
+
+    public function getNote(): ?string
+    {
+        return $this->note;
+    }
+
+    public function setNote(?string $note): void
+    {
+        $note = null !== $note ? trim($note) : null;
+        $this->note = '' !== $note ? $note : null;
+    }
+
+    /**
+     * @return array{attributes: int, humanAttributes: int}|null
+     */
+    public function getUsage(): ?array
+    {
+        return $this->usage;
+    }
+
+    /**
+     * @param array{attributes: int, humanAttributes: int}|null $usage
+     */
+    public function setUsage(?array $usage): void
+    {
+        $this->usage = $usage;
     }
 
     public function getExternalId(): ?string

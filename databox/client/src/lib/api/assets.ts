@@ -210,6 +210,32 @@ export async function getStoryThumbnails(assetId: string): Promise<string[]> {
     return res.thumbnails;
 }
 
+export type SimilarAssets = {
+    items: Asset[];
+    /** Similarity score of each asset, by asset ID */
+    scores: Record<string, number>;
+};
+
+/** The assets visually closest to the given one, the closest first */
+export async function getSimilarAssets(
+    assetId: string,
+    limit: number,
+    signal?: AbortSignal
+): Promise<SimilarAssets> {
+    const res = await api.get<
+        HydraCollection<Asset, {scores?: Record<string, number>}>
+    >(`/${EntityName.Asset}/${assetId}/similar`, {
+        params: {limit},
+        signal,
+    });
+
+    return {
+        items: res.member,
+        // An empty PHP array is serialized as a JSON list
+        scores: Array.isArray(res.scores) ? {} : (res.scores ?? {}),
+    };
+}
+
 export async function getAssetAttributes(
     assetId: string
 ): Promise<Attribute[]> {
@@ -264,6 +290,14 @@ export async function attributeBatchUpdate(
         workspaceId,
         actions: normalized,
     });
+}
+
+/** Changes a single attribute value (its origin becomes human) */
+export function patchAssetAttribute(
+    id: string,
+    data: Partial<Attribute>
+): Promise<Attribute> {
+    return api.patch<Attribute>(`/attributes/${id}`, data);
 }
 
 export function deleteAssetAttribute(id: string): Promise<void> {

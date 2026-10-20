@@ -7,6 +7,8 @@
     description: 'Traduit les valeurs d''attributs dans d''autres langues avec Amazon Translate.'
 'blurhash':
     description: 'Calcule un aperçu flou compact affiché pendant le chargement des images.'
+'core.face_recognition':
+    description: 'Détecte les visages dans les images et les regroupe par personne, avec un service de reconnaissance auto-hébergé.'
 'core.file_analyzer':
     description: 'Contrôle les fichiers entrants avec des analyseurs et met en quarantaine, à la corbeille ou supprime ceux qui sont rejetés.'
 'core.moderation':
@@ -15,6 +17,8 @@
     description: 'Extrait les métadonnées embarquées des fichiers (EXIF, IPTC, XMP…) et initialise les attributs à partir de celles-ci.'
 'core.rendition':
     description: 'Génère les rendus (vignettes, aperçus…) définis dans le workspace.'
+'core.similarity':
+    description: 'Calcule les embeddings des images pour rechercher les assets visuellement similaires.'
 'core.watermark':
     description: 'Appose la valeur d''un attribut en filigrane sur les rendus.'
 'core.webhook':

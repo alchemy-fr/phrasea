@@ -49,4 +49,11 @@ abstract class AbstractExtendedAttributeInput extends AbstractBaseAttributeInput
      * @var float
      */
     public $confidence;
+
+    /**
+     * Signature of the annotated region ({m: model, v: float[]}), kept with the value but never exposed.
+     *
+     * @var array{m: string, v: float[]}|null
+     */
+    public ?array $embedding = null;
 }

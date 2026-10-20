@@ -1694,6 +1694,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     client_id?: scalar|Param|null, // Default: "%env(ADMIN_CLIENT_ID)%"
  *     client_secret?: scalar|Param|null, // Default: "%env(ADMIN_CLIENT_SECRET)%"
  *     required_roles?: list<scalar|Param|null>,
+ *     role_mapping?: array<string, scalar|Param|null>,
  * }
  * @psalm-type AlchemyAclConfig = array{
  *     enabled_permissions?: list<scalar|Param|null>,
