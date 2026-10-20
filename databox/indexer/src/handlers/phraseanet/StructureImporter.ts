@@ -14,7 +14,7 @@ import {
 } from './shared';
 import {AttributeDefinition, Tag} from '../../databox/types';
 import Twig from 'twig';
-import Yaml from 'js-yaml';
+import {dump} from 'js-yaml';
 
 enum RenditionBuildMode {
     COPY_ASSET_FILE = 1,
@@ -418,7 +418,7 @@ export async function importSubdefsStructure(
                 labels: {
                     phraseanetDefinition: sd.labels,
                 },
-                definition: Yaml.dump(jsConf, {lineWidth: 100}).trim(),
+                definition: dump(jsConf, {lineWidth: 100}).trim(),
                 ...(sd.target !== undefined ? {target: Number(sd.target)} : {}),
             });
     }
