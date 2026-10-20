@@ -1,9 +1,8 @@
 import {defineConfig} from 'vitest/config';
 
 /**
- * Vitest is pinned to 3.x, not 4.x as in databox/client: vitest 4 requires
- * vite >= 6, while this package is held at vite 5 by vite-plugin-node, which
- * builds dist/console.mjs. Bumping vitest means replacing that plugin first.
+ * Vitest is pinned to 3.x, not 4.x as in databox/client: under vitest 4 the
+ * fork running tests/unit/handlers/fs/shared.test.ts exits unexpectedly.
  */
 
 export default defineConfig({

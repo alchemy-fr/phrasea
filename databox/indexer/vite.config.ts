@@ -37,8 +37,17 @@ export default defineConfig({
             // }
             // swc configs, see [swc doc](https://swc.rs/docs/configuration/swcrc)
             swcOptions: {},
+
+            outputFormat: 'es',
         }),
     ],
+    build: {
+        rollupOptions: {
+            // package.json is not "type": "module": the ES bundle needs the
+            // .mjs extension to be loaded as ESM by node (dist/console.mjs).
+            output: {entryFileNames: '[name].mjs'},
+        },
+    },
     optimizeDeps: {
         // Vite does not work well with optionnal dependencies,
         // you can mark them as ignored for now
