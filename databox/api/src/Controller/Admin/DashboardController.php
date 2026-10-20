@@ -59,6 +59,7 @@ class DashboardController extends AbstractAdminDashboardController
             MenuItem::linkTo(AttributeCrudController::class, 'Attribute'),
             MenuItem::linkTo(AttributeEntityCrudController::class, 'Attribute Entity'),
             MenuItem::linkTo(EntityListCrudController::class, 'Entity List'),
+            MenuItem::linkTo(EntityTypeCrudController::class, 'Entity Type'),
             MenuItem::linkTo(AttributeDefinitionCrudController::class, 'Attribute Definition'),
             MenuItem::linkTo(AssetPolicyCrudController::class, 'Asset Policy'),
             MenuItem::linkTo(AttributePolicyCrudController::class, 'Attribute Policy'),
