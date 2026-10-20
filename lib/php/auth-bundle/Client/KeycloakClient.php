@@ -328,34 +328,30 @@ final readonly class KeycloakClient
         ]);
     }
 
-    public function findRealmRole(string $accessToken, string $roleName): ?array
+    public function findAvailableRealmRole(string $accessToken, string $userId, string $roleName): ?array
     {
-        try {
-            return $this->get($this->urlGenerator->getAdminApiUrl(sprintf('roles/%s', rawurlencode($roleName))), [
-                'access_token' => $accessToken,
-            ]);
-        } catch (HttpException $e) {
-            if (404 === $e->getStatusCode()) {
-                return null;
+        foreach ($this->get($this->urlGenerator->getAdminApiUrl(sprintf('users/%s/role-mappings/realm/available', $userId)), [
+            'access_token' => $accessToken,
+        ]) as $role) {
+            if (($role['name'] ?? null) === $roleName) {
+                return $role;
             }
-
-            throw $e;
         }
+
+        return null;
     }
 
-    public function findClientRole(string $accessToken, string $clientUuid, string $roleName): ?array
+    public function findAvailableClientRole(string $accessToken, string $userId, string $clientUuid, string $roleName): ?array
     {
-        try {
-            return $this->get($this->urlGenerator->getAdminApiUrl(sprintf('clients/%s/roles/%s', $clientUuid, rawurlencode($roleName))), [
-                'access_token' => $accessToken,
-            ]);
-        } catch (HttpException $e) {
-            if (404 === $e->getStatusCode()) {
-                return null;
+        foreach ($this->get($this->urlGenerator->getAdminApiUrl(sprintf('users/%s/role-mappings/clients/%s/available', $userId, $clientUuid)), [
+            'access_token' => $accessToken,
+        ]) as $role) {
+            if (($role['name'] ?? null) === $roleName) {
+                return $role;
             }
-
-            throw $e;
         }
+
+        return null;
     }
 
     public function getUserRealmRoleMappings(string $accessToken, string $userId): array

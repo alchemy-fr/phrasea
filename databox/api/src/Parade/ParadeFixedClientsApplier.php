@@ -77,8 +77,16 @@ final readonly class ParadeFixedClientsApplier
 
     private function ensureServiceAccount(string $accessToken, Parade $parade): array
     {
+        $step = function (string $label, callable $operation): mixed {
+            try {
+                return $operation();
+            } catch (\Throwable $e) {
+                throw new \RuntimeException(sprintf('%s: %s', $label, $e->getMessage()), 0, $e);
+            }
+        };
+
         $clientId = $parade->getServiceAccountClientId();
-        $client = $this->keycloakClient->findClientByClientId($accessToken, $clientId);
+        $client = $step('find client', fn () => $this->keycloakClient->findClientByClientId($accessToken, $clientId));
         if (null === $client) {
             return ['clientId' => $clientId, 'status' => 'missing', 'error' => 'Service account client not found: create it with its secret, then save again.'];
         }
@@ -86,41 +94,44 @@ final readonly class ParadeFixedClientsApplier
             return ['clientId' => $clientId, 'status' => 'failed', 'error' => 'The client has no service account.'];
         }
 
-        $user = $this->keycloakClient->getServiceAccountUser($accessToken, $client['id']);
+        $user = $step('read service account user', fn () => $this->keycloakClient->getServiceAccountUser($accessToken, $client['id']));
         $changes = [];
         $missing = [];
 
         $realmRoleName = $parade->getServiceAccountRealmRole();
-        $realmRole = $this->keycloakClient->findRealmRole($accessToken, $realmRoleName);
-        if (null === $realmRole) {
-            $missing[] = 'realm role '.$realmRoleName;
-        } elseif (!in_array($realmRoleName, array_column($this->keycloakClient->getUserRealmRoleMappings($accessToken, $user['id']), 'name'), true)) {
-            $this->keycloakClient->addUserRealmRoles($accessToken, $user['id'], [['id' => $realmRole['id'], 'name' => $realmRole['name']]]);
-            $changes[] = 'realm role '.$realmRoleName;
+        $held = $step('read realm roles', fn () => array_column($this->keycloakClient->getUserRealmRoleMappings($accessToken, $user['id']), 'name'));
+        if (!in_array($realmRoleName, $held, true)) {
+            $realmRole = $step('find realm role', fn () => $this->keycloakClient->findAvailableRealmRole($accessToken, $user['id'], $realmRoleName));
+            if (null === $realmRole) {
+                $missing[] = 'realm role '.$realmRoleName;
+            } else {
+                $step('assign realm role', fn () => $this->keycloakClient->addUserRealmRoles($accessToken, $user['id'], [['id' => $realmRole['id'], 'name' => $realmRole['name']]]));
+                $changes[] = 'realm role '.$realmRoleName;
+            }
         }
 
-        $realmManagement = $this->keycloakClient->findClientByClientId($accessToken, 'realm-management');
+        $realmManagement = $step('find realm-management', fn () => $this->keycloakClient->findClientByClientId($accessToken, 'realm-management'));
         if (null !== $realmManagement) {
-            $held = array_column($this->keycloakClient->getUserClientRoleMappings($accessToken, $user['id'], $realmManagement['id']), 'name');
+            $heldClientRoles = $step('read realm-management roles', fn () => array_column($this->keycloakClient->getUserClientRoleMappings($accessToken, $user['id'], $realmManagement['id']), 'name'));
             foreach ($parade->getSettingList('serviceAccountClientRoles') as $roleName) {
-                if (in_array($roleName, $held, true)) {
+                if (in_array($roleName, $heldClientRoles, true)) {
                     continue;
                 }
-                $role = $this->keycloakClient->findClientRole($accessToken, $realmManagement['id'], $roleName);
+                $role = $step('find realm-management/'.$roleName, fn () => $this->keycloakClient->findAvailableClientRole($accessToken, $user['id'], $realmManagement['id'], $roleName));
                 if (null === $role) {
                     $missing[] = 'realm-management/'.$roleName;
                     continue;
                 }
-                $this->keycloakClient->addUserClientRoles($accessToken, $user['id'], $realmManagement['id'], [['id' => $role['id'], 'name' => $role['name']]]);
+                $step('assign realm-management/'.$roleName, fn () => $this->keycloakClient->addUserClientRoles($accessToken, $user['id'], $realmManagement['id'], [['id' => $role['id'], 'name' => $role['name']]]));
                 $changes[] = 'realm-management/'.$roleName;
             }
         }
 
-        $scopes = array_column($this->keycloakClient->getClientScopes($accessToken), 'id', 'name');
-        $assigned = [
+        $scopes = $step('read client scopes', fn () => array_column($this->keycloakClient->getClientScopes($accessToken), 'id', 'name'));
+        $assigned = $step('read assigned scopes', fn () => [
             ...array_column($this->keycloakClient->getClientAssignedScopes($accessToken, $client['id'], 'default'), 'name'),
             ...array_column($this->keycloakClient->getClientAssignedScopes($accessToken, $client['id'], 'optional'), 'name'),
-        ];
+        ]);
         foreach ($parade->getSettingList('serviceAccountScopes') as $scopeName) {
             if (in_array($scopeName, $assigned, true)) {
                 continue;
@@ -129,7 +140,7 @@ final readonly class ParadeFixedClientsApplier
                 $missing[] = 'scope '.$scopeName;
                 continue;
             }
-            $this->keycloakClient->addClientOptionalScope($accessToken, $client['id'], $scopes[$scopeName]);
+            $step('attach scope '.$scopeName, fn () => $this->keycloakClient->addClientOptionalScope($accessToken, $client['id'], $scopes[$scopeName]));
             $changes[] = 'scope '.$scopeName;
         }
 
