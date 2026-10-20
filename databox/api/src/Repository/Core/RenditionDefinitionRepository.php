@@ -52,7 +52,7 @@ class RenditionDefinitionRepository extends ServiceEntityRepository
                 $groupIds,
                 RenditionPolicy::OBJECT_TYPE,
                 'acl_c',
-                PermissionInterface::VIEW,
+                PermissionInterface::CHILD_VIEW,
                 false,
                 'rp_ace'
             );

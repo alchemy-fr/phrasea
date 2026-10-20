@@ -17,6 +17,22 @@ import {useExportStore} from '@/features/assets/exportStore';
 import {downloadUrl} from '@/lib/utils/misc';
 import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
 
+async function getAllRenditionDefinitions(
+    workspaceIds: string[]
+): Promise<RenditionDefinition[]> {
+    const definitions: RenditionDefinition[] = [];
+    let page = await getRenditionDefinitions({workspaceIds});
+    for (;;) {
+        definitions.push(...page.items);
+        if (!page.next) {
+            break;
+        }
+        page = await getRenditionDefinitions({url: page.next});
+    }
+
+    return definitions;
+}
+
 export function ExportDialog({
     open,
     onOpenChange,
@@ -36,7 +52,7 @@ export function ExportDialog({
 
     const definitions = useQuery({
         queryKey: ['rendition-definitions', 'export', workspaceIds],
-        queryFn: () => getRenditionDefinitions({workspaceIds}),
+        queryFn: () => getAllRenditionDefinitions(workspaceIds),
     });
 
     // Terms of the exported assets' workspaces, to sign before exporting
@@ -63,7 +79,7 @@ export function ExportDialog({
             string,
             {name: string; defs: RenditionDefinition[]}
         > = {};
-        definitions.data?.items.forEach(rd => {
+        definitions.data?.forEach(rd => {
             const ws = rd.workspace as Workspace;
             const id = typeof ws === 'string' ? ws : ws.id;
             const name =
