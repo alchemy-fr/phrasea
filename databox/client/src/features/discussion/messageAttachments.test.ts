@@ -1,6 +1,10 @@
 import {afterEach, beforeAll, describe, expect, it, vi} from 'vitest';
 import {act, renderHook, waitFor} from '@testing-library/react';
-import {getFileAttachments} from './messageAttachments';
+import {
+    getAnnotationAttachments,
+    getFileAttachments,
+    toAnnotationAttachment,
+} from './messageAttachments';
 import {usePendingAttachments} from './usePendingAttachments';
 
 const upload = vi.hoisted(() => ({
@@ -44,6 +48,24 @@ describe('getFileAttachments', () => {
             },
         ]);
         expect(getFileAttachments(undefined)).toEqual([]);
+    });
+});
+
+describe('annotation attachments', () => {
+    it('reads the shapes of a message', () => {
+        const shape = {id: 'a1', type: 'rect', x: 0.1, y: 0.2, w: 0.3, h: 0.4};
+        expect(
+            getAnnotationAttachments([
+                toAnnotationAttachment(shape),
+                {type: 'file', content: '{"id": "f1", "name": "a.pdf"}'},
+                {type: 'annotation', content: 'not json'},
+                {type: 'annotation', content: '{"name": "no type"}'},
+            ])
+        ).toEqual([shape]);
+        expect(toAnnotationAttachment(shape)).toEqual({
+            type: 'annotation',
+            content: JSON.stringify(shape),
+        });
     });
 });
 

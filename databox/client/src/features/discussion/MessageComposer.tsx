@@ -26,23 +26,27 @@ import {
     PencilIcon,
     PlusIcon,
     SendHorizontalIcon,
+    ShapesIcon,
     SquareCodeIcon,
     StrikethroughIcon,
     TextQuoteIcon,
     XIcon,
 } from 'lucide-react';
-import type {User} from '@/types/api';
+import type {AssetAnnotation, User} from '@/types/api';
 import {Button} from '@/components/ui/button';
 import {Tooltip} from '@/components/ui/overlays';
 import {cn} from '@/lib/utils/cn';
 import {EmojiPicker} from './EmojiPicker';
 import {LinkButton} from './LinkButton';
 import {useMentionSuggestions} from './MentionSuggestions';
-import {PendingAttachmentList} from './MessageAttachments';
+import {DraftAnnotationList, PendingAttachmentList} from './MessageAttachments';
 import {MessageKeymap, messageExtensions} from './editorExtensions';
 import {docToMarkup, markupToDoc, quoteMarkup} from './messageDoc';
 import {rememberUsers} from './mentionUser';
-import type {FileAttachmentInput} from './messageAttachments';
+import {
+    toAnnotationAttachment,
+    type MessageAttachmentInput,
+} from './messageAttachments';
 import {messageContentClass} from './messageStyles';
 import {usePendingAttachments} from './usePendingAttachments';
 
@@ -117,10 +121,28 @@ function hasMention(doc: JSONContent, id: string): boolean {
 }
 
 /**
+ * Shapes drawn over the asset for the message being written. The caller
+ * owns them (they are drawn in the player, see `features/annotations`): the
+ * composer lists them, offers to remove them and sends them as attachments.
+ */
+export type ComposerAnnotations = {
+    annotations: AssetAnnotation[];
+    /** The shape highlighted in the player */
+    selectedId?: string;
+    /** The player shows and lets draw the shapes of the draft */
+    active: boolean;
+    /** The displayed media can be annotated */
+    supported: boolean;
+    onToggle: () => void;
+    onSelect: (annotation: AssetAnnotation) => void;
+    onRemove: (annotation: AssetAnnotation) => void;
+};
+
+/**
  * WYSIWYG message composer (tiptap), Slack-like: formatting toolbar on top,
- * the editor, then attach / toolbar toggle / emoji / mention buttons and the
- * send button. It reads and writes the stored markup (see `messageDoc`),
- * which the API mention extraction also understands.
+ * the editor, then attach / annotate / toolbar toggle / emoji / mention
+ * buttons and the send button. It reads and writes the stored markup (see
+ * `messageDoc`), which the API mention extraction also understands.
  *
  * When `editing` is set, the composer holds that message instead of the
  * draft (restored afterwards): Enter saves it, Escape cancels.
@@ -129,31 +151,38 @@ export function MessageComposer({
     ref,
     onChange,
     onAttachmentsChange,
+    onFocus,
     onSubmit,
     editing,
     onSaveEdit,
     onCancelEdit,
     sending,
     placeholder,
+    annotations: draftAnnotations,
 }: {
     ref?: Ref<MessageComposerHandle>;
     /** Called with the stored markup on every change */
     onChange?: (content: string) => void;
     /** Called with the number of attached files */
     onAttachmentsChange?: (count: number) => void;
+    /** The editor gets the focus */
+    onFocus?: () => void;
     /** Sends a new message; the caller clears the composer once sent */
-    onSubmit: (content: string, attachments: FileAttachmentInput[]) => void;
+    onSubmit: (content: string, attachments: MessageAttachmentInput[]) => void;
     editing?: {id: string; content: string} | null;
     onSaveEdit?: (content: string) => void;
     onCancelEdit?: () => void;
     sending?: boolean;
     placeholder?: string;
+    /** Given in an asset view, where shapes can be drawn for the message */
+    annotations?: ComposerAnnotations;
 }) {
     const {t} = useTranslation();
     const containerRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const submitRef = useRef<() => void>(() => {});
     const onChangeRef = useRef(onChange);
+    const onFocusRef = useRef(onFocus);
     const keyDownRef = useRef<(e: KeyboardEvent) => boolean>(() => false);
     const addFilesRef = useRef<((files: File[]) => boolean) | null>(null);
     const cancelEditRef = useRef<(() => void) | undefined>(undefined);
@@ -228,6 +257,7 @@ export function MessageComposer({
         },
         onUpdate: ({editor}) =>
             onChangeRef.current?.(docToMarkup(editor.getJSON())),
+        onFocus: () => onFocusRef.current?.(),
     });
 
     const state = useEditorState({
@@ -250,13 +280,15 @@ export function MessageComposer({
 
     const mentions = useMentionSuggestions(editor);
     const isEditing = !!editing;
+    const annotationList = draftAnnotations?.annotations ?? [];
     const hasFiles = attachments.items.length > 0;
+    const hasAnnotations = annotationList.length > 0;
     const canSend =
         !!state &&
         !sending &&
         (isEditing
             ? !state.empty
-            : (!state.empty || hasFiles) &&
+            : (!state.empty || hasFiles || hasAnnotations) &&
               !attachments.uploading &&
               !attachments.failed);
 
@@ -268,7 +300,10 @@ export function MessageComposer({
         if (isEditing) {
             onSaveEdit?.(content);
         } else {
-            onSubmit(content, attachments.inputs);
+            onSubmit(content, [
+                ...attachments.inputs,
+                ...annotationList.map(toAnnotationAttachment),
+            ]);
         }
     };
 
@@ -285,6 +320,7 @@ export function MessageComposer({
         submitRef.current = submit;
         keyDownRef.current = mentions.onKeyDown;
         onChangeRef.current = onChange;
+        onFocusRef.current = onFocus;
         addFilesRef.current = addFiles;
         editingRef.current = editing;
         cancelEditRef.current = editing ? onCancelEdit : undefined;
@@ -551,10 +587,24 @@ export function MessageComposer({
                 </div>
             )}
             {isEditing ? null : (
-                <PendingAttachmentList
-                    items={attachments.items}
-                    onRemove={attachments.remove}
-                />
+                <>
+                    {draftAnnotations ? (
+                        <DraftAnnotationList
+                            annotations={annotationList}
+                            selectedId={
+                                draftAnnotations.active
+                                    ? draftAnnotations.selectedId
+                                    : undefined
+                            }
+                            onSelect={draftAnnotations.onSelect}
+                            onRemove={draftAnnotations.onRemove}
+                        />
+                    ) : null}
+                    <PendingAttachmentList
+                        items={attachments.items}
+                        onRemove={attachments.remove}
+                    />
+                </>
             )}
             <div className="flex items-center gap-0.5 px-1.5 pb-1.5">
                 <input
@@ -578,6 +628,28 @@ export function MessageComposer({
                             'mr-1 rounded-full bg-muted text-muted-foreground hover:bg-accent',
                     }
                 )}
+                {draftAnnotations
+                    ? iconButton(
+                          draftAnnotations.active
+                              ? t(
+                                    'discussion.annotate_stop',
+                                    'Stop annotating the asset'
+                                )
+                              : draftAnnotations.supported
+                                ? t('discussion.annotate', 'Annotate the asset')
+                                : t(
+                                      'discussion.annotate_unsupported',
+                                      'This media cannot be annotated'
+                                  ),
+                          <ShapesIcon />,
+                          draftAnnotations.onToggle,
+                          {
+                              pressed: draftAnnotations.active,
+                              disabled:
+                                  isEditing || !draftAnnotations.supported,
+                          }
+                      )
+                    : null}
                 {iconButton(
                     toolbar
                         ? t('discussion.format.hide', 'Hide formatting')

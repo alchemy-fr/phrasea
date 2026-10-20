@@ -209,6 +209,7 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     private const string OPT_MIN_LENGTH = 'min-length';
     private const string OPT_MAX_LENGTH = 'max-length';
     private const string OPT_REQUIRED = 'req';
+    private const string OPT_ANNOTATIONS = 'annotations';
 
     final public const string TR_FIELD_NAME = 'name';
 
@@ -800,6 +801,25 @@ class AttributeDefinition extends AbstractUuidEntity implements \Stringable, Err
     public function isRequired(): bool
     {
         return $this->options[self::OPT_REQUIRED] ?? false;
+    }
+
+    /**
+     * Whether the GUI lets users draw annotations on the asset for a value of this attribute.
+     */
+    public function isAnnotationsEnabled(): bool
+    {
+        return $this->options[self::OPT_ANNOTATIONS] ?? false;
+    }
+
+    public function setAnnotationsEnabled(bool $enabled): void
+    {
+        if (!$enabled) {
+            unset($this->options[self::OPT_ANNOTATIONS]);
+
+            return;
+        }
+
+        $this->options[self::OPT_ANNOTATIONS] = true;
     }
 
     public function setRequired(bool $required): void

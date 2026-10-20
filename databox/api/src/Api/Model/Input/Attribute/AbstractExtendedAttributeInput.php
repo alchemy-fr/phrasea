@@ -23,7 +23,10 @@ abstract class AbstractExtendedAttributeInput extends AbstractBaseAttributeInput
     public ?string $originVendorContext = null;
 
     /**
-     * @var array
+     * Shapes drawn over the asset for this value (see AssetAnnotationsInterface).
+     * Null leaves the stored annotations untouched, an empty list removes them.
+     *
+     * @var array|null
      */
     #[Assert\All([
         new Assert\Collection(

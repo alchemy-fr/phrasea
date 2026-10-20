@@ -8,6 +8,7 @@ import {formatAttributeValue, getAttributeType} from './types/registry';
 import {useAttributeFormats} from './formatStore';
 import {Tooltip} from '@/components/ui/overlays';
 import {isRtl, NO_LOCALE, pickLocale} from '@/lib/utils/locale';
+import {AnnotationTargetButton} from '@/features/annotations/AnnotationTargetButton';
 
 export type AttributeGroup = {
     definition: Attribute['definition'];
@@ -100,6 +101,7 @@ export function AttributeValue({
                     attribute={a}
                     format={fmt}
                     type={definition.type}
+                    label={definition.displayName ?? definition.name}
                     asListItem={list.length > 1 && !rich}
                 />
             ))}
@@ -111,11 +113,13 @@ function AttributeSingleValue({
     attribute,
     format,
     type,
+    label,
     asListItem,
 }: {
     attribute: Attribute;
     format?: string;
     type: string;
+    label: string;
     asListItem: boolean;
 }) {
     const {t} = useTranslation();
@@ -136,6 +140,20 @@ function AttributeSingleValue({
             ...ctx,
             highlight: attribute.highlight,
         });
+    }
+    // Shapes drawn over the asset for this value, shown in an asset view
+    if (attribute.assetAnnotations?.length && attribute.id) {
+        node = (
+            <span className="inline-flex items-center gap-1">
+                {node}
+                <AnnotationTargetButton
+                    targetKey={`attribute-view-${attribute.id}`}
+                    annotations={attribute.assetAnnotations}
+                    label={label}
+                    className="-my-1"
+                />
+            </span>
+        );
     }
 
     return asListItem ? (

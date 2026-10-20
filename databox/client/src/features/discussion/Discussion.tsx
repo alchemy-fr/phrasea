@@ -1,7 +1,7 @@
 'use client';
 
 import {getUserDisplayName} from '@/lib/users';
-import {useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query';
 import {
@@ -11,7 +11,7 @@ import {
     Trash2Icon,
 } from 'lucide-react';
 import {toast} from 'sonner';
-import type {ThreadMessage} from '@/types/api';
+import type {AssetAnnotation, ThreadMessage} from '@/types/api';
 import {
     deleteMessage,
     getMessage,
@@ -39,7 +39,15 @@ import {FormattedMessage} from './FormattedMessage';
 import {rememberUsers} from './mentionUser';
 import {MessageComposer, MessageComposerHandle} from './MessageComposer';
 import {PostedAttachments} from './MessageAttachments';
-import type {FileAttachment, FileAttachmentInput} from './messageAttachments';
+import type {
+    FileAttachment,
+    MessageAttachmentInput,
+} from './messageAttachments';
+import {
+    useAnnotations,
+    useAnnotationTarget,
+} from '@/features/annotations/AnnotationsProvider';
+import {getAnnotationLabel} from '@/features/annotations/annotationNames';
 import {DiscussionEvent, EventCategory, track} from '@/lib/analytics/events';
 
 /** Message hover actions (always shown on touch screens) */
@@ -49,6 +57,10 @@ const messageActionClass =
 /**
  * Comment thread attached to an entity (asset). Realtime updates through the
  * `thread-{key}` channel; `#discussion-{id}` in the URL highlights a message.
+ *
+ * In an asset view, shapes drawn over the asset (see `features/annotations`)
+ * are attached to the message written, and the ones of a posted message are
+ * shown on the asset when clicked.
  */
 export function Discussion({
     threadKey,
@@ -76,6 +88,37 @@ export function Discussion({
     const composerRef = useRef<MessageComposerHandle>(null);
     const queryKey = ['thread', threadId];
 
+    // The shapes drawn for the message written, shown (and drawn) in the
+    // player while the draft is the annotation target
+    const annotationsCtx = useAnnotations();
+    const [draftAnnotations, setDraftAnnotations] = useState<AssetAnnotation[]>(
+        []
+    );
+    const [selectedAnnotationId, setSelectedAnnotationId] = useState<string>();
+    const draftTarget = useAnnotationTarget(`thread-draft-${threadKey}`, {
+        annotations: draftAnnotations,
+        editable: true,
+        selectedId: selectedAnnotationId,
+        onChange: setDraftAnnotations,
+        label: t('discussion.annotations_label', 'Message'),
+    });
+    const showMessageAnnotations = useCallback(
+        (
+            m: ThreadMessage,
+            annotation: AssetAnnotation,
+            annotations: AssetAnnotation[]
+        ) =>
+            annotationsCtx?.setTarget({
+                key: `message-${m.id}`,
+                annotations,
+                selectedId: annotation.id,
+                label: m.author
+                    ? getUserDisplayName(m.author)
+                    : t('discussion.annotations_label', 'Message'),
+            }),
+        [annotationsCtx, t]
+    );
+
     const messages = useInfiniteQuery({
         queryKey,
         queryFn: ({pageParam}) => getThreadMessages(threadId!, pageParam),
@@ -94,6 +137,7 @@ export function Discussion({
     useUnsavedChangesPrompt(
         !!draft ||
             attachmentCount > 0 ||
+            draftAnnotations.length > 0 ||
             (!!editing &&
                 items.find(m => m.id === editing.id)?.content !==
                     editing.content)
@@ -171,7 +215,7 @@ export function Discussion({
 
     const send = async (
         content: string,
-        attachments: FileAttachmentInput[]
+        attachments: MessageAttachmentInput[]
     ) => {
         if ((!content && attachments.length === 0) || sending) {
             return;
@@ -188,6 +232,9 @@ export function Discussion({
                 value: attachments.length,
             });
             composerRef.current?.clear();
+            setDraftAnnotations([]);
+            setSelectedAnnotationId(undefined);
+            draftTarget.deactivate();
             if (!threadId) {
                 // The thread is created lazily by the first message: the
                 // query of the new id loads it (refetching the current one
@@ -237,7 +284,10 @@ export function Discussion({
             },
         });
 
-    const removeAttachment = (m: ThreadMessage, file: FileAttachment) => {
+    const removeAttachment = (
+        m: ThreadMessage,
+        attachment: {id: string; name: string}
+    ) => {
         // Its last attachment gone, a message without text would be empty
         if (!m.content.trim() && (m.attachments?.length ?? 0) <= 1) {
             confirmDelete(m);
@@ -248,18 +298,28 @@ export function Discussion({
             title: t(
                 'discussion.attachment_remove.title',
                 'Remove "{{name}}" from the message?',
-                {name: file.name}
+                {name: attachment.name}
             ),
             destructive: true,
             onConfirm: async () => {
                 upsertLocal(
-                    await putMessage(m.id, {removeAttachments: [file.id!]})
+                    await putMessage(m.id, {
+                        removeAttachments: [attachment.id],
+                    })
                 );
+                annotationsCtx?.clearTarget(`message-${m.id}`);
                 // The update payload is partial: reload the thread
                 void messages.refetch();
             },
         });
     };
+    const removeFile = (m: ThreadMessage, file: FileAttachment) =>
+        removeAttachment(m, {id: file.id!, name: file.name});
+    const removeAnnotation = (m: ThreadMessage, annotation: AssetAnnotation) =>
+        removeAttachment(m, {
+            id: annotation.id!,
+            name: getAnnotationLabel(t, annotation),
+        });
 
     return (
         <div className="space-y-3">
@@ -356,7 +416,22 @@ export function Discussion({
                                     attachments={m.attachments}
                                     onRemove={
                                         m.capabilities?.edit
-                                            ? file => removeAttachment(m, file)
+                                            ? file => removeFile(m, file)
+                                            : undefined
+                                    }
+                                    onAnnotationClick={
+                                        annotationsCtx
+                                            ? (a, all) =>
+                                                  showMessageAnnotations(
+                                                      m,
+                                                      a,
+                                                      all
+                                                  )
+                                            : undefined
+                                    }
+                                    onRemoveAnnotation={
+                                        m.capabilities?.edit
+                                            ? a => removeAnnotation(m, a)
                                             : undefined
                                     }
                                 />
@@ -373,7 +448,32 @@ export function Discussion({
                         : setDraft(content)
                 }
                 onAttachmentsChange={setAttachmentCount}
+                // Writing again brings the shapes of the draft back
+                onFocus={() => {
+                    if (draftAnnotations.length > 0 && !draftTarget.active) {
+                        draftTarget.activate();
+                    }
+                }}
                 onSubmit={send}
+                annotations={
+                    annotationsCtx
+                        ? {
+                              annotations: draftAnnotations,
+                              selectedId: selectedAnnotationId,
+                              active: draftTarget.active,
+                              supported: draftTarget.supported,
+                              onToggle: draftTarget.toggle,
+                              onSelect: a => {
+                                  setSelectedAnnotationId(a.id);
+                                  draftTarget.activate({selectedId: a.id});
+                              },
+                              onRemove: a =>
+                                  setDraftAnnotations(p =>
+                                      p.filter(x => x.id !== a.id)
+                                  ),
+                          }
+                        : undefined
+                }
                 editing={editing}
                 onSaveEdit={saveEdit}
                 onCancelEdit={() => setEditing(null)}
