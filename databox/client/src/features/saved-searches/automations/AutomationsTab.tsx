@@ -20,7 +20,6 @@ import {
     getSavedSearchAutomations,
     patchSavedSearchAutomation,
     resetAutomationCursor,
-    triggerSavedSearchAutomation,
 } from '@/lib/api/automations';
 import {useModals} from '@/components/modals/ModalProvider';
 import {ConfirmDialog} from '@/components/ui/confirm';
@@ -43,10 +42,8 @@ import {AutomationFormDialog} from './AutomationForm';
 import {AutomationRunsDialog, RunStatusBadge} from './AutomationRunsPanel';
 import {getActionDefinition} from './actions/registry';
 import {describeSchedule} from './schedule';
-
-export function automationsQueryKey(savedSearchId: string) {
-    return ['saved-search-automations', savedSearchId];
-}
+import {automationsQueryKey} from './queryKeys';
+import {useRunAutomation} from './useRunAutomation';
 
 /**
  * The automations of a saved search, managed by its owner only (they act with
@@ -130,27 +127,10 @@ function AutomationRow({
 }) {
     const {t, i18n} = useTranslation();
     const {openModal} = useModals();
-    const queryClient = useQueryClient();
+    const runAutomation = useRunAutomation();
 
     const showRuns = () => openModal(AutomationRunsDialog, {automation: a});
-
-    const run = async (dryRun: boolean) => {
-        try {
-            await triggerSavedSearchAutomation(a.id, {dryRun});
-            toast.success(
-                dryRun
-                    ? t('automation.run.dry_run_started', 'Dry run started')
-                    : t('automation.run.started', 'Automation started')
-            );
-            void queryClient.invalidateQueries({
-                queryKey: ['automation-runs', a.id],
-            });
-            onChange();
-            showRuns();
-        } catch (e) {
-            toastError(e);
-        }
-    };
+    const run = (dryRun: boolean) => runAutomation(a, dryRun);
 
     const toggle = async (enabled: boolean) => {
         try {

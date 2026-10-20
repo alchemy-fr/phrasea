@@ -3,16 +3,24 @@
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useRouter} from 'next/navigation';
-import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query';
+import {
+    useInfiniteQuery,
+    useQuery,
+    useQueryClient,
+} from '@tanstack/react-query';
 import {
     BookmarkIcon,
+    FlaskConicalIcon,
     MoreVerticalIcon,
     PencilIcon,
+    PlayIcon,
     SearchIcon,
     Trash2Icon,
+    ZapIcon,
 } from 'lucide-react';
-import type {SavedSearch} from '@/types/api';
+import type {SavedSearch, SavedSearchAutomation} from '@/types/api';
 import {deleteSavedSearch, getSavedSearches} from '@/lib/api/misc';
+import {getSavedSearchAutomations} from '@/lib/api/automations';
 import {useOptionalSearch} from '@/features/search/SearchProvider';
 import {FilterInput} from '@/components/ui/filter-input';
 import {Button} from '@/components/ui/button';
@@ -21,11 +29,17 @@ import {
     ContextMenuContent,
     ContextMenuItem,
     ContextMenuSeparator,
+    ContextMenuSub,
+    ContextMenuSubContent,
+    ContextMenuSubTrigger,
     ContextMenuTrigger,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from '@/components/ui/menu';
 import {useModals} from '@/components/modals/ModalProvider';
@@ -34,6 +48,37 @@ import {routes} from '@/lib/routes';
 import {cn} from '@/lib/utils/cn';
 import {PanelSection} from '@/components/layout/PanelSection';
 import {useDebouncedValue} from '@/hooks/useDebouncedValue';
+import {automationsQueryKey} from './automations/queryKeys';
+import {useRunAutomation} from './automations/useRunAutomation';
+import {AutomationFormDialog} from './automations/AutomationForm';
+
+/**
+ * The same menu is rendered as a context menu and as a dropdown (⋮): the
+ * primitives of either family, under one shape.
+ */
+type MenuParts = {
+    Item: typeof DropdownMenuItem;
+    Sep: typeof DropdownMenuSeparator;
+    Sub: typeof DropdownMenuSub;
+    SubTrigger: typeof DropdownMenuSubTrigger;
+    SubContent: typeof DropdownMenuSubContent;
+};
+
+const dropdownParts: MenuParts = {
+    Item: DropdownMenuItem,
+    Sep: DropdownMenuSeparator,
+    Sub: DropdownMenuSub,
+    SubTrigger: DropdownMenuSubTrigger,
+    SubContent: DropdownMenuSubContent,
+};
+
+const contextParts = {
+    Item: ContextMenuItem,
+    Sep: ContextMenuSeparator,
+    Sub: ContextMenuSub,
+    SubTrigger: ContextMenuSubTrigger,
+    SubContent: ContextMenuSubContent,
+} as unknown as MenuParts;
 
 export function SavedSearchList() {
     const {t} = useTranslation();
@@ -90,7 +135,18 @@ function SavedSearchRow({savedSearch: s}: {savedSearch: SavedSearch}) {
     const {openModal} = useModals();
     const queryClient = useQueryClient();
     const active = search?.searchId === s.id;
-    const manageable = s.capabilities.edit || s.capabilities.delete;
+    const manageable =
+        s.capabilities.edit ||
+        s.capabilities.delete ||
+        s.capabilities.manageAutomations;
+
+    // Automations are fetched when a menu opens, not for every listed search
+    const [menuOpen, setMenuOpen] = useState(false);
+    const automations = useQuery({
+        queryKey: automationsQueryKey(s.id),
+        queryFn: () => getSavedSearchAutomations(s.id),
+        enabled: menuOpen && s.capabilities.manageAutomations,
+    });
 
     const open = () => {
         if (search) {
@@ -101,59 +157,71 @@ function SavedSearchRow({savedSearch: s}: {savedSearch: SavedSearch}) {
     };
 
     const menu = (
-        Item: typeof DropdownMenuItem,
-        Sep: typeof DropdownMenuSeparator,
+        {Item, Sep, Sub, SubTrigger, SubContent}: MenuParts,
         withOpen: boolean
-    ) => (
-        <>
-            {withOpen ? (
-                <Item onSelect={open}>
-                    <SearchIcon /> {t('common.open', 'Open')}
-                </Item>
-            ) : null}
-            {s.capabilities.edit ? (
-                <Item
-                    onSelect={() =>
-                        router.push(routes.savedSearchManage(s.id, 'edit'))
-                    }
-                >
-                    <PencilIcon /> {t('common.edit', 'Edit')}
-                </Item>
-            ) : null}
-            {s.capabilities.delete ? (
-                <>
-                    {withOpen || s.capabilities.edit ? <Sep /> : null}
+    ) => {
+        const hasActions = withOpen || s.capabilities.edit;
+
+        return (
+            <>
+                {withOpen ? (
+                    <Item onSelect={open}>
+                        <SearchIcon /> {t('common.open', 'Open')}
+                    </Item>
+                ) : null}
+                {s.capabilities.edit ? (
                     <Item
-                        variant="destructive"
                         onSelect={() =>
-                            openModal(ConfirmDialog, {
-                                title: t(
-                                    'saved_search.delete.title',
-                                    'Delete search "{{name}}"?',
-                                    {name: s.name}
-                                ),
-                                destructive: true,
-                                onConfirm: async () => {
-                                    await deleteSavedSearch(s.id);
-                                    void queryClient.invalidateQueries({
-                                        queryKey: ['saved-searches'],
-                                    });
-                                    if (active) {
-                                        search?.setSearchId(undefined);
-                                    }
-                                },
-                            })
+                            router.push(routes.savedSearchManage(s.id, 'edit'))
                         }
                     >
-                        <Trash2Icon /> {t('common.delete', 'Delete')}
+                        <PencilIcon /> {t('common.edit', 'Edit')}
                     </Item>
-                </>
-            ) : null}
-        </>
-    );
+                ) : null}
+                {s.capabilities.delete ? (
+                    <>
+                        {hasActions ? <Sep /> : null}
+                        <Item
+                            variant="destructive"
+                            onSelect={() =>
+                                openModal(ConfirmDialog, {
+                                    title: t(
+                                        'saved_search.delete.title',
+                                        'Delete search "{{name}}"?',
+                                        {name: s.name}
+                                    ),
+                                    destructive: true,
+                                    onConfirm: async () => {
+                                        await deleteSavedSearch(s.id);
+                                        void queryClient.invalidateQueries({
+                                            queryKey: ['saved-searches'],
+                                        });
+                                        if (active) {
+                                            search?.setSearchId(undefined);
+                                        }
+                                    },
+                                })
+                            }
+                        >
+                            <Trash2Icon /> {t('common.delete', 'Delete')}
+                        </Item>
+                    </>
+                ) : null}
+                {s.capabilities.manageAutomations ? (
+                    <AutomationsMenu
+                        savedSearchId={s.id}
+                        automations={automations.data}
+                        loading={automations.isLoading}
+                        separator={hasActions || s.capabilities.delete}
+                        parts={{Item, Sep, Sub, SubTrigger, SubContent}}
+                    />
+                ) : null}
+            </>
+        );
+    };
 
     return (
-        <ContextMenu>
+        <ContextMenu onOpenChange={setMenuOpen}>
             <ContextMenuTrigger asChild>
                 <li
                     data-testid="saved-search-item"
@@ -181,7 +249,7 @@ function SavedSearchRow({savedSearch: s}: {savedSearch: SavedSearch}) {
                         <span className="truncate">{s.name}</span>
                     </button>
                     {manageable ? (
-                        <DropdownMenu>
+                        <DropdownMenu onOpenChange={setMenuOpen}>
                             <DropdownMenuTrigger asChild>
                                 <Button
                                     variant="ghost"
@@ -192,23 +260,99 @@ function SavedSearchRow({savedSearch: s}: {savedSearch: SavedSearch}) {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                {menu(
-                                    DropdownMenuItem,
-                                    DropdownMenuSeparator,
-                                    false
-                                )}
+                                {menu(dropdownParts, false)}
                             </DropdownMenuContent>
                         </DropdownMenu>
                     ) : null}
                 </li>
             </ContextMenuTrigger>
-            <ContextMenuContent>
-                {menu(
-                    ContextMenuItem as any,
-                    ContextMenuSeparator as any,
-                    true
-                )}
-            </ContextMenuContent>
+            <ContextMenuContent>{menu(contextParts, true)}</ContextMenuContent>
         </ContextMenu>
+    );
+}
+
+/**
+ * One sub-menu per automation of the search: run it, or edit its
+ * configuration. Nothing when the search has none.
+ */
+function AutomationsMenu({
+    savedSearchId,
+    automations,
+    loading,
+    separator,
+    parts: {Item, Sep, Sub, SubTrigger, SubContent},
+}: {
+    savedSearchId: string;
+    automations: SavedSearchAutomation[] | undefined;
+    loading: boolean;
+    separator: boolean;
+    parts: MenuParts;
+}) {
+    const {t} = useTranslation();
+    const {openModal} = useModals();
+    const queryClient = useQueryClient();
+    const runAutomation = useRunAutomation();
+
+    if (loading) {
+        return (
+            <>
+                {separator ? <Sep /> : null}
+                <Item disabled>
+                    <ZapIcon /> {t('common.loading', 'Loading…')}
+                </Item>
+            </>
+        );
+    }
+
+    if (!automations?.length) {
+        return null;
+    }
+
+    const edit = async (automation: SavedSearchAutomation) => {
+        if (
+            await openModal(AutomationFormDialog, {savedSearchId, automation})
+        ) {
+            void queryClient.invalidateQueries({
+                queryKey: automationsQueryKey(savedSearchId),
+            });
+        }
+    };
+
+    return (
+        <>
+            {separator ? <Sep /> : null}
+            {automations.map(a => (
+                <Sub key={a.id}>
+                    <SubTrigger
+                        data-testid="saved-search-automation"
+                        className={cn(!a.enabled && 'text-muted-foreground')}
+                    >
+                        <ZapIcon /> <span className="truncate">{a.name}</span>
+                    </SubTrigger>
+                    <SubContent>
+                        {a.capabilities.run ? (
+                            <>
+                                <Item onSelect={() => runAutomation(a, false)}>
+                                    <PlayIcon />{' '}
+                                    {t('automation.run.now', 'Run now')}
+                                </Item>
+                                <Item onSelect={() => runAutomation(a, true)}>
+                                    <FlaskConicalIcon />{' '}
+                                    {t('automation.run.dry_run', 'Dry run')}
+                                </Item>
+                            </>
+                        ) : null}
+                        {a.capabilities.edit ? (
+                            <>
+                                {a.capabilities.run ? <Sep /> : null}
+                                <Item onSelect={() => edit(a)}>
+                                    <PencilIcon /> {t('common.edit', 'Edit')}
+                                </Item>
+                            </>
+                        ) : null}
+                    </SubContent>
+                </Sub>
+            ))}
+        </>
     );
 }

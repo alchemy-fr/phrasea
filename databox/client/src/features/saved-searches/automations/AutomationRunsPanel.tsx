@@ -24,6 +24,7 @@ import {
 import {Button} from '@/components/ui/button';
 import {formatDateTime} from '@/lib/utils/format';
 import {getActionDefinition} from './actions/registry';
+import {automationRunsQueryKey} from './queryKeys';
 
 const RUNNING = [AutomationRunStatus.Pending, AutomationRunStatus.Running];
 
@@ -106,7 +107,7 @@ export function AutomationRunsDialog({open, onOpenChange, automation}: Props) {
 export function AutomationRunsPanel({automationId}: {automationId: string}) {
     const {t, i18n} = useTranslation();
     const runs = useInfiniteQuery({
-        queryKey: ['automation-runs', automationId],
+        queryKey: automationRunsQueryKey(automationId),
         queryFn: ({pageParam}) =>
             getAutomationRuns(automationId, {next: pageParam}),
         initialPageParam: undefined as string | undefined,
