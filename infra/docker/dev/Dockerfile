@@ -1,4 +1,42 @@
-FROM php:7.4.4-fpm-alpine3.11
+FROM php:7.4.33-fpm-alpine3.16
+
+# PHP 7.4 is EOL: rebuild it with the upstream backport of CVE-2026-109618 / CVE-2026-109619
+# (php/php-src commit 712e60f9edfd03f0960fc4fc3c2c375f42b90aa2, branch PHP-7.4-CVE-2026-109618-109619).
+# The patched sources are repacked so that docker-php-ext-install builds against them.
+COPY php-7.4-CVE-2026-109618-109619.patch /usr/src/
+RUN set -eux; \
+    apk add --no-cache --virtual .php-rebuild-deps \
+        $PHPIZE_DEPS \
+        argon2-dev \
+        coreutils \
+        curl-dev \
+        gnu-libiconv-dev \
+        libsodium-dev \
+        libxml2-dev \
+        linux-headers \
+        oniguruma-dev \
+        openssl-dev \
+        patch \
+        readline-dev \
+        sqlite-dev \
+    ; \
+    docker-php-source extract; \
+    cd /usr/src/php; \
+    patch -p1 < /usr/src/php-7.4-CVE-2026-109618-109619.patch; \
+    export CFLAGS="$PHP_CFLAGS" CPPFLAGS="$PHP_CPPFLAGS" LDFLAGS="$PHP_LDFLAGS"; \
+    eval "./configure $(php-config --configure-options)"; \
+    make -j "$(nproc)"; \
+    find -type f -name '*.a' -delete; \
+    make install; \
+    find /usr/local -type f -perm '/0111' -exec sh -euxc 'strip --strip-all "$@" || :' -- '{}' +; \
+    make clean; \
+    cd /usr/src; \
+    rm php.tar.xz; \
+    tar -cJf php.tar.xz php; \
+    docker-php-source delete; \
+    rm /usr/src/php-7.4-CVE-2026-109618-109619.patch; \
+    apk del --no-network .php-rebuild-deps; \
+    php --version
 
 RUN apk add --no-cache \
 		autoconf \
@@ -18,7 +56,7 @@ RUN apk add --no-cache \
         nano \
         openssh-client \
         perl \
-        python \
+        python3 \
         vim \
         zsh \
     && echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> /etc/zsh/zshrc \
