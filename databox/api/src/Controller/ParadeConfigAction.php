@@ -36,7 +36,7 @@ class ParadeConfigAction extends AbstractController
         }
 
         $parade = $this->em->getRepository(Parade::class)->findOneBy([]);
-        $tenants = $this->em->getRepository(ParadeTenant::class)->findBy([], ['slug' => 'ASC']);
+        $tenants = $this->em->getRepository(ParadeTenant::class)->findBy(['removedAt' => null], ['slug' => 'ASC']);
 
         return new JsonResponse([
             'enabled' => null !== $parade && $parade->isEnabled(),

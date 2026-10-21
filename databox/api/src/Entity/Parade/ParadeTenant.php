@@ -39,6 +39,9 @@ class ParadeTenant extends AbstractUuidEntity
     #[ORM\Column(name: 'keycloak_groups', type: Types::JSON, nullable: false)]
     private array $groups = [];
 
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    private ?\DateTimeImmutable $removedAt = null;
+
     private bool $adoptExistingGroups = false;
 
     public function getSlug(): ?string
@@ -89,6 +92,21 @@ class ParadeTenant extends AbstractUuidEntity
     public function setGroups(array $groups): void
     {
         $this->groups = $groups;
+    }
+
+    public function getRemovedAt(): ?\DateTimeImmutable
+    {
+        return $this->removedAt;
+    }
+
+    public function setRemovedAt(?\DateTimeImmutable $removedAt): void
+    {
+        $this->removedAt = $removedAt;
+    }
+
+    public function isRemoved(): bool
+    {
+        return null !== $this->removedAt;
     }
 
     public function __toString(): string

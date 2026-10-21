@@ -46,7 +46,7 @@ class ParadeTenantCrudController extends AbstractAdminCrudController
             ->setEntityLabelInSingular('Tenant')
             ->setEntityLabelInPlural('Tenants')
             ->setSearchFields(['slug', 'name'])
-            ->setHelp(Crud::PAGE_INDEX, 'A tenant is a media library of Parade. With sub-roles, its own Keycloak groups are created under /parade/<slug> (admins, techniques, fonctionnels), marked as managed by Parade; otherwise it is administered by the Parade groups. A group with the same path that is not marked is never reused unless you adopt it. Nothing is ever deleted.');
+            ->setHelp(Crud::PAGE_INDEX, 'A tenant is a media library of Parade, declared by Parade when its media libraries are published: slug and name come from Parade. A tenant no longer declared is marked as removed from Parade. With sub-roles, its own Keycloak groups are created under /parade/<slug> (admins, techniques, fonctionnels), marked as managed by Parade; otherwise it is administered by the Parade groups. A group with the same path that is not marked is never reused unless you adopt it. Keycloak groups are never deleted.');
     }
 
     #[\Override]
@@ -57,6 +57,7 @@ class ParadeTenantCrudController extends AbstractAdminCrudController
             ->displayIf(fn (ParadeTenant $tenant): bool => [] !== $tenant->getGroups());
 
         return parent::configureActions($actions)
+            ->disable(Action::NEW)
             ->add(Crud::PAGE_INDEX, $members)
             ->add(Crud::PAGE_DETAIL, $members);
     }
@@ -67,8 +68,12 @@ class ParadeTenantCrudController extends AbstractAdminCrudController
         yield IdField::new()
             ->hideOnForm();
         yield TextField::new('slug')
-            ->setHelp('Same slug as the media library in Parade (lowercase letters, digits and dashes).');
-        yield TextField::new('name');
+            ->setDisabled()
+            ->setHelp('Slug of the media library in Parade.');
+        yield TextField::new('name')
+            ->setDisabled();
+        yield DateTimeField::new('removedAt', 'Removed from Parade')
+            ->hideOnForm();
         yield BooleanField::new('subRoles', 'Sub-roles')
             ->renderAsSwitch(false)
             ->setHelp('Create the administrators, technical and functional groups of this tenant.');
