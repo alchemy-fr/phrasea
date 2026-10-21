@@ -21,7 +21,7 @@ RUN set -eux; \
         sqlite-dev \
     ; \
     rm -vf /usr/include/iconv.h; \
-    ln -sv /usr/include/gnu-libiconv/*.h /usr/include/; \
+    ln -sv /usr/include/gnu-libiconv/iconv.h /usr/include/iconv.h; \
     docker-php-source extract; \
     cd /usr/src/php; \
     patch -p1 < /usr/src/php-7.4-CVE-2026-109618-109619.patch; \
