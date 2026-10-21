@@ -2,7 +2,7 @@
 
 import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useQuery, useQueryClient} from '@tanstack/react-query';
+import {useQuery} from '@tanstack/react-query';
 import {
     CodeIcon,
     KeyIcon,
@@ -43,7 +43,6 @@ import {IntegrationTypeIcon} from './integrationTypeUi';
 import {integrationLabel} from '../integrationLabel';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 import {useFocusFirstField} from '@/hooks/useFocusFirstField';
-import {faceRecognitionSetupsQueryKey} from '@/features/faces/useFaceRecognition';
 import {ConfigForm} from '../config/ConfigForm';
 import {
     ConfigErrors,
@@ -158,7 +157,6 @@ function IntegrationForm({
     onSaved: (i: WorkspaceIntegration) => void;
 }) {
     const {t} = useTranslation();
-    const queryClient = useQueryClient();
     const [form, setForm] = useState({
         integration: i?.integration ?? '',
         name: i?.name ?? '',
@@ -258,10 +256,6 @@ function IntegrationForm({
             toast.success(t('integration.saved', 'Integration saved'));
             setErrors({});
             markSaved();
-            // The faces entry of the top bar follows the integrations
-            void queryClient.invalidateQueries({
-                queryKey: faceRecognitionSetupsQueryKey,
-            });
             onSaved(saved);
         } catch (e: any) {
             setErrors(isApiError(e, 422) ? errorsByPath(e) : {});

@@ -79,6 +79,8 @@ type Props<D extends DefinitionItem> = {
      */
     renderManage?: (item: D, back: () => void) => ReactNode;
     manageLabel?: string;
+    /** Extra actions of a row, next to the manage button */
+    renderRowActions?: (item: D) => ReactNode;
     /** Take the whole height of the parent (a flex column); both panes scroll */
     fill?: boolean;
 };
@@ -112,6 +114,7 @@ export function DefinitionManager<D extends DefinitionItem>({
     toolbar,
     renderManage,
     manageLabel,
+    renderRowActions,
     fill,
 }: Props<D>) {
     const {t} = useTranslation();
@@ -294,6 +297,7 @@ export function DefinitionManager<D extends DefinitionItem>({
                                                 : undefined
                                         }
                                         manageLabel={manageLabel}
+                                        actions={renderRowActions?.(item)}
                                         onDuplicate={
                                             duplicate
                                                 ? () => duplicate(item)
@@ -350,6 +354,7 @@ export function DefinitionManager<D extends DefinitionItem>({
                                             renderManage ? noop : undefined
                                         }
                                         manageLabel={manageLabel}
+                                        actions={renderRowActions?.(item)}
                                         onDuplicate={
                                             onDuplicate ? noop : undefined
                                         }
@@ -421,6 +426,7 @@ type RowProps = {
     duplicating?: boolean;
     onManage?: () => void;
     manageLabel?: string;
+    actions?: ReactNode;
     children: ReactNode;
 };
 
@@ -451,6 +457,7 @@ function RowView({
     duplicating,
     onManage,
     manageLabel,
+    actions,
     children,
 }: Omit<RowProps, 'id' | 'onClick'> & {
     drag: SortableRow;
@@ -487,6 +494,15 @@ function RowView({
             >
                 {children}
             </button>
+            {actions ? (
+                // Acting on the row must not select it
+                <span
+                    className="flex items-center"
+                    onClick={e => e.stopPropagation()}
+                >
+                    {actions}
+                </span>
+            ) : null}
             {onManage ? (
                 <Button
                     variant="ghost"

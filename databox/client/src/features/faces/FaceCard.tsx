@@ -49,7 +49,7 @@ export type FaceCardFace = {
     entity?: FaceEntity | null;
 };
 
-export function personOption(e: AttributeEntity): ComboOption<AttributeEntity> {
+function personOption(e: AttributeEntity): ComboOption<AttributeEntity> {
     return {
         value: e.id,
         label: entityLabel(e),

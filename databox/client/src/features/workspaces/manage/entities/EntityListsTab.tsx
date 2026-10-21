@@ -19,6 +19,7 @@ import {FormRow, Input} from '@/components/ui/input';
 import {Checkbox, LabeledControl} from '@/components/ui/controls';
 import {Badge} from '@/components/ui/misc';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {ExploreEntityListButton} from '@/features/entities/explore/ExploreEntityListButton';
 import {EntityGrid} from './EntityGrid';
 
 export function EntityListsTab({workspace}: WorkspaceTabProps) {
@@ -47,6 +48,12 @@ export function EntityListsTab({workspace}: WorkspaceTabProps) {
             onDelete={l => deleteEntityList(l.id)}
             createLabel={t('entity_list.create', 'New list')}
             manageLabel={t('entity_list.manage', 'Values')}
+            renderRowActions={l => (
+                <ExploreEntityListButton
+                    listId={l.id}
+                    className="h-7 text-xs"
+                />
+            )}
             renderManage={(l, back) => (
                 <EntityGrid list={l} workspace={workspace} onBack={back} />
             )}

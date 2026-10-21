@@ -1,6 +1,5 @@
 'use client';
 
-import {useQuery} from '@tanstack/react-query';
 import type {
     Asset,
     AssetAnnotation,
@@ -8,16 +7,10 @@ import type {
     FaceBox,
     WorkspaceIntegration,
 } from '@/types/api';
-import {
-    getIntegrationsOfContext,
-    IntegrationContext,
-} from '@/lib/api/integrations';
 import {AnnotationType} from '@/features/annotations/types';
 
 /** Integration key of the face recognition (`FaceRecognitionIntegration`) */
 export const faceRecognition = 'core.face_recognition';
-
-export const faceRecognitionSetupsQueryKey = ['face-recognition-setups'];
 
 /** Where a workspace keeps its persons and its faces */
 export type FaceRecognitionSetup = {
@@ -61,27 +54,6 @@ export function setupOf(
         attribute: config.attribute,
         attributeDefinition: config.attributeDefinition,
     };
-}
-
-/** The face recognition setups of the workspaces the user may use */
-export function useFaceRecognitionSetups(enabled = true) {
-    return useQuery({
-        queryKey: faceRecognitionSetupsQueryKey,
-        queryFn: async () => {
-            const page = await getIntegrationsOfContext(
-                IntegrationContext.AssetView
-            );
-
-            return page.items
-                .filter(
-                    i => i.enabled !== false && i.capabilities?.use !== false
-                )
-                .map(setupOf)
-                .filter((s): s is FaceRecognitionSetup => !!s);
-        },
-        enabled,
-        staleTime: 60_000,
-    });
 }
 
 /** The face annotation of a face value */

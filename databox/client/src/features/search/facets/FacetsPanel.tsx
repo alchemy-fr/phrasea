@@ -13,7 +13,7 @@ import {
     PinIcon,
     Settings2Icon,
 } from 'lucide-react';
-import {Facet, FacetType} from '@/types/api';
+import {AttributeType, Facet, FacetType} from '@/types/api';
 import {useResults} from '../ResultProvider';
 import {FilterInput} from '@/components/ui/filter-input';
 import {Button} from '@/components/ui/button';
@@ -37,6 +37,8 @@ import {useModals} from '@/components/modals/ModalProvider';
 import {FacetSettingsDialog} from './FacetSettingsDialog';
 import {cn} from '@/lib/utils/cn';
 import {Skeleton} from '@/components/ui/misc';
+import {ExploreEntityListButton} from '@/features/entities/explore/ExploreEntityListButton';
+import {useEntityListsOfFacet} from '@/features/entities/explore/useEntityListsOfFacet';
 
 const EMPTY_FACETS: never[] = [];
 export type FacetWidgetProps = {name: string; facet: Facet};
@@ -277,6 +279,9 @@ export function FacetsPanel() {
                     {isOpen(name) ? (
                         <div className="px-2 pb-2">
                             <FacetWidget name={name} facet={facet} />
+                            {isEntityFacet(facet) ? (
+                                <FacetExplore name={name} />
+                            ) : null}
                         </div>
                     ) : null}
                 </div>
@@ -298,4 +303,22 @@ function FacetWidget({name, facet}: FacetWidgetProps) {
         default:
             return <ListFacet name={name} facet={facet} />;
     }
+}
+
+function isEntityFacet(facet: Facet): boolean {
+    return (
+        facet.meta.widget === FacetType.Entity ||
+        facet.meta.type === AttributeType.Entity
+    );
+}
+
+/** The exploration of the entity list(s) behind the facet */
+function FacetExplore({name}: {name: string}) {
+    const lists = useEntityListsOfFacet(name);
+
+    return lists.length > 0 ? (
+        <div className="flex justify-end pt-1">
+            <ExploreEntityListButton lists={lists} compact />
+        </div>
+    ) : null;
 }

@@ -208,6 +208,10 @@ export async function getEntityLists(options: {
     );
 }
 
+export function getEntityList(id: string): Promise<EntityList> {
+    return api.get<EntityList>(`/${EntityName.EntityList}/${id}`);
+}
+
 export function postEntityList(
     workspaceId: string,
     data: Partial<EntityList>

@@ -58,6 +58,7 @@ import {
 } from './entityColumns';
 import {EntityCellEditor} from './EntityCellEditor';
 import {EntityFormDialog} from './EntityFormDialog';
+import {ExploreEntityListButton} from '@/features/entities/explore/ExploreEntityListButton';
 import {EntityAssetsPreviewDialog} from './EntityAssetsPreviewDialog';
 import {
     ExportEntitiesDialog,
@@ -386,6 +387,7 @@ export function EntityGrid({
                     <ArrowLeftIcon /> {t('common.back', 'Back')}
                 </Button>
                 <h3 className="text-sm font-semibold">{list.name}</h3>
+                <ExploreEntityListButton listId={list.id} />
                 <FilterInput
                     value={search}
                     onValueChange={setSearch}

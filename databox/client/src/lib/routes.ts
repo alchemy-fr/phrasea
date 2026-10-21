@@ -18,6 +18,8 @@ export const routes = {
     /** Values grid of an entity list (nested panel of the `entities` tab) */
     entityListValues: (workspaceId: string, listId: string) =>
         `/workspaces/${workspaceId}/manage/entities/${listId}/manage`,
+    /** Full-page exploration of the values of an entity list, with their assets */
+    entityListExplore: (listId: string) => `/entity-lists/${listId}/explore`,
     basketView: (id: string) => `/baskets/${id}/view`,
     basketManage: (id: string, tab = 'info') => `/baskets/${id}/manage/${tab}`,
     savedSearchManage: (id: string, tab = 'info') =>
@@ -33,8 +35,6 @@ export const routes = {
     attributesEditor: () => '/attributes/editor',
     quarantine: (assetId?: string) =>
         assetId ? `/quarantine?asset=${assetId}` : '/quarantine',
-    /** Faces detected by the face recognition, to name (persons of the entity lists) */
-    faces: () => '/faces',
     operationTasks: () => '/admin/tasks',
     operationTaskNew: () => '/admin/tasks/new',
     operationTaskRun: (task: string) => `/admin/tasks/${task}/run`,

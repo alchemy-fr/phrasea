@@ -22,7 +22,6 @@ import {FormRow, Input} from '@/components/ui/input';
 import {SimpleSelect} from '@/components/ui/select';
 import {Checkbox, LabeledControl} from '@/components/ui/controls';
 import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
-import {faceRecognitionSetupsQueryKey} from '@/features/faces/useFaceRecognition';
 import type {AttributeConstraints} from './AttributePicker';
 
 const newList = '__new__';
@@ -148,9 +147,6 @@ export function CreateAttributeDialog({
         });
         void queryClient.invalidateQueries({
             queryKey: ['attribute-definitions', 'picker', workspaceId],
-        });
-        void queryClient.invalidateQueries({
-            queryKey: faceRecognitionSetupsQueryKey,
         });
         void useDefinitionsStore.getState().loadWorkspace(workspaceId);
         toast.success(

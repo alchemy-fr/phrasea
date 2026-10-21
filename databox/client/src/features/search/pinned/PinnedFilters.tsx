@@ -71,6 +71,7 @@ import {
     type DateRange,
 } from './pinnedFilterQuery';
 import {booleanChoices} from './booleanChoices';
+import {ExploreEntityListButton} from '@/features/entities/explore/ExploreEntityListButton';
 
 export type PinnedFilter = {
     item: ProfileItem;
@@ -130,6 +131,8 @@ export type WidgetProps = {
     /** The condition the filter currently applies */
     ast: AQLQueryAST | undefined;
     onApply: ApplyFilter;
+    /** Closes the picker the widget sits in, if any */
+    onClose?: () => void;
 };
 
 const isBoolean = (filter: PinnedFilter) =>
@@ -291,6 +294,7 @@ function PopoverFilterChip({filter}: {filter: PinnedFilter}) {
                     // A disabled condition is picked again from scratch
                     ast={condition?.disabled ? undefined : ast}
                     onApply={apply}
+                    onClose={() => setOpen(false)}
                 />
             </PopoverContent>
         </Popover>
@@ -444,7 +448,7 @@ function entityListId(
 }
 
 /** The values of the entity list, searched; several can be picked */
-function EntityFilter({filter, ast, onApply}: WidgetProps) {
+function EntityFilter({filter, ast, onApply, onClose}: WidgetProps) {
     const {t} = useTranslation();
     const [query, setQuery] = useState('');
     const debounced = useDebouncedValue(query.trim());
@@ -512,6 +516,15 @@ function EntityFilter({filter, ast, onApply}: WidgetProps) {
                     </CommandItem>
                 ))}
             </CommandList>
+            {listId ? (
+                <div className="flex justify-end border-t p-1">
+                    <ExploreEntityListButton
+                        listId={listId}
+                        compact
+                        onNavigate={onClose}
+                    />
+                </div>
+            ) : null}
         </Command>
     );
 }
