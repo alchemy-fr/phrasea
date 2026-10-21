@@ -93,6 +93,7 @@ RUN set -eux \
 		pdo \
 		pdo_pgsql \
 		pdo_mysql \
+	&& pecl update-channels \
 	&& pecl install \
 		apcu-${APCU_VERSION} \
 		xdebug-${XDEBUG_VERSION} \

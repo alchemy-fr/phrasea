@@ -67,6 +67,7 @@ RUN set -eux \
         bcmath \
         pdo \
         pdo_pgsql \
+    && pecl update-channels \
     && pecl install \
         apcu-${APCU_VERSION} \
         xdebug-${XDEBUG_VERSION} \
