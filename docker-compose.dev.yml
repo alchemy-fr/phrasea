@@ -95,6 +95,13 @@ services:
       - ./uploader/api:/srv/app
       - ./lib/php:/lib/php
 
+  uploader-scheduler:
+    environment:
+      - WORKER_VERBOSITY=${WORKER_VERBOSITY:--vv}
+    volumes:
+      - ./uploader/api:/srv/app
+      - ./lib/php:/lib/php
+
   uploader-api-nginx:
     volumes:
       - ./uploader/api/public:/srv/app/public
@@ -117,6 +124,13 @@ services:
       - ./databox/api/public:/srv/app/public
 
   databox-worker:
+    environment:
+      - WORKER_VERBOSITY=${WORKER_VERBOSITY:--vv}
+    volumes:
+      - ./databox/api:/srv/app
+      - ./lib/php:/lib/php
+
+  databox-scheduler:
     environment:
       - WORKER_VERBOSITY=${WORKER_VERBOSITY:--vv}
     volumes:

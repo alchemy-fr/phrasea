@@ -26,8 +26,8 @@ source files of live assets that are still pending in workspaces running a
 File Analyzer integration, inspects the latest ingest workflow of their asset
 and re-triggers the smallest thing that gets the analysis running again
 (rerun of the analyzer job, retry of the failed dependency, or a brand-new
-ingest when no workflow can be resumed). It is part of the hourly cron
-(`bin/ops/cron-script-hourly.sh`).
+ingest when no workflow can be resumed). It is run hourly by the databox
+`maintenance` schedule.
 
 ```bash
 bin/console app:file:unblock-analyses --dry-run -v   # report only

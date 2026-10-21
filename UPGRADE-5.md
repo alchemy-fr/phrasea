@@ -13,31 +13,31 @@ Follow these steps in order. Each one is detailed in the sections below.
    new `similarity` and `face-recognition` profiles.
 4. Start Elasticsearch 9:
 
-   ```bash
-   dc up -d elasticsearch
-   ```
+    ```bash
+    dc up -d elasticsearch
+    ```
 
 5. Run the migrations, and nothing else (no `doctrine:migrations:version --add`):
 
-   ```bash
-   bin/migrate.sh
-   ```
+    ```bash
+    bin/migrate.sh
+    ```
 
 6. Rebuild every Elasticsearch index, in `databox-api-php`:
 
-   ```bash
-   bin/console fos:elastica:populate
-   ```
+    ```bash
+    bin/console fos:elastica:populate
+    ```
 
-7. Make sure the databox worker consumes `scheduler_automation` (see
-   `WORKER_PRIORITIES`) and that the hourly cron runs
-   `app:file:unblock-analyses`.
+7. Deploy the new `databox-scheduler` and `uploader-scheduler` services, with a
+   single replica each, and remove the databox host crons (see
+   [Scheduler containers replace the cron jobs](#scheduler-containers-replace-the-cron-jobs)).
 8. Optionally, if the integration is enabled and its service deployed:
 
-   ```bash
-   bin/console app:similarity:index
-   bin/console app:face-recognition:index
-   ```
+    ```bash
+    bin/console app:similarity:index
+    bin/console app:face-recognition:index
+    ```
 
 9. Audit what this release may break: Twig templates in attribute definitions
    and rendition options (now sandboxed), API clients (`hydra:` prefix, `PUT`
@@ -122,17 +122,35 @@ The Databox client is no longer static files served by nginx.
 - Server-side rendering settings are removed (`SSR_PORT`, `SSR_API_BASE_URL`),
   and the client no longer reads the `S3_MULTIPART_*` variables.
 
-### Databox worker and scheduler
+### Scheduler containers replace the cron jobs
 
-The databox worker now runs with
-`WORKER_PRIORITIES="p1 p2 task scheduler_automation"`. `scheduler_automation` is
-a Symfony Scheduler transport, not a RabbitMQ queue; it is guarded by a Redis
-lock, so several replicas are fine. Without it, scheduled automations never
-run. As a fallback, run:
+The periodic tasks of databox and uploader are now planned by Symfony Scheduler
+and consumed by two new services, built from the worker images (no new image):
 
-```bash
-bin/console app:automation:run-due
-```
+| Service              | `WORKER_PRIORITIES`                          | Replicas |
+| -------------------- | -------------------------------------------- | -------- |
+| `databox-scheduler`  | `scheduler_automation scheduler_maintenance` | 1        |
+| `uploader-scheduler` | `scheduler_maintenance`                      | 1        |
+
+Run them with **exactly one replica** and never scale them: scale the
+`*-worker` services instead.
+
+- The `databox-worker` image now defaults to `WORKER_PRIORITIES="p1 p2 task"`
+  and no longer consumes `scheduler_automation`: without `databox-scheduler`,
+  the scheduled automations (saved searches) never run. If you override
+  `WORKER_PRIORITIES` for the workers, remove any `scheduler_*` transport from it.
+- Remove the databox host crons: `bin/ops/cron-script-hourly.sh` and
+  `databox/api/bin/cron-script-{hourly,daily}.sh` are deleted, and
+  `bin/ops/cron-script-daily.sh` only runs the Zippy task now (keep its daily
+  cron only with the `zippy` profile). The `maintenance` schedule of databox runs
+  `alchemy:notifier:digest:flush`, `app:integration:renew-tokens` and
+  `app:file:unblock-analyses` hourly, and `app:trash:empty` daily.
+- The uploader now removes its expired assets daily
+  (`app:asset:clean-expired`, retention `ASSET_DAYS_RETENTION`, 31 days by
+  default), which was not scheduled before.
+
+The commands are kept for manual runs; `bin/console app:automation:run-due`
+still triggers the due automations once, for development.
 
 ### Soketi
 
@@ -140,16 +158,6 @@ bin/console app:automation:run-due
 network (`SOKETI_HOST`, `SOKETI_PORT`, `SOKETI_SCHEME`). If you use an external
 Soketi without the `soketi` profile, override these three variables for
 `databox-api-php`.
-
-### Hourly cron
-
-`app:file:unblock-analyses` is added to `databox/api/bin/cron-script-hourly.sh`.
-If you run the cron outside the image (Kubernetes CronJob, host crontab), add
-it:
-
-```bash
-bin/console app:file:unblock-analyses
-```
 
 ### Building from sources
 
@@ -176,7 +184,10 @@ to disable it: review who holds these roles.
 ### Helm
 
 This repository has no Helm chart for the stack (`infra/helm/report-elk` is
-unchanged). Apply the same changes in `alchemy-fr/phrasea-helm-charts`.
+unchanged). Apply the same changes in `alchemy-fr/phrasea-helm-charts`: in
+particular, replace the databox `CronJob`s with `databox-scheduler` and
+`uploader-scheduler` Deployments (worker image, `WORKER_PRIORITIES` as above,
+`replicas: 1`, `Recreate` strategy so that two pods never overlap).
 
 ## Database migrations
 

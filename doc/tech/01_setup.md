@@ -87,25 +87,34 @@ By default, Let's Encrypt's staging environment is used. To get a production cer
 LETS_ENCRYPT_CA_SERVER=https://acme-v02.api.letsencrypt.org/directory
 ```
 
-### Setup cron jobs
+### Periodic tasks
 
-You may want to setup cron jobs to run periodic tasks (like cleaning old data).
-If you plan to deploy the stack with docker-compose on a single host machine,
-you can use the provided scripts to add cron jobs to your host machine:
+The periodic tasks of databox and uploader are planned by Symfony Scheduler and
+consumed by dedicated containers, `databox-scheduler` and `uploader-scheduler`.
+They run the worker image with `WORKER_PRIORITIES` restricted to the
+`scheduler_*` transports (one process per schedule), while the `*-worker`
+services only consume the RabbitMQ queues.
 
-- `bin/ops/cron-script-daily.sh` — run it **every day**: housekeeping tasks
-  (e.g. emptying the databox trash);
-- `bin/ops/cron-script-hourly.sh` — run it **every hour**: it flushes the
-  notification digests whose window has elapsed (safety net for the delayed
-  Messenger probes), renews the integration tokens about to expire and
-  re-triggers the file analyses stuck in the pending state
-  (`app:file:unblock-analyses`, see `doc/tech/Databox/FileAnalyzers.mdx`).
+Keep **exactly one replica** of each scheduler container and never scale them:
+scale the `*-worker` services instead.
 
-The scheduled automations of the databox saved searches do not need any host
-cron: the databox worker consumes the `scheduler_automation` transport (listed
-in its `WORKER_PRIORITIES`), which triggers the automations due every minute.
-`bin/console app:automation:run-due` does the same once, for development or as
-a fallback cron.
+| Application | Schedule      | Task                                                                                         | Frequency    |
+|-------------|---------------|----------------------------------------------------------------------------------------------|--------------|
+| databox     | `automation`  | trigger the due automations of the saved searches                                            | every minute |
+| databox     | `maintenance` | `alchemy:notifier:digest:flush` (notification digests whose window has elapsed)              | hourly       |
+| databox     | `maintenance` | `app:integration:renew-tokens` (integration tokens about to expire)                          | hourly       |
+| databox     | `maintenance` | `app:file:unblock-analyses` (stuck file analyses, see `doc/tech/Databox/FileAnalyzers.mdx`) | hourly       |
+| databox     | `maintenance` | `app:trash:empty`                                                                            | daily        |
+| uploader    | `maintenance` | `app:asset:clean-expired` (retention `ASSET_DAYS_RETENTION`, 31 days by default)             | daily        |
+
+Hourly and daily tasks start at a fixed minute derived from the task (daily
+ones between 00:00 and 02:59), to spread the load. The commands can still be
+run by hand; `bin/console app:automation:run-due` triggers the due automations
+once, for development.
+
+Only Zippy still needs a host cron: when the `zippy` profile is enabled and the
+stack is deployed with docker-compose on a single host, run
+`bin/ops/cron-script-daily.sh` **every day**.
 
 ### Changing ports
 

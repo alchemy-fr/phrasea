@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * What the "automation" schedule does every minute, for development or as a cron fallback.
+ * What the "automation" schedule does every minute, for development.
  */
 #[AsCommand('app:automation:run-due', 'Triggers the scheduled automations which are due')]
 class RunDueAutomationsCommand extends Command

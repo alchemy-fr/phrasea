@@ -235,7 +235,8 @@ after the read simply open a fresh buffer.
 
 Delayed messages rely on the transport honoring `DelayStamp` (AMQP does). As a
 safety net — and for dev environments running Messenger on `sync://`, where
-delays cannot be honored — flush overdue buffers from an **hourly** cron:
+delays cannot be honored — flush overdue buffers periodically (e.g. hourly from a Symfony Scheduler
+schedule, as databox does):
 
 ```
 bin/console alchemy:notifier:digest:flush          # flush elapsed windows

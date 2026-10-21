@@ -248,6 +248,17 @@ services:
     deploy:
       replicas: $UPLOADER_WORKER_REPLICAS
 
+  # Never scale it: a schedule must be consumed by a single process.
+  uploader-scheduler:
+    logging: *default-logging
+    extends:
+      service: uploader-worker
+    build: !reset null
+    deploy:
+      replicas: 1
+    environment:
+      - WORKER_PRIORITIES=scheduler_maintenance
+
   uploader-api-nginx:
     logging: *default-logging
     profiles:
@@ -780,7 +791,7 @@ services:
           memory: ${DATABOX_WORKER_MEMORY_LIMIT}
     environment:
       - SECRETS_SECRET_KEY=${DATABOX_SECRETS_SECRET_KEY}
-      - WORKER_PRIORITIES=p1 p2 task scheduler_automation
+      - WORKER_PRIORITIES=p1 p2 task
       - IMAGICK_VERSION
       - IMAGEMAGICK_POLICY_MEMORY
       - IMAGEMAGICK_POLICY_VERSION
@@ -789,6 +800,17 @@ services:
       - IMAGEMAGICK_POLICY_AREA
       - IMAGEMAGICK_POLICY_DISK
       - IMAGEMAGICK_POLICY_TEMPORARY_PATH
+
+  # Never scale it: a schedule must be consumed by a single process.
+  databox-scheduler:
+    logging: *default-logging
+    extends:
+      service: databox-worker
+    build: !reset null
+    deploy:
+      replicas: 1
+    environment:
+      - WORKER_PRIORITIES=scheduler_automation scheduler_maintenance
 
   databox-api-nginx:
     logging: *default-logging

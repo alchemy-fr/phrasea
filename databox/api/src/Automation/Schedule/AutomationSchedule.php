@@ -13,8 +13,9 @@ use Symfony\Component\Scheduler\ScheduleProviderInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 
 /**
- * Consumed by the worker through the "scheduler_automation" transport.
- * The lock lets several workers consume it, the state keeps the missed occurrences across restarts.
+ * Consumed by the single-replica "databox-scheduler" container through the "scheduler_automation" transport.
+ * The lock is a safety net when two scheduler containers overlap during a rolling deployment,
+ * the state keeps the missed occurrences across restarts.
  */
 #[AsSchedule('automation')]
 final readonly class AutomationSchedule implements ScheduleProviderInterface

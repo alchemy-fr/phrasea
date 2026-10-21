@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
 
 /**
- * Meant to run periodically (hourly cron): refreshes the integration tokens
+ * Run hourly by the "maintenance" schedule: refreshes the integration tokens
  * whose refresh token expires soon, so that background jobs (e.g. Expose basket
  * synchronization) keep a usable token even when the user is not active.
  */
