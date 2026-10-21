@@ -1,6 +1,7 @@
 FROM php:8.5.12-fpm-alpine3.24
 
-RUN apk add --no-cache --virtual .persistent-deps \
+RUN apk upgrade --no-cache musl \
+    && apk add --no-cache --virtual .persistent-deps \
         fcgi \
 		git \
 		icu-libs \
