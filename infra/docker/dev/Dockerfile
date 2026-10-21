@@ -1,4 +1,4 @@
-FROM php:8.5.1-cli-alpine3.22
+FROM php:8.5.12-cli-alpine3.24
 
 RUN apk add --no-cache \
 		autoconf \
