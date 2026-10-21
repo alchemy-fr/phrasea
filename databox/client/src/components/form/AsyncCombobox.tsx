@@ -45,6 +45,8 @@ type BaseProps<T> = {
     /** Resolves to nothing when the creation was cancelled */
     onCreate?: (query: string) => Promise<ComboOption<T> | undefined>;
     createLabel?: (query: string) => string;
+    /** Offers the creation entry even with an empty search: `onCreate` then receives `''` */
+    createWithoutQuery?: boolean;
 };
 
 type SingleProps<T> = BaseProps<T> & {
@@ -135,7 +137,7 @@ export function AsyncCombobox<T = unknown>(
     };
 
     const create = async () => {
-        if (!props.onCreate || !search.trim()) {
+        if (!props.onCreate || (!search.trim() && !props.createWithoutQuery)) {
             return;
         }
         const opt = await props.onCreate(search.trim());
@@ -247,12 +249,13 @@ export function AsyncCombobox<T = unknown>(
                                 </CommandItem>
                             ))}
                             {props.onCreate &&
-                            search.trim() &&
-                            !options.data?.some(
-                                o =>
-                                    o.label.toLowerCase() ===
-                                    search.trim().toLowerCase()
-                            ) ? (
+                            (search.trim()
+                                ? !options.data?.some(
+                                      o =>
+                                          o.label.toLowerCase() ===
+                                          search.trim().toLowerCase()
+                                  )
+                                : props.createWithoutQuery) ? (
                                 <CommandItem
                                     value={`__create_${search}`}
                                     onSelect={create}

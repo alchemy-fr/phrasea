@@ -925,6 +925,7 @@
     "impersonation.via": "via {{name}}",
     "impersonation.you": "(vous)",
     "integration.attribute_picker.create": "Créer « {{name}} »…",
+    "integration.attribute_picker.create_new": "Créer un attribut…",
     "integration.attribute_picker.placeholder": "Sélectionner un attribut…",
     "integration.catalog.all": "Toutes",
     "integration.catalog.empty": "Aucune intégration ne correspond à votre recherche",

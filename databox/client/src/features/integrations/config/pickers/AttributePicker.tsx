@@ -102,7 +102,7 @@ export function AttributePicker(props: Props) {
             const created = await openModal(CreateAttributeDialog, {
                 workspaceId: workspaceId!,
                 constraints,
-                initialName: name,
+                initialName: name || undefined,
             });
 
             return created ? optionOf(created) : undefined;
@@ -144,10 +144,18 @@ export function AttributePicker(props: Props) {
         loadOptions: load,
         resolveValue: resolve,
         onCreate: create,
+        createWithoutQuery: true,
         createLabel: (q: string) =>
-            t('integration.attribute_picker.create', 'Create “{{name}}”…', {
-                name: q,
-            }),
+            q
+                ? t(
+                      'integration.attribute_picker.create',
+                      'Create “{{name}}”…',
+                      {name: q}
+                  )
+                : t(
+                      'integration.attribute_picker.create_new',
+                      'Create an attribute…'
+                  ),
         placeholder:
             placeholder ??
             t(
