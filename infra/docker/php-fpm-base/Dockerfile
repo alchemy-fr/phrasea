@@ -1,6 +1,7 @@
-FROM php:8.3.11-fpm-alpine3.20
+FROM php:8.3.36-fpm-alpine3.23
 
-RUN apk add --no-cache --virtual .persistent-deps \
+RUN apk upgrade --no-cache \
+    && apk add --no-cache --virtual .persistent-deps \
         fcgi \
 		git \
 		icu-libs \
@@ -16,7 +17,7 @@ ENV APP_ENV=prod \
     PHP_MEMORY_LIMIT=132M \
     APCU_VERSION=5.1.22 \
     AMQP_VERSION=1.11.0 \
-    XDEBUG_VERSION=3.3.1 \
+    XDEBUG_VERSION=3.4.2 \
     REDIS_VERSION=5.3.7
 
 RUN set -eux; \

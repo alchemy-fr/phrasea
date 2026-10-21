@@ -1,6 +1,7 @@
-FROM php:8.3.11-cli-alpine3.20
+FROM php:8.3.36-cli-alpine3.23
 
-RUN apk add --no-cache \
+RUN apk upgrade --no-cache \
+    && apk add --no-cache \
 		autoconf \
 		curl \
 		git \
