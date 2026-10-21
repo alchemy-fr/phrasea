@@ -70,6 +70,9 @@ RUN export NR_INSTALL_USE_CP_NOT_LN=1 \
 COPY --from=composer:2.9.3 /usr/bin/composer /usr/bin/composer
 
 RUN ln -s $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini \
+    # The session upload progress handler is exploitable before any authentication
+    # (CVE-2026-109618, CVE-2026-109619) and no application relies on it.
+    && printf "session.upload_progress.enabled = Off\n" > $PHP_INI_DIR/conf.d/zz-session-upload-progress.ini \
     # Increase process-timeout for "composer test" which downloads phpunit
     && composer config --global process-timeout 2000 \
     && adduser -D -u 1000 app \
