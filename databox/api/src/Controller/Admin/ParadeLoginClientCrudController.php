@@ -7,11 +7,13 @@ namespace App\Controller\Admin;
 use Alchemy\AdminBundle\Controller\AbstractAdminCrudController;
 use Alchemy\AdminBundle\Field\JsonField;
 use App\Entity\Parade\ParadeLoginClient;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ParadeLoginClientCrudController extends AbstractAdminCrudController
 {
@@ -34,7 +36,30 @@ class ParadeLoginClientCrudController extends AbstractAdminCrudController
     public function configureActions(Actions $actions): Actions
     {
         return parent::configureActions($actions)
-            ->disable(Action::NEW, Action::EDIT, Action::DELETE);
+            ->remove(Crud::PAGE_INDEX, Action::NEW)
+            ->remove(Crud::PAGE_INDEX, Action::EDIT)
+            ->remove(Crud::PAGE_INDEX, Action::DELETE)
+            ->remove(Crud::PAGE_DETAIL, Action::EDIT)
+            ->remove(Crud::PAGE_DETAIL, Action::DELETE)
+            ->disable(Action::NEW, Action::EDIT, Action::DELETE, Action::BATCH_DELETE);
+    }
+
+    #[\Override]
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        throw new AccessDeniedHttpException('Login pages are declared by Parade.');
+    }
+
+    #[\Override]
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        throw new AccessDeniedHttpException('Login pages are declared by Parade.');
+    }
+
+    #[\Override]
+    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        throw new AccessDeniedHttpException('Login pages are declared by Parade.');
     }
 
     #[\Override]

@@ -11,6 +11,7 @@ use Alchemy\AuthBundle\Client\KeycloakClient;
 use Alchemy\AuthBundle\Client\ServiceAccountClient;
 use App\Entity\Parade\ParadeTenant;
 use App\Parade\ParadeProvisioner;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -20,6 +21,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ParadeTenantCrudController extends AbstractAdminCrudController
 {
@@ -55,7 +57,12 @@ class ParadeTenantCrudController extends AbstractAdminCrudController
             ->displayIf(fn (ParadeTenant $tenant): bool => [] !== $tenant->getGroups());
 
         return parent::configureActions($actions)
-            ->disable(Action::NEW, Action::EDIT)
+            ->remove(Crud::PAGE_INDEX, Action::NEW)
+            ->remove(Crud::PAGE_INDEX, Action::EDIT)
+            ->remove(Crud::PAGE_DETAIL, Action::EDIT)
+            ->update(Crud::PAGE_INDEX, Action::DELETE, fn (Action $action) => $action->displayIf(fn (ParadeTenant $tenant): bool => $tenant->isRemoved()))
+            ->update(Crud::PAGE_DETAIL, Action::DELETE, fn (Action $action) => $action->displayIf(fn (ParadeTenant $tenant): bool => $tenant->isRemoved()))
+            ->disable(Action::NEW, Action::EDIT, Action::BATCH_DELETE)
             ->add(Crud::PAGE_INDEX, $members)
             ->add(Crud::PAGE_DETAIL, $members);
     }
@@ -78,6 +85,28 @@ class ParadeTenantCrudController extends AbstractAdminCrudController
             ->hideOnForm();
         yield DateTimeField::new('updatedAt')
             ->hideOnForm();
+    }
+
+    #[\Override]
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        throw new AccessDeniedHttpException('Tenants are declared by Parade.');
+    }
+
+    #[\Override]
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        throw new AccessDeniedHttpException('Tenants are declared by Parade.');
+    }
+
+    #[\Override]
+    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        assert($entityInstance instanceof ParadeTenant);
+        if (!$entityInstance->isRemoved()) {
+            throw new AccessDeniedHttpException('Only a tenant removed from Parade can be deleted.');
+        }
+        parent::deleteEntity($entityManager, $entityInstance);
     }
 
     #[AdminRoute(path: '{entityId}/members', options: ['methods' => ['GET', 'POST']])]

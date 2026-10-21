@@ -26,6 +26,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\UrlField;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class ParadeCrudController extends AbstractAdminCrudController
 {
@@ -75,7 +76,15 @@ class ParadeCrudController extends AbstractAdminCrudController
                 ->setLabel('Add Parade')
                 ->displayIf(fn () => !$hasParade))
             ->remove(Crud::PAGE_NEW, Action::SAVE_AND_ADD_ANOTHER)
-            ->disable(Action::DELETE);
+            ->remove(Crud::PAGE_INDEX, Action::DELETE)
+            ->remove(Crud::PAGE_DETAIL, Action::DELETE)
+            ->disable(Action::DELETE, Action::BATCH_DELETE);
+    }
+
+    #[\Override]
+    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        throw new AccessDeniedHttpException('The Parade instance cannot be deleted.');
     }
 
     #[\Override]
