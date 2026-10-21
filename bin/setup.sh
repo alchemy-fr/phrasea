@@ -23,9 +23,9 @@ create_db "${KEYCLOAK2_DB_NAME}"
 
 ## Create minio bucket
 COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
-  while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
+  while ! (echo > /dev/tcp/minio/9000) 2>/dev/null; do echo 'Wait minio to startup...' && sleep 0.1; done; \
   sleep 5 && \
-  mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
+  mc alias set minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
   mc mb --ignore-existing minio/$CONFIGURATOR_S3_BUCKET_NAME \
 "
 
@@ -36,9 +36,9 @@ exec_container rabbitmq "rabbitmqctl add_vhost ${UPLOADER_RABBITMQ_VHOST} && rab
 exec_container_as uploader-api-php "bin/setup.sh" app
 ## Create minio bucket
 COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
-  while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
+  while ! (echo > /dev/tcp/minio/9000) 2>/dev/null; do echo 'Wait minio to startup...' && sleep 0.1; done; \
   sleep 5 && \
-  mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
+  mc alias set minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
   mc mb --ignore-existing minio/$UPLOADER_S3_BUCKET_NAME \
 "
 
@@ -50,7 +50,7 @@ exec_container_as expose-api-php "bin/setup.sh" app
 ## Create minio bucket
 COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
   i=0
-  while ! nc -z minio 9000; do \
+  while ! (echo > /dev/tcp/minio/9000) 2>/dev/null; do \
     echo 'Wait for minio to startup...'; \
     echo \$i; \
     if [ \$i -gt 180 ]; then \
@@ -61,7 +61,7 @@ COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entryp
     sleep 0.1; \
   done; \
   sleep 3 \
-  && mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY \
+  && mc alias set minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY \
   && mc mb --ignore-existing minio/$EXPOSE_S3_BUCKET_NAME \
 "
 
@@ -72,9 +72,9 @@ exec_container rabbitmq "rabbitmqctl add_vhost ${DATABOX_RABBITMQ_VHOST} && rabb
 exec_container_as databox-api-php "bin/setup.sh" app
 ## Create minio bucket
 COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
-  while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
+  while ! (echo > /dev/tcp/minio/9000) 2>/dev/null; do echo 'Wait minio to startup...' && sleep 0.1; done; \
   sleep 5 && \
-  mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
+  mc alias set minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
   mc mb --ignore-existing minio/$DATABOX_S3_BUCKET_NAME \
 "
 ## Create Uploader target for client upload
@@ -83,9 +83,9 @@ exec_container uploader-api-php "bin/console app:create-target ${DATABOX_UPLOADE
 ## Setup indexer
 ## Create Databox OAuth client for indexer
 COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
-  while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
+  while ! (echo > /dev/tcp/minio/9000) 2>/dev/null; do echo 'Wait minio to startup...' && sleep 0.1; done; \
   sleep 5 && \
-  mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
+  mc alias set minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY && \
   mc mb --ignore-existing minio/${INDEXER_BUCKET_NAME} \
 "
 exec_container rabbitmq "rabbitmqctl add_vhost s3events && rabbitmqctl set_permissions -p s3events ${RABBITMQ_USER} '.*' '.*' '.*'"
@@ -95,8 +95,8 @@ exec_container rabbitmq "\
   && rabbitmqadmin declare binding --vhost=s3events source=s3events destination=s3events routing_key='' -u ${RABBITMQ_USER} -p ${RABBITMQ_PASSWORD}"
 COMPOSE_PROFILES="${COMPOSE_PROFILES},setup" docker compose run --rm -T --entrypoint "sh -c" minio-mc "\
   set -x; \
-  while ! nc -z minio 9000; do echo 'Wait minio to startup...' && sleep 0.1; done; \
-    mc config host add minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY \
+  while ! (echo > /dev/tcp/minio/9000) 2>/dev/null; do echo 'Wait minio to startup...' && sleep 0.1; done; \
+    mc alias set minio http://minio:9000 \$MINIO_ACCESS_KEY \$MINIO_SECRET_KEY \
     && mc admin config set minio notify_amqp:primary \
       url="amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672/s3events" \
       exchange="s3events" \
