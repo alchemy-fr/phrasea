@@ -327,6 +327,17 @@ export function createAttributeDefinition(workspaceId, policyId, data = {}) {
 }
 
 /**
+ * A value of an entity list, e.g. a pending proposal (`status: 1`).
+ */
+export function createAttributeEntity(listId, data = {}) {
+    return apiRequest({
+        method: 'POST',
+        path: '/attribute-entities',
+        body: {list: iri('entity-lists', listId), ...data},
+    });
+}
+
+/**
  * Creates an asset without a file (fast, no worker involved).
  */
 export function createAsset(workspaceId, data = {}) {

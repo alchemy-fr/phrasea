@@ -24,13 +24,14 @@ import {
     TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
 import {FullPageLoader} from '@/components/ui/loader';
+import type {DialogSize} from '@/components/ui/dialog';
 import {routes} from '@/lib/routes';
 import {useCollectionStore} from '@/features/collections/collectionStore';
 import {WorkspaceInfoTab} from './tabs/WorkspaceInfoTab';
 import {WorkspaceEditTab} from './tabs/WorkspaceEditTab';
 import {WorkspacePermissionsTab} from './tabs/WorkspacePermissionsTab';
 import {TagManagerTab} from './tabs/TagManagerTab';
-import {EntityListsTab} from './tabs/EntityListsTab';
+import {EntityListsTab} from './entities/EntityListsTab';
 import {AttributeDefinitionsTab} from './tabs/AttributeDefinitionsTab';
 import {AttributePoliciesTab} from './tabs/AttributePoliciesTab';
 import {RenditionDefinitionsTab} from './tabs/RenditionDefinitionsTab';
@@ -156,6 +157,11 @@ function useTabs(workspace?: Workspace): DialogTab<WorkspaceTabProps>[] {
     ];
 }
 
+/** The values of an entity list are a spreadsheet: full screen */
+function manageDialogSize(tab: string, path: string[]): DialogSize {
+    return tab === 'entities' && path[1] === 'manage' ? 'full' : 'xl';
+}
+
 export function WorkspaceManageShell({workspaceId}: {workspaceId: string}) {
     const {t} = useTranslation();
     const query = useWorkspace(workspaceId);
@@ -178,7 +184,7 @@ export function WorkspaceManageShell({workspaceId}: {workspaceId: string}) {
             tabs={tabs}
             baseProps={baseProps}
             buildTabHref={tab => routes.workspaceManage(workspaceId, tab)}
-            size="xl"
+            size={manageDialogSize}
             placeholder={workspace ? undefined : <FullPageLoader />}
         />
     );

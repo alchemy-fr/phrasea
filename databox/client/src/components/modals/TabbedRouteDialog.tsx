@@ -83,7 +83,8 @@ export function TabbedRouteDialogShell<P extends object>({
     /** Props given to every tab; the tabs are not rendered while undefined */
     baseProps: P | undefined;
     buildTabHref: (tab: string) => string;
-    size?: DialogSize;
+    /** Or by tab, from the active tab and the URL path below it */
+    size?: DialogSize | ((tab: string, path: string[]) => DialogSize);
     /** Shown instead of the tabs while the entity loads, or when it is missing */
     placeholder?: ReactNode;
 }) {
@@ -94,9 +95,18 @@ export function TabbedRouteDialogShell<P extends object>({
     const [urlTab, ...urlPath] = splitRoutePath(pathname, routeKey) ?? [];
     const active =
         enabledTabs.find(t => t.id === urlTab)?.id ?? enabledTabs[0]?.id;
+    const resolvedSize =
+        typeof size === 'function'
+            ? size(active ?? '', active === urlTab ? urlPath : [])
+            : size;
 
     return (
-        <RouteDialog routeKey={routeKey} size={size} className="h-[85dvh]">
+        <RouteDialog
+            routeKey={routeKey}
+            size={resolvedSize}
+            // The full size sets its own height
+            className={resolvedSize === 'full' ? undefined : 'h-[85dvh]'}
+        >
             <DialogHeader>
                 <DialogTitle className="pr-6">{title}</DialogTitle>
                 {subtitle ? (

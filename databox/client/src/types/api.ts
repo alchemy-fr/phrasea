@@ -446,8 +446,8 @@ export interface AttributeEntity extends HydraObject, Entity {
     value: string;
     /** Tells apart the values sharing the same name (homonyms) */
     note?: string | null;
-    emoji?: string;
-    color?: string;
+    emoji?: string | null;
+    color?: string | null;
     translations: Translations;
     synonyms?: Record<string, string[]>;
     createdAt: string;

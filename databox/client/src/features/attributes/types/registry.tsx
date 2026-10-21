@@ -340,8 +340,8 @@ const geoPointType: AttributeTypeDef = {
 type EntityValue = {
     id: string;
     value: string | null;
-    emoji?: string;
-    color?: string;
+    emoji?: string | null;
+    color?: string | null;
     status?: number;
     translations?: Record<string, string>;
 };

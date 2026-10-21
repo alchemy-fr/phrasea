@@ -7,6 +7,7 @@ namespace App\Doctrine\Listener;
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Attribute\AttributeInterface;
 use App\Consumer\Handler\Search\AttributeEntityDelete;
+use App\Consumer\Handler\Search\AttributeEntityStatusChanged;
 use App\Consumer\Handler\Search\AttributeEntityUpdate;
 use App\Entity\Core\AttributeEntity;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
@@ -45,6 +46,17 @@ final class AttributeEntityListener
                 if ($changeSet['synonyms'] ?? false) {
                     [$old, $new] = $changeSet['synonyms'];
                     $locales += $this->getChangedLocales($old, $new, strict: false);
+                }
+                if ($changeSet['status'] ?? false) {
+                    [$old, $new] = $changeSet['status'];
+                    // Pending and rejected values are both left out of the asset documents
+                    if ((AttributeEntity::STATUS_APPROVED === $old) !== (AttributeEntity::STATUS_APPROVED === $new)) {
+                        $this->postFlushStack->addBusMessage(new AttributeEntityStatusChanged(
+                            $entityUpdate->getId(),
+                            $entityUpdate->getList()->getId(),
+                            $entityUpdate->getWorkspaceId(),
+                        ));
+                    }
                 }
                 if (!empty($locales)) {
                     $this->postFlushStack->addBusMessage(new AttributeEntityUpdate(

@@ -312,6 +312,31 @@ class AttributeRepository extends ServiceEntityRepository
             ->execute();
     }
 
+    /**
+     * IDs of the assets holding the entity in one of the definitions bound to its list.
+     *
+     * @return iterable<string>
+     */
+    public function iterateAssetIdsByAttributeEntity(string $workspaceId, string $entityListId, string $entityId): iterable
+    {
+        $qb = $this
+            ->createQueryBuilder('a')
+            ->select('DISTINCT IDENTITY(a.asset) AS assetId')
+            ->innerJoin('a.definition', 'd')
+            ->andWhere('d.workspace = :w')
+            ->andWhere('d.type = :t')
+            ->andWhere('d.entityList = :list')
+            ->andWhere('a.value = :id')
+            ->setParameter('w', $workspaceId)
+            ->setParameter('t', EntityAttributeType::getName())
+            ->setParameter('list', $entityListId)
+            ->setParameter('id', $entityId);
+
+        foreach ($qb->getQuery()->toIterable([], AbstractQuery::HYDRATE_ARRAY) as $row) {
+            yield (string) $row['assetId'];
+        }
+    }
+
     public function deleteByAttributeEntityList(string $entityListId, string $workspaceId): void
     {
         $expr = $this->getEntityManager()->getExpressionBuilder();

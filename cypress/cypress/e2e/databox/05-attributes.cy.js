@@ -2,7 +2,7 @@
  * Feature 5 — Attributes: display, single asset edition, batch editor,
  * entity lists.
  */
-import {deleteWorkspace, seedWorkspace} from './lib/api';
+import {createAttributeDefinition, createAttributeEntity, deleteWorkspace, iri, seedWorkspace} from './lib/api';
 import {assetItem, assetView, expectToastText, login, openAssetContextMenu, openAssetEditor, routeDialog, visitAssetView, visitWorkspace, waitForResults} from './lib/app';
 import {databoxUrl} from '../lib/urls';
 
@@ -99,6 +99,9 @@ describe('Attributes', () => {
     });
 
     it('manages the entity lists of the workspace', () => {
+        const valueCell = text => cy.getBySel('entity-grid').contains('[data-testid=cell-value]', text);
+        const rowOf = text => valueCell(text).closest('[role=row]');
+
         cy.visit(`${databoxUrl}/workspaces/${ctx.workspace.id}/manage/entities`);
         routeDialog().within(() => {
             cy.getBySel('definition-create').click();
@@ -108,12 +111,52 @@ describe('Attributes', () => {
         expectToastText('List saved');
         routeDialog().within(() => {
             cy.getBySel('definition-item').contains('Season').closest('[data-testid=definition-item]').contains('button', 'Values').click();
-            cy.contains('button', 'New value').click();
+            cy.getBySel('entity-create').click();
+        });
+        cy.getBySel('entity-form-dialog').within(() => {
             cy.fieldByLabel('Value').type('Summer');
             cy.contains('button', 'Save').click();
         });
         expectToastText('Value saved');
-        routeDialog().contains('Summer').should('be.visible');
+        valueCell('Summer').should('be.visible');
+
+        // Inline edition, saved on Enter
+        valueCell('Summer').dblclick();
+        cy.focused().type('{selectAll}Winter{enter}');
+        valueCell('Winter').should('be.visible');
+        cy.reload();
+        valueCell('Winter').should('be.visible');
+
+        // Moderation of a pending proposal, and an attribute bound to the list for the preview
+        cy.url().then(url => {
+            const listId = url.split('/manage/entities/')[1].split('/')[0];
+            createAttributeEntity(listId, {value: 'Autumn', status: 1});
+            createAttributeDefinition(ctx.workspace.id, ctx.policy.id, {
+                name: 'Season',
+                type: 'entity',
+                entityList: iri('entity-lists', listId),
+            });
+        });
+        cy.reload();
+        cy.getBySel('entity-pending-count', {timeout: 20000}).should('have.text', '1');
+        cy.getBySel('entity-filter-pending').click();
+        valueCell('Winter').should('not.exist');
+        rowOf('Autumn').within(() => {
+            cy.getBySel('entity-approve').click();
+            cy.contains('Approved').should('be.visible');
+        });
+        cy.getBySel('entity-pending-count').should('not.exist');
+
+        // Preview of the assets holding a value
+        cy.getBySel('entity-filter-all').click();
+        rowOf('Winter').find('[data-testid=entity-preview]').click();
+        cy.getBySel('entity-preview-dialog').within(() => {
+            cy.contains('Assets using this value').should('be.visible');
+            cy.contains('No asset uses this value').should('be.visible');
+            cy.getBySel('entity-preview-open-search').should('be.visible').and('contain', 'Open in search');
+            cy.contains('button', 'Close').click();
+        });
+        cy.getBySel('entity-preview-dialog').should('not.exist');
     });
 
     it('shows the info of an asset in the side panel', () => {

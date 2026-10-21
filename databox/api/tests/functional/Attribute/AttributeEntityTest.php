@@ -550,6 +550,86 @@ class AttributeEntityTest extends AbstractSearchTestCase
         $this->assertSame($otherSeqNo, $getSeqNo($otherAsset->getId()), 'An asset without the entity must not be rewritten');
     }
 
+    public function testAttributeEntityStatusChangeReindexesAssets(): void
+    {
+        $em = self::getEntityManager();
+
+        $list = new EntityList();
+        $list->setName('list5');
+        $list->setWorkspace($this->getOrCreateDefaultWorkspace());
+        $em->persist($list);
+
+        $entity = new AttributeEntity();
+        $entity->setList($list);
+        $entity->setValue('ae5');
+        $entity->setStatus(AttributeEntity::STATUS_PENDING);
+        $em->persist($entity);
+
+        $definition = $this->createAttributeDefinition([
+            'name' => 'Moderated',
+            'type' => EntityAttributeType::getName(),
+            'list' => $list,
+            'no_flush' => true,
+        ]);
+
+        $asset = $this->createAsset([
+            'name' => 'Moderated asset',
+            'attributes' => [
+                [
+                    'definition' => $definition,
+                    'value' => $entity->getId(),
+                ],
+            ],
+        ]);
+        $otherAsset = $this->createAsset([
+            'name' => 'Other',
+        ]);
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('asset');
+
+        $esClient = self::getService(ElasticSearchClient::class);
+        $assetIndexName = $esClient->getIndexName('asset');
+        $getAttrs = fn (): array => $esClient->request($assetIndexName.'/_search?q=_id:'.$asset->getId())
+            ->asArray()['hits']['hits'][0]['_source'][AttributeInterface::ATTRIBUTES_FIELD][0] ?? [];
+        $getSeqNo = fn (string $assetId): int => $esClient->request($assetIndexName.'/_search?seq_no_primary_term=true&q=_id:'.$assetId)
+            ->asArray()['hits']['hits'][0]['_seq_no'];
+
+        $this->assertArrayNotHasKey('moderated_entity_s', $getAttrs()[AttributeInterface::NO_LOCALE] ?? []);
+        $this->assertSuggestions([], [$definition->getId()], $esClient, $asset->getId());
+        $otherSeqNo = $getSeqNo($otherAsset->getId());
+
+        $patchStatus = function (int $status) use ($entity): void {
+            static::createClient()->request('PATCH', '/attribute-entities/'.$entity->getId(), [
+                'headers' => [
+                    'Content-Type' => 'application/merge-patch+json',
+                    'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::ADMIN_UID),
+                ],
+                'json' => [
+                    'status' => $status,
+                ],
+            ]);
+            $this->assertResponseIsSuccessful();
+            self::waitForESIndex('asset');
+        };
+
+        $patchStatus(AttributeEntity::STATUS_APPROVED);
+        $field = $getAttrs()[AttributeInterface::NO_LOCALE]['moderated_entity_s'] ?? null;
+        $this->assertIsArray($field);
+        $this->assertSame($entity->getId(), $field['id']);
+        $this->assertSame('ae5', $field['value']);
+        $this->assertSuggestions(
+            $this->entitySuggestions($definition->getId(), $entity->getId(), 'ae5'),
+            [$definition->getId()],
+            $esClient,
+            $asset->getId(),
+        );
+
+        $patchStatus(AttributeEntity::STATUS_REJECTED);
+        $this->assertArrayNotHasKey('moderated_entity_s', $getAttrs()[AttributeInterface::NO_LOCALE] ?? []);
+        $this->assertSuggestions([], [$definition->getId()], $esClient, $asset->getId());
+        $this->assertSame($otherSeqNo, $getSeqNo($otherAsset->getId()), 'An asset without the entity must not be rewritten');
+    }
+
     /**
      * @param string[] $definitionIds the definitions to compare, the other ones (the asset name) being ignored
      */

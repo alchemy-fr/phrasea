@@ -137,6 +137,52 @@ final class AttributeEntityCrudTest extends AbstractDataboxTestCase
         ]));
     }
 
+    public function testListFiltersByStatusesNoteAndSorts(): void
+    {
+        $this->setUpScene();
+        $em = self::getEntityManager();
+        $approved = $this->createEntity($this->list, 'Approved', ['no_flush' => true]);
+        $approved->setNote('zeta');
+        $pending = $this->createEntity($this->list, 'Pending', ['status' => AttributeEntity::STATUS_PENDING, 'creatorId' => 'someone', 'no_flush' => true]);
+        $pending->setNote('alpha');
+        $this->createEntity($this->list, 'Rejected', ['status' => AttributeEntity::STATUS_REJECTED, 'creatorId' => 'someone', 'no_flush' => true]);
+        $this->createEntity($this->list, 'Approved without note', ['no_flush' => true]);
+        $em->flush();
+
+        $listId = $this->list->getId();
+        $this->assertEqualsCanonicalizing(['Approved', 'Pending', 'Approved without note'], $this->listValues(self::USER, [
+            'list' => $listId,
+            'status' => [AttributeEntity::STATUS_APPROVED, AttributeEntity::STATUS_PENDING],
+        ]));
+        $this->assertSame(['Pending'], $this->listValues(self::USER, [
+            'list' => $listId,
+            'status' => AttributeEntity::STATUS_PENDING,
+        ]));
+        $this->assertSame(['Pending'], $this->listValues(self::USER, [
+            'list' => $listId,
+            'note' => 'alp',
+        ]));
+
+        $this->assertSame(['Rejected', 'Pending'], array_slice($this->listValues(self::USER, [
+            'list' => $listId,
+            'order' => ['status' => 'desc'],
+        ]), 0, 2));
+        $this->assertSame(['Pending', 'Approved'], $this->listValues(self::USER, [
+            'list' => $listId,
+            'note' => 'a',
+            'order' => ['note' => 'asc'],
+        ]));
+        $this->assertSame(['Approved', 'Pending'], $this->listValues(self::USER, [
+            'list' => $listId,
+            'note' => 'a',
+            'order' => ['note' => 'desc'],
+        ]));
+        $this->assertCount(4, $this->listValues(self::USER, [
+            'list' => $listId,
+            'order' => ['updatedAt' => 'desc'],
+        ]));
+    }
+
     public function testGetItem(): void
     {
         $this->setUpScene();

@@ -262,14 +262,28 @@ export function clearEntityList(listId: string): Promise<void> {
     return api.post(`/${EntityName.EntityList}/${listId}/clear`, {});
 }
 
+export type AttributeEntitySortField =
+    | 'value'
+    | 'status'
+    | 'note'
+    | 'createdAt'
+    | 'updatedAt';
+
 export async function getAttributeEntities(options: {
     list?: string;
     workspace?: string;
+    /** Search-as-you-type on Elasticsearch: ignores the ORM-only filters and sorts */
     query?: string;
-    status?: AttributeEntityStatus;
+    /** Contains match on the value (keeps the sorts and the other filters) */
+    value?: string;
+    /** Contains match on the note */
+    note?: string;
+    status?: AttributeEntityStatus | AttributeEntityStatus[];
     /** Also count the attribute values referencing each entity (`usage`) */
     usage?: boolean;
     limit?: number;
+    /** Defaults to `{value: 'asc'}` */
+    order?: Partial<Record<AttributeEntitySortField, 'asc' | 'desc'>>;
     url?: string;
 }): Promise<Page<AttributeEntity>> {
     return toPage(
@@ -279,13 +293,19 @@ export async function getAttributeEntities(options: {
                 params: options.url
                     ? undefined
                     : {
-                          'list': options.list,
-                          'workspace': options.workspace,
-                          'query': options.query,
-                          'status': options.status,
-                          'usage': options.usage ? 1 : undefined,
-                          'limit': options.limit,
-                          'order[value]': 'asc',
+                          list: options.list,
+                          workspace: options.workspace,
+                          query: options.query,
+                          value: options.value,
+                          note: options.note,
+                          status: options.status,
+                          usage: options.usage ? 1 : undefined,
+                          limit: options.limit,
+                          ...Object.fromEntries(
+                              Object.entries(
+                                  options.order ?? {value: 'asc'}
+                              ).map(([k, v]) => [`order[${k}]`, v])
+                          ),
                       },
             }
         )

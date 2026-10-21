@@ -8,6 +8,7 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\CoreBundle\Util\LocaleUtil;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter as OrmPartialSearchFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SortFilter as OrmSortFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
@@ -78,7 +79,15 @@ use Symfony\Component\Validator\Constraints as Assert;
                     filter: ExactSearchFilter::class,
                     property: 'status',
                     schema: ['type' => 'integer'],
-                    description: 'Approved (0), pending (1) or rejected (2) values only (ignored on a "query" search)',
+                    description: 'Approved (0), pending (1) or rejected (2) values only, one value or a list (status[]=0&status[]=1); ignored on a "query" search',
+                    castToArray: false,
+                ),
+                'status[]' => new QueryParameter(property: 'status', openApi: false),
+                'note' => new QueryParameter(
+                    filter: new OrmPartialSearchFilter(),
+                    property: 'note',
+                    schema: ['type' => 'string'],
+                    description: 'Contains match on the note (ignored on a "query" search)',
                     castToArray: false,
                 ),
                 'usage' => new QueryParameter(
@@ -99,8 +108,11 @@ use Symfony\Component\Validator\Constraints as Assert;
                     extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'value.raw'],
                     castToArray: false,
                 ),
-                // createdAt and position are not indexed: ORM only (ignored on a "query" search)
+                // createdAt, updatedAt, status, note and position are not indexed: ORM only (ignored on a "query" search)
                 'order[createdAt]' => new QueryParameter(filter: new OrmSortFilter(), property: 'createdAt', castToArray: false),
+                'order[updatedAt]' => new QueryParameter(filter: new OrmSortFilter(), property: 'updatedAt', castToArray: false),
+                'order[status]' => new QueryParameter(filter: new OrmSortFilter(), property: 'status', castToArray: false),
+                'order[note]' => new QueryParameter(filter: new OrmSortFilter(), property: 'note', castToArray: false),
                 'order[position]' => new QueryParameter(filter: new OrmSortFilter(), property: 'position', castToArray: false),
                 'limit' => new QueryParameter(
                     schema: ['type' => 'integer'],
