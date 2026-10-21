@@ -21,6 +21,7 @@ use App\Repository\Core\AttributeEntityRepository;
 use App\Validator\ValidAttributeConstraint;
 use App\Validator\ValidAttributeConstraintValidator;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Test\ConstraintValidatorTestCase;
 
@@ -42,7 +43,7 @@ class ValidAttributeConstraintValidatorTest extends ConstraintValidatorTestCase
             static fn (string $id): ?AttributeEntity => self::ENTITY_ID === $id ? $entity : null
         );
 
-        $entityType = new EntityAttributeType($repository);
+        $entityType = new EntityAttributeType($repository, $this->createStub(Security::class));
         $entityType->setLocaleContext(new LocaleContext(new RequestStack()));
 
         return new ValidAttributeConstraintValidator(new AttributeTypeRegistry([

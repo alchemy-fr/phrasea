@@ -91,8 +91,12 @@ export function EntityChip({
     };
     size?: Size;
 }) {
-    const label = pickTranslation(entity.translations, entity.value ?? '');
+    const {t} = useTranslation();
     const pending = entity.status === 1;
+    // The value of a pending entity is only sent to whoever may edit it
+    const label =
+        pickTranslation(entity.translations, entity.value ?? '') ||
+        (pending ? t('entity.pending', 'Pending') : '');
 
     return (
         <span

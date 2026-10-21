@@ -139,7 +139,7 @@ function face(
             : null,
         origin,
         confidence: origin === 'human' ? 1 : 0.8,
-        assetAnnotations: [{type: 'rect', x: 0.1, y: 0.1, w: 0.2, h: 0.3}],
+        assetAnnotations: [{type: 'face', x: 0.1, y: 0.1, w: 0.2, h: 0.3}],
     } as unknown as Attribute;
 }
 

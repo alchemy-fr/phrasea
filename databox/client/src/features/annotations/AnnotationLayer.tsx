@@ -105,6 +105,7 @@ export function AnnotationLayer({
     const dragRef = useRef<DragState>(undefined);
     const spaceRef = useRef(false);
     const [spaceHeld, setSpaceHeld] = useState(false);
+    const [hoveredId, setHoveredId] = useState<string>();
     // The drawing continued by the next strokes of the pen
     const drawingIdRef = useRef<string>(undefined);
     // The shape pressed last: the pointer capture retargets the clicks to
@@ -567,6 +568,9 @@ export function AnnotationLayer({
     const unscale = 1 / zoom;
     const hitWidth = 14 * unscale;
     const handleRadius = 5 * unscale;
+    // The veil of the shape selected, else hovered (one at a time)
+    const masked = selected ?? shown.find(a => a.id === hoveredId);
+    const maskModel = masked ? getShapeModel(masked.type) : undefined;
     const shapeCursor = tool ? 'crosshair' : editable ? 'move' : 'pointer';
 
     return (
@@ -596,6 +600,16 @@ export function AnnotationLayer({
                 }
                 onDoubleClick={onDoubleClick}
             >
+                {media.width && masked && maskModel?.renderMask ? (
+                    <g data-annotation-mask={masked.id}>
+                        {maskModel.renderMask({
+                            annotation: masked,
+                            media,
+                            hitWidth,
+                            unscale,
+                        })}
+                    </g>
+                ) : null}
                 {media.width
                     ? shown.map(annotation => {
                           const model = getShapeModel(annotation.type);
@@ -611,6 +625,14 @@ export function AnnotationLayer({
                                   key={annotation.id}
                                   data-annotation-id={annotation.id}
                                   data-annotation-type={annotation.type}
+                                  onPointerEnter={() =>
+                                      setHoveredId(annotation.id)
+                                  }
+                                  onPointerLeave={() =>
+                                      setHoveredId(h =>
+                                          h === annotation.id ? undefined : h
+                                      )
+                                  }
                                   style={{
                                       cursor: shapeCursor,
                                       // Read only: the shapes answer the
@@ -623,7 +645,12 @@ export function AnnotationLayer({
                                                 : 'visiblePainted',
                                   }}
                               >
-                                  {model.render({annotation, media, hitWidth})}
+                                  {model.render({
+                                      annotation,
+                                      media,
+                                      hitWidth,
+                                      unscale,
+                                  })}
                               </g>
                           );
                       })

@@ -10,6 +10,7 @@ import {
     MousePointer2Icon,
     MoveUpRightIcon,
     PaintBucketIcon,
+    ScanFaceIcon,
     ShapesIcon,
     SlashIcon,
     SquareIcon,
@@ -59,6 +60,11 @@ export function AnnotationToolbar({editor, label, onClose}: Props) {
             type: AnnotationType.Circle,
             icon: CircleIcon,
             label: t('annotation.type.circle', 'Circle'),
+        },
+        {
+            type: AnnotationType.Face,
+            icon: ScanFaceIcon,
+            label: t('annotation.type.face', 'Face'),
         },
         {
             type: AnnotationType.Arrow,
@@ -116,7 +122,10 @@ export function AnnotationToolbar({editor, label, onClose}: Props) {
 
     // The options shown are the ones of the selected shape, else of the tool
     const optionsType = editor.selected?.type ?? tool;
-    const fillable = !!getShapeModel(optionsType)?.fillable;
+    const optionsModel = getShapeModel(optionsType);
+    const fillable = !!optionsModel?.fillable;
+    // A shape drawn by the client has no style option
+    const styled = !optionsModel?.fixedStyle;
     const isText = optionsType === AnnotationType.Text;
     const maxSize = isText ? 120 : 40;
 
@@ -167,6 +176,10 @@ export function AnnotationToolbar({editor, label, onClose}: Props) {
                             tool === item.type
                         )
                     )}
+                </>
+            ) : null}
+            {editable && annotate && styled ? (
+                <>
                     <span className="mx-0.5 h-4 w-px bg-border" />
                     <ColorInput
                         value={options.color}

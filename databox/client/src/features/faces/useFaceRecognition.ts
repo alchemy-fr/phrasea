@@ -12,6 +12,7 @@ import {
     getIntegrationsOfContext,
     IntegrationContext,
 } from '@/lib/api/integrations';
+import {AnnotationType} from '@/features/annotations/types';
 
 /** Integration key of the face recognition (`FaceRecognitionIntegration`) */
 export const faceRecognition = 'core.face_recognition';
@@ -83,20 +84,20 @@ export function useFaceRecognitionSetups(enabled = true) {
     });
 }
 
-/** The rectangle annotation of a face value */
+/** The face annotation of a face value */
 export function boxOf(attribute: Attribute): FaceBox | undefined {
-    const rect = (attribute.assetAnnotations ?? []).find(
-        (a: AssetAnnotation) => a.type === 'rect'
+    const face = (attribute.assetAnnotations ?? []).find(
+        (a: AssetAnnotation) => a.type === AnnotationType.Face
     );
-    if (!rect) {
+    if (!face) {
         return undefined;
     }
 
     return {
-        x: Number(rect.x),
-        y: Number(rect.y),
-        w: Number(rect.w),
-        h: Number(rect.h),
+        x: Number(face.x),
+        y: Number(face.y),
+        w: Number(face.w),
+        h: Number(face.h),
     };
 }
 

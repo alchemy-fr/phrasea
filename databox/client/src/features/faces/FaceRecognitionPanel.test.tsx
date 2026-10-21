@@ -96,7 +96,7 @@ const asset = {
             value: {id: 'unknown-1', value: null, status: 1},
             origin: 'machine',
             confidence: 0.9,
-            assetAnnotations: [{type: 'rect', x: 0.1, y: 0.1, w: 0.2, h: 0.3}],
+            assetAnnotations: [{type: 'face', x: 0.1, y: 0.1, w: 0.2, h: 0.3}],
         },
         {
             id: 'attr-2',
@@ -104,7 +104,7 @@ const asset = {
             value: {id: 'alice', value: 'Alice', status: 0},
             origin: 'machine',
             confidence: 0.75,
-            assetAnnotations: [{type: 'rect', x: 0.6, y: 0.1, w: 0.2, h: 0.3}],
+            assetAnnotations: [{type: 'face', x: 0.6, y: 0.1, w: 0.2, h: 0.3}],
         },
         {
             id: 'attr-3',

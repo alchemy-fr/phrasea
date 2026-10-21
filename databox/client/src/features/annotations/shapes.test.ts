@@ -124,6 +124,70 @@ describe('rectangle', () => {
     });
 });
 
+describe('face', () => {
+    const model = getShapeModel(AnnotationType.Face)!;
+
+    it('is created from a drag without any style', () => {
+        const face = model.create(
+            {x: 300, y: 200},
+            {x: 100, y: 100},
+            {...options, fillColor: '#00ff00'},
+            media
+        );
+        expect(face).toEqual({
+            type: 'face',
+            x: 0.1,
+            y: 0.2,
+            w: 0.2,
+            h: 0.2,
+        });
+    });
+
+    it('gets a default size from a click, centered on it', () => {
+        const face = model.create(
+            {x: 500, y: 250},
+            {x: 501, y: 251},
+            options,
+            media
+        );
+        expect(face.w * media.width).toBe(defaultShapeSize);
+        expect(face.y * media.height).toBe(250 - defaultShapeSize / 2);
+        expect(face).not.toHaveProperty('c');
+        expect(face).not.toHaveProperty('s');
+    });
+
+    it('moves and resizes as a box', () => {
+        const face = {type: 'face', x: 0.1, y: 0.2, w: 0.2, h: 0.2};
+        expect(model.move(face, 100, -50, media)).toMatchObject({
+            x: 0.2,
+            y: 0.1,
+        });
+        expect(model.getHandles(face, media)).toHaveLength(8);
+        expect(model.resize(face, 'se', {x: 400, y: 300}, media)).toEqual({
+            type: 'face',
+            x: 0.1,
+            y: 0.2,
+            w: 0.3,
+            h: 0.4,
+        });
+    });
+
+    it('has a fixed style and a veil around it', () => {
+        const face = {type: 'face', x: 0.1, y: 0.2, w: 0.2, h: 0.2};
+        expect(model.fixedStyle).toBe(true);
+        expect(model.fillable).toBeFalsy();
+        expect(
+            model.applyOptions(
+                face,
+                {color: '#0000ff', size: 10, fillColor: '#111111'},
+                media
+            )
+        ).toEqual(face);
+        expect(model.renderMask).toBeDefined();
+        expect(getShapeModel(AnnotationType.Rect)!.renderMask).toBeUndefined();
+    });
+});
+
 describe('circle', () => {
     const model = getShapeModel(AnnotationType.Circle)!;
 

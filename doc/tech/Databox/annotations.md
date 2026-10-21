@@ -1,7 +1,8 @@
 # Annotations
 
 Annotations are shapes drawn over an asset in the viewer: a target, a
-rectangle, a circle, a line or an arrow, a free hand drawing or a text. They
+rectangle, a face, a circle, a line or an arrow, a free hand drawing or a
+text. They
 are attached either to a **discussion message** or to a **value of an
 attribute**.
 
@@ -16,6 +17,7 @@ rendition; `page` (1-based) targets a page of a document.
 | ------------ | --------------------------------------- | ----------------------------------------- |
 | `target`     | `x`, `y`                                | `c` (color), `s` (size)                   |
 | `rect`       | `x`, `y`, `w`, `h`                      | `c` (border), `f` (fill), `s` (stroke)    |
+| `face`       | `x`, `y`, `w`, `h` (box of the oval)    | none: the client draws it                 |
 | `circle`     | `x`, `y`, `r`                           | `c`, `f`, `s`                             |
 | `line`       | `x1`, `y1`, `x2`, `y2`                  | `c`, `s`                                  |
 | `arrow`      | same as `line`, the head on `x2`, `y2`  | `c`, `s`                                  |
@@ -23,6 +25,12 @@ rendition; `page` (1-based) targets a page of a document.
 | `text`       | `x`, `y`, `text`                        | `c`, `s` (font size)                      |
 | `cue`        | `t` (seconds)                           |                                           |
 | `time_range` | `s`, `e` (seconds)                      |                                           |
+
+A `face` is the oval inscribed in its box. Its style belongs to the client
+(a light border over a dark halo, the image darkened around the face while the
+shape is selected or hovered), so that every face looks the same. The face
+recognition integration writes one per face value, and the AWS Rekognition
+panel shows the faces it detects as `face` shapes too.
 
 Every shape also carries an `id` (unique within its list) and a `name` shown
 by the viewer. The viewer only draws the shapes of the first group (time based
@@ -78,7 +86,9 @@ The viewer code lives in `databox/client/src/features/annotations/`:
 - `shapes.tsx` holds one model per shape type: bounding box, move, handles
   and resize, creation from a drag (a click gives a default size), options,
   and the SVG rendering. All geometry is computed in pixels of the rendered
-  media; the shapes keep relative coordinates.
+  media; the shapes keep relative coordinates. A model with a fixed style
+  (`face`) has no option in the toolbar, and may render a veil (`renderMask`)
+  drawn under the shapes while it is selected or hovered.
 - `ShapeControl` is the floating panel of the selected shape (grip to drag
   it, name, edit text, duplicate, delete); `TextEditor` types the text of a
   shape in place.

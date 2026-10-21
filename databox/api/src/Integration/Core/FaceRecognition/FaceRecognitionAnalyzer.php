@@ -112,7 +112,7 @@ final class FaceRecognitionAnalyzer
             $add->originVendorContext = self::DATA_FACES;
             $add->position = count($faces);
             $add->annotations = [[
-                'type' => AssetAnnotationsInterface::TYPE_RECTANGLE,
+                'type' => AssetAnnotationsInterface::TYPE_FACE,
                 'x' => $box['x'],
                 'y' => $box['y'],
                 'w' => $box['w'],
@@ -208,14 +208,14 @@ final class FaceRecognitionAnalyzer
     }
 
     /**
-     * The rectangle annotation of a face value.
+     * The face annotation of a face value.
      *
      * @return array{x: float, y: float, w: float, h: float}|null
      */
     public static function boxOf(Attribute $face): ?array
     {
         foreach ($face->getAssetAnnotations() ?? [] as $annotation) {
-            if (AssetAnnotationsInterface::TYPE_RECTANGLE === ($annotation['type'] ?? null)) {
+            if (AssetAnnotationsInterface::TYPE_FACE === ($annotation['type'] ?? null)) {
                 return self::normalizeBox($annotation);
             }
         }

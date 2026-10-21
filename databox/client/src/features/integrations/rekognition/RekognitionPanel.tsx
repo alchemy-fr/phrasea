@@ -60,10 +60,9 @@ type DetectedItem = {
     boxes: AssetAnnotation[];
 };
 
-const boxColors: Record<DetectType, string> = {
+const boxColors: Record<Exclude<DetectType, 'faces'>, string> = {
     labels: '#2563eb',
     texts: '#16a34a',
-    faces: '#dc2626',
 };
 
 function parseData<T>(items: IntegrationData[], key: string): T | undefined {
@@ -86,15 +85,23 @@ function toBox(
     name: string,
     box: BoundingBox
 ): AssetAnnotation {
+    const position = {
+        x: box.Left,
+        y: box.Top,
+        w: box.Width,
+        h: box.Height,
+    };
+    // A face is drawn as the faces of the face recognition, by the client
+    if (type === 'faces') {
+        return {id, type: AnnotationType.Face, name, ...position};
+    }
+
     return {
         id,
         type: AnnotationType.Rect,
         name,
         c: boxColors[type],
-        x: box.Left,
-        y: box.Top,
-        w: box.Width,
-        h: box.Height,
+        ...position,
     };
 }
 

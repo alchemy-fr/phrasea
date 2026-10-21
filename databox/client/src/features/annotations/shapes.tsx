@@ -5,6 +5,7 @@ import {
     type AssetAnnotation,
     type CircleAnnotation,
     type DrawAnnotation,
+    type FaceAnnotation,
     type LineAnnotation,
     type Point,
     type RectangleAnnotation,
@@ -46,6 +47,8 @@ export type RenderProps = {
     media: MediaSize;
     /** Minimum width of the hit area of thin shapes, in pixels of the media */
     hitWidth: number;
+    /** Pixels of the media per pixel of the screen (1 / zoom) */
+    unscale: number;
 };
 
 /** A click (no drag) creates a shape of this size, in pixels of the media */
@@ -74,7 +77,11 @@ export type ShapeModel<A extends AssetAnnotation = AssetAnnotation> = {
     applyOptions: (a: A, options: AnnotationOptions, media: MediaSize) => A;
     /** Has a fill color option */
     fillable?: boolean;
+    /** Drawn by the client only: no color, fill or size option */
+    fixedStyle?: boolean;
     render: (props: RenderProps) => ReactNode;
+    /** Drawn under the shapes when the shape is selected or hovered */
+    renderMask?: (props: RenderProps) => ReactNode;
 };
 
 const strokeOptions = {
@@ -258,9 +265,16 @@ const circle: ShapeModel<CircleAnnotation> = {
 };
 
 // ---------------------------------------------------------------------------
-// Rectangle
+// Boxes: rectangle and face
 
-const rectHandles: {id: HandleId; fx: number; fy: number; cursor: string}[] = [
+type BoxAnnotation = AssetAnnotation & {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+};
+
+const boxHandles: {id: HandleId; fx: number; fy: number; cursor: string}[] = [
     {id: 'nw', fx: 0, fy: 0, cursor: 'nwse-resize'},
     {id: 'n', fx: 0.5, fy: 0, cursor: 'ns-resize'},
     {id: 'ne', fx: 1, fy: 0, cursor: 'nesw-resize'},
@@ -274,7 +288,7 @@ const rectHandles: {id: HandleId; fx: number; fy: number; cursor: string}[] = [
 function boxToRect(
     box: Box,
     {width, height}: MediaSize
-): Pick<RectangleAnnotation, 'x' | 'y' | 'w' | 'h'> {
+): Pick<BoxAnnotation, 'x' | 'y' | 'w' | 'h'> {
     return {
         x: box.x / width,
         y: box.y / height,
@@ -283,26 +297,36 @@ function boxToRect(
     };
 }
 
-const rect: ShapeModel<RectangleAnnotation> = {
-    getBox: (a, {width, height}) => ({
+function getBoxOf(a: BoxAnnotation, {width, height}: MediaSize): Box {
+    return {
         x: a.x * width,
         y: a.y * height,
         w: a.w * width,
         h: a.h * height,
-    }),
-    move: moveXY,
-    getHandles: (a, media) => {
-        const box = rect.getBox(a, media);
+    };
+}
 
-        return rectHandles.map(({id, fx, fy, cursor}) => ({
+/** The geometry of the shapes drawn in a box (`x`, `y`, `w`, `h`) */
+const boxGeometry = {
+    getBox: getBoxOf,
+    move: moveXY,
+    getHandles: (a: BoxAnnotation, media: MediaSize): Handle[] => {
+        const box = getBoxOf(a, media);
+
+        return boxHandles.map(({id, fx, fy, cursor}) => ({
             id,
             x: box.x + box.w * fx,
             y: box.y + box.h * fy,
             cursor,
         }));
     },
-    resize: (start, handle, p, media) => {
-        const box = rect.getBox(start, media);
+    resize: <A extends BoxAnnotation>(
+        start: A,
+        handle: HandleId,
+        p: Point,
+        media: MediaSize
+    ): A => {
+        const box = getBoxOf(start, media);
         let {x: x1, y: y1} = box;
         let x2 = box.x + box.w;
         let y2 = box.y + box.h;
@@ -324,29 +348,40 @@ const rect: ShapeModel<RectangleAnnotation> = {
             ...boxToRect(boxFromPoints({x: x1, y: y1}, {x: x2, y: y2}), media),
         };
     },
-    create: (from, to, options, media) => {
-        const box = isClick(from, to)
-            ? {
-                  x: from.x - defaultShapeSize / 2,
-                  y: from.y - defaultShapeSize / 2,
-                  w: defaultShapeSize,
-                  h: defaultShapeSize,
-              }
-            : boxFromPoints(from, to);
+};
 
-        return {
-            type: AnnotationType.Rect,
-            ...boxToRect(box, media),
-            c: options.color,
-            ...(options.fillColor ? {f: options.fillColor} : {}),
-            s: options.size / media.width,
-        };
-    },
+/** The box of a drag; a click gives a default size, centered on it */
+function createBox(
+    from: Point,
+    to: Point,
+    media: MediaSize
+): Pick<BoxAnnotation, 'x' | 'y' | 'w' | 'h'> {
+    const box = isClick(from, to)
+        ? {
+              x: from.x - defaultShapeSize / 2,
+              y: from.y - defaultShapeSize / 2,
+              w: defaultShapeSize,
+              h: defaultShapeSize,
+          }
+        : boxFromPoints(from, to);
+
+    return boxToRect(box, media);
+}
+
+const rect: ShapeModel<RectangleAnnotation> = {
+    ...boxGeometry,
+    create: (from, to, options, media) => ({
+        type: AnnotationType.Rect,
+        ...createBox(from, to, media),
+        c: options.color,
+        ...(options.fillColor ? {f: options.fillColor} : {}),
+        s: options.size / media.width,
+    }),
     ...fillOptions,
     fillable: true,
     render: ({annotation, media}) => {
         const a = annotation as RectangleAnnotation;
-        const box = rect.getBox(a, media);
+        const box = getBoxOf(a, media);
 
         return (
             <rect
@@ -357,6 +392,75 @@ const rect: ShapeModel<RectangleAnnotation> = {
                 stroke={a.c}
                 strokeWidth={strokeWidth(a, media)}
                 fill={a.f || 'transparent'}
+            />
+        );
+    },
+};
+
+/** The oval of a face: light border over a dark halo, readable on any image */
+export const faceStyle = {
+    stroke: 'rgba(255, 255, 255, 0.9)',
+    strokeWidth: 1.5,
+    halo: 'rgba(0, 0, 0, 0.35)',
+    haloWidth: 3,
+    mask: 'rgba(0, 0, 0, 0.45)',
+};
+
+function ellipseOf(a: FaceAnnotation, media: MediaSize) {
+    const box = getBoxOf(a, media);
+
+    return {
+        cx: box.x + box.w / 2,
+        cy: box.y + box.h / 2,
+        rx: box.w / 2,
+        ry: box.h / 2,
+    };
+}
+
+const face: ShapeModel<FaceAnnotation> = {
+    ...boxGeometry,
+    create: (from, to, _options, media) => ({
+        type: AnnotationType.Face,
+        ...createBox(from, to, media),
+    }),
+    toOptions: () => ({color: '#ffffff', size: faceStyle.strokeWidth}),
+    applyOptions: a => a,
+    fixedStyle: true,
+    render: ({annotation, media, unscale}) => {
+        const ellipse = ellipseOf(annotation as FaceAnnotation, media);
+
+        return (
+            <g>
+                <ellipse
+                    {...ellipse}
+                    fill="transparent"
+                    stroke={faceStyle.halo}
+                    strokeWidth={faceStyle.haloWidth * unscale}
+                />
+                <ellipse
+                    {...ellipse}
+                    fill="none"
+                    stroke={faceStyle.stroke}
+                    strokeWidth={faceStyle.strokeWidth * unscale}
+                />
+            </g>
+        );
+    },
+    // The image darkened around the face
+    renderMask: ({annotation, media}) => {
+        const {cx, cy, rx, ry} = ellipseOf(annotation as FaceAnnotation, media);
+        const d =
+            `M0 0H${media.width}V${media.height}H0Z ` +
+            `M${cx - rx} ${cy}` +
+            `A${rx} ${ry} 0 1 0 ${cx + rx} ${cy}` +
+            `A${rx} ${ry} 0 1 0 ${cx - rx} ${cy}Z`;
+
+        return (
+            <path
+                d={d}
+                fill={faceStyle.mask}
+                fillRule="evenodd"
+                style={{pointerEvents: 'none'}}
             />
         );
     },
@@ -616,6 +720,7 @@ const models: Partial<Record<AnnotationType, ShapeModel<any>>> = {
     [AnnotationType.Target]: target,
     [AnnotationType.Circle]: circle,
     [AnnotationType.Rect]: rect,
+    [AnnotationType.Face]: face,
     [AnnotationType.Line]: lineModel(AnnotationType.Line),
     [AnnotationType.Arrow]: lineModel(AnnotationType.Arrow),
     [AnnotationType.Draw]: draw,

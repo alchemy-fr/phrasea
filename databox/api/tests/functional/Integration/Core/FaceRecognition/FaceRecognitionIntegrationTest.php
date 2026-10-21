@@ -14,6 +14,7 @@ use App\Entity\Core\EntityList;
 use App\Entity\Core\File;
 use App\Entity\Core\Workspace;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Entity\Traits\AssetAnnotationsInterface;
 use App\Integration\Core\FaceRecognition\FaceManager;
 use App\Integration\Core\FaceRecognition\FaceRecognitionAnalyzer;
 use App\Integration\Core\FaceRecognition\FaceRecognitionClient;
@@ -70,7 +71,13 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $this->assertCount(2, $faces);
         $this->assertCount(1, $client->getCalls());
         [$leftFace, $rightFace] = $faces;
+        foreach ($faces as $face) {
+            $annotations = $face->getAssetAnnotations() ?? [];
+            $this->assertCount(1, $annotations, 'One annotation per face');
+            $this->assertSame(AssetAnnotationsInterface::TYPE_FACE, $annotations[0]['type']);
+        }
         $this->assertSame(self::BOX_LEFT, self::boxOf($leftFace));
+        $this->assertSame(self::BOX_RIGHT, self::boxOf($rightFace));
         $this->assertSame(Attribute::ORIGIN_MACHINE, $leftFace->getOrigin());
         $this->assertSame(FaceRecognitionIntegration::getName(), $leftFace->getOriginVendor());
         $this->assertSame(self::ALICE, $leftFace->getEmbedding()['v']);

@@ -84,6 +84,7 @@
     "annotation.type.circle": "Circle",
     "annotation.type.cue": "Cue",
     "annotation.type.draw": "Drawing",
+    "annotation.type.face": "Face",
     "annotation.type.line": "Line",
     "annotation.type.rectangle": "Rectangle",
     "annotation.type.target": "Target",

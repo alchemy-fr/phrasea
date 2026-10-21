@@ -84,6 +84,7 @@
     "annotation.type.circle": "Cercle",
     "annotation.type.cue": "Repère",
     "annotation.type.draw": "Dessin",
+    "annotation.type.face": "Visage",
     "annotation.type.line": "Ligne",
     "annotation.type.rectangle": "Rectangle",
     "annotation.type.target": "Cible",

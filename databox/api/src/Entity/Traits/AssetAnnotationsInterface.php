@@ -20,6 +20,9 @@ interface AssetAnnotationsInterface
     // "x", "y", "w", "h", "c"? (border color in hexa), "f"? (fill color in hexa), "s"? (stroke size)
     final public const string TYPE_RECTANGLE = 'rect';
 
+    // "x", "y", "w", "h" (box of the oval); no style option: the client draws it
+    final public const string TYPE_FACE = 'face';
+
     // "x1", "y1", "x2", "y2", "c"? (color in hexa), "s"? (stroke size)
     final public const string TYPE_LINE = 'line';
 
@@ -42,6 +45,7 @@ interface AssetAnnotationsInterface
         self::TYPE_TARGET,
         self::TYPE_CIRCLE,
         self::TYPE_RECTANGLE,
+        self::TYPE_FACE,
         self::TYPE_LINE,
         self::TYPE_ARROW,
         self::TYPE_DRAW,

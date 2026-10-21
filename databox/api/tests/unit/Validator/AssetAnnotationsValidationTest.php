@@ -39,7 +39,7 @@ class AssetAnnotationsValidationTest extends TestCase
     {
         $faker = new AssetAnnotationsFaker(Factory::create());
 
-        foreach (['assetAnnotationsCue', 'assetAnnotationsCircle', 'assetAnnotationsTarget', 'assetAnnotationsRect'] as $method) {
+        foreach (['assetAnnotationsCue', 'assetAnnotationsCircle', 'assetAnnotationsTarget', 'assetAnnotationsRect', 'assetAnnotationsFace'] as $method) {
             $violations = $this->validator->validatePropertyValue($class, $property, $faker->$method());
             $this->assertCount(0, $violations, sprintf('%s: %s', $method, $violations));
         }
@@ -51,6 +51,7 @@ class AssetAnnotationsValidationTest extends TestCase
         $violations = $this->validator->validatePropertyValue($class, $property, [
             ['type' => 'cue', 't' => 1.5],
             ['type' => 'rect', 'x' => 0.1, 'y' => 0.2, 'w' => 0.3, 'h' => 0.4],
+            ['type' => 'face', 'x' => 0.5, 'y' => 0.1, 'w' => 0.2, 'h' => 0.3],
         ]);
 
         $this->assertCount(0, $violations, (string) $violations);

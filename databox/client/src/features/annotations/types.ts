@@ -21,6 +21,7 @@ export enum AnnotationType {
     Arrow = 'arrow',
     Text = 'text',
     Rect = 'rect',
+    Face = 'face',
     Cue = 'cue',
     TimeRange = 'time_range',
 }
@@ -72,6 +73,19 @@ export interface RectangleAnnotation extends AssetAnnotation {
     c?: string;
     f?: string;
     s?: number;
+    page?: number;
+}
+
+/**
+ * A face: the oval inscribed in the box. It has no style option, the
+ * client draws it.
+ */
+export interface FaceAnnotation extends AssetAnnotation {
+    type: AnnotationType.Face;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
     page?: number;
 }
 

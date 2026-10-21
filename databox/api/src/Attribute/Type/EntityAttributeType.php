@@ -11,7 +11,9 @@ use App\Attribute\AttributeInterface;
 use App\Elasticsearch\ESFacetInterface;
 use App\Entity\Core\AttributeEntity;
 use App\Repository\Core\AttributeEntityRepository;
+use App\Security\Voter\AbstractVoter;
 use Ramsey\Uuid\Uuid;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 #[AsTaggedItem(index: self::NAME)]
@@ -23,6 +25,7 @@ final class EntityAttributeType extends TextAttributeType
 
     public function __construct(
         private readonly AttributeEntityRepository $repository,
+        private readonly Security $security,
     ) {
     }
 
@@ -132,11 +135,19 @@ final class EntityAttributeType extends TextAttributeType
     {
         return [
             'id' => $entity->getId(),
-            'value' => $entity->isApproved() ? $this->getTranslatedValue($entity) : null,
+            'value' => $this->canSeeValue($entity) ? $this->getTranslatedValue($entity) : null,
             'note' => $entity->getNote(),
             'emoji' => $entity->getEmoji(),
             'color' => $entity->getColor(),
         ];
+    }
+
+    /**
+     * A pending value is only shown to whoever may edit it: the managers of the list and its creator.
+     */
+    private function canSeeValue(AttributeEntity $entity): bool
+    {
+        return $entity->isApproved() || $this->security->isGranted(AbstractVoter::EDIT, $entity);
     }
 
     protected function getTranslatedValue(AttributeEntity $entity, ?string $locale = null): ?string

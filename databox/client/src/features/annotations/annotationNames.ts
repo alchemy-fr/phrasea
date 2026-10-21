@@ -10,6 +10,7 @@ export function getAnnotationTypeLabel(t: TFunction, type: string): string {
         [AnnotationType.Cue]: t('annotation.type.cue', 'Cue'),
         [AnnotationType.Circle]: t('annotation.type.circle', 'Circle'),
         [AnnotationType.Rect]: t('annotation.type.rectangle', 'Rectangle'),
+        [AnnotationType.Face]: t('annotation.type.face', 'Face'),
         [AnnotationType.Target]: t('annotation.type.target', 'Target'),
         [AnnotationType.TimeRange]: t(
             'annotation.type.timerange',
