@@ -45,7 +45,18 @@ class RenditionDefinitionRepository extends ServiceEntityRepository
                 ->addGroupBy('acl_c.id')
                 ->addGroupBy('acl_w.id')
                 ->addGroupBy('rp_ace.id')
+                ->addGroupBy('rp_child_ace.id')
                 ->addGroupBy('w_ace.id');
+            AccessControlEntryRepository::joinAcl(
+                $queryBuilder,
+                $userId,
+                $groupIds,
+                RenditionPolicy::OBJECT_TYPE,
+                'acl_c',
+                PermissionInterface::VIEW,
+                false,
+                'rp_ace'
+            );
             AccessControlEntryRepository::joinAcl(
                 $queryBuilder,
                 $userId,
@@ -54,7 +65,8 @@ class RenditionDefinitionRepository extends ServiceEntityRepository
                 'acl_c',
                 PermissionInterface::CHILD_VIEW,
                 false,
-                'rp_ace'
+                'rp_child_ace',
+                paramPrefix: 'rpc',
             );
             AccessControlEntryRepository::joinAcl(
                 $queryBuilder,
@@ -69,7 +81,7 @@ class RenditionDefinitionRepository extends ServiceEntityRepository
             );
             $queryBuilder->setParameter('uid', $userId);
             if ($withConditions) {
-                $queryBuilder->andWhere('acl_c.public = true OR rp_ace.id IS NOT NULL');
+                $queryBuilder->andWhere('acl_c.public = true OR rp_ace.id IS NOT NULL OR rp_child_ace.id IS NOT NULL');
                 $queryBuilder->andWhere('acl_w.public = true OR acl_w.ownerId = :uid OR w_ace.id IS NOT NULL');
             }
         } else {
