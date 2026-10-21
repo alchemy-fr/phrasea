@@ -42,6 +42,7 @@ class AlchemyReportBundle extends AbstractBundle
                 ->autoconfigure();
 
         $services->set(ReportClient::class)
+            ->lazy()
             ->arg('$appName', '%alchemy_core.app_name%')
             ->arg('$appId', '%alchemy_core.app_id%')
             ->arg('$client', service('report.client'))
