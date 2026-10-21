@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * Run hourly by the "maintenance" schedule: finds the source files whose
+ * Run hourly by the "main" schedule: finds the source files whose
  * analysis never completed and re-triggers it (see FileAnalysisUnblocker).
  */
 #[AsCommand('app:file:unblock-analyses', 'Re-trigger the analysis of files stuck in the pending state')]

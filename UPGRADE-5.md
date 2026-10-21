@@ -129,30 +129,30 @@ The Databox client is no longer static files served by nginx.
 The periodic tasks of databox and uploader are now planned by Symfony Scheduler
 and consumed by two new services, built from the worker images (no new image):
 
-| Service              | `WORKER_PRIORITIES`                          | Replicas |
-| -------------------- | -------------------------------------------- | -------- |
-| `databox-scheduler`  | `scheduler_automation scheduler_maintenance` | 1        |
-| `uploader-scheduler` | `scheduler_maintenance`                      | 1        |
+| Service              | `WORKER_PRIORITIES` | Replicas |
+| -------------------- | ------------------- | -------- |
+| `databox-scheduler`  | `scheduler_main`    | 1        |
+| `uploader-scheduler` | `scheduler_main`    | 1        |
 
 Run them with **exactly one replica** and never scale them: scale the
 `*-worker` services instead.
 
-- The `databox-worker` image now defaults to `WORKER_PRIORITIES="p1 p2 task"`
-  and no longer consumes `scheduler_automation`: without `databox-scheduler`,
-  the scheduled automations (saved searches) never run. If you override
-  `WORKER_PRIORITIES` for the workers, remove any `scheduler_*` transport from it.
+- Without `databox-scheduler`, the scheduled automations (saved searches) never
+  run. Never add `scheduler_main` to the `WORKER_PRIORITIES` of the
+  `*-worker` services: a schedule must be consumed by a single process.
 - Remove the host crons: `bin/ops/cron-script-hourly.sh`,
   `bin/ops/cron-script-daily.sh` and `databox/api/bin/cron-script-{hourly,daily}.sh`
   are deleted (the daily one only served Zippy, see
-  [Zippy service removed](#zippy-service-removed)). The `maintenance` schedule of databox runs
-  `alchemy:notifier:digest:flush`, `app:integration:renew-tokens` and
-  `app:file:unblock-analyses` hourly, and `app:trash:empty` daily.
+  [Zippy service removed](#zippy-service-removed)). The `main` schedule of databox
+  triggers the due automations every minute, runs `alchemy:notifier:digest:flush`,
+  `app:integration:renew-tokens` and `app:file:unblock-analyses` hourly, and
+  `app:trash:empty` daily.
 - The uploader now removes its expired assets daily
   (`app:asset:clean-expired`, retention `ASSET_DAYS_RETENTION`, 31 days by
   default), which was not scheduled before.
 
 The commands are kept for manual runs; `bin/console app:automation:run-due`
-still triggers the due automations once, for development.
+triggers the due automations once, for development.
 
 ### Zippy service removed
 

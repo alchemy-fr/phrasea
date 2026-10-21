@@ -27,7 +27,7 @@ File Analyzer integration, inspects the latest ingest workflow of their asset
 and re-triggers the smallest thing that gets the analysis running again
 (rerun of the analyzer job, retry of the failed dependency, or a brand-new
 ingest when no workflow can be resumed). It is run hourly by the databox
-`maintenance` schedule.
+`main` schedule.
 
 ```bash
 bin/console app:file:unblock-analyses --dry-run -v   # report only

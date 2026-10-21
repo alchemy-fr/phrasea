@@ -257,7 +257,7 @@ services:
     deploy:
       replicas: 1
     environment:
-      - WORKER_PRIORITIES=scheduler_maintenance
+      - WORKER_PRIORITIES=scheduler_main
 
   uploader-api-nginx:
     logging: *default-logging
@@ -801,7 +801,7 @@ services:
     deploy:
       replicas: 1
     environment:
-      - WORKER_PRIORITIES=scheduler_automation scheduler_maintenance
+      - WORKER_PRIORITIES=scheduler_main
 
   databox-api-nginx:
     logging: *default-logging

@@ -92,20 +92,21 @@ LETS_ENCRYPT_CA_SERVER=https://acme-v02.api.letsencrypt.org/directory
 The periodic tasks of databox and uploader are planned by Symfony Scheduler and
 consumed by dedicated containers, `databox-scheduler` and `uploader-scheduler`.
 They run the worker image with `WORKER_PRIORITIES` restricted to the
-`scheduler_*` transports (one process per schedule), while the `*-worker`
-services only consume the RabbitMQ queues.
+`scheduler_main` transport (a single process running the tasks of the `main`
+schedule one after the other), while the `*-worker` services only consume the
+RabbitMQ queues.
 
 Keep **exactly one replica** of each scheduler container and never scale them:
 scale the `*-worker` services instead.
 
-| Application | Schedule      | Task                                                                                         | Frequency    |
-|-------------|---------------|----------------------------------------------------------------------------------------------|--------------|
-| databox     | `automation`  | trigger the due automations of the saved searches                                            | every minute |
-| databox     | `maintenance` | `alchemy:notifier:digest:flush` (notification digests whose window has elapsed)              | hourly       |
-| databox     | `maintenance` | `app:integration:renew-tokens` (integration tokens about to expire)                          | hourly       |
-| databox     | `maintenance` | `app:file:unblock-analyses` (stuck file analyses, see `doc/tech/Databox/FileAnalyzers.mdx`) | hourly       |
-| databox     | `maintenance` | `app:trash:empty`                                                                            | daily        |
-| uploader    | `maintenance` | `app:asset:clean-expired` (retention `ASSET_DAYS_RETENTION`, 31 days by default)             | daily        |
+| Application | Task                                                                                         | Frequency    |
+|-------------|----------------------------------------------------------------------------------------------|--------------|
+| databox     | trigger the due automations of the saved searches                                            | every minute |
+| databox     | `alchemy:notifier:digest:flush` (notification digests whose window has elapsed)              | hourly       |
+| databox     | `app:integration:renew-tokens` (integration tokens about to expire)                          | hourly       |
+| databox     | `app:file:unblock-analyses` (stuck file analyses, see `doc/tech/Databox/FileAnalyzers.mdx`) | hourly       |
+| databox     | `app:trash:empty`                                                                            | daily        |
+| uploader    | `app:asset:clean-expired` (retention `ASSET_DAYS_RETENTION`, 31 days by default)             | daily        |
 
 Hourly and daily tasks start at a fixed minute derived from the task (daily
 ones between 00:00 and 02:59), to spread the load. The commands can still be
