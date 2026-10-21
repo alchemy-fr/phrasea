@@ -114,9 +114,9 @@ export function AttributesEditor({
                                     className="ml-auto h-6 text-xs"
                                     onClick={() =>
                                         router.push(
-                                            routes.workspaceManage(
+                                            routes.entityListValues(
                                                 workspaceId,
-                                                'entities'
+                                                listId
                                             )
                                         )
                                     }

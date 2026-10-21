@@ -15,6 +15,9 @@ export const routes = {
         `/collections/${id}/manage/${tab}`,
     workspaceManage: (id: string, tab = 'info') =>
         `/workspaces/${id}/manage/${tab}`,
+    /** Values grid of an entity list (nested panel of the `entities` tab) */
+    entityListValues: (workspaceId: string, listId: string) =>
+        `/workspaces/${workspaceId}/manage/entities/${listId}/manage`,
     basketView: (id: string) => `/baskets/${id}/view`,
     basketManage: (id: string, tab = 'info') => `/baskets/${id}/manage/${tab}`,
     savedSearchManage: (id: string, tab = 'info') =>

@@ -209,6 +209,21 @@ class FaceRecognitionIntegrationTest extends AbstractDataboxTestCase
         $this->assertSame([$second->getId()], array_column($response->toArray()['member'], 'id'));
     }
 
+    public function testIncompleteIntegrationDoesNotBlockApprovingEntities(): void
+    {
+        $em = self::getEntityManager();
+        $this->setUpScene();
+        $integration = $this->createIntegration();
+        $integration->setConfig([]);
+        $em->flush();
+
+        $entity = $this->createEntity($this->list, 'Alice', ['status' => AttributeEntity::STATUS_PENDING]);
+        $this->api('PATCH', '/attribute-entities/'.$entity->getId(), KeycloakClientTestMock::ADMIN_UID, ['status' => AttributeEntity::STATUS_APPROVED]);
+        $this->assertResponseStatusCodeSame(200);
+        $em->clear();
+        $this->assertSame(AttributeEntity::STATUS_APPROVED, $em->find(AttributeEntity::class, $entity->getId())->getStatus());
+    }
+
     public function testEveryFaceIsANewPersonWithoutThreshold(): void
     {
         $this->setUpScene();
