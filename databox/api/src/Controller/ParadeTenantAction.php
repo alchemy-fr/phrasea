@@ -12,7 +12,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -23,20 +25,46 @@ class ParadeTenantAction extends AbstractController
 
     public function __construct(
         private readonly EntityManagerInterface $em,
+        private readonly ParadeProvisioner $provisioner,
     ) {
+    }
+
+    #[Route(path: '/parade-tenants/{slug}/sub-roles', requirements: ['slug' => '[a-z0-9][a-z0-9-]{0,62}'], methods: ['PUT'])]
+    public function subRoles(string $slug, Request $request): JsonResponse
+    {
+        $this->authorize();
+        try {
+            $data = json_decode($request->getContent(), true, 4, JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            throw new BadRequestHttpException('Invalid JSON body');
+        }
+        $enabled = is_array($data) ? ($data['enabled'] ?? null) : null;
+        $adopt = is_array($data) ? ($data['adoptExistingGroups'] ?? false) : false;
+        if (!is_bool($enabled) || !is_bool($adopt)) {
+            throw new BadRequestHttpException('Invalid enabled flag');
+        }
+        $tenant = $this->em->getRepository(ParadeTenant::class)->findOneBy(['slug' => $slug, 'removedAt' => null]);
+        if (null === $tenant) {
+            throw new NotFoundHttpException(sprintf('Tenant "%s" is not declared by Parade.', $slug));
+        }
+
+        if ($enabled && ([] === $tenant->getGroups() || !$tenant->hasSubRoles())) {
+            try {
+                $this->provisioner->provisionTenant($tenant, $adopt);
+            } catch (\Throwable $e) {
+                return new JsonResponse(['slug' => $slug, 'subRoles' => $tenant->hasSubRoles(), 'error' => $e->getMessage()], Response::HTTP_BAD_GATEWAY);
+            }
+        }
+        $tenant->setSubRoles($enabled);
+        $this->em->flush();
+
+        return new JsonResponse(['slug' => $slug, 'subRoles' => $tenant->hasSubRoles(), 'groups' => (object) $tenant->getGroups()]);
     }
 
     #[Route(path: '/parade-tenants', methods: ['PUT'])]
     public function __invoke(Request $request): JsonResponse
     {
-        $user = $this->getUser();
-        if ($user instanceof JwtOauthClient) {
-            $this->denyAccessUnlessGranted(self::GROUPS_SCOPE_ROLE);
-        } elseif ($user instanceof JwtUser) {
-            $this->denyAccessUnlessGranted(JwtUser::ROLE_ADMIN);
-        } else {
-            throw new UnauthorizedHttpException('Bearer', 'Authentication required');
-        }
+        $this->authorize();
 
         try {
             $data = json_decode($request->getContent(), true, 8, JSON_THROW_ON_ERROR);
@@ -95,5 +123,17 @@ class ParadeTenantAction extends AbstractController
                 array_filter($existing, fn (ParadeTenant $tenant): bool => $tenant->isRemoved()),
             )),
         ]);
+    }
+
+    private function authorize(): void
+    {
+        $user = $this->getUser();
+        if ($user instanceof JwtOauthClient) {
+            $this->denyAccessUnlessGranted(self::GROUPS_SCOPE_ROLE);
+        } elseif ($user instanceof JwtUser) {
+            $this->denyAccessUnlessGranted(JwtUser::ROLE_ADMIN);
+        } else {
+            throw new UnauthorizedHttpException('Bearer', 'Authentication required');
+        }
     }
 }

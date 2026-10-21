@@ -22,9 +22,10 @@ trait ParadeMembersTrait
         string $title,
         array $groups,
         array $labels,
+        bool $readOnly = false,
     ): Response {
         $request = $context->getRequest();
-        if ($request->isMethod('POST')) {
+        if ($request->isMethod('POST') && !$readOnly) {
             $groupId = (string) $request->request->get('groupId');
             $userId = (string) $request->request->get('userId');
             if (!$this->isCsrfTokenValid(self::MEMBERS_CSRF_ID, (string) $request->request->get('_token'))) {
@@ -58,7 +59,7 @@ trait ParadeMembersTrait
             ];
         }
 
-        $users = $serviceAccountClient->executeWithAccessToken(
+        $users = $readOnly ? [] : $serviceAccountClient->executeWithAccessToken(
             fn (string $accessToken): array => $keycloakClient->getUsers($accessToken, ['limit' => 500])
         );
         usort($users, fn (array $a, array $b): int => strcmp($a['username'] ?? '', $b['username'] ?? ''));
@@ -68,6 +69,7 @@ trait ParadeMembersTrait
             'sections' => $sections,
             'users' => $users,
             'csrfId' => self::MEMBERS_CSRF_ID,
+            'readOnly' => $readOnly,
         ]);
     }
 }

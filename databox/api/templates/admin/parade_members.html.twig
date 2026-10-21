@@ -3,6 +3,9 @@
 {% block content_title %}{{ title }}{% endblock %}
 
 {% block main %}
+    {% if readOnly %}
+        <p class="text-muted">Managed from the Parade administration.</p>
+    {% endif %}
     {% for section in sections %}
         <h3 class="mt-4">{{ section.label }}</h3>
         {% if section.groupId is null %}
@@ -22,6 +25,7 @@
                             <td>{{ member.username }}</td>
                             <td>{{ member.email|default('') }}</td>
                             <td class="text-end">
+                                {% if not readOnly %}
                                 <form method="post">
                                     <input type="hidden" name="_token" value="{{ csrf_token(csrfId) }}">
                                     <input type="hidden" name="operation" value="remove">
@@ -29,6 +33,7 @@
                                     <input type="hidden" name="userId" value="{{ member.id }}">
                                     <button type="submit" class="btn btn-sm btn-danger">Remove</button>
                                 </form>
+                                {% endif %}
                             </td>
                         </tr>
                     {% else %}
@@ -36,6 +41,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            {% if not readOnly %}
             <form method="post" class="d-flex gap-2 align-items-center">
                 <input type="hidden" name="_token" value="{{ csrf_token(csrfId) }}">
                 <input type="hidden" name="operation" value="add">
@@ -49,6 +55,7 @@
                 </select>
                 <button type="submit" class="btn btn-primary">Add</button>
             </form>
+            {% endif %}
         {% endif %}
     {% endfor %}
 {% endblock %}
