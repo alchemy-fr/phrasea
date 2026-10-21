@@ -890,6 +890,11 @@ services:
       - internal
     volumes:
       - elasticsearch9:/usr/share/elasticsearch/data
+    deploy:
+      resources:
+        limits:
+          cpus: ${ELASTICSEARCH_CPU_LIMIT}
+          memory: ${ELASTICSEARCH_MEMORY_LIMIT}
     ulimits:
       memlock:
         soft: -1
@@ -899,7 +904,7 @@ services:
       - discovery.type=single-node
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+      - ES_JAVA_OPTS=${ELASTICSEARCH_JAVA_OPTS}
 
   similarity-embedder:
     logging: *default-logging
