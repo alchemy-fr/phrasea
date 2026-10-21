@@ -28,7 +28,7 @@ RUN apk add --no-cache --virtual .build-deps \
 RUN cd /usr/src \
     && tar -zxC /usr/src -f nginx.tar.gz \
     && tar -xzC /usr/src -f ngx-cache-purge.tar.gz \
-    && wget https://raw.githubusercontent.com/nginx-modules/ngx_cache_purge/master/config \
+    && wget https://raw.githubusercontent.com/nginx-modules/ngx_cache_purge/84f9eaad0039fe88498caadd60cf9e86b3168190/config \
     && PURGE_CACHEDIR="$(pwd)/ngx_cache_purge-${PURGE_CACHE_VERSION}" \
     && mv config ${PURGE_CACHEDIR}/ \
     && cd /usr/src/nginx-$NGINX_VERSION \
