@@ -133,3 +133,11 @@ when@test:
         Alchemy\StorageBundle\Storage\FileStorageManager:
             arguments:
                 $filesystem: '@test.storage.local_filesystem'
+
+        # The API container only receives the public key, but tests encrypt and
+        # decrypt in the same process: use a test-only key pair.
+        App\Security\Secrets\SecretsManager:
+            autowire: true
+            arguments:
+                $publicKey: 'Tj67E7MRejEITBQBsU5nV42RoZeQV4z1LcsdG11InEs='
+                $secretKey: 'JXeTGRSzXJNwKx6TCxSo/3f38CwuVN08hnHPxD8VSpQ='
