@@ -6,3 +6,4 @@
 .pnpm-store
 node_modules
 phrasea-manifest.json
+/report/src/tmp/
