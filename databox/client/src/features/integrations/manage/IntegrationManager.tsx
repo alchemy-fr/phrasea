@@ -1,9 +1,15 @@
 'use client';
 
-import {useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useQuery} from '@tanstack/react-query';
-import {KeyIcon, RepeatIcon, SaveIcon} from 'lucide-react';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
+import {
+    CodeIcon,
+    KeyIcon,
+    RepeatIcon,
+    SaveIcon,
+    SlidersHorizontalIcon,
+} from 'lucide-react';
 import {toast} from 'sonner';
 import type {IntegrationType, WorkspaceIntegration} from '@/types/api';
 import {EntityName} from '@/types/api';
@@ -19,10 +25,10 @@ import {
     putIntegration,
 } from '@/lib/api/integrations';
 import {Button} from '@/components/ui/button';
-import {FormRow, Input} from '@/components/ui/input';
+import {FormRow, Input, Label} from '@/components/ui/input';
 import {CodeEditor} from '@/components/form/code/CodeEditor';
-import {LabeledControl, Switch} from '@/components/ui/controls';
-import {Badge} from '@/components/ui/misc';
+import {LabeledControl, Switch, Toggle} from '@/components/ui/controls';
+import {Badge, Skeleton} from '@/components/ui/misc';
 import {CopyButton} from '@/components/ui/copy-button';
 import {AsyncCombobox, ComboOption} from '@/components/form/AsyncCombobox';
 import {AclEditor} from '@/features/permissions/AclEditor';
@@ -30,12 +36,26 @@ import {integrationPermissions} from '@/features/permissions/permissionDefinitio
 import {PermissionObject} from '@/features/permissions/permissionTypes';
 import {iri} from '@/lib/utils/iri';
 import {cn} from '@/lib/utils/cn';
+import {isApiError} from '@/lib/api/http';
 import {ReferenceDetails} from '@/components/form/ReferenceDetails';
 import {IntegrationCatalog} from './IntegrationCatalog';
 import {IntegrationTypeIcon} from './integrationTypeUi';
 import {integrationLabel} from '../integrationLabel';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 import {useFocusFirstField} from '@/hooks/useFocusFirstField';
+import {faceRecognitionSetupsQueryKey} from '@/features/faces/useFaceRecognition';
+import {ConfigForm} from '../config/ConfigForm';
+import {
+    ConfigErrors,
+    ConfigValues,
+    defaultsOf,
+    errorsByPath,
+    fromYaml,
+    pruneConfig,
+    toYaml,
+} from '../config/schema';
+
+type ConfigMode = 'form' | 'yaml';
 
 type Props = {
     /** Omitted for the instance-wide integrations */
@@ -138,6 +158,7 @@ function IntegrationForm({
     onSaved: (i: WorkspaceIntegration) => void;
 }) {
     const {t} = useTranslation();
+    const queryClient = useQueryClient();
     const [form, setForm] = useState({
         integration: i?.integration ?? '',
         name: i?.name ?? '',
@@ -146,11 +167,16 @@ function IntegrationForm({
         if: i?.if ?? '',
         needs: i?.needs ?? [],
         configYaml: i?.configYaml ?? '',
+        config: (i?.configValues ?? {}) as ConfigValues,
+        // A new integration starts from the defaults of its schema, once loaded
+        seeded: !!i,
     });
     const [saving, setSaving] = useState(false);
+    const [configMode, setConfigMode] = useState<ConfigMode>();
+    const [errors, setErrors] = useState<ConfigErrors>({});
     // The type alone (picked from the catalog) is nothing worth keeping
-    const {integration: _type, ...edited} = form;
-    const {markSaved} = useDirtyState(edited);
+    const {integration: _type, seeded, ...edited} = form;
+    const {markSaved} = useDirtyState(edited, {ready: seeded});
     // Type picked in the catalog: on to the form
     const formRef = useRef<HTMLDivElement>(null);
     useFocusFirstField(formRef, !i && !!form.integration);
@@ -161,12 +187,50 @@ function IntegrationForm({
         queryFn: () => getIntegrationType(form.integration),
         enabled: !!form.integration,
     });
+    const schema = reference.data?.schema;
+    const hasSchema =
+        !!schema && Object.keys(schema.properties ?? {}).length > 0;
+    const mode: ConfigMode = configMode ?? (hasSchema ? 'form' : 'yaml');
+    useEffect(() => {
+        if (!seeded && schema) {
+            setForm(f => ({...f, config: defaultsOf(schema), seeded: true}));
+        }
+    }, [seeded, schema]);
     const type = types?.find(tp => tp.name === form.integration);
     // IF and Needs only drive the workflow jobs
     const isWorkflow = !type || type.features.includes('workflow');
     const needOptions: ComboOption[] = all
         .filter(x => x.id !== i?.id)
         .map(x => ({value: x['@id'], label: integrationLabel(x)}));
+
+    const switchMode = (next: ConfigMode) => {
+        if (next === mode) {
+            return;
+        }
+        if (next === 'yaml') {
+            set(
+                'configYaml',
+                toYaml(schema ? pruneConfig(form.config, schema) : form.config)
+            );
+        } else {
+            try {
+                set('config', fromYaml(form.configYaml));
+            } catch (e) {
+                toast.error(
+                    t(
+                        'integration.config.yaml_invalid',
+                        'Invalid YAML: {{error}}',
+                        {
+                            error: (e as Error).message,
+                        }
+                    )
+                );
+
+                return;
+            }
+        }
+        setConfigMode(next);
+    };
 
     const save = async () => {
         setSaving(true);
@@ -179,7 +243,9 @@ function IntegrationForm({
                 public: form.public,
                 if: isWorkflow ? form.if || undefined : undefined,
                 needs: isWorkflow ? form.needs : undefined,
-                configYaml: form.configYaml,
+                ...(mode === 'form' && schema
+                    ? {config: pruneConfig(form.config, schema)}
+                    : {configYaml: form.configYaml}),
             };
             const saved = i
                 ? await putIntegration(i.id, data)
@@ -190,9 +256,15 @@ function IntegrationForm({
                           : null,
                   });
             toast.success(t('integration.saved', 'Integration saved'));
+            setErrors({});
             markSaved();
+            // The faces entry of the top bar follows the integrations
+            void queryClient.invalidateQueries({
+                queryKey: faceRecognitionSetupsQueryKey,
+            });
             onSaved(saved);
         } catch (e: any) {
+            setErrors(isApiError(e, 422) ? errorsByPath(e) : {});
             toast.error(e?.message);
         } finally {
             setSaving(false);
@@ -209,6 +281,8 @@ function IntegrationForm({
                     setForm(f => ({
                         ...f,
                         integration: tp.name,
+                        config: {},
+                        seeded: false,
                     }))
                 }
             />
@@ -234,7 +308,14 @@ function IntegrationForm({
                         variant="ghost"
                         size="sm"
                         data-testid="integration-change-type"
-                        onClick={() => setForm(f => ({...f, integration: ''}))}
+                        onClick={() =>
+                            setForm(f => ({
+                                ...f,
+                                integration: '',
+                                config: {},
+                                seeded: false,
+                            }))
+                        }
                     >
                         <RepeatIcon /> {t('integration.change_type', 'Change')}
                     </Button>
@@ -307,25 +388,86 @@ function IntegrationForm({
                     </FormRow>
                 </>
             ) : null}
-            <FormRow label={t('integration.config', 'Configuration (YAML)')}>
-                <CodeEditor
-                    mode="twig"
-                    minLines={10}
-                    value={form.configYaml}
-                    onChange={v => set('configYaml', v)}
-                />
-            </FormRow>
-            {reference.data ? (
-                <ReferenceDetails
-                    sections={[
-                        {
-                            name: reference.data.displayName,
-                            reference: reference.data.reference,
-                        },
-                        ...reference.data.references,
-                    ]}
-                />
-            ) : null}
+            <div className="mb-4">
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                    <Label>{t('integration.config', 'Configuration')}</Label>
+                    {hasSchema ? (
+                        <div className="flex gap-0.5 rounded-md border p-0.5">
+                            <Toggle
+                                size="sm"
+                                pressed={mode === 'form'}
+                                onPressedChange={() => switchMode('form')}
+                                data-testid="integration-config-mode-form"
+                            >
+                                <SlidersHorizontalIcon />
+                                {t('integration.config.mode_form', 'Form')}
+                            </Toggle>
+                            <Toggle
+                                size="sm"
+                                pressed={mode === 'yaml'}
+                                onPressedChange={() => switchMode('yaml')}
+                                data-testid="integration-config-mode-yaml"
+                            >
+                                <CodeIcon />
+                                {t('integration.config.mode_yaml', 'YAML')}
+                            </Toggle>
+                        </div>
+                    ) : null}
+                </div>
+                {reference.isLoading ? (
+                    <Skeleton className="h-24 w-full" />
+                ) : mode === 'form' && schema ? (
+                    <ConfigForm
+                        schema={schema}
+                        value={form.config}
+                        onChange={v => set('config', v)}
+                        errors={errors}
+                        workspaceId={workspaceId}
+                    />
+                ) : schema && !hasSchema && !form.configYaml ? (
+                    <p
+                        className="rounded-md border border-dashed p-3 text-sm text-muted-foreground"
+                        data-testid="integration-config-none"
+                    >
+                        {t(
+                            'integration.config.no_config',
+                            'This integration has no parameter'
+                        )}
+                    </p>
+                ) : (
+                    <>
+                        <CodeEditor
+                            mode="twig"
+                            minLines={10}
+                            value={form.configYaml}
+                            onChange={v => set('configYaml', v)}
+                            aria-invalid={Object.keys(errors).length > 0}
+                        />
+                        {Object.keys(errors).length > 0 ? (
+                            <p className="mt-1 text-xs whitespace-pre-line text-destructive">
+                                {Object.entries(errors)
+                                    .map(([path, message]) =>
+                                        path === '_global'
+                                            ? message
+                                            : `${path}: ${message}`
+                                    )
+                                    .join('\n')}
+                            </p>
+                        ) : null}
+                        {reference.data ? (
+                            <ReferenceDetails
+                                sections={[
+                                    {
+                                        name: reference.data.displayName,
+                                        reference: reference.data.reference,
+                                    },
+                                    ...reference.data.references,
+                                ]}
+                            />
+                        ) : null}
+                    </>
+                )}
+            </div>
             {i?.configInfo && i.configInfo.length > 0 ? (
                 <div className="rounded-md border p-3 text-xs">
                     <div className="mb-1 flex items-center gap-2 font-medium">

@@ -6,6 +6,7 @@ namespace App\Integration\Blurhash;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\ConfigWidget;
 use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
@@ -33,10 +34,12 @@ class BlurhashIntegration extends AbstractIntegration implements WorkflowIntegra
         $builder
             ->scalarNode('rendition')
                 ->info('Not providing rendition name will use the source file')
+                ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Rendition->value)
             ->end()
             ->scalarNode('attribute')
                 ->defaultValue('blurhash')
                 ->cannotBeEmpty()
+                ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Attribute->value)
             ->end()
         ;
     }

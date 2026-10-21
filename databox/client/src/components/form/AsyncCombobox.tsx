@@ -42,7 +42,8 @@ type BaseProps<T> = {
     disabled?: boolean;
     className?: string;
     id?: string;
-    onCreate?: (query: string) => Promise<ComboOption<T>>;
+    /** Resolves to nothing when the creation was cancelled */
+    onCreate?: (query: string) => Promise<ComboOption<T> | undefined>;
     createLabel?: (query: string) => string;
 };
 
@@ -138,7 +139,9 @@ export function AsyncCombobox<T = unknown>(
             return;
         }
         const opt = await props.onCreate(search.trim());
-        select(opt);
+        if (opt) {
+            select(opt);
+        }
         setSearch('');
     };
 

@@ -6,6 +6,8 @@ namespace App\Integration;
 
 use App\Documentation\ConfigurationReferenceDumper;
 use App\Entity\Integration\WorkspaceIntegration;
+use App\Integration\Config\ConfigSchemaCustomizerInterface;
+use App\Integration\Config\ConfigSchemaDumper;
 use App\Integration\Env\EnvResolver;
 use App\Security\Voter\WorkspaceIntegrationVoter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,6 +29,7 @@ readonly class IntegrationManager
         private EnvResolver $envResolver,
         private Security $security,
         private ConfigurationReferenceDumper $referenceDumper,
+        private ConfigSchemaDumper $schemaDumper,
     ) {
     }
 
@@ -124,6 +127,20 @@ readonly class IntegrationManager
         $integration->buildConfiguration($treeBuilder->getRootNode()->children());
 
         return $this->referenceDumper->dumpTree($treeBuilder);
+    }
+
+    /**
+     * The configuration tree described for the client form.
+     */
+    public function getIntegrationSchema(IntegrationInterface $integration): array
+    {
+        $schema = $this->schemaDumper->dump($this->buildConfiguration($integration));
+
+        if ($integration instanceof ConfigSchemaCustomizerInterface) {
+            $schema = $integration->customizeConfigSchema($schema);
+        }
+
+        return $schema;
     }
 
     private function getConfiguration(WorkspaceIntegration $workspaceIntegration, IntegrationInterface $integration): IntegrationConfig

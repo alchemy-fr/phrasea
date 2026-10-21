@@ -7,6 +7,7 @@ namespace App\Integration\RemoveBg;
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
 use App\Integration\Action\FileUserActionsTrait;
+use App\Integration\Config\ConfigWidget;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationContext;
@@ -43,6 +44,7 @@ class RemoveBgIntegration extends AbstractIntegration implements IntegrationData
             ->scalarNode('apiKey')
                 ->defaultValue('${REMOVE_BG_API_KEY}')
                 ->cannotBeEmpty()
+                ->attribute(ConfigWidget::ATTR_SECRET, true)
             ->end()
             ->booleanNode('processIncoming')
                 ->defaultFalse()

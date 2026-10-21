@@ -13,6 +13,7 @@ use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\Action\FileUserActionsTrait;
 use App\Integration\Aws\AbstractAwsIntegration;
 use App\Integration\Aws\Rekognition\Message\RekognitionAnalyze;
+use App\Integration\Config\ConfigWidget;
 use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\Core\Rendition\RenditionIntegration;
 use App\Integration\FilterNeedIntegrationInterface;
@@ -28,6 +29,7 @@ use App\Service\Workflow\Event\AssetIngestWorkflowEvent;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -82,17 +84,25 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
             }
 
             if (!$this->needsRenditionIntegration($workspaceIntegration)) {
-                throw new \InvalidArgumentException(sprintf('"%s" uses the rendition "%s" but this integration does not declare the "%s" integration in its needs: the rendition would not be built before the analysis', $category, $rendition, RenditionIntegration::getDisplayName()));
+                throw self::createRenditionException($category, sprintf('"%s" uses the rendition "%s" but this integration does not declare the "%s" integration in its needs: the rendition would not be built before the analysis', $category, $rendition, RenditionIntegration::getDisplayName()));
             }
 
             try {
                 $definition = $this->renditionManager->getRenditionDefinitionByName($config->getWorkspaceId(), $rendition);
             } catch (\InvalidArgumentException $e) {
-                throw new \InvalidArgumentException(sprintf('"%s": rendition "%s" not found in the workspace', $category, $rendition), 0, $e);
+                throw self::createRenditionException($category, sprintf('"%s": rendition "%s" not found in the workspace', $category, $rendition), $e);
             }
 
             $this->validateRenditionSize($category, $definition);
         }
+    }
+
+    private static function createRenditionException(string $category, string $message, ?\Throwable $previous = null): InvalidConfigurationException
+    {
+        $e = new InvalidConfigurationException($message, 0, $previous);
+        $e->setPath(sprintf('root.%s.rendition', $category));
+
+        return $e;
     }
 
     private function needsRenditionIntegration(WorkspaceIntegration $workspaceIntegration): bool
@@ -115,18 +125,18 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
         $prefix = sprintf('"%s": rendition "%s"', $category, $definition->getName());
 
         if (RenditionDefinition::BUILD_MODE_CUSTOM !== $definition->getBuildMode() || empty($definition->getDefinition())) {
-            throw new \InvalidArgumentException(sprintf('%s must be a built rendition (not the source file) so its size can be bounded', $prefix));
+            throw self::createRenditionException($category, sprintf('%s must be a built rendition (not the source file) so its size can be bounded', $prefix));
         }
 
         try {
             $buildConfig = $this->renditionDefinitionLoader->parse($definition->getDefinition());
         } catch (\Throwable $e) {
-            throw new \InvalidArgumentException(sprintf('%s has an invalid definition: %s', $prefix, $e->getMessage()), 0, $e);
+            throw self::createRenditionException($category, sprintf('%s has an invalid definition: %s', $prefix, $e->getMessage()), $e);
         }
 
         $imageConfig = $buildConfig->getFamily(FamilyEnum::Image);
         if (null === $imageConfig) {
-            throw new \InvalidArgumentException(sprintf('%s has no "image" transformations', $prefix));
+            throw self::createRenditionException($category, sprintf('%s has no "image" transformations', $prefix));
         }
 
         $maxDimension = null;
@@ -144,11 +154,11 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
         }
 
         if (null === $maxDimension) {
-            throw new \InvalidArgumentException(sprintf('%s must resize the image (imagine "thumbnail" or "resize" filter) to at most %dpx so it fits the AWS Rekognition 5 MiB limit', $prefix, self::MAX_RENDITION_DIMENSION));
+            throw self::createRenditionException($category, sprintf('%s must resize the image (imagine "thumbnail" or "resize" filter) to at most %dpx so it fits the AWS Rekognition 5 MiB limit', $prefix, self::MAX_RENDITION_DIMENSION));
         }
 
         if ($maxDimension > self::MAX_RENDITION_DIMENSION) {
-            throw new \InvalidArgumentException(sprintf('%s is resized to %dpx, which may exceed the AWS Rekognition 5 MiB limit: use at most %dpx', $prefix, $maxDimension, self::MAX_RENDITION_DIMENSION));
+            throw self::createRenditionException($category, sprintf('%s is resized to %dpx, which may exceed the AWS Rekognition 5 MiB limit: use at most %dpx', $prefix, $maxDimension, self::MAX_RENDITION_DIMENSION));
         }
     }
 
@@ -180,6 +190,7 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
                     ->scalarNode('rendition')
                         ->defaultNull()
                         ->info('Send rendition instead of source to AWS')
+                        ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Rendition->value)
                     ->end()
                     ->booleanNode('processIncoming')
                         ->defaultFalse()
@@ -201,7 +212,13 @@ class AwsRekognitionIntegration extends AbstractAwsIntegration implements Filter
                         ->info('Save results in attributes (multi-valued string)')
                         ->prototype('array')
                             ->children()
-                                ->scalarNode('name')->isRequired()->cannotBeEmpty()->info('Attribute slug')->end()
+                                ->scalarNode('name')
+                                    ->isRequired()
+                                    ->cannotBeEmpty()
+                                    ->info('Attribute slug')
+                                    ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Attribute->value)
+                                    ->attribute(ConfigWidget::ATTR_WIDGET_OPTIONS, ['multiple' => true])
+                                ->end()
                                 ->floatNode('threshold')->example('.5')->info('Minimum confidence to be saved into attribute')->end()
                             ->end()
                         ->end()

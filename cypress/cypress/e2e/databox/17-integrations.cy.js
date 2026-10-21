@@ -45,11 +45,58 @@ describe('Integrations', () => {
             // The type is picked in the catalog, then the form shows up
             cy.getBySel('integration-catalog-item').first().click();
             cy.fieldByLabel('Title').type('E2E integration');
-            cy.contains('Configuration (YAML)').should('be.visible');
+            // The configuration form is generated from the schema of the type
+            cy.getBySel('integration-config-form').should('be.visible');
             cy.contains('button', 'Save').click();
         });
         expectToastText('Integration saved');
         routeDialog().getBySel('definition-item').should('contain', 'E2E integration');
+    });
+
+    it('sets up face recognition from the form', () => {
+        cy.visit(`${databoxUrl}/workspaces/${ctx.workspace.id}/manage/integrations`);
+        cy.getBySel('definition-create', {timeout: 30000}).should('be.visible');
+        routeDialog().within(() => {
+            cy.getBySel('definition-create').click();
+            cy.get('[data-integration="core.face_recognition"]').click();
+            cy.fieldByLabel('Title').type('E2E faces');
+            // The attribute is picked among the entity attributes, or created on the spot
+            cy.getBySel('config-field-attribute').find('[role=combobox]').click();
+        });
+        cy.get('[cmdk-input]').type('Faces');
+        cy.contains('[cmdk-item]', 'Create “Faces”').click();
+        cy.getBySel('form-dialog')
+            .last()
+            .within(() => {
+                cy.fieldByLabel('Name').should('have.value', 'Faces');
+                cy.fieldByLabel('Type').should('be.disabled');
+                cy.getBySel('create-attribute-multiple').should('have.attr', 'aria-checked', 'true').and('be.disabled');
+                // No entity list yet: a new one is proposed
+                cy.fieldByLabel('List name').should('have.value', 'Persons');
+                cy.contains('button', 'Create').click();
+            });
+        expectToastText('Attribute created');
+        routeDialog().within(() => {
+            cy.getBySel('config-field-attribute').should('contain', 'Faces');
+            cy.contains('button', 'Save').click();
+        });
+        expectToastText('Integration saved');
+
+        // Written by the form, read back as YAML
+        routeDialog().within(() => {
+            cy.getBySel('integration-config-mode-yaml').click();
+            cy.contains('attribute: faces').should('be.visible');
+        });
+        apiRequest({
+            method: 'GET',
+            path: `/attribute-definitions?workspaceId=${ctx.workspace.id}`,
+        }).then(page => {
+            const faces = (page.member ?? []).find(d => d.slug === 'faces');
+            expect(faces, 'faces attribute').to.exist;
+            expect(faces.type).to.equal('entity');
+            expect(faces.multiple).to.equal(true);
+            expect(faces.entityList).to.exist;
+        });
     });
 
     it('duplicates an integration, disabled', () => {

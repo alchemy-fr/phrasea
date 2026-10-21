@@ -175,6 +175,38 @@ Operational notes:
 - Requires the `face-recognition` service (maintained in [alchemy-fr/phrasea-face-recognition](https://github.com/alchemy-fr/phrasea-face-recognition), InsightFace `buffalo_l` model pack on CPU; image `FACE_RECOGNITION_IMAGE`, `face-recognition` Docker Compose profile). Databox reaches it through `FACE_RECOGNITION_URL`.
 - Backfill existing assets with `bin/console app:face-recognition:index` (add `--sync` to run in the foreground).
 
+## Configuration form & schema
+
+The workspace administration (`/workspaces/:id/manage/integrations`) configures an integration with a **form generated from its configuration tree**, the YAML editor remaining available as an advanced mode (the two are converted into each other on the client, and both `config` and `configYaml` are accepted by the API).
+
+`GET /integration-types/{id}` exposes the tree built by `buildConfiguration(NodeBuilder)` as a `schema` (`ConfigSchemaDumper`), inspired by JSON Schema without following it: a root `object` whose `properties` are the configuration keys, each node carrying a `type` (`string`, `integer`, `float`, `boolean`, `enum`, `object`, `list`, `any`), its `label`, `info`, `example`, `required`, `default`, `min`/`max`, `values`, `items` and `minItems`. An object with an `enabled` boolean (`canBeEnabled()` / `canBeDisabled()`) gets `toggle: "enabled"`; a `variableNode` or an array without definition is `any` and stays edited as YAML.
+
+The UI hints are declared **on the tree itself** with `NodeDefinition::attribute()` and the keys of `App\Integration\Config\ConfigWidget`:
+
+```php
+use App\Integration\Config\ConfigWidget;
+
+ConfigWidget::apply($builder->scalarNode('attribute'), ConfigWidget::Attribute, [
+    'type' => 'entity',
+    'multiple' => true,
+    'entityList' => true,
+])
+    ->isRequired()
+->end()
+->scalarNode('rendition')
+    ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Rendition->value)
+->end()
+->scalarNode('apiKey')
+    ->attribute(ConfigWidget::ATTR_SECRET, true)
+->end();
+```
+
+- `widget` (`ConfigWidget`): `attribute` (slug of an attribute definition of the workspace, with `widgetOptions` restricting its `type`, `multiple` and `entityList`; the picker offers to **create** the attribute, and the entity list it needs, right from the form), `rendition` (name of a rendition definition), `collection` (collection ID), `email`, `language`. On a prototype (`scalarPrototype()`), the widget applies to the items of the list (multiple picker, chips).
+- `secret`: the form masks the value (with a "show" button). The API does not redact it: `configYaml` and `configValues` are only given to who may edit the integration.
+- An integration whose tree does not tell the whole story implements `ConfigSchemaCustomizerInterface::customizeConfigSchema(array $schema): array`: `core.file_analyzer` replaces the items of `analyzers` by `{type: object, discriminator: name, variants: {<analyzer>: …}}`, one variant per registered analyzer.
+
+`GET /integrations/{id}` returns the stored configuration twice to its editors: `configYaml` and `configValues` (the same values, structured), so that an integration written in YAML reopens in the form with its values. A configuration refused by the tree (or by `validateConfiguration()` when it sets the path of its `InvalidConfigurationException`, e.g. `root.attribute`) answers a 422 whose violation `propertyPath` points to the option (`config.minConfidence`, `config.analyzers.0.name`), reported under the matching field.
+
 ## Exhaustive integration list
 
 The table below is the exhaustive integration list currently available in Databox codebase.

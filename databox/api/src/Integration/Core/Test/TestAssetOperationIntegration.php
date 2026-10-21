@@ -6,6 +6,7 @@ namespace App\Integration\Core\Test;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\ConfigWidget;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
@@ -26,6 +27,7 @@ class TestAssetOperationIntegration extends AbstractIntegration implements Workf
             ->scalarNode('attribute')
                 ->defaultValue('test')
                 ->cannotBeEmpty()
+                ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Attribute->value)
             ->end()
         ;
     }

@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Integration\Core\FileAnalyzer;
 
 use Alchemy\Workflow\Model\Workflow;
+use App\Border\FileAnalyzer\FileAnalyzerConfigHelper;
 use App\Border\FileAnalyzerRegistry;
 use App\Documentation\ConfigurationReferenceDumper;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\ConfigSchemaCustomizerInterface;
+use App\Integration\Config\ConfigSchemaDumper;
 use App\Integration\ExtraReferenceIntegrationInterface;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
@@ -19,13 +22,14 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\DependencyInjection\Attribute\AsTaggedItem;
 
 #[AsTaggedItem(index: self::NAME)]
-class FileAnalyzerIntegration extends AbstractIntegration implements WorkflowIntegrationInterface, ExtraReferenceIntegrationInterface
+class FileAnalyzerIntegration extends AbstractIntegration implements WorkflowIntegrationInterface, ExtraReferenceIntegrationInterface, ConfigSchemaCustomizerInterface
 {
     public const string NAME = 'core.file_analyzer';
 
     public function __construct(
         private readonly FileAnalyzerRegistry $fileAnalyzerRegistry,
         private readonly ConfigurationReferenceDumper $referenceDumper,
+        private readonly ConfigSchemaDumper $schemaDumper,
     ) {
     }
 
@@ -103,6 +107,28 @@ class FileAnalyzerIntegration extends AbstractIntegration implements WorkflowInt
         }
 
         return $sections;
+    }
+
+    /**
+     * Each analyzer has its own options: the analyzers list is described by one variant per analyzer.
+     */
+    public function customizeConfigSchema(array $schema): array
+    {
+        $variants = [];
+        foreach ($this->fileAnalyzerRegistry->getAnalyzers() as $name => $analyzer) {
+            $treeBuilder = FileAnalyzerConfigHelper::createBaseTree($name);
+            $analyzer->buildConfiguration($treeBuilder->getRootNode()->children());
+
+            $variants[$name] = $this->schemaDumper->dump($treeBuilder->buildTree());
+        }
+
+        $schema['properties']['analyzers']['items'] = [
+            'type' => 'object',
+            'discriminator' => 'name',
+            'variants' => $variants,
+        ];
+
+        return $schema;
     }
 
     public function validateConfiguration(IntegrationConfig $config): void

@@ -63,6 +63,7 @@ final readonly class IntegrationTypeProvider implements ProviderInterface
         }
 
         $object->reference = $this->integrationManager->getIntegrationReference($integration);
+        $object->schema = $this->integrationManager->getIntegrationSchema($integration);
 
         if ($integration instanceof ExtraReferenceIntegrationInterface) {
             $object->references = $integration->getExtraReferenceSections();

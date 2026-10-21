@@ -6,6 +6,7 @@ namespace App\Integration\Aws\Translate;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\Aws\AbstractAwsIntegration;
+use App\Integration\Config\ConfigWidget;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
@@ -36,17 +37,20 @@ class AwsTranslateIntegration extends AbstractAwsIntegration implements Workflow
                 ->isRequired()
                 ->cannotBeEmpty()
                 ->info('The language for the attribute no language (NO_LOCALE)')
+                ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Language->value)
             ->end()
             ->arrayNode('preferredSourceLanguages')
                 ->isRequired()
                 ->info('The language codes of the preferred source languages to translate from')
                 ->scalarPrototype()
+                    ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Language->value)
                 ->end()
             ->end()
             ->arrayNode('translatedLanguages')
                 ->isRequired()
                 ->info('The language codes of the destination to translate to')
                 ->scalarPrototype()
+                    ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Language->value)
                 ->end()
             ->end()
         ;

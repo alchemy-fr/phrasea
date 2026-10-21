@@ -12,6 +12,7 @@ use App\Entity\Core\Asset;
 use App\Entity\Integration\WorkspaceIntegration;
 use App\Integration\AbstractIntegration;
 use App\Integration\Action\UserActionsTrait;
+use App\Integration\Config\ConfigWidget;
 use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\Core\FaceRecognition\Message\FaceRecognitionAnalyze;
 use App\Integration\Core\Rendition\RenditionIntegration;
@@ -79,8 +80,11 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
 
     public function buildConfiguration(NodeBuilder $builder): void
     {
-        $builder
-            ->scalarNode('attribute')
+        ConfigWidget::apply($builder->scalarNode('attribute'), ConfigWidget::Attribute, [
+            'type' => EntityAttributeType::NAME,
+            'multiple' => true,
+            'entityList' => true,
+        ])
                 ->isRequired()
                 ->cannotBeEmpty()
                 ->info('Slug of a multi-valued attribute of type "entity": each detected face is a value of it (person, box and confidence), the persons are the entities of its list (the look-alikes not named yet are pending entities)')
@@ -93,6 +97,7 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
             ->scalarNode('rendition')
                 ->defaultValue(self::DEFAULT_RENDITION)
                 ->info('Rendition sent to the face recognition service (must be an image). Falls back to the source file when the rendition is missing')
+                ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Rendition->value)
             ->end()
             ->integerNode('maxImageSize')
                 ->defaultValue(self::DEFAULT_MAX_IMAGE_SIZE)
@@ -130,17 +135,25 @@ class FaceRecognitionIntegration extends AbstractIntegration implements FilterNe
 
         $definition = $this->attributeDefinitionRepository->getAttributeDefinitionBySlug($workspaceId, (string) $config['attribute']);
         if (null === $definition) {
-            throw new InvalidConfigurationException(sprintf('Attribute "%s" not found in the workspace', $config['attribute']));
+            throw self::createAttributeException(sprintf('Attribute "%s" not found in the workspace', $config['attribute']));
         }
         if (EntityAttributeType::NAME !== $definition->getType()) {
-            throw new InvalidConfigurationException(sprintf('Attribute "%s" must be of type "entity"', $config['attribute']));
+            throw self::createAttributeException(sprintf('Attribute "%s" must be of type "entity"', $config['attribute']));
         }
         if (!$definition->isMultiple()) {
-            throw new InvalidConfigurationException(sprintf('Attribute "%s" must be multi-valued', $config['attribute']));
+            throw self::createAttributeException(sprintf('Attribute "%s" must be multi-valued', $config['attribute']));
         }
         if (null === $definition->getEntityList()) {
-            throw new InvalidConfigurationException(sprintf('Attribute "%s" must be bound to an entity list', $config['attribute']));
+            throw self::createAttributeException(sprintf('Attribute "%s" must be bound to an entity list', $config['attribute']));
         }
+    }
+
+    private static function createAttributeException(string $message): InvalidConfigurationException
+    {
+        $e = new InvalidConfigurationException($message);
+        $e->setPath('root.attribute');
+
+        return $e;
     }
 
     public function getWorkflowJobDefinitions(IntegrationConfig $config, Workflow $workflow): iterable

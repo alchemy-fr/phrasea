@@ -6,6 +6,7 @@ namespace App\Integration\Happyscribe;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\ConfigWidget;
 use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
@@ -43,6 +44,7 @@ class HappyscribeIntegration extends AbstractIntegration implements WorkflowInte
                 ->isRequired()
                 ->cannotBeEmpty()
                 ->info('API key to access the Happyscribe API')
+                ->attribute(ConfigWidget::ATTR_SECRET, true)
             ->end()
             ->enumNode('transcriptFormat')
                 ->defaultValue('vtt')
@@ -53,11 +55,13 @@ class HappyscribeIntegration extends AbstractIntegration implements WorkflowInte
                 ->defaultValue('subtitle')
                 ->cannotBeEmpty()
                 ->info('The slug attribute to store the transcription in')
+                ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Attribute->value)
             ->end()
             ->scalarNode('sourceLanguageAttribute')
                 ->defaultValue('sourceLanguage')
                 ->cannotBeEmpty()
                 ->info('The slug attribute to retrieve the source language for an asset')
+                ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Attribute->value)
             ->end()
             ->scalarNode('defaultSourceLanguage')
                 ->defaultValue('en')
@@ -66,6 +70,7 @@ class HappyscribeIntegration extends AbstractIntegration implements WorkflowInte
             ->end()
             ->scalarNode('rendition')
                 ->info('Not providing rendition name will use the source file')
+                ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Rendition->value)
             ->end()
         ;
     }

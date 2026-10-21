@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integration\Phrasea\Uploader;
 
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\ConfigWidget;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
@@ -32,10 +33,12 @@ class UploaderIntegration extends AbstractIntegration
             ->end()
             ->scalarNode('collectionId')
                 ->info('The collection target')
+                ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Collection->value)
             ->end()
             ->scalarNode('securityKey')
                 ->cannotBeEmpty()
                 ->info('The security key to authenticate Uploader requests')
+                ->attribute(ConfigWidget::ATTR_SECRET, true)
             ->end()
         ;
     }

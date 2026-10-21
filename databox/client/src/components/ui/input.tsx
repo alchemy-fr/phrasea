@@ -72,17 +72,20 @@ export function FormRow({
     children,
     className,
     inline,
+    'data-testid': testId,
 }: {
-    label?: React.ReactNode;
-    htmlFor?: string;
-    error?: React.ReactNode;
-    help?: React.ReactNode;
-    children: React.ReactNode;
-    className?: string;
-    inline?: boolean;
+    'label'?: React.ReactNode;
+    'htmlFor'?: string;
+    'error'?: React.ReactNode;
+    'help'?: React.ReactNode;
+    'children': React.ReactNode;
+    'className'?: string;
+    'inline'?: boolean;
+    'data-testid'?: string;
 }) {
     return (
         <div
+            data-testid={testId}
             className={cn(
                 'mb-4',
                 inline && 'flex items-center gap-3',

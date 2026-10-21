@@ -67,6 +67,12 @@ class IntegrationType
     public string $reference = '';
 
     /**
+     * The configuration tree described for the form (see ConfigSchemaDumper).
+     */
+    #[Groups(self::GROUP_READ)]
+    public array $schema = [];
+
+    /**
      * Extra reference sections (e.g. sub-modules documentation).
      *
      * @var array<array{name: string, description: string|null, reference: string}>

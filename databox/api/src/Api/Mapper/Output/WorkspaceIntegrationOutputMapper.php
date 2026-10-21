@@ -111,7 +111,8 @@ class WorkspaceIntegrationOutputMapper implements OutputMapperInterface
         }
 
         if ($this->isGranted(AbstractVoter::EDIT, $data) && isset($integration)) {
-            $output->configYaml = Yaml::dump($integration->denormalizeConfiguration($data->getConfig(), $data->getWorkspace()), 4);
+            $output->configValues = $integration->denormalizeConfiguration($data->getConfig(), $data->getWorkspace());
+            $output->configYaml = Yaml::dump($output->configValues, 4);
         }
 
         $tokens = $this->integrationTokenRepository->getValidUserTokens($data->getId(), $this->getStrictUserOrOAuthClient()->getUserIdentifier());

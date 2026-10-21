@@ -130,6 +130,33 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         $this->assertStringContainsString('Invalid YAML configuration', $response->toArray(false)['description']);
     }
 
+    public static function getInvalidConfigurations(): iterable
+    {
+        yield 'out of range option' => ['core.face_recognition', ['attribute' => 'faces', 'minConfidence' => 2], 'config.minConfidence'];
+        yield 'nested option' => ['remove.bg', ['budgetLimit' => ['limit' => 'abc']], 'config.budgetLimit.limit'];
+        yield 'missing workspace resource' => ['core.face_recognition', ['attribute' => 'faces'], 'config.attribute'];
+        yield 'missing required option' => ['core.webhook', [], 'config'];
+    }
+
+    #[DataProvider('getInvalidConfigurations')]
+    public function testConfigurationViolationsPointToTheOption(string $type, array $config, string $path): void
+    {
+        $workspace = $this->createSharedWorkspace();
+
+        $response = static::createClient()->request('POST', '/integrations', [
+            'headers' => $this->headers(self::OWNER),
+            'json' => [
+                'integration' => $type,
+                'workspace' => '/workspaces/'.$workspace->getId(),
+                'public' => false,
+                'config' => $config,
+            ],
+        ]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSame([$path], array_column($response->toArray(false)['violations'], 'propertyPath'));
+    }
+
     public function testTheConfigurationIsOnlyShownToWhoCanEditTheIntegration(): void
     {
         $workspace = $this->createSharedWorkspace();
@@ -142,6 +169,7 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         $this->assertResponseIsSuccessful();
         $data = $response->toArray();
         $this->assertStringContainsString('super-secret-key', $data['configYaml']);
+        $this->assertSame(['apiKey' => 'super-secret-key'], $data['configValues']);
         $this->assertSame(['use' => true, 'interact' => true], $data['capabilities']);
 
         $response = static::createClient()->request('GET', '/integrations/'.$id, [
@@ -150,6 +178,7 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
         $this->assertResponseIsSuccessful();
         $data = $response->toArray();
         $this->assertArrayNotHasKey('configYaml', $data);
+        $this->assertArrayNotHasKey('configValues', $data);
         $this->assertArrayNotHasKey('lastErrors', $data);
         // Only the client configuration is exposed (none for remove.bg)
         $this->assertSame([], $data['config']);
@@ -467,10 +496,47 @@ final class IntegrationApiTest extends AbstractDataboxTestCase
             $this->assertNotEmpty($type['displayName']);
         }
 
+        // The configuration form is generated from the schema of the options
+        $schema = $types['remove--bg']['schema'];
+        $this->assertSame('object', $schema['type']);
+        $this->assertTrue($schema['properties']['apiKey']['secret']);
+        $this->assertSame('enabled', $schema['properties']['budgetLimit']['toggle']);
+
         static::createClient()->request('GET', '/integration-types/acme--unknown', [
             'headers' => $this->headers(self::MEMBER),
         ]);
         $this->assertResponseStatusCodeSame(404);
+    }
+
+    public function testIntegrationTypeSchemas(): void
+    {
+        $response = static::createClient()->request('GET', '/integration-types/core--face_recognition', [
+            'headers' => $this->headers(self::MEMBER),
+        ]);
+        $this->assertResponseIsSuccessful();
+        $properties = $response->toArray()['schema']['properties'];
+        $this->assertSame('string', $properties['attribute']['type']);
+        $this->assertSame('attribute', $properties['attribute']['widget']);
+        $this->assertSame('entity', $properties['attribute']['widgetOptions']['type']);
+        $this->assertTrue($properties['attribute']['widgetOptions']['multiple']);
+        $this->assertTrue($properties['attribute']['required']);
+        $this->assertSame('rendition', $properties['rendition']['widget']);
+        $this->assertSame('float', $properties['minConfidence']['type']);
+        $this->assertEquals(1, $properties['minConfidence']['max']);
+        $this->assertSame('Min confidence', $properties['minConfidence']['label']);
+
+        // One variant per analyzer, picked by its name
+        $response = static::createClient()->request('GET', '/integration-types/core--file_analyzer', [
+            'headers' => $this->headers(self::MEMBER),
+        ]);
+        $this->assertResponseIsSuccessful();
+        $analyzers = $response->toArray()['schema']['properties']['analyzers'];
+        $this->assertSame('list', $analyzers['type']);
+        $this->assertSame('name', $analyzers['items']['discriminator']);
+        $checksum = $analyzers['items']['variants']['checksum'];
+        $this->assertSame('object', $checksum['type']);
+        $this->assertTrue($checksum['properties']['name']['required']);
+        $this->assertSame('enum', $checksum['properties']['max_severity']['type']);
     }
 
     private function listIntegrationIds(string $userId, array $query = []): array

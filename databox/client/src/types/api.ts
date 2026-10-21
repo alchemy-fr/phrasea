@@ -3,6 +3,8 @@
  * These types mirror the JSON payloads returned by `databox/api`.
  */
 
+import type {ConfigObjectSchema} from '@/features/integrations/config/schema';
+
 export interface HydraObject {
     '@id': string;
     '@type': string;
@@ -1069,6 +1071,8 @@ export interface WorkspaceIntegration
     data?: IntegrationData[];
     config: object;
     configYaml: string;
+    /** The stored configuration, as `configYaml` but structured (editors only) */
+    configValues?: Record<string, unknown>;
     configInfo?: {label: string; description: string; value?: string}[];
     tokens?: IntegrationToken[];
     /** Null for an instance-wide integration */
@@ -1106,6 +1110,8 @@ export type IntegrationType = {
         description?: string | null;
         reference: string;
     }[];
+    /** The configuration tree, from which the form is generated */
+    schema: ConfigObjectSchema;
 };
 
 export type MetadataTag = {

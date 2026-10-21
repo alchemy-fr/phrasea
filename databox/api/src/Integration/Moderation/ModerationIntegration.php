@@ -8,6 +8,7 @@ use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Step;
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\ConfigWidget;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
@@ -27,7 +28,9 @@ class ModerationIntegration extends AbstractIntegration implements WorkflowInteg
         $builder
             ->arrayNode('emails')
                 ->isRequired()
-                ->scalarPrototype()->end()
+                ->scalarPrototype()
+                    ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Email->value)
+                ->end()
                 ->info('People to notify when new asset comes in')
             ->end()
         ;

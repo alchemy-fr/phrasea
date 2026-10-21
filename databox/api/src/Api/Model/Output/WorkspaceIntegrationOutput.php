@@ -40,6 +40,12 @@ class WorkspaceIntegrationOutput extends AbstractUuidOutput
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     public ?string $configYaml = null;
 
+    /**
+     * The stored configuration, as configYaml but structured.
+     */
+    #[Groups([WorkspaceIntegration::GROUP_LIST])]
+    public ?array $configValues = null;
+
     #[Groups([WorkspaceIntegration::GROUP_LIST])]
     public ?array $configInfo = null;
 

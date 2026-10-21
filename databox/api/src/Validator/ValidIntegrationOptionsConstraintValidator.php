@@ -32,8 +32,18 @@ class ValidIntegrationOptionsConstraintValidator extends ConstraintValidator
         } catch (InvalidConfigurationException|\InvalidArgumentException|BadRequestHttpException $e) {
             $this->context
                 ->buildViolation($e->getMessage())
-                ->atPath('config')
+                ->atPath($e instanceof InvalidConfigurationException ? self::getViolationPath($e->getPath()) : 'config')
                 ->addViolation();
         }
+    }
+
+    /**
+     * "root.budgetLimit.limit" → "config.budgetLimit.limit".
+     */
+    private static function getViolationPath(?string $configPath): string
+    {
+        $path = preg_replace('#^root(\.|$)#', '', $configPath ?? '');
+
+        return '' !== $path ? 'config.'.$path : 'config';
     }
 }

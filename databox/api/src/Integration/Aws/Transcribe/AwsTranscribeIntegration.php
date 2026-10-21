@@ -13,6 +13,7 @@ use App\Attribute\BatchAttributeManager;
 use App\Border\UriDownloader;
 use App\Entity\Core\Attribute;
 use App\Integration\Aws\AbstractAwsIntegration;
+use App\Integration\Config\ConfigWidget;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
@@ -45,15 +46,19 @@ class AwsTranscribeIntegration extends AbstractAwsIntegration implements Workflo
                 ->children()
                     ->scalarNode('language')
                         ->cannotBeEmpty()
+                        ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Attribute->value)
                     ->end()
                     ->scalarNode('vtt')
                         ->cannotBeEmpty()
+                        ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Attribute->value)
                     ->end()
                     ->scalarNode('srt')
                         ->cannotBeEmpty()
+                        ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Attribute->value)
                     ->end()
                     ->scalarNode('transcript')
                         ->cannotBeEmpty()
+                        ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Attribute->value)
                     ->end()
                 ->end()
             ->end()

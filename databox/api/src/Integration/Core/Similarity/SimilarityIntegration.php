@@ -7,6 +7,7 @@ namespace App\Integration\Core\Similarity;
 use Alchemy\Workflow\Model\Job;
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\ConfigWidget;
 use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\Core\Rendition\RenditionIntegration;
 use App\Integration\FilterNeedIntegrationInterface;
@@ -48,6 +49,7 @@ class SimilarityIntegration extends AbstractIntegration implements FilterNeedInt
                 ->defaultValue(AssetEmbeddingManager::DEFAULT_RENDITION)
                 ->cannotBeEmpty()
                 ->info('Rendition used to compute the embedding. When it is not an image (document, video), the thumbnail is used instead.')
+                ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Rendition->value)
             ->end()
         ;
     }

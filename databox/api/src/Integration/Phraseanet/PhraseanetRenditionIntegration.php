@@ -6,6 +6,7 @@ namespace App\Integration\Phraseanet;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\ConfigWidget;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
 use App\Integration\WorkflowHelper;
@@ -61,6 +62,7 @@ class PhraseanetRenditionIntegration extends AbstractIntegration implements Work
                 ->defaultValue('${PHRASEANET_API_TOKEN}')
                 ->cannotBeEmpty()
                 ->info('The Phraseanet API key')
+                ->attribute(ConfigWidget::ATTR_SECRET, true)
             ->end()
         ;
     }

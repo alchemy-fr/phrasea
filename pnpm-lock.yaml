@@ -243,6 +243,9 @@ importers:
       wavesurfer.js:
         specifier: ^7.12.5
         version: 7.12.5
+      yaml:
+        specifier: ^2.8.3
+        version: 2.8.3
       zod:
         specifier: ^4.5.4
         version: 4.5.4

@@ -6,6 +6,7 @@ namespace App\Integration\Core\Rendition;
 
 use Alchemy\Workflow\Model\Workflow;
 use App\Integration\AbstractIntegration;
+use App\Integration\Config\ConfigWidget;
 use App\Integration\Config\RenditionConfigNormalizerTrait;
 use App\Integration\IntegrationCategory;
 use App\Integration\IntegrationConfig;
@@ -34,6 +35,7 @@ class RenditionIntegration extends AbstractIntegration implements WorkflowIntegr
             ->arrayNode('renditions')
                 ->info('Renditions to build explicitly. If omitted, all renditions are built.')
                 ->scalarPrototype()
+                    ->attribute(ConfigWidget::ATTR_WIDGET, ConfigWidget::Rendition->value)
                 ->end()
             ->end()
         ;
