@@ -214,14 +214,14 @@ export default function PublicationConfigForm<TFieldValues extends Data>({
                 <SwitchWidget
                     control={control}
                     label={t(
-                        'form.publication.config.includeDownloadTermsInZippy.label',
+                        'form.publication.config.includeDownloadTermsInArchive.label',
                         'Include Download Terms in Archive'
                     )}
-                    name={`${path}.includeDownloadTermsInZippy` as any}
+                    name={`${path}.includeDownloadTermsInArchive` as any}
                     disabled={submitting}
                 />
                 <FormFieldErrors
-                    field={`${path}.includeDownloadTermsInZippy` as any}
+                    field={`${path}.includeDownloadTermsInArchive` as any}
                     errors={errors}
                 />
             </FormRow>

@@ -25,7 +25,6 @@ declare global {
             TRAEFIK_CONSOLE_URL: Readonly<string>;
             UPLOADER_API_URL: Readonly<string>;
             UPLOADER_CLIENT_URL: Readonly<string>;
-            ZIPPY_URL: Readonly<string>;
             SOKETI_USAGE_URL: Readonly<string>;
         };
     }

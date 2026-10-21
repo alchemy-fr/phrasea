@@ -7,6 +7,7 @@ namespace App\Doctrine\Listener;
 use Alchemy\MessengerBundle\Listener\PostFlushStack;
 use App\Consumer\Handler\DeleteAsset;
 use App\Entity\Asset;
+use App\Entity\Publication;
 use App\Entity\SubDefinition;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\EntityManagerInterface;
@@ -71,6 +72,8 @@ class AssetListener
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
             if ($entity instanceof Asset || $entity instanceof SubDefinition) {
                 $this->postFlushStack->addBusMessage(new DeleteAsset($entity->getPath()));
+            } elseif ($entity instanceof Publication && null !== $entity->getArchivePath()) {
+                $this->postFlushStack->addBusMessage(new DeleteAsset($entity->getArchivePath()));
             }
         }
     }

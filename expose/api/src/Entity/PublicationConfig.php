@@ -32,7 +32,7 @@ class PublicationConfig implements MergeableValueObjectInterface
      */
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
-    private ?bool $includeDownloadTermsInZippy = null;
+    private ?bool $includeDownloadTermsInArchive = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     #[Groups([PublicationProfile::GROUP_READ, Publication::GROUP_ADMIN_READ, Publication::GROUP_WRITE, PublicationProfile::GROUP_WRITE])]
@@ -301,14 +301,14 @@ class PublicationConfig implements MergeableValueObjectInterface
         $this->layoutOptions = $layoutOptions;
     }
 
-    public function getIncludeDownloadTermsInZippy(): ?bool
+    public function getIncludeDownloadTermsInArchive(): ?bool
     {
-        return $this->includeDownloadTermsInZippy;
+        return $this->includeDownloadTermsInArchive;
     }
 
-    public function setIncludeDownloadTermsInZippy(?bool $includeDownloadTermsInZippy): void
+    public function setIncludeDownloadTermsInArchive(?bool $includeDownloadTermsInArchive): void
     {
-        $this->includeDownloadTermsInZippy = $includeDownloadTermsInZippy;
+        $this->includeDownloadTermsInArchive = $includeDownloadTermsInArchive;
     }
 
     public function getDownloadEnabled(): ?bool

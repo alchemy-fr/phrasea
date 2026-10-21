@@ -30,8 +30,10 @@ Follow these steps in order. Each one is detailed in the sections below.
     ```
 
 7. Deploy the new `databox-scheduler` and `uploader-scheduler` services, with a
-   single replica each, and remove the databox host crons (see
+   single replica each, and remove the host crons (see
    [Scheduler containers replace the cron jobs](#scheduler-containers-replace-the-cron-jobs)).
+   Remove the Zippy containers, volume and settings (see
+   [Zippy service removed](#zippy-service-removed)).
 8. Optionally, if the integration is enabled and its service deployed:
 
     ```bash
@@ -139,10 +141,10 @@ Run them with **exactly one replica** and never scale them: scale the
   and no longer consumes `scheduler_automation`: without `databox-scheduler`,
   the scheduled automations (saved searches) never run. If you override
   `WORKER_PRIORITIES` for the workers, remove any `scheduler_*` transport from it.
-- Remove the databox host crons: `bin/ops/cron-script-hourly.sh` and
-  `databox/api/bin/cron-script-{hourly,daily}.sh` are deleted, and
-  `bin/ops/cron-script-daily.sh` only runs the Zippy task now (keep its daily
-  cron only with the `zippy` profile). The `maintenance` schedule of databox runs
+- Remove the host crons: `bin/ops/cron-script-hourly.sh`,
+  `bin/ops/cron-script-daily.sh` and `databox/api/bin/cron-script-{hourly,daily}.sh`
+  are deleted (the daily one only served Zippy, see
+  [Zippy service removed](#zippy-service-removed)). The `maintenance` schedule of databox runs
   `alchemy:notifier:digest:flush`, `app:integration:renew-tokens` and
   `app:file:unblock-analyses` hourly, and `app:trash:empty` daily.
 - The uploader now removes its expired assets daily
@@ -151,6 +153,29 @@ Run them with **exactly one replica** and never scale them: scale the
 
 The commands are kept for manual runs; `bin/console app:automation:run-due`
 still triggers the due automations once, for development.
+
+### Zippy service removed
+
+The external Zippy service (`alchemyfr/zippy-api`, `alchemyfr/zippy-worker`) is
+no longer part of the stack: Expose and Databox build their ZIP archives
+themselves (PHP `zip` extension, already in the images).
+
+- Remove the `zippy-api` and `zippy-worker` containers (`dc up -d --remove-orphans`),
+  the `zippy` volume, the `zippy` profile from any custom `COMPOSE_PROFILES`, the
+  `ZIPPY_URL`, `ZIPPY_CLIENT_ID` and `ZIPPY_CLIENT_SECRET` variables, the
+  `zippy.<domain>` DNS entry and the daily host cron `bin/ops/cron-script-daily.sh`
+  (deleted).
+- Expose now builds the archive of a publication itself and stores it in its
+  bucket, under `archives/`. It is rebuilt when the assets, the title or the
+  download terms change, and deleted with the publication. Archives built by
+  Zippy are lost: they are rebuilt on the first download. In direct mode the
+  archive is built during the download request, so very large publications may
+  hit the PHP-FPM/nginx timeouts; in "download via email" mode the worker builds
+  it before sending the email.
+- Archive download is always offered: `archiveDownloadUrl` is now returned for
+  every publication, it no longer depends on `ZIPPY_URL`.
+
+See [Expose API](#expose-api) for the renamed properties and routes.
 
 ### Soketi
 
@@ -234,6 +259,12 @@ Other migrations are additive (`share_rendition_definition`,
 `attribute_entity.note`, `file.import_pending`, `saved_search_automation`,
 `automation_run`, `automation_seen_asset`, `workflow_state.number`,
 `*_upload.chunk_size`).
+
+In Expose, `publication.zippy_id` and `publication.zippy_hash` are dropped
+(replaced by the empty `archive_path` and `archive_hash`), and the
+`config_include_download_terms_in_zippy` columns of `publication` and
+`publication_profile` are renamed to `config_include_download_terms_in_archive`.
+Rolling back restores empty Zippy columns.
 
 For information, the APIs move from Doctrine DBAL 3 to 4, ORM 2 to 3, and
 ramsey/uuid-doctrine 1 to 2. No action is needed.
@@ -459,6 +490,15 @@ Anonymous users:
   [API changes](#api-changes-api-platform-5)).
 - `order[updatedAt]` is removed from `GET /publications`.
 - `/publications/slug-availability/{slug}` only answers `GET`.
+- Archives (see [Zippy service removed](#zippy-service-removed)):
+  `includeDownloadTermsInZippy` → `includeDownloadTermsInArchive` on publications
+  and profiles (`config_include_download_terms_in_zippy` columns renamed, values
+  kept); `GET /publications/{id}/download-via-zippy` →
+  `GET /publications/{id}/archive`; `POST /publications/{id}/zippy/download-request`
+  → `POST /publications/{id}/archive/download-request`. The archive email
+  notification topic `download:zippy_link` becomes `download:archive_link` (its
+  templates move to `download/archive_link/`). The `zippyId` admin field is
+  removed.
 - Anonymous `GET /publications/{id}` and `GET /assets/{id}` now send
   `Cache-Control: public, max-age=600` (capped by the expiration) with
   `Vary: Authorization, X-Passwords`. Check the behaviour of any cache or proxy
@@ -539,5 +579,8 @@ the public route `GET /notifications/email-logo`.
 - webhook-bundle: `EntitySerializer::convertChangeSetToPhpValue()` is removed.
 - Symfony 8: `eraseCredentials()` is gone from `JwtUser` and `JwtOauthClient`;
   voters use the new `voteOnAttribute` signature.
+- databox no longer depends on `alchemy/zippy`: an extension that used it must
+  require it itself. `Alchemy\CoreBundle\Util\ZipUtil::zipDirectory()` zips a
+  directory with `ZipArchive`.
 - `@alchemy/api`: `ApiConstant.HydraTitle` / `HydraDescription` →
   `ErrorTitle` / `ErrorDescription` (`title` / `description`).

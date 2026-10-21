@@ -11,10 +11,6 @@
             "url": "https://github.com/alchemy-fr/PHPExiftool"
         },
         {
-            "type": "vcs",
-            "url": "https://github.com/alchemy-fr/Zippy"
-        },
-        {
             "type": "package",
             "package": {
                 "name": "exiftool/exiftool",
@@ -155,6 +151,7 @@
         "ext-intl": "*",
         "ext-json": "*",
         "ext-sodium": "*",
+        "ext-zip": "*",
         "alchemy/acl-bundle": "^1.5.0",
         "alchemy/admin-bundle": "@dev",
         "alchemy/auth-bundle": "*",
@@ -172,7 +169,6 @@
         "alchemy/track-bundle": "@dev",
         "alchemy/webhook-bundle": "@dev",
         "alchemy/workflow-bundle": "@dev",
-        "alchemy/zippy": "dev-symfony-8 as 2.1.0",
         "api-platform/core": "^5.0",
         "arthem/object-reference-bundle": "^1.1.1",
         "cocur/slugify": "^4.1",

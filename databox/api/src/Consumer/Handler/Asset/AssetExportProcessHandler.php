@@ -8,12 +8,12 @@ use Alchemy\AuthBundle\Security\Traits\SecurityAwareTrait;
 use Alchemy\CoreBundle\Util\DoctrineUtil;
 use Alchemy\CoreBundle\Util\FilesystemUtils;
 use Alchemy\CoreBundle\Util\StringUtil;
+use Alchemy\CoreBundle\Util\ZipUtil;
 use Alchemy\MetadataManipulatorBundle\MetadataManipulator;
 use Alchemy\StorageBundle\Storage\FileStorageManager;
 use Alchemy\StorageBundle\Storage\PathGeneratorInterface;
 use Alchemy\StorageBundle\Storage\UrlSigner;
 use Alchemy\StorageBundle\Util\FileUtil;
-use Alchemy\Zippy\Zippy;
 use App\Entity\Core\Asset;
 use App\Entity\Core\AssetAttachment;
 use App\Entity\Core\AssetExport;
@@ -82,6 +82,7 @@ class AssetExportProcessHandler
 
             $archiveDir = sys_get_temp_dir().'/'.uniqid('archive-dir');
             mkdir($archiveDir, 0755, true);
+            $archiveSrc = null;
 
             // Hardcoded metadata depends only on the rendition definition: resolve lazily, once per definition.
             $definitionMetadataCache = [];
@@ -208,10 +209,7 @@ class AssetExportProcessHandler
                 $archivePath = $this->pathGenerator->generatePath('zip', 'exports/');
                 $archiveSrc = sys_get_temp_dir().'/'.uniqid('archive-file').'.zip';
 
-                $zippy = Zippy::load();
-                $zippy->create($archiveSrc, [
-                    'content' => $archiveDir,
-                ]);
+                ZipUtil::zipDirectory($archiveDir, $archiveSrc, 'content');
                 $this->triggerExportPush($export->getId(), 'progress', [
                     'progress' => ++$i / $total,
                 ]);
@@ -237,6 +235,9 @@ class AssetExportProcessHandler
                 ]);
             } finally {
                 FilesystemUtils::rrmdir($archiveDir);
+                if (null !== $archiveSrc && is_file($archiveSrc)) {
+                    unlink($archiveSrc);
+                }
             }
         } catch (\Throwable $e) {
             $export = $this->refresh($export);

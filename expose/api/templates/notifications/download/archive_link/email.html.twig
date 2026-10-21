@@ -1,0 +1,8 @@
+{% block subject %}{{ 'download.archive_link.email.subject'|trans({}, 'notifications')|raw }}{% endblock %}
+
+{% block body %}{{ 'download.archive_link.email.body'|trans({}, 'notifications')|raw }}
+    <p>{{ 'download.archive_link.email.validity'|trans({'%count%': daysAvailable}, 'notifications') }}</p>{% endblock %}
+
+{% block uri %}{{ downloadUrl|raw }}{% endblock %}
+
+{% block action %}{{ 'download.archive_link.email.action'|trans({}, 'notifications')|raw }}{% endblock %}

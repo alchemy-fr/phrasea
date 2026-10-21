@@ -271,11 +271,11 @@ class Publication implements AclObjectInterface, \Stringable
     #[Groups([self::GROUP_READ, Asset::GROUP_READ])]
     private ?string $cssLink = null;
 
-    #[ORM\Column(type: Types::STRING, length: 36, nullable: true)]
-    private ?string $zippyId = null;
+    #[ORM\Column(type: Types::STRING, length: 255, nullable: true)]
+    private ?string $archivePath = null;
 
     #[ORM\Column(type: Types::STRING, length: 32, nullable: true)]
-    private ?string $zippyHash = null;
+    private ?string $archiveHash = null;
 
     public function __construct()
     {
@@ -624,14 +624,14 @@ class Publication implements AclObjectInterface, \Stringable
     }
 
     #[Groups([self::GROUP_READ])]
-    public function isIncludeDownloadTermsInZippy(): bool
+    public function isIncludeDownloadTermsInArchive(): bool
     {
-        if (null !== $this->config->getIncludeDownloadTermsInZippy()) {
-            return $this->config->getIncludeDownloadTermsInZippy();
+        if (null !== $this->config->getIncludeDownloadTermsInArchive()) {
+            return $this->config->getIncludeDownloadTermsInArchive();
         }
 
         if ($this->profile) {
-            return $this->profile->getConfig()->getIncludeDownloadTermsInZippy() ?? false;
+            return $this->profile->getConfig()->getIncludeDownloadTermsInArchive() ?? false;
         }
 
         return false;
@@ -713,24 +713,24 @@ class Publication implements AclObjectInterface, \Stringable
         return $this->getOwnerId() ?? '';
     }
 
-    public function getZippyId(): ?string
+    public function getArchivePath(): ?string
     {
-        return $this->zippyId;
+        return $this->archivePath;
     }
 
-    public function setZippyId(?string $zippyId): void
+    public function setArchivePath(?string $archivePath): void
     {
-        $this->zippyId = $zippyId;
+        $this->archivePath = $archivePath;
     }
 
-    public function getZippyHash(): ?string
+    public function getArchiveHash(): ?string
     {
-        return $this->zippyHash;
+        return $this->archiveHash;
     }
 
-    public function setZippyHash(?string $zippyHash): void
+    public function setArchiveHash(?string $archiveHash): void
     {
-        $this->zippyHash = $zippyHash;
+        $this->archiveHash = $archiveHash;
     }
 
     /**

@@ -79,8 +79,9 @@ class PublicationCrudController extends AbstractAclAdminCrudController
         ;
         yield JsonField::new('clientAnnotations')
             ->hideOnIndex();
-        yield TextField::new('zippyId')
-            ->hideOnIndex();
+        yield TextField::new('archivePath')
+            ->hideOnIndex()
+            ->hideOnForm();
         yield JsonField::new('translations')
             ->hideOnIndex();
         yield IntegerField::new('assets.count', 'Assets')

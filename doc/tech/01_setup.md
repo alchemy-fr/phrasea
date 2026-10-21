@@ -112,9 +112,7 @@ ones between 00:00 and 02:59), to spread the load. The commands can still be
 run by hand; `bin/console app:automation:run-due` triggers the due automations
 once, for development.
 
-Only Zippy still needs a host cron: when the `zippy` profile is enabled and the
-stack is deployed with docker-compose on a single host, run
-`bin/ops/cron-script-daily.sh` **every day**.
+No host cron is needed: every periodic task runs in the scheduler containers.
 
 ### Changing ports
 

@@ -5,7 +5,7 @@ namespace App\Consumer\Handler;
 use Alchemy\MessengerBundle\Attribute\MessengerMessage;
 
 #[MessengerMessage('p1')]
-final readonly class ZippyDownloadRequest
+final readonly class PublicationArchiveRequest
 {
     public function __construct(private string $id)
     {

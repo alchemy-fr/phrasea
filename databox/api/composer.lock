@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "930fc983201161e0b8ed02824bbe6bc3",
+    "content-hash": "769ee8a0121543805d14024a8b37ae9d",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -1077,81 +1077,6 @@
                 "symlink": true,
                 "relative": true
             }
-        },
-        {
-            "name": "alchemy/zippy",
-            "version": "dev-symfony-8",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/alchemy-fr/Zippy.git",
-                "reference": "a0628cfa4eb3e148dab9177d08e1111c98877703"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/alchemy-fr/Zippy/zipball/a0628cfa4eb3e148dab9177d08e1111c98877703",
-                "reference": "a0628cfa4eb3e148dab9177d08e1111c98877703",
-                "shasum": ""
-            },
-            "require": {
-                "doctrine/collections": "^1.0 || ^2.0",
-                "php": ">=8.1",
-                "symfony/filesystem": "^6.0 || ^7.0 || ^8.0",
-                "symfony/http-client": "^6.0 || ^7.0 || ^8.0",
-                "symfony/polyfill-mbstring": "^1.3",
-                "symfony/process": "^6.0 || ^7.0 || ^8.0"
-            },
-            "require-dev": {
-                "ext-zip": "*",
-                "phpunit/phpunit": "^9.5",
-                "symfony/finder": "^6.0 || ^7.0 || ^8.0"
-            },
-            "suggest": {
-                "ext-zip": "To use the ZipExtensionAdapter"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.4.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Alchemy\\Zippy\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Alchemy\\Zippy\\Functional\\": "tests/Functional/",
-                    "Alchemy\\Zippy\\Tests\\": "tests/Tests/"
-                }
-            },
-            "scripts": {
-                "test": [
-                    "./tests/test.sh"
-                ]
-            },
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Alchemy",
-                    "email": "dev.team@alchemy.fr",
-                    "homepage": "http://www.alchemy.fr/"
-                }
-            ],
-            "description": "Zippy, the archive manager companion",
-            "keywords": [
-                "bzip",
-                "compression",
-                "tar",
-                "zip"
-            ],
-            "support": {
-                "source": "https://github.com/alchemy-fr/Zippy/tree/symfony-8",
-                "issues": "https://github.com/alchemy-fr/Zippy/issues"
-            },
-            "time": "2026-10-06T06:08:56+00:00"
         },
         {
             "name": "api-platform/core",
@@ -18785,12 +18710,6 @@
             "version": "dev-symfony-8",
             "alias": "4.3.0",
             "alias_normalized": "4.3.0.0"
-        },
-        {
-            "package": "alchemy/zippy",
-            "version": "dev-symfony-8",
-            "alias": "2.1.0",
-            "alias_normalized": "2.1.0.0"
         }
     ],
     "minimum-stability": "dev",
@@ -18809,8 +18728,7 @@
         "alchemy/test-bundle": 20,
         "alchemy/track-bundle": 20,
         "alchemy/webhook-bundle": 20,
-        "alchemy/workflow-bundle": 20,
-        "alchemy/zippy": 20
+        "alchemy/workflow-bundle": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
@@ -18822,7 +18740,8 @@
         "ext-imagick": "*",
         "ext-intl": "*",
         "ext-json": "*",
-        "ext-sodium": "*"
+        "ext-sodium": "*",
+        "ext-zip": "*"
     },
     "platform-dev": {},
     "plugin-api-version": "2.9.0"

@@ -9,7 +9,7 @@ alchemy_notifier:
         # Transactional emails sent to anonymous download requesters
         'download:link':
             channels: [email]
-        'download:zippy_link':
+        'download:archive_link':
             channels: [email]
 
 twig:

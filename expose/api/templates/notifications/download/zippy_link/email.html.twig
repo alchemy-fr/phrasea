@@ -1,8 +1,0 @@
-{% block subject %}{{ 'download.zippy_link.email.subject'|trans({}, 'notifications')|raw }}{% endblock %}
-
-{% block body %}{{ 'download.zippy_link.email.body'|trans({}, 'notifications')|raw }}
-    <p>{{ 'download.zippy_link.email.validity'|trans({'%count%': daysAvailable}, 'notifications') }}</p>{% endblock %}
-
-{% block uri %}{{ downloadUrl|raw }}{% endblock %}
-
-{% block action %}{{ 'download.zippy_link.email.action'|trans({}, 'notifications')|raw }}{% endblock %}

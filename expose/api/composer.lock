@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f49c5ac1cb7d602ace17ecfa2473b37a",
+    "content-hash": "a5fedacb0d5212643ff97c3f3dd7c6f4",
     "packages": [
         {
             "name": "alchemy/acl-bundle",
@@ -15965,7 +15965,8 @@
         "php": "^8.5",
         "ext-ctype": "*",
         "ext-iconv": "*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-zip": "*"
     },
     "platform-dev": {},
     "plugin-api-version": "2.9.0"

@@ -383,9 +383,6 @@ services:
       - EXPOSE_API_URL
       - EXPOSE_CLIENT_URL
       - UPLOAD_MAX_FILE_SIZE
-      - ZIPPY_CLIENT_ID
-      - ZIPPY_CLIENT_SECRET
-      - ZIPPY_URL
       - MAPBOX_TOKEN
       - EXPOSE_CLIENT_LOGO_URL
       - EXPOSE_CLIENT_LOGO_ALT
@@ -399,7 +396,6 @@ services:
       - PHRASEANET_URL
       - DB_NAME=${EXPOSE_DB_NAME}
     extra_hosts:
-      - zippy.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   expose-worker:
@@ -702,7 +698,6 @@ services:
       - TRAEFIK_CONSOLE_URL
       - UPLOADER_API_URL
       - UPLOADER_CLIENT_URL
-      - ZIPPY_URL
       - SENTRY_DSN
       - SENTRY_ENVIRONMENT
       - SENTRY_RELEASE
@@ -741,9 +736,6 @@ services:
       - S3_BUCKET_NAME=${DATABOX_S3_BUCKET_NAME}
       - UPLOAD_MAX_FILE_SIZE
       - NEWRELIC_APP_NAME=databox-api
-      - ZIPPY_CLIENT_ID
-      - ZIPPY_CLIENT_SECRET
-      - ZIPPY_URL
       - CLOUD_FRONT_URL=${DATABOX_CLOUD_FRONT_URL}
       - CLOUD_FRONT_REGION=${DATABOX_CLOUD_FRONT_REGION}
       - CLOUD_FRONT_PRIVATE_KEY=${DATABOX_CLOUD_FRONT_PRIVATE_KEY}
@@ -773,7 +765,6 @@ services:
       - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - ${PHRASEANET_DOMAIN}:${PS_GATEWAY_IP}
       - webhook-endpoint.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - zippy.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - matomo.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   databox-worker:
@@ -1007,37 +998,6 @@ services:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
       - "traefik.http.routers.webhook-endpoint.rule=Host(`webhook-endpoint.${PHRASEA_DOMAIN}`)"
-
-  zippy-api: &zippy
-    logging: *default-logging
-    image: alchemyfr/zippy-api:latest
-    profiles:
-      - zippy
-    networks:
-      - internal
-    environment:
-      - APP_ENV
-      - VERIFY_SSL
-      - VERIFY_HOST
-      - RABBITMQ_USER
-      - RABBITMQ_PASSWORD
-      - TRUSTED_PROXIES
-      - CLIENT_ID=${ZIPPY_CLIENT_ID}
-      - CLIENT_SECRET=${ZIPPY_CLIENT_SECRET}
-      - ZIPPY_URL
-    volumes:
-      - zippy:/data
-    extra_hosts:
-      - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
-      - "traefik.http.routers.zippy.rule=Host(`zippy.${PHRASEA_DOMAIN}`)"
-
-  zippy-worker:
-    <<: *zippy
-    image: alchemyfr/zippy-worker:latest
-    labels: []
 
   keycloak:
     logging: *default-logging
@@ -1307,5 +1267,4 @@ volumes:
   rabbitmq:
   elasticsearch9:
   expose_nginx_cache:
-  zippy:
   cypress_output:

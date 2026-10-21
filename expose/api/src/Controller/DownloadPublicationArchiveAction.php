@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\ReportBundle\ReportUserService;
+use App\Archive\PublicationArchiver;
 use App\Entity\Publication;
 use App\Report\ExposeLogActionInterface;
+use App\Security\AssetUrlGenerator;
 use App\Security\Voter\PublicationVoter;
-use App\ZippyManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -17,21 +18,29 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(path: '/publications/{id}/download-via-zippy', name: 'archive_download', methods: ['GET'])]
-final class DownloadViaZippyAction extends AbstractController
+#[Route(path: '/publications/{id}/archive', name: 'archive_download', methods: ['GET'])]
+final class DownloadPublicationArchiveAction extends AbstractController
 {
-    public function __construct(private readonly EntityManagerInterface $em, private readonly ZippyManager $zippyManager, private readonly ReportUserService $reportClient)
-    {
+    public function __construct(
+        private readonly EntityManagerInterface $em,
+        private readonly PublicationArchiver $archiver,
+        private readonly AssetUrlGenerator $assetUrlGenerator,
+        private readonly ReportUserService $reportClient,
+    ) {
     }
 
     public function __invoke(string $id, Request $request): Response
     {
-        /** @var Publication $publication */
+        /** @var Publication|null $publication */
         $publication = $this->em->find(Publication::class, $id);
-        if (!$publication) {
+        if (!$publication instanceof Publication) {
             throw new NotFoundHttpException();
         }
         $this->denyAccessUnlessGranted(PublicationVoter::READ_DETAILS, $publication);
+
+        if ($publication->getAssets()->isEmpty()) {
+            throw new NotFoundHttpException('Publication has no asset to archive.');
+        }
 
         $this->reportClient->pushHttpRequestLog(
             $request,
@@ -42,6 +51,8 @@ final class DownloadViaZippyAction extends AbstractController
             ]
         );
 
-        return new RedirectResponse($this->zippyManager->getDownloadUrl($publication));
+        $archivePath = $this->archiver->getArchivePath($publication);
+
+        return new RedirectResponse($this->assetUrlGenerator->generatePathUrl($archivePath, true));
     }
 }

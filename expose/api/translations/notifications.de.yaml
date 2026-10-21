@@ -6,11 +6,11 @@ download:
             body: '<p>Ihr Download ist bereit.</p><p>Dieser Link ist nur für begrenzte Zeit gültig.</p>'
         sms:
             body: 'Ihr Download ist bereit: %url%'
-    zippy_link:
+    archive_link:
         email:
             action: 'Archiv herunterladen'
-            subject: 'Ihr Archiv wird vorbereitet'
-            body: '<p>Ihr Archiv wird vorbereitet und ist in Kürze verfügbar.</p>'
+            subject: 'Ihr Archiv ist bereit'
+            body: '<p>Ihr Archiv steht zum Download bereit.</p>'
             validity: 'Dieser Link ist %count% Tag lang gültig.|Dieser Link ist %count% Tage lang gültig.'
         sms:
             body: 'Ihr Archiv ist fertig (%count% Tag): %url%|Ihr Archiv ist fertig (%count% Tage): %url%'

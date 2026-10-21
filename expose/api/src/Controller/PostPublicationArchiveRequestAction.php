@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Alchemy\ReportBundle\ReportUserService;
-use App\Consumer\Handler\ZippyDownloadRequest;
+use App\Consumer\Handler\PublicationArchiveRequest;
 use App\Entity\DownloadRequest;
 use App\Entity\Publication;
 use App\Report\ExposeLogActionInterface;
@@ -19,8 +19,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(path: '/publications/{id}/zippy/download-request', name: 'download_zippy_request_create', methods: ['POST'])]
-final class PostDownloadZippyViaEmailAction extends AbstractController
+#[Route(path: '/publications/{id}/archive/download-request', name: 'archive_download_request_create', methods: ['POST'])]
+final class PostPublicationArchiveRequestAction extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $em,
@@ -39,6 +39,10 @@ final class PostDownloadZippyViaEmailAction extends AbstractController
 
         $this->denyAccessUnlessGranted(PublicationVoter::READ_DETAILS, $publication);
 
+        if ($publication->getAssets()->isEmpty()) {
+            throw new NotFoundHttpException('Publication has no asset to archive.');
+        }
+
         $downloadRequest = new DownloadRequest();
         $downloadRequest->setPublication($publication);
         $downloadRequest->setEmail($request->request->get('email'));
@@ -47,7 +51,7 @@ final class PostDownloadZippyViaEmailAction extends AbstractController
         $this->em->persist($downloadRequest);
         $this->em->flush();
 
-        $bus->dispatch(new ZippyDownloadRequest($downloadRequest->getId()));
+        $bus->dispatch(new PublicationArchiveRequest($downloadRequest->getId()));
 
         $this->reportClient->pushHttpRequestLog(
             $request,

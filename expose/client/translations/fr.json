@@ -79,7 +79,7 @@
                 "expiresAt": {
                     "label": "Expire le"
                 },
-                "includeDownloadTermsInZippy": {
+                "includeDownloadTermsInArchive": {
                     "label": "Inclure les Conditions de téléchargement dans l'archive"
                 },
                 "label": "Configuration",

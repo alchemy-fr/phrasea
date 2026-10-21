@@ -84,15 +84,6 @@ Il est fortement recommandé de déléguer les **datastores principaux**—tels 
   - [Client Expose](https://hub.docker.com/r/alchemyfr/ps-expose-client/tags)  
   - [API Nginx Expose](https://hub.docker.com/r/alchemyfr/ps-expose-api-nginx/tags)
 
-* **Service Zippy** 
-   - [API Zippy](https://hub.docker.com/r/alchemyfr/zippy-api/tags)
-   - [Cron Zippy](https://hub.docker.com/r/alchemyfr/zippy-cron/tags)
-   - [Worker Zippy](https://hub.docker.com/r/alchemyfr/zippy-worker/tags)
-
-  Zippy est un service externe développé par Alchemy et utilisé dans Phrasea Databox et Phrasea Expose.
-  Zippy est dédié à l’export de fichiers vers plusieurs destinations, par exemple des fichiers zip téléchargeables.
-  Dépôt source GitHub Zippy : [Zippy](https://github.com/alchemy-fr/zippy-svc).  
-
 * **Envoi d’emails (SMTP)**
 
   Les notifications envoyées par l’application sont délivrées par email via Symfony Mailer.

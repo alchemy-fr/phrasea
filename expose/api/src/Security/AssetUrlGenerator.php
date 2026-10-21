@@ -24,6 +24,11 @@ readonly class AssetUrlGenerator
         return $this->generateUrl($subDefinition->getPath(), $download);
     }
 
+    public function generatePathUrl(string $path, bool $download = false): string
+    {
+        return $this->generateUrl($path, $download);
+    }
+
     private function generateUrl(string $path, bool $download): string
     {
         return $this->urlSigner->getSignedUrl($path, [
