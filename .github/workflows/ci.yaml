@@ -39,7 +39,12 @@ env:
   DOCKER_TAG: ${{ github.sha }}
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   VERIFY_SSL: "false"
-  COMPOSE_PROFILES: databox,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard,soketi
+  COMPOSE_PROFILES: databox,expose,uploader,db,rabbitmq,redis,minio,mailpit,elasticsearch,dashboard,soketi
+  # The Keycloak and report-api images are not built here and are never pulled
+  # by the CI: the stack runs without them, so the tests that log in through
+  # Keycloak (Cypress, indexer end-to-end) are not run.
+  CONFIGURATOR_CONFIGURE_KEYCLOAK: 'false'
+  REPORT_API_URL: ''
   FIXTURES_GENERATE_IMAGES: "true"
   # The S3 minimum part size, so that the e2e uploads span several parts
   S3_MULTIPART_MIN_CHUNK_SIZE: '5242880'
@@ -231,7 +236,8 @@ jobs:
 
       - name: Pull images
         run: |
-            docker compose pull
+            . bin/functions.sh
+            docker compose pull $(compose_up_services)
             docker compose pull configurator
 
       - name: Setup
@@ -247,7 +253,7 @@ jobs:
         run: bin/test.sh standard
 
       - name: Run Cypress tests
-        if: "!contains(github.event.head_commit.message || '', '[skip test]') && !contains(github.event.head_commit.message || '', '[skip cypress]')"
+        if: "env.CONFIGURATOR_CONFIGURE_KEYCLOAK != 'false' && !contains(github.event.head_commit.message || '', '[skip test]') && !contains(github.event.head_commit.message || '', '[skip cypress]')"
         run: bin/dev/test-cypress.sh
 
       - name: Replay Doctrine migrations
@@ -255,7 +261,7 @@ jobs:
         run: bin/dev/test-migrations.sh
 
       - name: Indexer end-to-end
-        if: env.TIER == 'release'
+        if: env.TIER == 'release' && env.CONFIGURATOR_CONFIGURE_KEYCLOAK != 'false'
         run: |
           docker compose --profile indexer pull databox-indexer
           bin/dev/test-indexer-e2e.sh --timeout 300

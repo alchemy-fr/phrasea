@@ -76,9 +76,12 @@ tier_quick() {
 }
 
 tier_standard() {
-  export COMPOSE_PROFILES=db,redis,elasticsearch,report,minio,rabbitmq
+  export COMPOSE_PROFILES=db,redis,elasticsearch,minio,rabbitmq
+  if [ -n "${REPORT_API_URL}" ]; then
+    COMPOSE_PROFILES="${COMPOSE_PROFILES},report"
+  fi
 
-  docker compose up -d
+  docker compose up -d $(compose_up_services)
   docker compose run --rm dockerize
 
   for s in ${SF_SERVICES}; do
@@ -96,7 +99,10 @@ tier_release() {
 
   set +e
   bin/dev/test-migrations.sh || status=1
-  bin/dev/test-indexer-e2e.sh --timeout 300 || status=1
+  # The indexer logs in through Keycloak.
+  if [ "${CONFIGURATOR_CONFIGURE_KEYCLOAK}" != "false" ]; then
+    bin/dev/test-indexer-e2e.sh --timeout 300 || status=1
+  fi
   set -e
 
   return ${status}

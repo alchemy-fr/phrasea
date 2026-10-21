@@ -6,7 +6,15 @@ set -e
 
 load-env
 
-export COMPOSE_PROFILES="dashboard,databox,db,elasticsearch,expose,minio,rabbitmq,redis,report,uploader"
+export COMPOSE_PROFILES="dashboard,databox,db,elasticsearch,expose,minio,rabbitmq,redis,uploader"
+if [ -n "${REPORT_API_URL}" ]; then
+    COMPOSE_PROFILES="${COMPOSE_PROFILES},report"
+fi
+
+infra_services=(traefik minio rabbitmq db redis elasticsearch)
+if [ "${CONFIGURATOR_CONFIGURE_KEYCLOAK}" != "false" ]; then
+    infra_services+=(keycloak)
+fi
 
 pids=()
 containers=()
@@ -72,7 +80,7 @@ fail() {
     exit 1
 }
 
-docker compose up -d traefik keycloak minio rabbitmq db redis elasticsearch
+docker compose up -d "${infra_services[@]}"
 
 setup_container configurator "bin/setup.sh $@"
 wait_all || fail
@@ -82,6 +90,6 @@ setup_container expose-api-php "bin/setup.sh"
 setup_container databox-api-php "bin/setup.sh"
 wait_all || fail
 
-docker compose up -d
+docker compose up -d $(compose_up_services)
 
 echo "Done."

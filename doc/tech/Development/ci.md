@@ -6,8 +6,8 @@ script that runs the same way locally (in Docker) and in GitHub Actions.
 | Tier | When (GitHub Actions) | Content | Stack | Budget |
 |---|---|---|---|---|
 | **quick** | every push on every branch (`quick.yaml`); pull requests from forks | static checks and unit tests | none | < 8 min |
-| **standard** | pull requests and pushes on `master` and `release/**`, `workflow_dispatch` (`ci.yaml`) | image builds, full PHP suites, Cypress smoke, GHCR/ECR push | full | ≈ 20 min |
-| **release** | tags, nightly on `master` (weekdays 03:00 UTC, skipped when `master` has not moved since the last successful release run), `workflow_dispatch` (`release.yaml`) | standard + Doctrine migrations replay + indexer end-to-end; Docker Hub publication on tags only | full + `indexer` profile | ≈ 30 min |
+| **standard** | pull requests and pushes on `master` and `release/**`, `workflow_dispatch` (`ci.yaml`) | image builds, full PHP suites, GHCR/ECR push (Cypress smoke: not run in CI, see below) | full | ≈ 20 min |
+| **release** | tags, nightly on `master` (weekdays 03:00 UTC, skipped when `master` has not moved since the last successful release run), `workflow_dispatch` (`release.yaml`) | standard + Doctrine migrations replay (indexer end-to-end: not run in CI, see below); Docker Hub publication on tags only | full + `indexer` profile | ≈ 30 min |
 
 ## What each tier runs
 
@@ -39,6 +39,24 @@ run (`unit` + `functional`, with the SQLite and Elasticsearch reset of
 
 Cypress (`bin/dev/test-cypress.sh`) needs the stack set up by
 `bin/setup.sh test` and loads the expose fixtures first.
+
+### Keycloak and report-api in CI
+
+The Keycloak and report-api images are built outside this repository and are
+not pulled by `ci.yaml`. The workflow sets `CONFIGURATOR_CONFIGURE_KEYCLOAK=false`
+and an empty `REPORT_API_URL`, and the scripts follow:
+
+- `bin/setup.sh` and `bin/test.sh` leave out the `report` profile when
+  `REPORT_API_URL` is empty, and Keycloak when `CONFIGURATOR_CONFIGURE_KEYCLOAK`
+  is `false` (`compose_up_services` in `bin/functions.sh`: Keycloak has no
+  profile, so the other services are listed explicitly);
+- the configurator skips its Keycloak configuration and its Keycloak
+  migrations (`KeycloakMigrationTrait`);
+- the steps that log in through Keycloak, Cypress and the indexer end-to-end,
+  do not run.
+
+The PHP suites do not need either service: they mock Keycloak, and an empty
+`REPORT_API_URL` disables the report client.
 
 ### release — `bin/test.sh release`
 

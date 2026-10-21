@@ -39,6 +39,17 @@ function load-env {
   rm -f "${tmp}"
 }
 
+# The services to pass to `docker compose up -d`: none (= every service of the
+# active profiles) unless Keycloak configuration is disabled. Keycloak has no
+# profile, so the other services are then listed explicitly, which keeps
+# Compose from pulling or starting it.
+# Usage: docker compose up -d $(compose_up_services)
+function compose_up_services {
+  if [ "${CONFIGURATOR_CONFIGURE_KEYCLOAK}" = "false" ]; then
+    docker compose config --services | grep -vx keycloak
+  fi
+}
+
 # execute a shell command in a container defined in docker-compose.yml
 function exec_container() {
   docker compose exec -T "$1" sh -c "$2"
