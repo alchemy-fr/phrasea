@@ -5,9 +5,10 @@ import Link from 'next/link';
 import {useTranslation} from 'react-i18next';
 import {useInfiniteQuery} from '@tanstack/react-query';
 import {ExternalLinkIcon} from 'lucide-react';
-import type {AttributeEntity, EntityList} from '@/types/api';
-import {EntityName} from '@/types/api';
+import type {Asset, AttributeEntity, EntityList} from '@/types/api';
+import {AttributeEntityStatus, EntityName} from '@/types/api';
 import {searchAssets} from '@/lib/api/assets';
+import {getAttributesOfDefinition} from '@/lib/api/metadata';
 import {
     Dialog,
     DialogBody,
@@ -23,6 +24,7 @@ import {EntityChip} from '@/components/chips';
 import type {ModalProps} from '@/components/modals/ModalProvider';
 import {AssetThumb} from '@/features/assets/list/AssetThumb';
 import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
+import {assetIdOf} from '@/features/faces/useFaceRecognition';
 import {useEntitiesStore} from '@/features/search/entitiesStore';
 import {iri} from '@/lib/utils/iri';
 import {
@@ -34,7 +36,11 @@ import {
 
 const PAGE_SIZE = 24;
 
-/** The assets holding a value, and a link to their search */
+/**
+ * The assets holding a value, and a link to their search. The values not
+ * approved yet are left out of the search index: their assets are found
+ * through the attributes holding them.
+ */
 export function EntityAssetsPreviewDialog({
     open,
     onOpenChange,
@@ -53,30 +59,76 @@ export function EntityAssetsPreviewDialog({
         void loadWorkspace(workspaceId).catch(() => {});
     }, [loadWorkspace, workspaceId]);
 
-    const slugs = useMemo(
-        () =>
-            entityListSlugs(
-                entityListDefinitions(definitions, workspaceId, list.id)
-            ),
+    const listDefinitions = useMemo(
+        () => entityListDefinitions(definitions, workspaceId, list.id),
         [definitions, workspaceId, list.id]
     );
+    const slugs = useMemo(
+        () => entityListSlugs(listDefinitions),
+        [listDefinitions]
+    );
+    const definitionIds = useMemo(
+        () => listDefinitions.map(d => d.id),
+        [listDefinitions]
+    );
+    const indexed = entity.status === AttributeEntityStatus.Approved;
     const condition = entityAssetsCondition(slugs, entity.id);
-    const url = entityAssetsSearchUrl(slugs, entity.id, workspaceId);
+    const url = indexed
+        ? entityAssetsSearchUrl(slugs, entity.id, workspaceId)
+        : undefined;
 
     const assets = useInfiniteQuery({
-        queryKey: ['entity-assets', entity.id, slugs],
+        queryKey: ['entity-assets', entity.id, indexed, slugs],
         enabled: !!condition,
-        queryFn: ({pageParam}) =>
-            searchAssets({
-                url: pageParam,
-                conditions: condition ? [condition.query] : [],
-                workspaces: [workspaceId],
-                limit: PAGE_SIZE,
-            }),
+        queryFn: async ({pageParam, signal}) => {
+            if (indexed) {
+                return searchAssets(
+                    {
+                        url: pageParam,
+                        conditions: condition ? [condition.query] : [],
+                        workspaces: [workspaceId],
+                        limit: PAGE_SIZE,
+                    },
+                    signal
+                );
+            }
+
+            const attributes = await getAttributesOfDefinition(
+                {
+                    url: pageParam,
+                    definition: definitionIds,
+                    value: entity.id,
+                    limit: PAGE_SIZE,
+                },
+                signal
+            );
+            const ids = [
+                ...new Set(
+                    attributes.items
+                        .map(assetIdOf)
+                        .filter((id): id is string => !!id)
+                ),
+            ];
+            const found =
+                ids.length > 0
+                    ? (await searchAssets({ids, limit: ids.length}, signal))
+                          .items
+                    : [];
+            const byId = new Map(found.map(a => [a.id, a]));
+
+            return {
+                items: ids
+                    .map(id => byId.get(id))
+                    .filter((a): a is Asset => !!a),
+                next: attributes.next,
+                // Counts the values, an asset may hold several of them
+                total: undefined,
+            };
+        },
         initialPageParam: undefined as string | undefined,
         getNextPageParam: last => last.next,
     });
-    const items = assets.data?.pages.flatMap(p => p.items) ?? [];
+    const items = uniqueById(assets.data?.pages.flatMap(p => p.items) ?? []);
     const total = assets.data?.pages[0]?.total;
 
     return (
@@ -182,4 +234,10 @@ export function EntityAssetsPreviewDialog({
             </DialogContent>
         </Dialog>
     );
+}
+
+function uniqueById<T extends {id: string}>(items: T[]): T[] {
+    const seen = new Set<string>();
+
+    return items.filter(i => !seen.has(i.id) && !!seen.add(i.id));
 }

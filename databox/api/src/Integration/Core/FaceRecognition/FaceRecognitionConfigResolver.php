@@ -11,6 +11,7 @@ use App\Integration\IntegrationConfig;
 use App\Integration\IntegrationManager;
 use App\Repository\Core\AttributeDefinitionRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Contracts\Service\ResetInterface;
 
 /**
@@ -96,11 +97,11 @@ final class FaceRecognitionConfigResolver implements ResetInterface
             if (null === $workspaceIntegration->getWorkspace()) {
                 continue;
             }
-            $config = $this->integrationManager->getIntegrationConfiguration($workspaceIntegration);
             try {
+                $config = $this->integrationManager->getIntegrationConfiguration($workspaceIntegration);
                 $definition = $this->getDefinition($config);
-            } catch (\InvalidArgumentException) {
-                // A configuration pointing to a removed attribute recognizes nothing
+            } catch (InvalidConfigurationException|\InvalidArgumentException) {
+                // An incomplete configuration, or one pointing to a removed attribute, recognizes nothing
                 continue;
             }
             $definitions[$definition->getId()] = $config;

@@ -15,8 +15,8 @@ use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
 
 /**
- * The attribute values of an asset (every value the user may see, unpaginated), or, with a
- * "definition", the values of that definition across the assets (paginated, newest assets first,
+ * The attribute values of an asset (every value the user may see, unpaginated), or, with one or
+ * more "definition", the values of these definitions across the assets (paginated, newest assets first,
  * the values of the assets the user cannot read left out of the page).
  */
 class AttributeCollectionProvider extends AbstractAssetFilteredCollectionProvider
@@ -31,9 +31,9 @@ class AttributeCollectionProvider extends AbstractAssetFilteredCollectionProvide
 
     protected function provideCollection(Operation $operation, array $uriVariables = [], array $context = []): array|object
     {
-        $definitionId = self::getParameterId($operation, 'definition');
-        if (null !== $definitionId) {
-            return $this->provideByDefinition($operation, $definitionId);
+        $definitionIds = self::getParameterIds($operation, 'definition');
+        if (!empty($definitionIds)) {
+            return $this->provideByDefinitions($operation, $definitionIds);
         }
 
         $asset = $this->getAsset($operation);
@@ -55,18 +55,22 @@ class AttributeCollectionProvider extends AbstractAssetFilteredCollectionProvide
         }));
     }
 
-    private function provideByDefinition(Operation $operation, string $definitionId): object
+    /**
+     * @param string[] $definitionIds
+     */
+    private function provideByDefinitions(Operation $operation, array $definitionIds): object
     {
-        // TODO to complex
-        $definition = DoctrineUtil::findStrict($this->em, AttributeDefinition::class, $definitionId, throw404: true);
-        $this->denyAccessUnlessGranted(AttributeDefinitionVoter::VIEW_ATTRIBUTES, $definition);
+        foreach ($definitionIds as $definitionId) {
+            $definition = DoctrineUtil::findStrict($this->em, AttributeDefinition::class, $definitionId, throw404: true);
+            $this->denyAccessUnlessGranted(AttributeDefinitionVoter::VIEW_ATTRIBUTES, $definition);
+        }
 
         $qb = $this->em->getRepository(Attribute::class)->createQueryBuilder('a')
             ->innerJoin('a.asset', 'asset')
             ->addSelect('asset')
-            ->andWhere('a.definition = :def')
+            ->andWhere('a.definition IN (:defs)')
             ->andWhere('asset.deletedAt IS NULL')
-            ->setParameter('def', $definition->getId())
+            ->setParameter('defs', $definitionIds)
             ->orderBy('asset.createdAt', 'DESC')
             ->addOrderBy('asset.id', 'ASC')
             ->addOrderBy('a.position', 'ASC')

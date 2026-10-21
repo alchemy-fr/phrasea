@@ -60,4 +60,17 @@ trait ParameterValuesTrait
 
         return \is_string($value) && '' !== $value ? basename($value) : null;
     }
+
+    /**
+     * The IDs a parameter carries, each given as an ID or an IRI, once (`?x=a`) or as a list (`?x[]=a&x[]=b`).
+     *
+     * @return string[]
+     */
+    protected static function getParameterIds(Operation $operation, string $key): array
+    {
+        $value = self::getParameterValue($operation, $key);
+        $values = \is_array($value) ? $value : [$value];
+
+        return array_values(array_unique(array_map(basename(...), array_filter($values, static fn (mixed $v): bool => \is_string($v) && '' !== $v))));
+    }
 }

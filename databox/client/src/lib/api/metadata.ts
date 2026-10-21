@@ -340,10 +340,10 @@ export function deleteAttributeEntity(id: string): Promise<void> {
     return api.delete(`/${EntityName.AttributeEntity}/${id}`);
 }
 
-/** The values of an attribute definition across the assets, newest assets first */
+/** The values of attribute definitions across the assets, newest assets first */
 export async function getAttributesOfDefinition(
     options: {
-        definition: string;
+        definition: string | string[];
         value?: string | string[];
         origin?: AttributeOrigin;
         asset?: string;

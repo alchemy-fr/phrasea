@@ -49,9 +49,9 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ),
                 'definition' => new QueryParameter(
                     schema: ['type' => 'string'],
-                    description: 'Attribute definition ID or IRI: the values of this definition across the assets (paginated, newest assets first); "asset" then becomes optional',
-                    castToArray: false,
+                    description: 'Attribute definition ID(s) or IRI(s): the values of these definitions across the assets (paginated, newest assets first); "asset" then becomes optional',
                 ),
+                'definition[]' => new QueryParameter(property: 'definition', openApi: false),
                 'value' => new QueryParameter(
                     schema: ['type' => 'string'],
                     description: 'Exact value(s), with "definition" only',

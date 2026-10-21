@@ -33,7 +33,7 @@ class AttributeCollectionByDefinitionTest extends AbstractDataboxTestCase
         $human = $this->createValue($publicAsset, $definition, 'sea', Attribute::ORIGIN_HUMAN);
         $machine = $this->createValue($publicAsset, $definition, 'sky', Attribute::ORIGIN_MACHINE);
         $hidden = $this->createValue($privateAsset, $definition, 'sea', Attribute::ORIGIN_HUMAN);
-        $this->createValue($publicAsset, $otherDefinition, 'sea', Attribute::ORIGIN_HUMAN);
+        $other = $this->createValue($publicAsset, $otherDefinition, 'sea', Attribute::ORIGIN_HUMAN);
         $em->flush();
 
         // Without a definition, an asset is still required
@@ -46,6 +46,7 @@ class AttributeCollectionByDefinitionTest extends AbstractDataboxTestCase
         $this->assertEqualsCanonicalizing([$human->getId(), $hidden->getId()], $query(['definition' => $definition->getId(), 'value' => 'sea']));
         $this->assertEqualsCanonicalizing([$human->getId(), $machine->getId(), $hidden->getId()], $query(['definition' => $definition->getId(), 'value' => ['sea', 'sky']]));
         $this->assertSame([$machine->getId()], $query(['definition' => $definition->getId(), 'origin' => 'machine']));
+        $this->assertEqualsCanonicalizing([$human->getId(), $hidden->getId(), $other->getId()], $query(['definition' => [$definition->getId(), $otherDefinition->getId()], 'value' => 'sea']));
         $this->assertEqualsCanonicalizing([$human->getId(), $machine->getId()], $query(['definition' => $definition->getId(), 'asset' => $publicAsset->getId()]));
 
         $response = $this->api('GET', '/attributes', KeycloakClientTestMock::ADMIN_UID, options: ['query' => ['definition' => $definition->getId(), 'limit' => 2]]);
@@ -62,6 +63,8 @@ class AttributeCollectionByDefinitionTest extends AbstractDataboxTestCase
 
         // A private attribute policy hides the definition
         $this->api('GET', '/attributes', KeycloakClientTestMock::USER_UID, options: ['query' => ['definition' => $privateDefinition->getId()]]);
+        $this->assertResponseStatusCodeSame(403);
+        $this->api('GET', '/attributes', KeycloakClientTestMock::USER_UID, options: ['query' => ['definition' => [$definition->getId(), $privateDefinition->getId()]]]);
         $this->assertResponseStatusCodeSame(403);
         $this->api('GET', '/attributes', KeycloakClientTestMock::ADMIN_UID, options: ['query' => ['definition' => $privateDefinition->getId()]]);
         $this->assertResponseStatusCodeSame(200);
