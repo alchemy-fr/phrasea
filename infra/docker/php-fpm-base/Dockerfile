@@ -67,10 +67,11 @@ RUN set -eux \
         bcmath \
         pdo \
         pdo_pgsql \
-    && pecl update-channels \
-    && pecl install \
-        apcu-${APCU_VERSION} \
-        xdebug-${XDEBUG_VERSION} \
+    && mkdir -p /tmp/apcu /tmp/xdebug \
+    && curl -fsSL https://github.com/krakjoe/apcu/archive/refs/tags/v${APCU_VERSION}.tar.gz | tar -xz -C /tmp/apcu --strip-components=1 \
+    && curl -fsSL https://github.com/xdebug/xdebug/archive/refs/tags/${XDEBUG_VERSION}.tar.gz | tar -xz -C /tmp/xdebug --strip-components=1 \
+    && for ext in apcu xdebug; do (cd /tmp/$ext && phpize && ./configure && make -j "$(nproc)" && make install) || exit 1; done \
+    && rm -rf /tmp/apcu /tmp/xdebug \
     && docker-php-ext-enable --ini-name 20-apcu.ini apcu \
     && docker-php-ext-enable --ini-name 05-opcache.ini opcache \
     && apk del .build-deps \
