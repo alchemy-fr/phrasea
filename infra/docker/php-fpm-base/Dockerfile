@@ -1,4 +1,4 @@
-FROM php:8.5.1-fpm-alpine3.22
+FROM php:8.5.12-fpm-alpine3.24
 
 RUN apk add --no-cache --virtual .persistent-deps \
         fcgi \
