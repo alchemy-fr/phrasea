@@ -190,6 +190,21 @@ class AttributeDefinitionRepository extends ServiceEntityRepository
     }
 
     /**
+     * @return iterable<array{slug: string, type: string, multiple: bool, sortable: bool}>
+     */
+    public function getSortabilityRows(): iterable
+    {
+        return $this
+            ->createQueryBuilder('t')
+            ->select('t.slug')
+            ->addSelect('t.type')
+            ->addSelect('t.multiple')
+            ->addSelect('t.sortable')
+            ->getQuery()
+            ->toIterable();
+    }
+
+    /**
      * @return AttributeDefinition[]
      */
     public function getSearchableAttributes(?string $userId, array $groupIds, array $options = []): array

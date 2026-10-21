@@ -64,6 +64,26 @@ class AttributeSearch
         });
     }
 
+    /**
+     * Definitions sharing a key share the same ES field: the key is sortable as soon as one of them is.
+     *
+     * @return bool|null null when no definition produces this key
+     */
+    public function isSortableAttributeKey(string $key): ?bool
+    {
+        $index = $this->cache->get('sortable_keys', function (): array {
+            $index = [];
+            foreach ($this->em->getRepository(AttributeDefinition::class)->getSortabilityRows() as $row) {
+                $fieldName = $this->fieldNameResolver->getFieldName($row['slug'], $row['type'], $row['multiple']);
+                $index[$fieldName] = ($index[$fieldName] ?? false) || $row['sortable'];
+            }
+
+            return $index;
+        });
+
+        return $index[$key] ?? null;
+    }
+
     public function createClustersFromDefinitions(iterable $definitions): array
     {
         $groups = [];

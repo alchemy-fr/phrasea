@@ -104,7 +104,7 @@ function SortEditor({onClose}: {onClose: () => void}) {
     const sortable = useMemo(
         () =>
             Object.values(definitions)
-                .filter(d => d.sortable || d.builtIn)
+                .filter(d => d.sortable)
                 .sort((a, b) =>
                     (a.displayName ?? a.name).localeCompare(
                         b.displayName ?? b.name
@@ -119,7 +119,7 @@ function SortEditor({onClose}: {onClose: () => void}) {
         const active: Row[] = current
             .filter(
                 s =>
-                    definitions[s.a] ||
+                    definitions[s.a]?.sortable ||
                     s.a === BuiltInAttribute.Score ||
                     s.a === BuiltInAttribute.CreatedAt
             )

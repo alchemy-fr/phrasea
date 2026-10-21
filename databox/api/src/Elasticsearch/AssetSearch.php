@@ -625,6 +625,12 @@ class AssetSearch extends AbstractSearch
                 }
 
                 $builtInAttribute = $this->builtInAttributeRegistry->getBuiltInAttribute($field);
+                if (null !== $builtInAttribute && !$builtInAttribute->isSortable()) {
+                    if ($lenient) {
+                        continue;
+                    }
+                    throw new BadRequestHttpException(sprintf('Attribute "%s" is not sortable', $field));
+                }
                 if ($builtInAttribute instanceof CustomSortBuiltInAttributeInterface) {
                     try {
                         $sort[] = $builtInAttribute->createSortClause($w, $options);
@@ -647,6 +653,12 @@ class AssetSearch extends AbstractSearch
                 }
                 if (!$esFieldInfo->enabled) {
                     continue;
+                }
+                if (!$esFieldInfo->builtIn && false === $this->attributeSearch->isSortableAttributeKey($field)) {
+                    if ($lenient) {
+                        continue;
+                    }
+                    throw new BadRequestHttpException(sprintf('Attribute "%s" is not sortable', $field));
                 }
 
                 $fieldName = $esFieldInfo->name;

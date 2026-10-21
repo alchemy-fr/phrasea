@@ -174,6 +174,7 @@ trait DataboxTestTrait
         $definition->setTranslatable($options['translatable'] ?? false);
         $definition->setMultiple($options['multiple'] ?? false);
         $definition->setSearchable($options['searchable'] ?? true);
+        $definition->setSortable($options['sortable'] ?? false);
         $definition->setName($options['name'] ?? null);
         $definition->setSlug($options['slug'] ?? null);
         $definition->setEntityList($options['list'] ?? null);

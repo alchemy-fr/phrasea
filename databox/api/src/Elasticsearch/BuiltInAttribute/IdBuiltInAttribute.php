@@ -44,4 +44,10 @@ final class IdBuiltInAttribute extends AbstractBuiltInAttribute
     {
         return false;
     }
+
+    #[\Override]
+    public function isSortable(): bool
+    {
+        return false;
+    }
 }

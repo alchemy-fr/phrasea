@@ -204,6 +204,7 @@ class AssetSearchTest extends AbstractSearchTestCase
         $this->createAttributeDefinition([
             'workspace' => $workspace,
             'name' => 'City',
+            'sortable' => true,
             'no_flush' => true,
         ]);
         $this->createAsset([
@@ -232,6 +233,7 @@ class AssetSearchTest extends AbstractSearchTestCase
             'workspace' => $workspace,
             'name' => 'City',
             'multiple' => true,
+            'sortable' => true,
             'no_flush' => true,
         ]);
         $this->createAsset([
@@ -255,6 +257,7 @@ class AssetSearchTest extends AbstractSearchTestCase
         $city = $this->createAttributeDefinition([
             'workspace' => $workspace,
             'name' => 'City',
+            'sortable' => true,
             'no_flush' => true,
         ]);
         $this->getEntityManager()->flush();
@@ -332,6 +335,72 @@ class AssetSearchTest extends AbstractSearchTestCase
         self::releaseIndex();
 
         $this->assertSortedNames(['ghost_text_s' => 'asc'], ['Lonely']);
+    }
+
+    public function testSortOnNonSortableBuiltInIsRejected(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $this->createAsset([
+            'workspace' => $workspace,
+            'name' => 'Lonely',
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $this->getEntityManager()->flush();
+        self::releaseIndex();
+
+        $client = self::createClient();
+        foreach (['@id', '@rendition'] as $field) {
+            $client->request('GET', '/assets', ['query' => ['order' => [$field => 'asc']]]);
+            $this->assertResponseStatusCodeSame(400, sprintf('Sort on "%s" must be rejected', $field));
+        }
+    }
+
+    /**
+     * Definitions sharing a key share the same ES field: the key is sortable
+     * as soon as one of them is.
+     */
+    public function testSortOnNonSortableDefinitionIsRejected(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $this->createAttributeDefinition([
+            'workspace' => $workspace,
+            'name' => 'City',
+            'no_flush' => true,
+        ]);
+        $this->createAsset([
+            'workspace' => $workspace,
+            'name' => 'Lonely',
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $this->getEntityManager()->flush();
+        self::releaseIndex();
+
+        $client = self::createClient();
+        $client->request('GET', '/assets', ['query' => ['order' => ['city_text_s' => 'asc']]]);
+        $this->assertResponseStatusCodeSame(400);
+
+        $otherWorkspace = $this->createWorkspace([
+            'slug' => 'other-workspace',
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $this->createAttributeDefinition([
+            'workspace' => $otherWorkspace,
+            'name' => 'City',
+            'sortable' => true,
+            'no_flush' => true,
+        ]);
+        $this->getEntityManager()->flush();
+
+        $this->assertSortedNames(['city_text_s' => 'asc'], ['Lonely']);
     }
 
     public function testUndeclaredParametersAreIgnoredAndAnInvalidOrderIsRejected(): void

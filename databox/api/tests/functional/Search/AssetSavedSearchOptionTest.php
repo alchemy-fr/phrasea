@@ -43,6 +43,7 @@ class AssetSavedSearchOptionTest extends AbstractSearchTestCase
         $city = $this->createAttributeDefinition([
             'workspace' => $workspace,
             'name' => 'City',
+            'sortable' => true,
             'no_flush' => true,
         ]);
         $this->getEntityManager()->flush();
@@ -203,6 +204,33 @@ class AssetSavedSearchOptionTest extends AbstractSearchTestCase
             ['a' => self::CITY, 'w' => 0],
         ]]);
         $this->assertSame(['In B', 'In C', 'In A'], $this->searchNames(['savedSearch' => $withValid->getId()]));
+    }
+
+    public function testStoredSortOnNonSortableFieldIsIgnored(): void
+    {
+        $this->createAssets();
+
+        $onlyId = $this->createSavedSearch(['sortBy' => [['a' => '@id', 'w' => 1]]]);
+        $this->assertSame(['In A', 'In B', 'In C'], $this->searchSortedNames(['savedSearch' => $onlyId->getId()]));
+
+        $this->createAttributeDefinition([
+            'workspace' => $this->createWorkspace(['slug' => 'other-workspace']),
+            'name' => 'Country',
+        ]);
+        $onlyNonSortable = $this->createSavedSearch(['sortBy' => [['a' => 'country_text_s', 'w' => 1]]]);
+        $this->assertSame(['In A', 'In B', 'In C'], $this->searchSortedNames(['savedSearch' => $onlyNonSortable->getId()]));
+
+        $withValid = $this->createSavedSearch(['sortBy' => [
+            ['a' => '@id', 'w' => 1],
+            ['a' => 'country_text_s', 'w' => 1],
+            ['a' => self::CITY, 'w' => 0],
+        ]]);
+        $this->assertSame(['In B', 'In C', 'In A'], $this->searchNames(['savedSearch' => $withValid->getId()]));
+
+        $this->assertStatus(400, 'GET', '/assets', self::USER, query: [
+            'savedSearch' => $withValid->getId(),
+            'order' => ['@id' => 'asc'],
+        ]);
     }
 
     public function testInvalidRequestOrderIsStillRejected(): void
