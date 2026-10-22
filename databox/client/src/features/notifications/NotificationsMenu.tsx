@@ -18,6 +18,7 @@ import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {formatDateTime} from '@/lib/utils/format';
 import {cn} from '@/lib/utils/cn';
 import {resolveNotificationUri} from './NotificationUriListener';
+import {htmlToText} from './notificationText';
 
 type Notification = {
     id: string;
@@ -60,7 +61,9 @@ export function NotificationsMenu() {
         'notification',
         (data: Notification) => {
             toast(data.subject ?? t('notifications.new', 'New notification'), {
-                description: data.content ?? undefined,
+                description: data.content
+                    ? htmlToText(data.content)
+                    : undefined,
                 action: data.data?.uri
                     ? {
                           label: t('common.open', 'Open'),
@@ -147,7 +150,7 @@ export function NotificationsMenu() {
                                 </span>
                                 {n.content ? (
                                     <span className="line-clamp-2 text-xs text-muted-foreground">
-                                        {n.content}
+                                        {htmlToText(n.content)}
                                     </span>
                                 ) : null}
                                 <span className="text-[11px] text-muted-foreground">

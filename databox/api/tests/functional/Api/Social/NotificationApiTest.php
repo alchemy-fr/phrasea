@@ -180,6 +180,23 @@ final class NotificationApiTest extends AbstractDataboxTestCase
         $this->assertSame('Alice commented on Sunset.jpg.', $en['content']);
     }
 
+    public function testSubjectIsPlainTextAndContentIsHtml(): void
+    {
+        $client = static::createClient();
+        $this->notify(self::USER, 'Broadcast "quoted" & co', createdAt: '-1 hour');
+        $this->notify(self::USER, 'x', topic: 'user:exception', payload: [
+            'subject' => 'Rendition "preview" not found',
+            'message' => 'Rendition "preview" not found in workspace "W"',
+        ]);
+
+        $items = $client->request('GET', '/notifications', self::auth(self::USER))->toArray()['items'];
+
+        $this->assertSame('Rendition "preview" not found', $items[0]['subject']);
+        $this->assertSame('Rendition &quot;preview&quot; not found — Rendition &quot;preview&quot; not found in workspace &quot;W&quot;', $items[0]['content']);
+
+        $this->assertSame('Broadcast "quoted" & co', $items[1]['subject']);
+    }
+
     public function testUnreadCount(): void
     {
         $client = static::createClient();

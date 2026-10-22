@@ -56,6 +56,16 @@ final class BuiltInTemplatesTest extends TestCase
         self::assertSame('/assets/42', $content->uri);
     }
 
+    public function testInAppSubjectIsPlainText(): void
+    {
+        $content = $this->renderer()->render(BuiltInTopic::ADMIN_MESSAGE, ChannelType::InApp, [
+            'subject' => 'Rendition "preview" & co',
+        ]);
+
+        self::assertNotNull($content);
+        self::assertSame('Rendition "preview" & co', $content->subject);
+    }
+
     public function testSmsStripsTheMarkup(): void
     {
         $content = $this->renderer()->render(BuiltInTopic::ADMIN_MESSAGE, ChannelType::Sms, self::PARAMS);

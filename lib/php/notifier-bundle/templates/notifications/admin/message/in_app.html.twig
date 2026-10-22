@@ -1,4 +1,4 @@
-{% block subject %}{{ subject|default('') }}{% endblock %}
+{% block subject %}{{ subject|default('')|raw }}{% endblock %}
 
 {% block body %}{{ body|default('')|raw }}{% endblock %}
 
