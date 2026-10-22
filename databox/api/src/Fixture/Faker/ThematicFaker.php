@@ -284,12 +284,12 @@ class ThematicFaker extends BaseProvider
             'Tracking day – piano and synth',
         ],
         'clip' => [
-            'Live on the open-air stage',
+            'Live under the stage lights',
+            'Official music video',
+            'Rooftop session at night',
             'Live in the hall',
-            'Acoustic set in the round',
-            'Festival night',
             'Club gig',
-            'Street session',
+            'Packed house',
         ],
         'voiceover' => [
             'Kestrel FM – station ident',
