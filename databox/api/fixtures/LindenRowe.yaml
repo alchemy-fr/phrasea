@@ -65,6 +65,9 @@ App\Entity\Core\EntityList:
         name: Season
         withTranslations: true
         withEmojis: true
+    lr_el_models:
+        workspace: '@w_linden'
+        name: Models
 
 App\Entity\Core\AttributeEntity:
     lr_tpl_colour (template):
@@ -226,6 +229,16 @@ App\Entity\Core\AttributeDefinition:
         translatable: true
         position: 15
         translations: { name: { fr: Texte marketing, it: Testo di marketing } }
+    # Faces detected by the face recognition integration
+    lr_ad_models (extends lr_tpl_ad):
+        name: Models
+        type: entity
+        entityList: '@lr_el_models'
+        multiple: true
+        facetEnabled: true
+        annotationsEnabled: true
+        position: 16
+        translations: { name: { fr: Mannequins, it: Modelli } }
 
 App\Entity\Core\Tag:
     lr_tpl_tag (template):
@@ -278,7 +291,7 @@ App\Entity\Core\Collection:
 # Assets: packshots (lr_a_p*), campaign photos (lr_a_c*), runway videos (lr_a_m_*), documents
 # (lr_a_d_*) and the "Look" stories, made of a dress, a bag and a pair of shoes.
 # Images are numbered across the workspace (packshots 1-52, campaign 53-64): the number is the
-# lock of imageUrlRandomRatio(), and it links an asset to its files and renditions.
+# lock of imageUrlRandomRatio(), and it links an asset to its source file.
 App\Entity\Core\Asset:
     lr_tpl_a (template):
         workspace: '@w_linden'
@@ -408,32 +421,13 @@ App\Entity\Core\File:
         type: application/pdf
         extension: pdf
 
-    # m = source and main rendition (1000px), p = preview (500px), t = thumbnail (200px),
-    # z = e-commerce zoom (2000px)
+    # Source files only (m = image source, 1000px): the renditions are built by the ingest
+    # workflow run after the load
     lr_f_m{1..64} (extends lr_tpl_jpg): { path: '<imageUrlRandomRatio(@w_linden->id, <current()>, 1000, "fashion")>' }
-    lr_f_p{1..64} (extends lr_tpl_jpg): { path: '<imageUrlRandomRatio(@w_linden->id, <current()>, 500, "fashion")>' }
-    lr_f_t{1..64} (extends lr_tpl_jpg): { path: '<imageUrlRandomRatio(@w_linden->id, <current()>, 200, "fashion")>' }
-    lr_f_z{1..6} (extends lr_tpl_jpg): { path: '<imageUrlRandomRatio(@w_linden->id, <current()>, 2000, "fashion")>' }
-    lr_f_z{49..52} (extends lr_tpl_jpg): { path: '<imageUrlRandomRatio(@w_linden->id, <current()>, 2000, "fashion")>' }
 
     lr_f_runway_m{1..6} (extends lr_tpl_mp4): { path: '<randomMedia(@w_linden->id, "mp4", <current()>, "linden-rowe/runway")>' }
-    lr_f_runway_t{1..6} (extends lr_tpl_mp4): { path: '<randomMedia(@w_linden->id, "mp4", <current()>, "linden-rowe/runway")>' }
     lr_f_spec{1..6} (extends lr_tpl_pdf): { path: '<randomMedia(@w_linden->id, "pdf", <current()>, "linden-rowe/spec-sheet")>' }
     lr_f_lookbook{1..4} (extends lr_tpl_pdf): { path: '<randomMedia(@w_linden->id, "pdf", <current()>, "linden-rowe/lookbook")>' }
-
-App\Entity\Core\AssetRendition:
-    lr_ar_p_m{1..52}: { definition: '@lr_rd_main', asset: '@lr_a_p<current()>', file: '@lr_a_p<current()>->source' }
-    lr_ar_p_p{1..52}: { definition: '@lr_rd_preview', asset: '@lr_a_p<current()>', file: '@lr_f_p<current()>' }
-    lr_ar_p_t{1..52}: { definition: '@lr_rd_thumbnail', asset: '@lr_a_p<current()>', file: '@lr_f_t<current()>' }
-    lr_ar_p_z{1..6}: { definition: '@lr_rd_zoom', asset: '@lr_a_p<current()>', file: '@lr_f_z<current()>' }
-    lr_ar_p_z{49..52}: { definition: '@lr_rd_zoom', asset: '@lr_a_p<current()>', file: '@lr_f_z<current()>' }
-    lr_ar_c_m{53..64}: { definition: '@lr_rd_main', asset: '@lr_a_c<current()>', file: '@lr_a_c<current()>->source' }
-    lr_ar_c_p{53..64}: { definition: '@lr_rd_preview', asset: '@lr_a_c<current()>', file: '@lr_f_p<current()>' }
-    lr_ar_c_t{53..64}: { definition: '@lr_rd_thumbnail', asset: '@lr_a_c<current()>', file: '@lr_f_t<current()>' }
-    lr_ar_runway_m{1..6}: { definition: '@lr_rd_main', asset: '@lr_a_m_runway<current()>', file: '@lr_a_m_runway<current()>->source' }
-    lr_ar_runway_t{1..6}: { definition: '@lr_rd_thumbnail', asset: '@lr_a_m_runway<current()>', file: '@lr_f_runway_t<current()>' }
-    lr_ar_spec{1..6}: { definition: '@lr_rd_main', asset: '@lr_a_d_spec<current()>', file: '@lr_a_d_spec<current()>->source' }
-    lr_ar_lookbook{1..4}: { definition: '@lr_rd_main', asset: '@lr_a_d_lookbook<current()>', file: '@lr_a_d_lookbook<current()>->source' }
 
 App\Entity\Core\Attribute:
     lr_tpl_at (template):
@@ -612,6 +606,20 @@ App\Entity\Integration\WorkspaceIntegration:
         integration: blurhash
         config:
             rendition: Thumbnail
+        needs:
+            - '@lr_wi_rendition'
+    lr_wi_similarity (extends lr_tpl_wi):
+        integration: core.similarity
+        config:
+            rendition: Preview
+        needs:
+            - '@lr_wi_rendition'
+    lr_wi_face_recognition (extends lr_tpl_wi):
+        integration: core.face_recognition
+        config:
+            attribute: models
+            rendition: Preview
+            processIncoming: true
         needs:
             - '@lr_wi_rendition'
     lr_wi_removebg (extends lr_tpl_wi):

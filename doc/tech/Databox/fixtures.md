@@ -1,8 +1,19 @@
 # Databox fixtures
 
-`bin/dev/reset-db-fixtures.sh` empties the databases and loads the dev fixtures of databox
-(`hautelook:fixtures:load`, then `fos:elastica:populate`). They live in
-`databox/api/fixtures/`:
+`bin/dev/reset-db-fixtures.sh` empties the databases and loads the dev fixtures of databox.
+They live in `databox/api/fixtures/`. The load chains three commands:
+
+1. `hautelook:fixtures:load` persists the entities of the fixtures;
+2. `app:workspace:ingest-assets` runs the ingest workflow on every asset: renditions,
+   metadata read from the files, blurhash, watermark, embeddings (visual similarity) and
+   faces;
+3. `fos:elastica:populate` indexes the assets, with their renditions and embeddings.
+
+The embeddings and the faces need the `similarity-embedder` and `face-recognition` services
+(Compose profiles `similarity` and `face-recognition`, enabled by default in
+`COMPOSE_PROFILES`). Without them, the jobs of these integrations fail without blocking the
+rest of the ingest. In dev, the Messenger transports are synchronous: the whole workflow of
+each asset runs inline, downloads and rendition-factory included, so the ingest takes a while.
 
 | File                    | Content                                                        |
 | ----------------------- | -------------------------------------------------------------- |
@@ -12,7 +23,7 @@
 | `FernhollowMuseum.yaml` | **Fernhollow Natural History Museum**                          |
 
 ```bash
-FIXTURES_GENERATE_IMAGES=true bin/dev/reset-db-fixtures.sh  # fast: plain grey images
+FIXTURES_GENERATE_IMAGES=true bin/dev/reset-db-fixtures.sh  # fast: plain coloured images
 bin/dev/reset-db-fixtures.sh                                # real images (network required)
 ```
 
@@ -58,13 +69,13 @@ News agency: multimedia editorial flow, geolocated, under embargo, multilingual.
 - **Attributes**: Headline (title), Story title (stories), Caption (translatable), Byline,
   Keywords (with the 4 types of annotations), Location, City, Country, Date taken, Published
   at, Desk and Usage rights (entity lists), Embargo until, Word count, Duration, File size,
-  Breaking, Watermark, Blurhash. **Newsroom only** policy: WebVTT transcript (translatable),
-  Editor notes.
+  Breaking, Watermark, Blurhash, People (faces). **Newsroom only** policy: WebVTT transcript
+  (translatable), Editor notes.
 - **Rendition policy** `Print` (restricted): `Print hi-res`.
 - **Tags**: Breaking, Exclusive, Embargo, Online, Offline.
 - **Integrations**: ToastUI photo editor, Blurhash, watermark (Watermark attribute on the
-  thumbnail), moderation, visual similarity, face recognition, AWS Transcribe (disabled, dummy
-  AWS secrets).
+  thumbnail), visual similarity, face recognition (into People), AWS Transcribe (disabled,
+  dummy AWS secrets).
 
 | Persona | Role             | Rights                                                                   |
 | ------- | ---------------- | ------------------------------------------------------------------------ |
@@ -90,12 +101,12 @@ press kit.
   lookbooks (PDF), 6 "Look" stories (a dress, a bag and a pair of shoes).
 - **Attributes**: Product name (title), SKU, EAN, Colour, Sizes (multiple), Material,
   Gender, Season (entity lists, translated in fr and it), Launch date, Rights expiry, Model
-  release signed, Photographer, Marketing copy (HTML, translatable). **Commercial** policy:
-  Retail price, Wholesale price.
+  release signed, Photographer, Marketing copy (HTML, translatable), Models (faces).
+  **Commercial** policy: Retail price, Wholesale price.
 - **Rendition policy** `Studio` (restricted): `E-commerce zoom`.
 - **Tags**: New in, Bestseller, Sale, Sustainable, Do not publish (all the FW26 assets).
-- **Integrations**: ToastUI photo editor, Blurhash, remove.bg (disabled), webhook to the PIM
-  (disabled).
+- **Integrations**: ToastUI photo editor, Blurhash, visual similarity, face recognition (into
+  Models), remove.bg (disabled), webhook to the PIM (disabled).
 
 | Persona | Role             | Rights                                                                   |
 | ------- | ---------------- | ------------------------------------------------------------------------ |
@@ -125,13 +136,15 @@ collections owned by alice and bob, assets at every level of the tree.
 - **Attributes**: Common name (title, translatable), Scientific name, Inventory number,
   Family, Conservation status (IUCN, with emojis and colours) and Licence (entity lists),
   Collected on, Collector, Collection site, City, Country, Accession date, Keywords, On
-  display, Credit line, Duration. **Curatorial** policy: Condition report, Insurance value.
+  display, Credit line, Duration, People (faces). **Curatorial** policy: Condition report,
+  Insurance value.
 - **Rendition policy** `Archive` (restricted): `Archival master`.
 - **Terms**: the workspace attaches its terms ("Fernhollow image licence terms", en/fr) to
   the exports.
 - **Tags**: On display, In storage, On loan, Needs digitisation, Fragile.
-- **Integrations**: Blurhash, watermark (Credit line on the preview), AWS Rekognition
-  (disabled, labels into Keywords, dummy AWS secrets).
+- **Integrations**: Blurhash, watermark (Credit line on the preview), visual similarity, face
+  recognition (into People), AWS Rekognition (disabled, labels into Keywords, dummy AWS
+  secrets).
 
 | Persona | Role       | Rights                                                                   |
 | ------- | ---------- | ------------------------------------------------------------------------ |
@@ -154,11 +167,14 @@ collections owned by alice and bob, assets at every level of the tree.
   (`{@fh_a_v_s*}`) matches the keys of every file.
 - The images of a workspace are numbered across the workspace (one range per group of
   assets): the number is the lock of `imageUrlRandomRatio()` (the same number gives the same
-  picture) and links an asset to its files and renditions (`'@fh_f_m<current()>'`).
-- An asset with a file has a `source`, and its `main` rendition takes back that file
-  (`file: '@fh_a_v_s<current()>->source'`), as the "Pick source file" build mode of `main`
-  does on ingest: the workflow jobs that read the source (metadata, renditions) run on a
-  fixture asset. Stories have no source.
+  picture) and links an asset to its source file (`'@fh_f_m<current()>'`).
+- An asset with a file has a `source`; its renditions are not written in the fixtures, they
+  are built by the ingest workflow run after the load (Pick source renditions link the
+  source, the others are built by the rendition-factory). Stories have no source.
+- The workspaces require the file analysis: two sources with the same content in a workspace
+  are duplicates, and the ingest quarantines them (no renditions). Two locks below 210 give two
+  different images (variant `lock % 42`, ratio `lock % 5`); with `FIXTURES_GENERATE_IMAGES`,
+  the plain image takes a colour derived from the lock for the same reason.
 - An asset has no name property: its title is the attribute with the highest `namePriority`
   (Headline, Product name, Common name), or the "Name" attribute of `WorkspaceFactory`.
 - The business values come from `App\Fixture\Faker\ThematicFaker`, which keeps the values

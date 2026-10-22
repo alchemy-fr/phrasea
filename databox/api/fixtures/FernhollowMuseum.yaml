@@ -83,6 +83,9 @@ App\Entity\Core\EntityList:
         workspace: '@w_fernhollow'
         name: Licence
         withTranslations: true
+    fh_el_people:
+        workspace: '@w_fernhollow'
+        name: People
 
 App\Entity\Core\AttributeEntity:
     fh_fam_{aspleniaceae, hymenophyllaceae, orchidaceae, droseraceae, nymphalidae, lucanidae, strigidae}:
@@ -260,6 +263,16 @@ App\Entity\Core\AttributeDefinition:
         policy: '@fh_ap_curatorial'
         position: 18
         translations: { name: { fr: Valeur d'assurance } }
+    # Faces detected by the face recognition integration
+    fh_ad_people (extends fh_tpl_ad):
+        name: People
+        type: entity
+        entityList: '@fh_el_people'
+        multiple: true
+        facetEnabled: true
+        annotationsEnabled: true
+        position: 19
+        translations: { name: { fr: Personnes } }
 
 App\Entity\Core\Tag:
     fh_tpl_tag (template):
@@ -396,7 +409,7 @@ App\Entity\Core\Collection:
 # Assets: images of the specimens (fh_a_v_s*, geolocated) and of the views of the "Specimen
 # record" stories (fh_a_v_r*), documents and media (fh_a_d_*).
 # Images are numbered across the workspace (specimens 1-46, views 47-64): the number is the
-# lock of imageUrlRandomRatio(), and it links an asset to its files and renditions.
+# lock of imageUrlRandomRatio(), and it links an asset to its source file.
 App\Entity\Core\Asset:
     fh_tpl_a (template):
         workspace: '@w_fernhollow'
@@ -543,32 +556,14 @@ App\Entity\Core\File:
         type: video/mp4
         extension: mp4
 
-    # m = source and main rendition (1000px), p = preview (500px), t = thumbnail (200px),
-    # a = archival master (2000px)
+    # Source files only (m = image source, 1000px): the renditions are built by the ingest
+    # workflow run after the load
     fh_f_m{1..64} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 1000, "museum")>' }
-    fh_f_p{1..64} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 500, "museum")>' }
-    fh_f_t{1..64} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 200, "museum")>' }
-    fh_f_a{40..42} (extends fh_tpl_jpg): { path: '<imageUrlRandomRatio(@w_fernhollow->id, <current()>, 2000, "museum")>' }
 
     fh_f_accession{1..8} (extends fh_tpl_pdf): { path: '<randomMedia(@w_fernhollow->id, "pdf", <current()>, "fernhollow-museum/accession-record")>' }
     fh_f_notebook{1..7} (extends fh_tpl_pdf): { path: '<randomMedia(@w_fernhollow->id, "pdf", <current()>, "fernhollow-museum/field-notebook")>' }
     fh_f_audioguide{1..6} (extends fh_tpl_mp3): { path: '<randomMedia(@w_fernhollow->id, "mp3", <current()>, "fernhollow-museum/audio-guide")>' }
     fh_f_video_m{1..4} (extends fh_tpl_mp4): { path: '<randomMedia(@w_fernhollow->id, "mp4", <current()>, "fernhollow-museum/video")>' }
-    fh_f_video_t{1..4} (extends fh_tpl_mp4): { path: '<randomMedia(@w_fernhollow->id, "mp4", <current()>, "fernhollow-museum/video")>' }
-
-App\Entity\Core\AssetRendition:
-    fh_ar_s_m{1..46}: { definition: '@fh_rd_main', asset: '@fh_a_v_s<current()>', file: '@fh_a_v_s<current()>->source' }
-    fh_ar_s_p{1..46}: { definition: '@fh_rd_preview', asset: '@fh_a_v_s<current()>', file: '@fh_f_p<current()>' }
-    fh_ar_s_t{1..46}: { definition: '@fh_rd_thumbnail', asset: '@fh_a_v_s<current()>', file: '@fh_f_t<current()>' }
-    fh_ar_s_a{40..42}: { definition: '@fh_rd_archival', asset: '@fh_a_v_s<current()>', file: '@fh_f_a<current()>' }
-    fh_ar_r_m{47..64}: { definition: '@fh_rd_main', asset: '@fh_a_v_r<current()>', file: '@fh_a_v_r<current()>->source' }
-    fh_ar_r_p{47..64}: { definition: '@fh_rd_preview', asset: '@fh_a_v_r<current()>', file: '@fh_f_p<current()>' }
-    fh_ar_r_t{47..64}: { definition: '@fh_rd_thumbnail', asset: '@fh_a_v_r<current()>', file: '@fh_f_t<current()>' }
-    fh_ar_accession{1..8}: { definition: '@fh_rd_main', asset: '@fh_a_d_accession<current()>', file: '@fh_a_d_accession<current()>->source' }
-    fh_ar_notebook{1..7}: { definition: '@fh_rd_main', asset: '@fh_a_d_notebook<current()>', file: '@fh_a_d_notebook<current()>->source' }
-    fh_ar_audioguide{1..6}: { definition: '@fh_rd_main', asset: '@fh_a_d_audioguide<current()>', file: '@fh_a_d_audioguide<current()>->source' }
-    fh_ar_video_m{1..4}: { definition: '@fh_rd_main', asset: '@fh_a_d_video<current()>', file: '@fh_a_d_video<current()>->source' }
-    fh_ar_video_t{1..4}: { definition: '@fh_rd_thumbnail', asset: '@fh_a_d_video<current()>', file: '@fh_f_video_t<current()>' }
 
 App\Entity\Core\Attribute:
     fh_tpl_at (template):
@@ -764,6 +759,20 @@ App\Entity\Integration\WorkspaceIntegration:
             position:
                 top: 92%
                 left: 50%
+        needs:
+            - '@fh_wi_rendition'
+    fh_wi_similarity (extends fh_tpl_wi):
+        integration: core.similarity
+        config:
+            rendition: Preview
+        needs:
+            - '@fh_wi_rendition'
+    fh_wi_face_recognition (extends fh_tpl_wi):
+        integration: core.face_recognition
+        config:
+            attribute: people
+            rendition: Preview
+            processIncoming: true
         needs:
             - '@fh_wi_rendition'
     fh_wi_rekognition (extends fh_tpl_wi):

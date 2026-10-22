@@ -69,6 +69,7 @@ class ImageUrlFaker extends AbstractCachedFaker
             return $this->generateSolidColorImage(
                 $width,
                 $height,
+                $lockNumber,
                 $pathPrefix,
                 $extension,
             );
@@ -147,19 +148,25 @@ class ImageUrlFaker extends AbstractCachedFaker
         return $this->storeThemeImage($pathPrefix, self::FALLBACK_THEME, $orientation, $variant, $extension);
     }
 
+    /**
+     * The color is derived from the lock: two locks of the same size give two different files,
+     * which the file analysis of the workspace would otherwise reject as duplicates.
+     */
     private function generateSolidColorImage(
         int $width,
         int $height,
+        int $lockNumber,
         string $pathPrefix,
         string $extension,
     ): string {
-        $cachePath = sprintf('generated/%d-%d', $width, $height);
+        $cachePath = sprintf('generated/%d-%d-%d', $lockNumber, $width, $height);
         if (null !== $cached = $this->getCachedFile($cachePath, $extension)) {
-            return $cached;
+            return $this->storeOnBucket($pathPrefix, $extension, $cached);
         }
 
+        $hue = ($lockNumber * 37) % 360;
         $imagick = new \Imagick();
-        $imagick->newImage($width, $height, new \ImagickPixel('gray'));
+        $imagick->newImage($width, $height, new \ImagickPixel(sprintf('hsl(%d, 60%%, 50%%)', $hue)));
         $imagick->setImageFormat($extension);
 
         $tmpImage = tempnam(sys_get_temp_dir(), 'img');
