@@ -24,6 +24,8 @@ export type InfiniteList<T> = {
     /** First load (no item to show yet) */
     loading: boolean;
     loadingMore: boolean;
+    /** Error of the last page load */
+    error: unknown;
     /** Every item is loaded: no search and no next page */
     complete: boolean;
     /** Loads the remaining pages: an explicit action only, never by default */
@@ -130,6 +132,7 @@ export function useInfiniteList<T extends {id: string}>({
         loadMore,
         loading: result.isLoading,
         loadingMore: isFetchingNextPage,
+        error: result.error,
         complete:
             !!data && !hasNextPage && debounced === '' && !isPlaceholderData,
         loadAll,

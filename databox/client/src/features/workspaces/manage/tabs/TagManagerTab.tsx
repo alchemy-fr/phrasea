@@ -40,6 +40,7 @@ export function TagManagerTab({workspace}: WorkspaceTabProps) {
         <DefinitionManager<Tag>
             items={tags.items}
             loading={tags.loading}
+            error={tags.error}
             onChanged={() =>
                 queryClient.invalidateQueries({queryKey: ['tags']})
             }

@@ -23,7 +23,7 @@ import {
     DialogTab,
     TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
-import {FullPageLoader} from '@/components/ui/loader';
+import {LoadPlaceholder} from '@/components/modals/LoadPlaceholder';
 import type {DialogSize} from '@/components/ui/dialog';
 import {routes} from '@/lib/routes';
 import {useCollectionStore} from '@/features/collections/collectionStore';
@@ -185,7 +185,9 @@ export function WorkspaceManageShell({workspaceId}: {workspaceId: string}) {
             baseProps={baseProps}
             buildTabHref={tab => routes.workspaceManage(workspaceId, tab)}
             size={manageDialogSize}
-            placeholder={workspace ? undefined : <FullPageLoader />}
+            placeholder={
+                workspace ? undefined : <LoadPlaceholder error={query.error} />
+            }
         />
     );
 }

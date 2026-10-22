@@ -19,7 +19,7 @@ import {
     DialogTab,
     TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
-import {FullPageLoader} from '@/components/ui/loader';
+import {LoadPlaceholder} from '@/components/modals/LoadPlaceholder';
 import {routes} from '@/lib/routes';
 import {InfoRow} from '@/features/assets/view/AssetInfoList';
 import {UserChip} from '@/components/chips';
@@ -127,7 +127,9 @@ export function BasketManageShell({basketId}: {basketId: string}) {
             baseProps={baseProps}
             buildTabHref={tab => routes.basketManage(basketId, tab)}
             size="lg"
-            placeholder={basket ? undefined : <FullPageLoader />}
+            placeholder={
+                basket ? undefined : <LoadPlaceholder error={query.error} />
+            }
         />
     );
 }

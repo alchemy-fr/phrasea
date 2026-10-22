@@ -14,8 +14,7 @@ import {
 } from '@/components/modals/RouteDialog';
 import {pathOf} from '@/components/modals/routeOrigins';
 import {DialogTitle} from '@/components/ui/dialog';
-import {Alert} from '@/components/ui/misc';
-import {FullPageLoader} from '@/components/ui/loader';
+import {LoadPlaceholder} from '@/components/modals/LoadPlaceholder';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {pushPath, splitRoutePath} from '@/lib/navigation/routePath';
 import {routes, UNKNOWN_RENDITION} from '@/lib/routes';
@@ -204,15 +203,8 @@ function WorkflowScreen({
                             selectedJobId={selectedJob?.jobId}
                             onSelectJob={selectJob}
                         />
-                    ) : query.isError ? (
-                        <div className="p-6">
-                            <Alert variant="destructive">
-                                {(query.error as Error)?.message ||
-                                    t('common.error', 'An error occurred')}
-                            </Alert>
-                        </div>
                     ) : (
-                        <FullPageLoader />
+                        <LoadPlaceholder error={query.error} />
                     )}
                 </div>
                 {selectedJob ? (

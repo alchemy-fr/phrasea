@@ -28,6 +28,7 @@ export function RenditionPoliciesTab({workspace}: WorkspaceTabProps) {
         <DefinitionManager<RenditionPolicy>
             items={policies.data?.items}
             loading={policies.isLoading}
+            error={policies.error}
             onChanged={() => policies.refetch()}
             filter={(p, q) => p.name.toLowerCase().includes(q)}
             renderItem={p => (

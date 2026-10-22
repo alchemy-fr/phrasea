@@ -29,6 +29,8 @@ import {FilterInput} from '@/components/ui/filter-input';
 import {Skeleton, EmptyState} from '@/components/ui/misc';
 import {useModals} from '@/components/modals/ModalProvider';
 import {ConfirmDialog} from '@/components/ui/confirm';
+import {LoadError} from '@/components/modals/LoadPlaceholder';
+import {isApiError} from '@/lib/api/http';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -57,6 +59,8 @@ export type DefinitionItem = {id: string};
 type Props<D extends DefinitionItem> = {
     items: D[] | undefined;
     loading?: boolean;
+    /** Error of the list load, shown in place of the list while it is empty */
+    error?: unknown;
     /** Render the list row (title, badges...) */
     renderItem: (item: D) => ReactNode;
     /** Render the edit / create form. `onSaved` must be called with the saved item. */
@@ -123,6 +127,7 @@ const MANAGE = 'manage';
 export function DefinitionManager<D extends DefinitionItem>({
     items,
     loading,
+    error,
     renderItem,
     renderForm,
     onDelete,
@@ -245,7 +250,10 @@ export function DefinitionManager<D extends DefinitionItem>({
     const current = listed ?? justCreated ?? fetched.data;
     // An id in the URL that is not (or no longer) in the list
     const missing = selected !== null && selected !== NEW && !current;
+    // Why it is missing: its own load failed, or the list's (no item to look in)
+    const missingError = fetched.error ?? (items ? undefined : error);
     const fetchingMissing = missing && !!getItem && !fetched.isError;
+    const listFailed = !!error && !items?.length;
     const sortable = !!onSort && !query && complete;
     const managed = managing ? current : undefined;
 
@@ -344,6 +352,8 @@ export function DefinitionManager<D extends DefinitionItem>({
                             <Skeleton key={i} className="h-9" />
                         ))}
                     </div>
+                ) : listFailed ? (
+                    <LoadError error={error} className="py-6" />
                 ) : visible.length === 0 ? (
                     <p className="py-6 text-center text-sm text-muted-foreground">
                         {emptyLabel ??
@@ -476,8 +486,12 @@ export function DefinitionManager<D extends DefinitionItem>({
                     fill && 'lg:overflow-y-auto'
                 )}
             >
-                {missing && (!items || fetchingMissing) ? (
+                {missing && !missingError && (!items || fetchingMissing) ? (
                     <Skeleton className="h-32" />
+                ) : missing &&
+                  missingError &&
+                  !isApiError(missingError, 404) ? (
+                    <LoadError error={missingError} />
                 ) : missing ? (
                     <EmptyState
                         title={t(

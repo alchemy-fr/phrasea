@@ -85,7 +85,10 @@ export function TabbedRouteDialogShell<P extends object>({
     buildTabHref: (tab: string) => string;
     /** Or by tab, from the active tab and the URL path below it */
     size?: DialogSize | ((tab: string, path: string[]) => DialogSize);
-    /** Shown instead of the tabs while the entity loads, or when it is missing */
+    /**
+     * Shown instead of the tabs while the entity loads, or when it failed to
+     * load: a loader or the load error (`LoadPlaceholder`)
+     */
     placeholder?: ReactNode;
 }) {
     const pathname = usePathname();

@@ -11,7 +11,8 @@ import {
     DialogTab,
     TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
-import {FullPageLoader, InlineLoader} from '@/components/ui/loader';
+import {InlineLoader} from '@/components/ui/loader';
+import {LoadPlaceholder} from '@/components/modals/LoadPlaceholder';
 import {routes} from '@/lib/routes';
 import {InfoRow} from '@/features/assets/view/AssetInfoList';
 import {formatFileSize} from '@/lib/utils/format';
@@ -53,7 +54,8 @@ function useTabs(): DialogTab<TabProps>[] {
 
 export function FileManageShell({fileId}: {fileId: string}) {
     const {t} = useTranslation();
-    const file = useFile(fileId).data;
+    const query = useFile(fileId);
+    const file = query.data;
     const tabs = useTabs();
 
     // Stable: every tab kept mounted receives it, and is memoized
@@ -67,7 +69,9 @@ export function FileManageShell({fileId}: {fileId: string}) {
             baseProps={baseProps}
             buildTabHref={tab => routes.fileManage(fileId, tab)}
             size="md"
-            placeholder={file ? undefined : <FullPageLoader />}
+            placeholder={
+                file ? undefined : <LoadPlaceholder error={query.error} />
+            }
         />
     );
 }

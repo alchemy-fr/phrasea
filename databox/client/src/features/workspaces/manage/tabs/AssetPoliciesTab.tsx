@@ -76,6 +76,7 @@ export function AssetPoliciesTab({workspace}: WorkspaceTabProps) {
         <DefinitionManager<AssetPolicy>
             items={policies.data?.items}
             loading={policies.isLoading}
+            error={policies.error}
             onChanged={() => policies.refetch()}
             filter={(p, q) => p.name.toLowerCase().includes(q)}
             renderItem={p => (

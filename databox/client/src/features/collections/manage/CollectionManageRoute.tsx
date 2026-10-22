@@ -17,7 +17,7 @@ import {
     DialogTab,
     TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
-import {FullPageLoader} from '@/components/ui/loader';
+import {LoadPlaceholder} from '@/components/modals/LoadPlaceholder';
 import {routes} from '@/lib/routes';
 import {AppRole, useAuth} from '@/lib/auth/AuthProvider';
 import {useCollectionStore} from '../collectionStore';
@@ -129,7 +129,9 @@ export function CollectionManageShell({collectionId}: {collectionId: string}) {
             tabs={tabs}
             baseProps={baseProps}
             buildTabHref={tab => routes.collectionManage(collectionId, tab)}
-            placeholder={collection ? undefined : <FullPageLoader />}
+            placeholder={
+                collection ? undefined : <LoadPlaceholder error={query.error} />
+            }
         />
     );
 }

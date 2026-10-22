@@ -26,6 +26,7 @@ import {Badge, Skeleton} from '@/components/ui/misc';
 import {GroupSelect, UserSelect} from '@/components/form/selects';
 import {useModals} from '@/components/modals/ModalProvider';
 import {ConfirmDialog} from '@/components/ui/confirm';
+import {LoadError} from '@/components/modals/LoadPlaceholder';
 import {ConditionDialog} from '@/features/search/conditions/ConditionDialog';
 import {HumanizedExpression} from '@/features/search/conditions/SearchConditionChip';
 import {SearchProvider} from '@/features/search/SearchProvider';
@@ -185,9 +186,13 @@ function AttributeRules({workspaceId}: {workspaceId: string}) {
                     </div>
                 ))}
                 {!rules.loading && rules.items.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">
-                        {t('filter_rules.none', 'No rule')}
-                    </p>
+                    rules.error ? (
+                        <LoadError error={rules.error} className="py-6" />
+                    ) : (
+                        <p className="text-sm text-muted-foreground">
+                            {t('filter_rules.none', 'No rule')}
+                        </p>
+                    )
                 ) : null}
                 {rules.hasMore ? (
                     <div ref={sentinelRef} className="py-1">
@@ -212,6 +217,13 @@ function AttributeRules({workspaceId}: {workspaceId: string}) {
                         />
                     </div>
                 </UnsavedChangesScope.Provider>
+            ) : fetched.isError ? (
+                <LoadError
+                    error={fetched.error}
+                    className="rounded-md border"
+                />
+            ) : fetched.isLoading ? (
+                <Skeleton className="h-32" />
             ) : null}
         </section>
     );

@@ -1052,6 +1052,8 @@
     "list.total_results_one": "{{count}} result",
     "list.total_results_other": "{{count}} results",
     "list.unselect_all": "Unselect all",
+    "load_error.forbidden": "You do not have access to this item.",
+    "load_error.not_found": "This item does not exist (anymore).",
     "map.asset_loading": "Loading the asset…",
     "map.clear_area": "Clear area",
     "map.clear_zones_one": "Clear zone",

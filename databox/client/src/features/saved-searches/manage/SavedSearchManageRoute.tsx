@@ -17,7 +17,7 @@ import {
     DialogTab,
     TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
-import {FullPageLoader} from '@/components/ui/loader';
+import {LoadPlaceholder} from '@/components/modals/LoadPlaceholder';
 import {routes} from '@/lib/routes';
 import {InfoRow} from '@/features/assets/view/AssetInfoList';
 import {UserChip} from '@/components/chips';
@@ -104,7 +104,9 @@ export function SavedSearchManageShell({
             baseProps={baseProps}
             buildTabHref={tab => routes.savedSearchManage(savedSearchId, tab)}
             size="lg"
-            placeholder={saved ? undefined : <FullPageLoader />}
+            placeholder={
+                saved ? undefined : <LoadPlaceholder error={query.error} />
+            }
         />
     );
 }

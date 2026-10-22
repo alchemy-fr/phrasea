@@ -7,6 +7,7 @@ import {createI18n} from '@/i18n';
 import {ModalProvider} from '@/components/modals/ModalProvider';
 import {DefinitionManager} from './DefinitionManager';
 import {RoutePathProvider} from '@/lib/navigation/routePath';
+import {ApiError} from '@/lib/api/http';
 
 vi.mock('next/navigation', () => ({
     usePathname: () => '/workspaces/ws/manage/attributes',
@@ -206,9 +207,9 @@ describe('DefinitionManager', () => {
         expect(getItem).toHaveBeenCalledWith('z');
     });
 
-    it('tells an item of the URL does not exist when it cannot be loaded', async () => {
+    it('tells an item of the URL does not exist when it answers 404', async () => {
         const getItem = vi.fn(async () => {
-            throw new Error('Not found');
+            throw new ApiError('Not Found', 404, null);
         });
         renderManager({segments: ['z'], getItem});
 
@@ -216,5 +217,30 @@ describe('DefinitionManager', () => {
             await screen.findByText('This item does not exist anymore.')
         ).toBeTruthy();
         expect(screen.queryByTestId('form')).toBeNull();
+    });
+
+    it('tells why an item of the URL failed to load otherwise', async () => {
+        const getItem = vi.fn(async () => {
+            throw new ApiError('Access Denied.', 403, null);
+        });
+        renderManager({segments: ['z'], getItem});
+
+        expect(
+            await screen.findByText('You do not have access to this item.')
+        ).toBeTruthy();
+        expect(screen.queryByTestId('form')).toBeNull();
+    });
+
+    it('shows the error of the list instead of an empty list', () => {
+        renderManager({
+            items: undefined,
+            error: new Error('boom'),
+            segments: ['z'],
+        });
+
+        expect(screen.queryByText('Nothing here yet')).toBeNull();
+        // In the list, and in place of the item of the URL
+        expect(screen.getAllByText('An error occurred')).toHaveLength(2);
+        expect(screen.getAllByText('boom')).toHaveLength(2);
     });
 });

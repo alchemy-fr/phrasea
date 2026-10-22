@@ -85,6 +85,7 @@ export function IntegrationManager({workspaceId, fill}: Props) {
         <DefinitionManager<WorkspaceIntegration>
             items={integrations.data?.items}
             loading={integrations.isLoading}
+            error={integrations.error}
             fill={fill}
             onChanged={() => integrations.refetch()}
             filter={(i, q) =>

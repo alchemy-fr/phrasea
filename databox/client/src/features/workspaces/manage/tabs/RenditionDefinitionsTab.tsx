@@ -57,6 +57,7 @@ export function RenditionDefinitionsTab({workspace}: WorkspaceTabProps) {
         <DefinitionManager<RenditionDefinition>
             items={definitions.items}
             loading={definitions.loading}
+            error={definitions.error}
             onChanged={() =>
                 queryClient.invalidateQueries({
                     queryKey: ['rendition-definitions'],

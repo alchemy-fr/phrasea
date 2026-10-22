@@ -45,6 +45,7 @@ export function EntityListsTab({workspace}: WorkspaceTabProps) {
         <DefinitionManager<EntityList>
             items={lists.items}
             loading={lists.loading}
+            error={lists.error}
             onChanged={() =>
                 queryClient.invalidateQueries({
                     queryKey: ['entity-lists', workspace.id],

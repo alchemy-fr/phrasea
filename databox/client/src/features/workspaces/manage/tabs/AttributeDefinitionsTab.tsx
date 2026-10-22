@@ -76,6 +76,7 @@ export function AttributeDefinitionsTab({workspace}: WorkspaceTabProps) {
         <DefinitionManager<AttributeDefinition>
             items={definitions.items}
             loading={definitions.loading}
+            error={definitions.error}
             onChanged={changed}
             onSort={sortAttributeDefinitions}
             query={definitions.query}

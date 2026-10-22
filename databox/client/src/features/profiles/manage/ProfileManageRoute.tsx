@@ -18,7 +18,7 @@ import {
     DialogTab,
     TabbedRouteDialogShell,
 } from '@/components/modals/TabbedRouteDialog';
-import {FullPageLoader} from '@/components/ui/loader';
+import {LoadPlaceholder} from '@/components/modals/LoadPlaceholder';
 import {routes} from '@/lib/routes';
 import {InfoRow} from '@/features/assets/view/AssetInfoList';
 import {UserChip} from '@/components/chips';
@@ -118,7 +118,9 @@ export function ProfileManageShell({profileId}: {profileId: string}) {
             baseProps={baseProps}
             buildTabHref={tab => routes.profileManage(profileId, tab)}
             size="xl"
-            placeholder={profile ? undefined : <FullPageLoader />}
+            placeholder={
+                profile ? undefined : <LoadPlaceholder error={query.error} />
+            }
         />
     );
 }

@@ -28,6 +28,7 @@ export function AttributePoliciesTab({workspace}: WorkspaceTabProps) {
         <DefinitionManager<AttributePolicy>
             items={policies.data?.items}
             loading={policies.isLoading}
+            error={policies.error}
             onChanged={() => policies.refetch()}
             filter={(p, q) => p.name.toLowerCase().includes(q)}
             renderItem={p => (
