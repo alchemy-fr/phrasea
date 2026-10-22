@@ -36,6 +36,26 @@ export function getDefaultAnnotationName(
     });
 }
 
+/** The shape is named like `getDefaultAnnotationName()` would name it */
+export function isDefaultAnnotationName(
+    t: TFunction,
+    annotation: AssetAnnotation
+): boolean {
+    if (!annotation.name) {
+        return false;
+    }
+    const placeholder = '\u0000';
+    const pattern = t('annotation.default_name', '{{type}} #{{n}}', {
+        type: getAnnotationTypeLabel(t, annotation.type),
+        n: placeholder,
+    })
+        .split(placeholder)
+        .map(part => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+        .join('\\d+');
+
+    return new RegExp(`^${pattern}$`).test(annotation.name);
+}
+
 /** The name shown for a shape (its text, its name, else its type) */
 export function getAnnotationLabel(
     t: TFunction,

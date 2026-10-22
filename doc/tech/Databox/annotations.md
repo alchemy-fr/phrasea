@@ -69,8 +69,11 @@ The viewer code lives in `databox/client/src/features/annotations/`:
   (composer, attribute field, integration panel) own the target. While no
   component owns it, the player shows the *fallback* target: the shapes of
   every attribute value of the asset (`getAssetAnnotationsTarget`), read
-  only, each named after its attribute. The toolbar hides them (remembered in
-  the browser) and shows them again.
+  only. The toolbar hides them (remembered in the browser) and shows them
+  again. Read only shapes of a value (this target, or the shapes button of a
+  value in the attribute list) are labelled with the value, followed by their
+  own name or text if any ("Arthur Dupont · Profile"), with the attribute name
+  as tooltip (`labelAttributeAnnotations`).
 - `useAnnotationLayer` gives the player (`ZoomableImage`) the layer to render
   over the image, in a box following its zoom, pan and rotation, and the
   tools to put in its toolbar.

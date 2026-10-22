@@ -133,20 +133,28 @@ export function ShapeControl({
                         }}
                         onBlur={() => setName(undefined)}
                     />
-                ) : (
-                    <Tooltip
-                        content={t('annotation.rename', 'Rename')}
-                        disabled={!editable}
-                    >
+                ) : editable ? (
+                    <Tooltip content={t('annotation.rename', 'Rename')}>
                         <button
                             type="button"
                             data-shape-name
-                            className="max-w-48 truncate rounded px-1.5 py-0.5 text-left hover:bg-accent disabled:pointer-events-none"
-                            disabled={!editable}
+                            className="max-w-48 truncate rounded px-1.5 py-0.5 text-left hover:bg-accent"
                             onClick={() => setName(annotation.name ?? label)}
                         >
                             {label}
                         </button>
+                    </Tooltip>
+                ) : (
+                    <Tooltip
+                        content={annotation.title}
+                        disabled={!annotation.title}
+                    >
+                        <span
+                            data-shape-name
+                            className="max-w-48 truncate px-1.5 py-0.5"
+                        >
+                            {label}
+                        </span>
                     </Tooltip>
                 )}
                 {editable ? (

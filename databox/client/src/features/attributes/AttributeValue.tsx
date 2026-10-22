@@ -9,6 +9,7 @@ import {useAttributeFormats} from './formatStore';
 import {Tooltip} from '@/components/ui/overlays';
 import {isRtl, NO_LOCALE, pickLocale} from '@/lib/utils/locale';
 import {AnnotationTargetButton} from '@/features/annotations/AnnotationTargetButton';
+import {labelAttributeAnnotations} from '@/features/annotations/assetAnnotations';
 
 export type AttributeGroup = {
     definition: Attribute['definition'];
@@ -124,6 +125,11 @@ function AttributeSingleValue({
 }) {
     const {t} = useTranslation();
     const ctx = useFormatContext(attribute.locale);
+    // A new reference makes the player register the target again
+    const annotations = useMemo(
+        () => labelAttributeAnnotations(attribute, ctx, format),
+        [attribute, ctx, format]
+    );
 
     let node: ReactNode;
     if (attribute.invalid) {
@@ -148,7 +154,7 @@ function AttributeSingleValue({
                 {node}
                 <AnnotationTargetButton
                     targetKey={`attribute-view-${attribute.id}`}
-                    annotations={attribute.assetAnnotations}
+                    annotations={annotations}
                     label={label}
                     className="-my-1"
                 />

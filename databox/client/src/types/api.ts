@@ -488,6 +488,11 @@ export type AssetAnnotation = {
     type: string;
     name?: string;
     page?: number;
+    /**
+     * Client only: tooltip of the label of a read only shape, never sent to
+     * the API
+     */
+    title?: string;
     [prop: string]: any;
 };
 
