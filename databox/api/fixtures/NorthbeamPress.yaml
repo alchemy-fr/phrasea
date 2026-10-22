@@ -611,7 +611,7 @@ App\Entity\Integration\WorkspaceIntegration:
     nb_wi_blurhash (extends nb_tpl_wi):
         integration: blurhash
         config:
-            rendition: Thumbnail
+            rendition: '@nb_rd_thumbnail->id'
         needs:
             - '@nb_wi_rendition'
     nb_wi_watermark (extends nb_tpl_wi):
@@ -619,20 +619,20 @@ App\Entity\Integration\WorkspaceIntegration:
         config:
             attributeName: watermark
             applyToRenditions:
-                - Thumbnail
+                - '@nb_rd_thumbnail->id'
         needs:
             - '@nb_wi_rendition'
     nb_wi_similarity (extends nb_tpl_wi):
         integration: core.similarity
         config:
-            rendition: Preview
+            rendition: '@nb_rd_preview->id'
         needs:
             - '@nb_wi_rendition'
     nb_wi_face_recognition (extends nb_tpl_wi):
         integration: core.face_recognition
         config:
             attribute: people
-            rendition: Preview
+            rendition: '@nb_rd_preview->id'
             processIncoming: true
         needs:
             - '@nb_wi_rendition'

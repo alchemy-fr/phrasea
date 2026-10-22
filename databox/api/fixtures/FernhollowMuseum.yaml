@@ -745,7 +745,7 @@ App\Entity\Integration\WorkspaceIntegration:
     fh_wi_blurhash (extends fh_tpl_wi):
         integration: blurhash
         config:
-            rendition: Thumbnail
+            rendition: '@fh_rd_thumbnail->id'
         needs:
             - '@fh_wi_rendition'
     fh_wi_watermark (extends fh_tpl_wi):
@@ -753,7 +753,7 @@ App\Entity\Integration\WorkspaceIntegration:
         config:
             attributeName: creditline
             applyToRenditions:
-                - Preview
+                - '@fh_rd_preview->id'
             fontSize: 18
             color: '#FFFFFF'
             position:
@@ -764,14 +764,14 @@ App\Entity\Integration\WorkspaceIntegration:
     fh_wi_similarity (extends fh_tpl_wi):
         integration: core.similarity
         config:
-            rendition: Preview
+            rendition: '@fh_rd_preview->id'
         needs:
             - '@fh_wi_rendition'
     fh_wi_face_recognition (extends fh_tpl_wi):
         integration: core.face_recognition
         config:
             attribute: people
-            rendition: Preview
+            rendition: '@fh_rd_preview->id'
             processIncoming: true
         needs:
             - '@fh_wi_rendition'

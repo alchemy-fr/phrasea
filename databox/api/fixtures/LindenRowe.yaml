@@ -605,20 +605,20 @@ App\Entity\Integration\WorkspaceIntegration:
     lr_wi_blurhash (extends lr_tpl_wi):
         integration: blurhash
         config:
-            rendition: Thumbnail
+            rendition: '@lr_rd_thumbnail->id'
         needs:
             - '@lr_wi_rendition'
     lr_wi_similarity (extends lr_tpl_wi):
         integration: core.similarity
         config:
-            rendition: Preview
+            rendition: '@lr_rd_preview->id'
         needs:
             - '@lr_wi_rendition'
     lr_wi_face_recognition (extends lr_tpl_wi):
         integration: core.face_recognition
         config:
             attribute: models
-            rendition: Preview
+            rendition: '@lr_rd_preview->id'
             processIncoming: true
         needs:
             - '@lr_wi_rendition'
