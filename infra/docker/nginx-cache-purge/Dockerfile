@@ -2,13 +2,13 @@ ARG NGINX_VERSION=1.27.1
 
 FROM nginx:${NGINX_VERSION}-alpine3.20 AS builder
 
-ENV PURGE_CACHE_VERSION=3.0.4
+ENV PURGE_CACHE_VERSION=2.3
 
 # Download sources
 RUN mkdir -p /usr/src \
     && cd /usr/src \
     && wget "https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz" -O nginx.tar.gz \
-    && wget "https://github.com/nginx-modules/ngx_cache_purge/archive/refs/tags/${PURGE_CACHE_VERSION}.tar.gz" -O ngx-cache-purge.tar.gz
+    && wget "https://github.com/FRiCKLE/ngx_cache_purge/archive/refs/tags/${PURGE_CACHE_VERSION}.tar.gz" -O ngx-cache-purge.tar.gz
 
 # For latest build deps, see https://github.com/nginxinc/docker-nginx/blob/master/mainline/alpine/Dockerfile
 RUN apk add --no-cache --virtual .build-deps \
@@ -28,7 +28,9 @@ RUN apk add --no-cache --virtual .build-deps \
 RUN cd /usr/src \
     && tar -zxC /usr/src -f nginx.tar.gz \
     && tar -xzC /usr/src -f ngx-cache-purge.tar.gz \
+    && wget https://raw.githubusercontent.com/nginx-modules/ngx_cache_purge/84f9eaad0039fe88498caadd60cf9e86b3168190/config \
     && PURGE_CACHEDIR="$(pwd)/ngx_cache_purge-${PURGE_CACHE_VERSION}" \
+    && mv config ${PURGE_CACHEDIR}/ \
     && cd /usr/src/nginx-$NGINX_VERSION \
     && CONFARGS=$(nginx -V 2>&1 | sed -n -e 's/^.*arguments: //p') \
     && sh -c "./configure --with-compat $CONFARGS --add-dynamic-module=$PURGE_CACHEDIR" \
