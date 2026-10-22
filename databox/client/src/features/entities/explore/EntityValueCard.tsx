@@ -10,19 +10,26 @@ import {
     GitMergeIcon,
     MoreHorizontalIcon,
     PencilIcon,
+    Trash2Icon,
 } from 'lucide-react';
 import type {AttributeEntity, EntityList} from '@/types/api';
 import {AttributeEntityStatus, EntityName} from '@/types/api';
-import {mergeAttributeEntities, putAttributeEntity} from '@/lib/api/metadata';
+import {
+    deleteAttributeEntity,
+    mergeAttributeEntities,
+    putAttributeEntity,
+} from '@/lib/api/metadata';
 import {AttributeEntitySelect} from '@/components/form/selects';
 import {EntityChip} from '@/components/chips';
 import {Button} from '@/components/ui/button';
+import {ConfirmDialog} from '@/components/ui/confirm';
 import {Input} from '@/components/ui/input';
 import {Badge, Skeleton} from '@/components/ui/misc';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/menu';
 import {useModals} from '@/components/modals/ModalProvider';
@@ -70,7 +77,8 @@ function useSeen<T extends Element>() {
 /**
  * A value of an entity list: how many attributes reference it, a few of the
  * assets holding it (loaded once the card is about to be seen), the way to
- * their search; renamed or merged into another value by the list editors.
+ * their search; renamed, merged into another value or deleted by the list
+ * editors.
  */
 export function EntityValueCard({
     entity,
@@ -106,6 +114,34 @@ export function EntityValueCard({
               ? undefined
               : 0;
     const references = entity.usage?.attributes;
+
+    // The API also removes the attributes referencing the value from the assets
+    const confirmDelete = () => {
+        const referenced = (references ?? 0) > 0;
+        openModal(ConfirmDialog, {
+            title: t('entity_list.explore.delete_title', {
+                defaultValue: 'Delete "{{name}}"?',
+                name: entity.value,
+            }),
+            description: referenced
+                ? t('entity_list.explore.delete_references', {
+                      count: references,
+                      defaultValue_one:
+                          'Its {{count}} reference will be removed from the assets.',
+                      defaultValue_other:
+                          'Its {{count}} references will be removed from the assets.',
+                  })
+                : undefined,
+            textToType: referenced ? entity.value : undefined,
+            destructive: true,
+            confirmLabel: t('common.delete', 'Delete'),
+            onConfirm: async () => {
+                await deleteAttributeEntity(entity.id);
+                toast.success(t('entity.deleted', 'Value deleted'));
+                onChanged();
+            },
+        });
+    };
 
     return (
         <div
@@ -195,6 +231,15 @@ export function EntityValueCard({
                                         'Merge into…'
                                     )}
                                 </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    variant="destructive"
+                                    onSelect={confirmDelete}
+                                    data-testid="entity-value-delete-button"
+                                >
+                                    <Trash2Icon />{' '}
+                                    {t('common.delete', 'Delete')}
+                                </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     ) : null}
@@ -202,15 +247,15 @@ export function EntityValueCard({
             )}
 
             <div
-                className="grid grid-cols-6 gap-1"
+                className="grid grid-cols-3 gap-1.5"
                 data-testid="entity-value-assets"
             >
                 {!condition ? null : !seen || query.isLoading ? (
-                    [...Array(3)].map((_, i) => (
+                    [...Array(PREVIEW_SIZE)].map((_, i) => (
                         <Skeleton key={i} className="aspect-square" />
                     ))
                 ) : shown.length === 0 ? (
-                    <p className="col-span-6 py-2 text-xs text-muted-foreground">
+                    <p className="col-span-3 py-2 text-xs text-muted-foreground">
                         {t('entity.preview.empty', 'No asset uses this value')}
                     </p>
                 ) : (

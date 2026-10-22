@@ -295,7 +295,7 @@ function ExploreBrowser({listId}: {listId: string}) {
                         action={manageLink}
                     />
                 ) : !list.data || values.isLoading ? (
-                    <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-3 p-3">
+                    <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3 p-3">
                         {[...Array(8)].map((_, i) => (
                             <Skeleton key={i} className="h-40" />
                         ))}
@@ -320,7 +320,7 @@ function ExploreBrowser({listId}: {listId: string}) {
                 ) : (
                     <>
                         <div
-                            className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-3 p-3"
+                            className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-3 p-3"
                             data-testid="entity-explore-grid"
                         >
                             {workspaceId

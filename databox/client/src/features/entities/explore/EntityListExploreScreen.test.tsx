@@ -56,6 +56,7 @@ vi.mock('@/components/form/selects', () => ({
 
 const {api} = vi.hoisted(() => ({
     api: {
+        deleteAttributeEntity: vi.fn(),
         getEntityList: vi.fn(),
         getAttributeEntities: vi.fn(),
         getAttributesOfDefinition: vi.fn(),
@@ -72,6 +73,7 @@ vi.mock('@/lib/api/metadata', async importOriginal => {
 
     return {
         ...actual,
+        deleteAttributeEntity: api.deleteAttributeEntity,
         getEntityList: api.getEntityList,
         getAttributeEntities: api.getAttributeEntities,
         getAttributesOfDefinition: api.getAttributesOfDefinition,
@@ -171,6 +173,24 @@ function openMenu(trigger: HTMLElement) {
     fireEvent.keyDown(trigger, {key: 'Enter'});
 
     return screen.findAllByRole('menuitem');
+}
+
+/** Opens the deletion confirmation of the value of a card */
+async function openDelete(card: HTMLElement) {
+    const items = await openMenu(
+        within(card).getByTestId('entity-value-actions')
+    );
+    fireEvent.click(
+        items.find(
+            i => i.dataset.testid === 'entity-value-delete-button'
+        ) as HTMLElement
+    );
+
+    return screen.findByTestId('form-dialog');
+}
+
+function submitButton(dialog: HTMLElement) {
+    return dialog.querySelector('button[type="submit"]') as HTMLButtonElement;
 }
 
 describe('EntityListExploreScreen', () => {
@@ -372,6 +392,77 @@ describe('EntityListExploreScreen', () => {
                 'alice',
             ])
         );
+    });
+
+    it('deletes a value without reference after a plain confirmation', async () => {
+        api.getAttributeEntities.mockResolvedValue({
+            total: 1,
+            items: [value('alice', 'Alice', {usage: undefined})],
+        });
+        api.deleteAttributeEntity.mockResolvedValue(undefined);
+        renderScreen();
+        const [card] = await screen.findAllByTestId('entity-value-card');
+        const calls = api.getAttributeEntities.mock.calls.length;
+
+        const dialog = await openDelete(card);
+        expect(within(dialog).queryByRole('textbox')).toBeNull();
+        expect(dialog.textContent).toContain('Delete "Alice"?');
+        const confirm = submitButton(dialog);
+        expect(confirm.disabled).toBe(false);
+        fireEvent.click(confirm);
+
+        await waitFor(() =>
+            expect(api.deleteAttributeEntity).toHaveBeenCalledWith('alice')
+        );
+        await waitFor(() =>
+            expect(api.getAttributeEntities.mock.calls.length).toBeGreaterThan(
+                calls
+            )
+        );
+    });
+
+    it('asks to type a referenced value before deleting it', async () => {
+        api.getAttributeEntities.mockResolvedValue({
+            total: 1,
+            items: [
+                value('alice', 'Alice', {
+                    usage: {attributes: 3, humanAttributes: 0},
+                }),
+            ],
+        });
+        api.deleteAttributeEntity.mockResolvedValue(undefined);
+        renderScreen();
+        const [card] = await screen.findAllByTestId('entity-value-card');
+
+        const dialog = await openDelete(card);
+        expect(dialog.textContent).toContain(
+            'Its 3 references will be removed from the assets.'
+        );
+        const confirm = submitButton(dialog);
+        expect(confirm.disabled).toBe(true);
+        const input = within(dialog).getByRole('textbox');
+        fireEvent.change(input, {target: {value: 'Ali'}});
+        expect(confirm.disabled).toBe(true);
+        fireEvent.change(input, {target: {value: 'Alice'}});
+        expect(confirm.disabled).toBe(false);
+        fireEvent.click(confirm);
+
+        await waitFor(() =>
+            expect(api.deleteAttributeEntity).toHaveBeenCalledWith('alice')
+        );
+    });
+
+    it('does not delete the value when the confirmation is cancelled', async () => {
+        renderScreen();
+        const [card] = await screen.findAllByTestId('entity-value-card');
+
+        const dialog = await openDelete(card);
+        fireEvent.click(within(dialog).getByRole('button', {name: 'Cancel'}));
+
+        await waitFor(() =>
+            expect(screen.queryByTestId('form-dialog')).toBeNull()
+        );
+        expect(api.deleteAttributeEntity).not.toHaveBeenCalled();
     });
 
     it('hides the edition from the users who cannot edit the workspace', async () => {
