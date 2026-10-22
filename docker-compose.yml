@@ -253,6 +253,8 @@ services:
     logging: *default-logging
     extends:
       service: uploader-worker
+    profiles: !reset
+      - uploader-scheduler
     build: !reset null
     deploy:
       replicas: 1
@@ -795,6 +797,8 @@ services:
   # Never scale it: a schedule must be consumed by a single process.
   databox-scheduler:
     logging: *default-logging
+    profiles: !reset
+      - databox-scheduler
     extends:
       service: databox-worker
     build: !reset null
