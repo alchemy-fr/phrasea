@@ -28,8 +28,10 @@ jobs:
         if: env.DOCKERHUB_USERNAME != null
         run: |
           docker compose --profile indexer pull --quiet
-          # Tag all pulled images as latest using robust docker format
-          docker image ls --filter "reference=alchemyfr/ps-*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | while read repo; do
+          # Tag all pulled images as latest using robust docker format.
+          # Keycloak is excluded: its `latest` tag is owned by alchemy-fr/phrasea-keycloak.
+          docker image ls --filter "reference=alchemyfr/ps-*:${{ env.DOCKER_TAG }}" --format "{{.Repository}}" | grep -v -x 'alchemyfr/ps-keycloak' | while read repo; do
             docker tag "$repo:${{ env.DOCKER_TAG }}" "$repo:latest"
           done
-          DOCKER_TAG=latest docker compose --profile indexer push
+          DOCKER_TAG=latest docker compose --profile indexer push \
+            $(docker compose --profile indexer config --services | grep -v -x -E 'keycloak2?')

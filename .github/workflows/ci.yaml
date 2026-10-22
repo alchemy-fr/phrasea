@@ -323,7 +323,7 @@ jobs:
             image_name="${repo##*/ps-}"
             new_repo="alchemyfr/ps-${image_name}"
             docker tag "$repo:${{ env.DOCKER_TAG }}" "$new_repo:${{ env.IMAGE_TAG }}"
-            if [ "$IS_LATEST" = true ]; then
+            if [ "$IS_LATEST" = true ] && [ "$image_name" != keycloak ]; then
               docker tag "$repo:${{ env.DOCKER_TAG }}" "$new_repo:latest"
             fi
           done
@@ -331,9 +331,11 @@ jobs:
           export COMPOSE_PROFILES="${COMPOSE_PROFILES},configurator,indexer"
           REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=${{ env.IMAGE_TAG }} docker compose push
 
-          # If latest, also push latest tag
+          # If latest, also push latest tag.
+          # Keycloak is excluded: its `latest` tag is owned by alchemy-fr/phrasea-keycloak.
           if [ "$IS_LATEST" = true ]; then
-            REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=latest docker compose push
+            REGISTRY_NAMESPACE=alchemyfr/ps- DOCKER_TAG=latest docker compose push \
+              $(docker compose config --services | grep -v -x -E 'keycloak2?')
           fi
 
       - name: Configure AWS Credentials
