@@ -15,6 +15,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[AsEventListener(WorkerMessageHandledEvent::class, method: 'onTerminate')]
 final class TerminateStackListener
 {
+    private const int MAX_ROUNDS = 100;
+
     private array $callbacks = [];
     private array $messages = [];
 
@@ -39,19 +41,27 @@ final class TerminateStackListener
         $this->messages[] = $message;
     }
 
+    /**
+     * Runs the callbacks, then dispatches the messages, and starts again with those they added.
+     */
     public function onTerminate(): void
     {
-        $callbacks = $this->callbacks;
+        for ($round = 1; !empty($this->callbacks) || !empty($this->messages); ++$round) {
+            if ($round > self::MAX_ROUNDS) {
+                throw new \RuntimeException(sprintf('%s error: Infinite loop detected in onTerminate', self::class));
+            }
 
-        $this->callbacks = [];
-        while ($callback = array_shift($callbacks)) {
-            $callback();
-        }
+            $callbacks = $this->callbacks;
+            $this->callbacks = [];
+            while ($callback = array_shift($callbacks)) {
+                $callback();
+            }
 
-        $messages = $this->messages;
-        $this->messages = [];
-        while ($message = array_shift($messages)) {
-            $this->bus->dispatch($message);
+            $messages = $this->messages;
+            $this->messages = [];
+            while ($message = array_shift($messages)) {
+                $this->bus->dispatch($message);
+            }
         }
     }
 }

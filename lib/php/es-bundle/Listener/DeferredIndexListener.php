@@ -28,9 +28,11 @@ use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 #[AsDoctrineListener(Events::postPersist)]
 #[AsDoctrineListener(Events::onFlush)]
 // #[AsDoctrineListener(Events::postFlush)] TODO break tests
-#[AsEventListener(KernelEvents::TERMINATE, 'flush')]
-#[AsEventListener(ConsoleEvents::TERMINATE, 'flush')]
-#[AsEventListener(WorkerMessageHandledEvent::class, 'flush')]
+// After TerminateStackListener (0), whose callbacks may persist indexable entities,
+// and before SearchIndexer::flush() (-255), which sends their dependencies.
+#[AsEventListener(KernelEvents::TERMINATE, 'flush', priority: -100)]
+#[AsEventListener(ConsoleEvents::TERMINATE, 'flush', priority: -100)]
+#[AsEventListener(WorkerMessageHandledEvent::class, 'flush', priority: -100)]
 final class DeferredIndexListener
 {
     private static bool $enabled = true;
@@ -50,9 +52,17 @@ final class DeferredIndexListener
      */
     private array $scheduledForDeletion = [];
 
+    /**
+     * State of the queues when the open transaction of each connection began.
+     *
+     * @var \WeakMap<object, array{array, array, array}>
+     */
+    private \WeakMap $transactionSnapshots;
+
     public function __construct(
         private readonly SearchIndexer $searchIndexer,
     ) {
+        $this->transactionSnapshots = new \WeakMap();
     }
 
     private function handlesEntity(object $entity): bool
@@ -113,11 +123,41 @@ final class DeferredIndexListener
     /**
      * @see \Alchemy\ESBundle\Doctrine\TransactionRollbackMiddleware
      */
-    public function onTransactionRollBack(): void
+    public function onTransactionBegin(object $connection): void
     {
-        $this->scheduledForDeletion = [];
-        $this->scheduledForInsertion = [];
-        $this->scheduledForUpdate = [];
+        $this->transactionSnapshots[$connection] = [
+            $this->scheduledForInsertion,
+            $this->scheduledForUpdate,
+            $this->scheduledForDeletion,
+        ];
+    }
+
+    /**
+     * @see \Alchemy\ESBundle\Doctrine\TransactionRollbackMiddleware
+     */
+    public function onTransactionCommit(object $connection): void
+    {
+        unset($this->transactionSnapshots[$connection]);
+    }
+
+    /**
+     * Discards what was scheduled since the transaction began, by restoring the queues as they
+     * were then. What was flushed meanwhile is scheduled again (indexing is idempotent).
+     *
+     * @see \Alchemy\ESBundle\Doctrine\TransactionRollbackMiddleware
+     */
+    public function onTransactionRollBack(object $connection): void
+    {
+        if (!isset($this->transactionSnapshots[$connection])) {
+            return;
+        }
+
+        [
+            $this->scheduledForInsertion,
+            $this->scheduledForUpdate,
+            $this->scheduledForDeletion,
+        ] = $this->transactionSnapshots[$connection];
+        unset($this->transactionSnapshots[$connection]);
     }
 
     public function postFlush(PostFlushEventArgs $args): void

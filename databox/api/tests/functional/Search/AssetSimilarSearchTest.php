@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Search;
 
 use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
+use Alchemy\MessengerBundle\Listener\TerminateStackListener;
 use Alchemy\Workflow\State\JobState;
 use Alchemy\Workflow\State\Repository\StateRepositoryInterface;
 use Alchemy\Workflow\State\WorkflowState as ModelWorkflowState;
@@ -83,6 +84,71 @@ class AssetSimilarSearchTest extends AbstractSearchTestCase
         self::forceNewEntitiesToBeIndexed();
         self::waitForESIndex('asset');
         $this->assertSame(self::vector([1 => 1.0]), $this->getIndexedEmbedding($late));
+    }
+
+    /**
+     * Workflow jobs run in a transaction defer their callbacks to the terminate stack, and in
+     * dev (sync transports) the embedding is persisted from there: it must still be indexed,
+     * including when a callback adds another one.
+     */
+    public function testEmbeddingPersistedFromTheTerminateStackIsIndexed(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $first = $this->createEmbeddedAsset($workspace, 'First', null);
+        $second = $this->createEmbeddedAsset($workspace, 'Second', null);
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('asset');
+        $this->assertNull($this->getIndexedEmbedding($first));
+        $this->assertNull($this->getIndexedEmbedding($second));
+
+        /** @var TerminateStackListener $terminateStack */
+        $terminateStack = self::getService(TerminateStackListener::class);
+        $terminateStack->addCallback(function () use ($terminateStack, $first, $second): void {
+            $this->persistEmbedding($first, self::vector([0 => 1.0]));
+            $terminateStack->addCallback(function () use ($second): void {
+                $this->persistEmbedding($second, self::vector([1 => 1.0]));
+            });
+        });
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('asset');
+
+        $this->assertSame(self::vector([0 => 1.0]), $this->getIndexedEmbedding($first));
+        $this->assertSame(self::vector([1 => 1.0]), $this->getIndexedEmbedding($second));
+    }
+
+    /**
+     * A rolled back transaction only discards the indexation scheduled while it was open,
+     * not what earlier committed transactions scheduled.
+     */
+    public function testRollbackOfAnotherTransactionKeepsTheScheduledIndexation(): void
+    {
+        $workspace = $this->createWorkspace([
+            'public' => true,
+            'no_flush' => true,
+        ]);
+        $kept = $this->createEmbeddedAsset($workspace, 'Kept', null);
+        $discarded = $this->createEmbeddedAsset($workspace, 'Discarded', null);
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('asset');
+
+        $this->persistEmbedding($kept, self::vector([0 => 1.0]));
+
+        $em = self::getEntityManager();
+        $connection = $em->getConnection();
+        $connection->beginTransaction();
+        $this->persistEmbedding($discarded, self::vector([1 => 1.0]));
+        $connection->rollBack();
+        // The rolled back embedding is still managed
+        $em->clear();
+
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('asset');
+
+        $this->assertSame(self::vector([0 => 1.0]), $this->getIndexedEmbedding($kept));
+        $this->assertNull($this->getIndexedEmbedding($discarded));
     }
 
     /**
@@ -169,6 +235,17 @@ class AssetSimilarSearchTest extends AbstractSearchTestCase
     private function getIndexedEmbedding(Asset $asset): ?array
     {
         return self::$documentIndices['asset']->getDocument($asset->getId())->getData()['embedding'] ?? null;
+    }
+
+    private function persistEmbedding(Asset $asset, array $vector): void
+    {
+        $em = self::getEntityManager();
+        $embedding = new AssetEmbedding();
+        $embedding->setAsset($asset);
+        $embedding->setVector($vector);
+        $embedding->setModel('test');
+        $em->persist($embedding);
+        $em->flush();
     }
 
     private function createEmbeddedAsset(Workspace $workspace, string $name, ?array $vector): Asset

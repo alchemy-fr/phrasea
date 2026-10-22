@@ -13,8 +13,12 @@ use Doctrine\DBAL\Driver\Middleware\AbstractConnectionMiddleware;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
 
 /**
- * Discards the index operations scheduled during a transaction that is rolled back
+ * Tells DeferredIndexListener when a transaction begins, commits or rolls back, so that a rollback
+ * discards the index operations scheduled during that transaction only
  * (DBAL 4 no longer dispatches transaction events).
+ *
+ * Only the outermost transaction reaches the driver: DBAL runs nested ones as savepoints, whose
+ * rollback discards nothing.
  */
 #[AsMiddleware]
 final readonly class TransactionRollbackMiddleware implements Middleware
@@ -42,10 +46,22 @@ final readonly class TransactionRollbackMiddleware implements Middleware
                         parent::__construct($connection);
                     }
 
+                    public function beginTransaction(): void
+                    {
+                        parent::beginTransaction();
+                        $this->listener->onTransactionBegin($this);
+                    }
+
+                    public function commit(): void
+                    {
+                        parent::commit();
+                        $this->listener->onTransactionCommit($this);
+                    }
+
                     public function rollBack(): void
                     {
                         parent::rollBack();
-                        $this->listener->onTransactionRollBack();
+                        $this->listener->onTransactionRollBack($this);
                     }
                 };
             }
