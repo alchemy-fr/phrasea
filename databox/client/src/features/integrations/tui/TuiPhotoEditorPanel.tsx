@@ -1,15 +1,15 @@
 'use client';
 
 import {useTranslation} from 'react-i18next';
-import {useQuery, useQueryClient} from '@tanstack/react-query';
+import {useQueryClient} from '@tanstack/react-query';
 import {FileImageIcon, PencilRulerIcon, Trash2Icon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {ApiFile, Asset, WorkspaceIntegration} from '@/types/api';
 import {
-    getIntegrationData,
     IntegrationObjectType,
     runIntegrationAction,
 } from '@/lib/api/integrations';
+import {useIntegrationData} from '../useIntegrationData';
 import {Button} from '@/components/ui/button';
 import {InlineLoader} from '@/components/ui/loader';
 import {useModals} from '@/components/modals/ModalProvider';
@@ -41,14 +41,9 @@ export function TuiPhotoEditorPanel({
     const {openModal} = useModals();
     const queryKey = ['integration-data', integration.id, file.id];
 
-    const data = useQuery({
-        queryKey,
-        queryFn: ({signal}) =>
-            getIntegrationData(
-                integration.id,
-                {type: IntegrationObjectType.File, id: file.id},
-                signal
-            ),
+    const data = useIntegrationData(integration.id, {
+        type: IntegrationObjectType.File,
+        id: file.id,
     });
     const reload = () => queryClient.invalidateQueries({queryKey});
 
@@ -56,7 +51,7 @@ export function TuiPhotoEditorPanel({
         reload()
     );
 
-    const exports = data.data?.items ?? [];
+    const exports = data.items;
     const allowed = integration.capabilities?.interact !== false;
 
     const edit = (source: SavedFile, suggestedName?: string) =>
@@ -153,6 +148,17 @@ export function TuiPhotoEditorPanel({
                 <p className="text-xs text-muted-foreground">
                     {t('tui_photo_editor.no_export', 'No edited version yet')}
                 </p>
+            ) : null}
+            {data.hasMore ? (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full"
+                    loading={data.loadingMore}
+                    onClick={data.loadMore}
+                >
+                    {t('common.load_more', 'Load more')}
+                </Button>
             ) : null}
         </div>
     );

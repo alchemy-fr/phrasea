@@ -11,10 +11,7 @@ import {api} from '@/lib/api/http';
 import {toPage} from '@/lib/api/hydra';
 import {
     EntityName,
-    type AttributeDefinition,
     type HydraCollection,
-    type Page,
-    type RenditionDefinition,
     type User,
     type Group,
 } from '@/types/api';
@@ -23,11 +20,16 @@ import {FormRow, Input} from '@/components/ui/input';
 import {LabeledControl, Switch} from '@/components/ui/controls';
 import {SimpleSelect} from '@/components/ui/select';
 import {Badge} from '@/components/ui/misc';
-import {GroupSelect, UserSelect} from '@/components/form/selects';
+import {
+    AttributeDefinitionSelect,
+    GroupSelect,
+    RenditionDefinitionSelect,
+    UserSelect,
+} from '@/components/form/selects';
 import {CollectionTreePicker} from '@/components/form/CollectionTreePicker';
 import {getRenditionDefinitions} from '@/lib/api/misc';
 import {getCollection} from '@/lib/api/collections';
-import {getWorkspaceAttributeDefinitions} from '@/lib/api/metadata';
+import {getAttributeDefinitionsPage} from '@/lib/api/metadata';
 import {iri, toIris} from '@/lib/utils/iri';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
 
@@ -128,20 +130,17 @@ function PolicyForm({
     const [conditions, setConditions] = useState<AssetPolicyCondition[]>(
         policy?.conditions ?? []
     );
-    const renditions = useQuery({
-        queryKey: ['rendition-definitions', 'manage', workspaceId],
-        queryFn: () => getRenditionDefinitions({workspaceIds: [workspaceId]}),
-    });
-    const attributes = useQuery({
-        queryKey: ['attribute-definitions', 'manage', workspaceId],
-        queryFn: () => getWorkspaceAttributeDefinitions({workspaceId}),
-    });
     const [actions, setActions] = useState<AssetPolicyAction[]>(
         policy?.actions ?? []
     );
-    const normalizedActions = actions.map(a =>
-        normalizeAction(a, renditions.data, attributes.data)
-    );
+    const legacyRefs = legacyReferences(actions);
+    const legacy = useQuery({
+        queryKey: ['asset-policy-legacy-actions', workspaceId, legacyRefs],
+        queryFn: () => resolveLegacy(workspaceId, legacyRefs),
+        enabled:
+            legacyRefs.renditions.length + legacyRefs.attributes.length > 0,
+    });
+    const normalizedActions = actions.map(a => normalizeAction(a, legacy.data));
     const incompleteActions = normalizedActions.some(
         a => ACTION_NAMES.includes(a.action) && !a.definitionId
     );
@@ -224,8 +223,7 @@ function PolicyForm({
                 <PolicyActions
                     actions={normalizedActions}
                     onChange={setActions}
-                    renditions={renditions.data}
-                    attributes={attributes.data}
+                    workspaceId={workspaceId}
                 />
             </FormRow>
             <div className="flex justify-end">
@@ -245,15 +243,20 @@ function PolicyForm({
     );
 }
 
+/** Definition ids of the rendition names and attribute slugs */
+type LegacyIds = {
+    renditions: Record<string, string>;
+    attributes: Record<string, string>;
+};
+
 /**
  * Early versions of this screen stored the rendition name / attribute slug
  * (`rendition` / `attribute`) instead of the `definitionId` the API reads:
- * resolved to the id once the definitions are loaded.
+ * resolved to the id once looked up.
  */
 function normalizeAction(
     a: AssetPolicyAction,
-    renditions?: Page<RenditionDefinition>,
-    attributes?: Page<AttributeDefinition>
+    legacy?: LegacyIds
 ): AssetPolicyAction {
     if (a.definitionId) {
         return a;
@@ -261,12 +264,67 @@ function normalizeAction(
     const {rendition, attribute, ...rest} = a;
     let definitionId: string | undefined;
     if (a.action === HIDE_RENDITION && typeof rendition === 'string') {
-        definitionId = renditions?.items.find(r => r.name === rendition)?.id;
+        definitionId = legacy?.renditions[rendition];
     } else if (a.action === HIDE_ATTRIBUTE && typeof attribute === 'string') {
-        definitionId = attributes?.items.find(d => d.slug === attribute)?.id;
+        definitionId = legacy?.attributes[attribute];
     }
 
     return definitionId ? {...rest, definitionId} : a;
+}
+
+function legacyReferences(actions: AssetPolicyAction[]) {
+    const pick = (action: string, key: string) =>
+        [
+            ...new Set(
+                actions
+                    .filter(a => !a.definitionId && a.action === action)
+                    .map(a => a[key])
+                    .filter((v): v is string => typeof v === 'string')
+            ),
+        ].sort();
+
+    return {
+        renditions: pick(HIDE_RENDITION, 'rendition'),
+        attributes: pick(HIDE_ATTRIBUTE, 'attribute'),
+    };
+}
+
+async function resolveLegacy(
+    workspaceId: string,
+    refs: {renditions: string[]; attributes: string[]}
+): Promise<LegacyIds> {
+    const [renditions, attributes] = await Promise.all([
+        Promise.all(
+            refs.renditions.map(async name => {
+                // A contains match: the exact name is among the results
+                const page = await getRenditionDefinitions({
+                    workspaceId,
+                    query: name,
+                    limit: 100,
+                });
+
+                return [
+                    name,
+                    page.items.find(d => d.name === name)?.id,
+                ] as const;
+            })
+        ),
+        refs.attributes.length > 0
+            ? getAttributeDefinitionsPage({
+                  workspaceId,
+                  slugs: refs.attributes,
+                  limit: refs.attributes.length,
+              }).then(page => page.items.map(d => [d.slug, d.id] as const))
+            : [],
+    ]);
+    const toRecord = (
+        entries: readonly (readonly [string, string | undefined])[]
+    ) =>
+        Object.fromEntries(
+            entries.filter((e): e is readonly [string, string] => !!e[1])
+        );
+
+    return {renditions: toRecord(renditions), attributes: toRecord(attributes)};
 }
 
 /**
@@ -276,13 +334,11 @@ function normalizeAction(
 function PolicyActions({
     actions,
     onChange,
-    renditions,
-    attributes,
+    workspaceId,
 }: {
     actions: AssetPolicyAction[];
     onChange: (actions: AssetPolicyAction[]) => void;
-    renditions?: Page<RenditionDefinition>;
-    attributes?: Page<AttributeDefinition>;
+    workspaceId: string;
 }) {
     const {t} = useTranslation();
     const update = (i: number, a: AssetPolicyAction) =>
@@ -297,24 +353,6 @@ function PolicyActions({
             label: t('asset_policy.action.hide_attribute', 'Hide attribute'),
         },
     ];
-    const definitionOptions = (a: AssetPolicyAction) => {
-        const definitions =
-            a.action === HIDE_RENDITION ? renditions : attributes;
-        const options = (definitions?.items ?? []).map(d => ({
-            value: d.id,
-            label: d.displayName ?? d.name,
-        }));
-        // Deleted definition: its id, as is
-        if (
-            definitions &&
-            a.definitionId &&
-            !options.some(o => o.value === a.definitionId)
-        ) {
-            options.push({value: a.definitionId, label: a.definitionId});
-        }
-
-        return options;
-    };
 
     return (
         <div className="space-y-2">
@@ -341,26 +379,33 @@ function PolicyActions({
                             ]}
                         />
                         {known ? (
-                            <SimpleSelect
-                                size="sm"
-                                className="min-w-56 flex-1"
-                                value={a.definitionId}
-                                onValueChange={definitionId =>
-                                    update(i, {...a, definitionId})
-                                }
-                                placeholder={
-                                    a.action === HIDE_RENDITION
-                                        ? t(
-                                              'asset_policy.pick_rendition',
-                                              'Select a rendition…'
-                                          )
-                                        : t(
-                                              'asset_policy.pick_attribute',
-                                              'Select an attribute…'
-                                          )
-                                }
-                                options={definitionOptions(a)}
-                            />
+                            <div className="min-w-56 flex-1">
+                                {a.action === HIDE_RENDITION ? (
+                                    <RenditionDefinitionSelect
+                                        workspaceId={workspaceId}
+                                        value={a.definitionId}
+                                        onChange={definitionId =>
+                                            update(i, {...a, definitionId})
+                                        }
+                                        placeholder={t(
+                                            'asset_policy.pick_rendition',
+                                            'Select a rendition…'
+                                        )}
+                                    />
+                                ) : (
+                                    <AttributeDefinitionSelect
+                                        workspaceId={workspaceId}
+                                        value={a.definitionId}
+                                        onChange={definitionId =>
+                                            update(i, {...a, definitionId})
+                                        }
+                                        placeholder={t(
+                                            'asset_policy.pick_attribute',
+                                            'Select an attribute…'
+                                        )}
+                                    />
+                                )}
+                            </div>
                         ) : (
                             <code className="min-w-56 flex-1 truncate text-xs text-muted-foreground">
                                 {JSON.stringify(a)}

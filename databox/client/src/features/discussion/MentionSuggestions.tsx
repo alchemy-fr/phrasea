@@ -59,7 +59,7 @@ export function useMentionSuggestions(editor: Editor | null) {
 
     const users = useQuery({
         queryKey: ['users', 'mention', mention?.query],
-        queryFn: ({signal}) => getUsers(mention?.query || undefined, signal),
+        queryFn: ({signal}) => getUsers({query: mention?.query}, signal),
         enabled: !!mention,
         retry: false,
         staleTime: 30_000,

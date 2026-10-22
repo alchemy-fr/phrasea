@@ -2,14 +2,14 @@
 
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useQuery} from '@tanstack/react-query';
+import {useQueryClient} from '@tanstack/react-query';
 import {SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {Tag} from '@/types/api';
 import {EntityName} from '@/types/api';
 import type {WorkspaceTabProps} from '../WorkspaceManageRoute';
 import {DefinitionManager} from '../DefinitionManager';
-import {deleteTag, getTags, postTag, putTag} from '@/lib/api/metadata';
+import {deleteTag, getTag, getTags, postTag, putTag} from '@/lib/api/metadata';
 import {Button} from '@/components/ui/button';
 import {FormRow} from '@/components/ui/input';
 import {TranslatableField} from '@/components/form/TranslatableField';
@@ -17,23 +17,39 @@ import {TagChip} from '@/components/chips';
 import {iri} from '@/lib/utils/iri';
 import {ColorInput} from '@/components/ui/color-input';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {useInfiniteList} from '@/hooks/useInfiniteList';
 
 export function TagManagerTab({workspace}: WorkspaceTabProps) {
     const {t} = useTranslation();
-    const tags = useQuery({
+    const queryClient = useQueryClient();
+    const tags = useInfiniteList<Tag>({
         queryKey: ['tags', 'manage', workspace.id],
-        queryFn: () =>
-            getTags({workspace: iri(EntityName.Workspace, workspace.id)}),
+        fetchPage: ({query, url, signal}) =>
+            getTags(
+                {
+                    workspace: iri(EntityName.Workspace, workspace.id),
+                    query: query || undefined,
+                    limit: 50,
+                    url,
+                },
+                signal
+            ),
     });
 
     return (
         <DefinitionManager<Tag>
-            items={tags.data?.items}
-            loading={tags.isLoading}
-            onChanged={() => tags.refetch()}
-            filter={(tag, q) =>
-                (tag.displayName ?? tag.name).toLowerCase().includes(q)
+            items={tags.items}
+            loading={tags.loading}
+            onChanged={() =>
+                queryClient.invalidateQueries({queryKey: ['tags']})
             }
+            query={tags.query}
+            onQueryChange={tags.setQuery}
+            hasMore={tags.hasMore}
+            loadingMore={tags.loadingMore}
+            onReachEnd={tags.loadMore}
+            getItem={getTag}
+            itemQueryKey={['tags', 'item']}
             renderItem={tag => <TagChip tag={tag} size="sm" />}
             onDelete={tag => deleteTag(tag.id)}
             createLabel={t('tag.create', 'New tag')}

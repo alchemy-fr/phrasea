@@ -2,29 +2,24 @@
 
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useQuery} from '@tanstack/react-query';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {LockIcon, SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
-import type {
-    AttributeDefinition,
-    AttributePolicy,
-    EntityList,
-} from '@/types/api';
+import type {AttributeDefinition, AttributePolicy} from '@/types/api';
 import {AssetType, AttributeType, EntityName} from '@/types/api';
 import type {WorkspaceTabProps} from '../WorkspaceManageRoute';
 import {DefinitionManager} from '../DefinitionManager';
 import {
     deleteAttributeDefinition,
     duplicateAttributeDefinition,
+    getAttributeDefinition,
+    getAttributeDefinitionsPage,
     getAttributeFieldTypes,
     getAttributePolicies,
-    getEntityLists,
-    getWorkspaceAttributeDefinitions,
     postAttributeDefinition,
     putAttributeDefinition,
     sortAttributeDefinitions,
 } from '@/lib/api/metadata';
-import {getRenditionDefinitions} from '@/lib/api/misc';
 import {Button} from '@/components/ui/button';
 import {FormRow, Input} from '@/components/ui/input';
 import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
@@ -39,48 +34,59 @@ import {MetadataTagsField} from '@/components/form/MetadataTagsField';
 import {iri} from '@/lib/utils/iri';
 import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {useInfiniteList} from '@/hooks/useInfiniteList';
+import {EntityListSelect} from '@/components/form/selects';
+import {RenditionPicker} from '@/features/integrations/config/pickers/RenditionPicker';
 
 export function AttributeDefinitionsTab({workspace}: WorkspaceTabProps) {
     const {t} = useTranslation();
-    const definitions = useQuery({
+    const queryClient = useQueryClient();
+    const definitions = useInfiniteList<AttributeDefinition>({
         queryKey: ['attribute-definitions', 'manage', workspace.id],
-        queryFn: () =>
-            getWorkspaceAttributeDefinitions({workspaceId: workspace.id}),
+        fetchPage: ({query, url, signal}) =>
+            getAttributeDefinitionsPage(
+                {
+                    workspaceId: workspace.id,
+                    query: query || undefined,
+                    limit: 50,
+                    url,
+                },
+                signal
+            ),
     });
     const policies = useQuery({
         queryKey: ['attribute-policies', workspace.id],
         queryFn: () => getAttributePolicies(workspace.id),
-    });
-    const entityLists = useQuery({
-        queryKey: ['entity-lists', workspace.id],
-        queryFn: () => getEntityLists({workspaceId: workspace.id}),
     });
     const fieldTypes = useQuery({
         queryKey: ['field-types'],
         queryFn: getAttributeFieldTypes,
         staleTime: Infinity,
     });
-    const renditions = useQuery({
-        queryKey: ['rendition-definitions', workspace.id],
-        queryFn: () => getRenditionDefinitions({workspaceIds: [workspace.id]}),
-    });
     const reloadStore = useDefinitionsStore(s => s.loadWorkspace);
 
     const changed = async () => {
-        await definitions.refetch();
+        await queryClient.invalidateQueries({
+            queryKey: ['attribute-definitions'],
+        });
         await reloadStore(workspace.id);
     };
 
     return (
         <DefinitionManager<AttributeDefinition>
-            items={definitions.data?.items}
-            loading={definitions.isLoading}
+            items={definitions.items}
+            loading={definitions.loading}
             onChanged={changed}
             onSort={sortAttributeDefinitions}
-            filter={(d, q) =>
-                (d.displayName ?? d.name).toLowerCase().includes(q) ||
-                d.slug.includes(q)
-            }
+            query={definitions.query}
+            onQueryChange={definitions.setQuery}
+            hasMore={definitions.hasMore}
+            loadingMore={definitions.loadingMore}
+            onReachEnd={definitions.loadMore}
+            complete={definitions.complete}
+            onLoadAll={definitions.loadAll}
+            getItem={getAttributeDefinition}
+            itemQueryKey={['attribute-definitions', 'item']}
             renderItem={d => (
                 <span className="flex items-center gap-2">
                     <span className="min-w-0 flex-1 truncate">
@@ -114,7 +120,6 @@ export function AttributeDefinitionsTab({workspace}: WorkspaceTabProps) {
                     definition={d}
                     workspace={workspace}
                     policies={policies.data?.items ?? []}
-                    entityLists={entityLists.data?.items ?? []}
                     fieldTypes={
                         fieldTypes.data?.map(f => ({
                             value: f.name,
@@ -124,9 +129,6 @@ export function AttributeDefinitionsTab({workspace}: WorkspaceTabProps) {
                             value: v,
                             label: v,
                         }))
-                    }
-                    renditionNames={
-                        renditions.data?.items.map(r => r.name) ?? []
                     }
                     onSaved={onSaved}
                 />
@@ -139,17 +141,13 @@ function DefinitionForm({
     definition: d,
     workspace,
     policies,
-    entityLists,
     fieldTypes,
-    renditionNames,
     onSaved,
 }: {
     definition?: AttributeDefinition;
     workspace: WorkspaceTabProps['workspace'];
     policies: AttributePolicy[];
-    entityLists: EntityList[];
     fieldTypes: {value: string; label: string}[];
-    renditionNames: string[];
     onSaved: (d: AttributeDefinition) => void;
 }) {
     const {t} = useTranslation();
@@ -311,21 +309,12 @@ function DefinitionForm({
                     <FormRow
                         label={t('attribute_def.entity_list', 'Entity list')}
                     >
-                        <SimpleSelect
-                            value={form.entityList || '__none'}
-                            onValueChange={v =>
-                                set('entityList', v === '__none' ? '' : v)
-                            }
-                            options={[
-                                {
-                                    value: '__none',
-                                    label: t('common.none', 'None'),
-                                },
-                                ...entityLists.map(l => ({
-                                    value: l['@id'],
-                                    label: l.name,
-                                })),
-                            ]}
+                        <EntityListSelect
+                            workspaceId={workspace.id}
+                            useIri
+                            value={form.entityList || undefined}
+                            onChange={v => set('entityList', v ?? '')}
+                            placeholder={t('common.none', 'None')}
                         />
                     </FormRow>
                 ) : null}
@@ -475,29 +464,15 @@ function DefinitionForm({
                         />
                     </LabeledControl>
                     {!form.writeAllRenditions ? (
-                        <div className="flex flex-wrap gap-2 pl-6">
-                            {renditionNames.map(n => (
-                                <LabeledControl key={n} label={n}>
-                                    <Checkbox
-                                        checked={form.writeMetadataRenditions.includes(
-                                            n
-                                        )}
-                                        onCheckedChange={v =>
-                                            set(
-                                                'writeMetadataRenditions',
-                                                v
-                                                    ? [
-                                                          ...form.writeMetadataRenditions,
-                                                          n,
-                                                      ]
-                                                    : form.writeMetadataRenditions.filter(
-                                                          x => x !== n
-                                                      )
-                                            )
-                                        }
-                                    />
-                                </LabeledControl>
-                            ))}
+                        <div className="pl-6">
+                            <RenditionPicker
+                                workspaceId={workspace.id}
+                                multiple
+                                value={form.writeMetadataRenditions}
+                                onChange={v =>
+                                    set('writeMetadataRenditions', v)
+                                }
+                            />
                         </div>
                     ) : null}
                 </div>

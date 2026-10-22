@@ -1,27 +1,86 @@
 'use client';
 
 import {getUserDisplayName} from '@/lib/users';
-import {useCallback, useRef} from 'react';
+import {useCallback} from 'react';
 import {useTranslation} from 'react-i18next';
-import {AsyncCombobox, ComboOption} from './AsyncCombobox';
+import {AsyncCombobox, ComboOption, ComboPage} from './AsyncCombobox';
 import {
+    getAttributeDefinitionsPage,
     getAttributeEntities,
     getAttributeEntity,
+    getEntityList,
+    getEntityLists,
     getTag,
     getTags,
     postAttributeEntity,
 } from '@/lib/api/metadata';
-import {getGroups, getUsers} from '@/lib/api/misc';
+import {
+    getGroups,
+    getRenditionDefinition,
+    getRenditionDefinitions,
+    getUsers,
+} from '@/lib/api/misc';
 import {
     EntityName,
+    type AssetType,
+    type AttributeDefinition,
     type AttributeEntity,
+    type EntityList,
     type Group,
+    type Page,
+    type RenditionDefinition,
     type Tag,
     type User,
 } from '@/types/api';
 import {TagChip, EntityChip} from '@/components/chips';
 import {entityLabel} from '@/features/attributes/types/registry';
 import {iri, idFromIri} from '@/lib/utils/iri';
+
+function comboPage<T>(
+    page: Page<T>,
+    toOption: (item: T) => ComboOption<T>
+): ComboPage<T> {
+    return {options: page.items.map(toOption), next: page.next};
+}
+
+/** Page size of the Keycloak users and groups, paged by offset */
+const PERMISSION_PAGE = 30;
+/** The most ids `/permissions/users|groups` resolves at once */
+const PERMISSION_IDS = 50;
+
+/**
+ * A page of users or groups: the cursor is the offset of the next page,
+ * which may exist as long as a page is full.
+ */
+async function permissionPage<T>(
+    list: (offset: number) => Promise<T[]>,
+    toOption: (item: T) => ComboOption<T>,
+    cursor?: string
+): Promise<ComboPage<T>> {
+    const offset = Number(cursor ?? 0);
+    const items = await list(offset);
+
+    return {
+        options: items.map(toOption),
+        next:
+            items.length === PERMISSION_PAGE
+                ? String(offset + PERMISSION_PAGE)
+                : undefined,
+    };
+}
+
+async function resolveByIds<T>(
+    ids: string[],
+    get: (ids: string[]) => Promise<T[]>,
+    toOption: (item: T) => ComboOption<T>
+): Promise<ComboOption<T>[]> {
+    const chunks: string[][] = [];
+    for (let i = 0; i < ids.length; i += PERMISSION_IDS) {
+        chunks.push(ids.slice(i, i + PERMISSION_IDS));
+    }
+
+    return (await Promise.all(chunks.map(get))).flat().map(toOption);
+}
 
 function tagOption(tag: Tag, useIri: boolean): ComboOption<Tag> {
     return {
@@ -55,16 +114,20 @@ export function TagSelect(props: TagSelectProps) {
     const {t} = useTranslation();
     const {workspaceId, useIri = false, disabled, id} = props;
     const load = useCallback(
-        async (query: string) => {
-            const page = await getTags({
-                workspace: workspaceId
-                    ? iri(EntityName.Workspace, workspaceId)
-                    : undefined,
-                query: query || undefined,
-            });
-
-            return page.items.map(tg => tagOption(tg, useIri));
-        },
+        async (query: string, signal: AbortSignal, cursor?: string) =>
+            comboPage(
+                await getTags(
+                    {
+                        workspace: workspaceId
+                            ? iri(EntityName.Workspace, workspaceId)
+                            : undefined,
+                        query: query || undefined,
+                        url: cursor,
+                    },
+                    signal
+                ),
+                tg => tagOption(tg, useIri)
+            ),
         [workspaceId, useIri]
     );
     const resolve = useCallback(
@@ -79,8 +142,8 @@ export function TagSelect(props: TagSelectProps) {
                 id={id}
                 multiple
                 disabled={disabled}
-                queryKey={['tags', workspaceId]}
-                loadOptions={load}
+                queryKey={['tags', workspaceId, useIri]}
+                loadPage={load}
                 resolveValue={resolve}
                 value={props.value}
                 onChange={(v, opts) =>
@@ -95,8 +158,8 @@ export function TagSelect(props: TagSelectProps) {
         <AsyncCombobox<Tag>
             id={id}
             disabled={disabled}
-            queryKey={['tags', workspaceId]}
-            loadOptions={load}
+            queryKey={['tags', workspaceId, useIri]}
+            loadPage={load}
             resolveValue={resolve}
             value={props.value}
             onChange={(v, opt) => props.onChange(v, opt?.item)}
@@ -127,19 +190,21 @@ export function UserSelect({
     multiple?: boolean;
 }) {
     const {t} = useTranslation();
-    const load = useCallback(async (query: string, signal: AbortSignal) => {
-        const users = await getUsers(query || undefined, signal);
-
-        return users.map(userOption);
-    }, []);
-    // Labels of the preselected users, from a single listing
-    const listing = useRef<Promise<User[]> | undefined>(undefined);
-    const resolve = useCallback(async (v: string) => {
-        listing.current ??= getUsers();
-        const user = (await listing.current).find(u => u.id === v);
-
-        return user ? userOption(user) : undefined;
-    }, []);
+    const load = useCallback(
+        (query: string, signal: AbortSignal, cursor?: string) =>
+            permissionPage(
+                offset =>
+                    getUsers({query, offset, limit: PERMISSION_PAGE}, signal),
+                userOption,
+                cursor
+            ),
+        []
+    );
+    const resolve = useCallback(
+        (ids: string[]) =>
+            resolveByIds(ids, chunk => getUsers({ids: chunk}), userOption),
+        []
+    );
 
     if (multiple) {
         return (
@@ -148,8 +213,8 @@ export function UserSelect({
                 multiple
                 disabled={disabled}
                 queryKey={['users']}
-                loadOptions={load}
-                resolveValue={resolve}
+                loadPage={load}
+                resolveValues={resolve}
                 value={(value as string[]) ?? []}
                 onChange={(v, opts) =>
                     onChange(v, opts.map(o => o.item!).filter(Boolean))
@@ -164,8 +229,8 @@ export function UserSelect({
             id={id}
             disabled={disabled}
             queryKey={['users']}
-            loadOptions={load}
-            resolveValue={resolve}
+            loadPage={load}
+            resolveValues={resolve}
             value={value as string | undefined}
             onChange={(v, opt) =>
                 onChange(v, opt?.item ? [opt.item] : undefined)
@@ -189,19 +254,21 @@ export function GroupSelect({
     multiple?: boolean;
 }) {
     const {t} = useTranslation();
-    const load = useCallback(async (query: string, signal: AbortSignal) => {
-        const groups = await getGroups(query || undefined, signal);
-
-        return groups.map(groupOption);
-    }, []);
-    // Labels of the preselected groups, from a single listing
-    const listing = useRef<Promise<Group[]> | undefined>(undefined);
-    const resolve = useCallback(async (v: string) => {
-        listing.current ??= getGroups();
-        const group = (await listing.current).find(g => g.id === v);
-
-        return group ? groupOption(group) : undefined;
-    }, []);
+    const load = useCallback(
+        (query: string, signal: AbortSignal, cursor?: string) =>
+            permissionPage(
+                offset =>
+                    getGroups({query, offset, limit: PERMISSION_PAGE}, signal),
+                groupOption,
+                cursor
+            ),
+        []
+    );
+    const resolve = useCallback(
+        (ids: string[]) =>
+            resolveByIds(ids, chunk => getGroups({ids: chunk}), groupOption),
+        []
+    );
 
     if (multiple) {
         return (
@@ -210,8 +277,8 @@ export function GroupSelect({
                 multiple
                 disabled={disabled}
                 queryKey={['groups']}
-                loadOptions={load}
-                resolveValue={resolve}
+                loadPage={load}
+                resolveValues={resolve}
                 value={(value as string[]) ?? []}
                 onChange={(v, opts) =>
                     onChange(v, opts.map(o => o.item!).filter(Boolean))
@@ -226,8 +293,8 @@ export function GroupSelect({
             id={id}
             disabled={disabled}
             queryKey={['groups']}
-            loadOptions={load}
-            resolveValue={resolve}
+            loadPage={load}
+            resolveValues={resolve}
             value={value as string | undefined}
             onChange={(v, opt) =>
                 onChange(v, opt?.item ? [opt.item] : undefined)
@@ -263,14 +330,15 @@ export function AttributeEntitySelect({
 }) {
     const {t} = useTranslation();
     const load = useCallback(
-        async (query: string) => {
-            const page = await getAttributeEntities({
-                list: listId,
-                query: query || undefined,
-            });
-
-            return page.items.map(entityOption);
-        },
+        async (query: string, _signal: AbortSignal, cursor?: string) =>
+            comboPage(
+                await getAttributeEntities({
+                    list: listId,
+                    query: query || undefined,
+                    url: cursor,
+                }),
+                entityOption
+            ),
         [listId]
     );
     const resolve = useCallback(
@@ -283,7 +351,7 @@ export function AttributeEntitySelect({
             id={id}
             disabled={disabled || !listId}
             queryKey={['attribute-entities', listId]}
-            loadOptions={load}
+            loadPage={load}
             resolveValue={resolve}
             value={value}
             onChange={(v, opt) => onChange(v, opt?.item)}
@@ -295,6 +363,275 @@ export function AttributeEntitySelect({
                               await postAttributeEntity(listId, {value: query})
                           )
                     : undefined
+            }
+        />
+    );
+}
+
+function entityListOption(
+    list: EntityList,
+    useIri: boolean
+): ComboOption<EntityList> {
+    return {
+        value: useIri ? list['@id'] : list.id,
+        label: list.name,
+        item: list,
+    };
+}
+
+/**
+ * Entity list of a workspace, searched by name.
+ */
+export function EntityListSelect({
+    workspaceId,
+    useIri = false,
+    value,
+    onChange,
+    fixedOptions,
+    placeholder,
+    disabled,
+    id,
+}: {
+    workspaceId: string;
+    /** store IRIs instead of ids */
+    useIri?: boolean;
+    value: string | undefined;
+    onChange: (value: string | undefined, list?: EntityList) => void;
+    /** Choices listed before the lists, whatever the search */
+    fixedOptions?: ComboOption<EntityList>[];
+    placeholder?: string;
+    disabled?: boolean;
+    id?: string;
+}) {
+    const {t} = useTranslation();
+    const load = useCallback(
+        async (query: string, signal: AbortSignal, cursor?: string) =>
+            comboPage(
+                await getEntityLists(
+                    {workspaceId, query: query || undefined, url: cursor},
+                    signal
+                ),
+                l => entityListOption(l, useIri)
+            ),
+        [workspaceId, useIri]
+    );
+    const resolve = useCallback(
+        async (v: string) =>
+            fixedOptions?.find(o => o.value === v) ??
+            entityListOption(await getEntityList(idFromIri(v)), useIri),
+        [useIri, fixedOptions]
+    );
+
+    return (
+        <AsyncCombobox<EntityList>
+            id={id}
+            disabled={disabled}
+            queryKey={['entity-lists', workspaceId, 'select', useIri]}
+            loadPage={load}
+            resolveValue={resolve}
+            fixedOptions={fixedOptions}
+            value={value}
+            onChange={(v, opt) => onChange(v, opt?.item)}
+            placeholder={
+                placeholder ??
+                t('form.entity_list.placeholder', 'Select a list…')
+            }
+        />
+    );
+}
+
+function renditionOption(
+    d: RenditionDefinition,
+    useIri: boolean
+): ComboOption<RenditionDefinition> {
+    return {
+        value: useIri ? d['@id'] : d.id,
+        label: d.displayName ?? d.name,
+        item: d,
+    };
+}
+
+type RenditionDefinitionSelectProps = {
+    workspaceId: string;
+    /** store IRIs instead of ids */
+    useIri?: boolean;
+    target?: AssetType;
+    /** Leaves out the renditions the asset policies hide on this asset */
+    assetId?: string;
+    substitutableOnly?: boolean;
+    /** Id of a definition left out (e.g. the one being edited) */
+    exclude?: string;
+    placeholder?: string;
+    disabled?: boolean;
+    id?: string;
+} & (
+    | {
+          multiple: true;
+          value: string[];
+          onChange: (
+              value: string[],
+              definitions: RenditionDefinition[]
+          ) => void;
+      }
+    | {
+          multiple?: false;
+          value: string | undefined;
+          onChange: (
+              value: string | undefined,
+              definition?: RenditionDefinition
+          ) => void;
+      }
+);
+
+/**
+ * Rendition definition of a workspace, by id or IRI, searched by name.
+ * Where the name is what is stored, see `RenditionPicker`.
+ */
+export function RenditionDefinitionSelect(
+    props: RenditionDefinitionSelectProps
+) {
+    const {t} = useTranslation();
+    const {
+        workspaceId,
+        useIri = false,
+        target,
+        assetId,
+        substitutableOnly,
+        exclude,
+        id,
+        disabled,
+    } = props;
+    const load = useCallback(
+        async (query: string, signal: AbortSignal, cursor?: string) => {
+            const page = await getRenditionDefinitions(
+                {
+                    workspaceId,
+                    assetId,
+                    target,
+                    query: query || undefined,
+                    url: cursor,
+                },
+                signal
+            );
+
+            return {
+                options: page.items
+                    .filter(
+                        d =>
+                            d.id !== exclude &&
+                            (!substitutableOnly || d.substitutable)
+                    )
+                    .map(d => renditionOption(d, useIri)),
+                next: page.next,
+            };
+        },
+        [workspaceId, assetId, target, substitutableOnly, exclude, useIri]
+    );
+    const resolve = useCallback(
+        async (v: string) =>
+            renditionOption(await getRenditionDefinition(idFromIri(v)), useIri),
+        [useIri]
+    );
+    const shared = {
+        id,
+        disabled,
+        queryKey: [
+            'rendition-definitions',
+            'select',
+            workspaceId,
+            {assetId, target, substitutableOnly, exclude, useIri},
+        ],
+        loadPage: load,
+        resolveValue: resolve,
+        placeholder:
+            props.placeholder ??
+            t('form.rendition.placeholder', 'Select a rendition…'),
+    };
+
+    if (props.multiple) {
+        const {onChange} = props;
+
+        return (
+            <AsyncCombobox<RenditionDefinition>
+                {...shared}
+                multiple
+                value={props.value}
+                onChange={(v, opts) =>
+                    onChange(v, opts.map(o => o.item!).filter(Boolean))
+                }
+            />
+        );
+    }
+    const {onChange} = props;
+
+    return (
+        <AsyncCombobox<RenditionDefinition>
+            {...shared}
+            value={props.value}
+            onChange={(v, opt) => onChange(v, opt?.item)}
+        />
+    );
+}
+
+function attributeDefinitionOption(
+    d: AttributeDefinition
+): ComboOption<AttributeDefinition> {
+    return {value: d.id, label: d.displayName ?? d.name, item: d};
+}
+
+/**
+ * Attribute definition of a workspace, by id, searched by name or slug.
+ */
+export function AttributeDefinitionSelect({
+    workspaceId,
+    value,
+    onChange,
+    placeholder,
+    disabled,
+    id,
+}: {
+    workspaceId: string;
+    value: string | undefined;
+    onChange: (
+        value: string | undefined,
+        definition?: AttributeDefinition
+    ) => void;
+    placeholder?: string;
+    disabled?: boolean;
+    id?: string;
+}) {
+    const {t} = useTranslation();
+    const load = useCallback(
+        async (query: string, signal: AbortSignal, cursor?: string) =>
+            comboPage(
+                await getAttributeDefinitionsPage(
+                    {workspaceId, query: query || undefined, url: cursor},
+                    signal
+                ),
+                attributeDefinitionOption
+            ),
+        [workspaceId]
+    );
+    const resolve = useCallback(
+        async (ids: string[]) =>
+            (
+                await getAttributeDefinitionsPage({ids, limit: ids.length})
+            ).items.map(attributeDefinitionOption),
+        []
+    );
+
+    return (
+        <AsyncCombobox<AttributeDefinition>
+            id={id}
+            disabled={disabled}
+            queryKey={['attribute-definitions', 'select', workspaceId]}
+            loadPage={load}
+            resolveValues={resolve}
+            value={value}
+            onChange={(v, opt) => onChange(v, opt?.item)}
+            placeholder={
+                placeholder ??
+                t('form.attribute.placeholder', 'Select an attribute…')
             }
         />
     );

@@ -1773,5 +1773,10 @@
     "workspace.terms_gate.later_all_other": "Plus tard ({{count}} en attente)",
     "workspace.terms_gate.title": "Conditions générales — {{workspace}}",
     "workspace.title": "Titre",
-    "workspace.trash_retention": "Rétention de la corbeille (jours)"
+    "workspace.trash_retention": "Rétention de la corbeille (jours)",
+    "definition.sort_needs_all": "Réordonner nécessite la liste complète.",
+    "definition.load_all_to_sort": "Tout charger pour réordonner",
+    "form.entity_list.placeholder": "Sélectionner une liste…",
+    "form.rendition.placeholder": "Sélectionner un rendu…",
+    "form.attribute.placeholder": "Sélectionner un attribut…"
 }

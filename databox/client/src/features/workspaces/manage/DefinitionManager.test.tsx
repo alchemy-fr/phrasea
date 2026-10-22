@@ -1,9 +1,12 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {fireEvent, render, screen, waitFor} from '@testing-library/react';
+import {beforeAll, beforeEach, describe, expect, it, vi} from 'vitest';
+import {act, fireEvent, render, screen, waitFor} from '@testing-library/react';
+import type {ComponentProps} from 'react';
+import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
 import {I18nextProvider} from 'react-i18next';
 import {createI18n} from '@/i18n';
 import {ModalProvider} from '@/components/modals/ModalProvider';
 import {DefinitionManager} from './DefinitionManager';
+import {RoutePathProvider} from '@/lib/navigation/routePath';
 
 vi.mock('next/navigation', () => ({
     usePathname: () => '/workspaces/ws/manage/attributes',
@@ -31,31 +34,76 @@ function openRowMenu(index: number) {
     return screen.findByTestId('definition-duplicate');
 }
 
-function renderManager(props: {
-    onDuplicate?: (item: Item) => Promise<Item>;
-    onChanged?: () => void;
-}) {
+let observers: IntersectionObserverCallback[] = [];
+
+beforeAll(() => {
+    globalThis.IntersectionObserver = class {
+        constructor(cb: IntersectionObserverCallback) {
+            observers.push(cb);
+        }
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+    } as unknown as typeof IntersectionObserver;
+});
+
+/** Makes the end-of-list sentinel visible */
+function reachEnd() {
+    act(() =>
+        observers.forEach(cb =>
+            cb(
+                [{isIntersecting: true} as IntersectionObserverEntry],
+                {} as IntersectionObserver
+            )
+        )
+    );
+}
+
+function renderManager(
+    props: Partial<ComponentProps<typeof DefinitionManager<Item>>> & {
+        /** The URL below the screen */
+        segments?: string[];
+    } = {}
+) {
+    const {segments, ...rest} = props;
+    const manager = (
+        <DefinitionManager<Item>
+            items={items}
+            renderItem={i => <span>{i.name}</span>}
+            renderForm={i => <div data-testid="form">{i?.name ?? 'new'}</div>}
+            onDelete={async () => undefined}
+            onChanged={() => undefined}
+            {...rest}
+        />
+    );
+
     return render(
-        <I18nextProvider i18n={createI18n('en')}>
-            <ModalProvider>
-                <DefinitionManager<Item>
-                    items={items}
-                    renderItem={i => <span>{i.name}</span>}
-                    renderForm={i => (
-                        <div data-testid="form">{i?.name ?? 'new'}</div>
+        <QueryClientProvider
+            client={
+                new QueryClient({defaultOptions: {queries: {retry: false}}})
+            }
+        >
+            <I18nextProvider i18n={createI18n('en')}>
+                <ModalProvider>
+                    {segments ? (
+                        <RoutePathProvider
+                            value={{segments, navigate: () => undefined}}
+                        >
+                            {manager}
+                        </RoutePathProvider>
+                    ) : (
+                        manager
                     )}
-                    onDelete={async () => undefined}
-                    onDuplicate={props.onDuplicate}
-                    onChanged={props.onChanged ?? (() => undefined)}
-                />
-            </ModalProvider>
-        </I18nextProvider>
+                </ModalProvider>
+            </I18nextProvider>
+        </QueryClientProvider>
     );
 }
 
 describe('DefinitionManager', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        observers = [];
     });
 
     it('has no duplicate action without onDuplicate', () => {
@@ -102,6 +150,71 @@ describe('DefinitionManager', () => {
         );
         expect(onDuplicate).toHaveBeenCalledWith(items[1]);
         expect(onChanged).not.toHaveBeenCalled();
+        expect(screen.queryByTestId('form')).toBeNull();
+    });
+
+    it('hands a controlled search to the API, without filtering', () => {
+        const onQueryChange = vi.fn();
+        renderManager({
+            query: 'zz',
+            onQueryChange,
+            filter: (i, q) => i.name.toLowerCase().includes(q),
+        });
+
+        // Nothing matches "zz" locally: the items are the API results
+        expect(screen.getAllByTestId('definition-item')).toHaveLength(2);
+        fireEvent.change(screen.getByPlaceholderText('Filter…'), {
+            target: {value: 'zzz'},
+        });
+        expect(onQueryChange).toHaveBeenCalledWith('zzz');
+    });
+
+    it('asks for more items at the end of the list', () => {
+        const onReachEnd = vi.fn();
+        renderManager({hasMore: true, onReachEnd});
+
+        expect(screen.getByTestId('definition-more')).toBeTruthy();
+        reachEnd();
+
+        expect(onReachEnd).toHaveBeenCalled();
+    });
+
+    it('reorders a complete list only, without search', () => {
+        const onSort = vi.fn(async () => undefined);
+        const {unmount} = renderManager({onSort});
+        expect(screen.getAllByLabelText('Drag')).toHaveLength(2);
+        unmount();
+
+        const onLoadAll = vi.fn(async () => undefined);
+        const partial = renderManager({onSort, complete: false, onLoadAll});
+        expect(screen.queryAllByLabelText('Drag')).toHaveLength(0);
+        fireEvent.click(screen.getByText('Load all to reorder'));
+        expect(onLoadAll).toHaveBeenCalled();
+        partial.unmount();
+
+        renderManager({onSort, query: 'a', onQueryChange: () => undefined});
+        expect(screen.queryAllByLabelText('Drag')).toHaveLength(0);
+    });
+
+    it('loads the item of the URL when it is not in the pages', async () => {
+        const getItem = vi.fn(async (id: string) => ({id, name: 'Zulu'}));
+        renderManager({segments: ['z'], getItem, itemQueryKey: ['items']});
+
+        await waitFor(() =>
+            expect(screen.getByTestId('form').textContent).toBe('Zulu')
+        );
+        expect(getItem).toHaveBeenCalledWith('z');
+    });
+
+    it('tells an item of the URL does not exist when it cannot be loaded', async () => {
+        const getItem = vi.fn(async () => {
+            throw new Error('Not found');
+        });
+        renderManager({segments: ['z'], getItem});
+
+        expect(
+            await screen.findByText('This item does not exist anymore.')
+        ).toBeTruthy();
         expect(screen.queryByTestId('form')).toBeNull();
     });
 });

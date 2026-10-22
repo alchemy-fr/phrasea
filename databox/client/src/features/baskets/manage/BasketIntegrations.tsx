@@ -14,7 +14,6 @@ import {
 import {toast} from 'sonner';
 import type {Basket, IntegrationData, WorkspaceIntegration} from '@/types/api';
 import {
-    getIntegrationData,
     getIntegrationsOfContext,
     getIntegrationTokens,
     IntegrationContext,
@@ -31,6 +30,7 @@ import {useConfig} from '@/lib/config/ConfigProvider';
 import {getAuthClient} from '@/lib/auth/client';
 import {integrationLabel} from '@/features/integrations/integrationLabel';
 import {EventCategory, IntegrationEvent, track} from '@/lib/analytics/events';
+import {useIntegrationData} from '@/features/integrations/useIntegrationData';
 
 /**
  * Basket integrations (context `basket`), notably Phrasea Expose: OAuth
@@ -128,19 +128,11 @@ function ExposeIntegration({
     const queryClient = useQueryClient();
     const {authorized, authorize, loading} = useIntegrationAuth(integration);
     const queryKey = ['integration-data', integration.id, basket.id];
-    const data = useQuery({
-        queryKey,
-        queryFn: ({signal}) =>
-            getIntegrationData(
-                integration.id,
-                {
-                    type: IntegrationObjectType.Basket,
-                    id: basket.id,
-                },
-                signal
-            ),
-        enabled: authorized,
-    });
+    const data = useIntegrationData(
+        integration.id,
+        {type: IntegrationObjectType.Basket, id: basket.id},
+        {enabled: authorized}
+    );
     const [creating, setCreating] = useState(false);
     const [form, setForm] = useState({
         title: basket.name,
@@ -202,9 +194,7 @@ function ExposeIntegration({
             </Button>
         );
     }
-    const syncs = (data.data?.items ?? []).filter(
-        d => d.name === 'publication' || d.keyId
-    );
+    const syncs = data.items.filter(d => d.name === 'publication' || d.keyId);
 
     return (
         <div className="space-y-3 text-sm">
@@ -300,6 +290,17 @@ function ExposeIntegration({
                     </div>
                 );
             })}
+            {data.hasMore ? (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full"
+                    loading={data.loadingMore}
+                    onClick={data.loadMore}
+                >
+                    {t('common.load_more', 'Load more')}
+                </Button>
+            ) : null}
             {creating ? (
                 <div className="space-y-2 rounded-md border border-dashed p-3">
                     <FormRow label={t('integrations.expose.title', 'Title')}>
@@ -418,17 +419,9 @@ function GenericBasketIntegration({
     basket: Basket;
 }) {
     const {t} = useTranslation();
-    const data = useQuery({
-        queryKey: ['integration-data', integration.id, basket.id],
-        queryFn: ({signal}) =>
-            getIntegrationData(
-                integration.id,
-                {
-                    type: IntegrationObjectType.Basket,
-                    id: basket.id,
-                },
-                signal
-            ),
+    const data = useIntegrationData(integration.id, {
+        type: IntegrationObjectType.Basket,
+        id: basket.id,
     });
 
     return (
@@ -455,7 +448,7 @@ function GenericBasketIntegration({
             >
                 {t('integrations.run', 'Run')}
             </Button>
-            {data.data?.items.map(d => (
+            {data.items.map(d => (
                 <div
                     key={d.id}
                     className="rounded bg-muted/50 px-2 py-1 text-xs"
@@ -468,6 +461,17 @@ function GenericBasketIntegration({
                     </span>
                 </div>
             ))}
+            {data.hasMore ? (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full"
+                    loading={data.loadingMore}
+                    onClick={data.loadMore}
+                >
+                    {t('common.load_more', 'Load more')}
+                </Button>
+            ) : null}
         </div>
     );
 }

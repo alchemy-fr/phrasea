@@ -2,11 +2,12 @@
 
 import {useTranslation} from 'react-i18next';
 import {useRouter} from 'next/navigation';
-import {useQuery} from '@tanstack/react-query';
+import {useInfiniteQuery} from '@tanstack/react-query';
 import {ExternalLinkIcon, PlayIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {AssetTabProps} from '../types';
 import {getAssetWorkflows} from '@/lib/api/misc';
+import {assetWorkflowsQueryKey} from '@/features/workflows/WorkflowRunsPanel';
 import {triggerAssetWorkflow} from '@/lib/api/assets';
 import {Button} from '@/components/ui/button';
 import {Skeleton} from '@/components/ui/misc';
@@ -21,10 +22,13 @@ import {EventCategory, track, WorkflowEvent} from '@/lib/analytics/events';
 export function AssetWorkflowTab({asset}: AssetTabProps) {
     const {t, i18n} = useTranslation();
     const router = useRouter();
-    const workflows = useQuery({
-        queryKey: ['asset-workflows', asset.id],
-        queryFn: () => getAssetWorkflows(asset.id),
+    const workflows = useInfiniteQuery({
+        queryKey: [...assetWorkflowsQueryKey(asset.id), 'pages'],
+        queryFn: ({pageParam}) => getAssetWorkflows(asset.id, pageParam),
+        initialPageParam: undefined as string | undefined,
+        getNextPageParam: last => last.next,
     });
+    const runs = workflows.data?.pages.flatMap(p => p.items);
 
     return (
         <div className="space-y-4">
@@ -53,13 +57,13 @@ export function AssetWorkflowTab({asset}: AssetTabProps) {
                 </Button>
             </div>
             {workflows.isLoading ? <Skeleton className="h-24" /> : null}
-            {workflows.data?.items.length === 0 ? (
+            {runs?.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                     {t('workflow.empty', 'No workflow ran for this asset')}
                 </p>
             ) : null}
             <ul className="space-y-2">
-                {workflows.data?.items.map(w => (
+                {runs?.map(w => (
                     <li
                         key={w.id}
                         className="flex items-center gap-3 rounded-md border p-3 text-sm"
@@ -90,6 +94,17 @@ export function AssetWorkflowTab({asset}: AssetTabProps) {
                     </li>
                 ))}
             </ul>
+            {workflows.hasNextPage ? (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full"
+                    loading={workflows.isFetchingNextPage}
+                    onClick={() => workflows.fetchNextPage()}
+                >
+                    {t('common.load_more', 'Load more')}
+                </Button>
+            ) : null}
         </div>
     );
 }

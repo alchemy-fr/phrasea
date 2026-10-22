@@ -246,14 +246,20 @@ export async function getAssetRenditions(
     ).items;
 }
 
-export async function getRenditionDefinitions(options: {
-    workspaceIds?: string[];
-    workspaceId?: string;
-    assetId?: string;
-    target?: AssetType;
-    query?: string;
-    url?: string;
-}): Promise<Page<RenditionDefinition>> {
+export async function getRenditionDefinitions(
+    options: {
+        workspaceIds?: string[];
+        workspaceId?: string;
+        /** Leaves out the definitions the asset policies hide on this asset */
+        assetId?: string;
+        target?: AssetType;
+        /** Contains match on the name */
+        query?: string;
+        limit?: number;
+        url?: string;
+    },
+    signal?: AbortSignal
+): Promise<Page<RenditionDefinition>> {
     const {url, query, ...params} = options;
 
     return toPage(
@@ -261,8 +267,17 @@ export async function getRenditionDefinitions(options: {
             url ?? `/${EntityName.RenditionDefinition}`,
             {
                 params: url ? undefined : {...params, name: query},
+                signal,
             }
         )
+    );
+}
+
+export function getRenditionDefinition(
+    id: string
+): Promise<RenditionDefinition> {
+    return api.get<RenditionDefinition>(
+        `/${EntityName.RenditionDefinition}/${id}`
     );
 }
 
@@ -527,24 +542,58 @@ export function deleteMessage(id: string): Promise<void> {
 
 // Permissions ---------------------------------------------------------------
 
+/**
+ * A page of the users matching `query` (`offset` / `limit`), or the users of
+ * `ids` (at most 50, the unknown ones are left out).
+ */
 export async function getUsers(
-    query?: string,
+    options: {
+        query?: string;
+        offset?: number;
+        limit?: number;
+        ids?: string[];
+    } = {},
     signal?: AbortSignal
 ): Promise<User[]> {
     return api.get<User[]>('/permissions/users', {
-        params: query ? {query} : undefined,
+        params: permissionParams(options),
         signal,
     });
 }
 
+/**
+ * A page of the groups matching `query` (`offset` / `limit`), or the groups
+ * of `ids` (at most 50, the unknown ones are left out).
+ */
 export async function getGroups(
-    query?: string,
+    options: {
+        query?: string;
+        offset?: number;
+        limit?: number;
+        ids?: string[];
+    } = {},
     signal?: AbortSignal
 ): Promise<Group[]> {
     return api.get<Group[]>('/permissions/groups', {
-        params: query ? {query} : undefined,
+        params: permissionParams(options),
         signal,
     });
+}
+
+function permissionParams({
+    query,
+    offset,
+    limit,
+    ids,
+}: {
+    query?: string;
+    offset?: number;
+    limit?: number;
+    ids?: string[];
+}) {
+    return ids
+        ? {ids}
+        : {query: query || undefined, offset: offset || undefined, limit};
 }
 
 export async function getAces(
@@ -594,9 +643,10 @@ export function deleteAce(data: {
 // Workflows ----------------------------------------------------------------
 
 export async function getAssetWorkflows(
-    assetId: string
+    assetId: string,
+    url?: string
 ): Promise<Page<Workflow>> {
-    return getWorkflows({asset: assetId});
+    return getWorkflows({asset: assetId, url});
 }
 
 /**

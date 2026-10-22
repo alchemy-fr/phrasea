@@ -1773,5 +1773,10 @@
     "workspace.terms_gate.later_all_other": "Not now ({{count}} pending)",
     "workspace.terms_gate.title": "Terms & Conditions — {{workspace}}",
     "workspace.title": "Title",
-    "workspace.trash_retention": "Trash retention (days)"
+    "workspace.trash_retention": "Trash retention (days)",
+    "definition.sort_needs_all": "Reordering needs the whole list.",
+    "definition.load_all_to_sort": "Load all to reorder",
+    "form.entity_list.placeholder": "Select a list…",
+    "form.rendition.placeholder": "Select a rendition…",
+    "form.attribute.placeholder": "Select an attribute…"
 }

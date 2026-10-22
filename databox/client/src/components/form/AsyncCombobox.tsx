@@ -1,8 +1,8 @@
 'use client';
 
-import {ReactNode, useState} from 'react';
+import {ReactNode, useEffect, useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useQuery} from '@tanstack/react-query';
+import {useInfiniteQuery, useQuery} from '@tanstack/react-query';
 import {CheckIcon, ChevronsUpDownIcon, PlusIcon, XIcon} from 'lucide-react';
 import {Button} from '@/components/ui/button';
 import {
@@ -19,6 +19,7 @@ import {
     CommandList,
 } from '@/components/ui/command';
 import {useDebouncedValue} from '@/hooks/useDebouncedValue';
+import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
 import {cn} from '@/lib/utils/cn';
 import {Spinner} from '@/components/ui/loader';
 
@@ -29,15 +30,38 @@ export type ComboOption<T = unknown> = {
     item?: T;
 };
 
+export type ComboPage<T = unknown> = {
+    options: ComboOption<T>[];
+    /** Cursor of the next page, none on the last one */
+    next?: string;
+};
+
 type BaseProps<T> = {
     queryKey: unknown[];
     /** Loads options matching the typed query */
-    loadOptions: (
+    loadOptions?: (
         query: string,
         signal: AbortSignal
     ) => Promise<ComboOption<T>[]>;
+    /**
+     * Loads a page of the options matching the typed query (takes precedence
+     * over `loadOptions`): the next ones load when scrolling to the end.
+     * `cursor` is the `next` of the previous page.
+     */
+    loadPage?: (
+        query: string,
+        signal: AbortSignal,
+        cursor?: string
+    ) => Promise<ComboPage<T>>;
     /** Resolves labels of selected values not present in the current options */
     resolveValue?: (value: string) => Promise<ComboOption<T> | undefined>;
+    /**
+     * Resolves the labels of all those values at once (takes precedence over
+     * `resolveValue`); the unknown ones may be left out.
+     */
+    resolveValues?: (values: string[]) => Promise<ComboOption<T>[]>;
+    /** Listed before the loaded options, whatever the search */
+    fixedOptions?: ComboOption<T>[];
     placeholder?: string;
     disabled?: boolean;
     className?: string;
@@ -73,12 +97,61 @@ export function AsyncCombobox<T = unknown>(
     const query = useDebouncedValue(search, 250);
     const [known, setKnown] = useState<Record<string, ComboOption<T>>>({});
 
+    const paged = !!props.loadPage;
+    const listRef = useRef<HTMLDivElement>(null);
+
     const options = useQuery({
         queryKey: [...props.queryKey, query],
-        queryFn: ({signal}) => props.loadOptions(query, signal),
-        enabled: open,
+        queryFn: ({signal}) => props.loadOptions?.(query, signal) ?? [],
+        enabled: open && !paged,
         staleTime: 30_000,
     });
+    const pages = useInfiniteQuery({
+        queryKey: [...props.queryKey, 'pages', query],
+        queryFn: ({signal, pageParam}) =>
+            props.loadPage!(query, signal, pageParam),
+        initialPageParam: undefined as string | undefined,
+        getNextPageParam: last => last.next,
+        enabled: open && paged,
+        staleTime: 30_000,
+    });
+    const {hasNextPage, isFetchingNextPage, fetchNextPage} = pages;
+    const lastPage = pages.data?.pages[pages.data.pages.length - 1];
+
+    const fixed = props.fixedOptions;
+    const loaded = useMemo(() => {
+        const list = paged
+            ? (pages.data?.pages.flatMap(p => p.options) ?? [])
+            : (options.data ?? []);
+        const seen = new Set(fixed?.map(o => o.value));
+
+        return list.filter(o => {
+            if (seen.has(o.value)) {
+                return false;
+            }
+            seen.add(o.value);
+
+            return true;
+        });
+    }, [paged, pages.data, options.data, fixed]);
+    const all = useMemo(
+        () => (fixed ? [...fixed, ...loaded] : loaded),
+        [fixed, loaded]
+    );
+    const isLoading = paged ? pages.isLoading : options.isLoading;
+    const canLoadMore = paged && open && hasNextPage && !isFetchingNextPage;
+
+    // A page left empty by a filter of `loadPage`: the next one may match
+    useEffect(() => {
+        if (canLoadMore && lastPage?.options.length === 0) {
+            void fetchNextPage();
+        }
+    }, [canLoadMore, lastPage, fetchNextPage]);
+    const sentinelRef = useInfiniteScroll(
+        listRef,
+        () => void fetchNextPage(),
+        canLoadMore
+    );
 
     const selected: string[] = props.multiple
         ? props.value
@@ -91,26 +164,26 @@ export function AsyncCombobox<T = unknown>(
 
     // resolve labels of preselected values
     const unresolved = selected.filter(
-        v => !known[v] && !options.data?.some(o => o.value === v)
+        v => !known[v] && !all.some(o => o.value === v)
     );
+    const canResolve = !!props.resolveValues || !!props.resolveValue;
     useQuery({
         queryKey: [...props.queryKey, 'resolve', unresolved],
         queryFn: async () => {
-            if (!props.resolveValue) {
-                return null;
-            }
-            const results = await Promise.all(
-                unresolved.map(v => props.resolveValue!(v))
-            );
+            const results = props.resolveValues
+                ? await props.resolveValues(unresolved)
+                : await Promise.all(
+                      unresolved.map(v => props.resolveValue!(v))
+                  );
             results.forEach(r => r && remember(r));
 
             return null;
         },
-        enabled: unresolved.length > 0 && !!props.resolveValue,
+        enabled: unresolved.length > 0 && canResolve,
     });
 
     const labelOf = (v: string) =>
-        known[v]?.label ?? options.data?.find(o => o.value === v)?.label ?? v;
+        known[v]?.label ?? all.find(o => o.value === v)?.label ?? v;
 
     const select = (opt: ComboOption<T>) => {
         remember(opt);
@@ -218,8 +291,8 @@ export function AsyncCombobox<T = unknown>(
                         onValueChange={setSearch}
                         placeholder={t('common.search', 'Search…')}
                     />
-                    <CommandList>
-                        {options.isLoading ? (
+                    <CommandList ref={listRef}>
+                        {isLoading ? (
                             <div className="flex justify-center py-4">
                                 <Spinner />
                             </div>
@@ -229,7 +302,7 @@ export function AsyncCombobox<T = unknown>(
                             </CommandEmpty>
                         )}
                         <CommandGroup>
-                            {(options.data ?? []).map(opt => (
+                            {all.map(opt => (
                                 <CommandItem
                                     key={opt.value}
                                     value={opt.value}
@@ -250,7 +323,7 @@ export function AsyncCombobox<T = unknown>(
                             ))}
                             {props.onCreate &&
                             (search.trim()
-                                ? !options.data?.some(
+                                ? !all.some(
                                       o =>
                                           o.label.toLowerCase() ===
                                           search.trim().toLowerCase()
@@ -270,6 +343,14 @@ export function AsyncCombobox<T = unknown>(
                                 </CommandItem>
                             ) : null}
                         </CommandGroup>
+                        {paged ? (
+                            <div ref={sentinelRef} className="h-px" />
+                        ) : null}
+                        {isFetchingNextPage ? (
+                            <div className="flex justify-center py-2">
+                                <Spinner />
+                            </div>
+                        ) : null}
                     </CommandList>
                 </Command>
             </PopoverContent>

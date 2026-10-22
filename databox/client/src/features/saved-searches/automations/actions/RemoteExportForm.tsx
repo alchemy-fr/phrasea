@@ -5,6 +5,7 @@ import {useQuery} from '@tanstack/react-query';
 import {CloudUploadIcon} from 'lucide-react';
 import type {AutomationActionConfig} from '@/types/api';
 import {getRenditionDefinitions} from '@/lib/api/misc';
+import {fetchAllPages} from '@/lib/api/hydra';
 import {FormRow, Input, Textarea} from '@/components/ui/input';
 import {Checkbox, LabeledControl, Switch} from '@/components/ui/controls';
 import {InlineLoader} from '@/components/ui/loader';
@@ -43,17 +44,14 @@ const protocolLabels: Record<RemoteExportProtocol, string> = {
  * the action picks the renditions by name.
  */
 async function getRenditionNames(): Promise<string[]> {
-    const names = new Set<string>();
-    let page = await getRenditionDefinitions({});
-    for (;;) {
-        page.items.forEach(d => names.add(d.name));
-        if (!page.next) {
-            break;
-        }
-        page = await getRenditionDefinitions({url: page.next});
-    }
+    const definitions = await fetchAllPages(
+        getRenditionDefinitions({limit: 100}),
+        url => getRenditionDefinitions({url})
+    );
 
-    return [...names].sort((a, b) => a.localeCompare(b));
+    return [...new Set(definitions.map(d => d.name))].sort((a, b) =>
+        a.localeCompare(b)
+    );
 }
 
 /**

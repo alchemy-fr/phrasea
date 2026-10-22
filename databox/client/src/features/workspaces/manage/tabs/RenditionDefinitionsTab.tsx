@@ -2,7 +2,7 @@
 
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useQuery} from '@tanstack/react-query';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {RenditionDefinition, RenditionPolicy} from '@/types/api';
@@ -13,6 +13,7 @@ import {
     deleteRenditionDefinition,
     duplicateRenditionDefinition,
     getRenditionBuildReference,
+    getRenditionDefinition,
     getRenditionDefinitions,
     getRenditionPolicies,
     postRenditionDefinition,
@@ -28,12 +29,24 @@ import {Badge} from '@/components/ui/misc';
 import {ReferenceDetails} from '@/components/form/ReferenceDetails';
 import {iri} from '@/lib/utils/iri';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {useInfiniteList} from '@/hooks/useInfiniteList';
+import {RenditionDefinitionSelect} from '@/components/form/selects';
 
 export function RenditionDefinitionsTab({workspace}: WorkspaceTabProps) {
     const {t} = useTranslation();
-    const definitions = useQuery({
+    const queryClient = useQueryClient();
+    const definitions = useInfiniteList<RenditionDefinition>({
         queryKey: ['rendition-definitions', 'manage', workspace.id],
-        queryFn: () => getRenditionDefinitions({workspaceIds: [workspace.id]}),
+        fetchPage: ({query, url, signal}) =>
+            getRenditionDefinitions(
+                {
+                    workspaceId: workspace.id,
+                    query: query || undefined,
+                    limit: 50,
+                    url,
+                },
+                signal
+            ),
     });
     const policies = useQuery({
         queryKey: ['rendition-policies', workspace.id],
@@ -42,13 +55,23 @@ export function RenditionDefinitionsTab({workspace}: WorkspaceTabProps) {
 
     return (
         <DefinitionManager<RenditionDefinition>
-            items={definitions.data?.items}
-            loading={definitions.isLoading}
-            onChanged={() => definitions.refetch()}
-            onSort={sortRenditionDefinitions}
-            filter={(d, q) =>
-                (d.displayName ?? d.name).toLowerCase().includes(q)
+            items={definitions.items}
+            loading={definitions.loading}
+            onChanged={() =>
+                queryClient.invalidateQueries({
+                    queryKey: ['rendition-definitions'],
+                })
             }
+            onSort={sortRenditionDefinitions}
+            query={definitions.query}
+            onQueryChange={definitions.setQuery}
+            hasMore={definitions.hasMore}
+            loadingMore={definitions.loadingMore}
+            onReachEnd={definitions.loadMore}
+            complete={definitions.complete}
+            onLoadAll={definitions.loadAll}
+            getItem={getRenditionDefinition}
+            itemQueryKey={['rendition-definitions', 'item']}
             renderItem={d => (
                 <span className="flex items-center gap-2">
                     <span className="min-w-0 flex-1 truncate">
@@ -77,7 +100,6 @@ export function RenditionDefinitionsTab({workspace}: WorkspaceTabProps) {
                     definition={d}
                     workspaceId={workspace.id}
                     policies={policies.data?.items ?? []}
-                    all={definitions.data?.items ?? []}
                     onSaved={onSaved}
                 />
             )}
@@ -89,13 +111,11 @@ function DefinitionForm({
     definition: d,
     workspaceId,
     policies,
-    all,
     onSaved,
 }: {
     definition?: RenditionDefinition;
     workspaceId: string;
     policies: RenditionPolicy[];
-    all: RenditionDefinition[];
     onSaved: (d: RenditionDefinition) => void;
 }) {
     const {t} = useTranslation();
@@ -194,26 +214,16 @@ function DefinitionForm({
                         'Parent (source rendition)'
                     )}
                 >
-                    <SimpleSelect
-                        value={form.parent || '__none'}
-                        onValueChange={v =>
-                            set('parent', v === '__none' ? '' : v)
-                        }
-                        options={[
-                            {
-                                value: '__none',
-                                label: t(
-                                    'rendition_def.parent_source',
-                                    'Source file'
-                                ),
-                            },
-                            ...all
-                                .filter(x => x.id !== d?.id)
-                                .map(x => ({
-                                    value: x['@id'],
-                                    label: x.displayName ?? x.name,
-                                })),
-                        ]}
+                    <RenditionDefinitionSelect
+                        workspaceId={workspaceId}
+                        useIri
+                        exclude={d?.id}
+                        value={form.parent || undefined}
+                        onChange={v => set('parent', v ?? '')}
+                        placeholder={t(
+                            'rendition_def.parent_source',
+                            'Source file'
+                        )}
                     />
                 </FormRow>
                 <FormRow label={t('attribute_def.target', 'Applies to')}>

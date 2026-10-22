@@ -2,7 +2,6 @@
 
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useQuery} from '@tanstack/react-query';
 import {toast} from 'sonner';
 import type {ApiFile, Asset} from '@/types/api';
 import {AssetType} from '@/types/api';
@@ -10,12 +9,12 @@ import type {ModalProps} from '@/components/modals/ModalProvider';
 import {FormDialog} from '@/components/modals/FormDialog';
 import {FormRow, Input} from '@/components/ui/input';
 import {RadioGroup, RadioGroupItem} from '@/components/ui/controls';
-import {SimpleSelect} from '@/components/ui/select';
 import {
     CollectionTreePicker,
     TreeSelection,
 } from '@/components/form/CollectionTreePicker';
-import {getRenditionDefinitions, postRendition} from '@/lib/api/misc';
+import {postRendition} from '@/lib/api/misc';
+import {RenditionDefinitionSelect} from '@/components/form/selects';
 import {destinationToAssetProps, patchAsset, postAsset} from '@/lib/api/assets';
 import {useAssetStore} from '@/features/assets/assetStore';
 import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
@@ -44,19 +43,6 @@ export function SaveAsDialog({
     const [destination, setDestination] = useState<TreeSelection>();
     const [definitionId, setDefinitionId] = useState<string>();
     const update = useAssetStore(s => s.update);
-
-    const definitions = useQuery({
-        queryKey: ['rendition-definitions', asset.workspace.id, asset.id],
-        queryFn: () =>
-            getRenditionDefinitions({
-                workspaceIds: [asset.workspace.id],
-                assetId: asset.id,
-                target: asset.storyCollection
-                    ? AssetType.Story
-                    : AssetType.Asset,
-            }),
-        enabled: mode === 'rendition',
-    });
 
     const submit = async () => {
         if (mode === 'new_asset') {
@@ -152,16 +138,18 @@ export function SaveAsDialog({
                         'Rendition definition'
                     )}
                 >
-                    <SimpleSelect
+                    <RenditionDefinitionSelect
+                        workspaceId={asset.workspace.id}
+                        assetId={asset.id}
+                        target={
+                            asset.storyCollection
+                                ? AssetType.Story
+                                : AssetType.Asset
+                        }
+                        substitutableOnly
                         value={definitionId}
-                        onValueChange={setDefinitionId}
+                        onChange={setDefinitionId}
                         placeholder={t('common.select', 'Select…')}
-                        options={(definitions.data?.items ?? [])
-                            .filter(d => d.substitutable)
-                            .map(d => ({
-                                value: d.id,
-                                label: d.displayName ?? d.name,
-                            }))}
                     />
                 </FormRow>
             ) : null}

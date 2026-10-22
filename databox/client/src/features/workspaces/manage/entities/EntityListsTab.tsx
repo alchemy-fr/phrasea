@@ -2,7 +2,7 @@
 
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useQuery} from '@tanstack/react-query';
+import {useQueryClient} from '@tanstack/react-query';
 import {SaveIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {EntityList} from '@/types/api';
@@ -10,6 +10,7 @@ import type {WorkspaceTabProps} from '../WorkspaceManageRoute';
 import {DefinitionManager} from '../DefinitionManager';
 import {
     deleteEntityList,
+    getEntityList,
     getEntityLists,
     postEntityList,
     putEntityList,
@@ -19,22 +20,43 @@ import {FormRow, Input} from '@/components/ui/input';
 import {Checkbox, LabeledControl} from '@/components/ui/controls';
 import {Badge} from '@/components/ui/misc';
 import {useDirtyState} from '@/lib/navigation/unsavedChanges';
+import {useInfiniteList} from '@/hooks/useInfiniteList';
 import {ExploreEntityListButton} from '@/features/entities/explore/ExploreEntityListButton';
 import {EntityGrid} from './EntityGrid';
 
 export function EntityListsTab({workspace}: WorkspaceTabProps) {
     const {t} = useTranslation();
-    const lists = useQuery({
-        queryKey: ['entity-lists', workspace.id],
-        queryFn: () => getEntityLists({workspaceId: workspace.id}),
+    const queryClient = useQueryClient();
+    const lists = useInfiniteList<EntityList>({
+        queryKey: ['entity-lists', workspace.id, 'manage'],
+        fetchPage: ({query, url, signal}) =>
+            getEntityLists(
+                {
+                    workspaceId: workspace.id,
+                    query: query || undefined,
+                    limit: 50,
+                    url,
+                },
+                signal
+            ),
     });
 
     return (
         <DefinitionManager<EntityList>
-            items={lists.data?.items}
-            loading={lists.isLoading}
-            onChanged={() => lists.refetch()}
-            filter={(l, q) => l.name.toLowerCase().includes(q)}
+            items={lists.items}
+            loading={lists.loading}
+            onChanged={() =>
+                queryClient.invalidateQueries({
+                    queryKey: ['entity-lists', workspace.id],
+                })
+            }
+            query={lists.query}
+            onQueryChange={lists.setQuery}
+            hasMore={lists.hasMore}
+            loadingMore={lists.loadingMore}
+            onReachEnd={lists.loadMore}
+            getItem={getEntityList}
+            itemQueryKey={['entity-lists', workspace.id, 'item']}
             renderItem={l => (
                 <span className="flex items-center gap-2">
                     <span className="flex-1 truncate">{l.name}</span>

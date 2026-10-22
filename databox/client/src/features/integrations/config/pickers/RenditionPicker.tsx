@@ -43,13 +43,18 @@ export function RenditionPicker(props: Props) {
     const {workspaceId, id, placeholder, disabled} = props;
 
     const load = useCallback(
-        async (query: string) =>
-            (
-                await getRenditionDefinitions({
+        async (query: string, signal: AbortSignal, cursor?: string) => {
+            const page = await getRenditionDefinitions(
+                {
                     workspaceId: workspaceId!,
                     query: query || undefined,
-                })
-            ).items.map(optionOf),
+                    url: cursor,
+                },
+                signal
+            );
+
+            return {options: page.items.map(optionOf), next: page.next};
+        },
         [workspaceId]
     );
     const resolve = useCallback(
@@ -81,7 +86,7 @@ export function RenditionPicker(props: Props) {
         id,
         disabled,
         queryKey: ['rendition-definitions', 'picker', workspaceId],
-        loadOptions: load,
+        loadPage: load,
         resolveValue: resolve,
         placeholder:
             placeholder ??

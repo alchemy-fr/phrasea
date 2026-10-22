@@ -78,16 +78,19 @@ export enum IntegrationObjectType {
 export async function getIntegrationData(
     integrationId: string,
     object?: {type: IntegrationObjectType; id: string},
-    signal?: AbortSignal
+    signal?: AbortSignal,
+    /** `next` of a previous page */
+    url?: string
 ): Promise<Page<IntegrationData>> {
     return toPage(
         await api.get<HydraCollection<IntegrationData>>(
-            `/${EntityName.Integration}/${integrationId}/data`,
+            url ?? `/${EntityName.Integration}/${integrationId}/data`,
             {
                 signal,
-                params: object
-                    ? {objectType: object.type, objectId: object.id}
-                    : undefined,
+                params:
+                    object && !url
+                        ? {objectType: object.type, objectId: object.id}
+                        : undefined,
             }
         )
     );
@@ -165,14 +168,25 @@ export function duplicateIntegration(
 // Filter rules -------------------------------------------------------------
 
 export async function getAttributeFilterRules(
-    workspaceId: string
+    workspaceId: string,
+    options: {limit?: number; url?: string} = {}
 ): Promise<Page<AttributeFilterRule>> {
     return toPage(
         await api.get<HydraCollection<AttributeFilterRule>>(
-            '/attribute-filter-rules',
-            {params: {workspaceId}}
+            options.url ?? '/attribute-filter-rules',
+            {
+                params: options.url
+                    ? undefined
+                    : {workspaceId, limit: options.limit},
+            }
         )
     );
+}
+
+export function getAttributeFilterRule(
+    id: string
+): Promise<AttributeFilterRule> {
+    return api.get<AttributeFilterRule>(`/attribute-filter-rules/${id}`);
 }
 
 export function saveAttributeFilterRule(data: {

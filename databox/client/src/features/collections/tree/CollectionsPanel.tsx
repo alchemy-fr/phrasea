@@ -4,7 +4,7 @@ import {useCallback, useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import Link from 'next/link';
 import {useRouter} from 'next/navigation';
-import {useQuery} from '@tanstack/react-query';
+import {useInfiniteQuery} from '@tanstack/react-query';
 import {
     BellIcon,
     ChevronRightIcon,
@@ -82,11 +82,15 @@ export function CollectionsPanel() {
         void loadWorkspaces();
     }, [loadWorkspaces]);
 
-    const results = useQuery({
+    const results = useInfiniteQuery({
         queryKey: ['collections', 'search', debounced],
-        queryFn: () => getCollections({query: debounced, limit: 50}),
+        queryFn: ({pageParam}) =>
+            getCollections({query: debounced, limit: 50, url: pageParam}),
+        initialPageParam: undefined as string | undefined,
+        getNextPageParam: last => last.next,
         enabled: debounced.trim().length > 0,
     });
+    const found = results.data?.pages.flatMap(p => p.items);
 
     const selectTrash = () =>
         search?.resetWithCondition({
@@ -116,12 +120,12 @@ export function CollectionsPanel() {
                             <Skeleton className="h-6" />
                         </li>
                     ) : null}
-                    {results.data?.items.length === 0 ? (
+                    {found?.length === 0 ? (
                         <li className="px-3 py-2 text-xs text-muted-foreground">
                             {t('common.no_match', 'No match')}
                         </li>
                     ) : null}
-                    {results.data?.items.map(c => (
+                    {found?.map(c => (
                         <li key={c.id}>
                             <button
                                 type="button"
@@ -157,6 +161,19 @@ export function CollectionsPanel() {
                             </button>
                         </li>
                     ))}
+                    {results.hasNextPage ? (
+                        <li className="px-2">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-full text-xs"
+                                loading={results.isFetchingNextPage}
+                                onClick={() => results.fetchNextPage()}
+                            >
+                                {t('common.load_more', 'Load more')}
+                            </Button>
+                        </li>
+                    ) : null}
                 </ul>
             ) : (
                 <div className="pb-2">

@@ -45,6 +45,7 @@ import {
     getRenditionDefinitions,
     updateShare,
 } from '@/lib/api/misc';
+import {fetchAllPages} from '@/lib/api/hydra';
 import {routes} from '@/lib/routes';
 import {formatDateTime} from '@/lib/utils/format';
 import {copyToClipboard} from '@/lib/utils/misc';
@@ -148,13 +149,15 @@ export function ShareDialog({
         queryKey: ['rendition-definitions', workspaceId, 'shareable', target],
         queryFn: async () =>
             (
-                await getRenditionDefinitions({
-                    workspaceIds: [workspaceId],
-                    target,
-                })
-            ).items.filter(
-                d => typeof d.policy === 'object' && d.policy?.public
-            ),
+                await fetchAllPages(
+                    getRenditionDefinitions({
+                        workspaceIds: [workspaceId],
+                        target,
+                        limit: 100,
+                    }),
+                    url => getRenditionDefinitions({url})
+                )
+            ).filter(d => typeof d.policy === 'object' && d.policy?.public),
         enabled: !!workspaceId,
     });
     const shareable = useMemo(() => definitions.data ?? [], [definitions.data]);

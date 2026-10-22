@@ -2,15 +2,15 @@
 
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useQuery, useQueryClient} from '@tanstack/react-query';
+import {useQueryClient} from '@tanstack/react-query';
 import {PlayIcon, RefreshCwIcon, Trash2Icon} from 'lucide-react';
 import {toast} from 'sonner';
 import type {ApiFile, Asset, WorkspaceIntegration} from '@/types/api';
 import {
-    getIntegrationData,
     IntegrationObjectType,
     runIntegrationAction,
 } from '@/lib/api/integrations';
+import {useIntegrationData} from './useIntegrationData';
 import {Button} from '@/components/ui/button';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
 import {InlineLoader} from '@/components/ui/loader';
@@ -58,14 +58,9 @@ function GenericIntegrationPanel({integration, asset, file}: Props) {
     const [running, setRunning] = useState<string>();
     const queryKey = ['integration-data', integration.id, file.id];
 
-    const data = useQuery({
-        queryKey,
-        queryFn: ({signal}) =>
-            getIntegrationData(
-                integration.id,
-                {type: IntegrationObjectType.File, id: file.id},
-                signal
-            ),
+    const data = useIntegrationData(integration.id, {
+        type: IntegrationObjectType.File,
+        id: file.id,
     });
 
     useChannelEvent(
@@ -97,7 +92,7 @@ function GenericIntegrationPanel({integration, asset, file}: Props) {
         }
     };
 
-    const items = data.data?.items ?? [];
+    const items = data.items;
     const canInteract = integration.capabilities?.interact !== false;
 
     return (
@@ -154,6 +149,17 @@ function GenericIntegrationPanel({integration, asset, file}: Props) {
                 <p className="text-xs text-muted-foreground">
                     {t('integrations.no_data', 'No data yet')}
                 </p>
+            ) : null}
+            {data.hasMore ? (
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full"
+                    loading={data.loadingMore}
+                    onClick={data.loadMore}
+                >
+                    {t('common.load_more', 'Load more')}
+                </Button>
             ) : null}
         </div>
     );

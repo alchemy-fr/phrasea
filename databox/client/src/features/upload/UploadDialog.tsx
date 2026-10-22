@@ -3,7 +3,7 @@
 import {useEffect, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useDropzone} from 'react-dropzone';
-import {useQuery} from '@tanstack/react-query';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {
     FileIcon,
     ImageIcon,
@@ -90,6 +90,7 @@ export function UploadDialog({
 }: Props) {
     const {t, i18n} = useTranslation();
     const config = useConfig();
+    const queryClient = useQueryClient();
     const results = useOptionalResults();
     const workspaces = useCollectionStore(s => s.workspaces);
     const [files, setFiles] = useState<File[]>(initialFiles ?? []);
@@ -144,16 +145,19 @@ export function UploadDialog({
         enabled: !!destination?.collectionId,
     });
 
+    // Whether there is any template to offer
     const templates = useQuery({
         queryKey: [
             'asset-data-templates',
             workspaceId,
             destination?.collectionId,
+            'any',
         ],
         queryFn: () =>
             getAssetDataTemplates({
                 workspace: workspaceId!,
                 collection: destination?.collectionId,
+                limit: 1,
             }),
         enabled: !!workspaceId,
     });
@@ -600,7 +604,8 @@ export function UploadDialog({
                     templates.data &&
                     templates.data.items.length > 0 ? (
                         <AssetDataTemplateSelect
-                            templates={templates.data.items}
+                            workspaceId={workspaceId}
+                            collectionId={destination?.collectionId}
                             value={templateIds}
                             onChange={setTemplateIds}
                             onApply={tpl => {
@@ -819,7 +824,13 @@ export function UploadDialog({
                                             assetEditor.definitions
                                         )}
                                         appliedTemplateId={templateIds[0]}
-                                        onSaved={() => templates.refetch()}
+                                        onSaved={() =>
+                                            queryClient.invalidateQueries({
+                                                queryKey: [
+                                                    'asset-data-templates',
+                                                ],
+                                            })
+                                        }
                                     />
                                 </AccordionContent>
                             </AccordionItem>

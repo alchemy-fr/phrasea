@@ -2,7 +2,7 @@
 
 import {useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
-import {useQuery} from '@tanstack/react-query';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {
     PencilIcon,
     PlusIcon,
@@ -16,6 +16,7 @@ import type {AttributeFilterRule} from '@/types/api';
 import type {WorkspaceTabProps} from '../WorkspaceManageRoute';
 import {
     deleteAttributeFilterRule,
+    getAttributeFilterRule,
     getAttributeFilterRules,
     saveAttributeFilterRule,
 } from '@/lib/api/integrations';
@@ -38,6 +39,8 @@ import {
 } from '@/lib/navigation/unsavedChanges';
 import {useRoutePath} from '@/lib/navigation/routePath';
 import {useFocusFirstField} from '@/hooks/useFocusFirstField';
+import {useInfiniteList} from '@/hooks/useInfiniteList';
+import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
 
 /**
  * Attribute filter rules: the assets of the workspace are only visible to the
@@ -62,17 +65,36 @@ export function FilterRulesTab({workspace}: WorkspaceTabProps) {
 function AttributeRules({workspaceId}: {workspaceId: string}) {
     const {t} = useTranslation();
     const {openModal} = useModals();
-    const rules = useQuery({
+    const queryClient = useQueryClient();
+    const rules = useInfiniteList<AttributeFilterRule>({
         queryKey: ['attribute-filter-rules', workspaceId],
-        queryFn: () => getAttributeFilterRules(workspaceId),
+        fetchPage: ({url}) =>
+            getAttributeFilterRules(workspaceId, {limit: 50, url}),
     });
+    const refresh = () =>
+        queryClient.invalidateQueries({
+            queryKey: ['attribute-filter-rules', workspaceId],
+        });
+    const listRef = useRef<HTMLDivElement>(null);
+    const sentinelRef = useInfiniteScroll(
+        listRef,
+        rules.loadMore,
+        rules.hasMore && !rules.loadingMore
+    );
     // The rule edited is in the URL: `:ruleId` or `new`
     const {segments, navigate} = useRoutePath();
     const editingId = segments[0] ?? null;
+    const listed = rules.items.find(r => r.id === editingId);
+    // A rule of the URL beyond the loaded pages
+    const fetched = useQuery({
+        queryKey: ['attribute-filter-rules', workspaceId, 'item', editingId],
+        queryFn: () => getAttributeFilterRule(editingId!),
+        enabled:
+            !rules.loading && !!editingId && editingId !== 'new' && !listed,
+        retry: false,
+    });
     const editing: AttributeFilterRule | 'new' | null =
-        editingId === 'new'
-            ? 'new'
-            : (rules.data?.items.find(r => r.id === editingId) ?? null);
+        editingId === 'new' ? 'new' : (listed ?? fetched.data ?? null);
     const formPane = useRef<HTMLDivElement>(null);
     useFocusFirstField(formPane, editingId === 'new');
     // The rule form: switching away from it asks first when it is dirty
@@ -111,9 +133,12 @@ function AttributeRules({workspaceId}: {workspaceId: string}) {
                     <PlusIcon /> {t('filter_rules.add', 'Add rule')}
                 </Button>
             </div>
-            {rules.isLoading ? <Skeleton className="h-16" /> : null}
-            <div className="space-y-2">
-                {rules.data?.items.map(rule => (
+            {rules.loading ? <Skeleton className="h-16" /> : null}
+            <div
+                ref={listRef}
+                className="max-h-[60vh] space-y-2 overflow-y-auto"
+            >
+                {rules.items.map(rule => (
                     <div
                         key={rule.id}
                         data-testid="filter-rule"
@@ -150,7 +175,7 @@ function AttributeRules({workspaceId}: {workspaceId: string}) {
                                         if (rule.id === editingId) {
                                             navigate([], {replace: true});
                                         }
-                                        void rules.refetch();
+                                        void refresh();
                                     },
                                 })
                             }
@@ -159,10 +184,17 @@ function AttributeRules({workspaceId}: {workspaceId: string}) {
                         </Button>
                     </div>
                 ))}
-                {rules.data?.items.length === 0 ? (
+                {!rules.loading && rules.items.length === 0 ? (
                     <p className="text-sm text-muted-foreground">
                         {t('filter_rules.none', 'No rule')}
                     </p>
+                ) : null}
+                {rules.hasMore ? (
+                    <div ref={sentinelRef} className="py-1">
+                        {rules.loadingMore ? (
+                            <Skeleton className="h-16" />
+                        ) : null}
+                    </div>
                 ) : null}
             </div>
             {editing ? (
@@ -174,7 +206,7 @@ function AttributeRules({workspaceId}: {workspaceId: string}) {
                             workspaceId={workspaceId}
                             onSaved={() => {
                                 navigate([], {replace: true});
-                                void rules.refetch();
+                                void refresh();
                             }}
                             onCancel={() => edit(null)}
                         />

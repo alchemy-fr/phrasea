@@ -20,6 +20,7 @@ import {
     getAssetRenditions,
     getRenditionDefinitions,
 } from '@/lib/api/misc';
+import {fetchAllPages} from '@/lib/api/hydra';
 import {Button} from '@/components/ui/button';
 import {Badge, Skeleton} from '@/components/ui/misc';
 import {Tooltip} from '@/components/ui/overlays';
@@ -52,16 +53,21 @@ export function AssetRenditionsTab({
         queryFn: async () => {
             const [renditions, definitions] = await Promise.all([
                 getAssetRenditions(asset.id),
-                getRenditionDefinitions({
-                    workspaceIds: [asset.workspace.id],
-                    assetId: asset.id,
-                    target: asset.storyCollection
-                        ? AssetType.Story
-                        : AssetType.Asset,
-                }),
+                // Every definition: the missing renditions are listed
+                fetchAllPages(
+                    getRenditionDefinitions({
+                        workspaceIds: [asset.workspace.id],
+                        assetId: asset.id,
+                        target: asset.storyCollection
+                            ? AssetType.Story
+                            : AssetType.Asset,
+                        limit: 100,
+                    }),
+                    url => getRenditionDefinitions({url})
+                ),
             ]);
 
-            return {renditions, definitions: definitions.items};
+            return {renditions, definitions};
         },
     });
     const refresh = () => queryClient.invalidateQueries({queryKey});

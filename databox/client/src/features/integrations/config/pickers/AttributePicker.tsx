@@ -3,7 +3,7 @@
 import {useCallback} from 'react';
 import {useTranslation} from 'react-i18next';
 import type {AttributeDefinition} from '@/types/api';
-import {getWorkspaceAttributeDefinitions} from '@/lib/api/metadata';
+import {getAttributeDefinitionsPage} from '@/lib/api/metadata';
 import {AsyncCombobox, ComboOption} from '@/components/form/AsyncCombobox';
 import {Input} from '@/components/ui/input';
 import {Badge} from '@/components/ui/misc';
@@ -76,26 +76,49 @@ export function AttributePicker(props: Props) {
     const {type, multiple: multi, entityList} = constraints;
 
     const load = useCallback(
-        async (query: string) => {
-            const page = await getWorkspaceAttributeDefinitions({
-                workspaceId: workspaceId!,
-                query: query || undefined,
-                type,
-            });
+        async (query: string, signal: AbortSignal, cursor?: string) => {
+            const page = await getAttributeDefinitionsPage(
+                {
+                    workspaceId: workspaceId!,
+                    query: query || undefined,
+                    type,
+                    multiple: multi || undefined,
+                    url: cursor,
+                },
+                signal
+            );
 
-            return page.items
-                .filter(d => matches(d, {type, multiple: multi, entityList}))
-                .map(optionOf);
+            return {
+                // The API has no filter on having a list
+                options: page.items
+                    .filter(d =>
+                        matches(d, {type, multiple: multi, entityList})
+                    )
+                    .map(optionOf),
+                next: page.next,
+            };
         },
         [workspaceId, type, multi, entityList]
     );
-    const resolve = useCallback(
-        async (slug: string) =>
-            (await load('')).find(o => o.value === slug) ?? {
-                value: slug,
-                label: slug,
-            },
-        [load]
+    const resolveAll = useCallback(
+        async (slugs: string[]) => {
+            const found = (
+                await getAttributeDefinitionsPage({
+                    workspaceId: workspaceId!,
+                    slugs,
+                    limit: slugs.length,
+                })
+            ).items.map(optionOf);
+
+            return slugs.map(
+                slug =>
+                    found.find(o => o.value === slug) ?? {
+                        value: slug,
+                        label: slug,
+                    }
+            );
+        },
+        [workspaceId]
     );
     const create = useCallback(
         async (name: string) => {
@@ -141,8 +164,8 @@ export function AttributePicker(props: Props) {
             !!multi,
             !!entityList,
         ],
-        loadOptions: load,
-        resolveValue: resolve,
+        loadPage: load,
+        resolveValues: resolveAll,
         onCreate: create,
         createWithoutQuery: true,
         createLabel: (q: string) =>

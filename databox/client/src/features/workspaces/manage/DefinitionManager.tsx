@@ -1,6 +1,7 @@
 'use client';
 
 import {ReactNode, useMemo, useRef, useState} from 'react';
+import {useQuery} from '@tanstack/react-query';
 import {useTranslation} from 'react-i18next';
 import {
     CopyIcon,
@@ -49,6 +50,7 @@ import {
 } from '@/lib/navigation/unsavedChanges';
 import {NestedRoutePath, useRoutePath} from '@/lib/navigation/routePath';
 import {useFocusFirstField} from '@/hooks/useFocusFirstField';
+import {useInfiniteScroll} from '@/hooks/useInfiniteScroll';
 
 export type DefinitionItem = {id: string};
 
@@ -83,6 +85,25 @@ type Props<D extends DefinitionItem> = {
     renderRowActions?: (item: D) => ReactNode;
     /** Take the whole height of the parent (a flex column); both panes scroll */
     fill?: boolean;
+    /** More items to load (`onReachEnd`) after `items` */
+    hasMore?: boolean;
+    loadingMore?: boolean;
+    /** Called when the end of the list is scrolled into view */
+    onReachEnd?: () => void;
+    /** Search done by the API, controlled: `filter` is then ignored */
+    query?: string;
+    onQueryChange?: (query: string) => void;
+    /** Loads the item of the URL when it is not in the loaded pages */
+    getItem?: (id: string) => Promise<D>;
+    /** Query key prefix of `getItem` */
+    itemQueryKey?: unknown[];
+    /**
+     * Every item is loaded (no next page, no search): reordering needs the
+     * whole list. Defaults to true.
+     */
+    complete?: boolean;
+    /** Loads the remaining pages, offered to reorder an incomplete list */
+    onLoadAll?: () => Promise<void>;
 };
 
 /** Path segment of the item being created */
@@ -116,10 +137,29 @@ export function DefinitionManager<D extends DefinitionItem>({
     manageLabel,
     renderRowActions,
     fill,
+    hasMore,
+    loadingMore,
+    onReachEnd,
+    query: serverQuery,
+    onQueryChange,
+    getItem,
+    itemQueryKey = ['definition-item'],
+    complete = true,
+    onLoadAll,
 }: Props<D>) {
     const {t} = useTranslation();
     const {openModal} = useModals();
-    const [query, setQuery] = useState('');
+    const [localQuery, setLocalQuery] = useState('');
+    const serverSearch = onQueryChange !== undefined;
+    const query = serverSearch ? (serverQuery ?? '') : localQuery;
+    const setQuery = serverSearch ? onQueryChange : setLocalQuery;
+    const listRef = useRef<HTMLUListElement>(null);
+    const sentinelRef = useInfiniteScroll(
+        listRef,
+        onReachEnd,
+        !!hasMore && !loadingMore && !!onReachEnd
+    );
+    const [loadingAll, setLoadingAll] = useState(false);
     const {segments, navigate} = useRoutePath();
     const selected: string | null = segments[0] ?? null;
     const managing = segments[1] === MANAGE ? selected : null;
@@ -179,20 +219,34 @@ export function DefinitionManager<D extends DefinitionItem>({
         if (!ordered) {
             return [];
         }
-        if (!query || !filter) {
+        if (!query || !filter || serverSearch) {
             return ordered;
         }
 
         return ordered.filter(i => filter(i, query.toLowerCase()));
-    }, [ordered, query, filter]);
+    }, [ordered, query, filter, serverSearch]);
 
-    const current =
-        selected === NEW
-            ? undefined
-            : (items?.find(i => i.id === selected) ??
-              (created?.id === selected ? created : undefined));
+    const listed =
+        selected === NEW ? undefined : items?.find(i => i.id === selected);
+    const justCreated = created?.id === selected ? created : undefined;
+    // In the URL, not in the loaded pages: loaded by id
+    const fetched = useQuery({
+        queryKey: [...itemQueryKey, selected],
+        queryFn: () => getItem!(selected!),
+        enabled:
+            !!getItem &&
+            !!items &&
+            selected !== null &&
+            selected !== NEW &&
+            !listed &&
+            !justCreated,
+        retry: false,
+    });
+    const current = listed ?? justCreated ?? fetched.data;
     // An id in the URL that is not (or no longer) in the list
     const missing = selected !== null && selected !== NEW && !current;
+    const fetchingMissing = missing && !!getItem && !fetched.isError;
+    const sortable = !!onSort && !query && complete;
     const managed = managing ? current : undefined;
 
     const onDragEnd = async (e: DragEndEvent) => {
@@ -250,6 +304,40 @@ export function DefinitionManager<D extends DefinitionItem>({
                     </Button>
                 </div>
                 {toolbar}
+                {onSort && !complete && !query && !loading ? (
+                    <div
+                        className="flex items-center gap-2 text-xs text-muted-foreground"
+                        data-testid="definition-sort-incomplete"
+                    >
+                        <span className="flex-1">
+                            {t(
+                                'definition.sort_needs_all',
+                                'Reordering needs the whole list.'
+                            )}
+                        </span>
+                        {onLoadAll ? (
+                            <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-7 text-xs"
+                                loading={loadingAll}
+                                onClick={async () => {
+                                    setLoadingAll(true);
+                                    try {
+                                        await onLoadAll();
+                                    } finally {
+                                        setLoadingAll(false);
+                                    }
+                                }}
+                            >
+                                {t(
+                                    'definition.load_all_to_sort',
+                                    'Load all to reorder'
+                                )}
+                            </Button>
+                        ) : null}
+                    </div>
+                ) : null}
                 {loading ? (
                     <div className="space-y-1">
                         {[...Array(4)].map((_, i) => (
@@ -273,6 +361,7 @@ export function DefinitionManager<D extends DefinitionItem>({
                             strategy={verticalListSortingStrategy}
                         >
                             <ul
+                                ref={listRef}
                                 className={cn(
                                     'space-y-1 overflow-y-auto pr-1',
                                     fill ? 'min-h-0 flex-1' : 'max-h-[60vh]'
@@ -282,7 +371,7 @@ export function DefinitionManager<D extends DefinitionItem>({
                                     <Row
                                         key={item.id}
                                         id={item.id}
-                                        sortable={!!onSort && !query}
+                                        sortable={sortable}
                                         active={selected === item.id}
                                         onClick={() => select(item.id)}
                                         onManage={
@@ -338,6 +427,18 @@ export function DefinitionManager<D extends DefinitionItem>({
                                         {renderItem(item)}
                                     </Row>
                                 ))}
+                                {hasMore ? (
+                                    <li
+                                        className="list-none py-1"
+                                        data-testid="definition-more"
+                                    >
+                                        <div ref={sentinelRef}>
+                                            {loadingMore ? (
+                                                <Skeleton className="h-9" />
+                                            ) : null}
+                                        </div>
+                                    </li>
+                                ) : null}
                             </ul>
                         </SortableContext>
                         <SortableOverlay>
@@ -375,7 +476,7 @@ export function DefinitionManager<D extends DefinitionItem>({
                     fill && 'lg:overflow-y-auto'
                 )}
             >
-                {missing && !items ? (
+                {missing && (!items || fetchingMissing) ? (
                     <Skeleton className="h-32" />
                 ) : missing ? (
                     <EmptyState

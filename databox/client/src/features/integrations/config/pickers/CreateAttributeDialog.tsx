@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import {PlusIcon} from 'lucide-react';
@@ -22,6 +22,7 @@ import {FormRow, Input} from '@/components/ui/input';
 import {SimpleSelect} from '@/components/ui/select';
 import {Checkbox, LabeledControl} from '@/components/ui/controls';
 import {useDefinitionsStore} from '@/features/attributes/definitionsStore';
+import {EntityListSelect} from '@/components/form/selects';
 import type {AttributeConstraints} from './AttributePicker';
 
 const newList = '__new__';
@@ -71,9 +72,10 @@ export function CreateAttributeDialog({
         queryFn: getAttributeFieldTypes,
         staleTime: Infinity,
     });
+    // Whether the workspace has any list: none, the list is created along
     const lists = useQuery({
-        queryKey: ['entity-lists', workspaceId],
-        queryFn: () => getEntityLists({workspaceId}),
+        queryKey: ['entity-lists', workspaceId, 'any'],
+        queryFn: () => getEntityLists({workspaceId, limit: 1}),
         enabled: type === AttributeType.Entity,
     });
 
@@ -90,16 +92,14 @@ export function CreateAttributeDialog({
         value: ft.name,
         label: ft.displayName,
     }));
-    const listOptions = [
-        ...(lists.data?.items ?? []).map(l => ({
-            value: l['@id'],
-            label: l.name,
-        })),
-        {
-            value: newList,
-            label: t('integration.create_attribute.new_list', 'New list…'),
-        },
-    ];
+    const newListLabel = t(
+        'integration.create_attribute.new_list',
+        'New list…'
+    );
+    const listOptions = useMemo(
+        () => [{value: newList, label: newListLabel}],
+        [newListLabel]
+    );
     // Nothing to pick from: the list is created along
     const selectedList =
         list ?? (lists.data && lists.data.items.length === 0 ? newList : '');
@@ -223,11 +223,13 @@ export function CreateAttributeDialog({
                         )}
                         htmlFor="create-attribute-list"
                     >
-                        <SimpleSelect
+                        <EntityListSelect
                             id="create-attribute-list"
+                            workspaceId={workspaceId}
+                            useIri
                             value={selectedList || undefined}
-                            onValueChange={setList}
-                            options={listOptions}
+                            onChange={v => setList(v ?? '')}
+                            fixedOptions={listOptions}
                         />
                     </FormRow>
                     {selectedList === newList ? (

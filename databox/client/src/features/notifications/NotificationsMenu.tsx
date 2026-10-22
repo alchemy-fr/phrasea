@@ -3,7 +3,11 @@
 import {useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useRouter} from 'next/navigation';
-import {useQuery, useQueryClient} from '@tanstack/react-query';
+import {
+    useInfiniteQuery,
+    useQuery,
+    useQueryClient,
+} from '@tanstack/react-query';
 import {BellIcon, CheckCheckIcon} from 'lucide-react';
 import {toast} from 'sonner';
 import {Button} from '@/components/ui/button';
@@ -29,7 +33,15 @@ type Notification = {
     createdAt?: string | null;
 };
 
-type ListResponse = {items: Notification[]; total: number; unreadCount: number};
+type ListResponse = {
+    items: Notification[];
+    total: number;
+    page: number;
+    limit: number;
+    unreadCount: number;
+};
+
+const PAGE_SIZE = 20;
 
 export function NotificationsMenu() {
     const {t, i18n} = useTranslation();
@@ -46,12 +58,24 @@ export function NotificationsMenu() {
         select: r => r.unreadCount,
     });
 
-    const list = useQuery({
+    const list = useInfiniteQuery({
         queryKey: ['notifications', 'list'],
-        queryFn: () =>
-            api.get<ListResponse>('/notifications', {params: {limit: 20}}),
+        queryFn: ({pageParam}) =>
+            api.get<ListResponse>('/notifications', {
+                params: {limit: PAGE_SIZE, page: pageParam},
+            }),
+        initialPageParam: 1,
+        // The endpoint pages by number, without a link to the next page
+        getNextPageParam: last =>
+            last.page * last.limit < last.total ? last.page + 1 : undefined,
         enabled: open,
     });
+    // A notification received meanwhile shifts the pages: listed once
+    const notifications = [
+        ...new Map(
+            (list.data?.pages.flatMap(p => p.items) ?? []).map(n => [n.id, n])
+        ).values(),
+    ];
 
     const invalidate = () =>
         queryClient.invalidateQueries({queryKey: ['notifications']});
@@ -121,8 +145,8 @@ export function NotificationsMenu() {
                     </Button>
                 </div>
                 <div className="max-h-96 overflow-y-auto">
-                    {list.data?.items.length ? (
-                        list.data.items.map(n => (
+                    {notifications.length ? (
+                        notifications.map(n => (
                             <button
                                 key={n.id}
                                 type="button"
@@ -169,6 +193,17 @@ export function NotificationsMenu() {
                                 : t('notifications.empty', 'No notification')}
                         </p>
                     )}
+                    {list.hasNextPage ? (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full"
+                            loading={list.isFetchingNextPage}
+                            onClick={() => list.fetchNextPage()}
+                        >
+                            {t('common.load_more', 'Load more')}
+                        </Button>
+                    ) : null}
                 </div>
             </PopoverContent>
         </Popover>

@@ -105,6 +105,7 @@ export const useDefinitionsStore = create<State>((set, get) => ({
                 const page = await getWorkspaceAttributeDefinitions({
                     workspaceId,
                     target: AssetTypeFilter.All,
+                    limit: 100,
                 });
                 const fresh = page.items.map(normalizeDefinition);
                 set(s => ({

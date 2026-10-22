@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useRouter} from 'next/navigation';
 import {
@@ -43,7 +43,9 @@ export function BasketSwitcher({
     const {t} = useTranslation();
     const router = useRouter();
     const {openModal} = useModals();
-    const {current, baskets, load, addToCurrent} = useBasketStore();
+    const {current, baskets, next, load, loadMore, addToCurrent} =
+        useBasketStore();
+    const [loadingMore, setLoadingMore] = useState(false);
 
     useEffect(() => {
         void load();
@@ -119,6 +121,26 @@ export function BasketSwitcher({
                                 current={b.id === current?.id}
                             />
                         ))}
+                    {next ? (
+                        <DropdownMenuItem
+                            className="justify-center text-xs text-muted-foreground"
+                            disabled={loadingMore}
+                            // Keep the menu open: the next page appears above
+                            onSelect={async e => {
+                                e.preventDefault();
+                                setLoadingMore(true);
+                                try {
+                                    await loadMore();
+                                } catch (err: any) {
+                                    toast.error(err?.message);
+                                } finally {
+                                    setLoadingMore(false);
+                                }
+                            }}
+                        >
+                            {t('common.load_more', 'Load more')}
+                        </DropdownMenuItem>
+                    ) : null}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                         onSelect={() => openModal(BasketFormDialog, {})}

@@ -17,6 +17,7 @@ import {
     IntegrationObjectType,
     runIntegrationAction,
 } from '@/lib/api/integrations';
+import {fetchAllPages} from '@/lib/api/hydra';
 import {Button} from '@/components/ui/button';
 import {InlineLoader} from '@/components/ui/loader';
 import {useChannelEvent} from '@/lib/realtime/RealtimeProvider';
@@ -125,14 +126,17 @@ export function RekognitionPanel({
     const [running, setRunning] = useState<DetectType[]>([]);
     const queryKey = ['integration-data', integration.id, file.id];
 
+    // Every page: the results of each detection are read from the data
     const data = useQuery({
         queryKey,
-        queryFn: ({signal}) =>
-            getIntegrationData(
-                integration.id,
-                {type: IntegrationObjectType.File, id: file.id},
-                signal
-            ),
+        queryFn: ({signal}) => {
+            const object = {type: IntegrationObjectType.File, id: file.id};
+
+            return fetchAllPages(
+                getIntegrationData(integration.id, object, signal),
+                url => getIntegrationData(integration.id, object, signal, url)
+            );
+        },
     });
 
     useChannelEvent(
@@ -144,7 +148,7 @@ export function RekognitionPanel({
         }
     );
 
-    const items = useMemo(() => data.data?.items ?? [], [data.data]);
+    const items = useMemo(() => data.data ?? [], [data.data]);
     const labels = useMemo(
         () => parseData<LabelsData>(items, 'labels'),
         [items]

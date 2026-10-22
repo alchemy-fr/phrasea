@@ -37,29 +37,55 @@ export async function getAttributeDefinitions(): Promise<
     ).items;
 }
 
+export type AttributeDefinitionListOptions = {
+    workspaceId?: string;
+    ids?: string[];
+    slugs?: string[];
+    /** Contains match on the name or the slug */
+    query?: string;
+    type?: string | null;
+    searchable?: boolean;
+    sortable?: boolean;
+    enabled?: boolean;
+    multiple?: boolean;
+    entityListId?: string;
+    target?: AssetTypeFilter;
+    limit?: number;
+    url?: string;
+};
+
+export async function getAttributeDefinitionsPage(
+    {url, ...params}: AttributeDefinitionListOptions,
+    signal?: AbortSignal
+): Promise<Page<AttributeDefinition>> {
+    return toPage(
+        await api.get<HydraCollection<AttributeDefinition>>(
+            url ?? `/${EntityName.AttributeDefinition}`,
+            {params: url ? undefined : params, signal}
+        )
+    );
+}
+
+export function getAttributeDefinition(
+    id: string
+): Promise<AttributeDefinition> {
+    return api.get<AttributeDefinition>(
+        `/${EntityName.AttributeDefinition}/${id}`
+    );
+}
+
 export async function getWorkspaceAttributeDefinitions(options: {
     workspaceId: string;
     target?: AssetTypeFilter;
     query?: string;
     type?: string | null;
+    limit?: number;
     url?: string;
 }): Promise<Page<AttributeDefinition>> {
-    return toPage(
-        await api.get<HydraCollection<AttributeDefinition>>(
-            options.url ?? `/${EntityName.AttributeDefinition}`,
-            {
-                params: options.url
-                    ? undefined
-                    : {
-                          workspaceId: options.workspaceId,
-                          target: options.target ?? AssetTypeFilter.All,
-                          name: options.query,
-                          type: options.type,
-                          limit: 100,
-                      },
-            }
-        )
-    );
+    return getAttributeDefinitionsPage({
+        ...options,
+        target: options.target ?? AssetTypeFilter.All,
+    });
 }
 
 export async function getBuiltInAttributes(): Promise<BuiltInAttribute[]> {
@@ -156,7 +182,13 @@ export function deleteAttributePolicy(id: string): Promise<void> {
 // Tags ---------------------------------------------------------------------
 
 export async function getTags(
-    options: {workspace?: string; query?: string; url?: string} = {}
+    options: {
+        workspace?: string;
+        query?: string;
+        limit?: number;
+        url?: string;
+    } = {},
+    signal?: AbortSignal
 ): Promise<Page<Tag>> {
     return toPage(
         await api.get<HydraCollection<Tag>>(
@@ -164,7 +196,12 @@ export async function getTags(
             {
                 params: options.url
                     ? undefined
-                    : {workspace: options.workspace, query: options.query},
+                    : {
+                          workspace: options.workspace,
+                          query: options.query,
+                          limit: options.limit,
+                      },
+                signal,
             }
         )
     );
@@ -188,11 +225,16 @@ export function deleteTag(id: string): Promise<void> {
 
 // Entity lists & attribute entities ---------------------------------------
 
-export async function getEntityLists(options: {
-    workspaceId: string;
-    query?: string;
-    url?: string;
-}): Promise<Page<EntityList>> {
+export async function getEntityLists(
+    options: {
+        workspaceId: string;
+        /** Contains match on the name */
+        query?: string;
+        limit?: number;
+        url?: string;
+    },
+    signal?: AbortSignal
+): Promise<Page<EntityList>> {
     return toPage(
         await api.get<HydraCollection<EntityList>>(
             options.url ?? `/${EntityName.EntityList}`,
@@ -203,7 +245,9 @@ export async function getEntityLists(options: {
                           'workspace': options.workspaceId,
                           'name': options.query,
                           'order[name]': 'asc',
+                          'limit': options.limit,
                       },
+                signal,
             }
         )
     );
@@ -411,11 +455,16 @@ export function mergeAttributeEntities(
 
 // Templates ----------------------------------------------------------------
 
-export async function getAssetDataTemplates(options: {
-    workspace: string;
-    collection?: string;
-    url?: string;
-}): Promise<Page<AssetDataTemplate>> {
+export async function getAssetDataTemplates(
+    options: {
+        workspace: string;
+        collection?: string;
+        query?: string;
+        limit?: number;
+        url?: string;
+    },
+    signal?: AbortSignal
+): Promise<Page<AssetDataTemplate>> {
     return toPage(
         await api.get<HydraCollection<AssetDataTemplate>>(
             options.url ?? `/${EntityName.AssetDataTemplate}`,
@@ -425,7 +474,10 @@ export async function getAssetDataTemplates(options: {
                     : {
                           workspace: options.workspace,
                           collection: options.collection,
+                          query: options.query,
+                          limit: options.limit,
                       },
+                signal,
             }
         )
     );

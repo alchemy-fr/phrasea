@@ -10,6 +10,7 @@ import {FormDialog} from '@/components/modals/FormDialog';
 import {Checkbox, LabeledControl} from '@/components/ui/controls';
 import {InlineLoader} from '@/components/ui/loader';
 import {exportAssets, getRenditionDefinitions} from '@/lib/api/misc';
+import {fetchAllPages} from '@/lib/api/hydra';
 import {getWorkspace, signWorkspaceTerms} from '@/lib/api/collections';
 import {useCollectionStore} from '@/features/collections/collectionStore';
 import {TermsContent} from '@/features/share/ShareTerms';
@@ -20,17 +21,10 @@ import {AssetEvent, EventCategory, track} from '@/lib/analytics/events';
 async function getAllRenditionDefinitions(
     workspaceIds: string[]
 ): Promise<RenditionDefinition[]> {
-    const definitions: RenditionDefinition[] = [];
-    let page = await getRenditionDefinitions({workspaceIds});
-    for (;;) {
-        definitions.push(...page.items);
-        if (!page.next) {
-            break;
-        }
-        page = await getRenditionDefinitions({url: page.next});
-    }
-
-    return definitions;
+    return fetchAllPages(
+        getRenditionDefinitions({workspaceIds, limit: 100}),
+        url => getRenditionDefinitions({url})
+    );
 }
 
 export function ExportDialog({
