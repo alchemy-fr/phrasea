@@ -985,7 +985,13 @@ services:
 
   keycloak:
     logging: *default-logging
-    image: ${KEYCLOAK_IMAGE}
+    image: ${REGISTRY_NAMESPACE}keycloak:${DOCKER_TAG}
+    build:
+      context: ./infra/docker/keycloak
+      target: keycloak
+      network: host
+      entitlements:
+        - network.host
     command:
       - 'start'
       - '--optimized'
@@ -1018,7 +1024,7 @@ services:
 
   keycloak2:
     logging: *default-logging
-    image: ${KEYCLOAK_IMAGE}
+    image: ${REGISTRY_NAMESPACE}keycloak:${DOCKER_TAG}
     command:
       - 'start'
       - '--optimized'
