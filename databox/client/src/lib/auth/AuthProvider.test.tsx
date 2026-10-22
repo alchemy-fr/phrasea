@@ -38,7 +38,7 @@ type User = {
 };
 
 const client = vi.hoisted(() => ({
-    init: vi.fn(() => Promise.resolve()),
+    init: vi.fn((_options?: {silent?: boolean}) => Promise.resolve()),
     getUser: vi.fn<() => User | undefined>(() => undefined),
     subscribe: vi.fn(() => () => undefined),
     login: vi.fn<(redirectTo: string) => Promise<void>>(() =>
@@ -46,13 +46,27 @@ const client = vi.hoisted(() => ({
     ),
     logout: vi.fn(),
 }));
-vi.mock('./client', () => ({getAuthClient: () => client}));
+vi.mock('./client', () => ({
+    AUTH_CALLBACK_PATH: '/auth/callback',
+    getAuthClient: () => client,
+}));
 
 const {AuthProvider, useAuth} = await import('./AuthProvider');
 
 const wrapper = ({children}: PropsWithChildren) => (
     <AuthProvider>{children}</AuthProvider>
 );
+
+describe('AuthProvider init', () => {
+    it('picks up the Keycloak SSO session silently', async () => {
+        client.init.mockClear();
+        renderHook(() => useAuth(), {wrapper});
+
+        await waitFor(() =>
+            expect(client.init).toHaveBeenCalledWith({silent: true})
+        );
+    });
+});
 
 describe('AuthProvider login', () => {
     it('reports the redirection until the page unloads', async () => {

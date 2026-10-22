@@ -19,6 +19,7 @@ export function getAuthClient(): OidcClient {
         issuerUrl: `${config.keycloak.url}/realms/${config.keycloak.realm}`,
         clientId: config.keycloak.clientId,
         redirectUri: `${origin}${AUTH_CALLBACK_PATH}`,
+        silentRedirectUri: `${origin}/silent-check-sso.html`,
         postLogoutRedirectUri: `${origin}/`,
         idpHint: config.keycloak.autoConnectIdP,
     });

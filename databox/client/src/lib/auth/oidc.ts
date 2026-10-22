@@ -4,6 +4,9 @@
  * - The access token only lives in memory.
  * - The refresh token is persisted in localStorage so the session survives a
  *   reload; it is refreshed proactively before the access token expires.
+ * - Without a stored session, the Keycloak SSO session (opened from another
+ *   Phrasea app) is picked up silently at startup: `prompt=none` authorization
+ *   in a hidden iframe.
  * - Consumers subscribe to auth events (login / logout / expired).
  */
 
@@ -33,6 +36,8 @@ export type OidcOptions = {
     issuerUrl: string; // {keycloakUrl}/realms/{realm}
     clientId: string;
     redirectUri: string; // absolute URL of the callback page
+    /** Absolute URL of the page posting its URL to the parent frame */
+    silentRedirectUri?: string;
     postLogoutRedirectUri: string;
     scope?: string;
     idpHint?: string;
@@ -46,6 +51,9 @@ type StoredState = {
 };
 
 const textEncoder = new TextEncoder();
+
+/** Delay after which the silent sign-in gives up and leaves the app anonymous */
+export const SILENT_LOGIN_TIMEOUT_MS = 5000;
 
 function base64url(bytes: ArrayBuffer | Uint8Array): string {
     const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
@@ -102,6 +110,7 @@ export class OidcClient {
     private tokens: Tokens | undefined;
     private refreshPromise: Promise<Tokens | undefined> | undefined;
     private refreshTimer: ReturnType<typeof setTimeout> | undefined;
+    private silentLoginPromise: Promise<AuthUser | undefined> | undefined;
     private readonly callbackPromises = new Map<string, Promise<string>>();
     private readonly listeners = new Set<Listener>();
     private readonly storageKey: string;
@@ -286,18 +295,27 @@ export class OidcClient {
     }
 
     /**
-     * Restores the session from the persisted refresh token.
+     * Restores the session from the persisted refresh token. When there is
+     * none, or it can no longer be used, and `silent` is set, falls back to
+     * the Keycloak SSO session through a silent sign-in.
+     *
+     * Never rejects: resolves to undefined when the user stays anonymous.
      */
-    public async init(): Promise<AuthUser | undefined> {
+    public async init({silent = false}: {silent?: boolean} = {}): Promise<
+        AuthUser | undefined
+    > {
         if (this.tokens) {
             return this.getUser();
         }
-        if (!this.readStoredRefreshToken()) {
-            return undefined;
+        if (this.readStoredRefreshToken()) {
+            await this.refresh().catch(() => undefined);
+            const user = this.getUser();
+            if (user) {
+                return user;
+            }
         }
-        await this.refresh();
 
-        return this.getUser();
+        return silent ? this.silentLogin() : undefined;
     }
 
     public async refresh(): Promise<Tokens | undefined> {
@@ -349,6 +367,22 @@ export class OidcClient {
 
     // -- Authorization code flow -------------------------------------------
 
+    private authorizationParams(
+        redirectUri: string,
+        state: string,
+        challenge: string
+    ): URLSearchParams {
+        return new URLSearchParams({
+            response_type: 'code',
+            client_id: this.options.clientId,
+            redirect_uri: redirectUri,
+            scope: this.options.scope ?? 'openid profile email',
+            state,
+            code_challenge: challenge,
+            code_challenge_method: 'S256',
+        });
+    }
+
     public async login(redirectTo: string = '/'): Promise<void> {
         const verifier = randomString(96);
         const challenge = await sha256(verifier);
@@ -363,15 +397,11 @@ export class OidcClient {
             } satisfies StoredState)
         );
 
-        const params = new URLSearchParams({
-            response_type: 'code',
-            client_id: this.options.clientId,
-            redirect_uri: this.options.redirectUri,
-            scope: this.options.scope ?? 'openid profile email',
+        const params = this.authorizationParams(
+            this.options.redirectUri,
             state,
-            code_challenge: challenge,
-            code_challenge_method: 'S256',
-        });
+            challenge
+        );
         if (this.options.idpHint) {
             params.set('kc_idp_hint', this.options.idpHint);
         }
@@ -381,6 +411,143 @@ export class OidcClient {
         window.location.assign(
             `${this.authorizationEndpoint}?${params.toString()}`
         );
+    }
+
+    /**
+     * Signs in without user interaction when a Keycloak SSO session exists:
+     * `prompt=none` authorization in a hidden iframe, whose redirection page
+     * posts its URL back. Resolves to undefined whenever that is not possible
+     * (no SSO session, third-party cookies blocked, timeout, any error).
+     *
+     * Concurrent calls share the same attempt: React may run the startup
+     * effect twice (Strict Mode in development).
+     */
+    public silentLogin(): Promise<AuthUser | undefined> {
+        if (!this.silentLoginPromise) {
+            this.silentLoginPromise = this.doSilentLogin()
+                .catch(() => undefined)
+                .finally(() => {
+                    this.silentLoginPromise = undefined;
+                });
+        }
+
+        return this.silentLoginPromise;
+    }
+
+    private async doSilentLogin(): Promise<AuthUser | undefined> {
+        const redirectUri = this.options.silentRedirectUri;
+        if (
+            typeof window === 'undefined' ||
+            typeof document === 'undefined' ||
+            !redirectUri
+        ) {
+            return undefined;
+        }
+
+        // Kept in memory: the response comes back to this very page.
+        const verifier = randomString(96);
+        const challenge = await sha256(verifier);
+        const state = randomString(32);
+
+        const params = this.authorizationParams(redirectUri, state, challenge);
+        params.set('prompt', 'none');
+        // The code stays in the fragment: it never reaches the Next server.
+        params.set('response_mode', 'fragment');
+        // No `kc_idp_hint`: it could send to the external IdP instead of
+        // answering `login_required`.
+
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.title = 'silent-check-sso';
+        iframe.src = `${this.authorizationEndpoint}?${params.toString()}`;
+
+        const controller = new AbortController();
+        const timer = setTimeout(
+            () => controller.abort(),
+            SILENT_LOGIN_TIMEOUT_MS
+        );
+        try {
+            const response = await this.waitForSilentResponse(
+                iframe,
+                controller.signal
+            );
+            const code = response?.get('code');
+            if (
+                !response ||
+                response.get('state') !== state ||
+                response.has('error') ||
+                !code
+            ) {
+                return undefined;
+            }
+
+            const res = await fetch(this.tokenEndpoint, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: new URLSearchParams({
+                    grant_type: 'authorization_code',
+                    client_id: this.options.clientId,
+                    code,
+                    redirect_uri: redirectUri,
+                    code_verifier: verifier,
+                }),
+                signal: controller.signal,
+            });
+            if (!res.ok) {
+                return undefined;
+            }
+            const json = await res.json();
+            if (controller.signal.aborted) {
+                return undefined;
+            }
+            this.setTokens(json);
+            this.emit('login');
+
+            return this.getUser();
+        } finally {
+            clearTimeout(timer);
+            iframe.remove();
+        }
+    }
+
+    /**
+     * Appends the iframe and resolves to the parameters of the URL its
+     * redirection page posts, or to undefined once `signal` is aborted.
+     */
+    private waitForSilentResponse(
+        iframe: HTMLIFrameElement,
+        signal: AbortSignal
+    ): Promise<URLSearchParams | undefined> {
+        return new Promise(resolve => {
+            const done = (params: URLSearchParams | undefined) => {
+                window.removeEventListener('message', onMessage);
+                signal.removeEventListener('abort', onAbort);
+                resolve(params);
+            };
+            const onAbort = () => done(undefined);
+            const onMessage = (event: MessageEvent) => {
+                if (
+                    event.origin !== window.location.origin ||
+                    !iframe.contentWindow ||
+                    event.source !== iframe.contentWindow
+                ) {
+                    return;
+                }
+                try {
+                    done(
+                        new URLSearchParams(
+                            new URL(String(event.data)).hash.slice(1)
+                        )
+                    );
+                } catch {
+                    done(undefined);
+                }
+            };
+
+            window.addEventListener('message', onMessage);
+            signal.addEventListener('abort', onAbort);
+            document.body.appendChild(iframe);
+        });
     }
 
     /**

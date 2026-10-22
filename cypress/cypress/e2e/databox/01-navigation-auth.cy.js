@@ -22,6 +22,21 @@ describe('Navigation & authentication', () => {
         cy.getBySel('sign-in').should('not.exist');
     });
 
+    it('signs in silently from the Keycloak session', () => {
+        // Not `login()`: its `cy.session` cache is shared with the other specs
+        cy.visit(assetsUrl());
+        cy.getBySel('sign-in').should('be.visible').click();
+        loginThroughKeycloak();
+        cy.getBySel('user-menu', {timeout: 30000}).should('be.visible');
+
+        // Drops the app session only: the Keycloak cookies remain
+        cy.clearLocalStorage();
+        cy.reload();
+
+        cy.getBySel('user-menu', {timeout: 30000}).should('be.visible');
+        cy.getBySel('sign-in').should('not.exist');
+    });
+
     it('shows the user menu and signs out', () => {
         login();
         visitAssets();

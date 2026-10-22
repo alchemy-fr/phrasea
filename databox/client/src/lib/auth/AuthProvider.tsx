@@ -10,7 +10,7 @@ import {
     useState,
 } from 'react';
 import {usePathname, useSearchParams} from 'next/navigation';
-import {getAuthClient} from './client';
+import {AUTH_CALLBACK_PATH, getAuthClient} from './client';
 import type {AuthUser} from './oidc';
 import {
     clearImpersonation,
@@ -97,8 +97,10 @@ export function AuthProvider({children}: PropsWithChildren) {
             sync();
         });
 
+        // On the callback page, the code of the interactive sign-in is being
+        // exchanged: a silent sign-in would race with it.
         client
-            .init()
+            .init({silent: window.location.pathname !== AUTH_CALLBACK_PATH})
             .catch(() => undefined)
             .finally(() => {
                 if (!cancelled) {

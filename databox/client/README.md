@@ -25,6 +25,12 @@ dc run --rm dev pnpm --filter databox-client test
 The Keycloak client (`DATABOX_CLIENT_ID`, redirect URIs on `DATABOX_CLIENT_URL`)
 is provisioned by the configurator.
 
+A user already signed in to Keycloak (from the dashboard, expose, uploader…)
+arrives signed in: without a stored session, the app checks the SSO session at
+startup with a `prompt=none` authorization in a hidden iframe redirected to
+`/silent-check-sso.html` (5 s at most, then anonymous). A Content Security
+Policy added to the Next server must allow `frame-src ${KEYCLOAK_URL}`.
+
 ## Runtime configuration
 
 The same image runs against any stack: the configuration is read from the
