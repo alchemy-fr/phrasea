@@ -42,7 +42,7 @@ describe('Runtime configuration', () => {
     });
 
     it('links to the dashboard when the services menu is enabled', () => {
-        const dashboardUrl = Cypress.env('DASHBOARD_CLIENT_URL');
+        const dashboardUrl = Cypress.expose('DASHBOARD_CLIENT_URL');
         login();
         visitAssets();
         if (dashboardUrl) {

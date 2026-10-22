@@ -38,7 +38,7 @@ RUN pnpm build
 
 ############
 
-FROM node:25.2.1-alpine3.22 AS runner
+FROM node:26.12.1-alpine3.24 AS runner
 
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \

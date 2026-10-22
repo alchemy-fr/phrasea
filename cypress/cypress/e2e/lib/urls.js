@@ -1,16 +1,16 @@
-export const keycloakUrl = Cypress.env('KEYCLOAK_URL');
-export const keycloakRealm = Cypress.env('KEYCLOAK_REALM_NAME');
-export const exposeUrl = Cypress.env('EXPOSE_CLIENT_URL');
-export const exposeApiUrl = Cypress.env('EXPOSE_API_URL');
-export const adminUsername = Cypress.env('ADMIN_USERNAME');
-export const adminPassword = Cypress.env('ADMIN_PASSWORD');
+export const keycloakUrl = Cypress.expose('KEYCLOAK_URL');
+export const keycloakRealm = Cypress.expose('KEYCLOAK_REALM_NAME');
+export const exposeUrl = Cypress.expose('EXPOSE_CLIENT_URL');
+export const exposeApiUrl = Cypress.expose('EXPOSE_API_URL');
+export const adminUsername = Cypress.expose('ADMIN_USERNAME');
+export const adminPassword = Cypress.expose('ADMIN_PASSWORD');
 
-export const exposeAdminClientId = Cypress.env('EXPOSE_ADMIN_CLIENT_ID');
-export const exposeAdminClientSecret = Cypress.env('EXPOSE_ADMIN_CLIENT_SECRET');
+export const exposeAdminClientId = Cypress.expose('EXPOSE_ADMIN_CLIENT_ID');
+export const exposeAdminClientSecret = Cypress.expose('EXPOSE_ADMIN_CLIENT_SECRET');
 
 // Databox
-export const databoxUrl = Cypress.env('DATABOX_CLIENT_URL');
-export const databoxApiUrl = Cypress.env('DATABOX_API_URL');
-export const databoxClientId = Cypress.env('DATABOX_CLIENT_ID');
-export const databoxAdminClientId = Cypress.env('DATABOX_ADMIN_CLIENT_ID');
-export const databoxAdminClientSecret = Cypress.env('DATABOX_ADMIN_CLIENT_SECRET');
+export const databoxUrl = Cypress.expose('DATABOX_CLIENT_URL');
+export const databoxApiUrl = Cypress.expose('DATABOX_API_URL');
+export const databoxClientId = Cypress.expose('DATABOX_CLIENT_ID');
+export const databoxAdminClientId = Cypress.expose('DATABOX_ADMIN_CLIENT_ID');
+export const databoxAdminClientSecret = Cypress.expose('DATABOX_ADMIN_CLIENT_SECRET');

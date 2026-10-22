@@ -6,6 +6,7 @@ import {
     ReactNode,
     useContext,
     useMemo,
+    useRef,
     useState,
 } from 'react';
 import {usePathname} from 'next/navigation';
@@ -182,10 +183,18 @@ function DialogTabs<P extends object>({
     const tabHref = (tab: string, path = paths[tab] ?? '') =>
         joinRoutePath(buildTabHref(tab), path ? path.split('/') : []);
 
+    // A mouse selection reaches `onValueChange` twice (Radix focuses the
+    // trigger, then handles the mouse down) before the URL change renders:
+    // keep it to one history entry and one discard prompt per switch.
+    const requested = useRef<string | null>(null);
     const selectTab = (next: string) => {
-        if (next === active) {
+        if (next === active || next === requested.current) {
             return;
         }
+        requested.current = next;
+        queueMicrotask(() => {
+            requested.current = null;
+        });
         const go = () => pushPath(tabHref(next));
         if (!hasUnsavedChanges(tabScope(active))) {
             go();

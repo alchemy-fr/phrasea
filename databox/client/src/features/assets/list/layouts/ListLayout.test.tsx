@@ -55,6 +55,10 @@ beforeAll(() => {
     Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
         configurable: true,
         get(this: HTMLElement) {
+            // Viewport of the virtualizer's scroll container
+            if (this.dataset.testid === 'asset-list') {
+                return 900;
+            }
             if (!isTallAttributes(this)) {
                 return 0;
             }

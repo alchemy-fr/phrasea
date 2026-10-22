@@ -1,10 +1,10 @@
-FROM node:25.2.1-alpine3.22
+FROM node:26.12.1-alpine3.24
 
 RUN apk add --no-cache \
         python3 \
         make \
         g++ \
-    && npm install -g pnpm@^10.28.2 \
+    && npm install -g pnpm@^12.15.0 \
     && mkdir -p /var/docker \
     && wget -q -O /var/docker/generate-env --no-verbose https://github.com/alchemy-fr/config-compiler/releases/download/v2.2.1/generate-env-alpine \
     && chmod +x /var/docker/generate-env \

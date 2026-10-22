@@ -17,21 +17,21 @@
     "main": "index.ts",
     "license": "MIT",
     "peerDependencies": {
+        "@jonkoops/matomo-tracker-react": "^0.7.0",
         "pusher-js": "^8.3.0",
-        "react": "^18.2.0",
-        "@jonkoops/matomo-tracker-react": "^0.7.0"
+        "react": "^18.2.0"
     },
     "dependencies": {
         "@sentry/react": "^7.120.4"
     },
     "devDependencies": {
-        "@sentry/types": "^7.120.4",
-        "@types/react": "^18.3.24",
-        "pusher-js": "^8.4.0",
         "@jonkoops/matomo-tracker-react": "^0.7.0",
         "@mui/material": "^6.5.0",
         "@mui/system": "^6.5.0",
-        "react-dropzone": "^14.3.8",
-        "react-dom": "^18.3.1"
+        "@sentry/types": "^7.120.4",
+        "@types/react": "^18.3.31",
+        "pusher-js": "^8.6.0",
+        "react-dom": "^18.3.1",
+        "react-dropzone": "^14.4.1"
     }
 }

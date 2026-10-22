@@ -30,7 +30,7 @@ describe('Discussion & attachments', () => {
     });
 
     it('suggests users to mention, out of the panel', () => {
-        const admin = Cypress.env('ADMIN_USERNAME');
+        const admin = Cypress.expose('ADMIN_USERNAME');
         composer().type(`Hello @${admin.slice(0, 4)}`);
         // Portalled next to the field: the scrolling panel does not clip it
         cy.getBySel('mention-suggestions', {timeout: 20000}).should('be.visible').and('contain', `@${admin}`);

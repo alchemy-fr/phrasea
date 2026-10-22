@@ -117,10 +117,11 @@ RUN set -eux; \
 
 COPY --from=composer:2.9.3 /usr/bin/composer /usr/bin/composer
 
-ENV NODE_VERSION=25.2.1 \
+ENV NODE_VERSION=26.12.1 \
     NODE_OPTIONS=--openssl-legacy-provider
 
 RUN apk add --no-cache \
+        libatomic \
         libstdc++ \
     && apk add --no-cache --virtual .build-deps \
         curl \
@@ -128,7 +129,7 @@ RUN apk add --no-cache \
       && case "${alpineArch##*-}" in \
         x86_64) \
           ARCH='x64' \
-          CHECKSUM="2cacd704a60accb358852fd565ae85ef83bd368578037bf936b8597ce2935773" \
+          CHECKSUM="5c3834652a0fb8f204e6df76be1469aa99a9d18011fb79cc85d97c822184d976" \
           ;; \
         *) ;; \
       esac \
@@ -150,22 +151,19 @@ RUN apk add --no-cache \
         linux-headers \
         make \
         python3 \
+        py-setuptools \
+        rust \
+        cargo \
     # gpg keys listed at https://github.com/nodejs/node#release-keys
     && for key in \
-      4ED778F539E3634C779C87C6D7062848A1AB005C \
-      141F07595B7B3FFE74309A937405533BE57C7D57 \
-      94AE36675C464D64BAFA68DD7434390BDBE9B9C5 \
-      74F12602B6F1C4E913FAA37AD3A89613643B6201 \
-      71DCFD284A79C3B38668286BC97EC7A07EDE3FC1 \
-      61FC681DFB92A079F1685E77973F295594EC4689 \
-      8FCCA13FEF1D0C2E91008E09770F7A9A5AE15600 \
-      C4F0DFFF4E8C1A8236409D08E73BC641CC11F4C8 \
+      5BE8A3F6C8A5C01D106C0AD820B1A390B168D356 \
+      DD792F5973C6DE52C432CBDAC77ABFA00DDBF2B7 \
+      CC68F5A3106FF448322E48ED27F5E38D5B0A215F \
       890C08DB8579162FEE0DF9DB8BEAB4DFCF555EF4 \
       C82FA3AE1CBEDC6BE46B9360C43CEC45C17AB93C \
-      DD8F2338BAE7501E3DD5AC78C273792F7D83545D \
-      A48C2BEE680E841632CD4E44F07496B3EB3C1762 \
       108F52B48DB57BB0CC439B2997B01419BD92F80A \
-      B9E2F5981AA6E0CD28160D9FF13993A75599653C \
+      655F3B5C1FB3FA8D1A0CA6BDE4A7D232B936D2FD \
+      A363A499291CBBC940DD62E41F10027AF002F8B0 \
     ; do \
       gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys "$key" || \
       gpg --batch --keyserver keyserver.ubuntu.com --recv-keys "$key" ; \
@@ -190,7 +188,7 @@ RUN apk add --no-cache \
   && node --version \
   && npm --version
 
-RUN npm install -g pnpm@^10.28.2
+RUN npm install -g pnpm@^12.15.0
 
 COPY oh-my-zsh/.zshrc /bootstrap/.zshrc
 COPY entrypoint.sh /bootstrap/entrypoint.sh
