@@ -20,7 +20,7 @@ abstract class PusherFactory
             'host' => $host,
         ];
 
-        // Server side, Soketi can be reached directly instead of through the
+        // Server side, Sockudo can be reached directly instead of through the
         // public host: without both of them, the client falls back to TLS on
         // port 443.
         if (null !== $port && '' !== $port) {
@@ -38,7 +38,7 @@ abstract class PusherFactory
             new Client([
                 'verify' => $verifySsl,
                 // Pushes are best-effort real-time hints: never let an unreachable
-                // Soketi host hold a request or a worker for the default 30s+.
+                // Sockudo host hold a request or a worker for the default 30s+.
                 'connect_timeout' => 3,
                 'timeout' => 5,
             ])

@@ -146,13 +146,13 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     pusher?: bool|array{
  *         enabled?: bool|Param, // Default: false
  *         disabled?: bool|Param, // Default: false
- *         host?: scalar|Param|null, // Default: "%env(SOKETI_HOST)%"
- *         key?: scalar|Param|null, // Default: "%env(SOKETI_KEY)%"
- *         secret?: scalar|Param|null, // Default: "%env(SOKETI_SECRET)%"
- *         appId?: scalar|Param|null, // Default: "%env(SOKETI_APP_ID)%"
+ *         host?: scalar|Param|null, // Default: "%env(SOCKUDO_HOST)%"
+ *         key?: scalar|Param|null, // Default: "%env(SOCKUDO_KEY)%"
+ *         secret?: scalar|Param|null, // Default: "%env(SOCKUDO_SECRET)%"
+ *         appId?: scalar|Param|null, // Default: "%env(SOCKUDO_APP_ID)%"
  *         verifySsl?: bool|Param, // Default: "%env(bool:VERIFY_SSL)%"
- *         port?: scalar|Param|null, // Port of the Soketi server, server side (defaults to 443) // Default: "%env(SOKETI_PORT)%"
- *         scheme?: scalar|Param|null, // Scheme used to reach the Soketi server, server side (defaults to https) // Default: "%env(SOKETI_SCHEME)%"
+ *         port?: scalar|Param|null, // Port of the Sockudo server, server side (defaults to 443) // Default: "%env(SOCKUDO_PORT)%"
+ *         scheme?: scalar|Param|null, // Scheme used to reach the Sockudo server, server side (defaults to https) // Default: "%env(SOCKUDO_SCHEME)%"
  *         channel_prefix?: scalar|Param|null, // Prefix of the per-user private channel a user may authorize (suffixed with the user identifier) // Default: "private-user-"
  *     },
  * }

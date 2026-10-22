@@ -99,7 +99,7 @@ flowchart LR
     traefik --> clients
     traefik --> apis
     traefik --> keycloak[Keycloak]
-    traefik --> soketi[Soketi WebSocket]
+    traefik --> sockudo[Sockudo WebSocket]
 
     apis -- auth --> keycloak
     apis --> pg[(PostgreSQL)]
@@ -108,7 +108,7 @@ flowchart LR
     apis --> rabbitmq[[RabbitMQ]]
     apis --> report[Report API]
     databoxApi --> es[(Elasticsearch)]
-    databoxApi --> soketi
+    databoxApi --> sockudo
 
     rabbitmq --> workers[Messenger workers]
     workers --> pg

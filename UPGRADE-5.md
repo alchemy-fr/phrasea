@@ -10,7 +10,9 @@ Follow these steps in order. Each one is detailed in the sections below.
 3. Update your `.env` and images: `ELASTICSEARCH_IMAGE` (9.1.4, stored in the new
    `elasticsearch9` volume), `KEYCLOAK_IMAGE`, `REPORT_API_IMAGE`. Remove
    `elastichq` from any custom `COMPOSE_PROFILES`, and decide whether to keep the
-   new `similarity` and `face-recognition` profiles.
+   new `similarity` and `face-recognition` profiles. Sockudo replaces Soketi:
+   rename the `SOKETI_*` variables and the `soketi` profile (see
+   [Sockudo replaces Soketi](#sockudo-replaces-soketi)).
 4. Start Elasticsearch 9:
 
     ```bash
@@ -177,12 +179,52 @@ themselves (PHP `zip` extension, already in the images).
 
 See [Expose API](#expose-api) for the renamed properties and routes.
 
-### Soketi
+### Sockudo replaces Soketi
 
-`databox-api-php` now pushes to `soketi:6001` over plain http on the internal
-network (`SOKETI_HOST`, `SOKETI_PORT`, `SOKETI_SCHEME`). If you use an external
-Soketi without the `soketi` profile, override these three variables for
-`databox-api-php`.
+Soketi is no longer maintained: the WebSocket server is now
+[Sockudo](https://github.com/sockudo/sockudo)
+(`SOCKUDO_IMAGE=ghcr.io/sockudo/sockudo:5.2.0`), which speaks the same Pusher
+protocol on the same port (6001). The PHP and JS clients are unchanged.
+
+Everything named after Soketi is renamed, with no fallback on the old names:
+
+- compose service and profile `soketi` → `sockudo`: update `COMPOSE_PROFILES`
+  in `.env.local` (or wherever you override it);
+- public hosts `soketi.${PHRASEA_DOMAIN}` → `sockudo.${PHRASEA_DOMAIN}` and
+  `soketi-usage.${PHRASEA_DOMAIN}` → `sockudo-usage.${PHRASEA_DOMAIN}`: update
+  your DNS (or `/etc/hosts`, see `infra/dev/hosts.txt`) and TLS certificates;
+- environment variables, to rename in `.env.local` and in any deployment
+  configuration:
+
+| Before             | After               |
+| ------------------ | ------------------- |
+| `SOKETI_HOST`      | `SOCKUDO_HOST`      |
+| `SOKETI_PORT`      | `SOCKUDO_PORT`      |
+| `SOKETI_SCHEME`    | `SOCKUDO_SCHEME`    |
+| `SOKETI_APP_ID`    | `SOCKUDO_APP_ID`    |
+| `SOKETI_KEY`       | `SOCKUDO_KEY`       |
+| `SOKETI_SECRET`    | `SOCKUDO_SECRET`    |
+| `SOKETI_IMAGE`     | `SOCKUDO_IMAGE`     |
+| `SOKETI_USAGE_URL` | `SOCKUDO_USAGE_URL` |
+
+`SOCKUDO_APP_ID`, `SOCKUDO_KEY` and `SOCKUDO_SECRET` must all be set (never
+empty): otherwise Sockudo keeps the demo app of its bundled example
+configuration.
+
+`/usage` (memory usage, linked from the dashboard) is now served on the app
+port 6001, no longer on 9601: the `sockudo-usage` host only exposes `/usage`,
+and the `sockudo` host hides `/usage`, `/stats` and `/operator`.
+
+Remove the old container once the new one is up:
+
+```bash
+dc up -d --remove-orphans
+```
+
+`databox-api-php` pushes to `sockudo:6001` over plain http on the internal
+network (`SOCKUDO_HOST`, `SOCKUDO_PORT`, `SOCKUDO_SCHEME`). If you use an
+external server without the `sockudo` profile, override these three variables
+for `databox-api-php`.
 
 ### Building from sources
 
@@ -212,7 +254,9 @@ This repository has no Helm chart for the stack (`infra/helm/report-elk` is
 unchanged). Apply the same changes in `alchemy-fr/phrasea-helm-charts`: in
 particular, replace the databox `CronJob`s with `databox-scheduler` and
 `uploader-scheduler` Deployments (worker image, `WORKER_PRIORITIES` as above,
-`replicas: 1`, `Recreate` strategy so that two pods never overlap).
+`replicas: 1`, `Recreate` strategy so that two pods never overlap), and swap
+Soketi for Sockudo (image, `SOCKUDO_*` variables, hosts, `/usage` on port 6001,
+see [Sockudo replaces Soketi](#sockudo-replaces-soketi)).
 
 ## Database migrations
 

@@ -5,7 +5,7 @@ import {
 } from '@alchemy/core';
 import {apiClient, config} from '../init.ts';
 
-// Tenants deployed without a realtime server have no Soketi key: no live updates.
+// Tenants deployed without a realtime server have no Sockudo key: no live updates.
 const pusher =
     config.pusherKey && config.pusherHost
         ? createPusher({

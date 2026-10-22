@@ -68,8 +68,8 @@ export function getServerConfig(): AppConfig {
         devMode: bool(env.DEV_MODE),
         requestSignatureTtl: int(env.S3_REQUEST_SIGNATURE_TTL),
         realtime:
-            env.SOKETI_HOST && env.SOKETI_KEY
-                ? {host: env.SOKETI_HOST, key: env.SOKETI_KEY}
+            env.SOCKUDO_HOST && env.SOCKUDO_KEY
+                ? {host: env.SOCKUDO_HOST, key: env.SOCKUDO_KEY}
                 : undefined,
         notifications,
         analytics:

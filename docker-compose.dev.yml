@@ -259,10 +259,10 @@ services:
       - MATOMO_MEDIA_PLUGIN_ENABLED
       - PHRASEANET_APP_OAUTH_TOKEN
       - PHRASEANET_URL
-      - SOKETI_HOST=soketi.${PHRASEA_DOMAIN}
-      - SOKETI_APP_ID
-      - SOKETI_KEY
-      - SOKETI_SECRET
+      - SOCKUDO_HOST=sockudo.${PHRASEA_DOMAIN}
+      - SOCKUDO_APP_ID
+      - SOCKUDO_KEY
+      - SOCKUDO_SECRET
       - KC_REALM_SUPPORTED_LOCALES
       - KC_REALM_DEFAULT_LOCALE
       - KC_REALM_HTML_DISPLAY_NAME
@@ -298,7 +298,7 @@ services:
       - api-expose.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - phraseanet.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - soketi.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - sockudo.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   configurator:
     volumes:

@@ -25,7 +25,7 @@ final class InAppChannelPushTest extends TestCase
         $subscriber = new Subscriber($userId);
 
         // The pushed payload is dispatched (non-direct) as a PusherMessage on
-        // the bus; capture it there to inspect what would be sent to Soketi.
+        // the bus; capture it there to inspect what would be sent to Sockudo.
         $captured = null;
         $bus = $this->createMock(MessageBusInterface::class);
         $bus->method('dispatch')->willReturnCallback(

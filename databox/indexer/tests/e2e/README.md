@@ -72,7 +72,7 @@ moves the fixtures and the expectations together.
 ## Requirements
 
 - The stack must be running: `db`, `elasticsearch`, `keycloak`, `redis`,
-  `databox-api-php`, `databox-api-nginx`, plus `soketi` and `traefik` in
+  `databox-api-php`, `databox-api-nginx`, plus `sockudo` and `traefik` in
   `APP_ENV=dev`. The script checks and names the missing ones.
 - The databox schema must be up to date
   (`docker compose exec databox-api-php su app -c "bin/console doctrine:migrations:migrate"`).
@@ -80,10 +80,10 @@ moves the fixtures and the expectations together.
   `databox-indexer` Keycloak client the suite authenticates with.
 - Elasticsearch is needed both because the assertions read through it and
   because, in `APP_ENV=dev`, the Messenger transports are synchronous and
-  deleting the workspace at cleanup reindexes. For the same reason `soketi`
+  deleting the workspace at cleanup reindexes. For the same reason `sockudo`
   must be up in dev — the websocket broadcast that follows `POST /assets` runs
   inside the request — and `traefik` with it, since the Pusher client reaches
-  soketi through its public URL.
+  sockudo through its public URL.
 - `redis` backs the Symfony cache. Without it every request spends 30s failing
   to reach it, which trips the indexer's own 30s timeout. That is why the
   script refuses to start without it rather than letting the indexation fail

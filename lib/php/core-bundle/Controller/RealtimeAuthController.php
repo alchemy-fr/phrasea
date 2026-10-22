@@ -15,12 +15,12 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Pusher/Soketi channel-authorization endpoint for private per-user channels.
+ * Pusher/Sockudo channel-authorization endpoint for private per-user channels.
  *
  * The client (pusher-js) posts the connection socket id and the channel it
  * wants to subscribe to; we authenticate the user, ensure the requested channel
  * is their OWN private channel (`{prefix}{userIdentifier}`), and return the
- * signed auth token so Soketi lets the subscription through. This is what makes
+ * signed auth token so Sockudo lets the subscription through. This is what makes
  * per-user channels (e.g. in-app notifications) actually private.
  */
 #[AsController]

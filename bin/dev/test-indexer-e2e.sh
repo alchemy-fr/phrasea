@@ -91,11 +91,11 @@ APP_DIR="/srv/workspace/phrasea/databox/indexer"
 # axios timeout and fails the indexation halfway through.
 REQUIRED_SERVICES=(db elasticsearch keycloak redis databox-api-php databox-api-nginx)
 # In APP_ENV=dev every Messenger transport is sync://, so the websocket
-# broadcast that follows POST /assets runs inside the request: a missing soketi
+# broadcast that follows POST /assets runs inside the request: a missing sockudo
 # turns into a 500, and so does a missing traefik, since the Pusher client
-# reaches soketi through its public URL.
+# reaches sockudo through its public URL.
 if [ "${APP_ENV:-prod}" = "dev" ]; then
-    REQUIRED_SERVICES+=(soketi traefik)
+    REQUIRED_SERVICES+=(sockudo traefik)
 fi
 
 RUNNING="$(docker compose ps --services --status running 2>/dev/null || true)"

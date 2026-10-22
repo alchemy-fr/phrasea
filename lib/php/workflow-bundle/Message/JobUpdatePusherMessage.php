@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Alchemy\WorkflowBundle\Message;
 
 /**
- * Real-time "job_update" notification, pushed to Soketi/Pusher by
+ * Real-time "job_update" notification, pushed to Sockudo/Pusher by
  * JobUpdatePusherHandler. Route it to an async transport so that a slow or
  * unreachable Pusher host never blocks (or fails) the workflow job itself.
  */

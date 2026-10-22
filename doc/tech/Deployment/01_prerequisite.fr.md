@@ -118,8 +118,8 @@ Pour le contexte **Kubernetes**, consultez [values.yaml](https://github.com/alch
     - [Version et configuration](../Configuration/01_env_var.mdx#rabbitmq-message-broker-settings)
 - **Elasticsearch** – moteur de recherche et d’analyse distribué.
     - [Version et configuration](../Configuration/01_env_var.mdx#elasticsearch-settings)
-- **Soketi** – serveur WebSocket.
-    - [Version et configuration](../Configuration/01_env_var.mdx#soketi-websocket-server-settings)
+- **Sockudo** – serveur WebSocket.
+    - [Version et configuration](../Configuration/01_env_var.mdx#sockudo-websocket-server-settings)
 
 #### Outils additionnels utiles pour le développement et les tests de la stack :
 

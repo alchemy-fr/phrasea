@@ -1,10 +1,10 @@
 parameters:
-    env(SOKETI_HOST): ''
-    env(SOKETI_PORT): ''
-    env(SOKETI_SCHEME): ''
-    env(SOKETI_APP_ID): ''
-    env(SOKETI_KEY): ''
-    env(SOKETI_SECRET): ''
+    env(SOCKUDO_HOST): ''
+    env(SOCKUDO_PORT): ''
+    env(SOCKUDO_SCHEME): ''
+    env(SOCKUDO_APP_ID): ''
+    env(SOCKUDO_KEY): ''
+    env(SOCKUDO_SECRET): ''
 
 services:
     _defaults:
@@ -13,7 +13,7 @@ services:
 
     Alchemy\CoreBundle\Pusher\PusherManager: ~
 
-    # Pusher/Soketi private-channel authorization endpoint (POST /pusher/auth).
+    # Pusher/Sockudo private-channel authorization endpoint (POST /pusher/auth).
     # Registered only when Pusher is enabled, so PusherManager is guaranteed.
     Alchemy\CoreBundle\Controller\RealtimeAuthController:
         arguments:

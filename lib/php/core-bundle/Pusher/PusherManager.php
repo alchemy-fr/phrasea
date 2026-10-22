@@ -29,7 +29,7 @@ final readonly class PusherManager
     }
 
     /**
-     * Returns the Pusher/Soketi authorization signature for a private (or
+     * Returns the Pusher/Sockudo authorization signature for a private (or
      * presence) channel subscription. The caller is responsible for verifying
      * that the current user is actually allowed to subscribe to $channel.
      */

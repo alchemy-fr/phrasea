@@ -112,14 +112,14 @@ services:
       - CONFIGURATOR_S3_USE_PATH_STYLE_ENDPOINT=${S3_USE_PATH_STYLE_ENDPOINT}
       - S3_MAX_OBJECT_SIZE
       - NOTIFICATIONS_ENABLED
-      - SOKETI_KEY
+      - SOCKUDO_KEY
       # Carries the public HTTPS port, which is not 443 on every stack (CI).
-      - SOKETI_HOST=soketi.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
+      - SOCKUDO_HOST=sockudo.${PHRASEA_DOMAIN}${HTTPS_PORT_PREFIX}
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
     extra_hosts:
-      - soketi.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - sockudo.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   a_api-php:
@@ -180,14 +180,14 @@ services:
       - MATOMO_SITE_ID
       - MATOMO_MEDIA_PLUGIN_ENABLED
       - MATOMO_AUTH_TOKEN
-      - SOKETI_HOST=soketi.${PHRASEA_DOMAIN}
-      - SOKETI_APP_ID
-      - SOKETI_KEY
-      - SOKETI_SECRET
+      - SOCKUDO_HOST=sockudo.${PHRASEA_DOMAIN}
+      - SOCKUDO_APP_ID
+      - SOCKUDO_KEY
+      - SOCKUDO_SECRET
     extra_hosts:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - minio.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - soketi.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - sockudo.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
   a_s3-php:
     logging: *default-logging
@@ -704,7 +704,7 @@ services:
       - SENTRY_ENVIRONMENT
       - SENTRY_RELEASE
       - CLIENT_ID=${DASHBOARD_CLIENT_ID}
-      - SOKETI_USAGE_URL
+      - SOCKUDO_USAGE_URL
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
@@ -752,12 +752,12 @@ services:
       - PWI_UPLOADER_API_URL=${UPLOADER_API_URL}
       # Reached directly on the internal network: going through Traefik would
       # need the public HTTPS port, which is not 443 on every stack (CI).
-      - SOKETI_HOST=soketi
-      - SOKETI_PORT=6001
-      - SOKETI_SCHEME=http
-      - SOKETI_APP_ID
-      - SOKETI_KEY
-      - SOKETI_SECRET
+      - SOCKUDO_HOST=sockudo
+      - SOCKUDO_PORT=6001
+      - SOCKUDO_SCHEME=http
+      - SOCKUDO_APP_ID
+      - SOCKUDO_KEY
+      - SOCKUDO_SECRET
       - DB_NAME=${DATABOX_DB_NAME}
       - PWI_DATABOX_EXPOSE_INTEGRATION_CLIENT_ID=${DATABOX_EXPOSE_INTEGRATION_CLIENT_ID}
       - API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE=${DATABOX_API_ASSET_OWNER_PROPERTY_REQUIRED_ROLE}
@@ -1236,29 +1236,42 @@ services:
       - keycloak.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
       - api-databox.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
-      - soketi.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
+      - sockudo.${PHRASEA_DOMAIN}:${PS_GATEWAY_IP}
 
-  soketi:
+  sockudo:
     logging: *default-logging
     profiles:
-      - soketi
-    image: ${SOKETI_IMAGE}
+      - sockudo
+    image: ${SOCKUDO_IMAGE}
     networks:
       - internal
     environment:
-      - SOKETI_DEFAULT_APP_ID=${SOKETI_APP_ID}
-      - SOKETI_DEFAULT_APP_KEY=${SOKETI_KEY}
-      - SOKETI_DEFAULT_APP_SECRET=${SOKETI_SECRET}
-      - SOKETI_DEFAULT_APP_MAX_CONNS=100
+      - SOCKUDO_DEFAULT_APP_ID=${SOCKUDO_APP_ID}
+      - SOCKUDO_DEFAULT_APP_KEY=${SOCKUDO_KEY}
+      - SOCKUDO_DEFAULT_APP_SECRET=${SOCKUDO_SECRET}
+      - SOCKUDO_DEFAULT_APP_MAX_CONNECTIONS=100
+      # Single node: explicit drivers rather than the example config bundled
+      # in the image.
+      - ADAPTER_DRIVER=local
+      - CACHE_DRIVER=memory
+      - QUEUE_DRIVER=memory
+      - APP_MANAGER_DRIVER=memory
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:6001/up/${SOCKUDO_APP_ID}"]
+      interval: 5s
+      timeout: 3s
+      start_period: 10s
+      retries: 5
     labels:
       - "traefik.enable=true"
       - "traefik.project_name=${COMPOSE_PROJECT_NAME}"
-      - "traefik.http.routers.soketi.rule=Host(`soketi.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.soketi.service=soketi"
-      - "traefik.http.services.soketi.loadbalancer.server.port=6001"
-      - "traefik.http.routers.soketi-usage.rule=Host(`soketi-usage.${PHRASEA_DOMAIN}`)"
-      - "traefik.http.routers.soketi-usage.service=soketi-usage"
-      - "traefik.http.services.soketi-usage.loadbalancer.server.port=9601"
+      # /usage, /stats and /operator are served on the app port: only /usage
+      # is exposed, on its own host.
+      - "traefik.http.routers.sockudo.rule=Host(`sockudo.${PHRASEA_DOMAIN}`) && !PathPrefix(`/usage`) && !PathPrefix(`/stats`) && !PathPrefix(`/operator`)"
+      - "traefik.http.routers.sockudo.service=sockudo"
+      - "traefik.http.routers.sockudo-usage.rule=Host(`sockudo-usage.${PHRASEA_DOMAIN}`) && Path(`/usage`)"
+      - "traefik.http.routers.sockudo-usage.service=sockudo"
+      - "traefik.http.services.sockudo.loadbalancer.server.port=6001"
 
 volumes:
   db:

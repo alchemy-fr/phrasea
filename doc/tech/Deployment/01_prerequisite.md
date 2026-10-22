@@ -118,8 +118,8 @@ For the **Kubernetes** context, refer to [values.yaml](https://github.com/alchem
     - [Version and Setting](../Configuration/01_env_var.mdx#rabbitmq-message-broker-settings)
 - **Elasticsearch** – distributed search and analytics engine.
     - [Version and Setting](../Configuration/01_env_var.mdx#elasticsearch-settings)
-- **Soketi** – WebSocket server.
-    - [Version and Setting](../Configuration/01_env_var.mdx#soketi-websocket-server-settings)
+- **Sockudo** – WebSocket server.
+    - [Version and Setting](../Configuration/01_env_var.mdx#sockudo-websocket-server-settings)
 
 #### Additional tools useful for development and stack testing:
 

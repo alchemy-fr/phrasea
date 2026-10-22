@@ -43,7 +43,7 @@ baked at build time.
 | `DATABOX_CLIENT_URL` | Public URL of this client |
 | `KEYCLOAK_URL`, `KEYCLOAK_REALM_NAME`, `CLIENT_ID` | OpenID Connect settings |
 | `AUTO_CONNECT_IDP` | Optional IdP hint |
-| `SOKETI_HOST`, `SOKETI_KEY`, `NOTIFICATIONS_ENABLED` | Realtime |
+| `SOCKUDO_HOST`, `SOCKUDO_KEY`, `NOTIFICATIONS_ENABLED` | Realtime |
 | `S3_MULTIPART_*`, `S3_MAX_OBJECT_SIZE`, `ALLOWED_FILE_TYPES` | Uploads |
 | `DASHBOARD_CLIENT_URL`, `DISPLAY_SERVICES_MENU` | Services menu |
 | `MATOMO_URL`, `MATOMO_SITE_ID`, `MATOMO_MEDIA_PLUGIN_ENABLED`, `MATOMO_DISABLE_COOKIES` | Matomo analytics (see `doc/tech/Databox/analytics.md`) |
@@ -189,7 +189,7 @@ Implemented:
   display options as the results, manage, integrations), share links & embed,
   ACL editor with inherited permissions, display profiles (organize + grid
   card editor), workflows view, operation tasks, discussion
-  with mentions, notifications & realtime (Soketi/Pusher), preferences
+  with mentions, notifications & realtime (Sockudo/Pusher), preferences
   (theme, UI & data locale), keyboard shortcuts, runtime configuration.
 - Themes: light / dark / system appearance, ten presets (palette, Google
   font, radius, tracking, each with a dark alternative), and the organisation

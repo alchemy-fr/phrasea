@@ -39,7 +39,7 @@ env:
   DOCKER_TAG: ${{ github.sha }}
   IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
   VERIFY_SSL: "false"
-  COMPOSE_PROFILES: databox,expose,uploader,db,rabbitmq,redis,minio,mailpit,elasticsearch,dashboard,soketi
+  COMPOSE_PROFILES: databox,expose,uploader,db,rabbitmq,redis,minio,mailpit,elasticsearch,dashboard,sockudo
   # The Keycloak and report-api images are not built here and are never pulled
   # by the CI: the stack runs without them, so the tests that log in through
   # Keycloak (Cypress, indexer end-to-end) are not run.

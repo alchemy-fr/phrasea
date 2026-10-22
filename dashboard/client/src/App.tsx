@@ -33,7 +33,7 @@ export default function App({}: Props) {
         PHPMYADMIN_URL,
         RABBITMQ_CONSOLE_URL,
         TRAEFIK_CONSOLE_URL,
-        SOKETI_USAGE_URL,
+        SOCKUDO_USAGE_URL,
     } = config.env;
 
     const roles = user?.roles ?? [];
@@ -219,14 +219,14 @@ export default function App({}: Props) {
                             </Link>
                         </Grid>
                     )}
-                    {SOKETI_USAGE_URL && (
+                    {SOCKUDO_USAGE_URL && (
                         <Grid>
                             <Link
-                                href={SOKETI_USAGE_URL}
+                                href={SOCKUDO_USAGE_URL}
                                 target={'_blank'}
                                 rel={'noreferrer noopener'}
                             >
-                                Soketi Usage
+                                Sockudo Usage
                             </Link>
                         </Grid>
                     )}

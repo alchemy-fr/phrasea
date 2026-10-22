@@ -8,7 +8,7 @@ use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Tests\Functional\AbstractDataboxTestCase;
 
 /**
- * Functional coverage of the core Pusher/Soketi channel-authorization endpoint
+ * Functional coverage of the core Pusher/Sockudo channel-authorization endpoint
  * (POST /pusher/auth) that makes per-user channels private: a user may only
  * authorize their own `private-user-{sub}` channel (e.g. in-app notifications).
  */

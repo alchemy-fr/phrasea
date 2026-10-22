@@ -32,7 +32,7 @@ export TRAEFIK_HTTPS_PORT=4442
 export TRAEFIK_HTTP_PORT=8042
 export HTTPS_PORT_PREFIX=':4442'
 export VERIFY_SSL=false
-export COMPOSE_PROFILES=databox,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard,soketi
+export COMPOSE_PROFILES=databox,expose,uploader,db,rabbitmq,redis,minio,report,mailpit,elasticsearch,dashboard,sockudo
 export FIXTURES_GENERATE_IMAGES=true
 # The S3 minimum part size, so that the e2e uploads span several parts
 export S3_MULTIPART_MIN_CHUNK_SIZE=5242880

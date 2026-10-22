@@ -14,7 +14,7 @@ load-env
 pids=()
 docker compose build cypress & pids+=($!)
 docker compose up -d --wait expose-api-php --wait-timeout 200 & pids+=($!)
-docker compose up -d --wait databox-client databox-api-php soketi --wait-timeout 200 & pids+=($!)
+docker compose up -d --wait databox-client databox-api-php sockudo --wait-timeout 200 & pids+=($!)
 # A bare `wait` always returns 0: wait for each job to propagate its failure.
 for pid in "${pids[@]}"; do
     wait "$pid"

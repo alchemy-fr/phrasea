@@ -65,7 +65,7 @@ export type RealtimeNotification = {
 };
 
 /**
- * Subscribes to the real-time notification channel (e.g. Pusher/Soketi).
+ * Subscribes to the real-time notification channel (e.g. Pusher/Sockudo).
  * Returns an unsubscribe function.
  *
  * The signature matches the app-level `registerWs(channel, event, callback)`

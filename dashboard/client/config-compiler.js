@@ -46,7 +46,7 @@
         'TRAEFIK_CONSOLE_URL',
         'UPLOADER_API_URL',
         'UPLOADER_CLIENT_URL',
-        'SOKETI_USAGE_URL',
+        'SOCKUDO_USAGE_URL',
     ];
 
     const e = {};
