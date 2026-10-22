@@ -143,8 +143,7 @@ export function useEntityAssets({
                     .map(id => byId.get(id))
                     .filter((a): a is Asset => !!a),
                 next: attributes.next,
-                // Counts the values, an asset may hold several of them
-                total: undefined,
+                total: attributes.total,
             };
         },
         initialPageParam: undefined as string | undefined,

@@ -344,7 +344,12 @@ export function deleteAttributeEntity(id: string): Promise<void> {
     return api.delete(`/${EntityName.AttributeEntity}/${id}`);
 }
 
-/** The values of attribute definitions across the assets, newest assets first */
+/**
+ * The values of attribute definitions across the assets the user can read,
+ * newest assets first. The pages hold assets: `limit` is a number of assets,
+ * each page holds every matching value of its assets (possibly more than
+ * `limit` items), and `total` counts the assets.
+ */
 export async function getAttributesOfDefinition(
     options: {
         definition: string | string[];

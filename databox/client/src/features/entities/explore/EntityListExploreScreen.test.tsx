@@ -271,6 +271,12 @@ describe('EntityListExploreScreen', () => {
     });
 
     it('lists the pending values, previewed through their attributes', async () => {
+        // The total of the attributes counts their assets
+        api.getAttributesOfDefinition.mockResolvedValue({
+            total: 3,
+            items: [{id: 'attr-1', asset: '/assets/asset-9'}],
+            next: '/attributes?page=2',
+        });
         renderScreen();
         await screen.findAllByTestId('entity-value-card');
 
@@ -300,6 +306,9 @@ describe('EntityListExploreScreen', () => {
                 value: 'unknown-1',
             }),
             expect.anything()
+        );
+        expect(within(card).getByTestId('entity-value-more').textContent).toBe(
+            '+2'
         );
         // Not indexed: no search to open
         expect(

@@ -30,6 +30,11 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
      */
     public const int SUGGESTION_MAX_LENGTH = 300;
 
+    /**
+     * Longer values cannot be matched (kept in sync with the "ignore_above" of the mapping): not worth storing.
+     */
+    public const int VALUE_MAX_LENGTH = 512;
+
     public function __construct(
         private AssetPermissionComputer $assetPermissionComputer,
         private AttributeTypeRegistry $attributeTypeRegistry,
@@ -69,6 +74,9 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
 
         $suggestions = $this->compileSuggestions($attributeIndex);
         $document->set(AttributeInterface::SUGGESTIONS_FIELD, !empty($suggestions) ? $suggestions : null);
+
+        $values = $this->compileAttributeValues($asset);
+        $document->set(AttributeInterface::VALUES_FIELD, !empty($values) ? $values : null);
 
         // Not ready yet
         //        $storyAttrs = [];
@@ -175,6 +183,33 @@ final readonly class AssetPostTransformListener implements EventSubscriberInterf
         }
 
         return $data;
+    }
+
+    /**
+     * One entry per attribute row stored for the asset, whatever its origin or validity, with its raw
+     * value (an entity value is the entity ID, approved or not), for GET /attributes?definition=
+     * (see AttributeValueSearch). The fallback values computed on the fly have no row: they are left out.
+     *
+     * @return list<array{attributeId: string, definitionId: string, value?: string, origin: int}>
+     */
+    private function compileAttributeValues(Asset $asset): array
+    {
+        $values = [];
+        /** @var Attribute $attribute */
+        foreach ($this->em->getRepository(Attribute::class)->getCachedAssetAttributes($asset->getId()) as $attribute) {
+            $entry = [
+                'attributeId' => $attribute->getId(),
+                'definitionId' => $attribute->getDefinition()->getId(),
+                'origin' => $attribute->getOrigin(),
+            ];
+            $value = $attribute->getValue();
+            if (null !== $value && mb_strlen($value) <= self::VALUE_MAX_LENGTH) {
+                $entry['value'] = $value;
+            }
+            $values[] = $entry;
+        }
+
+        return $values;
     }
 
     /**

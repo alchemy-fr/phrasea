@@ -283,6 +283,15 @@ Do not rely on `app:search:validate` right after the switch: it may report
 `[OK]` on an empty index, because its stored index state describes the old
 cluster.
 
+The `asset` index also gets a new nested `attributeValues` field (every stored
+attribute value of the asset). `GET /attributes?definition=` reads it to apply
+the asset rights: until the `asset` index is repopulated, it returns no value.
+Any deployment already running a 5.0 pre-release needs the same rebuild:
+
+```bash
+bin/console fos:elastica:populate --index=asset
+```
+
 ## API changes (API Platform 5)
 
 These changes apply to the databox, expose and uploader APIs.

@@ -49,7 +49,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ),
                 'definition' => new QueryParameter(
                     schema: ['type' => 'string'],
-                    description: 'Attribute definition ID(s) or IRI(s): the values of these definitions across the assets (paginated, newest assets first); "asset" then becomes optional',
+                    description: 'Attribute definition ID(s) or IRI(s): the values of these definitions across the assets the user can read; "asset" then becomes optional. The pagination applies to the assets (newest first): each page holds every matching value of its assets, and "totalItems" counts the assets',
                 ),
                 'definition[]' => new QueryParameter(property: 'definition', openApi: false),
                 'value' => new QueryParameter(
@@ -64,7 +64,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ),
                 'limit' => new QueryParameter(
                     schema: ['type' => 'integer'],
-                    description: 'Page size (max 100), with "definition" only',
+                    description: 'Number of assets per page (max 100), with "definition" only',
                     castToArray: false,
                 ),
                 'page' => new QueryParameter(
