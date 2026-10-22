@@ -313,6 +313,19 @@ class Collection extends AbstractUuidEntity implements FollowableInterface, With
         $this->name = $name;
     }
 
+    /**
+     * Every translation of the name (all locales), indexed for the text search.
+     *
+     * @return list<string>
+     */
+    public function getTranslatedNames(): array
+    {
+        return array_values(array_filter(
+            $this->getFieldTranslations(self::TR_FIELD_NAME),
+            static fn (mixed $name): bool => \is_string($name) && '' !== $name,
+        ));
+    }
+
     public function getParent(): ?self
     {
         return $this->parent;

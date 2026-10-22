@@ -88,8 +88,7 @@ class CollectionOutputMapper implements OutputMapperInterface
             $output->displayName = $data->getTranslatedField(Collection::TR_FIELD_NAME, $preferredLocales, $data->getName());
         }
 
-        $highlights = $data->getElasticHighlights();
-        $output->nameHighlight = $highlights['name'][0] ?? null;
+        $output->nameHighlight = self::getNameHighlight($data->getElasticHighlights() ?? [], $output->displayName ?? $output->getName());
 
         $output->setPrivacy($data->getPrivacy());
         if ($this->hasGroup([
@@ -219,5 +218,21 @@ class CollectionOutputMapper implements OutputMapperInterface
         }
 
         return $path;
+    }
+
+    /**
+     * The highlight of the displayed name: the name may match through one of its translations.
+     */
+    private static function getNameHighlight(array $highlights, ?string $displayedName): ?string
+    {
+        if (null !== $displayedName) {
+            foreach ([...$highlights['name'] ?? [], ...$highlights['translatedNames'] ?? []] as $fragment) {
+                if (str_replace(['[hl]', '[/hl]'], '', $fragment) === $displayedName) {
+                    return $fragment;
+                }
+            }
+        }
+
+        return $highlights['name'][0] ?? null;
     }
 }

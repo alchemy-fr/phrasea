@@ -19,6 +19,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\InIdsFilter;
+use App\Api\Filter\TranslatedTextSearchFilter;
 use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Model\Output\WorkspaceOutput;
 use App\Api\Processor\DeleteWorkspaceLogoProcessor;
@@ -109,6 +110,14 @@ use Symfony\Component\Validator\Constraints as Assert;
                     filter: new PartialSearchFilter(),
                     property: 'name',
                     schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
+                ),
+                'query' => new QueryParameter(
+                    filter: new TranslatedTextSearchFilter(),
+                    properties: ['name'],
+                    schema: ['type' => 'string'],
+                    description: 'Contains match on the name or any translation of the name',
                     castToArray: false,
                     hydra: false,
                 ),

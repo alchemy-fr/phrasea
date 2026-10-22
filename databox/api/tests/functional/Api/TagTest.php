@@ -139,6 +139,42 @@ class TagTest extends AbstractSearchTestCase
         $this->assertResponseStatusCodeSame(403);
     }
 
+    /**
+     * The search-as-you-type also matches any translation of the name, within the readable workspaces.
+     */
+    public function testSearchAsYouTypeMatchesTheNameTranslations(): void
+    {
+        $client = static::createClient();
+        $em = self::getEntityManager();
+        $workspace = $this->createWorkspace(['ownerId' => KeycloakClientTestMock::USER_UID]);
+        $foreignWorkspace = $this->createWorkspace(['ownerId' => KeycloakClientTestMock::ADMIN_UID, 'slug' => 'foreign']);
+        $translated = $this->findOrCreateTagByName('Caption', $workspace);
+        $translated->setTranslations(['name' => ['fr' => 'Légende', 'de' => 'Bildunterschrift']]);
+        $foreign = $this->findOrCreateTagByName('Foreign caption', $foreignWorkspace);
+        $foreign->setTranslations(['name' => ['fr' => 'Légende étrangère']]);
+        $emptied = $this->findOrCreateTagByName('Emptied', $workspace);
+        $emptied->setTranslations(['name' => ['fr' => '']]);
+        $em->flush();
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('tag');
+
+        $search = static function (string $userId, string $query) use ($client): array {
+            $response = $client->request('GET', '/tags', [
+                'query' => ['query' => $query],
+                'headers' => ['Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor($userId)],
+            ]);
+            self::assertResponseIsSuccessful();
+
+            return array_column($response->toArray()['member'], 'name');
+        };
+
+        foreach (['Lég', 'légende', 'Bildun', 'Capt'] as $query) {
+            $this->assertSame(['Caption'], $search(KeycloakClientTestMock::USER_UID, $query), $query);
+        }
+        $this->assertSame(['Emptied'], $search(KeycloakClientTestMock::USER_UID, 'Empt'));
+        $this->assertEqualsCanonicalizing(['Caption', 'Foreign caption'], $search(KeycloakClientTestMock::ADMIN_UID, 'Lég'));
+    }
+
     public function testSearchAsYouTypeLinksTheNextPage(): void
     {
         $client = static::createClient();

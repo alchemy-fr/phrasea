@@ -199,6 +199,47 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
         $this->assertSame(['Alpha photos', 'Mike Photos', 'Zulu photos'], $listNames(['name' => 'PHOTO']));
     }
 
+    /**
+     * "query" matches the name or any translation of it (whatever its locale, never the locale
+     * itself), within the visible workspaces; "name" stays a match on the name only.
+     */
+    public function testListIsSearchedByTranslatedNames(): void
+    {
+        $this->createWs('photos-ws', [
+            'name' => 'Photos',
+            'ownerId' => self::USER,
+            'translations' => ['name' => ['fr' => 'Clichés', 'de' => 'Aufnahmen']],
+        ]);
+        $this->createWs('emptied-ws', [
+            'name' => 'Emptied',
+            'ownerId' => self::USER,
+            'translations' => ['name' => ['fr' => '']],
+        ]);
+        $this->createWs('videos-ws', ['name' => 'Videos', 'ownerId' => self::USER]);
+        $this->createWs('private-ws', [
+            'name' => 'Private',
+            'translations' => ['name' => ['fr' => 'Clichés privés']],
+        ]);
+
+        $listNames = static function (array $query): array {
+            $response = static::createClient()->request('GET', '/workspaces', [
+                'headers' => self::authHeaders(self::USER),
+                'query' => $query,
+            ]);
+            self::assertResponseIsSuccessful();
+
+            return array_column($response->toArray()['member'], 'name');
+        };
+
+        foreach (['clichés', 'Clichés', 'ichés', 'AUFNAHME', 'phot'] as $query) {
+            $this->assertSame(['Photos'], $listNames(['query' => $query]), $query);
+        }
+        $this->assertSame([], $listNames(['query' => 'fr']));
+        $this->assertSame(['Emptied'], $listNames(['query' => 'empt']));
+        $this->assertSame(['Videos'], $listNames(['query' => 'video']));
+        $this->assertSame([], $listNames(['name' => 'clichés']));
+    }
+
     public function testListIsResolvedByIds(): void
     {
         $owned = $this->createWs('owned-ws', ['name' => 'Owned', 'ownerId' => self::USER]);

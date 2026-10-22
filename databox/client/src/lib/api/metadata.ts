@@ -28,7 +28,7 @@ export type AttributeDefinitionListOptions = {
     workspaceId?: string;
     ids?: string[];
     slugs?: string[];
-    /** Contains match on the name or the slug */
+    /** Contains match on the name, the slug or any translation of the name */
     query?: string;
     type?: string | null;
     searchable?: boolean;

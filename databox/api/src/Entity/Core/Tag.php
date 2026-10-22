@@ -53,9 +53,9 @@ use Symfony\Component\Validator\Constraints\Length;
                 ),
                 'workspace[]' => new QueryParameter(property: 'workspace', openApi: false),
                 'query' => new QueryParameter(
-                    filter: new SuggestQueryFilter(),
+                    filter: new SuggestQueryFilter(additionalFields: ['translatedNames']),
                     schema: ['type' => 'string'],
-                    description: 'Search-as-you-type on the name (switches the search to Elasticsearch)',
+                    description: 'Search-as-you-type on the name or any of its translations (switches the search to Elasticsearch)',
                     extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'name'],
                     castToArray: false,
                 ),
@@ -146,6 +146,19 @@ class Tag extends AbstractUuidEntity implements TranslatableInterface, \Stringab
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    /**
+     * Every translation of the name (all locales), indexed for the text search.
+     *
+     * @return list<string>
+     */
+    public function getTranslatedNames(): array
+    {
+        return array_values(array_filter(
+            $this->getFieldTranslations(self::TR_FIELD_NAME),
+            static fn (mixed $name): bool => \is_string($name) && '' !== $name,
+        ));
     }
 
     public function __toString(): string

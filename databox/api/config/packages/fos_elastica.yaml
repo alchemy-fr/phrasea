@@ -255,6 +255,9 @@ fos_elastica:
                 name:
                     type: text
                     analyzer: text
+                translatedNames:
+                    type: text
+                    analyzer: text
                 suggestion:
                     property_path: name
                     type: text
@@ -427,6 +430,14 @@ fos_elastica:
                             max_shingle_size: 3
                         raw:
                             type: keyword
+                translatedNames:
+                    type: text
+                    analyzer: text
+                    fields:
+                        suggest:
+                            type: search_as_you_type
+                            doc_values: false
+                            max_shingle_size: 3
                 workspaceId:
                     type: keyword
             persistence:

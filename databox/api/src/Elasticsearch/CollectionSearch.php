@@ -56,6 +56,11 @@ class CollectionSearch extends AbstractSearch
                         'fragment_size' => 255,
                         'number_of_fragments' => 1,
                     ],
+                    // one fragment per matching translation, to pick the one of the displayed name
+                    'translatedNames' => [
+                        'fragment_size' => 255,
+                        'number_of_fragments' => 0,
+                    ],
                 ],
             ]);
         }
@@ -82,11 +87,11 @@ class CollectionSearch extends AbstractSearch
 
         if (!empty($parsed['should'])) {
             $searchBool = new Query\BoolQuery();
-            $searchBool->addShould(new Query\MatchQuery('name', $parsed['should']));
+            $searchBool->addShould(self::createNameMatch($parsed['should']));
             $boolQuery->addMust($searchBool);
         }
         foreach ($parsed['must'] as $must) {
-            $boolQuery->addMust(new Query\MatchQuery('name', $must));
+            $boolQuery->addMust(self::createNameMatch($must));
         }
 
         $includeDeleted = false;
@@ -141,6 +146,19 @@ class CollectionSearch extends AbstractSearch
                 new Query\Terms('workspaceId', $workspaceIds)
             );
         }
+    }
+
+    /**
+     * Matches the name or any of its translations.
+     */
+    private static function createNameMatch(string $text): Query\MultiMatch
+    {
+        $match = new Query\MultiMatch();
+        $match->setQuery($text);
+        $match->setType(Query\MultiMatch::TYPE_BEST_FIELDS);
+        $match->setFields(['name', 'translatedNames']);
+
+        return $match;
     }
 
     protected function getAdminScope(): ?string

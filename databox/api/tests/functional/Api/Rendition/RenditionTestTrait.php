@@ -84,6 +84,9 @@ trait RenditionTestTrait
         if (isset($options['key'])) {
             $definition->setKey($options['key']);
         }
+        if (isset($options['translations'])) {
+            $definition->setTranslations($options['translations']);
+        }
         $em->persist($definition);
         $em->flush();
 

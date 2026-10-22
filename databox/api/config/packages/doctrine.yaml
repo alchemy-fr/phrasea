@@ -29,6 +29,7 @@ doctrine:
             string_functions:
                 replace: App\Doctrine\Query\Replace
                 regexp_replace: App\Doctrine\Query\RegexpReplace
+                translation_values: App\Doctrine\Query\TranslationValues
                 CONTAINS: MartinGeorgiev\Doctrine\ORM\Query\AST\Functions\Contains # @>
                 IS_CONTAINED_BY: MartinGeorgiev\Doctrine\ORM\Query\AST\Functions\IsContainedBy # <@
 

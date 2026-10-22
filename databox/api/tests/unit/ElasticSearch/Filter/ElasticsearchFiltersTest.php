@@ -110,6 +110,26 @@ class ElasticsearchFiltersTest extends TestCase
         $this->assertEmpty((array) $this->apply(new SuggestQueryFilter(), $parameter, '  ')->bool->toArray()['bool']);
     }
 
+    public function testSuggestQueryFilterAlsoMatchesTheAdditionalFields(): void
+    {
+        $parameter = new QueryParameter(key: 'query', extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'name']);
+
+        $this->assertSame([
+            'bool' => ['must' => [['multi_match' => [
+                'query' => 'lég',
+                'type' => 'bool_prefix',
+                'fields' => [
+                    'name.suggest',
+                    'name.suggest._2gram',
+                    'name.suggest._3gram',
+                    'translatedNames.suggest',
+                    'translatedNames.suggest._2gram',
+                    'translatedNames.suggest._3gram',
+                ],
+            ]]]],
+        ], $this->apply(new SuggestQueryFilter(additionalFields: ['translatedNames']), $parameter, 'lég')->bool->toArray());
+    }
+
     private function apply(ElasticsearchFilterInterface $filter, QueryParameter $parameter, mixed $value): SearchQuery
     {
         $parameter->setValue($value);

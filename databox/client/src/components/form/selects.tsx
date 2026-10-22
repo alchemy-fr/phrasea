@@ -741,7 +741,7 @@ export function WorkspaceSelect({
         async (query: string, signal: AbortSignal, cursor?: string) =>
             comboPage(
                 await getWorkspaces(
-                    {name: query || undefined, url: cursor},
+                    {query: query || undefined, url: cursor},
                     signal
                 ),
                 workspaceOption

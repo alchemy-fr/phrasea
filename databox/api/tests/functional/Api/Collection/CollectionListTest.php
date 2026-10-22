@@ -340,6 +340,49 @@ final class CollectionListTest extends AbstractSearchTestCase
         $this->assertSame([], $this->listNames(self::OTHER, ['query' => 'holidays']));
     }
 
+    /**
+     * "query" also matches any translation of the name (accent-insensitive), and highlights the
+     * displayed name, which is the translation in the user locale.
+     */
+    public function testQuerySearchesTranslatedNames(): void
+    {
+        $workspace = $this->createTestWorkspace(['ownerId' => self::USER]);
+        $this->createCollection([
+            'workspace' => $workspace,
+            'name' => 'Caption',
+            'translations' => ['name' => ['fr' => 'Légende', 'de' => 'Bildunterschrift']],
+        ]);
+        $this->createCollection([
+            'workspace' => $workspace,
+            'name' => 'Emptied',
+            'translations' => ['name' => ['fr' => '']],
+        ]);
+        $this->createCollection(['workspace' => $workspace, 'name' => 'Work']);
+        $this->reindex();
+
+        $this->assertSame(['Caption'], $this->listNames(self::USER, ['query' => 'Légende']));
+        $this->assertSame(['Caption'], $this->listNames(self::USER, ['query' => 'legende']));
+        $this->assertSame(['Caption'], $this->listNames(self::USER, ['query' => 'bildunterschrift']));
+        $this->assertSame(['Emptied'], $this->listNames(self::USER, ['query' => 'emptied']));
+        $this->assertSame([], $this->listNames(self::USER, ['query' => 'fr']));
+        $this->assertSame([], $this->listNames(self::OTHER, ['query' => 'legende']));
+
+        $members = $this->request('GET', '/collections', self::USER, [
+            'query' => ['query' => 'legende'],
+            'headers' => ['X-Data-Locale' => 'fr'],
+        ])->toArray()['member'];
+        $this->assertSame('Légende', $members[0]['displayName']);
+        $this->assertSame('[hl]Légende[/hl]', $members[0]['nameHighlight']);
+
+        // The displayed name does not match: no highlight
+        $members = $this->request('GET', '/collections', self::USER, [
+            'query' => ['query' => 'legende'],
+            'headers' => ['X-Data-Locale' => 'en', 'Accept-Language' => 'en'],
+        ])->toArray()['member'];
+        $this->assertSame('Caption', $members[0]['displayName']);
+        $this->assertArrayNotHasKey('nameHighlight', $members[0]);
+    }
+
     public function testTrashedCollectionsAreListedInTrashOnly(): void
     {
         $workspace = $this->createTestWorkspace(['ownerId' => self::USER]);

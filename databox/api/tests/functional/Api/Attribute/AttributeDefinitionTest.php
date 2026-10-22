@@ -223,6 +223,51 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
         ]));
     }
 
+    /**
+     * "query" also matches any translation of the name, whatever its locale, but never the locale itself.
+     */
+    public function testQueryMatchesTheNameTranslations(): void
+    {
+        $this->setUpScene();
+        $caption = $this->createAttributeDefinition([
+            'name' => 'Caption',
+            'translations' => ['name' => ['fr' => 'Légende', 'de' => 'Bildunterschrift']],
+        ]);
+        // Stored as `"name": []` once the empty translation is dropped
+        $emptied = $this->createAttributeDefinition([
+            'name' => 'Emptied',
+            'translations' => ['name' => ['fr' => '']],
+        ]);
+        $this->assertSame(['name' => []], $emptied->getTranslations());
+        $untranslated = $this->createAttributeDefinition(['name' => 'Untranslated']);
+        $foreignWorkspace = $this->createOtherWorkspace();
+        $this->createAttributeDefinition([
+            'name' => 'Foreign caption',
+            'workspace' => $foreignWorkspace,
+            'policy' => $this->createAttributePolicy(['name' => 'Foreign', 'workspace' => $foreignWorkspace]),
+            'translations' => ['name' => ['fr' => 'Légende étrangère']],
+        ]);
+
+        $listIds = function (array $query): array {
+            $response = $this->api('GET', '/attribute-definitions', self::USER, options: ['query' => $query]);
+            $this->assertResponseStatusCodeSame(200);
+
+            return array_column($response->toArray()['member'], 'id');
+        };
+
+        foreach (['légende', 'Légende', 'gende', 'bildunter', 'CAPT'] as $query) {
+            $this->assertSame([$caption->getId()], $listIds(['query' => $query]), $query);
+        }
+        // Locales are not searched, nor a match spanning two translations
+        $this->assertSame([], $listIds(['query' => 'fr']));
+        $this->assertSame([], $listIds(['query' => 'gendebild']));
+        // The name and the slug are still searched
+        $this->assertSame([$emptied->getId()], $listIds(['query' => 'emptie']));
+        $this->assertSame([$untranslated->getId()], $listIds(['query' => 'untranslated']));
+        // "name" stays a match on the name only
+        $this->assertSame([], $listIds(['name' => 'légende']));
+    }
+
     public function testListIsOrderedByWorkspaceThenPositionThenName(): void
     {
         $this->setUpScene();

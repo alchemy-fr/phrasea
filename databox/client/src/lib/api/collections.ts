@@ -111,8 +111,8 @@ export async function getWorkspaces(
         url,
         ...params
     }: {
-        /** Contains match on the name */
-        name?: string;
+        /** Contains match on the name or any of its translations */
+        query?: string;
         ids?: string[];
         limit?: number;
         url?: string;

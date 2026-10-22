@@ -21,6 +21,7 @@ use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Filter\AssetTypeTargetFilter;
 use App\Api\Filter\InIdsFilter;
+use App\Api\Filter\TranslatedTextSearchFilter;
 use App\Api\Model\Input\RenditionDefinitionInput;
 use App\Api\Model\Output\RenditionDefinitionOutput;
 use App\Api\Processor\DuplicateRenditionDefinitionProcessor;
@@ -74,6 +75,14 @@ use Symfony\Component\Validator\Constraints as Assert;
                     filter: new PartialSearchFilter(),
                     property: 'name',
                     schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
+                ),
+                'query' => new QueryParameter(
+                    filter: new TranslatedTextSearchFilter(),
+                    properties: ['name'],
+                    schema: ['type' => 'string'],
+                    description: 'Contains match on the name or any translation of the name',
                     castToArray: false,
                     hydra: false,
                 ),

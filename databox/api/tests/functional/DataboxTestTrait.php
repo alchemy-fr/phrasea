@@ -112,6 +112,7 @@ trait DataboxTestTrait
         $collection->setWorkspace($options['workspace'] ?? $this->getOrCreateDefaultWorkspace());
         $collection->setName($options['name'] ?? null);
         $collection->setOwnerId($options['ownerId'] ?? 'custom_owner');
+        $collection->setTranslations($options['translations'] ?? null);
 
         if ($options['public'] ?? false) {
             $collection->setPrivacy(WorkspaceItemPrivacyInterface::PUBLIC);
@@ -180,6 +181,7 @@ trait DataboxTestTrait
         $definition->setEntityList($options['list'] ?? null);
         $definition->setFallback($options['fallback'] ?? null);
         $definition->setAllowInvalid($options['allow_invalid'] ?? false);
+        $definition->setTranslations($options['translations'] ?? null);
 
         $em->persist($definition);
         if (!($options['no_flush'] ?? false)) {

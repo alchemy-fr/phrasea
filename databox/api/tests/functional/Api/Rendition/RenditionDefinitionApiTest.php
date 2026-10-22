@@ -108,6 +108,36 @@ YAML;
         $this->assertSame(6, $byWorkspace->toArray()['totalItems']);
     }
 
+    /**
+     * "query" matches the name or any translation of it (whatever its locale, never the locale
+     * itself); "name" stays a match on the name only.
+     */
+    public function testListIsSearchedByTranslatedNames(): void
+    {
+        [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);
+        [$wsB, $defaultsB] = $this->createWorkspaceWithDefaults('ws-b', 'someone-else');
+        $square = $this->createRenditionDefinition($ws, $defaults->renditionPolicy, 'Square', [
+            'translations' => ['name' => ['fr' => 'Carré', 'de' => 'Quadrat']],
+        ]);
+        $emptied = $this->createRenditionDefinition($ws, $defaults->renditionPolicy, 'Emptied', [
+            'translations' => ['name' => ['fr' => '']],
+        ]);
+        $this->createRenditionDefinition($wsB, $defaultsB->renditionPolicy, 'Foreign square', [
+            'translations' => ['name' => ['fr' => 'Carré étranger']],
+        ]);
+
+        $search = fn (array $query): array => $this->memberIds($this->jsonRequest('GET', '/rendition-definitions', self::EDITOR, options: [
+            'query' => $query,
+        ]));
+
+        foreach (['carré', 'Carré', 'arré', 'QUADR', 'squa'] as $query) {
+            $this->assertSame([$square->getId()], $search(['query' => $query]), $query);
+        }
+        $this->assertNotContains($square->getId(), $search(['query' => 'fr']));
+        $this->assertSame([$emptied->getId()], $search(['query' => 'emptie']));
+        $this->assertSame([], $search(['name' => 'carré']));
+    }
+
     public function testListIsOrderedByPriority(): void
     {
         [$ws, $defaults] = $this->createWorkspaceWithDefaults('ws-a', self::EDITOR);

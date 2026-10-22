@@ -10,8 +10,6 @@ use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\TrackBundle\LoggableChangeSetInterface;
 use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
-use ApiPlatform\Doctrine\Orm\Filter\FreeTextQueryFilter;
-use ApiPlatform\Doctrine\Orm\Filter\OrFilter;
 use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -24,6 +22,7 @@ use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Filter\AssetTypeTargetFilter;
 use App\Api\Filter\InIdsFilter;
+use App\Api\Filter\TranslatedTextSearchFilter;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
 use App\Api\Processor\DuplicateAttributeDefinitionProcessor;
@@ -121,10 +120,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                     hydra: false,
                 ),
                 'query' => new QueryParameter(
-                    filter: new FreeTextQueryFilter(new OrFilter(new PartialSearchFilter())),
+                    filter: new TranslatedTextSearchFilter(),
                     properties: ['name', 'slug'],
                     schema: ['type' => 'string'],
-                    description: 'Contains match on the name or the slug',
+                    description: 'Contains match on the name, the slug or any translation of the name',
                     castToArray: false,
                     hydra: false,
                 ),

@@ -94,7 +94,7 @@ export function useSearchSuggestions(
         queryKey: ['workspaces', 'suggest', workspacePrefix],
         queryFn: ({signal}) =>
             getWorkspaces(
-                {name: workspacePrefix || undefined, limit: 20},
+                {query: workspacePrefix || undefined, limit: 20},
                 signal
             ),
         enabled: workspacePrefix !== undefined,

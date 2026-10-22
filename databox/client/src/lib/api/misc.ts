@@ -253,20 +253,20 @@ export async function getRenditionDefinitions(
         /** Leaves out the definitions the asset policies hide on this asset */
         assetId?: string;
         target?: AssetType;
-        /** Contains match on the name */
+        /** Contains match on the name or any of its translations */
         query?: string;
         limit?: number;
         url?: string;
     },
     signal?: AbortSignal
 ): Promise<Page<RenditionDefinition>> {
-    const {url, query, ...params} = options;
+    const {url, ...params} = options;
 
     return toPage(
         await api.get<HydraCollection<RenditionDefinition>>(
             url ?? `/${EntityName.RenditionDefinition}`,
             {
-                params: url ? undefined : {...params, name: query},
+                params: url ? undefined : params,
                 signal,
             }
         )
