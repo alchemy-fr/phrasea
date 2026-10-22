@@ -77,7 +77,6 @@ App\Entity\Core\EntityList:
         workspace: '@w_fernhollow'
         name: IUCN conservation status
         withTranslations: true
-        withEmojis: true
         withColors: true
     fh_el_licence:
         workspace: '@w_fernhollow'
@@ -99,31 +98,26 @@ App\Entity\Core\AttributeEntity:
     fh_cs_lc (extends fh_tpl_cs):
         value: Least Concern (LC)
         translations: { fr: Préoccupation mineure (LC) }
-        emoji: '🟢'
         color: '#43A047'
         position: 0
     fh_cs_nt (extends fh_tpl_cs):
         value: Near Threatened (NT)
         translations: { fr: Quasi menacé (NT) }
-        emoji: '🟡'
         color: '#C0CA33'
         position: 1
     fh_cs_vu (extends fh_tpl_cs):
         value: Vulnerable (VU)
         translations: { fr: Vulnérable (VU) }
-        emoji: '🟠'
         color: '#FFA000'
         position: 2
     fh_cs_en (extends fh_tpl_cs):
         value: Endangered (EN)
         translations: { fr: En danger (EN) }
-        emoji: '🔴'
         color: '#E64A19'
         position: 3
     fh_cs_cr (extends fh_tpl_cs):
         value: Critically Endangered (CR)
         translations: { fr: En danger critique (CR) }
-        emoji: '⛔'
         color: '#B71C1C'
         position: 4
 

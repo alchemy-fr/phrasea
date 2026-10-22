@@ -136,7 +136,7 @@ collections owned by alice and bob, assets at every level of the tree.
 - **Assets**: specimens (scientific and common names of real species), field notebooks and
   accession records (PDF), 6 "Specimen record" stories (front, back and label views).
 - **Attributes**: Common name (title, translatable), Scientific name, Inventory number,
-  Family, Conservation status (IUCN, with emojis and colours) and Licence (entity lists),
+  Family, Conservation status (IUCN, with colours) and Licence (entity lists),
   Collected on, Collector, Collection site, City, Country, Accession date, Keywords, On
   display, Credit line, People (faces). **Curatorial** policy: Condition report, Insurance
   value.
@@ -229,6 +229,7 @@ fixtures.
   to its sub-collections), and an asset of privacy 2 or more is visible to every member of
   the workspace: to hide a branch from the members, keep its ancestors and its assets at
   privacy 0 or 1.
+- An entity list has emojis or colours, never both (`withEmojis` or `withColors`).
 - The permissions (`AccessControlEntry`) use the masks of `alchemy/acl-bundle`
   (`PermissionInterface`); `objectType` is a string (`workspace`, `collection`,
   `attribute_policy`, `rendition_policy`).
