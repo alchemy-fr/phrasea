@@ -121,6 +121,7 @@ final class EntityListTest extends AbstractDataboxTestCase
             '@type' => 'entity-list',
             'id' => $list->getId(),
             'name' => 'Colors',
+            'workspace' => ['id' => $this->workspace->getId()],
             'allowNewValues' => true,
             'approveNewValues' => false,
             'withEmojis' => false,

@@ -164,6 +164,12 @@ class EntityList extends AbstractUuidEntity implements LoggableChangeSetInterfac
     }
 
     #[Groups([self::GROUP_READ, self::GROUP_LIST])]
+    public function getWorkspace(): ?Workspace
+    {
+        return $this->workspace;
+    }
+
+    #[Groups([self::GROUP_READ, self::GROUP_LIST])]
     public function getDefinitions(): ?Collection
     {
         return $this->definitions;
