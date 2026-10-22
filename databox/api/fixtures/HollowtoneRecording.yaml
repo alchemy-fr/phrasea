@@ -1,0 +1,708 @@
+# Hollowtone Recording: recording studio. Music productions (albums, music videos), recording
+# sessions, voice-overs and jingles for clients, masters reserved to the label. It holds all the
+# audio and the video of the fixtures.
+# Personas: alice = studio manager, bob = sound engineer, carol = client (a label),
+# dave = archivist.
+# See doc/tech/Databox/fixtures.md
+
+App\Entity\Core\Workspace:
+    w_hollowtone:
+        __factory: { '@App\Fixture\WorkspaceFactory::create': ['<keycloakUser("phrasea-admin", ["phrasea-admin"])>'] }
+        name: Hollowtone Recording
+        slug: hollowtone-recording
+        enabledLocales: [en, fr]
+        translations:
+            name:
+                fr: Studios d'enregistrement Hollowtone
+
+App\Entity\Core\AttributePolicy:
+    # "Public" policy created by WorkspaceFactory
+    ht_ap_public:
+        __factory: { '@App\Fixture\WorkspaceFactory::getAttributePolicy': ['@w_hollowtone'] }
+    ht_ap_label:
+        workspace: '@w_hollowtone'
+        name: Label
+        public: false
+        editable: false
+
+App\Entity\Core\RenditionPolicy:
+    # "Public" policy created by WorkspaceFactory
+    ht_rp_public:
+        __factory: { '@App\Fixture\WorkspaceFactory::getRenditionPolicy': ['@w_hollowtone'] }
+    ht_rp_masters:
+        workspace: '@w_hollowtone'
+        name: Masters
+        public: false
+        editable: false
+
+App\Entity\Core\RenditionDefinition:
+    # Definitions created by WorkspaceFactory
+    ht_rd_{main, preview, thumbnail, animatedThumbnail}:
+        __factory: { '@App\Fixture\WorkspaceFactory::getRenditionDefinition': ['@w_hollowtone', '<current()>'] }
+    ht_rd_master:
+        workspace: '@w_hollowtone'
+        name: Master
+        policy: '@ht_rp_masters'
+        parent: '@ht_rd_main'
+        buildMode: 1
+        translations: { name: { fr: Master } }
+
+App\Entity\Core\EntityList:
+    ht_el_genre:
+        workspace: '@w_hollowtone'
+        name: Genre
+        withTranslations: true
+    ht_el_instrument:
+        workspace: '@w_hollowtone'
+        name: Instrument
+        withTranslations: true
+    ht_el_client:
+        workspace: '@w_hollowtone'
+        name: Client
+    ht_el_people:
+        workspace: '@w_hollowtone'
+        name: People
+
+App\Entity\Core\AttributeEntity:
+    ht_tpl_genre (template):
+        list: '@ht_el_genre'
+        workspace: '@w_hollowtone'
+    ht_genre_rock (extends ht_tpl_genre): { value: Rock, translations: { fr: Rock } }
+    ht_genre_jazz (extends ht_tpl_genre): { value: Jazz, translations: { fr: Jazz } }
+    ht_genre_electronic (extends ht_tpl_genre): { value: Electronic, translations: { fr: Électronique } }
+    ht_genre_folk (extends ht_tpl_genre): { value: Folk, translations: { fr: Folk } }
+    ht_genre_hiphop (extends ht_tpl_genre): { value: Hip-hop, translations: { fr: Hip-hop } }
+    ht_genre_classical (extends ht_tpl_genre): { value: Classical, translations: { fr: Classique } }
+    ht_genre_spokenword (extends ht_tpl_genre): { value: Spoken word, translations: { fr: Voix parlée } }
+
+    ht_tpl_instrument (template):
+        list: '@ht_el_instrument'
+        workspace: '@w_hollowtone'
+    ht_instrument_vocals (extends ht_tpl_instrument): { value: Vocals, translations: { fr: Chant } }
+    ht_instrument_guitar (extends ht_tpl_instrument): { value: Guitar, translations: { fr: Guitare } }
+    ht_instrument_bass (extends ht_tpl_instrument): { value: Bass, translations: { fr: Basse } }
+    ht_instrument_drums (extends ht_tpl_instrument): { value: Drums, translations: { fr: Batterie } }
+    ht_instrument_piano (extends ht_tpl_instrument): { value: Piano, translations: { fr: Piano } }
+    ht_instrument_synth (extends ht_tpl_instrument): { value: Synth, translations: { fr: Synthétiseur } }
+    ht_instrument_strings (extends ht_tpl_instrument): { value: Strings, translations: { fr: Cordes } }
+    ht_instrument_brass (extends ht_tpl_instrument): { value: Brass, translations: { fr: Cuivres } }
+
+    # The artist of each album (ht_client_artist<n> = album n), the labels and the clients of
+    # the voice-overs (an advertising agency and a radio)
+    ht_tpl_client (template):
+        list: '@ht_el_client'
+        workspace: '@w_hollowtone'
+    ht_client_artist{1..4} (extends ht_tpl_client): { value: '<studioArtist(<current()>)>' }
+    ht_client_northlight (extends ht_tpl_client): { value: Northlight Records }
+    ht_client_saltmarsh (extends ht_tpl_client): { value: Saltmarsh Music }
+    ht_client_brightline (extends ht_tpl_client): { value: Brightline Advertising }
+    ht_client_kestrel (extends ht_tpl_client): { value: Kestrel FM }
+
+App\Entity\Core\AttributeDefinition:
+    ht_tpl_ad (template):
+        workspace: '@w_hollowtone'
+        policy: '@ht_ap_public'
+        type: text
+
+    # "Name" attribute created by WorkspaceFactory, used as title when the title is empty
+    ht_ad_name:
+        __factory: { '@App\Fixture\WorkspaceFactory::getNameAttributeDefinition': ['@w_hollowtone'] }
+
+    # Also the title of the "Session" stories
+    ht_ad_title (extends ht_tpl_ad):
+        name: Title
+        target: '<(App\Model\AssetTypeEnum::Both)>'
+        namePriority: 10
+        suggest: true
+        position: 1
+        translations: { name: { fr: Titre } }
+    ht_ad_releasetitle (extends ht_tpl_ad):
+        name: Release title
+        target: '<(App\Model\AssetTypeEnum::Story)>'
+        namePriority: 10
+        position: 2
+        translations: { name: { fr: Titre de la sortie } }
+    ht_ad_artist (extends ht_tpl_ad):
+        name: Artist
+        facetEnabled: true
+        suggest: true
+        position: 3
+        translations: { name: { fr: Artiste } }
+    ht_ad_client (extends ht_tpl_ad):
+        name: Client
+        type: entity
+        entityList: '@ht_el_client'
+        facetEnabled: true
+        position: 4
+    ht_ad_genre (extends ht_tpl_ad):
+        name: Genre
+        type: entity
+        entityList: '@ht_el_genre'
+        facetEnabled: true
+        position: 5
+    ht_ad_instruments (extends ht_tpl_ad):
+        name: Instruments
+        type: entity
+        entityList: '@ht_el_instrument'
+        multiple: true
+        facetEnabled: true
+        position: 6
+    ht_ad_bpm (extends ht_tpl_ad):
+        name: BPM
+        type: number
+        sortable: true
+        position: 7
+    ht_ad_key (extends ht_tpl_ad):
+        name: Key
+        facetEnabled: true
+        position: 8
+        translations: { name: { fr: Tonalité } }
+    ht_ad_isrc (extends ht_tpl_ad):
+        name: ISRC
+        position: 9
+    ht_ad_recordedon (extends ht_tpl_ad):
+        name: Recorded on
+        type: date
+        facetEnabled: true
+        sortable: true
+        position: 10
+        translations: { name: { fr: Enregistré le } }
+    ht_ad_engineer (extends ht_tpl_ad):
+        name: Engineer
+        facetEnabled: true
+        position: 11
+        translations: { name: { fr: Ingénieur du son } }
+    ht_ad_duration (extends ht_tpl_ad):
+        name: Duration
+        type: duration
+        initialValuesAll: |
+            {{ file.metadata('Composite:Duration').value }}
+        position: 12
+        translations: { name: { fr: Durée } }
+    ht_ad_explicit (extends ht_tpl_ad):
+        name: Explicit
+        type: boolean
+        facetEnabled: true
+        position: 13
+        translations: { name: { fr: Explicite } }
+    ht_ad_keywords (extends ht_tpl_ad):
+        name: Keywords
+        multiple: true
+        facetEnabled: true
+        suggest: true
+        annotationsEnabled: true
+        position: 14
+        translations: { name: { fr: Mots-clés } }
+    # Its slug "webvtttranscript" is used by the AWS Transcribe integration
+    ht_ad_webvtttranscript (extends ht_tpl_ad):
+        name: WebVTT transcript
+        type: code
+        translatable: true
+        policy: '@ht_ap_label'
+        position: 15
+        translations: { name: { fr: Transcription WebVTT } }
+    ht_ad_contractnotes (extends ht_tpl_ad):
+        name: Contract notes
+        type: textarea
+        policy: '@ht_ap_label'
+        position: 16
+        translations: { name: { fr: Notes de contrat } }
+    # Filled by the Blurhash integration
+    ht_ad_blurhash (extends ht_tpl_ad):
+        name: Blurhash
+        position: 17
+    # Faces detected by the face recognition integration
+    ht_ad_people (extends ht_tpl_ad):
+        name: People
+        type: entity
+        entityList: '@ht_el_people'
+        multiple: true
+        facetEnabled: true
+        annotationsEnabled: true
+        position: 18
+        translations: { name: { fr: Personnes } }
+
+App\Entity\Core\Tag:
+    ht_tpl_tag (template):
+        workspace: '@w_hollowtone'
+    ht_tag_roughmix (extends ht_tpl_tag):
+        name: Rough mix
+        color: '#FDD835'
+        translations: { name: { fr: Mix provisoire } }
+    ht_tag_finalmix (extends ht_tpl_tag):
+        name: Final mix
+        color: '#1E88E5'
+        translations: { name: { fr: Mix final } }
+    ht_tag_mastered (extends ht_tpl_tag):
+        name: Mastered
+        color: '#8E24AA'
+        translations: { name: { fr: Masterisé } }
+    ht_tag_approved (extends ht_tpl_tag):
+        name: Approved by client
+        color: '#43A047'
+        translations: { name: { fr: Validé par le client } }
+    ht_tag_donotdistribute (extends ht_tpl_tag):
+        name: Do not distribute
+        color: '#E53935'
+        translations: { name: { fr: Ne pas diffuser } }
+
+# Collections (privacy):
+# Productions (1)
+#   Music (1)
+#     Albums (1)
+#     Music videos (2)
+#   Client work (1, alice)
+#     Voice-overs & jingles (2, alice)
+# Sessions (1) > 2025, 2026 (1)
+# Vault (0)
+# Press (5)
+App\Entity\Core\Collection:
+    ht_tpl_c (template):
+        workspace: '@w_hollowtone'
+        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+        privacy: 1
+
+    ht_c_productions (extends ht_tpl_c):
+        name: Productions
+    ht_c_music (extends ht_tpl_c):
+        parent: '@ht_c_productions'
+        name: Music
+        translations: { name: { fr: Musique } }
+    ht_c_albums (extends ht_tpl_c):
+        parent: '@ht_c_music'
+        name: Albums
+    ht_c_musicvideos (extends ht_tpl_c):
+        parent: '@ht_c_music'
+        name: Music videos
+        privacy: 2
+        translations: { name: { fr: Clips } }
+    ht_c_clientwork (extends ht_tpl_c):
+        parent: '@ht_c_productions'
+        name: Client work
+        ownerId: <keycloakUser("alice")>
+        translations: { name: { fr: Travaux pour les clients } }
+    ht_c_voiceovers (extends ht_tpl_c):
+        parent: '@ht_c_clientwork'
+        name: Voice-overs & jingles
+        ownerId: <keycloakUser("alice")>
+        privacy: 2
+        translations: { name: { fr: Voix off et jingles } }
+    ht_c_sessions (extends ht_tpl_c):
+        name: Sessions
+    ht_c_sessions_{2025, 2026} (extends ht_tpl_c):
+        parent: '@ht_c_sessions'
+        name: '<current()>'
+    ht_c_vault (extends ht_tpl_c):
+        name: Vault
+        privacy: 0
+        translations: { name: { fr: Coffre } }
+    ht_c_press (extends ht_tpl_c):
+        name: Press
+        privacy: 5
+        translations: { name: { fr: Presse } }
+
+    # Collections of the stories: "Album" (1-4) and "Session" (5-8)
+    ht_sc{1..8} (extends ht_tpl_c):
+        name: null
+
+# Assets: images (ht_a_i_*: album covers, session photos), audio (ht_a_a_*: tracks, takes,
+# voice-overs), video (ht_a_v_*: music videos, session footage, behind the scenes) and the
+# stories: an "Album" (ht_album<n>) holds its cover and its 4 tracks, a "Session"
+# (ht_session<n>) its photo, a session footage and 2 takes.
+# Images are numbered across the workspace (covers 1-4, session photos 5-24): the number is the
+# lock of imageUrlRandomRatio(), and it links an asset to its source file. The media are
+# numbered in their set.
+App\Entity\Core\Asset:
+    ht_tpl_a (template):
+        workspace: '@w_hollowtone'
+        ownerId: <keycloakUser("bob")>
+        privacy: 1
+
+    # Recordings (audio and video), at a step of their production
+    ht_tpl_rec (template, extends ht_tpl_a):
+        __calls:
+            - addTag (30%?): ['@ht_tag_roughmix']
+            - addTag (30%?): ['@ht_tag_finalmix']
+            - addTag (25%?): ['@ht_tag_mastered']
+            - addTag (20%?): ['@ht_tag_approved']
+            - addTag (10%?): ['@ht_tag_donotdistribute']
+
+    # Album covers, also in the press kit
+    ht_a_i_cover{1..4} (extends ht_tpl_a):
+        source: '@ht_f_m<current()>'
+        ownerId: <keycloakUser("alice")>
+        __calls:
+            - addToCollection: ['@ht_c_albums', true, true]
+            - addToCollection: ['@ht_sc<current()>', true]
+            - addToCollection: ['@ht_c_press', true]
+    # Session photos: 5-8 are the covers of the "Session" stories
+    ht_a_i_session{5..8} (extends ht_tpl_a):
+        source: '@ht_f_m<current()>'
+        __calls:
+            - addToCollection: ['@ht_c_sessions_2026', true, true]
+            - addToCollection: ['@ht_sc<current()>', true]
+    ht_a_i_session{9..16} (extends ht_tpl_a):
+        source: '@ht_f_m<current()>'
+        __calls:
+            - addToCollection: ['@ht_c_sessions_2025', true, true]
+            - addToCollection (20%?): ['@ht_c_press', true]
+            - addTag (10%?): ['@ht_tag_donotdistribute']
+    ht_a_i_session{17..24} (extends ht_tpl_a):
+        source: '@ht_f_m<current()>'
+        __calls:
+            - addToCollection: ['@ht_c_sessions_2026', true, true]
+            - addToCollection (20%?): ['@ht_c_press', true]
+            - addTag (10%?): ['@ht_tag_donotdistribute']
+
+    # Four tracks on each album
+    ht_a_a_track{1..4} (extends ht_tpl_rec):
+        source: '@ht_f_track<current()>'
+        __calls:
+            - addToCollection: ['@ht_c_albums', true, true]
+            - addToCollection: ['@ht_sc1', true]
+    ht_a_a_track{5..8} (extends ht_tpl_rec):
+        source: '@ht_f_track<current()>'
+        __calls:
+            - addToCollection: ['@ht_c_albums', true, true]
+            - addToCollection: ['@ht_sc2', true]
+    ht_a_a_track{9..12} (extends ht_tpl_rec):
+        source: '@ht_f_track<current()>'
+        __calls:
+            - addToCollection: ['@ht_c_albums', true, true]
+            - addToCollection: ['@ht_sc3', true]
+    ht_a_a_track{13..16} (extends ht_tpl_rec):
+        source: '@ht_f_track<current()>'
+        __calls:
+            - addToCollection: ['@ht_c_albums', true, true]
+            - addToCollection: ['@ht_sc4', true]
+    # Isolated takes of an instrument or a voice, two in each "Session" story
+    ht_a_a_take{1..4} (extends ht_tpl_rec):
+        source: '@ht_f_take<current()>'
+        __calls:
+            - addToCollection: ['@ht_c_sessions_2026', true, true]
+            - addToCollection: ['@ht_sc<($current + 4)>', true]
+    ht_a_a_take{5..8} (extends ht_tpl_rec):
+        source: '@ht_f_take<current()>'
+        __calls:
+            - addToCollection: ['@ht_c_sessions_2026', true, true]
+            - addToCollection: ['@ht_sc<current()>', true]
+    # Voice-overs and jingles for the clients
+    ht_a_a_voiceover{1..6} (extends ht_tpl_rec):
+        source: '@ht_f_voiceover<current()>'
+        ownerId: <keycloakUser("alice")>
+        __calls:
+            - addToCollection: ['@ht_c_voiceovers', true, true]
+
+    ht_a_v_clip{1..6} (extends ht_tpl_rec):
+        source: '@ht_f_clip<current()>'
+        ownerId: <keycloakUser("alice")>
+        __calls:
+            - addToCollection: ['@ht_c_musicvideos', true, true]
+    # Session footage: 1-4 are in the "Session" stories
+    ht_a_v_footage{1..4} (extends ht_tpl_rec):
+        source: '@ht_f_footage<current()>'
+        __calls:
+            - addToCollection: ['@ht_c_sessions_2026', true, true]
+            - addToCollection: ['@ht_sc<($current + 4)>', true]
+    ht_a_v_footage{5..8} (extends ht_tpl_rec):
+        source: '@ht_f_footage<current()>'
+        __calls:
+            - addToCollection: ['@ht_c_sessions_2025', true, true]
+    ht_a_v_bts{1..4} (extends ht_tpl_a):
+        source: '@ht_f_bts<current()>'
+        ownerId: <keycloakUser("dave")>
+        privacy: 0
+        __calls:
+            - addToCollection: ['@ht_c_vault', true, true]
+
+    # The cover of a story is its first item: the story shares its source file (see StoryCoverManager)
+    # "Album" stories, with the album cover
+    ht_album{1..4} (extends ht_tpl_a):
+        source: '@ht_f_m<current()>'
+        ownerId: <keycloakUser("alice")>
+        storyCollection: '@ht_sc<current()>'
+        __calls:
+            - addToCollection: ['@ht_c_albums', true, true]
+    # "Session" stories, with the session photo
+    ht_session{5..8} (extends ht_tpl_a):
+        source: '@ht_f_m<current()>'
+        storyCollection: '@ht_sc<current()>'
+        __calls:
+            - addToCollection: ['@ht_c_sessions_2026', true, true]
+
+App\Entity\Core\File:
+    ht_tpl_file (template):
+        workspace: '@w_hollowtone'
+        storage: s3_main
+        pathPublic: '95%? true : false'
+        __calls:
+            - setNoAnalysisNeeded: []
+    ht_tpl_jpg (template, extends ht_tpl_file):
+        type: image/jpeg
+        extension: jpg
+    ht_tpl_mp3 (template, extends ht_tpl_file):
+        type: audio/mp3
+        extension: mp3
+    ht_tpl_mp4 (template, extends ht_tpl_file):
+        type: video/mp4
+        extension: mp4
+
+    # Source files only (m = image source, 1000px, with a large metadata set): the renditions
+    # are built by the ingest workflow run after the load
+    ht_f_m{1..24} (extends ht_tpl_jpg): { path: '<imageUrlRandomRatio(@w_hollowtone->id, <current()>, 1000, "studio")>', metadata: '<largeJSONFileMetadata()>' }
+
+    ht_f_track{1..16} (extends ht_tpl_mp3): { path: '<randomMedia(@w_hollowtone->id, "mp3", <current()>, "hollowtone-recording/track")>', metadata: '<largeJSONFileMetadata()>' }
+    ht_f_take{1..8} (extends ht_tpl_mp3): { path: '<randomMedia(@w_hollowtone->id, "mp3", <current()>, "hollowtone-recording/take")>', metadata: '<largeJSONFileMetadata()>' }
+    ht_f_voiceover{1..6} (extends ht_tpl_mp3): { path: '<randomMedia(@w_hollowtone->id, "mp3", <current()>, "hollowtone-recording/voice-over")>', metadata: '<largeJSONFileMetadata()>' }
+    ht_f_clip{1..6} (extends ht_tpl_mp4): { path: '<randomMedia(@w_hollowtone->id, "mp4", <current()>, "hollowtone-recording/music-video")>', metadata: '<largeJSONFileMetadata()>' }
+    ht_f_footage{1..8} (extends ht_tpl_mp4): { path: '<randomMedia(@w_hollowtone->id, "mp4", <current()>, "hollowtone-recording/session-footage")>', metadata: '<largeJSONFileMetadata()>' }
+    ht_f_bts{1..4} (extends ht_tpl_mp4): { path: '<randomMedia(@w_hollowtone->id, "mp4", <current()>, "hollowtone-recording/behind-the-scenes")>', metadata: '<largeJSONFileMetadata()>' }
+
+App\Entity\Core\Attribute:
+    ht_tpl_at (template):
+        origin: 0
+
+    # Titles. The titles of the albums, tracks, sessions, clips and voice-overs follow the
+    # number of the fixture (see ThematicFaker::studioTitle()).
+    ht_at_title_cover{1..4} (extends ht_tpl_at): { definition: '@ht_ad_title', asset: '@ht_a_i_cover<current()>', value: '<studioTitle("album", <current()>)> – front cover' }
+    ht_at_title_photo{5..24} (extends ht_tpl_at): { definition: '@ht_ad_title', asset: '@ht_a_i_session<current()>', value: 'Session photo #<current()>' }
+    ht_at_title_track{1..16} (extends ht_tpl_at): { definition: '@ht_ad_title', asset: '@ht_a_a_track<current()>', value: '<studioTitle("track", <current()>)>' }
+    ht_at_title_take1 (extends ht_tpl_at): { definition: '@ht_ad_title', asset: '@ht_a_a_take1', value: 'Vocals take 1' }
+    ht_at_title_take2 (extends ht_tpl_at): { definition: '@ht_ad_title', asset: '@ht_a_a_take2', value: 'Guitar take 2' }
+    ht_at_title_take3 (extends ht_tpl_at): { definition: '@ht_ad_title', asset: '@ht_a_a_take3', value: 'Drums take 3' }
+    ht_at_title_take4 (extends ht_tpl_at): { definition: '@ht_ad_title', asset: '@ht_a_a_take4', value: 'Piano take 4' }
+    ht_at_title_take5 (extends ht_tpl_at): { definition: '@ht_ad_title', asset: '@ht_a_a_take5', value: 'Bass take 5' }
+    ht_at_title_take6 (extends ht_tpl_at): { definition: '@ht_ad_title', asset: '@ht_a_a_take6', value: 'Strings take 6' }
+    ht_at_title_take7 (extends ht_tpl_at): { definition: '@ht_ad_title', asset: '@ht_a_a_take7', value: 'Brass take 7' }
+    ht_at_title_take8 (extends ht_tpl_at): { definition: '@ht_ad_title', asset: '@ht_a_a_take8', value: 'Synth take 8' }
+    ht_at_title_voiceover{1..6} (extends ht_tpl_at): { definition: '@ht_ad_title', asset: '@ht_a_a_voiceover<current()>', value: '<studioTitle("voiceover", <current()>)>' }
+    ht_at_title_clip{1..6} (extends ht_tpl_at): { definition: '@ht_ad_title', asset: '@ht_a_v_clip<current()>', value: '<studioTitle("clip", <current()>)>' }
+    ht_at_title_footage{1..8} (extends ht_tpl_at): { definition: '@ht_ad_title', asset: '@ht_a_v_footage<current()>', value: 'Session footage #<current()>' }
+    ht_at_title_bts{1..4} (extends ht_tpl_at): { definition: '@ht_ad_title', asset: '@ht_a_v_bts<current()>', value: 'Behind the scenes #<current()>' }
+    ht_at_title_session{5..8} (extends ht_tpl_at): { definition: '@ht_ad_title', asset: '@ht_session<current()>', value: '<studioTitle("session", <current()>)>' }
+    ht_at_releasetitle{1..4} (extends ht_tpl_at): { definition: '@ht_ad_releasetitle', asset: '@ht_album<current()>', value: '<studioTitle("album", <current()>)>' }
+
+    # Artist and client: the artist of the album (ht_client_artist<n>) for its tracks, the takes
+    # and the clips (studioArtist() follows the number modulo 4), the label for the albums, an
+    # agency (2, 4, 6) or a radio (1, 3, 5) for the voice-overs
+    ht_at_artist_album{1..4} (extends ht_tpl_at): { definition: '@ht_ad_artist', asset: '@ht_album<current()>', value: '<studioArtist(<current()>)>' }
+    ht_at_artist_track{1..4} (extends ht_tpl_at): { definition: '@ht_ad_artist', asset: '@ht_a_a_track<current()>', value: '<studioArtist(1)>' }
+    ht_at_artist_track{5..8} (extends ht_tpl_at): { definition: '@ht_ad_artist', asset: '@ht_a_a_track<current()>', value: '<studioArtist(2)>' }
+    ht_at_artist_track{9..12} (extends ht_tpl_at): { definition: '@ht_ad_artist', asset: '@ht_a_a_track<current()>', value: '<studioArtist(3)>' }
+    ht_at_artist_track{13..16} (extends ht_tpl_at): { definition: '@ht_ad_artist', asset: '@ht_a_a_track<current()>', value: '<studioArtist(4)>' }
+    ht_at_artist_take{1..8} (extends ht_tpl_at): { definition: '@ht_ad_artist', asset: '@ht_a_a_take<current()>', value: '<studioArtist(<current()>)>' }
+    ht_at_artist_clip{1..6} (extends ht_tpl_at): { definition: '@ht_ad_artist', asset: '@ht_a_v_clip<current()>', value: '<studioArtist(<current()>)>' }
+    ht_at_client_track{1..4} (extends ht_tpl_at): { definition: '@ht_ad_client', asset: '@ht_a_a_track<current()>', value: '@ht_client_artist1->id' }
+    ht_at_client_track{5..8} (extends ht_tpl_at): { definition: '@ht_ad_client', asset: '@ht_a_a_track<current()>', value: '@ht_client_artist2->id' }
+    ht_at_client_track{9..12} (extends ht_tpl_at): { definition: '@ht_ad_client', asset: '@ht_a_a_track<current()>', value: '@ht_client_artist3->id' }
+    ht_at_client_track{13..16} (extends ht_tpl_at): { definition: '@ht_ad_client', asset: '@ht_a_a_track<current()>', value: '@ht_client_artist4->id' }
+    ht_at_client_take{1..4} (extends ht_tpl_at): { definition: '@ht_ad_client', asset: '@ht_a_a_take<current()>', value: '@ht_client_artist<current()>->id' }
+    ht_at_client_take{5..8} (extends ht_tpl_at): { definition: '@ht_ad_client', asset: '@ht_a_a_take<current()>', value: '@ht_client_artist<($current - 4)>->id' }
+    ht_at_client_clip{1..4} (extends ht_tpl_at): { definition: '@ht_ad_client', asset: '@ht_a_v_clip<current()>', value: '@ht_client_artist<current()>->id' }
+    ht_at_client_clip{5..6} (extends ht_tpl_at): { definition: '@ht_ad_client', asset: '@ht_a_v_clip<current()>', value: '@ht_client_artist<($current - 4)>->id' }
+    ht_at_client_album{1..2} (extends ht_tpl_at): { definition: '@ht_ad_client', asset: '@ht_album<current()>', value: '@ht_client_northlight->id' }
+    ht_at_client_album{3..4} (extends ht_tpl_at): { definition: '@ht_ad_client', asset: '@ht_album<current()>', value: '@ht_client_saltmarsh->id' }
+    ht_at_client_vo_{1, 3, 5} (extends ht_tpl_at): { definition: '@ht_ad_client', asset: '@ht_a_a_voiceover<current()>', value: '@ht_client_kestrel->id' }
+    ht_at_client_vo_{2, 4, 6} (extends ht_tpl_at): { definition: '@ht_ad_client', asset: '@ht_a_a_voiceover<current()>', value: '@ht_client_brightline->id' }
+
+    # Music: one genre per album (rock, jazz, electronic, folk), with its instruments
+    ht_at_genre_album1 (extends ht_tpl_at): { definition: '@ht_ad_genre', asset: '@ht_album1', value: '@ht_genre_rock->id' }
+    ht_at_genre_album2 (extends ht_tpl_at): { definition: '@ht_ad_genre', asset: '@ht_album2', value: '@ht_genre_jazz->id' }
+    ht_at_genre_album3 (extends ht_tpl_at): { definition: '@ht_ad_genre', asset: '@ht_album3', value: '@ht_genre_electronic->id' }
+    ht_at_genre_album4 (extends ht_tpl_at): { definition: '@ht_ad_genre', asset: '@ht_album4', value: '@ht_genre_folk->id' }
+    ht_at_genre_track{1..4} (extends ht_tpl_at): { definition: '@ht_ad_genre', asset: '@ht_a_a_track<current()>', value: '@ht_genre_rock->id' }
+    ht_at_genre_track{5..8} (extends ht_tpl_at): { definition: '@ht_ad_genre', asset: '@ht_a_a_track<current()>', value: '@ht_genre_jazz->id' }
+    ht_at_genre_track{9..12} (extends ht_tpl_at): { definition: '@ht_ad_genre', asset: '@ht_a_a_track<current()>', value: '@ht_genre_electronic->id' }
+    ht_at_genre_track{13..16} (extends ht_tpl_at): { definition: '@ht_ad_genre', asset: '@ht_a_a_track<current()>', value: '@ht_genre_folk->id' }
+    ht_at_genre_vo{1..6} (extends ht_tpl_at): { definition: '@ht_ad_genre', asset: '@ht_a_a_voiceover<current()>', value: '@ht_genre_spokenword->id' }
+    ht_at_instr_guitar_track{1..4} (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_track<current()>', value: '@ht_instrument_guitar->id' }
+    ht_at_instr_bass_track{1..4} (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_track<current()>', value: '@ht_instrument_bass->id' }
+    ht_at_instr_drums_track{1..4} (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_track<current()>', value: '@ht_instrument_drums->id' }
+    ht_at_instr_piano_track{5..8} (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_track<current()>', value: '@ht_instrument_piano->id' }
+    ht_at_instr_bass_track{5..8} (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_track<current()>', value: '@ht_instrument_bass->id' }
+    ht_at_instr_drums_track{5..8} (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_track<current()>', value: '@ht_instrument_drums->id' }
+    ht_at_instr_synth_track{9..12} (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_track<current()>', value: '@ht_instrument_synth->id' }
+    ht_at_instr_drums_track{9..12} (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_track<current()>', value: '@ht_instrument_drums->id' }
+    ht_at_instr_guitar_track{13..16} (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_track<current()>', value: '@ht_instrument_guitar->id' }
+    ht_at_instr_strings_track{13..16} (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_track<current()>', value: '@ht_instrument_strings->id' }
+    ht_at_instr_take1 (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_take1', value: '@ht_instrument_vocals->id' }
+    ht_at_instr_take2 (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_take2', value: '@ht_instrument_guitar->id' }
+    ht_at_instr_take3 (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_take3', value: '@ht_instrument_drums->id' }
+    ht_at_instr_take4 (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_take4', value: '@ht_instrument_piano->id' }
+    ht_at_instr_take5 (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_take5', value: '@ht_instrument_bass->id' }
+    ht_at_instr_take6 (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_take6', value: '@ht_instrument_strings->id' }
+    ht_at_instr_take7 (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_take7', value: '@ht_instrument_brass->id' }
+    ht_at_instr_take8 (extends ht_tpl_at): { definition: '@ht_ad_instruments', asset: '@ht_a_a_take8', value: '@ht_instrument_synth->id' }
+    ht_at_bpm_{@ht_a_a_track*} (extends ht_tpl_at): { definition: '@ht_ad_bpm', asset: <current()>, value: '<numberBetween(68, 168)>' }
+    ht_at_key_{@ht_a_a_track*} (extends ht_tpl_at): { definition: '@ht_ad_key', asset: <current()>, value: '<musicKey()>' }
+    ht_at_isrc_{@ht_a_a_track*} (extends ht_tpl_at): { definition: '@ht_ad_isrc', asset: <current()>, value: '<numerify("GB-HTR-26-#####")>' }
+    ht_at_explicit_{@ht_a_a_track*} (extends ht_tpl_at): { definition: '@ht_ad_explicit', asset: <current()>, value: '<randomElement(["0", "0", "0", "1"])>' }
+    ht_at_explicit_{@ht_album*} (extends ht_tpl_at): { definition: '@ht_ad_explicit', asset: <current()>, value: '<randomElement(["0", "0", "0", "1"])>' }
+
+    # Recordings: by an engineer, on a date
+    ht_at_engineer_{@ht_session*} (extends ht_tpl_at): { definition: '@ht_ad_engineer', asset: <current()>, value: '<studioEngineer()>' }
+    ht_at_engineer_{@ht_a_a_track*} (extends ht_tpl_at): { definition: '@ht_ad_engineer', asset: <current()>, value: '<studioEngineer()>' }
+    ht_at_engineer_{@ht_a_a_take*} (extends ht_tpl_at): { definition: '@ht_ad_engineer', asset: <current()>, value: '<studioEngineer()>' }
+    ht_at_engineer_{@ht_a_v_footage*} (extends ht_tpl_at): { definition: '@ht_ad_engineer', asset: <current()>, value: '<studioEngineer()>' }
+    ht_at_recordedon_{@ht_session*} (extends ht_tpl_at):
+        __factory: { 'App\Fixture\DateFixtureFactory::createDateAttribute': ['<dateTimeBetween("-10 months", "now")>'] }
+        definition: '@ht_ad_recordedon'
+        asset: <current()>
+    ht_at_recordedon_{@ht_a_a_track*} (extends ht_tpl_at):
+        __factory: { 'App\Fixture\DateFixtureFactory::createDateAttribute': ['<dateTimeBetween("-2 years", "now")>'] }
+        definition: '@ht_ad_recordedon'
+        asset: <current()>
+    ht_at_recordedon_{@ht_a_a_take*} (extends ht_tpl_at):
+        __factory: { 'App\Fixture\DateFixtureFactory::createDateAttribute': ['<dateTimeBetween("-2 years", "now")>'] }
+        definition: '@ht_ad_recordedon'
+        asset: <current()>
+    ht_at_recordedon_{@ht_a_v_footage*} (extends ht_tpl_at):
+        __factory: { 'App\Fixture\DateFixtureFactory::createDateAttribute': ['<dateTimeBetween("-2 years", "now")>'] }
+        definition: '@ht_ad_recordedon'
+        asset: <current()>
+
+    # Media
+    ht_at_duration_{@ht_a_a_track*} (extends ht_tpl_at): { definition: '@ht_ad_duration', asset: <current()>, value: '<numberBetween(120, 420)>' }
+    ht_at_duration_{@ht_a_a_take*} (extends ht_tpl_at): { definition: '@ht_ad_duration', asset: <current()>, value: '<numberBetween(20, 120)>' }
+    ht_at_duration_{@ht_a_a_voiceover*} (extends ht_tpl_at): { definition: '@ht_ad_duration', asset: <current()>, value: '<numberBetween(15, 60)>' }
+    ht_at_duration_{@ht_a_v_*} (extends ht_tpl_at): { definition: '@ht_ad_duration', asset: <current()>, value: '<numberBetween(30, 300)>' }
+    # Keywords: cues on the audio and the video, rectangles and circles on the session photos
+    ht_at_kw_cue_{@ht_a_a_*} (extends ht_tpl_at): { definition: '@ht_ad_keywords', asset: <current()>, value: '<randomElement(["intro", "verse", "chorus", "bridge", "solo", "breakdown", "outro"])>', assetAnnotations: '<assetAnnotationsCue()>' }
+    ht_at_kw_cue_{@ht_a_v_*} (extends ht_tpl_at): { definition: '@ht_ad_keywords', asset: <current()>, value: '<randomElement(["intro", "verse", "chorus", "solo", "close-up", "wide shot", "outro"])>', assetAnnotations: '<assetAnnotationsCue()>' }
+    ht_at_kw_rect_{@ht_a_i_session*} (extends ht_tpl_at): { definition: '@ht_ad_keywords', asset: <current()>, value: '<randomElement(["microphone", "mixing console", "guitar", "drum kit", "piano", "headphones", "amplifier"])>', assetAnnotations: '<assetAnnotationsRect()>' }
+    ht_at_kw_circle_{@ht_a_i_session*} (extends ht_tpl_at): { definition: '@ht_ad_keywords', asset: <current()>, value: '<randomElement(["microphone", "mixing console", "guitar", "drum kit", "piano", "headphones", "amplifier"])>', assetAnnotations: '<assetAnnotationsCircle()>' }
+
+    # Label only (restricted policy)
+    ht_at_vtt_en_{@ht_a_a_voiceover*} (extends ht_tpl_at): { definition: '@ht_ad_webvtttranscript', asset: <current()>, locale: en, value: '<webVttTranscript("en")>' }
+    ht_at_vtt_fr_{@ht_a_a_voiceover*} (extends ht_tpl_at): { definition: '@ht_ad_webvtttranscript', asset: <current()>, locale: fr, value: '<webVttTranscript("fr")>' }
+    ht_at_vtt_en_{@ht_a_v_footage*} (extends ht_tpl_at): { definition: '@ht_ad_webvtttranscript', asset: <current()>, locale: en, value: '<webVttTranscript("en")>' }
+    ht_at_vtt_fr_{@ht_a_v_footage*} (extends ht_tpl_at): { definition: '@ht_ad_webvtttranscript', asset: <current()>, locale: fr, value: '<webVttTranscript("fr")>' }
+    ht_at_contract_{@ht_album*} (extends ht_tpl_at): { definition: '@ht_ad_contractnotes', asset: <current()>, value: '<randomElement(["Royalty split 50/50 with the label.", "Release date under embargo until the label announcement.", "Mechanical rights cleared for the EU only.", "Sample clearance pending on track 3."])>' }
+    ht_at_contract_{@ht_a_a_voiceover*} (extends ht_tpl_at): { definition: '@ht_ad_contractnotes', asset: <current()>, value: '<randomElement(["Broadcast licence: 12 months, national radio.", "Buyout: unlimited use, all media.", "Voice talent paid per spot, renewal in 6 months."])>' }
+
+# Permissions. Masks of alchemy/acl-bundle: VIEW 1, CREATE 2, EDIT 4, DELETE 8, OPERATOR 32,
+# MASTER 64, OWNER 128, SHARE 256; CHILD_* = the same bit << 9 (CHILD_VIEW 512, CHILD_CREATE 1024,
+# CHILD_EDIT 2048, CHILD_OPERATOR 16384). Every persona is a member of the workspace (VIEW).
+Alchemy\AclBundle\Entity\AccessControlEntry:
+    ht_tpl_ace (template):
+        userType: 0
+
+    # alice, studio manager: VIEW|EDIT|OPERATOR + CHILD_VIEW|CHILD_EDIT|CHILD_OPERATOR on the workspace
+    ht_ace_ws_alice (extends ht_tpl_ace):
+        userId: <keycloakUser("alice")>
+        objectType: workspace
+        objectId: '@w_hollowtone->id'
+        mask: 18981
+    ht_ace_ws_{bob, carol, dave} (extends ht_tpl_ace):
+        userId: <keycloakUser($current)>
+        objectType: workspace
+        objectId: '@w_hollowtone->id'
+        mask: 1
+    # bob, sound engineer: VIEW|CREATE|EDIT + CHILD_VIEW|CHILD_CREATE|CHILD_EDIT on Sessions
+    ht_ace_bob_sessions (extends ht_tpl_ace):
+        userId: <keycloakUser("bob")>
+        objectType: collection
+        objectId: '@ht_c_sessions->id'
+        mask: 3591
+    # carol, client (a label): VIEW + CHILD_VIEW on Client work and on Albums
+    ht_ace_carol_{clientwork, albums} (extends ht_tpl_ace):
+        userId: <keycloakUser("carol")>
+        objectType: collection
+        objectId: '@ht_c_<current()>->id'
+        mask: 513
+    # dave, archivist: VIEW|EDIT + CHILD_VIEW|CHILD_EDIT on Vault
+    ht_ace_dave_vault (extends ht_tpl_ace):
+        userId: <keycloakUser("dave")>
+        objectType: collection
+        objectId: '@ht_c_vault->id'
+        mask: 2565
+    # Restricted policies: VIEW (and EDIT) for the attributes, CHILD_VIEW (and CHILD_EDIT) for the renditions
+    ht_ace_alice_label (extends ht_tpl_ace):
+        userId: <keycloakUser("alice")>
+        objectType: attribute_policy
+        objectId: '@ht_ap_label->id'
+        mask: 5
+    ht_ace_bob_label (extends ht_tpl_ace):
+        userId: <keycloakUser("bob")>
+        objectType: attribute_policy
+        objectId: '@ht_ap_label->id'
+        mask: 1
+    ht_ace_alice_masters (extends ht_tpl_ace):
+        userId: <keycloakUser("alice")>
+        objectType: rendition_policy
+        objectId: '@ht_rp_masters->id'
+        mask: 2560
+    ht_ace_bob_masters (extends ht_tpl_ace):
+        userId: <keycloakUser("bob")>
+        objectType: rendition_policy
+        objectId: '@ht_rp_masters->id'
+        mask: 512
+
+# carol does not see the assets that must not be distributed
+App\Entity\Core\AttributeFilterRule:
+    ht_afr_donotdistribute:
+        workspace: '@w_hollowtone'
+        condition: '<aqlTagIsNot(@ht_tag_donotdistribute->id)>'
+        __calls:
+            - addTarget: [0, '<keycloakUser("carol")>']
+
+App\Entity\Core\AssetPolicy\AssetPolicy:
+    ht_apol_unreleased:
+        workspace: '@w_hollowtone'
+        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+        name: Unreleased masking
+        conditions:
+            - { field: collection, operator: '=', value: '@ht_c_albums->id' }
+        actions:
+            - { action: hide_rendition, definitionId: '@ht_rd_master->id' }
+            - { action: hide_attribute, definitionId: '@ht_ad_contractnotes->id' }
+
+App\Entity\Core\AssetPolicy\AssetPolicyUser:
+    ht_apu_unreleased_{carol, dave}:
+        policy: '@ht_apol_unreleased'
+        userType: 0
+        userId: <keycloakUser($current)>
+
+App\Entity\Integration\WorkspaceIntegration:
+    ht_tpl_wi (template):
+        workspace: '@w_hollowtone'
+        ownerId: <keycloakUser("phrasea-admin", ["phrasea-admin"])>
+        public: true
+
+    # Rendition integration created by WorkspaceFactory
+    ht_wi_rendition:
+        __factory: { '@App\Fixture\WorkspaceFactory::getIntegration': ['@w_hollowtone', 'rendition'] }
+    ht_wi_blurhash (extends ht_tpl_wi):
+        integration: blurhash
+        config:
+            rendition: '@ht_rd_thumbnail->id'
+        needs:
+            - '@ht_wi_rendition'
+    ht_wi_similarity (extends ht_tpl_wi):
+        integration: core.similarity
+        config:
+            rendition: '@ht_rd_preview->id'
+        needs:
+            - '@ht_wi_rendition'
+    ht_wi_face_recognition (extends ht_tpl_wi):
+        integration: core.face_recognition
+        config:
+            attribute: people
+            rendition: '@ht_rd_preview->id'
+            processIncoming: true
+        needs:
+            - '@ht_wi_rendition'
+    ht_wi_transcribe (extends ht_tpl_wi):
+        integration: aws.transcribe
+        enabled: false
+        config:
+            region: eu-west-1
+            workloadS3Bucket: hollowtone-transcribe-workload
+            attributes:
+                vtt: webvtttranscript
+
+App\Entity\Integration\WorkspaceSecret:
+    ht_secret_{AWS_ACCESS_KEY_ID, AWS_ACCESS_KEY_SECRET}:
+        workspace: '@w_hollowtone'
+        name: <current()>
+        plainValue: xxx

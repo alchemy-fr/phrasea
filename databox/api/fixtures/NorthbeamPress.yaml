@@ -210,13 +210,6 @@ App\Entity\Core\AttributeDefinition:
         sortable: true
         position: 13
         translations: { name: { fr: Nombre de mots } }
-    nb_ad_duration (extends nb_tpl_ad):
-        name: Duration
-        type: duration
-        initialValuesAll: |
-            {{ file.metadata('Composite:Duration').value }}
-        position: 14
-        translations: { name: { fr: Durée } }
     nb_ad_filesize (extends nb_tpl_ad):
         name: File size
         type: filesize
@@ -230,14 +223,6 @@ App\Entity\Core\AttributeDefinition:
         facetEnabled: true
         position: 16
         translations: { name: { fr: Urgent } }
-    # Its slug "webvtttranscript" is used by the AWS Transcribe integration
-    nb_ad_webvtttranscript (extends nb_tpl_ad):
-        name: WebVTT transcript
-        type: code
-        translatable: true
-        policy: '@nb_ap_newsroom'
-        position: 17
-        translations: { name: { fr: Transcription WebVTT } }
     nb_ad_editornotes (extends nb_tpl_ad):
         name: Editor notes
         type: textarea
@@ -374,7 +359,7 @@ App\Entity\Core\Collection:
         name: null
 
 # Assets: images (nb_a_v_p* photos, nb_a_v_e* embargoed photos, nb_a_v_s* photos of the
-# stories) and videos (nb_a_v_video*) are geolocated, podcasts and press releases (nb_a_d_*) are not.
+# stories) are geolocated, press releases (nb_a_d_*) are not.
 # Images are numbered across the workspace (photos 1-40, embargoed 41-46, stories 47-66): the
 # number is the lock of imageUrlRandomRatio(), and it links an asset to its source file.
 App\Entity\Core\Asset:
@@ -411,17 +396,13 @@ App\Entity\Core\Asset:
         source: '@nb_f_m<current()>'
         __calls:
             - addToCollection: ['@nb_sc<($current - 56)>', true]
-    nb_a_v_video{1..10} (extends nb_tpl_a):
-        source: '@nb_f_video_m<current()>'
-        ownerId: <keycloakUser("alice")>
-    nb_a_d_podcast{1..10} (extends nb_tpl_a):
-        source: '@nb_f_podcast<current()>'
-        ownerId: <keycloakUser("alice")>
     nb_a_d_release{1..10} (extends nb_tpl_a):
         source: '@nb_f_release_m<current()>'
         ownerId: <keycloakUser("carol")>
     # "Photo essay" stories
+    # The cover of a story is its first item: the story shares its source file (see StoryCoverManager)
     nb_story{1..10} (extends nb_tpl_a):
+        source: '@nb_f_m<($current + 46)>'
         ownerId: <keycloakUser("alice")>
         storyCollection: '@nb_sc<current()>'
 
@@ -435,12 +416,6 @@ App\Entity\Core\File:
     nb_tpl_jpg (template, extends nb_tpl_file):
         type: image/jpeg
         extension: jpg
-    nb_tpl_mp4 (template, extends nb_tpl_file):
-        type: video/mp4
-        extension: mp4
-    nb_tpl_mp3 (template, extends nb_tpl_file):
-        type: audio/mp3
-        extension: mp3
     nb_tpl_pdf (template, extends nb_tpl_file):
         type: application/pdf
         extension: pdf
@@ -449,8 +424,6 @@ App\Entity\Core\File:
     # are built by the ingest workflow run after the load
     nb_f_m{1..66} (extends nb_tpl_jpg): { path: '<imageUrlRandomRatio(@w_northbeam->id, <current()>, 1000, "reportage")>', metadata: '<largeJSONFileMetadata()>' }
 
-    nb_f_video_m{1..10} (extends nb_tpl_mp4): { path: '<randomMedia(@w_northbeam->id, "mp4", <current()>, "northbeam-press/video")>', metadata: '<largeJSONFileMetadata()>' }
-    nb_f_podcast{1..10} (extends nb_tpl_mp3): { path: '<randomMedia(@w_northbeam->id, "mp3", <current()>, "northbeam-press/podcast")>', metadata: '<largeJSONFileMetadata()>' }
     nb_f_release_m{1..10} (extends nb_tpl_pdf): { path: '<randomMedia(@w_northbeam->id, "pdf", <current()>, "northbeam-press/press-release")>', metadata: '<largeJSONFileMetadata()>' }
 
 App\Entity\Core\Attribute:
@@ -461,12 +434,9 @@ App\Entity\Core\Attribute:
     nb_at_name_p{1..40} (extends nb_tpl_at): { definition: '@nb_ad_name', asset: '@nb_a_v_p<current()>', value: 'Image #<current()>' }
     nb_at_name_e{41..46} (extends nb_tpl_at): { definition: '@nb_ad_name', asset: '@nb_a_v_e<current()>', value: 'Image #<current()>' }
     nb_at_name_s{47..66} (extends nb_tpl_at): { definition: '@nb_ad_name', asset: '@nb_a_v_s<current()>', value: 'Image #<current()>' }
-    nb_at_name_video{1..10} (extends nb_tpl_at): { definition: '@nb_ad_name', asset: '@nb_a_v_video<current()>', value: 'Video #<current()>' }
-    nb_at_name_podcast{1..10} (extends nb_tpl_at): { definition: '@nb_ad_name', asset: '@nb_a_d_podcast<current()>', value: 'Podcast #<current()>' }
     nb_at_name_release{1..10} (extends nb_tpl_at): { definition: '@nb_ad_name', asset: '@nb_a_d_release<current()>', value: 'Press release #<current()>' }
     # The headline and the caption describe the same scene, in the city where the asset was taken
     nb_at_headline_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_headline', asset: <current()>, value: '<newsHeadline(<current()>, <geoPlaceCity(<current()>)>)>' }
-    nb_at_headline_podcast_{@nb_a_d_podcast*} (extends nb_tpl_at): { definition: '@nb_ad_headline', asset: <current()>, value: '<newsTitle("podcast")>' }
     nb_at_headline_release_{@nb_a_d_release*} (extends nb_tpl_at): { definition: '@nb_ad_headline', asset: <current()>, value: '<newsTitle("release")>' }
     nb_at_storytitle_{@nb_story*} (extends nb_tpl_at): { definition: '@nb_ad_storytitle', asset: <current()>, value: '<newsTitle("essay")>' }
     nb_at_caption_en_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_caption', asset: <current()>, locale: en, value: '<newsCaption(<current()>, <geoPlaceCity(<current()>)>, "en")>' }
@@ -477,12 +447,10 @@ App\Entity\Core\Attribute:
     nb_at_city_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_city', asset: <current()>, value: '<geoPlaceCity(<current()>)>' }
     nb_at_country_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_country', asset: <current()>, value: '<geoPlaceCountry(<current()>)>' }
 
-    # Keywords with the 4 types of annotations
+    # Keywords with 3 types of annotations
     nb_at_kw_rect_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_keywords', asset: <current()>, value: '<newsKeyword()>', assetAnnotations: '<assetAnnotationsRect()>' }
     nb_at_kw_circle_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_keywords', asset: <current()>, value: '<newsKeyword()>', assetAnnotations: '<assetAnnotationsCircle()>' }
     nb_at_kw_target_{@nb_a_v*} (extends nb_tpl_at): { definition: '@nb_ad_keywords', asset: <current()>, value: '<newsKeyword()>', assetAnnotations: '<assetAnnotationsTarget()>' }
-    nb_at_kw_cue_video_{@nb_a_v_video*} (extends nb_tpl_at): { definition: '@nb_ad_keywords', asset: <current()>, value: '<newsKeyword()>', assetAnnotations: '<assetAnnotationsCue()>' }
-    nb_at_kw_cue_podcast_{@nb_a_d_podcast*} (extends nb_tpl_at): { definition: '@nb_ad_keywords', asset: <current()>, value: '<newsKeyword()>', assetAnnotations: '<assetAnnotationsCue()>' }
 
     nb_at_datetaken_{@nb_a_v*} (extends nb_tpl_at):
         __factory: { 'App\Fixture\DateFixtureFactory::createDateAttribute': ['<dateTimeBetween("-3 years", "now")>'] }
@@ -502,14 +470,8 @@ App\Entity\Core\Attribute:
     nb_at_breaking_{@nb_a_v_p*} (extends nb_tpl_at): { definition: '@nb_ad_breaking', asset: <current()>, value: '<numberBetween(0, 1)>' }
     nb_at_watermark_{@nb_a_v_p*} (extends nb_tpl_at): { definition: '@nb_ad_watermark', asset: <current()>, value: '© Northbeam Press' }
     nb_at_wordcount_{@nb_a_d_release*} (extends nb_tpl_at): { definition: '@nb_ad_wordcount', asset: <current()>, value: '<numberBetween(250, 1800)>' }
-    nb_at_duration_video_{@nb_a_v_video*} (extends nb_tpl_at): { definition: '@nb_ad_duration', asset: <current()>, value: '<numberBetween(30, 600)>' }
-    nb_at_duration_podcast_{@nb_a_d_podcast*} (extends nb_tpl_at): { definition: '@nb_ad_duration', asset: <current()>, value: '<numberBetween(900, 3600)>' }
 
     # Newsroom only (restricted policy)
-    nb_at_vtt_en_video_{@nb_a_v_video*} (extends nb_tpl_at): { definition: '@nb_ad_webvtttranscript', asset: <current()>, locale: en, value: '<webVttTranscript("en")>' }
-    nb_at_vtt_fr_video_{@nb_a_v_video*} (extends nb_tpl_at): { definition: '@nb_ad_webvtttranscript', asset: <current()>, locale: fr, value: '<webVttTranscript("fr")>' }
-    nb_at_vtt_en_podcast_{@nb_a_d_podcast*} (extends nb_tpl_at): { definition: '@nb_ad_webvtttranscript', asset: <current()>, locale: en, value: '<webVttTranscript("en")>' }
-    nb_at_vtt_fr_podcast_{@nb_a_d_podcast*} (extends nb_tpl_at): { definition: '@nb_ad_webvtttranscript', asset: <current()>, locale: fr, value: '<webVttTranscript("fr")>' }
     nb_at_notes_e_{@nb_a_v_e*} (extends nb_tpl_at): { definition: '@nb_ad_editornotes', asset: <current()>, value: '<newsEditorNote()>' }
     nb_at_notes_p_{@nb_a_v_p*} (extends nb_tpl_at): { definition: '@nb_ad_editornotes', asset: <current()>, value: '<newsEditorNote()>' }
 
@@ -636,17 +598,3 @@ App\Entity\Integration\WorkspaceIntegration:
             processIncoming: true
         needs:
             - '@nb_wi_rendition'
-    nb_wi_transcribe (extends nb_tpl_wi):
-        integration: aws.transcribe
-        enabled: false
-        config:
-            region: eu-west-1
-            workloadS3Bucket: northbeam-transcribe-workload
-            attributes:
-                vtt: webvtttranscript
-
-App\Entity\Integration\WorkspaceSecret:
-    nb_secret_{AWS_ACCESS_KEY_ID, AWS_ACCESS_KEY_SECRET}:
-        workspace: '@w_northbeam'
-        name: <current()>
-        plainValue: xxx

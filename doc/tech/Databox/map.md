@@ -17,10 +17,9 @@ In dev, the [fixtures](./fixtures.md) (`bin/dev/reset-db-fixtures.sh`) place ass
 real cities (`App\Fixture\Faker\GeoPlaceFaker`), with `City` and `Country` matching their
 geo point:
 
-- **Northbeam Press**: the images and videos (`Location`); podcasts and press releases have
-  no location.
-- **Fernhollow Natural History Museum**: the specimens (`Collection site`); documents,
-  media and the views of the "Specimen record" stories have no location.
+- **Northbeam Press**: the images (`Location`); press releases have no location.
+- **Fernhollow Natural History Museum**: the specimens (`Collection site`); documents and
+  the views of the "Specimen record" stories have no location.
 
 ## Clusters
 

@@ -243,13 +243,6 @@ App\Entity\Core\AttributeDefinition:
         name: Credit line
         position: 15
         translations: { name: { fr: Mention de crédit } }
-    fh_ad_duration (extends fh_tpl_ad):
-        name: Duration
-        type: duration
-        initialValuesAll: |
-            {{ file.metadata('Composite:Duration').value }}
-        position: 16
-        translations: { name: { fr: Durée } }
     fh_ad_conditionreport (extends fh_tpl_ad):
         name: Condition report
         type: textarea
@@ -407,7 +400,7 @@ App\Entity\Core\Collection:
         name: null
 
 # Assets: images of the specimens (fh_a_v_s*, geolocated) and of the views of the "Specimen
-# record" stories (fh_a_v_r*), documents and media (fh_a_d_*).
+# record" stories (fh_a_v_r*) and documents (fh_a_d_*).
 # Images are numbered across the workspace (specimens 1-46, views 47-64): the number is the
 # lock of imageUrlRandomRatio(), and it links an asset to its source file.
 App\Entity\Core\Asset:
@@ -484,7 +477,9 @@ App\Entity\Core\Asset:
             - addToCollection (40%?): ['@fh_c_wildcoasts', true]
 
     # "Specimen record" stories, with the front, back and label views of the specimen
+    # The cover of a story is its first item: the story shares its source file (see StoryCoverManager)
     fh_story{1..6} (extends fh_tpl_a):
+        source: '@fh_f_m<($current + 46)>'
         storyCollection: '@fh_sc<current()>'
         __calls:
             - addToCollection: ['@fh_c_entomology', true, true]
@@ -504,7 +499,7 @@ App\Entity\Core\Asset:
             - addToCollection: ['@fh_c_entomology', true, true]
             - addToCollection: ['@fh_sc<($current - 58)>', true]
 
-    # Documents and media
+    # Documents
     fh_a_d_accession{1..8} (extends fh_tpl_a):
         source: '@fh_f_accession<current()>'
         ownerId: <keycloakUser("dave")>
@@ -515,26 +510,6 @@ App\Entity\Core\Asset:
         ownerId: <keycloakUser("carol")>
         __calls:
             - addToCollection: ['@fh_c_geology', true, true]
-    fh_a_d_audioguide{1..3} (extends fh_tpl_a):
-        source: '@fh_f_audioguide<current()>'
-        privacy: 5
-        __calls:
-            - addToCollection: ['@fh_c_wildcoasts', true, true]
-    fh_a_d_audioguide{4..6} (extends fh_tpl_a):
-        source: '@fh_f_audioguide<current()>'
-        privacy: 3
-        __calls:
-            - addToCollection: ['@fh_c_canopy', true, true]
-    fh_a_d_video{1..2} (extends fh_tpl_a):
-        source: '@fh_f_video_m<current()>'
-        privacy: 5
-        __calls:
-            - addToCollection: ['@fh_c_exhibitions', true, true]
-    fh_a_d_video{3..4} (extends fh_tpl_a):
-        source: '@fh_f_video_m<current()>'
-        privacy: 0
-        __calls:
-            - addToCollection: ['@fh_c_lab', true, true]
 
 App\Entity\Core\File:
     fh_tpl_file (template):
@@ -549,12 +524,6 @@ App\Entity\Core\File:
     fh_tpl_pdf (template, extends fh_tpl_file):
         type: application/pdf
         extension: pdf
-    fh_tpl_mp3 (template, extends fh_tpl_file):
-        type: audio/mp3
-        extension: mp3
-    fh_tpl_mp4 (template, extends fh_tpl_file):
-        type: video/mp4
-        extension: mp4
 
     # Source files only (m = image source, 1000px): the renditions are built by the ingest
     # workflow run after the load
@@ -562,8 +531,6 @@ App\Entity\Core\File:
 
     fh_f_accession{1..8} (extends fh_tpl_pdf): { path: '<randomMedia(@w_fernhollow->id, "pdf", <current()>, "fernhollow-museum/accession-record")>' }
     fh_f_notebook{1..7} (extends fh_tpl_pdf): { path: '<randomMedia(@w_fernhollow->id, "pdf", <current()>, "fernhollow-museum/field-notebook")>' }
-    fh_f_audioguide{1..6} (extends fh_tpl_mp3): { path: '<randomMedia(@w_fernhollow->id, "mp3", <current()>, "fernhollow-museum/audio-guide")>' }
-    fh_f_video_m{1..4} (extends fh_tpl_mp4): { path: '<randomMedia(@w_fernhollow->id, "mp4", <current()>, "fernhollow-museum/video")>' }
 
 App\Entity\Core\Attribute:
     fh_tpl_at (template):
@@ -632,10 +599,6 @@ App\Entity\Core\Attribute:
     fh_at_name_label{59..64} (extends fh_tpl_at): { definition: '@fh_ad_name', asset: '@fh_a_v_r<current()>', value: 'Label' }
     fh_at_name_accession{1..8} (extends fh_tpl_at): { definition: '@fh_ad_name', asset: '@fh_a_d_accession<current()>', value: 'Accession record #<current()>' }
     fh_at_name_notebook{1..7} (extends fh_tpl_at): { definition: '@fh_ad_name', asset: '@fh_a_d_notebook<current()>', value: 'Field notebook of <specimenCollector()>' }
-    fh_at_name_audioguide{1..6} (extends fh_tpl_at): { definition: '@fh_ad_name', asset: '@fh_a_d_audioguide<current()>', value: 'Audio guide, stop <current()>' }
-    fh_at_name_video{1..4} (extends fh_tpl_at): { definition: '@fh_ad_name', asset: '@fh_a_d_video<current()>', value: 'Behind the scenes #<current()>' }
-    fh_at_duration_audioguide{1..6} (extends fh_tpl_at): { definition: '@fh_ad_duration', asset: '@fh_a_d_audioguide<current()>', value: '<numberBetween(60, 240)>' }
-    fh_at_duration_video{1..4} (extends fh_tpl_at): { definition: '@fh_ad_duration', asset: '@fh_a_d_video<current()>', value: '<numberBetween(90, 900)>' }
 
 # Permissions. Masks of alchemy/acl-bundle: VIEW 1, CREATE 2, EDIT 4, DELETE 8, OPERATOR 32,
 # MASTER 64, OWNER 128, SHARE 256; CHILD_* = the same bit << 9 (CHILD_VIEW 512, CHILD_EDIT 2048,

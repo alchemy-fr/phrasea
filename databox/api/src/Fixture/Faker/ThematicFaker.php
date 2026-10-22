@@ -8,7 +8,7 @@ use Faker\Provider\Base as BaseProvider;
 
 /**
  * Business labels of the dev fixtures workspaces (news agency, fashion brand, natural history
- * museum). The functions taking a $subject (the asset of the attribute fixture) return values
+ * museum, recording studio). The functions taking a $subject (the asset of the attribute fixture) return values
  * that stay consistent for that subject: a headline and its caption describe the same scene,
  * the scientific and common names designate the same species, the wholesale price follows the
  * retail one.
@@ -45,18 +45,6 @@ class ThematicFaker extends BaseProvider
      * @var array<string, list<string>>
      */
     private const array NEWS_TITLES = [
-        'podcast' => [
-            'The Northbeam Briefing: the week in world news',
-            'Inside the Newsroom: covering a snap election',
-            'On the Ground: reporting from the flood zone',
-            'Sports Desk: the transfer window explained',
-            'Culture Club: the festival season highlights',
-            'The Long Read: the hidden cost of fast fashion',
-            'Data Desk: what the census tells us',
-            'Rewind: fifty years of the Northbeam archive',
-            'The Northbeam Briefing: climate summit special',
-            'Behind the Lens: a photographer\'s year',
-        ],
         'release' => [
             'Northbeam Press appoints a new Europe editor',
             'Northbeam Press named Agency of the Year',
@@ -116,16 +104,16 @@ class ThematicFaker extends BaseProvider
      */
     private const array TRANSCRIPT_CUES = [
         'en' => [
-            'Good morning, this is Northbeam Press.',
-            'Our correspondent is on the ground with the latest.',
-            'Local authorities say the situation is under control.',
-            'More on this story throughout the day.',
+            'Welcome to Hollowtone Recording.',
+            'Rolling now, this is take one.',
+            'Let\'s bring the vocals up a little in the chorus.',
+            'That\'s a wrap, thanks everyone.',
         ],
         'fr' => [
-            'Bonjour, ici Northbeam Press.',
-            'Notre correspondant est sur place avec les dernières informations.',
-            'Les autorités locales assurent que la situation est sous contrôle.',
-            'Plus d\'informations tout au long de la journée.',
+            'Bienvenue chez Hollowtone Recording.',
+            'On enregistre, c\'est la première prise.',
+            'On remonte un peu la voix sur le refrain.',
+            'C\'est dans la boîte, merci à tous.',
         ],
     ];
 
@@ -258,6 +246,85 @@ class ThematicFaker extends BaseProvider
     ];
 
     /**
+     * Titles of the recording studio, by kind. The albums, the tracks (4 per album: rock, jazz,
+     * electronic, folk), the sessions, the clips and the voice-overs are listed in the order of
+     * their fixtures, so that a title matches the content of its themed media file.
+     *
+     * @var array<string, list<string>>
+     */
+    private const array STUDIO_TITLES = [
+        'album' => [
+            'Static Bloom',
+            'Blue Hour',
+            'Signal Garden',
+            'Kindling',
+        ],
+        'track' => [
+            'Paper Satellites',
+            'Fault Lines',
+            'Neon Undertow',
+            'Last Train Out',
+            'Slow Burn on Mercer Street',
+            'Midnight Tram',
+            'Velvet Static',
+            'Afterhours Waltz',
+            'Pulse Theory',
+            'Glass Circuit',
+            'Lowlight',
+            'Northern Relay',
+            'Hollow Oak',
+            'Riverstone',
+            'Lanterns in the Rye',
+            'Far Field',
+        ],
+        'session' => [
+            'Tracking day – vocals and bass',
+            'Tracking day – guitars and strings',
+            'Tracking day – drums and brass',
+            'Tracking day – piano and synth',
+        ],
+        'clip' => [
+            'Live on the open-air stage',
+            'Live in the hall',
+            'Acoustic set in the round',
+            'Festival night',
+            'Club gig',
+            'Street session',
+        ],
+        'voiceover' => [
+            'Kestrel FM – station ident',
+            'Morning Roast – radio spot',
+            'Kestrel FM – weekend travel update',
+            'Vélo Cité – radio spot',
+            'Kestrel After Dark – show promo',
+            'Banque du Port – radio spot',
+        ],
+    ];
+
+    /**
+     * Artists recorded by the studio, one per album.
+     */
+    private const array STUDIO_ARTISTS = [
+        'The Paper Satellites',
+        'Mira Okonkwo Quartet',
+        'Circuit Fern',
+        'Ada Rowan & the Lantern Band',
+    ];
+
+    private const array STUDIO_ENGINEERS = [
+        'Nina Halvorsen',
+        'Marcus Bell',
+        'Yusuf Demir',
+        'Lena Fischer',
+        'Raphaël Martin',
+    ];
+
+    private const array MUSIC_KEYS = [
+        'C major', 'G major', 'D major', 'A major', 'E major', 'F major', 'B♭ major', 'E♭ major',
+        'A minor', 'E minor', 'B minor', 'D minor', 'G minor', 'C minor', 'F♯ minor',
+    ];
+
+    /**
      * @var array<string, array<string, mixed>> values already picked, by subject then by key
      */
     private array $picked = [];
@@ -273,7 +340,7 @@ class ThematicFaker extends BaseProvider
     }
 
     /**
-     * @param string $kind "podcast", "release" or "essay"
+     * @param string $kind "release" or "essay"
      */
     public function newsTitle(string $kind): string
     {
@@ -361,6 +428,49 @@ class ThematicFaker extends BaseProvider
     public function conditionReport(): string
     {
         return static::randomElement(self::CONDITION_REPORTS);
+    }
+
+    /**
+     * @param string   $kind "album", "track", "session", "clip" or "voiceover"
+     * @param int|null $n    number of the fixture (from 1): the same number gives the same title;
+     *                       a random title without it
+     */
+    public function studioTitle(string $kind, ?int $n = null): string
+    {
+        return $this->nthOrRandom(self::STUDIO_TITLES[$kind], $n);
+    }
+
+    /**
+     * @param int|null $n number of the album (from 1): its artist; a random artist without it
+     */
+    public function studioArtist(?int $n = null): string
+    {
+        return $this->nthOrRandom(self::STUDIO_ARTISTS, $n);
+    }
+
+    public function studioEngineer(): string
+    {
+        return static::randomElement(self::STUDIO_ENGINEERS);
+    }
+
+    /**
+     * Musical key, e.g. "A minor" or "E♭ major".
+     */
+    public function musicKey(): string
+    {
+        return static::randomElement(self::MUSIC_KEYS);
+    }
+
+    /**
+     * @param list<string> $values
+     */
+    private function nthOrRandom(array $values, ?int $n): string
+    {
+        if (null === $n) {
+            return static::randomElement($values);
+        }
+
+        return $values[($n - 1) % count($values)];
     }
 
     /**

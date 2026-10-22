@@ -15,12 +15,13 @@ The embeddings and the faces need the `similarity-embedder` and `face-recognitio
 rest of the ingest. In dev, the Messenger transports are synchronous: the whole workflow of
 each asset runs inline, downloads and rendition-factory included, so the ingest takes a while.
 
-| File                    | Content                                                        |
-| ----------------------- | -------------------------------------------------------------- |
-| `Common.yaml`           | the global Expose integration (`phrasea.expose`, no workspace) |
-| `NorthbeamPress.yaml`   | **Northbeam Press**, a news agency                             |
-| `LindenRowe.yaml`       | **Linden & Rowe**, a fashion brand                             |
-| `FernhollowMuseum.yaml` | **Fernhollow Natural History Museum**                          |
+| File                       | Content                                                        |
+| -------------------------- | -------------------------------------------------------------- |
+| `Common.yaml`              | the global Expose integration (`phrasea.expose`, no workspace) |
+| `NorthbeamPress.yaml`      | **Northbeam Press**, a news agency                             |
+| `LindenRowe.yaml`          | **Linden & Rowe**, a fashion brand                             |
+| `FernhollowMuseum.yaml`    | **Fernhollow Natural History Museum**                          |
+| `HollowtoneRecording.yaml` | **Hollowtone Recording**, a recording studio                   |
 
 ```bash
 FIXTURES_GENERATE_IMAGES=true bin/dev/reset-db-fixtures.sh  # fast: plain coloured images
@@ -32,21 +33,25 @@ bin/dev/reset-db-fixtures.sh                                # real images (netwo
 The users are created in Keycloak on the fly by `keycloakUser()` (`<username>@phrasea.local`,
 temporary password `xxx`):
 
-- `phrasea-admin` (realm role `phrasea-admin`): owner of the three workspaces;
-- `alice`, `bob`, `carol` and `dave`: members of the three workspaces, with a different
+- `phrasea-admin` (realm role `phrasea-admin`): owner of the four workspaces;
+- `alice`, `bob`, `carol` and `dave`: members of the four workspaces, with a different
   business role in each one.
 
 To check what a persona sees, impersonate it from the Keycloak admin console.
 
 ## Workspaces
 
-| Workspace                         | Slug                | Locales    | Image theme | Assets |
-| --------------------------------- | ------------------- | ---------- | ----------- | ------ |
-| Northbeam Press                   | `northbeam-press`   | en, fr     | `reportage` | 106    |
-| Linden & Rowe                     | `linden-rowe`       | en, fr, it | `fashion`   | 86     |
-| Fernhollow Natural History Museum | `fernhollow-museum` | en, fr     | `museum`    | 95     |
+| Workspace                         | Slug                   | Locales    | Image theme | Assets |
+| --------------------------------- | ---------------------- | ---------- | ----------- | ------ |
+| Northbeam Press                   | `northbeam-press`      | en, fr     | `reportage` | 86     |
+| Linden & Rowe                     | `linden-rowe`          | en, fr, it | `fashion`   | 80     |
+| Fernhollow Natural History Museum | `fernhollow-museum`    | en, fr     | `museum`    | 85     |
+| Hollowtone Recording              | `hollowtone-recording` | en, fr     | `studio`    | 80     |
 
-The three workspaces are created through `App\Fixture\WorkspaceFactory`, like a workspace
+All the audio and the video of the fixtures are in Hollowtone Recording: the other workspaces
+hold images and PDF documents only.
+
+The four workspaces are created through `App\Fixture\WorkspaceFactory`, like a workspace
 created from the API: the "Public" attribute and rendition policies, the `main`, `preview`,
 `thumbnail` and `animatedThumbnail` renditions, the "Name" attribute and the base
 integrations come from `WorkspaceCreator`, and the fixtures get them back with the getters
@@ -57,25 +62,23 @@ Each workspace also has a restricted attribute policy and a restricted rendition
 
 ### Northbeam Press
 
-News agency: multimedia editorial flow, geolocated, under embargo, multilingual.
+News agency: editorial flow, geolocated, under embargo, multilingual.
 
 - **Collections**: `Desks` (`World`, `Politics`, `Sports` > `Football` > `Premier League`,
   `World Cup`; `Tennis`; `Rugby`; `Culture` > `Film`, `Music`, owned by alice), `Archives`
   (`2024`, `2025`, `2026`), `Embargoed` (secret), `Wire Feed` (public in the workspace) and a
   collection named with special characters.
-- **Assets**: photos, embargoed photos (`Embargo` tag, `Print hi-res` rendition), videos,
-  podcasts, press releases and 10 "Photo essay" stories. Headlines and captions (en/fr)
-  describe a scene in the city of the asset.
+- **Assets**: photos, embargoed photos (`Embargo` tag, `Print hi-res` rendition), press
+  releases and 10 "Photo essay" stories. Headlines and captions (en/fr) describe a scene in
+  the city of the asset.
 - **Attributes**: Headline (title), Story title (stories), Caption (translatable), Byline,
-  Keywords (with the 4 types of annotations), Location, City, Country, Date taken, Published
-  at, Desk and Usage rights (entity lists), Embargo until, Word count, Duration, File size,
-  Breaking, Watermark, Blurhash, People (faces). **Newsroom only** policy: WebVTT transcript
-  (translatable), Editor notes.
+  Keywords (with rectangle, circle and target annotations), Location, City, Country, Date
+  taken, Published at, Desk and Usage rights (entity lists), Embargo until, Word count, File
+  size, Breaking, Watermark, Blurhash, People (faces). **Newsroom only** policy: Editor notes.
 - **Rendition policy** `Print` (restricted): `Print hi-res`.
 - **Tags**: Breaking, Exclusive, Embargo, Online, Offline.
 - **Integrations**: ToastUI photo editor, Blurhash, watermark (Watermark attribute on the
-  thumbnail), visual similarity, face recognition (into People), AWS Transcribe (disabled,
-  dummy AWS secrets).
+  thumbnail), visual similarity, face recognition (into People).
 
 | Persona | Role             | Rights                                                                   |
 | ------- | ---------------- | ------------------------------------------------------------------------ |
@@ -97,8 +100,8 @@ press kit.
   `Shirts`, `Outerwear`; `Accessories` > `Bags`, `Footwear`), `FW26 (unreleased)` (secret);
   `Campaigns` > `SS26 – Coastline`, `FW26 – Night Garden` (secret); `Lookbooks`; `Press Kit`
   (public); `Retired`.
-- **Assets**: packshots by category, campaign photos, runway videos, spec sheets and
-  lookbooks (PDF), 6 "Look" stories (a dress, a bag and a pair of shoes).
+- **Assets**: packshots by category, campaign photos, spec sheets and lookbooks (PDF), 6
+  "Look" stories (a dress, a bag and a pair of shoes).
 - **Attributes**: Product name (title), SKU, EAN, Colour, Sizes (multiple), Material,
   Gender, Season (entity lists, translated in fr and it), Launch date, Rights expiry, Model
   release signed, Photographer, Marketing copy (HTML, translatable), Models (faces).
@@ -131,13 +134,12 @@ collections owned by alice and bob, assets at every level of the tree.
   (secret); `Outgoing Loans`; `Open Collection` (public). The tree is drawn in a comment of
   the fixture file.
 - **Assets**: specimens (scientific and common names of real species), field notebooks and
-  accession records (PDF), audio guides, videos, 6 "Specimen record" stories (front, back
-  and label views).
+  accession records (PDF), 6 "Specimen record" stories (front, back and label views).
 - **Attributes**: Common name (title, translatable), Scientific name, Inventory number,
   Family, Conservation status (IUCN, with emojis and colours) and Licence (entity lists),
   Collected on, Collector, Collection site, City, Country, Accession date, Keywords, On
-  display, Credit line, Duration, People (faces). **Curatorial** policy: Condition report,
-  Insurance value.
+  display, Credit line, People (faces). **Curatorial** policy: Condition report, Insurance
+  value.
 - **Rendition policy** `Archive` (restricted): `Archival master`.
 - **Terms**: the workspace attaches its terms ("Fernhollow image licence terms", en/fr) to
   the exports.
@@ -160,23 +162,65 @@ collections owned by alice and bob, assets at every level of the tree.
 - Asset policy "Loans": for dave, the assets of `Outgoing Loans` hide their
   `Archival master` rendition.
 
+### Hollowtone Recording
+
+Recording studio: music productions, recording sessions, voice-overs and jingles for
+clients, masters reserved to the label. It holds all the audio and the video of the
+fixtures.
+
+- **Collections**: `Productions` > `Music` > `Albums`, `Music videos` (public in the
+  workspace); `Client work` (owned by alice) > `Voice-overs & jingles` (public in the
+  workspace); `Sessions` > `2025`, `2026`; `Vault` (secret); `Press` (public).
+- **Assets**: album covers and session photos, tracks (4 per album: rock, jazz, electronic,
+  folk), isolated takes of an instrument or a voice, voice-overs and jingles, music videos,
+  session footage and behind-the-scenes videos (`Vault`); 4 "Album" stories (the cover and
+  the 4 tracks) and 4 "Session" stories (a photo, a session footage and 2 takes). The titles
+  of the albums, tracks, sessions, clips and voice-overs follow the number of the asset
+  (`studioTitle(kind, n)`), so that they match the themed media.
+- **Attributes**: Title (title, also on the "Session" stories), Release title ("Album"
+  stories), Artist, Client, Genre and Instruments (entity lists), BPM, Key, ISRC, Recorded
+  on, Engineer, Duration, Explicit, Keywords (cue annotations on the audio and the video,
+  rectangles and circles on the session photos), Blurhash, People (faces). **Label** policy:
+  WebVTT transcript (translatable), Contract notes.
+- **Entity lists**: Genre and Instrument (translated in fr), Client (the artist of each
+  album, 2 labels for the albums, an advertising agency and a radio for the voice-overs),
+  People (faces).
+- **Rendition policy** `Masters` (restricted): `Master` (Pick source).
+- **Tags**: Rough mix, Final mix, Mastered, Approved by client, Do not distribute.
+- **Integrations**: Blurhash, visual similarity, face recognition (into People), AWS
+  Transcribe (disabled, transcript into WebVTT transcript, dummy AWS secrets).
+
+| Persona | Role           | Rights                                                                   |
+| ------- | -------------- | ------------------------------------------------------------------------ |
+| alice   | studio manager | edit and operate the whole workspace; Label (edit); Masters              |
+| bob     | sound engineer | create and edit in `Sessions`; reads Label; Masters                      |
+| carol   | client (label) | `Client work` and `Albums` (plus `Music videos` and `Press`, visible to every member) |
+| dave    | archivist      | view and edit `Vault`                                                    |
+
+- Attribute filter rule: carol does not see the assets tagged `Do not distribute`.
+- Asset policy "Unreleased masking": for carol and dave, the assets of `Albums` hide their
+  `Master` rendition and their Contract notes.
+
 ## Writing fixtures
 
-- Each file creates one workspace and prefixes its keys (`nb_`, `lr_`, `fh_`): all the files
-  are loaded together, and a wildcard reference (`@nb_c_desk_*`) or a list fixture
+- Each file creates one workspace and prefixes its keys (`nb_`, `lr_`, `fh_`, `ht_`): all the
+  files are loaded together, and a wildcard reference (`@nb_c_desk_*`) or a list fixture
   (`{@fh_a_v_s*}`) matches the keys of every file.
 - The images of a workspace are numbered across the workspace (one range per group of
   assets): the number is the lock of `imageUrlRandomRatio()` (the same number gives the same
   picture) and links an asset to its source file (`'@fh_f_m<current()>'`).
 - An asset with a file has a `source`; its renditions are not written in the fixtures, they
   are built by the ingest workflow run after the load (Pick source renditions link the
-  source, the others are built by the rendition-factory). Stories have no source.
+  source, the others are built by the rendition-factory).
+- A story is represented by one of its items, its cover: the story shares the source file of
+  that item (`source: '@nb_f_m<($current + 46)>'`), like `StoryCoverManager` does. Every
+  story of the fixtures has a cover.
 - The workspaces require the file analysis: two sources with the same content in a workspace
   are duplicates, and the ingest quarantines them (no renditions). Two locks below 210 give two
   different images (variant `lock % 42`, ratio `lock % 5`); with `FIXTURES_GENERATE_IMAGES`,
   the plain image takes a colour derived from the lock for the same reason.
 - An asset has no name property: its title is the attribute with the highest `namePriority`
-  (Headline, Product name, Common name), or the "Name" attribute of `WorkspaceFactory`.
+  (Headline, Product name, Common name, Title), or the "Name" attribute of `WorkspaceFactory`.
 - The business values come from `App\Fixture\Faker\ThematicFaker`, which keeps the values
   of an asset consistent (`productName()` must come before the prices and the marketing
   copy, `specimenScientificName()` before `specimenCommonName()`); the AQL conditions of
@@ -221,6 +265,9 @@ To add a theme:
 404) is replaced by the same variant of `nature`, with a warning in the logs, so that the
 fixtures always load while a theme is incomplete.
 
+The `studio` theme of Hollowtone Recording (album covers, photos of recording studios and
+sessions) is not uploaded yet: its images fall back to `nature`.
+
 The lock of an asset always gives the same variant (`lock % 42 + 1`) and the same orientation
 (`lock % 5`: 0 to 2 landscape, 3 and 4 portrait), so a variant can be chosen for the assets that
 use it: the `fashion` packshots show the category of their product (dress, knit, shirt…) and
@@ -239,18 +286,19 @@ where `<n>` is the number of the asset in its range (`<current()>`). A file miss
 (HTTP 403 or 404) is replaced by a generic media, with a warning in the logs; without `set`,
 `randomMedia()` only picks generic media.
 
-| Set                                  | Type | Files | Content                                               |
-| ------------------------------------ | ---- | ----- | ----------------------------------------------------- |
-| `northbeam-press/press-release`      | pdf  | 1-10  | press releases (titles of `ThematicFaker`)            |
-| `northbeam-press/podcast`            | mp3  | 1-10  | news podcasts (synthetic speech, en and fr)           |
-| `northbeam-press/video`              | mp4  | 1-10  | news footage                                          |
-| `linden-rowe/spec-sheet`             | pdf  | 1-6   | technical specifications (tech packs) of SS26 styles  |
-| `linden-rowe/lookbook`               | pdf  | 1-4   | lookbooks (1-2 internal, 3-4 press kit, en and fr)    |
-| `linden-rowe/runway`                 | mp4  | 1-6   | runway videos                                         |
-| `fernhollow-museum/accession-record` | pdf  | 1-8   | accession records of specimens                        |
-| `fernhollow-museum/field-notebook`   | pdf  | 1-7   | handwritten geology field notebooks                   |
-| `fernhollow-museum/audio-guide`      | mp3  | 1-6   | audio guides of the two exhibitions (en and fr)       |
-| `fernhollow-museum/video`            | mp4  | 1-4   | exhibitions (1-2) and conservation lab (3-4)          |
+| Set                                      | Type | Files | Content                                                   |
+| ---------------------------------------- | ---- | ----- | --------------------------------------------------------- |
+| `northbeam-press/press-release`          | pdf  | 1-10  | press releases (titles of `ThematicFaker`)                |
+| `linden-rowe/spec-sheet`                 | pdf  | 1-6   | technical specifications (tech packs) of SS26 styles      |
+| `linden-rowe/lookbook`                   | pdf  | 1-4   | lookbooks (1-2 internal, 3-4 press kit, en and fr)        |
+| `fernhollow-museum/accession-record`     | pdf  | 1-8   | accession records of specimens                            |
+| `fernhollow-museum/field-notebook`       | pdf  | 1-7   | handwritten geology field notebooks                       |
+| `hollowtone-recording/track`             | mp3  | 1-16  | music, 4 tracks per album: rock, jazz, electronic, folk   |
+| `hollowtone-recording/take`              | mp3  | 1-8   | isolated takes: vocals, guitar, drums, piano, bass, strings, brass, synth |
+| `hollowtone-recording/voice-over`        | mp3  | 1-6   | voice-overs and jingles (synthetic speech, en and fr)     |
+| `hollowtone-recording/music-video`       | mp4  | 1-6   | music videos and filmed concerts                          |
+| `hollowtone-recording/session-footage`   | mp4  | 1-8   | musicians recording in a studio                           |
+| `hollowtone-recording/behind-the-scenes` | mp4  | 1-4   | mixing console, control room, session preparation         |
 
 Each theme and set directory holds a `CREDITS.csv` (source, author and licence of every file):
 the photos are CC0 or public domain, the videos are public domain or CC (BY, BY-SA), the PDFs
