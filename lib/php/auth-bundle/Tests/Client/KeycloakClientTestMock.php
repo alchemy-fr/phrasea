@@ -59,9 +59,10 @@ class KeycloakClientTestMock implements HttpClientInterface
     ];
 
     /**
-     * @param string[] $extraRoles realm roles granted on top of the user's ones (e.g. an application role)
+     * @param string[]      $extraRoles realm roles granted on top of the user's ones (e.g. an application role)
+     * @param string[]|null $groups     the user's groups, instead of its ones in USERS
      */
-    public static function getJwtFor(string $userId, array $extraRoles = []): string
+    public static function getJwtFor(string $userId, array $extraRoles = [], ?array $groups = null): string
     {
         $configuration = Configuration::forAsymmetricSigner(
             new Sha256(),
@@ -82,7 +83,7 @@ class KeycloakClientTestMock implements HttpClientInterface
             ->withClaim('azp', 'test')
             ->withClaim('preferred_username', self::USERS[$userId]['username'])
             ->withClaim('roles', array_values(array_unique([...(self::USERS[$userId]['roles'] ?? []), ...$extraRoles])))
-            ->withClaim('groups', self::USERS[$userId]['groups'] ?? [])
+            ->withClaim('groups', $groups ?? self::USERS[$userId]['groups'] ?? [])
             ->withClaim('resource_access', self::USERS[$userId]['resource_access'] ?? [])
             ->getToken(new Sha256(), InMemory::file(__DIR__.'/key.pem'));
 
@@ -115,9 +116,17 @@ class KeycloakClientTestMock implements HttpClientInterface
         return $token->toString();
     }
 
+    /**
+     * Query of the last request sent to each path, for the tests to check what reached the IdP.
+     *
+     * @var array<string, array<string, mixed>>
+     */
+    public static array $lastQueries = [];
+
     public function request(string $method, string $url, array $options = []): ResponseInterface
     {
         $args = [$method, $url, $options];
+        self::$lastQueries[(string) parse_url($url, PHP_URL_PATH)] = $options['query'] ?? [];
         if ('POST' === $method && str_ends_with($url, '/token')) {
             if ('client_credentials' === $options['body']['grant_type']) {
                 return $this->createResponse($args, 200, [
@@ -148,6 +157,20 @@ class KeycloakClientTestMock implements HttpClientInterface
                 (int) ($options['query']['first'] ?? 0),
                 (int) ($options['query']['max'] ?? 100),
             ));
+        }
+
+        if (1 === preg_match('#/admin/realms/phrasea/groups/([^/]+)$#', $url, $match)) {
+            if (!isset(self::GROUP_MEMBERS[$match[1]])) {
+                return $this->createResponse($args, 404, [
+                    'error' => 'Could not find group by id',
+                ]);
+            }
+
+            return $this->createResponse($args, 200, [
+                'id' => $match[1],
+                'name' => 'group',
+                'path' => '/group',
+            ]);
         }
 
         if (1 === preg_match('#/admin/realms/phrasea/users/([^/]+)$#', $url, $match) && self::DISABLED_USER_UID === $match[1]) {

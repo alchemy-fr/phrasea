@@ -8,7 +8,7 @@ use ApiPlatform\Metadata\Exception\InvalidArgumentException;
 use ApiPlatform\Metadata\IriConverterInterface;
 use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Filter\ExactSearchFilter;
-use App\Api\Filter\InWorkspacesFilter;
+use App\Api\Filter\InIdsFilter;
 use App\Api\Filter\PartialSearchFilter;
 use App\Api\Filter\SortFilter;
 use App\Elasticsearch\Filter\ElasticsearchFilterInterface;
@@ -58,16 +58,16 @@ class ElasticsearchFiltersTest extends TestCase
         $this->assertEmpty((array) $query->bool->toArray()['bool']);
     }
 
-    public function testInWorkspacesFilterAcceptsAListOrACommaSeparatedString(): void
+    public function testInIdsFilterAcceptsAListOrACommaSeparatedString(): void
     {
         $parameter = new QueryParameter(key: 'workspaceIds', extraProperties: [ElasticsearchFilterInterface::ES_FIELD => 'workspaceId']);
         $expected = ['bool' => ['filter' => [['terms' => ['workspaceId' => [self::WS_A, self::WS_B]]]]]];
 
-        $this->assertSame($expected, $this->apply(new InWorkspacesFilter(), $parameter, [self::WS_A, self::WS_B])->bool->toArray());
-        $this->assertSame($expected, $this->apply(new InWorkspacesFilter(), $parameter, self::WS_A.','.self::WS_B)->bool->toArray());
+        $this->assertSame($expected, $this->apply(new InIdsFilter(), $parameter, [self::WS_A, self::WS_B])->bool->toArray());
+        $this->assertSame($expected, $this->apply(new InIdsFilter(), $parameter, self::WS_A.','.self::WS_B)->bool->toArray());
 
         $this->expectException(BadRequestHttpException::class);
-        $this->apply(new InWorkspacesFilter(), $parameter, 'not-a-uuid');
+        $this->apply(new InIdsFilter(), $parameter, 'not-a-uuid');
     }
 
     public function testPartialSearchFilterBuildsACaseInsensitiveWildcard(): void

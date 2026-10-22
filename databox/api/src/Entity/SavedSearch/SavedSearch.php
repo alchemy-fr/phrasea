@@ -14,6 +14,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
 use App\Api\Model\Input\SavedSearchInput;
 use App\Api\Model\Output\SavedSearchOutput;
 use App\Api\Processor\InputMapperProcessor;
@@ -34,7 +35,24 @@ use Symfony\Component\Validator\Constraints as Assert;
         new GetCollection(
             normalizationContext: [
                 'groups' => [self::GROUP_LIST],
-            ]),
+            ],
+            parameters: [
+                'query' => new QueryParameter(
+                    schema: ['type' => 'string'],
+                    description: 'Contains match on the name',
+                    castToArray: false,
+                ),
+                'limit' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    description: 'Page size (default 30, max 100)',
+                    castToArray: false,
+                ),
+                'page' => new QueryParameter(
+                    schema: ['type' => 'integer'],
+                    castToArray: false,
+                ),
+            ],
+        ),
         new Get(security: 'is_granted("'.AbstractVoter::READ.'", object)'),
         new Delete(security: 'is_granted("'.AbstractVoter::DELETE.'", object)'),
         new Patch(

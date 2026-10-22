@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Functional\Api\UserSpace;
 
 use Alchemy\AclBundle\Security\PermissionInterface;
+use Alchemy\AuthBundle\Tests\Client\KeycloakClientTestMock;
 use App\Entity\SavedSearch\SavedSearch;
 use App\Model\SavedSearchPrivacyEnum;
 use App\Tests\Functional\AbstractDataboxTestCase;
@@ -103,6 +104,54 @@ final class SavedSearchApiTest extends AbstractDataboxTestCase
         $a = $this->createSavedSearch('Alpha', self::USER);
 
         $this->assertSame([$a->getId(), $b->getId()], $this->memberIds($this->apiJson('GET', '/saved-searches', self::USER)));
+    }
+
+    public function testListIsSearchedByName(): void
+    {
+        $redCats = $this->createSavedSearch('Red cats', self::USER);
+        $this->createSavedSearch('Dogs', self::USER);
+        $blackCats = $this->createSavedSearch('Black CATS', self::USER);
+        $this->createSavedSearch('100% cats', self::OTHER);
+
+        $this->assertSame(
+            [$blackCats->getId(), $redCats->getId()],
+            $this->memberIds($this->apiJson('GET', '/saved-searches', self::USER, query: ['query' => 'cats']))
+        );
+        // LIKE wildcards are matched literally
+        $this->assertSame([], $this->memberIds($this->apiJson('GET', '/saved-searches', self::USER, query: ['query' => '%'])));
+    }
+
+    public function testListLinksTheNextPage(): void
+    {
+        $alpha = $this->createSavedSearch('Alpha', self::USER);
+        $bravo = $this->createSavedSearch('Bravo', self::USER);
+        $charlie = $this->createSavedSearch('Charlie', self::USER);
+
+        $first = $this->apiJson('GET', '/saved-searches', self::USER, query: ['limit' => 2]);
+        $this->assertSame([$alpha->getId(), $bravo->getId()], $this->memberIds($first));
+        $this->assertSame(3, $first['totalItems']);
+        $this->assertStringContainsString('page=2', $first['view']['next']);
+        $this->assertStringContainsString('limit=2', $first['view']['next']);
+
+        $last = $this->apiJson('GET', $first['view']['next'], self::USER);
+        $this->assertSame([$charlie->getId()], $this->memberIds($last));
+        $this->assertArrayNotHasKey('next', $last['view']);
+    }
+
+    public function testASearchGrantedTwiceIsListedOnce(): void
+    {
+        $groupId = '55555555-fc1a-492b-9e76-c2e8e6979786';
+        $search = $this->createSavedSearch('Shared', self::OTHER);
+        $this->grantUserOnObject(self::USER, $search, PermissionInterface::VIEW);
+        self::getPermissionManager()->grantGroupOnObject($groupId, $search, PermissionInterface::VIEW);
+
+        $response = $this->api('GET', '/saved-searches', null, query: ['limit' => 10], headers: [
+            'Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(self::USER, groups: [$groupId]),
+        ]);
+        $this->assertSame(200, $response->getStatusCode());
+        $data = $response->toArray();
+        $this->assertSame([$search->getId()], $this->memberIds($data));
+        $this->assertSame(1, $data['totalItems']);
     }
 
     #[DataProvider('getReadMatrix')]

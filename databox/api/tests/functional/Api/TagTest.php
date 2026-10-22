@@ -139,6 +139,36 @@ class TagTest extends AbstractSearchTestCase
         $this->assertResponseStatusCodeSame(403);
     }
 
+    public function testSearchAsYouTypeLinksTheNextPage(): void
+    {
+        $client = static::createClient();
+        $workspace = $this->createWorkspace(['ownerId' => KeycloakClientTestMock::USER_UID]);
+        foreach (['Pen', 'Pencil', 'Penguin'] as $name) {
+            $this->findOrCreateTagByName($name, $workspace);
+        }
+        self::forceNewEntitiesToBeIndexed();
+        self::waitForESIndex('tag');
+
+        $headers = ['Authorization' => 'Bearer '.KeycloakClientTestMock::getJwtFor(KeycloakClientTestMock::USER_UID)];
+        $first = $client->request('GET', '/tags', [
+            'query' => ['query' => 'pen', 'workspace' => $workspace->getId(), 'limit' => 2],
+            'headers' => $headers,
+        ])->toArray();
+        $this->assertCount(2, $first['member']);
+        $this->assertSame(3, $first['totalItems']);
+        $this->assertStringContainsString('page=2', $first['view']['next']);
+        $this->assertStringContainsString('limit=2', $first['view']['next']);
+        $this->assertStringContainsString('query=pen', $first['view']['next']);
+
+        $last = $client->request('GET', $first['view']['next'], ['headers' => $headers])->toArray();
+        $this->assertCount(1, $last['member']);
+        $this->assertArrayNotHasKey('next', $last['view']);
+        $this->assertEqualsCanonicalizing(
+            ['Pen', 'Pencil', 'Penguin'],
+            array_column([...$first['member'], ...$last['member']], 'name'),
+        );
+    }
+
     public function testCreateTag(): void
     {
         self::enableFixtures();

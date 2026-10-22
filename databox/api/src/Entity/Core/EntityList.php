@@ -43,6 +43,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Patch(security: 'is_granted("EDIT", object)'),
         // Restricted to the readable workspaces by EntityListExtension
         new GetCollection(
+            order: ['name' => 'ASC', 'id' => 'ASC'],
             security: 'is_granted("'.JwtUser::IS_AUTHENTICATED_FULLY.'")',
             parameters: [
                 'workspace' => new QueryParameter(

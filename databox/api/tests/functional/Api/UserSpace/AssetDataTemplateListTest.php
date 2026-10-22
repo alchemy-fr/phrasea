@@ -141,6 +141,31 @@ final class AssetDataTemplateListTest extends AbstractSearchTestCase
         );
     }
 
+    /**
+     * "totalItems" is the Elasticsearch count, taken before the READ voter filters the page:
+     * a template the index matches but the voter denies makes its page shorter than "limit",
+     * while "next" (computed from the count too) still reaches every page.
+     */
+    public function testListLinksTheNextPage(): void
+    {
+        $first = $this->apiJson('GET', '/asset-data-templates', self::USER, query: [
+            'workspace' => $this->workspace->getId(),
+            'limit' => 2,
+        ]);
+        $this->assertCount(2, $this->members($first));
+        $this->assertSame(3, $first['totalItems']);
+        $this->assertStringContainsString('page=2', $first['view']['next']);
+        $this->assertStringContainsString('limit=2', $first['view']['next']);
+
+        $last = $this->apiJson('GET', $first['view']['next'], self::USER);
+        $this->assertCount(1, $this->members($last));
+        $this->assertArrayNotHasKey('next', $last['view']);
+        $this->assertEqualsCanonicalizing(
+            ['WS', 'WS children', 'WS private'],
+            array_column([...$this->members($first), ...$this->members($last)], 'name'),
+        );
+    }
+
     private function listNames(?string $userId, array $query): array
     {
         $data = $this->apiJson('GET', '/asset-data-templates', $userId, query: $query);

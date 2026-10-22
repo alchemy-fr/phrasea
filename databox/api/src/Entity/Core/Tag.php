@@ -98,6 +98,7 @@ use Symfony\Component\Validator\Constraints\Length;
     output: TagOutput::class,
     order: [
         'name' => 'ASC',
+        'id' => 'ASC',
     ],
     provider: TagCollectionProvider::class,
 )]

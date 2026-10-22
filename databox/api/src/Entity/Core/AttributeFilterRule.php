@@ -36,6 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         new Delete(security: 'is_granted("DELETE", object)'),
         // Restricted to the editable workspaces by AttributeFilterRuleExtension
         new GetCollection(
+            order: ['createdAt' => 'ASC', 'id' => 'ASC'],
             parameters: [
                 'workspaceId' => new QueryParameter(
                     schema: ['type' => 'string'],

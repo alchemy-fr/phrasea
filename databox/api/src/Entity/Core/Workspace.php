@@ -9,6 +9,7 @@ use Alchemy\CoreBundle\Entity\AbstractUuidEntity;
 use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\TrackBundle\LoggableChangeSetInterface;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -16,6 +17,8 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\QueryParameter;
+use App\Api\Filter\InIdsFilter;
 use App\Api\Model\Input\WorkspaceInput;
 use App\Api\Model\Output\WorkspaceOutput;
 use App\Api\Processor\DeleteWorkspaceLogoProcessor;
@@ -97,8 +100,23 @@ use Symfony\Component\Validator\Constraints as Assert;
             name: 'delete_logo'
         ),
         new GetCollection(
+            order: ['name' => 'ASC', 'id' => 'ASC'],
             normalizationContext: [
                 'groups' => [self::GROUP_LIST],
+            ],
+            parameters: [
+                'name' => new QueryParameter(
+                    filter: new PartialSearchFilter(),
+                    property: 'name',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
+                ),
+                'ids' => new QueryParameter(
+                    filter: InIdsFilter::class,
+                    property: 'id',
+                    hydra: false,
+                ),
             ],
         ),
         new Get(

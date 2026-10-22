@@ -10,6 +10,8 @@ use Alchemy\CoreBundle\Entity\Traits\CreatedAtTrait;
 use Alchemy\CoreBundle\Entity\Traits\UpdatedAtTrait;
 use Alchemy\TrackBundle\LoggableChangeSetInterface;
 use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
+use ApiPlatform\Doctrine\Orm\Filter\FreeTextQueryFilter;
+use ApiPlatform\Doctrine\Orm\Filter\OrFilter;
 use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -21,7 +23,7 @@ use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Filter\AssetTypeTargetFilter;
-use App\Api\Filter\InWorkspacesFilter;
+use App\Api\Filter\InIdsFilter;
 use App\Api\Model\Input\AttributeDefinitionInput;
 use App\Api\Model\Output\AttributeDefinitionOutput;
 use App\Api\Processor\DuplicateAttributeDefinitionProcessor;
@@ -63,7 +65,7 @@ use Symfony\Component\Validator\Constraints as Assert;
             name: 'duplicate_attribute_definition',
         ),
         new GetCollection(
-            order: ['workspace' => 'ASC', 'position' => 'ASC', 'name' => 'ASC'],
+            order: ['workspace' => 'ASC', 'position' => 'ASC', 'name' => 'ASC', 'id' => 'ASC'],
             normalizationContext: [
                 'groups' => [AttributeDefinition::GROUP_LIST],
             ],
@@ -103,9 +105,43 @@ use Symfony\Component\Validator\Constraints as Assert;
                     castToArray: false,
                     castToNativeType: true,
                 ),
+                'sortable' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'sortable',
+                    schema: ['type' => 'boolean'],
+                    castToArray: false,
+                    castToNativeType: true,
+                    hydra: false,
+                ),
                 'name' => new QueryParameter(
                     filter: new PartialSearchFilter(),
                     property: 'name',
+                    schema: ['type' => 'string'],
+                    castToArray: false,
+                    hydra: false,
+                ),
+                'query' => new QueryParameter(
+                    filter: new FreeTextQueryFilter(new OrFilter(new PartialSearchFilter())),
+                    properties: ['name', 'slug'],
+                    schema: ['type' => 'string'],
+                    description: 'Contains match on the name or the slug',
+                    castToArray: false,
+                    hydra: false,
+                ),
+                'ids' => new QueryParameter(
+                    filter: InIdsFilter::class,
+                    property: 'id',
+                    hydra: false,
+                ),
+                'slugs' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'slug',
+                    schema: ['type' => 'array', 'items' => ['type' => 'string']],
+                    hydra: false,
+                ),
+                'entityListId' => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'entityList',
                     schema: ['type' => 'string'],
                     castToArray: false,
                     hydra: false,
@@ -125,7 +161,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                     hydra: false,
                 ),
                 'workspaceIds' => new QueryParameter(
-                    filter: InWorkspacesFilter::class,
+                    filter: InIdsFilter::class,
                     property: 'workspace',
                 ),
                 'target' => new QueryParameter(

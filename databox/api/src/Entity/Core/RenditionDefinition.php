@@ -20,7 +20,7 @@ use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\OpenApi\Model\Operation as OpenApiOperation;
 use ApiPlatform\OpenApi\Model\RequestBody;
 use App\Api\Filter\AssetTypeTargetFilter;
-use App\Api\Filter\InWorkspacesFilter;
+use App\Api\Filter\InIdsFilter;
 use App\Api\Model\Input\RenditionDefinitionInput;
 use App\Api\Model\Output\RenditionDefinitionOutput;
 use App\Api\Processor\DuplicateRenditionDefinitionProcessor;
@@ -85,7 +85,7 @@ use Symfony\Component\Validator\Constraints as Assert;
                     hydra: false,
                 ),
                 'workspaceIds' => new QueryParameter(
-                    filter: InWorkspacesFilter::class,
+                    filter: InIdsFilter::class,
                     property: 'workspace',
                 ),
                 'target' => new QueryParameter(
@@ -134,8 +134,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     input: RenditionDefinitionInput::class,
     output: RenditionDefinitionOutput::class,
-    order: ['priority' => 'DESC'],
-    paginationClientItemsPerPage: true,
+    order: ['priority' => 'DESC', 'name' => 'ASC', 'id' => 'ASC'],
 )]
 #[ORM\Index(columns: ['workspace_id', 'name'], name: 'rend_def_ws_name')]
 #[ORM\UniqueConstraint(name: 'uniq_rend_def_ws_key', columns: ['workspace_id', 'key'])]

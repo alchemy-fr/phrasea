@@ -33,7 +33,7 @@ final class TagCollectionProvider extends AbstractCollectionProvider
         // A search-as-you-type query goes to Elasticsearch, a plain listing to the ORM
         $queryString = self::getParameterValue($operation, 'query');
         if (\is_string($queryString) && '' !== trim($queryString)) {
-            return $this->tagSearch->search($workspaces, self::getParameterValues($operation), $operation);
+            return new PagerFantaApiPlatformPaginator($this->tagSearch->search($workspaces, self::getParameterValues($operation), $operation));
         }
 
         return $this->collectionProvider->provide($operation, $uriVariables, $context);

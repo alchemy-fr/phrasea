@@ -79,6 +79,25 @@ final class AttributeEntitySearchTest extends AbstractSearchTestCase
         ]));
     }
 
+    public function testQueryLinksTheNextPage(): void
+    {
+        $this->setUpScene();
+
+        $first = $this->api('GET', '/attribute-entities', self::OTHER, options: ['query' => [
+            'query' => 'blu',
+            'order' => ['value' => 'asc'],
+            'limit' => 2,
+        ]])->toArray();
+        $this->assertSame(['Blue square', 'Dark blue'], array_column($first['member'], 'value'));
+        $this->assertSame(3, $first['totalItems']);
+        $this->assertStringContainsString('page=2', $first['view']['next']);
+        $this->assertStringContainsString('limit=2', $first['view']['next']);
+
+        $last = $this->api('GET', $first['view']['next'], self::OTHER)->toArray();
+        $this->assertSame(['Light blue'], array_column($last['member'], 'value'));
+        $this->assertArrayNotHasKey('next', $last['view']);
+    }
+
     public function testQueryIgnoresTheOrmOnlySorts(): void
     {
         $this->setUpScene();

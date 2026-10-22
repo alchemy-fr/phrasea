@@ -157,6 +157,72 @@ final class AttributeDefinitionTest extends AbstractDataboxTestCase
         ]));
     }
 
+    /**
+     * The filters the pickers use to resolve definitions by ID or slug, and to search them.
+     */
+    public function testListFiltersForPickers(): void
+    {
+        $this->setUpScene();
+        $otherWorkspace = $this->createOtherWorkspace(['ownerId' => self::USER]);
+        $title = $this->createAttributeDefinition(['name' => 'Title']);
+        $subtitle = $this->createAttributeDefinition(['name' => 'Subtitle', 'sortable' => true]);
+        $list = $this->createEntityList(['name' => 'Colors']);
+        $color = $this->createAttributeDefinition(['name' => 'My Color', 'type' => EntityAttributeType::NAME, 'list' => $list]);
+        $elsewhere = $this->createAttributeDefinition([
+            'name' => 'Title',
+            'workspace' => $otherWorkspace,
+            'policy' => $this->createAttributePolicy(['name' => 'Default', 'workspace' => $otherWorkspace]),
+        ]);
+        $foreignWorkspace = $this->createOtherWorkspace();
+        $foreign = $this->createAttributeDefinition([
+            'name' => 'Foreign',
+            'workspace' => $foreignWorkspace,
+            'policy' => $this->createAttributePolicy(['name' => 'Foreign', 'workspace' => $foreignWorkspace]),
+        ]);
+
+        $listIds = function (array $query): array {
+            $response = $this->api('GET', '/attribute-definitions', self::USER, options: ['query' => $query]);
+            $this->assertResponseStatusCodeSame(200);
+
+            return array_column($response->toArray()['member'], 'id');
+        };
+
+        // The IDs of a workspace the user cannot read are left out
+        $this->assertEqualsCanonicalizing([$title->getId(), $elsewhere->getId()], $listIds([
+            'ids' => [$title->getId(), $elsewhere->getId(), $foreign->getId()],
+        ]));
+        $this->assertEqualsCanonicalizing([$foreign->getId()], array_column($this->api('GET', '/attribute-definitions', self::ADMIN, options: [
+            'query' => ['ids' => [$foreign->getId()]],
+        ])->toArray()['member'], 'id'));
+
+        $this->assertEqualsCanonicalizing([$title->getId(), $elsewhere->getId(), $subtitle->getId()], $listIds([
+            'slugs' => ['title', 'subtitle'],
+        ]));
+        $this->assertEqualsCanonicalizing([$subtitle->getId()], $listIds([
+            'sortable' => 'true',
+            'workspaceId' => $this->workspace->getId(),
+        ]));
+        $this->assertEqualsCanonicalizing([$color->getId()], $listIds([
+            'entityListId' => $list->getId(),
+        ]));
+
+        // Contains match on the name or the slug, case-insensitive
+        $this->assertEqualsCanonicalizing([$title->getId(), $subtitle->getId()], $listIds([
+            'query' => 'TIT',
+            'workspaceId' => $this->workspace->getId(),
+        ]));
+        $this->assertEqualsCanonicalizing([$color->getId()], $listIds([
+            'query' => 'mycol',
+        ]));
+        $this->assertEqualsCanonicalizing([$color->getId()], $listIds([
+            'query' => 'my col',
+        ]));
+        $this->assertSame([], $listIds([
+            'query' => 'tit',
+            'workspaceId' => $foreignWorkspace->getId(),
+        ]));
+    }
+
     public function testListIsOrderedByWorkspaceThenPositionThenName(): void
     {
         $this->setUpScene();

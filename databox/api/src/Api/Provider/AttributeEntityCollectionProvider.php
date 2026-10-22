@@ -40,7 +40,7 @@ final class AttributeEntityCollectionProvider extends AbstractCollectionProvider
         // A search-as-you-type query goes to Elasticsearch, a plain listing to the ORM
         $queryString = self::getParameterValue($operation, 'query');
         if (\is_string($queryString) && '' !== trim($queryString)) {
-            $result = $this->search->search($workspaces, self::getParameterValues($operation), $operation);
+            $result = new PagerFantaApiPlatformPaginator($this->search->search($workspaces, self::getParameterValues($operation), $operation));
         } else {
             $result = $this->collectionProvider->provide($operation, $uriVariables, $context);
         }

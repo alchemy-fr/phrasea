@@ -27,6 +27,6 @@ class AssetDataTemplateCollectionProvider extends AbstractCollectionProvider
         $userId = $user instanceof JwtUser ? $user->getId() : null;
         $groupIds = $user instanceof JwtUser ? $user->getGroups() : [];
 
-        return $this->search->search($userId, $groupIds, self::getParameterValues($operation), $operation);
+        return new PagerFantaApiPlatformPaginator($this->search->search($userId, $groupIds, self::getParameterValues($operation), $operation));
     }
 }

@@ -20,9 +20,10 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * Filters by a list of workspace IDs, given as a list or as a comma-separated string.
+ * Filters the parameter's property (an ID or a to-one association) by a list of IDs,
+ * given as a list or as a comma-separated string.
  */
-final class InWorkspacesFilter implements FilterInterface, OpenApiParameterFilterInterface, ElasticsearchFilterInterface
+final class InIdsFilter implements FilterInterface, OpenApiParameterFilterInterface, ElasticsearchFilterInterface
 {
     use BackwardCompatibleFilterDescriptionTrait;
     use EsFieldTrait;
@@ -35,7 +36,7 @@ final class InWorkspacesFilter implements FilterInterface, OpenApiParameterFilte
         array $context = [],
     ): void {
         $parameter = $context['parameter'];
-        $property = $parameter->getProperty() ?? 'workspace';
+        $property = $parameter->getProperty() ?? 'id';
         $ids = self::normalizeIds($parameter->getValue());
         if (empty($ids)) {
             return;

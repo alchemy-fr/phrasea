@@ -487,6 +487,77 @@ final class PermissionAceTest extends AbstractDataboxTestCase
         $this->assertIsArray($response->toArray());
     }
 
+    public function testUsersAndGroupsDirectoryPagesWithTheKeycloakParameters(): void
+    {
+        $client = static::createClient();
+        KeycloakClientTestMock::$lastQueries = [];
+
+        $client->request('GET', '/permissions/users', [
+            'headers' => $this->headers(self::MEMBER),
+            'query' => ['query' => 'jo', 'limit' => 5, 'offset' => 10],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertSame([
+            'search' => 'jo',
+            'first' => 10,
+            'max' => 5,
+            'briefRepresentation' => 'true',
+        ], KeycloakClientTestMock::$lastQueries['/admin/realms/phrasea/users'] ?? null);
+
+        // The page size is capped, a negative offset starts at the first item
+        $client->request('GET', '/permissions/groups', [
+            'headers' => $this->headers(self::MEMBER),
+            'query' => ['limit' => 1000, 'offset' => -3],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertSame([
+            'first' => 0,
+            'max' => 100,
+            'briefRepresentation' => 'true',
+        ], KeycloakClientTestMock::$lastQueries['/admin/realms/phrasea/groups'] ?? null);
+    }
+
+    public function testUsersAndGroupsAreResolvedByIds(): void
+    {
+        $client = static::createClient();
+
+        $response = $client->request('GET', '/permissions/users', [
+            'headers' => $this->headers(self::MEMBER),
+            'query' => ['ids' => [self::OWNER, self::MEMBER, self::OWNER]],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $users = $response->toArray();
+        $this->assertCount(2, $users);
+        foreach ($users as $user) {
+            $this->assertArrayHasKey('id', $user);
+            $this->assertArrayHasKey('username', $user);
+        }
+
+        $response = $client->request('GET', '/permissions/groups', [
+            'headers' => $this->headers(self::MEMBER),
+            'query' => ['ids' => [KeycloakClientTestMock::GROUP_UID, '00000000-0000-0000-0000-000000000000']],
+        ]);
+        $this->assertResponseIsSuccessful();
+        $this->assertSame([KeycloakClientTestMock::GROUP_UID], array_column($response->toArray(), 'id'));
+
+        $client->request('GET', '/permissions/users', [
+            'query' => ['ids' => [self::OWNER]],
+        ]);
+        $this->assertResponseStatusCodeSame(401);
+
+        $client->request('GET', '/permissions/users', [
+            'headers' => $this->headers(self::MEMBER),
+            'query' => ['ids' => ['../roles']],
+        ]);
+        $this->assertResponseStatusCodeSame(400);
+
+        $client->request('GET', '/permissions/groups', [
+            'headers' => $this->headers(self::MEMBER),
+            'query' => ['ids' => array_map(fn (int $i): string => sprintf('00000000-0000-0000-0000-%012d', $i), range(1, 51))],
+        ]);
+        $this->assertResponseStatusCodeSame(400);
+    }
+
     private function findWorkspace(string $id): Workspace
     {
         return self::getEntityManager()->find(Workspace::class, $id);

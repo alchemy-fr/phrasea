@@ -177,6 +177,55 @@ final class WorkspaceApiTest extends AbstractDataboxTestCase
         $this->assertResponseStatusCodeSame(404);
     }
 
+    public function testListIsSearchedByNameAndOrderedByName(): void
+    {
+        $this->createWs('zulu-ws', ['name' => 'Zulu photos', 'ownerId' => self::USER]);
+        $this->createWs('alpha-ws', ['name' => 'Alpha photos', 'ownerId' => self::USER]);
+        $this->createWs('mike-ws', ['name' => 'Mike Photos', 'ownerId' => self::USER]);
+        $this->createWs('videos-ws', ['name' => 'Videos', 'ownerId' => self::USER]);
+        $this->createWs('private-ws', ['name' => 'Private photos']);
+
+        $listNames = static function (array $query): array {
+            $response = static::createClient()->request('GET', '/workspaces', [
+                'headers' => self::authHeaders(self::USER),
+                'query' => $query,
+            ]);
+            self::assertResponseIsSuccessful();
+
+            return array_column($response->toArray()['member'], 'name');
+        };
+
+        $this->assertSame(['Alpha photos', 'Mike Photos', 'Videos', 'Zulu photos'], $listNames([]));
+        $this->assertSame(['Alpha photos', 'Mike Photos', 'Zulu photos'], $listNames(['name' => 'PHOTO']));
+    }
+
+    public function testListIsResolvedByIds(): void
+    {
+        $owned = $this->createWs('owned-ws', ['name' => 'Owned', 'ownerId' => self::USER]);
+        $public = $this->createWs('public-ws', ['name' => 'Public', 'public' => true]);
+        $private = $this->createWs('private-ws', ['name' => 'Private']);
+        $deleted = $this->createWs('deleted-ws', ['name' => 'Deleted', 'ownerId' => self::USER]);
+        $deleted->setDeletedAt(new \DateTimeImmutable());
+        self::getEntityManager()->flush();
+        $this->createWs('other-ws', ['name' => 'Other', 'ownerId' => self::USER]);
+
+        $response = static::createClient()->request('GET', '/workspaces', [
+            'headers' => self::authHeaders(self::USER),
+            'query' => ['ids' => [$public->getId(), $private->getId(), $deleted->getId(), $owned->getId()]],
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $data = $response->toArray();
+        $this->assertSame([self::iri($owned), self::iri($public)], array_column($data['member'], '@id'));
+        $this->assertSame(2, $data['totalItems']);
+
+        static::createClient()->request('GET', '/workspaces', [
+            'headers' => self::authHeaders(self::USER),
+            'query' => ['ids' => ['not-a-uuid']],
+        ]);
+        $this->assertResponseStatusCodeSame(400);
+    }
+
     public static function getItemAccessProvider(): array
     {
         return [

@@ -95,9 +95,10 @@ final readonly class KeycloakClient
         }
 
         $users = $this->getUsers($accessToken, [
-            'limit' => 1,
             'query' => [
                 'username' => $data['username'],
+                'exact' => 'true',
+                'max' => 1,
             ],
         ]);
 
@@ -242,16 +243,6 @@ final readonly class KeycloakClient
         if (isset($options['access_token'])) {
             $requestOptions['headers'] ??= [];
             $requestOptions['headers']['Authorization'] = 'Bearer '.$options['access_token'];
-        }
-
-        foreach ([
-            'limit',
-            'offset',
-        ] as $key) {
-            if (isset($options[$key])) {
-                $requestOptions['query'] ??= [];
-                $requestOptions['query'][$key] = $options[$key];
-            }
         }
 
         return $requestOptions;
