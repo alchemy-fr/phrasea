@@ -75,7 +75,7 @@ final readonly class RenditionBuilder
         $buildHash = $this->buildHashManager->getBuildHash($source, $renditionDefinition);
 
         $existingRendition = $this->renditionManager->getAssetRenditionByDefinition($asset, $renditionDefinition);
-        if (!$force && $existingRendition?->getBuildHash() === $buildHash) {
+        if (!$force && null !== $existingRendition && $existingRendition->getBuildHash() === $buildHash) {
             return;
         }
 
